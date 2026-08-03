@@ -1,60 +1,14 @@
 ---
 id: document-status-model
 domain: 00-governance
-status: draft
-owner: Product Architecture
+status: deprecated
+owner: Documentation Governance Lead
 updated: 2026-08-03
-source-of-truth: canonical
+source-of-truth: non-normative
+superseded-by: status-lifecycle.md
 ---
-# Modèle de statut documentaire
+# Modèle de statut documentaire — déprécié
 
-## Objectif
+Ce fichier est remplacé par [`status-lifecycle.md`](status-lifecycle.md), qui définit les statuts `draft`, `in-review`, `validated`, `implemented` et `deprecated`, leurs preuves et leurs transitions.
 
-Normaliser les statuts documentaires sans les confondre avec les états métier.
-
-## Périmètre
-
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
-
-## Propriétaire fonctionnel
-
-Product Architecture.
-
-## Objets concernés
-
-- Concepts du document
-- Références canoniques liées
-
-## Fonctionnalités
-
-- Utiliser uniquement draft, review, approved, implemented et deprecated.
-- Afficher le statut dans le front matter.
-- Interdire les noms de fichiers final, new, version2 ou corrected.
-
-## UX et interactions
-
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
-
-## Permissions
-
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
-
-## États
-
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
-
-## Dépendances
-
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- À compléter — décision source non fournie dans le brief canonique.
+Les anciennes valeurs `review` et `approved` ne doivent plus être introduites. Ce fichier est conservé temporairement pour maintenir les liens historiques.

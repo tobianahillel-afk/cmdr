@@ -2,60 +2,58 @@
 id: contribution-workflow
 domain: 00-governance
 status: draft
-owner: Product Architecture
+owner: Documentation Governance Lead
 updated: 2026-08-03
 source-of-truth: canonical
+requirements:
+  - REQ-PROD-009
+  - REQ-PROD-012
 ---
 # Workflow de contribution
 
-## Objectif
+## Préparation d'un lot
 
-Encadrer branches, commits, revue et mise à jour des registres.
+1. identifier la phase et son périmètre autorisé ;
+2. lire sources, fichiers propriétaires, consommateurs et baseline ;
+3. relever Requirement IDs, contradictions, questions et dépendances ;
+4. définir les métriques avant modification ;
+5. travailler uniquement sur la branche du lot.
 
-## Périmètre
+## Modification
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
+- conserver le contenu utile ;
+- supprimer les définitions concurrentes ;
+- ne pas transformer une proposition en décision ;
+- maintenir les questions ouvertes structurées ;
+- écrire des critères spécifiques ;
+- mettre à jour registres et traçabilité lorsque le lot les affecte.
 
-## Propriétaire fonctionnel
+## Vérification
 
-Product Architecture.
+- fichiers non vides ;
+- liens locaux ;
+- noms et front matter ;
+- Requirement IDs existants et uniques ;
+- statut justifié ;
+- absence de placeholder générique ;
+- contrôle de répétition ;
+- README et index du domaine ;
+- état de la PR et du README racine.
 
-## Objets concernés
+## Git
 
-- Concepts du document
-- Références canoniques liées
+- aucune modification directe de `main` ;
+- commits fonctionnels, pas un commit par fichier ;
+- pas de force-push ou réécriture d'historique sans accord ;
+- PR conservée en brouillon jusqu'à la fin des lots P0 ;
+- aucune fusion automatique.
 
-## Fonctionnalités
+## Rapport de lot
 
-- Travailler hors main.
-- Regrouper les commits par domaine.
-- Mettre à jour le manifeste et les registres dans la même PR.
-- Ne pas fusionner sans contrôles de qualité.
+Le rapport enregistre fichiers lus, ajoutés, modifiés, supprimés, exigences, décisions, questions, métriques avant/après, contrôles, commits, SHA et recommandation de phase suivante.
 
-## UX et interactions
+## Critère d'acceptation
 
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
-
-## Permissions
-
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
-
-## États
-
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
-
-## Dépendances
-
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- À compléter — décision source non fournie dans le brief canonique.
+**Given** un lot limité à une phase,  
+**When** le commit est créé,  
+**Then** aucune phase ultérieure n'est commencée, les dépendants et la matrice sont à jour, le README racine est inchangé et la PR reste ouverte, brouillon et non fusionnée.

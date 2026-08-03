@@ -5,23 +5,109 @@ status: draft
 owner: Product Architecture
 updated: 2026-08-03
 source-of-truth: canonical
+requirements:
+  - REQ-UX-010
 ---
-# ADR-0004 — Contrat des écrans
+# ADR-0004 — Contrat qualitatif des écrans
 
-## Contexte
+## 1. Identifiant
 
-Le socle documentaire doit éviter les architectures concurrentes et permettre la traçabilité produit.
+`ADR-0004`
 
-## Décision
+## 2. Titre
 
-Chaque écran possède un front matter, un identifiant canonique, un propriétaire, des permissions référencées, 27 sections et les six états Loading, Empty, Partial, Error, Offline et Permission denied.
+Contrat qualitatif des écrans
 
-## Conséquences
+## 3. Statut
 
-- Les registres et manifestes appliquent cette décision.
-- Toute exception exige un nouvel ADR.
-- Les anciens chemins non conformes sont supprimés ou explicitement archivés comme non normatifs.
+Draft. Cette ADR n'est pas approuvée et ne remplace aucune décision source au-delà de ce qu'elle applique explicitement.
 
-## Statut
+## 4. Date
 
-Draft — à approuver par les propriétaires concernés.
+2026-08-03
+
+## 5. Propriétaire
+
+Product Architecture.
+
+## 6. Décideurs attendus
+
+Head of Product et propriétaires des domaines affectés ; Security, UX ou Engineering selon les effets décrits.
+
+## 7. Requirement IDs
+
+`REQ-UX-010`
+
+## 8. Contexte
+
+Les 61 fichiers actuels possèdent 27 sections mais réutilisent largement le même texte.
+
+## 9. Problème
+
+La présence d'un titre de section ne garantit ni une UI spécifique ni un comportement testable.
+
+## 10. Forces en présence
+
+Comparabilité des specs, liberté de conception, accessibilité, testabilité et prévention du remplissage automatique.
+
+## 11. Options étudiées
+
+1. Aucun contrat.
+2. Un template rigide rempli automatiquement.
+3. Un contrat de couverture avec contenu spécifique et critères observables.
+
+## 12. Décision
+
+Conserver les 27 catégories obligatoires, mais exiger pour chacune une application locale substantive ou une mention explicite non applicable avec justification.
+
+## 13. Justification
+
+Le contrat maintient une couverture commune sans confondre structure et qualité.
+
+## 14. Conséquences positives
+
+- Revue plus fiable.
+- Écrans pilotes comparables.
+- États et actions testables.
+
+## 15. Conséquences négatives
+
+- Temps de rédaction supérieur.
+- Certains écrans simples auront des sections non applicables.
+
+## 16. Risques
+
+- Retour au texte générique.
+- Création de pages pour satisfaire le template.
+
+## 17. Effets sur la navigation
+
+Une page n'est créée que pour un objectif distinct ; vues, modes, filtres et panneaux restent des sous-structures.
+
+## 18. Effets sur les objets
+
+Les objets sont référencés et projetés, jamais redéfinis.
+
+## 19. Effets sur les permissions
+
+La matrice action × état × permission doit être explicite pour les actions sensibles.
+
+## 20. Effets sur les parcours
+
+Les transitions conservent contexte, sélection et retour réel.
+
+## 21. Effets sur les autres documents
+
+`04-experience-architecture/`, templates, screen register, Phase 6.
+
+## 22. Migration
+
+Les six écrans pilotes seront réécrits avant propagation aux autres écrans.
+
+## 23. Critères de réévaluation
+
+Réévaluer après revue des six pilotes et mesures de duplication.
+
+## 24. Questions encore ouvertes
+
+- Le niveau exact de densité par rôle reste OPEN-010.

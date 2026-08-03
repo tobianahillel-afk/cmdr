@@ -1,61 +1,14 @@
 ---
 id: documentation-lifecycle
 domain: 00-governance
-status: draft
-owner: Product Architecture
+status: deprecated
+owner: Documentation Governance Lead
 updated: 2026-08-03
-source-of-truth: canonical
+source-of-truth: non-normative
+superseded-by: status-lifecycle.md
 ---
-# Cycle de vie documentaire
+# Cycle de vie documentaire — déprécié
 
-## Objectif
+La source normative est désormais [`status-lifecycle.md`](status-lifecycle.md). Le nouveau document précise les conditions d'entrée, preuves, transitions arrière et interdictions de chaque statut.
 
-Définir le passage draft, review, approved, implemented et deprecated.
-
-## Périmètre
-
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
-
-## Propriétaire fonctionnel
-
-Product Architecture.
-
-## Objets concernés
-
-- Concepts du document
-- Références canoniques liées
-
-## Fonctionnalités
-
-- Exiger un propriétaire et une date.
-- Exiger les critères d’acceptation avant review.
-- Lier l’implémentation et les preuves avant implemented.
-- Retirer les documents remplacés des sources actives.
-
-## UX et interactions
-
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
-
-## Permissions
-
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
-
-## États
-
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
-
-## Dépendances
-
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- À compléter — décision source non fournie dans le brief canonique.
+Ce fichier ne doit plus être cité comme règle active.
