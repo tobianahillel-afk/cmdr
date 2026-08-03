@@ -5,160 +5,183 @@ status: draft
 owner: QA and Traceability Lead
 updated: 2026-08-03
 source-of-truth: source-material
+requirements:
+  - REQ-PROD-001
+  - REQ-PROD-062
 ---
 # Requirements Traceability Matrix
 
-## Coverage summary
+## Interpretation
 
-| State | Count |
-|---|---:|
-| conform | 0 |
-| partial | 68 |
-| absent | 47 |
-| contradictory | 7 |
-| total | 122 |
+Source for all rows: Master Execution Prompt as captured in `source-material/`. `conform` means substantive Phase 1 product/governance coverage and traceability, not completion of later UX, functional, security, technical or implementation work.
 
-## Requirement catalog
+## Coverage
 
-| Requirement ID | Requirement | Type | Expected canonical area | Current state | Priority |
+| State | Phase 0 published | Reconciled before | After Phase 1 |
+|---|---:|---:|---:|
+| conform | 0 | 0 | 81 |
+| partial | 68 | 54 | 32 |
+| absent | 47 | 61 | 6 |
+| contradictory | 7 | 7 | 3 |
+| total | 122 | 122 | 122 |
+
+The published Phase 0 summary did not arithmetically match its 122 catalog rows. The published values and reconciled recount are both retained.
+
+## Coverage rules
+
+- `conform`: Phase 1 intent is substantive, traced and has no active Phase 1 contradiction.
+- `partial`: product principle or boundary exists; its owning later phase must define detailed behavior.
+- `absent`: deliberately deferred with no delivery claim.
+- `contradictory`: an active competing structure remains.
+
+## Dependents by family
+
+- `REQ-PROD-*`: all product owners and later product/UX phases.
+- `REQ-AI-*`: CMDR Studio, Command, Investigate, Govern, Settings and Security.
+- `REQ-OBJ-*`: ownership register, domain model, product projections and permissions.
+- `REQ-UX-*`: Experience Architecture, Design System, journeys and screens.
+- `REQ-BRAND-*`: Brand and Design System Phase 2.
+- `REQ-SEC-*`: Security/Trust, Govern, Endpoint Agent and dangerous-action UX.
+- `REQ-JRN-*`: journeys, transitions and pilot screens.
+- `REQ-INV-*`: Investigate modules and capability classification.
+
+## Requirement rows
+
+| Requirement | Before | After | Canonical evidence / section | Contradiction | Open decision |
 |---|---|---|---|---|---|
-| REQ-PROD-001 | CMDR complete operational platform | decision | `01-product-vision/` | partial | P0 |
-| REQ-PROD-002 | Evidence first | constraint | `01-product-vision/` | partial | P0 |
-| REQ-PROD-003 | Human accountable | constraint | `01-product-vision/` | partial | P0 |
-| REQ-PROD-004 | Actions safely governed | constraint | `01-product-vision/` | partial | P0 |
-| REQ-PROD-005 | Every conclusion traceable | constraint | `01-product-vision/` | partial | P0 |
-| REQ-PROD-006 | No duplicated object | constraint | `00-governance/` | contradictory | P0 |
-| REQ-PROD-007 | Progressive disclosure | preference | `04-experience-architecture/` | partial | P0 |
-| REQ-PROD-008 | Context preserved across products | constraint | `04-experience-architecture/` | partial | P0 |
-| REQ-PROD-009 | One workflow one owner | constraint | `00-governance/` | partial | P0 |
-| REQ-PROD-010 | Essential workflows work without AI | constraint | product modules | absent | P0 |
-| REQ-PROD-011 | Deterministic engines remain first-class | constraint | `07-investigate/` | partial | P0 |
-| REQ-PROD-012 | Planned capability not implemented | constraint | capability inventory | contradictory | P0 |
-| REQ-PROD-013 | Command boundary | decision | `06-command/` | partial | P0 |
-| REQ-PROD-014 | Investigate boundary | decision | `07-investigate/` | partial | P0 |
-| REQ-PROD-015 | Govern boundary | decision | `08-govern/` | partial | P0 |
-| REQ-PROD-016 | Studio boundary | decision | `09-cmdr-studio/` | partial | P0 |
-| REQ-PROD-017 | Settings boundary | decision | `10-platform-settings/` | partial | P0 |
-| REQ-PROD-018 | Endpoint Agent distinct EDR target | decision | `11-endpoint-agent/` | contradictory | P0 |
-| REQ-PROD-019 | Capability delivery classification | constraint | capability inventory | absent | P0 |
-| REQ-PROD-020 | Deterministic Detection Engineering | constraint | `07-investigate/` | partial | P0 |
-| REQ-PROD-021 | Incident Commander role | decision | personas | absent | P1 |
-| REQ-PROD-022 | SOC Analyst L1 role | decision | personas | absent | P1 |
-| REQ-PROD-023 | SOC Analyst L2 role | decision | personas | absent | P1 |
-| REQ-PROD-024 | Senior Analyst role | decision | personas | absent | P1 |
-| REQ-PROD-025 | Threat Hunter role | decision | personas | absent | P1 |
-| REQ-PROD-026 | Forensic Analyst role | decision | personas | absent | P1 |
-| REQ-PROD-027 | Malware Analyst role | decision | personas | absent | P1 |
-| REQ-PROD-028 | Reverse Engineer role | decision | personas | absent | P1 |
-| REQ-PROD-029 | Detection Engineer role | decision | personas | absent | P1 |
-| REQ-PROD-030 | Response Operator role | decision | personas | absent | P1 |
-| REQ-PROD-031 | Technical Approver role | decision | personas | absent | P1 |
-| REQ-PROD-032 | Business Owner role | decision | personas | absent | P1 |
-| REQ-PROD-033 | Customer Success Manager role | decision | personas | absent | P1 |
-| REQ-PROD-034 | Auditor role | decision | personas | absent | P1 |
-| REQ-PROD-035 | Platform Administrator role | decision | personas | absent | P1 |
-| REQ-PROD-036 | Automation Designer role | decision | personas | absent | P1 |
-| REQ-PROD-037 | Classify search | constraint | capability inventory | absent | P1 |
-| REQ-PROD-038 | Classify investigation | constraint | capability inventory | absent | P1 |
-| REQ-PROD-039 | Classify collection | constraint | capability inventory | absent | P1 |
-| REQ-PROD-040 | Classify Live Response | constraint | capability inventory | absent | P1 |
-| REQ-PROD-041 | Classify endpoint telemetry | constraint | capability inventory | absent | P1 |
-| REQ-PROD-042 | Classify endpoint detection | constraint | capability inventory | absent | P1 |
-| REQ-PROD-043 | Classify orchestration | constraint | capability inventory | absent | P1 |
-| REQ-PROD-044 | Classify governance | constraint | capability inventory | absent | P1 |
-| REQ-PROD-045 | Classify reporting | constraint | capability inventory | absent | P1 |
-| REQ-PROD-046 | Classify audit | constraint | capability inventory | absent | P1 |
-| REQ-PROD-047 | Classify automation | constraint | capability inventory | absent | P1 |
-| REQ-PROD-048 | Investigate palette decision | open-question | unresolved decisions | absent | P1 |
-| REQ-PROD-049 | Govern palette decision | open-question | unresolved decisions | absent | P1 |
-| REQ-PROD-050 | Studio palette decision | open-question | unresolved decisions | absent | P1 |
-| REQ-PROD-051 | Typography licensing | open-question | unresolved decisions | absent | P1 |
-| REQ-PROD-052 | Initial forensic engines | open-question | unresolved decisions | absent | P0 |
-| REQ-PROD-053 | Customer delivery applicability | open-question | unresolved decisions | absent | P1 |
-| REQ-PROD-054 | Human Gate and Govern relation | open-question | unresolved decisions | absent | P0 |
-| REQ-PROD-055 | Endpoint platform support | open-question | unresolved decisions | absent | P0 |
-| REQ-PROD-056 | Capability review authority | open-question | unresolved decisions | absent | P0 |
-| REQ-PROD-057 | Role density preference | open-question | unresolved decisions | absent | P1 |
-| REQ-PROD-058 | Mobile forensic scope | open-question | unresolved decisions | absent | P1 |
-| REQ-PROD-059 | Cloud analysis scope | open-question | unresolved decisions | absent | P1 |
-| REQ-PROD-060 | Action Class 2 defaults | open-question | unresolved decisions | absent | P0 |
-| REQ-PROD-061 | Artifact versus Attachment | open-question | unresolved decisions | absent | P0 |
-| REQ-PROD-062 | Automation Run versus Response Run | open-question | unresolved decisions | absent | P0 |
-| REQ-AI-001 | AI augments but is not required | decision | AI constraints | partial | P0 |
-| REQ-AI-002 | Studio owns agentic capabilities | decision | Studio | partial | P0 |
-| REQ-AI-003 | AI owns no canonical object or decision | constraint | AI constraints | partial | P0 |
-| REQ-AI-004 | AI cannot bypass permission or gate | constraint | AI constraints | partial | P0 |
-| REQ-AI-005 | AI cannot self-approve risk | constraint | AI constraints | partial | P0 |
-| REQ-AI-006 | Evidence changes remain traceable | constraint | AI constraints | partial | P0 |
-| REQ-AI-007 | Automation interruptible and resumable | constraint | Studio | partial | P0 |
-| REQ-AI-008 | External data is not instruction | constraint | Studio security | absent | P0 |
-| REQ-AI-009 | Tool result not automatically trusted | constraint | Studio security | absent | P0 |
-| REQ-AI-010 | AI provenance and uncertainty | constraint | AI UX | partial | P0 |
-| REQ-AI-011 | Model provider optional | constraint | Settings and Studio | partial | P0 |
-| REQ-OBJ-001 | Incident owner Command | decision | Incident | partial | P0 |
-| REQ-OBJ-002 | Case owner Investigate | decision | Case | partial | P0 |
-| REQ-OBJ-003 | Evidence owner Investigate | decision | Evidence | partial | P0 |
-| REQ-OBJ-004 | Finding owner Investigate | decision | Finding | partial | P0 |
-| REQ-OBJ-005 | Decision owner Govern | decision | Decision | partial | P0 |
-| REQ-OBJ-006 | Approval owner Govern | decision | Approval | partial | P0 |
-| REQ-OBJ-007 | Response Run owner Govern | decision | Response Run | partial | P0 |
-| REQ-OBJ-008 | Fleet owner Settings | decision | Endpoint Agent Fleet | partial | P0 |
-| REQ-OBJ-009 | Agentic objects owner Studio | decision | Studio objects | contradictory | P0 |
-| REQ-OBJ-010 | Reporting Engine owner Shared | decision | Reporting Engine | partial | P0 |
-| REQ-OBJ-011 | Generic Saved Views owner Shared | decision | Saved Views | contradictory | P0 |
-| REQ-OBJ-012 | Work Queue Saved Views owner Command | decision | Work Queue Saved Views | contradictory | P0 |
-| REQ-UX-001 | Page workspace view mode filter distinction | decision | experience architecture | partial | P0 |
-| REQ-UX-002 | Single canonical Inspector | decision | design system | partial | P0 |
-| REQ-UX-003 | Eight canonical shells | decision | design system layouts | partial | P0 |
-| REQ-UX-004 | Workbench panel limits | constraint | workbench shell | absent | P0 |
-| REQ-UX-005 | Maximum six visible technical tabs | constraint | workbench shell | absent | P0 |
-| REQ-UX-006 | Cross-product context preservation | constraint | navigation | partial | P0 |
-| REQ-UX-007 | Back restores real state | constraint | navigation | absent | P0 |
-| REQ-UX-008 | Work Queue views not pages | decision | Command | contradictory | P0 |
-| REQ-UX-009 | Mission Control views share workspace | decision | Command | partial | P0 |
-| REQ-UX-010 | Screens have substantive sections | constraint | screen specs | absent | P0 |
-| REQ-BRAND-001 | Operational Editorial Modernism | decision | brand | partial | P1 |
-| REQ-BRAND-002 | Forbidden visual directions | constraint | brand | partial | P1 |
-| REQ-BRAND-003 | Exact CMDR palette | decision | brand | partial | P1 |
-| REQ-BRAND-004 | Exact Command palette | decision | brand | partial | P1 |
-| REQ-BRAND-005 | Moss plus Ember signature | decision | brand | partial | P1 |
-| REQ-BRAND-006 | Other palettes remain proposals | constraint | brand | partial | P1 |
-| REQ-BRAND-007 | Typography direction | preference | brand | partial | P1 |
-| REQ-BRAND-008 | Related product identities | constraint | brand | partial | P1 |
-| REQ-SEC-001 | Action classes 0–4 | decision | trust model | absent | P0 |
-| REQ-SEC-002 | High classes require governance | constraint | trust model | partial | P0 |
-| REQ-SEC-003 | UI exposes class impact scope rollback approvals audit | constraint | dangerous-action pattern | absent | P0 |
-| REQ-SEC-004 | Strong identity secure communication signed command anti-replay | constraint | Endpoint Agent | partial | P0 |
-| REQ-SEC-005 | Offline safety tamper rollback verification least privilege | constraint | Endpoint Agent | partial | P0 |
-| REQ-JRN-001 | Endpoint Alert to Result | decision | journeys | partial | P1 |
-| REQ-JRN-002 | Malware Analysis to Detection Rule | decision | journeys | absent | P1 |
-| REQ-JRN-003 | Incident to Containment | decision | journeys | partial | P1 |
-| REQ-JRN-004 | Forensic Acquisition to Finding | decision | journeys | partial | P1 |
-| REQ-JRN-005 | Detection Rule Development | decision | journeys | absent | P1 |
-| REQ-JRN-006 | Handover | decision | journeys | partial | P1 |
-| REQ-JRN-007 | Customer Report | decision | journeys | partial | P1 |
-| REQ-JRN-008 | Agentic Investigation | decision | journeys | absent | P1 |
-| REQ-INV-001 | Classify forensics | constraint | capability inventory | absent | P1 |
-| REQ-INV-002 | Classify static analysis | constraint | capability inventory | absent | P1 |
-| REQ-INV-003 | Classify reverse engineering | constraint | capability inventory | absent | P1 |
-| REQ-INV-004 | Classify debugger | constraint | capability inventory | absent | P1 |
-| REQ-INV-005 | Classify sandbox | constraint | capability inventory | absent | P1 |
-| REQ-INV-006 | Classify Detection Engineering | constraint | capability inventory | absent | P1 |
+| REQ-PROD-001 | partial | conform | 01-product-vision/product-principles.md + product-vision.md | — | — |
+| REQ-PROD-002 | partial | conform | 01-product-vision/product-principles.md + product-vision.md | — | — |
+| REQ-PROD-003 | partial | conform | 01-product-vision/product-principles.md + product-vision.md | — | — |
+| REQ-PROD-004 | partial | conform | 01-product-vision/product-principles.md + product-vision.md | — | — |
+| REQ-PROD-005 | partial | conform | 01-product-vision/product-principles.md + product-vision.md | — | — |
+| REQ-PROD-006 | contradictory | partial | 01-product-vision/product-principles.md + product-vision.md | resolved | — |
+| REQ-PROD-007 | partial | partial | 01-product-vision/product-principles.md + product-vision.md | — | — |
+| REQ-PROD-008 | partial | partial | 01-product-vision/product-principles.md + product-vision.md | — | — |
+| REQ-PROD-009 | partial | conform | 01-product-vision/product-principles.md + product-vision.md | — | — |
+| REQ-PROD-010 | absent | partial | 01-product-vision/product-principles.md + product-vision.md | — | — |
+| REQ-PROD-011 | partial | conform | 01-product-vision/product-principles.md + product-vision.md | — | — |
+| REQ-PROD-012 | contradictory | conform | 01-product-vision/product-principles.md + product-vision.md | resolved | — |
+| REQ-AI-001 | partial | conform | 01-product-vision/product-principles.md + product-boundaries.md + product README boundaries | — | — |
+| REQ-AI-002 | partial | conform | 01-product-vision/product-principles.md + product-boundaries.md + product README boundaries | — | — |
+| REQ-AI-003 | partial | conform | 01-product-vision/product-principles.md + product-boundaries.md + product README boundaries | — | — |
+| REQ-AI-004 | partial | conform | 01-product-vision/product-principles.md + product-boundaries.md + product README boundaries | — | — |
+| REQ-AI-005 | partial | conform | 01-product-vision/product-principles.md + product-boundaries.md + product README boundaries | — | — |
+| REQ-AI-006 | partial | conform | 01-product-vision/product-principles.md + product-boundaries.md + product README boundaries | — | — |
+| REQ-AI-007 | partial | partial | 01-product-vision/product-principles.md + product-boundaries.md + product README boundaries | — | — |
+| REQ-AI-008 | absent | partial | 01-product-vision/product-principles.md + product-boundaries.md + product README boundaries | — | — |
+| REQ-AI-009 | absent | partial | 01-product-vision/product-principles.md + product-boundaries.md + product README boundaries | — | — |
+| REQ-AI-010 | partial | partial | 01-product-vision/product-principles.md + product-boundaries.md + product README boundaries | — | — |
+| REQ-AI-011 | partial | conform | 01-product-vision/product-principles.md + product-boundaries.md + product README boundaries | — | — |
+| REQ-OBJ-001 | partial | conform | 00-governance/ownership-register.md + 01-product-vision/product-boundaries.md | — | — |
+| REQ-OBJ-002 | partial | conform | 00-governance/ownership-register.md + 01-product-vision/product-boundaries.md | — | — |
+| REQ-OBJ-003 | partial | conform | 00-governance/ownership-register.md + 01-product-vision/product-boundaries.md | — | — |
+| REQ-OBJ-004 | partial | conform | 00-governance/ownership-register.md + 01-product-vision/product-boundaries.md | — | — |
+| REQ-OBJ-005 | partial | conform | 00-governance/ownership-register.md + 01-product-vision/product-boundaries.md | — | — |
+| REQ-OBJ-006 | partial | conform | 00-governance/ownership-register.md + 01-product-vision/product-boundaries.md | — | — |
+| REQ-OBJ-007 | partial | conform | 00-governance/ownership-register.md + 01-product-vision/product-boundaries.md | — | — |
+| REQ-OBJ-008 | partial | conform | 00-governance/ownership-register.md + 01-product-vision/product-boundaries.md | — | — |
+| REQ-OBJ-009 | contradictory | partial | 00-governance/ownership-register.md + 01-product-vision/product-boundaries.md | resolved | — |
+| REQ-OBJ-010 | partial | conform | 00-governance/ownership-register.md + 01-product-vision/product-boundaries.md | — | — |
+| REQ-OBJ-011 | contradictory | contradictory | 00-governance/ownership-register.md + 01-product-vision/product-boundaries.md | active | — |
+| REQ-OBJ-012 | contradictory | contradictory | 00-governance/ownership-register.md + 01-product-vision/product-boundaries.md | active | — |
+| REQ-UX-001 | partial | partial | 00-governance/adr/ADR-0005-page-view-mode-filter-rules.md + Phase 3 specifications | — | — |
+| REQ-UX-002 | partial | partial | 00-governance/adr/ADR-0005-page-view-mode-filter-rules.md + Phase 3 specifications | — | — |
+| REQ-UX-003 | partial | partial | 00-governance/adr/ADR-0005-page-view-mode-filter-rules.md + Phase 3 specifications | — | — |
+| REQ-UX-004 | absent | absent | 00-governance/adr/ADR-0005-page-view-mode-filter-rules.md + Phase 3 specifications | — | — |
+| REQ-UX-005 | absent | absent | 00-governance/adr/ADR-0005-page-view-mode-filter-rules.md + Phase 3 specifications | — | — |
+| REQ-UX-006 | partial | partial | 00-governance/adr/ADR-0005-page-view-mode-filter-rules.md + Phase 3 specifications | — | — |
+| REQ-UX-007 | absent | partial | 00-governance/adr/ADR-0005-page-view-mode-filter-rules.md + Phase 3 specifications | — | — |
+| REQ-UX-008 | contradictory | contradictory | 00-governance/adr/ADR-0005-page-view-mode-filter-rules.md + Phase 3 specifications | active | — |
+| REQ-UX-009 | partial | partial | 00-governance/adr/ADR-0005-page-view-mode-filter-rules.md + Phase 3 specifications | — | — |
+| REQ-UX-010 | absent | absent | 00-governance/adr/ADR-0005-page-view-mode-filter-rules.md + Phase 3 specifications | — | — |
+| REQ-BRAND-001 | partial | partial | 00-governance/source-material/brand-and-visual-decisions.md + Phase 2 | — | — |
+| REQ-BRAND-002 | partial | partial | 00-governance/source-material/brand-and-visual-decisions.md + Phase 2 | — | — |
+| REQ-BRAND-003 | partial | partial | 00-governance/source-material/brand-and-visual-decisions.md + Phase 2 | — | — |
+| REQ-BRAND-004 | partial | partial | 00-governance/source-material/brand-and-visual-decisions.md + Phase 2 | — | — |
+| REQ-BRAND-005 | partial | partial | 00-governance/source-material/brand-and-visual-decisions.md + Phase 2 | — | — |
+| REQ-BRAND-006 | partial | partial | 00-governance/source-material/brand-and-visual-decisions.md + Phase 2 | — | — |
+| REQ-BRAND-007 | partial | partial | 00-governance/source-material/brand-and-visual-decisions.md + Phase 2 | — | — |
+| REQ-BRAND-008 | partial | partial | 00-governance/source-material/brand-and-visual-decisions.md + Phase 2 | — | — |
+| REQ-PROD-013 | partial | conform | 01-product-vision/product-boundaries.md | — | — |
+| REQ-PROD-014 | partial | conform | 01-product-vision/product-boundaries.md | — | — |
+| REQ-PROD-015 | partial | conform | 01-product-vision/product-boundaries.md | — | — |
+| REQ-PROD-016 | partial | conform | 01-product-vision/product-boundaries.md | — | — |
+| REQ-PROD-017 | partial | conform | 01-product-vision/product-boundaries.md | — | — |
+| REQ-PROD-018 | contradictory | conform | 01-product-vision/product-boundaries.md | resolved | — |
+| REQ-PROD-019 | absent | conform | 01-product-vision/capability-map.md | — | — |
+| REQ-PROD-020 | partial | partial | product-principles.md + capability-map.md | — | — |
+| REQ-SEC-001 | absent | conform | 01-product-vision/operating-model.md + later trust specifications | — | — |
+| REQ-SEC-002 | partial | conform | 01-product-vision/operating-model.md + later trust specifications | — | — |
+| REQ-SEC-003 | absent | partial | 01-product-vision/operating-model.md + later trust specifications | — | — |
+| REQ-SEC-004 | partial | partial | 01-product-vision/operating-model.md + later trust specifications | — | — |
+| REQ-SEC-005 | partial | partial | 01-product-vision/operating-model.md + later trust specifications | — | — |
+| REQ-PROD-021 | absent | conform | 01-product-vision/target-users.md | — | — |
+| REQ-PROD-022 | absent | conform | 01-product-vision/target-users.md | — | — |
+| REQ-PROD-023 | absent | conform | 01-product-vision/target-users.md | — | — |
+| REQ-PROD-024 | absent | conform | 01-product-vision/target-users.md | — | — |
+| REQ-PROD-025 | absent | conform | 01-product-vision/target-users.md | — | — |
+| REQ-PROD-026 | absent | conform | 01-product-vision/target-users.md | — | — |
+| REQ-PROD-027 | absent | conform | 01-product-vision/target-users.md | — | — |
+| REQ-PROD-028 | absent | conform | 01-product-vision/target-users.md | — | — |
+| REQ-PROD-029 | absent | conform | 01-product-vision/target-users.md | — | — |
+| REQ-PROD-030 | absent | conform | 01-product-vision/target-users.md | — | — |
+| REQ-PROD-031 | absent | conform | 01-product-vision/target-users.md | — | — |
+| REQ-PROD-032 | absent | conform | 01-product-vision/target-users.md | — | — |
+| REQ-PROD-033 | absent | conform | 01-product-vision/target-users.md | — | — |
+| REQ-PROD-034 | absent | conform | 01-product-vision/target-users.md | — | — |
+| REQ-PROD-035 | absent | conform | 01-product-vision/target-users.md | — | — |
+| REQ-PROD-036 | absent | conform | 01-product-vision/target-users.md | — | — |
+| REQ-JRN-001 | partial | partial | 01-product-vision/operating-model.md + Phase 5 journeys | — | — |
+| REQ-JRN-002 | absent | absent | 01-product-vision/operating-model.md + Phase 5 journeys | — | — |
+| REQ-JRN-003 | partial | partial | 01-product-vision/operating-model.md + Phase 5 journeys | — | — |
+| REQ-JRN-004 | partial | partial | 01-product-vision/operating-model.md + Phase 5 journeys | — | — |
+| REQ-JRN-005 | absent | absent | 01-product-vision/operating-model.md + Phase 5 journeys | — | — |
+| REQ-JRN-006 | partial | partial | 01-product-vision/operating-model.md + Phase 5 journeys | — | — |
+| REQ-JRN-007 | partial | partial | 01-product-vision/operating-model.md + Phase 5 journeys | — | — |
+| REQ-JRN-008 | absent | absent | 01-product-vision/operating-model.md + Phase 5 journeys | — | — |
+| REQ-PROD-037 | absent | conform | 01-product-vision/capability-map.md | — | — |
+| REQ-PROD-038 | absent | conform | 01-product-vision/capability-map.md | — | — |
+| REQ-PROD-039 | absent | conform | 01-product-vision/capability-map.md | — | — |
+| REQ-PROD-040 | absent | conform | 01-product-vision/capability-map.md | — | — |
+| REQ-PROD-041 | absent | conform | 01-product-vision/capability-map.md | — | — |
+| REQ-PROD-042 | absent | conform | 01-product-vision/capability-map.md | — | — |
+| REQ-INV-001 | absent | conform | 01-product-vision/capability-map.md + product-boundaries.md | — | — |
+| REQ-INV-002 | absent | conform | 01-product-vision/capability-map.md + product-boundaries.md | — | — |
+| REQ-INV-003 | absent | conform | 01-product-vision/capability-map.md + product-boundaries.md | — | — |
+| REQ-INV-004 | absent | conform | 01-product-vision/capability-map.md + product-boundaries.md | — | — |
+| REQ-INV-005 | absent | conform | 01-product-vision/capability-map.md + product-boundaries.md | — | — |
+| REQ-INV-006 | absent | conform | 01-product-vision/capability-map.md + product-boundaries.md | — | — |
+| REQ-PROD-043 | absent | conform | 01-product-vision/capability-map.md | — | — |
+| REQ-PROD-044 | absent | conform | 01-product-vision/capability-map.md | — | — |
+| REQ-PROD-045 | absent | conform | 01-product-vision/capability-map.md | — | — |
+| REQ-PROD-046 | absent | conform | 01-product-vision/capability-map.md | — | — |
+| REQ-PROD-047 | absent | conform | 01-product-vision/capability-map.md | — | — |
+| REQ-PROD-048 | absent | conform | 00-governance/source-material/unresolved-decisions.md | — | OPEN-001 |
+| REQ-PROD-049 | absent | conform | 00-governance/source-material/unresolved-decisions.md | — | OPEN-002 |
+| REQ-PROD-050 | absent | conform | 00-governance/source-material/unresolved-decisions.md | — | OPEN-003 |
+| REQ-PROD-051 | absent | conform | 00-governance/source-material/unresolved-decisions.md | — | OPEN-004 |
+| REQ-PROD-052 | absent | conform | 00-governance/source-material/unresolved-decisions.md | — | OPEN-005 |
+| REQ-PROD-053 | absent | conform | 00-governance/source-material/unresolved-decisions.md | — | OPEN-006 |
+| REQ-PROD-054 | absent | conform | 00-governance/source-material/unresolved-decisions.md | — | OPEN-007 |
+| REQ-PROD-055 | absent | conform | 00-governance/source-material/unresolved-decisions.md | — | OPEN-008 |
+| REQ-PROD-056 | absent | conform | 00-governance/source-material/unresolved-decisions.md | — | OPEN-009 (resolved Phase 1) |
+| REQ-PROD-057 | absent | conform | 00-governance/source-material/unresolved-decisions.md | — | OPEN-010 |
+| REQ-PROD-058 | absent | conform | 00-governance/source-material/unresolved-decisions.md | — | OPEN-011 |
+| REQ-PROD-059 | absent | conform | 00-governance/source-material/unresolved-decisions.md | — | OPEN-012 |
+| REQ-PROD-060 | absent | conform | 00-governance/source-material/unresolved-decisions.md | — | OPEN-013 |
+| REQ-PROD-061 | absent | conform | 00-governance/source-material/unresolved-decisions.md | — | OPEN-014 |
+| REQ-PROD-062 | absent | conform | 00-governance/source-material/unresolved-decisions.md | — | OPEN-015 |
 
-## Contradictions requiring correction
+## Resolved contradictions
 
-| Requirement | Current conflicting area | Required correction |
-|---|---|---|
-| REQ-PROD-006 | repeated generic definitions across active files | retain one canonical definition and local usage only |
-| REQ-PROD-012 | complete/native wording for unclassified capabilities | label delivery status explicitly |
-| REQ-PROD-018 | Endpoint Agent described as complete although contracts are placeholders | describe it as planned complete native target |
-| REQ-OBJ-009 | Tool Call and Automation Run absent | add canonical Studio objects in later phases |
-| REQ-OBJ-011/012 | Work Queue language copied into unrelated screens | reference Shared Saved Views outside Command |
-| REQ-UX-008 | Work Queue variants represented by multiple screens | consolidate into one workspace with saved views |
-| source precedence | current policy places ADR before sponsor source material | update governance policy in Phase 1 |
+Source precedence, product ownership, optional AI, Studio placement, Endpoint target-versus-delivery wording, delivery taxonomy and capability review authority are resolved at Phase 1 level. OPEN-009 is recorded as resolved.
 
-## Default remediation by state
+## Remaining contradictions
 
-- partial: preserve useful content and complete behavior in its owning phase;
-- absent: create canonical coverage in its owning phase;
-- contradictory: remove the competing active definition before validation.
+- `REQ-OBJ-011` and `REQ-OBJ-012`: generic versus Work Queue Saved Views in existing consumers.
+- `REQ-UX-008`: Work Queue variants remain separate screen files until Phase 3/6.
+- Permission namespace conflicts remain assigned to Phase 7.
+
+## Proof and update rule
+
+The canonical evidence column is the Phase 1 proof. Later changes require the owning canonical section, dependent files, validation evidence, and an open-decision record when applicable.

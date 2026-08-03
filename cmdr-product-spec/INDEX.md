@@ -8,42 +8,56 @@ source-of-truth: navigation
 ---
 # Index CMDR
 
-## Domaines canoniques
+## Start here
 
-| Domaine | Responsabilité |
+1. [`00-governance/source-material/cmdr-master-product-brief.md`](00-governance/source-material/cmdr-master-product-brief.md)
+2. [`00-governance/source-of-truth-policy.md`](00-governance/source-of-truth-policy.md)
+3. [`00-governance/documentation-rules.md`](00-governance/documentation-rules.md)
+4. [`01-product-vision/product-vision.md`](01-product-vision/product-vision.md)
+5. [`01-product-vision/product-boundaries.md`](01-product-vision/product-boundaries.md)
+6. [`01-product-vision/operating-model.md`](01-product-vision/operating-model.md)
+7. [`00-governance/source-material/requirements-traceability-matrix.md`](00-governance/source-material/requirements-traceability-matrix.md)
+
+## Canonical domains
+
+| Domain | Responsibility |
 |---|---|
-| `00-governance/` | gouvernance, ADR, registres et dépendances |
-| `01-product-vision/` | vision, limites, risques et succès |
-| `02-brand/` | marque mère et cinq identités produit |
-| `03-design-system/` | foundations, layouts, components et patterns |
-| `04-experience-architecture/` | navigation, contextes, pages, vues, modes et filtres |
-| `05-domain-model/` | objets, relations, états et propriété |
-| `06-command/` | produit Command / Command Center |
-| `07-investigate/` | produit Investigate / Investigation Lab |
-| `08-govern/` | produit Govern / Response & Governance |
-| `09-cmdr-studio/` | Skills, Automation Agents, workflows et assurance |
-| `10-platform-settings/` | administration de plateforme |
-| `11-endpoint-agent/` | EDR natif complet |
-| `12-shared-capabilities/` | capacités partagées, dont Reporting Engine |
-| `13-user-journeys/` | parcours et transitions |
-| `14-security-permissions-and-trust/` | permissions, confiance, sécurité et isolation |
-| `15-content-and-language/` | terminologie et langage |
-| `16-quality-and-validation/` | manifeste, validations et critères |
-| `17-implementation-contracts/` | contrats d’implémentation |
-| `18-roadmap-and-releases/` | dépendances, phases et releases |
-| `templates/` | quatorze modèles documentaires |
-| `assets/` | inventaires d’assets, sans source métier |
-| `99-archive/` | documents remplacés et non normatifs |
+| `00-governance/` | sources, rules, ADRs, ownership, reviews and traceability |
+| `01-product-vision/` | vision, mission, users, problems, value, boundaries and risks |
+| `02-brand/` | parent brand and product identities |
+| `03-design-system/` | foundations, layouts, components and patterns |
+| `04-experience-architecture/` | navigation, context, pages, views, modes and filters |
+| `05-domain-model/` | objects, relations, states and ownership |
+| `06-command/` | operational coordination and Incident ownership |
+| `07-investigate/` | investigation, Evidence and Finding ownership |
+| `08-govern/` | decisions, approvals and governed response |
+| `09-cmdr-studio/` | agentic automation design and supervision |
+| `10-platform-settings/` | platform and Endpoint Agent Fleet administration |
+| `11-endpoint-agent/` | target native endpoint capability; current delivery is planned |
+| `12-shared-capabilities/` | shared services including Reporting Engine and generic Saved Views |
+| `13-user-journeys/` | end-to-end journeys and transitions |
+| `14-security-permissions-and-trust/` | permissions, authority, trust and isolation |
+| `15-content-and-language/` | terminology and product language |
+| `16-quality-and-validation/` | quality strategy, manifests and validation |
+| `17-implementation-contracts/` | later implementation contracts |
+| `18-roadmap-and-releases/` | decisions, phases and releases |
+| `templates/` | document templates |
+| `assets/` | non-normative visual inventories |
+| `99-archive/` | non-normative replacement history |
 
-## Sources uniques prioritaires
+## Priority canonical sources
 
-- Palette CMDR : `02-brand/cmdr/palette.md`
-- Palette Command : `02-brand/command/palette.md`
-- Inspector : `03-design-system/components/inspector.md`
-- Page/Vue/Mode/Filtre : `04-experience-architecture/page-view-mode-filter-rules.md`
-- Evidence : `05-domain-model/objects/evidence.md`
-- Incident : `05-domain-model/objects/incident.md`
-- Automation Agent : `05-domain-model/objects/automation-agent.md`
-- Permission : `14-security-permissions-and-trust/permission-model.md`
-- Reporting Engine : `12-shared-capabilities/reporting-engine.md`
-- Work Queue saved views : `06-command/modules/incidents-and-work-queue/saved-views.md`
+- Product boundaries: `01-product-vision/product-boundaries.md`
+- Ownership register: `00-governance/ownership-register.md`
+- Delivery classification: `01-product-vision/capability-map.md`
+- Product principles: `01-product-vision/product-principles.md`
+- Palette CMDR: `02-brand/cmdr/palette.md`
+- Palette Command: `02-brand/command/palette.md`
+- Inspector: `03-design-system/components/inspector.md`
+- Page/View/Mode/Filter: `04-experience-architecture/page-view-mode-filter-rules.md`
+- Incident: `05-domain-model/objects/incident.md`
+- Evidence: `05-domain-model/objects/evidence.md`
+- Automation Agent: `05-domain-model/objects/automation-agent.md`
+- Permission Model: `14-security-permissions-and-trust/permission-model.md`
+- Reporting Engine: `12-shared-capabilities/reporting-engine.md`
+- Work Queue Saved Views: `06-command/modules/incidents-and-work-queue/saved-views.md`
