@@ -69,7 +69,7 @@ Five generated governance registers still do not carry front matter. They remain
 | contradictory | 7 | 3 |
 | total | 122 | 122 |
 
-The original summary was arithmetically inconsistent with its 122 rows. The matrix preserves the published values and records the reconciled recount.
+The original published summary totals 122, but its category assignments did not match the row-level recount. The matrix preserves the published values and records the reconciled recount.
 
 ## Contradictions resolved
 
