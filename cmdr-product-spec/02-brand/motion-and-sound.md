@@ -1,16 +1,16 @@
 ---
-id: gov-readme
-domain: 00-governance
+id: motion-and-sound
+domain: 02-brand
 status: draft
-owner: Product Architecture
+owner: Brand Lead
 updated: 2026-08-03
 source-of-truth: canonical
 ---
-# Gouvernance documentaire
+# Mouvement et son
 
 ## Objectif
 
-Présenter les règles qui rendent la documentation CMDR cohérente, révisable et non redondante.
+Définir mouvement et son pour toute la marque CMDR.
 
 ## Périmètre
 
@@ -18,7 +18,7 @@ Document canonique du domaine. Il définit uniquement son sujet et renvoie vers 
 
 ## Propriétaire fonctionnel
 
-Product Architecture.
+Brand Lead.
 
 ## Objets concernés
 
@@ -27,10 +27,10 @@ Product Architecture.
 
 ## Fonctionnalités
 
-- Appliquer une source de vérité par concept.
-- Tenir les registres de capacité, écran, composant, objet et permission.
-- Tracer les décisions par ADR.
-- Attribuer les dépendances et propriétaires.
+- Mouvement uniquement pour changement d’état, continuité ou transition.
+- Respect de reduced motion.
+- Aucun son par défaut pour une information non critique.
+- Les alertes sonores exigent configuration et contexte.
 
 ## UX et interactions
 

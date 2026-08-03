@@ -1,16 +1,16 @@
 ---
-id: gov-readme
-domain: 00-governance
+id: accessibility-and-brand
+domain: 02-brand
 status: draft
-owner: Product Architecture
+owner: Brand Lead
 updated: 2026-08-03
 source-of-truth: canonical
 ---
-# Gouvernance documentaire
+# Accessibilité de marque
 
 ## Objectif
 
-Présenter les règles qui rendent la documentation CMDR cohérente, révisable et non redondante.
+Définir accessibilité de marque pour toute la marque CMDR.
 
 ## Périmètre
 
@@ -18,7 +18,7 @@ Document canonique du domaine. Il définit uniquement son sujet et renvoie vers 
 
 ## Propriétaire fonctionnel
 
-Product Architecture.
+Brand Lead.
 
 ## Objets concernés
 
@@ -27,10 +27,10 @@ Product Architecture.
 
 ## Fonctionnalités
 
-- Appliquer une source de vérité par concept.
-- Tenir les registres de capacité, écran, composant, objet et permission.
-- Tracer les décisions par ADR.
-- Attribuer les dépendances et propriétaires.
+- Contraste WCAG 2.2 AA.
+- Couleur jamais seule.
+- Zoom et thèmes préservent la hiérarchie.
+- Typographie et textures n’entravent pas la lecture.
 
 ## UX et interactions
 

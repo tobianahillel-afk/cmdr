@@ -1,16 +1,16 @@
 ---
-id: gov-readme
-domain: 00-governance
+id: product-vision
+domain: 01-product-vision
 status: draft
-owner: Product Architecture
+owner: Head of Product
 updated: 2026-08-03
 source-of-truth: canonical
 ---
-# Gouvernance documentaire
+# Vision CMDR
 
 ## Objectif
 
-Présenter les règles qui rendent la documentation CMDR cohérente, révisable et non redondante.
+Définir CMDR comme plateforme unifiée de cyberdéfense reliant signal, preuve, décision et résultat.
 
 ## Périmètre
 
@@ -18,7 +18,7 @@ Document canonique du domaine. Il définit uniquement son sujet et renvoie vers 
 
 ## Propriétaire fonctionnel
 
-Product Architecture.
+Head of Product.
 
 ## Objets concernés
 
@@ -27,10 +27,10 @@ Product Architecture.
 
 ## Fonctionnalités
 
-- Appliquer une source de vérité par concept.
-- Tenir les registres de capacité, écran, composant, objet et permission.
-- Tracer les décisions par ADR.
-- Attribuer les dépendances et propriétaires.
+- Donner une image opérationnelle fiable.
+- Établir les faits avec provenance.
+- Agir sous autorité contrôlée.
+- Conserver le contexte entre produits.
 
 ## UX et interactions
 
@@ -58,4 +58,5 @@ Le statut documentaire suit `00-governance/document-status-model.md`; les états
 
 ## Questions ouvertes
 
-- À compléter — décision source non fournie dans le brief canonique.
+- Quels éléments nécessitent une validation utilisateur ou marché?
+- Quelles mesures deviennent des objectifs contractuels?

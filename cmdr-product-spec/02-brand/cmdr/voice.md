@@ -1,16 +1,16 @@
 ---
-id: gov-readme
-domain: 00-governance
+id: cmdr-voice
+domain: 02-brand
 status: draft
-owner: Product Architecture
+owner: Content Design Lead
 updated: 2026-08-03
 source-of-truth: canonical
 ---
-# Gouvernance documentaire
+# Voix CMDR
 
 ## Objectif
 
-Présenter les règles qui rendent la documentation CMDR cohérente, révisable et non redondante.
+Définir une voix précise, calme et responsable.
 
 ## Périmètre
 
@@ -18,7 +18,7 @@ Document canonique du domaine. Il définit uniquement son sujet et renvoie vers 
 
 ## Propriétaire fonctionnel
 
-Product Architecture.
+Content Design Lead.
 
 ## Objets concernés
 
@@ -27,10 +27,10 @@ Product Architecture.
 
 ## Fonctionnalités
 
-- Appliquer une source de vérité par concept.
-- Tenir les registres de capacité, écran, composant, objet et permission.
-- Tracer les décisions par ADR.
-- Attribuer les dépendances et propriétaires.
+- Dire ce qui est connu et incertain.
+- Nommer l’action et son impact.
+- Éviter le jargon spectaculaire.
+- Utiliser une terminologie cohérente.
 
 ## UX et interactions
 

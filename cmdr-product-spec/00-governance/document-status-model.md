@@ -1,16 +1,16 @@
 ---
-id: gov-readme
+id: document-status-model
 domain: 00-governance
 status: draft
 owner: Product Architecture
 updated: 2026-08-03
 source-of-truth: canonical
 ---
-# Gouvernance documentaire
+# Modèle de statut documentaire
 
 ## Objectif
 
-Présenter les règles qui rendent la documentation CMDR cohérente, révisable et non redondante.
+Normaliser les statuts documentaires sans les confondre avec les états métier.
 
 ## Périmètre
 
@@ -27,10 +27,9 @@ Product Architecture.
 
 ## Fonctionnalités
 
-- Appliquer une source de vérité par concept.
-- Tenir les registres de capacité, écran, composant, objet et permission.
-- Tracer les décisions par ADR.
-- Attribuer les dépendances et propriétaires.
+- Utiliser uniquement draft, review, approved, implemented et deprecated.
+- Afficher le statut dans le front matter.
+- Interdire les noms de fichiers final, new, version2 ou corrected.
 
 ## UX et interactions
 

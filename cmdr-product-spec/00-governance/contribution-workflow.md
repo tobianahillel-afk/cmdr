@@ -1,16 +1,16 @@
 ---
-id: gov-readme
+id: contribution-workflow
 domain: 00-governance
 status: draft
 owner: Product Architecture
 updated: 2026-08-03
 source-of-truth: canonical
 ---
-# Gouvernance documentaire
+# Workflow de contribution
 
 ## Objectif
 
-Présenter les règles qui rendent la documentation CMDR cohérente, révisable et non redondante.
+Encadrer branches, commits, revue et mise à jour des registres.
 
 ## Périmètre
 
@@ -27,10 +27,10 @@ Product Architecture.
 
 ## Fonctionnalités
 
-- Appliquer une source de vérité par concept.
-- Tenir les registres de capacité, écran, composant, objet et permission.
-- Tracer les décisions par ADR.
-- Attribuer les dépendances et propriétaires.
+- Travailler hors main.
+- Regrouper les commits par domaine.
+- Mettre à jour le manifeste et les registres dans la même PR.
+- Ne pas fusionner sans contrôles de qualité.
 
 ## UX et interactions
 

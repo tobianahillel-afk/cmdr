@@ -1,16 +1,16 @@
 ---
-id: gov-readme
-domain: 00-governance
+id: command-visual-language
+domain: 02-brand
 status: draft
-owner: Product Architecture
+owner: Brand Lead
 updated: 2026-08-03
 source-of-truth: canonical
 ---
-# Gouvernance documentaire
+# Langage visuel Command
 
 ## Objectif
 
-Présenter les règles qui rendent la documentation CMDR cohérente, révisable et non redondante.
+Définir une vue opérationnelle claire et non saturée.
 
 ## Périmètre
 
@@ -18,7 +18,7 @@ Document canonique du domaine. Il définit uniquement son sujet et renvoie vers 
 
 ## Propriétaire fonctionnel
 
-Product Architecture.
+Brand Lead.
 
 ## Objets concernés
 
@@ -27,10 +27,10 @@ Product Architecture.
 
 ## Fonctionnalités
 
-- Appliquer une source de vérité par concept.
-- Tenir les registres de capacité, écran, composant, objet et permission.
-- Tracer les décisions par ADR.
-- Attribuer les dépendances et propriétaires.
+- Hiérarchie orientée décision.
+- Accents Juniper limités.
+- Tables, timelines et bandes opérationnelles.
+- Aucune esthétique SIEM générique.
 
 ## UX et interactions
 

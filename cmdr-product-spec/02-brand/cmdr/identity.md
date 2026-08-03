@@ -1,16 +1,16 @@
 ---
-id: gov-readme
-domain: 00-governance
+id: cmdr-identity
+domain: 02-brand
 status: draft
-owner: Product Architecture
+owner: Brand Lead
 updated: 2026-08-03
 source-of-truth: canonical
 ---
-# Gouvernance documentaire
+# Identité CMDR
 
 ## Objectif
 
-Présenter les règles qui rendent la documentation CMDR cohérente, révisable et non redondante.
+Définir l’identité de CMDR sans rompre la marque CMDR.
 
 ## Périmètre
 
@@ -18,7 +18,7 @@ Document canonique du domaine. Il définit uniquement son sujet et renvoie vers 
 
 ## Propriétaire fonctionnel
 
-Product Architecture.
+Brand Lead.
 
 ## Objets concernés
 
@@ -27,10 +27,9 @@ Product Architecture.
 
 ## Fonctionnalités
 
-- Appliquer une source de vérité par concept.
-- Tenir les registres de capacité, écran, composant, objet et permission.
-- Tracer les décisions par ADR.
-- Attribuer les dépendances et propriétaires.
+- Maîtrise, clarté, confiance et continuité.
+- Hériter du wordmark et de la signature Moss + Ember.
+- Se distinguer par hiérarchie, texture et accent, jamais par une rupture de shell.
 
 ## UX et interactions
 

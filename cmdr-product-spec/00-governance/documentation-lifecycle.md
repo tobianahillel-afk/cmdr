@@ -1,16 +1,16 @@
 ---
-id: gov-readme
+id: documentation-lifecycle
 domain: 00-governance
 status: draft
 owner: Product Architecture
 updated: 2026-08-03
 source-of-truth: canonical
 ---
-# Gouvernance documentaire
+# Cycle de vie documentaire
 
 ## Objectif
 
-Présenter les règles qui rendent la documentation CMDR cohérente, révisable et non redondante.
+Définir le passage draft, review, approved, implemented et deprecated.
 
 ## Périmètre
 
@@ -27,10 +27,10 @@ Product Architecture.
 
 ## Fonctionnalités
 
-- Appliquer une source de vérité par concept.
-- Tenir les registres de capacité, écran, composant, objet et permission.
-- Tracer les décisions par ADR.
-- Attribuer les dépendances et propriétaires.
+- Exiger un propriétaire et une date.
+- Exiger les critères d’acceptation avant review.
+- Lier l’implémentation et les preuves avant implemented.
+- Retirer les documents remplacés des sources actives.
 
 ## UX et interactions
 

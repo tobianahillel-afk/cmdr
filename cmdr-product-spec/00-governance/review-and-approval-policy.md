@@ -1,16 +1,16 @@
 ---
-id: gov-readme
+id: review-approval-policy
 domain: 00-governance
 status: draft
 owner: Product Architecture
 updated: 2026-08-03
 source-of-truth: canonical
 ---
-# Gouvernance documentaire
+# Politique de revue et d’approbation
 
 ## Objectif
 
-Présenter les règles qui rendent la documentation CMDR cohérente, révisable et non redondante.
+Définir les revues nécessaires avant qu’un document devienne normatif.
 
 ## Périmètre
 
@@ -27,10 +27,10 @@ Product Architecture.
 
 ## Fonctionnalités
 
-- Appliquer une source de vérité par concept.
-- Tenir les registres de capacité, écran, composant, objet et permission.
-- Tracer les décisions par ADR.
-- Attribuer les dépendances et propriétaires.
+- Faire relire les frontières produit par tous les propriétaires concernés.
+- Faire relire les permissions par Security Architecture.
+- Faire relire les écrans par Design et Accessibilité.
+- Faire échouer la revue en présence de liens cassés ou doublons.
 
 ## UX et interactions
 

@@ -1,16 +1,16 @@
 ---
-id: gov-readme
-domain: 00-governance
+id: brand-readme
+domain: 02-brand
 status: draft
-owner: Product Architecture
+owner: Brand Lead
 updated: 2026-08-03
 source-of-truth: canonical
 ---
-# Gouvernance documentaire
+# Architecture de marque
 
 ## Objectif
 
-Présenter les règles qui rendent la documentation CMDR cohérente, révisable et non redondante.
+Définir la marque mère CMDR et cinq identités produit cohérentes mais distinctes.
 
 ## Périmètre
 
@@ -18,7 +18,7 @@ Document canonique du domaine. Il définit uniquement son sujet et renvoie vers 
 
 ## Propriétaire fonctionnel
 
-Product Architecture.
+Brand Lead.
 
 ## Objets concernés
 
@@ -27,10 +27,10 @@ Product Architecture.
 
 ## Fonctionnalités
 
-- Appliquer une source de vérité par concept.
-- Tenir les registres de capacité, écran, composant, objet et permission.
-- Tracer les décisions par ADR.
-- Attribuer les dépendances et propriétaires.
+- CMDR est la marque mère.
+- Command, Investigate, Govern et Studio ont une identité dédiée.
+- Platform Settings et Endpoint Agent utilisent la marque mère et les conventions de leur produit propriétaire.
+- Les palettes et interdictions sont des sources canoniques ici.
 
 ## UX et interactions
 
