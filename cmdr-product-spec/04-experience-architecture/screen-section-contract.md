@@ -2,13 +2,16 @@
 id: screen-section-contract
 domain: 04-experience-architecture
 status: draft
-owner: Product Architecture
+owner: UX Architecture Lead
 updated: 2026-08-03
 source-of-truth: canonical
+requirements:
+  - REQ-UX-010
 ---
+
 # Contrat de spécification d’écran
 
-Chaque fichier sous un dossier `screens/` possède un front matter valide et exactement les sections obligatoires suivantes:
+Chaque écran actif conserve exactement les sections suivantes :
 
 1. Objectif
 2. Résultats utilisateur
@@ -38,4 +41,10 @@ Chaque fichier sous un dossier `screens/` possède un front matter valide et exa
 26. Critères d’acceptation
 27. Questions ouvertes
 
-Une section `Transitions interproduits` complète le contrat lorsqu’une transition existe. L’écran référence les objets, composants et permissions canoniques au lieu de les redéfinir.
+`Transitions interproduits` est ajoutée lorsqu'applicable. Chaque section contient une application locale substantive ou `Non applicable` avec justification ; répéter le template n'est pas une preuve.
+
+Les critères utilisent Given/When/Then et nomment rôle, tenant, environnement, viewport, thème, densité, permissions, données, état initial, action, entrée clavier/pointeur, focus, résultat, conservation, accessibilité, trace et erreur.
+
+Un écran ne redéfinit ni objet, ni permission, ni composant, ni palette. Une View, un Mode ou un Filter ne reçoit pas d'identifiant d'écran actif.
+
+**Given** une spécification pilote, **When** elle est évaluée, **Then** chaque section est spécifique ou justifiée, les six états sont testables et les transitions conservent contexte et retour.

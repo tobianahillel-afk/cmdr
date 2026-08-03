@@ -5,29 +5,45 @@ status: draft
 owner: Product Architecture
 updated: 2026-08-03
 source-of-truth: canonical
+requirements:
+  - REQ-UX-001
+  - REQ-UX-008
+  - REQ-UX-009
 ---
-# Règles Page, Vue, Mode et Filtre
 
-## Page
+# Règles Page, Workspace, Vue, Mode, Filtre et surfaces
 
-Une **Page** est une destination routable avec identifiant d’écran, objectif utilisateur et contrat de permissions. Elle peut contenir plusieurs vues.
+## Définitions normatives
 
-## Vue
+- **Page** : objectif autonome, route stable et place justifiée dans la navigation.
+- **Workspace** : activité durable, complexe ou multi-étapes avec état de travail.
+- **View** : sélection ou configuration enregistrée du même objectif.
+- **Mode** : représentation ou interaction différente du même ensemble.
+- **Filter** : restriction temporaire et visible.
+- **Inspector** : explication et actions de l'objet sélectionné.
+- **Drawer** : interaction secondaire courte sans perdre la page.
+- **Modal** : décision courte ou confirmation bloquante.
 
-Une **Vue** change l’ensemble ou l’organisation des objets sans changer le but principal de la page. Exemple: `Incidents`, `Tasks`, `Unassigned`, `SLA Risk`, `Team Load` dans la Work Queue.
+## Arbre de décision
 
-## Mode
+1. L'objectif utilisateur change-t-il réellement ? Sinon, pas de Page.
+2. Le sous-ensemble change-t-il seulement ? Utiliser une View.
+3. La représentation change-t-elle seulement ? Utiliser un Mode.
+4. Le contenu est-il seulement réduit ? Utiliser un Filter.
+5. S'agit-il du détail de la sélection ? Utiliser l'Inspector.
+6. S'agit-il d'une action courte ? Utiliser Drawer ou Modal.
+7. Une activité longue ou multi-objet exige un Workspace.
 
-Un **Mode** change la manière d’interagir ou de représenter le même ensemble: table, graph, canvas, diff, compact, lecture. Un mode ne crée pas une nouvelle source de vérité.
+## Sérialisation
 
-## Filtre
+Vue, mode, filtres sûrs, tri et sélection peuvent être adressables. Une vue enregistre une configuration, jamais des données d'objet ou des permissions. L'ouverture réévalue l'autorisation.
 
-Un **Filtre** réduit le jeu d’objets. Il doit être visible, supprimable, sérialisable de manière sûre et ne jamais élargir les permissions.
+## Décision Work Queue
 
-## Règles
+Une route `Incidents & Work Queue`, six vues système : `All`, `Incidents`, `Tasks`, `Unassigned`, `SLA Risk`, `My Work`. Les anciens fichiers d'écran sont des alias de migration dépréciés.
 
-- Une nouvelle Page exige un identifiant d’écran et une entrée au screen register.
-- Une Vue n’est pas un écran distinct sauf si elle possède un but, une URL et des critères autonomes.
-- Un Mode conserve la sélection et le contexte.
-- Un Filtre ne modifie pas les objets.
-- Les vues enregistrées de Work Queue sont définies uniquement dans `../06-command/modules/incidents-and-work-queue/saved-views.md`.
+## Critère d’acceptation
+
+**Given** une demande de « page Active Runs »,  
+**When** l'objectif reste la supervision des runs,  
+**Then** `Active Runs` est une View du Run workspace ; aucun nouvel écran propriétaire n'est créé.

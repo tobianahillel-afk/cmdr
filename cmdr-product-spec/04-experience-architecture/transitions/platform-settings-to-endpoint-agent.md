@@ -1,60 +1,41 @@
 ---
-id: transition-platform-settings-to-endpoint-agent
+id: deprecated-transition-platform-settings-to-endpoint-agent
 domain: 04-experience-architecture
-status: draft
-owner: Product Architecture
+status: deprecated
+owner: UX Architecture Lead
 updated: 2026-08-03
-source-of-truth: canonical
+source-of-truth: deprecated
+replaced-by: ../cross-product-transitions.md
+requirements:
+  - REQ-PROD-008
+  - REQ-UX-006
+  - REQ-UX-007
 ---
-# Platform Settings To Endpoint Agent
 
-## Objectif
+# Pointeur déprécié
 
-Définir la transition platform settings to endpoint agent.
+## Remplaçant
 
-## Périmètre
+[`../cross-product-transitions.md`](../cross-product-transitions.md)
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
+## Justification
 
-## Propriétaire fonctionnel
+Les transitions ont été consolidées dans une matrice unique couvrant contexte, permissions, erreurs, retour et trace.
 
-Product Architecture.
+## Migration
 
-## Objets concernés
+L’ancien scénario `platform-settings-to-endpoint-agent` devient une ligne/variante du contrat canonique ; ses parcours détaillés appartiennent à la Phase 5.
 
-- Concepts du document
-- Références canoniques liées
+## Dépendants
 
-## Fonctionnalités
+Parcours, écrans et liens profonds citant ce scénario.
 
-- Configuration de flotte et politiques.
-- Déploiement signé et scope tenant.
-- État remonté sans confondre santé agent et sécurité hôte.
+## Date de retrait
 
-## UX et interactions
+2026-08-03. Le chemin reste disponible pour l'historique et les liens de migration, mais ne porte plus de règle normative.
 
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
+## Critère d'acceptation
 
-## Permissions
-
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
-
-## États
-
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
-
-## Dépendances
-
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- À compléter — décision source non fournie dans le brief canonique.
+**Given** un consommateur de cet ancien chemin,  
+**When** sa dépendance est mise à jour,  
+**Then** il référence le remplaçant, ne copie aucune règle locale et ce document n'est jamais utilisé comme source active.

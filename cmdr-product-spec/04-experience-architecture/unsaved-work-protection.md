@@ -1,60 +1,19 @@
 ---
-id: experience-unsaved-work-protection
+id: experience-unsaved-work
 domain: 04-experience-architecture
 status: draft
-owner: Product Architecture
+owner: UX Architecture Lead
 updated: 2026-08-03
 source-of-truth: canonical
+requirements:
+  - REQ-UX-007
+  - REQ-UX-009
 ---
-# Unsaved Work Protection
+# Protection du travail non enregistré
 
-## Objectif
 
-Définir unsaved work protection pour CMDR.
+Autosave affiche `Saving`, `Saved`, `Offline queued`, `Conflict` ou `Failed`. Il ne promet jamais un enregistrement avant confirmation du serveur.
 
-## Périmètre
+Avant navigation destructive : enregistrer, abandonner ou rester. Après crash/session expirée, une récupération scoped au tenant propose diff et restauration. Les secrets temporaires ne sont pas persistés.
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
-
-## Propriétaire fonctionnel
-
-Product Architecture.
-
-## Objets concernés
-
-- Concepts du document
-- Références canoniques liées
-
-## Fonctionnalités
-
-- Autosave visible.
-- Avertissement de navigation.
-- Récupération après erreur.
-
-## UX et interactions
-
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
-
-## Permissions
-
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
-
-## États
-
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
-
-## Dépendances
-
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- À compléter — décision source non fournie dans le brief canonique.
+**Given** un workflow modifié et offline, **When** l'utilisateur change de produit, **Then** le draft est conservé localement de façon sûre ou la navigation est bloquée avec explication.

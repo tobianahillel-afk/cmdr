@@ -1,60 +1,19 @@
 ---
-id: experience-collaboration-model
+id: experience-collaboration
 domain: 04-experience-architecture
 status: draft
-owner: Product Architecture
+owner: UX Architecture Lead
 updated: 2026-08-03
 source-of-truth: canonical
+requirements:
+  - REQ-UX-006
+  - REQ-PROD-003
 ---
-# Collaboration Model
+# Collaboration
 
-## Objectif
 
-Définir collaboration model pour CMDR.
+Présence, commentaires, mentions et conflits sont des projections de la capacité partagée. La présence n'accorde aucune permission. Un commentaire reste distinct d'un fait, d'une Evidence, d'un Finding ou d'une Decision.
 
-## Périmètre
+Les modifications concurrentes affichent version source, version locale et options `Comparer`, `Fusionner`, `Recharger`; aucun last-write-wins silencieux. Attribution, timestamp, modification et suppression restent auditables.
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
-
-## Propriétaire fonctionnel
-
-Product Architecture.
-
-## Objets concernés
-
-- Concepts du document
-- Références canoniques liées
-
-## Fonctionnalités
-
-- Présence, attribution et conflits.
-- Commentaires séparés des faits.
-- Historique complet.
-
-## UX et interactions
-
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
-
-## Permissions
-
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
-
-## États
-
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
-
-## Dépendances
-
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- À compléter — décision source non fournie dans le brief canonique.
+**Given** deux utilisateurs modifiant une note, **When** un conflit est détecté, **Then** les deux versions restent accessibles, le focus ne saute pas, et aucune Evidence n'est modifiée par la résolution d'un commentaire.

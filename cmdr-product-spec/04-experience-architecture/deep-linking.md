@@ -2,59 +2,19 @@
 id: experience-deep-linking
 domain: 04-experience-architecture
 status: draft
-owner: Product Architecture
+owner: UX Architecture Lead
 updated: 2026-08-03
 source-of-truth: canonical
+requirements:
+  - REQ-PROD-008
+  - REQ-UX-006
+  - REQ-UX-007
 ---
-# Deep Linking
+# Deep linking
 
-## Objectif
 
-Définir deep linking pour CMDR.
+Un deep link encode route, tenant, environnement, objet, vue/mode/filtres sûrs, sélection et return origin lorsque pertinent. Secrets, payloads, tokens et valeurs sensibles sont exclus.
 
-## Périmètre
+À l'ouverture, session, tenant et permissions sont vérifiés avant chargement. Un lien expiré ou interdit explique l'état sans révéler l'objet et propose retour sûr. Les liens de contenu sensible peuvent être expirables et audités.
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
-
-## Propriétaire fonctionnel
-
-Product Architecture.
-
-## Objets concernés
-
-- Concepts du document
-- Références canoniques liées
-
-## Fonctionnalités
-
-- URL stable par objet et écran.
-- Filtres sûrs encodés.
-- Liens expirables pour contenu sensible.
-
-## UX et interactions
-
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
-
-## Permissions
-
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
-
-## États
-
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
-
-## Dépendances
-
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- À compléter — décision source non fournie dans le brief canonique.
+**Given** un lien vers une Evidence après expiration de session, **When** l'utilisateur se reconnecte, **Then** la route est restaurée après autorisation, ou une Permission denied sûre est affichée.

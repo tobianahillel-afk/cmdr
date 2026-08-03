@@ -1,60 +1,20 @@
 ---
-id: experience-multi-tenant-experience
+id: experience-multi-tenant
 domain: 04-experience-architecture
 status: draft
-owner: Product Architecture
+owner: UX Architecture Lead
 updated: 2026-08-03
 source-of-truth: canonical
+requirements:
+  - REQ-PROD-008
+  - REQ-SEC-001
+  - REQ-UX-006
 ---
-# Multi Tenant Experience
+# Expérience multi-tenant
 
-## Objectif
 
-Définir multi tenant experience pour CMDR.
+Le tenant est visible dans le Global Header ou le Context Bar avant toute donnée. Une vue agrégée affiche le tenant par objet et interdit les mutations multi-tenant.
 
-## Périmètre
+Changer de tenant exige confirmation si contexte ou travail actif ; filtres, sélection, panels et drafts incompatibles sont nettoyés. Aucun fallback vers le premier tenant. Les liens sont tenant-scoped et réévalués.
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
-
-## Propriétaire fonctionnel
-
-Product Architecture.
-
-## Objets concernés
-
-- Concepts du document
-- Références canoniques liées
-
-## Fonctionnalités
-
-- Tenant toujours visible.
-- Agrégation MSSP explicite.
-- Changement de tenant nettoie le contexte incompatible.
-
-## UX et interactions
-
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
-
-## Permissions
-
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
-
-## États
-
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
-
-## Dépendances
-
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- À compléter — décision source non fournie dans le brief canonique.
+**Given** un draft dans Tenant A, **When** l'utilisateur choisit Tenant B, **Then** il doit enregistrer/abandonner/rester, le contexte A est supprimé et aucune donnée A n'apparaît dans B.

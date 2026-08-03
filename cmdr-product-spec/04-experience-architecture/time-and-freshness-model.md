@@ -1,60 +1,19 @@
 ---
-id: experience-time-and-freshness-model
+id: experience-time-freshness
 domain: 04-experience-architecture
 status: draft
-owner: Product Architecture
+owner: UX Architecture Lead
 updated: 2026-08-03
 source-of-truth: canonical
+requirements:
+  - REQ-UX-004
+  - REQ-UX-005
 ---
-# Time And Freshness Model
+# Temps et fraîcheur
 
-## Objectif
 
-Définir time and freshness model pour CMDR.
+Event time, ingestion time, processing time et last refresh sont nommés lorsqu'ils divergent. La timezone utilisateur est visible et l'UTC reste accessible.
 
-## Périmètre
+`live`, `delayed`, `stale`, `partial`, `offline` et `unknown` sont textuels. Le seuil de stale appartient à la capability et n'est pas inventé par le composant. Les mises à jour ne déplacent pas la sélection.
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
-
-## Propriétaire fonctionnel
-
-Product Architecture.
-
-## Objets concernés
-
-- Concepts du document
-- Références canoniques liées
-
-## Fonctionnalités
-
-- Timezone visible.
-- Event time et ingestion time.
-- Stale/partial explicite.
-
-## UX et interactions
-
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
-
-## Permissions
-
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
-
-## États
-
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
-
-## Dépendances
-
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- À compléter — décision source non fournie dans le brief canonique.
+**Given** une source retardée, **When** une Decision est ouverte, **Then** fraîcheur, dernière donnée et conséquence sur la décision sont visibles sans présenter le contenu comme live.

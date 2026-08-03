@@ -1,60 +1,18 @@
 ---
-id: experience-screen-state-requirements
+id: experience-screen-states
 domain: 04-experience-architecture
 status: draft
-owner: Product Architecture
+owner: UX Architecture Lead
 updated: 2026-08-03
 source-of-truth: canonical
+requirements:
+  - REQ-UX-004
+  - REQ-UX-005
+  - REQ-UX-010
 ---
-# Screen State Requirements
+# États obligatoires
 
-## Objectif
 
-Définir screen state requirements pour CMDR.
+Tout écran documente Loading, Empty, Partial, Error, Offline et Permission denied. Chaque état précise données conservées, action sûre, focus initial, annonce, responsive et audit/correlation ID si applicable.
 
-## Périmètre
-
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
-
-## Propriétaire fonctionnel
-
-Product Architecture.
-
-## Objets concernés
-
-- Concepts du document
-- Références canoniques liées
-
-## Fonctionnalités
-
-- Loading, Empty, Partial, Error, Offline, Permission denied.
-- Tous obligatoires.
-- Critères testables.
-
-## UX et interactions
-
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
-
-## Permissions
-
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
-
-## États
-
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
-
-## Dépendances
-
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- À compléter — décision source non fournie dans le brief canonique.
+Un état non applicable doit être justifié par le comportement réel ; un texte générique n'est pas une preuve. Partial ne devient pas success et Offline n'autorise aucune mutation non garantie.

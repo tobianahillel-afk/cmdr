@@ -1,60 +1,41 @@
 ---
-id: experience-context-propagation
+id: deprecated-experience-context-propagation
 domain: 04-experience-architecture
-status: draft
-owner: Product Architecture
+status: deprecated
+owner: UX Architecture Lead
 updated: 2026-08-03
-source-of-truth: canonical
+source-of-truth: deprecated
+replaced-by: context-preservation.md
+requirements:
+  - REQ-UX-001
+  - REQ-UX-006
+  - REQ-UX-007
 ---
-# Context Propagation
 
-## Objectif
+# Pointeur déprécié
 
-Définir context propagation pour CMDR.
+## Remplaçant
 
-## Périmètre
+[`context-preservation.md`](context-preservation.md)
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
+## Justification
 
-## Propriétaire fonctionnel
+La responsabilité a été consolidée dans une source Phase 3 unique et testable afin de supprimer les architectures concurrentes.
 
-Product Architecture.
+## Migration
 
-## Objets concernés
+Les consommateurs migrent vers `context-preservation.md` et conservent uniquement leur usage local.
 
-- Concepts du document
-- Références canoniques liées
+## Dépendants
 
-## Fonctionnalités
+Produits, écrans et composants qui citaient cet ancien document.
 
-- Propager uniquement les références autorisées.
-- Transformer Incident en intake de Case, Finding en justification, Result en mise à jour opérationnelle.
-- Exclure secrets et données hors permission.
+## Date de retrait
 
-## UX et interactions
+2026-08-03. Le chemin reste disponible pour l'historique et les liens de migration, mais ne porte plus de règle normative.
 
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
+## Critère d'acceptation
 
-## Permissions
-
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
-
-## États
-
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
-
-## Dépendances
-
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- À compléter — décision source non fournie dans le brief canonique.
+**Given** un consommateur de cet ancien chemin,  
+**When** sa dépendance est mise à jour,  
+**Then** il référence le remplaçant, ne copie aucune règle locale et ce document n'est jamais utilisé comme source active.
