@@ -2,60 +2,34 @@
 id: govern-typography
 domain: 02-brand
 status: draft
-owner: Brand Lead
+owner: Brand Design Lead
 updated: 2026-08-03
 source-of-truth: canonical
+requirements:
+  - REQ-BRAND-007
+  - REQ-BRAND-008
+  - REQ-PROD-015
 ---
-# Typographie Govern
+# Application typographique Govern
 
-## Objectif
+Govern utilise la stack commune.
 
-Définir la hiérarchie typographique de Govern.
+## Rôles locaux
 
-## Périmètre
+- titres de décision précis ;
+- sous-titres pour conditions, justification, impact et rollback ;
+- métadonnées d'autorité très lisibles ;
+- chiffres tabulaires pour dates, classes, périmètres et résultats ;
+- monospace seulement pour IDs, policy expressions, hashes et commandes ;
+- largeur de ligne éditoriale pour justification et notes.
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
+## Accent
 
-## Propriétaire fonctionnel
+La hiérarchie peut utiliser poids, petite règle ou marge annotée. Elle n'utilise pas de serif cérémonielle ni de capitales juridiques pour simuler l'autorité.
 
-Brand Lead.
+## Interdictions
 
-## Objets concernés
-
-- Concepts du document
-- Références canoniques liées
-
-## Fonctionnalités
-
-- Famille commune à la marque.
-- Échelle lisible et compacte.
-- Monospace réservé aux données techniques.
-- Aucune imitation manuscrite pour les contenus normatifs.
-
-## UX et interactions
-
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
-
-## Permissions
-
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
-
-## États
-
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
-
-## Dépendances
-
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- À compléter — décision source non fournie dans le brief canonique.
+- texte gris minuscule pour signatures ;
+- Decision et recommandation avec le même titre ;
+- justification dans une police décorative ;
+- monospace généralisé.

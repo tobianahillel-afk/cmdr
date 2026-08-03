@@ -2,60 +2,33 @@
 id: investigate-typography
 domain: 02-brand
 status: draft
-owner: Brand Lead
+owner: Brand Design Lead
 updated: 2026-08-03
 source-of-truth: canonical
+requirements:
+  - REQ-BRAND-007
+  - REQ-BRAND-008
+  - REQ-PROD-014
 ---
-# Typographie Investigate
+# Application typographique Investigate
 
-## Objectif
+Investigate utilise la stack commune de `../cmdr/typography.md`.
 
-Définir la hiérarchie typographique de Investigate.
+## Rôles locaux
 
-## Périmètre
+- sans pour navigation, hypothèse, annotation et Finding ;
+- monospace pour code, requête, hash, adresse, offset, path et donnée brute ;
+- chiffres tabulaires pour temps, offsets et mesures ;
+- hiérarchie forte entre raw, annotation, interprétation et conclusion ;
+- petite taille autorisée seulement si contraste, zoom et durée d'usage sont validés.
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
+## Code et données
 
-## Propriétaire fonctionnel
+Les ligatures sont désactivables. Les caractères ambigus doivent être testés. La longueur de ligne, le wrap et la copie ne doivent pas être sacrifiés à une apparence compacte.
 
-Brand Lead.
+## Interdictions
 
-## Objets concernés
-
-- Concepts du document
-- Références canoniques liées
-
-## Fonctionnalités
-
-- Famille commune à la marque.
-- Échelle lisible et compacte.
-- Monospace réservé aux données techniques.
-- Aucune imitation manuscrite pour les contenus normatifs.
-
-## UX et interactions
-
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
-
-## Permissions
-
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
-
-## États
-
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
-
-## Dépendances
-
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- À compléter — décision source non fournie dans le brief canonique.
+- monospace pour tout le produit ;
+- italique léger comme seul signe d'annotation ;
+- réduction excessive des métadonnées ;
+- couleur seule pour distinguer hypothèse et Finding.

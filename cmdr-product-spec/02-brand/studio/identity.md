@@ -2,59 +2,61 @@
 id: studio-identity
 domain: 02-brand
 status: draft
-owner: Brand Lead
+owner: Brand Design Lead
 updated: 2026-08-03
 source-of-truth: canonical
+requirements:
+  - REQ-BRAND-006
+  - REQ-BRAND-008
+  - REQ-PROD-016
+  - REQ-AI-002
+  - REQ-AI-007
 ---
 # Identité CMDR Studio
 
-## Objectif
+## Caractère
 
-Définir l’identité de CMDR Studio sans rompre la marque CMDR.
+Constructif, explicite, expérimental mais assuré, observable et maîtrisé.
 
-## Périmètre
+## Question visuelle dominante
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
+**Comment cette automatisation est-elle construite, versionnée, évaluée et contrôlée ?**
 
-## Propriétaire fonctionnel
+## Signatures fonctionnelles
 
-Brand Lead.
+- grille de construction ;
+- nodes typés avec entrées, sorties et owner ;
+- versions et environnements ;
+- Tool Calls comme traces, non effets magiques ;
+- Human Gates comme interruptions explicites ;
+- Automation Runs observables ;
+- évaluations, datasets et régressions ;
+- coûts et usage contextualisés.
 
-## Objets concernés
+## Densité
 
-- Concepts du document
-- Références canoniques liées
+Moyenne à dense. Le Builder conserve un canvas principal. Control Room privilégie timeline et état. Assurance privilégie matrices et comparaison.
 
-## Fonctionnalités
+## Rythme
 
-- Construction, expérimentation assurée, orchestration et contrôle humain.
-- Hériter du wordmark et de la signature Moss + Ember.
-- Se distinguer par hiérarchie, texture et accent, jamais par une rupture de shell.
+- spatial pendant construction ;
+- séquentiel pendant exécution ;
+- comparatif pendant évaluation ;
+- éditorial pendant revue et deployment.
 
-## UX et interactions
+## Relation aux produits
 
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
+Studio consomme contexte et objets opérationnels ; il ne les redessine pas comme son propre univers. Une action risquée montre le passage vers Govern.
 
-## Permissions
+## IA
 
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
+L'IA n'est pas la personnalité de Studio. Studio représente autant les règles, workflows, Tools et simulations que les Automation Agents.
 
-## États
+## Exclusions
 
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
-
-## Dépendances
-
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- À compléter — décision source non fournie dans le brief canonique.
+- chatbot géant ;
+- violet saturé et étoiles ;
+- no-code jouet ;
+- flux lumineux continus ;
+- nodes sans type ni trace ;
+- automation autonome détachée du workflow propriétaire.

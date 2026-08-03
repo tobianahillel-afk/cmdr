@@ -2,59 +2,60 @@
 id: investigate-identity
 domain: 02-brand
 status: draft
-owner: Brand Lead
+owner: Brand Design Lead
 updated: 2026-08-03
 source-of-truth: canonical
+requirements:
+  - REQ-BRAND-006
+  - REQ-BRAND-008
+  - REQ-PROD-014
+  - REQ-PROD-002
+  - REQ-PROD-005
 ---
 # Identité Investigate
 
-## Objectif
+## Caractère
 
-Définir l’identité de Investigate sans rompre la marque CMDR.
+Profond, patient, précis, comparatif et techniquement crédible.
 
-## Périmètre
+## Question visuelle dominante
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
+**Qu'est-ce qui est établi, par quelles sources et avec quelles limites ?**
 
-## Propriétaire fonctionnel
+## Signatures fonctionnelles
 
-Brand Lead.
+- provenance attachée aux données ;
+- distinction raw data, annotation, interprétation et Finding ;
+- relation entre explorer, canvas et Inspector ;
+- timelines et graphes orientés question ;
+- comparaison côte à côte ;
+- artefacts, code et identifiants traités avec précision ;
+- sélection et contexte persistants.
 
-## Objets concernés
+## Densité
 
-- Concepts du document
-- Références canoniques liées
+La densité peut être élevée dans le workbench, mais reste organisée : un canvas principal, un Inspector canonique, une console facultative et un nombre limité de panneaux auxiliaires.
 
-## Fonctionnalités
+## Rythme
 
-- Analyse, preuve, profondeur et traçabilité du raisonnement.
-- Hériter du wordmark et de la signature Moss + Ember.
-- Se distinguer par hiérarchie, texture et accent, jamais par une rupture de shell.
+- vertical dans explorer et listes d'artefacts ;
+- spatial dans graphes et canvases ;
+- horizontal dans timelines et diff ;
+- éditorial dans Evidence, Finding et rapports.
 
-## UX et interactions
+## Clair et sombre
 
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
+Les deux thèmes sont complets. Le sombre peut réduire la fatigue sur code, hex, mémoire ou debugger, mais utilise des surfaces teintées, une hiérarchie claire et aucun noir absolu.
 
-## Permissions
+## IA
 
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
+Une hypothèse ou analyse IA est une annotation proposée avec provenance. Elle n'utilise pas une couleur magique et ne se confond pas avec un Finding confirmé.
 
-## États
+## Exclusions
 
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
-
-## Dépendances
-
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- À compléter — décision source non fournie dans le brief canonique.
+- esthétique hacking ;
+- terminal vert décoratif ;
+- graphes lumineux sans question ;
+- thème sombre obligatoire ;
+- panneaux empilés ;
+- donnée brute et conclusion visuellement indifférenciées.

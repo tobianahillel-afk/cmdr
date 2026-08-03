@@ -2,60 +2,67 @@
 id: studio-visual-language
 domain: 02-brand
 status: draft
-owner: Brand Lead
+owner: Brand Design Lead
 updated: 2026-08-03
 source-of-truth: canonical
+requirements:
+  - REQ-BRAND-008
+  - REQ-PROD-016
+  - REQ-AI-002
+  - REQ-AI-007
+  - REQ-AI-010
 ---
-# Langage visuel Studio
+# Langage visuel CMDR Studio
 
-## Objectif
+## Nodes
 
-Définir un espace de construction et d’assurance.
+- type, nom, version et owner visibles ;
+- ports explicites et connecteurs orthogonaux ;
+- état par texte, forme et sémantique ;
+- groupement par responsabilité ou phase ;
+- aucun glow, particule ou flux continu ;
+- node compact, non carte marketing.
 
-## Périmètre
+## Workflow
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
+Le canvas montre la logique. La liste ou outline fournit une alternative. Les branches, erreurs et Human Gates restent navigables au clavier et lisibles sans couleur.
 
-## Propriétaire fonctionnel
+## Tool Calls
 
-Brand Lead.
+Un Tool Call apparaît comme une entrée de trace : tool, version, initiateur, inputs référencés, permission, durée, résultat, erreur et provenance. Il ne se réduit pas à une animation de node.
 
-## Objets concernés
+## Human Gates
 
-- Concepts du document
-- Références canoniques liées
+- interruption visible ;
+- question, owner, délai et conséquence ;
+- relation à Govern indiquée lorsque nécessaire ;
+- état awaiting, approved, rejected, expired ou bypass impossible selon contrat futur ;
+- aucune célébration ou animation ludique.
 
-## Fonctionnalités
+## Automation Runs
 
-- Bibliothèque, builder, control room et assurance distincts.
-- Versions et environnements visibles.
-- Human Gates explicites.
-- Aucune esthétique de chatbot ou de no-code jouet.
+- timeline ou ledger ;
+- état courant, étapes terminées, attente et erreur ;
+- stop, pause ou reprise visibles selon permission ;
+- sources et outputs ;
+- lien au workflow/version ;
+- distinction avec Response Run.
 
-## UX et interactions
+## Evaluations et simulations
 
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
+- datasets, versions, mesures, seuils et régressions ;
+- comparaison, intervalles et limites ;
+- aucune note unique décorative ;
+- résultat proposé ou validé clairement distinct.
 
-## Permissions
+## Coûts et usage
 
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
+Les coûts sont contextualisés par provider, run, tenant, période et résultat. Ils ne deviennent pas une gamification.
 
-## États
+## Erreurs
 
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
+Erreur locale, cause, étape, retry et impact visibles. Les erreurs ne recolorent pas tout le canvas.
 
-## Dépendances
+## Critère d'acceptation
 
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- À compléter — décision source non fournie dans le brief canonique.
+Un Automation Run peut être compris et interrompu à partir de sa trace même si toutes les animations et couleurs de produit sont désactivées.

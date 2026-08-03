@@ -2,59 +2,56 @@
 id: govern-identity
 domain: 02-brand
 status: draft
-owner: Brand Lead
+owner: Brand Design Lead
 updated: 2026-08-03
 source-of-truth: canonical
+requirements:
+  - REQ-BRAND-006
+  - REQ-BRAND-008
+  - REQ-PROD-015
+  - REQ-PROD-003
+  - REQ-PROD-004
 ---
 # Identité Govern
 
-## Objectif
+## Caractère
 
-Définir l’identité de Govern sans rompre la marque CMDR.
+Assuré, délibératif, conséquent, transparent et réversible.
 
-## Périmètre
+## Question visuelle dominante
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
+**Que peut-on décider, sous quelle autorité, avec quelles conditions et quel retour arrière ?**
 
-## Propriétaire fonctionnel
+## Signatures fonctionnelles
 
-Brand Lead.
+- paquet de décision structuré ;
+- séparation recommandation, Decision, Approval et exécution ;
+- conditions et exceptions visibles ;
+- impact, périmètre et rollback au premier plan ;
+- signatures, acteurs et timestamps ;
+- trace chronologique ;
+- statut de vérification et résultat.
 
-## Objets concernés
+## Densité
 
-- Concepts du document
-- Références canoniques liées
+Densité moyenne. Les documents de décision respirent davantage que les queues, mais n'utilisent pas de cartes surdimensionnées. Les métadonnées d'autorité restent proches du contenu.
 
-## Fonctionnalités
+## Rythme
 
-- Autorité, décision, conditions, responsabilité et audit.
-- Hériter du wordmark et de la signature Moss + Ember.
-- Se distinguer par hiérarchie, texture et accent, jamais par une rupture de shell.
+Séquentiel et éditorial : demande → preuve → options → conditions → autorité → décision → run → résultat.
 
-## UX et interactions
+## Relation à l'urgence
 
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
+Govern ne dramatise pas. Une classe élevée augmente contraste local, détail et confirmation. Le reste du workspace reste stable.
 
-## Permissions
+## IA
 
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
+Une IA peut résumer ou vérifier la complétude. Elle n'adopte pas un sceau, une couleur d'autorité ou un statut de Decision.
 
-## États
+## Exclusions
 
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
-
-## Dépendances
-
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- À compléter — décision source non fournie dans le brief canonique.
+- rouge omniprésent ;
+- tribunal, marteau, sceau décoratif ou bureaucratie visuelle ;
+- action bloquée sans raison ;
+- Approval confondue avec Decision ;
+- politique représentée par un mur de texte sans structure.

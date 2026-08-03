@@ -2,60 +2,66 @@
 id: investigate-visual-language
 domain: 02-brand
 status: draft
-owner: Brand Lead
+owner: Brand Design Lead
 updated: 2026-08-03
 source-of-truth: canonical
+requirements:
+  - REQ-BRAND-008
+  - REQ-PROD-014
+  - REQ-PROD-002
+  - REQ-PROD-005
+  - REQ-UX-005
 ---
 # Langage visuel Investigate
 
-## Objectif
+## Workbench
 
-Définir un espace analytique profond et lisible.
+- un explorer gauche hiérarchise artefacts et sources ;
+- le canvas central porte l'activité principale ;
+- l'Inspector droit révèle contexte, provenance et actions ;
+- une console basse reste facultative ;
+- la sélection relie explorer, canvas et Inspector sans changer de page.
 
-## Périmètre
+## Données brutes, interprétation et Finding
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
+| Niveau | Traitement |
+|---|---|
+| Donnée brute | monospace, source, offset/temps, intégrité |
+| Annotation | repère marginal, auteur et date |
+| Interprétation | texte sans, hypothèse et confiance |
+| Finding proposé | structure dédiée, Evidence citées, statut |
+| Finding confirmé | owner, reviewer et trace de décision analytique |
 
-## Propriétaire fonctionnel
+La couleur n'est pas le seul différenciateur.
 
-Brand Lead.
+## Artefacts et code
 
-## Objets concernés
+- contraste élevé et densité maîtrisée ;
+- ligne active, offset, adresse ou symbole visibles ;
+- sélection non destructive ;
+- provenance et hash proches ;
+- aucune pluie de code ou terminal décoratif.
 
-- Concepts du document
-- Références canoniques liées
+## Graphes
 
-## Fonctionnalités
+- graphe uniquement si les relations sont la question ;
+- direction, type de relation, période et source visibles ;
+- alternative tabulaire ;
+- sélection persistante ;
+- pas de nœuds glow ni de réseau décoratif.
 
-- Preuves et provenance visibles.
-- Canvases accompagnés d’alternatives tabulaires.
-- Annotations distinctes des faits.
-- Outils techniques sans esthétique hacking.
+## Timeline
 
-## UX et interactions
+- temps absolu et relatif ;
+- fuseau, fraîcheur et gaps visibles ;
+- événements groupés sans supprimer l'accès au détail ;
+- annotations distinctes des événements ;
+- comparaison de plusieurs sources possible.
 
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
+## Thème sombre
 
-## Permissions
+Surfaces sombres teintées, texte Bone/Fog, sélection claire, bordures visibles et sémantique cohérente. Le sombre ne change pas la personnalité de marque.
 
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
+## Critère d'acceptation
 
-## États
-
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
-
-## Dépendances
-
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- À compléter — décision source non fournie dans le brief canonique.
+Une Evidence affichée dans un canvas reste reliée à son Artifact, sa source, son intégrité et son statut sans dépendre du thème ou de la couleur.

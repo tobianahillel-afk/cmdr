@@ -2,60 +2,33 @@
 id: studio-typography
 domain: 02-brand
 status: draft
-owner: Brand Lead
+owner: Brand Design Lead
 updated: 2026-08-03
 source-of-truth: canonical
+requirements:
+  - REQ-BRAND-007
+  - REQ-BRAND-008
+  - REQ-PROD-016
 ---
-# Typographie CMDR Studio
+# Application typographique Studio
 
-## Objectif
+Studio utilise la stack commune.
 
-Définir la hiérarchie typographique de CMDR Studio.
+## Rôles locaux
 
-## Périmètre
+- sans pour labels de nodes, titres, état et documentation ;
+- monospace pour Tool, fonction, paramètres, version, expression et erreur ;
+- chiffres tabulaires pour durée, coût, token usage et score ;
+- hiérarchie entre définition, version, environment et run ;
+- labels de ports courts et non tronqués sans accès au complet.
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
+## Builder
 
-## Propriétaire fonctionnel
+La typographie doit rester lisible à différents zooms. La taille ne descend pas sous le seuil accessible pour faire tenir davantage de nodes.
 
-Brand Lead.
+## Interdictions
 
-## Objets concernés
-
-- Concepts du document
-- Références canoniques liées
-
-## Fonctionnalités
-
-- Famille commune à la marque.
-- Échelle lisible et compacte.
-- Monospace réservé aux données techniques.
-- Aucune imitation manuscrite pour les contenus normatifs.
-
-## UX et interactions
-
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
-
-## Permissions
-
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
-
-## États
-
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
-
-## Dépendances
-
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- À compléter — décision source non fournie dans le brief canonique.
+- style terminal généralisé ;
+- ligatures décoratives imposées ;
+- labels minuscules dans les nodes ;
+- typo ou couleur différente pour « IA ».
