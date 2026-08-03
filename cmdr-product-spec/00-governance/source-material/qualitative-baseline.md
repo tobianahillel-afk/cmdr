@@ -8,6 +8,8 @@ source-of-truth: source-material
 requirements:
   - REQ-PROD-006
   - REQ-PROD-012
+  - REQ-BRAND-001
+  - REQ-BRAND-008
 ---
 # Qualitative Baseline
 
@@ -30,64 +32,79 @@ requirements:
 | Files using one of three generic blocks | 677 / 781 |
 | Estimated generic or repeated text | approximately 60% |
 
-## Phase 1 scoped measurements
-
-The measurement scope is the active governance and product-vision narrative documents rewritten in Phase 1. Generated registers and later-phase documents are not counted as substantively corrected.
+## Phase 1 scoped result
 
 | Metric | Before | After |
 |---|---:|---:|
-| Repeated generic skeleton in targeted `00-governance/` and `01-product-vision/` documents | 19 | 0 |
-| `À compléter` in these two domains | 6 | 0 |
-| Targeted narrative documents without explicit Requirement IDs | 34 | 0 |
-| Substantive product-boundary documents | 0 | 1 canonical matrix plus supporting portfolio map |
+| Generic skeleton in targeted governance and vision narratives | 19 | 0 |
+| `À compléter` in those targeted domains | 6 | 0 |
+| Targeted narratives without Requirement IDs | 34 | 0 |
 | Substantive role definitions | 0 | 16 |
 | Structured product risks | 0 | 19 |
-| Structured open decisions | 15 summary rows | 14 open records plus 1 resolved history record |
-| Product README boundary contradictions corrected | 0 | 7 |
-| ADRs with decision-specific analysis | 0 / 4 | 7 / 7 |
+| Decision-specific ADRs | 0 / 4 | 7 / 7 |
 
-Five generated governance registers still do not carry front matter. They remain indexes, not narrative specifications; their status normalization is a documented follow-up rather than hidden.
+## Phase 2 scoped measurements
+
+The Phase 2 measurement scope includes all 34 brand files that existed at the start of the phase, the new canonical brand documents and product entry points, and the minimal Design System foundation references changed to preserve ownership.
+
+| Metric | Before Phase 2 | After Phase 2 |
+|---|---:|---:|
+| Existing active brand documents using the generic skeleton | 25 / 34 | 0 |
+| Active placeholder instructions or unresolved `À compléter` fields in `02-brand/` | approximately 28 | 0 |
+| Existing brand documents without explicit Requirement IDs | 34 / 34 | 0 |
+| Canonical decided palettes with substantive usage rules | 0 / 2 | 2 / 2 |
+| Undecided product palette material | 3 placeholder palette files | 9 argued directions across 3 proposal documents |
+| Product identity README and examples documents | 0 / 8 | 8 / 8 |
+| Comparative typography studies | 0 | 1 brand study plus a Design System boundary document |
+| Argued forbidden-direction examples | 0 | 27 |
+| Product identity defined by color alone | present as a risk | prohibited by the shared/adaptable identity matrix |
+| Final-logo claims unsupported by approval | 1 | 0 |
+| New open decisions | 0 | 1 (`OPEN-016`) |
+
+The three legacy product `palette.md` files remain as `deprecated` navigation records pointing to the proposal documents. They are not canonical palettes.
 
 ## Requirement coverage
 
-### Published Phase 0 summary
-
-| State | Count |
-|---|---:|
-| conform | 0 |
-| partial | 68 |
-| absent | 47 |
-| contradictory | 7 |
-
-### Reconciled Phase 0 rows and Phase 1 result
-
-| State | Reconciled before | After Phase 1 |
+| State | After Phase 1 | After Phase 2 |
 |---|---:|---:|
-| conform | 0 | 81 |
-| partial | 54 | 32 |
-| absent | 61 | 6 |
-| contradictory | 7 | 3 |
+| conform | 81 | 88 |
+| partial | 32 | 25 |
+| absent | 6 | 6 |
+| contradictory | 3 | 3 |
 | total | 122 | 122 |
 
-The original published summary totals 122, but its category assignments did not match the row-level recount. The matrix preserves the published values and records the reconciled recount.
+## Phase 2 decisions applied
 
-## Contradictions resolved
+- `Operational Editorial Modernism` is the fixed central direction.
+- CMDR and Command palette values remain exact.
+- Moss plus Ember is a shared brand signature, not a status system.
+- Investigate, Govern and Studio each have three argued `proposed` directions.
+- The final typography stack remains open.
+- The textual wordmark `CMDR` is stable; final optical construction and any symbol remain open.
+- Product identities share typography, geometry, component semantics, provenance and accessibility.
+- Product differentiation may use rhythm, density, metadata treatment, visualization signatures and approved accent systems, but not color alone.
+- AI is represented through provenance, run identity, uncertainty and control rather than magical or anthropomorphic decoration.
 
-- source-material precedence;
-- product and capability ownership at vision level;
-- AI as optional augmentation rather than required interface;
-- Studio as owner of agentic concepts, not operational decisions;
-- Endpoint Agent as a target native EDR rather than an implemented complete EDR;
-- capability delivery taxonomy and review authority;
-- product exclusions and consumer restrictions.
+## Contradictions resolved in Phase 2
 
-## Contradictions remaining
+- generic or cloned brand bodies;
+- placeholder palettes presented under canonical palette names;
+- exact unapproved logo construction;
+- semantic status colors mixed into the Command brand palette;
+- product-specific typography documents implying separate type systems;
+- ambiguous ownership between Brand and Design System foundations.
 
-- generic Saved Views versus Work Queue Saved Views in existing screen specifications;
-- Work Queue variants represented as separate screens;
-- permission namespace duplication;
-- Tool Call and Automation Run object files remain absent until the detailed functional model phase.
+## Contradictions and work remaining
+
+Outside the Phase 2 scope:
+
+- generic versus Work Queue Saved Views;
+- Work Queue screen-file consolidation;
+- permission namespace normalization;
+- detailed Design System tokens and component behavior;
+- human approval of `OPEN-001` through `OPEN-004` and `OPEN-016`;
+- final visual assets and visual-regression baselines.
 
 ## Outcome
 
-Phase 1 is assessed independently after link, status, traceability and GitHub-state checks. Even with a Phase 1 PASS, the repository remains globally PARTIAL because brand, UX, product modules, journeys, screens, detailed objects, permissions and implementation have not completed their owning phases.
+Phase 2 is **PASS** for brand strategy, visual universe, product identities and decision-ready proposals. The repository remains **PARTIAL globally** because the Design System, UX, functional modules, journeys, screens, detailed objects, permissions, technical architecture and implementation are not complete.

@@ -2,59 +2,47 @@
 id: foundation-motion
 domain: 03-design-system
 status: draft
-owner: Design Lead
+owner: Design System Lead
 updated: 2026-08-03
 source-of-truth: canonical
+requirements:
+  - REQ-BRAND-001
+  - REQ-BRAND-002
 ---
-# Motion
+# Motion foundation — source boundaries
 
-## Objectif
+## Responsibility
 
-Définir la foundation motion.
+The Design System will translate the calm, accountable motion language into exact durations, easing curves and component transitions during Phase 3.
 
-## Périmètre
+## Canonical source
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
+- [`../../02-brand/motion-and-sound.md`](../../02-brand/motion-and-sound.md)
 
-## Propriétaire fonctionnel
+## Phase 3 responsibility
 
-Design Lead.
+Phase 3 will specify tokens and behavior for:
 
-## Objets concernés
+- state changes;
+- disclosure;
+- overlays;
+- cross-product continuity;
+- progress and live updates;
+- interruption and rollback;
+- reduced-motion alternatives.
 
-- Concepts du document
-- Références canoniques liées
+Any duration ranges in the brand document are directional, not implementation tokens.
 
-## Fonctionnalités
+## Constraints
 
-- Animation utile et courte.
-- Reduced motion.
-- Aucun mouvement décoratif continu.
+- Motion explains continuity, hierarchy or state.
+- No continuous decorative movement, pulsing urgency or ambient particles.
+- Criticality does not rely on blinking.
+- `prefers-reduced-motion` preserves information and task completion.
+- Sound is opt-in and operationally governed.
 
-## UX et interactions
+## Acceptance criterion
 
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
-
-## Permissions
-
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
-
-## États
-
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
-
-## Dépendances
-
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- À compléter — décision source non fournie dans le brief canonique.
+**Given** an Automation Run changes from running to paused,  
+**When** the state transition is presented,  
+**Then** motion makes the change legible without spectacle, the textual status updates immediately and reduced-motion users receive an equivalent non-animated cue.

@@ -2,59 +2,49 @@
 id: foundation-typography
 domain: 03-design-system
 status: draft
-owner: Design Lead
+owner: Design System Lead
 updated: 2026-08-03
 source-of-truth: canonical
+requirements:
+  - REQ-BRAND-007
+  - REQ-PROD-051
 ---
-# Typography
+# Typography foundation — source boundaries
 
-## Objectif
+## Responsibility
 
-Définir la foundation typography.
+This foundation will implement the typographic system after the brand study and `OPEN-004` are reviewed. The brand domain defines the desired editorial character; the Design System defines exact sizes, line heights, weights, responsive behavior and tokens.
 
-## Périmètre
+## Canonical source
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
+- Brand typography study: [`../../02-brand/cmdr/typography.md`](../../02-brand/cmdr/typography.md)
 
-## Propriétaire fonctionnel
+## Pending decision
 
-Design Lead.
+`OPEN-004` remains open. Inter, Inter Tight, IBM Plex Sans and equivalent editorial sans combinations are candidates, not approved defaults. Monospace selection is also subject to readability, licensing, language and platform testing.
 
-## Objets concernés
+## Phase 3 responsibility
 
-- Concepts du document
-- Références canoniques liées
+Phase 3 will define role tokens for Display, Page title, Section title, Body, UI label, Metadata, Table, Badge, Code, Query and Identifier, together with:
 
-## Fonctionnalités
+- exact metrics;
+- tabular-number behavior;
+- truncation and wrapping;
+- dense-interface legibility;
+- fallback stacks;
+- localization expansion;
+- Windows, macOS and Linux rendering tests.
 
-- Échelle commune et rôles sémantiques.
-- Monospace pour code, hash et adresse.
-- Longueur de ligne et densité contrôlées.
+## Constraints
 
-## UX et interactions
+- One coherent family system serves all products.
+- Product differentiation does not use unrelated typefaces.
+- Monospace is reserved for technical material and identifiers.
+- Typography carries hierarchy before color or decorative containers.
+- No font binaries are stored in this documentation repository.
 
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
+## Acceptance criterion
 
-## Permissions
-
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
-
-## États
-
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
-
-## Dépendances
-
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- À compléter — décision source non fournie dans le brief canonique.
+**Given** `OPEN-004` is still open,  
+**When** a component specification references typography,  
+**Then** it uses semantic role names rather than asserting a final font family or unsupported metric.

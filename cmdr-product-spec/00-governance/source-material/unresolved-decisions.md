@@ -8,78 +8,150 @@ source-of-truth: source-material
 requirements:
   - REQ-PROD-048
   - REQ-PROD-062
+  - REQ-BRAND-008
 ---
 # Unresolved Decisions
 
-Generic `À compléter` placeholders are forbidden. This register preserves decisions that remain genuinely open without presenting an option as an approved fact.
+Open decisions preserve uncertainty without promoting a proposal to an approved fact. A decision closes only through an explicit sponsor decision or an approved ADR, followed by updates to every affected canonical document and the traceability matrix.
 
-## Open decisions
+## Phase 2 brand decisions
 
-### OPEN-001 — Select the Investigate palette direction.
+### OPEN-001 — Investigate palette direction
 
 ```yaml
 decision_id: OPEN-001
 status: open
 owner: Brand Design Lead
-target_phase: Phase 2
+target_phase: Phase 2 review
 blocking: false
 depends_on: []
-question: Select the Investigate palette direction.
-options: Compatible CMDR-family proposals only; no final values are decided.
-required_evidence: Contrast, workbench density, differentiation and accessibility review.
-affected_files: 02-brand/investigate/*; 03-design-system/tokens/product-theme-tokens.md
+question: Which Investigate palette direction should become canonical?
+options:
+  - A — Verdigris Ledger
+  - B — Lichen Archive
+  - C — Mineral Graph
+required_evidence:
+  - light and dark workbench prototypes
+  - contrast and color-vision-deficiency review
+  - dense table, timeline, graph and code comparisons
+  - family resemblance review against CMDR and Command
+affected_files:
+  - 02-brand/investigate/palette-proposals.md
+  - 03-design-system/tokens/product-theme-tokens.md
 requirement_id: REQ-PROD-048
 ```
 
-### OPEN-002 — Select the Govern palette direction.
+### OPEN-002 — Govern palette direction
 
 ```yaml
 decision_id: OPEN-002
 status: open
 owner: Brand Design Lead
-target_phase: Phase 2
+target_phase: Phase 2 review
 blocking: false
 depends_on: []
-question: Select the Govern palette direction.
-options: Compatible CMDR-family proposals only; no final values are decided.
-required_evidence: Decision-authority tone, accessibility and non-punitive visual review.
-affected_files: 02-brand/govern/*; product theme tokens
+question: Which Govern palette direction should become canonical?
+options:
+  - A — Bronze Ledger
+  - B — Civic Aubergine
+  - C — Olive Charter
+required_evidence:
+  - decision-package and audit-ledger prototypes
+  - non-punitive authority review
+  - light and dark contrast review
+  - distinction between recommendation, decision and execution
+affected_files:
+  - 02-brand/govern/palette-proposals.md
+  - 03-design-system/tokens/product-theme-tokens.md
 requirement_id: REQ-PROD-049
 ```
 
-### OPEN-003 — Select the Studio palette direction.
+### OPEN-003 — CMDR Studio palette direction
 
 ```yaml
 decision_id: OPEN-003
 status: open
 owner: Brand Design Lead
-target_phase: Phase 2
+target_phase: Phase 2 review
 blocking: false
 depends_on: []
-question: Select the Studio palette direction.
-options: Compatible CMDR-family proposals only; no final values are decided.
-required_evidence: Builder, simulation and execution-observability use cases.
-affected_files: 02-brand/studio/*; product theme tokens
+question: Which CMDR Studio palette direction should become canonical?
+options:
+  - A — Workshop Sienna
+  - B — Petrol Assembly
+  - C — Iris Graphite
+required_evidence:
+  - builder, Control Room and Assurance prototypes
+  - node-state and run-state differentiation
+  - light and dark contrast review
+  - review against generic purple AI and no-code conventions
+affected_files:
+  - 02-brand/studio/palette-proposals.md
+  - 03-design-system/tokens/product-theme-tokens.md
 requirement_id: REQ-PROD-050
 ```
 
-### OPEN-004 — Confirm the final typography stack and licensing.
+### OPEN-004 — Final typography stack and licensing
 
 ```yaml
 decision_id: OPEN-004
 status: open
 owner: Design System Lead
-target_phase: Phase 2
+target_phase: Phase 2 review
 blocking: false
 depends_on: []
-question: Confirm the final typography stack and licensing.
-options: Inter, Inter Tight, IBM Plex Sans or equivalent editorial sans; monospace for technical content.
-required_evidence: License, language coverage, performance and readability evaluation.
-affected_files: 02-brand/cmdr/typography.md; 03-design-system/foundations/typography.md
+question: Which editorial sans and monospace stack should become canonical?
+options:
+  - Inter plus Inter Tight with a reviewed monospace
+  - IBM Plex Sans plus IBM Plex Mono
+  - a hybrid or equivalent editorial sans system supported by evidence
+required_evidence:
+  - license and legal review
+  - French and English language coverage
+  - tabular-number and dense-table evaluation
+  - code, query, hash and identifier readability
+  - Windows, macOS and Linux rendering
+  - loading performance and fallback behavior
+affected_files:
+  - 02-brand/cmdr/typography.md
+  - 03-design-system/foundations/typography.md
+  - 03-design-system/tokens/*
 requirement_id: REQ-PROD-051
 ```
 
-### OPEN-005 — Classify the initial forensic engines.
+### OPEN-016 — Final wordmark construction and optional symbol
+
+```yaml
+decision_id: OPEN-016
+status: open
+owner: Brand Design Lead
+target_phase: Phase 2 review
+blocking: false
+depends_on:
+  - OPEN-004
+question: Should CMDR remain wordmark-only or use an approved compact symbol, and what final optical construction should be adopted?
+options:
+  - wordmark-only system
+  - wordmark plus distinct compact symbol
+  - optically constructed CMDR monogram for compact contexts only
+required_evidence:
+  - small-size and favicon legibility
+  - monochrome, Bone and Ink applications
+  - trademark and legal review
+  - optical-spacing study
+  - application-icon and product-lockup tests
+affected_files:
+  - 02-brand/logo-and-wordmark.md
+  - 02-brand/cmdr/logo.md
+  - assets/brand/*
+requirement_id: REQ-BRAND-008
+```
+
+`OPEN-016` blocks production of final logo assets, not the use of the textual name `CMDR`.
+
+## Later product and technical decisions
+
+### OPEN-005 — Initial forensic engines
 
 ```yaml
 decision_id: OPEN-005
@@ -88,14 +160,23 @@ owner: Investigate Product Lead
 target_phase: Phase 4
 blocking: true
 depends_on: []
-question: Classify the initial forensic engines.
-options: native, integrated or temporary-integration per capability.
-required_evidence: User outcomes, licensing, engine limitations, evidence integrity and replacement strategy.
-affected_files: 01-product-vision/capability-map.md; 07-investigate workbench modules
+question: How should initial forensic engines be classified?
+options:
+  - native
+  - integrated
+  - temporary-integration
+required_evidence:
+  - user outcomes
+  - licensing and engine limits
+  - evidence-integrity review
+  - replacement strategy
+affected_files:
+  - 01-product-vision/capability-map.md
+  - 07-investigate/modules/*
 requirement_id: REQ-PROD-052
 ```
 
-### OPEN-006 — Define where Customers and Delivery applies.
+### OPEN-006 — Customers and Delivery applicability
 
 ```yaml
 decision_id: OPEN-006
@@ -104,14 +185,18 @@ owner: Command Product Lead
 target_phase: Phase 4
 blocking: false
 depends_on: []
-question: Define where Customers and Delivery applies.
-options: optional deployment capability or generally available module.
-required_evidence: Operating-model evidence from managed-service and internal deployments.
-affected_files: 06-command/modules/customer-and-reports/*
+question: Is Customers and Delivery an optional deployment capability or a generally available Command module?
+options:
+  - optional managed-service capability
+  - generally available module
+required_evidence:
+  - managed-service and internal-deployment operating evidence
+affected_files:
+  - 06-command/modules/customer-and-reports/*
 requirement_id: REQ-PROD-053
 ```
 
-### OPEN-007 — Define when a Studio Human Gate must create or reference a Govern Decision.
+### OPEN-007 — Human Gate and Govern relationship
 
 ```yaml
 decision_id: OPEN-007
@@ -120,14 +205,23 @@ owner: Security Architecture
 target_phase: Phase 4
 blocking: true
 depends_on: []
-question: Define when a Studio Human Gate must create or reference a Govern Decision.
-options: risk-class and policy-driven options; no universal rule is decided.
-required_evidence: Action classes, authority model, separation of duties and audit needs.
-affected_files: 01-product-vision/operating-model.md; 08-govern/*; 09-cmdr-studio/human-gates/*
+question: When must a Studio Human Gate create or reference a Govern Decision?
+options:
+  - risk-class-driven
+  - policy-driven
+  - combined risk and policy model
+required_evidence:
+  - action classes
+  - authority model
+  - separation of duties
+  - audit requirements
+affected_files:
+  - 08-govern/*
+  - 09-cmdr-studio/human-gates/*
 requirement_id: REQ-PROD-054
 ```
 
-### OPEN-008 — Define visible platform support at initial delivery.
+### OPEN-008 — Endpoint platform support
 
 ```yaml
 decision_id: OPEN-008
@@ -136,14 +230,23 @@ owner: Endpoint Agent Product Lead
 target_phase: Phase 4
 blocking: true
 depends_on: []
-question: Define visible platform support at initial delivery.
-options: Windows, Linux and macOS scopes remain open by release.
-required_evidence: User demand, sensor feasibility, operational support and compatibility matrix.
-affected_files: 11-endpoint-agent/platform-support.md; 10-platform-settings/endpoint-agent-fleet/*
+question: Which operating systems and versions are visible at initial delivery?
+options:
+  - release-scoped Windows support
+  - release-scoped Windows and Linux support
+  - broader phased support including macOS
+required_evidence:
+  - user demand
+  - sensor feasibility
+  - support operating model
+  - compatibility evidence
+affected_files:
+  - 11-endpoint-agent/platform-support.md
+  - 10-platform-settings/endpoint-agent-fleet/*
 requirement_id: REQ-PROD-055
 ```
 
-### OPEN-010 — Define density preferences by role and activity.
+### OPEN-010 — Density by role and activity
 
 ```yaml
 decision_id: OPEN-010
@@ -152,14 +255,20 @@ owner: UX Architecture
 target_phase: Phase 3
 blocking: false
 depends_on: []
-question: Define density preferences by role and activity.
-options: role defaults with user-adjustable density are candidates, not decisions.
-required_evidence: Usability studies for queue, case, workbench, decision and settings activities.
-affected_files: 01-product-vision/target-users.md; 04-experience-architecture/information-density-model.md
+question: Which density defaults and user controls apply by role and activity?
+options:
+  - activity defaults
+  - role defaults
+  - activity defaults with user overrides
+required_evidence:
+  - queue, case, workbench, decision and settings usability studies
+affected_files:
+  - 04-experience-architecture/information-density-model.md
+  - 03-design-system/foundations/density.md
 requirement_id: REQ-PROD-057
 ```
 
-### OPEN-011 — Define mobile forensic scope.
+### OPEN-011 — Mobile forensic scope
 
 ```yaml
 decision_id: OPEN-011
@@ -168,14 +277,20 @@ owner: Investigate Product Lead
 target_phase: Phase 4
 blocking: false
 depends_on: []
-question: Define mobile forensic scope.
-options: planned or out-of-scope for the initial release.
-required_evidence: User demand, acquisition legality, platform coverage and engine strategy.
-affected_files: 07-investigate workbench capability documents
+question: Is mobile forensic capability planned or out of scope for initial delivery?
+options:
+  - planned
+  - out-of-scope
+required_evidence:
+  - demand
+  - acquisition legality
+  - platform and engine strategy
+affected_files:
+  - 07-investigate/modules/*
 requirement_id: REQ-PROD-058
 ```
 
-### OPEN-012 — Define cloud analysis scope.
+### OPEN-012 — Cloud analysis scope
 
 ```yaml
 decision_id: OPEN-012
@@ -184,14 +299,24 @@ owner: Investigate Product Lead
 target_phase: Phase 4
 blocking: false
 depends_on: []
-question: Define cloud analysis scope.
-options: native, integrated, temporary-integration, planned or out-of-scope per provider and artifact type.
-required_evidence: User journeys, evidence sources, provider APIs and responsibility boundaries.
-affected_files: 07-investigate workbench and intelligence documents
+question: Which cloud analysis capabilities are in scope and how are they delivered?
+options:
+  - native
+  - integrated
+  - temporary-integration
+  - planned
+  - out-of-scope
+required_evidence:
+  - journeys
+  - evidence sources
+  - provider APIs
+  - ownership boundaries
+affected_files:
+  - 07-investigate/modules/*
 requirement_id: REQ-PROD-059
 ```
 
-### OPEN-013 — Define default governance for Action Class 2.
+### OPEN-013 — Default governance for Action Class 2
 
 ```yaml
 decision_id: OPEN-013
@@ -200,14 +325,22 @@ owner: Security Architecture
 target_phase: Phase 4
 blocking: true
 depends_on: []
-question: Define default governance for Action Class 2.
-options: policy-controlled direct execution or Govern review depending on scope and reversibility.
-required_evidence: Risk assessment, rollback reliability, tenant policy and blast-radius evidence.
-affected_files: 01-product-vision/operating-model.md; 14-security-permissions-and-trust/*
+question: Which Action Class 2 operations require Govern review by default?
+options:
+  - policy-controlled direct execution
+  - mandatory Govern review
+  - conditional review based on scope and reversibility
+required_evidence:
+  - risk and blast radius
+  - rollback reliability
+  - tenant policy
+affected_files:
+  - 14-security-permissions-and-trust/*
+  - 08-govern/*
 requirement_id: REQ-PROD-060
 ```
 
-### OPEN-014 — Define the Artifact versus Attachment boundary.
+### OPEN-014 — Artifact versus Attachment
 
 ```yaml
 decision_id: OPEN-014
@@ -216,14 +349,22 @@ owner: Investigate Product Lead
 target_phase: Phase 7
 blocking: true
 depends_on: []
-question: Define the Artifact versus Attachment boundary.
-options: separate Attachment object or typed Artifact relation remain possible.
-required_evidence: Evidence lifecycle, collaboration, provenance, retention and export requirements.
-affected_files: 00-governance/ownership-register.md; 05-domain-model/objects/artifact.md; evidence model
+question: Should Attachment be a separate object or a typed Artifact relationship?
+options:
+  - separate Attachment object
+  - typed Artifact relation
+required_evidence:
+  - evidence lifecycle
+  - provenance
+  - collaboration
+  - retention and export
+affected_files:
+  - 05-domain-model/objects/artifact.md
+  - 00-governance/ownership-register.md
 requirement_id: REQ-PROD-061
 ```
 
-### OPEN-015 — Define the Automation Run to Response Run bridge.
+### OPEN-015 — Automation Run to Response Run bridge
 
 ```yaml
 decision_id: OPEN-015
@@ -231,17 +372,27 @@ status: open
 owner: CMDR Studio Product Lead
 target_phase: Phase 4
 blocking: true
-depends_on: []
-question: Define the Automation Run to Response Run bridge.
-options: explicit governed transition; exact trigger and object mapping remain open.
-required_evidence: Action classification, Decision requirements, tool effects and audit model.
-affected_files: 01-product-vision/operating-model.md; Studio and Govern functional specifications
+depends_on:
+  - OPEN-007
+  - OPEN-013
+question: What explicit governed transition connects Automation Run to Response Run?
+options:
+  - governed object transition with referenced Decision
+  - policy-authorized transition for eligible classes
+required_evidence:
+  - action classification
+  - Decision requirements
+  - Tool effects
+  - audit model
+affected_files:
+  - 08-govern/*
+  - 09-cmdr-studio/*
 requirement_id: REQ-PROD-062
 ```
 
-## Resolved during Phase 1
+## Resolved history
 
-### OPEN-009 — Capability-status review authority
+### OPEN-009 — Capability delivery-classification authority
 
 ```yaml
 decision_id: OPEN-009
@@ -251,17 +402,17 @@ target_phase: Phase 1
 blocking: false
 depends_on: []
 question: Who approves a capability delivery classification?
-decision: The capability owner proposes the classification. The owning Product Lead and Product Architecture approve it. Security review is mandatory for trust, action or sensitive-data capabilities. Engineering review is mandatory before a native or integrated delivery claim. QA and Traceability verify the cited evidence and update the capability register and traceability matrix.
-required_evidence: owner rationale, user outcome, engine responsibility, delivery evidence, limits, dependencies and replacement plan for temporary integrations
-affected_files: 00-governance/review-and-approval-process.md; 01-product-vision/capability-map.md; 00-governance/registers/capability-register.md
+decision: The capability owner proposes; the owning Product Lead and Product Architecture approve; Security reviews trust, action and sensitive-data capabilities; Engineering must review native or integrated delivery claims; QA and Traceability verify evidence and update the register.
+affected_files:
+  - 00-governance/review-and-approval-process.md
+  - 01-product-vision/capability-map.md
 requirement_id: REQ-PROD-056
 ```
 
-The resolved record remains here for history. It is not an open blocker.
-
 ## Maintenance rules
 
-- A question is closed only by an explicit source decision or an approved ADR.
-- Closing a question updates every affected canonical document and the traceability matrix.
-- If a target phase begins without sufficient evidence, the question remains open and the dependent document cannot become Validated.
-- No open decision may be replaced by a generic placeholder or an unsupported assumption.
+- An option is not a decision.
+- A proposed palette remains `proposed` even when individual contrast pairs pass.
+- A question closes only with decision evidence, owner and affected-file updates.
+- Starting the target phase without sufficient evidence does not close the question.
+- Generic placeholders are prohibited.

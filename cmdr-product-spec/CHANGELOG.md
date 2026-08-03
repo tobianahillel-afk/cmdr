@@ -1,31 +1,34 @@
 # Changelog
 
+## 2026-08-03 — Phase 2 brand and visual universe
+
+- Translated `Operational Editorial Modernism` into normative visual principles, personality, signature, geometry, imagery, iconography, motion, editorial and AI-expression rules.
+- Preserved the exact CMDR and Command palette values and documented their allowed roles, restrictions, contrast and theme behavior.
+- Replaced placeholder Investigate, Govern and Studio palette files with three argued `proposed` directions per product while keeping `OPEN-001` through `OPEN-003` open.
+- Added substantive identities, visual languages, usage rules and examples for Command, Investigate, Govern and CMDR Studio.
+- Added a comparative typography study without closing `OPEN-004` or storing font files.
+- Reframed the logo documents as strategy: the `CMDR` wordmark is stable, while final optical construction and any compact symbol remain `OPEN-016`.
+- Defined shared versus adaptable product-identity attributes and prohibited color-only differentiation.
+- Added brand quality gates and minimal Design System ownership references without creating Phase 3 tokens.
+- Updated traceability to 88 conform, 25 partial, 6 absent and 3 contradictory requirements.
+- Kept PR #2 open, draft and unmerged; no screen redesign, token finalization or implementation was started.
+
 ## 2026-08-03 — Phase 1 governance and product vision
 
 - Established the normative source hierarchy and conflict-resolution process.
-- Added substantive documentation, terminology, status-lifecycle and review rules.
-- Expanded the ownership and dependency registers.
-- Reworked the ADR set into seven decision-specific Draft records.
-- Defined CMDR vision, mission, principles, users, user problems, value, boundaries, pillars, operating model, success metrics, non-goals, risks and future horizons.
-- Classified capability delivery using `native`, `integrated`, `temporary-integration`, `planned` and `out-of-scope`.
-- Corrected product README boundaries and changed Endpoint Agent wording from completed capability to target native EDR.
-- Resolved OPEN-009 for capability-status review authority.
-- Reconciled the Phase 0 row-level traceability arithmetic and updated Phase 1 coverage.
-- Kept PR #2 open, draft and unmerged; no implementation or later phase was started.
+- Added substantive documentation, terminology, lifecycle and review rules.
+- Defined vision, mission, principles, users, problems, value, boundaries, pillars, operating model, metrics, non-goals, risks and future horizons.
+- Corrected product boundaries and Endpoint Agent target-versus-delivery wording.
+- Resolved `OPEN-009`.
 
 ## 2026-08-03 — Phase 0 source requirements
 
 - Added the source-material packet.
-- Registered 122 Requirement IDs, source decisions and structured open questions.
+- Registered 122 Requirement IDs and structured open questions.
 - Created the initial traceability matrix and qualitative baseline.
 
 ## 2026-08-03 — Canonical foundation correction
 
-- Replaced the non-canonical condensed architecture with the 22 required top-level domains.
-- Added governance registers, initial ADRs, product domains and validation material.
+- Replaced the condensed architecture with the required top-level domains.
+- Added governance registers, product domains and validation material.
 - Preserved the repository root `README.md` exactly as `# cmdr`.
-
-## 2026-08-03 — Initial condensed foundation
-
-- Created a first 73-file documentation set.
-- Superseded on the same branch after structural audit found that the canonical architecture had not been followed.

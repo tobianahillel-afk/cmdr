@@ -2,59 +2,43 @@
 id: foundation-borders-and-radius
 domain: 03-design-system
 status: draft
-owner: Design Lead
+owner: Design System Lead
 updated: 2026-08-03
 source-of-truth: canonical
+requirements:
+  - REQ-BRAND-001
+  - REQ-BRAND-008
 ---
-# Borders And Radius
+# Borders and radius foundation — source boundaries
 
-## Objectif
+## Responsibility
 
-Définir la foundation borders and radius.
+Phase 3 owns exact radius and border tokens. Brand defines the intended geometry: edited, stable and restrained rather than a collection of floating rounded cards.
 
-## Périmètre
+## Canonical source
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
+- [`../../02-brand/shape-and-surfaces.md`](../../02-brand/shape-and-surfaces.md)
 
-## Propriétaire fonctionnel
+## Phase 3 responsibility
 
-Design Lead.
+Define:
 
-## Objets concernés
+- radius scale;
+- border widths and contrast;
+- separators;
+- selected and focused outlines;
+- overlay boundaries;
+- high-contrast-mode behavior.
 
-- Concepts du document
-- Références canoniques liées
+## Constraints
 
-## Fonctionnalités
+- Small or moderate radii are the default direction.
+- Fully pill-shaped containers are reserved for genuinely compact labels, filters or segmented controls.
+- Large decorative capsules, excessive rounding and glass layers are prohibited.
+- Borders and tonal surfaces communicate structure before shadows.
 
-- Rayons faibles à modérés.
-- Bordures fines et fonctionnelles.
-- Formes cohérentes dans les six produits.
+## Acceptance criterion
 
-## UX et interactions
-
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
-
-## Permissions
-
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
-
-## États
-
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
-
-## Dépendances
-
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- À compléter — décision source non fournie dans le brief canonique.
+**Given** a dense evidence table and an adjacent Inspector,  
+**When** their boundaries are rendered,  
+**Then** the hierarchy remains clear through alignment, separators and tonal contrast without wrapping each region in a large floating card.

@@ -2,60 +2,46 @@
 id: foundation-data-visualization
 domain: 03-design-system
 status: draft
-owner: Design Lead
+owner: Design System Lead
 updated: 2026-08-03
 source-of-truth: canonical
+requirements:
+  - REQ-BRAND-001
+  - REQ-BRAND-002
+  - REQ-BRAND-008
 ---
-# Data Visualization
+# Data visualization foundation — source boundaries
 
-## Objectif
+## Responsibility
 
-Définir la foundation data visualization.
+Phase 3 will define chart tokens, series behavior and accessible interaction. Brand defines the visual language: evidence-led, quiet, annotated and never decorative.
 
-## Périmètre
+## Canonical source
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
+- [`../../02-brand/data-visualization-language.md`](../../02-brand/data-visualization-language.md)
 
-## Propriétaire fonctionnel
+## Phase 3 responsibility
 
-Design Lead.
+Define:
 
-## Objets concernés
+- qualitative and sequential series tokens;
+- axes, grids, labels and annotations;
+- confidence and uncertainty treatment;
+- selection, comparison and hover;
+- print and export behavior;
+- table alternatives;
+- color-vision-deficiency validation.
 
-- Concepts du document
-- Références canoniques liées
+## Constraints
 
-## Fonctionnalités
+- A chart must answer a stated operational question.
+- Source, time range, freshness and units remain visible.
+- 3D charts, decorative maps, gauges resembling game counters and saturated rainbow scales are prohibited.
+- Product accents do not replace semantic or series systems.
+- Every essential visualization has an accessible textual or tabular alternative.
 
-- Définitions et sources visibles.
-- Couleurs sémantiques limitées.
-- Alternatives tabulaires.
-- Incertitude explicite.
+## Acceptance criterion
 
-## UX et interactions
-
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
-
-## Permissions
-
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
-
-## États
-
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
-
-## Dépendances
-
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- À compléter — décision source non fournie dans le brief canonique.
+**Given** a trend that supports a Decision,  
+**When** Govern displays it,  
+**Then** the chart identifies source, interval, units and uncertainty, and the same values are available without relying on color or pointer interaction.

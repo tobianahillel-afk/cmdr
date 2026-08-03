@@ -8,180 +8,89 @@ source-of-truth: source-material
 requirements:
   - REQ-PROD-001
   - REQ-PROD-062
+  - REQ-BRAND-001
+  - REQ-BRAND-008
 ---
 # Requirements Traceability Matrix
 
 ## Interpretation
 
-Source for all rows: Master Execution Prompt as captured in `source-material/`. `conform` means substantive Phase 1 product/governance coverage and traceability, not completion of later UX, functional, security, technical or implementation work.
+This matrix preserves all 122 source Requirement IDs. Phase 2 adds detailed traceability for brand, product-identity and AI-expression requirements. `conform` means substantive coverage in the current owning phase, not completion of later UX, component, technical or implementation work.
 
 ## Coverage
 
-| State | Phase 0 published | Reconciled before | After Phase 1 |
-|---|---:|---:|---:|
-| conform | 0 | 0 | 81 |
-| partial | 68 | 54 | 32 |
-| absent | 47 | 61 | 6 |
-| contradictory | 7 | 7 | 3 |
-| total | 122 | 122 | 122 |
+| State | Phase 0 published | Reconciled before Phase 1 | After Phase 1 | After Phase 2 |
+|---|---:|---:|---:|---:|
+| conform | 0 | 0 | 81 | 88 |
+| partial | 68 | 54 | 32 | 25 |
+| absent | 47 | 61 | 6 | 6 |
+| contradictory | 7 | 7 | 3 | 3 |
+| total | 122 | 122 | 122 | 122 |
 
-The published Phase 0 summary did not arithmetically match its 122 catalog rows. The published values and reconciled recount are both retained.
+The Phase 0 published categories total 122 but differ from the row-level recount. Both baselines remain visible.
 
-## Coverage rules
+## Phase 2 detailed traceability
 
-- `conform`: Phase 1 intent is substantive, traced and has no active Phase 1 contradiction.
-- `partial`: product principle or boundary exists; its owning later phase must define detailed behavior.
-- `absent`: deliberately deferred with no delivery claim.
-- `contradictory`: an active competing structure remains.
+| Requirement | Source document | Canonical document / section | Before | After | Coverage | Contradiction resolved | Dependents | Proof | Open decision |
+|---|---|---|---|---|---|---|---|---|---|
+| REQ-BRAND-001 | `00-governance/source-material/brand-and-visual-decisions.md` | `02-brand/operational-editorial-modernism.md; visual-principles.md; brand-personality.md` — direction, principles and personality | partial | conform | Phase 2 substantive; specific rules, examples and acceptance criteria | — | Brand, Design System, product shells, marketing, documentation | direction, personality, principles and acceptance tests | — |
+| REQ-BRAND-002 | `00-governance/source-material/brand-and-visual-decisions.md` | `02-brand/forbidden-directions.md` — anti-examples and CMDR alternatives | partial | conform | Phase 2 substantive; specific rules, examples and acceptance criteria | — | Brand, Design System, product shells, marketing, documentation | anti-examples with reason, risk and CMDR alternative | — |
+| REQ-BRAND-003 | `00-governance/source-material/brand-and-visual-decisions.md` | `02-brand/cmdr/palette.md` — exact values, roles, contrast and theme behavior | partial | conform | Phase 2 substantive; specific rules, examples and acceptance criteria | — | Brand, Design System, product shells, marketing, documentation | exact CMDR values, roles, contrast and theme behavior | — |
+| REQ-BRAND-004 | `00-governance/source-material/brand-and-visual-decisions.md` | `02-brand/command/palette.md` — exact values, surface hierarchy and restrictions | partial | conform | Phase 2 substantive; specific rules, examples and acceptance criteria | — | Brand, Design System, product shells, marketing, documentation | exact Command values, surface hierarchy and restrictions | — |
+| REQ-BRAND-005 | `00-governance/source-material/brand-and-visual-decisions.md` | `02-brand/brand-essence-and-signature.md` — Moss + Ember signature and semantic separation | partial | conform | Phase 2 substantive; specific rules, examples and acceptance criteria | — | Brand, Design System, product shells, marketing, documentation | Moss + Ember signature separated from semantics | — |
+| REQ-BRAND-006 | `00-governance/source-material/brand-and-visual-decisions.md` | `02-brand/investigate/palette-proposals.md; govern/palette-proposals.md; studio/palette-proposals.md` — three proposed directions per product; OPEN-001..003 remain open | partial | conform | Phase 2 substantive; specific rules, examples and acceptance criteria | resolved: placeholder/overclaim removed | Brand, Design System, product shells, marketing, documentation | three argued proposed directions per open product palette | OPEN-001, OPEN-002, OPEN-003 |
+| REQ-BRAND-007 | `00-governance/source-material/brand-and-visual-decisions.md` | `02-brand/cmdr/typography.md; 03-design-system/foundations/typography.md` — candidate study; final stack remains OPEN-004 | partial | partial | Phase 2 study; decision open; specific rules, examples and acceptance criteria | — | Brand, Design System, product shells, marketing, documentation | candidate study, licensing evidence and validation matrix | OPEN-004 |
+| REQ-BRAND-008 | `00-governance/source-material/brand-and-visual-decisions.md` | `02-brand/brand-architecture.md; command/README.md; investigate/README.md; govern/README.md; studio/README.md; logo-and-wordmark.md` — shared/adaptable matrix and product identities; final symbol remains OPEN-016 | partial | conform | Phase 2 substantive; specific rules, examples and acceptance criteria | resolved: placeholder/overclaim removed | Brand, Design System, product shells, marketing, documentation | common/adaptable matrix and four substantive product identities | OPEN-016 |
+| REQ-PROD-003 | `00-governance/source-material/cmdr-master-product-brief.md` | `01-product-vision/product-vision.md; product-principles.md` — vision and product principles | conform | conform | unchanged Phase 1 evidence | — | Product owners and owning later phases | brand application references existing product principle or boundary | — |
+| REQ-PROD-005 | `00-governance/source-material/cmdr-master-product-brief.md` | `01-product-vision/product-vision.md; product-principles.md` — vision and product principles | conform | conform | unchanged Phase 1 evidence | — | Product owners and owning later phases | brand application references existing product principle or boundary | — |
+| REQ-PROD-007 | `00-governance/source-material/cmdr-master-product-brief.md` | `01-product-vision/product-vision.md; product-principles.md` — vision and product principles | partial | partial | unchanged; later owning phase | — | Product owners and owning later phases | brand application references existing product principle or boundary | — |
+| REQ-PROD-008 | `00-governance/source-material/cmdr-master-product-brief.md` | `01-product-vision/product-vision.md; product-principles.md` — vision and product principles | partial | partial | unchanged; later owning phase | — | Product owners and owning later phases | brand application references existing product principle or boundary | — |
+| REQ-PROD-013 | `00-governance/source-material/cmdr-master-product-brief.md` | `01-product-vision/product-boundaries.md` — product ownership and exclusions | conform | conform | unchanged Phase 1 evidence | — | Product owners and owning later phases | brand application references existing product principle or boundary | — |
+| REQ-PROD-014 | `00-governance/source-material/cmdr-master-product-brief.md` | `01-product-vision/product-boundaries.md` — product ownership and exclusions | conform | conform | unchanged Phase 1 evidence | — | Product owners and owning later phases | brand application references existing product principle or boundary | — |
+| REQ-PROD-015 | `00-governance/source-material/cmdr-master-product-brief.md` | `01-product-vision/product-boundaries.md` — product ownership and exclusions | conform | conform | unchanged Phase 1 evidence | — | Product owners and owning later phases | brand application references existing product principle or boundary | — |
+| REQ-PROD-016 | `00-governance/source-material/cmdr-master-product-brief.md` | `01-product-vision/product-boundaries.md` — product ownership and exclusions | conform | conform | unchanged Phase 1 evidence | — | Product owners and owning later phases | brand application references existing product principle or boundary | — |
+| REQ-PROD-048 | `00-governance/source-material/unresolved-decisions.md` | `00-governance/source-material/unresolved-decisions.md` — structured open or resolved decision | conform | conform | unchanged Phase 1 evidence | — | Product owners and owning later phases | named proposal set and structured open-decision evidence | OPEN-001 |
+| REQ-PROD-049 | `00-governance/source-material/unresolved-decisions.md` | `00-governance/source-material/unresolved-decisions.md` — structured open or resolved decision | conform | conform | unchanged Phase 1 evidence | — | Product owners and owning later phases | named proposal set and structured open-decision evidence | OPEN-002 |
+| REQ-PROD-050 | `00-governance/source-material/unresolved-decisions.md` | `00-governance/source-material/unresolved-decisions.md` — structured open or resolved decision | conform | conform | unchanged Phase 1 evidence | — | Product owners and owning later phases | named proposal set and structured open-decision evidence | OPEN-003 |
+| REQ-PROD-051 | `00-governance/source-material/unresolved-decisions.md` | `00-governance/source-material/unresolved-decisions.md` — structured open or resolved decision | conform | conform | unchanged Phase 1 evidence | — | Product owners and owning later phases | typography candidate study; final decision intentionally open | OPEN-004 |
+| REQ-AI-001 | `00-governance/source-material/ai-and-automation-constraints.md` | `01-product-vision/product-principles.md; product-boundaries.md` — AI and automation boundaries | conform | conform | unchanged Phase 1 evidence | — | Studio, Command, Investigate, Govern, Security | AI visual language distinguishes provenance, proposal and authority | — |
+| REQ-AI-002 | `00-governance/source-material/ai-and-automation-constraints.md` | `01-product-vision/product-principles.md; product-boundaries.md` — AI and automation boundaries | conform | conform | unchanged Phase 1 evidence | — | Studio, Command, Investigate, Govern, Security | AI visual language distinguishes provenance, proposal and authority | — |
+| REQ-AI-003 | `00-governance/source-material/ai-and-automation-constraints.md` | `01-product-vision/product-principles.md; product-boundaries.md` — AI and automation boundaries | conform | conform | unchanged Phase 1 evidence | — | Studio, Command, Investigate, Govern, Security | AI visual language distinguishes provenance, proposal and authority | — |
+| REQ-AI-007 | `00-governance/source-material/ai-and-automation-constraints.md` | `01-product-vision/product-principles.md; product-boundaries.md` — AI and automation boundaries | partial | partial | unchanged; later owning phase | — | Studio, Command, Investigate, Govern, Security | AI visual language distinguishes provenance, proposal and authority | — |
+| REQ-AI-010 | `00-governance/source-material/ai-and-automation-constraints.md` | `01-product-vision/product-principles.md; product-boundaries.md` — AI and automation boundaries | partial | partial | unchanged; later owning phase | — | Studio, Command, Investigate, Govern, Security | AI visual language distinguishes provenance, proposal and authority | — |
 
-## Dependents by family
+## Complete Requirement ID inventory
 
-- `REQ-PROD-*`: all product owners and later product/UX phases.
-- `REQ-AI-*`: CMDR Studio, Command, Investigate, Govern, Settings and Security.
-- `REQ-OBJ-*`: ownership register, domain model, product projections and permissions.
-- `REQ-UX-*`: Experience Architecture, Design System, journeys and screens.
-- `REQ-BRAND-*`: Brand and Design System Phase 2.
-- `REQ-SEC-*`: Security/Trust, Govern, Endpoint Agent and dangerous-action UX.
-- `REQ-JRN-*`: journeys, transitions and pilot screens.
-- `REQ-INV-*`: Investigate modules and capability classification.
+Each ID appears exactly once below with its Phase 2 state.
 
-## Requirement rows
+### conform
 
-| Requirement | Before | After | Canonical evidence / section | Contradiction | Open decision |
-|---|---|---|---|---|---|
-| REQ-PROD-001 | partial | conform | 01-product-vision/product-principles.md + product-vision.md | — | — |
-| REQ-PROD-002 | partial | conform | 01-product-vision/product-principles.md + product-vision.md | — | — |
-| REQ-PROD-003 | partial | conform | 01-product-vision/product-principles.md + product-vision.md | — | — |
-| REQ-PROD-004 | partial | conform | 01-product-vision/product-principles.md + product-vision.md | — | — |
-| REQ-PROD-005 | partial | conform | 01-product-vision/product-principles.md + product-vision.md | — | — |
-| REQ-PROD-006 | contradictory | partial | 01-product-vision/product-principles.md + product-vision.md | resolved | — |
-| REQ-PROD-007 | partial | partial | 01-product-vision/product-principles.md + product-vision.md | — | — |
-| REQ-PROD-008 | partial | partial | 01-product-vision/product-principles.md + product-vision.md | — | — |
-| REQ-PROD-009 | partial | conform | 01-product-vision/product-principles.md + product-vision.md | — | — |
-| REQ-PROD-010 | absent | partial | 01-product-vision/product-principles.md + product-vision.md | — | — |
-| REQ-PROD-011 | partial | conform | 01-product-vision/product-principles.md + product-vision.md | — | — |
-| REQ-PROD-012 | contradictory | conform | 01-product-vision/product-principles.md + product-vision.md | resolved | — |
-| REQ-AI-001 | partial | conform | 01-product-vision/product-principles.md + product-boundaries.md + product README boundaries | — | — |
-| REQ-AI-002 | partial | conform | 01-product-vision/product-principles.md + product-boundaries.md + product README boundaries | — | — |
-| REQ-AI-003 | partial | conform | 01-product-vision/product-principles.md + product-boundaries.md + product README boundaries | — | — |
-| REQ-AI-004 | partial | conform | 01-product-vision/product-principles.md + product-boundaries.md + product README boundaries | — | — |
-| REQ-AI-005 | partial | conform | 01-product-vision/product-principles.md + product-boundaries.md + product README boundaries | — | — |
-| REQ-AI-006 | partial | conform | 01-product-vision/product-principles.md + product-boundaries.md + product README boundaries | — | — |
-| REQ-AI-007 | partial | partial | 01-product-vision/product-principles.md + product-boundaries.md + product README boundaries | — | — |
-| REQ-AI-008 | absent | partial | 01-product-vision/product-principles.md + product-boundaries.md + product README boundaries | — | — |
-| REQ-AI-009 | absent | partial | 01-product-vision/product-principles.md + product-boundaries.md + product README boundaries | — | — |
-| REQ-AI-010 | partial | partial | 01-product-vision/product-principles.md + product-boundaries.md + product README boundaries | — | — |
-| REQ-AI-011 | partial | conform | 01-product-vision/product-principles.md + product-boundaries.md + product README boundaries | — | — |
-| REQ-OBJ-001 | partial | conform | 00-governance/ownership-register.md + 01-product-vision/product-boundaries.md | — | — |
-| REQ-OBJ-002 | partial | conform | 00-governance/ownership-register.md + 01-product-vision/product-boundaries.md | — | — |
-| REQ-OBJ-003 | partial | conform | 00-governance/ownership-register.md + 01-product-vision/product-boundaries.md | — | — |
-| REQ-OBJ-004 | partial | conform | 00-governance/ownership-register.md + 01-product-vision/product-boundaries.md | — | — |
-| REQ-OBJ-005 | partial | conform | 00-governance/ownership-register.md + 01-product-vision/product-boundaries.md | — | — |
-| REQ-OBJ-006 | partial | conform | 00-governance/ownership-register.md + 01-product-vision/product-boundaries.md | — | — |
-| REQ-OBJ-007 | partial | conform | 00-governance/ownership-register.md + 01-product-vision/product-boundaries.md | — | — |
-| REQ-OBJ-008 | partial | conform | 00-governance/ownership-register.md + 01-product-vision/product-boundaries.md | — | — |
-| REQ-OBJ-009 | contradictory | partial | 00-governance/ownership-register.md + 01-product-vision/product-boundaries.md | resolved | — |
-| REQ-OBJ-010 | partial | conform | 00-governance/ownership-register.md + 01-product-vision/product-boundaries.md | — | — |
-| REQ-OBJ-011 | contradictory | contradictory | 00-governance/ownership-register.md + 01-product-vision/product-boundaries.md | active | — |
-| REQ-OBJ-012 | contradictory | contradictory | 00-governance/ownership-register.md + 01-product-vision/product-boundaries.md | active | — |
-| REQ-UX-001 | partial | partial | 00-governance/adr/ADR-0005-page-view-mode-filter-rules.md + Phase 3 specifications | — | — |
-| REQ-UX-002 | partial | partial | 00-governance/adr/ADR-0005-page-view-mode-filter-rules.md + Phase 3 specifications | — | — |
-| REQ-UX-003 | partial | partial | 00-governance/adr/ADR-0005-page-view-mode-filter-rules.md + Phase 3 specifications | — | — |
-| REQ-UX-004 | absent | absent | 00-governance/adr/ADR-0005-page-view-mode-filter-rules.md + Phase 3 specifications | — | — |
-| REQ-UX-005 | absent | absent | 00-governance/adr/ADR-0005-page-view-mode-filter-rules.md + Phase 3 specifications | — | — |
-| REQ-UX-006 | partial | partial | 00-governance/adr/ADR-0005-page-view-mode-filter-rules.md + Phase 3 specifications | — | — |
-| REQ-UX-007 | absent | partial | 00-governance/adr/ADR-0005-page-view-mode-filter-rules.md + Phase 3 specifications | — | — |
-| REQ-UX-008 | contradictory | contradictory | 00-governance/adr/ADR-0005-page-view-mode-filter-rules.md + Phase 3 specifications | active | — |
-| REQ-UX-009 | partial | partial | 00-governance/adr/ADR-0005-page-view-mode-filter-rules.md + Phase 3 specifications | — | — |
-| REQ-UX-010 | absent | absent | 00-governance/adr/ADR-0005-page-view-mode-filter-rules.md + Phase 3 specifications | — | — |
-| REQ-BRAND-001 | partial | partial | 00-governance/source-material/brand-and-visual-decisions.md + Phase 2 | — | — |
-| REQ-BRAND-002 | partial | partial | 00-governance/source-material/brand-and-visual-decisions.md + Phase 2 | — | — |
-| REQ-BRAND-003 | partial | partial | 00-governance/source-material/brand-and-visual-decisions.md + Phase 2 | — | — |
-| REQ-BRAND-004 | partial | partial | 00-governance/source-material/brand-and-visual-decisions.md + Phase 2 | — | — |
-| REQ-BRAND-005 | partial | partial | 00-governance/source-material/brand-and-visual-decisions.md + Phase 2 | — | — |
-| REQ-BRAND-006 | partial | partial | 00-governance/source-material/brand-and-visual-decisions.md + Phase 2 | — | — |
-| REQ-BRAND-007 | partial | partial | 00-governance/source-material/brand-and-visual-decisions.md + Phase 2 | — | — |
-| REQ-BRAND-008 | partial | partial | 00-governance/source-material/brand-and-visual-decisions.md + Phase 2 | — | — |
-| REQ-PROD-013 | partial | conform | 01-product-vision/product-boundaries.md | — | — |
-| REQ-PROD-014 | partial | conform | 01-product-vision/product-boundaries.md | — | — |
-| REQ-PROD-015 | partial | conform | 01-product-vision/product-boundaries.md | — | — |
-| REQ-PROD-016 | partial | conform | 01-product-vision/product-boundaries.md | — | — |
-| REQ-PROD-017 | partial | conform | 01-product-vision/product-boundaries.md | — | — |
-| REQ-PROD-018 | contradictory | conform | 01-product-vision/product-boundaries.md | resolved | — |
-| REQ-PROD-019 | absent | conform | 01-product-vision/capability-map.md | — | — |
-| REQ-PROD-020 | partial | partial | product-principles.md + capability-map.md | — | — |
-| REQ-SEC-001 | absent | conform | 01-product-vision/operating-model.md + later trust specifications | — | — |
-| REQ-SEC-002 | partial | conform | 01-product-vision/operating-model.md + later trust specifications | — | — |
-| REQ-SEC-003 | absent | partial | 01-product-vision/operating-model.md + later trust specifications | — | — |
-| REQ-SEC-004 | partial | partial | 01-product-vision/operating-model.md + later trust specifications | — | — |
-| REQ-SEC-005 | partial | partial | 01-product-vision/operating-model.md + later trust specifications | — | — |
-| REQ-PROD-021 | absent | conform | 01-product-vision/target-users.md | — | — |
-| REQ-PROD-022 | absent | conform | 01-product-vision/target-users.md | — | — |
-| REQ-PROD-023 | absent | conform | 01-product-vision/target-users.md | — | — |
-| REQ-PROD-024 | absent | conform | 01-product-vision/target-users.md | — | — |
-| REQ-PROD-025 | absent | conform | 01-product-vision/target-users.md | — | — |
-| REQ-PROD-026 | absent | conform | 01-product-vision/target-users.md | — | — |
-| REQ-PROD-027 | absent | conform | 01-product-vision/target-users.md | — | — |
-| REQ-PROD-028 | absent | conform | 01-product-vision/target-users.md | — | — |
-| REQ-PROD-029 | absent | conform | 01-product-vision/target-users.md | — | — |
-| REQ-PROD-030 | absent | conform | 01-product-vision/target-users.md | — | — |
-| REQ-PROD-031 | absent | conform | 01-product-vision/target-users.md | — | — |
-| REQ-PROD-032 | absent | conform | 01-product-vision/target-users.md | — | — |
-| REQ-PROD-033 | absent | conform | 01-product-vision/target-users.md | — | — |
-| REQ-PROD-034 | absent | conform | 01-product-vision/target-users.md | — | — |
-| REQ-PROD-035 | absent | conform | 01-product-vision/target-users.md | — | — |
-| REQ-PROD-036 | absent | conform | 01-product-vision/target-users.md | — | — |
-| REQ-JRN-001 | partial | partial | 01-product-vision/operating-model.md + Phase 5 journeys | — | — |
-| REQ-JRN-002 | absent | absent | 01-product-vision/operating-model.md + Phase 5 journeys | — | — |
-| REQ-JRN-003 | partial | partial | 01-product-vision/operating-model.md + Phase 5 journeys | — | — |
-| REQ-JRN-004 | partial | partial | 01-product-vision/operating-model.md + Phase 5 journeys | — | — |
-| REQ-JRN-005 | absent | absent | 01-product-vision/operating-model.md + Phase 5 journeys | — | — |
-| REQ-JRN-006 | partial | partial | 01-product-vision/operating-model.md + Phase 5 journeys | — | — |
-| REQ-JRN-007 | partial | partial | 01-product-vision/operating-model.md + Phase 5 journeys | — | — |
-| REQ-JRN-008 | absent | absent | 01-product-vision/operating-model.md + Phase 5 journeys | — | — |
-| REQ-PROD-037 | absent | conform | 01-product-vision/capability-map.md | — | — |
-| REQ-PROD-038 | absent | conform | 01-product-vision/capability-map.md | — | — |
-| REQ-PROD-039 | absent | conform | 01-product-vision/capability-map.md | — | — |
-| REQ-PROD-040 | absent | conform | 01-product-vision/capability-map.md | — | — |
-| REQ-PROD-041 | absent | conform | 01-product-vision/capability-map.md | — | — |
-| REQ-PROD-042 | absent | conform | 01-product-vision/capability-map.md | — | — |
-| REQ-INV-001 | absent | conform | 01-product-vision/capability-map.md + product-boundaries.md | — | — |
-| REQ-INV-002 | absent | conform | 01-product-vision/capability-map.md + product-boundaries.md | — | — |
-| REQ-INV-003 | absent | conform | 01-product-vision/capability-map.md + product-boundaries.md | — | — |
-| REQ-INV-004 | absent | conform | 01-product-vision/capability-map.md + product-boundaries.md | — | — |
-| REQ-INV-005 | absent | conform | 01-product-vision/capability-map.md + product-boundaries.md | — | — |
-| REQ-INV-006 | absent | conform | 01-product-vision/capability-map.md + product-boundaries.md | — | — |
-| REQ-PROD-043 | absent | conform | 01-product-vision/capability-map.md | — | — |
-| REQ-PROD-044 | absent | conform | 01-product-vision/capability-map.md | — | — |
-| REQ-PROD-045 | absent | conform | 01-product-vision/capability-map.md | — | — |
-| REQ-PROD-046 | absent | conform | 01-product-vision/capability-map.md | — | — |
-| REQ-PROD-047 | absent | conform | 01-product-vision/capability-map.md | — | — |
-| REQ-PROD-048 | absent | conform | 00-governance/source-material/unresolved-decisions.md | — | OPEN-001 |
-| REQ-PROD-049 | absent | conform | 00-governance/source-material/unresolved-decisions.md | — | OPEN-002 |
-| REQ-PROD-050 | absent | conform | 00-governance/source-material/unresolved-decisions.md | — | OPEN-003 |
-| REQ-PROD-051 | absent | conform | 00-governance/source-material/unresolved-decisions.md | — | OPEN-004 |
-| REQ-PROD-052 | absent | conform | 00-governance/source-material/unresolved-decisions.md | — | OPEN-005 |
-| REQ-PROD-053 | absent | conform | 00-governance/source-material/unresolved-decisions.md | — | OPEN-006 |
-| REQ-PROD-054 | absent | conform | 00-governance/source-material/unresolved-decisions.md | — | OPEN-007 |
-| REQ-PROD-055 | absent | conform | 00-governance/source-material/unresolved-decisions.md | — | OPEN-008 |
-| REQ-PROD-056 | absent | conform | 00-governance/source-material/unresolved-decisions.md | — | OPEN-009 (resolved Phase 1) |
-| REQ-PROD-057 | absent | conform | 00-governance/source-material/unresolved-decisions.md | — | OPEN-010 |
-| REQ-PROD-058 | absent | conform | 00-governance/source-material/unresolved-decisions.md | — | OPEN-011 |
-| REQ-PROD-059 | absent | conform | 00-governance/source-material/unresolved-decisions.md | — | OPEN-012 |
-| REQ-PROD-060 | absent | conform | 00-governance/source-material/unresolved-decisions.md | — | OPEN-013 |
-| REQ-PROD-061 | absent | conform | 00-governance/source-material/unresolved-decisions.md | — | OPEN-014 |
-| REQ-PROD-062 | absent | conform | 00-governance/source-material/unresolved-decisions.md | — | OPEN-015 |
+`REQ-PROD-001`, `REQ-PROD-002`, `REQ-PROD-003`, `REQ-PROD-004`, `REQ-PROD-005`, `REQ-PROD-009`, `REQ-PROD-011`, `REQ-PROD-012`, `REQ-PROD-013`, `REQ-PROD-014`, `REQ-PROD-015`, `REQ-PROD-016`, `REQ-PROD-017`, `REQ-PROD-018`, `REQ-PROD-019`, `REQ-PROD-021`, `REQ-PROD-022`, `REQ-PROD-023`, `REQ-PROD-024`, `REQ-PROD-025`, `REQ-PROD-026`, `REQ-PROD-027`, `REQ-PROD-028`, `REQ-PROD-029`, `REQ-PROD-030`, `REQ-PROD-031`, `REQ-PROD-032`, `REQ-PROD-033`, `REQ-PROD-034`, `REQ-PROD-035`, `REQ-PROD-036`, `REQ-PROD-037`, `REQ-PROD-038`, `REQ-PROD-039`, `REQ-PROD-040`, `REQ-PROD-041`, `REQ-PROD-042`, `REQ-PROD-043`, `REQ-PROD-044`, `REQ-PROD-045`, `REQ-PROD-046`, `REQ-PROD-047`, `REQ-PROD-048`, `REQ-PROD-049`, `REQ-PROD-050`, `REQ-PROD-051`, `REQ-PROD-052`, `REQ-PROD-053`, `REQ-PROD-054`, `REQ-PROD-055`, `REQ-PROD-056`, `REQ-PROD-057`, `REQ-PROD-058`, `REQ-PROD-059`, `REQ-PROD-060`, `REQ-PROD-061`, `REQ-PROD-062`, `REQ-AI-001`, `REQ-AI-002`, `REQ-AI-003`, `REQ-AI-004`, `REQ-AI-005`, `REQ-AI-006`, `REQ-AI-011`, `REQ-OBJ-001`, `REQ-OBJ-002`, `REQ-OBJ-003`, `REQ-OBJ-004`, `REQ-OBJ-005`, `REQ-OBJ-006`, `REQ-OBJ-007`, `REQ-OBJ-008`, `REQ-OBJ-010`, `REQ-BRAND-001`, `REQ-BRAND-002`, `REQ-BRAND-003`, `REQ-BRAND-004`, `REQ-BRAND-005`, `REQ-BRAND-006`, `REQ-BRAND-008`, `REQ-SEC-001`, `REQ-SEC-002`, `REQ-INV-001`, `REQ-INV-002`, `REQ-INV-003`, `REQ-INV-004`, `REQ-INV-005`, `REQ-INV-006`
 
-## Resolved contradictions
+### partial
 
-Source precedence, product ownership, optional AI, Studio placement, Endpoint target-versus-delivery wording, delivery taxonomy and capability review authority are resolved at Phase 1 level. OPEN-009 is recorded as resolved.
+`REQ-PROD-006`, `REQ-PROD-007`, `REQ-PROD-008`, `REQ-PROD-010`, `REQ-PROD-020`, `REQ-AI-007`, `REQ-AI-008`, `REQ-AI-009`, `REQ-AI-010`, `REQ-OBJ-009`, `REQ-UX-001`, `REQ-UX-002`, `REQ-UX-003`, `REQ-UX-006`, `REQ-UX-007`, `REQ-UX-009`, `REQ-BRAND-007`, `REQ-SEC-003`, `REQ-SEC-004`, `REQ-SEC-005`, `REQ-JRN-001`, `REQ-JRN-003`, `REQ-JRN-004`, `REQ-JRN-006`, `REQ-JRN-007`
+
+### absent
+
+`REQ-UX-004`, `REQ-UX-005`, `REQ-UX-010`, `REQ-JRN-002`, `REQ-JRN-005`, `REQ-JRN-008`
+
+### contradictory
+
+`REQ-OBJ-011`, `REQ-OBJ-012`, `REQ-UX-008`
+
+## Phase 2 movement
+
+Seven requirements moved from `partial` to `conform`: `REQ-BRAND-001` through `REQ-BRAND-006`, and `REQ-BRAND-008`.
+
+`REQ-BRAND-007` remains `partial` because the final type stack is still `OPEN-004`. `REQ-PROD-048`, `REQ-PROD-049` and `REQ-PROD-050` remain traceably covered by open decisions and proposal documents; no palette was approved.
 
 ## Remaining contradictions
 
-- `REQ-OBJ-011` and `REQ-OBJ-012`: generic versus Work Queue Saved Views in existing consumers.
-- `REQ-UX-008`: Work Queue variants remain separate screen files until Phase 3/6.
-- Permission namespace conflicts remain assigned to Phase 7.
+- `REQ-OBJ-011` and `REQ-OBJ-012`: generic Saved Views versus Work Queue Saved Views.
+- `REQ-UX-008`: Work Queue variants remain separate screen files.
+- Permission namespace conflicts remain assigned to their later owning phase.
 
-## Proof and update rule
+## Update rule
 
-The canonical evidence column is the Phase 1 proof. Later changes require the owning canonical section, dependent files, validation evidence, and an open-decision record when applicable.
+A later change updates the source decision, owning canonical document, dependents, proof and open-decision record. A proposal never becomes a decision merely because its individual contrast pairs pass.

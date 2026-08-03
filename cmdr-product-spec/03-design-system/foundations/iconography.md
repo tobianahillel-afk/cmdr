@@ -2,59 +2,44 @@
 id: foundation-iconography
 domain: 03-design-system
 status: draft
-owner: Design Lead
+owner: Design System Lead
 updated: 2026-08-03
 source-of-truth: canonical
+requirements:
+  - REQ-BRAND-002
+  - REQ-BRAND-008
 ---
-# Iconography
+# Iconography foundation — source boundaries
 
-## Objectif
+## Responsibility
 
-Définir la foundation iconography.
+The Design System will define icon grid, stroke, filled variants, optical correction, interaction states and accessible labels. Brand defines the visual intent and prohibited metaphors.
 
-## Périmètre
+## Canonical source
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
+- [`../../02-brand/imagery-and-iconography.md`](../../02-brand/imagery-and-iconography.md)
 
-## Propriétaire fonctionnel
+## Phase 3 responsibility
 
-Design Lead.
+Phase 3 will select or define the implementation library and document:
 
-## Objets concernés
+- base sizes and optical alignment;
+- stroke and corner behavior;
+- filled versus outline use;
+- status overlays;
+- RTL and localization considerations;
+- accessible names and icon-only controls;
+- product-specific functional motifs that remain within the same family.
 
-- Concepts du document
-- Références canoniques liées
+## Constraints
 
-## Fonctionnalités
+- Icons identify actions or concepts; they are not background decoration.
+- Shield, lock, radar, hooded hacker, robot, brain and sparkle clichés are not product identity.
+- The same function uses the same icon across products.
+- Color alone cannot distinguish icon states.
 
-- Icônes fonctionnelles.
-- Libellé accessible.
-- Aucun bouclier/cadenas générique comme identité.
+## Acceptance criterion
 
-## UX et interactions
-
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
-
-## Permissions
-
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
-
-## États
-
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
-
-## Dépendances
-
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- À compléter — décision source non fournie dans le brief canonique.
+**Given** the same `approve` action in Govern and Studio,  
+**When** iconography is applied,  
+**Then** the icon family and functional meaning remain identical; product differentiation is supplied by context, hierarchy and approved accent tokens.

@@ -2,59 +2,42 @@
 id: foundation-elevation
 domain: 03-design-system
 status: draft
-owner: Design Lead
+owner: Design System Lead
 updated: 2026-08-03
 source-of-truth: canonical
+requirements:
+  - REQ-BRAND-001
+  - REQ-BRAND-002
 ---
-# Elevation
+# Elevation foundation — source boundaries
 
-## Objectif
+## Responsibility
 
-Définir la foundation elevation.
+Phase 3 owns exact elevation tokens. Brand requires a surface system based primarily on editorial grouping, borders and tonal contrast.
 
-## Périmètre
+## Canonical source
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
+- [`../../02-brand/shape-and-surfaces.md`](../../02-brand/shape-and-surfaces.md)
 
-## Propriétaire fonctionnel
+## Phase 3 responsibility
 
-Design Lead.
+Define elevation only for:
 
-## Objets concernés
+- menus and popovers;
+- drawers and modals;
+- drag previews;
+- temporary overlays;
+- rare focus-preserving transitions.
 
-- Concepts du document
-- Références canoniques liées
+## Constraints
 
-## Fonctionnalités
+- Persistent page sections do not float by default.
+- Heavy shadows, glow and glassmorphism are prohibited.
+- An overlay must have a functional stacking reason and an accessible focus model.
+- Dark themes use tonal separation and borders before luminous shadows.
 
-- Peu d’ombres.
-- Élévation réservée aux superpositions.
-- Bordures et contraste prioritaires.
+## Acceptance criterion
 
-## UX et interactions
-
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
-
-## Permissions
-
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
-
-## États
-
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
-
-## Dépendances
-
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- À compléter — décision source non fournie dans le brief canonique.
+**Given** a normal page section and a temporary confirmation dialog,  
+**When** elevation is applied,  
+**Then** only the dialog receives overlay elevation and the underlying section remains structurally grouped without decorative shadow.

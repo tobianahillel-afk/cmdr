@@ -2,59 +2,51 @@
 id: foundation-color
 domain: 03-design-system
 status: draft
-owner: Design Lead
+owner: Design System Lead
 updated: 2026-08-03
 source-of-truth: canonical
+requirements:
+  - REQ-BRAND-003
+  - REQ-BRAND-004
+  - REQ-BRAND-005
+  - REQ-BRAND-006
 ---
-# Color
+# Color foundation — source boundaries
 
-## Objectif
+## Responsibility
 
-Définir la foundation color.
+This foundation translates approved brand palettes into semantic and component tokens during Phase 3. It does not own brand values and must not copy product palette definitions into a second canonical table.
 
-## Périmètre
+## Canonical sources
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
+- CMDR parent palette: [`../../02-brand/cmdr/palette.md`](../../02-brand/cmdr/palette.md)
+- Command palette: [`../../02-brand/command/palette.md`](../../02-brand/command/palette.md)
+- Investigate proposals: [`../../02-brand/investigate/palette-proposals.md`](../../02-brand/investigate/palette-proposals.md)
+- Govern proposals: [`../../02-brand/govern/palette-proposals.md`](../../02-brand/govern/palette-proposals.md)
+- Studio proposals: [`../../02-brand/studio/palette-proposals.md`](../../02-brand/studio/palette-proposals.md)
 
-## Propriétaire fonctionnel
+Only approved palettes may become product tokens. Proposed values remain evaluation material and must not be shipped as defaults.
 
-Design Lead.
+## Phase 3 responsibility
 
-## Objets concernés
+Phase 3 will define:
 
-- Concepts du document
-- Références canoniques liées
+- brand-to-product-to-semantic token mapping;
+- light and dark theme aliases;
+- focus, selection and interaction tokens;
+- status, severity, confidence and data-visualization semantics;
+- contrast validation and fallback behavior.
 
-## Fonctionnalités
+## Non-negotiable constraints
 
-- Consommer les palettes de `02-brand/`.
-- Séparer marque, produit et sémantique.
-- Ne pas encoder un état par la couleur seule.
+- Color never carries meaning alone.
+- CMDR Moss and Ember remain brand accents, not automatic success or critical colors.
+- Product identity and status semantics are separate layers.
+- Absolute black is not the automatic dark-theme canvas.
+- A coherent interface around an external engine does not authorize vendor colors to replace CMDR hierarchy.
 
-## UX et interactions
+## Acceptance criterion
 
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
-
-## Permissions
-
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
-
-## États
-
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
-
-## Dépendances
-
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- À compléter — décision source non fournie dans le brief canonique.
+**Given** an Investigate proposal marked `proposed`,  
+**When** Phase 3 creates product tokens,  
+**Then** no token uses that proposal as the default until `OPEN-001` is explicitly resolved and the approved decision is recorded.
