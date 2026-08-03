@@ -9,102 +9,75 @@ requirements:
   - REQ-PROD-006
   - REQ-PROD-012
   - REQ-BRAND-001
-  - REQ-BRAND-008
+  - REQ-UX-001
+  - REQ-UX-010
+  - REQ-OBJ-011
+  - REQ-OBJ-012
 ---
+
 # Qualitative Baseline
 
-## Repository-wide Phase 0 baseline
+## Baseline repository Phase 0
 
-| Metric | Baseline |
-|---|---:|
-| Markdown files before Phase 0 | 781 |
-| Draft | 767 |
-| In Review | 0 |
-| Validated or approved | 0 |
-| Implemented | 0 |
-| Deprecated | 2 |
-| Without status | 12 |
-| Generic document skeleton | 559 files |
-| Template-level screens | 61 |
-| Insufficiently formalized objects | 57 |
-| `À compléter` occurrences | 461 |
-| Exact repeated placeholder | 289 |
-| Files using one of three generic blocks | 677 / 781 |
-| Estimated generic or repeated text | approximately 60% |
+781 Markdown ; 559 generic skeletons ; 61 Template-level screens ; 57 objects insufficiently formalized ; 461 `À compléter` ; 289 exact repeated placeholders.
 
-## Phase 1 scoped result
+## Résultats précédents
 
-| Metric | Before | After |
+- Phase 1 : gouvernance et vision PASS.
+- Phase 2 : marque PASS ; 88 conform, 25 partial, 6 absent, 3 contradictory.
+
+## Mesures Phase 3
+
+Le scope comprend tous les fichiers actifs initiaux de `03-design-system/` (89) et `04-experience-architecture/` (32), les sources Shared/Command nécessaires à Saved Views, les registres et les cinq fichiers écran legacy migrés.
+
+| Mesure | Avant | Après |
 |---|---:|---:|
-| Generic skeleton in targeted governance and vision narratives | 19 | 0 |
-| `À compléter` in those targeted domains | 6 | 0 |
-| Targeted narratives without Requirement IDs | 34 | 0 |
-| Substantive role definitions | 0 | 16 |
-| Structured product risks | 0 | 19 |
-| Decision-specific ADRs | 0 / 4 | 7 / 7 |
+| Fichiers `03-design-system/` | 89 | 138 |
+| Fichiers actifs Draft `03-design-system/` | 89 | 73 |
+| Fichiers Deprecated `03-design-system/` | 0 | 65 |
+| Generic skeletons dans `03-design-system/` | 80 | 0 actifs |
+| Fichiers `04-experience-architecture/` | 32 | 47 |
+| Fichiers actifs Draft `04-experience-architecture/` | 32 | 29 |
+| Fichiers Deprecated `04-experience-architecture/` | 0 | 18 |
+| Generic skeletons dans `04-experience-architecture/` | 30 | 0 actifs |
+| Placeholders actifs ciblés | 110 | 0 |
+| Fichiers ciblés sans Requirement IDs | 113 | 0 |
+| Fichiers ciblés sans statut | 0 | 0 |
+| Primitive tokens documentés | 0 | 41 |
+| Semantic token roles | 0 | 45 |
+| Component token contracts initiaux | 0 | 24 |
+| Aliases non résolus | 0 | 5 |
+| Layout shells substantiels | 0 / 8 | 8 / 8 |
+| Composants canoniques substantiels | 1 / 29 cibles | 29 / 29 |
+| Patterns canoniques substantiels | 0 / 14 | 14 / 14 |
+| Exemples documentaires | 0 | 5 |
+| Sources actives concurrentes dans le scope | nombreuses | 0 connues |
+| Palettes ouvertes consommées par token actif | 0 | 0 |
+| Fichiers écran métier détaillés réécrits | 0 | 0 |
+| Fichiers écran legacy transformés en pointeur | 0 | 5 |
+| Code produit ajouté | 0 | 0 |
 
-## Phase 2 scoped measurements
+## Couverture
 
-The Phase 2 measurement scope includes all 34 brand files that existed at the start of the phase, the new canonical brand documents and product entry points, and the minimal Design System foundation references changed to preserve ownership.
-
-| Metric | Before Phase 2 | After Phase 2 |
+| État | Après Phase 2 | Après Phase 3 |
 |---|---:|---:|
-| Existing active brand documents using the generic skeleton | 25 / 34 | 0 |
-| Active placeholder instructions or unresolved `À compléter` fields in `02-brand/` | approximately 28 | 0 |
-| Existing brand documents without explicit Requirement IDs | 34 / 34 | 0 |
-| Canonical decided palettes with substantive usage rules | 0 / 2 | 2 / 2 |
-| Undecided product palette material | 3 placeholder palette files | 9 argued directions across 3 proposal documents |
-| Product identity README and examples documents | 0 / 8 | 8 / 8 |
-| Comparative typography studies | 0 | 1 brand study plus a Design System boundary document |
-| Argued forbidden-direction examples | 0 | 27 |
-| Product identity defined by color alone | present as a risk | prohibited by the shared/adaptable identity matrix |
-| Final-logo claims unsupported by approval | 1 | 0 |
-| New open decisions | 0 | 1 (`OPEN-016`) |
-
-The three legacy product `palette.md` files remain as `deprecated` navigation records pointing to the proposal documents. They are not canonical palettes.
-
-## Requirement coverage
-
-| State | After Phase 1 | After Phase 2 |
-|---|---:|---:|
-| conform | 81 | 88 |
-| partial | 32 | 25 |
-| absent | 6 | 6 |
-| contradictory | 3 | 3 |
+| conform | 88 | 99 |
+| partial | 25 | 20 |
+| absent | 6 | 3 |
+| contradictory | 3 | 0 |
 | total | 122 | 122 |
 
-## Phase 2 decisions applied
+## Résolutions
 
-- `Operational Editorial Modernism` is the fixed central direction.
-- CMDR and Command palette values remain exact.
-- Moss plus Ember is a shared brand signature, not a status system.
-- Investigate, Govern and Studio each have three argued `proposed` directions.
-- The final typography stack remains open.
-- The textual wordmark `CMDR` is stable; final optical construction and any symbol remain open.
-- Product identities share typography, geometry, component semantics, provenance and accessibility.
-- Product differentiation may use rhythm, density, metadata treatment, visualization signatures and approved accent systems, but not color alone.
-- AI is represented through provenance, run identity, uncertainty and control rather than magical or anthropomorphic decoration.
+- Generic Saved Views : Shared Capabilities ;
+- Work Queue Saved Views : Command ;
+- Saved Views UI : Design System ;
+- Work Queue : un workspace et six vues ;
+- Inspector : une seule source ;
+- contexte : une source UX et un composant visuel ;
+- tokens : une architecture à trois niveaux ;
+- anciens noms : pointeurs Deprecated avec migration.
 
-## Contradictions resolved in Phase 2
+## Limites
 
-- generic or cloned brand bodies;
-- placeholder palettes presented under canonical palette names;
-- exact unapproved logo construction;
-- semantic status colors mixed into the Command brand palette;
-- product-specific typography documents implying separate type systems;
-- ambiguous ownership between Brand and Design System foundations.
-
-## Contradictions and work remaining
-
-Outside the Phase 2 scope:
-
-- generic versus Work Queue Saved Views;
-- Work Queue screen-file consolidation;
-- permission namespace normalization;
-- detailed Design System tokens and component behavior;
-- human approval of `OPEN-001` through `OPEN-004` and `OPEN-016`;
-- final visual assets and visual-regression baselines.
-
-## Outcome
-
-Phase 2 is **PASS** for brand strategy, visual universe, product identities and decision-ready proposals. The repository remains **PARTIAL globally** because the Design System, UX, functional modules, journeys, screens, detailed objects, permissions, technical architecture and implementation are not complete.
+Les écrans détaillés, fonctions de modules, objets, permissions, parcours, architecture technique et logiciel restent incomplets. Les questions OPEN-001..008 et OPEN-010..016 restent ouvertes, sauf OPEN-009 déjà résolue.

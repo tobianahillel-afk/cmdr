@@ -8,89 +8,76 @@ source-of-truth: source-material
 requirements:
   - REQ-PROD-001
   - REQ-PROD-062
-  - REQ-BRAND-001
-  - REQ-BRAND-008
+  - REQ-UX-001
+  - REQ-UX-010
+  - REQ-OBJ-011
+  - REQ-OBJ-012
 ---
+
 # Requirements Traceability Matrix
 
-## Interpretation
+## Interprétation
 
-This matrix preserves all 122 source Requirement IDs. Phase 2 adds detailed traceability for brand, product-identity and AI-expression requirements. `conform` means substantive coverage in the current owning phase, not completion of later UX, component, technical or implementation work.
+Les 122 Requirement IDs sources sont conservés. `conform` signifie que la phase propriétaire actuelle fournit des règles substantielles, testables et sans contradiction active ; cela ne prouve ni écrans détaillés ni implémentation.
 
-## Coverage
+## Couverture
 
-| State | Phase 0 published | Reconciled before Phase 1 | After Phase 1 | After Phase 2 |
-|---|---:|---:|---:|---:|
-| conform | 0 | 0 | 81 | 88 |
-| partial | 68 | 54 | 32 | 25 |
-| absent | 47 | 61 | 6 | 6 |
-| contradictory | 7 | 7 | 3 | 3 |
-| total | 122 | 122 | 122 | 122 |
+| État | Après Phase 1 | Après Phase 2 | Après Phase 3 |
+|---|---:|---:|---:|
+| conform | 81 | 88 | 99 |
+| partial | 32 | 25 | 20 |
+| absent | 6 | 6 | 3 |
+| contradictory | 3 | 3 | 0 |
+| total | 122 | 122 | 122 |
 
-The Phase 0 published categories total 122 but differ from the row-level recount. Both baselines remain visible.
+## Traçabilité détaillée Phase 3
 
-## Phase 2 detailed traceability
+| Requirement | Source | Canonical evidence | Avant | Après | Couverture | Dépendants | Preuve | Question |
+|---|---|---|---|---|---|---|---|---|
+| REQ-UX-001 | ux-and-navigation-decisions.md | 04-experience-architecture/information-architecture.md; global-navigation.md; page-view-mode-filter-rules.md | partial | conform | normative classification and routing rules | products, screens, screen register | page/workspace/view/mode/filter decision tree | — |
+| REQ-UX-002 | ux-and-navigation-decisions.md | 03-design-system/components/inspector.md; layouts/* | partial | conform | one Inspector and eight shell contracts | all products and pilot screens | single right Inspector, panel limits, keyboard | — |
+| REQ-UX-003 | ux-and-navigation-decisions.md | 03-design-system/foundations/tokens.md; components/* | partial | conform | three-level token architecture and shared components | Design System and products | 41 primitives, 45 semantics, 24 component contracts | OPEN-001..004 |
+| REQ-UX-004 | ux-and-navigation-decisions.md | 03-design-system/foundations/accessibility.md; responsive.md; density.md | absent | conform | exact Draft density/responsive/accessibility rules | all shells/components | viewport ranges, sizes and keyboard contracts | OPEN-010 |
+| REQ-UX-005 | ux-and-navigation-decisions.md | 03-design-system/foundations/theme-contract.md; data-visualization.md | absent | conform | light/dark, contrast and visualization contracts | all UI consumers | semantic themes and non-color alternatives | — |
+| REQ-UX-006 | ux-and-navigation-decisions.md | 04-experience-architecture/context-preservation.md; 03-design-system/components/context-bar.md | partial | conform | context model separated from visual component | all products and transitions | transmission table, overflow and permission rules | — |
+| REQ-UX-007 | ux-and-navigation-decisions.md | 04-experience-architecture/history-and-back.md; cross-product-transitions.md | partial | conform | real Back and return-origin model | products, deep links, journeys | focus/filters/scroll restored; errors covered | — |
+| REQ-UX-008 | ux-and-navigation-decisions.md | 06-command/modules/incidents-and-work-queue/README.md; saved-views.md; deprecated screen aliases | contradictory | conform | one Work Queue workspace and six views | Command navigation/screens/register | five legacy screen specs deprecated | — |
+| REQ-UX-009 | ux-and-navigation-decisions.md | 12-shared-capabilities/saved-views.md; 03-design-system/components/saved-views.md | partial | conform | generic persistence separated from product catalog | all products and Command | permission re-evaluation and URL-safe state | — |
+| REQ-UX-010 | ux-and-navigation-decisions.md | 04-experience-architecture/screen-section-contract.md; screen-state-requirements.md | absent | partial | general contract substantive; 61 screens still later-phase | Phase 6 screens and validation | GWT contract and six states | OPEN-010 |
+| REQ-OBJ-011 | canonical ownership decisions | 12-shared-capabilities/saved-views.md; ownership-register.md | contradictory | conform | Shared owns generic view mechanism | all products | single generic source; engine path deprecated | — |
+| REQ-OBJ-012 | canonical ownership decisions | 06-command/modules/incidents-and-work-queue/saved-views.md; ownership-register.md | contradictory | conform | Command owns Work Queue catalog | Command | six system views; none are pages | — |
+| REQ-AI-007 | ai-and-automation-constraints.md | 03-design-system/components/automation-tray.md; layouts/run-shell.md; builder-shell.md | partial | partial | UI interruption and trace defined; runtime later | Studio, Govern, implementation | pause/stop/resume and Tool Calls visible | OPEN-007, OPEN-015 |
+| REQ-AI-010 | ai-and-automation-constraints.md | 03-design-system/patterns/attribution-and-provenance.md; components/trace.md | partial | partial | visual provenance substantive; functional model later | all products | human/rule/engine/workflow/agent/external distinction | — |
+| REQ-BRAND-007 | brand-and-visual-decisions.md | 03-design-system/foundations/typography.md | partial | partial | metrics defined; families unresolved | all components | 13 roles and aliases OPEN-004 | OPEN-004 |
+| REQ-PROD-057 | unresolved-decisions.md | 04-experience-architecture/role-based-defaults.md; 03-design-system/foundations/density.md | conform | conform | open decision preserved with Draft activity defaults | all products | compact/standard/comfortable and overrides | OPEN-010 |
 
-| Requirement | Source document | Canonical document / section | Before | After | Coverage | Contradiction resolved | Dependents | Proof | Open decision |
-|---|---|---|---|---|---|---|---|---|---|
-| REQ-BRAND-001 | `00-governance/source-material/brand-and-visual-decisions.md` | `02-brand/operational-editorial-modernism.md; visual-principles.md; brand-personality.md` — direction, principles and personality | partial | conform | Phase 2 substantive; specific rules, examples and acceptance criteria | — | Brand, Design System, product shells, marketing, documentation | direction, personality, principles and acceptance tests | — |
-| REQ-BRAND-002 | `00-governance/source-material/brand-and-visual-decisions.md` | `02-brand/forbidden-directions.md` — anti-examples and CMDR alternatives | partial | conform | Phase 2 substantive; specific rules, examples and acceptance criteria | — | Brand, Design System, product shells, marketing, documentation | anti-examples with reason, risk and CMDR alternative | — |
-| REQ-BRAND-003 | `00-governance/source-material/brand-and-visual-decisions.md` | `02-brand/cmdr/palette.md` — exact values, roles, contrast and theme behavior | partial | conform | Phase 2 substantive; specific rules, examples and acceptance criteria | — | Brand, Design System, product shells, marketing, documentation | exact CMDR values, roles, contrast and theme behavior | — |
-| REQ-BRAND-004 | `00-governance/source-material/brand-and-visual-decisions.md` | `02-brand/command/palette.md` — exact values, surface hierarchy and restrictions | partial | conform | Phase 2 substantive; specific rules, examples and acceptance criteria | — | Brand, Design System, product shells, marketing, documentation | exact Command values, surface hierarchy and restrictions | — |
-| REQ-BRAND-005 | `00-governance/source-material/brand-and-visual-decisions.md` | `02-brand/brand-essence-and-signature.md` — Moss + Ember signature and semantic separation | partial | conform | Phase 2 substantive; specific rules, examples and acceptance criteria | — | Brand, Design System, product shells, marketing, documentation | Moss + Ember signature separated from semantics | — |
-| REQ-BRAND-006 | `00-governance/source-material/brand-and-visual-decisions.md` | `02-brand/investigate/palette-proposals.md; govern/palette-proposals.md; studio/palette-proposals.md` — three proposed directions per product; OPEN-001..003 remain open | partial | conform | Phase 2 substantive; specific rules, examples and acceptance criteria | resolved: placeholder/overclaim removed | Brand, Design System, product shells, marketing, documentation | three argued proposed directions per open product palette | OPEN-001, OPEN-002, OPEN-003 |
-| REQ-BRAND-007 | `00-governance/source-material/brand-and-visual-decisions.md` | `02-brand/cmdr/typography.md; 03-design-system/foundations/typography.md` — candidate study; final stack remains OPEN-004 | partial | partial | Phase 2 study; decision open; specific rules, examples and acceptance criteria | — | Brand, Design System, product shells, marketing, documentation | candidate study, licensing evidence and validation matrix | OPEN-004 |
-| REQ-BRAND-008 | `00-governance/source-material/brand-and-visual-decisions.md` | `02-brand/brand-architecture.md; command/README.md; investigate/README.md; govern/README.md; studio/README.md; logo-and-wordmark.md` — shared/adaptable matrix and product identities; final symbol remains OPEN-016 | partial | conform | Phase 2 substantive; specific rules, examples and acceptance criteria | resolved: placeholder/overclaim removed | Brand, Design System, product shells, marketing, documentation | common/adaptable matrix and four substantive product identities | OPEN-016 |
-| REQ-PROD-003 | `00-governance/source-material/cmdr-master-product-brief.md` | `01-product-vision/product-vision.md; product-principles.md` — vision and product principles | conform | conform | unchanged Phase 1 evidence | — | Product owners and owning later phases | brand application references existing product principle or boundary | — |
-| REQ-PROD-005 | `00-governance/source-material/cmdr-master-product-brief.md` | `01-product-vision/product-vision.md; product-principles.md` — vision and product principles | conform | conform | unchanged Phase 1 evidence | — | Product owners and owning later phases | brand application references existing product principle or boundary | — |
-| REQ-PROD-007 | `00-governance/source-material/cmdr-master-product-brief.md` | `01-product-vision/product-vision.md; product-principles.md` — vision and product principles | partial | partial | unchanged; later owning phase | — | Product owners and owning later phases | brand application references existing product principle or boundary | — |
-| REQ-PROD-008 | `00-governance/source-material/cmdr-master-product-brief.md` | `01-product-vision/product-vision.md; product-principles.md` — vision and product principles | partial | partial | unchanged; later owning phase | — | Product owners and owning later phases | brand application references existing product principle or boundary | — |
-| REQ-PROD-013 | `00-governance/source-material/cmdr-master-product-brief.md` | `01-product-vision/product-boundaries.md` — product ownership and exclusions | conform | conform | unchanged Phase 1 evidence | — | Product owners and owning later phases | brand application references existing product principle or boundary | — |
-| REQ-PROD-014 | `00-governance/source-material/cmdr-master-product-brief.md` | `01-product-vision/product-boundaries.md` — product ownership and exclusions | conform | conform | unchanged Phase 1 evidence | — | Product owners and owning later phases | brand application references existing product principle or boundary | — |
-| REQ-PROD-015 | `00-governance/source-material/cmdr-master-product-brief.md` | `01-product-vision/product-boundaries.md` — product ownership and exclusions | conform | conform | unchanged Phase 1 evidence | — | Product owners and owning later phases | brand application references existing product principle or boundary | — |
-| REQ-PROD-016 | `00-governance/source-material/cmdr-master-product-brief.md` | `01-product-vision/product-boundaries.md` — product ownership and exclusions | conform | conform | unchanged Phase 1 evidence | — | Product owners and owning later phases | brand application references existing product principle or boundary | — |
-| REQ-PROD-048 | `00-governance/source-material/unresolved-decisions.md` | `00-governance/source-material/unresolved-decisions.md` — structured open or resolved decision | conform | conform | unchanged Phase 1 evidence | — | Product owners and owning later phases | named proposal set and structured open-decision evidence | OPEN-001 |
-| REQ-PROD-049 | `00-governance/source-material/unresolved-decisions.md` | `00-governance/source-material/unresolved-decisions.md` — structured open or resolved decision | conform | conform | unchanged Phase 1 evidence | — | Product owners and owning later phases | named proposal set and structured open-decision evidence | OPEN-002 |
-| REQ-PROD-050 | `00-governance/source-material/unresolved-decisions.md` | `00-governance/source-material/unresolved-decisions.md` — structured open or resolved decision | conform | conform | unchanged Phase 1 evidence | — | Product owners and owning later phases | named proposal set and structured open-decision evidence | OPEN-003 |
-| REQ-PROD-051 | `00-governance/source-material/unresolved-decisions.md` | `00-governance/source-material/unresolved-decisions.md` — structured open or resolved decision | conform | conform | unchanged Phase 1 evidence | — | Product owners and owning later phases | typography candidate study; final decision intentionally open | OPEN-004 |
-| REQ-AI-001 | `00-governance/source-material/ai-and-automation-constraints.md` | `01-product-vision/product-principles.md; product-boundaries.md` — AI and automation boundaries | conform | conform | unchanged Phase 1 evidence | — | Studio, Command, Investigate, Govern, Security | AI visual language distinguishes provenance, proposal and authority | — |
-| REQ-AI-002 | `00-governance/source-material/ai-and-automation-constraints.md` | `01-product-vision/product-principles.md; product-boundaries.md` — AI and automation boundaries | conform | conform | unchanged Phase 1 evidence | — | Studio, Command, Investigate, Govern, Security | AI visual language distinguishes provenance, proposal and authority | — |
-| REQ-AI-003 | `00-governance/source-material/ai-and-automation-constraints.md` | `01-product-vision/product-principles.md; product-boundaries.md` — AI and automation boundaries | conform | conform | unchanged Phase 1 evidence | — | Studio, Command, Investigate, Govern, Security | AI visual language distinguishes provenance, proposal and authority | — |
-| REQ-AI-007 | `00-governance/source-material/ai-and-automation-constraints.md` | `01-product-vision/product-principles.md; product-boundaries.md` — AI and automation boundaries | partial | partial | unchanged; later owning phase | — | Studio, Command, Investigate, Govern, Security | AI visual language distinguishes provenance, proposal and authority | — |
-| REQ-AI-010 | `00-governance/source-material/ai-and-automation-constraints.md` | `01-product-vision/product-principles.md; product-boundaries.md` — AI and automation boundaries | partial | partial | unchanged; later owning phase | — | Studio, Command, Investigate, Govern, Security | AI visual language distinguishes provenance, proposal and authority | — |
+## Inventaire complet — état Phase 3
 
-## Complete Requirement ID inventory
+### conform — 99
 
-Each ID appears exactly once below with its Phase 2 state.
+`REQ-AI-001`, `REQ-AI-002`, `REQ-AI-003`, `REQ-AI-004`, `REQ-AI-005`, `REQ-AI-006`, `REQ-AI-011`, `REQ-BRAND-001`, `REQ-BRAND-002`, `REQ-BRAND-003`, `REQ-BRAND-004`, `REQ-BRAND-005`, `REQ-BRAND-006`, `REQ-BRAND-008`, `REQ-INV-001`, `REQ-INV-002`, `REQ-INV-003`, `REQ-INV-004`, `REQ-INV-005`, `REQ-INV-006`, `REQ-OBJ-001`, `REQ-OBJ-002`, `REQ-OBJ-003`, `REQ-OBJ-004`, `REQ-OBJ-005`, `REQ-OBJ-006`, `REQ-OBJ-007`, `REQ-OBJ-008`, `REQ-OBJ-010`, `REQ-OBJ-011`, `REQ-OBJ-012`, `REQ-PROD-001`, `REQ-PROD-002`, `REQ-PROD-003`, `REQ-PROD-004`, `REQ-PROD-005`, `REQ-PROD-009`, `REQ-PROD-011`, `REQ-PROD-012`, `REQ-PROD-013`, `REQ-PROD-014`, `REQ-PROD-015`, `REQ-PROD-016`, `REQ-PROD-017`, `REQ-PROD-018`, `REQ-PROD-019`, `REQ-PROD-021`, `REQ-PROD-022`, `REQ-PROD-023`, `REQ-PROD-024`, `REQ-PROD-025`, `REQ-PROD-026`, `REQ-PROD-027`, `REQ-PROD-028`, `REQ-PROD-029`, `REQ-PROD-030`, `REQ-PROD-031`, `REQ-PROD-032`, `REQ-PROD-033`, `REQ-PROD-034`, `REQ-PROD-035`, `REQ-PROD-036`, `REQ-PROD-037`, `REQ-PROD-038`, `REQ-PROD-039`, `REQ-PROD-040`, `REQ-PROD-041`, `REQ-PROD-042`, `REQ-PROD-043`, `REQ-PROD-044`, `REQ-PROD-045`, `REQ-PROD-046`, `REQ-PROD-047`, `REQ-PROD-048`, `REQ-PROD-049`, `REQ-PROD-050`, `REQ-PROD-051`, `REQ-PROD-052`, `REQ-PROD-053`, `REQ-PROD-054`, `REQ-PROD-055`, `REQ-PROD-056`, `REQ-PROD-057`, `REQ-PROD-058`, `REQ-PROD-059`, `REQ-PROD-060`, `REQ-PROD-061`, `REQ-PROD-062`, `REQ-SEC-001`, `REQ-SEC-002`, `REQ-UX-001`, `REQ-UX-002`, `REQ-UX-003`, `REQ-UX-004`, `REQ-UX-005`, `REQ-UX-006`, `REQ-UX-007`, `REQ-UX-008`, `REQ-UX-009`
 
-### conform
+### partial — 20
 
-`REQ-PROD-001`, `REQ-PROD-002`, `REQ-PROD-003`, `REQ-PROD-004`, `REQ-PROD-005`, `REQ-PROD-009`, `REQ-PROD-011`, `REQ-PROD-012`, `REQ-PROD-013`, `REQ-PROD-014`, `REQ-PROD-015`, `REQ-PROD-016`, `REQ-PROD-017`, `REQ-PROD-018`, `REQ-PROD-019`, `REQ-PROD-021`, `REQ-PROD-022`, `REQ-PROD-023`, `REQ-PROD-024`, `REQ-PROD-025`, `REQ-PROD-026`, `REQ-PROD-027`, `REQ-PROD-028`, `REQ-PROD-029`, `REQ-PROD-030`, `REQ-PROD-031`, `REQ-PROD-032`, `REQ-PROD-033`, `REQ-PROD-034`, `REQ-PROD-035`, `REQ-PROD-036`, `REQ-PROD-037`, `REQ-PROD-038`, `REQ-PROD-039`, `REQ-PROD-040`, `REQ-PROD-041`, `REQ-PROD-042`, `REQ-PROD-043`, `REQ-PROD-044`, `REQ-PROD-045`, `REQ-PROD-046`, `REQ-PROD-047`, `REQ-PROD-048`, `REQ-PROD-049`, `REQ-PROD-050`, `REQ-PROD-051`, `REQ-PROD-052`, `REQ-PROD-053`, `REQ-PROD-054`, `REQ-PROD-055`, `REQ-PROD-056`, `REQ-PROD-057`, `REQ-PROD-058`, `REQ-PROD-059`, `REQ-PROD-060`, `REQ-PROD-061`, `REQ-PROD-062`, `REQ-AI-001`, `REQ-AI-002`, `REQ-AI-003`, `REQ-AI-004`, `REQ-AI-005`, `REQ-AI-006`, `REQ-AI-011`, `REQ-OBJ-001`, `REQ-OBJ-002`, `REQ-OBJ-003`, `REQ-OBJ-004`, `REQ-OBJ-005`, `REQ-OBJ-006`, `REQ-OBJ-007`, `REQ-OBJ-008`, `REQ-OBJ-010`, `REQ-BRAND-001`, `REQ-BRAND-002`, `REQ-BRAND-003`, `REQ-BRAND-004`, `REQ-BRAND-005`, `REQ-BRAND-006`, `REQ-BRAND-008`, `REQ-SEC-001`, `REQ-SEC-002`, `REQ-INV-001`, `REQ-INV-002`, `REQ-INV-003`, `REQ-INV-004`, `REQ-INV-005`, `REQ-INV-006`
+`REQ-AI-007`, `REQ-AI-008`, `REQ-AI-009`, `REQ-AI-010`, `REQ-BRAND-007`, `REQ-JRN-001`, `REQ-JRN-003`, `REQ-JRN-004`, `REQ-JRN-006`, `REQ-JRN-007`, `REQ-OBJ-009`, `REQ-PROD-006`, `REQ-PROD-007`, `REQ-PROD-008`, `REQ-PROD-010`, `REQ-PROD-020`, `REQ-SEC-003`, `REQ-SEC-004`, `REQ-SEC-005`, `REQ-UX-010`
 
-### partial
+### absent — 3
 
-`REQ-PROD-006`, `REQ-PROD-007`, `REQ-PROD-008`, `REQ-PROD-010`, `REQ-PROD-020`, `REQ-AI-007`, `REQ-AI-008`, `REQ-AI-009`, `REQ-AI-010`, `REQ-OBJ-009`, `REQ-UX-001`, `REQ-UX-002`, `REQ-UX-003`, `REQ-UX-006`, `REQ-UX-007`, `REQ-UX-009`, `REQ-BRAND-007`, `REQ-SEC-003`, `REQ-SEC-004`, `REQ-SEC-005`, `REQ-JRN-001`, `REQ-JRN-003`, `REQ-JRN-004`, `REQ-JRN-006`, `REQ-JRN-007`
+`REQ-JRN-002`, `REQ-JRN-005`, `REQ-JRN-008`
 
-### absent
+### contradictory — 0
 
-`REQ-UX-004`, `REQ-UX-005`, `REQ-UX-010`, `REQ-JRN-002`, `REQ-JRN-005`, `REQ-JRN-008`
+Aucun Requirement ID n'est classé contradictoire après la migration Saved Views / Work Queue.
 
-### contradictory
+## Mouvement Phase 3
 
-`REQ-OBJ-011`, `REQ-OBJ-012`, `REQ-UX-008`
+- partial → conform : REQ-UX-001, 002, 003, 006, 007, 009 ;
+- absent → conform : REQ-UX-004, 005 ;
+- contradictory → conform : REQ-UX-008, REQ-OBJ-011, REQ-OBJ-012 ;
+- absent → partial : REQ-UX-010.
 
-## Phase 2 movement
+Les trois exigences absentes restantes sont `REQ-JRN-002`, `REQ-JRN-005`, `REQ-JRN-008`, possédées par les phases parcours. Les décisions de palettes, typographie, densité finale et logo restent ouvertes.
 
-Seven requirements moved from `partial` to `conform`: `REQ-BRAND-001` through `REQ-BRAND-006`, and `REQ-BRAND-008`.
+## Règle de mise à jour
 
-`REQ-BRAND-007` remains `partial` because the final type stack is still `OPEN-004`. `REQ-PROD-048`, `REQ-PROD-049` and `REQ-PROD-050` remain traceably covered by open decisions and proposal documents; no palette was approved.
-
-## Remaining contradictions
-
-- `REQ-OBJ-011` and `REQ-OBJ-012`: generic Saved Views versus Work Queue Saved Views.
-- `REQ-UX-008`: Work Queue variants remain separate screen files.
-- Permission namespace conflicts remain assigned to their later owning phase.
-
-## Update rule
-
-A later change updates the source decision, owning canonical document, dependents, proof and open-decision record. A proposal never becomes a decision merely because its individual contrast pairs pass.
+Une valeur Draft réversible peut rendre la fondation testable ; elle ne ferme pas une décision humaine. Une exigence écran reste partielle tant que les écrans propriétaires ne sont pas substantiels.
