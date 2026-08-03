@@ -1,60 +1,40 @@
 ---
-id: layout-settings-layout
+id: deprecated-layout-settings-layout
 domain: 03-design-system
-status: draft
-owner: Design Lead
+status: deprecated
+owner: Design System Lead
 updated: 2026-08-03
-source-of-truth: canonical
+source-of-truth: deprecated
+replaced-by: settings-shell.md
+requirements:
+  - REQ-UX-001
+  - REQ-UX-002
 ---
-# Settings Layout
 
-## Objectif
+# Pointeur déprécié
 
-Définir le layout settings layout.
+## Remplaçant
 
-## Périmètre
+[`settings-shell.md`](settings-shell.md)
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
+## Justification
 
-## Propriétaire fonctionnel
+La Phase 3 remplace les layouts génériques par huit shells d’activité avec anatomie, clavier, responsive et critères testables.
 
-Design Lead.
+## Migration
 
-## Objets concernés
+Les consommateurs choisissent le shell `settings-shell.md` puis appliquent uniquement les adaptations prévues.
 
-- Concepts du document
-- Références canoniques liées
+## Dépendants
 
-## Fonctionnalités
+Écrans et modules qui citaient cet ancien layout.
 
-- Navigation par catégories.
-- Prévisualisation et validation.
-- Différence personnel/tenant.
+## Date de retrait
 
-## UX et interactions
+2026-08-03. Le chemin reste disponible pour l'historique et les liens de migration, mais ne porte plus de règle normative.
 
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
+## Critère d'acceptation
 
-## Permissions
-
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
-
-## États
-
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
-
-## Dépendances
-
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- À compléter — décision source non fournie dans le brief canonique.
+**Given** un consommateur de cet ancien chemin,  
+**When** sa dépendance est mise à jour,  
+**Then** il référence le remplaçant, ne copie aucune règle locale et ce document n'est jamais utilisé comme source active.
