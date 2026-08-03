@@ -1,5 +1,5 @@
 ---
-id: component-graph
+id: component-activity-stream
 domain: 03-design-system
 status: draft
 owner: Design System Lead
@@ -12,11 +12,11 @@ requirements:
   - REQ-UX-005
 ---
 
-# Graph
+# Activity Stream
 
 ## 1. Rôle
 
-Explorer relations sourcées. Le composant fournit un contrat partagé ; le produit propriétaire fournit objets, actions et données.
+Présenter événements humains, système et automatisés. Le composant fournit un contrat partagé ; le produit propriétaire fournit objets, actions et données.
 
 ## 2. Source canonique
 
@@ -24,11 +24,11 @@ Ce fichier possède l'anatomie et l'interaction. Les objets viennent de `05-doma
 
 ## 3. Anatomy
 
-canvas, legend, filters, source/freshness, selection, table alternative.
+timestamp, actor/run, action, object, result, source, filters.
 
 ## 4. Variants
 
-relationship, dependency, attack-path when evidenced.
+object, workspace, audit summary.
 
 ## 5. Sizes
 
@@ -40,11 +40,11 @@ Default, hover, focus, selected lorsque applicable, disabled, read-only, loading
 
 ## 7. Behavior
 
-Aucune causalité implicite; no decorative force animation. Les mises à jour préservent focus, sélection et données valides. Toute action à effet indique portée et résultat.
+Ordre temporel explicite; commentaire distinct du fait. Les mises à jour préservent focus, sélection et données valides. Toute action à effet indique portée et résultat.
 
 ## 8. Keyboard
 
-node list/tree alternative; arrows; Enter inspect; +/- zoom.
+list navigation; Enter opens detail.
 
 ## 9. Accessibility
 
@@ -56,7 +56,7 @@ Wide conserve la composition complète ; standard réduit les détails ; compact
 
 ## 11. Tokens consommés
 
-`color.surface.*`, `color.text.*`, `color.border.*`, `color.focus.ring`, `space.*`, `radius.*`, `motion.*` et `component.graph.*`. Aucun hex de marque direct.
+`color.surface.*`, `color.text.*`, `color.border.*`, `color.focus.ring`, `space.*`, `radius.*`, `motion.*` et `component.activity-stream.*`. Aucun hex de marque direct.
 
 ## 12. Content rules
 

@@ -1,5 +1,5 @@
 ---
-id: component-graph
+id: component-evidence-card
 domain: 03-design-system
 status: draft
 owner: Design System Lead
@@ -12,11 +12,11 @@ requirements:
   - REQ-UX-005
 ---
 
-# Graph
+# Evidence Card
 
 ## 1. Rôle
 
-Explorer relations sourcées. Le composant fournit un contrat partagé ; le produit propriétaire fournit objets, actions et données.
+Résumer artifact/evidence avec provenance. Le composant fournit un contrat partagé ; le produit propriétaire fournit objets, actions et données.
 
 ## 2. Source canonique
 
@@ -24,11 +24,11 @@ Ce fichier possède l'anatomie et l'interaction. Les objets viennent de `05-doma
 
 ## 3. Anatomy
 
-canvas, legend, filters, source/freshness, selection, table alternative.
+type, identity, source, acquisition, integrity, custodian, status, relations, actions.
 
 ## 4. Variants
 
-relationship, dependency, attack-path when evidenced.
+artifact, evidence, candidate.
 
 ## 5. Sizes
 
@@ -40,11 +40,11 @@ Default, hover, focus, selected lorsque applicable, disabled, read-only, loading
 
 ## 7. Behavior
 
-Aucune causalité implicite; no decorative force animation. Les mises à jour préservent focus, sélection et données valides. Toute action à effet indique portée et résultat.
+Artifact ≠ evidence; integrity and source never hidden. Les mises à jour préservent focus, sélection et données valides. Toute action à effet indique portée et résultat.
 
 ## 8. Keyboard
 
-node list/tree alternative; arrows; Enter inspect; +/- zoom.
+card/list focus; Enter inspect; actions menu.
 
 ## 9. Accessibility
 
@@ -56,7 +56,7 @@ Wide conserve la composition complète ; standard réduit les détails ; compact
 
 ## 11. Tokens consommés
 
-`color.surface.*`, `color.text.*`, `color.border.*`, `color.focus.ring`, `space.*`, `radius.*`, `motion.*` et `component.graph.*`. Aucun hex de marque direct.
+`color.surface.*`, `color.text.*`, `color.border.*`, `color.focus.ring`, `space.*`, `radius.*`, `motion.*` et `component.evidence-card.*`. Aucun hex de marque direct.
 
 ## 12. Content rules
 

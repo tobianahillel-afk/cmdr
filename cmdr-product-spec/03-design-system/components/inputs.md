@@ -1,5 +1,5 @@
 ---
-id: component-graph
+id: component-inputs
 domain: 03-design-system
 status: draft
 owner: Design System Lead
@@ -12,11 +12,11 @@ requirements:
   - REQ-UX-005
 ---
 
-# Graph
+# Inputs
 
 ## 1. Rôle
 
-Explorer relations sourcées. Le composant fournit un contrat partagé ; le produit propriétaire fournit objets, actions et données.
+Saisir et valider une valeur. Le composant fournit un contrat partagé ; le produit propriétaire fournit objets, actions et données.
 
 ## 2. Source canonique
 
@@ -24,11 +24,11 @@ Ce fichier possède l'anatomie et l'interaction. Les objets viennent de `05-doma
 
 ## 3. Anatomy
 
-canvas, legend, filters, source/freshness, selection, table alternative.
+label, control, help, unit, validation, error.
 
 ## 4. Variants
 
-relationship, dependency, attack-path when evidenced.
+text, textarea, select, checkbox, radio, switch, number, secret reference.
 
 ## 5. Sizes
 
@@ -40,11 +40,11 @@ Default, hover, focus, selected lorsque applicable, disabled, read-only, loading
 
 ## 7. Behavior
 
-Aucune causalité implicite; no decorative force animation. Les mises à jour préservent focus, sélection et données valides. Toute action à effet indique portée et résultat.
+Label persistant; placeholder non utilisé comme label; secret jamais révélé par défaut. Les mises à jour préservent focus, sélection et données valides. Toute action à effet indique portée et résultat.
 
 ## 8. Keyboard
 
-node list/tree alternative; arrows; Enter inspect; +/- zoom.
+Tab; arrows for choices; Space toggles.
 
 ## 9. Accessibility
 
@@ -56,7 +56,7 @@ Wide conserve la composition complète ; standard réduit les détails ; compact
 
 ## 11. Tokens consommés
 
-`color.surface.*`, `color.text.*`, `color.border.*`, `color.focus.ring`, `space.*`, `radius.*`, `motion.*` et `component.graph.*`. Aucun hex de marque direct.
+`color.surface.*`, `color.text.*`, `color.border.*`, `color.focus.ring`, `space.*`, `radius.*`, `motion.*` et `component.inputs.*`. Aucun hex de marque direct.
 
 ## 12. Content rules
 

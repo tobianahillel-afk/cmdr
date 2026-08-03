@@ -1,5 +1,5 @@
 ---
-id: component-graph
+id: component-saved-views
 domain: 03-design-system
 status: draft
 owner: Design System Lead
@@ -10,13 +10,16 @@ requirements:
   - REQ-UX-003
   - REQ-UX-004
   - REQ-UX-005
+  - REQ-OBJ-011
+  - REQ-OBJ-012
+  - REQ-UX-008
 ---
 
-# Graph
+# Saved Views
 
 ## 1. Rôle
 
-Explorer relations sourcées. Le composant fournit un contrat partagé ; le produit propriétaire fournit objets, actions et données.
+Enregistrer une configuration du même workspace. Le composant fournit un contrat partagé ; le produit propriétaire fournit objets, actions et données.
 
 ## 2. Source canonique
 
@@ -24,11 +27,11 @@ Ce fichier possède l'anatomie et l'interaction. Les objets viennent de `05-doma
 
 ## 3. Anatomy
 
-canvas, legend, filters, source/freshness, selection, table alternative.
+picker, owner, scope, dirty state, save/update/duplicate.
 
 ## 4. Variants
 
-relationship, dependency, attack-path when evidenced.
+system, personal, shared.
 
 ## 5. Sizes
 
@@ -40,11 +43,11 @@ Default, hover, focus, selected lorsque applicable, disabled, read-only, loading
 
 ## 7. Behavior
 
-Aucune causalité implicite; no decorative force animation. Les mises à jour préservent focus, sélection et données valides. Toute action à effet indique portée et résultat.
+Permissions réévaluées; work queue content owned by command. Les mises à jour préservent focus, sélection et données valides. Toute action à effet indique portée et résultat.
 
 ## 8. Keyboard
 
-node list/tree alternative; arrows; Enter inspect; +/- zoom.
+arrows list; Enter apply; menu for management.
 
 ## 9. Accessibility
 
@@ -56,7 +59,7 @@ Wide conserve la composition complète ; standard réduit les détails ; compact
 
 ## 11. Tokens consommés
 
-`color.surface.*`, `color.text.*`, `color.border.*`, `color.focus.ring`, `space.*`, `radius.*`, `motion.*` et `component.graph.*`. Aucun hex de marque direct.
+`color.surface.*`, `color.text.*`, `color.border.*`, `color.focus.ring`, `space.*`, `radius.*`, `motion.*` et `component.saved-views.*`. Aucun hex de marque direct.
 
 ## 12. Content rules
 
