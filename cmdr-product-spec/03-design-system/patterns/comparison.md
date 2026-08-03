@@ -1,5 +1,5 @@
 ---
-id: pattern-progressive-disclosure
+id: pattern-comparison
 domain: 03-design-system
 status: draft
 owner: Design System Lead
@@ -11,11 +11,11 @@ requirements:
   - REQ-UX-005
 ---
 
-# Divulgation progressive
+# Comparaison
 
 ## Problème
 
-Montrer situation/action avant contexte puis trace.
+Comparer deux versions, objets ou périodes sans perdre la provenance.
 
 ## Contexte
 
@@ -23,7 +23,7 @@ Utiliser ce pattern lorsqu'une activité traverse plusieurs états, objets ou su
 
 ## Solution
 
-Niveaux 1/2/3, sections, expansion mémorisée, information critique toujours visible.
+Baseline/candidate, dimensions communes, diff, unchanged context, accessible summary.
 
 ## Anatomy
 
@@ -47,7 +47,7 @@ Ordre clavier documenté, focus restauré, annonces proportionnées, alternative
 
 ## Anti-patterns
 
-Cacher conséquences, permission ou provenance dans un accordéon.
+Deux inspectors, couleur seule ou comparaison de périmètres différents.
 
 ## Exemple
 

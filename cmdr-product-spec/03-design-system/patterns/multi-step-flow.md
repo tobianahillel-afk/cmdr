@@ -1,5 +1,5 @@
 ---
-id: pattern-progressive-disclosure
+id: pattern-multi-step-flow
 domain: 03-design-system
 status: draft
 owner: Design System Lead
@@ -11,11 +11,11 @@ requirements:
   - REQ-UX-005
 ---
 
-# Divulgation progressive
+# Flux multi-étapes
 
 ## Problème
 
-Montrer situation/action avant contexte puis trace.
+Conduire une activité séquentielle avec reprise.
 
 ## Contexte
 
@@ -23,7 +23,7 @@ Utiliser ce pattern lorsqu'une activité traverse plusieurs états, objets ou su
 
 ## Solution
 
-Niveaux 1/2/3, sections, expansion mémorisée, information critique toujours visible.
+Étapes nommées, état, validation, sauvegarde, retour, abandon, résumé final.
 
 ## Anatomy
 
@@ -47,7 +47,7 @@ Ordre clavier documenté, focus restauré, annonces proportionnées, alternative
 
 ## Anti-patterns
 
-Cacher conséquences, permission ou provenance dans un accordéon.
+Wizard pour une action simple, étapes cachées ou validation uniquement finale.
 
 ## Exemple
 

@@ -1,5 +1,5 @@
 ---
-id: pattern-progressive-disclosure
+id: pattern-selection-and-inspection
 domain: 03-design-system
 status: draft
 owner: Design System Lead
@@ -9,13 +9,15 @@ requirements:
   - REQ-UX-002
   - REQ-UX-004
   - REQ-UX-005
+  - REQ-UX-006
+  - REQ-UX-007
 ---
 
-# Divulgation progressive
+# Sélection et inspection
 
 ## Problème
 
-Montrer situation/action avant contexte puis trace.
+Garder le contexte de liste/canvas pendant l’analyse d’un objet.
 
 ## Contexte
 
@@ -23,7 +25,7 @@ Utiliser ce pattern lorsqu'une activité traverse plusieurs états, objets ou su
 
 ## Solution
 
-Niveaux 1/2/3, sections, expansion mémorisée, information critique toujours visible.
+Sélection persistante, inspector unique, focus/restauration, url optionnelle.
 
 ## Anatomy
 
@@ -47,7 +49,7 @@ Ordre clavier documenté, focus restauré, annonces proportionnées, alternative
 
 ## Anti-patterns
 
-Cacher conséquences, permission ou provenance dans un accordéon.
+Ouvrir une page ou un panneau droit concurrent pour chaque sélection.
 
 ## Exemple
 

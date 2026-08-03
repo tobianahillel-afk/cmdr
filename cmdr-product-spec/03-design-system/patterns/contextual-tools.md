@@ -1,5 +1,5 @@
 ---
-id: pattern-progressive-disclosure
+id: pattern-contextual-tools
 domain: 03-design-system
 status: draft
 owner: Design System Lead
@@ -9,13 +9,16 @@ requirements:
   - REQ-UX-002
   - REQ-UX-004
   - REQ-UX-005
+  - REQ-AI-001
+  - REQ-AI-007
+  - REQ-AI-010
 ---
 
-# Divulgation progressive
+# Outils contextuels
 
 ## Problème
 
-Montrer situation/action avant contexte puis trace.
+Présenter outils et automatisations près de l’objet sans envahir le workspace.
 
 ## Contexte
 
@@ -23,7 +26,7 @@ Utiliser ce pattern lorsqu'une activité traverse plusieurs états, objets ou su
 
 ## Solution
 
-Niveaux 1/2/3, sections, expansion mémorisée, information critique toujours visible.
+Tool dock, actions secondaires, automation tray fermé, permission et effet.
 
 ## Anatomy
 
@@ -47,7 +50,7 @@ Ordre clavier documenté, focus restauré, annonces proportionnées, alternative
 
 ## Anti-patterns
 
-Cacher conséquences, permission ou provenance dans un accordéon.
+Barre d’outils universelle, ask ai partout ou outil hors contexte.
 
 ## Exemple
 

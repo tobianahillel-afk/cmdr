@@ -1,5 +1,5 @@
 ---
-id: pattern-progressive-disclosure
+id: pattern-dangerous-action
 domain: 03-design-system
 status: draft
 owner: Design System Lead
@@ -11,11 +11,11 @@ requirements:
   - REQ-UX-005
 ---
 
-# Divulgation progressive
+# Action dangereuse
 
 ## Problème
 
-Montrer situation/action avant contexte puis trace.
+Présenter cible, portée, effet, préconditions, autorité et rollback.
 
 ## Contexte
 
@@ -23,7 +23,7 @@ Utiliser ce pattern lorsqu'une activité traverse plusieurs états, objets ou su
 
 ## Solution
 
-Niveaux 1/2/3, sections, expansion mémorisée, information critique toujours visible.
+Classification, preview, confirmation/step-up, govern, audit et résultat.
 
 ## Anatomy
 
@@ -47,7 +47,7 @@ Ordre clavier documenté, focus restauré, annonces proportionnées, alternative
 
 ## Anti-patterns
 
-Cacher conséquences, permission ou provenance dans un accordéon.
+Bouton rouge direct, confirmation générique ou action depuis une suggestion.
 
 ## Exemple
 

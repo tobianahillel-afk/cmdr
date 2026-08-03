@@ -1,60 +1,40 @@
 ---
-id: pattern-copy-and-redaction
+id: deprecated-pattern-copy-and-redaction
 domain: 03-design-system
-status: draft
-owner: Design Lead
+status: deprecated
+owner: Design System Lead
 updated: 2026-08-03
-source-of-truth: canonical
+source-of-truth: deprecated
+replaced-by: ../patterns/attribution-and-provenance.md
+requirements:
+  - REQ-UX-002
+  - REQ-UX-004
 ---
-# Copy And Redaction
 
-## Objectif
+# Pointeur déprécié
 
-Définir le pattern partagé copy and redaction.
+## Remplaçant
 
-## Périmètre
+[`../patterns/attribution-and-provenance.md`](../patterns/attribution-and-provenance.md)
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
+## Justification
 
-## Propriétaire fonctionnel
+Le pattern Phase 0 était générique ou chevauchait un contrat canonique plus précis.
 
-Design Lead.
+## Migration
 
-## Objets concernés
+Migrer les consommateurs vers `../patterns/attribution-and-provenance.md` et conserver les règles métier dans leur domaine propriétaire.
 
-- Concepts du document
-- Références canoniques liées
+## Dépendants
 
-## Fonctionnalités
+Composants et écrans qui citaient cet ancien pattern.
 
-- Copie contrôlée.
-- Masquage par défaut.
-- Révélation et export séparément autorisés.
+## Date de retrait
 
-## UX et interactions
+2026-08-03. Le chemin reste disponible pour l'historique et les liens de migration, mais ne porte plus de règle normative.
 
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
+## Critère d'acceptation
 
-## Permissions
-
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
-
-## États
-
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
-
-## Dépendances
-
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- À compléter — décision source non fournie dans le brief canonique.
+**Given** un consommateur de cet ancien chemin,  
+**When** sa dépendance est mise à jour,  
+**Then** il référence le remplaçant, ne copie aucune règle locale et ce document n'est jamais utilisé comme source active.

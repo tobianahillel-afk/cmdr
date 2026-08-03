@@ -1,5 +1,5 @@
 ---
-id: pattern-progressive-disclosure
+id: pattern-approval
 domain: 03-design-system
 status: draft
 owner: Design System Lead
@@ -9,13 +9,16 @@ requirements:
   - REQ-UX-002
   - REQ-UX-004
   - REQ-UX-005
+  - REQ-AI-001
+  - REQ-AI-007
+  - REQ-AI-010
 ---
 
-# Divulgation progressive
+# Approval
 
 ## Problème
 
-Montrer situation/action avant contexte puis trace.
+Recueillir une expression d’autorité sans la confondre avec decision.
 
 ## Contexte
 
@@ -23,7 +26,7 @@ Utiliser ce pattern lorsqu'une activité traverse plusieurs états, objets ou su
 
 ## Solution
 
-Niveaux 1/2/3, sections, expansion mémorisée, information critique toujours visible.
+Request, approver, authority, sod, conditions, expiration, result, trace.
 
 ## Anatomy
 
@@ -47,7 +50,7 @@ Ordre clavier documenté, focus restauré, annonces proportionnées, alternative
 
 ## Anti-patterns
 
-Cacher conséquences, permission ou provenance dans un accordéon.
+Approval implicite, agent auto-approbateur ou absence de justification.
 
 ## Exemple
 

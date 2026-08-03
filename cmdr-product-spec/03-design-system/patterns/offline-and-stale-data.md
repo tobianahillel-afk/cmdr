@@ -1,5 +1,5 @@
 ---
-id: pattern-progressive-disclosure
+id: pattern-offline-and-stale-data
 domain: 03-design-system
 status: draft
 owner: Design System Lead
@@ -11,11 +11,11 @@ requirements:
   - REQ-UX-005
 ---
 
-# Divulgation progressive
+# Offline et données périmées
 
 ## Problème
 
-Montrer situation/action avant contexte puis trace.
+Distinguer indisponibilité, stale et partial.
 
 ## Contexte
 
@@ -23,7 +23,7 @@ Utiliser ce pattern lorsqu'une activité traverse plusieurs états, objets ou su
 
 ## Solution
 
-Niveaux 1/2/3, sections, expansion mémorisée, information critique toujours visible.
+Last sync, freshness, source status, queued mutations policy, reconnect.
 
 ## Anatomy
 
@@ -47,7 +47,7 @@ Ordre clavier documenté, focus restauré, annonces proportionnées, alternative
 
 ## Anti-patterns
 
-Cacher conséquences, permission ou provenance dans un accordéon.
+Afficher des données anciennes comme live ou masquer l’offline.
 
 ## Exemple
 

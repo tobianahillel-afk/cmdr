@@ -1,5 +1,5 @@
 ---
-id: pattern-progressive-disclosure
+id: pattern-attribution-and-provenance
 domain: 03-design-system
 status: draft
 owner: Design System Lead
@@ -9,13 +9,16 @@ requirements:
   - REQ-UX-002
   - REQ-UX-004
   - REQ-UX-005
+  - REQ-AI-001
+  - REQ-AI-007
+  - REQ-AI-010
 ---
 
-# Divulgation progressive
+# Attribution et provenance
 
 ## Problème
 
-Montrer situation/action avant contexte puis trace.
+Rendre visible qui/quoi a produit une information.
 
 ## Contexte
 
@@ -23,7 +26,7 @@ Utiliser ce pattern lorsqu'une activité traverse plusieurs états, objets ou su
 
 ## Solution
 
-Niveaux 1/2/3, sections, expansion mémorisée, information critique toujours visible.
+Human/rule/engine/workflow/agent/external, version, run, sources, uncertainty, trace.
 
 ## Anatomy
 
@@ -47,7 +50,7 @@ Ordre clavier documenté, focus restauré, annonces proportionnées, alternative
 
 ## Anti-patterns
 
-Cacher conséquences, permission ou provenance dans un accordéon.
+Badge ia magique, contenu anonyme ou decision attribuée à un modèle.
 
 ## Exemple
 
