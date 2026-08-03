@@ -1,68 +1,49 @@
 ---
-id: command-incidents-and-work-queue
+id: command-incidents-work-queue
 domain: 06-command
 status: draft
 owner: Command Product Lead
 updated: 2026-08-03
 source-of-truth: canonical
+requirements:
+  - REQ-OBJ-001
+  - REQ-OBJ-012
+  - REQ-UX-008
+  - REQ-UX-009
 ---
+
 # Incidents & Work Queue
 
-## Objectif
+## Décision canonique
 
-Coordonner les incidents, tâches, objets non assignés, risques SLA et charge d’équipe.
+La Work Queue est un workspace Command unique utilisant le Queue Shell. Les variantes sont des Saved Views, jamais des Pages ou écrans autonomes.
 
-## Périmètre
+## Objets
 
-Module du produit 06-command. Les objets, permissions, composants et transitions partagés sont référencés et non redéfinis.
+Incident et Task appartiennent à Command. Alert, Case et autres objets sont des projections autorisées. La vue ne modifie aucune propriété.
 
-## Propriétaire fonctionnel
+## Vues système
 
-Command Product Lead.
+`All`, `Incidents`, `Tasks`, `Unassigned`, `SLA Risk`, `My Work`.
 
-## Objets concernés
+## Composition
 
-- incident
-- alert
-- task
-- saved-view
-- case
+Context Bar, titre/fraîcheur, Saved Views, recherche, filtres, actions groupées sûres, Data Table et Inspector unique. Vue, filtres, tri, colonnes, densité, sélection et scroll survivent à Incident Detail et au retour.
 
-## Fonctionnalités
+## Team Load
 
-- Vues Incidents, Tasks, Unassigned, SLA Risk et Team Load.
-- Affectation et handover.
-- Bulk actions sûres.
-- Saved views canoniques.
+`Team Load` n'est pas une vue système décidée. Il peut être recréé ultérieurement comme vue partagée personnalisée ou visualisation de capacité dans un module propriétaire, sans Screen ID.
 
-## UX et interactions
+## Migration
 
-- Conserver le contexte de liste, vue et objet.
-- Utiliser l’Inspector canonique.
-- Afficher les six états obligatoires.
-- Préserver navigation clavier et liens profonds.
+Les anciens fichiers `incidents.md`, `tasks.md`, `unassigned.md`, `sla-risk.md` et `team-load.md` sont dépréciés. Les anciennes URLs deviennent des aliases vers le workspace avec paramètre `view`, sauf Team Load qui ouvre la Work Queue avec migration expliquée.
 
-## Permissions
+## IA
 
-Voir `../../14-security-permissions-and-trust/permission-model.md` et le registre des permissions.
+Priorité ou résumé proposés sont secondaires et attribués. Affectation, filtres, recherche, tri et actions manuelles fonctionnent sans modèle.
 
-## États
+## Critère d’acceptation
 
-Les états métier viennent des fichiers d’objets canoniques; la page ajoute uniquement Loading, Empty, Partial, Error, Offline et Permission denied.
-
-## Dépendances
-
-- 03-design-system/
-- 04-experience-architecture/
-- 05-domain-model/
-- 17-implementation-contracts/
-
-## Critères d’acceptation
-
-- Aucune définition d’objet ou de permission locale.
-- Tous les écrans du module ont un front matter et 27 sections.
-- Les transitions sont auditées et idempotentes.
-
-## Questions ouvertes
-
-- À compléter — contenu source non fourni dans le brief canonique.
+**Given** la vue `My Work`, des filtres actifs et un Incident sélectionné,  
+**When** l'utilisateur ouvre Incident Detail puis revient,  
+**Then** le workspace, la vue, les filtres, la sélection, le scroll et l'Inspector sont restaurés.

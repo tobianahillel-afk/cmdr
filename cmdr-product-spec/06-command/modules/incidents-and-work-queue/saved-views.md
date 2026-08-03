@@ -5,35 +5,43 @@ status: draft
 owner: Command Product Lead
 updated: 2026-08-03
 source-of-truth: canonical
+requirements:
+  - REQ-OBJ-012
+  - REQ-UX-008
+  - REQ-UX-009
 ---
-# Work Queue saved views
 
-## Objectif
+# Saved Views de la Work Queue
 
-Définir la source unique des vues enregistrées de la Work Queue.
+## Source fonctionnelle générique
 
-## Modèle
-
-Une vue enregistrée référence la page `Incidents & Work Queue`, une vue locale, des filtres, un tri, des colonnes, une densité et une portée personnelle ou partagée. Elle n’enregistre jamais de données d’objet ni de permission.
+`../../../12-shared-capabilities/saved-views.md` possède stockage, versioning, partage et permission re-evaluation. Ce fichier possède uniquement le catalogue et les règles Command.
 
 ## Vues système
 
-- `Incidents`
-- `Tasks`
-- `Unassigned`
-- `SLA Risk`
-- `Team Load`
+| Key | Intention | Critère initial |
+|---|---|---|
+| all | tout travail autorisé | aucun filtre de type/owner |
+| incidents | coordination d'Incidents | object.type=Incident |
+| tasks | tâches opérationnelles | object.type=Task |
+| unassigned | travail sans owner | owner is empty |
+| sla-risk | travail proche/en dépassement SLA | SLA policy-derived |
+| my-work | travail assigné ou suivi par l'utilisateur | owner/follower=current principal |
+
+Les critères précis dépendent des objets et policies de Phase 4 ; ils ne créent pas de permission.
 
 ## Règles
 
-- Les vues système sont versionnées et non supprimables.
-- Une vue personnelle est modifiable uniquement par son propriétaire.
-- Une vue partagée exige `perm.command.saved-view.share`.
-- L’ouverture réévalue les permissions et retire les colonnes non autorisées.
-- Les autres documents pointent ici; ils ne redéfinissent pas le schéma des saved views.
+- vues système versionnées, non supprimables et adressables par `view=key` ;
+- vue personnelle modifiable par owner ;
+- vue partagée exige permission et audience ;
+- ouverture réévalue permissions et colonnes ;
+- dirty state visible avant update ;
+- `Team Load` n'est pas une vue système ;
+- aucune vue n'est un fichier d'écran actif.
 
-## Critères d’acceptation
+## Critère
 
-- URL, filtres et colonnes sont reproductibles.
-- Aucune vue ne traverse les tenants.
-- Un changement du schéma produit une migration ou un avertissement.
+**Given** un lien legacy `/work-queue/unassigned`,  
+**When** il est ouvert,  
+**Then** il redirige vers le workspace unique avec `view=unassigned`, conserve les filtres sûrs et n'enregistre aucun nouvel écran.

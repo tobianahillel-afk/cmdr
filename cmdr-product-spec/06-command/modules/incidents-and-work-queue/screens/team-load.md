@@ -1,130 +1,38 @@
 ---
-id: CMD-IWQ-005
-type: screen
-product: command
-module: incidents-and-work-queue
-workspace: team-load
-status: draft
+id: deprecated-work-queue-team-load
+domain: 06-command
+status: deprecated
 owner: Command Product Lead
 updated: 2026-08-03
-permissions:
-  - perm.command.read
-  - perm.command.coordinate
-source-of-truth: screen
+source-of-truth: deprecated
+replaced-by: ../README.md
+requirements:
+  - REQ-OBJ-012
+  - REQ-UX-008
 ---
-# Incidents & Work Queue — Team Load
 
-## 1. Objectif
+# Team Load — écran déprécié
 
-Comprendre la charge et redistribuer sans moteur opaque.
+## Remplaçant
 
-## 2. Résultats utilisateur
+La Work Queue canonique dans [`../README.md`](../README.md), avec migration `workspace sans vue système; proposer une vue personnalisée`.
 
-L’utilisateur comprend la situation, prend la décision attendue et conserve le contexte du produit.
+## Justification
 
-## 3. Points d’entrée
+`Team Load` ne possède pas d'objectif autonome : il s'agit d'une configuration du même travail. Le conserver comme écran créerait une architecture concurrente.
 
-Navigation produit, lien profond, recherche globale, notification ou transition interproduits autorisée.
+## Migration
 
-## 4. Points de sortie
+Les liens legacy sont résolus vers le workspace et la configuration indiquée. Les données, permissions et identifiants d'objets ne changent pas. Aucun contenu métier détaillé n'est réécrit en Phase 3.
 
-Retour au contexte source, ouverture d’un inspecteur, navigation vers un écran lié ou transition interproduits explicitement confirmée.
+## Dépendants
 
-## 5. Contexte
+Screen register, liens profonds, navigation Command et tests de migration.
 
-Tenant, environnement, période, objet actif, filtres sûrs et URL de retour sont visibles et préservés.
+## Date de retrait
 
-## 6. Structure de page
+2026-08-03.
 
-En-tête produit, navigation latérale, barre de contexte, zone principale et inspecteur canonique lorsque nécessaire.
+## Critère
 
-## 7. Hiérarchie de l’information
-
-La décision principale précède les détails; les informations secondaires sont révélées progressivement.
-
-## 8. Actions principales
-
-- Réaffecter
-- Préparer le handover
-
-## 9. Actions secondaires
-
-Copier un identifiant, ouvrir la source canonique, partager un lien profond et exporter uniquement avec permission.
-
-## 10. Données et objets
-
-- [principal](../../../../05-domain-model/objects/principal.md)
-- [task](../../../../05-domain-model/objects/task.md)
-- [incident](../../../../05-domain-model/objects/incident.md)
-
-## 11. Filtres et vues enregistrées
-
-Les filtres sont URL-addressables. Les vues enregistrées utilisent la capacité canonique; la Work Queue suit `06-command/modules/incidents-and-work-queue/saved-views.md`.
-
-## 12. Inspector
-
-L’inspecteur suit exclusivement `03-design-system/components/inspector.md`; l’écran ne redéfinit ni sa structure ni ses états.
-
-## 13. UX et interactions
-
-Les panneaux n’effacent pas la position de la liste. Les actions à impact affichent cible, portée, effet, préconditions et retour arrière.
-
-## 14. Clavier et accessibilité
-
-Parcours clavier complet, focus visible, libellés textuels, alternatives aux graphes et respect de la réduction des animations.
-
-## 15. Permissions
-
-Permissions référencées: `perm.command.read`, `perm.command.coordinate`. La source unique est `14-security-permissions-and-trust/permission-model.md`.
-
-## 16. Audit
-
-Toute mutation enregistre acteur, tenant, objet, action, résultat, justification et identifiant de corrélation.
-
-## 17. État Loading
-
-Afficher le squelette de structure sans inventer de données; annoncer le chargement aux technologies d’assistance.
-
-## 18. État Empty
-
-Expliquer pourquoi aucune donnée n’est visible et proposer une action sûre ou un ajustement de filtre.
-
-## 19. État Partial
-
-Identifier les sources manquantes, la fraîcheur et les conséquences sur la décision.
-
-## 20. État Error
-
-Conserver les données valides, afficher l’erreur, l’identifiant de corrélation et une action de reprise sûre.
-
-## 21. État Offline
-
-Passer en lecture limitée lorsque possible, interdire les mutations non garanties et montrer la dernière synchronisation.
-
-## 22. État Permission denied
-
-Expliquer la capacité refusée sans révéler de données protégées et fournir le chemin de demande d’accès.
-
-## 23. Comportement responsive
-
-Préserver l’ordre de décision; les colonnes secondaires deviennent onglets ou panneaux sans masquer l’état actif.
-
-## 24. Télémétrie produit
-
-Mesurer ouverture, durée, erreurs, transitions et actions critiques sans enregistrer de secrets ni de contenu d’évidence.
-
-## 25. Dépendances
-
-Services d’objet, autorisation, audit, recherche, notifications et contrats d’implémentation du module.
-
-## 26. Critères d’acceptation
-
-Tous les six états obligatoires sont testés; les liens profonds survivent au rafraîchissement; les permissions sont vérifiées côté serveur; les transitions conservent le contexte.
-
-## 27. Questions ouvertes
-
-À compléter — contenu source non fourni dans le brief canonique.
-
-## Transitions interproduits
-
-- Vers Platform Settings uniquement pour administration d’identité.
+**Given** un ancien lien vers `Team Load`, **When** il est utilisé, **Then** la Work Queue unique s'ouvre, le contexte autorisé est conservé et aucun second écran n'est créé.

@@ -1,62 +1,40 @@
 ---
-id: shared-saved-view-engine
+id: deprecated-shared-saved-view-engine
 domain: 12-shared-capabilities
-status: draft
-owner: Shared Capabilities Product Lead
+status: deprecated
+owner: UX Architecture Lead
 updated: 2026-08-03
-source-of-truth: canonical
+source-of-truth: deprecated
+replaced-by: saved-views.md
+requirements:
+  - REQ-OBJ-011
+  - REQ-UX-009
 ---
-# Saved View Engine
 
-## Objectif
+# Pointeur déprécié
 
-Définir la capacité partagée Saved View Engine.
+## Remplaçant
 
-## Périmètre
+[`saved-views.md`](saved-views.md)
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
+## Justification
 
-## Propriétaire fonctionnel
+Le nom Engine suggérait un contrat technique et concurrençait la capacité fonctionnelle demandée.
 
-Shared Capabilities Product Lead.
+## Migration
 
-## Objets concernés
+Les consommateurs utilisent `saved-views.md`; les futurs contrats techniques restent en Phase 8.
 
-- Concepts du document
-- Références canoniques liées
+## Dépendants
 
-## Fonctionnalités
+Tous les produits, le registre de propriété et les contrats Saved Views.
 
-- Generic storage/versioning of view configurations.
-- Permission re-evaluation.
-- Personal/shared scope.
-- Product-specific definitions remain local.
+## Date de retrait
 
-## UX et interactions
+2026-08-03. Le chemin reste disponible pour l'historique et les liens de migration, mais ne porte plus de règle normative.
 
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
+## Critère d'acceptation
 
-## Permissions
-
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
-
-## États
-
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
-
-## Dépendances
-
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- Quels SLO et volumes sont requis?
-- Quelles capacités sont natives ou intégrées?
+**Given** un consommateur de cet ancien chemin,  
+**When** sa dépendance est mise à jour,  
+**Then** il référence le remplaçant, ne copie aucune règle locale et ce document n'est jamais utilisé comme source active.
