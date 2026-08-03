@@ -5,58 +5,80 @@ status: draft
 owner: Head of Product
 updated: 2026-08-03
 source-of-truth: canonical
+requirements:
+  - REQ-PROD-001
+  - REQ-PROD-002
+  - REQ-PROD-003
+  - REQ-PROD-004
+  - REQ-PROD-005
+  - REQ-PROD-008
+  - REQ-PROD-010
+  - REQ-PROD-011
 ---
 # Vision CMDR
 
-## Objectif
+## Destination
 
-Définir CMDR comme plateforme unifiée de cyberdéfense reliant signal, preuve, décision et résultat.
+CMDR vise une plateforme opérationnelle de cybersécurité dans laquelle un signal peut devenir une situation compréhensible, une investigation peut produire une preuve traçable, une conclusion peut devenir une demande d'action explicite, une décision peut être prise sous autorité, et une action peut être observée, vérifiée puis réinjectée dans la situation opérationnelle.
 
-## Périmètre
+La valeur de CMDR ne réside pas dans l'addition d'outils. Elle réside dans la continuité entre :
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
+```text
+détection → compréhension → investigation → preuve → recommandation
+→ décision → exécution → résultat → amélioration
+```
 
-## Propriétaire fonctionnel
+## État futur recherché
 
-Head of Product.
+Dans l'état cible :
 
-## Objets concernés
+- humains, règles, moteurs déterministes, outils natifs, intégrations et Automation Agents travaillent sur les mêmes objets canoniques ;
+- le contexte traverse Command, Investigate et Govern sans ressaisie ni perte de provenance ;
+- chaque conclusion expose ses sources, sa confiance, ses contradictions et son auteur ou run ;
+- chaque action importante expose autorité, périmètre, impact, rollback et résultat ;
+- les capacités agentiques restent optionnelles, gouvernées et interrompables ;
+- les workflows essentiels restent utilisables sans fournisseur de modèle ;
+- les intégrations temporaires peuvent être remplacées progressivement par des capacités natives sans changer le modèle utilisateur.
 
-- Concepts du document
-- Références canoniques liées
+## Ce que la vision n'implique pas
 
-## Fonctionnalités
+Cette vision ne signifie pas que :
 
-- Donner une image opérationnelle fiable.
-- Établir les faits avec provenance.
-- Agir sous autorité contrôlée.
-- Conserver le contexte entre produits.
+- toutes les capabilities sont déjà natives ;
+- l'Endpoint Agent complet est livré ;
+- l'architecture technique est décidée ;
+- l'IA est nécessaire à l'utilisation ;
+- un produit unique remplace les responsabilités distinctes ;
+- toute alerte crée obligatoirement chaque objet de la chaîne.
 
-## UX et interactions
+## Principes de réussite
 
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
+CMDR atteint sa vision lorsque :
 
-## Permissions
+1. la situation opérationnelle et la preuve restent reliées ;
+2. la responsabilité humaine est visible ;
+3. les transitions sont explicites et attribuables ;
+4. l'usage d'un moteur externe n'apparaît pas comme une rupture de produit ;
+5. la vitesse n'est pas obtenue au prix de la gouvernance ou de l'intégrité ;
+6. les résultats d'action alimentent détection, readiness et amélioration.
 
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
+## Vision cible et état présent
 
-## États
+| Dimension | Vision cible | État documentaire actuel |
+|---|---|---|
+| Continuité interproduit | contexte persistant de bout en bout | principes définis, UX détaillée en Phase 3/5 |
+| Objets canoniques | sources uniques et transitions explicites | propriété définie, modèle détaillé en Phase 7 |
+| Capabilities natives | moteur et expérience CMDR pour les capacités critiques | cible définie, classification et moteurs encore progressifs |
+| IA | assistance optionnelle, traçable et gouvernée | principes définis, runtime ultérieur |
+| Endpoint | EDR natif mature | cible `planned`, expérience en Phase 4, technique en Phase 8 |
+| Implémentation | modules livrés avec preuves et tests | non évaluée par cette phase |
 
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
+## Critères d'acceptation
 
-## Dépendances
+**Given** une investigation sans modèle externe disponible,  
+**When** l'analyste recherche, collecte, examine des Evidence et prépare un Finding,  
+**Then** le workflow reste accessible par UI, règles, moteurs déterministes ou API appropriée ; les fonctions IA sont optionnelles et leur absence ne bloque pas l'activité essentielle.
 
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- Quels éléments nécessitent une validation utilisateur ou marché?
-- Quelles mesures deviennent des objectifs contractuels?
+**Given** un Result produit par Govern,  
+**When** il revient dans Command,  
+**Then** l'Incident, le Case, la Decision, le Response Run et les preuves restent reliés et attribuables.

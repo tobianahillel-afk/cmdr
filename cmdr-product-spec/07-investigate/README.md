@@ -5,57 +5,48 @@ status: draft
 owner: Investigate Product Lead
 updated: 2026-08-03
 source-of-truth: canonical
+requirements:
+  - REQ-PROD-014
+  - REQ-PROD-020
+  - REQ-OBJ-002
+  - REQ-OBJ-004
 ---
-# Investigate — Investigation Lab
+# Investigate
 
-## Objectif
+## Mission
 
-Établir les faits, préserver la preuve, conduire les analyses forensics et produire des Findings reproductibles.
+Rechercher, collecter, tester des hypothèses, analyser et produire des Evidence et Findings traçables.
 
-## Périmètre
+## Possède
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
+- Case, Hypothesis, Artifact, Evidence et Finding ;
+- investigation lifecycle, Hunt, collection, workbench, Detection Engineering et Intelligence.
 
-## Propriétaire fonctionnel
+## Consomme
 
-Investigate Product Lead.
+Incident, Endpoint/Fleet projections, Decisions et Results Govern, Studio automation, recherche et capabilities partagées.
 
-## Objets concernés
+## Exclusions
 
-- Concepts du document
-- Références canoniques liées
+- pas d'autorité indépendante pour une réponse à risque élevé ;
+- pas d'administration de flotte ;
+- pas de seconde Work Queue générale.
 
-## Fonctionnalités
+## Transitions principales
 
-- Nom canonique: Investigate.
-- Nom d’interface autorisé: Investigation Lab.
-- Les modules du produit sont listés dans `information-architecture.md`.
-- Les objets restent dans `05-domain-model/objects/`.
+Incident → Case ; Case → Evidence ; Evidence → Finding ; Finding → Action Request ; Result → validation et amélioration.
 
-## UX et interactions
+## Place de l'IA
 
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
+L'IA peut proposer hypothèses, requêtes et résumés, mais ne confirme pas seule un Finding et ne contourne pas Govern. Les règles déterministes restent de première classe.
 
-## Permissions
+## Sources
 
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
+- [`../01-product-vision/product-boundaries.md`](../01-product-vision/product-boundaries.md)
+- [`../00-governance/ownership-register.md`](../00-governance/ownership-register.md)
+- `information-architecture.md`
+- `product-definition.md`
 
-## États
+## Critère d'acceptation
 
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
-
-## Dépendances
-
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- À compléter — décision source non fournie dans le brief canonique.
+Un module de ce produit ne peut revendiquer un objet ou une capability exclue sans mise à jour des frontières, du registre de propriété et d'une ADR lorsqu'elle est transversale.

@@ -5,56 +5,40 @@ status: draft
 owner: Shared Capabilities Product Lead
 updated: 2026-08-03
 source-of-truth: canonical
+requirements:
+  - REQ-OBJ-010
+  - REQ-OBJ-011
+  - REQ-PROD-019
 ---
 # Shared Capabilities
 
-## Objectif
+## Mission
 
-Définir les moteurs et services produits consommés par plusieurs domaines sans les dupliquer.
+Fournir des services et moteurs communs à plusieurs produits sans dupliquer leur définition ni prendre possession de leurs workflows métier.
 
-## Périmètre
+## Possède notamment
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
+- Reporting Engine ;
+- Saved Views génériques ;
+- linking, timeline, graph, search, notifications, export et autres services communs selon leur classification.
 
-## Propriétaire fonctionnel
+## Ne possède pas
 
-Shared Capabilities Product Lead.
+- Incident, Case, Decision ou Response Run ;
+- Work Queue Saved Views propres à Command ;
+- l'autorité métier des produits consommateurs ;
+- une navigation de produit parallèle.
 
-## Objets concernés
+## Règle de delivery
 
-- Concepts du document
-- Références canoniques liées
+Chaque capability doit indiquer `native`, `integrated`, `temporary-integration`, `planned` ou `out-of-scope`. La présence d'un fichier ne prouve pas un moteur livré.
 
-## Fonctionnalités
+## Consommation
 
-- Reporting Engine est la source unique du Rapport.
-- Search, correlation, notifications, tasks, timelines, graphes et exports sont partagés.
-- Les produits propriétaires gardent leurs décisions métier.
+Les produits configurent l'usage local et conservent leurs décisions. Ils ne recréent pas un reporting engine, saved-view engine ou Inspector concurrent.
 
-## UX et interactions
+## Critère d'acceptation
 
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
-
-## Permissions
-
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
-
-## États
-
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
-
-## Dépendances
-
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- À compléter — décision source non fournie dans le brief canonique.
+**Given** une Saved View hors Work Queue,  
+**When** son propriétaire est recherché,  
+**Then** Shared Capabilities est la source générique ; les règles Work Queue restent exclusivement Command.

@@ -5,61 +5,52 @@ status: draft
 owner: Endpoint Agent Product Lead
 updated: 2026-08-03
 source-of-truth: canonical
+requirements:
+  - REQ-PROD-018
+  - REQ-PROD-012
+  - REQ-SEC-004
+  - REQ-SEC-005
 ---
 # Endpoint Agent
 
-## Objectif
+## Mission
 
-Définir l’EDR natif CMDR complet: télémétrie, détection locale, investigation, collecte, live response, containment, résilience et sécurité.
+Servir de composant local sécurisé pour les capacités endpoint visées : télémétrie, détection, inspection, collecte, Live Response, containment, résilience et audit.
 
-## Périmètre
+## Possède
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
+- exécution locale selon contrats, policy, permission et autorité ;
+- records locaux et résultats d'opérations.
 
-## Propriétaire fonctionnel
+## Consomme
 
-Endpoint Agent Product Lead.
+Fleet et policies Settings, workflow Investigate, Decisions/Response Runs Govern, contexte Command.
 
-## Objets concernés
+## Exclusions
 
-- Concepts du document
-- Références canoniques liées
+- ne possède pas la flotte administrative ;
+- ne possède pas Incident, Case, Decision ou workflow métier ;
+- ne constitue pas à lui seul une preuve de delivery EDR complet.
 
-## Fonctionnalités
+## Transitions principales
 
-- Produit technique natif distinct de Platform Settings.
-- La flotte administrative appartient à Platform Settings.
-- Toute commande est signée, autorisée et auditée.
-- Le mode hors ligne conserve sécurité et traçabilité.
+Télémétrie → détection ; collecte → Artifact/Evidence ; commande autorisée → résultat vérifiable.
 
-## UX et interactions
+## Place de l'IA
 
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
+Les fonctions essentielles de l'agent ne dépendent pas d'un modèle. Toute inference future reste classifiée, explicable et gouvernée.
 
-## Permissions
+## Delivery classification
 
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
+**Target :** EDR natif complet. **Current evidence :** `planned`. Les documents existants décrivent un périmètre cible ; ils ne prouvent ni moteur, ni plateforme supportée, ni release. `OPEN-008` conserve la question du support initial.
 
-## États
+## Sources
 
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
+- [`../01-product-vision/product-boundaries.md`](../01-product-vision/product-boundaries.md)
+- [`../00-governance/ownership-register.md`](../00-governance/ownership-register.md)
+- `information-architecture.md`
+- `product-definition.md`
 
-## Dépendances
+## Critère d'acceptation
 
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- À compléter — décision source non fournie dans le brief canonique.
-
-## Exigences EDR natives obligatoires
-
-L’Endpoint Agent est un EDR natif complet. Il couvre explicitement la télémétrie, la détection locale, l’inspection, la collecte, le terminal et l’exécution de commandes, la quarantaine et l’isolation, le rollback et sa vérification, le mode hors ligne, la protection anti-altération, la signature des commandes, l’audit local et le stockage sécurisé.
+Un module de ce produit ne peut revendiquer un objet ou une capability exclue sans mise à jour des frontières, du registre de propriété et d'une ADR lorsqu'elle est transversale.

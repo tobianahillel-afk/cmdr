@@ -5,57 +5,49 @@ status: draft
 owner: Command Product Lead
 updated: 2026-08-03
 source-of-truth: canonical
+requirements:
+  - REQ-PROD-013
+  - REQ-PROD-010
+  - REQ-OBJ-001
 ---
-# Command — Command Center
+# Command
 
-## Objectif
+## Mission
 
-Coordonner la situation opérationnelle, les priorités, les incidents, les risques et les livrables.
+Prioriser, coordonner, distribuer et superviser le travail de cybersécurité en maintenant la situation opérationnelle et l'impact métier.
 
-## Périmètre
+## Possède
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
+- Incident et coordination opérationnelle ;
+- Work Queue et Tasks opérationnelles ;
+- priorité, SLA, ownership, situation, handover, readiness et customer delivery lorsque applicable.
 
-## Propriétaire fonctionnel
+## Consomme
 
-Command Product Lead.
+Signals, Alerts, projections de Case/Evidence/Finding, Decisions, Response Runs, Results, Reporting Engine et Saved Views génériques.
 
-## Objets concernés
+## Exclusions
 
-- Concepts du document
-- Références canoniques liées
+- pas de forensic, reverse engineering ou terminal endpoint ;
+- pas de policy engine détaillé ;
+- pas de builder d'agents ;
+- pas de cycle de vie concurrent pour Case ou Evidence.
 
-## Fonctionnalités
+## Transitions principales
 
-- Nom canonique: Command.
-- Nom d’interface autorisé: Command Center.
-- Les modules du produit sont listés dans `information-architecture.md`.
-- Les objets restent dans `05-domain-model/objects/`.
+Signal/Alert → Incident ; Incident → Case ; Incident/context → Govern ; Result → Incident et situation.
 
-## UX et interactions
+## Place de l'IA
 
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
+L'IA peut résumer ou proposer une priorité. Command reste propriétaire de l'Incident, de l'ownership et du handover. Les fonctions essentielles restent disponibles sans modèle.
 
-## Permissions
+## Sources
 
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
+- [`../01-product-vision/product-boundaries.md`](../01-product-vision/product-boundaries.md)
+- [`../00-governance/ownership-register.md`](../00-governance/ownership-register.md)
+- `information-architecture.md`
+- `product-definition.md`
 
-## États
+## Critère d'acceptation
 
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
-
-## Dépendances
-
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- À compléter — décision source non fournie dans le brief canonique.
+Un module de ce produit ne peut revendiquer un objet ou une capability exclue sans mise à jour des frontières, du registre de propriété et d'une ADR lorsqu'elle est transversale.

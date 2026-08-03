@@ -5,60 +5,53 @@ status: draft
 owner: Head of Product
 updated: 2026-08-03
 source-of-truth: canonical
+requirements:
+  - REQ-PROD-001
+  - REQ-PROD-012
+  - REQ-PROD-019
 ---
-# Périmètre produit
+# Périmètre produit et programme
 
-## Objectif
+## Dans le périmètre de la vision
 
-Décrire les capacités incluses dans le portefeuille CMDR.
+- coordination, investigation, preuve, décision, réponse, rollback, audit et amélioration ;
+- automatisation et IA gouvernées ;
+- administration de plateforme et Endpoint Agent cible ;
+- capabilities natives et intégrées classifiées ;
+- expérience continue entre produits.
 
-## Périmètre
+## Dans le périmètre de Phase 1
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
+- mission, principes, utilisateurs, problèmes, valeur ;
+- frontières et propriété ;
+- modèle opérationnel ;
+- non-objectifs, risques, métriques conceptuelles ;
+- taxonomie de delivery ;
+- questions ouvertes.
 
-## Propriétaire fonctionnel
+## Phases ultérieures
 
-Head of Product.
+| Sujet | Phase |
+|---|---|
+| marque et identités | 2 |
+| UX, shells et Design System | 3 |
+| fonctionnalités détaillées | 4 |
+| parcours | 5 |
+| écrans pilotes et autres écrans | 6 |
+| objets, permissions et contrats fonctionnels | 7 |
+| architecture technique | 8 |
+| implémentation | 9 |
 
-## Objets concernés
+## Hors périmètre actuel
 
-- Concepts du document
-- Références canoniques liées
+Protocoles, certificats, algorithmes, microservices, bases de données, files de messages, frameworks, drivers, budgets CPU, sizing et déploiement final.
 
-## Fonctionnalités
+## Règle de portée
 
-- Command pour l’opération.
-- Investigate pour la preuve et la forensics.
-- Govern pour la décision et l’exécution.
-- Studio pour les Skills, Automation Agents et workflows.
-- Platform Settings pour l’administration.
-- Endpoint Agent pour l’EDR natif.
+Une capability cible peut être dans le scope produit tout en restant `planned`. Elle ne devient `implemented` qu'avec preuve.
 
-## UX et interactions
+## Critère d'acceptation
 
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
-
-## Permissions
-
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
-
-## États
-
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
-
-## Dépendances
-
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- Quels éléments nécessitent une validation utilisateur ou marché?
-- Quelles mesures deviennent des objectifs contractuels?
+**Given** un choix de protocole Endpoint,  
+**When** il est proposé en Phase 1,  
+**Then** il est enregistré comme dépendance ultérieure et ne remplace pas le travail de frontière et d'expérience produit.

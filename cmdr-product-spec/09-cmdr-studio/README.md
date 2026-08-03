@@ -5,57 +5,52 @@ status: draft
 owner: CMDR Studio Product Lead
 updated: 2026-08-03
 source-of-truth: canonical
+requirements:
+  - REQ-PROD-016
+  - REQ-AI-001
+  - REQ-AI-002
+  - REQ-OBJ-009
 ---
-# CMDR Studio — CMDR Studio
+# CMDR Studio
 
-## Objectif
+## Mission
 
-Construire, tester, versionner, déployer et superviser Skills, Automation Agents, équipes et workflows avec Human Gates.
+Concevoir, versionner, évaluer, déployer et superviser les automatisations déterministes et agentiques.
 
-## Périmètre
+## Possède
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
+- Skill, Tool, Tool Call, Automation Agent, Agent Team, Workflow, Human Gate et Automation Run ;
+- Library, Builder, Assurance et Control Room.
 
-## Propriétaire fonctionnel
+## Consomme
 
-CMDR Studio Product Lead.
+Objets et contextes des produits sous permission, policies Govern, providers et secrets administrés par Settings.
 
-## Objets concernés
+## Exclusions
 
-- Concepts du document
-- Références canoniques liées
+- ne possède pas Incident, Case, Finding, Decision ou Response Run ;
+- ne remplace pas les produits opérationnels ;
+- n'est pas l'interface obligatoire.
 
-## Fonctionnalités
+## Transitions principales
 
-- Nom canonique: CMDR Studio.
-- Nom d’interface autorisé: CMDR Studio.
-- Les modules du produit sont listés dans `information-architecture.md`.
-- Les objets restent dans `05-domain-model/objects/`.
+Trigger produit → Automation Run → Tool Calls → output vers produit source ; action risquée → Action Request/Govern.
 
-## UX et interactions
+## Place de l'IA
 
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
+Studio possède les capacités agentiques, leur assurance, leurs versions, coûts et traces. Les workflows opérationnels restent utilisables sans IA.
 
-## Permissions
+## Delivery classification
 
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
+Les capabilities Studio sont des cibles produit `planned` tant que leur implémentation et leurs contrats détaillés ne sont pas prouvés. Tool Call et Automation Run seront formalisés en Phase 7.
 
-## États
+## Sources
 
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
+- [`../01-product-vision/product-boundaries.md`](../01-product-vision/product-boundaries.md)
+- [`../00-governance/ownership-register.md`](../00-governance/ownership-register.md)
+- `information-architecture.md`
+- `product-definition.md`
 
-## Dépendances
+## Critère d'acceptation
 
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- À compléter — décision source non fournie dans le brief canonique.
+Un module de ce produit ne peut revendiquer un objet ou une capability exclue sans mise à jour des frontières, du registre de propriété et d'une ADR lorsqu'elle est transversale.

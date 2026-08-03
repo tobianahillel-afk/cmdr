@@ -5,57 +5,48 @@ status: draft
 owner: Platform Settings Product Lead
 updated: 2026-08-03
 source-of-truth: canonical
+requirements:
+  - REQ-PROD-017
+  - REQ-AI-011
+  - REQ-OBJ-008
 ---
-# Platform Settings — Platform Settings
+# Platform Settings
 
-## Objectif
+## Mission
 
-Administrer les identités, tenants, environnements, flotte endpoint, intégrations, modèles, secrets, rétention, santé et préférences.
+Administrer identités, tenants, environnements, sources, intégrations, providers, secrets, rétention, santé et flotte Endpoint Agent.
 
-## Périmètre
+## Possède
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
+- objets administratifs de plateforme ;
+- Endpoint Agent Fleet et Endpoint Policies ;
+- configuration des providers et intégrations.
 
-## Propriétaire fonctionnel
+## Consomme
 
-Platform Settings Product Lead.
+Permission Model, audit, notifications, health et capabilities partagées.
 
-## Objets concernés
+## Exclusions
 
-- Concepts du document
-- Références canoniques liées
+- pas d'investigation, forensic ou Case ;
+- pas de Decision de réponse ;
+- pas d'orchestration métier.
 
-## Fonctionnalités
+## Transitions principales
 
-- Nom canonique: Platform Settings.
-- Nom d’interface autorisé: Platform Settings.
-- Les modules du produit sont listés dans `information-architecture.md`.
-- Les objets restent dans `05-domain-model/objects/`.
+Configuration → produits consommateurs ; enrollment/policy/version → Endpoint Agent ; audit administratif → Audit.
 
-## UX et interactions
+## Place de l'IA
 
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
+Settings administre les fournisseurs de modèles et leurs policies ; Studio possède les usages agentiques. L'absence de provider ne bloque pas les fonctions essentielles.
 
-## Permissions
+## Sources
 
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
+- [`../01-product-vision/product-boundaries.md`](../01-product-vision/product-boundaries.md)
+- [`../00-governance/ownership-register.md`](../00-governance/ownership-register.md)
+- `information-architecture.md`
+- `product-definition.md`
 
-## États
+## Critère d'acceptation
 
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
-
-## Dépendances
-
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- À compléter — décision source non fournie dans le brief canonique.
+Un module de ce produit ne peut revendiquer un objet ou une capability exclue sans mise à jour des frontières, du registre de propriété et d'une ADR lorsqu'elle est transversale.

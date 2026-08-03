@@ -5,59 +5,46 @@ status: draft
 owner: Head of Product
 updated: 2026-08-03
 source-of-truth: canonical
+requirements:
+  - REQ-PROD-001
+  - REQ-PROD-010
+  - REQ-PROD-012
+  - REQ-BRAND-002
 ---
 # Non-objectifs
 
-## Objectif
+CMDR n'est pas :
 
-Éviter les glissements de périmètre qui créent une architecture incohérente.
+- un chatbot obligatoire ou l'interface unique ;
+- un simple SIEM, EDR, SOAR ou ticketing system ;
+- un dashboard de cybersécurité sans workflow ;
+- un wrapper de produits tiers sans objets et expérience cohérents ;
+- une navigation organisée par marques de fournisseurs ;
+- un système totalement autonome ;
+- un moyen de contourner humains, permissions, policies ou approbations ;
+- un produit dans lequel l'IA remplace règles et moteurs déterministes ;
+- un produit où chaque filtre, vue ou mode devient une page ;
+- une seconde Work Queue dans chaque produit ;
+- un ensemble de produits visuellement ou fonctionnellement sans rapport ;
+- une plateforme prétendant que toutes ses capabilities sont déjà natives ;
+- une architecture technique déjà figée ;
+- une promesse que l'Endpoint Agent complet est déjà implémenté ;
+- une interface cyberpunk, HUD militaire ou décorative.
 
-## Périmètre
+## Non-objectifs de Phase 1
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
+Phase 1 ne décide pas :
 
-## Propriétaire fonctionnel
+- les palettes Investigate, Govern et Studio ;
+- les écrans ou composants détaillés ;
+- les schémas et cardinalités d'objets ;
+- la permission taxonomy finale ;
+- le protocole, PKI ou runtime Endpoint ;
+- les APIs, services, stockage ou infrastructure ;
+- les objectifs numériques définitifs.
 
-Head of Product.
+## Critère d'acceptation
 
-## Objets concernés
-
-- Concepts du document
-- Références canoniques liées
-
-## Fonctionnalités
-
-- Ne pas faire de l’IA une autorité finale.
-- Ne pas fusionner les six produits dans un dashboard unique.
-- Ne pas redéfinir les objets dans les écrans.
-- Ne pas exposer des secrets ou échantillons sans contrôle.
-- Ne pas remplacer chaque moteur spécialisé lorsque l’intégration est suffisante.
-
-## UX et interactions
-
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
-
-## Permissions
-
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
-
-## États
-
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
-
-## Dépendances
-
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- Quels éléments nécessitent une validation utilisateur ou marché?
-- Quelles mesures deviennent des objectifs contractuels?
+**Given** une proposition de « page IA centrale pour toute la plateforme »,  
+**When** elle est comparée aux non-objectifs,  
+**Then** elle est rejetée comme interface obligatoire ; les capacités IA doivent rester contextuelles, optionnelles et possédées par Studio.

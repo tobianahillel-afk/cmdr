@@ -5,57 +5,49 @@ status: draft
 owner: Govern Product Lead
 updated: 2026-08-03
 source-of-truth: canonical
+requirements:
+  - REQ-PROD-015
+  - REQ-PROD-004
+  - REQ-OBJ-005
+  - REQ-OBJ-007
 ---
-# Govern — Response & Governance
+# Govern
 
-## Objectif
+## Mission
 
-Transformer des recommandations fondées sur les preuves en décisions, exécutions et résultats contrôlés.
+Évaluer les demandes d'action, appliquer policies et autorités, décider, exécuter ou autoriser, observer, vérifier et rollback.
 
-## Périmètre
+## Possède
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
+- Decision, Approval, Response Run, Result, policies, exceptions et audit de réponse ;
+- lifecycle gouverné des Action Requests.
 
-## Propriétaire fonctionnel
+## Consomme
 
-Govern Product Lead.
+Incident, Case, Evidence, Finding, Endpoint context et Studio Human Gates.
 
-## Objets concernés
+## Exclusions
 
-- Concepts du document
-- Références canoniques liées
+- pas de Work Queue générale ;
+- pas de Case Workspace ;
+- pas de création de Evidence ;
+- pas de builder d'agents.
 
-## Fonctionnalités
+## Transitions principales
 
-- Nom canonique: Govern.
-- Nom d’interface autorisé: Response & Governance.
-- Les modules du produit sont listés dans `information-architecture.md`.
-- Les objets restent dans `05-domain-model/objects/`.
+Finding/Incident → Action Request ; Action Request → Decision ; Decision → Response Run → Result ; Result → Command/Investigate.
 
-## UX et interactions
+## Place de l'IA
 
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
+L'IA peut résumer et vérifier la complétude. Une Decision reste une expression d'autorité humaine ou d'une policy explicitement approuvée ; un agent ne s'auto-approuve pas.
 
-## Permissions
+## Sources
 
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
+- [`../01-product-vision/product-boundaries.md`](../01-product-vision/product-boundaries.md)
+- [`../00-governance/ownership-register.md`](../00-governance/ownership-register.md)
+- `information-architecture.md`
+- `product-definition.md`
 
-## États
+## Critère d'acceptation
 
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
-
-## Dépendances
-
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- À compléter — décision source non fournie dans le brief canonique.
+Un module de ce produit ne peut revendiquer un objet ou une capability exclue sans mise à jour des frontières, du registre de propriété et d'une ADR lorsqu'elle est transversale.

@@ -5,58 +5,33 @@ status: draft
 owner: Head of Product
 updated: 2026-08-03
 source-of-truth: canonical
+requirements:
+  - REQ-PROD-005
+  - REQ-PROD-008
 ---
 # North Star
 
-## Objectif
+## Résultat d'expérience
 
-Exprimer l’expérience cible de bout en bout.
+Un utilisateur autorisé peut passer d'un signal à un résultat vérifié sans ressaisie, sans perdre la provenance et sans changer mentalement de système à chaque produit.
 
-## Périmètre
+## Conditions
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
+- le contexte tenant, environnement et objets actifs est conservé ;
+- chaque transition indique l'owner courant et la prochaine action ;
+- chaque conclusion ouvre ses Evidence et sa trace ;
+- chaque action élevée montre autorité, impact, scope et rollback ;
+- chaque Result revient dans Command et reste relié à la Decision ;
+- l'expérience essentielle fonctionne sans IA.
 
-## Propriétaire fonctionnel
+## Mesure conceptuelle
 
-Head of Product.
+La North Star sera évaluée par la combinaison de transitions sans reconstruction de contexte, ownership explicite, décisions avec preuve suffisante, actions vérifiées, handovers complets et absence de duplication d'objet.
 
-## Objets concernés
+Aucune cible chiffrée n'est décidée.
 
-- Concepts du document
-- Références canoniques liées
+## Critère d'acceptation
 
-## Fonctionnalités
-
-- Un utilisateur passe d’un signal à un résultat vérifié sans ressaisie.
-- Chaque transition conserve contexte et provenance.
-- Chaque action critique expose autorité, impact et rollback.
-- Chaque résultat revient dans la situation opérationnelle.
-
-## UX et interactions
-
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
-
-## Permissions
-
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
-
-## États
-
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
-
-## Dépendances
-
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- Quels éléments nécessitent une validation utilisateur ou marché?
-- Quelles mesures deviennent des objectifs contractuels?
+**Given** un Incident, deux Cases et une Action Request,  
+**When** l'Incident Commander ouvre Govern puis revient,  
+**Then** l'Incident, le Case sélectionné, l'Action Request, la vue et le point de retour sont restaurés.
