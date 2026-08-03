@@ -1,61 +1,25 @@
 ---
-id: foundation-focus-and-selection
+id: foundation-focus-selection
 domain: 03-design-system
 status: draft
-owner: Design Lead
+owner: Accessibility Lead
 updated: 2026-08-03
 source-of-truth: canonical
+requirements:
+  - REQ-UX-002
+  - REQ-UX-004
+  - REQ-UX-005
 ---
-# Focus And Selection
 
-## Objectif
+# Focus et sélection
 
-Définir la foundation focus and selection.
+Focus = position d'interaction ; sélection = objet actif. Ils peuvent coexister et sont visuellement distincts.
 
-## Périmètre
+- focus ring `2px` + offset `2px`, contraste non-textuel ≥3:1 ;
+- sélection : fond + bordure/rail + `aria-selected` ;
+- hover n'est jamais persistant ;
+- focus n'est pas supprimé au clic clavier ;
+- fermeture d'une surface restaure le déclencheur ou la ligne source ;
+- sélection supprimée : focus revient au voisin logique et annonce le changement.
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
-
-## Propriétaire fonctionnel
-
-Design Lead.
-
-## Objets concernés
-
-- Concepts du document
-- Références canoniques liées
-
-## Fonctionnalités
-
-- Focus visible et distinct de la sélection.
-- Halo adapté à la forme.
-- Ordre logique.
-- Pas de rectangle navigateur autour d’un marqueur circulaire.
-
-## UX et interactions
-
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
-
-## Permissions
-
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
-
-## États
-
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
-
-## Dépendances
-
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- À compléter — décision source non fournie dans le brief canonique.
+Dans une table, les flèches déplacent le focus selon le modèle choisi ; Space sélectionne, Enter ouvre, `]` ouvre l'Inspector. Une couleur seule ne suffit jamais.

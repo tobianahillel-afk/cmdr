@@ -8,45 +8,28 @@ source-of-truth: canonical
 requirements:
   - REQ-BRAND-003
   - REQ-BRAND-004
-  - REQ-BRAND-005
   - REQ-BRAND-006
+  - REQ-UX-003
+  - REQ-UX-005
 ---
-# Color foundation — source boundaries
 
-## Responsibility
+# Couleur
 
-This foundation translates approved brand palettes into semantic and component tokens during Phase 3. It does not own brand values and must not copy product palette definitions into a second canonical table.
+## Quatre couches
 
-## Canonical sources
+1. **Marque** : valeurs CMDR et Command, sources uniques dans `02-brand/`.
+2. **Produit** : aliases ; Investigate, Govern et Studio restent non résolus.
+3. **Sémantique** : statut et interaction, indépendants de la marque.
+4. **Visualisation** : séries et encodages, indépendants du produit et du statut.
 
-- CMDR parent palette: [`../../02-brand/cmdr/palette.md`](../../02-brand/cmdr/palette.md)
-- Command palette: [`../../02-brand/command/palette.md`](../../02-brand/command/palette.md)
-- Investigate proposals: [`../../02-brand/investigate/palette-proposals.md`](../../02-brand/investigate/palette-proposals.md)
-- Govern proposals: [`../../02-brand/govern/palette-proposals.md`](../../02-brand/govern/palette-proposals.md)
-- Studio proposals: [`../../02-brand/studio/palette-proposals.md`](../../02-brand/studio/palette-proposals.md)
+## Règles
 
-Only approved palettes may become product tokens. Proposed values remain evaluation material and must not be shipped as defaults.
+Un composant consomme `color.surface.*`, `color.text.*`, `color.status.*` ou un token composant. Moss n'est pas succès ; Ember n'est pas critique ; Juniper n'est pas succès. Une couleur est accompagnée d'un libellé, d'une icône ou d'une forme.
 
-## Phase 3 responsibility
+## Produit
 
-Phase 3 will define:
+Command peut résoudre ses aliases vers sa palette canonique. Investigate, Govern et Studio exposent seulement des slots `unresolved`. Settings utilise les neutres CMDR ; Endpoint adopte l'identité du workflow propriétaire.
 
-- brand-to-product-to-semantic token mapping;
-- light and dark theme aliases;
-- focus, selection and interaction tokens;
-- status, severity, confidence and data-visualization semantics;
-- contrast validation and fallback behavior.
+## Validation
 
-## Non-negotiable constraints
-
-- Color never carries meaning alone.
-- CMDR Moss and Ember remain brand accents, not automatic success or critical colors.
-- Product identity and status semantics are separate layers.
-- Absolute black is not the automatic dark-theme canvas.
-- A coherent interface around an external engine does not authorize vendor colors to replace CMDR hierarchy.
-
-## Acceptance criterion
-
-**Given** an Investigate proposal marked `proposed`,  
-**When** Phase 3 creates product tokens,  
-**Then** no token uses that proposal as the default until `OPEN-001` is explicitly resolved and the approved decision is recorded.
+Chaque paire réelle est testée en clair/sombre pour texte, icône, bordure, focus, contrôle et graphique. Les contrastes de Phase 2 restent des preuves de marque et ne sont pas recopiés comme tokens.

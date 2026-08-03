@@ -1,5 +1,5 @@
 ---
-id: foundation-borders-and-radius
+id: foundation-borders-radius
 domain: 03-design-system
 status: draft
 owner: Design System Lead
@@ -7,38 +7,16 @@ updated: 2026-08-03
 source-of-truth: canonical
 requirements:
   - REQ-BRAND-001
-  - REQ-BRAND-008
+  - REQ-BRAND-002
+  - REQ-UX-003
 ---
-# Borders and radius foundation — source boundaries
 
-## Responsibility
+# Bordures et rayons
 
-Phase 3 owns exact radius and border tokens. Brand defines the intended geometry: edited, stable and restrained rather than a collection of floating rounded cards.
+- `radius.none=0` pour tables et régions attachées ;
+- `radius.control=4px` ;
+- `radius.panel=6px` ;
+- `radius.overlay=8px` ;
+- `radius.pill=999px` uniquement tags, toggles et avatars.
 
-## Canonical source
-
-- [`../../02-brand/shape-and-surfaces.md`](../../02-brand/shape-and-surfaces.md)
-
-## Phase 3 responsibility
-
-Define:
-
-- radius scale;
-- border widths and contrast;
-- separators;
-- selected and focused outlines;
-- overlay boundaries;
-- high-contrast-mode behavior.
-
-## Constraints
-
-- Small or moderate radii are the default direction.
-- Fully pill-shaped containers are reserved for genuinely compact labels, filters or segmented controls.
-- Large decorative capsules, excessive rounding and glass layers are prohibited.
-- Borders and tonal surfaces communicate structure before shadows.
-
-## Acceptance criterion
-
-**Given** a dense evidence table and an adjacent Inspector,  
-**When** their boundaries are rendered,  
-**Then** the hierarchy remains clear through alignment, separators and tonal contrast without wrapping each region in a large floating card.
+Bordure standard `1px`, forte/focus `2px`. Les séparateurs structurent plus souvent que les ombres. Les surfaces imbriquées réduisent le rayon ; une carte dans une carte est évitée. Capsules décoratives, rayons supérieurs à 12 px et glassmorphism sont interdits.

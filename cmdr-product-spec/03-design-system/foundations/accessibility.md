@@ -2,47 +2,27 @@
 id: foundation-accessibility
 domain: 03-design-system
 status: draft
-owner: Design System Lead
+owner: Accessibility Lead
 updated: 2026-08-03
 source-of-truth: canonical
 requirements:
-  - REQ-BRAND-003
-  - REQ-BRAND-004
-  - REQ-BRAND-006
-  - REQ-BRAND-007
+  - REQ-UX-004
+  - REQ-UX-005
+  - REQ-UX-010
 ---
-# Accessibility foundation — brand dependencies
 
-## Responsibility
+# Accessibilité du Design System
 
-The Design System owns measurable interaction and component accessibility. Brand owns the rule that recognition, hierarchy and identity must survive without color, motion, imagery or a specific font.
+Objectif WCAG 2.2 AA. Obligations : landmarks, skip links, focus visible, ordre logique, noms accessibles, messages associés, status announcements, zoom/reflow, text spacing, reduced motion et contraste.
 
-## Canonical source
+## Composants complexes
 
-- [`../../02-brand/accessibility-and-brand.md`](../../02-brand/accessibility-and-brand.md)
+- table/grid : modèle clavier documenté et alternative HTML ;
+- graph/canvas : liste ou table synchronisée ;
+- code editor/console : mode lecture, recherche, line numbers et sortie annoncée ;
+- drag-and-drop : actions déplacer avant/après/vers ;
+- resizer : séparateur focusable avec flèches et Home/End ;
+- modal/drawer : focus initial, piège, Escape et restauration ;
+- timeout : avertissement, prolongation et récupération.
 
-## Phase 3 responsibility
-
-Validate:
-
-- WCAG 2.2 AA contrast for text and interactive states;
-- keyboard navigation and focus;
-- zoom, reflow and localization;
-- reduced motion;
-- forced-colors and high-contrast modes;
-- chart and canvas alternatives;
-- screen-reader labels and reading order;
-- light and dark themes.
-
-## Constraints
-
-- Proposed palettes are not approved merely because selected pairs pass contrast.
-- Color contrast is checked in context, including text size and adjacent states.
-- Product identity remains recognizable through labels, structure and motifs.
-- Critical information is never encoded by color, icon or motion alone.
-
-## Acceptance criterion
-
-**Given** a user in forced-colors mode,  
-**When** they move from Command to Investigate,  
-**Then** product name, context, selected state and ownership remain understandable even when brand colors are replaced by the operating system.
+Les identifiants longs se replient sans perte, restent copiables et lisibles. Permission denied ne révèle pas le nom ou la valeur d'un objet interdit. Les six états Loading, Empty, Partial, Error, Offline et Permission denied sont inclus dans chaque composant pertinent.

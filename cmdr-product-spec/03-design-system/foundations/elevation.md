@@ -8,36 +8,17 @@ source-of-truth: canonical
 requirements:
   - REQ-BRAND-001
   - REQ-BRAND-002
+  - REQ-UX-003
 ---
-# Elevation foundation — source boundaries
 
-## Responsibility
+# Élévation
 
-Phase 3 owns exact elevation tokens. Brand requires a surface system based primarily on editorial grouping, borders and tonal contrast.
+| Niveau | Usage | Ombre Draft |
+|---|---|---|
+| 0 | canvas, panneaux attachés | aucune |
+| 1 | sticky header, toolbar | `0 1px 2px rgba(0,0,0,.08)` |
+| 2 | menu, popover | `0 4px 12px rgba(0,0,0,.14)` |
+| 3 | drawer, drag preview | `0 8px 24px rgba(0,0,0,.18)` |
+| 4 | modal, Command Palette | `0 16px 40px rgba(0,0,0,.24)` |
 
-## Canonical source
-
-- [`../../02-brand/shape-and-surfaces.md`](../../02-brand/shape-and-surfaces.md)
-
-## Phase 3 responsibility
-
-Define elevation only for:
-
-- menus and popovers;
-- drawers and modals;
-- drag previews;
-- temporary overlays;
-- rare focus-preserving transitions.
-
-## Constraints
-
-- Persistent page sections do not float by default.
-- Heavy shadows, glow and glassmorphism are prohibited.
-- An overlay must have a functional stacking reason and an accessible focus model.
-- Dark themes use tonal separation and borders before luminous shadows.
-
-## Acceptance criterion
-
-**Given** a normal page section and a temporary confirmation dialog,  
-**When** elevation is applied,  
-**Then** only the dialog receives overlay elevation and the underlying section remains structurally grouped without decorative shadow.
+L'élévation indique superposition ou déplacement, jamais prestige. Les surfaces principales restent attachées à la grille. Le thème sombre réduit les halos et ajoute une bordure plutôt qu'une ombre lumineuse.

@@ -6,42 +6,32 @@ owner: Design System Lead
 updated: 2026-08-03
 source-of-truth: canonical
 requirements:
-  - REQ-BRAND-001
-  - REQ-BRAND-002
-  - REQ-BRAND-008
+  - REQ-BRAND-003
+  - REQ-BRAND-006
+  - REQ-UX-004
+  - REQ-UX-005
 ---
-# Data visualization foundation — source boundaries
 
-## Responsibility
+# Visualisation de données
 
-Phase 3 will define chart tokens, series behavior and accessible interaction. Brand defines the visual language: evidence-led, quiet, annotated and never decorative.
+## Contrat obligatoire
 
-## Canonical source
+Question, unité, période, timezone, source, fraîcheur, population, légende, données manquantes, incertitude et alternative tabulaire.
 
-- [`../../02-brand/data-visualization-language.md`](../../02-brand/data-visualization-language.md)
+## Types
 
-## Phase 3 responsibility
+- time series : événement et ingestion distingués ;
+- bar : comparaison catégorielle ;
+- distribution : histogramme/box plot ;
+- timeline : observé, inféré, décision, action ;
+- heatmap : seulement matrice justifiée ;
+- graph : nœuds/relations sourcés, aucune causalité implicite ;
+- coverage/progress : numérateur, dénominateur et inconnus ;
+- confidence : intervalle/rationale, jamais sévérité ;
+- diff/status history : source, cible, version.
 
-Define:
+## Séries Draft
 
-- qualitative and sequential series tokens;
-- axes, grids, labels and annotations;
-- confidence and uncertainty treatment;
-- selection, comparison and hover;
-- print and export behavior;
-- table alternatives;
-- color-vision-deficiency validation.
+`#2F6B63`, `#8A6844`, `#496A85`, `#7A5D78`, `#6E7638`, `#A05252`, `#4F7779`, `#80634A`. Ces couleurs sont une palette analytique Draft, indépendante des marques et statuts ; pattern, marqueur et label restent disponibles.
 
-## Constraints
-
-- A chart must answer a stated operational question.
-- Source, time range, freshness and units remain visible.
-- 3D charts, decorative maps, gauges resembling game counters and saturated rainbow scales are prohibited.
-- Product accents do not replace semantic or series systems.
-- Every essential visualization has an accessible textual or tabular alternative.
-
-## Acceptance criterion
-
-**Given** a trend that supports a Decision,  
-**When** Govern displays it,  
-**Then** the chart identifies source, interval, units and uncertainty, and the same values are available without relying on color or pointer interaction.
+3D, gauges décoratives, radar chart, donut surchargé, carte sans besoin géographique, score opaque, animation permanente et arc-en-ciel sont interdits.

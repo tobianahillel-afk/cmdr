@@ -7,44 +7,30 @@ updated: 2026-08-03
 source-of-truth: canonical
 requirements:
   - REQ-BRAND-007
+  - REQ-UX-004
   - REQ-PROD-051
 ---
-# Typography foundation — source boundaries
 
-## Responsibility
+# Système typographique Draft
 
-This foundation will implement the typographic system after the brand study and `OPEN-004` are reviewed. The brand domain defines the desired editorial character; the Design System defines exact sizes, line heights, weights, responsive behavior and tokens.
+`OPEN-004` reste ouverte. `font.family.ui` et `font.family.mono` sont des aliases non résolus ; aucune police n'est distribuée.
 
-## Canonical source
+| Rôle | Taille / ligne | Poids Draft | Règle |
+|---|---|---|---|
+| Display | 40/48 | 600 | marketing rare |
+| Page title | 28/36 | 600 | objectif précis |
+| Section title | 20/28 | 600 | section majeure |
+| Subsection title | 16/24 | 600 | groupe local |
+| Body | 14/22 | 400 | lecture continue |
+| Compact body | 13/18 | 400 | workbench/table |
+| UI label | 13/18 | 600 | action et contrôle |
+| Metadata | 12/16 | 400 | source, date, owner |
+| Table | 13/18 | 400/600 | chiffres tabulaires |
+| Badge | 11/16 | 600 | texte court |
+| Code | 12/18 | 400 | monospace |
+| Query | 12/18 | 400 | monospace |
+| Identifier | 12/18 | 400 | monospace, wrap/copy |
 
-- Brand typography study: [`../../02-brand/cmdr/typography.md`](../../02-brand/cmdr/typography.md)
+Letter spacing : normal pour body ; `-0.01em` seulement grands titres ; `0.02em` labels courts. Capitales longues interdites. Hashes et chemins utilisent wrap opportuniste, copie explicite et valeur complète accessible. Les tables activent les chiffres tabulaires.
 
-## Pending decision
-
-`OPEN-004` remains open. Inter, Inter Tight, IBM Plex Sans and equivalent editorial sans combinations are candidates, not approved defaults. Monospace selection is also subject to readability, licensing, language and platform testing.
-
-## Phase 3 responsibility
-
-Phase 3 will define role tokens for Display, Page title, Section title, Body, UI label, Metadata, Table, Badge, Code, Query and Identifier, together with:
-
-- exact metrics;
-- tabular-number behavior;
-- truncation and wrapping;
-- dense-interface legibility;
-- fallback stacks;
-- localization expansion;
-- Windows, macOS and Linux rendering tests.
-
-## Constraints
-
-- One coherent family system serves all products.
-- Product differentiation does not use unrelated typefaces.
-- Monospace is reserved for technical material and identifiers.
-- Typography carries hierarchy before color or decorative containers.
-- No font binaries are stored in this documentation repository.
-
-## Acceptance criterion
-
-**Given** `OPEN-004` is still open,  
-**When** a component specification references typography,  
-**Then** it uses semantic role names rather than asserting a final font family or unsupported metric.
+La pile candidate reste définie dans `02-brand/cmdr/typography.md`. La décision finale exige tests Windows/macOS/Linux, langues, performance et licence.

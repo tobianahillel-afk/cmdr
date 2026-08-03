@@ -6,43 +6,20 @@ owner: Design System Lead
 updated: 2026-08-03
 source-of-truth: canonical
 requirements:
-  - REQ-BRAND-001
   - REQ-BRAND-002
+  - REQ-UX-004
+  - REQ-AI-001
 ---
-# Motion foundation — source boundaries
 
-## Responsibility
+# Mouvement
 
-The Design System will translate the calm, accountable motion language into exact durations, easing curves and component transitions during Phase 3.
+Durées Draft : fast 100 ms, standard 160 ms, slow 240 ms, maximum 320 ms. Easing : enter `cubic-bezier(.2,.8,.2,1)`, exit `cubic-bezier(.4,0,1,1)`.
 
-## Canonical source
+- panneau : translation courte + opacity ;
+- sélection : transition de surface sans déplacement ;
+- progress : déterminé ou indéterminé accessible, jamais décoratif ;
+- live update : highlight ≤800 ms, sans déplacer le focus ;
+- error/rollback : état textuel persistant, pas de secousse ;
+- pause/reprise : changement d'icône, label et annonce.
 
-- [`../../02-brand/motion-and-sound.md`](../../02-brand/motion-and-sound.md)
-
-## Phase 3 responsibility
-
-Phase 3 will specify tokens and behavior for:
-
-- state changes;
-- disclosure;
-- overlays;
-- cross-product continuity;
-- progress and live updates;
-- interruption and rollback;
-- reduced-motion alternatives.
-
-Any duration ranges in the brand document are directional, not implementation tokens.
-
-## Constraints
-
-- Motion explains continuity, hierarchy or state.
-- No continuous decorative movement, pulsing urgency or ambient particles.
-- Criticality does not rely on blinking.
-- `prefers-reduced-motion` preserves information and task completion.
-- Sound is opt-in and operationally governed.
-
-## Acceptance criterion
-
-**Given** an Automation Run changes from running to paused,  
-**When** the state transition is presented,  
-**Then** motion makes the change legible without spectacle, the textual status updates immediately and reduced-motion users receive an equivalent non-animated cue.
+Reduced motion supprime translation/zoom et ramène les durées à 1 ms sauf progression nécessaire. Glow, pulsation permanente, rebond, ticker, flux lumineux et animation IA magique sont interdits.

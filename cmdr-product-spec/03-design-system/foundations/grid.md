@@ -2,59 +2,21 @@
 id: foundation-grid
 domain: 03-design-system
 status: draft
-owner: Design Lead
+owner: Design System Lead
 updated: 2026-08-03
 source-of-truth: canonical
+requirements:
+  - REQ-UX-003
+  - REQ-UX-004
 ---
-# Grid
 
-## Objectif
+# Grille
 
-Définir la foundation grid.
+| Plage | Colonnes | Gutter | Marge |
+|---|---:|---:|---:|
+| compact <768 | 4 | 12 | 12 |
+| standard 768–1199 | 8 | 16 | 20 |
+| wide 1200–1599 | 12 | 20 | 24 |
+| ultra-wide ≥1600 | 12 | 24 | 32 |
 
-## Périmètre
-
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
-
-## Propriétaire fonctionnel
-
-Design Lead.
-
-## Objets concernés
-
-- Concepts du document
-- Références canoniques liées
-
-## Fonctionnalités
-
-- Grille application, rail, inspecteur et contenu.
-- Alignements stables entre produits.
-- Comportement responsive documenté.
-
-## UX et interactions
-
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
-
-## Permissions
-
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
-
-## États
-
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
-
-## Dépendances
-
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- À compléter — décision source non fournie dans le brief canonique.
+Les documents ont une mesure de lecture max `760 px`. Tables et workbenches peuvent utiliser le canvas complet. Les panneaux s'attachent à la grille ; aucun flottement décoratif. Les colonnes de table utilisent largeur minimale fonctionnelle, pinning limité et scroll horizontal annoncé.

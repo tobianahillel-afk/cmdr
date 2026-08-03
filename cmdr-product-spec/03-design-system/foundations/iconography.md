@@ -8,38 +8,13 @@ source-of-truth: canonical
 requirements:
   - REQ-BRAND-002
   - REQ-BRAND-008
+  - REQ-UX-004
 ---
-# Iconography foundation — source boundaries
 
-## Responsibility
+# Iconographie
 
-The Design System will define icon grid, stroke, filled variants, optical correction, interaction states and accessible labels. Brand defines the visual intent and prohibited metaphors.
+Grille 16/20/24 px, stroke optique 1.5 px, caps et joins cohérents. Tailles 16 pour table, 20 pour contrôle, 24 pour navigation. Correction optique autorisée sans changer le sens.
 
-## Canonical source
+Une icône seule est réservée aux actions universelles avec nom accessible et tooltip ; toute action critique garde un libellé. Statut = icône + texte + sémantique. Les produits partagent la même bibliothèque.
 
-- [`../../02-brand/imagery-and-iconography.md`](../../02-brand/imagery-and-iconography.md)
-
-## Phase 3 responsibility
-
-Phase 3 will select or define the implementation library and document:
-
-- base sizes and optical alignment;
-- stroke and corner behavior;
-- filled versus outline use;
-- status overlays;
-- RTL and localization considerations;
-- accessible names and icon-only controls;
-- product-specific functional motifs that remain within the same family.
-
-## Constraints
-
-- Icons identify actions or concepts; they are not background decoration.
-- Shield, lock, radar, hooded hacker, robot, brain and sparkle clichés are not product identity.
-- The same function uses the same icon across products.
-- Color alone cannot distinguish icon states.
-
-## Acceptance criterion
-
-**Given** the same `approve` action in Govern and Studio,  
-**When** iconography is applied,  
-**Then** the icon family and functional meaning remain identical; product differentiation is supplied by context, hierarchy and approved accent tokens.
+Candidats à évaluer : Lucide, Phosphor ou bibliothèque interne équivalente ; aucun choix final sans audit couverture, licence, cohérence et rendu. Bouclier, cadenas, radar, robot, cerveau, étoile IA et circuit ne deviennent pas signatures génériques.

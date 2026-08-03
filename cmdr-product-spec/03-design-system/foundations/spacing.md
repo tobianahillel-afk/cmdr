@@ -2,59 +2,23 @@
 id: foundation-spacing
 domain: 03-design-system
 status: draft
-owner: Design Lead
+owner: Design System Lead
 updated: 2026-08-03
 source-of-truth: canonical
+requirements:
+  - REQ-UX-003
+  - REQ-UX-004
 ---
-# Spacing
 
-## Objectif
+# Espacement
 
-Définir la foundation spacing.
+Échelle unique : `0, 2, 4, 8, 12, 16, 24, 32, 40, 48, 64, 80 px`.
 
-## Périmètre
+- micro : 2–4 ;
+- contrôles : 4–12 ;
+- composants : 8–16 ;
+- sections : 16–32 ;
+- layouts : 24–64 ;
+- 80 uniquement pour respiration éditoriale/marketing, pas pour les workspaces.
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
-
-## Propriétaire fonctionnel
-
-Design Lead.
-
-## Objets concernés
-
-- Concepts du document
-- Références canoniques liées
-
-## Fonctionnalités
-
-- Échelle cohérente.
-- Espacements compacts pour opérations, plus respirants pour décisions.
-- Aucun ajustement local sans token.
-
-## UX et interactions
-
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
-
-## Permissions
-
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
-
-## États
-
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
-
-## Dépendances
-
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- À compléter — décision source non fournie dans le brief canonique.
+Les composants utilisent les tokens, jamais une marge arbitraire. La densité modifie des aliases prédéfinis, non la sémantique.

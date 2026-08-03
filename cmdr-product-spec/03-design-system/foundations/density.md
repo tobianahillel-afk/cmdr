@@ -2,59 +2,21 @@
 id: foundation-density
 domain: 03-design-system
 status: draft
-owner: Design Lead
+owner: Design System Lead
 updated: 2026-08-03
 source-of-truth: canonical
+requirements:
+  - REQ-PROD-007
+  - REQ-PROD-057
+  - REQ-UX-004
 ---
-# Density
 
-## Objectif
+# Densité
 
-Définir la foundation density.
+| Mode | Contrôle | Ligne | Padding principal | Usage |
+|---|---:|---:|---:|---|
+| compact | 28 px | 32 px | 8 px | queues, tables, workbenches |
+| standard | 36 px | 40 px | 12 px | Case, Run, Settings |
+| comfortable | 44 px | 48 px | 16 px | formulaires, lecture, touch |
 
-## Périmètre
-
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
-
-## Propriétaire fonctionnel
-
-Design Lead.
-
-## Objets concernés
-
-- Concepts du document
-- Références canoniques liées
-
-## Fonctionnalités
-
-- Trois niveaux contrôlés.
-- Décision principale toujours lisible.
-- Préférences sans masquer les données critiques.
-
-## UX et interactions
-
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
-
-## Permissions
-
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
-
-## États
-
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
-
-## Dépendances
-
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- À compléter — décision source non fournie dans le brief canonique.
+La cible minimum interactive reste 44×44 CSS px lorsque nécessaire via zone de hit invisible. Densité n'altère pas libellés, statuts, permission ou contenu. Le défaut suit l'activité ; l'override utilisateur est permis. `OPEN-010` reste ouverte pour les préférences finales par rôle.
