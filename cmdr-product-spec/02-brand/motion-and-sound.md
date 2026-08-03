@@ -2,60 +2,81 @@
 id: motion-and-sound
 domain: 02-brand
 status: draft
-owner: Brand Lead
+owner: Brand Design Lead
 updated: 2026-08-03
 source-of-truth: canonical
+requirements:
+  - REQ-BRAND-001
+  - REQ-BRAND-002
+  - REQ-AI-007
 ---
 # Mouvement et son
 
-## Objectif
+## Rôle du mouvement
 
-Définir mouvement et son pour toute la marque CMDR.
+Le mouvement explique :
 
-## Périmètre
+- l'origine et la destination d'un objet ;
+- une insertion, suppression ou reclassification ;
+- une transition interproduit ;
+- la progression d'un run ;
+- l'ouverture d'un niveau de détail ;
+- la relation entre sélection et Inspector.
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
+Il ne sert pas à maintenir l'attention artificiellement.
 
-## Propriétaire fonctionnel
+## Rythme
 
-Brand Lead.
+La Phase 3 définira les tokens. Les plages de conception à valider sont :
 
-## Objets concernés
+- immédiat : environ 80–120 ms pour retour local ;
+- standard : environ 160–220 ms pour contrôle ou panel ;
+- contextuel : environ 240–320 ms pour transition de workspace ;
+- progression longue : état réel, non animation en boucle simulant l'activité.
 
-- Concepts du document
-- Références canoniques liées
+Le mouvement doit pouvoir être interrompu et ne pas retarder l'action.
 
-## Fonctionnalités
+## Courbes
 
-- Mouvement uniquement pour changement d’état, continuité ou transition.
-- Respect de reduced motion.
-- Aucun son par défaut pour une information non critique.
-- Les alertes sonores exigent configuration et contexte.
+Les courbes favorisent départ lisible et arrivée stable. Les rebonds, élasticités, overshoot décoratif et accélérations agressives sont interdits dans les workflows opérationnels.
 
-## UX et interactions
+## Reduced motion
 
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
+En reduced motion :
 
-## Permissions
+- les translations deviennent fondu ou remplacement direct ;
+- aucune information n'est perdue ;
+- les progressions restent exprimées par état et texte ;
+- les graphes ne dépendent pas d'une animation pour être compris.
 
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
+## Mouvement produit
 
-## États
+- Command : mise à jour stable, priorité qui change sans saut de layout.
+- Investigate : relation entre sélection, canvas et Inspector.
+- Govern : progression explicite demande → décision → run → résultat.
+- Studio : exécution de run et état des nodes, sans flux lumineux permanent.
 
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
+## Son
 
-## Dépendances
+Aucun son n'est activé par défaut pour une information courante. Un son éventuel exige :
 
-- 00-governance/source-of-truth-policy.md
+- opt-in administrable ou utilisateur ;
+- signification unique ;
+- alternative visuelle ;
+- fréquence limitée ;
+- test de contexte partagé et d'accessibilité.
 
-## Critères d’acceptation
+Aucune identité sonore n'est décidée dans cette phase.
 
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
+## Interdictions
 
-## Questions ouvertes
+- pulsation continue ;
+- glow animé ;
+- ticker permanent ;
+- son d'alarme pour chaque alerte ;
+- animation destinée à faire croire qu'un moteur travaille ;
+- transition qui cache provenance ou changement d'état.
 
-- À compléter — décision source non fournie dans le brief canonique.
+## Critère d'acceptation
+
+Une transition est supprimée si elle ne peut pas être décrite comme causalité, continuité, feedback ou orientation.

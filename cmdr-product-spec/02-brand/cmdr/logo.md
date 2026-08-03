@@ -1,61 +1,46 @@
 ---
-id: cmdr-logo
+id: cmdr-logo-usage
 domain: 02-brand
 status: draft
-owner: Brand Lead
+owner: Brand Design Lead
 updated: 2026-08-03
 source-of-truth: canonical
+requirements:
+  - REQ-BRAND-001
+  - REQ-BRAND-005
+  - REQ-BRAND-008
 ---
-# Logo CMDR
+# Usage opérationnel du logo CMDR
 
-## Objectif
+La stratégie et les décisions ouvertes sont canoniques dans [`../logo-and-wordmark.md`](../logo-and-wordmark.md). Ce fichier décrit seulement l'application de la marque mère.
 
-Définir l’usage du wordmark CMDR.
+## Variantes requises à produire après validation
 
-## Périmètre
+- wordmark horizontal ;
+- wordmark monochrome Ink ;
+- wordmark monochrome Bone ;
+- lockups Command, Investigate, Govern et Studio ;
+- master petit format si les tests l'exigent ;
+- favicon et app icon uniquement après décision du symbole.
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
+## Placement
 
-## Propriétaire fonctionnel
+- alignement sur la grille et la ligne de base du header ;
+- zone de protection conservée ;
+- pas de cohabitation avec un second logo de même niveau sans règle de partenariat ;
+- pas de répétition du wordmark dans chaque panel.
 
-Brand Lead.
+## Fonds
 
-## Objets concernés
+- Bone, Command Canvas ou surface claire : version Ink.
+- Ink ou surface sombre validée : version Bone/Fog.
+- photographie : placer sur zone calme ou surface de protection opaque.
+- gradient, texture ou image complexe directement derrière le wordmark : interdit.
 
-- Concepts du document
-- Références canoniques liées
+## Produit
 
-## Fonctionnalités
+Le nom produit est typographique et secondaire au wordmark. Il ne reçoit pas un symbole propre. L'accent produit peut apparaître dans le shell, pas recolorer chaque lettre.
 
-- Utiliser la construction canonique.
-- Conserver la signature Moss + Ember.
-- Respecter les marges et contrastes.
-- Interdire les variantes 3D, métal ou bouclier.
+## État
 
-## UX et interactions
-
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
-
-## Permissions
-
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
-
-## États
-
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
-
-## Dépendances
-
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- À compléter — décision source non fournie dans le brief canonique.
+Aucun asset vectoriel final n'est approuvé ni ajouté pendant cette phase. `OPEN-016` reste ouvert.

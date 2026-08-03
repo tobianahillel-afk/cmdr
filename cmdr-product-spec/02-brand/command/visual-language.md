@@ -2,60 +2,65 @@
 id: command-visual-language
 domain: 02-brand
 status: draft
-owner: Brand Lead
+owner: Brand Design Lead
 updated: 2026-08-03
 source-of-truth: canonical
+requirements:
+  - REQ-BRAND-004
+  - REQ-BRAND-008
+  - REQ-PROD-013
+  - REQ-PROD-007
 ---
 # Langage visuel Command
 
-## Objectif
+## Surfaces
 
-Définir une vue opérationnelle claire et non saturée.
+- Canvas porte la situation générale.
+- Surface porte work queues, tables et listes.
+- White porte document, handover ou détail sélectionné.
+- Mist indique regroupement ou sélection.
+- Une surface Ink est rare et réservée à un contexte précis, jamais au shell complet.
 
-## Périmètre
+## Tables et listes
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
+- colonnes alignées sur la décision : priorité, objet, owner, temps, impact, prochaine action ;
+- densité compacte et lignes clairement séparées ;
+- badges limités ;
+- changement en direct sans déplacement de ligne incontrôlé ;
+- surbrillance locale et temporaire pour mise à jour.
 
-## Propriétaire fonctionnel
+## Priorité
 
-Brand Lead.
+La priorité combine ordre, libellé, raison, conséquence et temps. La couleur sémantique peut compléter, jamais remplacer. Un score reste accompagné de facteurs.
 
-## Objets concernés
+## Temps et handover
 
-- Concepts du document
-- Références canoniques liées
+- temps relatif accompagné d'une date absolue accessible ;
+- fraîcheur visible ;
+- SLA et échéances placés près de l'action ;
+- handover structuré : situation, changements, décisions, risques, owner et suivi.
 
-## Fonctionnalités
+## Impact
 
-- Hiérarchie orientée décision.
-- Accents Juniper limités.
-- Tables, timelines et bandes opérationnelles.
-- Aucune esthétique SIEM générique.
+L'impact métier est présenté par périmètre, services, utilisateurs et conséquences. Il ne devient pas une grande carte rouge.
 
-## UX et interactions
+## Cartes et graphiques
 
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
+- graphiques compacts, small multiples et tendances ;
+- carte seulement si emplacement ou juridiction change la décision ;
+- aucune carte décorative ;
+- légende, période, source et état de données obligatoires.
 
-## Permissions
+## Navigation
 
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
+Juniper marque destination et sélection. Les autres niveaux restent Ink/Slate. La navigation n'utilise pas une succession de capsules.
 
-## États
+## Traitement de la mise à jour
 
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
+Les mises à jour live conservent position, scroll et sélection. Un changement significatif reçoit un repère temporel ou une annotation, pas une animation alarmiste.
 
-## Dépendances
+## Critère d'acceptation
 
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- À compléter — décision source non fournie dans le brief canonique.
+**Given** une Work Queue avec incident critique,  
+**When** la couleur est supprimée,  
+**Then** l'ordre, l'owner, l'échéance, l'impact et la prochaine action restent lisibles.

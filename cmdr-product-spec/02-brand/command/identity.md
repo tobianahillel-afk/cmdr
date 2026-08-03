@@ -2,59 +2,59 @@
 id: command-identity
 domain: 02-brand
 status: draft
-owner: Brand Lead
+owner: Brand Design Lead
 updated: 2026-08-03
 source-of-truth: canonical
+requirements:
+  - REQ-BRAND-004
+  - REQ-BRAND-008
+  - REQ-PROD-013
+  - REQ-PROD-003
 ---
 # Identité Command
 
-## Objectif
+## Caractère
 
-Définir l’identité de Command sans rompre la marque CMDR.
+Stable, coordonnée, concentrée, lisible sous pression et orientée vers la prochaine action.
 
-## Périmètre
+## Question visuelle dominante
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
+**Que faut-il traiter maintenant, pourquoi, par qui et avant quand ?**
 
-## Propriétaire fonctionnel
+## Signatures fonctionnelles
 
-Brand Lead.
+- bande de situation ou résumé opérationnel compact ;
+- priorité ordonnée, non transformée en score spectaculaire ;
+- owner et prochaine action proches du statut ;
+- temps, SLA, fraîcheur et handover visibles ;
+- impact métier relié aux faits ;
+- listes et tables comme instruments principaux ;
+- graphiques limités à une question opérationnelle.
 
-## Objets concernés
+## Densité
 
-- Concepts du document
-- Références canoniques liées
+Densité moyenne à dense. Le shell reste calme ; les tables peuvent être compactes. Les détails techniques sont projetés depuis Investigate plutôt que reproduits.
 
-## Fonctionnalités
+## Rythme
 
-- Coordination opérationnelle, priorisation et calme sous pression.
-- Hériter du wordmark et de la signature Moss + Ember.
-- Se distinguer par hiérarchie, texture et accent, jamais par une rupture de shell.
+- horizontal pour situation et temps ;
+- vertical pour priorité et work queue ;
+- blocs éditoriaux pour handover et impact ;
+- répétition stable des métadonnées d'ownership.
 
-## UX et interactions
+## Relation à la marque
 
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
+Command utilise Ink/Bone comme base et sa palette canonique pour les surfaces. Moss + Ember reste une signature CMDR ponctuelle. Les couleurs sémantiques communes conservent leur rôle.
 
-## Permissions
+## IA
 
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
+Une proposition de priorité, résumé ou handover automatisé apparaît dans la structure Command normale, avec provenance et reviewer ; elle ne reçoit pas une carte brillante ou un assistant central.
 
-## États
+## Exclusions
 
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
-
-## Dépendances
-
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- À compléter — décision source non fournie dans le brief canonique.
+- langage militaire ou tactique ;
+- « mission control » traité comme cockpit ;
+- écrans saturés de graphiques ;
+- rouge comme couleur de fond ;
+- cartes géographiques sans décision géographique ;
+- compteurs animés.

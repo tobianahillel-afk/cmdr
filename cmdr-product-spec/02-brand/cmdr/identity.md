@@ -2,59 +2,43 @@
 id: cmdr-identity
 domain: 02-brand
 status: draft
-owner: Brand Lead
+owner: Brand Design Lead
 updated: 2026-08-03
 source-of-truth: canonical
+requirements:
+  - REQ-BRAND-001
+  - REQ-BRAND-005
+  - REQ-BRAND-008
 ---
 # Identité CMDR
 
-## Objectif
+## Essence
 
-Définir l’identité de CMDR sans rompre la marque CMDR.
+CMDR exprime une maîtrise opérationnelle fondée sur la preuve et la responsabilité. Son caractère est calme, éditorial, technique et durable.
 
-## Périmètre
+## Attributs
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
+- **Calme :** faible bruit, intensité locale.
+- **Autorité :** structure et provenance, pas domination.
+- **Précision :** mesures, sources et libellés exacts.
+- **Continuité :** mêmes objets et contexte à travers les produits.
+- **Responsabilité :** humains, règles et automatisations attribués.
+- **Profondeur :** capacité technique visible sans spectacle.
+- **Humanité :** chaleur de Bone, voix claire, absence de mascotte IA.
 
-## Propriétaire fonctionnel
+## Expression
 
-Brand Lead.
+- Ink/Bone fonde la marque.
+- Moss + Ember signe les transitions et repères.
+- La typographie porte la hiérarchie.
+- Les surfaces sont stables, peu élevées et faiblement arrondies.
+- Les traces, références et statuts sont intégrés à la composition.
+- La couleur produit reste subordonnée à la marque et à la sémantique.
 
-## Objets concernés
+## Reconnaissance
 
-- Concepts du document
-- Références canoniques liées
+Une surface CMDR reste reconnaissable sans logo par son rythme éditorial, ses métadonnées, sa densité contrôlée et la distinction visible entre contexte, preuve, décision et résultat.
 
-## Fonctionnalités
+## Exclusions
 
-- Maîtrise, clarté, confiance et continuité.
-- Hériter du wordmark et de la signature Moss + Ember.
-- Se distinguer par hiérarchie, texture et accent, jamais par une rupture de shell.
-
-## UX et interactions
-
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
-
-## Permissions
-
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
-
-## États
-
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
-
-## Dépendances
-
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- À compléter — décision source non fournie dans le brief canonique.
+CMDR n'adopte pas une esthétique de sécurité générique, une posture militaire, un langage de jeu, une identité centrée chatbot ni une abstraction futuriste.

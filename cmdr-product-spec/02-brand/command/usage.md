@@ -1,61 +1,39 @@
 ---
-id: command-usage
+id: command-brand-usage
 domain: 02-brand
 status: draft
-owner: Brand Lead
+owner: Brand Design Lead
 updated: 2026-08-03
 source-of-truth: canonical
+requirements:
+  - REQ-BRAND-004
+  - REQ-BRAND-008
+  - REQ-PROD-013
 ---
-# Usage de l’identité Command
+# Règles d'usage Command
 
-## Objectif
+## Utiliser
 
-Encadrer l’application de l’identité Command.
+- Juniper pour navigation et sélection ;
+- Fern pour série secondaire ou continuité ;
+- Mist pour zone sélectionnée ;
+- ordre éditorial situation → priorité → owner → action ;
+- tableaux et timelines pour le travail ;
+- Ember uniquement comme accent de marque ou échéance explicitée.
 
-## Périmètre
+## Ne pas utiliser
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
+- palette Command pour un statut sémantique ;
+- Juniper sur toutes les surfaces ;
+- Fern comme petit texte sur Canvas sans validation ;
+- rouge comme ambiance générale ;
+- composants spécifiques remplaçant le Design System ;
+- imagerie de war room ou de commandement militaire.
 
-## Propriétaire fonctionnel
+## Marketing Command
 
-Brand Lead.
+Montrer coordination, continuité et décision opérationnelle. Éviter les murs d'écrans et les opérateurs observant une carte mondiale.
 
-## Objets concernés
+## Documentation Command
 
-- Concepts du document
-- Références canoniques liées
-
-## Fonctionnalités
-
-- Appliquer le shell et les tokens du produit.
-- Réserver les couleurs sémantiques aux états réels.
-- Ne pas redéfinir composants et interactions.
-- Tester accessibilité et densité.
-
-## UX et interactions
-
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
-
-## Permissions
-
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
-
-## États
-
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
-
-## Dépendances
-
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- À compléter — décision source non fournie dans le brief canonique.
+Utiliser diagrammes de handoff, tables de priorité et exemples de situation, avec objets et owners réels.

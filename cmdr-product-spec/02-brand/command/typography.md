@@ -2,60 +2,33 @@
 id: command-typography
 domain: 02-brand
 status: draft
-owner: Brand Lead
+owner: Brand Design Lead
 updated: 2026-08-03
 source-of-truth: canonical
+requirements:
+  - REQ-BRAND-007
+  - REQ-BRAND-008
+  - REQ-PROD-013
 ---
-# Typographie Command
+# Application typographique Command
 
-## Objectif
+Command utilise la stack commune étudiée dans `../cmdr/typography.md`. Aucune famille spécifique n'est autorisée.
 
-Définir la hiérarchie typographique de Command.
+## Accent local
 
-## Périmètre
+- page title précis, sans ton héroïque ;
+- chiffres tabulaires pour SLA, temps, compteurs et charges ;
+- labels courts pour owner, priorité et fraîcheur ;
+- poids moyen ou semi-bold pour décision et prochaine action ;
+- monospace uniquement pour identifiants, hashes et valeurs techniques projetées.
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
+## Densité
 
-## Propriétaire fonctionnel
+Les tables utilisent une métrique compacte mais lisible. Les handovers et décisions utilisent une largeur de ligne plus confortable. La taille ne doit pas être réduite pour faire tenir une colonne non essentielle.
 
-Brand Lead.
+## Interdictions
 
-## Objets concernés
-
-- Concepts du document
-- Références canoniques liées
-
-## Fonctionnalités
-
-- Famille commune à la marque.
-- Échelle lisible et compacte.
-- Monospace réservé aux données techniques.
-- Aucune imitation manuscrite pour les contenus normatifs.
-
-## UX et interactions
-
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
-
-## Permissions
-
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
-
-## États
-
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
-
-## Dépendances
-
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- À compléter — décision source non fournie dans le brief canonique.
+- chiffres display surdimensionnés sans contexte ;
+- titres en capitales longues ;
+- monospace généralisé pour donner une apparence technique ;
+- couleur seule pour différencier niveau ou priorité.

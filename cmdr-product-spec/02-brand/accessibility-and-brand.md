@@ -2,60 +2,81 @@
 id: accessibility-and-brand
 domain: 02-brand
 status: draft
-owner: Brand Lead
+owner: Brand Design Lead
 updated: 2026-08-03
 source-of-truth: canonical
+requirements:
+  - REQ-BRAND-003
+  - REQ-BRAND-004
+  - REQ-BRAND-007
+  - REQ-BRAND-008
+  - REQ-PROD-007
 ---
 # Accessibilité de marque
 
-## Objectif
+## Principe
 
-Définir accessibilité de marque pour toute la marque CMDR.
+Une identité CMDR n'est valide que si elle reste perceptible, lisible et opérable sans dépendre de couleur, motion, thème sombre ou résolution élevée.
 
-## Périmètre
+## Couleur
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
+- viser WCAG 2.2 AA pour texte et composants ;
+- mesurer toutes les paires réelles, pas seulement les swatches ;
+- ne pas utiliser Moss, Ember, Fern ou les accents proposés comme petit texte lorsque le ratio est insuffisant ;
+- fournir forme, label, position ou motif en plus de la couleur ;
+- tester les visualisations avec plusieurs déficiences de perception des couleurs.
 
-## Propriétaire fonctionnel
+## Typographie
 
-Brand Lead.
+- taille et interligne adaptés à l'usage prolongé ;
+- chiffres tabulaires pour tables et mesures ;
+- distinction claire entre `0/O`, `1/l/I` dans les contenus techniques ;
+- pas de texte important en capitales longues ;
+- largeur de ligne contrôlée ;
+- zoom à 200 % sans perte de contenu ni recouvrement.
 
-## Objets concernés
+## Thèmes
 
-- Concepts du document
-- Références canoniques liées
+- clair et sombre sont des expressions égales, pas un thème principal et une dégradation ;
+- le sombre évite noir absolu et contrastes extrêmes ;
+- les surfaces restent hiérarchisées ;
+- les graphes et statuts gardent leur signification.
 
-## Fonctionnalités
+## Mouvement
 
-- Contraste WCAG 2.2 AA.
-- Couleur jamais seule.
-- Zoom et thèmes préservent la hiérarchie.
-- Typographie et textures n’entravent pas la lecture.
+- reduced motion complet ;
+- pas de clignotement ou pulsation ;
+- feedback persistant sous forme d'état ou texte ;
+- aucune donnée révélée uniquement par animation.
 
-## UX et interactions
+## Imagerie et illustration
 
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
+- texte alternatif selon la fonction ;
+- légende pour diagrammes complexes ;
+- aucune information intégrée uniquement dans une image ;
+- personnes représentées sans stéréotype de rôle ou de compétence.
 
-## Permissions
+## Iconographie
 
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
+- hit target et focus relèvent du Design System ;
+- labels accessibles pour actions non universelles ;
+- icône et couleur ne suffisent pas à indiquer un statut ;
+- géométrie lisible aux tailles prévues.
 
-## États
+## Validation
 
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
+Chaque identité et proposition de palette doit fournir :
 
-## Dépendances
+- ratios de contraste ;
+- cas clair et sombre ;
+- exemple monochrome ;
+- test sans couleur ;
+- test zoom et densité ;
+- test reduced motion ;
+- revue par personnes utilisant des technologies d'assistance avant validation.
 
-- 00-governance/source-of-truth-policy.md
+## Critère d'acceptation
 
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- À compléter — décision source non fournie dans le brief canonique.
+**Given** une interface CMDR en monochrome, zoomée et reduced motion,  
+**When** un utilisateur réalise l'activité principale,  
+**Then** produit, hiérarchie, statut, sélection, provenance et action restent compréhensibles.

@@ -5,57 +5,42 @@ status: draft
 owner: Content Design Lead
 updated: 2026-08-03
 source-of-truth: canonical
+requirements:
+  - REQ-BRAND-001
+  - REQ-BRAND-008
+  - REQ-PROD-003
+  - REQ-PROD-005
+  - REQ-AI-010
 ---
 # Voix CMDR
 
-## Objectif
+## Caractère
 
-Définir une voix précise, calme et responsable.
+Précise, calme, directe, responsable et techniquement crédible.
 
-## Périmètre
+## Règles
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
+- dire ce qui est connu, supposé, proposé et inconnu ;
+- nommer l'objet, l'action, la cible et l'impact ;
+- indiquer source, date et fraîcheur lorsque cela change la décision ;
+- préférer un verbe concret à une promesse ;
+- utiliser le vocabulaire canonique ;
+- éviter l'hyperbole, l'urgence artificielle et l'anthropomorphisme.
 
-## Propriétaire fonctionnel
+## Exemples
 
-Content Design Lead.
+| Éviter | Préférer |
+|---|---|
+| « Une IA révolutionnaire protège tout » | « Une Automation Agent propose une action à partir des Evidence citées ; Govern conserve la décision. » |
+| « Menace critique détectée ! » | « 3 endpoints affectés — priorité critique — owner non assigné. » |
+| « Analyse intelligente terminée » | « Analyse statique terminée par le moteur X, version Y ; 4 Findings proposés. » |
+| « Cliquez ici » | « Ouvrir les Evidence » |
+| « Échec inattendu » | « La collecte a échoué : endpoint hors ligne. Nouvelle tentative planifiée. » |
 
-## Objets concernés
+## Produit et marketing
 
-- Concepts du document
-- Références canoniques liées
+Le produit est plus direct et actionnable. Le marketing peut être plus synthétique, mais ne transforme pas une cible en livraison ni une proposition IA en décision.
 
-## Fonctionnalités
+## Critère d'acceptation
 
-- Dire ce qui est connu et incertain.
-- Nommer l’action et son impact.
-- Éviter le jargon spectaculaire.
-- Utiliser une terminologie cohérente.
-
-## UX et interactions
-
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
-
-## Permissions
-
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
-
-## États
-
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
-
-## Dépendances
-
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- À compléter — décision source non fournie dans le brief canonique.
+Une phrase passe si elle permet de comprendre objet, état, origine, conséquence et action suivante sans adjectif spectaculaire.

@@ -1,61 +1,45 @@
 ---
-id: cmdr-usage
+id: cmdr-brand-usage
 domain: 02-brand
 status: draft
-owner: Brand Lead
+owner: Brand Design Lead
 updated: 2026-08-03
 source-of-truth: canonical
+requirements:
+  - REQ-BRAND-001
+  - REQ-BRAND-003
+  - REQ-BRAND-005
+  - REQ-BRAND-008
 ---
-# Usage de l’identité CMDR
+# Règles d'usage de la marque CMDR
 
-## Objectif
+## Produit
 
-Encadrer l’application de l’identité CMDR.
+- utiliser les palettes depuis leurs sources canoniques ;
+- conserver le wordmark et le shell communs ;
+- distinguer marque, produit et sémantique ;
+- montrer provenance et responsabilité ;
+- éviter la répétition décorative de Moss + Ember.
 
-## Périmètre
+## Documentation
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
+- privilégier structure, tableaux, notes et références ;
+- ne pas utiliser une couverture spectaculaire pour compenser un contenu incomplet ;
+- distinguer décision, proposition et question ouverte ;
+- utiliser des captures réelles uniquement lorsqu'elles correspondent au statut du produit.
 
-## Propriétaire fonctionnel
+## Marketing
 
-Brand Lead.
+- exprimer le continuum signal → résultat ;
+- ne pas prétendre qu'une capability `planned` est livrée ;
+- ne pas réduire CMDR à l'IA ;
+- montrer des workflows, objets et responsabilités plutôt qu'une mosaïque de features ;
+- conserver calme et précision même dans une composition promotionnelle.
 
-## Objets concernés
+## Partenaires et intégrations
 
-- Concepts du document
-- Références canoniques liées
+Le fournisseur peut être cité dans provenance, configuration ou détail. Son identité ne structure pas la navigation et ne remplace pas CMDR. Les co-brandings exigent une règle spécifique.
 
-## Fonctionnalités
+## Contrôle
 
-- Appliquer le shell et les tokens du produit.
-- Réserver les couleurs sémantiques aux états réels.
-- Ne pas redéfinir composants et interactions.
-- Tester accessibilité et densité.
-
-## UX et interactions
-
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
-
-## Permissions
-
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
-
-## États
-
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
-
-## Dépendances
-
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- À compléter — décision source non fournie dans le brief canonique.
+Une application de marque est refusée si elle utilise une couleur non canonique comme couleur de marque, crée un logo produit indépendant, cache la provenance ou adopte une direction interdite.
