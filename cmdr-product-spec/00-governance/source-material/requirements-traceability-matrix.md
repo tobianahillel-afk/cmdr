@@ -18,61 +18,55 @@ requirements:
 
 ## Interprétation
 
-Les 122 Requirement IDs sources sont conservés. `conform` signifie qu’une phase propriétaire actuelle fournit des règles substantielles et sans contradiction active ; cela ne prouve ni implémentation ni livraison. La Phase 4A ajoute les preuves fonctionnelles Command sans promouvoir artificiellement les exigences globales dépendantes des Phases 4B–4E, Objets, Permissions, Parcours, Écrans ou Technique.
+Les 122 Requirement IDs sources sont conservés. `conform` signifie qu’une phase propriétaire actuelle fournit des règles substantielles et sans contradiction active ; cela ne prouve ni implémentation ni livraison. Phase 4A fournit les preuves Command. Phase 4B.1 ajoute les preuves Investigate pour Signals and Hunt et Cases and Evidence, sans promouvoir artificiellement les exigences dépendantes des Phases 4B.2–4E, Objets, Permissions, Parcours, Écrans ou Technique.
 
 ## Couverture
 
-| État | Après Phase 3 | Après Phase 4A |
-|---|---:|---:|
-| conform | 99 | 99 |
-| partial | 20 | 20 |
-| absent | 3 | 3 |
-| contradictory | 0 | 0 |
-| total | 122 | 122 |
+| État | Après Phase 3 | Après Phase 4A | Après Phase 4B.1 |
+|---|---:|---:|---:|
+| conform | 99 | 99 | 99 |
+| partial | 20 | 20 | 20 |
+| absent | 3 | 3 | 3 |
+| contradictory | 0 | 0 | 0 |
+| total | 122 | 122 | 122 |
 
 ## Traçabilité Command Phase 4A
 
-| Capability | Module | Nom | Functional status | Delivery mode | Requirement IDs | Objets | Classes | OPEN | Preuve canonique | Consommateurs |
-|---|---|---|---|---|---|---|---|---|---|---|
-| CAP-CMD-001 | mission-control | Situation Overview | defined | planned | REQ-PROD-013, REQ-PROD-008, REQ-PROD-010, REQ-PROD-021 | Incident, Task, Decision / Response Run / Result, Service | 0, 2 | — | `06-command/modules/mission-control/capabilities/situation-overview.md` | Mission Control — Now, Mission Control — Situation |
-| CAP-CMD-002 | mission-control | Priority Management | defined | planned | REQ-PROD-003, REQ-PROD-010, REQ-PROD-013, REQ-PROD-021 | Incident / Task, Service, SLA context, Audit trail | 0, 2 | OPEN-013 | `06-command/modules/mission-control/capabilities/priority-management.md` | Mission Control — Priorities, Unified Work Queue |
-| CAP-CMD-003 | mission-control | Situation Timeline | defined | planned | REQ-PROD-005, REQ-PROD-008, REQ-PROD-013, REQ-UX-007 | Timeline Entry, Incident, Decision / Run / Result | 0 | — | `06-command/modules/mission-control/capabilities/situation-timeline.md` | Mission Control — Situation, Incident Detail |
-| CAP-CMD-004 | mission-control | Handover | defined | planned | REQ-PROD-008, REQ-PROD-013, REQ-PROD-021, REQ-PROD-010 | Incident / Task, Decision / Response Run / Result, Case / Finding, Handover record, Incident / Task ownership | 2 | — | `06-command/modules/mission-control/capabilities/handover.md` | Mission Control — Handover, parcours de relève |
-| CAP-CMD-005 | mission-control | Operational Blockers | defined | planned | REQ-PROD-006, REQ-PROD-009, REQ-PROD-013, REQ-PROD-021 | Incident / Task, Decision / Case / external dependency, Task | 2 | OPEN-013 | `06-command/modules/mission-control/capabilities/operational-blockers.md` | Mission Control, Unified Work Queue |
-| CAP-CMD-006 | mission-control | Recent Results and Outcomes | defined | planned | REQ-PROD-005, REQ-PROD-008, REQ-PROD-013, REQ-PROD-021 | Result / Response Run / Decision, Incident, Timeline | 0, 2 | OPEN-013 | `06-command/modules/mission-control/capabilities/recent-results-and-outcomes.md` | Mission Control — Now, Mission Control — Situation |
-| CAP-CMD-101 | incidents-and-work-queue | Unified Work Queue | defined | planned | REQ-OBJ-001, REQ-OBJ-012, REQ-PROD-013, REQ-UX-008, REQ-UX-009 | Incident, Task, Case / Decision / Response Run, Saved View application, Incident / Task | 0 | — | `06-command/modules/incidents-and-work-queue/capabilities/unified-work-queue.md` | Work Queue, Incident Detail |
-| CAP-CMD-102 | incidents-and-work-queue | Work Assignment | defined | planned | REQ-PROD-003, REQ-PROD-013, REQ-PROD-021, REQ-SEC-001 | Incident / Task, Principal / Role, Notification | 2 | OPEN-013 | `06-command/modules/incidents-and-work-queue/capabilities/work-assignment.md` | Unified Work Queue, Incident Detail |
-| CAP-CMD-103 | incidents-and-work-queue | Operational Ownership | defined | planned | REQ-PROD-006, REQ-PROD-009, REQ-PROD-013, REQ-OBJ-001 | Incident / Task, Case / Decision / Run, Principal / Team, Audit | 0, 2 | OPEN-013 | `06-command/modules/incidents-and-work-queue/capabilities/operational-ownership.md` | Work Queue, Incident Detail |
-| CAP-CMD-104 | incidents-and-work-queue | Priority and Severity Coordination | defined | planned | REQ-PROD-005, REQ-PROD-013, REQ-PROD-021, REQ-UX-005 | Incident / Task, Signal / Alert, Service / SLA, Recommendation disposition | 0, 2 | OPEN-013 | `06-command/modules/incidents-and-work-queue/capabilities/priority-and-severity-coordination.md` | Unified Work Queue, Mission Control — Priorities |
-| CAP-CMD-105 | incidents-and-work-queue | SLA Tracking | defined | planned | REQ-PROD-005, REQ-PROD-013, REQ-PROD-053, REQ-OBJ-012 | Incident / Task, SLA policy / engagement, Task | 0, 2 | OPEN-006, OPEN-013 | `06-command/modules/incidents-and-work-queue/capabilities/sla-tracking.md` | Unified Work Queue — SLA Risk, Mission Control |
-| CAP-CMD-106 | incidents-and-work-queue | Incident Coordination | defined | planned | REQ-OBJ-001, REQ-PROD-003, REQ-PROD-008, REQ-PROD-013, REQ-SEC-001 | Signal / Alert, Case / Finding, Decision / Response Run / Result, Incident / Task, Incident, Task, Action Request | 2 | OPEN-013 | `06-command/modules/incidents-and-work-queue/capabilities/incident-coordination.md` | Incident Detail, Unified Work Queue |
-| CAP-CMD-107 | incidents-and-work-queue | Task Coordination | defined | planned | REQ-PROD-009, REQ-PROD-013, REQ-PROD-021, REQ-OBJ-012 | Task, Source object, Source relation | 2 | OPEN-013 | `06-command/modules/incidents-and-work-queue/capabilities/task-coordination.md` | Unified Work Queue, Incident Detail |
-| CAP-CMD-108 | incidents-and-work-queue | Bulk Coordination | defined | planned | REQ-PROD-004, REQ-PROD-009, REQ-PROD-013, REQ-SEC-001 | Incident / Task, Saved View / filters, Export job | 0, 2 | OPEN-013 | `06-command/modules/incidents-and-work-queue/capabilities/bulk-coordination.md` | Unified Work Queue, audit |
-| CAP-CMD-109 | incidents-and-work-queue | Work Freshness and Staleness | defined | planned | REQ-PROD-005, REQ-PROD-008, REQ-PROD-013, REQ-UX-005 | Incident / Task, Case / Decision / Run projections, Health, Task, Acknowledgement | 0, 2 | — | `06-command/modules/incidents-and-work-queue/capabilities/work-freshness-and-staleness.md` | Unified Work Queue, Mission Control |
-| CAP-CMD-110 | incidents-and-work-queue | Escalation | defined | planned | REQ-PROD-003, REQ-PROD-004, REQ-PROD-008, REQ-PROD-013, REQ-SEC-001 | Incident / Task, Case / Finding / Decision, Escalation record/state, Case or Action Request | 2 | OPEN-013 | `06-command/modules/incidents-and-work-queue/capabilities/escalation.md` | Incident Detail, Unified Work Queue |
-| CAP-CMD-201 | risk-and-coverage | Service Context | defined | planned | REQ-PROD-005, REQ-PROD-013, REQ-PROD-021, REQ-PROD-032 | Service, Incident / Task, Exposure / coverage projections, Data quality follow-up | 0, 2 | OPEN-013 | `06-command/modules/risk-and-coverage/capabilities/service-context.md` | Risk and Coverage, Incident Detail |
-| CAP-CMD-202 | risk-and-coverage | Exposure Overview | defined | planned | REQ-PROD-006, REQ-PROD-013, REQ-PROD-032, REQ-PROD-037 | Exposure projection, Service, Incident, Incident / Task, Exposure source | 0, 2 | OPEN-013 | `06-command/modules/risk-and-coverage/capabilities/exposure-overview.md` | Risk and Coverage, Mission Control |
-| CAP-CMD-203 | risk-and-coverage | Coverage Overview | defined | planned | REQ-PROD-005, REQ-PROD-013, REQ-PROD-032, REQ-PROD-037 | Coverage projections, Service, Task, Coverage source | 0, 2 | OPEN-013 | `06-command/modules/risk-and-coverage/capabilities/coverage-overview.md` | Risk and Coverage, Readiness Overview |
-| CAP-CMD-204 | risk-and-coverage | Business Impact Context | defined | planned | REQ-PROD-003, REQ-PROD-005, REQ-PROD-013, REQ-PROD-021 | Incident, Service, Finding/Result, Action Request context | 2 | OPEN-013 | `06-command/modules/risk-and-coverage/capabilities/business-impact-context.md` | Incident Detail, Mission Control |
-| CAP-CMD-205 | risk-and-coverage | Risk Prioritization Context | defined | planned | REQ-PROD-003, REQ-PROD-010, REQ-PROD-013, REQ-PROD-021 | Incident / Task, Service / Exposure / Coverage, Confidence / severity, Priority recommendation, Incident/Task | 0, 2 | OPEN-013 | `06-command/modules/risk-and-coverage/capabilities/risk-prioritization-context.md` | Mission Control — Priorities, Unified Work Queue |
-| CAP-CMD-301 | readiness-and-operations | Readiness Overview | defined | planned | REQ-PROD-005, REQ-PROD-013, REQ-PROD-021, REQ-PROD-057 | Capability projection, Task, Plan/Exercise records, Readiness assessment | 0, 2 | OPEN-010, OPEN-013 | `06-command/modules/readiness-and-operations/capabilities/readiness-overview.md` | Readiness & Operations screen, Mission Control |
-| CAP-CMD-302 | readiness-and-operations | Exercise Coordination | defined | planned | REQ-PROD-005, REQ-PROD-013, REQ-PROD-021, REQ-PROD-057 | Operational Plan, Capability Readiness, Workflow/Simulation, Exercise record, Task | 2 | OPEN-010, OPEN-013 | `06-command/modules/readiness-and-operations/capabilities/exercise-coordination.md` | Readiness & Operations, reporting |
-| CAP-CMD-303 | readiness-and-operations | Improvement Actions | defined | planned | REQ-PROD-009, REQ-PROD-013, REQ-PROD-021, REQ-OBJ-012 | Result, Exercise/readiness/coverage, Task, Source relation | 2 | OPEN-013 | `06-command/modules/readiness-and-operations/capabilities/improvement-actions.md` | Readiness Overview, Unified Work Queue |
-| CAP-CMD-304 | readiness-and-operations | Operational Plans | defined | planned | REQ-PROD-005, REQ-PROD-013, REQ-PROD-021, REQ-PROD-057 | Plan/Playbook references, Capability Readiness, Service/Incident, Operational Plan record, Task | 2 | OPEN-010, OPEN-013 | `06-command/modules/readiness-and-operations/capabilities/operational-plans.md` | Readiness Overview, Exercise Coordination |
-| CAP-CMD-305 | readiness-and-operations | Capability Readiness | defined | planned | REQ-PROD-012, REQ-PROD-013, REQ-PROD-019, REQ-PROD-057 | Capability, Health/Assurance/Exercise, Task, Readiness assessment | 0, 2 | OPEN-010, OPEN-013 | `06-command/modules/readiness-and-operations/capabilities/capability-readiness.md` | Readiness Overview, Operational Plans |
-| CAP-CMD-401 | customers-and-delivery | Customers and Delivery Context | proposed | planned | REQ-PROD-053, REQ-PROD-013, REQ-PROD-019, REQ-PROD-033 | Incident / Task, Result, Report, Customer/engagement context, Report request/draft context, Task, Customer/contract source | 0, 2 | OPEN-006, OPEN-013 | `06-command/modules/customers-and-delivery/capabilities/customers-and-delivery-context.md` | Customer & Reports legacy screen, Reporting Engine |
+Les 27 entrées Command, leurs owners, objets, rôles, dépendances, classes et preuves restent inchangés dans le [Capability Register](../registers/capability-register.md) et les fichiers canoniques sous `06-command/modules/*/capabilities/`. Phase 4B.1 ne modifie aucun document Command.
 
-## Résultats de la sous-phase
+## Traçabilité Investigate Phase 4B.1
 
-- `REQ-PROD-013`, `REQ-OBJ-001`, `REQ-OBJ-012`, `REQ-UX-008` et `REQ-UX-009` gagnent des preuves fonctionnelles détaillées sans changer leur état déjà conforme.
-- `REQ-PROD-008` et `REQ-PROD-010` restent partiels globalement : Command est détaillé, mais les produits et parcours des Phases 4B–4E et 5 ne le sont pas encore.
-- `REQ-PROD-006` reste partiel globalement : le périmètre Command traité ne contient plus de document générique actif hors écrans reportés, mais le référentiel complet conserve des domaines Template-level.
-- `REQ-SEC-003` à `REQ-SEC-005` restent partiels : les besoins fonctionnels sont identifiés, la matrice atomique et les contrats de confiance restent ultérieurs.
-- `REQ-UX-010` reste partiel : la matrice capability→écran est prête, mais aucun écran Command n’est réécrit en détail.
-- `REQ-JRN-002`, `REQ-JRN-005` et `REQ-JRN-008` restent absents et appartiennent à la phase Parcours.
-- aucun Requirement ID nouveau ;
-- aucune contradiction active ;
-- aucune exigence planned présentée comme livrée.
+| Capability | Module | Nom | Owner / utilisateurs | Functional status | Delivery mode | Requirement IDs | Objets | Classes | OPEN | Preuve canonique | Écrans/parcours futurs | Dépendances principales |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| CAP-INV-001 | signals-and-hunt | Signal Triage | Investigate Product Lead; SOC Analyst, Threat Hunter | defined | planned | REQ-PROD-002,005,008,014,045 | Signal/Alert/Detection/Event projections, Case link | 0,2 | OPEN-013 | `07-investigate/modules/signals-and-hunt/capabilities/signal-triage.md` | Triage Desk; Signal→Case | CAP-INV-002,004,102; Command; Trace |
+| CAP-INV-002 | signals-and-hunt | Event Search | Investigate Product Lead; Analyst, Threat Hunter | defined | planned | REQ-PROD-014,019 | Query, Search Job, Event, Case refs | 0 | — | `07-investigate/modules/signals-and-hunt/capabilities/event-search.md` | Event Search; Search→Case | CAP-INV-003,004,006,007,008; Shared Query/Jobs |
+| CAP-INV-003 | signals-and-hunt | Query Authoring and Assistance | Investigate Product Lead; Analyst, Query Author | defined | planned | REQ-PROD-014; REQ-AI-002 | Query draft, schema projection | 0,2 | OPEN-015 | `07-investigate/modules/signals-and-hunt/capabilities/query-authoring-and-assistance.md` | Query editor; IA proposal review | CAP-INV-002,006; Studio optional |
+| CAP-INV-004 | signals-and-hunt | Event Inspection and Pivot | Investigate Product Lead; Analyst, Threat Hunter | defined | planned | REQ-PROD-014,019 | Event, Entity, Case, candidate refs | 0,2 | — | `07-investigate/modules/signals-and-hunt/capabilities/event-inspection-and-pivot.md` | Event Inspector/mode; Event→Case | CAP-INV-002,007,102,105,107; Inspector |
+| CAP-INV-005 | signals-and-hunt | Hunt Management | Investigate Product Lead; Threat Hunter, Hunt Lead | defined | planned | REQ-PROD-014,020 | Hunt workspace, Query/Search Job, Hypothesis, Case | 0,2 | — | `07-investigate/modules/signals-and-hunt/capabilities/hunt-management.md` | Hunt workspace; Hunt→Case | CAP-INV-002,003,006,008,102,103 |
+| CAP-INV-006 | signals-and-hunt | Saved Searches and Query Assets | Investigate Product Lead; Query Author, Threat Hunter | defined | planned | REQ-PROD-014,019 | Query Asset, Query, versions | 0,2 | — | `07-investigate/modules/signals-and-hunt/capabilities/saved-searches-and-query-assets.md` | Saved Search library/mode | CAP-INV-002,003,005; Versioning |
+| CAP-INV-007 | signals-and-hunt | Search Result Organization | Investigate Product Lead; Analyst, Threat Hunter | defined | planned | REQ-PROD-014,019 | result selection, annotations, Case links | 0,1,2 | OPEN-013 | `07-investigate/modules/signals-and-hunt/capabilities/search-result-organization.md` | result workspace; Search→Case/export | CAP-INV-002,004,102; Export |
+| CAP-INV-008 | signals-and-hunt | Search and Hunt Provenance | Investigate Product Lead; Analyst, Reviewer, Auditor | defined | planned | REQ-PROD-014; REQ-AI-002 | Query/Search Job versions, Trace refs | 0,2 | OPEN-015 | `07-investigate/modules/signals-and-hunt/capabilities/search-and-hunt-provenance.md` | provenance panel; replay | CAP-INV-002,005,006; Trace/Activity |
+| CAP-INV-101 | cases-and-evidence | Case Queue | Investigate Product Lead; Case Analyst, Investigation Lead | defined | planned | REQ-PROD-014 | Case, Incident projection, Finding summary | 0 | — | `07-investigate/modules/cases-and-evidence/capabilities/case-queue.md` | Case Queue→Workspace | CAP-INV-102; Search, Saved Views |
+| CAP-INV-102 | cases-and-evidence | Case Lifecycle and Coordination | Investigate Product Lead; Investigation Lead, Case Analyst | defined | planned | REQ-PROD-014 | Case, Incident links, contributors | 0,2 | OPEN-013 | `07-investigate/modules/cases-and-evidence/capabilities/case-lifecycle-and-coordination.md` | Case Workspace; Incident→Case | CAP-INV-101,103,104,105,107,109,110,111 |
+| CAP-INV-103 | cases-and-evidence | Hypothesis Management | Investigate Product Lead; Analyst, Reviewer | defined | planned | REQ-PROD-014; REQ-AI-002 | Hypothesis, Evidence/results refs | 0,2 | OPEN-013,015 | `07-investigate/modules/cases-and-evidence/capabilities/hypothesis-management.md` | Hypotheses & Findings | CAP-INV-102,107,108,109; Versioning |
+| CAP-INV-104 | cases-and-evidence | Entity and Relationship Management | Investigate Product Lead; Analyst, Threat Hunter | defined | planned | REQ-PROD-014 | Shared Entity, relations, Case/Incident refs | 0,2 | OPEN-013 | `07-investigate/modules/cases-and-evidence/capabilities/entity-and-relationship-management.md` | Entity Graph; pivot | CAP-INV-002,004,102; Entity Resolution |
+| CAP-INV-105 | cases-and-evidence | Artifact Management | Investigate Product Lead; Analyst, Specialist | defined | planned | REQ-PROD-014,061 | Artifact, versions, derivatives, Case | 0,1,2 | OPEN-014 | `07-investigate/modules/cases-and-evidence/capabilities/artifact-management.md` | Artifact Detail/workbench entry | CAP-INV-102,106,107; 4B.2 boundary |
+| CAP-INV-106 | cases-and-evidence | Attachment Handling | Investigate Product Lead; Contributor, Report Author | proposed | planned | REQ-PROD-061 | Attachment, Note/Comment/Report refs | 0,2 | OPEN-014 | `07-investigate/modules/cases-and-evidence/capabilities/attachment-handling.md` | collaboration/reporting | CAP-INV-105,107,111,114; OPEN-014 |
+| CAP-INV-107 | cases-and-evidence | Evidence Creation and Management | Investigate Product Lead; Analyst, Evidence Reviewer | defined | planned | REQ-PROD-014,061,062 | Evidence, Artifact/source, Case, Hypothesis/Finding refs | 0,1,2 | OPEN-013 | `07-investigate/modules/cases-and-evidence/capabilities/evidence-creation-and-management.md` | Evidence Board; Artifact→Evidence | CAP-INV-102,103,105,108,109; Provenance |
+| CAP-INV-108 | cases-and-evidence | Evidence Review and Qualification | Investigate Product Lead; Reviewer, Analyst | defined | planned | REQ-PROD-014,062 | Evidence dimensions, Hypothesis refs | 0,1,2 | OPEN-013 | `07-investigate/modules/cases-and-evidence/capabilities/evidence-review-and-qualification.md` | Evidence review; collection request future | CAP-INV-103,107,109; 4B.2 boundary |
+| CAP-INV-109 | cases-and-evidence | Finding Management | Investigate Product Lead; Analyst, Reviewer | defined | planned | REQ-PROD-014,016 | Finding, Evidence, Incident/Request refs | 0,2 | OPEN-013,015 | `07-investigate/modules/cases-and-evidence/capabilities/finding-management.md` | Findings; Finding→Action Request | CAP-INV-103,107,108,113,114 |
+| CAP-INV-110 | cases-and-evidence | Investigation Timeline | Investigate Product Lead; Case Analyst, Reviewer | defined | planned | REQ-PROD-014,018 | Timeline Entry, Case objects, Govern projections | 0,1,2 | — | `07-investigate/modules/cases-and-evidence/capabilities/investigation-timeline.md` | Case Timeline; replay/report | CAP-INV-102,107,109,112,114; Timeline Engine |
+| CAP-INV-111 | cases-and-evidence | Case Collaboration and Investigation Notes | Investigate Product Lead; Case Analyst, Contributors | defined | planned | REQ-PROD-014,018 | Note, Comment, Attachment, Case/Task refs | 0,2 | OPEN-013,014 | `07-investigate/modules/cases-and-evidence/capabilities/case-collaboration-and-investigation-notes.md` | Case collaboration; Note→Task | CAP-INV-102,105,106,107; Shared Collaboration |
+| CAP-INV-112 | cases-and-evidence | Case Replay and Investigation Review | Investigate Product Lead; Investigation Lead, Reviewer | defined | planned | REQ-PROD-014,020 | Case snapshot, Query/Hypothesis/Evidence/Finding versions | 0,2 | OPEN-013,015 | `07-investigate/modules/cases-and-evidence/capabilities/case-replay-and-investigation-review.md` | replay/review; future Detection/Readiness | CAP-INV-008,102,103,107,109,110 |
+| CAP-INV-113 | cases-and-evidence | Action Request Preparation | Investigate Product Lead; Investigation Lead, Senior Analyst | defined | planned | REQ-PROD-014,016 | Govern Action Request draft, Findings, Evidence, Case | 0,2,3 | OPEN-007,013,015 | `07-investigate/modules/cases-and-evidence/capabilities/action-request-preparation.md` | Finding→Govern→Result | CAP-INV-107,108,109; Govern; Command impact |
+| CAP-INV-114 | cases-and-evidence | Case Reporting Preparation | Investigate Product Lead; Author, Reviewer | defined | planned | REQ-PROD-014,018 | Report draft, citations, Findings/Evidence/Timeline refs | 0,1,2 | OPEN-014 | `07-investigate/modules/cases-and-evidence/capabilities/case-reporting-preparation.md` | Investigation Report; export future | CAP-INV-109,110,111; Reporting/Export |
+
+## Résultats Phase 4B.1
+
+- `REQ-PROD-014`, `REQ-PROD-016`, `REQ-PROD-019`, `REQ-PROD-061`, `REQ-PROD-062`, `REQ-AI-002` et plusieurs exigences objets/UX gagnent des preuves fonctionnelles détaillées sans changer leur classement déjà conforme.
+- `REQ-PROD-006`, `REQ-PROD-007`, `REQ-PROD-008`, `REQ-PROD-010`, `REQ-PROD-020`, `REQ-AI-007` à `010`, `REQ-OBJ-009`, `REQ-SEC-003` à `005` et `REQ-UX-010` restent partiels car leurs phases propriétaires ne sont pas achevées.
+- `REQ-JRN-002`, `REQ-JRN-005` et `REQ-JRN-008` restent absents et relèvent de la phase Parcours.
+- aucun Requirement ID nouveau ; aucune contradiction active ; aucune capability `planned` présentée comme livrée.
 
 ## Inventaire complet
 
@@ -90,7 +84,7 @@ Les 122 Requirement IDs sources sont conservés. `conform` signifie qu’une pha
 
 ### contradictory — 0
 
-Aucun Requirement ID n’est classé contradictoire après l’alignement de la Task opérationnelle et la consolidation des modules Command.
+Aucun Requirement ID n’est contradictoire après la consolidation Command et Investigate.
 
 ## Règle de maintenance
 

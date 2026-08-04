@@ -1,5 +1,25 @@
 # Changelog
 
+## 2026-08-04 — Phase 4B.1 Investigate closure
+
+- Audited the detached framework and Signals and Hunt commits before consolidation.
+- Established the canonical Investigate framework and preserved Command, Govern, Studio, Shared and Settings ownership boundaries.
+- Added 22 immutable `CAP-INV-*` identifiers: 8 Signals and Hunt and 14 Cases and Evidence.
+- Added 22 substantive capability specifications using the Phase 4A canonical template.
+- Verified 594/594 numbered sections and 132/132 mandatory S8/S9/S10/S13/S16/S17 tables.
+- Defined Signal Triage, Event Search, Query Authoring, Event Inspection, Hunt, Query Assets, result organization and search provenance.
+- Defined Case Queue, lifecycle, Hypotheses, Entities, Artifacts, Attachments, Evidence, Findings, Timeline, collaboration, replay, Action Request preparation and reporting preparation.
+- Kept CAP-INV-106 `proposed`, `planned` and linked to OPEN-014.
+- Completed the 27-section Artifact versus Attachment analysis while retaining four open options and closing no decision.
+- Defined transitions from Signal and Incident to investigation, Search/Hunt to Case, Artifact to Evidence, Evidence to Finding, Finding to Action Request, Govern and Result return.
+- Required human, deterministic and no-AI alternatives for all essential functions; no automated Evidence qualification, Finding confirmation or Decision creation.
+- Migrated eight old functional module responsibilities to Signals and Hunt or Cases and Evidence while retaining all active screens.
+- Updated Capability and Dependency Registers, requirement traceability, baseline, status and open-decision impact notes.
+- Added the Phase 4B.1 conformance report with 22/22 capabilities and 140/140 closure gates PASS.
+- Kept requirement coverage at 99 conform, 20 partial, 3 absent and 0 contradictory.
+- Added no detailed screen rewrite, object schema, atomic permission matrix, API, protocol, engine selection, product code or font.
+- Did not start Phase 4B.2 or Phase 4B.3.
+
 ## 2026-08-04 — Phase 4A corrective closure
 
 - Audited all 27 published Command capability specifications against the strict canonical template.
@@ -13,7 +33,6 @@
 - Added the strict conformance report with 27/27 capabilities, 162/162 tables and 75/75 closure gates PASS.
 - Kept requirement coverage at 99 conform, 20 partial, 3 absent and 0 contradictory.
 - Added no screen rewrite, object schema, permission normalization, API, protocol, product code or font.
-- Did not start Phase 4B.
 
 ## 2026-08-04 — Phase 4A Command capabilities
 
@@ -31,7 +50,6 @@
 - Added capability-to-screen, object dependency, functional dependency and automation maps.
 - Read all active Command screens without detailed rewrite; five Work Queue aliases remain deprecated.
 - Added no product code, API, protocol or font file.
-- Phase 4B was not started.
 
 ## 2026-08-03 — Phase 3 experience architecture and Design System
 

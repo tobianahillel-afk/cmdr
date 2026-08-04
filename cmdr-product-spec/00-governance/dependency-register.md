@@ -7,8 +7,9 @@ updated: 2026-08-04
 source-of-truth: canonical
 requirements:
   - REQ-PROD-012
-  - REQ-PROD-019
   - REQ-PROD-013
+  - REQ-PROD-014
+  - REQ-PROD-019
 ---
 
 # Registre des dépendances produit et documentaires
@@ -26,7 +27,7 @@ Le registre capture les dépendances nécessaires à une décision produit ou do
 | DEP-005 | ADR-0005 | Work Queue | UX | consolider variantes en vues | resolved | écrans clones | UX Architecture | oui | REQ-UX-008, REQ-UX-009 | Phase 3 |
 | DEP-006 | Phase 2 marque | identités produit | visuel | palettes/typographie ouvertes | open | design final non validable | Brand Design Lead | non | REQ-PROD-048..051 | Phase 2 review |
 | DEP-007 | Capability map | modules fonctionnels | classification | ne pas annoncer planned comme livré | active | promesse trompeuse | Product Architecture | oui | REQ-PROD-012, REQ-PROD-019 | Phase 4 |
-| DEP-008 | OPEN-005 | workbench forensic | moteur | stratégie initiale | open | limites intégration inconnues | Investigate Product Lead | technique | REQ-PROD-052 | Phase 4B/8 |
+| DEP-008 | OPEN-005 | workbench forensic | moteur | stratégie initiale | open | limites intégration inconnues | Investigate Product Lead | technique | REQ-PROD-052 | Phase 4B.2/8 |
 | DEP-009 | OPEN-007 | Studio et Govern | autorité | Human Gate versus Decision | open | double approbation | Govern + Studio | oui | REQ-PROD-054 | Phase 4C/7 |
 | DEP-010 | OPEN-008 | Endpoint Agent | plateforme | support initial | open | flotte/actions incomplètes | Endpoint Product Lead | avant implémentation | REQ-PROD-055 | Phase 4D/8 |
 | DEP-011 | OPEN-014 | Investigate | modèle | Artifact versus Attachment | open | preuve ambiguë | Investigate Product Lead | oui modèle | REQ-PROD-061 | Phase 7 |
@@ -46,19 +47,31 @@ Le registre capture les dépendances nécessaires à une décision produit ou do
 | DEP-CMD-010 | Govern Action Request | Escalation | transition | package contexte/impact/action/alternatives | partial | autorité reste Govern | Govern Product Lead | oui classe 3/4 | REQ-PROD-015, REQ-SEC-002 | Phase 4C/5 |
 | DEP-CMD-011 | Result | Situation/Incident | projection | réinjecter vérification et risque résiduel | partial | Result reste Govern | Govern Product Lead | non | REQ-PROD-008, REQ-OBJ-007 | Phase 4C/5 |
 | DEP-CMD-012 | Permission catalog | actions Command | permission | familles assignment/SLA/bulk/handover à atomiser | partial | aucune permission finale inventée | Security Architecture | oui avant implémentation | REQ-SEC-001..005 | Phase 7 |
+| DEP-INV-001 | Capability template | 22 capabilities Investigate | documentaire | 27 sections, six tableaux et ID immuable | active | capability incomplète si contrat absent | Product Architecture | oui | REQ-PROD-006,014 | Phase 4B.1 |
+| DEP-INV-002 | Query et Search Job Shared | Event Search / provenance | objet partagé | authoring, exécution, annulation, résultats et versions | partial | moteur/langage/index restent ouverts | Shared Capabilities Lead | non 4B.1; oui technique | REQ-PROD-014,019 | 4B.2/8 |
+| DEP-INV-003 | Signal/Alert/Incident Command | Signal Triage et Case intake | projection | préserver source, priorité et coordination Command | active | aucune ownership concurrente | Command + Investigate | oui frontière | REQ-PROD-008,013,014 | 4B.1/5 |
+| DEP-INV-004 | Incident Command | Case Lifecycle | transition | lier un ou plusieurs Incidents sans transfert | partial | cardinalités et workflow final ouverts | Investigate Product Lead | non 4B.1; oui Objets | REQ-OBJ-002, REQ-PROD-014 | Phase 7 |
+| DEP-INV-005 | Artifact, Case, Provenance | Evidence | objet/trust | qualification explicite, versions, transformations et accès | partial | stockage/intégrité/custody détaillés ouverts | Investigate + Trust | oui avant implémentation | REQ-PROD-061,062 | Phase 7/8 |
+| DEP-INV-006 | Evidence | Finding | raisonnement | support favorable/contradictoire et revue | active | aucun Finding sans références | Investigate Product Lead | oui | REQ-PROD-014,016 | 4B.1/7 |
+| DEP-INV-007 | Govern Action Request | Action Request Preparation | autorité/transition | Investigate produit, Govern possède lifecycle | partial | permissions et workflow Govern futurs | Govern Product Lead | oui pour soumission | REQ-PROD-015,016; REQ-SEC-002 | 4C/5/7 |
+| DEP-INV-008 | Reporting Engine Shared | Case Reporting Preparation | shared capability | citations, versions, redactions et export request | partial | objet Report et formats futurs | Shared Capabilities Lead | non 4B.1 | REQ-PROD-018 | 4D/8 |
+| DEP-INV-009 | CMDR Studio | assistance automatisée Investigate | automation | provenance, Workflow, Agent et Tool Calls | partial | aucun agent requis ; bridge run ouvert | Studio Product Lead | non essentiel | REQ-AI-002,006,010 | 4C/7 |
+| DEP-INV-010 | OPEN-014 | Attachment Handling | décision objet | relation Attachment/Artifact/Evidence | open | permissions, rétention et migration non finales | Investigate + Product Architecture | oui modèle | REQ-PROD-061 | Phase 7 |
+| DEP-INV-011 | OPEN-013 | actions classe 2 Investigate | gouvernance | step-up et Govern par défaut non décidés | open | mutations réversibles non finalisées | Security Architecture | oui avant politique finale | REQ-PROD-060, REQ-SEC-002 | 4C/7 |
+| DEP-INV-012 | OPEN-015 | sorties automatisées / Result bridge | provenance | distinguer Automation Run et Response Run | open | audit et relations inter-run incomplets | Studio + Govern | oui modèle | REQ-PROD-062, REQ-OBJ-009 | Phase 7 |
+| DEP-INV-013 | OPEN-007 | Action Request / Human Gate | autorité | éviter double approbation ou contournement | open | parcours Govern final incomplet | Govern + Studio | oui classes 3/4 | REQ-PROD-054 | 4C/7 |
+| DEP-INV-014 | phases 4B.2 et 4B.3 | handoffs futurs | frontière | collecte, workbench, détection et intelligence | planned | fonctions futures non spécifiées comme livrées | Investigate Product Lead | non 4B.1 | REQ-PROD-014,052 | 4B.2/4B.3 |
 
-## Phase 4A — lecture
+## Lecture de phase
 
-- les 27 capabilities Command sont fonctionnellement définies mais leur delivery mode reste `planned` ;
-- aucune dépendance à une IA n’est bloquante pour un workflow essentiel ;
-- `OPEN-006`, `OPEN-010` et `OPEN-013` restent ouvertes ;
-- les lacunes Service, Exposure, Report et Audit Record sont routées vers leurs sources propriétaires ou phases ultérieures ;
-- la Work Queue n’a aucune dépendance vers un ancien écran déprécié.
+- Phase 4A : 27 capabilities Command fonctionnellement définies, delivery mode `planned`.
+- Phase 4B.1 : 22 capabilities Investigate fonctionnellement définies, 21 `defined`, CAP-INV-106 `proposed`, toutes `planned`.
+- aucune dépendance IA n’est bloquante pour un workflow essentiel ;
+- OPEN-005,007,011,012,013,014 et 015 restent ouvertes ;
+- aucune dépendance 4B.2 ou 4B.3 n’est décrite comme capability livrée.
 
-## Mise à jour
+## Mise à jour et acceptation
 
-`resolved` exige que tous les dépendants soient mis à jour. `active` décrit une règle permanente. `partial` décrit un contrat suffisant pour la Phase 4A mais incomplet pour une phase ultérieure.
+`resolved` exige la mise à jour de tous les dépendants. `active` décrit une règle permanente. `partial` décrit un contrat suffisant pour la phase courante mais incomplet pour une phase ultérieure.
 
-## Critère d’acceptation
-
-**Given** une capability Command dépendante d’un objet externe ou d’une décision ouverte, **When** le registre est consulté, **Then** owner, impact, caractère bloquant, Requirement IDs et phase cible sont explicites sans choix technique inventé.
+**Given** une capability dépendante d’un objet externe ou d’une décision ouverte, **When** le registre est consulté, **Then** owner, impact, caractère bloquant, Requirement IDs, comportement de phase et revue cible sont explicites sans choix technique inventé.
