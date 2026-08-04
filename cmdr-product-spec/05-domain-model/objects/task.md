@@ -2,27 +2,28 @@
 id: OBJ-TASK
 type: object
 domain: 05-domain-model
-owner: Shared Capabilities
+owner: Command
 status: draft
-updated: 2026-08-03
+updated: 2026-08-04
 source-of-truth: canonical
 ---
+
 # Task
 
 ## Objectif
 
-Représenter un travail assigné sans modifier automatiquement l’objet source.
+Représenter un travail opérationnel assigné, suivi dans Command et lié à un objet source sans modifier automatiquement cet objet source.
 
 ## Propriétaire
 
-Shared Capabilities.
+Command pour la Task opérationnelle. Shared Capabilities peut fournir une Task Inbox ou une projection générique d’affectation, sans posséder le cycle de vie métier Command.
 
 ## Position dans la chaîne
 
-- Amont: aucun objet canonique direct
-- Aval: aucun objet canonique direct
+- Amont : Incident, Result, exercice, plan ou autre objet source référencé ;
+- Aval : résultat de coordination ou relation vers l’objet source.
 
-## Champs canoniques
+## Champs canoniques existants
 
 - `id immuable`
 - `tenant-id`
@@ -30,12 +31,15 @@ Shared Capabilities.
 - `updated-at`
 - `version`
 
+La Phase 4A n’ajoute aucun schéma complet. Les besoins fonctionnels owner, équipe, contributeurs, watcher, échéance, priorité, état, dépendance, blocage et résultat sont transmis à la future phase Objets.
+
 ## Relations
 
 - Les relations sont typées, tenant-scoped, bidirectionnellement navigables et sourcées.
 - Une relation ne transfère ni propriété ni permission.
+- Une Task liée à un Case, une Decision ou un Result ne devient pas propriétaire de cet objet.
 
-## États
+## États existants
 
 - open
 - in-progress
@@ -43,28 +47,32 @@ Shared Capabilities.
 - done
 - cancelled
 
+Cette liste reste Draft et ne vaut pas machine d’état finale.
+
 ## Invariants
 
 - Le tenant est obligatoire.
 - Les mutations sont auditées.
 - Les références utilisent des identifiants stables.
+- Une Task ne modifie jamais automatiquement l’objet source.
+- L’ownership opérationnel d’une Task ne change pas l’ownership canonique des objets liés.
 
-## Permissions
+## Permissions existantes
 
-- `perm.shared-capabilities.task.read`
-- `perm.shared-capabilities.task.manage`
+- `perm.command.task.manage`
+- famille de lecture Command à atomiser ultérieurement.
 
 ## Audit et provenance
 
-Toute création, transition, relation et suppression logique enregistre acteur, tenant, justification, version et identifiant de corrélation.
+Toute création, affectation, transition, relation et suppression logique enregistre acteur, tenant, justification, version et identifiant de corrélation.
 
 ## Critères d’acceptation
 
-- Le schéma ne duplique aucun autre objet.
-- Le propriétaire correspond au registre de propriété.
-- Les transitions invalides sont refusées côté serveur.
+- Le propriétaire correspond aux décisions canoniques de Command.
+- Shared Task Inbox reste une capability consommatrice et non un owner concurrent.
+- Aucun champ, API, protocole ou stockage définitif n’est ajouté en Phase 4A.
 - Les références restent résolubles après versionnement.
 
-## Questions ouvertes
+## Questions transmises
 
-- À compléter — contenu source non fourni dans le brief canonique.
+La future phase Objets doit préciser les champs, cardinalités, spécialisations éventuelles et machine d’état sans créer une Task concurrente par produit.

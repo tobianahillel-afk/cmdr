@@ -3,45 +3,51 @@ id: command-work-queue-saved-views
 domain: 06-command
 status: draft
 owner: Command Product Lead
-updated: 2026-08-03
+updated: 2026-08-04
 source-of-truth: canonical
 requirements:
   - REQ-OBJ-012
   - REQ-UX-008
   - REQ-UX-009
+capability_ids:
+  - CAP-CMD-101
 ---
 
 # Saved Views de la Work Queue
 
-## Source fonctionnelle générique
+## Propriété
 
-`../../../12-shared-capabilities/saved-views.md` possède stockage, versioning, partage et permission re-evaluation. Ce fichier possède uniquement le catalogue et les règles Command.
+Shared Capabilities possède stockage/versioning/partage/migration/application permission-aware. Command possède le catalogue et la signification. Le Design System possède l’interaction. CAP-CMD-101 possède le comportement du workspace.
 
-## Vues système
+## Vues système exactes
 
-| Key | Intention | Critère initial |
-|---|---|---|
-| all | tout travail autorisé | aucun filtre de type/owner |
-| incidents | coordination d'Incidents | object.type=Incident |
-| tasks | tâches opérationnelles | object.type=Task |
-| unassigned | travail sans owner | owner is empty |
-| sla-risk | travail proche/en dépassement SLA | SLA policy-derived |
-| my-work | travail assigné ou suivi par l'utilisateur | owner/follower=current principal |
+| Key | Nom | Intention | Critère fonctionnel initial |
+|---|---|---|---|
+| `all` | All | tout travail autorisé | aucun filtre type/owner imposé |
+| `incidents` | Incidents | coordonner les Incidents | `object.type=Incident` |
+| `tasks` | Tasks | coordonner les Tasks | `object.type=Task` |
+| `unassigned` | Unassigned | travail sans owner principal | owner absent |
+| `sla-risk` | SLA Risk | échéance proche ou violation | projection de policy SLA |
+| `my-work` | My Work | travail assigné ou suivi par le principal | owner/contributor/watcher autorisé |
 
-Les critères précis dépendent des objets et policies de Phase 4 ; ils ne créent pas de permission.
+## Invariants
 
-## Règles
+- une seule route/workspace ;
+- la vue est un paramètre, pas une Page ;
+- six vues versionnées et non supprimables ;
+- permissions/colonnes/objets réévalués à l’ouverture ;
+- une Saved View n’enregistre ni données, ni permission, ni secret ;
+- `Team Load` n’est pas une vue système ;
+- aucun ancien Screen ID n’est réactivé.
 
-- vues système versionnées, non supprimables et adressables par `view=key` ;
-- vue personnelle modifiable par owner ;
-- vue partagée exige permission et audience ;
-- ouverture réévalue permissions et colonnes ;
-- dirty state visible avant update ;
-- `Team Load` n'est pas une vue système ;
-- aucune vue n'est un fichier d'écran actif.
+## Migration
 
-## Critère
+`CMD-IWQ-001..004` ouvrent la vue correspondante. `CMD-IWQ-005` ouvre la Work Queue avec notice de migration ; il ne devient pas `team-load`.
 
-**Given** un lien legacy `/work-queue/unassigned`,  
-**When** il est ouvert,  
-**Then** il redirige vers le workspace unique avec `view=unassigned`, conserve les filtres sûrs et n'enregistre aucun nouvel écran.
+## Critères d’acceptation
+
+**Given** `view=unassigned`, **When** elle est ouverte, **Then** la route reste identique, les permissions sont réévaluées et aucun écran autonome n’est créé.
+
+**Given** une colonne devenue interdite dans une vue partagée, **When** elle est ouverte, **Then** la colonne est retirée sans modifier la source ni divulguer de donnée.
+
+**Given** un ancien lien Team Load, **When** il est résolu, **Then** aucune vue système `team-load` n’existe et l’ancien ID reste deprecated.
