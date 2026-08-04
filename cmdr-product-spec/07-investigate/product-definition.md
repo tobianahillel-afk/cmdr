@@ -3,59 +3,45 @@ id: 07-investigate-product-definition
 domain: 07-investigate
 status: draft
 owner: Investigate Product Lead
-updated: 2026-08-03
+updated: 2026-08-04
 source-of-truth: canonical
+requirements:
+  - REQ-PROD-002
+  - REQ-PROD-005
+  - REQ-PROD-014
+  - REQ-PROD-046
 ---
-# Définition du produit Investigate
 
-## Objectif
+# Définition fonctionnelle du produit Investigate
 
-Établir les faits, préserver la preuve, conduire les analyses forensics et produire des Findings reproductibles.
+## Objet
 
-## Périmètre
+Investigate transforme des Signals et données autorisés en travail analytique reproductible, puis en Evidence et Findings revus. Il prépare le contexte nécessaire à Command, Govern, Reporting et aux capacités futures sans posséder leurs objets.
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
+## Questions auxquelles le produit répond
 
-## Propriétaire fonctionnel
+- Que montrent réellement les données, de quelles sources et avec quelles limites ?
+- Quelle Hypothesis est testée, et quels éléments la soutiennent ou la contredisent ?
+- Quel Case organise le travail, et quels Incidents lui sont liés ?
+- Quel Artifact est simplement disponible et lequel a été qualifié comme Evidence ?
+- Quelle conclusion constitue un Finding revu ?
+- Quel package doit être transmis à Govern sans créer de Decision ?
 
-Investigate Product Lead.
+## Frontières
 
-## Objets concernés
+Investigate ne devient jamais une seconde Work Queue générale, une autorité autonome de réponse, un moteur d’administration Endpoint, un catalogue visible d’outils tiers, une interface centrée sur un chatbot ou un propriétaire de Decision, Response Run, Result, Workflow ou Automation Run.
 
-- Concepts du document
-- Références canoniques liées
+## Résultat attendu de Phase 4B.1
 
-## Fonctionnalités
+Signals and Hunt et Cases and Evidence disposent de capabilities à 27 sections, d’actions classées, d’alternatives sans IA, de transitions et de sources de vérité. Collection and Live Response, Analysis Workbench, Detection Engineering et Intelligence restent hors périmètre.
 
-- Décisions propriétaires de Investigate.
-- Frontières avec les autres produits.
-- Objets possédés selon le registre.
-- Transitions entrantes et sortantes.
+## Invariants
 
-## UX et interactions
-
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
-
-## Permissions
-
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
-
-## États
-
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
-
-## Dépendances
-
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- À compléter — décision source non fournie dans le brief canonique.
+1. Les sources sont visibles.
+2. Les transformations sont traçables.
+3. Les relations ne transfèrent ni permission ni ownership.
+4. Une proposition automatisée reste une proposition.
+5. Une Evidence conserve sa source et sa version.
+6. Un Finding référence ses Evidence et contradictions.
+7. Une Action Request demeure un objet Govern.
+8. Une capability `planned` ne prouve aucune implémentation.

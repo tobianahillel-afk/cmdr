@@ -1,69 +1,15 @@
 ---
-id: investigate-case-workspace
+id: deprecated-case-workspace-readme
 domain: 07-investigate
-status: draft
+status: deprecated
 owner: Investigate Product Lead
-updated: 2026-08-03
-source-of-truth: canonical
+updated: 2026-08-04
+source-of-truth: deprecated
+replaced-by: ../cases-and-evidence/README.md
 ---
-# Case Workspace
 
-## Objectif
+# Pointeur de migration Phase 4B.1
 
-Centraliser le travail durable sur un Case sans fusionner les outils spécialisés.
+Case Workspace consomme désormais le module canonique Cases and Evidence et ses capabilities `CAP-INV-101` à `CAP-INV-114`.
 
-## Périmètre
-
-Module du produit 07-investigate. Les objets, permissions, composants et transitions partagés sont référencés et non redéfinis.
-
-## Propriétaire fonctionnel
-
-Investigate Product Lead.
-
-## Objets concernés
-
-- case
-- evidence
-- hypothesis
-- finding
-- entity
-- timeline-entry
-
-## Fonctionnalités
-
-- Résumé.
-- Sections persistantes.
-- Collaboration.
-- Objets liés.
-
-## UX et interactions
-
-- Conserver le contexte de liste, vue et objet.
-- Utiliser l’Inspector canonique.
-- Afficher les six états obligatoires.
-- Préserver navigation clavier et liens profonds.
-
-## Permissions
-
-Voir `../../14-security-permissions-and-trust/permission-model.md` et le registre des permissions.
-
-## États
-
-Les états métier viennent des fichiers d’objets canoniques; la page ajoute uniquement Loading, Empty, Partial, Error, Offline et Permission denied.
-
-## Dépendances
-
-- 03-design-system/
-- 04-experience-architecture/
-- 05-domain-model/
-- 17-implementation-contracts/
-
-## Critères d’acceptation
-
-- Aucune définition d’objet ou de permission locale.
-- Tous les écrans du module ont un front matter et 27 sections.
-- Les transitions sont auditées et idempotentes.
-
-## Questions ouvertes
-
-- À compléter — contenu source non fourni dans le brief canonique.
+L’écran pilote `INV-CAS-001` reste actif et inchangé jusqu’à la phase écrans. Voir [`../../screen-capability-map.md`](../../screen-capability-map.md).

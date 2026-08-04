@@ -1,61 +1,27 @@
 ---
-id: investigate-hypotheses-and-findings-confidence-model
+id: deprecated-hypotheses-and-findings-confidence-model
 domain: 07-investigate
-status: draft
+status: deprecated
 owner: Investigate Product Lead
-updated: 2026-08-03
-source-of-truth: canonical
+updated: 2026-08-04
+source-of-truth: deprecated
+replaced-by: ../cases-and-evidence/capabilities/finding-management.md
 ---
-# Confidence Model
 
-## Objectif
+# Pointeur de migration Phase 4B.1
 
-Définir confidence model dans Investigate.
+## Remplaçant
 
-## Périmètre
+[`../cases-and-evidence/capabilities/finding-management.md`](../cases-and-evidence/capabilities/finding-management.md)
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
+## Justification
 
-## Propriétaire fonctionnel
+La confiance reste une rationale et un niveau de validation à formaliser; CAP-INV-103/109 interdisent tout score opaque ou confirmation automatique.
 
-Investigate Product Lead.
+## Écrans existants
 
-## Objets concernés
+Les écrans conservés sous ce chemin restent actifs comme sources de besoins et ne sont pas réécrits. Leur mapping vers les capabilities canoniques est défini dans [`../../screen-capability-map.md`](../../screen-capability-map.md).
 
-- Concepts du document
-- Références canoniques liées
+## Règle
 
-## Fonctionnalités
-
-- Confidence rationale.
-- Contradictory evidence.
-- Calibration open.
-- Severity separate.
-
-## UX et interactions
-
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
-
-## Permissions
-
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
-
-## États
-
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
-
-## Dépendances
-
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- À compléter — décision source non fournie dans le brief canonique.
+Ce document ne porte plus de définition fonctionnelle active et ne doit pas être utilisé comme source normative. Aucun ID CAP-INV n’est recyclé.

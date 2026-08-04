@@ -1,68 +1,27 @@
 ---
-id: investigate-investigation-report
+id: deprecated-investigation-report-README
 domain: 07-investigate
-status: draft
+status: deprecated
 owner: Investigate Product Lead
-updated: 2026-08-03
-source-of-truth: canonical
+updated: 2026-08-04
+source-of-truth: deprecated
+replaced-by: ../cases-and-evidence/capabilities/case-reporting-preparation.md
 ---
-# Investigation Report
 
-## Objectif
+# Pointeur de migration Phase 4B.1
 
-Publier un rapport distinguant faits, analyse, limites et recommandations.
+## Remplaçant
 
-## Périmètre
+[`../cases-and-evidence/capabilities/case-reporting-preparation.md`](../cases-and-evidence/capabilities/case-reporting-preparation.md)
 
-Module du produit 07-investigate. Les objets, permissions, composants et transitions partagés sont référencés et non redéfinis.
+## Justification
 
-## Propriétaire fonctionnel
+CAP-INV-114 possède le contenu métier; Reporting Engine Shared possède composition, revue, publication et export.
 
-Investigate Product Lead.
+## Écrans existants
 
-## Objets concernés
+Les écrans conservés sous ce chemin restent actifs comme sources de besoins et ne sont pas réécrits. Leur mapping vers les capabilities canoniques est défini dans [`../../screen-capability-map.md`](../../screen-capability-map.md).
 
-- case
-- evidence
-- finding
-- hypothesis
-- timeline-entry
+## Règle
 
-## Fonctionnalités
-
-- Citations.
-- Peer review.
-- Redaction.
-- Immutable publication.
-
-## UX et interactions
-
-- Conserver le contexte de liste, vue et objet.
-- Utiliser l’Inspector canonique.
-- Afficher les six états obligatoires.
-- Préserver navigation clavier et liens profonds.
-
-## Permissions
-
-Voir `../../14-security-permissions-and-trust/permission-model.md` et le registre des permissions.
-
-## États
-
-Les états métier viennent des fichiers d’objets canoniques; la page ajoute uniquement Loading, Empty, Partial, Error, Offline et Permission denied.
-
-## Dépendances
-
-- 03-design-system/
-- 04-experience-architecture/
-- 05-domain-model/
-- 17-implementation-contracts/
-
-## Critères d’acceptation
-
-- Aucune définition d’objet ou de permission locale.
-- Tous les écrans du module ont un front matter et 27 sections.
-- Les transitions sont auditées et idempotentes.
-
-## Questions ouvertes
-
-- À compléter — contenu source non fourni dans le brief canonique.
+Ce document ne porte plus de définition fonctionnelle active et ne doit pas être utilisé comme source normative. Aucun ID CAP-INV n’est recyclé.

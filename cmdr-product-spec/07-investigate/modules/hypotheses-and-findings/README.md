@@ -1,67 +1,27 @@
 ---
-id: investigate-hypotheses-and-findings
+id: deprecated-hypotheses-and-findings-README
 domain: 07-investigate
-status: draft
+status: deprecated
 owner: Investigate Product Lead
-updated: 2026-08-03
-source-of-truth: canonical
+updated: 2026-08-04
+source-of-truth: deprecated
+replaced-by: ../cases-and-evidence/README.md
 ---
-# Hypotheses & Findings
 
-## Objectif
+# Pointeur de migration Phase 4B.1
 
-Formaliser le raisonnement et la revue analytique.
+## Remplaçant
 
-## Périmètre
+[`../cases-and-evidence/README.md`](../cases-and-evidence/README.md)
 
-Module du produit 07-investigate. Les objets, permissions, composants et transitions partagés sont référencés et non redéfinis.
+## Justification
 
-## Propriétaire fonctionnel
+Hypothesis, Evidence review et Finding sont définis par CAP-INV-103, CAP-INV-108 et CAP-INV-109.
 
-Investigate Product Lead.
+## Écrans existants
 
-## Objets concernés
+Les écrans conservés sous ce chemin restent actifs comme sources de besoins et ne sont pas réécrits. Leur mapping vers les capabilities canoniques est défini dans [`../../screen-capability-map.md`](../../screen-capability-map.md).
 
-- hypothesis
-- finding
-- evidence
-- case
+## Règle
 
-## Fonctionnalités
-
-- Evidence for/against.
-- Alternatives.
-- Peer review.
-- Confidence rationale.
-
-## UX et interactions
-
-- Conserver le contexte de liste, vue et objet.
-- Utiliser l’Inspector canonique.
-- Afficher les six états obligatoires.
-- Préserver navigation clavier et liens profonds.
-
-## Permissions
-
-Voir `../../14-security-permissions-and-trust/permission-model.md` et le registre des permissions.
-
-## États
-
-Les états métier viennent des fichiers d’objets canoniques; la page ajoute uniquement Loading, Empty, Partial, Error, Offline et Permission denied.
-
-## Dépendances
-
-- 03-design-system/
-- 04-experience-architecture/
-- 05-domain-model/
-- 17-implementation-contracts/
-
-## Critères d’acceptation
-
-- Aucune définition d’objet ou de permission locale.
-- Tous les écrans du module ont un front matter et 27 sections.
-- Les transitions sont auditées et idempotentes.
-
-## Questions ouvertes
-
-- À compléter — contenu source non fourni dans le brief canonique.
+Ce document ne porte plus de définition fonctionnelle active et ne doit pas être utilisé comme source normative. Aucun ID CAP-INV n’est recyclé.

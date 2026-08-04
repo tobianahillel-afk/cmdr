@@ -1,61 +1,13 @@
 ---
-id: investigate-event-search-query-model
+id: deprecated-event-search-query-model
 domain: 07-investigate
-status: draft
+status: deprecated
 owner: Investigate Product Lead
-updated: 2026-08-03
-source-of-truth: canonical
+updated: 2026-08-04
+source-of-truth: deprecated
+replaced-by: ../signals-and-hunt/capabilities/query-authoring-and-assistance.md
 ---
-# Query Model
 
-## Objectif
+# Pointeur de migration Phase 4B.1
 
-Définir query model dans Investigate.
-
-## Périmètre
-
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
-
-## Propriétaire fonctionnel
-
-Investigate Product Lead.
-
-## Objets concernés
-
-- Concepts du document
-- Références canoniques liées
-
-## Fonctionnalités
-
-- Dialecte canonique à décider.
-- Scope tenant/time.
-- Fields and schema.
-- Cost guardrails.
-
-## UX et interactions
-
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
-
-## Permissions
-
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
-
-## États
-
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
-
-## Dépendances
-
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- À compléter — décision source non fournie dans le brief canonique.
+Le comportement fonctionnel Query est défini par `CAP-INV-002`, `CAP-INV-003`, `CAP-INV-006` et `CAP-INV-008`. Query et Search Job restent Shared ; aucun dialecte, moteur ou index final n’est décidé.

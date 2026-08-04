@@ -3,59 +3,38 @@ id: 07-investigate-navigation
 domain: 07-investigate
 status: draft
 owner: Investigate Product Lead
-updated: 2026-08-03
+updated: 2026-08-04
 source-of-truth: canonical
+requirements:
+  - REQ-PROD-008
+  - REQ-UX-001
+  - REQ-UX-006
+  - REQ-UX-007
 ---
+
 # Navigation Investigate
 
-## Objectif
+## Navigation produit
 
-Définir la sidebar et la navigation locale de Investigate.
+La navigation locale suit les six modules canoniques, mais seules les activités disponibles et autorisées sont exposées. Une capability planned ne crée pas automatiquement une destination active.
 
-## Périmètre
+## Entrées principales
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
+- Command Incident → Case intake ou Case existant ;
+- Signal → triage, recherche ou Case ;
+- Global Search → objet source ;
+- Case Queue → Case Workspace ;
+- Case → Event Search, Evidence, Finding, Timeline ou Report ;
+- Settings Endpoint projection → inspection ou demande de collecte future.
 
-## Propriétaire fonctionnel
+## Retours
 
-Investigate Product Lead.
+Chaque transition transmet un `return origin`. Back restaure la vraie vue précédente, y compris filtres, période, sélection, scroll, tabs, Inspector et Query draft lorsque cela est sûr.
 
-## Objets concernés
+## Règles
 
-- Concepts du document
-- Références canoniques liées
-
-## Fonctionnalités
-
-- Ordre par workflow.
-- État actif accessible.
-- Liens profonds.
-- Retour interproduits.
-
-## UX et interactions
-
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
-
-## Permissions
-
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
-
-## États
-
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
-
-## Dépendances
-
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- À compléter — décision source non fournie dans le brief canonique.
+- aucune redirection silencieuse vers un Case différent ;
+- une destination interdite conserve le workspace source ;
+- un lien profond réévalue les permissions ;
+- une transition vers Govern ne présente jamais une Decision déjà créée ;
+- une transition vers 4B.2 ou 4B.3 reste documentaire tant que la capability n’est pas traitée.
