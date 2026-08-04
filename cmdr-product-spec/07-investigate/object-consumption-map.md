@@ -11,41 +11,37 @@ requirements:
   - REQ-PROD-061
   - REQ-PROD-062
 open_decisions:
+  - OPEN-008
   - OPEN-014
   - OPEN-015
 ---
-
-# Object consumption map — Investigate Phase 4B.1
+# Object consumption map — Investigate through Phase 4B.2A
 
 | Objet | Owner actuel | Usage Investigate | Opérations locales | Lacune | Phase propriétaire |
 |---|---|---|---|---|---|
-| Case | Investigate | workspace durable | create, update, link, close/reopen conceptuels | machine finale/cardinalités | Objets |
-| Hypothesis | Investigate | question testable | create, review, link, supersede | états/confiance finaux | Objets |
-| Artifact | Investigate | élément analysable | register, version, derive, link | stockage/hash/dedup | Objets/Technique |
-| Evidence | Investigate | élément qualifié | create, qualify, version, dispute, cite | intégrité/custody/review | Objets/Trust |
-| Finding | Investigate | conclusion revue | draft, review, confirm, dispute, supersede | niveaux validation/confiance | Objets/Permissions |
-| Telemetry Event | Shared | recherche/inspection | read, filter, link | moteur/index | Technique |
-| Detection | Command | contexte source | read/link | engineering distinct en 4B.3 | 4B.3 |
-| Signal | Command | triage/pivot | read, qualifier contribution, link | dispositions finales | Command/Objets |
-| Alert | Command | contexte | read/link | chaîne Signal/Alert | Command/Objets |
-| Incident | Command | contexte parent | read/link | cardinalités Case | Objets |
-| Task | Command | travail persistant | request/create/link sous workflow Command | permissions | Command/Phase 7 |
-| Query | Shared | authoring/exécution | draft/reference | dialecte | Technique |
-| Search Job | Shared | run/results | execute/cancel/read | moteur/retenue résultats | Technique |
-| Entity | Shared | relations et pivots | annotate/link, propose merge | identity resolution | Shared/Technique |
-| Action Request | Govern lifecycle | prepare/submit/follow | producer operations | workflow/policy/authority | 4C/7 |
-| Decision | Govern | contexte aval | read/link | 4C | Govern |
-| Response Run | Govern | contexte aval | read/link/verify | bridge Run | 4C/7 |
-| Result | Govern | retour au Case | read/link | verification lifecycle | 4C/7 |
-| Endpoint | shared, administré par Settings | contexte/source future | read/select | objet absent et protocoles collecte | 4B.2/4D |
-| Endpoint Agent Fleet | Platform Settings | projection | read only | fleet/admin | 4D |
-| Workflow | CMDR Studio | automation | invoke authorized version | deployment/contracts | Studio |
-| Automation Run | CMDR Studio | provenance proposals | read/link | `OPEN-015` | 4C/7 |
-| Hunt | ouvert | workspace Search/Hypothesis | organize/link | objet ou composition ? | Objets |
-| Attachment | ouvert/absent | fichier joint documentaire | attach, qualify proposal | `OPEN-014` | Objets |
-| Report | Reporting Engine Shared | draft/content | contribute/cite | pas d’objet report actuel | Shared |
-| Note / Comment | Shared concepts, fichiers absents | collaboration Case | contribute/link | objets/rétention | Shared/Objets |
-| Timeline Entry | Shared | chronologie | emit content/link | modèle final | Shared/Objets |
-| Audit / Provenance record | mécanismes Shared, fichiers absents | trace | emit business events | objets/retention | Shared/Trust |
+| Case | Investigate | workspace et contexte de collecte | create/update/link, return origin | machine finale/cardinalités | Objets |
+| Hypothesis | Investigate | question testable | create/review/link/supersede | états/confiance | Objets |
+| Artifact | Investigate | résultat matériel analysable | register/version/link/derive | stockage/hash/dedup | Objets/Technique |
+| Evidence | Investigate | qualification explicite | create/qualify/dispute/cite | custody/trust final | Objets/Trust |
+| Finding | Investigate | conclusion et base de demande | draft/review/supersede | validation/confiance | Objets/Permissions |
+| Endpoint | concept partagé à formaliser | cible d’investigation | read/select/link | objet canonique absent | Objets |
+| Endpoint Agent | Endpoint Agent | état, capacités, exécution et résultat locaux | read/invoke authorized projection | contrat détaillé | Endpoint/Technique |
+| Endpoint Agent Fleet | Platform Settings | posture et affectation | read only | aucune administration locale | Settings |
+| Endpoint Policy | Platform Settings | restrictions et gate | read only | évaluation détaillée future | Settings/Govern |
+| Collection Request | Investigate | demande préparée et soumise | create/update/supersede/cancel/submit | états actuels mêlent demande/exécution | Objets |
+| Collection Job | concept métier Investigate | suivi de l’exécution | observe/cancel/retry/link | objet absent | Objets |
+| Background Job | Shared Capabilities | mécanisme de queue/progression | consume/read/cancel via contrat | contrat technique futur | Shared/Technique |
+| Live Session | concept métier Investigate | session visible Case-scoped | request/open/join/extend/close | objet absent | Objets |
+| Endpoint Operation | concept métier Investigate | opération autorisée de session | prepare/execute/interrupt | relation à Agent Command | Objets |
+| Agent Command | Endpoint Agent | commande locale propriétaire | read status/correlation | contrat technique futur | Endpoint/Technique |
+| Operation Result | concept métier Investigate | résultat local inspectable | receive/review/verify/dispute/link | objet absent | Objets |
+| Custody Record | concept Investigate/Trust | chaîne de custody | emit/review/dispute | objet absent | Objets/Trust |
+| Provenance Record | mécanismes Shared, sémantique Investigate | reconstruction | emit/link/review | objet absent | Shared/Trust |
+| Incident / Task | Command | contexte et coordination | read/link/request Task | cardinalités/permissions | Command/Objets |
+| Action Request / Decision / Response Run / Result | Govern | autorité et retour | prepare/read/link | contracts futurs | Govern/Objets |
+| Workflow / Automation Run / Tool Call | Studio | orchestration et provenance | invoke/read/link | OPEN-015 | Studio/Objets |
+| Memory Image | Investigate Draft | Artifact d’acquisition mémoire | create/link | format/moteur/support | Objets/4B.2B |
+| Attachment | ouvert | fichier documentaire | attach/reference | OPEN-014 | Objets |
+| Query / Search Job / Entity / Timeline Entry | Shared | recherche, relation et chronologie | consume/link/emit semantics | contrats techniques | Shared/Technique |
 
-Aucun schéma, JSON Schema, cardinalité ou machine d’état finale n’est défini ici.
+Aucun schéma, JSON Schema, cardinalité, machine d’état finale ou permission atomique n’est défini ici.

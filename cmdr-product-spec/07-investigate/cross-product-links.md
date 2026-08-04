@@ -11,30 +11,32 @@ requirements:
   - REQ-PROD-008
 open_decisions:
   - OPEN-007
+  - OPEN-008
   - OPEN-013
   - OPEN-015
 ---
+# Cross-product links — Investigate through Phase 4B.2A
 
-# Cross-product links — Investigate Phase 4B.1
+## Phase 4B.1 transitions retained
+Signal→Investigation; Incident→Case; Search/Hunt→Case; Artifact→Evidence; Evidence→Finding; Finding→Action Request; Action Request→Govern; Result→Case; Investigate→Studio remain canonical and ownership-preserving.
 
-| Transition | Source / déclencheur | Destination | Contexte transmis | Ownership | Retour et erreurs |
+## Collection and Live Response
+| Transition | Source / trigger | Destination | Context transmitted | Ownership | Return and errors |
 |---|---|---|---|---|---|
-| Signal → investigation | analyste depuis Signal Triage ; qualification ou pivot | Event Search, Hunt ou Case Lifecycle | tenant, environnement, Signal, Alert éventuel, Detection, Events, Incident, période, raison et return origin | Signal/Alert/Incident restent Command ; Case/Hypothesis futurs restent Investigate | retour exact au Signal ; déduplication conceptuelle avant nouveau Case ; erreur conserve le triage |
-| Incident → Case | utilisateur Command choisit Open in Investigate | Case existant ou nouveau | tenant, environnement, service, Incident, Signal/Alert, objectif initial, période, requester et owner proposé | Incident reste Command ; Case appartient à Investigate | retour vers Incident Detail ; Case inaccessible produit une proposition ou une erreur sans divulgation |
-| Search → Case | sélection de résultats ou Add to Case | Case Workspace / Case Lifecycle | Query et version, paramètres, période, Search Job, résultats sélectionnés, sources, annotations, provenance et Evidence candidates | Event/Query/Search Job restent Shared ; Case reste Investigate | retour à la recherche avec sélection et filtres ; aucun résultat ne devient Evidence automatiquement |
-| Hunt → Case | promotion humaine d’un Hunt | Case existant ou nouveau | question, scope, période, Queries, runs, résultats, Hypotheses, auteurs, statut, conclusion et limites | Hunt workspace et Case restent Investigate ; objets Shared conservés | retour au Hunt ; package sélectif et versionné ; Case inaccessible conserve le Hunt |
-| Artifact → Evidence | analyste qualifie un Artifact ou une autre source | Evidence Creation | Artifact/source, origine, acquisition/import, Case, auteur, raison, transformations, version, provenance et rôle | Artifact et Evidence restent deux objets Investigate distincts | retour à Artifact Detail ; aucune conversion automatique ; échec conserve l’Artifact et un candidat non qualifié |
-| Evidence → Finding | analyste/reviewer crée ou révise une assertion | Finding Management | Evidence favorables et contradictoires, versions, auteur, revue, incertitude, Hypotheses et Case | Evidence et Finding restent Investigate | retour à Evidence Review ; Finding reste draft/proposed jusqu’à confirmation humaine autorisée |
-| Finding → Action Request | Investigation Lead prépare une action | Action Request Preparation | Finding, Evidence, cible, action, impacts technique/opérationnel, urgence, alternatives, conditions, rollback, incertitudes et requester | Finding/Evidence restent Investigate ; Action Request lifecycle appartient à Govern | retour au Finding/Case ; draft conservé si incomplet ; aucune Decision créée |
-| Action Request → Govern | soumission humaine ou workflow autorisé | Govern Review Queue | Action Request version, Case, Findings/Evidence refs, cible, impacts, alternatives, rollback, provenance, permission et return origin | Govern possède request lifecycle, Decision, Approval, Run et Result | retour pour informations vers le même draft ; future Decision liée au Case ; refus ne supprime pas l’historique |
-| Result → Case | Result Govern vérifié ou projeté | Case Workspace / Finding Review | Action Request, Decision, Response Run, Result, statut de vérification, impact, risque résiduel, Findings concernés et prochaine action | Result reste Govern ; relations et réactions analytiques restent Investigate | retour vers Result ou Incident ; Hypotheses peuvent être réévaluées sans modification automatique |
-| Investigate → Studio | utilisateur demande une assistance déployée | Workflow ou Automation Run inspectable | Case ou Query context, version de workflow, permissions, limites, sources et initiateur | Workflow/Agent/Automation Run restent Studio | retour au workspace source avec proposition attribuée ; Tool Calls et run inspectables |
+| Case → Endpoint Context | open linked Endpoint | CAP-INV-201 | tenant, environment, Case, Incident, Endpoint, objectives, return origin | Case Investigate; Fleet/Policy Settings; Agent Endpoint | same Case; unresolved/offline explicit |
+| Endpoint Context → Collection Request | prepare collection | CAP-INV-202 | target, Case, scope, policy, capabilities, class, permissions | Request Investigate | Endpoint Context/Case; draft preserved |
+| Collection Request → Collection Job | submit/accept | CAP-INV-203 | request/version, target, initiator, authority, scope, limits, provenance | business context Investigate; generic Job Shared | Request/Case; no false start |
+| Collection Job → Artifact | successful item | CAP-INV-105 | result, source, acquisition, timestamps, transformations, errors, Case | Artifact Investigate; Job distinct | Job/Case; partials retained |
+| Artifact → Evidence | human qualification | CAP-INV-107 | existing 4B.1 contract | both Investigate, distinct objects | Artifact; no automatic conversion |
+| Case → Live Session | request session | CAP-INV-209 | Case, Endpoint, policy, permissions, reason, class, expiry, participants, return origin | session context Investigate; local execution Agent | Case/Endpoint Context; offline/conflict explicit |
+| Live Session → Endpoint Operation | explicit operation | CAP-INV-210 | session, operation category, target, scope, initiator, authority, trace | operation context Investigate; Agent Command Endpoint | session; denied/policy-blocked explicit |
+| Endpoint Operation → Operation Result | local completion/error | CAP-INV-212 | operation, target, output, errors, files, timestamps, status, provenance | local result context Investigate; not Govern Result | session/Case |
+| Operation Result → Case/Artifact | review/link | CAP-INV-102/105 | result, Artifact, next action, verification, trace | Case/Artifact Investigate | result/session |
+| Finding → Containment Request | prepare endpoint containment | CAP-INV-215 then 113 | Finding, Evidence, Endpoint, action, impact, urgency, alternatives, rollback | Finding/Evidence Investigate; Request lifecycle Govern | Case |
+| Containment Request → Govern | submit | Govern Review Queue | Action Request, class, target, risks, permissions, provenance | Govern owns Decision/Run/Result | same draft/Case on return |
+| Govern Result → Case | verified result | Case Workspace | Decision, Response Run, Result, verification, effect on Finding, next action | Result remains Govern | Result/Incident/Case |
+| Investigate → Studio | request deployed assistance | Workflow/Automation Run | Case/Endpoint/scope, workflow version, permissions, limits, sources | Studio owns Workflow/Run/Tools | source workspace with proposal |
+| Settings → Investigate projection | open from Fleet/Policy/Health | CAP-INV-201 | Endpoint/Agent identity, status, freshness, capabilities, policy reference | Settings owns administration | Settings source or Case |
 
-## Invariants de transition
-
-- tenant, environnement, sélection, filtres et return origin sont conservés ;
-- la permission est réévaluée à l’entrée et au retour ;
-- une transition ne transfère jamais l’ownership des objets source ;
-- une erreur conserve le workspace et les drafts récupérables avec correlation ID ;
-- les sorties automatisées restent des propositions tant qu’une action humaine ou un contrat déterministe autorisé ne les rend pas effectives ;
-- les classes 3 et 4 passent par Govern et ne sont jamais exécutées directement dans Investigate.
+## Invariants
+Tenant, environment, selection and return origin are preserved; permission is reevaluated; projections never transfer ownership; errors preserve drafts with correlation ID; class 3/4 always route through Govern; no endpoint operation output is presented as Govern Result.

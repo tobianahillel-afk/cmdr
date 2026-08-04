@@ -17,98 +17,36 @@ open_decisions:
   - OPEN-013
   - OPEN-015
 ---
+# Automation and AI model — Investigate through Phase 4B.2A
 
-# Automation and AI model — Investigate Phase 4B.1
-
-## Autorité par producteur
-
-| Producteur | Observe | Propose | Modifie Investigate | Confirme Finding | Crée Decision |
+## Authority
+| Producteur | Observe | Propose | Mutate class 2 | Execute class 3/4 | Create Decision |
 |---|---:|---:|---:|---:|---:|
-| Humain autorisé | oui | oui | selon permission et classe | selon rôle et revue | non, Govern |
-| Règle | oui | oui | seulement contrat classe 2 explicite | non | non |
-| Moteur déterministe | oui | oui | validation, liens ou transformation tracée | non | non |
-| Workflow | oui | oui | étapes déployées et permissionnées | non sans humain autorisé | non |
-| Automation Agent | oui | oui | proposal par défaut | non | non |
-| Govern | consomme | retourne statut | lifecycle Action Request | ne confirme pas Finding | oui selon autorité |
+| Authorized human | yes | yes | by permission/policy | only through Govern contract | no |
+| Rule/deterministic engine | yes | yes | only explicit reversible contract | no | no |
+| Workflow | yes | yes | deployed and permissioned only | orchestrates after Govern | no |
+| Automation Agent | yes | yes | proposal by default | no autonomous sensitive action | no |
+| Endpoint Agent | local observe/execute | reports capabilities/results | only authorized operation | executes governed run when contracted | no |
+| Govern | consumes context | returns gate/status | owns authority when required | owns Decision/Response Run | yes |
 
-## Matrice fonctionnelle
+## Phase 4B.2A uses
+| Function | Manual | Deterministic | Automatable | AI possible | No-AI alternative |
+|---|---:|---:|---:|---:|---|
+| Summarize Endpoint state | yes | projection aggregation | yes | attributed summary | raw fields and filters |
+| Propose collection scope/profile | yes | policies/profiles/checklists | yes | editable suggestion | forms and profiles |
+| Detect overbroad scope | yes | validators/limits | yes | explanation | deterministic warnings |
+| Explain error/partial result | yes | error codes/grouping | yes | summary | raw error and inspector |
+| Propose next collection | yes | rules/workflow | yes | suggestion | procedures and analyst judgment |
+| Summarize transcript/results | yes | aggregation | yes | draft | transcript/search/filter |
+| Propose Evidence candidate/Finding draft | yes | source links/checks | yes | proposal only | human qualification/drafting |
+| Prepare containment request | yes | completeness/policy | yes | draft | CAP-INV-215/113 forms |
+| Open session or execute sensitive operation | explicit human/gate | contract only | workflow after authority | never autonomous | manual authorized action |
 
-| Fonction | Humain | Règle | Moteur déterministe | Workflow | Agent | Govern |
-|---|---:|---:|---:|---:|---:|---:|
-| Écrire une Query | oui | templates | validation/autocomplete | préparation répétée | proposition lisible | non |
-| Exécuter une Query | déclenche/arrête | contraintes de scope | parse, plan et run | répétition autorisée | jamais silencieusement si sensible | non normalement |
-| Proposer un pivot | oui | mappings de champs | occurrence/relations | enchaînement autorisé | suggestion expliquée | non |
-| Organiser des résultats | oui | groupements explicites | tri/comparaison | package de promotion | regroupement proposé | non |
-| Créer une Hypothesis | oui | proposition de règle | associations sourcées | collecte d’éléments | `proposed` uniquement | non |
-| Créer une Evidence candidate | oui | conditions explicites | provenance et versioning | prépare un candidat | suggestion uniquement | selon collecte sensible, pas qualification |
-| Qualifier une Evidence | humain autorisé | contrôles de complétude | intégrité/relations | revue structurée | jamais automatique | non par défaut |
-| Préparer un Finding | oui | vérification de références | dépendances/contradictions | brouillon et revue | `draft`/`proposed` | consomme plus tard, ne confirme pas |
-| Confirmer ou contester Finding | reviewer humain | non | contrôles seulement | exige étape humaine | interdit | non ; Govern consomme |
-| Préparer Action Request | oui | checklist/politique | complétude et refs | package et soumission autorisée | brouillon | reçoit et traite |
-| Résumer Case/Timeline | oui | agrégation de faits | sélection versionnée | génération contrôlée | brouillon attribué | non |
-| Préparer Report | oui | templates/redaction rules | citations et versions | revue et export request | brouillon | selon audience/action, pas auteur |
+## Mandatory provenance
+Initiator; producer type/ID/version; Automation Run; Tool Calls; source objects/versions; functional parameters and scope; timestamp/timezone; status/errors; uncertainty; human owner; accept/modify/reject; correlation ID and return origin.
 
-## Usages permis
+## Prohibitions
+No mandatory chatbot; no silent session; no silent sensitive command; no silent scope expansion; no silent Artifact deletion or Evidence qualification; no automatic Finding confirmation; no containment bypass; no self-permission; no hidden Tool Calls or trace removal.
 
-- aide à l’écriture et explication de Query ;
-- proposition de pivot ou regroupement ;
-- Hypothesis proposée ;
-- Evidence candidate ;
-- Finding draft ;
-- brouillon d’Action Request ;
-- résumé de Case ou Timeline ;
-- préparation de rapport et suggestions de redaction.
-
-## Alternatives sans IA
-
-Chaque capability essentielle conserve :
-
-- saisie et revue manuelles ;
-- autocomplete et validation déterministes ;
-- builders, templates et snippets ;
-- règles explicables ;
-- recherches sauvegardées et Query Assets ;
-- filtres, comparaisons et groupements déterministes ;
-- workflows non agentiques ;
-- checklists de qualification, Finding et Action Request.
-
-L’absence de fournisseur de modèle ne change que la disponibilité des suggestions et résumés.
-
-## Provenance obligatoire des sorties automatisées
-
-| Champ | Exigence |
-|---|---|
-| Initiateur | utilisateur, règle, workflow ou événement autorisé |
-| Producteur | type, ID et version du moteur ou agent |
-| Run | Automation Run ou identifiant d’exécution lorsqu’il existe |
-| Tool Calls | outils, paramètres pertinents, résultats et erreurs inspectables |
-| Sources | objets, versions, Query, période et données utilisées |
-| Temps | timestamp, timezone et période couverte |
-| Statut | draft, proposal, accepted, modified, rejected ou failed |
-| Incertitude | confiance ou limites lorsque la méthode le permet |
-| Owner humain | personne ou rôle responsable de la disposition |
-| Trace | correlation ID, audit event et lien vers le workspace source |
-
-## Interdictions
-
-- chatbot central ou obligatoire ;
-- source ou résultat brut caché ;
-- Query sensible ou coûteuse exécutée silencieusement ;
-- Event, Artifact ou Attachment converti automatiquement en Evidence ;
-- Evidence qualifiée ou modifiée sans action autorisée et nouvelle version ;
-- Finding confirmé automatiquement ;
-- Entity fusionnée silencieusement ;
-- Action Request soumise sans contrat et permission ;
-- Decision, Approval ou exécution classe 3/4 créée dans Investigate ;
-- suppression, réécriture ou masquage de provenance ;
-- auto-attribution de permission ;
-- dépendance essentielle à un modèle ou Automation Agent.
-
-## Govern et Human Gate
-
-- Govern reçoit et possède le lifecycle de l’Action Request ;
-- les classes 3 et 4 nécessitent Govern ;
-- OPEN-007 reste ouverte pour la relation exacte Human Gate/Govern ;
-- OPEN-013 reste ouverte pour les actions classe 2 ;
-- OPEN-015 reste ouverte pour le bridge Automation Run/Response Run ;
-- aucune de ces décisions n’est fermée par Phase 4B.1.
+## Govern and Human Gate
+OPEN-007 remains open: Human Gate is not automatically a Govern Decision. OPEN-013 remains open for class 2 defaults. OPEN-015 remains open for Automation Run/Response Run. Absence of an AI provider changes suggestions only, never essential operation.
