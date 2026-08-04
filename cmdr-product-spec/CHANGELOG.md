@@ -1,5 +1,20 @@
 # Changelog
 
+## 2026-08-04 — Phase 4A corrective closure
+
+- Audited all 27 published Command capability specifications against the strict canonical template.
+- Counted 39/162 exact mandatory tables in the initial published state and normalized the remaining 123 table sections.
+- Required exact canonical tables in sections 8, 9, 10, 13, 16 and 17.
+- Added explicit no-mutation rows where a capability only consumes a projection.
+- Preserved every Capability ID, owner, Requirement ID, OPEN decision, delivery status and delivery mode.
+- Kept Incident and operational Task in Command; preserved Investigate, Govern, Studio and Settings ownership boundaries.
+- Kept one Work Queue workspace, one route, six system views and five deprecated migration pointers.
+- Kept Customers and Delivery `proposed`, `planned`, deployment-dependent and linked to OPEN-006.
+- Added the strict conformance report with 27/27 capabilities, 162/162 tables and 75/75 closure gates PASS.
+- Kept requirement coverage at 99 conform, 20 partial, 3 absent and 0 contradictory.
+- Added no screen rewrite, object schema, permission normalization, API, protocol, product code or font.
+- Did not start Phase 4B.
+
 ## 2026-08-04 — Phase 4A Command capabilities
 
 - Replaced the generic capability template with a canonical 27-section specification model.

@@ -20,70 +20,82 @@ requirements:
 
 781 Markdown ; 559 generic skeletons ; 61 Template-level screens ; 57 objects insufficiently formalized ; 461 `À compléter` ; 289 exact repeated placeholders.
 
-## Résultats précédents
+## Results before corrective closure
 
-- Phase 1 : gouvernance et vision PASS.
-- Phase 2 : marque PASS.
-- Phase 3 : Experience Architecture et Design System PASS.
-- Couverture avant Phase 4A : 99 conform, 20 partial, 3 absent, 0 contradictory.
+- Phase 1: PASS.
+- Phase 2: PASS.
+- Phase 3: PASS.
+- Phase 4A functional specification: PARTIAL pending strict table normalization.
+- Requirement coverage: 99 conform, 20 partial, 3 absent, 0 contradictory.
 
-## Périmètre lu Phase 4A
+## Phase 4A source-reading scope
 
-- 142 fichiers accessibles lus intégralement ;
-- 27 fichiers Command actuels lus : 22 actifs et 5 deprecated ;
-- 10 écrans Command actifs lus sans réécriture ;
-- 5 anciens écrans Work Queue relus et laissés deprecated ;
-- 4 chemins d’objets demandés confirmés absents : `service.md`, `exposure.md`, `report.md`, `audit-record.md`.
+- 142 accessible source files read in the functional pass;
+- 27 original Command files read: 22 active and 5 deprecated;
+- 10 active Command screens read without rewrite;
+- 5 legacy Work Queue files kept deprecated;
+- requested object paths confirmed absent: `service.md`, `exposure.md`, `report.md`, `audit-record.md`.
 
-## Mesures Command avant/après
+## Functional Phase 4A measures
 
-| Mesure | Avant Phase 4A | Après Phase 4A |
+| Measure | Before Phase 4A | After corrective closure |
 |---|---:|---:|
-| Fichiers Command totaux | 27 | 69 |
-| Fichiers Command actifs | 22 | 61 |
-| Fichiers Command deprecated | 5 | 8 |
-| Fichiers Command actifs génériques ou Template-level | 19 | 10 |
-| Placeholders `À compléter` actifs dans Command | 19 | 10 |
-| Placeholders dans les documents fonctionnels traités hors écrans | 9 | 0 |
-| Écrans actifs contenant encore le placeholder reporté | 10 | 10 |
-| Capability IDs Command | 0 | 27 |
-| Capabilities enregistrées | 0 | 27 |
-| Capabilities sans owner | N/A | 0 |
-| Capabilities sans utilisateur | N/A | 0 |
-| Capabilities sans entrée | N/A | 0 |
-| Capabilities sans sortie | N/A | 0 |
-| Capabilities sans objet | N/A | 0 |
-| Capabilities sans action classée | N/A | 0 |
-| Capabilities sans alternative non-IA | N/A | 0 |
-| Capabilities sans critères Given/When/Then | N/A | 0 |
-| Delivery mode courant `native` | 0 | 0 |
-| Delivery mode courant `integrated` | 0 | 0 |
-| Delivery mode courant `temporary-integration` | 0 | 0 |
-| Delivery mode courant `planned` | 0 | 27 |
-| Delivery status `defined` | 0 | 26 |
-| Delivery status `proposed` | 0 | 1 |
-| Delivery status `out-of-scope` | 0 | 0 |
-| Dépendances Phase 4A structurées | 0 | 12 |
-| Entrées totales dans le dependency register | 15 | 27 |
-| Sources actives concurrentes connues dans le scope | 2 | 0 |
-| Écrans détaillés réécrits | 0 | 0 |
-| Écrans modifiés | 0 | 0 |
-| Objets modifiés | 0 | 1, Task ownership uniquement |
-| Sources de permissions atomiques modifiées | 0 | 0 |
-| Code produit ajouté | 0 | 0 |
-| APIs ou protocoles créés | 0 | 0 |
-| Fichiers de police ajoutés | 0 | 0 |
-| Nouveaux Requirement IDs | 0 | 0 |
-| Questions ouvertes | 15 | 15 |
-| Nouveaux OPEN | 0 | 0 |
-| Liens locaux introduits cassés | N/A | 0 |
-| Fichiers ciblés vides | N/A | 0 |
+| Command files | 27 | 69 |
+| Active Command files | 22 | 61 |
+| Deprecated Command files | 5 | 8 |
+| Capability IDs | 0 | 27 |
+| Registered capabilities | 0 | 27 |
+| Capabilities without owner | N/A | 0 |
+| Capabilities without users | N/A | 0 |
+| Capabilities without inputs | N/A | 0 |
+| Capabilities without outputs | N/A | 0 |
+| Capabilities without objects | N/A | 0 |
+| Capabilities without classified action | N/A | 0 |
+| Capabilities without no-AI alternative | N/A | 0 |
+| Capabilities without Given/When/Then | N/A | 0 |
+| Current `native` delivery mode | 0 | 0 |
+| Current `integrated` delivery mode | 0 | 0 |
+| Current `temporary-integration` mode | 0 | 0 |
+| Current `planned` delivery mode | 0 | 27 |
+| Functional status `defined` | 0 | 26 |
+| Functional status `proposed` | 0 | 1 |
+| Structured Phase 4A dependencies | 0 | 12 |
+| Active competing owners in scope | 2 | 0 |
+| Detailed screens rewritten | 0 | 0 |
+| Objects changed in corrective closure | 0 | 0 |
+| Atomic permission sources changed | 0 | 0 |
+| Product code added | 0 | 0 |
+| APIs or protocols created | 0 | 0 |
+| Font files added | 0 | 0 |
+| New Requirement IDs | 0 | 0 |
+| Open decisions | 15 | 15 |
+| New OPEN decisions | 0 | 0 |
 
-Les dix fichiers actifs encore génériques sont exclusivement les dix écrans Command existants, volontairement reportés à la phase Écrans. Aucun document de capability, module, registre ou cadre Phase 4A ne conserve un placeholder générique.
+## Corrective template-conformance measures
 
-## Couverture des exigences
+| Measure | Initial published state | Final state |
+|---|---:|---:|
+| Capabilities audited | 27 | 27 |
+| Sections 1–27 present | 729 | 729 |
+| Canonical mandatory tables | 39 / 162 | 162 / 162 |
+| Table sections requiring correction | 123 | 0 |
+| Mandatory sections represented only by prose | 74 | 0 |
+| Mandatory tables with abbreviated headers | 49 | 0 |
+| Empty mandatory tables | 0 | 0 |
+| Capabilities with strict template verdict PASS | 0 / 27 | 27 / 27 |
+| Duplicate Capability IDs | 0 | 0 |
+| Concurrent active owners | 0 | 0 |
+| New functional contradictions | 0 | 0 |
+| Targeted capability/template placeholders | 0 | 0 |
+| Targeted empty files | 0 | 0 |
+| Broken local links introduced | 0 | 0 |
+| Closure gates | PARTIAL | 75 / 75 PASS |
 
-| État | Avant Phase 4A | Après Phase 4A |
+The ten active Command screen templates remain outside the corrective scope and unchanged, because the mission prohibits detailed screen rewriting. No capability, module, template or quality report in the Phase 4A corrective scope contains a generic placeholder.
+
+## Requirement coverage
+
+| State | Before closure | After closure |
 |---|---:|---:|
 | conform | 99 | 99 |
 | partial | 20 | 20 |
@@ -91,22 +103,21 @@ Les dix fichiers actifs encore génériques sont exclusivement les dix écrans C
 | contradictory | 0 | 0 |
 | total | 122 | 122 |
 
-La sous-phase ajoute des preuves Command détaillées sans promouvoir artificiellement les exigences globales qui dépendent encore d’Investigate, Govern, Studio, Settings, Endpoint Agent, Parcours, Objets, Permissions, Technique ou Implémentation.
+Formatting normalization adds quality evidence but does not promote a functional Requirement ID.
 
-## Résolutions Phase 4A
+## Phase 4A final result
 
-- modèle canonique des capabilities à 27 sections ;
-- 27 Capability IDs immuables Command ;
-- Capability Register exploitable ;
-- consolidation `Risk and Coverage` ;
-- Customers and Delivery explicitement proposed et deployment-dependent ;
-- Task opérationnelle alignée sur Command ; Shared Task Inbox reste consommateur ;
-- Work Queue unique et six vues inchangées ;
-- actions classées 0–4 ;
-- alternatives sans IA pour chaque capability ;
-- ownership interproduit explicite ;
-- transitions Command vers Investigate, Govern et Studio spécifiées fonctionnellement.
+- canonical 27-section template with six mandatory tables;
+- 27 immutable Command Capability IDs;
+- 27/27 capabilities conforming;
+- 162/162 mandatory tables present;
+- Capability Register and requirement scores unchanged and coherent;
+- one Work Queue workspace and six system views unchanged;
+- Customers and Delivery remains `proposed`, `planned` and deployment-dependent;
+- all fifteen OPEN decisions remain open; OPEN-009 remains the only resolved historical item;
+- no screen, object, permission catalog, API, protocol, code or font changed;
+- Phase 4B not started.
 
-## Limites
+## Limits
 
-Les écrans, parcours, objets complets, permissions atomiques, contrats techniques et logiciel restent incomplets. La Phase 4B n’est pas commencée.
+Phase 4 global and repository global remain PARTIAL. Investigate, Govern, Studio, Settings, Endpoint Agent, journeys, detailed screens, detailed objects, permissions, technical architecture and implementation remain later work.
