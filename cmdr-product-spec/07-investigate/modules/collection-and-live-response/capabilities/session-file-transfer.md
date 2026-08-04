@@ -15,144 +15,140 @@ requirement_ids:
 open_decisions:
   - OPEN-008
   - OPEN-013
+  - OPEN-014
 source-of-truth: canonical
 ---
 # CAP-INV-211 — Session File Transfer
 
 ## 1. Définition
-Transférer un fichier autorisé vers ou depuis un Endpoint dans une session, sans devenir un mécanisme de déploiement logiciel.
+Envoyer un fichier autorisé vers l’Endpoint ou récupérer un fichier depuis l’Endpoint dans une Live Session, avec classification, vérification, progression et lien Case.
 
 ## 2. Problème utilisateur
-Sans Session File Transfer, l’utilisateur perd le lien entre le Case, l’Endpoint, l’autorité applicable, l’exécution locale et les résultats. Les états partiels ou offline peuvent alors être pris pour un succès et les objets peuvent être confondus.
+Le transfert de session peut être confondu avec acquisition, Attachment ou déploiement logiciel. L’opérateur doit savoir si le fichier est temporaire, collecté comme Artifact ou simplement envoyé comme outil autorisé.
 
 ## 3. Objectifs
-- fournir Live Session, source/destination fonctionnelles, fichier, taille, policy;
-- exposer cible, scope, fraîcheur, policy, permission et classe d’action;
-- conserver erreurs, résultats partiels, provenance et retour au Case;
-- produire transfert, Artifact/result, vérification sans transférer l’ownership.
+- définir direction, source, destination fonctionnelle, taille, type, provenance et finalité
+- vérifier session, Endpoint, policy, permission, classe et collision
+- suivre progression, annulation, vérification et échecs partiels
+- enregistrer correctement Artifact, temporary transfer ou Operation Result sans déploiement implicite
 
 ## 4. Non-objectifs
-- ne pas administrer la Fleet ni les Endpoint Policies;
-- ne pas définir protocole, API, commande, moteur, format, PKI, stockage ou plateforme supportée;
-- ne pas créer automatiquement Evidence, Finding, Decision, Response Run ou Govern Result;
-- ne pas commencer Analysis Workbench.
+Ne pas définir protocole, chemin système exact, mécanisme d’upload/download, déploiement logiciel, package manager ou outil ; ne pas résoudre OPEN-014 ; ne pas qualifier automatiquement Evidence.
 
 ## 5. Propriétaire
-Investigate / Collection and Live Response / Investigate Product Lead possède le contexte métier et les relations au Case. Platform Settings administre Fleet/Policies; Endpoint Agent exécute localement; Govern possède l’autorité risquée.
+Investigate / Collection and Live Response / Investigate Product Lead possède le contexte métier, les drafts et les relations au Case. Platform Settings reste propriétaire de Fleet et Endpoint Policies ; Endpoint Agent exécute et rapporte localement ; Govern conserve l’autorité, Decision, Response Run et Result.
 
 ## 6. Utilisateurs
-Principal : Response Operator / DFIR Analyst. Secondaires : Investigation Lead, Evidence Reviewer, Incident Commander, approbateur Govern ou Platform Administrator en consultation selon la capability.
+Principal : Response Operator ou DFIR Analyst. Secondaires : Case Analyst, Evidence Reviewer et Investigation Lead.
 
 ## 7. Conditions d’entrée
-Tenant et environnement conservés, Case accessible, Endpoint résolu, fraîcheur et capacités visibles, policy projetée, permissions vérifiées et objectif explicite. Une dépendance absente produit un état partial/offline/unsupported, jamais un résultat inventé.
+Live Session active, Case/Endpoint accessibles, fichier/source autorisé, destination fonctionnelle bornée, policy/permission/classe validées, taille/type/provenance disponibles.
 
 ## 8. Entrées fonctionnelles
 | Entrée | Source | Type fonctionnel | Requise | Fraîcheur | Si absente |
-|---|---|---|---:|---|---|
-| Case et objectif | Investigate | contexte métier | oui | version courante | rester draft ou refuser la mutation |
-| Endpoint et état Agent | Platform Settings / Endpoint Agent | cible et disponibilité | oui | dernière communication visible | offline/unknown, aucune exécution présentée |
-| Scope, limites et classe | utilisateur / policy | contrat d’action | oui | validés au déclenchement | incomplete ou policy-blocked |
-| Autorité et permission | Security / Govern | droit et gate | selon classe | snapshot à l’action | denied ou awaiting-approval |
-| Données spécifiques | Live Session, source/destination fonctionnelles, fichier, taille, policy | données locales | selon opération | source/version visibles | résultat partiel explicite |
+|---|---|---|---|---|---|
+| Live Session, Case et Endpoint | Investigate | contexte et cible | oui | états courants | transfert interdit |
+| Direction et finalité | opérateur | upload outil temporaire ou récupération Artifact | oui | confirmées avant transfert | incomplete |
+| Fichier/source, type, taille et provenance | Artifact/Attachment/authorised source | contenu référencé | oui | version courante | validation impossible |
+| Destination fonctionnelle et collision policy | opérateur / policy | scope cible | oui | revalidée au lancement | restricted/collision |
+| Permission, policy et classe | Security / Settings / Govern | gate | oui | snapshot à l’action | denied/awaiting-approval |
 
 ## 9. Objets lus
 | Objet | Propriétaire | Projection utilisée | Droit local |
 |---|---|---|---|
-| Case | Investigate | identité, état, relations, fraîcheur ou autorité nécessaires | consulter et référencer; aucune administration implicite |
-| Endpoint | owner canonique ou concept à formaliser | identité, état, relations, fraîcheur ou autorité nécessaires | consulter et référencer; aucune administration implicite |
-| Live Session | owner canonique ou concept à formaliser | identité, état, relations, fraîcheur ou autorité nécessaires | consulter et référencer; aucune administration implicite |
-| Endpoint Policy | Platform Settings | identité, état, relations, fraîcheur ou autorité nécessaires | consulter et référencer; aucune administration implicite |
-| Artifact | Investigate | identité, état, relations, fraîcheur ou autorité nécessaires | consulter et référencer; aucune administration implicite |
-| Attachment | owner canonique ou concept à formaliser | identité, état, relations, fraîcheur ou autorité nécessaires | consulter et référencer; aucune administration implicite |
+| Live Session | Investigate, modèle futur | participants, statut et Endpoint | consulter/opérer |
+| Artifact | Investigate | source à envoyer ou fichier récupéré | consulter/lier |
+| Attachment | concept ouvert | fichier documentaire éventuel | consulter sans assimilation |
+| Endpoint / Endpoint Agent / Policy | partagé / Agent / Settings | capability et restrictions | consulter |
+| Operation Result | concept futur | progression, vérification et erreurs | consulter/lier |
 
 ## 10. Objets créés ou modifiés
 | Objet | Opération | Propriétaire | Règle |
 |---|---|---|---|
-| Record métier Session File Transfer | créer, mettre à jour ou supersede conceptuellement | Investigate, modèle final à Phase Objets | versionné, Case-scoped, sans machine finale |
-| Artifact ou relation Artifact | créer/lier seulement lorsqu’un résultat matériel existe | Investigate | source et acquisition requises; Artifact ≠ Evidence |
-| Événement métier | émettre vers Trace/Activity/Timeline/Audit Hooks | Shared mechanism, sémantique Investigate | acteur, cible, statut, erreur et correlation ID |
-| Objet externe | aucune mutation administrative ou d’autorité | owner externe | projection uniquement, sauf commande locale autorisée par contrat |
+| Transfer record conceptuel | créer, actualiser, annuler ou supersede | Investigate, modèle futur | direction, finalité, source, destination et class obligatoires |
+| Artifact | créer à récupération explicite | Investigate | source Endpoint, acquisition et Case conservés |
+| Temporary transfer relation | créer puis clôturer | Investigate | ne devient ni Artifact ni deployment automatiquement |
+| Attachment/Deployment/Fleet | aucune mutation implicite | owners respectifs | promotion ou administration séparée |
 
 ## 11. Fonctionnalités
-- upload autorisé; download; annuler; résoudre collision;
-- afficher capacités, limitations, policy, permission, classe, impact et autorité;
-- gérer progression, partial, retry ciblé, cancel, timeout, déconnexion et reprise autorisée;
-- lier les sorties au Case et aux Artifacts;
-- préserver return origin et contexte.
+- distinguer upload d’outil autorisé, récupération d’Artifact, Attachment et transfert temporaire
+- afficher source, destination fonctionnelle, taille, type, provenance, policy et classe
+- confirmer collisions et finalité avant démarrage
+- suivre preparing/transferring/verifying/partial/failed/cancelled
+- lier le résultat au Case et conserver l’Artifact uniquement lorsque requis
 
 ## 12. Actions utilisateur
 | Action | Rôle | Objet | Classe | Précondition | Résultat | Govern |
-|---|---|---|---:|---|---|---|
-| Consulter/inspecter | utilisateur autorisé | contexte et projections | 0 | read permission | vue sourcée et fraîcheur visible | non |
-| Préparer ou lancer collecte bornée | analyste autorisé | request/job concept | 1 | scope, policy et capacité | demande ou exécution non destructive | selon impact |
-| Modifier ou interrompre réversiblement | opérateur autorisé | session/opération/record | 2 | rollback/permission | transition auditée | OPEN-013 selon policy |
-| Préparer containment | Investigation Lead | Action Request | 3 | Finding/Evidence/impact/rollback | demande vers CAP-INV-113/Govern | obligatoire |
-| Préparer irréversible | Investigation Lead | Action Request | 4 | justification et alternatives | contexte seulement | obligatoire |
+|---|---|---|---|---|---|---|
+| Préparer récupération | DFIR Analyst | transfer draft | 1 | session active, source autorisée | ready | non normalement |
+| Préparer upload temporaire | Response Operator | transfer draft | 2 | outil autorisé, destination/cleanup | ready | OPEN-013 selon policy |
+| Confirmer collision | Response Operator | transfer | 2 | collision détectée et options permises | choix audité | OPEN-013 |
+| Annuler | Response Operator | transfer | 2 | cancellable | cancelled/partial | selon policy |
+| Enregistrer comme Artifact | Case Analyst | Artifact | 1/2 | récupération, provenance complète | Artifact lié | non automatique |
 
 ## 13. Automatisation et IA
 | Fonction | Manuel | Déterministe | Automatisable | IA possible | Alternative sans IA |
-|---|---:|---:|---:|---:|---|
-| Construire scope/checklist | oui | profiles et règles | oui | suggestion modifiable | formulaire et profiles déterministes |
-| Valider policy/capacité | oui | oui | oui | explication facultative | validateur et inventaire de capacités |
-| Suivre progression/erreurs | oui | oui | oui | résumé | états et résultats bruts inspectables |
-| Proposer prochaine action | oui | règles/workflow | oui | proposition attribuée | expertise humaine et procédures |
-| Exécuter action sensible | humain explicite | contrat autorisé | workflow possible | jamais autonome | action humaine/Govern |
+|---|---|---|---|---|---|
+| Détecter collision/type/taille | oui | validateurs | oui | explication | contrôles déterministes |
+| Proposer finalité | oui | règles | oui | suggestion | sélection manuelle |
+| Suivre progression | oui | états déterministes | oui | résumé | progression brute |
+| Proposer cleanup | oui | policy/catalogue | oui | suggestion | checklist |
+| Transformer en Artifact/Evidence | humain explicite | règles de promotion | workflow possible | jamais automatique | CAP-INV-105/107 |
 
-Toute sortie automatisée expose initiateur, moteur ou agent, version, Automation Run, Tool Calls, sources, paramètres fonctionnels, timestamp, statut, incertitude, owner humain, accept/modify/reject et trace.
+Toute sortie automatisée expose initiateur, producteur/version, Automation Run et Tool Calls lorsqu’ils existent, sources, paramètres fonctionnels, timestamp, statut, incertitude, owner humain, acceptation/modification/rejet et trace.
 
 ## 14. États fonctionnels
-`preparing`, `transferring`, `verifying`, `completed`, `partial`, `failed`, `cancelled`, `collision`, `restricted`. Ces dimensions sont Draft et ne finalisent aucune machine d’état objet.
+`preparing`, `transferring`, `verifying`, `completed`, `partial`, `failed`, `cancelled`, `collision`, `restricted`. Machine finale reportée.
 
 ## 15. États d’interface
-Loading conserve Case et cible; Empty distingue absence de capacité et absence de résultat; Partial détaille les éléments réussis/échoués; Error préserve les données valides; Offline interdit toute présentation d’exécution démarrée; Permission denied ne révèle rien; Stale expose la dernière synchronisation.
+Loading conserve source/destination ; Empty distingue aucun fichier et permission ; Partial affiche octets/éléments reçus sans succès global ; Error garde l’Artifact reçu ; Offline n’indique pas completed ; Permission denied masque contenus ; Stale exige revalidation.
 
 ## 16. Sorties
 | Sortie | Objet ou événement | Consommateur | Garantie |
 |---|---|---|---|
-| Transfert, Artifact/result, vérification | record, relation ou événement métier | Case Workspace et capabilities dépendantes | cible, scope, acteur, statut, erreurs et version visibles |
-| Artifact éventuel | Artifact Investigate | CAP-INV-105 puis CAP-INV-107 | source/acquisition conservées; aucune Evidence automatique |
-| Progression et notification | Background Job/Notification projection | utilisateur et Case | succès partiels et échecs non masqués |
-| Trace/provenance | événements métier | CAP-INV-110/112/214 et audit | correlation IDs, producteurs et corrections conservés |
+| Transfer status/result | record conceptuel | Live Session/CAP-INV-212 | direction, finalité, progression, verification et errors |
+| Recovered Artifact | Artifact | CAP-INV-105/107 | source Endpoint et acquisition conservées |
+| Temporary upload record | relation/event | Session/Trace | cleanup/finalité visibles, pas de deployment |
+| Collision/cancel event | business event | Timeline/Notifications | choix, acteur et résultat |
 
 ## 17. Transitions
 | Source | Déclencheur | Destination | Contexte transmis | Retour |
 |---|---|---|---|---|
-| Case Workspace | ouvrir activité endpoint | Endpoint Context / capability courante | tenant, environnement, Case, Incident, Endpoint, objectif, return origin | même Case et position |
-| Endpoint Context | préparer/lancer | Collection Request, Job, Live Session ou opération | cible, capacités, policy, permission, classe, limites | Endpoint Context |
-| Exécution locale | résultat/erreur | Operation Result / Artifact Management | opération, output, erreurs, fichiers, timestamps, provenance | Case ou session |
-| Artifact | qualification humaine | CAP-INV-107 Evidence Creation | source, acquisition, Case, raison, transformations | Artifact |
-| Finding/action risquée | préparer demande | CAP-INV-113 puis Govern | Finding, Evidence, Endpoint, impact, alternatives, rollback | Case avec projection Govern |
+| Live Session | préparer transfert | CAP-INV-211 | session, Endpoint, direction, source, destination, policy | Live Session |
+| CAP-INV-211 | démarrer | Endpoint Agent | transfer context, class, authority, limits | CAP-INV-211/Session |
+| Récupération terminée | enregistrer Artifact | CAP-INV-105 | file, source, acquisition, verification, errors | CAP-INV-211 |
+| Transfer result | revoir | CAP-INV-212 | status, output, errors, Artifact/temp relation | Live Session/Case |
 
 ## 18. Dépendances
-CAP-INV-102, 105, 107, 108, 110, 112, 113; Platform Settings Fleet/Policies/Health; Endpoint Agent capabilities; Shared Background Jobs, Notifications, Trace, Timeline, Inspector, Context Bar, Linking, Export et recovery; Govern; Studio optional; décisions ouvertes listées au front matter.
+CAP-INV-105/107/209/212/213/214, Endpoint Agent transfer, Settings Policy, Shared Jobs/Preview/Trace, OPEN-008/013/014.
 
 ## 19. Source de vérité
-Investigate est source du contexte métier et des relations Case. Platform Settings reste source de Fleet/Policy; Endpoint Agent de son état, commandes et résultats locaux; Govern de Decision/Response Run/Result; Studio d’Automation Run/Tool Calls; Shared des mécanismes génériques.
+Investigate possède le record métier et l’Artifact récupéré. Endpoint Agent reste source de l’exécution locale. Attachment reste ouvert sous OPEN-014 ; deployment et Fleet restent hors Investigate.
 
 ## 20. Provenance et audit
-Case, Endpoint, Agent, policy/version, initiateur, permission, classe, scope, paramètres fonctionnels, autorité, timestamps, transitions, erreurs, résultats partiels, fichiers, Artifacts, Automation Run/Tool Calls, Action Request/Decision/Run/Result et disposition humaine.
+Case, session, Endpoint/Agent, direction, finalité, source/version, destination fonctionnelle, type/taille, policy, initiateur, progress, collision, verification, Artifact/temp relation et correlation IDs.
 
 ## 21. Permissions fonctionnelles
-Endpoint read, capability read, collection prepare/submit/cancel/retry, raw result read, Artifact receive/export, Live Session request/open/join/extend/close, operation execute/interrupt, file transfer, inspection, memory/network request, containment request, sensitive output, cross-tenant/environment, transcript read, result verify et custody review selon la capability. Step-up, séparation des tâches et matrice atomique sont reportés.
+File download/upload, Artifact read/create/export, session operation, sensitive content, collision override, cross-tenant/environment et step-up pour upload.
 
 ## 22. Limites et erreurs
-Endpoint offline/stale/unsupported, Agent absent ou degraded, policy blocked, scope trop large, permission révoquée, timeout, déconnexion, conflit de session, résultat partiel, fichier manquant/verrouillé, cible changée, Govern indisponible ou tenant mismatch. Aucun retry ne duplique silencieusement l’effet.
+Fichier absent/verrouillé, source stale, type/taille interdits, collision, destination restricted, partial transfer, disconnect, cleanup non confirmé ou permission révoquée. Aucun software deployment implicite.
 
 ## 23. Métriques
-Temps de préparation et d’exécution, demandes bloquées par capacité/policy, résultats partiels, retries ciblés, annulations, déconnexions, Artifacts avec origine complète, opérations avec provenance complète, erreurs par catégorie et retours Case réussis.
+Transfers par direction/finalité, collision/partial/failure, cancellations, verified transfers, Artifacts créés et temporary uploads clôturés.
 
 ## 24. Classification de livraison
-`defined` / `planned`. Cible native via Endpoint Agent, mais aucune plateforme, moteur, protocole, commande, API ou release n’est prouvée. Promotion conditionnée par OPEN-008, objets, permissions, contrats d’autorité, preuve d’implémentation et validation.
+`defined` / `planned`. Aucun protocole, path exact, outil, package ou deployment mechanism n’est déclaré.
 
 ## 25. Critères d’acceptation
-**Given** un Case, un Endpoint disponible et un utilisateur autorisé **When** il utilise Session File Transfer **Then** cible, scope, policy, classe, progression, résultat et retour au Case sont visibles sans transfert d’ownership.
+**Given** un fichier autorisé à récupérer **When** le transfert se termine **Then** progression, vérification, erreurs et Artifact source sont visibles sans qualification Evidence automatique.
 
-**Given** un Endpoint offline, unsupported ou une permission refusée **When** l’action est demandée **Then** aucune exécution n’est présentée comme démarrée, l’état et les options sûres sont explicites et le Case reste accessible.
+**Given** un upload temporaire **When** l’opérateur le prépare **Then** finalité, destination, classe et cleanup attendu sont visibles et il n’est pas présenté comme deployment.
 
-**Given** aucun fournisseur de modèle **When** le workflow est exécuté **Then** formulaires, profiles, règles, validateurs, Jobs, revue et actions humaines permettent le résultat essentiel.
+**Given** aucun modèle IA **When** un transfert est préparé **Then** formulaire, validateurs, confirmation de collision et suivi déterministe suffisent.
 
 ## 26. Questions ouvertes
-OPEN-008 conserve les plateformes; OPEN-013 la gouvernance classe 2; OPEN-007 Human Gate/Govern; OPEN-015 Automation Run/Response Run; OPEN-005 les moteurs forensics futurs lorsque référencé. Les objets et permissions détaillés restent à leurs phases.
+OPEN-008, OPEN-013 et OPEN-014 restent ouvertes. Les chemins, protocoles, cleanup technique et identité Attachment/Artifact restent hors phase.
 
 ## 27. Consommateurs documentaires
-Module Collection and Live Response, Case Workspace, Evidence Board, Platform Settings Fleet/Policies/Health, Govern Action Center et Runs, parcours Endpoint investigation/containment/offline recovery, phases Objets/Permissions/Technique et future Phase 4B.2B uniquement comme handoff Artifact.
+Live Session, Result Handling, Artifact/Evidence, Custody, Provenance, Endpoint Agent transfer, Shared Preview/Export et phases Objets/Permissions.

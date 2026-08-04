@@ -20,139 +20,134 @@ source-of-truth: canonical
 # CAP-INV-212 — Endpoint Operation Result Handling
 
 ## 1. Définition
-Recevoir, inspecter, vérifier et relier le résultat local d’une opération sans le confondre avec Artifact, Evidence, Finding ou Govern Result.
+Recevoir, inspecter, vérifier, contester et relier le résultat local d’une opération endpoint sans le confondre avec Artifact, Evidence, Finding ou Govern Result.
 
 ## 2. Problème utilisateur
-Sans Endpoint Operation Result Handling, l’utilisateur perd le lien entre le Case, l’Endpoint, l’autorité applicable, l’exécution locale et les résultats. Les états partiels ou offline peuvent alors être pris pour un succès et les objets peuvent être confondus.
+Une sortie de commande ou un statut local peut être incomplet, non vérifié ou contradictoire. Le Case doit conserver la différence entre output, Operation Result, Artifact, Evidence, Finding et Result d’un Response Run Govern.
 
 ## 3. Objectifs
-- fournir opération source, Endpoint, Case, sorties, erreurs, fichiers;
-- exposer cible, scope, fraîcheur, policy, permission et classe d’action;
-- conserver erreurs, résultats partiels, provenance et retour au Case;
-- produire Operation Result revu, Artifact/Evidence links sans transférer l’ownership.
+- afficher opération source, Endpoint, Case, initiateur, autorité et timestamps
+- séparer statut, output, errors, éléments partiels, fichiers et Artifacts
+- permettre vérification, contestation, supersession et nouvelle opération
+- lier à Evidence/Finding/Govern/Command sans promotion automatique
 
 ## 4. Non-objectifs
-- ne pas administrer la Fleet ni les Endpoint Policies;
-- ne pas définir protocole, API, commande, moteur, format, PKI, stockage ou plateforme supportée;
-- ne pas créer automatiquement Evidence, Finding, Decision, Response Run ou Govern Result;
-- ne pas commencer Analysis Workbench.
+Ne pas créer ou posséder Govern Result, confirmer Finding, qualifier Evidence automatiquement, définir format d’output ou protocole ; ne pas transformer stdout/stderr en résultat vérifié.
 
 ## 5. Propriétaire
-Investigate / Collection and Live Response / Investigate Product Lead possède le contexte métier et les relations au Case. Platform Settings administre Fleet/Policies; Endpoint Agent exécute localement; Govern possède l’autorité risquée.
+Investigate / Collection and Live Response / Investigate Product Lead possède le contexte métier, les drafts et les relations au Case. Platform Settings reste propriétaire de Fleet et Endpoint Policies ; Endpoint Agent exécute et rapporte localement ; Govern conserve l’autorité, Decision, Response Run et Result.
 
 ## 6. Utilisateurs
-Principal : Case Analyst / Response Operator. Secondaires : Investigation Lead, Evidence Reviewer, Incident Commander, approbateur Govern ou Platform Administrator en consultation selon la capability.
+Principal : Case Analyst ou Response Operator. Secondaires : Evidence Reviewer, Investigation Lead, Incident Commander et reviewer Govern.
 
 ## 7. Conditions d’entrée
-Tenant et environnement conservés, Case accessible, Endpoint résolu, fraîcheur et capacités visibles, policy projetée, permissions vérifiées et objectif explicite. Une dépendance absente produit un état partial/offline/unsupported, jamais un résultat inventé.
+Operation/Agent Command identifiable, Endpoint/Case liés, output/status/errors/timestamps disponibles ou lacunes explicites, permissions de raw/sensitive result et provenance accessibles.
 
 ## 8. Entrées fonctionnelles
 | Entrée | Source | Type fonctionnel | Requise | Fraîcheur | Si absente |
-|---|---|---|---:|---|---|
-| Case et objectif | Investigate | contexte métier | oui | version courante | rester draft ou refuser la mutation |
-| Endpoint et état Agent | Platform Settings / Endpoint Agent | cible et disponibilité | oui | dernière communication visible | offline/unknown, aucune exécution présentée |
-| Scope, limites et classe | utilisateur / policy | contrat d’action | oui | validés au déclenchement | incomplete ou policy-blocked |
-| Autorité et permission | Security / Govern | droit et gate | selon classe | snapshot à l’action | denied ou awaiting-approval |
-| Données spécifiques | opération source, Endpoint, Case, sorties, erreurs, fichiers | données locales | selon opération | source/version visibles | résultat partiel explicite |
+|---|---|---|---|---|---|
+| Endpoint Operation et source command | Investigate / Endpoint Agent | origine du résultat | oui | version/statut courants | result orphaned/incomplete |
+| Case, Endpoint et initiateur | owners respectifs | contexte et responsabilité | oui | relations courantes | review limitée |
+| Output, errors, files et partial items | Endpoint Agent | contenu local | selon opération | timestamps visibles | incomplete |
+| Decision/Response Run éventuels | Govern | autorité gouvernée | non | version/statut visibles | Operation Result non Govern |
+| Verification context | reviewer / telemetry | contrôle indépendant | non | source/time visibles | received non verified |
 
 ## 9. Objets lus
 | Objet | Propriétaire | Projection utilisée | Droit local |
 |---|---|---|---|
-| Case | Investigate | identité, état, relations, fraîcheur ou autorité nécessaires | consulter et référencer; aucune administration implicite |
-| Endpoint | owner canonique ou concept à formaliser | identité, état, relations, fraîcheur ou autorité nécessaires | consulter et référencer; aucune administration implicite |
-| Agent Command | Endpoint Agent | identité, état, relations, fraîcheur ou autorité nécessaires | consulter et référencer; aucune administration implicite |
-| Endpoint Operation concept | owner canonique ou concept à formaliser | identité, état, relations, fraîcheur ou autorité nécessaires | consulter et référencer; aucune administration implicite |
-| Operation Result concept | owner canonique ou concept à formaliser | identité, état, relations, fraîcheur ou autorité nécessaires | consulter et référencer; aucune administration implicite |
-| Artifact | Investigate | identité, état, relations, fraîcheur ou autorité nécessaires | consulter et référencer; aucune administration implicite |
+| Endpoint Operation / Agent Command | Investigate concept / Endpoint Agent | scope, class, initiator et status | consulter |
+| Case / Endpoint | Investigate / partagé | contexte et relations | consulter/lier |
+| Artifact / Evidence / Finding | Investigate | sorties et qualifications | consulter/lier selon permission |
+| Decision / Response Run / Result | Govern | autorité et résultat canonique éventuels | consulter uniquement |
+| Automation Run / Tool Call | Studio | provenance éventuelle | consulter uniquement |
 
 ## 10. Objets créés ou modifiés
 | Objet | Opération | Propriétaire | Règle |
 |---|---|---|---|
-| Record métier Endpoint Operation Result Handling | créer, mettre à jour ou supersede conceptuellement | Investigate, modèle final à Phase Objets | versionné, Case-scoped, sans machine finale |
-| Artifact ou relation Artifact | créer/lier seulement lorsqu’un résultat matériel existe | Investigate | source et acquisition requises; Artifact ≠ Evidence |
-| Événement métier | émettre vers Trace/Activity/Timeline/Audit Hooks | Shared mechanism, sémantique Investigate | acteur, cible, statut, erreur et correlation ID |
-| Objet externe | aucune mutation administrative ou d’autorité | owner externe | projection uniquement, sauf commande locale autorisée par contrat |
+| Operation Result record conceptuel | créer, vérifier, contester ou supersede | Investigate, modèle futur ; source Agent | distinct de Govern Result |
+| Artifact relation | créer/lier pour fichier ou capture matérialisée | Investigate | source operation/result obligatoire |
+| Evidence candidate relation | proposer | Investigate | qualification CAP-INV-107/108 obligatoire |
+| Finding/Govern/Command relation | créer/supersede | owners respectifs / Linking | aucune mutation automatique des objets sources |
 
 ## 11. Fonctionnalités
-- inspecter; vérifier; contester; relancer;
-- afficher capacités, limitations, policy, permission, classe, impact et autorité;
-- gérer progression, partial, retry ciblé, cancel, timeout, déconnexion et reprise autorisée;
-- lier les sorties au Case et aux Artifacts;
-- préserver return origin et contexte.
+- afficher source operation, target, initiator, authority, timestamps et duration
+- présenter output, errors, partial items et files séparément
+- marquer received, incomplete, under-review, verified, disputed ou superseded
+- créer/lier un Artifact et proposer une Evidence candidate
+- demander une nouvelle opération ou transmettre le contexte à Govern/Command
 
 ## 12. Actions utilisateur
 | Action | Rôle | Objet | Classe | Précondition | Résultat | Govern |
-|---|---|---|---:|---|---|---|
-| Consulter/inspecter | utilisateur autorisé | contexte et projections | 0 | read permission | vue sourcée et fraîcheur visible | non |
-| Préparer ou lancer collecte bornée | analyste autorisé | request/job concept | 1 | scope, policy et capacité | demande ou exécution non destructive | selon impact |
-| Modifier ou interrompre réversiblement | opérateur autorisé | session/opération/record | 2 | rollback/permission | transition auditée | OPEN-013 selon policy |
-| Préparer containment | Investigation Lead | Action Request | 3 | Finding/Evidence/impact/rollback | demande vers CAP-INV-113/Govern | obligatoire |
-| Préparer irréversible | Investigation Lead | Action Request | 4 | justification et alternatives | contexte seulement | obligatoire |
+|---|---|---|---|---|---|---|
+| Lire output/errors | utilisateur autorisé | Operation Result | 0 | raw/sensitive read | vue sourcée | non |
+| Vérifier | reviewer | verification status | 2 | contrôle et raison | verified ou incomplete | OPEN-013 |
+| Contester/supersede | reviewer | Operation Result | 2 | grounds/nouvelle source | historique conservé | OPEN-013 |
+| Créer/lier Artifact | Case Analyst | Artifact | 1/2 | sortie matérielle et provenance | Artifact lié | non |
+| Proposer Evidence/nouvelle opération | Evidence Reviewer | candidate/request | 1/2 | raison et permissions | handoff CAP-INV-107/202 | selon impact |
 
 ## 13. Automatisation et IA
 | Fonction | Manuel | Déterministe | Automatisable | IA possible | Alternative sans IA |
-|---|---:|---:|---:|---:|---|
-| Construire scope/checklist | oui | profiles et règles | oui | suggestion modifiable | formulaire et profiles déterministes |
-| Valider policy/capacité | oui | oui | oui | explication facultative | validateur et inventaire de capacités |
-| Suivre progression/erreurs | oui | oui | oui | résumé | états et résultats bruts inspectables |
-| Proposer prochaine action | oui | règles/workflow | oui | proposition attribuée | expertise humaine et procédures |
-| Exécuter action sensible | humain explicite | contrat autorisé | workflow possible | jamais autonome | action humaine/Govern |
+|---|---|---|---|---|---|
+| Regrouper output/errors | oui | par statut/type | oui | résumé | filtres bruts |
+| Expliquer une erreur | oui | catalogue | oui | oui | message déterministe |
+| Proposer Artifact/Evidence candidate | oui | règles explicites | oui | suggestion | sélection humaine |
+| Comparer avec vérification | oui | diff/checks | oui | résumé | inspection manuelle |
+| Marquer verified/Evidence/Finding | humain autorisé | contrôles seulement | workflow de revue | jamais autonome | revue humaine |
 
-Toute sortie automatisée expose initiateur, moteur ou agent, version, Automation Run, Tool Calls, sources, paramètres fonctionnels, timestamp, statut, incertitude, owner humain, accept/modify/reject et trace.
+Toute sortie automatisée expose initiateur, producteur/version, Automation Run et Tool Calls lorsqu’ils existent, sources, paramètres fonctionnels, timestamp, statut, incertitude, owner humain, acceptation/modification/rejet et trace.
 
 ## 14. États fonctionnels
-`received`, `incomplete`, `under-review`, `verified`, `disputed`, `superseded`, `linked-to-artifact`, `linked-to-evidence`. Ces dimensions sont Draft et ne finalisent aucune machine d’état objet.
+`received`, `incomplete`, `under-review`, `verified`, `disputed`, `superseded`, `linked-to-artifact`, `linked-to-evidence`. Machine finale reportée.
 
 ## 15. États d’interface
-Loading conserve Case et cible; Empty distingue absence de capacité et absence de résultat; Partial détaille les éléments réussis/échoués; Error préserve les données valides; Offline interdit toute présentation d’exécution démarrée; Permission denied ne révèle rien; Stale expose la dernière synchronisation.
+Loading conserve operation/Case ; Empty distingue aucun output et redaction ; Partial affiche chaque item ; Error garde les sorties valides ; Offline n’altère pas le statut terminal ; Permission denied masque le contenu ; Stale expose versions/supersession.
 
 ## 16. Sorties
 | Sortie | Objet ou événement | Consommateur | Garantie |
 |---|---|---|---|
-| Operation Result revu, Artifact/Evidence links | record, relation ou événement métier | Case Workspace et capabilities dépendantes | cible, scope, acteur, statut, erreurs et version visibles |
-| Artifact éventuel | Artifact Investigate | CAP-INV-105 puis CAP-INV-107 | source/acquisition conservées; aucune Evidence automatique |
-| Progression et notification | Background Job/Notification projection | utilisateur et Case | succès partiels et échecs non masqués |
-| Trace/provenance | événements métier | CAP-INV-110/112/214 et audit | correlation IDs, producteurs et corrections conservés |
+| Operation Result | record conceptuel | Case Workspace/Live Session | source, status, output, errors et verification visibles |
+| Artifact relation | Artifact | CAP-INV-105/107 | source operation/result conservée |
+| Evidence candidate | relation | CAP-INV-107/108 | aucune qualification automatique |
+| Govern/Command handoff | context package | CAP-INV-113/Command | Operation Result reste distinct de Govern Result |
 
 ## 17. Transitions
 | Source | Déclencheur | Destination | Contexte transmis | Retour |
 |---|---|---|---|---|
-| Case Workspace | ouvrir activité endpoint | Endpoint Context / capability courante | tenant, environnement, Case, Incident, Endpoint, objectif, return origin | même Case et position |
-| Endpoint Context | préparer/lancer | Collection Request, Job, Live Session ou opération | cible, capacités, policy, permission, classe, limites | Endpoint Context |
-| Exécution locale | résultat/erreur | Operation Result / Artifact Management | opération, output, erreurs, fichiers, timestamps, provenance | Case ou session |
-| Artifact | qualification humaine | CAP-INV-107 Evidence Creation | source, acquisition, Case, raison, transformations | Artifact |
-| Finding/action risquée | préparer demande | CAP-INV-113 puis Govern | Finding, Evidence, Endpoint, impact, alternatives, rollback | Case avec projection Govern |
+| Endpoint Agent/Operation | résultat reçu | CAP-INV-212 | operation, target, output, errors, files, timestamps, status, provenance | Live Session/Case |
+| CAP-INV-212 | materialiser output | CAP-INV-105 | file/capture, source, acquisition, result status | CAP-INV-212 |
+| CAP-INV-212 | qualifier candidate | CAP-INV-107/108 | Artifact/result, Case, reason, verification | CAP-INV-212 |
+| CAP-INV-212 | demander action ou informer | CAP-INV-202/113 ou Command | result, verification, next action, trace | Case |
 
 ## 18. Dépendances
-CAP-INV-102, 105, 107, 108, 110, 112, 113; Platform Settings Fleet/Policies/Health; Endpoint Agent capabilities; Shared Background Jobs, Notifications, Trace, Timeline, Inspector, Context Bar, Linking, Export et recovery; Govern; Studio optional; décisions ouvertes listées au front matter.
+CAP-INV-105/107/108/109/113/203/209/210/211/214, Endpoint Agent result reporting, Govern Result, Studio provenance, Shared Linking/Trace et OPEN-013/015.
 
 ## 19. Source de vérité
-Investigate est source du contexte métier et des relations Case. Platform Settings reste source de Fleet/Policy; Endpoint Agent de son état, commandes et résultats locaux; Govern de Decision/Response Run/Result; Studio d’Automation Run/Tool Calls; Shared des mécanismes génériques.
+Endpoint Agent reste source de l’output local déclaré. Investigate possède le record de revue, les relations Artifact/Evidence/Case et la disposition analytique. Govern reste source de son Result canonique.
 
 ## 20. Provenance et audit
-Case, Endpoint, Agent, policy/version, initiateur, permission, classe, scope, paramètres fonctionnels, autorité, timestamps, transitions, erreurs, résultats partiels, fichiers, Artifacts, Automation Run/Tool Calls, Action Request/Decision/Run/Result et disposition humaine.
+Case, Endpoint/Agent, operation/command, initiator, policy/authority, start/end/duration, output/errors/files, partial items, reviewer, verification/dispute, Artifact/Evidence relations, Automation/Govern refs et correlation IDs.
 
 ## 21. Permissions fonctionnelles
-Endpoint read, capability read, collection prepare/submit/cancel/retry, raw result read, Artifact receive/export, Live Session request/open/join/extend/close, operation execute/interrupt, file transfer, inspection, memory/network request, containment request, sensitive output, cross-tenant/environment, transcript read, result verify et custody review selon la capability. Step-up, séparation des tâches et matrice atomique sont reportés.
+Raw/sensitive result read, transcript read, result verify/dispute, Artifact create/link, Evidence candidate, Finding link et cross-tenant restrictions. Separation of duties reportée.
 
 ## 22. Limites et erreurs
-Endpoint offline/stale/unsupported, Agent absent ou degraded, policy blocked, scope trop large, permission révoquée, timeout, déconnexion, conflit de session, résultat partiel, fichier manquant/verrouillé, cible changée, Govern indisponible ou tenant mismatch. Aucun retry ne duplique silencieusement l’effet.
+Output absent/truncated/redacted, result late/duplicate, operation interrupted, disconnect, source command inaccessible, verification contradictoire, Artifact corrupt ou permission retirée. Output ≠ verified result.
 
 ## 23. Métriques
-Temps de préparation et d’exécution, demandes bloquées par capacité/policy, résultats partiels, retries ciblés, annulations, déconnexions, Artifacts avec origine complète, opérations avec provenance complète, erreurs par catégorie et retours Case réussis.
+Results received/incomplete/verified/disputed, output truncation, Artifact/Evidence candidate rates, time to review et Operation Results incorrectly linked to Govern Result cible zéro.
 
 ## 24. Classification de livraison
-`defined` / `planned`. Cible native via Endpoint Agent, mais aucune plateforme, moteur, protocole, commande, API ou release n’est prouvée. Promotion conditionnée par OPEN-008, objets, permissions, contrats d’autorité, preuve d’implémentation et validation.
+`defined` / `planned`. Aucun format de résultat, stockage, protocol ou verification engine n’est choisi.
 
 ## 25. Critères d’acceptation
-**Given** un Case, un Endpoint disponible et un utilisateur autorisé **When** il utilise Endpoint Operation Result Handling **Then** cible, scope, policy, classe, progression, résultat et retour au Case sont visibles sans transfert d’ownership.
+**Given** une opération Live Response terminée sans Response Run **When** l’utilisateur consulte la sortie **Then** elle est présentée comme Endpoint Operation Result, pas comme Govern Result, et peut produire un Artifact.
 
-**Given** un Endpoint offline, unsupported ou une permission refusée **When** l’action est demandée **Then** aucune exécution n’est présentée comme démarrée, l’état et les options sûres sont explicites et le Case reste accessible.
+**Given** un résultat partiel **When** le reviewer l’ouvre **Then** output, erreurs et éléments manquants restent distincts et aucun succès complet n’est affiché.
 
-**Given** aucun fournisseur de modèle **When** le workflow est exécuté **Then** formulaires, profiles, règles, validateurs, Jobs, revue et actions humaines permettent le résultat essentiel.
+**Given** aucun modèle IA **When** le résultat est revu **Then** output brut, filtres, checks et disposition humaine permettent le workflow.
 
 ## 26. Questions ouvertes
-OPEN-008 conserve les plateformes; OPEN-013 la gouvernance classe 2; OPEN-007 Human Gate/Govern; OPEN-015 Automation Run/Response Run; OPEN-005 les moteurs forensics futurs lorsque référencé. Les objets et permissions détaillés restent à leurs phases.
+OPEN-013 conserve la gouvernance de verification/supersession ; OPEN-015 le bridge Automation Run/Response Run. L’objet Operation Result et son lifecycle final restent à la phase Objets.
 
 ## 27. Consommateurs documentaires
-Module Collection and Live Response, Case Workspace, Evidence Board, Platform Settings Fleet/Policies/Health, Govern Action Center et Runs, parcours Endpoint investigation/containment/offline recovery, phases Objets/Permissions/Technique et future Phase 4B.2B uniquement comme handoff Artifact.
+Live Session, Collection Job, Artifact/Evidence/Finding, Case Timeline/Replay, Govern/Command handoffs, Endpoint Agent result reporting et phases Objets/Permissions.

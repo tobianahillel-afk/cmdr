@@ -22,139 +22,134 @@ source-of-truth: canonical
 # CAP-INV-209 — Live Session Management
 
 ## 1. Définition
-Demander, ouvrir, superviser, reconnecter et fermer une Live Session visible et Case-scoped.
+Demander, ouvrir, rejoindre, superviser, suspendre, reconnecter et fermer une Live Session visible, Case-scoped et limitée dans le temps.
 
 ## 2. Problème utilisateur
-Sans Live Session Management, l’utilisateur perd le lien entre le Case, l’Endpoint, l’autorité applicable, l’exécution locale et les résultats. Les états partiels ou offline peuvent alors être pris pour un succès et les objets peuvent être confondus.
+Une session invisible ou assimilée à un terminal, une Automation Run ou un Response Run rend l’autorité et les actions impossibles à auditer. Chaque participant doit connaître la cible, la policy, l’expiration et l’état réel de connexion.
 
 ## 3. Objectifs
-- fournir Case, Endpoint, raison, participants, policy, permission, expiration;
-- exposer cible, scope, fraîcheur, policy, permission et classe d’action;
-- conserver erreurs, résultats partiels, provenance et retour au Case;
-- produire Live Session visible, transcript/trace, clôture sans transférer l’ownership.
+- ouvrir une session liée à un Case et un Endpoint après vérification de disponibilité, policy et permission
+- afficher initiateur, participants autorisés, début, expiration et inactivité
+- gérer prolongation, suspension, déconnexion, reconnexion, conflit et révocation
+- conserver transcript/trace et retour exact au Case
 
 ## 4. Non-objectifs
-- ne pas administrer la Fleet ni les Endpoint Policies;
-- ne pas définir protocole, API, commande, moteur, format, PKI, stockage ou plateforme supportée;
-- ne pas créer automatiquement Evidence, Finding, Decision, Response Run ou Govern Result;
-- ne pas commencer Analysis Workbench.
+Ne pas définir shell, terminal, protocole, transport, PKI ou commande ; ne pas confondre la session avec Automation Run ou Response Run ; ne pas rendre une session invisible.
 
 ## 5. Propriétaire
-Investigate / Collection and Live Response / Investigate Product Lead possède le contexte métier et les relations au Case. Platform Settings administre Fleet/Policies; Endpoint Agent exécute localement; Govern possède l’autorité risquée.
+Investigate / Collection and Live Response / Investigate Product Lead possède le contexte métier, les drafts et les relations au Case. Platform Settings reste propriétaire de Fleet et Endpoint Policies ; Endpoint Agent exécute et rapporte localement ; Govern conserve l’autorité, Decision, Response Run et Result.
 
 ## 6. Utilisateurs
-Principal : Response Operator / Investigation Lead. Secondaires : Investigation Lead, Evidence Reviewer, Incident Commander, approbateur Govern ou Platform Administrator en consultation selon la capability.
+Principal : Response Operator. Secondaires : Investigation Lead, Case Analyst, reviewer Govern et participant autorisé.
 
 ## 7. Conditions d’entrée
-Tenant et environnement conservés, Case accessible, Endpoint résolu, fraîcheur et capacités visibles, policy projetée, permissions vérifiées et objectif explicite. Une dépendance absente produit un état partial/offline/unsupported, jamais un résultat inventé.
+Case/Endpoint accessibles, Agent available ou état explicite, session reason, policy, classe, permission, participants et expiration définis ; gate Govern/Human Gate appliqué lorsque requis.
 
 ## 8. Entrées fonctionnelles
 | Entrée | Source | Type fonctionnel | Requise | Fraîcheur | Si absente |
-|---|---|---|---:|---|---|
-| Case et objectif | Investigate | contexte métier | oui | version courante | rester draft ou refuser la mutation |
-| Endpoint et état Agent | Platform Settings / Endpoint Agent | cible et disponibilité | oui | dernière communication visible | offline/unknown, aucune exécution présentée |
-| Scope, limites et classe | utilisateur / policy | contrat d’action | oui | validés au déclenchement | incomplete ou policy-blocked |
-| Autorité et permission | Security / Govern | droit et gate | selon classe | snapshot à l’action | denied ou awaiting-approval |
-| Données spécifiques | Case, Endpoint, raison, participants, policy, permission, expiration | données locales | selon opération | source/version visibles | résultat partiel explicite |
+|---|---|---|---|---|---|
+| Case, Endpoint et raison | Investigate | contexte de session | oui | versions courantes | request incomplete |
+| Agent availability/capabilities | Endpoint Agent | faisabilité | oui | dernière communication | offline/unsupported |
+| Policy, classe et permission | Settings / Security / Govern | autorité | oui | snapshot à l’ouverture | denied/awaiting-approval |
+| Participants et rôles | Identity / initiateur | collaboration autorisée | oui | revalidés à l’entrée | join interdit |
+| Expiration et inactivity limit | policy / initiateur | limites temporelles | oui | valeurs à l’ouverture | session non ouverte |
 
 ## 9. Objets lus
 | Objet | Propriétaire | Projection utilisée | Droit local |
 |---|---|---|---|
-| Case | Investigate | identité, état, relations, fraîcheur ou autorité nécessaires | consulter et référencer; aucune administration implicite |
-| Endpoint | owner canonique ou concept à formaliser | identité, état, relations, fraîcheur ou autorité nécessaires | consulter et référencer; aucune administration implicite |
-| Endpoint Agent | Endpoint Agent | identité, état, relations, fraîcheur ou autorité nécessaires | consulter et référencer; aucune administration implicite |
-| Endpoint Policy | Platform Settings | identité, état, relations, fraîcheur ou autorité nécessaires | consulter et référencer; aucune administration implicite |
-| Live Session concept | owner canonique ou concept à formaliser | identité, état, relations, fraîcheur ou autorité nécessaires | consulter et référencer; aucune administration implicite |
-| Decision | Govern | identité, état, relations, fraîcheur ou autorité nécessaires | consulter et référencer; aucune administration implicite |
+| Case | Investigate | objectif, owner et restrictions | consulter/lier |
+| Endpoint / Endpoint Agent | partagé / Endpoint Agent | état et capability live response | consulter |
+| Endpoint Policy | Platform Settings | session permise, durée et restrictions | consulter uniquement |
+| Live Session concept | Investigate, modèle futur | participants, statut, expiration et transcript refs | gérer selon permission |
+| Decision / Response Run | Govern | autorité éventuelle, distincte de la session | consulter uniquement |
 
 ## 10. Objets créés ou modifiés
 | Objet | Opération | Propriétaire | Règle |
 |---|---|---|---|
-| Record métier Live Session Management | créer, mettre à jour ou supersede conceptuellement | Investigate, modèle final à Phase Objets | versionné, Case-scoped, sans machine finale |
-| Artifact ou relation Artifact | créer/lier seulement lorsqu’un résultat matériel existe | Investigate | source et acquisition requises; Artifact ≠ Evidence |
-| Événement métier | émettre vers Trace/Activity/Timeline/Audit Hooks | Shared mechanism, sémantique Investigate | acteur, cible, statut, erreur et correlation ID |
-| Objet externe | aucune mutation administrative ou d’autorité | owner externe | projection uniquement, sauf commande locale autorisée par contrat |
+| Live Session record conceptuel | créer, actualiser, suspendre, prolonger, fermer ou révoquer | Investigate, modèle futur | visible, Case-scoped et expiration obligatoire |
+| Participant relation | ajouter/retirer selon autorisation | Investigate / Identity | aucun accès implicite |
+| Session transcript/trace relation | créer/supersede | Investigate / Shared mechanisms | horodatage, acteur et redaction |
+| Decision/Response Run | aucune création | Govern | projection seulement |
 
 ## 11. Fonctionnalités
-- demander; ouvrir; rejoindre; prolonger; suspendre; fermer;
-- afficher capacités, limitations, policy, permission, classe, impact et autorité;
-- gérer progression, partial, retry ciblé, cancel, timeout, déconnexion et reprise autorisée;
-- lier les sorties au Case et aux Artifacts;
-- préserver return origin et contexte.
+- demander et ouvrir une session avec raison et expiration
+- afficher initiateur, participants, statut, début, inactivité et capacité
+- rejoindre, prolonger, suspendre, reprendre, fermer ou révoquer selon permission
+- gérer Endpoint offline, reconnecting et conflit de sessions
+- conserver transcript/trace, opérations liées et return origin
 
 ## 12. Actions utilisateur
 | Action | Rôle | Objet | Classe | Précondition | Résultat | Govern |
-|---|---|---|---:|---|---|---|
-| Consulter/inspecter | utilisateur autorisé | contexte et projections | 0 | read permission | vue sourcée et fraîcheur visible | non |
-| Préparer ou lancer collecte bornée | analyste autorisé | request/job concept | 1 | scope, policy et capacité | demande ou exécution non destructive | selon impact |
-| Modifier ou interrompre réversiblement | opérateur autorisé | session/opération/record | 2 | rollback/permission | transition auditée | OPEN-013 selon policy |
-| Préparer containment | Investigation Lead | Action Request | 3 | Finding/Evidence/impact/rollback | demande vers CAP-INV-113/Govern | obligatoire |
-| Préparer irréversible | Investigation Lead | Action Request | 4 | justification et alternatives | contexte seulement | obligatoire |
+|---|---|---|---|---|---|---|
+| Demander une session | Response Operator | Live Session request | 2 | Case/Endpoint/reason/policy | requested ou awaiting-approval | OPEN-007/013 selon policy |
+| Ouvrir/rejoindre | participant autorisé | Live Session | 2 | approval/permission et Endpoint available | active avec participant visible | selon policy |
+| Prolonger | Session owner | Live Session | 2 | active et durée permise | nouvelle expiration auditée | OPEN-013 |
+| Suspendre/reprendre | Session owner | Live Session | 2 | état compatible | transition visible | OPEN-013 selon policy |
+| Fermer/révoquer | owner ou autorité | Live Session | 2 | permission et raison si revoke | closed/revoked, transcript conservé | selon policy |
 
 ## 13. Automatisation et IA
 | Fonction | Manuel | Déterministe | Automatisable | IA possible | Alternative sans IA |
-|---|---:|---:|---:|---:|---|
-| Construire scope/checklist | oui | profiles et règles | oui | suggestion modifiable | formulaire et profiles déterministes |
-| Valider policy/capacité | oui | oui | oui | explication facultative | validateur et inventaire de capacités |
-| Suivre progression/erreurs | oui | oui | oui | résumé | états et résultats bruts inspectables |
-| Proposer prochaine action | oui | règles/workflow | oui | proposition attribuée | expertise humaine et procédures |
-| Exécuter action sensible | humain explicite | contrat autorisé | workflow possible | jamais autonome | action humaine/Govern |
+|---|---|---|---|---|---|
+| Préremplir la raison | oui | template Case | oui | brouillon | saisie manuelle |
+| Vérifier participants/expiration | oui | policy/règles | oui | explication | checklist |
+| Résumer le transcript | oui | agrégation | oui | résumé attribué | transcript filtré |
+| Signaler inactivité/conflit | oui | timers/règles | oui | explication | indicateurs déterministes |
+| Ouvrir/prolonger automatiquement | non | interdit sans contrat/autorité | non par défaut | jamais autonome | action humaine explicite |
 
-Toute sortie automatisée expose initiateur, moteur ou agent, version, Automation Run, Tool Calls, sources, paramètres fonctionnels, timestamp, statut, incertitude, owner humain, accept/modify/reject et trace.
+Toute sortie automatisée expose initiateur, producteur/version, Automation Run et Tool Calls lorsqu’ils existent, sources, paramètres fonctionnels, timestamp, statut, incertitude, owner humain, acceptation/modification/rejet et trace.
 
 ## 14. États fonctionnels
-`requested`, `awaiting-approval`, `opening`, `active`, `idle`, `suspended`, `reconnecting`, `closing`, `closed`, `expired`, `failed`, `revoked`. Ces dimensions sont Draft et ne finalisent aucune machine d’état objet.
+`requested`, `awaiting-approval`, `opening`, `active`, `idle`, `suspended`, `reconnecting`, `closing`, `closed`, `expired`, `failed`, `revoked`. Machine finale reportée.
 
 ## 15. États d’interface
-Loading conserve Case et cible; Empty distingue absence de capacité et absence de résultat; Partial détaille les éléments réussis/échoués; Error préserve les données valides; Offline interdit toute présentation d’exécution démarrée; Permission denied ne révèle rien; Stale expose la dernière synchronisation.
+Loading conserve Case/Endpoint ; Empty signifie aucune session ; Partial nomme participant/capability manquants ; Error garde transcript/opérations valides ; Offline montre reconnecting/closed sans succès implicite ; Permission denied ne divulgue pas le transcript ; Stale indique dernière activité.
 
 ## 16. Sorties
 | Sortie | Objet ou événement | Consommateur | Garantie |
 |---|---|---|---|
-| Live Session visible, transcript/trace, clôture | record, relation ou événement métier | Case Workspace et capabilities dépendantes | cible, scope, acteur, statut, erreurs et version visibles |
-| Artifact éventuel | Artifact Investigate | CAP-INV-105 puis CAP-INV-107 | source/acquisition conservées; aucune Evidence automatique |
-| Progression et notification | Background Job/Notification projection | utilisateur et Case | succès partiels et échecs non masqués |
-| Trace/provenance | événements métier | CAP-INV-110/112/214 et audit | correlation IDs, producteurs et corrections conservés |
+| Live Session status | record conceptuel | Case Workspace/CAP-INV-210 | participants, timing, policy et état visibles |
+| Transcript/trace | relation/événements | CAP-INV-214/Timeline/Audit | aucune session invisible |
+| Session notification | Notification event | participants | deep link, expiration et changement d’état |
+| Closure context | business event | Case Workspace | raison, dernière opération et return origin |
 
 ## 17. Transitions
 | Source | Déclencheur | Destination | Contexte transmis | Retour |
 |---|---|---|---|---|
-| Case Workspace | ouvrir activité endpoint | Endpoint Context / capability courante | tenant, environnement, Case, Incident, Endpoint, objectif, return origin | même Case et position |
-| Endpoint Context | préparer/lancer | Collection Request, Job, Live Session ou opération | cible, capacités, policy, permission, classe, limites | Endpoint Context |
-| Exécution locale | résultat/erreur | Operation Result / Artifact Management | opération, output, erreurs, fichiers, timestamps, provenance | Case ou session |
-| Artifact | qualification humaine | CAP-INV-107 Evidence Creation | source, acquisition, Case, raison, transformations | Artifact |
-| Finding/action risquée | préparer demande | CAP-INV-113 puis Govern | Finding, Evidence, Endpoint, impact, alternatives, rollback | Case avec projection Govern |
+| Case/Endpoint Context | request session | CAP-INV-209 | Case, Endpoint, reason, class, policy, participants, expiration | Case/Endpoint Context |
+| Live Session active | sélectionner opération | CAP-INV-210 | session, participant, Endpoint, permissions, trace | Live Session |
+| Live Session | transférer fichier | CAP-INV-211 | session, source/destination, policy, class | Live Session |
+| Live Session closed | retour | Case Workspace | session, transcript, results, next action, return origin | même Case |
 
 ## 18. Dépendances
-CAP-INV-102, 105, 107, 108, 110, 112, 113; Platform Settings Fleet/Policies/Health; Endpoint Agent capabilities; Shared Background Jobs, Notifications, Trace, Timeline, Inspector, Context Bar, Linking, Export et recovery; Govern; Studio optional; décisions ouvertes listées au front matter.
+CAP-INV-201/210/211/212/214, Endpoint Agent session capability, Settings Policy/Health, Identity, Shared Notifications/Trace/Recovery, Govern/Studio boundaries et OPEN-007/008/013/015.
 
 ## 19. Source de vérité
-Investigate est source du contexte métier et des relations Case. Platform Settings reste source de Fleet/Policy; Endpoint Agent de son état, commandes et résultats locaux; Govern de Decision/Response Run/Result; Studio d’Automation Run/Tool Calls; Shared des mécanismes génériques.
+Investigate possède le contexte et le record métier de session. Endpoint Agent reste source de la connexion/exécution locale ; Settings de la Policy ; Govern de l’autorité ; Studio d’Automation Run. Une session n’est aucun de ces Runs.
 
 ## 20. Provenance et audit
-Case, Endpoint, Agent, policy/version, initiateur, permission, classe, scope, paramètres fonctionnels, autorité, timestamps, transitions, erreurs, résultats partiels, fichiers, Artifacts, Automation Run/Tool Calls, Action Request/Decision/Run/Result et disposition humaine.
+Case, Endpoint/Agent, initiateur, participants, permissions, policy/version, approval éventuelle, start/end, expiration, inactivity, reconnects, operations, transcript, closure et correlation IDs.
 
 ## 21. Permissions fonctionnelles
-Endpoint read, capability read, collection prepare/submit/cancel/retry, raw result read, Artifact receive/export, Live Session request/open/join/extend/close, operation execute/interrupt, file transfer, inspection, memory/network request, containment request, sensitive output, cross-tenant/environment, transcript read, result verify et custody review selon la capability. Step-up, séparation des tâches et matrice atomique sont reportés.
+Live Session request/open/join/extend/suspend/resume/close, transcript read, participant management, sensitive output et cross-tenant restrictions. Step-up et séparation des tâches restent ouvertes.
 
 ## 22. Limites et erreurs
-Endpoint offline/stale/unsupported, Agent absent ou degraded, policy blocked, scope trop large, permission révoquée, timeout, déconnexion, conflit de session, résultat partiel, fichier manquant/verrouillé, cible changée, Govern indisponible ou tenant mismatch. Aucun retry ne duplique silencieusement l’effet.
+Endpoint offline, capability unsupported, session concurrente, participant non autorisé, expiration, inactivity, reconnect failure, revocation, policy change ou permission retirée. Déconnexion ≠ succès d’opération.
 
 ## 23. Métriques
-Temps de préparation et d’exécution, demandes bloquées par capacité/policy, résultats partiels, retries ciblés, annulations, déconnexions, Artifacts avec origine complète, opérations avec provenance complète, erreurs par catégorie et retours Case réussis.
+Requests/open failures, session duration, reconnects, conflicts, expirations, revoked sessions, operations/session et retours Case réussis.
 
 ## 24. Classification de livraison
-`defined` / `planned`. Cible native via Endpoint Agent, mais aucune plateforme, moteur, protocole, commande, API ou release n’est prouvée. Promotion conditionnée par OPEN-008, objets, permissions, contrats d’autorité, preuve d’implémentation et validation.
+`defined` / `planned`. Aucun protocole, terminal, transport, plateforme ou implementation n’est déclaré livré.
 
 ## 25. Critères d’acceptation
-**Given** un Case, un Endpoint disponible et un utilisateur autorisé **When** il utilise Live Session Management **Then** cible, scope, policy, classe, progression, résultat et retour au Case sont visibles sans transfert d’ownership.
+**Given** aucun fournisseur de modèle, un Endpoint available et une policy permise **When** un opérateur ouvre une session **Then** la session fonctionne manuellement, les classes sont visibles, le transcript est conservé et elle peut être fermée.
 
-**Given** un Endpoint offline, unsupported ou une permission refusée **When** l’action est demandée **Then** aucune exécution n’est présentée comme démarrée, l’état et les options sûres sont explicites et le Case reste accessible.
+**Given** une déconnexion pendant une opération **When** la session passe en reconnecting **Then** l’opération n’est pas déclarée réussie et son statut reste indépendant.
 
-**Given** aucun fournisseur de modèle **When** le workflow est exécuté **Then** formulaires, profiles, règles, validateurs, Jobs, revue et actions humaines permettent le résultat essentiel.
+**Given** un participant non autorisé **When** il tente de rejoindre **Then** l’accès est refusé sans révéler le transcript et la session reste visible aux participants autorisés.
 
 ## 26. Questions ouvertes
-OPEN-008 conserve les plateformes; OPEN-013 la gouvernance classe 2; OPEN-007 Human Gate/Govern; OPEN-015 Automation Run/Response Run; OPEN-005 les moteurs forensics futurs lorsque référencé. Les objets et permissions détaillés restent à leurs phases.
+OPEN-007 traite Human Gate/Govern ; OPEN-008 le support ; OPEN-013 la gouvernance classe 2 ; OPEN-015 le bridge des Runs. Le protocole et la machine finale restent hors phase.
 
 ## 27. Consommateurs documentaires
-Module Collection and Live Response, Case Workspace, Evidence Board, Platform Settings Fleet/Policies/Health, Govern Action Center et Runs, parcours Endpoint investigation/containment/offline recovery, phases Objets/Permissions/Technique et future Phase 4B.2B uniquement comme handoff Artifact.
+Case Workspace, Interactive Operations, Session File Transfer, Result Handling, Provenance, Govern projections, Endpoint Agent Live Response et phases Objets/Permissions.
