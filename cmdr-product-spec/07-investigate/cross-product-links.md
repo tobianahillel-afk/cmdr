@@ -15,18 +15,26 @@ open_decisions:
   - OPEN-015
 ---
 
-# Cross-product links — Investigate
+# Cross-product links — Investigate Phase 4B.1
 
-| Transition | Source | Destination | Contexte | Ownership et retour |
-|---|---|---|---|---|
-| Signal → investigation | Command Signal | Triage, Search ou Case | tenant, env, source, Detection, Events, Incident | Signal reste Command ; retour exact |
-| Incident → Case | Command Incident | Case Lifecycle | Incident, service, Signal/Alert, période, objectif | Case Investigate ; retour Incident Detail |
-| Search → Case | Search Job | Case Workspace | Query/version, run, résultats, période, annotations | Events/Query Shared ; retour Search |
-| Hunt → Case | Hunt workspace | Case Lifecycle | question, scope, queries, results, Hypotheses | Case Investigate ; Hunt conservé |
-| Artifact → Evidence | Artifact | Evidence Creation | source, acquisition, Case, version, transformations, reason | deux objets Investigate distincts |
-| Evidence → Finding | Evidence/qualification | Finding Management | Evidence pour/contre, reviewer, uncertainty | Finding distinct |
-| Finding → Action Request | Finding | Action Request Preparation | Finding, Evidence, target, impact, urgency, alternatives, rollback | Request Govern ; Finding/Evidence Investigate |
-| Action Request → Govern | Investigate producer | Govern | request, refs, requester, return origin | Govern lifecycle ; retour Case/Finding |
-| Result → Case | Govern Result | Case Workspace | Request, Decision, Run, Result, residual risk | Result Govern ; relation Investigate |
+| Transition | Source / déclencheur | Destination | Contexte transmis | Ownership | Retour et erreurs |
+|---|---|---|---|---|---|
+| Signal → investigation | analyste depuis Signal Triage ; qualification ou pivot | Event Search, Hunt ou Case Lifecycle | tenant, environnement, Signal, Alert éventuel, Detection, Events, Incident, période, raison et return origin | Signal/Alert/Incident restent Command ; Case/Hypothesis futurs restent Investigate | retour exact au Signal ; déduplication conceptuelle avant nouveau Case ; erreur conserve le triage |
+| Incident → Case | utilisateur Command choisit Open in Investigate | Case existant ou nouveau | tenant, environnement, service, Incident, Signal/Alert, objectif initial, période, requester et owner proposé | Incident reste Command ; Case appartient à Investigate | retour vers Incident Detail ; Case inaccessible produit une proposition ou une erreur sans divulgation |
+| Search → Case | sélection de résultats ou Add to Case | Case Workspace / Case Lifecycle | Query et version, paramètres, période, Search Job, résultats sélectionnés, sources, annotations, provenance et Evidence candidates | Event/Query/Search Job restent Shared ; Case reste Investigate | retour à la recherche avec sélection et filtres ; aucun résultat ne devient Evidence automatiquement |
+| Hunt → Case | promotion humaine d’un Hunt | Case existant ou nouveau | question, scope, période, Queries, runs, résultats, Hypotheses, auteurs, statut, conclusion et limites | Hunt workspace et Case restent Investigate ; objets Shared conservés | retour au Hunt ; package sélectif et versionné ; Case inaccessible conserve le Hunt |
+| Artifact → Evidence | analyste qualifie un Artifact ou une autre source | Evidence Creation | Artifact/source, origine, acquisition/import, Case, auteur, raison, transformations, version, provenance et rôle | Artifact et Evidence restent deux objets Investigate distincts | retour à Artifact Detail ; aucune conversion automatique ; échec conserve l’Artifact et un candidat non qualifié |
+| Evidence → Finding | analyste/reviewer crée ou révise une assertion | Finding Management | Evidence favorables et contradictoires, versions, auteur, revue, incertitude, Hypotheses et Case | Evidence et Finding restent Investigate | retour à Evidence Review ; Finding reste draft/proposed jusqu’à confirmation humaine autorisée |
+| Finding → Action Request | Investigation Lead prépare une action | Action Request Preparation | Finding, Evidence, cible, action, impacts technique/opérationnel, urgence, alternatives, conditions, rollback, incertitudes et requester | Finding/Evidence restent Investigate ; Action Request lifecycle appartient à Govern | retour au Finding/Case ; draft conservé si incomplet ; aucune Decision créée |
+| Action Request → Govern | soumission humaine ou workflow autorisé | Govern Review Queue | Action Request version, Case, Findings/Evidence refs, cible, impacts, alternatives, rollback, provenance, permission et return origin | Govern possède request lifecycle, Decision, Approval, Run et Result | retour pour informations vers le même draft ; future Decision liée au Case ; refus ne supprime pas l’historique |
+| Result → Case | Result Govern vérifié ou projeté | Case Workspace / Finding Review | Action Request, Decision, Response Run, Result, statut de vérification, impact, risque résiduel, Findings concernés et prochaine action | Result reste Govern ; relations et réactions analytiques restent Investigate | retour vers Result ou Incident ; Hypotheses peuvent être réévaluées sans modification automatique |
+| Investigate → Studio | utilisateur demande une assistance déployée | Workflow ou Automation Run inspectable | Case ou Query context, version de workflow, permissions, limites, sources et initiateur | Workflow/Agent/Automation Run restent Studio | retour au workspace source avec proposition attribuée ; Tool Calls et run inspectables |
 
-Une transition échouée conserve le workspace source, les drafts récupérables et une correlation ID.
+## Invariants de transition
+
+- tenant, environnement, sélection, filtres et return origin sont conservés ;
+- la permission est réévaluée à l’entrée et au retour ;
+- une transition ne transfère jamais l’ownership des objets source ;
+- une erreur conserve le workspace et les drafts récupérables avec correlation ID ;
+- les sorties automatisées restent des propositions tant qu’une action humaine ou un contrat déterministe autorisé ne les rend pas effectives ;
+- les classes 3 et 4 passent par Govern et ne sont jamais exécutées directement dans Investigate.
