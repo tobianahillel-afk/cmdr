@@ -20,139 +20,134 @@ source-of-truth: canonical
 # CAP-INV-208 — Network Capture Request
 
 ## 1. Définition
-Préparer et suivre une capture réseau bornée par durée, scope et limites, sans choisir moteur ou format.
+Préparer, démarrer, suivre et arrêter une capture réseau bornée par cible, durée, volume et filtre conceptuel, sans choisir de moteur ou format.
 
 ## 2. Problème utilisateur
-Sans Network Capture Request, l’utilisateur perd le lien entre le Case, l’Endpoint, l’autorité applicable, l’exécution locale et les résultats. Les états partiels ou offline peuvent alors être pris pour un succès et les objets peuvent être confondus.
+Une capture réseau non bornée peut consommer des ressources, dépasser le Case ou collecter des données sensibles. L’analyste doit voir le scope, l’impact et les pertes avant et après l’exécution.
 
 ## 3. Objectifs
-- fournir Case, Endpoint, interface/scope conceptuel, durée, limite, filtre;
-- exposer cible, scope, fraîcheur, policy, permission et classe d’action;
-- conserver erreurs, résultats partiels, provenance et retour au Case;
-- produire Artifact de capture et pertes/erreurs sans transférer l’ownership.
+- sélectionner l’Endpoint et une interface ou un scope conceptuel autorisé
+- définir durée, limite de volume et filtre conceptuel
+- afficher policy, permission, impact et capacité déclarée
+- arrêter la capture et recevoir un Artifact avec pertes/erreurs visibles
 
 ## 4. Non-objectifs
-- ne pas administrer la Fleet ni les Endpoint Policies;
-- ne pas définir protocole, API, commande, moteur, format, PKI, stockage ou plateforme supportée;
-- ne pas créer automatiquement Evidence, Finding, Decision, Response Run ou Govern Result;
-- ne pas commencer Analysis Workbench.
+Ne pas définir interface bas niveau, moteur, syntaxe de filtre, commande, protocole ou format final ; ne pas promettre le support de toutes les plateformes.
 
 ## 5. Propriétaire
-Investigate / Collection and Live Response / Investigate Product Lead possède le contexte métier et les relations au Case. Platform Settings administre Fleet/Policies; Endpoint Agent exécute localement; Govern possède l’autorité risquée.
+Investigate / Collection and Live Response / Investigate Product Lead possède le contexte métier, les drafts et les relations au Case. Platform Settings reste propriétaire de Fleet et Endpoint Policies ; Endpoint Agent exécute et rapporte localement ; Govern conserve l’autorité, Decision, Response Run et Result.
 
 ## 6. Utilisateurs
-Principal : Case Analyst / DFIR Analyst. Secondaires : Investigation Lead, Evidence Reviewer, Incident Commander, approbateur Govern ou Platform Administrator en consultation selon la capability.
+Principal : DFIR Analyst. Secondaires : Case Analyst, Response Operator et Evidence Reviewer.
 
 ## 7. Conditions d’entrée
-Tenant et environnement conservés, Case accessible, Endpoint résolu, fraîcheur et capacités visibles, policy projetée, permissions vérifiées et objectif explicite. Une dépendance absente produit un état partial/offline/unsupported, jamais un résultat inventé.
+Case/Endpoint accessibles, network capture capability déclarée, scope/durée/limite définis, policy/permission validées et impact conceptuel affiché.
 
 ## 8. Entrées fonctionnelles
 | Entrée | Source | Type fonctionnel | Requise | Fraîcheur | Si absente |
-|---|---|---|---:|---|---|
-| Case et objectif | Investigate | contexte métier | oui | version courante | rester draft ou refuser la mutation |
-| Endpoint et état Agent | Platform Settings / Endpoint Agent | cible et disponibilité | oui | dernière communication visible | offline/unknown, aucune exécution présentée |
-| Scope, limites et classe | utilisateur / policy | contrat d’action | oui | validés au déclenchement | incomplete ou policy-blocked |
-| Autorité et permission | Security / Govern | droit et gate | selon classe | snapshot à l’action | denied ou awaiting-approval |
-| Données spécifiques | Case, Endpoint, interface/scope conceptuel, durée, limite, filtre | données locales | selon opération | source/version visibles | résultat partiel explicite |
+|---|---|---|---|---|---|
+| Case et objectif | Investigate | contexte | oui | version courante | rester draft |
+| Endpoint/Agent et capability | Endpoint Agent | cible et support | oui | dernière communication | offline/unsupported |
+| Interface ou scope conceptuel | analyste | périmètre réseau | oui | revalidé au lancement | incomplete |
+| Durée, volume et filtre conceptuel | analyste / policy | bornes | oui | snapshot au lancement | scope refusé |
+| Policy, permission et impact | Settings / Security / Govern | gate et coût | oui | version/snapshot visibles | denied/policy-blocked |
 
 ## 9. Objets lus
 | Objet | Propriétaire | Projection utilisée | Droit local |
 |---|---|---|---|
-| Case | Investigate | identité, état, relations, fraîcheur ou autorité nécessaires | consulter et référencer; aucune administration implicite |
-| Endpoint | owner canonique ou concept à formaliser | identité, état, relations, fraîcheur ou autorité nécessaires | consulter et référencer; aucune administration implicite |
-| Endpoint Agent | Endpoint Agent | identité, état, relations, fraîcheur ou autorité nécessaires | consulter et référencer; aucune administration implicite |
-| Endpoint Policy | Platform Settings | identité, état, relations, fraîcheur ou autorité nécessaires | consulter et référencer; aucune administration implicite |
-| Collection Request | Investigate | identité, état, relations, fraîcheur ou autorité nécessaires | consulter et référencer; aucune administration implicite |
-| Collection Job | owner canonique ou concept à formaliser | identité, état, relations, fraîcheur ou autorité nécessaires | consulter et référencer; aucune administration implicite |
+| Case | Investigate | objectif et restrictions | consulter |
+| Endpoint / Endpoint Agent | partagé / Endpoint Agent | interface/scope disponible et état | consulter |
+| Endpoint Policy | Platform Settings | capture permise, limites et sensibilité | consulter uniquement |
+| Collection Request / Job | Investigate / concept futur | scope et progression | préparer/suivre |
+| Artifact | Investigate | captures reçues et versions | consulter/lier |
 
 ## 10. Objets créés ou modifiés
 | Objet | Opération | Propriétaire | Règle |
 |---|---|---|---|
-| Record métier Network Capture Request | créer, mettre à jour ou supersede conceptuellement | Investigate, modèle final à Phase Objets | versionné, Case-scoped, sans machine finale |
-| Artifact ou relation Artifact | créer/lier seulement lorsqu’un résultat matériel existe | Investigate | source et acquisition requises; Artifact ≠ Evidence |
-| Événement métier | émettre vers Trace/Activity/Timeline/Audit Hooks | Shared mechanism, sémantique Investigate | acteur, cible, statut, erreur et correlation ID |
-| Objet externe | aucune mutation administrative ou d’autorité | owner externe | projection uniquement, sauf commande locale autorisée par contrat |
+| Network capture request context | créer/modifier/supersede | Investigate | durée, volume, filtre et cible obligatoires |
+| Capture status/result | enregistrer start/stop/partial/loss/error | Investigate, modèle futur | pertes et durée réelle visibles |
+| Capture Artifact | créer à réception | Investigate | source, période, scope et erreurs conservés |
+| Endpoint/Policy | aucune mutation | owners externes | projection uniquement |
 
 ## 11. Fonctionnalités
-- préparer; démarrer; arrêter; annuler;
-- afficher capacités, limitations, policy, permission, classe, impact et autorité;
-- gérer progression, partial, retry ciblé, cancel, timeout, déconnexion et reprise autorisée;
-- lier les sorties au Case et aux Artifacts;
-- préserver return origin et contexte.
+- sélectionner cible et scope conceptuel sans exposer de paramètres bas niveau
+- définir durée, volume et filtre conceptuel bornés
+- afficher impact et autorité avant démarrage
+- arrêter ou annuler la capture lorsque permis
+- recevoir l’Artifact avec durée réelle, pertes, erreurs et fraîcheur
 
 ## 12. Actions utilisateur
 | Action | Rôle | Objet | Classe | Précondition | Résultat | Govern |
-|---|---|---|---:|---|---|---|
-| Consulter/inspecter | utilisateur autorisé | contexte et projections | 0 | read permission | vue sourcée et fraîcheur visible | non |
-| Préparer ou lancer collecte bornée | analyste autorisé | request/job concept | 1 | scope, policy et capacité | demande ou exécution non destructive | selon impact |
-| Modifier ou interrompre réversiblement | opérateur autorisé | session/opération/record | 2 | rollback/permission | transition auditée | OPEN-013 selon policy |
-| Préparer containment | Investigation Lead | Action Request | 3 | Finding/Evidence/impact/rollback | demande vers CAP-INV-113/Govern | obligatoire |
-| Préparer irréversible | Investigation Lead | Action Request | 4 | justification et alternatives | contexte seulement | obligatoire |
+|---|---|---|---|---|---|---|
+| Prévisualiser scope/impact | DFIR Analyst | request draft | 0 | read permission | bornes visibles | non |
+| Modifier durée/limite/filtre | DFIR Analyst | request draft | 2 | draft modifiable | nouvelle version | OPEN-013 |
+| Démarrer capture | analyste autorisé | Collection Request | 1/2 | ready, capability/policy | capture Job lié | selon impact |
+| Arrêter capture | Response Operator | capture Job | 2 | running et permission | stop demandé | OPEN-013 selon policy |
+| Ouvrir Artifact | analyste | capture Artifact | 0 | read | Artifact Detail | non |
 
 ## 13. Automatisation et IA
 | Fonction | Manuel | Déterministe | Automatisable | IA possible | Alternative sans IA |
-|---|---:|---:|---:|---:|---|
-| Construire scope/checklist | oui | profiles et règles | oui | suggestion modifiable | formulaire et profiles déterministes |
-| Valider policy/capacité | oui | oui | oui | explication facultative | validateur et inventaire de capacités |
-| Suivre progression/erreurs | oui | oui | oui | résumé | états et résultats bruts inspectables |
-| Proposer prochaine action | oui | règles/workflow | oui | proposition attribuée | expertise humaine et procédures |
-| Exécuter action sensible | humain explicite | contrat autorisé | workflow possible | jamais autonome | action humaine/Govern |
+|---|---|---|---|---|---|
+| Proposer bornes | oui | defaults/policy | oui | suggestion modifiable | saisie manuelle |
+| Détecter filtre trop large | oui | validateur conceptuel | oui | explication | règles |
+| Suivre volume/durée | oui | compteurs déclarés | oui | résumé | progression brute |
+| Expliquer pertes/erreurs | oui | catalogue déterministe | oui | oui | détails bruts |
+| Prolonger automatiquement | non | interdit | non | interdit | action humaine |
 
-Toute sortie automatisée expose initiateur, moteur ou agent, version, Automation Run, Tool Calls, sources, paramètres fonctionnels, timestamp, statut, incertitude, owner humain, accept/modify/reject et trace.
+Toute sortie automatisée expose initiateur, producteur/version, Automation Run et Tool Calls lorsqu’ils existent, sources, paramètres fonctionnels, timestamp, statut, incertitude, owner humain, acceptation/modification/rejet et trace.
 
 ## 14. États fonctionnels
-`draft`, `validating`, `awaiting-approval`, `queued`, `capturing`, `stopping`, `partial`, `completed`, `failed`, `cancelled`, `unsupported`. Ces dimensions sont Draft et ne finalisent aucune machine d’état objet.
+`draft`, `validating`, `awaiting-approval`, `queued`, `capturing`, `stopping`, `partial`, `completed`, `failed`, `cancelled`, `unsupported`. Machine finale reportée.
 
 ## 15. États d’interface
-Loading conserve Case et cible; Empty distingue absence de capacité et absence de résultat; Partial détaille les éléments réussis/échoués; Error préserve les données valides; Offline interdit toute présentation d’exécution démarrée; Permission denied ne révèle rien; Stale expose la dernière synchronisation.
+Loading conserve bornes ; Empty distingue scope absent et capture vide ; Partial affiche pertes/segments ; Error conserve l’Artifact valide ; Offline n’indique pas capturing ; Permission denied masque le contenu ; Stale expose dernière mise à jour.
 
 ## 16. Sorties
 | Sortie | Objet ou événement | Consommateur | Garantie |
 |---|---|---|---|
-| Artifact de capture et pertes/erreurs | record, relation ou événement métier | Case Workspace et capabilities dépendantes | cible, scope, acteur, statut, erreurs et version visibles |
-| Artifact éventuel | Artifact Investigate | CAP-INV-105 puis CAP-INV-107 | source/acquisition conservées; aucune Evidence automatique |
-| Progression et notification | Background Job/Notification projection | utilisateur et Case | succès partiels et échecs non masqués |
-| Trace/provenance | événements métier | CAP-INV-110/112/214 et audit | correlation IDs, producteurs et corrections conservés |
+| Capture request/status | Collection context | Case Workspace | cible, durée, limites et statut visibles |
+| Capture Artifact | Artifact | CAP-INV-105/107 et future 4B.2B | scope, période, pertes et provenance conservés |
+| Loss/error summary | Operation/collection result | CAP-INV-212 | aucune perte masquée |
+| Progress/stop events | Background Job/Trace events | Notifications/Timeline | acteur et correlation ID |
 
 ## 17. Transitions
 | Source | Déclencheur | Destination | Contexte transmis | Retour |
 |---|---|---|---|---|
-| Case Workspace | ouvrir activité endpoint | Endpoint Context / capability courante | tenant, environnement, Case, Incident, Endpoint, objectif, return origin | même Case et position |
-| Endpoint Context | préparer/lancer | Collection Request, Job, Live Session ou opération | cible, capacités, policy, permission, classe, limites | Endpoint Context |
-| Exécution locale | résultat/erreur | Operation Result / Artifact Management | opération, output, erreurs, fichiers, timestamps, provenance | Case ou session |
-| Artifact | qualification humaine | CAP-INV-107 Evidence Creation | source, acquisition, Case, raison, transformations | Artifact |
-| Finding/action risquée | préparer demande | CAP-INV-113 puis Govern | Finding, Evidence, Endpoint, impact, alternatives, rollback | Case avec projection Govern |
+| Endpoint Context | préparer capture | CAP-INV-208 | Case, Endpoint, capability, policy, reason | Endpoint Context |
+| CAP-INV-208 | démarrer | CAP-INV-203 | request, durée, volume, filtre, autorité | CAP-INV-208/Case |
+| Capture running | arrêter | CAP-INV-203/208 | job, initiateur, raison, timestamp | CAP-INV-208 |
+| Capture reçue | enregistrer | CAP-INV-105 | Artifact, source, période, pertes, errors | CAP-INV-208 |
 
 ## 18. Dépendances
-CAP-INV-102, 105, 107, 108, 110, 112, 113; Platform Settings Fleet/Policies/Health; Endpoint Agent capabilities; Shared Background Jobs, Notifications, Trace, Timeline, Inspector, Context Bar, Linking, Export et recovery; Govern; Studio optional; décisions ouvertes listées au front matter.
+CAP-INV-201/202/203/105/107/212/213/214, Endpoint Agent network capture capability, Settings Policy, Shared Jobs/Trace et OPEN-008/013.
 
 ## 19. Source de vérité
-Investigate est source du contexte métier et des relations Case. Platform Settings reste source de Fleet/Policy; Endpoint Agent de son état, commandes et résultats locaux; Govern de Decision/Response Run/Result; Studio d’Automation Run/Tool Calls; Shared des mécanismes génériques.
+Investigate possède la request, le statut métier et l’Artifact. Endpoint Agent reste source de l’exécution et des pertes/erreurs locales ; Settings reste source de la Policy.
 
 ## 20. Provenance et audit
-Case, Endpoint, Agent, policy/version, initiateur, permission, classe, scope, paramètres fonctionnels, autorité, timestamps, transitions, erreurs, résultats partiels, fichiers, Artifacts, Automation Run/Tool Calls, Action Request/Decision/Run/Result et disposition humaine.
+Case, Endpoint/Agent, scope/interface conceptuels, durée/volume/filtre, policy, initiateur, start/stop, pertes, erreurs, Artifact et correlation IDs.
 
 ## 21. Permissions fonctionnelles
-Endpoint read, capability read, collection prepare/submit/cancel/retry, raw result read, Artifact receive/export, Live Session request/open/join/extend/close, operation execute/interrupt, file transfer, inspection, memory/network request, containment request, sensitive output, cross-tenant/environment, transcript read, result verify et custody review selon la capability. Step-up, séparation des tâches et matrice atomique sont reportés.
+Endpoint/capability read, network capture prepare/start/stop/cancel, raw result read, capture Artifact receive/export et sensitive network output read.
 
 ## 22. Limites et erreurs
-Endpoint offline/stale/unsupported, Agent absent ou degraded, policy blocked, scope trop large, permission révoquée, timeout, déconnexion, conflit de session, résultat partiel, fichier manquant/verrouillé, cible changée, Govern indisponible ou tenant mismatch. Aucun retry ne duplique silencieusement l’effet.
+Scope/interface unsupported, Endpoint offline, filtre refusé, limite atteinte, pertes, arrêt tardif, partial, permission révoquée ou policy conflict. Aucun moteur ou paramètre bas niveau n’est inféré.
 
 ## 23. Métriques
-Temps de préparation et d’exécution, demandes bloquées par capacité/policy, résultats partiels, retries ciblés, annulations, déconnexions, Artifacts avec origine complète, opérations avec provenance complète, erreurs par catégorie et retours Case réussis.
+Captures par statut, durée/volume demandés et réalisés, pertes, partial/failure rate, arrêts, Artifacts reçus et scopes bloqués.
 
 ## 24. Classification de livraison
-`defined` / `planned`. Cible native via Endpoint Agent, mais aucune plateforme, moteur, protocole, commande, API ou release n’est prouvée. Promotion conditionnée par OPEN-008, objets, permissions, contrats d’autorité, preuve d’implémentation et validation.
+`defined` / `planned`. Aucun moteur, format, commande, protocole ou support plateforme n’est prouvé.
 
 ## 25. Critères d’acceptation
-**Given** un Case, un Endpoint disponible et un utilisateur autorisé **When** il utilise Network Capture Request **Then** cible, scope, policy, classe, progression, résultat et retour au Case sont visibles sans transfert d’ownership.
+**Given** une durée, une limite et un filtre conceptuel **When** la capture démarre **Then** le scope reste borné et l’arrêt, la progression et l’impact sont visibles.
 
-**Given** un Endpoint offline, unsupported ou une permission refusée **When** l’action est demandée **Then** aucune exécution n’est présentée comme démarrée, l’état et les options sûres sont explicites et le Case reste accessible.
+**Given** des pertes ou erreurs **When** la capture se termine **Then** elles sont affichées et le résultat n’est pas présenté comme complet.
 
-**Given** aucun fournisseur de modèle **When** le workflow est exécuté **Then** formulaires, profiles, règles, validateurs, Jobs, revue et actions humaines permettent le résultat essentiel.
+**Given** aucun modèle IA **When** la capture est préparée **Then** formulaire, bornes, policy et validateurs permettent le workflow.
 
 ## 26. Questions ouvertes
-OPEN-008 conserve les plateformes; OPEN-013 la gouvernance classe 2; OPEN-007 Human Gate/Govern; OPEN-015 Automation Run/Response Run; OPEN-005 les moteurs forensics futurs lorsque référencé. Les objets et permissions détaillés restent à leurs phases.
+OPEN-008 conserve le support plateforme ; OPEN-013 la gouvernance du start/stop classe 2. Moteur, filtre bas niveau et format restent hors phase.
 
 ## 27. Consommateurs documentaires
-Module Collection and Live Response, Case Workspace, Evidence Board, Platform Settings Fleet/Policies/Health, Govern Action Center et Runs, parcours Endpoint investigation/containment/offline recovery, phases Objets/Permissions/Technique et future Phase 4B.2B uniquement comme handoff Artifact.
+Collection Job, Artifact Management, Custody, future Network Artifact Analysis, Endpoint Agent network capability et phases Objets/Permissions/Technique.

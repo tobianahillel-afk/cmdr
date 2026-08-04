@@ -20,139 +20,134 @@ source-of-truth: canonical
 # CAP-INV-204 — Triage Package Collection
 
 ## 1. Définition
-Demander un package de triage profilé et borné, puis recevoir des résultats par catégorie avec erreurs explicites.
+Demander un package de triage profilé, borné et Case-scoped, puis traiter séparément les résultats et erreurs de chaque catégorie.
 
 ## 2. Problème utilisateur
-Sans Triage Package Collection, l’utilisateur perd le lien entre le Case, l’Endpoint, l’autorité applicable, l’exécution locale et les résultats. Les états partiels ou offline peuvent alors être pris pour un succès et les objets peuvent être confondus.
+Une collecte de triage monolithique peut masquer les catégories non exécutées, produire un faux succès global ou récupérer plus de données que nécessaire. L’analyste doit choisir un profil explicite et comprendre exactement ce qui a réussi.
 
 ## 3. Objectifs
-- fournir profile de triage, catégories, target, limites, Case;
-- exposer cible, scope, fraîcheur, policy, permission et classe d’action;
-- conserver erreurs, résultats partiels, provenance et retour au Case;
-- produire résultats par catégorie, Artifacts, erreurs sans transférer l’ownership.
+- sélectionner un profil de triage versionné et les catégories réellement demandées
+- afficher cible, Case, limites, impact conceptuel, policy, permission et classe
+- suivre chaque catégorie indépendamment et permettre un retry ciblé
+- enregistrer les Artifacts réussis sans convertir automatiquement leur contenu en Evidence
 
 ## 4. Non-objectifs
-- ne pas administrer la Fleet ni les Endpoint Policies;
-- ne pas définir protocole, API, commande, moteur, format, PKI, stockage ou plateforme supportée;
-- ne pas créer automatiquement Evidence, Finding, Decision, Response Run ou Govern Result;
-- ne pas commencer Analysis Workbench.
+Ne pas définir le format du package, les chemins, commandes, outils, compression, transport ou manifeste technique ; ne pas déclarer une plateforme supportée ; ne pas exécuter de containment.
 
 ## 5. Propriétaire
-Investigate / Collection and Live Response / Investigate Product Lead possède le contexte métier et les relations au Case. Platform Settings administre Fleet/Policies; Endpoint Agent exécute localement; Govern possède l’autorité risquée.
+Investigate / Collection and Live Response / Investigate Product Lead possède le contexte métier, les drafts et les relations au Case. Platform Settings reste propriétaire de Fleet et Endpoint Policies ; Endpoint Agent exécute et rapporte localement ; Govern conserve l’autorité, Decision, Response Run et Result.
 
 ## 6. Utilisateurs
-Principal : Case Analyst / DFIR Analyst. Secondaires : Investigation Lead, Evidence Reviewer, Incident Commander, approbateur Govern ou Platform Administrator en consultation selon la capability.
+Principal : Case Analyst ou DFIR Analyst. Secondaires : Investigation Lead, Evidence Reviewer et Response Operator.
 
 ## 7. Conditions d’entrée
-Tenant et environnement conservés, Case accessible, Endpoint résolu, fraîcheur et capacités visibles, policy projetée, permissions vérifiées et objectif explicite. Une dépendance absente produit un état partial/offline/unsupported, jamais un résultat inventé.
+Case actif, Endpoint résolu, profil disponible pour la capacité déclarée, catégories et limites sélectionnées, policy/permission vérifiées et classe d’action déterminée.
 
 ## 8. Entrées fonctionnelles
 | Entrée | Source | Type fonctionnel | Requise | Fraîcheur | Si absente |
-|---|---|---|---:|---|---|
-| Case et objectif | Investigate | contexte métier | oui | version courante | rester draft ou refuser la mutation |
-| Endpoint et état Agent | Platform Settings / Endpoint Agent | cible et disponibilité | oui | dernière communication visible | offline/unknown, aucune exécution présentée |
-| Scope, limites et classe | utilisateur / policy | contrat d’action | oui | validés au déclenchement | incomplete ou policy-blocked |
-| Autorité et permission | Security / Govern | droit et gate | selon classe | snapshot à l’action | denied ou awaiting-approval |
-| Données spécifiques | profile de triage, catégories, target, limites, Case | données locales | selon opération | source/version visibles | résultat partiel explicite |
+|---|---|---|---|---|---|
+| Case et besoin de triage | Investigate | objectif et contexte | oui | version courante | rester draft |
+| Endpoint, Agent et capacités | Settings / Endpoint Agent | cible et faisabilité | oui | dernière communication | offline ou unsupported |
+| Profil et catégories | catalogue/policy | scope de triage | oui | version du profil | aucun dispatch |
+| Bornes et impact conceptuel | analyste / policy | limites de collecte | oui | revalidés avant soumission | request incomplete |
+| Autorité et permission | Security / Govern | gate d’exécution | selon classe | snapshot à l’action | denied ou awaiting-approval |
 
 ## 9. Objets lus
 | Objet | Propriétaire | Projection utilisée | Droit local |
 |---|---|---|---|
-| Case | Investigate | identité, état, relations, fraîcheur ou autorité nécessaires | consulter et référencer; aucune administration implicite |
-| Endpoint | owner canonique ou concept à formaliser | identité, état, relations, fraîcheur ou autorité nécessaires | consulter et référencer; aucune administration implicite |
-| Endpoint Agent | Endpoint Agent | identité, état, relations, fraîcheur ou autorité nécessaires | consulter et référencer; aucune administration implicite |
-| Endpoint Policy | Platform Settings | identité, état, relations, fraîcheur ou autorité nécessaires | consulter et référencer; aucune administration implicite |
-| Collection Request | Investigate | identité, état, relations, fraîcheur ou autorité nécessaires | consulter et référencer; aucune administration implicite |
-| Collection Job | owner canonique ou concept à formaliser | identité, état, relations, fraîcheur ou autorité nécessaires | consulter et référencer; aucune administration implicite |
+| Case | Investigate | objectif, scope et restrictions | consulter et référencer |
+| Endpoint / Endpoint Agent | partagé / Endpoint Agent | disponibilité et catégories déclarées | consulter |
+| Endpoint Policy | Platform Settings | catégories permises, limites et restrictions | consulter uniquement |
+| Collection Request / Collection Job | Investigate / concept futur | profil, catégories, statut et résultats | préparer et suivre |
+| Artifact | Investigate | sorties déjà reçues et métadonnées d’acquisition | consulter et lier |
 
 ## 10. Objets créés ou modifiés
 | Objet | Opération | Propriétaire | Règle |
 |---|---|---|---|
-| Record métier Triage Package Collection | créer, mettre à jour ou supersede conceptuellement | Investigate, modèle final à Phase Objets | versionné, Case-scoped, sans machine finale |
-| Artifact ou relation Artifact | créer/lier seulement lorsqu’un résultat matériel existe | Investigate | source et acquisition requises; Artifact ≠ Evidence |
-| Événement métier | émettre vers Trace/Activity/Timeline/Audit Hooks | Shared mechanism, sémantique Investigate | acteur, cible, statut, erreur et correlation ID |
-| Objet externe | aucune mutation administrative ou d’autorité | owner externe | projection uniquement, sauf commande locale autorisée par contrat |
+| Triage request profile selection | créer, modifier ou supersede | Investigate | profil/version, catégories et limites obligatoires |
+| Collection Job category result | enregistrer résultat ou erreur par catégorie | Investigate, modèle futur | aucune agrégation ne masque un échec |
+| Artifact relation | créer pour une catégorie réussie | Investigate | origine, catégorie, acquisition et Case conservés |
+| Endpoint Policy / Fleet | aucune mutation | Platform Settings | projection en lecture seule |
 
 ## 11. Fonctionnalités
-- choisir profile; lancer; retry catégorie;
-- afficher capacités, limitations, policy, permission, classe, impact et autorité;
-- gérer progression, partial, retry ciblé, cancel, timeout, déconnexion et reprise autorisée;
-- lier les sorties au Case et aux Artifacts;
-- préserver return origin et contexte.
+- choisir un profil complet ou un sous-ensemble de catégories autorisées
+- prévisualiser catégories, limites et impact conceptuel avant soumission
+- afficher progression et résultat pour système, processus, connexions, comptes/sessions, persistence indicators, journaux et fichiers ciblés
+- conserver les catégories non disponibles comme unsupported ou policy-blocked
+- annuler la collecte ou relancer uniquement les catégories échouées lorsque permis
 
 ## 12. Actions utilisateur
 | Action | Rôle | Objet | Classe | Précondition | Résultat | Govern |
-|---|---|---|---:|---|---|---|
-| Consulter/inspecter | utilisateur autorisé | contexte et projections | 0 | read permission | vue sourcée et fraîcheur visible | non |
-| Préparer ou lancer collecte bornée | analyste autorisé | request/job concept | 1 | scope, policy et capacité | demande ou exécution non destructive | selon impact |
-| Modifier ou interrompre réversiblement | opérateur autorisé | session/opération/record | 2 | rollback/permission | transition auditée | OPEN-013 selon policy |
-| Préparer containment | Investigation Lead | Action Request | 3 | Finding/Evidence/impact/rollback | demande vers CAP-INV-113/Govern | obligatoire |
-| Préparer irréversible | Investigation Lead | Action Request | 4 | justification et alternatives | contexte seulement | obligatoire |
+|---|---|---|---|---|---|---|
+| Choisir un profil | DFIR Analyst | profil/version | 0 | catalogue accessible | scope explicite | non |
+| Retirer ou ajouter une catégorie autorisée | Case Analyst | Collection Request draft | 2 | policy et limites | nouvelle version du draft | OPEN-013 |
+| Soumettre la collecte de triage | analyste autorisé | Collection Request | 1 | request ready et Endpoint compatible | Collection Job créé/lié | selon impact |
+| Annuler avant fin | analyste autorisé | Collection Job | 2 | job cancellable | annulation demandée et tracée | OPEN-013 selon policy |
+| Relancer une catégorie | DFIR Analyst | résultat échoué | 1 | cause connue et retry permis | tentative ciblée liée | selon impact |
 
 ## 13. Automatisation et IA
 | Fonction | Manuel | Déterministe | Automatisable | IA possible | Alternative sans IA |
-|---|---:|---:|---:|---:|---|
-| Construire scope/checklist | oui | profiles et règles | oui | suggestion modifiable | formulaire et profiles déterministes |
-| Valider policy/capacité | oui | oui | oui | explication facultative | validateur et inventaire de capacités |
-| Suivre progression/erreurs | oui | oui | oui | résumé | états et résultats bruts inspectables |
-| Proposer prochaine action | oui | règles/workflow | oui | proposition attribuée | expertise humaine et procédures |
-| Exécuter action sensible | humain explicite | contrat autorisé | workflow possible | jamais autonome | action humaine/Govern |
+|---|---|---|---|---|---|
+| Proposer un profil | oui | règles par objectif/policy | oui | suggestion modifiable | catalogue et choix manuel |
+| Détecter un scope excessif | oui | limites déterministes | oui | explication facultative | validateur de bornes |
+| Suivre les catégories | oui | états par catégorie | oui | résumé | table de résultats brute |
+| Proposer un retry ciblé | oui | règles sur erreurs | oui | suggestion | sélection manuelle |
+| Lancer ou étendre la collecte | humain explicite | permission/gate | workflow possible | jamais autonome | action utilisateur |
 
-Toute sortie automatisée expose initiateur, moteur ou agent, version, Automation Run, Tool Calls, sources, paramètres fonctionnels, timestamp, statut, incertitude, owner humain, accept/modify/reject et trace.
+Toute sortie automatisée expose initiateur, producteur/version, Automation Run et Tool Calls lorsqu’ils existent, sources, paramètres fonctionnels, timestamp, statut, incertitude, owner humain, acceptation/modification/rejet et trace.
 
 ## 14. États fonctionnels
-`draft`, `validating`, `queued`, `collecting`, `partial`, `completed`, `failed`, `cancelled`, `unsupported`. Ces dimensions sont Draft et ne finalisent aucune machine d’état objet.
+`draft`, `validating`, `queued`, `collecting`, `partial`, `completed`, `failed`, `cancelled`, `unsupported`, `policy-blocked`. La machine d’état finale du Job est reportée.
 
 ## 15. États d’interface
-Loading conserve Case et cible; Empty distingue absence de capacité et absence de résultat; Partial détaille les éléments réussis/échoués; Error préserve les données valides; Offline interdit toute présentation d’exécution démarrée; Permission denied ne révèle rien; Stale expose la dernière synchronisation.
+Loading conserve profil et catégories ; Empty distingue profil absent et catégorie non sélectionnée ; Partial affiche chaque catégorie ; Error conserve les Artifacts valides ; Offline indique attente ou échec sans faux démarrage ; Permission denied masque les données ; Stale exige revalidation du profil.
 
 ## 16. Sorties
 | Sortie | Objet ou événement | Consommateur | Garantie |
 |---|---|---|---|
-| Résultats par catégorie, Artifacts, erreurs | record, relation ou événement métier | Case Workspace et capabilities dépendantes | cible, scope, acteur, statut, erreurs et version visibles |
-| Artifact éventuel | Artifact Investigate | CAP-INV-105 puis CAP-INV-107 | source/acquisition conservées; aucune Evidence automatique |
-| Progression et notification | Background Job/Notification projection | utilisateur et Case | succès partiels et échecs non masqués |
-| Trace/provenance | événements métier | CAP-INV-110/112/214 et audit | correlation IDs, producteurs et corrections conservés |
+| Résultat de catégorie | Collection result entry | CAP-INV-203/212 | statut, erreur, timestamps et scope visibles |
+| Artifact de triage | Artifact | CAP-INV-105/107 | catégorie, source et acquisition conservées |
+| Résumé de package | projection métier | Case Workspace | succès partiels jamais présentés comme succès complet |
+| Événements de progression | Background Job/Trace events | Notifications/Timeline | correlation ID et deep link |
 
 ## 17. Transitions
 | Source | Déclencheur | Destination | Contexte transmis | Retour |
 |---|---|---|---|---|
-| Case Workspace | ouvrir activité endpoint | Endpoint Context / capability courante | tenant, environnement, Case, Incident, Endpoint, objectif, return origin | même Case et position |
-| Endpoint Context | préparer/lancer | Collection Request, Job, Live Session ou opération | cible, capacités, policy, permission, classe, limites | Endpoint Context |
-| Exécution locale | résultat/erreur | Operation Result / Artifact Management | opération, output, erreurs, fichiers, timestamps, provenance | Case ou session |
-| Artifact | qualification humaine | CAP-INV-107 Evidence Creation | source, acquisition, Case, raison, transformations | Artifact |
-| Finding/action risquée | préparer demande | CAP-INV-113 puis Govern | Finding, Evidence, Endpoint, impact, alternatives, rollback | Case avec projection Govern |
+| CAP-INV-202 | profil validé | CAP-INV-203/204 | request, profil/version, catégories, bornes, autorité | Collection Request ou Case |
+| Catégorie réussie | sortie reçue | CAP-INV-105 | source, catégorie, acquisition, timestamps, erreurs | Triage Job |
+| Package partial | retry ciblé | CAP-INV-203 | catégorie échouée, cause, limites, autorité | même groupe de Job |
+| Artifact | qualification humaine | CAP-INV-107 | Artifact, Case, provenance, raison | Artifact Detail |
 
 ## 18. Dépendances
-CAP-INV-102, 105, 107, 108, 110, 112, 113; Platform Settings Fleet/Policies/Health; Endpoint Agent capabilities; Shared Background Jobs, Notifications, Trace, Timeline, Inspector, Context Bar, Linking, Export et recovery; Govern; Studio optional; décisions ouvertes listées au front matter.
+CAP-INV-202/203/105/107/212/213/214, Endpoint Agent collection, Settings Policy/Health, Shared Background Jobs/Notifications/Trace et OPEN-008/013.
 
 ## 19. Source de vérité
-Investigate est source du contexte métier et des relations Case. Platform Settings reste source de Fleet/Policy; Endpoint Agent de son état, commandes et résultats locaux; Govern de Decision/Response Run/Result; Studio d’Automation Run/Tool Calls; Shared des mécanismes génériques.
+Investigate possède le profil choisi, la request, le statut métier par catégorie et les relations au Case. Endpoint Agent reste source de l’exécution locale ; Settings reste source de la Policy ; Shared reste source du mécanisme Background Job.
 
 ## 20. Provenance et audit
-Case, Endpoint, Agent, policy/version, initiateur, permission, classe, scope, paramètres fonctionnels, autorité, timestamps, transitions, erreurs, résultats partiels, fichiers, Artifacts, Automation Run/Tool Calls, Action Request/Decision/Run/Result et disposition humaine.
+Case, Endpoint/Agent, profil/version, catégories, bornes, policy/version, initiateur, autorité, dispatch, résultat/erreur par catégorie, retries, Artifacts et correlation IDs.
 
 ## 21. Permissions fonctionnelles
-Endpoint read, capability read, collection prepare/submit/cancel/retry, raw result read, Artifact receive/export, Live Session request/open/join/extend/close, operation execute/interrupt, file transfer, inspection, memory/network request, containment request, sensitive output, cross-tenant/environment, transcript read, result verify et custody review selon la capability. Step-up, séparation des tâches et matrice atomique sont reportés.
+Endpoint/capability read, collection prepare/submit/cancel/retry, raw category result read, Artifact receive et sensitive-output read. Step-up et séparation des tâches restent à la phase Permissions.
 
 ## 22. Limites et erreurs
-Endpoint offline/stale/unsupported, Agent absent ou degraded, policy blocked, scope trop large, permission révoquée, timeout, déconnexion, conflit de session, résultat partiel, fichier manquant/verrouillé, cible changée, Govern indisponible ou tenant mismatch. Aucun retry ne duplique silencieusement l’effet.
+Profil absent ou incompatible, catégorie unsupported, Endpoint offline, policy blocked, scope trop large, timeout, catégorie partielle, résultat tardif ou permission révoquée. Aucun package complet n’est déclaré si une catégorie requise échoue.
 
 ## 23. Métriques
-Temps de préparation et d’exécution, demandes bloquées par capacité/policy, résultats partiels, retries ciblés, annulations, déconnexions, Artifacts avec origine complète, opérations avec provenance complète, erreurs par catégorie et retours Case réussis.
+Packages par profil, catégories réussies/échouées, taux partial, retries ciblés, annulations, Artifacts par catégorie et scopes réduits après validation.
 
 ## 24. Classification de livraison
-`defined` / `planned`. Cible native via Endpoint Agent, mais aucune plateforme, moteur, protocole, commande, API ou release n’est prouvée. Promotion conditionnée par OPEN-008, objets, permissions, contrats d’autorité, preuve d’implémentation et validation.
+`defined` / `planned`. Aucun format, moteur, commande, protocole ou support plateforme n’est déclaré livré.
 
 ## 25. Critères d’acceptation
-**Given** un Case, un Endpoint disponible et un utilisateur autorisé **When** il utilise Triage Package Collection **Then** cible, scope, policy, classe, progression, résultat et retour au Case sont visibles sans transfert d’ownership.
+**Given** une collecte comportant plusieurs catégories **When** certaines réussissent et d’autres échouent **Then** l’état est `partial`, chaque catégorie expose son résultat et seuls les Artifacts réussis sont liés.
 
-**Given** un Endpoint offline, unsupported ou une permission refusée **When** l’action est demandée **Then** aucune exécution n’est présentée comme démarrée, l’état et les options sûres sont explicites et le Case reste accessible.
+**Given** une catégorie bloquée par policy **When** l’analyste valide le profil **Then** la catégorie et la raison sont visibles et aucun dispatch silencieux n’a lieu.
 
-**Given** aucun fournisseur de modèle **When** le workflow est exécuté **Then** formulaires, profiles, règles, validateurs, Jobs, revue et actions humaines permettent le résultat essentiel.
+**Given** aucun modèle IA **When** un package est préparé **Then** le catalogue, les limites, la checklist et le suivi déterministe permettent le workflow complet.
 
 ## 26. Questions ouvertes
-OPEN-008 conserve les plateformes; OPEN-013 la gouvernance classe 2; OPEN-007 Human Gate/Govern; OPEN-015 Automation Run/Response Run; OPEN-005 les moteurs forensics futurs lorsque référencé. Les objets et permissions détaillés restent à leurs phases.
+OPEN-008 conserve le support plateforme ; OPEN-013 la gouvernance de certaines mutations/retries. Le format du package et les catégories finales restent aux phases Technique/Objets.
 
 ## 27. Consommateurs documentaires
-Module Collection and Live Response, Case Workspace, Evidence Board, Platform Settings Fleet/Policies/Health, Govern Action Center et Runs, parcours Endpoint investigation/containment/offline recovery, phases Objets/Permissions/Technique et future Phase 4B.2B uniquement comme handoff Artifact.
+Collection Job Management, Artifact Management, Evidence Review, Case Workspace, Endpoint Agent collection, parcours Endpoint investigation et phases Objets/Permissions/Technique.
