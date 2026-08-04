@@ -3,59 +3,73 @@ id: 06-command-product-definition
 domain: 06-command
 status: draft
 owner: Command Product Lead
-updated: 2026-08-03
+updated: 2026-08-04
 source-of-truth: canonical
+requirements:
+  - REQ-PROD-003
+  - REQ-PROD-008
+  - REQ-PROD-010
+  - REQ-PROD-013
+  - REQ-PROD-021
+  - REQ-OBJ-001
+  - REQ-OBJ-012
+  - REQ-UX-008
+  - REQ-UX-009
+open_decisions:
+  - OPEN-006
+  - OPEN-013
 ---
-# Définition du produit Command
+# Product boundary and functional definition — Command
 
-## Objectif
+## Définition
 
-Coordonner la situation opérationnelle, les priorités, les incidents, les risques et les livrables.
+Command est le produit de coordination opérationnelle de CMDR. Il reçoit ou crée le travail Command, maintient owner, priorité, état de travail, impact, SLA, prochaine action et relations, puis transmet le contexte aux produits propriétaires lorsque investigation, autorité ou exécution sont nécessaires.
 
-## Périmètre
+## Résultats utilisateurs
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
+- savoir ce qui compte maintenant et pourquoi ;
+- savoir qui possède chaque prochaine action ;
+- travailler dans une Work Queue unique ;
+- conserver le contexte entre Command, Investigate, Govern et Studio ;
+- distinguer faits, projections, propositions et décisions ;
+- préparer une relève ou une escalade sans perte d’information.
 
-## Propriétaire fonctionnel
+## Ownership
 
-Command Product Lead.
+| Concept | Owner | Droit Command |
+|---|---|---|
+| Incident | Command | créer, coordonner, modifier selon permission |
+| Task opérationnelle | Command | créer, coordonner, modifier selon permission |
+| Case / Evidence / Finding | Investigate | lire, relier, naviguer, demander création/action |
+| Action Request / Decision / Response Run / Result | Govern | fournir contexte, lire projection, suivre |
+| Workflow / Automation Run | Studio | lancer si autorisé, inspecter, suivre |
+| Endpoint Agent Fleet | Platform Settings | lire health/capability projection |
+| Shared engines | Shared Capabilities | consommer, jamais dupliquer |
 
-## Objets concernés
+## Frontières
 
-- Concepts du document
-- Références canoniques liées
+Command ne fournit pas terminal, forensic, debugger, sandbox, Detection Engineering, approval, Response Run execution, agent builder ou fleet administration. Une projection locale ne devient pas une copie propriétaire.
 
-## Fonctionnalités
+## Actions à effet
 
-- Décisions propriétaires de Command.
-- Frontières avec les autres produits.
-- Objets possédés selon le registre.
-- Transitions entrantes et sortantes.
+- classe 0 : observation, lecture, filtre, navigation ;
+- classe 1 : une demande de collecte part vers Investigate ;
+- classe 2 : mutations Command réversibles, sous permissions et OPEN-013 ;
+- classe 3 : Command prépare/suit la demande, Govern décide et exécute ;
+- classe 4 : Command apporte le contexte, Govern gère l’autorité et la réponse.
 
-## UX et interactions
+## Delivery
 
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
+La cible produit est native pour les capabilities cœur. Le mode courant reste `planned`; un document ne prouve ni implementation, ni endpoint, ni moteur.
 
-## Permissions
+## Non-objectifs Phase 4A
 
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
+- écrire les 27 sections détaillées des écrans ;
+- définir toutes les colonnes ;
+- formaliser les schémas complets des objets ;
+- finaliser permissions, API, protocoles ou stockage ;
+- définir les capabilities Investigate, Govern, Studio, Settings ou Endpoint Agent.
 
-## États
+## Critère
 
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
-
-## Dépendances
-
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- À compléter — décision source non fournie dans le brief canonique.
+**Given** une mutation ayant un effet hors Command, **When** l’utilisateur la demande, **Then** Command prépare un package sourcé et transfère au produit propriétaire ; aucune autorité ou exécution n’est simulée localement.

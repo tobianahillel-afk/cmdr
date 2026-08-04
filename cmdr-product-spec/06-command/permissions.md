@@ -3,58 +3,54 @@ id: 06-command-permissions
 domain: 06-command
 status: draft
 owner: Command Product Lead
-updated: 2026-08-03
+updated: 2026-08-04
 source-of-truth: canonical
+requirements:
+  - REQ-SEC-001
+  - REQ-SEC-002
+  - REQ-PROD-013
+open_decisions:
+  - OPEN-013
 ---
-# Permissions utilisées par Command
+# Functional permission needs — Command
 
-## Objectif
+## Modèle référencé
 
-Référencer les permissions de Command sans les redéfinir.
+Command consomme RBAC, ABAC tenant/environnement/ownership/classification, Decision Authority, Separation of Duties et step-up selon `../14-security-permissions-and-trust/permission-model.md`.
 
-## Périmètre
+## Familles existantes
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
+- `perm.command.read`
+- `perm.command.coordinate`
+- `perm.command.incident.read`
+- `perm.command.incident.manage`
+- `perm.command.alert.read/manage`
+- `perm.command.signal.read/manage`
+- `perm.command.task.manage`
+- `perm.command.saved-view.share`
+- permissions Investigate/Govern/Shared lorsqu’une transition ou projection l’exige.
 
-## Propriétaire fonctionnel
+## Besoins fonctionnels non finalisés
 
-Command Product Lead.
+| Besoin | Capabilities | Lacune |
+|---|---|---|
+| lecture Task distincte | CAP-CMD-101/107 | `perm.command.task.read` absente ou non normalisée |
+| assignment/reassignment | CAP-CMD-102/103 | granularité manage trop large |
+| priorité/impact | CAP-CMD-002/104/204 | permission atomique et owner métier non décidés |
+| pause SLA | CAP-CMD-105 | policy + permission + OPEN-013 |
+| bulk actions | CAP-CMD-108 | permission batch et limites non définies |
+| handover send/ack | CAP-CMD-004 | permissions par rôle non définies |
+| readiness/exercise/plan | CAP-CMD-301..305 | namespaces spécifiques absents |
+| customer/contract scope | CAP-CMD-401 | dépend de OPEN-006 |
 
-## Objets concernés
+## Règles
 
-- Concepts du document
-- Références canoniques liées
+- lire n’implique ni exporter, ni modifier, ni lancer un workflow ;
+- la permission d’un lien n’accorde pas celle de l’objet destination ;
+- les actions de classe 2 restent soumises à OPEN-013 ;
+- Command ne reçoit jamais `decision.approve`, `response-run.execute` ou permission de containment ;
+- la matrice atomique et les namespaces sont reportés à la phase permissions.
 
-## Fonctionnalités
+## Critère
 
-- Source unique: `../14-security-permissions-and-trust/permission-model.md`.
-- Le frontend ne remplace pas l’autorisation serveur.
-- Export et exécution sont séparés de la lecture.
-
-## UX et interactions
-
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
-
-## Permissions
-
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
-
-## États
-
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
-
-## Dépendances
-
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- À compléter — décision source non fournie dans le brief canonique.
+**Given** un utilisateur pouvant lire un Incident mais non le gérer, **When** il ouvre Priority Management, **Then** les facteurs sont visibles, la mutation est refusée avec raison, et aucune donnée d’un autre tenant n’est révélée.

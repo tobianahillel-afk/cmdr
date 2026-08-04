@@ -3,59 +3,42 @@ id: 06-command-navigation
 domain: 06-command
 status: draft
 owner: Command Product Lead
-updated: 2026-08-03
+updated: 2026-08-04
 source-of-truth: canonical
+requirements:
+  - REQ-PROD-013
+  - REQ-UX-001
+  - REQ-UX-007
+  - REQ-UX-008
 ---
-# Navigation Command
+# Navigation — Command
 
-## Objectif
+## Navigation primaire
 
-Définir la sidebar et la navigation locale de Command.
+Command est une destination produit du Global Header. Investigate, Govern et Studio sont des transitions explicites, jamais des sous-menus Command.
 
-## Périmètre
+## Navigation locale
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
+| Destination | Type | Condition |
+|---|---|---|
+| Mission Control | module/workspace | toujours si `perm.command.read` |
+| Work Queue | workspace | toujours si au moins Incident ou Task autorisé |
+| Risk and Coverage | module | projections disponibles ou Empty explicable |
+| Readiness and Operations | module | lecture readiness autorisée |
+| Customers and Delivery | module proposé | deployment profile + permission |
 
-## Propriétaire fonctionnel
+## Liens d’objet
 
-Command Product Lead.
+Incident Detail ouvre depuis Work Queue, Mission Control, Search, Notification ou lien profond. Case, Decision, Run, Result et Workflow ouvrent dans leur produit propriétaire.
 
-## Objets concernés
+## Retour
 
-- Concepts du document
-- Références canoniques liées
+Le bouton Back restaure l’origine réelle. Une erreur de permission ou de transition ne remplace pas le workspace source.
 
-## Fonctionnalités
+## Command Palette et Search
 
-- Ordre par workflow.
-- État actif accessible.
-- Liens profonds.
-- Retour interproduits.
+La Command Palette lance navigation et actions autorisées mais pas une action dangereuse directe. Global Search renvoie uniquement les objets autorisés et leur owner produit.
 
-## UX et interactions
+## Critère
 
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
-
-## Permissions
-
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
-
-## États
-
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
-
-## Dépendances
-
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- À compléter — décision source non fournie dans le brief canonique.
+**Given** un Incident ouvert depuis `view=sla-risk`, **When** l’utilisateur ouvre un Case puis revient deux fois, **Then** Incident Detail puis la Work Queue `SLA Risk` sont restaurés avec le même contexte.

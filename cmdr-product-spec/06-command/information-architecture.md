@@ -3,61 +3,53 @@ id: 06-command-information-architecture
 domain: 06-command
 status: draft
 owner: Command Product Lead
-updated: 2026-08-03
+updated: 2026-08-04
 source-of-truth: canonical
+requirements:
+  - REQ-PROD-013
+  - REQ-UX-001
+  - REQ-UX-008
+  - REQ-UX-009
+open_decisions:
+  - OPEN-006
+  - OPEN-010
 ---
-# Architecture d’information Command
+# Information architecture — Command
 
-## Objectif
+## Destinations locales
 
-Définir les modules et workspaces de Command.
+1. **Mission Control**
+2. **Work Queue**
+3. **Risk and Coverage**
+4. **Readiness and Operations**
+5. **Customers and Delivery** — seulement si activé pour le déploiement.
 
-## Périmètre
+Incident Detail est une destination d’objet, pas un module de navigation parallèle.
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
+## Work Queue
 
-## Propriétaire fonctionnel
+La route reste stable. Les six vues sont des configurations Saved Views ; les anciens Screen IDs `CMD-IWQ-001` à `005` restent aliases dépréciés. La vue change par paramètre, pas par page.
 
-Command Product Lead.
+## Hiérarchie
 
-## Objets concernés
+Global Header → Context Bar → navigation locale Command → workspace actif → Inspector unique. Une transition interproduit conserve return origin, tenant, environnement, objet, filtres et sélection lorsque autorisé.
 
-- Concepts du document
-- Références canoniques liées
+## Modules historiques
 
-## Fonctionnalités
+| Ancien module | Destination canonique | Écrans concernés |
+|---|---|---|
+| exposure-and-coverage | Risk and Coverage | CMD-EXC-001 |
+| risk-and-business-impact | Risk and Coverage | CMD-RBI-001 |
+| customer-and-reports | Customers and Delivery proposé | CMD-CRP-001 |
 
-- `mission-control`
-- `incidents-and-work-queue`
-- `risk-and-business-impact`
-- `exposure-and-coverage`
-- `readiness-and-operations`
-- `customer-and-reports`
+Les fichiers d’écran ne sont pas réécrits en Phase 4A.
 
-## UX et interactions
+## Progressive disclosure
 
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
+1. owner, priority, impact, SLA, freshness et next action ;
+2. relations, timeline, Tasks, services, blockers et projections ;
+3. trace, audit, sources, versions et détails techniques dans le produit propriétaire.
 
-## Permissions
+## Critère
 
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
-
-## États
-
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
-
-## Dépendances
-
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- À compléter — décision source non fournie dans le brief canonique.
+**Given** un utilisateur qui change de module ou ouvre un objet lié, **When** il revient, **Then** le module, le workspace, la vue, les filtres, la sélection et le scroll sont restaurés sans créer de destination concurrente.
