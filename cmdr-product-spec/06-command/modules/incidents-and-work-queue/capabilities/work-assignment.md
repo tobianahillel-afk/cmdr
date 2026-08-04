@@ -17,115 +17,119 @@ open_decisions:
   - OPEN-013
 source-of-truth: canonical
 ---
+
 # CAP-CMD-102 — Work Assignment
 
 ## 1. Définition
 Gère l’affectation explicite d’un Incident ou d’une Task à une équipe et/ou un utilisateur, avec prise en charge, libération, réaffectation, proposition et conflits.
 
 ## 2. Problème utilisateur
-Un item peut sembler affecté sans acceptation ou être réassigné pendant une action. Rôles : Incident Commander, SOC Analyst, Team Lead, Task owner. Sans la capacité, le travail reste sans responsable effectif et le SLA dérive.
+Un item peut sembler affecté sans acceptation ou être réassigné pendant une action. Sans distinction, le travail reste sans responsable effectif et le SLA dérive.
 
 ## 3. Objectifs
-Séparer proposition, affectation et acceptation ; expliquer toute proposition ; gérer indisponibilité et conflit ; conserver l’historique sans modifier l’ownership canonique du type d’objet.
+Séparer proposition/affectation/acceptation, expliquer les propositions, gérer indisponibilité/conflit et conserver l’historique sans changer l’ownership canonique.
 
 ## 4. Non-objectifs
-Ne pas administrer les identités, créer une politique RH, transférer l’ownership produit ou permettre à un agent de s’accorder des droits.
+N’administre pas les identités, ne crée pas de policy RH, ne transfère pas l’ownership produit et n’autorise pas un agent à s’accorder des droits.
 
 ## 5. Propriétaire
 Command / Incidents and Work Queue / Command Product Lead pour l’affectation opérationnelle des objets Command.
 
 ## 6. Utilisateurs
-Principal : Incident Commander. Secondaires : SOC Analyst, Team Lead, Task owner. Les projections d’identité restent Platform Settings.
+Principal : Incident Commander. Secondaires : SOC Analyst, Team Lead, Task owner.
 
 ## 7. Conditions d’entrée
 Work item accessible, candidat résolu, permission de coordination et version courante.
 
 ## 8. Entrées fonctionnelles
 | Entrée | Source | Type fonctionnel | Requise | Fraîcheur | Si absente |
-|---|---|---|---|---|---|
-| Work item | Incident/Task | objet | oui | version courante | refuser mutation |
-| Candidate | identity projection | principal/équipe | oui | disponibilité connue ou unknown | confirmation explicite |
-| Rationale | humain/règle/moteur/agent | raison/provenance | oui si proposition | run/version | proposition non effective |
+|---|---|---|---:|---|---|
+| Work item | Incident ou Task | objet Command | oui | version courante | mutation refusée |
+| Candidate | Platform Settings identity projection | principal ou équipe | oui | disponibilité courante ou `unknown` | confirmation explicite requise |
+| Rationale | humain, règle, moteur ou agent | raison et provenance | oui pour proposition | run/version visible | proposition non effective |
 
 ## 9. Objets lus
 | Objet | Propriétaire | Projection utilisée | Droit local |
 |---|---|---|---|
-| Incident / Task | Command | assignment, owner, state | lecture/modification |
-| Principal / Role | Platform Settings | identité, équipe, disponibilité | projection |
+| Incident / Task | Command | assignment, owner et état | consulter et modifier si autorisé |
+| Principal / Role | Platform Settings | identité, équipe et disponibilité | consulter et sélectionner en projection |
 
 ## 10. Objets créés ou modifiés
 | Objet | Opération | Propriétaire | Règle |
 |---|---|---|---|
-| Incident / Task | assignment et acceptance state | Command | classe 2, version et audit |
-| Notification | demande de prise en charge | Shared | ne vaut pas acceptation |
+| Incident / Task | affecter, accepter, libérer ou réaffecter | Command | classe 2, version et audit |
+| Notification | demander une prise en charge | Shared Capabilities | ne vaut jamais acceptation |
+| Identity projection | aucune mutation | Platform Settings | lecture seule |
 
 ## 11. Fonctionnalités
-Affecter/réaffecter ; prendre/libérer ; proposer sans appliquer ; expliquer contraintes ; détecter et résoudre un conflit de version.
+Affecter/réaffecter, prendre/libérer, proposer sans appliquer, expliquer les contraintes et détecter/résoudre un conflit de version.
 
 ## 12. Actions utilisateur
 | Action | Rôle | Objet | Classe | Précondition | Résultat | Govern |
 |---|---|---|---:|---|---|---|
 | Affecter | coordinateur | Incident/Task | 2 | candidat autorisé | assigned | OPEN-013 |
 | Prendre en charge | analyste | Incident/Task | 2 | assignment compatible | accepted | OPEN-013 |
-| Libérer | owner actuel | Incident/Task | 2 | raison | unassigned/team-owned | OPEN-013 |
-| Réaffecter | coordinateur | Incident/Task | 2 | version courante | pending/assigned | OPEN-013 |
-| Accepter proposition | coordinateur | proposal | 2 | provenance visible | mutation humaine auditée | OPEN-013 |
+| Libérer ou réaffecter | owner/coordinateur | Incident/Task | 2 | raison et version | nouvel état d’affectation | OPEN-013 |
+| Accepter une proposition | coordinateur | proposition | 2 | facteurs visibles | mutation humaine auditée | OPEN-013 |
 
 ## 13. Automatisation et IA
-| Fonction | Humain | Règle | Moteur déterministe | Workflow | Agent | Govern | Alternative sans IA |
-|---|---|---|---|---|---|---|---|
-| Affecter | oui | oui si policy | validation/conflit | possible | proposition seulement | OPEN-013 | sélection manuelle |
-| Expliquer candidat | correction | critères explicables | score/facteurs visibles | possible | résumé attribué | non | données équipe/charge |
-Aucune proposition ne devient effective sans contrat autorisé et trace.
+| Fonction | Manuel | Déterministe | Automatisable | IA possible | Alternative sans IA |
+|---|---:|---:|---:|---:|---|
+| Rechercher un candidat | oui | oui | oui | suggestion attribuée | sélection d’équipe/utilisateur et filtres |
+| Proposer une affectation | oui | facteurs explicables | oui | oui, non effective | règles de charge/compétence et choix humain |
+| Appliquer l’affectation | oui | validation/version | workflow autorisé | jamais silencieusement | action manuelle complète |
+| Détecter un conflit | résolution humaine | oui | oui | explication possible | contrôle de version et refresh |
 
 ## 14. États fonctionnels
 `unassigned`, `assigned`, `accepted`, `declined`, `reassignment-pending`, `unavailable`, `conflict`.
 
 ## 15. États d’interface
-Loading conserve l’item ; Empty explique l’absence de candidat ; Partial montre données manquantes ; Error garde version valide ; Offline bloque mutation ; Permission denied ne divulgue rien ; Stale force refresh. Rendu : Design System.
+Empty explique l’absence de candidat ; Partial montre les données manquantes ; Offline bloque mutation ; Permission denied ne divulgue rien ; Stale impose refresh.
 
 ## 16. Sorties
 | Sortie | Objet ou événement | Consommateur | Garantie |
 |---|---|---|---|
-| Assignment update | Incident/Task event | Queue, notifications, handover | before/after, actor, reason |
-| Proposal disposition | audit event | producer/analystes | accepted/rejected/expired |
+| Assignment update | événement Incident/Task | Queue, Notifications et Handover | before/after, acteur et raison conservés |
+| Proposal disposition | événement d’audit | producteur et analystes | accepted/rejected/expired distinct de l’affectation |
+| Assignment conflict | événement | coordinateur | versions concurrentes visibles, aucun écrasement |
 
 ## 17. Transitions
 | Source | Déclencheur | Destination | Contexte transmis | Retour |
 |---|---|---|---|---|
-| Assignment | candidat indisponible | Escalation | item, raison, délai | file |
-| Accepted | transfert de handover | Handover | items/destinataire | acknowledgement séparé |
+| Work Assignment | candidat indisponible | Escalation | item, raison, délai et owner courant | même item dans la file |
+| Work Assignment | relève acceptée | Handover | items, destinataire et état d’acceptation | acknowledgement séparé |
+| Work Assignment | identité sélectionnée | Platform Settings profile | principal, équipe et return origin | item restauré |
 
 ## 18. Dépendances
-Identity projection, Notification Center, Collaboration Service, CAP-CMD-103 et CAP-CMD-110. Aucun ownership externe n’est transféré.
+Identity projection, Notification Center, Collaboration Service, CAP-CMD-103 et CAP-CMD-110.
 
 ## 19. Source de vérité
-Assignment effectif et historique sont Command ; identité/disponibilité sont des projections ; recommendation conserve producteur, version/run et facteurs.
+Assignment effectif/historique : Command. Identité/disponibilité : Platform Settings. Recommandation : producteur/version/facteurs visibles.
 
 ## 20. Provenance et audit
-Chaque proposition/mutation enregistre acteur/producteur, source, version, before/after, raison, résultat, tenant, environnement et correlation ID.
+Proposition ou mutation : acteur/producteur, source, version, before/after, raison, résultat, tenant et correlation ID.
 
 ## 21. Permissions fonctionnelles
-`perm.command.coordinate`, `perm.command.incident.manage`, `perm.command.task.manage`, ABAC team/tenant. Granularité et `OPEN-013` restent ouvertes.
+`perm.command.coordinate`, `perm.command.incident.manage`, `perm.command.task.manage`, ABAC team/tenant ; granularité et `OPEN-013` restent ouvertes.
 
 ## 22. Limites et erreurs
-Candidat inaccessible, disponibilité inconnue, conflit de version, changement de tenant/environnement, item stale ou permission refusée empêchent une mutation présentée comme réussie. Le draft est récupérable.
+Candidat inaccessible, disponibilité inconnue, conflit, tenant incompatible, item stale ou permission refusée empêchent une mutation réussie fictive.
 
 ## 23. Métriques
-Temps item→assignment accepté ; proposals acceptées/rejetées ; conflits ; libérations sans remplacement. Aucune cible définitive.
+Temps item→assignment accepté, propositions acceptées/rejetées, conflits et libérations sans remplacement ; aucune cible définitive.
 
 ## 24. Classification de livraison
-`defined` / `planned`, cible native. Preuve documentaire seulement ; promotion après objets, permissions, parcours, écrans, contrats, implémentation et validation.
+`defined` / `planned`, cible native ; preuve documentaire seulement.
 
 ## 25. Critères d’acceptation
-**Given** un item unassigned et un candidat autorisé, **When** le coordinateur l’affecte, **Then** assignment, acteur, raison et version sont auditables et l’acceptation reste distincte.
+**Given** un item unassigned, **When** il est affecté, **Then** assignment, acteur, raison et acceptation restent distincts et auditables.
 
-**Given** une proposition IA, **When** elle est consultée, **Then** elle reste non effective, facteurs et producer sont visibles et l’utilisateur peut accepter/rejeter.
+**Given** une proposition IA, **When** elle est consultée, **Then** elle reste non effective et peut être acceptée/rejetée.
 
-**Given** aucun modèle IA ou un conflit de version, **When** l’affectation est tentée, **Then** la voie manuelle fonctionne ou le conflit bloque proprement sans écraser l’autre mutation.
+**Given** un conflit ou aucun modèle, **When** l’affectation est tentée, **Then** le conflit bloque proprement ou la sélection manuelle reste disponible.
 
 ## 26. Questions ouvertes
-L’acceptation est-elle obligatoire par tenant ? Quelle donnée d’indisponibilité est légitime sans devenir RH ? — REQ-PROD-003, REQ-PROD-013, REQ-PROD-021, REQ-SEC-001. `OPEN-013` reste ouverte.
+L’acceptation est-elle obligatoire par tenant et quelle donnée d’indisponibilité est légitime ? — Requirement IDs ci-dessus ; `OPEN-013` reste ouverte.
 
 ## 27. Consommateurs documentaires
-Unified Work Queue, Incident Detail, Mission Control, Handover, parcours Phase 5, écrans Phase 6, objets Phase 7 et permissions/contrats ultérieurs.
+Unified Work Queue, Incident Detail, Mission Control, Handover, parcours Phase 5, écrans Phase 6, objets Phase 7 et permissions ultérieures.

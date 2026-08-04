@@ -34,7 +34,7 @@ source-of-truth: canonical
 ---
 ```
 
-`delivery_status` décrit la maturité fonctionnelle du document. `delivery_mode` décrit la preuve de livraison actuelle. Une capability peut donc être `defined` et `planned`.
+`delivery_status` décrit la maturité fonctionnelle. `delivery_mode` décrit la preuve de livraison actuelle. Une capability peut être `defined` et `planned`.
 
 ## Convention d’identifiants
 
@@ -46,55 +46,51 @@ source-of-truth: canonical
 - `CAP-EPT-xxx` — Endpoint Agent ;
 - `CAP-SHR-xxx` — Shared Capabilities.
 
-Un identifiant est unique, immuable, indépendant du chemin, inscrit dans le Capability Register et non recyclé après dépréciation. Les plages numériques peuvent regrouper les modules sans donner un sens fonctionnel au numéro.
+Un identifiant est unique, immuable, indépendant du chemin, inscrit dans le Capability Register et non recyclé.
 
 ## 1. Définition
-
-Définition normative courte, suffisamment précise pour distinguer cette capability de ses voisines.
+Définition normative courte et distinctive.
 
 ## 2. Problème utilisateur
-
-Décrire la situation, les utilisateurs et la conséquence observable sans la capability.
+Situation, utilisateurs et conséquence observable sans la capability.
 
 ## 3. Objectifs
-
-Lister les résultats attendus, pas les composants d’interface.
+Résultats attendus, pas composants d’interface.
 
 ## 4. Non-objectifs
-
-Définir explicitement ce que la capability ne fait pas et les propriétaires concernés.
+Frontières explicites et propriétaires concernés.
 
 ## 5. Propriétaire
-
-Préciser produit, module, rôle responsable et justification de l’ownership.
+Produit, module, rôle responsable et justification.
 
 ## 6. Utilisateurs
-
-Distinguer rôle principal, rôles secondaires et responsabilités.
+Rôle principal, rôles secondaires et responsabilités.
 
 ## 7. Conditions d’entrée
-
-Préciser contexte, objets, données, familles de permissions et états requis.
+Contexte, objets, données, permissions générales et états requis.
 
 ## 8. Entrées fonctionnelles
 
 | Entrée | Source | Type fonctionnel | Requise | Fraîcheur | Si absente |
-|---|---|---|---|---|---|
+|---|---|---|---:|---|---|
+
+Une ligne par entrée significative ; aucune cellule `N/A` sans justification.
 
 ## 9. Objets lus
 
 | Objet | Propriétaire | Projection utilisée | Droit local |
 |---|---|---|---|
 
+Une projection n’accorde ni ownership ni mutation du cycle de vie source.
+
 ## 10. Objets créés ou modifiés
 
 | Objet | Opération | Propriétaire | Règle |
 |---|---|---|---|
 
-Une projection n’accorde jamais l’ownership ou le droit de modifier le cycle de vie de l’objet source.
+Même sans mutation, conserver une ligne explicite décrivant la projection en lecture seule ou l’événement produit.
 
 ## 11. Fonctionnalités
-
 Chaque fonction possède un comportement observable et une frontière claire.
 
 ## 12. Actions utilisateur
@@ -102,22 +98,20 @@ Chaque fonction possède un comportement observable et une frontière claire.
 | Action | Rôle | Objet | Classe | Précondition | Résultat | Govern |
 |---|---|---|---:|---|---|---|
 
-Utiliser les classes 0 à 4. Une action de classe 3 ou 4 initiée depuis un produit non propriétaire devient une demande vers Govern, jamais une exécution locale.
+Utiliser les classes 0 à 4. Une action de classe 3 ou 4 initiée hors Govern devient une demande, jamais une exécution locale.
 
 ## 13. Automatisation et IA
 
-| Fonction | Humain | Règle | Moteur déterministe | Workflow | Agent | Govern | Alternative sans IA |
-|---|---|---|---|---|---|---|---|
+| Fonction | Manuel | Déterministe | Automatisable | IA possible | Alternative sans IA |
+|---|---:|---:|---:|---:|---|
 
-Toutes les fonctions essentielles possèdent une voie manuelle ou déterministe. Une suggestion d’agent reste attribuée et n’acquiert aucune autorité.
+Ce tableau est obligatoire. Chaque fonction essentielle possède une alternative manuelle ou déterministe. Une matrice secondaire Humain/Règle/Moteur/Workflow/Agent/Govern peut compléter ce tableau mais ne le remplace pas.
 
 ## 14. États fonctionnels
-
-Définir les états du travail porté par la capability. Ne pas recopier automatiquement une machine d’état d’objet.
+États propres au travail porté par la capability, distincts des machines d’état d’objet.
 
 ## 15. États d’interface
-
-Décrire uniquement les implications fonctionnelles de Loading, Empty, Partial, Error, Offline, Permission denied et Stale lorsque pertinent. Le Design System reste propriétaire du rendu.
+Implications fonctionnelles de Loading, Empty, Partial, Error, Offline, Permission denied et Stale. Le Design System possède le rendu.
 
 ## 16. Sorties
 
@@ -129,46 +123,38 @@ Décrire uniquement les implications fonctionnelles de Loading, Empty, Partial, 
 | Source | Déclencheur | Destination | Contexte transmis | Retour |
 |---|---|---|---|---|
 
-## 18. Dépendances
+La transition conserve l’ownership du produit destination et le return origin.
 
-Lister capabilities, objets, Shared Capabilities, produits et décisions ouvertes.
+## 18. Dépendances
+Capabilities, objets, Shared Capabilities, produits et décisions ouvertes.
 
 ## 19. Source de vérité
-
-Distinguer données propriétaires, projections, sources externes et données dérivées.
+Données propriétaires, projections, sources externes et données dérivées.
 
 ## 20. Provenance et audit
-
-Décrire acteur, moteur, source, changement, trace et conservation conceptuelle.
+Acteur, moteur, source, changement, trace et conservation conceptuelle.
 
 ## 21. Permissions fonctionnelles
-
-Référencer les familles existantes et signaler les besoins futurs. Ne pas créer la matrice atomique finale.
+Familles existantes et lacunes futures, sans matrice atomique finale.
 
 ## 22. Limites et erreurs
-
-Couvrir données absentes ou stale, objet inaccessible, dépendance indisponible, conflit, changement de tenant ou environnement et autorisation refusée.
+Données absentes ou stale, objet inaccessible, dépendance indisponible, conflit, tenant/environnement et autorisation refusée.
 
 ## 23. Métriques
-
-Définir des familles de métriques conceptuelles, sans cible numérique non approuvée.
+Métriques conceptuelles sans cible numérique non approuvée.
 
 ## 24. Classification de livraison
-
-Documenter delivery mode, preuve actuelle, cible, dépendances et conditions de promotion.
+Delivery mode, preuve actuelle, cible, dépendances et conditions de promotion.
 
 ## 25. Critères d’acceptation
-
-Au moins trois scénarios Given/When/Then spécifiques : voie nominale, erreur/permission et fonctionnement sans IA lorsque la capability peut utiliser une IA.
+Au moins trois scénarios Given/When/Then spécifiques : nominal, erreur/permission et voie sans IA lorsque pertinente.
 
 ## 26. Questions ouvertes
-
-Chaque question nomme owner, phase cible et Requirement IDs. Ne pas fermer une décision par simple rédaction.
+Owner, phase cible et Requirement IDs ; aucune fermeture par simple rédaction.
 
 ## 27. Consommateurs documentaires
-
-Lister modules, parcours futurs, écrans futurs, objets, permissions et contrats futurs.
+Modules, parcours, écrans, objets, permissions et contrats futurs.
 
 ## Contrôles
 
-Une capability échoue à la revue si elle n’a pas d’owner, utilisateur, entrée, sortie, objet, action classée, alternative non-IA, critères spécifiques ou Requirement ID. Un texte identique répété entre plusieurs capabilities est un défaut de qualité.
+Une capability échoue si elle n’a pas 27 sections, front matter valide, owner, utilisateur, entrée, sortie, objet, action classée, alternative non-IA, critères spécifiques, Requirement ID ou l’un des six tableaux obligatoires. Les tableaux copiés sans adaptation sont un défaut.

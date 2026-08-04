@@ -17,51 +17,53 @@ open_decisions:
   - OPEN-013
 source-of-truth: canonical
 ---
+
 # CAP-CMD-103 — Operational Ownership
 
 ## 1. Définition
 Rend explicites owner principal, équipe, contributeurs, watchers et approbateur éventuel sans modifier le propriétaire canonique du type d’objet.
 
 ## 2. Problème utilisateur
-Owner, assignee, team, watcher et product owner sont souvent confondus. Rôles : Incident Commander, SOC Analyst, Team Lead, Auditor. Sans séparation, la responsabilité et les droits deviennent ambigus.
+Owner, assignee, team, watcher et product owner sont souvent confondus. Sans séparation, responsabilités et droits deviennent ambigus.
 
 ## 3. Objectifs
-Séparer ownership opérationnel/canonique ; rendre responsabilités et droits visibles ; permettre contributeurs/watchers sans diluer l’owner ; conserver les périodes d’ownership.
+Séparer ownership opérationnel/canonique, rendre responsabilités visibles, permettre contributeurs/watchers et conserver les périodes d’ownership.
 
 ## 4. Non-objectifs
-Ne pas définir RBAC, faire d’un watcher un owner, transférer Case/Decision à Command ou remplacer Work Assignment.
+Ne définit pas RBAC, ne fait pas d’un watcher un owner, ne transfère pas Case/Decision à Command et ne remplace pas Work Assignment.
 
 ## 5. Propriétaire
 Command / Incidents and Work Queue / Command Product Lead pour les relations opérationnelles sur Incident/Task.
 
 ## 6. Utilisateurs
-Principal : Incident Commander. Secondaires : SOC Analyst, Team Lead, Auditor. Identités et rôles restent des projections Settings.
+Principal : Incident Commander. Secondaires : SOC Analyst, Team Lead, Auditor.
 
 ## 7. Conditions d’entrée
-Incident/Task accessible ; identités résolues ; permission lecture/gestion selon l’action.
+Incident/Task accessible, identités résolues et permission lecture/gestion selon l’action.
 
 ## 8. Entrées fonctionnelles
-| Entrée | Source | Type | Requise | Fraîcheur | Si absente |
-|---|---|---|---|---|---|
-| Canonical ownership | Ownership Register | produit owner | oui | révision courante | unknown et revendication locale bloquée |
-| Operational ownership | Incident/Task | owner/team/contributors/watchers | oui | version courante | unassigned |
-| Identity context | Platform Settings | principals/teams | oui | courant | ID conservé, unresolved |
+| Entrée | Source | Type fonctionnel | Requise | Fraîcheur | Si absente |
+|---|---|---|---:|---|---|
+| Canonical ownership | Ownership Register | owner produit | oui | dernière révision | `unknown` et revendication locale bloquée |
+| Operational ownership | Incident/Task | owner, équipe, contributeurs et watchers | oui | version courante | `unassigned` |
+| Identity context | Platform Settings | principals et teams | oui | résolution courante | ID conservé, état `identity-unresolved` |
 
 ## 9. Objets lus
-| Objet | Owner | Projection | Droit local |
+| Objet | Propriétaire | Projection utilisée | Droit local |
 |---|---|---|---|
-| Incident / Task | Command | owner, team, contributors, watchers | lecture/modification |
-| Case / Decision / Run | produit propriétaire | owner projeté | lecture |
-| Principal / Team | Settings | identité/statut | projection |
+| Incident / Task | Command | owner, équipe, contributeurs et watchers | consulter et modifier selon relation |
+| Case / Decision / Response Run | produit propriétaire | owner projeté | consulter en lecture seule |
+| Principal / Team | Platform Settings | identité et statut | consulter et sélectionner |
 
 ## 10. Objets créés ou modifiés
-| Objet | Opération | Owner | Règle |
+| Objet | Opération | Propriétaire | Règle |
 |---|---|---|---|
-| Incident / Task | relations owner/team/contributor/watcher | Command | classe 2, permission par relation |
-| Audit | période d’ownership | Shared audit | append-only conceptuel |
+| Incident / Task | définir owner/équipe/contributeur/watcher | Command | classe 2, permission par relation |
+| Ownership event | ajouter période et avant/après | Shared Audit | append-only conceptuel |
+| Objet externe | aucune mutation | produit propriétaire | ownership projeté seulement |
 
 ## 11. Fonctionnalités
-Afficher owner produit ; gérer owner principal/équipe ; ajouter/retirer contributeurs et watchers ; montrer l’approbateur Govern distinct ; retracer les changements.
+Afficher owner produit, gérer owner principal/équipe, ajouter/retirer contributeurs/watchers, montrer l’approbateur Govern distinct et retracer les changements.
 
 ## 12. Actions utilisateur
 | Action | Rôle | Objet | Classe | Précondition | Résultat | Govern |
@@ -72,60 +74,63 @@ Afficher owner produit ; gérer owner principal/équipe ; ajouter/retirer contri
 | Consulter owner canonique | lecteur | type objet | 0 | registre disponible | owner produit visible | non |
 
 ## 13. Automatisation et IA
-| Fonction | Humain | Règle | Moteur | Workflow | Agent | Govern | Sans IA |
-|---|---|---|---|---|---|---|---|
-| Proposer owner | décision humaine | possible | facteurs charge/compétence | possible | proposition attribuée | OPEN-013 | sélection manuelle |
-| Afficher ownership | oui | oui | résolution déterministe | possible | résumé facultatif | non | registres et identités |
-Aucun agent ne change un owner silencieusement.
+| Fonction | Manuel | Déterministe | Automatisable | IA possible | Alternative sans IA |
+|---|---:|---:|---:|---:|---|
+| Résoudre l’owner canonique | oui | oui | oui | non nécessaire | Ownership Register |
+| Proposer un owner opérationnel | oui | facteurs charge/compétence | oui | proposition attribuée | recherche et sélection manuelles |
+| Modifier une relation d’ownership | oui | validation/version | workflow possible | jamais silencieusement | action humaine complète |
+| Afficher l’historique | oui | oui | oui | résumé facultatif | événements d’audit |
 
 ## 14. États fonctionnels
 `owner-set`, `team-owned`, `unassigned`, `shared-contribution`, `watcher-only`, `ownership-conflict`, `identity-unresolved`.
 
 ## 15. États d’interface
-Loading conserve l’objet ; Empty signifie unassigned ; Partial nomme l’identité manquante ; Error garde la version valide ; Offline bloque mutation ; Permission denied ne révèle rien ; Stale force validation. Rendu DS.
+Empty signifie unassigned ; Partial nomme l’identité manquante ; Offline bloque mutation ; Permission denied ne révèle rien ; Stale impose validation.
 
 ## 16. Sorties
-| Sortie | Objet/événement | Consommateur | Garantie |
+| Sortie | Objet ou événement | Consommateur | Garantie |
 |---|---|---|---|
-| Ownership projection | metadata objet | Queue, Inspector, handover | owner opérationnel et owner produit séparés |
-| Ownership event | audit | metrics/history | acteur, rôle, période, before/after |
+| Ownership projection | métadonnée objet | Queue, Inspector et Handover | owner opérationnel et owner produit séparés |
+| Ownership event | événement d’audit | historique et métriques | acteur, relation, période et before/after |
+| Unresolved identity state | état fonctionnel | coordinateur | ID stable conservé sans donnée inventée |
 
 ## 17. Transitions
-| Source | Déclencheur | Destination | Contexte | Retour |
+| Source | Déclencheur | Destination | Contexte transmis | Retour |
 |---|---|---|---|---|
-| Ownership | objet externe | produit owner | référence/owner projeté | aucune mutation locale |
-| Conflict | escalade | Command coordination | item, versions, actors | résolution auditée |
+| Operational Ownership | ouverture owner externe | produit propriétaire | référence objet et owner projeté | objet Command restauré |
+| Ownership conflict | escalade | Command coordination | item, versions et acteurs | résolution auditée |
+| Identity unresolved | inspection | Platform Settings | principal ID et return origin | même relation restaurée |
 
 ## 18. Dépendances
-CAP-CMD-102, Ownership Register, Identity projections, Object Linking Service, audit hooks.
+CAP-CMD-102, Ownership Register, Identity projections, Object Linking Service et audit hooks.
 
 ## 19. Source de vérité
-Relations opérationnelles Incident/Task : Command. Owner canonique : registres/produit source. Identités : Settings.
+Relations Incident/Task : Command. Owner canonique : registre/produit source. Identités : Platform Settings.
 
 ## 20. Provenance et audit
-Acteur/producteur, relation, before/after, période, justification, tenant, environnement, version et correlation ID.
+Acteur/producteur, relation, before/after, période, justification, tenant, version et correlation ID.
 
 ## 21. Permissions fonctionnelles
-`perm.command.read`, `perm.command.coordinate`, `perm.command.incident.manage`, `perm.command.task.manage`. Granularité reportée.
+`perm.command.read`, `perm.command.coordinate`, `perm.command.incident.manage`, `perm.command.task.manage` ; granularité reportée.
 
 ## 22. Limites et erreurs
-Identité unresolved, conflit de version, owner externe inaccessible, tenant incompatible ou permission refusée ne doivent jamais transférer implicitement l’ownership.
+Identité unresolved, conflit, owner externe inaccessible, tenant incompatible ou refus ne transfèrent jamais implicitement l’ownership.
 
 ## 23. Métriques
-Items avec owner explicite ; durée unassigned ; conflits d’ownership. Aucune cible définitive.
+Items avec owner explicite, durée unassigned et conflits d’ownership ; aucune cible définitive.
 
 ## 24. Classification de livraison
 `defined` / `planned`, cible native ; preuve documentaire seulement.
 
 ## 25. Critères d’acceptation
-**Given** un Incident sans owner, **When** un coordinateur définit un principal, **Then** owner opérationnel, owner produit et audit restent distincts.
+**Given** un Incident sans owner, **When** un principal est défini, **Then** owner opérationnel, owner produit et audit restent distincts.
 
-**Given** une proposition IA, **When** elle est affichée, **Then** elle n’est pas effective sans acceptation humaine autorisée.
+**Given** une proposition IA, **When** elle est affichée, **Then** elle n’est pas effective sans acceptation autorisée.
 
-**Given** une identité inaccessible, **When** l’objet est ouvert, **Then** l’ID reste visible selon permission, l’état est unresolved et aucune donnée n’est inventée.
+**Given** une identité inaccessible, **When** l’objet est ouvert, **Then** l’état unresolved est visible sans donnée inventée.
 
 ## 26. Questions ouvertes
-Qui peut gérer contributeurs/watchers sans gérer owner ? Comment représenter équipes transverses ? — REQ-PROD-006, REQ-PROD-009, REQ-PROD-013, REQ-OBJ-001. `OPEN-013` reste ouverte.
+Qui peut gérer contributeurs/watchers et comment représenter les équipes transverses ? — Requirement IDs ci-dessus ; `OPEN-013` reste ouverte.
 
 ## 27. Consommateurs documentaires
-Work Queue, Inspector, Handover, parcours Phase 5, écrans Phase 6, objets Phase 7, permissions ultérieures.
+Work Queue, Inspector, Handover, parcours Phase 5, écrans Phase 6, objets Phase 7 et permissions ultérieures.

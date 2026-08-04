@@ -12,71 +12,120 @@ requirement_ids: [REQ-PROD-005, REQ-PROD-013, REQ-PROD-032, REQ-PROD-037]
 open_decisions: [OPEN-013]
 source-of-truth: canonical
 ---
+
 # CAP-CMD-203 — Coverage Overview
+
 ## 1. Définition
-Fournit une lecture sourcée des couvertures detection, endpoint, réponse, données et procédures sans posséder les moteurs/règles.
+Fournit une lecture sourcée des couvertures détection, endpoint, réponse, données et procédures sans posséder les moteurs, règles ou flotte.
+
 ## 2. Problème utilisateur
-Un service peut sembler protégé alors qu’une source, un agent, une procédure ou capacité de réponse est absente. Principal : Incident Commander ; secondaires : Detection Engineer, Platform Admin, Readiness Coordinator.
+Un Service peut sembler protégé alors qu’une source, un agent, une procédure ou capacité de réponse est absente. Sans séparation par famille, un total masque les lacunes.
+
 ## 3. Objectifs
-Séparer les familles ; afficher définition/population/source/fraîcheur ; relier lacunes aux services/work items ; créer improvement Task sans modifier les moteurs.
+Séparer les familles, afficher définition/population/source/fraîcheur, relier les gaps aux Services/work items et créer une Task d’amélioration sans modifier les moteurs.
+
 ## 4. Non-objectifs
-Gérer règles de détection, flotte Endpoint, agents Studio ou pourcentage global opaque.
+Ne gère pas les règles de détection, la flotte Endpoint, les agents Studio et ne produit pas un pourcentage global opaque.
+
 ## 5. Propriétaire
-Command possède la lecture opérationnelle ; produits sources possèdent les couvertures.
+Command possède la lecture opérationnelle ; Investigate, Settings, Endpoint Agent, Govern, Studio et Readiness possèdent leurs sources respectives.
+
 ## 6. Utilisateurs
-Incident Commander principal ; experts sources et Readiness en consultation/action de suivi.
+Principal : Incident Commander. Secondaires : Detection Engineer, Platform Administrator et Readiness Coordinator en consultation.
+
 ## 7. Conditions d’entrée
-Service/scope, projections autorisées et définition de métrique ou unknown.
+Service ou scope, projections autorisées et définition de métrique ou état `unknown`.
+
 ## 8. Entrées fonctionnelles
-| Entrée | Source | Type | Requise | Fraîcheur | Si absente |
-|---|---|---|---|---|---|
-| Detection coverage | Investigate | projection | non | version/date | unavailable |
-| Endpoint/data/response | Settings/Endpoint/Govern | projections | non | source | gap par famille |
-| Procedural coverage | Readiness | plans/tests | non | review/test | not-tested |
+| Entrée | Source | Type fonctionnel | Requise | Fraîcheur | Si absente |
+|---|---|---|---:|---|---|
+| Detection coverage | Investigate | projection de couverture | non | version et date | famille `unavailable` |
+| Endpoint/data/response coverage | Settings, Endpoint Agent et Govern | projections par famille | non | timestamp de chaque source | gap propre à la famille |
+| Procedural coverage | Readiness and Operations | plans et tests | non | date de revue/test | `not-tested` ou `unknown` |
+
 ## 9. Objets lus
-Coverage projections (source products), Service (Shared), Task (Command).
+| Objet | Propriétaire | Projection utilisée | Droit local |
+|---|---|---|---|
+| Coverage projection | produit source | définition, population, état et fraîcheur | consulter, filtrer et naviguer |
+| Service conceptuel | Business Service Catalog | criticité et relations | consulter et relier |
+| Task | Command | action d’amélioration | consulter et modifier si autorisé |
+
 ## 10. Objets créés ou modifiés
-Task improvement (Command, classe 2) ; aucune mutation des sources de couverture.
+| Objet | Opération | Propriétaire | Règle |
+|---|---|---|---|
+| Task | créer une action d’amélioration | Command | classe 2, gap et validation attendue liés |
+| Coverage source | aucune mutation | produit propriétaire | projection en lecture seule |
+| Coverage object | aucun objet concurrent créé | phase Objets future | définitions et cardinalités restent sources-owned |
+
 ## 11. Fonctionnalités
-Afficher cinq familles ; montrer définition/numerator/denominator conceptuels/données manquantes ; lier gaps ; ouvrir owner ; créer action.
+Afficher cinq familles, montrer définition/population/données manquantes, lier gaps, ouvrir le propriétaire source et créer une action de suivi.
+
 ## 12. Actions utilisateur
 | Action | Rôle | Objet | Classe | Précondition | Résultat | Govern |
 |---|---|---|---:|---|---|---|
 | Consulter | lecteur | projection | 0 | source autorisée | limites visibles | non |
-| Ouvrir source | lecteur | source product | 0 | permission | transition | non |
-| Signaler gap | coordinateur | Task | 2 | gap sourcé | Task | OPEN-013 |
-| Attendre validation | Readiness | Task/status | 2 | owner/due | follow-up | non |
+| Ouvrir la source | lecteur | produit source | 0 | permission | transition | non |
+| Signaler un gap | coordinateur | Task | 2 | gap sourcé | Task | OPEN-013 |
+| Suivre la validation | Readiness Coordinator | Task | 2 | owner/due | follow-up | non |
+
 ## 13. Automatisation et IA
-Calculs déterministes par source ; IA peut résumer, jamais inventer coverage. Sans IA : projections, métriques et actions manuelles.
+| Fonction | Manuel | Déterministe | Automatisable | IA possible | Alternative sans IA |
+|---|---:|---:|---:|---:|---|
+| Résoudre les familles | oui | oui | oui | non nécessaire | projections sources |
+| Calculer les indicateurs | revue humaine | oui, définitions versionnées | oui | résumé facultatif | métriques déterministes et tableau source |
+| Détecter un gap | oui | règles possibles | oui | suggestion attribuée | comparaison manuelle et règles |
+| Créer une amélioration | oui | validation/déduplication | oui | brouillon Task | création manuelle de Task |
+
 ## 14. États fonctionnels
 `covered`, `partial`, `gap`, `degraded`, `not-tested`, `unavailable`, `unknown`.
+
 ## 15. États d’interface
-Chaque famille peut être Partial indépendamment ; source/date/définition restent visibles. Rendu DS.
+Chaque famille peut être Partial indépendamment ; source/date/définition restent visibles ; Offline bloque mutation mais conserve la dernière projection.
+
 ## 16. Sorties
-Coverage context vers Risk/Mission Control/Readiness ; Task improvement avec gap/expected result.
+| Sortie | Objet ou événement | Consommateur | Garantie |
+|---|---|---|---|
+| Coverage context | projection multi-source | Risk, Mission Control et Readiness | familles séparées, sources et fraîcheur visibles |
+| Coverage gap | événement fonctionnel | Readiness et owner source | attribué et non confondu avec un score global |
+| Improvement Task | Task Command | Work Queue | gap, Service, owner et validation attendue liés |
+
 ## 17. Transitions
-Détail vers Investigate/Settings/Govern/Studio avec return ; gap vers Readiness, Task reste Command.
+| Source | Déclencheur | Destination | Contexte transmis | Retour |
+|---|---|---|---|---|
+| Coverage Overview | ouverture d’une famille | Investigate, Settings, Govern ou Studio | Service, famille, source et return origin | même vue Coverage restaurée |
+| Coverage Overview | gap opérationnel | Improvement Actions | source, gap, Service et résultat attendu | Coverage Overview restauré |
+| Coverage Overview | comparaison Readiness | Readiness Overview | Service, familles et dates | Risk and Coverage restauré |
+
 ## 18. Dépendances
-CAP-CMD-201/301/303, Metrics Engine, Catalog, Data Quality.
+CAP-CMD-201, CAP-CMD-301, CAP-CMD-303, Metrics Engine, Business Service Catalog et Data Quality Service.
+
 ## 19. Source de vérité
-Chaque produit source possède sa couverture ; Command ne fait qu’agréger les projections.
+Chaque produit source possède sa couverture ; Command agrège uniquement les projections.
+
 ## 20. Provenance et audit
-Définition/version/source/population/fraîcheur, Task et acteur audités.
+Définition/version/source/population/fraîcheur, Task et acteur sont conservés.
+
 ## 21. Permissions fonctionnelles
-Lecture Command/source ; `perm.command.task.manage`. Atomisation reportée.
+Lecture Command/source et `perm.command.task.manage` ; atomisation reportée.
+
 ## 22. Limites et erreurs
 Définitions incompatibles, données manquantes, double comptage, source stale ou refus empêchent toute comparaison opaque.
-## 23. Métriques
-Familles avec définition/fraîcheur ; gaps sans owner/action ; délai gap→validation. Pas de cible.
-## 24. Classification de livraison
-`defined` / `planned`, cible native ; sources techniques non définies ici.
-## 25. Critères d’acceptation
-**Given** detection covered et endpoint unavailable, **When** coverage est consultée, **Then** les familles restent séparées et le total n’est pas présenté comme complet.
 
-**Given** un gap sourcé, **When** une Task est créée, **Then** source, service, owner et expected result sont liés.
+## 23. Métriques
+Familles avec définition/fraîcheur, gaps sans owner/action et délai gap→validation ; aucune cible définitive.
+
+## 24. Classification de livraison
+`defined` / `planned`, cible native ; sources techniques et objets détaillés non définis ici.
+
+## 25. Critères d’acceptation
+**Given** détection couverte et endpoint indisponible, **When** Coverage est consultée, **Then** les familles restent séparées et aucun total complet n’est affiché.
+
+**Given** un gap sourcé, **When** une Task est créée, **Then** source, Service, owner et validation attendue sont liés.
 
 **Given** aucun modèle, **When** la capability est utilisée, **Then** projections et métriques déterministes suffisent.
+
 ## 26. Questions ouvertes
-Quelles définitions sont comparables ? Comment éviter double comptage ? — requirements ci-dessus. `OPEN-013` reste ouverte.
+Quelles définitions sont comparables et comment éviter le double comptage ? — Requirement IDs ci-dessus ; `OPEN-013` reste ouverte.
+
 ## 27. Consommateurs documentaires
-Risk, Mission Control, Readiness, parcours Phase 5, écrans Phase 6, objets Phase 7 et permissions ultérieures.
+Risk, Mission Control, Readiness, parcours Phase 5, écrans Phase 6, phase Objets et permissions ultérieures.

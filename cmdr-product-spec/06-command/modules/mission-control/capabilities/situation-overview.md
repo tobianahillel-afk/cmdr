@@ -21,165 +21,116 @@ source-of-truth: canonical
 # CAP-CMD-001 — Situation Overview
 
 ## 1. Définition
-
 Agrège une lecture opérationnelle priorisée des Incidents, Tasks urgentes, services affectés, blocages, Decisions en attente, Response Runs actifs et Results récents, avec fraîcheur, owner et prochaine action.
 
 ## 2. Problème utilisateur
-
-**Situation.** L’Incident Commander doit comprendre ce qui change maintenant sans reconstruire la situation à partir de files, rapports et produits séparés.
-
-**Utilisateurs concernés.** Incident Commander en premier lieu ; SOC Analyst L1/L2, Business Owner, Response Operator.
-
-**Conséquence sans la capacité.** Sans cette capacité, les priorités divergent, les dépendances critiques restent invisibles et les handovers commencent avec une situation incomplète.
+L’Incident Commander doit comprendre les changements importants sans reconstruire la situation depuis plusieurs produits. Sans cette capacité, priorités, dépendances et handovers divergent.
 
 ## 3. Objectifs
-
-- rendre les changements significatifs visibles avant les métriques secondaires ;
-- relier chaque élément à son objet source et à son owner ;
-- montrer les données manquantes, conflictuelles ou stale ;
-- permettre un passage direct vers l’Incident, le Case, Govern ou le Run concerné.
+- montrer les changements significatifs et leurs sources ;
+- relier chaque item à son owner et sa prochaine action ;
+- exposer données manquantes, conflictuelles ou stale ;
+- préserver le contexte lors des transitions.
 
 ## 4. Non-objectifs
-
-- remplacer la Work Queue ;
-- devenir un dashboard de widgets configurables ;
-- effectuer une investigation technique ;
-- transformer une suggestion en priorité effective.
+Ne remplace ni la Work Queue, ni l’investigation, ni Govern ; ne devient pas un dashboard de widgets ou un chatbot.
 
 ## 5. Propriétaire
-
-Command / Mission Control / Command Product Lead. Command possède la composition opérationnelle et les mutations explicites d’Incident ; les projections externes gardent leur owner.
+Command / Mission Control / Command Product Lead. Command possède la composition opérationnelle ; les objets externes restent propriétaires de leurs données.
 
 ## 6. Utilisateurs
-
-Rôle principal : Incident Commander. Rôles secondaires : SOC Analyst L1/L2, Business Owner, Response Operator. Chacun agit uniquement dans son tenant, environnement, scope et permissions.
+Principal : Incident Commander. Secondaires : SOC Analyst L1/L2, Business Owner, Response Operator.
 
 ## 7. Conditions d’entrée
-
-Tenant et environnement sélectionnés ; au moins une source Command ou projection autorisée ; permission générale de lecture Command.
+Tenant et environnement sélectionnés, au moins une source autorisée et permission de lecture Command.
 
 ## 8. Entrées fonctionnelles
-
 | Entrée | Source | Type fonctionnel | Requise | Fraîcheur | Si absente |
-|---|---|---|---|---|---|
-| Situation items | Incident/Task et projections interproduits | objets et événements | non | temps réel ou dernière fraîcheur connue | afficher une situation partielle et nommer la source absente |
-| Service impact | Business Service Catalog et Incident | projection métier | non | fraîcheur déclarée | marquer impact inconnu, jamais l’inférer silencieusement |
-| Pending governance | Govern | Decision/Run projections | non | état courant | conserver le contexte Incident même si Govern est indisponible |
+|---|---|---|---:|---|---|
+| Situation items | Incident, Task et projections interproduits | objets et événements | non | temps réel ou dernière fraîcheur connue | situation `partial` et source absente nommée |
+| Service impact | Business Service Catalog et Incident | projection métier | non | timestamp de la source | impact `unknown`, sans inférence silencieuse |
+| Pending governance | Govern | Decision et Response Run projections | non | état courant | contexte Incident conservé, Govern signalé indisponible |
 
 ## 9. Objets lus
-
 | Objet | Propriétaire | Projection utilisée | Droit local |
 |---|---|---|---|
-| Incident | Command | priorité, état, owner, impact, prochaine action | lecture et navigation |
-| Task | Command | urgence, owner, échéance, blocage | lecture et navigation |
-| Decision / Response Run / Result | Govern | statut, portée, résultat résumé | projection seulement |
-| Service | Shared Business Service Catalog | owner, criticité, dépendances | projection seulement |
+| Incident | Command | priorité, état, owner, impact, prochaine action | consulter et naviguer |
+| Task | Command | urgence, owner, échéance, blocage | consulter et naviguer |
+| Decision / Response Run / Result | Govern | statut, portée et résultat résumé | consulter et relier en lecture seule |
+| Service | Shared Business Service Catalog | owner, criticité et dépendances | consulter et filtrer |
 
 ## 10. Objets créés ou modifiés
-
 | Objet | Opération | Propriétaire | Règle |
 |---|---|---|---|
-| Incident | mise à jour de prochaine action ou accusé de situation | Command | classe 2 ; aucune modification automatique par l’agrégateur |
-
-Aucune projection externe ne transfère son ownership à Command.
+| Incident | modifier la prochaine action ou accuser la situation | Command | classe 2, action explicite et auditée |
+| Projections externes | aucune mutation | produits propriétaires | lecture seule ; aucun transfert d’ownership |
 
 ## 11. Fonctionnalités
-
-- classer les changements par impact opérationnel explicable ;
-- afficher incidents critiques, tâches urgentes et blocages ;
-- mettre en évidence Decisions en attente et Runs actifs ;
-- afficher fraîcheur, source et qualité de chaque projection ;
-- ouvrir l’objet source et restaurer Mission Control au retour.
+Classer les changements par facteurs visibles, montrer Incidents/Tasks/blocages/Decisions/Runs, exposer qualité et fraîcheur, ouvrir l’objet source et restaurer Mission Control.
 
 ## 12. Actions utilisateur
-
 | Action | Rôle | Objet | Classe | Précondition | Résultat | Govern |
 |---|---|---|---:|---|---|---|
-| Consulter la situation | tous rôles autorisés | projections | 0 | tenant sélectionné | lecture filtrée | non |
-| Ouvrir l’objet source | tous rôles autorisés | objet référencé | 0 | permission destination | transition avec return origin | non |
-| Mettre à jour la prochaine action | Incident Commander | Incident | 2 | Incident accessible et version courante | Incident audité | selon OPEN-013 |
-
-Les classes 3 et 4 ne sont jamais exécutées par Command.
+| Consulter la situation | rôle autorisé | projections | 0 | tenant sélectionné | lecture filtrée | non |
+| Ouvrir l’objet source | rôle autorisé | objet référencé | 0 | permission destination | transition avec return origin | non |
+| Modifier la prochaine action | Incident Commander | Incident | 2 | version courante | Incident audité | selon OPEN-013 |
 
 ## 13. Automatisation et IA
-
-| Fonction | Humain | Règle | Moteur déterministe | Workflow | Agent | Govern | Alternative sans IA |
-|---|---|---|---|---|---|---|---|
-| Consulter la situation | oui | sélection explicable | agrégation sourcée | possible | résumé attribué | non | lecture et filtres manuels |
-| Mettre à jour la prochaine action | oui, décision finale | possible si policy | validation/version | possible | proposition uniquement | OPEN-013 selon effet | mutation manuelle complète |
-
-L’absence de modèle ne bloque aucune fonction essentielle.
+| Fonction | Manuel | Déterministe | Automatisable | IA possible | Alternative sans IA |
+|---|---:|---:|---:|---:|---|
+| Composer la situation | oui | oui | oui | résumé attribué | agrégation sourcée, filtres et sélection humaine |
+| Prioriser l’affichage | oui | oui | oui | suggestion seulement | règles explicables et ordre corrigible manuellement |
+| Modifier la prochaine action | oui | validation/version | workflow possible | proposition seulement | mutation humaine complète |
 
 ## 14. États fonctionnels
-
-`coherent`, `partial`, `stale`, `conflicting`, `critical-change`, `no-active-work`. Ils décrivent la projection de situation, pas les machines d’état des objets.
+`coherent`, `partial`, `stale`, `conflicting`, `critical-change`, `no-active-work`.
 
 ## 15. États d’interface
-
-Loading conserve le contexte ; Empty explique l’absence ; Partial nomme les sources manquantes ; Error conserve les données valides ; Offline bloque les mutations non garanties ; Permission denied ne divulgue rien ; Stale affiche source, date et conséquence. Le Design System reste propriétaire du rendu.
+Loading conserve le contexte ; Empty explique l’absence ; Partial nomme les sources ; Error conserve les données valides ; Offline bloque les mutations ; Permission denied ne divulgue rien ; Stale expose source, date et conséquence.
 
 ## 16. Sorties
-
 | Sortie | Objet ou événement | Consommateur | Garantie |
 |---|---|---|---|
-| Situation snapshot | projection datée | Mission Control et handover | chaque item conserve source, fraîcheur et owner |
-| Navigation context | return origin | produit destination | tenant, environnement et objet source conservés |
+| Situation snapshot | projection datée | Mission Control et Handover | source, fraîcheur et owner conservés |
+| Navigation context | événement de transition | produit destination | tenant, environnement et return origin préservés |
 
 ## 17. Transitions
-
 | Source | Déclencheur | Destination | Contexte transmis | Retour |
 |---|---|---|---|---|
-| Mission Control | ouverture d’un Incident ou Case | Command / Investigate | tenant, environnement, objet, période | retour à la même position |
-| Mission Control | ouverture d’une Decision ou d’un Run | Govern | Incident et contexte métier | retour à la situation |
-| Result | projection disponible | Mission Control | Result, Run, Decision et Incident liés | l’objet source reste Govern |
+| Mission Control | ouverture Incident ou Case | Command ou Investigate | tenant, environnement, objet et période | même position de situation |
+| Mission Control | ouverture Decision ou Run | Govern | Incident, impact et return origin | situation restaurée |
+| Result | projection disponible | Mission Control | Result, Run, Decision et Incident liés | Govern reste propriétaire |
 
 ## 18. Dépendances
-
-CAP-CMD-003, CAP-CMD-005, CAP-CMD-006, Shared Global Search, Object Linking Service, Timeline Engine et Business Service Catalog. Les dépendances n’impliquent aucun transfert d’ownership.
+CAP-CMD-003, CAP-CMD-005, CAP-CMD-006, Global Search, Object Linking Service, Timeline Engine et Business Service Catalog.
 
 ## 19. Source de vérité
-
-Incident reste propriétaire Command. Decision, Response Run, Result et Service sont des projections par référence stable et permission-aware. Chaque donnée conserve source, version ou timestamp, fraîcheur et classification ; les calculs exposent facteurs et limites.
+Incident et Task restent Command ; objets Govern et Service sont des projections permission-aware ; calculs et classements exposent leurs facteurs.
 
 ## 20. Provenance et audit
-
-Toute mutation ou proposition enregistre acteur/producteur, source, version/run, objet, avant/après, justification, résultat, tenant, environnement et correlation ID.
+Acteur ou producteur, source, version/run, avant/après, justification, résultat, tenant, environnement et correlation ID.
 
 ## 21. Permissions fonctionnelles
-
-`perm.command.read`, permissions de lecture des projections Govern/Investigate et ABAC tenant/environnement. L’atomisation et les règles finales sont reportées.
+`perm.command.read`, permissions des projections et ABAC tenant/environnement ; atomisation reportée.
 
 ## 22. Limites et erreurs
-
-Données absentes/non autorisées, projection stale, dépendance indisponible, conflit de version, tenant/environnement incompatible ou refus d’autorisation empêchent tout résultat présenté comme complet. Une transition échouée conserve le workspace source.
+Source absente, stale, interdite, conflit de version ou destination indisponible rendent la situation partielle et conservent le workspace source.
 
 ## 23. Métriques
-
-- temps jusqu’à identification de l’owner et de la prochaine action ;
-- part des items avec fraîcheur et source visibles ;
-- taux de transitions restaurant exactement le contexte.
-
-Aucune cible définitive n’est fixée.
+Temps jusqu’à owner/prochaine action, part des items sourcés et taux de retour exact ; aucune cible définitive.
 
 ## 24. Classification de livraison
-
-`delivery_status: defined`, `delivery_mode: planned`, cible native. La preuve actuelle est documentaire uniquement ; la promotion exige objets, permissions, parcours, écrans, contrats, implémentation et validation.
+`defined` / `planned`, cible native ; preuve documentaire uniquement, promotion après objets, permissions, parcours, écrans, contrats, implémentation et validation.
 
 ## 25. Critères d’acceptation
+**Given** des sources courantes, **When** la situation est ouverte, **Then** chaque item expose source, fraîcheur, owner et prochaine action sans dupliquer la Work Queue.
 
-**Given** un Incident Commander autorisé et des sources courantes, **When** il consulte la situation, **Then** chaque élément expose source, fraîcheur, owner et prochaine action sans dupliquer la Work Queue.
+**Given** aucun fournisseur de modèle, **When** Mission Control est utilisé, **Then** règles, agrégations et actions manuelles fournissent le résultat essentiel.
 
-**Given** aucun fournisseur de modèle, **When** Mission Control est ouvert, **Then** règles, agrégations déterministes, filtres et actions manuelles fournissent le résultat essentiel.
-
-**Given** une source indisponible ou non autorisée, **When** la situation est calculée, **Then** la lacune et son effet sont visibles, aucune donnée protégée n’est révélée et les autres données restent utilisables.
+**Given** une source indisponible, **When** la situation est calculée, **Then** la lacune est visible et les autres données restent utilisables.
 
 ## 26. Questions ouvertes
-
-- Quels changements méritent une mise en avant transversale sans score opaque ? — REQ-PROD-013, REQ-PROD-008, REQ-PROD-010, REQ-PROD-021.
-- Quelle fenêtre de fraîcheur s’applique par source ? — mêmes Requirement IDs.
-
-Aucune nouvelle décision ouverte n’est créée.
+Quels changements sont transversaux et quelles fenêtres de fraîcheur s’appliquent ? — REQ-PROD-013, REQ-PROD-008, REQ-PROD-010, REQ-PROD-021. Aucun nouvel OPEN.
 
 ## 27. Consommateurs documentaires
-
-Mission Control Now/Situation, handover, futurs écrans exécutifs, parcours Phase 5, écrans Phase 6, objets Phase 7 et permissions/contrats ultérieurs.
+Mission Control Now/Situation, Handover, parcours Phase 5, écrans Phase 6, objets Phase 7 et permissions/contrats ultérieurs.

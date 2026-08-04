@@ -17,19 +17,20 @@ open_decisions:
   - OPEN-013
 source-of-truth: canonical
 ---
+
 # CAP-CMD-104 — Priority and Severity Coordination
 
 ## 1. Définition
 Présente severity, priority, urgency, impact, confidence et SLA risk comme dimensions distinctes, avec sources et droits propres.
 
 ## 2. Problème utilisateur
-Une severity élevée peut être confondue avec une priorité automatique. Rôles : SOC Analyst L2, Incident Commander, Business Owner, Detection Engineer en consultation. Sans distinction, la file est mal ordonnée.
+Une severity élevée peut être confondue avec une priorité automatique. Sans distinction, la file est mal ordonnée et les facteurs ne sont pas contestables.
 
 ## 3. Objectifs
-Afficher chaque dimension/source ; permettre mutation de priority/impact seulement ; conserver severity/confidence comme projections ; expliquer divergences.
+Afficher chaque dimension/source, permettre mutation de priority/impact seulement, conserver severity/confidence comme projections et expliquer les divergences.
 
 ## 4. Non-objectifs
-Ne pas créer un score universel, modifier une severity externe, fusionner les unités ou utiliser la couleur seule.
+Ne crée pas de score universel, ne modifie pas une severity externe, ne fusionne pas les unités et n’utilise pas la couleur seule.
 
 ## 5. Propriétaire
 Command coordonne priority/impact sur Incident/Task ; les sources propriétaires gardent severity/confidence.
@@ -38,93 +39,98 @@ Command coordonne priority/impact sur Incident/Task ; les sources propriétaires
 Principal : SOC Analyst L2. Secondaires : Incident Commander, Business Owner, Detection Engineer en lecture.
 
 ## 7. Conditions d’entrée
-Work item accessible ; facteurs autorisés ; définition/version disponible ou lacune déclarée.
+Work item accessible, facteurs autorisés et définition/version disponible ou lacune déclarée.
 
 ## 8. Entrées fonctionnelles
-| Entrée | Source | Type | Requise | Fraîcheur | Si absente |
-|---|---|---|---|---|---|
-| Severity | Alert/Signal/Detection source | technique | non | source courante | unknown |
-| Priority | Command | opérationnelle | oui | version courante | triage demandé |
-| Impact/Urgency/Confidence/SLA risk | sources propriétaires | facteurs | non | par facteur | aucun calcul silencieux |
+| Entrée | Source | Type fonctionnel | Requise | Fraîcheur | Si absente |
+|---|---|---|---:|---|---|
+| Severity | Alert, Signal ou Detection source | dimension technique | non | timestamp source | `unknown`, sans priorité déduite |
+| Priority | Command | dimension opérationnelle | oui | version courante | triage demandé |
+| Impact / urgency / confidence / SLA risk | propriétaires respectifs | facteurs séparés | non | par facteur | facteur absent explicitement |
 
 ## 9. Objets lus
-| Objet | Owner | Projection | Droit local |
+| Objet | Propriétaire | Projection utilisée | Droit local |
 |---|---|---|---|
-| Incident / Task | Command | priority, urgency, impact | lecture/modification |
-| Signal / Alert | source/Command | severity, confidence | projection |
-| Service / SLA | Shared/policy | criticité, risk | projection |
+| Incident / Task | Command | priority, urgency et impact | consulter et modifier si autorisé |
+| Signal / Alert | Command ou source | severity et confidence | consulter et contester via retour source |
+| Service / SLA | Shared ou policy source | criticité et risque | consulter et comparer |
 
 ## 10. Objets créés ou modifiés
-| Objet | Opération | Owner | Règle |
+| Objet | Opération | Propriétaire | Règle |
 |---|---|---|---|
-| Incident / Task | priority, urgency ou impact autorisé | Command | classe 2, historique |
-| Recommendation disposition | audit | Shared audit | aucune mutation implicite |
+| Incident / Task | modifier priority, urgency ou impact autorisé | Command | classe 2 et historique |
+| Recommendation disposition | créer acceptation/rejet | Command audit | aucune mutation implicite |
+| Severity / confidence source | aucune mutation | propriétaire source | projection en lecture seule |
 
 ## 11. Fonctionnalités
-Présenter six dimensions ; comparer sans fusion ; afficher source/calcul/fraîcheur/owner ; expliquer divergence ; diriger vers Priority Management.
+Présenter six dimensions, comparer sans fusion, afficher source/calcul/fraîcheur/owner, expliquer divergence et diriger vers Priority Management.
 
 ## 12. Actions utilisateur
 | Action | Rôle | Objet | Classe | Précondition | Résultat | Govern |
 |---|---|---|---:|---|---|---|
 | Inspecter dimensions | lecteur | work item | 0 | données autorisées | facteurs visibles | non |
 | Modifier priority | coordinateur | Incident/Task | 2 | justification | priority effective | OPEN-013 |
-| Confirmer impact | IC/Business Owner | Incident | 2 | source/certitude | impact mis à jour | OPEN-013 |
+| Confirmer impact | IC ou Business Owner | Incident | 2 | source/certitude | impact mis à jour | OPEN-013 |
 | Contester projection | analyste | severity/confidence | 2 | motif | retour owner source | non |
 
 ## 13. Automatisation et IA
-| Fonction | Humain | Règle | Moteur | Workflow | Agent | Govern | Sans IA |
-|---|---|---|---|---|---|---|---|
-| Calculer facteurs | correction | possible | oui, explicable | possible | proposition | non | sources/règles |
-| Modifier priority/impact | décision humaine | policy possible | validation | possible | jamais silencieux | OPEN-013 | mutation manuelle |
+| Fonction | Manuel | Déterministe | Automatisable | IA possible | Alternative sans IA |
+|---|---:|---:|---:|---:|---|
+| Résoudre les dimensions | oui | oui | oui | résumé facultatif | lecture des sources et règles |
+| Calculer un contexte | oui | facteurs explicables | oui | proposition attribuée | moteur déterministe ou comparaison humaine |
+| Modifier priority/impact | oui | validation/version | workflow possible | jamais silencieusement | mutation humaine complète |
+| Contester une projection | oui | routage source | oui | brouillon de motif | action manuelle vers owner source |
 
 ## 14. États fonctionnels
 `dimensions-complete`, `dimensions-partial`, `priority-proposed`, `priority-effective`, `source-conflict`, `unknown`.
 
 ## 15. États d’interface
-Partial nomme la dimension absente ; Error conserve les facteurs valides ; Offline bloque mutation ; Permission denied masque seulement le facteur protégé ; Stale montre source/date. Rendu DS.
+Partial nomme la dimension absente ; Error conserve les facteurs valides ; Offline bloque mutation ; Permission denied masque seulement le facteur protégé ; Stale montre source/date.
 
 ## 16. Sorties
-| Sortie | Objet/événement | Consommateur | Garantie |
+| Sortie | Objet ou événement | Consommateur | Garantie |
 |---|---|---|---|
-| Coordination factors | projection | Queue/Mission Control | dimensions non confondues |
-| Priority/impact event | update | audit/consumers | source, before/after, justification |
+| Coordination factors | projection | Queue et Mission Control | dimensions non confondues et sourcées |
+| Priority/impact event | mise à jour | audit et consommateurs | source, before/after et justification |
+| Projection dispute | événement | propriétaire source | motif attribué et objet référencé |
 
 ## 17. Transitions
-| Source | Déclencheur | Destination | Contexte | Retour |
+| Source | Déclencheur | Destination | Contexte transmis | Retour |
 |---|---|---|---|---|
-| Coordination | severity/confidence contestée | source/Investigate | objet, facteur, raison | file |
-| Coordination | impact exige autorité | Govern | Incident, facteurs, action | aucune Decision locale |
+| Coordination | severity/confidence contestée | source ou Investigate | objet, facteur et raison | work item restauré |
+| Coordination | impact exige autorité | Govern | Incident, facteurs et action | aucune Decision locale |
+| Coordination | modification priority | Priority Management | objet, facteurs et proposition | file ou détail restauré |
 
 ## 18. Dépendances
-CAP-CMD-002, 105, 204, 205 et Metrics Engine.
+CAP-CMD-002, CAP-CMD-105, CAP-CMD-204, CAP-CMD-205 et Metrics Engine.
 
 ## 19. Source de vérité
-Priority/impact autorisés : Command. Severity/confidence/service/SLA : sources propriétaires. Calculs exposent définitions/version/facteurs.
+Priority/impact autorisés : Command. Severity/confidence/service/SLA : propriétaires sources. Calculs : définition/version/facteurs visibles.
 
 ## 20. Provenance et audit
 Chaque dimension expose source/owner/fraîcheur ; mutations et dispositions enregistrent acteur et before/after.
 
 ## 21. Permissions fonctionnelles
-`perm.command.read`, `perm.command.coordinate`, `perm.command.incident.manage`, permissions source. Atomisation reportée.
+`perm.command.read`, `perm.command.coordinate`, `perm.command.incident.manage` et permissions sources ; atomisation reportée.
 
 ## 22. Limites et erreurs
-Facteur absent/stale, définition incompatible, source refusée ou conflit ne doivent jamais produire un score total opaque.
+Facteur absent/stale, définition incompatible, refus ou conflit ne produisent jamais un score total opaque.
 
 ## 23. Métriques
-Items avec dimensions sourcées ; divergences expliquées ; impacts confirmed/assumed. Aucune cible définitive.
+Items avec dimensions sourcées, divergences expliquées et impacts confirmed/assumed ; aucune cible définitive.
 
 ## 24. Classification de livraison
 `defined` / `planned`, cible native ; preuve documentaire seulement.
 
 ## 25. Critères d’acceptation
-**Given** severity élevée et impact faible, **When** l’item est inspecté, **Then** severity, priority, impact, urgence, confiance et SLA risk sont séparés et sourcés.
+**Given** severity élevée et impact faible, **When** l’item est inspecté, **Then** les six dimensions sont séparées et sourcées.
 
-**Given** une proposition automatisée, **When** elle est consultée, **Then** priority effective reste inchangée avant acceptation autorisée.
+**Given** une proposition automatisée, **When** elle est consultée, **Then** la priorité effective reste inchangée avant acceptation.
 
 **Given** aucun modèle IA, **When** la capability est utilisée, **Then** sources, règles et actions manuelles suffisent.
 
 ## 26. Questions ouvertes
-Quelles dimensions sont obligatoires et qui valide confidence entre produits ? — REQ-PROD-005, REQ-PROD-013, REQ-PROD-021, REQ-UX-005. `OPEN-013` reste ouverte.
+Quelles dimensions sont obligatoires et qui valide confidence entre produits ? — Requirement IDs ci-dessus ; `OPEN-013` reste ouverte.
 
 ## 27. Consommateurs documentaires
 Work Queue, Mission Control, Incident Detail, parcours Phase 5, écrans Phase 6, objets Phase 7 et permissions ultérieures.
