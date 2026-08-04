@@ -1,61 +1,25 @@
 ---
-id: investigate-static-analysis-analysis-capabilities
+id: deprecated-investigate-static-analysis-capabilities
 domain: 07-investigate
-status: draft
+status: deprecated
 owner: Investigate Product Lead
-updated: 2026-08-03
-source-of-truth: canonical
+updated: 2026-08-04
+source-of-truth: deprecated
+replaced-by: ../analysis-workbench/README.md
 ---
-# Analysis Capabilities
+# Pointeur déprécié
 
-## Objectif
+## Remplaçant
+`../analysis-workbench/README.md` et ses capabilities `CAP-INV-301` à `CAP-INV-313`.
 
-Définir analysis capabilities dans Investigate.
+## Justification
+Ce document générique concurrençait le module canonique Analysis Workbench et ne séparait pas suffisamment Artifact, Derived Artifact, Tool Call, Evidence et Finding.
 
-## Périmètre
+## Migration
+Les besoins utiles de preview, strings, structures, Tool versions et Derived Artifacts ont été migrés. L’écran `INV-STA-001` reste actif et n’est pas déprécié.
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
+## Dépendants
+Static Analysis screen, Case Workspace, Evidence Board, futurs Dynamic/Reverse workspaces et registres Investigate.
 
-## Propriétaire fonctionnel
-
-Investigate Product Lead.
-
-## Objets concernés
-
-- Concepts du document
-- Références canoniques liées
-
-## Fonctionnalités
-
-- PE/ELF/Mach-O et documents/scripts à préciser.
-- Tool versions.
-- Safe rendering.
-- Derived artifacts.
-
-## UX et interactions
-
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
-
-## Permissions
-
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
-
-## États
-
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
-
-## Dépendances
-
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- À compléter — décision source non fournie dans le brief canonique.
+## Date de retrait
+2026-08-04. Ce fichier n’est plus normatif.

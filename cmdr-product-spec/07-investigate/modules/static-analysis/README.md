@@ -1,68 +1,25 @@
 ---
-id: investigate-static-analysis
+id: deprecated-investigate-static-analysis
 domain: 07-investigate
-status: draft
+status: deprecated
 owner: Investigate Product Lead
-updated: 2026-08-03
-source-of-truth: canonical
+updated: 2026-08-04
+source-of-truth: deprecated
+replaced-by: ../analysis-workbench/README.md
 ---
-# Static Analysis
+# Pointeur déprécié
 
-## Objectif
+## Remplaçant
+`../analysis-workbench/README.md` et ses capabilities `CAP-INV-301` à `CAP-INV-313`.
 
-Analyser un artefact sans exécution.
+## Justification
+Ce document générique concurrençait le module canonique Analysis Workbench et ne séparait pas suffisamment Artifact, Derived Artifact, Tool Call, Evidence et Finding.
 
-## Périmètre
+## Migration
+Les besoins utiles de preview, strings, structures, Tool versions et Derived Artifacts ont été migrés. L’écran `INV-STA-001` reste actif et n’est pas déprécié.
 
-Module du produit 07-investigate. Les objets, permissions, composants et transitions partagés sont référencés et non redéfinis.
+## Dépendants
+Static Analysis screen, Case Workspace, Evidence Board, futurs Dynamic/Reverse workspaces et registres Investigate.
 
-## Propriétaire fonctionnel
-
-Investigate Product Lead.
-
-## Objets concernés
-
-- malware-sample
-- artifact
-- evidence
-- finding
-
-## Fonctionnalités
-
-- Hashes.
-- Strings.
-- Imports/sections.
-- Rules.
-- Extracted artifacts.
-
-## UX et interactions
-
-- Conserver le contexte de liste, vue et objet.
-- Utiliser l’Inspector canonique.
-- Afficher les six états obligatoires.
-- Préserver navigation clavier et liens profonds.
-
-## Permissions
-
-Voir `../../14-security-permissions-and-trust/permission-model.md` et le registre des permissions.
-
-## États
-
-Les états métier viennent des fichiers d’objets canoniques; la page ajoute uniquement Loading, Empty, Partial, Error, Offline et Permission denied.
-
-## Dépendances
-
-- 03-design-system/
-- 04-experience-architecture/
-- 05-domain-model/
-- 17-implementation-contracts/
-
-## Critères d’acceptation
-
-- Aucune définition d’objet ou de permission locale.
-- Tous les écrans du module ont un front matter et 27 sections.
-- Les transitions sont auditées et idempotentes.
-
-## Questions ouvertes
-
-- À compléter — contenu source non fourni dans le brief canonique.
+## Date de retrait
+2026-08-04. Ce fichier n’est plus normatif.
