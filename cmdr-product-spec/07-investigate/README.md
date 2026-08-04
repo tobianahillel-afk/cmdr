@@ -10,18 +10,19 @@ requirements:
 ---
 # Investigate
 
-Investigate owns investigation work: Signals and Hunt, Cases and Evidence, and Collection and Live Response. It preserves analyst reasoning, provenance and the path from source data to Evidence and Finding.
+Investigate owns investigation work, analyst reasoning, provenance and the path from source data to Evidence and Finding.
 
 ## Canonical modules
 - Signals and Hunt — CAP-INV-001..008.
 - Cases and Evidence — CAP-INV-101..114.
 - Collection and Live Response — CAP-INV-201..215.
+- Analysis Workbench / Static Analysis — CAP-INV-301..313.
+
+## Counts
+Fifty Investigate capabilities are registered: **49 defined**, **1 proposed** (`CAP-INV-106`); all 50 delivery modes are `planned`.
 
 ## Boundaries
-Command owns Detection, Signal, Alert, Incident and operational Task. Platform Settings owns Endpoint Agent Fleet and Endpoint Policies. Endpoint Agent executes authorized local operations and reports health/results. Govern owns Action Request lifecycle, Decision, Approval, Response Run and Result. Studio owns Workflow, Tool, Tool Call and Automation Run. Shared owns generic jobs, linking, timeline, trace, notifications, export and collaboration mechanisms.
+Command owns operational coordination. Platform Settings owns Fleet, policies and environment administration. Endpoint Agent executes authorized local operations. Govern owns Decision, Approval, Response Run and Result. Studio owns Tool, Tool Call, Workflow and Automation Run. Shared owns generic mechanisms.
 
-## Delivery
-Thirty-seven Investigate capabilities are registered: 36 `defined`, one `proposed` (`CAP-INV-106`); all delivery modes are `planned`. Phase 4B.2B Analysis Workbench and Phase 4B.3 are not started.
-
-## Non-goals
-No Fleet administration, Policy mutation, protocol, API, command syntax, engine choice, product code, final object schema, atomic permission matrix or detailed screen rewrite is defined here.
+## Current maturity
+Phase 4B.2B.1 is functionally defined. Phase 4B.2B remains PARTIAL because Dynamic Sandbox, Reverse Engineering, Debugger and forensic work are not completed. No implementation, API, protocol, command, engine, schema, permission matrix or detailed screen rewrite is claimed.
