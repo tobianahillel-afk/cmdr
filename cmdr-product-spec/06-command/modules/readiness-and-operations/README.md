@@ -1,67 +1,42 @@
 ---
-id: command-readiness-and-operations
+id: command-module-readiness-and-operations
 domain: 06-command
 status: draft
 owner: Command Product Lead
-updated: 2026-08-03
+updated: 2026-08-04
 source-of-truth: canonical
+requirements:
+  - REQ-PROD-005
+  - REQ-PROD-009
+  - REQ-PROD-013
+  - REQ-PROD-021
+  - REQ-PROD-057
+open_decisions:
+  - OPEN-010
+  - OPEN-013
 ---
-# Readiness & Operations
+# Readiness and Operations
 
-## Objectif
+## Mission
+Suivre la préparation opérationnelle globale, les exercices, plans, lacunes et actions d’amélioration sans dupliquer Studio Assurance, Sandbox ou un moteur d’exécution.
 
-Évaluer préparation, santé opérationnelle, playbooks et exercices.
+## Utilisateurs
+Readiness Coordinator, Incident Commander, Team Lead, Business Owner, Platform/Product owners en projection.
 
-## Périmètre
+## Capabilities
+| ID | Capability | Status | Mode |
+|---|---|---|---|
+| CAP-CMD-301 | Readiness Overview | defined | planned |
+| CAP-CMD-302 | Exercise Coordination | defined | planned |
+| CAP-CMD-303 | Improvement Actions | defined | planned |
+| CAP-CMD-304 | Operational Plans | defined | planned |
+| CAP-CMD-305 | Capability Readiness | defined | planned |
 
-Module du produit 06-command. Les objets, permissions, composants et transitions partagés sont référencés et non redéfinis.
+## Frontières
+Command coordonne records, Tasks, plans et assessments. Studio assure techniquement workflows/agents ; Settings fournit health/configuration ; Govern possède Decisions et Response Runs. Un exercice opérationnel n’est ni une sandbox, ni un test de règle, ni un Automation Run.
 
-## Propriétaire fonctionnel
+## Shared Capabilities consommées
+Collaboration, Notifications, Reporting, Metrics, Object Linking, Versioning, Inspector, Context Bar, Trace et Audit Hooks sont consommés depuis leurs sources canoniques ; aucun moteur n’est dupliqué.
 
-Command Product Lead.
-
-## Objets concernés
-
-- capability
-- playbook
-- simulation
-- integration
-
-## Fonctionnalités
-
-- Readiness par scénario.
-- Santé système.
-- Recency des tests.
-- Dépendances bloquantes.
-
-## UX et interactions
-
-- Conserver le contexte de liste, vue et objet.
-- Utiliser l’Inspector canonique.
-- Afficher les six états obligatoires.
-- Préserver navigation clavier et liens profonds.
-
-## Permissions
-
-Voir `../../14-security-permissions-and-trust/permission-model.md` et le registre des permissions.
-
-## États
-
-Les états métier viennent des fichiers d’objets canoniques; la page ajoute uniquement Loading, Empty, Partial, Error, Offline et Permission denied.
-
-## Dépendances
-
-- 03-design-system/
-- 04-experience-architecture/
-- 05-domain-model/
-- 17-implementation-contracts/
-
-## Critères d’acceptation
-
-- Aucune définition d’objet ou de permission locale.
-- Tous les écrans du module ont un front matter et 27 sections.
-- Les transitions sont auditées et idempotentes.
-
-## Questions ouvertes
-
-- À compléter — contenu source non fourni dans le brief canonique.
+## Critère
+**Given** une capability non testée, **When** Readiness est consultée, **Then** source, date, scope, owner, lacune et improvement Task sont visibles sans changer delivery mode ni statut documentaire.
