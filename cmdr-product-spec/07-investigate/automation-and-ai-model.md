@@ -13,14 +13,13 @@ requirements:
   - REQ-AI-010
   - REQ-AI-011
 open_decisions:
-  - OPEN-007
   - OPEN-013
   - OPEN-015
 ---
-# Automation and AI model — Investigate through Phase 4B.2B.1
+# Automation and AI model — Investigate through Phase 4B.2B.2A
 
-AI may suggest an analysis family, explain structure, group strings, compare results, propose a Hypothesis, Evidence candidate or Finding Draft. Every essential workflow remains available through viewers, deterministic Tools, parsers, filters, comparators, rules, checklists and human review.
+AI may propose an environment or profile, summarize a timeline, group behavior, explain errors, compare Runs and draft Hypothesis, Evidence candidate or Finding Draft. Every essential workflow remains available through deterministic profiles, rules, viewers, timelines, filters, comparators, parsers, Tools, checklists and human review.
 
-Studio owns Tool, Tool Call, Workflow and Automation Run. Investigate owns analytical context and interpretation. No Tool is hidden or launched silently; no Evidence or Finding is automatically qualified; no permission is self-granted.
+Prohibitions: no silent Run; no hidden environment selection; no silent real-network access or scope expansion; no execution outside an authorized environment; no opaque score as truth; no automatic Evidence/Finding; no trace removal; no self-permission; no mandatory chatbot.
 
-Mandatory provenance: initiator, producer/version, Automation Run/Tool Calls when present, inputs, parameters, timestamp, status/errors, uncertainty, human owner and disposition.
+Mandatory attribution: initiator, producer/version, Automation Run/Tool Calls, sources, parameters, timestamp, status/errors, uncertainty, human owner and accept/modify/reject disposition.

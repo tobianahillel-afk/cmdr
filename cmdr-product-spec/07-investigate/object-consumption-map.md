@@ -16,19 +16,21 @@ open_decisions:
   - OPEN-014
   - OPEN-015
 ---
-# Object consumption map — Investigate through Phase 4B.2B.1
+# Object consumption map — Investigate through Phase 4B.2B.2A
 
-| Objet ou concept | Owner actuel | Usage Investigate | Opérations locales | Lacune | Phase propriétaire |
+| Objet ou concept | Owner actuel | Usage local | Opérations locales | Lacune | Phase propriétaire |
 |---|---|---|---|---|---|
-| Case | Investigate | workspace/static context | create/update/link | final states/cardinality | Objets |
-| Hypothesis | Investigate | testable question | create/review/link | confidence | Objets |
-| Artifact | Investigate | analyzable source | register/version/link/derive | storage/dedup | Objets/Technique |
+| Case / Hypothesis / Artifact / Evidence / Finding | Investigate | context, source, reasoning and handoff | read/link/create under owner capability | final states/cardinality | Objets/Trust |
 | Derived Artifact | concept Investigate | static transformation | create/read/export/link | object absent | Objets |
-| Attachment | open | documentary file | reference | OPEN-014 | Objets |
-| Evidence / Finding | Investigate | explicit qualification/conclusion | candidate/draft handoff | trust/review | Objets/Trust |
-| Tool / Tool Call / Workflow / Automation Run | Studio | execution/provenance | select/invoke/read/link | final objects absent | Studio/Objets |
-| Analysis Session / Analysis Result | concepts Investigate | static context/output | create/update/review/link | objects absent | Objets |
-| Background Job / Provenance Record | Shared mechanisms | progress/reconstruction | consume/emit semantics | technical/object contracts | Shared/Trust |
-| Report | Shared Reporting Engine | prepare only | no local lifecycle | object absent | Shared/Objets |
+| Runtime Artifact | concept Investigate | dynamic output | capture/read/export/link | object absent | Objets |
+| Analysis Session / Analysis Result | concepts Investigate | static context/result | create/update/review/link | objects absent | Objets |
+| Dynamic Analysis Session / Sandbox Run | concepts Investigate | dynamic context/execution | create/update/start/stop/read | objects absent | Objets |
+| Behavioral / Process / Network / System Observation | concepts Investigate | sourced behavior | read/annotate/link/compare | records absent | Objets |
+| Interaction Profile | Studio/Settings definition; Investigate use | selected scenario | read/select/version | ownership detail future | Studio/Settings |
+| Sandbox Environment | Platform Settings | authorized environment projection | read/select/request alternative | admin remains Settings | Settings/Objets |
+| Tool / Tool Call / Workflow / Automation Run | Studio | execution and provenance | select/invoke/read/link | final objects absent | Studio/Objets |
+| Provenance Record / Background Job | Shared mechanisms | trace and progress | consume/emit semantics | contracts future | Shared/Trust |
+| Action Request / Decision / Response Run / Result | Govern | real-target authority and return | read/link/prepare only | future contracts | Govern |
+| Attachment | open | documentary content | reference only | OPEN-014 | Objets |
 
-No schema, cardinality, final state machine or atomic permission is defined.
+No schema, JSON Schema, final cardinality, object state machine or atomic permission is defined.

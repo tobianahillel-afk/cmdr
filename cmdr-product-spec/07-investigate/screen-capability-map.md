@@ -9,17 +9,18 @@ requirements:
   - REQ-UX-001
   - REQ-UX-010
 ---
-# Screen capability map — Investigate through Phase 4B.2B.1
+# Screen capability map — Investigate through Phase 4B.2B.2A
 
-| Écran | Capability principale | Secondaires | État |
+| Screen | Primary capability | Secondary capabilities | Change |
 |---|---|---|---|
-| INV-CAS-001 Case Workspace | CAP-INV-102 | 301,302,313 context | links/map only |
-| INV-EVD-001 Evidence Board | CAP-INV-107 | 105,108,109,313 | links/map only |
-| INV-TIM-001 Case Timeline | CAP-INV-110 | 312 | links/map only |
-| INV-STA-001 Static Analysis | CAP-INV-301 | 302..313 | capability/module links only |
-| INV-SBX-001 Dynamic Sandbox | future CAP-INV-3xx | 105/107 | unchanged |
-| INV-REV-001 Reverse Engineering | future | static handoff only | unchanged |
-| INV-DBG-001 Debugger | future | handoff only | unchanged |
-| INV-MEM-001 / INV-DSK-001 | future forensic | Artifact handoff | unchanged |
+| INV-CAS-001 Case Workspace | CAP-INV-102 | 301,302,313,314,316,328 | map/links only |
+| INV-EVD-001 Evidence Board | CAP-INV-107 | 313,324,328 | map/links only |
+| INV-STA-001 Static Analysis | CAP-INV-301 | 302..313 | map/links only |
+| INV-SBX-001 Dynamic Sandbox | CAP-INV-314 | 315..328 | map/links only |
+| SET-SBX-001 Sandbox Environments | Settings capability | 315,326 transition only | unchanged |
+| STD-CTL-001 Control Room | Studio capability | Tool/Automation projections only | unchanged |
+| INV-REV-001 Reverse Engineering | future 4B.2B.2B | handoff only | unchanged |
+| INV-DBG-001 Debugger | future 4B.2B.2B | handoff only | unchanged |
+| INV-MEM-001 / INV-DSK-001 | future 4B.2B.3 | Artifact handoff only | unchanged |
 
-Detailed rewrites 0; new Screen IDs 0.
+Detailed screen rewrites: 0. New Screen IDs: 0. Buttons, columns, animations and wireframes: 0.
