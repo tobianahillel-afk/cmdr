@@ -45,7 +45,7 @@ requirements:
 - Signals and Hunt : **8 capabilities**.
 - Cases and Evidence : **14 capabilities**.
 - Total Phase 4B.1 : **22 capabilities**.
-- Delivery status : **20 defined, 1 proposed (CAP-INV-106)** plus les documents de cadre en draft ; aucune capability n’est déclarée livrée.
+- Delivery status : **21 defined, 1 proposed (CAP-INV-106)** ; aucune capability n’est déclarée livrée.
 - Delivery mode : **22 planned**.
 
 ## Plages réservées, non commencées
