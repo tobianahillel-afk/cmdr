@@ -1,26 +1,34 @@
 # Changelog
 
+## 2026-08-04 — Phase 4A Command capabilities
+
+- Replaced the generic capability template with a canonical 27-section specification model.
+- Assigned 27 immutable `CAP-CMD-*` identifiers and created substantive capability documents.
+- Rebuilt the Capability Register with owners, roles, objects, requirements, dependencies and delivery classifications.
+- Defined Mission Control, Incidents and Work Queue, Risk and Coverage, and Readiness and Operations.
+- Kept Customers and Delivery `proposed`, `planned` and deployment-dependent under OPEN-006.
+- Preserved the single Work Queue workspace and its six system views.
+- Classified Command actions from 0 to 4 and kept OPEN-013 open for class-2 governance defaults.
+- Defined manual, deterministic, workflow and optional-agent behavior with a no-AI alternative for every capability.
+- Specified Command transitions to Investigate, Govern and Studio without transferring object ownership.
+- Consolidated Risk and Coverage module ownership and deprecated three overlapping legacy module entry points.
+- Aligned operational Task ownership with Command while retaining Shared Task Inbox as a consumer.
+- Added capability-to-screen, object dependency, functional dependency and automation maps.
+- Read all active Command screens without detailed rewrite; five Work Queue aliases remain deprecated.
+- Added no product code, API, protocol or font file.
+- Phase 4B was not started.
+
 ## 2026-08-03 — Phase 3 experience architecture and Design System
 
-- Defined Global Header, primary/local navigation, Context Bar, one Inspector, Bottom Console, drawers, modals, history and context preservation.
-- Established normative Page/Workspace/View/Mode/Filter rules.
-- Added 16 Design System foundations with three-level tokens, light/dark themes, semantic status colors, typography metrics, spacing, grid, density, responsive, borders, elevation, focus, motion, accessibility and data visualization.
-- Added eight substantive layout shells.
-- Added 29 canonical components and 14 interaction patterns with keyboard/accessibility contracts.
-- Added five non-executable examples.
-- Kept OPEN-001..004, OPEN-010 and OPEN-016 open; no palette or font was selected.
-- Normalized generic Saved Views versus Work Queue Saved Views.
-- Converted five Work Queue screen variants into deprecated migration aliases; Work Queue now has six views.
-- Updated ownership, legacy mapping, screen register, traceability and baseline.
-- Added no product code and did not rewrite pilot screens.
+Defined experience architecture, tokens, shells, shared components, patterns and Work Queue migration.
 
 ## 2026-08-03 — Phase 2 brand and visual universe
 
-See prior commits for Operational Editorial Modernism, palettes, product identities and brand traceability.
+Defined Operational Editorial Modernism, palettes, product identities and brand traceability.
 
 ## 2026-08-03 — Phase 1 governance and product vision
 
-See prior commits for governance, source hierarchy, product vision and boundaries.
+Defined governance, source hierarchy, product vision and boundaries.
 
 ## 2026-08-03 — Phase 0 source requirements
 

@@ -3,14 +3,14 @@ id: requirements-traceability-matrix
 domain: 00-governance
 status: draft
 owner: QA and Traceability Lead
-updated: 2026-08-03
+updated: 2026-08-04
 source-of-truth: source-material
 requirements:
   - REQ-PROD-001
   - REQ-PROD-062
   - REQ-UX-001
   - REQ-UX-010
-  - REQ-OBJ-011
+  - REQ-OBJ-001
   - REQ-OBJ-012
 ---
 
@@ -18,40 +18,63 @@ requirements:
 
 ## Interprétation
 
-Les 122 Requirement IDs sources sont conservés. `conform` signifie que la phase propriétaire actuelle fournit des règles substantielles, testables et sans contradiction active ; cela ne prouve ni écrans détaillés ni implémentation.
+Les 122 Requirement IDs sources sont conservés. `conform` signifie qu’une phase propriétaire actuelle fournit des règles substantielles et sans contradiction active ; cela ne prouve ni implémentation ni livraison. La Phase 4A ajoute les preuves fonctionnelles Command sans promouvoir artificiellement les exigences globales dépendantes des Phases 4B–4E, Objets, Permissions, Parcours, Écrans ou Technique.
 
 ## Couverture
 
-| État | Après Phase 1 | Après Phase 2 | Après Phase 3 |
-|---|---:|---:|---:|
-| conform | 81 | 88 | 99 |
-| partial | 32 | 25 | 20 |
-| absent | 6 | 6 | 3 |
-| contradictory | 3 | 3 | 0 |
-| total | 122 | 122 | 122 |
+| État | Après Phase 3 | Après Phase 4A |
+|---|---:|---:|
+| conform | 99 | 99 |
+| partial | 20 | 20 |
+| absent | 3 | 3 |
+| contradictory | 0 | 0 |
+| total | 122 | 122 |
 
-## Traçabilité détaillée Phase 3
+## Traçabilité Command Phase 4A
 
-| Requirement | Source | Canonical evidence | Avant | Après | Couverture | Dépendants | Preuve | Question |
-|---|---|---|---|---|---|---|---|---|
-| REQ-UX-001 | ux-and-navigation-decisions.md | 04-experience-architecture/information-architecture.md; global-navigation.md; page-view-mode-filter-rules.md | partial | conform | normative classification and routing rules | products, screens, screen register | page/workspace/view/mode/filter decision tree | — |
-| REQ-UX-002 | ux-and-navigation-decisions.md | 03-design-system/components/inspector.md; layouts/* | partial | conform | one Inspector and eight shell contracts | all products and pilot screens | single right Inspector, panel limits, keyboard | — |
-| REQ-UX-003 | ux-and-navigation-decisions.md | 03-design-system/foundations/tokens.md; components/* | partial | conform | three-level token architecture and shared components | Design System and products | 41 primitives, 45 semantics, 24 component contracts | OPEN-001..004 |
-| REQ-UX-004 | ux-and-navigation-decisions.md | 03-design-system/foundations/accessibility.md; responsive.md; density.md | absent | conform | exact Draft density/responsive/accessibility rules | all shells/components | viewport ranges, sizes and keyboard contracts | OPEN-010 |
-| REQ-UX-005 | ux-and-navigation-decisions.md | 03-design-system/foundations/theme-contract.md; data-visualization.md | absent | conform | light/dark, contrast and visualization contracts | all UI consumers | semantic themes and non-color alternatives | — |
-| REQ-UX-006 | ux-and-navigation-decisions.md | 04-experience-architecture/context-preservation.md; 03-design-system/components/context-bar.md | partial | conform | context model separated from visual component | all products and transitions | transmission table, overflow and permission rules | — |
-| REQ-UX-007 | ux-and-navigation-decisions.md | 04-experience-architecture/history-and-back.md; cross-product-transitions.md | partial | conform | real Back and return-origin model | products, deep links, journeys | focus/filters/scroll restored; errors covered | — |
-| REQ-UX-008 | ux-and-navigation-decisions.md | 06-command/modules/incidents-and-work-queue/README.md; saved-views.md; deprecated screen aliases | contradictory | conform | one Work Queue workspace and six views | Command navigation/screens/register | five legacy screen specs deprecated | — |
-| REQ-UX-009 | ux-and-navigation-decisions.md | 12-shared-capabilities/saved-views.md; 03-design-system/components/saved-views.md | partial | conform | generic persistence separated from product catalog | all products and Command | permission re-evaluation and URL-safe state | — |
-| REQ-UX-010 | ux-and-navigation-decisions.md | 04-experience-architecture/screen-section-contract.md; screen-state-requirements.md | absent | partial | general contract substantive; 61 screens still later-phase | Phase 6 screens and validation | GWT contract and six states | OPEN-010 |
-| REQ-OBJ-011 | canonical ownership decisions | 12-shared-capabilities/saved-views.md; ownership-register.md | contradictory | conform | Shared owns generic view mechanism | all products | single generic source; engine path deprecated | — |
-| REQ-OBJ-012 | canonical ownership decisions | 06-command/modules/incidents-and-work-queue/saved-views.md; ownership-register.md | contradictory | conform | Command owns Work Queue catalog | Command | six system views; none are pages | — |
-| REQ-AI-007 | ai-and-automation-constraints.md | 03-design-system/components/automation-tray.md; layouts/run-shell.md; builder-shell.md | partial | partial | UI interruption and trace defined; runtime later | Studio, Govern, implementation | pause/stop/resume and Tool Calls visible | OPEN-007, OPEN-015 |
-| REQ-AI-010 | ai-and-automation-constraints.md | 03-design-system/patterns/attribution-and-provenance.md; components/trace.md | partial | partial | visual provenance substantive; functional model later | all products | human/rule/engine/workflow/agent/external distinction | — |
-| REQ-BRAND-007 | brand-and-visual-decisions.md | 03-design-system/foundations/typography.md | partial | partial | metrics defined; families unresolved | all components | 13 roles and aliases OPEN-004 | OPEN-004 |
-| REQ-PROD-057 | unresolved-decisions.md | 04-experience-architecture/role-based-defaults.md; 03-design-system/foundations/density.md | conform | conform | open decision preserved with Draft activity defaults | all products | compact/standard/comfortable and overrides | OPEN-010 |
+| Capability | Module | Nom | Functional status | Delivery mode | Requirement IDs | Objets | Classes | OPEN | Preuve canonique | Consommateurs |
+|---|---|---|---|---|---|---|---|---|---|---|
+| CAP-CMD-001 | mission-control | Situation Overview | defined | planned | REQ-PROD-013, REQ-PROD-008, REQ-PROD-010, REQ-PROD-021 | Incident, Task, Decision / Response Run / Result, Service | 0, 2 | — | `06-command/modules/mission-control/capabilities/situation-overview.md` | Mission Control — Now, Mission Control — Situation |
+| CAP-CMD-002 | mission-control | Priority Management | defined | planned | REQ-PROD-003, REQ-PROD-010, REQ-PROD-013, REQ-PROD-021 | Incident / Task, Service, SLA context, Audit trail | 0, 2 | OPEN-013 | `06-command/modules/mission-control/capabilities/priority-management.md` | Mission Control — Priorities, Unified Work Queue |
+| CAP-CMD-003 | mission-control | Situation Timeline | defined | planned | REQ-PROD-005, REQ-PROD-008, REQ-PROD-013, REQ-UX-007 | Timeline Entry, Incident, Decision / Run / Result | 0 | — | `06-command/modules/mission-control/capabilities/situation-timeline.md` | Mission Control — Situation, Incident Detail |
+| CAP-CMD-004 | mission-control | Handover | defined | planned | REQ-PROD-008, REQ-PROD-013, REQ-PROD-021, REQ-PROD-010 | Incident / Task, Decision / Response Run / Result, Case / Finding, Handover record, Incident / Task ownership | 2 | — | `06-command/modules/mission-control/capabilities/handover.md` | Mission Control — Handover, parcours de relève |
+| CAP-CMD-005 | mission-control | Operational Blockers | defined | planned | REQ-PROD-006, REQ-PROD-009, REQ-PROD-013, REQ-PROD-021 | Incident / Task, Decision / Case / external dependency, Task | 2 | OPEN-013 | `06-command/modules/mission-control/capabilities/operational-blockers.md` | Mission Control, Unified Work Queue |
+| CAP-CMD-006 | mission-control | Recent Results and Outcomes | defined | planned | REQ-PROD-005, REQ-PROD-008, REQ-PROD-013, REQ-PROD-021 | Result / Response Run / Decision, Incident, Timeline | 0, 2 | OPEN-013 | `06-command/modules/mission-control/capabilities/recent-results-and-outcomes.md` | Mission Control — Now, Mission Control — Situation |
+| CAP-CMD-101 | incidents-and-work-queue | Unified Work Queue | defined | planned | REQ-OBJ-001, REQ-OBJ-012, REQ-PROD-013, REQ-UX-008, REQ-UX-009 | Incident, Task, Case / Decision / Response Run, Saved View application, Incident / Task | 0 | — | `06-command/modules/incidents-and-work-queue/capabilities/unified-work-queue.md` | Work Queue, Incident Detail |
+| CAP-CMD-102 | incidents-and-work-queue | Work Assignment | defined | planned | REQ-PROD-003, REQ-PROD-013, REQ-PROD-021, REQ-SEC-001 | Incident / Task, Principal / Role, Notification | 2 | OPEN-013 | `06-command/modules/incidents-and-work-queue/capabilities/work-assignment.md` | Unified Work Queue, Incident Detail |
+| CAP-CMD-103 | incidents-and-work-queue | Operational Ownership | defined | planned | REQ-PROD-006, REQ-PROD-009, REQ-PROD-013, REQ-OBJ-001 | Incident / Task, Case / Decision / Run, Principal / Team, Audit | 0, 2 | OPEN-013 | `06-command/modules/incidents-and-work-queue/capabilities/operational-ownership.md` | Work Queue, Incident Detail |
+| CAP-CMD-104 | incidents-and-work-queue | Priority and Severity Coordination | defined | planned | REQ-PROD-005, REQ-PROD-013, REQ-PROD-021, REQ-UX-005 | Incident / Task, Signal / Alert, Service / SLA, Recommendation disposition | 0, 2 | OPEN-013 | `06-command/modules/incidents-and-work-queue/capabilities/priority-and-severity-coordination.md` | Unified Work Queue, Mission Control — Priorities |
+| CAP-CMD-105 | incidents-and-work-queue | SLA Tracking | defined | planned | REQ-PROD-005, REQ-PROD-013, REQ-PROD-053, REQ-OBJ-012 | Incident / Task, SLA policy / engagement, Task | 0, 2 | OPEN-006, OPEN-013 | `06-command/modules/incidents-and-work-queue/capabilities/sla-tracking.md` | Unified Work Queue — SLA Risk, Mission Control |
+| CAP-CMD-106 | incidents-and-work-queue | Incident Coordination | defined | planned | REQ-OBJ-001, REQ-PROD-003, REQ-PROD-008, REQ-PROD-013, REQ-SEC-001 | Signal / Alert, Case / Finding, Decision / Response Run / Result, Incident / Task, Incident, Task, Action Request | 2 | OPEN-013 | `06-command/modules/incidents-and-work-queue/capabilities/incident-coordination.md` | Incident Detail, Unified Work Queue |
+| CAP-CMD-107 | incidents-and-work-queue | Task Coordination | defined | planned | REQ-PROD-009, REQ-PROD-013, REQ-PROD-021, REQ-OBJ-012 | Task, Source object, Source relation | 2 | OPEN-013 | `06-command/modules/incidents-and-work-queue/capabilities/task-coordination.md` | Unified Work Queue, Incident Detail |
+| CAP-CMD-108 | incidents-and-work-queue | Bulk Coordination | defined | planned | REQ-PROD-004, REQ-PROD-009, REQ-PROD-013, REQ-SEC-001 | Incident / Task, Saved View / filters, Export job | 0, 2 | OPEN-013 | `06-command/modules/incidents-and-work-queue/capabilities/bulk-coordination.md` | Unified Work Queue, audit |
+| CAP-CMD-109 | incidents-and-work-queue | Work Freshness and Staleness | defined | planned | REQ-PROD-005, REQ-PROD-008, REQ-PROD-013, REQ-UX-005 | Incident / Task, Case / Decision / Run projections, Health, Task, Acknowledgement | 0, 2 | — | `06-command/modules/incidents-and-work-queue/capabilities/work-freshness-and-staleness.md` | Unified Work Queue, Mission Control |
+| CAP-CMD-110 | incidents-and-work-queue | Escalation | defined | planned | REQ-PROD-003, REQ-PROD-004, REQ-PROD-008, REQ-PROD-013, REQ-SEC-001 | Incident / Task, Case / Finding / Decision, Escalation record/state, Case or Action Request | 2 | OPEN-013 | `06-command/modules/incidents-and-work-queue/capabilities/escalation.md` | Incident Detail, Unified Work Queue |
+| CAP-CMD-201 | risk-and-coverage | Service Context | defined | planned | REQ-PROD-005, REQ-PROD-013, REQ-PROD-021, REQ-PROD-032 | Service, Incident / Task, Exposure / coverage projections, Data quality follow-up | 0, 2 | OPEN-013 | `06-command/modules/risk-and-coverage/capabilities/service-context.md` | Risk and Coverage, Incident Detail |
+| CAP-CMD-202 | risk-and-coverage | Exposure Overview | defined | planned | REQ-PROD-006, REQ-PROD-013, REQ-PROD-032, REQ-PROD-037 | Exposure projection, Service, Incident, Incident / Task, Exposure source | 0, 2 | OPEN-013 | `06-command/modules/risk-and-coverage/capabilities/exposure-overview.md` | Risk and Coverage, Mission Control |
+| CAP-CMD-203 | risk-and-coverage | Coverage Overview | defined | planned | REQ-PROD-005, REQ-PROD-013, REQ-PROD-032, REQ-PROD-037 | Coverage projections, Service, Task, Coverage source | 0, 2 | OPEN-013 | `06-command/modules/risk-and-coverage/capabilities/coverage-overview.md` | Risk and Coverage, Readiness Overview |
+| CAP-CMD-204 | risk-and-coverage | Business Impact Context | defined | planned | REQ-PROD-003, REQ-PROD-005, REQ-PROD-013, REQ-PROD-021 | Incident, Service, Finding/Result, Action Request context | 2 | OPEN-013 | `06-command/modules/risk-and-coverage/capabilities/business-impact-context.md` | Incident Detail, Mission Control |
+| CAP-CMD-205 | risk-and-coverage | Risk Prioritization Context | defined | planned | REQ-PROD-003, REQ-PROD-010, REQ-PROD-013, REQ-PROD-021 | Incident / Task, Service / Exposure / Coverage, Confidence / severity, Priority recommendation, Incident/Task | 0, 2 | OPEN-013 | `06-command/modules/risk-and-coverage/capabilities/risk-prioritization-context.md` | Mission Control — Priorities, Unified Work Queue |
+| CAP-CMD-301 | readiness-and-operations | Readiness Overview | defined | planned | REQ-PROD-005, REQ-PROD-013, REQ-PROD-021, REQ-PROD-057 | Capability projection, Task, Plan/Exercise records, Readiness assessment | 0, 2 | OPEN-010, OPEN-013 | `06-command/modules/readiness-and-operations/capabilities/readiness-overview.md` | Readiness & Operations screen, Mission Control |
+| CAP-CMD-302 | readiness-and-operations | Exercise Coordination | defined | planned | REQ-PROD-005, REQ-PROD-013, REQ-PROD-021, REQ-PROD-057 | Operational Plan, Capability Readiness, Workflow/Simulation, Exercise record, Task | 2 | OPEN-010, OPEN-013 | `06-command/modules/readiness-and-operations/capabilities/exercise-coordination.md` | Readiness & Operations, reporting |
+| CAP-CMD-303 | readiness-and-operations | Improvement Actions | defined | planned | REQ-PROD-009, REQ-PROD-013, REQ-PROD-021, REQ-OBJ-012 | Result, Exercise/readiness/coverage, Task, Source relation | 2 | OPEN-013 | `06-command/modules/readiness-and-operations/capabilities/improvement-actions.md` | Readiness Overview, Unified Work Queue |
+| CAP-CMD-304 | readiness-and-operations | Operational Plans | defined | planned | REQ-PROD-005, REQ-PROD-013, REQ-PROD-021, REQ-PROD-057 | Plan/Playbook references, Capability Readiness, Service/Incident, Operational Plan record, Task | 2 | OPEN-010, OPEN-013 | `06-command/modules/readiness-and-operations/capabilities/operational-plans.md` | Readiness Overview, Exercise Coordination |
+| CAP-CMD-305 | readiness-and-operations | Capability Readiness | defined | planned | REQ-PROD-012, REQ-PROD-013, REQ-PROD-019, REQ-PROD-057 | Capability, Health/Assurance/Exercise, Task, Readiness assessment | 0, 2 | OPEN-010, OPEN-013 | `06-command/modules/readiness-and-operations/capabilities/capability-readiness.md` | Readiness Overview, Operational Plans |
+| CAP-CMD-401 | customers-and-delivery | Customers and Delivery Context | proposed | planned | REQ-PROD-053, REQ-PROD-013, REQ-PROD-019, REQ-PROD-033 | Incident / Task, Result, Report, Customer/engagement context, Report request/draft context, Task, Customer/contract source | 0, 2 | OPEN-006, OPEN-013 | `06-command/modules/customers-and-delivery/capabilities/customers-and-delivery-context.md` | Customer & Reports legacy screen, Reporting Engine |
 
-## Inventaire complet — état Phase 3
+## Résultats de la sous-phase
+
+- `REQ-PROD-013`, `REQ-OBJ-001`, `REQ-OBJ-012`, `REQ-UX-008` et `REQ-UX-009` gagnent des preuves fonctionnelles détaillées sans changer leur état déjà conforme.
+- `REQ-PROD-008` et `REQ-PROD-010` restent partiels globalement : Command est détaillé, mais les produits et parcours des Phases 4B–4E et 5 ne le sont pas encore.
+- `REQ-PROD-006` reste partiel globalement : le périmètre Command traité ne contient plus de document générique actif hors écrans reportés, mais le référentiel complet conserve des domaines Template-level.
+- `REQ-SEC-003` à `REQ-SEC-005` restent partiels : les besoins fonctionnels sont identifiés, la matrice atomique et les contrats de confiance restent ultérieurs.
+- `REQ-UX-010` reste partiel : la matrice capability→écran est prête, mais aucun écran Command n’est réécrit en détail.
+- `REQ-JRN-002`, `REQ-JRN-005` et `REQ-JRN-008` restent absents et appartiennent à la phase Parcours.
+- aucun Requirement ID nouveau ;
+- aucune contradiction active ;
+- aucune exigence planned présentée comme livrée.
+
+## Inventaire complet
 
 ### conform — 99
 
@@ -67,17 +90,8 @@ Les 122 Requirement IDs sources sont conservés. `conform` signifie que la phase
 
 ### contradictory — 0
 
-Aucun Requirement ID n'est classé contradictoire après la migration Saved Views / Work Queue.
+Aucun Requirement ID n’est classé contradictoire après l’alignement de la Task opérationnelle et la consolidation des modules Command.
 
-## Mouvement Phase 3
+## Règle de maintenance
 
-- partial → conform : REQ-UX-001, 002, 003, 006, 007, 009 ;
-- absent → conform : REQ-UX-004, 005 ;
-- contradictory → conform : REQ-UX-008, REQ-OBJ-011, REQ-OBJ-012 ;
-- absent → partial : REQ-UX-010.
-
-Les trois exigences absentes restantes sont `REQ-JRN-002`, `REQ-JRN-005`, `REQ-JRN-008`, possédées par les phases parcours. Les décisions de palettes, typographie, densité finale et logo restent ouvertes.
-
-## Règle de mise à jour
-
-Une valeur Draft réversible peut rendre la fondation testable ; elle ne ferme pas une décision humaine. Une exigence écran reste partielle tant que les écrans propriétaires ne sont pas substantiels.
+Une capability peut être fonctionnellement `defined` et techniquement `planned`. Seule une preuve approuvée de moteur, contrat et release permet une promotion de delivery mode.

@@ -3,7 +3,7 @@ id: repository-index
 domain: repository
 status: draft
 owner: Product Architecture
-updated: 2026-08-03
+updated: 2026-08-04
 source-of-truth: canonical
 ---
 
@@ -17,26 +17,38 @@ source-of-truth: canonical
 4. `02-brand/README.md`
 5. `04-experience-architecture/README.md`
 6. `03-design-system/README.md`
-7. `00-governance/source-material/requirements-traceability-matrix.md`
+7. `templates/capability-specification-template.md`
+8. `00-governance/registers/capability-register.md`
+9. `00-governance/source-material/requirements-traceability-matrix.md`
+
+## Phase 4A — Command
+
+- Product boundary and mission: `06-command/README.md`
+- Product definition: `06-command/product-definition.md`
+- Capability map: `06-command/capability-map.md`
+- Functional dependencies: `06-command/functional-dependency-map.md`
+- Object consumption: `06-command/object-consumption-map.md`
+- Automation and AI: `06-command/automation-and-ai-model.md`
+- Action classes: `06-command/action-classification.md`
+- Screen preparation: `06-command/screen-capability-map.md`
+- Mission Control: `06-command/modules/mission-control/`
+- Incidents and Work Queue: `06-command/modules/incidents-and-work-queue/`
+- Risk and Coverage: `06-command/modules/risk-and-coverage/`
+- Readiness and Operations: `06-command/modules/readiness-and-operations/`
+- Customers and Delivery proposal: `06-command/modules/customers-and-delivery/`
 
 ## Sources Phase 3
 
-- Experience principles: `04-experience-architecture/experience-principles.md`
 - Information architecture: `04-experience-architecture/information-architecture.md`
 - Global navigation: `04-experience-architecture/global-navigation.md`
 - Context preservation: `04-experience-architecture/context-preservation.md`
 - Back/history: `04-experience-architecture/history-and-back.md`
 - Tokens: `03-design-system/foundations/tokens.md`
-- Themes: `03-design-system/foundations/theme-contract.md`
-- Responsive: `03-design-system/foundations/responsive.md`
-- Accessibility: `03-design-system/foundations/accessibility.md`
 - Shells: `03-design-system/layouts/`
 - Inspector: `03-design-system/components/inspector.md`
-- Context Bar: `03-design-system/components/context-bar.md`
-- Saved Views component: `03-design-system/components/saved-views.md`
-- Generic Saved Views: `12-shared-capabilities/saved-views.md`
+- Saved Views: `12-shared-capabilities/saved-views.md`
 - Work Queue Views: `06-command/modules/incidents-and-work-queue/saved-views.md`
 
 ## Domain responsibility
 
-`03-design-system/` owns visual/interaction contracts; `04-experience-architecture/` owns navigation and context; products own workflows and system views; Shared Capabilities owns reusable mechanisms. Deprecated paths are migration-only and never normative.
+Product capability documents own functional behavior. Objects, permissions, shared mechanisms, Design System interaction and technical contracts remain in their canonical domains. Deprecated paths are migration-only and never normative.

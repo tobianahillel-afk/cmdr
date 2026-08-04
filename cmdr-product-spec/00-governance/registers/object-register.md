@@ -1,17 +1,31 @@
+---
+id: object-register
+domain: 00-governance
+status: draft
+owner: Product Architecture
+updated: 2026-08-04
+source-of-truth: registry
+requirements:
+  - REQ-OBJ-001
+  - REQ-OBJ-012
+---
+
 # Object Register
 
 ## Objectif
 
-Répertorier les objets canoniques CMDR, leur produit propriétaire et leur source unique. Une page, un écran ou un contrat peut utiliser un objet, mais ne peut pas le redéfinir.
+Répertorier les objets canoniques CMDR, leur produit propriétaire et leur source unique. Une page, un écran ou une capability peut utiliser une projection, mais ne peut pas redéfinir l’objet ou son cycle de vie.
 
 ## Propriétés obligatoires
 
-- Incident → Command.
-- Case, Evidence et Finding → Investigate.
-- Decision et Response Run → Govern.
+- Incident, Alert, Signal et Task opérationnelle → Command.
+- Case, Artifact, Evidence et Finding → Investigate.
+- Action Request, Decision, Approval, Response Run et Result → Govern.
 - Endpoint Agent Fleet → Platform Settings.
 - Skill et Automation Agent → CMDR Studio.
-- Le Rapport est une capacité partagée définie par le [`reporting-engine`](../../12-shared-capabilities/reporting-engine.md), pas un objet possédé par une console.
+- Report reste défini par le [`Reporting Engine`](../../12-shared-capabilities/reporting-engine.md), pas par un objet de console.
+- Business Service Catalog fournit le contexte Service tant qu’un objet `service.md` n’est pas formalisé.
+- Une projection ne transfère jamais l’ownership.
 
 | Objet | Propriétaire | Statut | Source canonique |
 |---|---|---|---|
@@ -66,9 +80,15 @@ Répertorier les objets canoniques CMDR, leur produit propriétaire et leur sour
 | `signal` | Command | draft | [`05-domain-model/objects/signal.md`](../../05-domain-model/objects/signal.md) |
 | `simulation` | CMDR Studio | draft | [`05-domain-model/objects/simulation.md`](../../05-domain-model/objects/simulation.md) |
 | `skill` | CMDR Studio | draft | [`05-domain-model/objects/skill.md`](../../05-domain-model/objects/skill.md) |
-| `task` | Shared Capabilities | draft | [`05-domain-model/objects/task.md`](../../05-domain-model/objects/task.md) |
+| `task` | Command | draft | [`05-domain-model/objects/task.md`](../../05-domain-model/objects/task.md) |
 | `telemetry-event` | Shared Capabilities | draft | [`05-domain-model/objects/telemetry-event.md`](../../05-domain-model/objects/telemetry-event.md) |
 | `tenant` | Platform Settings | draft | [`05-domain-model/objects/tenant.md`](../../05-domain-model/objects/tenant.md) |
 | `timeline-entry` | Shared Capabilities | draft | [`05-domain-model/objects/timeline-entry.md`](../../05-domain-model/objects/timeline-entry.md) |
 | `version` | CMDR Studio | draft | [`05-domain-model/objects/version.md`](../../05-domain-model/objects/version.md) |
 | `workflow` | CMDR Studio | draft | [`05-domain-model/objects/workflow.md`](../../05-domain-model/objects/workflow.md) |
+
+## Alignement Phase 4A
+
+`Task` est alignée sur Command conformément aux décisions sources, à l’ownership register, au permission catalog et à la Work Queue. `12-shared-capabilities/task-inbox.md` reste une capability partagée de présentation/agrégation ; elle n’est pas un owner concurrent.
+
+Les objets `service`, `exposure`, `report` et `audit-record` demandés comme sources Phase 4A n’existent pas sous ces chemins. La Phase 4A enregistre les besoins fonctionnels et utilise les sources partagées existantes sans créer prématurément de schéma.
