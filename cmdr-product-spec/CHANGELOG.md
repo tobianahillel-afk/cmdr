@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-08-04 — Phase 4B.2A corrective conformance
+
+- Reopened the Phase 4B.2A quality verdict after a substantive audit found generic unadapted scaffolding in `CAP-INV-204` through `CAP-INV-212`.
+- Replaced the five collection contracts with capability-specific inputs, objects, actions, automation alternatives, outputs, transitions, permissions, errors and acceptance scenarios.
+- Replaced the four Live Response/result contracts with capability-specific session, operation, transfer and result semantics.
+- Preserved all Capability IDs, owners, delivery statuses, delivery modes, Requirement IDs and open decisions.
+- Added no screen rewrite, object schema, atomic permission, API, protocol, engine, exact command, product code or font.
+- Restored Phase 4B.2A to PASS only after 15/15 capabilities, 405/405 sections, 90/90 mandatory tables, 0 generic unadapted tables and 156/156 gates were revalidated.
+- Phase 4B.2B and Phase 4B.3 remain not started.
+
 ## 2026-08-04 — Phase 4B.2A Collection and Live Response
 
 - Created the canonical Collection and Live Response module.
@@ -14,7 +24,7 @@
 - Registered 64 total capabilities and kept all delivery modes planned.
 - Kept requirement coverage at 99 conform, 20 partial, 3 absent and 0 contradictory.
 - Kept all 15 OPEN decisions open.
-- Added the conformance report with 15/15 capabilities, 405/405 sections, 90/90 tables and 156/156 gates.
+- Added the conformance report with 15/15 capabilities, 405/405 sections and 90/90 tables.
 - Did not start Phase 4B.2B or Phase 4B.3.
 
 ## 2026-08-04 — Phase 4B.1 Investigate foundation

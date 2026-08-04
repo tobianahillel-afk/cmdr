@@ -17,11 +17,22 @@ requirements:
 
 ## Verdict
 
-**PASS — 156/156 gates.** Phase 4B.2 global, Phase 4B global, Phase 4 global and repository maturity remain PARTIAL. Phase 4B.2B and Phase 4B.3 are not started.
+**PASS — 156/156 gates after corrective revalidation.** Phase 4B.2 global, Phase 4B global, Phase 4 global and repository maturity remain PARTIAL. Phase 4B.2B and Phase 4B.3 are not started.
+
+## Corrective validation history
+
+The first published report at `cd93be822a06a721884a243ec34085270b323e4b` was a false positive for gate 58. A manual substantive audit found generic copied scaffolding in `CAP-INV-204` through `CAP-INV-212`, especially in S9, S12, S13, S17, permissions and acceptance criteria. The sub-phase was therefore treated as **PARTIAL** until correction.
+
+Corrective commits:
+
+- `33aa8337e654e526873c7079b7bf4273956489ab` — `docs: enforce collection capability contracts`;
+- `17709e80c498bb8d8f845f98251433a30debb934` — `docs: enforce live response capability contracts`.
+
+The nine affected contracts were replaced with capability-specific inputs, objects, actions, automation alternatives, outputs, transitions, permissions, limits and Given/When/Then scenarios. No ID, owner, status, delivery mode, screen, object schema or product boundary changed.
 
 ## Scope and evidence
 
-- Initial published head: `71b45ef99feb568a2ef0cbabfa0fbe008fcbaea7`.
+- Initial Phase 4B.2A base: `71b45ef99feb568a2ef0cbabfa0fbe008fcbaea7`.
 - Source documents read integrally: **140**.
 - Screen specifications read: **18**; modified: **0**; detailed rewrites: **0**.
 - Canonical module files: **30**; active: **30**; deprecated: **0**; generic active: **0**; placeholders: **0**.
@@ -30,13 +41,13 @@ requirements:
 - Mandatory tables expected/present: **90/90**.
 - Empty mandatory tables: **0**.
 - Prose-only required table sections: **0**.
-- Generic unadapted tables: **0**.
+- Generic unadapted tables after correction: **0**.
 - Duplicate IDs: **0**.
 - Concurrent owners: **0**.
 - Active contradictions introduced: **0**.
 - Object files modified: **0**.
 - Atomic permission sources modified: **0**.
-- CAP-INV-3xx/4xx/5xx created: **0**.
+- CAP-INV-3xx created: **0**.
 - APIs, protocols, engines, exact commands, product code and fonts: **0**.
 
 ## Source domains
@@ -88,39 +99,44 @@ The target list of fifteen capabilities is retained. `CAP-INV-215` is not a dupl
 | CAP-INV-214 | PASS | PASS | PASS | PASS | PASS | PASS | PASS | PASS | PASS |
 | CAP-INV-215 | PASS | PASS | PASS | PASS | PASS | PASS | PASS | PASS | PASS |
 
-## Initial defects and corrections
+## Corrected capability specificity
 
-| Initial condition | Correction | Final evidence |
-|---|---|---|
-| No canonical Collection and Live Response module | Created one owner module with boundaries, objects, actions, states, permissions, workflows and dependencies | `07-investigate/modules/collection-and-live-response/` |
-| No CAP-INV-2xx | Added exactly 15 immutable IDs and canonical files | Capability Register and module map |
-| Collection Request mixed request/execution semantics | Distinguished Request, Collection Job and Shared Background Job without changing object schema | CAP-INV-202/203 and object map |
-| Live Session/Terminal/Run ambiguity | Defined visible session, operation/result and explicit Run distinctions | CAP-INV-209/210/212/214 |
-| Endpoint administration boundary implicit | Made Settings Fleet/Policy ownership and Agent execution explicit | boundary docs and every capability |
-| Containment risk of duplication | Retained CAP-INV-215 only as Endpoint-specific preparation delegating to CAP-INV-113/Govern | CAP-INV-215 |
-| No strict sub-phase quality evidence | Added this 15×6 matrix and 156-gate grid | this report |
+| Capability | Corrected specificity |
+|---|---|
+| CAP-INV-204 | versioned triage profiles, per-category partial/error/retry and Artifact outputs |
+| CAP-INV-205 | bounded file/directory/pattern scope, preview, missing/locked handling and no deployment |
+| CAP-INV-206 | read-only snapshots, process/session/service/connection inspection and containment separation |
+| CAP-INV-207 | platform/capability support, impact constraints, Memory Image/Artifact handoff and OPEN-005/008 |
+| CAP-INV-208 | bounded duration/volume/filter, explicit start/stop and loss/error reporting |
+| CAP-INV-209 | participants, expiry, inactivity, reconnect/conflict and Live Session/Run separation |
+| CAP-INV-210 | operation catalogue, classes 0–4, interruption and Govern redirection without commands |
+| CAP-INV-211 | upload/download purpose, temporary transfer, Artifact/Attachment distinction and no deployment |
+| CAP-INV-212 | output/error/partial review, verification/dispute and Operation Result/Govern Result separation |
 
 ## Metrics
 
-| Measure | Before | After |
+| Measure | Before | Final |
 |---|---:|---:|
-| Module files | 0 | 30 |
+| Collection and Live Response files | 0 | 30 |
 | Active module files | 0 | 30 |
 | Deprecated module files | 0 | 0 |
-| Generic active files | 0 | 0 |
+| Generic active module files | 0 | 0 |
 | Active placeholders | 0 | 0 |
 | CAP-INV-2xx | 0 | 15 |
 | Investigate capabilities | 22 | 37 |
 | Registered capabilities | 49 | 64 |
 | Capabilities without owner/user/input/output/object/action/no-AI/GWT | N/A | 0 |
-| Sections | 0 | 405 |
-| Mandatory tables | 0 | 90 |
-| Delivery status defined | 0 | 15 |
-| Delivery mode planned | 0 | 15 |
+| Sections expected/present | 0 | 405/405 |
+| Mandatory tables expected/present | 0 | 90/90 |
+| Empty mandatory tables | 0 | 0 |
+| Prose-only mandatory sections | 0 | 0 |
+| Generic mandatory tables | 0 | 0 |
+| Delivery status `defined` | 0 | 15 |
+| Delivery mode `planned` | 0 | 15 |
 | Native/integrated/current implementation claims | 0 | 0 |
-| Legacy competing Investigate modules migrated | 0 | 0; none existed |
-| Detailed screens rewritten | 0 | 0 |
-| Object/atomic permission sources modified | 0 | 0 |
+| Competing active module architectures | 0 | 0 |
+| Screens read / modified / rewritten | 0 | 18 / 0 / 0 |
+| Object or atomic permission sources modified | 0 | 0 |
 | APIs/protocols/engines/commands/code/fonts | 0 | 0 |
 | Requirement IDs | 122 | 122 |
 | Open decisions | 15 | 15 |
@@ -133,14 +149,14 @@ The target list of fifteen capabilities is retained. `CAP-INV-215` is not a dupl
 | 1 | Git | Repository correct | PASS |
 | 2 | Git | Branch correct | PASS |
 | 3 | Git | PR correct | PASS |
-| 4 | Git | Base main | PASS |
+| 4 | Git | Base `main` | PASS |
 | 5 | Git | PR open | PASS |
 | 6 | Git | PR Draft | PASS |
 | 7 | Git | PR unmerged | PASS |
 | 8 | Git | No force-push | PASS |
 | 9 | Git | History not rewritten | PASS |
 | 10 | Git | Root README unchanged | PASS |
-| 11 | Git | main unchanged | PASS |
+| 11 | Git | `main` unchanged | PASS |
 | 12 | Git | Final remote SHA verified | PASS |
 | 13 | Sources | All active Collection and Live Response files read | PASS |
 | 14 | Sources | All competing legacy modules read | PASS |
@@ -288,7 +304,9 @@ The target list of fifteen capabilities is retained. `CAP-INV-215` is not a dupl
 | 156 | Registers and quality | Local and remote SHA coherent | PASS |
 
 ## Publication rule
-The publication gates are rechecked after the branch fast-forward. Any remote SHA mismatch, README change, PR state change or failed gate reverts the sub-phase verdict to PARTIAL.
+
+The publication gates are rechecked after fast-forward. Any remote SHA mismatch, README change, PR state change, unreachable commit or failed gate reverts the sub-phase verdict to PARTIAL.
 
 ## Final boundaries
+
 Fleet and Policies remain Platform Settings; local execution remains Endpoint Agent; Case/Artifact/Evidence/Finding remain Investigate; Decision/Response Run/Result remain Govern; Automation Run remains Studio; generic jobs, linking, timeline, trace, notifications and export remain Shared.

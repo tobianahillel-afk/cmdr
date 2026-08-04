@@ -36,9 +36,13 @@ Phase 0 recorded 781 Markdown files, 559 generic skeletons, 61 Template-level sc
 - renamed source: Technical Workbench Shell is under `03-design-system/layouts/`;
 - absent requested screen path: Platform Settings System Health screen.
 
+## Corrective substantive audit
+
+The initial publication at `cd93be822a06a721884a243ec34085270b323e4b` satisfied structural counts but failed the substantive generic-table gate for `CAP-INV-204` through `CAP-INV-212`. The affected S9, S12, S13, S17, permissions and acceptance criteria were replaced in two corrective commits. Final counts are unchanged, but **generic mandatory tables are now verified at 0 rather than inferred from structure**.
+
 ## Phase 4B.2A measures
 
-| Measure | Before | After |
+| Measure | Before | Final |
 |---|---:|---:|
 | Collection and Live Response files | 0 | 30 |
 | Active module files | 0 | 30 |
