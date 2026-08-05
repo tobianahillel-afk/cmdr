@@ -1,61 +1,33 @@
 ---
 id: investigate-reverse-engineering-reverse-workspace
 domain: 07-investigate
-status: draft
+status: deprecated
 owner: Investigate Product Lead
-updated: 2026-08-03
-source-of-truth: canonical
+updated: 2026-08-05
+source-of-truth: deprecated-pointer
+replaced-by: ../analysis-workbench/reverse-engineering-and-debugger/README.md
 ---
-# Reverse Workspace
+# Reverse Workspace — deprecated
 
-## Objectif
+This functional source was migrated on 2026-08-05 to the canonical Analysis Workbench submodule:
 
-Définir reverse workspace dans Investigate.
+`../analysis-workbench/reverse-engineering-and-debugger/README.md`
 
-## Périmètre
+## Migrated needs
+- synchronized views → CAP-INV-331/332/333;
+- navigation history → CAP-INV-331;
+- versioned annotations → CAP-INV-337;
+- original immutability → CAP-INV-344.
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
+## Dependents and screens
+- `screens/reverse-engineering.md` remains active.
+- Technical Workbench Shell remains canonical.
 
-## Propriétaire fonctionnel
+## Migration rationale
+The previous document was generic and competed with the canonical capability architecture. The active screen remains unchanged and consumes the new capability map.
 
-Investigate Product Lead.
-
-## Objets concernés
-
-- Concepts du document
-- Références canoniques liées
-
-## Fonctionnalités
-
-- Synchronized views.
-- Navigation history.
-- Annotations versioned.
-- No mutation of original.
-
-## UX et interactions
-
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
-
-## Permissions
-
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
-
-## États
-
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
-
-## Dépendances
-
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- À compléter — décision source non fournie dans le brief canonique.
+## Acceptance
+- one active functional owner;
+- previous needs retained in named capabilities;
+- no screen rewrite;
+- no engine, command, API, protocol or implementation introduced.

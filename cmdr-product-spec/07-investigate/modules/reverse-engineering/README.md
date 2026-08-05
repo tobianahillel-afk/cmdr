@@ -1,69 +1,33 @@
 ---
 id: investigate-reverse-engineering
 domain: 07-investigate
-status: draft
+status: deprecated
 owner: Investigate Product Lead
-updated: 2026-08-03
-source-of-truth: canonical
+updated: 2026-08-05
+source-of-truth: deprecated-pointer
+replaced-by: ../analysis-workbench/reverse-engineering-and-debugger/README.md
 ---
-# Reverse Engineering
+# Reverse Engineering — deprecated
 
-## Objectif
+This functional source was migrated on 2026-08-05 to the canonical Analysis Workbench submodule:
 
-Désassembler, décompiler et annoter un binaire.
+`../analysis-workbench/reverse-engineering-and-debugger/README.md`
 
-## Périmètre
+## Migrated needs
+- disassembly and decompilation → CAP-INV-332/333;
+- cross-references and symbols → CAP-INV-334;
+- CFG → CAP-INV-335;
+- annotations and derived output → CAP-INV-337/344.
 
-Module du produit 07-investigate. Les objets, permissions, composants et transitions partagés sont référencés et non redéfinis.
+## Dependents and screens
+- `screens/reverse-engineering.md` remains active as INV-REV-001.
+- Static and Dynamic handoffs now target CAP-INV-329.
 
-## Propriétaire fonctionnel
+## Migration rationale
+The previous document was generic and competed with the canonical capability architecture. The active screen remains unchanged and consumes the new capability map.
 
-Investigate Product Lead.
-
-## Objets concernés
-
-- malware-sample
-- artifact
-- evidence
-- finding
-
-## Fonctionnalités
-
-- Disassembly.
-- Decompiler.
-- Cross references.
-- CFG.
-- Symbols.
-- Hex.
-
-## UX et interactions
-
-- Conserver le contexte de liste, vue et objet.
-- Utiliser l’Inspector canonique.
-- Afficher les six états obligatoires.
-- Préserver navigation clavier et liens profonds.
-
-## Permissions
-
-Voir `../../14-security-permissions-and-trust/permission-model.md` et le registre des permissions.
-
-## États
-
-Les états métier viennent des fichiers d’objets canoniques; la page ajoute uniquement Loading, Empty, Partial, Error, Offline et Permission denied.
-
-## Dépendances
-
-- 03-design-system/
-- 04-experience-architecture/
-- 05-domain-model/
-- 17-implementation-contracts/
-
-## Critères d’acceptation
-
-- Aucune définition d’objet ou de permission locale.
-- Tous les écrans du module ont un front matter et 27 sections.
-- Les transitions sont auditées et idempotentes.
-
-## Questions ouvertes
-
-- À compléter — contenu source non fourni dans le brief canonique.
+## Acceptance
+- one active functional owner;
+- previous needs retained in named capabilities;
+- no screen rewrite;
+- no engine, command, API, protocol or implementation introduced.

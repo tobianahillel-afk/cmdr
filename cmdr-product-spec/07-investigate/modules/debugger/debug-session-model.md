@@ -1,61 +1,33 @@
 ---
 id: investigate-debugger-debug-session-model
 domain: 07-investigate
-status: draft
+status: deprecated
 owner: Investigate Product Lead
-updated: 2026-08-03
-source-of-truth: canonical
+updated: 2026-08-05
+source-of-truth: deprecated-pointer
+replaced-by: ../analysis-workbench/reverse-engineering-and-debugger/README.md
 ---
-# Debug Session Model
+# Debug Session Model — deprecated
 
-## Objectif
+This functional source was migrated on 2026-08-05 to the canonical Analysis Workbench submodule:
 
-Définir debug session model dans Investigate.
+`../analysis-workbench/reverse-engineering-and-debugger/README.md`
 
-## Périmètre
+## Migrated needs
+- session lifecycle and recovery → CAP-INV-339;
+- audited controls → CAP-INV-340;
+- failure preserves prior results → CAP-INV-343/345;
+- no real Endpoint target → CAP-INV-339.
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
+## Dependents and screens
+- `screens/debugger.md` remains active.
+- Platform Settings and Studio retain environment/Tool ownership.
 
-## Propriétaire fonctionnel
+## Migration rationale
+The previous document was generic and competed with the canonical capability architecture. The active screen remains unchanged and consumes the new capability map.
 
-Investigate Product Lead.
-
-## Objets concernés
-
-- Concepts du document
-- Références canoniques liées
-
-## Fonctionnalités
-
-- Provisioning.
-- Paused/running/terminated.
-- Commands audited.
-- Failure preserves evidence.
-
-## UX et interactions
-
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
-
-## Permissions
-
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
-
-## États
-
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
-
-## Dépendances
-
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- À compléter — décision source non fournie dans le brief canonique.
+## Acceptance
+- one active functional owner;
+- previous needs retained in named capabilities;
+- no screen rewrite;
+- no engine, command, API, protocol or implementation introduced.
