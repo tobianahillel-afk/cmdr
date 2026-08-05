@@ -1,67 +1,16 @@
 ---
 id: investigate-disk-and-artifact-forensics
 domain: 07-investigate
-status: draft
+status: deprecated
 owner: Investigate Product Lead
-updated: 2026-08-03
-source-of-truth: canonical
+updated: 2026-08-05
+source-of-truth: deprecated-pointer
+superseded-by: ../analysis-workbench/disk-and-filesystem-forensics/README.md
 ---
-# Disk & Artifact Forensics
+# Deprecated — Disk & Artifact Forensics functional source
 
-## Objectif
+The functional needs for filesystem navigation, persistent artifacts, carving and temporal reconstruction were migrated to `../analysis-workbench/disk-and-filesystem-forensics/` and CAP-INV-363..379 on 2026-08-05.
 
-Analyser Disk Image et artefacts endpoint en lecture seule.
+The active screen under `screens/disk-and-artifact-forensics.md` remains active and is not deprecated.
 
-## Périmètre
-
-Module du produit 07-investigate. Les objets, permissions, composants et transitions partagés sont référencés et non redéfinis.
-
-## Propriétaire fonctionnel
-
-Investigate Product Lead.
-
-## Objets concernés
-
-- disk-image
-- artifact
-- evidence
-- timeline-entry
-
-## Fonctionnalités
-
-- Filesystem.
-- Registry/log/browser.
-- Carving.
-- Super timeline.
-
-## UX et interactions
-
-- Conserver le contexte de liste, vue et objet.
-- Utiliser l’Inspector canonique.
-- Afficher les six états obligatoires.
-- Préserver navigation clavier et liens profonds.
-
-## Permissions
-
-Voir `../../14-security-permissions-and-trust/permission-model.md` et le registre des permissions.
-
-## États
-
-Les états métier viennent des fichiers d’objets canoniques; la page ajoute uniquement Loading, Empty, Partial, Error, Offline et Permission denied.
-
-## Dépendances
-
-- 03-design-system/
-- 04-experience-architecture/
-- 05-domain-model/
-- 17-implementation-contracts/
-
-## Critères d’acceptation
-
-- Aucune définition d’objet ou de permission locale.
-- Tous les écrans du module ont un front matter et 27 sections.
-- Les transitions sont auditées et idempotentes.
-
-## Questions ouvertes
-
-- À compléter — contenu source non fourni dans le brief canonique.
+Acceptance: use the replacement as the only functional source; preserve this pointer for historical links.
