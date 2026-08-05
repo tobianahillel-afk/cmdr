@@ -3,29 +3,26 @@ id: investigate-screen-capability-map
 domain: 07-investigate
 status: draft
 owner: Investigate Product Lead
-updated: 2026-08-05
+updated: 2026-08-06
 source-of-truth: canonical
 requirements:
   - REQ-UX-001
   - REQ-UX-010
+  - REQ-INV-006
 ---
-# Screen capability map — Investigate through Phase 4B.2 closure
+# Screen capability map — Detection Engineering Authoring
 
-| Existing screen or surface | Primary capability | Added Network Forensics consumption | Change |
+| Existing screen or surface | Primary capability | Detection Authoring consumption | Change |
 |---|---|---|---|
-| Case Workspace | CAP-INV-102 | CAP-INV-380,381,397 | map and links only |
-| Evidence Board | CAP-INV-107 | CAP-INV-382,390,392..397 | map and links only |
-| Static Analysis | CAP-INV-301 | CAP-INV-390,395,397 | map and links only |
-| Dynamic Sandbox | CAP-INV-314 | CAP-INV-388,390,393,395,397 | map and links only |
-| Reverse Engineering | CAP-INV-329 | CAP-INV-390,395,397 | map and links only; screen unchanged |
-| Debugger | CAP-INV-339 | none required | unchanged |
-| Memory Forensics | CAP-INV-347 | CAP-INV-391,393,396,397 | map and links only; screen unchanged |
-| Disk and Artifact Forensics | CAP-INV-363 | CAP-INV-390,391,393,396,397 | map and links only; screen unchanged |
-| Event Search | CAP-INV-002 | CAP-INV-387,391..393,397 | map and links only; no second Event Search |
-| Entity Graph | CAP-INV-104 | CAP-INV-391..394,397 | map and links only; Shared Entity and Graph ownership retained |
-| Technical Workbench shell | CAP-INV-301 | CAP-INV-380..397 | temporary canonical surface pending screen composition phase |
-| Network Forensics autonomous screen | none | CAP-INV-380..397 | absence recorded; no Screen ID created |
-| Endpoint Agent Fleet | Settings capability | CAP-INV-380,382,383 transition only | unchanged |
-| Studio Control Room | Studio capability | Tool, Tool Call and Automation Run projections | unchanged |
+| Event Search | CAP-INV-002 | CAP-INV-401,404,405,414,415 | map and links only; Search ≠ Detection Content |
+| Hunt Workspace / signals-and-hunt surface | CAP-INV-005 | CAP-INV-401,403,412,416 | map and links only |
+| Case Workspace | CAP-INV-102 | CAP-INV-401..403,410,417 | map and links only |
+| Evidence Board / Hypotheses and Findings | CAP-INV-103/107..109 | CAP-INV-401,403,415,417 | map and links only |
+| Technical Workbench / Builder Shell | layout/surface | CAP-INV-401..417 | temporary authoring surface pending screen phase |
+| Platform Settings Sources and Parsers | Settings surface | CAP-INV-404,405,409,416 | read/request transition only |
+| Studio Builder / Assurance / Evaluation / Control Room | Studio surfaces | Tools, Datasets, Evaluations and Runs | ownership unchanged |
+| Command Incident / future Detection surface | Command surface | CAP-INV-401 source and future 417 destination only | no runtime Detection fabricated |
+| Detection Engineering autonomous screen | none | CAP-INV-401..417 | absence recorded; no Screen ID created |
+| Rule Builder autonomous screen | none | CAP-INV-406..413 | absence recorded; no Screen ID created |
 
-Detailed screen rewrites: **0**. Screen specifications modified: **0**. New Screen IDs: **0**. Wireframes, final buttons, columns, filters, dimensions, animations and shortcuts: **0**.
+Detailed screen rewrites: **0**. Screen specifications modified: **0**. New Screen IDs: **0**. Wireframes, final buttons, columns, filters, dimensions, animations, shortcuts and rule syntax: **0**.

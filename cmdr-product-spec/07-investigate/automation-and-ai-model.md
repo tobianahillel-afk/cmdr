@@ -3,7 +3,7 @@ id: investigate-automation-and-ai-model
 domain: 07-investigate
 status: draft
 owner: Investigate Product Lead
-updated: 2026-08-05
+updated: 2026-08-06
 source-of-truth: canonical
 requirements:
   - REQ-AI-001
@@ -16,12 +16,12 @@ open_decisions:
   - OPEN-013
   - OPEN-015
 ---
-# Automation and AI model — Investigate through Phase 4B.2 closure
+# Automation and AI model — Investigate through Phase 4B.3A.1
 
-AI may propose protocol candidates, request/response relations, summaries, flow groups, Entity candidates, periodicity, anomaly candidates, temporal correlations, Hypotheses, Evidence candidates, Finding Drafts and future Detection or Intelligence packages.
+AI may propose Detection Hypotheses, source and field requirements, functional logic, sequences, thresholds, test scenarios, Expected Outcomes, validation explanations, candidate FP/FN dispositions, coverage mappings, gaps and review-package drafts.
 
-Every essential Network Forensics workflow remains available through deterministic parsers and decoders, viewers, tables, timelines, graphs with structured alternatives, filters, searches, comparators, explicit rules, extractors, checklists, non-agentic workflows and human review.
+Every essential workflow remains available through forms, structured editors, deterministic validators, field catalogues, controlled fixtures, manual tests, deterministic replay, comparators, explicit rules, checklists, non-agentic workflows and human review.
 
-Prohibitions: no silent Tool, protocol selection or Entity merge; no packet generation, injection, scanning, interception, replay or target interaction; no payload disclosure without permission; no unauthorized decryption, secret extraction or credential use; no automatic anomaly, IOC, Evidence, Finding, Detection rule or canonical Intelligence object; no self-permission, trace removal or mandatory chatbot.
+Prohibitions: no silent draft/logic/source/field/mapping selection; no automatically accepted test oracle or invented ground truth; no certain TP/FN qualification; no promotion, deployment, activation, deactivation, production exception, Signal/Alert deletion, self-permission, trace removal or mandatory chatbot.
 
 Mandatory attribution: initiator, producer or agent and version, Tool Calls, Automation Run, sources, parameters, timestamp, status, errors, uncertainty, human owner and accept/modify/reject disposition.

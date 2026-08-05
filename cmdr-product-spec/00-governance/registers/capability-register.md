@@ -3,7 +3,7 @@ id: capability-register
 domain: 00-governance
 status: draft
 owner: Product Architecture
-updated: 2026-08-05
+updated: 2026-08-06
 source-of-truth: registry
 requirements:
   - REQ-PROD-006
@@ -27,13 +27,15 @@ The register is split into active shards. IDs are immutable and never recycled.
 | `capability-register-investigate-memory-forensics.md` | Investigate CAP-INV-347..362 | 16 | 16 | 0 | 16 planned |
 | `capability-register-investigate-disk-filesystem-forensics.md` | Investigate CAP-INV-363..379 | 17 | 17 | 0 | 17 planned |
 | `capability-register-investigate-network-forensics.md` | Investigate CAP-INV-380..397 | 18 | 18 | 0 | 18 planned |
-| **Total** | **All registered capabilities** | **161** | **159** | **2** | **161 planned** |
+| `capability-register-investigate-detection-authoring.md` | Investigate CAP-INV-401..417 | 17 | 17 | 0 | 17 planned |
+| **Total** | **All registered capabilities** | **178** | **176** | **2** | **178 planned** |
 
 ## Product totals
 - Command: **27** capabilities.
-- Investigate: **134** capabilities.
-- CAP-INV-3xx: **97** capabilities, CAP-INV-301 through CAP-INV-397 with intentional gaps only between families already reserved by the programme.
-- No CAP-INV-4xx or CAP-INV-5xx is assigned.
-- No capability is marked validated, implemented, native or integrated.
+- Investigate: **151** capabilities.
+- CAP-INV-3xx: **97**.
+- CAP-INV-4xx: **17**, CAP-INV-401 through CAP-INV-417.
+- No CAP-INV-5xx is assigned.
+- No capability is marked validated, implemented, promoted, deployed, active, native or integrated.
 
 Each shard records owner, users, objects, inputs, outputs, actions, no-AI alternatives, criteria, Requirement IDs, OPEN decisions, dependencies, supersession and date.

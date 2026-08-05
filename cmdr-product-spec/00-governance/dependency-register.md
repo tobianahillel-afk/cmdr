@@ -3,52 +3,56 @@ id: dependency-register
 domain: 00-governance
 status: draft
 owner: Product Architecture
-updated: 2026-08-05
-source-of-truth: canonical
+updated: 2026-08-06
+source-of-truth: registry
 requirements:
-  - REQ-PROD-012
-  - REQ-PROD-013
-  - REQ-PROD-014
+  - REQ-PROD-006
+  - REQ-PROD-009
   - REQ-PROD-019
+  - REQ-PROD-020
 ---
 # Dependency Register
 
-This register records functional and documentary dependencies only. It chooses no protocol, API, engine, plugin, provider, command, capture format, storage design or low-level field model.
+This register records functional and documentary dependencies only. It chooses no protocol, API, engine, rule language, parser, compiler, model, provider, command, package format, deployment architecture or production pipeline.
 
 | ID | Source | Dependent | Type | Reason | Status | Owner | Blocking | Requirement / OPEN | Review |
 |---|---|---|---|---|---|---|---|---|---|
 | DEP-001 | source material | product specifications | decision | apply mission, principles and boundaries | active | Product Architecture | yes | REQ-PROD-001..020 | continuous |
 | DEP-002 | product boundaries / ownership | all modules | boundary | prevent concurrent ownership | active | Product Architecture | yes | REQ-PROD-013..018 | continuous |
 | DEP-003 | object/permission phases | capabilities | model/security | final schemas and atomic permissions are future | partial | Architecture/Security | before implementation | REQ-OBJ/SEC | Phase 7 |
-| DEP-004 | Shared mechanisms | all products | shared | Jobs, Trace, Activity, Entity, Graph, Timeline, Linking, Export, Versioning, Notifications and Recovery | partial | Shared | yes | REQ-PROD-019,020 | Technique |
-| DEP-005 | OPEN-005 | Analysis Workbench and Forensics | future engine | no forensic engine, plugin or framework selected | open | Investigate | before delivery | OPEN-005 | Phase 8 |
-| DEP-006 | OPEN-008 | Endpoint and sensor platform support | platform | supported acquisition, capture and filesystem platforms unresolved | open | Endpoint Agent / Settings | before delivery | OPEN-008 | Phase 4D/8 |
+| DEP-004 | Shared mechanisms | all products | shared | Jobs, Trace, Activity, Linking, Search, Export, Reporting, Versioning, Collaboration and Recovery | partial | Shared | yes | REQ-PROD-019,020 | Technique |
+| DEP-005 | OPEN-005 | Analysis Workbench and Forensics | future engine | forensic engines only; not Detection Engineering | open | Investigate | before forensic delivery | OPEN-005 | Phase 8 |
+| DEP-006 | OPEN-008 | platform/source support | platform | source, sensor and endpoint platform support unresolved | open | Endpoint Agent / Settings | before delivery | OPEN-008 | Phase 4D/8 |
 | DEP-007 | OPEN-013 | class-2 actions | authority | default step-up/Govern policy unresolved | open | Security | yes | OPEN-013 | Phase 7 |
-| DEP-008 | OPEN-014 | Artifact relations | object | Artifact versus Attachment unresolved | open | Investigate | model blocking | OPEN-014 | Phase 7 |
+| DEP-008 | OPEN-014 | Artifact/Attachment/dataset relations | object | relation and retention semantics unresolved | open | Investigate | model blocking | OPEN-014 | Phase 7 |
 | DEP-009 | OPEN-015 | Studio/Govern/Investigate runs | run model | Automation Run / Response Run bridge unresolved | open | Studio + Govern | yes | OPEN-015 | Phase 7 |
-| DEP-INV-301 | CAP-INV-105/213/214 | CAP-INV-301..313 | object/provenance | Artifact, custody and provenance sources | active | Investigate | yes | REQ-PROD-014,020 | 4B.2B.1 |
-| DEP-INV-314 | CAP-INV-301..313 | CAP-INV-314..328 | static-to-dynamic handoff | static results, Derived Artifacts and provenance | active | Investigate | yes | REQ-INV-002,005 | 4B.2B.2A |
-| DEP-INV-329 | Static/Dynamic foundations | CAP-INV-329..346 | reverse/debug context | static/dynamic results and provenance | active | Investigate | yes | REQ-INV-003,004 | 4B.2B.2B |
-| DEP-INV-347 | CAP-INV-207/213/214 | CAP-INV-347..362 | memory acquisition/custody | consume Memory Image and declared context without acquisition | active | Investigate / Endpoint Agent | yes | REQ-INV-001; OPEN-008 | 4B.2B.3A |
-| DEP-INV-363 | Collection Job / Artifact Management | CAP-INV-363..379 | disk intake and analysis | consume Disk Image and acquisition context without acquiring or mutating | active | Investigate / Endpoint Agent | yes | REQ-INV-001; OPEN-008 | 4B.2B.3B.1 |
-| DEP-INV-380 | CAP-INV-208 / Collection Job | CAP-INV-380 | network intake | consume the produced Capture Artifact and declared scope; no acquisition | active | Investigate / Endpoint Agent | yes | REQ-INV-001; OPEN-008 | 4B.2B.3B.2 |
-| DEP-INV-381 | CAP-INV-105 | CAP-INV-380..397 | Artifact source | capture ownership, versions, restrictions and lineage | active | Investigate | yes | REQ-OBJ-003; OPEN-014 | Objects |
-| DEP-INV-382 | CAP-INV-203/208/212/213/214 | CAP-INV-382/383/396 | collection context | job status, errors, integrity, custody and provenance | active | Investigate / Shared | yes | REQ-PROD-020 | 4B.2A |
-| DEP-INV-383 | Platform Settings sensors/Fleet/Policies/storage/retention/health/time synchronization | CAP-INV-380..396 | projection/admin | support, restrictions, storage, health and timebase remain Settings-owned | partial | Platform Settings | yes | REQ-PROD-055; OPEN-008 | Settings/Technique |
-| DEP-INV-384 | CMDR Studio Tool/Tool Call | CAP-INV-380..397 | tool/provenance | selection, version, execution and attribution remain Studio-owned | partial | Studio | yes | REQ-OBJ-009; OPEN-005/015 | Studio/Objects |
-| DEP-INV-385 | CMDR Studio Automation Run | automated network analysis | automation/provenance | orchestration remains Studio-owned and optional | partial | Studio | no essential dependency | REQ-AI-002; OPEN-015 | Studio/Objects |
-| DEP-INV-386 | Shared Entity / Entity Resolution / Graph | CAP-INV-387/391/392/393/397 | shared identity and relationship | no silent merge or local graph ownership | partial | Shared | yes | REQ-PROD-019,020 | Shared/Objects |
-| DEP-INV-387 | Shared Timeline / Trace / Activity / Jobs / Search / Linking / Export / Reporting / Recovery | CAP-INV-380..397 | shared mechanism | progress, provenance, correlation, navigation, export and recovery | partial | Shared | yes | REQ-PROD-019,020 | Shared/Technique |
-| DEP-INV-388 | CAP-INV-311 Derived Artifact Management | CAP-INV-390/395/397 | extracted Artifact | parent/child relation, restrictions, withdrawal and lineage | active | Investigate | yes | REQ-OBJ-003; OPEN-014 | 4B.2B.1 |
-| DEP-INV-389 | CAP-INV-301..313 | CAP-INV-390/395/397 | Static handoff | extracted content analysis without execution | active | Investigate | no | REQ-INV-002 | 4B.2B.1 |
-| DEP-INV-390 | CAP-INV-329..346 | CAP-INV-390/395/397 | Reverse handoff | binary or object analysis without ownership transfer | active | Investigate | no | REQ-INV-003,004 | 4B.2B.2B |
-| DEP-INV-391 | CAP-INV-347..362 | CAP-INV-355/393/397 | Memory correlation | compare capture observations with memory-resident network state | active | Investigate | no | REQ-INV-001 | 4B.2B.3A |
-| DEP-INV-392 | CAP-INV-363..379 | CAP-INV-371/374/379/393/397 | Disk correlation | compare persistent configuration/artifacts with capture observations | active | Investigate | no | REQ-INV-001 | 4B.2B.3B.1 |
-| DEP-INV-393 | CAP-INV-002/003 | CAP-INV-393/397 | Event Search correlation | pivot to authorized telemetry without becoming a second SIEM search | active | Investigate / Shared | no | REQ-PROD-014 | 4B.1 |
-| DEP-INV-394 | CAP-INV-321 | CAP-INV-392/393/397 | Sandbox network correlation | consume Run-scoped simulated/blocked/authorized observations | active | Investigate | no | REQ-INV-005 | 4B.2B.2A |
-| DEP-INV-395 | CAP-INV-107/108 | CAP-INV-397 | Evidence handoff | qualification remains Evidence owner | active | Investigate | yes | REQ-OBJ-004 | 4B.1 |
-| DEP-INV-396 | CAP-INV-109 | CAP-INV-397 | Finding handoff | draft remains unconfirmed | active | Investigate | yes | REQ-PROD-016 | 4B.1 |
-| DEP-INV-397 | Future Detection Engineering and Intelligence | CAP-INV-397 | future handoff | package only; no rule or Intelligence object created | planned | future owner | no | REQ-INV-006; OPEN-011/012 | 4B.3 |
-| DEP-INV-398 | Govern authority | any real-target or sensitive action | boundary | block or route; no local active network operation | active | Govern | class 3/4 | REQ-SEC-002 | 4C/5 |
+| DEP-INV-201 | Collection and Live Response | Analysis Workbench families | source/provenance | authorized acquisition outputs feed analysis | active | Investigate / Endpoint | yes | REQ-INV-001 | 4B.2 |
+| DEP-INV-301 | Artifact Management | CAP-INV-301..397 | analysis source | Artifact, versions, custody and lineage | active | Investigate | yes | REQ-OBJ-003,004 | 4B.2 |
+| DEP-INV-314 | Static Analysis | Dynamic Sandbox | handoff | Derived Artifacts and static context | active | Investigate | no | REQ-INV-002,005 | 4B.2 |
+| DEP-INV-329 | Static/Dynamic | Reverse and Debugger | handoff | code and runtime analysis context | active | Investigate | no | REQ-INV-003,004 | 4B.2 |
+| DEP-INV-347 | Collection/Artifact | Memory Forensics | source/custody | Memory Image and acquisition context | active | Investigate / Endpoint | yes | REQ-INV-001; OPEN-008 | 4B.2 |
+| DEP-INV-363 | Collection/Artifact | Disk and Filesystem Forensics | source/custody | Disk Image and acquisition context | active | Investigate / Endpoint | yes | REQ-INV-001; OPEN-008 | 4B.2 |
+| DEP-INV-380 | Collection/Artifact | Network Forensics | source/custody | Capture Artifact and acquisition context | active | Investigate / Endpoint | yes | REQ-INV-001; OPEN-008 | 4B.2 |
+| DEP-INV-401 | Finding/Hypothesis/Case/Incident/Hunt | CAP-INV-401 | intake | source need, observations, contradictions and return origin | active | Investigate / Command projection | yes | REQ-INV-006 | 4B.3A.1 |
+| DEP-INV-402 | CAP-INV-313/328/346/362/379/397 | CAP-INV-401 | technical handoff | behavior, conditions, sources, limitations and provenance | active | Investigate | no | REQ-INV-006 | 4B.3A.1 |
+| DEP-INV-403 | CAP-INV-401 | CAP-INV-402/403 | project/hypothesis | qualified objective and owner context | active | Investigate | yes | REQ-INV-006 | 4B.3A.1 |
+| DEP-INV-404 | Platform Settings Data Source/Parser/Health/Retention | CAP-INV-404/405/409/416 | projection/admin | readiness and schema projections remain Settings-owned | partial | Platform Settings | yes | REQ-PROD-055; OPEN-008 | Settings/Technique |
+| DEP-INV-405 | Endpoint Agent telemetry capabilities | CAP-INV-404/416 | platform projection | declared source/platform support and limitations | partial | Endpoint Agent / Settings | yes | REQ-PROD-049,050; OPEN-008 | Endpoint/Settings |
+| DEP-INV-406 | Shared Telemetry Event/Query/Search/Data Quality/Normalization | CAP-INV-404,405,414,415 | shared data | source events, search, quality and schema projections | partial | Shared | yes | REQ-PROD-019,020 | Shared/Technique |
+| DEP-INV-407 | Detection Hypothesis / field review | CAP-INV-406..410 | authoring | objective, source and semantic dependencies | active | Investigate | yes | REQ-INV-006 | 4B.3A.1 |
+| DEP-INV-408 | Studio Tool / Tool Call | CAP-INV-411/414 and optional assistance | execution/provenance | validation and replay execution identity | partial | Studio | yes | REQ-OBJ-009; OPEN-015 | Studio/Objects |
+| DEP-INV-409 | Studio Automation Run | automated authoring/testing | automation/provenance | optional orchestration and attribution | partial | Studio | no essential dependency | REQ-AI-002,010; OPEN-015 | Studio/Objects |
+| DEP-INV-410 | Artifact / Studio Dataset / Shared storage projection | CAP-INV-412/413 | test data | versioned test data and restrictions | partial | source owner | yes | REQ-OBJ-003; OPEN-014 | Objects/Studio |
+| DEP-INV-411 | CAP-INV-406..410 | CAP-INV-411 | validation | selected draft, metadata and dependencies | active | Investigate | yes | REQ-INV-006 | 4B.3A.1 |
+| DEP-INV-412 | CAP-INV-411 | CAP-INV-412..415 | tests/replay/review | validation results and diagnostics | active | Investigate | no | REQ-INV-006 | 4B.3A.1 |
+| DEP-INV-413 | CAP-INV-412/413 | CAP-INV-414/415 | expected/actual comparison | scenarios, datasets and Expected Outcomes | active | Investigate | no | REQ-INV-006 | 4B.3A.1 |
+| DEP-INV-414 | Event Search and authorized historical access | CAP-INV-414 | replay | period, environment, retention, gaps and source events | active | Investigate / Shared | yes | REQ-PROD-014,019 | 4B.1/3A.1 |
+| DEP-INV-415 | Replay/Validation source events | CAP-INV-415 | match review | actual result, source context and uncertainty | active | Investigate / Shared | yes | REQ-INV-006 | 4B.3A.1 |
+| DEP-INV-416 | Data Readiness/Tests/Replay/Review | CAP-INV-416 | coverage | evidence level, environments and gaps | active | Investigate | yes | REQ-INV-006 | 4B.3A.1 |
+| DEP-INV-417 | CAP-INV-401..416 | CAP-INV-417 | provenance/handoff | versioned authoring chain and unresolved items | active | Investigate | yes | REQ-PROD-020; OPEN-015 | 4B.3A.1 |
+| DEP-INV-418 | CAP-INV-417 | Future Phase 4B.3A.2 | future review/promotion | package only; no Approval, deployment or activation | planned | future owner / Govern as applicable | no | REQ-INV-006; OPEN-013 | 4B.3A.2 |
+| DEP-INV-419 | Future runtime Detection | Command | runtime boundary | Command owns Detection, Signal, Alert and Incident | planned | Command | future | REQ-PROD-013,015 | 4B.3A.2/Command |
+| DEP-INV-420 | Detection engine/language choice | future technical delivery | unresolved decision gap | no existing OPEN covers detection engines/languages; OPEN-005 remains forensic-only | open gap | Product Architecture | before implementation | REQ-INV-006 | decision phase |
+| DEP-INV-421 | Threat Intelligence | future 4B.3B | phase boundary | no Intelligence object or CAP-INV-5xx in 4B.3A.1 | planned | future Investigate owner | no | REQ-INV-006 | 4B.3B |
 
-OPEN-005, OPEN-008, OPEN-013, OPEN-014 and OPEN-015 remain open. OPEN-011 and OPEN-012 remain future. No low-level dependency is created.
+All fifteen OPEN decisions remain unchanged. The engine/language gap is recorded without inventing a new decision or misusing OPEN-005.
