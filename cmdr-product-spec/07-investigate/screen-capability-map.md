@@ -9,21 +9,23 @@ requirements:
   - REQ-UX-001
   - REQ-UX-010
 ---
-# Screen capability map — Investigate through Phase 4B.2B.3B.1
+# Screen capability map — Investigate through Phase 4B.2 closure
 
-| Screen | Primary capability | Secondary capabilities | Change |
+| Existing screen or surface | Primary capability | Added Network Forensics consumption | Change |
 |---|---|---|---|
-| INV-CAS-001 Case Workspace | CAP-INV-102 | 301,302,313,314,316,328,329,330,346,347,348,362,363,364,379 | map/links only |
-| INV-EVD-001 Evidence Board | CAP-INV-107 | 313,324,328,341,343,346,349,356,359..362,365,369,370,373..379 | map/links only |
-| INV-STA-001 Static Analysis | CAP-INV-301 | 302..313,329,360,368,375,376,379 | map/links only |
-| INV-SBX-001 Dynamic Sandbox | CAP-INV-314 | 315..328,329,359,373,374 | map/links only |
-| INV-REV-001 Reverse Engineering | CAP-INV-329 | 330..338,344..346,357,360,362,368,375,379 | map/links only; screen unchanged |
-| INV-DBG-001 Debugger | CAP-INV-339 | 340..346,359,374 | map/links only; screen unchanged |
-| INV-MEM-001 Memory Forensics | CAP-INV-347 | 348..362,373,374,379 | map/links only; screen unchanged |
-| INV-DSK-001 Disk & Artifact Forensics | CAP-INV-363 | 364..379 | map/links only; screen unchanged |
-| future Network Forensics screen | future 4B.2B.3B.2 | persistent network handoff only | unchanged/not created |
-| SET-EAF-001 Endpoint Agent Fleet | Settings capability | 205,363,365,366 transition only | unchanged |
-| SET-SBX-001 Sandbox Environments | Settings capability | 315,326,329,339 transition only | unchanged |
-| STD-CTL-001 Control Room | Studio capability | Tool/Tool Call/Automation Run projections | unchanged |
+| Case Workspace | CAP-INV-102 | CAP-INV-380,381,397 | map and links only |
+| Evidence Board | CAP-INV-107 | CAP-INV-382,390,392..397 | map and links only |
+| Static Analysis | CAP-INV-301 | CAP-INV-390,395,397 | map and links only |
+| Dynamic Sandbox | CAP-INV-314 | CAP-INV-388,390,393,395,397 | map and links only |
+| Reverse Engineering | CAP-INV-329 | CAP-INV-390,395,397 | map and links only; screen unchanged |
+| Debugger | CAP-INV-339 | none required | unchanged |
+| Memory Forensics | CAP-INV-347 | CAP-INV-391,393,396,397 | map and links only; screen unchanged |
+| Disk and Artifact Forensics | CAP-INV-363 | CAP-INV-390,391,393,396,397 | map and links only; screen unchanged |
+| Event Search | CAP-INV-002 | CAP-INV-387,391..393,397 | map and links only; no second Event Search |
+| Entity Graph | CAP-INV-104 | CAP-INV-391..394,397 | map and links only; Shared Entity and Graph ownership retained |
+| Technical Workbench shell | CAP-INV-301 | CAP-INV-380..397 | temporary canonical surface pending screen composition phase |
+| Network Forensics autonomous screen | none | CAP-INV-380..397 | absence recorded; no Screen ID created |
+| Endpoint Agent Fleet | Settings capability | CAP-INV-380,382,383 transition only | unchanged |
+| Studio Control Room | Studio capability | Tool, Tool Call and Automation Run projections | unchanged |
 
-Detailed screen rewrites: 0. Screen specifications modified: 0. New Screen IDs: 0. Wireframes, final buttons, columns, filters, animations and shortcuts: 0.
+Detailed screen rewrites: **0**. Screen specifications modified: **0**. New Screen IDs: **0**. Wireframes, final buttons, columns, filters, dimensions, animations and shortcuts: **0**.

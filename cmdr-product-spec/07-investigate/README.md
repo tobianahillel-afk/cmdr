@@ -21,11 +21,13 @@ Investigate owns investigation work, analyst reasoning, provenance and the path 
 - Reverse Engineering and Debugger — CAP-INV-329..346.
 - Memory Forensics — CAP-INV-347..362.
 - Disk and Filesystem Forensics — CAP-INV-363..379.
+- Network Forensics — CAP-INV-380..397.
 
 ## Counts
-**116 capabilities:** 115 defined and one proposed (`CAP-INV-106`); all delivery modes are planned.
+**134 capabilities:** 133 defined and one proposed (`CAP-INV-106`); all delivery modes are planned. Phase 4B.1 contributes 22 and Phase 4B.2 contributes 112.
 
 ## Boundaries
-Command owns operational coordination. Settings owns Fleet, policies, storage, retention and administered environments. Endpoint Agent executes authorized endpoint operations and contributes acquisition results. Govern owns Decision, Approval, Response Run and Result. Studio owns Tool, Tool Call, Workflow and Automation Run. Shared owns generic mechanisms.
+Command owns Detection, Signal, Alert, Incident and operational coordination. Settings owns Fleet, policies, sensors, storage, retention, health, time synchronization and administered environments. Endpoint Agent and Collection contribute authorized acquisition results. Govern owns Decision, Approval, Response Run, Result and real-target authority. Studio owns Tool, Tool Call, Workflow and Automation Run. Shared owns Entity, Graph, Timeline and generic mechanisms.
 
-Phase 4B.2B.3B.1 is PASS after validation; Phase 4B.2B.3B, Phase 4B.2B.3 and Phase 4B.2B remain PARTIAL because full Network Forensics and closure are not started. No code, API, protocol, command, engine, final image/filesystem format, object schema, atomic permission matrix or detailed screen rewrite is claimed.
+## Maturity
+Phase 4B.2 is PASS after Network Forensics and cross-phase closure. Phase 4B remains PARTIAL because Phase 4B.3 Detection Engineering and Intelligence is not started. No code, API, protocol, command, engine, object schema, atomic permission matrix or detailed screen rewrite is claimed.

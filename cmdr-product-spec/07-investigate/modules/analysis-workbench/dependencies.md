@@ -1,30 +1,33 @@
 ---
-id: analysis-workbench-dependencies
+id: investigate-analysis-workbench-dependencies
 domain: 07-investigate
 status: draft
 owner: Investigate Product Lead
-updated: 2026-08-04
+updated: 2026-08-05
 source-of-truth: canonical
 requirements:
+  - REQ-PROD-013
   - REQ-PROD-014
+  - REQ-PROD-019
 open_decisions:
   - OPEN-005
+  - OPEN-008
   - OPEN-013
   - OPEN-014
   - OPEN-015
 ---
-# Dependencies
+# Analysis Workbench dependencies
 
-| Dépendance | Usage | Owner | État |
-|---|---|---|---|
-| CAP-INV-105 Artifact Management | source, versions et lineage | Investigate | active |
-| CAP-INV-107/108 | Evidence candidate et qualification | Investigate | active |
-| CAP-INV-109 | Finding Draft et lifecycle | Investigate | active |
-| Studio Tool/Tool Call/Automation Run | exécution et provenance | Studio | partial / Phase 7 |
-| Settings environments/providers/secrets | disponibilité administrative | Settings | projection seulement |
-| Shared Jobs/Trace/Activity/Linking/Versioning/Export | mécanismes transversaux | Shared | consommés |
-| OPEN-005 | futurs moteurs | Investigate | open |
-| OPEN-013 | classe 2 | Security | open |
-| OPEN-014 | Artifact/Attachment | Investigate | open |
-| OPEN-015 | Automation Run bridge | Studio/Govern | open |
-| Phases 4B.2B.2 et 4B.2B.3 | destinations futures | Investigate | non commencées |
+| Dependency | Workbench use | Owner retained |
+|---|---|---|
+| Case, Hypothesis, Artifact, Evidence and Finding | context, source, reasoning and handoff | Investigate owner capabilities |
+| Collection Request, Job, integrity, custody and provenance | acquisition source and limitations | Collection / producer projections |
+| Dynamic Sandbox | isolated behavior and runtime Artifact correlation | separate Investigate module |
+| Static, Reverse, Memory, Disk and Network families | explicit cross-analysis handoffs | each family retains its analytical concepts |
+| Tool, Tool Call, Workflow and Automation Run | processing and provenance | CMDR Studio |
+| Fleet, sensors, policies, providers, storage, retention, health and time synchronization | administrative projections | Platform Settings |
+| Entity, Graph, Timeline, Jobs, Notifications, Trace, Activity, Linking, Search, Export, Reporting, Versioning and Recovery | shared mechanisms | Shared Capabilities |
+| Decision, Approval, Response Run and Result | real-target authority and returned outcomes | Govern |
+| Detection, Signal, Alert and Incident | operational context only | Command |
+
+No technical API, protocol, engine, command, capture format, packet field model or implementation dependency is selected.

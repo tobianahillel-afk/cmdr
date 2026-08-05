@@ -10,7 +10,7 @@ requirements:
   - REQ-PROD-014
   - REQ-PROD-019
 ---
-# Capability map — Investigate through Phase 4B.2B.3B.1
+# Capability map — Investigate through Phase 4B.2 closure
 
 | Range | Module | Count | Defined | Proposed | Delivery mode |
 |---|---|---:|---:|---:|---|
@@ -22,6 +22,15 @@ requirements:
 | CAP-INV-329..346 | Reverse Engineering and Debugger | 18 | 18 | 0 | planned |
 | CAP-INV-347..362 | Memory Forensics | 16 | 16 | 0 | planned |
 | CAP-INV-363..379 | Disk and Filesystem Forensics | 17 | 17 | 0 | planned |
-| **Total** | **Investigate** | **116** | **115** | **1** | **116 planned** |
+| CAP-INV-380..397 | Network Forensics | 18 | 18 | 0 | planned |
+| **Total** | **Investigate** | **134** | **133** | **1** | **134 planned** |
 
-CAP-INV-380..399 remain reserved. No CAP-INV-4xx or CAP-INV-5xx is assigned. Phase 4B.2B.3B.2 Network Forensics and Phase 4B.3 remain not started.
+## Closure totals
+- Phase 4B.1: **22** capabilities.
+- Phase 4B.2: **112** capabilities.
+- Investigate numbered sections: **3618**.
+- Investigate mandatory S8/S9/S10/S13/S16/S17 tables: **804**.
+- CAP-INV-3xx: **97**.
+- No CAP-INV-4xx or CAP-INV-5xx is assigned.
+
+Phase 4B.2 is functionally closed. Phase 4B.3 Detection Engineering and Intelligence remains not started.
