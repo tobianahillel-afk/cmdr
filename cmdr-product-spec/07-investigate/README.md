@@ -19,11 +19,12 @@ Investigate owns investigation work, analyst reasoning, provenance and the path 
 - Analysis Workbench and Static Analysis — CAP-INV-301..313.
 - Dynamic Sandbox and Behavioral Analysis — CAP-INV-314..328.
 - Reverse Engineering and Debugger — CAP-INV-329..346.
+- Memory Forensics — CAP-INV-347..362.
 
 ## Counts
-**83 capabilities:** 82 defined and one proposed (`CAP-INV-106`); all delivery modes are planned.
+**99 capabilities:** 98 defined and one proposed (`CAP-INV-106`); all delivery modes are planned.
 
 ## Boundaries
-Command owns operational coordination. Settings owns Fleet, policies and administered execution/sandbox environments. Endpoint Agent executes authorized endpoint operations. Govern owns Decision, Approval, Response Run and Result. Studio owns Tool, Tool Call, Workflow and Automation Run. Shared owns generic mechanisms.
+Command owns operational coordination. Settings owns Fleet, policies, storage, retention and administered environments. Endpoint Agent executes authorized endpoint operations and contributes acquisition results. Govern owns Decision, Approval, Response Run and Result. Studio owns Tool, Tool Call, Workflow and Automation Run. Shared owns generic mechanisms.
 
-Phase 4B.2B.2 is PASS after Dynamic Sandbox and Reverse/Debugger. Phase 4B.2B remains PARTIAL because Forensics is not started. No code, API, protocol, command, engine, debugger product, object schema, atomic permission matrix or detailed screen rewrite is claimed.
+Phase 4B.2B.3A is PASS after validation; Phase 4B.2B.3 and Phase 4B.2B remain PARTIAL because Disk, Filesystem and full Network Forensics are not started. No code, API, protocol, command, engine, plugin framework, object schema, atomic permission matrix or detailed screen rewrite is claimed.

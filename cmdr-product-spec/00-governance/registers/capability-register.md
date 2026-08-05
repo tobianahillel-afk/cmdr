@@ -24,6 +24,7 @@ The register is split into active shards. IDs are immutable and never recycled.
 | `capability-register-investigate-analysis-workbench.md` | Investigate CAP-INV-301..313 | 13 | 13 | 0 | 13 planned |
 | `capability-register-investigate-dynamic-sandbox.md` | Investigate CAP-INV-314..328 | 15 | 15 | 0 | 15 planned |
 | `capability-register-investigate-reverse-debugger.md` | Investigate CAP-INV-329..346 | 18 | 18 | 0 | 18 planned |
-| **Total** | **All registered capabilities** | **110** | **108** | **2** | **110 planned** |
+| `capability-register-investigate-memory-forensics.md` | Investigate CAP-INV-347..362 | 16 | 16 | 0 | 16 planned |
+| **Total** | **All registered capabilities** | **126** | **124** | **2** | **126 planned** |
 
-Each shard records owner, users, objects, inputs, outputs, actions, no-AI alternatives, criteria, requirements, OPEN and dependencies. CAP-INV-347..399 remain reserved. No CAP-INV-4xx or CAP-INV-5xx is assigned. No capability is marked validated, implemented, native or integrated.
+Each shard records owner, users, objects, inputs, outputs, actions, no-AI alternatives, criteria, requirements, OPEN and dependencies. CAP-INV-363..399 remain reserved. No CAP-INV-4xx or CAP-INV-5xx is assigned. No capability is marked validated, implemented, native or integrated.

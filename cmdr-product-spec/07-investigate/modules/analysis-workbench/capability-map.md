@@ -12,28 +12,34 @@ requirements:
 # Capability map — Analysis Workbench
 
 ## Static Analysis foundation
-CAP-INV-301..313 remain canonical and unchanged for intake, Analysis Session, Tool selection, preview, format/structure, strings/content, static binary/script/archive analysis, comparison, Derived Artifacts, provenance and Evidence/Finding handoff.
+CAP-INV-301..313 remain canonical and unchanged.
+
+## Dynamic Sandbox
+CAP-INV-314..328 remain a separate module consumed through explicit handoffs.
 
 ## Reverse Engineering and Debugger
+CAP-INV-329..346 remain canonical and unchanged.
+
+## Memory Forensics
 | ID | Capability | Family | Primary local concepts | Classes |
 |---|---|---|---|---|
-| CAP-INV-329 | Reverse Engineering Intake and Preconditions | reverse-intake | Trace / Activity event; Reverse Intake | 0,2 |
-| CAP-INV-330 | Reverse Analysis Session Management | reverse-session | Trace / Activity event; Reverse Analysis Session | 0,2 |
-| CAP-INV-331 | Binary Navigation and Address Space Orientation | navigation | Trace / Activity event; Bookmark / location annotation | 0,2 |
-| CAP-INV-332 | Disassembly Inspection | code-analysis | Trace / Activity event; Disassembly annotation / rename relation | 0,2 |
-| CAP-INV-333 | Decompilation Inspection | code-analysis | Trace / Activity event; Local interpretation correction | 0,2 |
-| CAP-INV-334 | Functions, Symbols and Cross-References | code-analysis | Trace / Activity event; Function interpretation | 0,2 |
-| CAP-INV-335 | Control Flow, Call Graph and Data Flow Analysis | code-analysis | Trace / Activity event; Graph annotation / path selection | 0,2 |
-| CAP-INV-336 | Data Types, Structures and Memory Layout Analysis | code-analysis | Trace / Activity event; Type Definition / Structure Definition | 0,2 |
-| CAP-INV-337 | Analyst Annotation, Renaming and Knowledge Capture | knowledge | Trace / Activity event; Annotation / Comment / Bookmark / Rename | 0,2 |
-| CAP-INV-338 | Binary Diffing and Version Comparison | comparison | Trace / Activity event; Binary comparison result | 0,1,2 |
-| CAP-INV-339 | Debugger Session Management | debugger | Trace / Activity event; Debugger Session | 0,1,2 |
-| CAP-INV-340 | Breakpoint and Execution Control | debugger | Trace / Activity event; Breakpoint | 1,2 |
-| CAP-INV-341 | Runtime State, Threads and Call Context Inspection | debugger | Trace / Activity event; Runtime State Snapshot | 0,1,2 |
-| CAP-INV-342 | Memory, Modules and Loaded Image Inspection | debugger | Trace / Activity event; Memory/Module observation | 0,1,2 |
-| CAP-INV-343 | Debug Events, Exceptions and Trace Analysis | debugger | Trace / Activity event; Debug Event / Exception Event / Debug Trace | 0,1,2 |
-| CAP-INV-344 | Reversible Analytical Experiments and Patch Hypotheses | experiments | Trace / Activity event; Patch Hypothesis | 0,1,2 |
-| CAP-INV-345 | Reverse and Debugger Provenance and Reproducibility | provenance | Trace / Activity event; Provenance relation / Reproducibility Assessment | 0,1,2 |
-| CAP-INV-346 | Reverse and Debugger Handoff to Evidence, Findings and Detection Engineering | handoff | Trace / Activity event; Evidence candidate package | 0,2 |
+| CAP-INV-347 | Memory Forensics Intake and Preconditions | intake | Memory Forensics Intake; Memory Forensics Session relation | 0,1,2 |
+| CAP-INV-348 | Memory Forensics Session Management | session | Memory Forensics Session; Session membership | 0,1,2 |
+| CAP-INV-349 | Memory Image Integrity and Acquisition Context Review | integrity | Image Integrity Review; Memory Image relation | 0,2 |
+| CAP-INV-350 | Platform and Analysis Profile Identification | profile | Platform/Profile Identification; Selected profile relation | 0,1,2 |
+| CAP-INV-351 | Process and Thread Reconstruction | reconstruction | Process Observation; Thread Observation | 0,1,2 |
+| CAP-INV-352 | Memory Region, Mapping and Protection Analysis | memory-layout | Memory Region; Mapping | 0,1,2 |
+| CAP-INV-353 | Loaded Modules, Images and Driver Analysis | modules-drivers | Module Observation; Driver Observation | 0,1,2 |
+| CAP-INV-354 | Handles, System Objects and IPC Analysis | objects-ipc | Handle Observation; System Object Observation | 0,1,2 |
+| CAP-INV-355 | Network State and Connection Artifact Reconstruction | memory-network | Network State Observation; Connection candidate | 0,1,2 |
+| CAP-INV-356 | Sensitive Material and Credential Exposure Assessment | sensitive-data | Sensitive Material Candidate; Access event | 0,1,2 |
+| CAP-INV-357 | Injection, Hollowing and Memory Anomaly Analysis | anomaly | Memory Anomaly; Hypothesis relation | 0,1,2 |
+| CAP-INV-358 | Kernel State and Rootkit Indicator Analysis | kernel | Kernel State Observation; Rootkit indicator candidate | 0,1,2 |
+| CAP-INV-359 | Memory Timeline and Cross-Source Correlation | timeline | Memory Timeline projection; Correlation relation | 0,1,2 |
+| CAP-INV-360 | Memory Artifact Extraction and Carving | extraction | Derived Artifact; Extraction Result | 0,1,2 |
+| CAP-INV-361 | Memory Forensics Provenance and Reproducibility | provenance | Reproducibility Assessment; Provenance relation | 0,1,2 |
+| CAP-INV-362 | Memory Forensics Handoff to Evidence, Findings and Detection Engineering | handoff | Evidence candidate package; Finding Draft | 0,1,2 |
 
-Dynamic Sandbox remains CAP-INV-314..328 in its own module. No forensic capability is included.
+The sixteen capabilities separate intake/session, source trust, profile, reconstruction domains, sensitive data, anomaly/kernel review, timeline, extraction, provenance and handoff. No Disk, Filesystem or full Network Forensics capability is included.
+
+The Analysis Workbench now contains 47 capabilities: 13 Static, 18 Reverse/Debugger and 16 Memory Forensics. Dynamic Sandbox remains separate. No Disk, Filesystem or full Network Forensics capability is included.
