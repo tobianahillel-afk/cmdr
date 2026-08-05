@@ -11,13 +11,13 @@ requirements:
 open_decisions:
   - OPEN-013
 ---
-# Action classification — Investigate through Phase 4B.2B.2B
+# Action classification — Investigate through Phase 4B.2B.3A
 
-| Class | Meaning | Reverse/Debugger examples |
+| Class | Meaning | Memory Forensics examples |
 |---:|---|---|
-| 0 | observation | navigate, inspect representations, functions, xrefs, graphs, types, runtime state, threads, stacks, modules, events and comparisons |
-| 1 | bounded isolated processing or extraction | explicitly open an authorized isolated Debugger Session, capture snapshot, create/export Derived Artifact, reproduce a session |
-| 2 | reversible mutation | session changes, annotations, renames, types, breakpoints, pause/resume/step/stop, Patch Hypothesis and isolated reversible experiment |
-| 3/4 | real-target or destructive authority | excluded; block or route to owner capability and Govern |
+| 0 | observation | inspect image context, processes, threads, regions, modules, handles, network candidates, masked sensitive presence, kernel views, timeline and provenance |
+| 1 | bounded isolated processing or extraction | explicit forensic Tool run, comparison, Derived Artifact extraction, controlled reveal/copy/export, reproduction |
+| 2 | reversible analytical mutation | session/profile update, annotation, dispute, link, masking restriction, withdrawal from active use, handoff preparation |
+| 3/4 | real-target, destructive or authority action | excluded; block or route to Collection/Live Response and Govern |
 
-CAP-INV-329..346 use only classes 0, 1 and 2. OPEN-013 remains open. A reversible isolated experiment is not a production patch; debugger control is not Live Response.
+CAP-INV-347..362 use only classes 0, 1 and 2. OPEN-013 remains open. Memory analysis is not acquisition or an Endpoint action.
