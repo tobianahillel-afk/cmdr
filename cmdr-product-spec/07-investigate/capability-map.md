@@ -10,7 +10,7 @@ requirements:
   - REQ-PROD-014
   - REQ-PROD-019
 ---
-# Capability map — Investigate through Phase 4B.2B.3A
+# Capability map — Investigate through Phase 4B.2B.3B.1
 
 | Range | Module | Count | Defined | Proposed | Delivery mode |
 |---|---|---:|---:|---:|---|
@@ -21,6 +21,7 @@ requirements:
 | CAP-INV-314..328 | Dynamic Sandbox and Behavioral Analysis | 15 | 15 | 0 | planned |
 | CAP-INV-329..346 | Reverse Engineering and Debugger | 18 | 18 | 0 | planned |
 | CAP-INV-347..362 | Memory Forensics | 16 | 16 | 0 | planned |
-| **Total** | **Investigate** | **99** | **98** | **1** | **99 planned** |
+| CAP-INV-363..379 | Disk and Filesystem Forensics | 17 | 17 | 0 | planned |
+| **Total** | **Investigate** | **116** | **115** | **1** | **116 planned** |
 
-CAP-INV-363..399 remain reserved. No CAP-INV-4xx or CAP-INV-5xx is assigned. Phase 4B.2B.3B and Phase 4B.3 remain not started.
+CAP-INV-380..399 remain reserved. No CAP-INV-4xx or CAP-INV-5xx is assigned. Phase 4B.2B.3B.2 Network Forensics and Phase 4B.3 remain not started.

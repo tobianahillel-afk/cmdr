@@ -22,19 +22,20 @@ open_decisions:
 # Analysis Workbench
 
 ## Mission
-Provide one Technical Workbench context for Artifact intake, Static Analysis, Reverse Engineering, isolated Debugger work, Memory Forensics, analytical knowledge, provenance and explicit Evidence/Finding handoff.
+Provide one Technical Workbench context for Artifact intake, Static Analysis, Reverse Engineering, isolated Debugger work, Memory Forensics, Disk and Filesystem Forensics, analytical knowledge, provenance and explicit Evidence/Finding handoff.
 
 ## Canonical capability ranges
 - CAP-INV-301..313 — Workbench Foundation and Static Analysis.
 - CAP-INV-329..346 — Reverse Engineering and Debugger.
 - CAP-INV-347..362 — Memory Forensics.
+- CAP-INV-363..379 — Disk and Filesystem Forensics.
 - CAP-INV-314..328 remains the separate Dynamic Sandbox module and is consumed through handoffs.
 
 ## Ownership
-Investigate owns Case, Artifact, Memory Image, analytical sessions, observations, annotations, interpretations and candidates/drafts. Endpoint Agent contributes acquisition results. Studio owns Tool, Tool Call, Workflow and Automation Run. Platform Settings owns Fleet, policies, providers, secrets, storage, retention and environments. Govern owns real-target authority. Shared owns generic mechanisms.
+Investigate owns Case, Artifact, Memory Image, Disk Image, analytical sessions/concepts, observations, annotations, interpretations and candidates/drafts. Endpoint Agent contributes acquisition results. Studio owns Tool, Tool Call, Workflow and Automation Run. Platform Settings owns Fleet, policies, providers, secrets, storage, retention and environments. Govern owns real-target authority. Shared owns generic mechanisms.
 
 ## Workbench constraints
-One main canvas, one Inspector, at most two auxiliary panels, at most six visible technical tabs, optional bottom Console, contextual Artifact Explorer, Automation Tray closed by default, accessible resizers, preserved history/return/focus, masked sensitive values and structured alternatives to graphs.
+One main canvas, one Inspector, at most two auxiliary panels, at most six visible technical tabs, optional bottom Console, contextual Artifact Explorer, Automation Tray closed by default, accessible resizers, preserved history/return/focus, protected sensitive values and structured alternatives to graphs.
 
 ## Delivery
-Forty-seven Analysis Workbench capabilities are defined and planned: thirteen Static, eighteen Reverse/Debugger and sixteen Memory Forensics. No engine, plugin framework, third-party product, API, protocol, command, code, detailed screen rewrite, final object schema or atomic permission matrix is claimed.
+Sixty-four Analysis Workbench capabilities are defined and planned: thirteen Static, eighteen Reverse/Debugger, sixteen Memory Forensics and seventeen Disk/Filesystem Forensics. No engine, third-party product, API, protocol, command, code, detailed screen rewrite, final object schema or atomic permission matrix is claimed.
