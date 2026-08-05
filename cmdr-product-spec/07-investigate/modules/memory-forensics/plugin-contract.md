@@ -1,61 +1,20 @@
 ---
 id: investigate-memory-forensics-plugin-contract
 domain: 07-investigate
-status: draft
+status: deprecated
 owner: Investigate Product Lead
-updated: 2026-08-03
-source-of-truth: canonical
+updated: 2026-08-05
+source-of-truth: deprecated-pointer
+replaced_by: ../analysis-workbench/memory-forensics/README.md
 ---
-# Plugin Contract
+# Plugin Contract — deprecated functional pointer
 
-## Objectif
+Tool and plugin lifecycle belongs to CMDR Studio. Memory Forensics now consumes Tool, Tool Call, version, parameters, partial errors and provenance through the canonical module `../analysis-workbench/memory-forensics/`.
 
-Définir plugin contract dans Investigate.
+## Migration
+- version and parameters → CAP-INV-348/350/361;
+- partial failures → all capability error states;
+- provenance → CAP-INV-361;
+- sensitive output masking → CAP-INV-356.
 
-## Périmètre
-
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
-
-## Propriétaire fonctionnel
-
-Investigate Product Lead.
-
-## Objets concernés
-
-- Concepts du document
-- Références canoniques liées
-
-## Fonctionnalités
-
-- Plugin version and parameters.
-- Partial failures.
-- Offsets and provenance.
-- Sensitive output masking.
-
-## UX et interactions
-
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
-
-## Permissions
-
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
-
-## États
-
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
-
-## Dépendances
-
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- À compléter — décision source non fournie dans le brief canonique.
+No plugin framework, engine, offset or command is selected.
