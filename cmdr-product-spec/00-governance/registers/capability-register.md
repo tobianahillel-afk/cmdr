@@ -3,7 +3,7 @@ id: capability-register
 domain: 00-governance
 status: draft
 owner: Product Architecture
-updated: 2026-08-04
+updated: 2026-08-05
 source-of-truth: registry
 requirements:
   - REQ-PROD-006
@@ -14,7 +14,7 @@ requirements:
 ---
 # Capability Register
 
-The register is split into active shards to keep ownership and validation auditable. IDs are immutable and never recycled.
+The register is split into active shards. IDs are immutable and never recycled.
 
 | Shard | Scope | Count | Defined | Proposed | Delivery mode |
 |---|---|---:|---:|---:|---|
@@ -23,6 +23,7 @@ The register is split into active shards to keep ownership and validation audita
 | `capability-register-investigate-collection.md` | Investigate CAP-INV-201..215 | 15 | 15 | 0 | 15 planned |
 | `capability-register-investigate-analysis-workbench.md` | Investigate CAP-INV-301..313 | 13 | 13 | 0 | 13 planned |
 | `capability-register-investigate-dynamic-sandbox.md` | Investigate CAP-INV-314..328 | 15 | 15 | 0 | 15 planned |
-| **Total** | **All products currently registered** | **92** | **90** | **2** | **92 planned** |
+| `capability-register-investigate-reverse-debugger.md` | Investigate CAP-INV-329..346 | 18 | 18 | 0 | 18 planned |
+| **Total** | **All registered capabilities** | **110** | **108** | **2** | **110 planned** |
 
-Each shard records ID, name, product, module, status, delivery status/mode, canonical file, roles, objects, consumers, requirements, OPEN, dependencies, supersession and review date. CAP-INV-329..399 remain reserved; no CAP-INV-4xx or CAP-INV-5xx is assigned. No capability is marked validated, implemented, native or integrated.
+Each shard records owner, users, objects, inputs, outputs, actions, no-AI alternatives, criteria, requirements, OPEN and dependencies. CAP-INV-347..399 remain reserved. No CAP-INV-4xx or CAP-INV-5xx is assigned. No capability is marked validated, implemented, native or integrated.

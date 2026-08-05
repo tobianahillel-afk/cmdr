@@ -3,7 +3,7 @@ id: source-unresolved-decisions
 domain: 00-governance
 status: draft
 owner: Product Architecture
-updated: 2026-08-04
+updated: 2026-08-05
 source-of-truth: source-material
 requirements:
   - REQ-PROD-048
@@ -31,4 +31,4 @@ requirements:
 | OPEN-015 | Automation Run to Response Run bridge | open | CMDR Studio + Govern | Phase 4C/7 | REQ-PROD-062 |
 | OPEN-016 | Final wordmark construction and optional symbol | open | Brand Design Lead | Phase 2 review | REQ-BRAND-008 |
 
-OPEN-005 remains open: no sandbox, forensic, reverse or debugger engine is chosen. OPEN-013/014/015 remain open. OPEN-011/012 remain future. No new OPEN is created and none is closed. OPEN-009 remains the only historically resolved decision.
+OPEN-005 explicitly remains the unresolved umbrella for initial sandbox, forensic, reverse, decompiler and debugger engine selection; no engine is chosen. OPEN-013/014/015 remain open. OPEN-011/012 remain future. No new OPEN is created and none is closed. OPEN-009 remains the only historically resolved decision.
