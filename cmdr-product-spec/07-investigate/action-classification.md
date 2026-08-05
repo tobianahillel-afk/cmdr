@@ -3,7 +3,7 @@ id: investigate-action-classification
 domain: 07-investigate
 status: draft
 owner: Investigate Product Lead
-updated: 2026-08-04
+updated: 2026-08-05
 source-of-truth: canonical
 requirements:
   - REQ-SEC-001
@@ -11,13 +11,13 @@ requirements:
 open_decisions:
   - OPEN-013
 ---
-# Action classification — Investigate through Phase 4B.2B.2A
+# Action classification — Investigate through Phase 4B.2B.2B
 
-| Class | Meaning | Dynamic examples |
+| Class | Meaning | Reverse/Debugger examples |
 |---:|---|---|
-| 0 | observation | read timeline, process tree, changes, network and comparisons |
-| 1 | bounded isolated processing | explicit Run start, Runtime Artifact capture, controlled export/reproduction |
-| 2 | reversible mutation | session/profile update, stop/retry, annotation, relations and handoffs |
-| 3/4 | real-target response/destructive action | excluded; route to Collection/Live Response and Govern |
+| 0 | observation | navigate, inspect representations, functions, xrefs, graphs, types, runtime state, threads, stacks, modules, events and comparisons |
+| 1 | bounded isolated processing or extraction | explicitly open an authorized isolated Debugger Session, capture snapshot, create/export Derived Artifact, reproduce a session |
+| 2 | reversible mutation | session changes, annotations, renames, types, breakpoints, pause/resume/step/stop, Patch Hypothesis and isolated reversible experiment |
+| 3/4 | real-target or destructive authority | excluded; block or route to owner capability and Govern |
 
-CAP-INV-314..328 use only classes 0, 1 and 2. OPEN-013 remains open. A sandbox safety stop is not Endpoint containment.
+CAP-INV-329..346 use only classes 0, 1 and 2. OPEN-013 remains open. A reversible isolated experiment is not a production patch; debugger control is not Live Response.
