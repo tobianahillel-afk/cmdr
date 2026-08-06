@@ -20,7 +20,7 @@
 2. `7e569536db16f55382d3c393b876423cd00b10c7` — `docs: define cloud scope identity permissions and audit analysis`.
 3. `4f5b5aea6447159f0e836e5bd7d5e42e756865f2` — `docs: specify cloud workloads network storage and sensitive data analysis`.
 4. `59f69203574a6b1e3dc8c631b3a8a2e4bf5afe42` — `docs: document cloud correlation evidence handoff and provenance`.
-5. `pending squash SHA` — `docs: update Cloud Analysis traceability and quality gates`.
+5. `docs: update Cloud Analysis traceability and quality gates` — the exact squash SHA is recorded only after publication in PR #2 and the final report.
 
 ## 2026-08-06 — Post-publication traceability preservation correction
 - Restored the complete pre-4B.3B.2 ADR links, Requirement IDs and detailed Dependency Register rows before retaining the new 4B.3B.2 dependencies.
