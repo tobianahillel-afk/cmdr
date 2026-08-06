@@ -110,7 +110,6 @@ This audit records what was actually consulted during the corrective closure. It
 - `INDEX.md`
 - `16-quality-and-validation/README.md`
 - `16-quality-and-validation/architecture-manifest.md`
-- `16-quality-and-validation/expected-path-manifest.md` — inspected as a historical minimum-path baseline, not treated as an exhaustive later-phase inventory.
 - `16-quality-and-validation/validation-status.md`
 - `18-roadmap-and-releases/README.md`
 - `18-roadmap-and-releases/phase-4b4a-cloud-analysis.md`
@@ -118,13 +117,14 @@ This audit records what was actually consulted during the corrective closure. It
 - temporary closure PR metadata, changed-file list and per-file patches.
 - four published Cloud commit metadata and ancestry.
 
-## Referenced and structurally validated
+## Referenced and structurally inspected
+- `16-quality-and-validation/expected-path-manifest.md` — inspected as a historical minimum-path baseline, not fully re-read and not treated as an exhaustive later-phase inventory.
 - `07-investigate/modules/cloud-analysis/README.md`
 - the Cloud module’s supporting documents under `07-investigate/modules/cloud-analysis/`.
 - `CAP-INV-601..618` capability files.
 - the Cloud capability-register shard and conformance report.
 
-These files are the published functional artifacts of the prior run. The corrective closure preserves them. Their existence, continuous IDs, front matter, 27-section contract and six mandatory-table contract are checked in the conformance workflow; they are not represented here as newly authored or re-scoped.
+The Cloud files are the published functional artifacts of the prior run. The corrective closure preserves them. Their existence, continuous IDs, front matter, 27-section contract and six mandatory-table contract are checked in the conformance workflow; they are not represented here as newly authored or re-scoped.
 
 ## Identified but not used as normative evidence in this correction
 - additional product screens not required for the conceptual Cloud mapping;
