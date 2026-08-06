@@ -15,7 +15,7 @@ The programme retains **18 open decisions**. OPEN-009 remains the only historica
 | OPEN-005 | forensic engine selection | remains open; not reused for Cloud Analysis |
 | OPEN-008 | platform/source availability and support | remains open |
 | OPEN-011 | Mobile Forensics scope | remains open and not implemented |
-| **OPEN-012** | Cloud Analysis scope | **remains open; provider-neutral functional capabilities defined, provider and delivery scope unresolved** |
+| **OPEN-012** | Cloud Analysis scope | **remains open; provider-neutral functional capabilities verified, provider and delivery scope unresolved** |
 | OPEN-013 | reversible class-2 mutations and authority | remains open |
 | OPEN-014 | Artifact/Attachment/dataset/material relations and retention | remains open |
 | OPEN-015 | Tool Call/Automation Run and cross-product provenance | remains open |
@@ -61,8 +61,8 @@ Which Cloud providers, account/tenant models, services, audit models, inventory 
 - cross-tenant analysis requires explicit scope and authority;
 - source permissions and sensitive-access audit remain mandatory.
 
-### Phase disposition before final verification
-Phase 4B.4A defines provider-neutral Cloud investigation capabilities. Its final documentary verdict remains **PENDING POST-PUBLICATION VERIFICATION** until the fifth commit and remote checks are complete. OPEN-012 remains open because provider/service prioritization and implementation/delivery strategy are not selected.
+### Phase disposition after verification
+Phase 4B.4A provider-neutral functional documentation is **PASS AFTER POST-PUBLICATION VERIFICATION**. OPEN-012 remains open because provider/service prioritization and implementation/delivery strategy are not selected. The open decision does not invalidate the verified provider-neutral functional scope.
 
 ## OPEN-018 — Threat intelligence ontology, interoperability and exchange strategy
 **Status:** open. No standard, protocol, message format, schema, provider, graph database or external representation is selected. Candidate options remain CMDR canonical ontology with adapters; external-standard alignment; hybrid representations; native source models with projection; progressive combination.
@@ -93,4 +93,4 @@ Which policy determines internal audiences, markings, releasability, tenant/envi
 - corrections, withdrawals and supersession preserve history and access traces.
 
 ## Phase 4B closure consequence
-OPEN-011 remains open and Mobile Forensics is not started. Cloud Analysis functional documentation is complete but pending remote publication verification. Phase 4B.4 and Phase 4B remain PARTIAL until Mobile Forensics is completed or formally deferred by an approved roadmap decision. OPEN-012 remains open for provider/service/delivery strategy and does not invalidate provider-neutral functional coverage once 4B.4A is remotely verified.
+OPEN-011 remains open and Mobile Forensics is not started. Phase 4B.4A is verified PASS, but Phase 4B.4 and Phase 4B remain PARTIAL until Mobile Forensics is completed or formally deferred by an approved roadmap decision. OPEN-012 remains open for provider/service/delivery strategy and does not reopen the verified provider-neutral Cloud capability phase.
