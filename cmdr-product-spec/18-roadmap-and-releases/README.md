@@ -3,7 +3,7 @@ id: roadmap-readme
 domain: 18-roadmap-and-releases
 status: draft
 owner: Product Operations Lead
-updated: 2026-08-03
+updated: 2026-08-07
 source-of-truth: canonical
 ---
 # Roadmap and Releases
@@ -33,6 +33,13 @@ Product Operations Lead.
 - Migration and deprecation.
 - Readiness and release evidence.
 
+## Phase plans actifs
+
+- Command: `phase-2-command.md` and related release evidence.
+- Investigate foundation: `phase-3-investigate.md`.
+- Cloud Analysis: `phase-4b4a-cloud-analysis.md` — `CAP-INV-601..618`, provider-neutral functional scope, post-publication verification pending in the closure commit.
+- Mobile Forensics: not started; no capability or phase implementation is created by Cloud Analysis.
+
 ## UX et interactions
 
 - Navigation par liens stables.
@@ -45,17 +52,23 @@ Les modifications suivent le modèle défini dans `../14-security-permissions-an
 
 ## États
 
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
+Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques. A roadmap `PASS` is documentary evidence only and never proves implementation.
 
 ## Dépendances
 
-- 00-governance/source-of-truth-policy.md
+- `../00-governance/source-of-truth-policy.md`
+- `../00-governance/dependency-register.md`
+- `../STATUS.md`
+- `../16-quality-and-validation/validation-status.md`
 
 ## Critères d’acceptation
 
 - Le document a un propriétaire unique.
 - Les liens locaux sont valides.
 - Les décisions non tranchées sont attribuées.
+- Chaque phase cite son scope, ses dépendances, ses preuves et ses décisions ouvertes.
+- Une phase n’est marquée PASS qu’après les vérifications exigées.
+- Mobile Forensics n’est pas démarrée implicitement par la clôture Cloud.
 
 ## Questions ouvertes
 

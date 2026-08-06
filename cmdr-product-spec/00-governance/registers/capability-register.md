@@ -31,13 +31,15 @@ The register is split into active shards. IDs are immutable and never recycled.
 | `capability-register-investigate-detection-lifecycle.md` | CAP-INV-418..435 | 18 | 18 | 0 | 18 planned |
 | `capability-register-investigate-threat-intelligence-foundations.md` | CAP-INV-501..518 | 18 | 18 | 0 | 18 planned |
 | `capability-register-investigate-threat-intelligence-analysis-and-products.md` | CAP-INV-519..537 | 19 | 19 | 0 | 19 planned |
-| **Total** | **All registered capabilities** | **233** | **231** | **2** | **233 planned** |
+| `capability-register-investigate-cloud-analysis.md` | CAP-INV-601..618 | 18 | 18 | 0 | 18 planned |
+| **Total** | **All registered capabilities** | **251** | **249** | **2** | **251 planned** |
 
 ## Product totals
 - Command: **27** capabilities, 729 sections, 162 mandatory tables.
-- Investigate: **206** capabilities, 5562 sections, 1236 mandatory tables.
-- CAP-INV-3xx / 4xx / 5xx: **97 / 35 / 37**.
+- Investigate: **224** capabilities, 6048 sections, 1344 mandatory tables.
+- CAP-INV-3xx / 4xx / 5xx / 6xx: **97 / 35 / 37 / 18**.
 - Detection Engineering: **35 capabilities, 945 sections, 210 tables**.
 - Threat Intelligence: **37 capabilities, 999 sections, 222 tables**.
-- Command + Investigate: **233 capabilities, 6291 sections, 1398 tables**.
+- Cloud Analysis: **18 capabilities, 486 sections, 108 tables**.
+- Command + Investigate: **251 capabilities, 6777 sections, 1506 tables**.
 - No capability is marked validated, implemented, promoted, deployed, active, native or integrated.

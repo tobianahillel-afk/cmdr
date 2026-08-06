@@ -3,7 +3,7 @@ id: dependency-register
 domain: 00-governance
 status: draft
 owner: Product Architecture
-updated: 2026-08-06
+updated: 2026-08-07
 source-of-truth: registry
 requirements:
   - REQ-PROD-006
@@ -21,8 +21,8 @@ This register records functional and documentary dependencies only. It chooses n
 | DEP-002 | product boundaries / ownership | all modules | boundary | prevent concurrent ownership | active | Product Architecture | yes | REQ-PROD-013..018 | continuous |
 | DEP-003 | object/permission phases | capabilities | model/security | final schemas and atomic permissions are future | partial | Architecture/Security | before implementation | REQ-OBJ/SEC | Phase 7 |
 | DEP-004 | Shared mechanisms | all products | shared | Jobs, Trace, Activity, Linking, Search, Export, Reporting, Versioning, Collaboration and Recovery | partial | Shared | yes | REQ-PROD-019,020 | Technique |
-| DEP-005 | OPEN-005 | Analysis Workbench and Forensics | future engine | forensic engines only; not Detection or Intelligence | open | Investigate | before forensic delivery | OPEN-005 | Phase 8 |
-| DEP-006 | OPEN-008 | platform/source support | platform | source, sensor and endpoint platform support unresolved | open | Endpoint Agent / Settings | before delivery | OPEN-008 | Phase 4D/8 |
+| DEP-005 | OPEN-005 | Analysis Workbench and Forensics | future engine | forensic engines only; not Detection, Intelligence or Cloud provider selection | open | Investigate | before forensic delivery | OPEN-005 | Phase 8 |
+| DEP-006 | OPEN-008 | platform/source support | platform | source, sensor, endpoint and Cloud provider support unresolved | open | Endpoint Agent / Settings | before delivery | OPEN-008 | Settings/Technique |
 | DEP-007 | OPEN-013 | class-2 actions | authority | default step-up/Govern policy unresolved | open | Security | yes | OPEN-013 | Phase 7 |
 | DEP-008 | OPEN-014 | Artifact/Attachment/dataset/material relations | object | relation and retention semantics unresolved | open | Investigate | model blocking | OPEN-014 | Phase 7 |
 | DEP-009 | OPEN-015 | Studio/Govern/Investigate runs | run model | Automation Run / Response Run bridge unresolved | open | Studio + Govern | yes | OPEN-015 | Phase 7 |
@@ -63,7 +63,16 @@ This register records functional and documentary dependencies only. It chooses n
 | DEP-INV-532 | sources/Sightings/publications | CAP-INV-532..537 | monitoring/feedback/lifecycle | changes and feedback feed correction and improvement | active | Investigate / source owners | yes | OPEN-008/015/019 | 4B.3B.2 |
 | DEP-INV-533 | CAP-INV-533 | Govern/Settings future execution | external sharing | Action Request/package only; no transmission | planned | Govern / destination owner | yes | OPEN-018/019 | Govern/Technique |
 | DEP-INV-537 | CAP-INV-501..536 | Continuous Improvement Package | closure | complete lineage returns to Intake/Requirement/Case/Hunt/Detection/Settings/Studio | active | Investigate / destination owners | no active mutation | REQ-PROD-020 | 4B.3B.2 |
-| DEP-INV-CLOUD | OPEN-012 | Phase 4B closure | scope | Cloud Analysis remains open and not implemented | blocking | Product Architecture | yes for Phase 4B PASS | OPEN-012 | roadmap decision |
-| DEP-INV-MOBILE | OPEN-011 | Phase 4B closure | scope | Mobile Forensics remains open and not implemented | blocking | Product Architecture | yes for Phase 4B PASS | OPEN-011 | roadmap decision |
+| DEP-INV-601 | Case/Incident/Finding/Hunt/Signal/Cloud source/Artifact | CAP-INV-601..603 | Cloud intake/scope | origin, scope, periods, sources, access, restrictions and return origin | active | Investigate / source owners | yes | REQ-INV-001/006; OPEN-008/012/013/014/015 | 4B.4A |
+| DEP-INV-604 | Platform Settings providers/sources/connectors/health/schemas | CAP-INV-604..614 | Cloud source projection | Settings retains all Cloud administration; Investigate consumes authorized observations only | partial | Platform Settings | yes | REQ-PROD-055; OPEN-008/012 | Settings/Technique |
+| DEP-INV-605 | Cloud identities/roles/policies/resources | CAP-INV-605/606 | identity/IAM analysis | identity, assignment, declared policy and effective-permission candidate remain distinct | active | Investigate / source owners | yes | OPEN-012/013/014 | 4B.4A |
+| DEP-INV-607 | Cloud audit/activity materials | CAP-INV-607/616 | event/timeline | actor, event time, gaps, duplicates and lateness preserve source uncertainty | active/partial | Investigate / Settings | yes | OPEN-008/012 | 4B.4A |
+| DEP-INV-608 | inventory/configuration observations | CAP-INV-608..614 | workload/data analysis | observed configuration, workloads, network, storage and sensitive material remain candidates | active | Investigate | yes | OPEN-012/014 | 4B.4A |
+| DEP-INV-609 | Cloud compute/workload observations | Endpoint/Memory/Disk/Network owners | specialist handoff | Cloud Analysis prepares scope and evidence context but executes no acquisition or command | active | destination owners | no active mutation | REQ-INV-001..005; OPEN-008/013/014 | 4B.4A/4B.2 |
+| DEP-INV-615 | CAP-INV-604..614 | CAP-INV-615/616 | interpretation | anomalies, Hypotheses and correlations preserve supporting, contradicting and missing elements | active | Investigate | yes | REQ-PROD-020; OPEN-012/014/015 | 4B.4A |
+| DEP-INV-617 | CAP-INV-601..616 | Evidence/Finding/Detection/TI/Collection/Govern owners | handoff | packages are candidates, drafts or requests and create no destination object or action automatically | active | Investigate / destination owners | yes | OPEN-013/014/015/017 | 4B.4A |
+| DEP-INV-618 | CAP-INV-601..617 plus Studio/Shared lineage | provenance | preserve sources, permissions, Tools, Runs, errors, human decisions and versions | active/partial | Investigate / Studio / Shared | yes | REQ-PROD-020; OPEN-014/015 | 4B.4A |
+| DEP-INV-CLOUD | OPEN-012 | Cloud provider/service delivery | scope/implementation | provider priorities, service support, SaaS, Cloud evidence and cross-tenant strategy remain unresolved; functional closure still awaits remote verification | open | Product Architecture | before Cloud implementation, not before provider-neutral documentation | OPEN-012 | roadmap/Technique |
+| DEP-INV-MOBILE | OPEN-011 | Phase 4B.4 and Phase 4B closure | scope | Mobile Forensics remains open and not implemented | blocking | Product Architecture | yes for Phase 4B PASS | OPEN-011 | next subphase |
 
-Eighteen decisions are open. OPEN-017 remains Detection-only; OPEN-018 governs ontology/interoperability; OPEN-019 governs dissemination/releasability/sharing/access. Phase 4B.3 closes, while Phase 4B remains PARTIAL because Cloud and Mobile are neither completed nor explicitly deferred outside its approved scope.
+Eighteen decisions are open. OPEN-017 remains Detection-only; OPEN-018 governs Threat Intelligence ontology and interoperability; OPEN-019 governs Intelligence dissemination, releasability, sharing and access; OPEN-012 governs unresolved Cloud provider, service and delivery strategy. Phase 4B.4A remains **PENDING POST-PUBLICATION VERIFICATION** until the fifth commit and remote checks complete. Phase 4B.4 and Phase 4B remain PARTIAL because Mobile Forensics is not started.

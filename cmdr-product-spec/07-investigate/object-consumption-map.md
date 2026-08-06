@@ -5,10 +5,10 @@ status: draft
 owner: Investigate Product Lead
 updated: 2026-08-06
 source-of-truth: canonical
-requirements: [REQ-PROD-006, REQ-PROD-014, REQ-PROD-061, REQ-PROD-062, REQ-INV-006]
-open_decisions: [OPEN-008, OPEN-013, OPEN-014, OPEN-015, OPEN-017, OPEN-018, OPEN-019]
+requirements: [REQ-PROD-006, REQ-PROD-014, REQ-PROD-061, REQ-PROD-062, REQ-INV-001, REQ-INV-006]
+open_decisions: [OPEN-008, OPEN-012, OPEN-013, OPEN-014, OPEN-015, OPEN-017, OPEN-018, OPEN-019]
 ---
-# Object consumption map — Investigate through Phase 4B.3B.2
+# Object consumption map — Investigate through Phase 4B.4A
 
 | Objet ou concept | Owner actuel | Usage local | Opérations locales | Lacune | Phase propriétaire |
 |---|---|---|---|---|---|
@@ -16,7 +16,7 @@ open_decisions: [OPEN-008, OPEN-013, OPEN-014, OPEN-015, OPEN-017, OPEN-018, OPE
 | Incident / runtime Detection / Signal / Alert | Command | source/runtime/feedback projections | read/link only | bridge contracts | Command/Objects |
 | Detection Content / Detection Hypothesis / Coverage / Gap | Detection Engineering | operationalization and feedback | prepare/read/link in owner module | runtime/language OPEN-017 | Objects/Technique |
 | Action Request / Decision / Approval / Response Run / Result | Govern | authority/execution projections | prepare/read/link only | cross-run OPEN-015 | Govern/Objects |
-| Data Source / Provider / Connector / Environment / Destination / Policy | Platform Settings | source, access, target and destination projections | read/select/request only | OPEN-008/018/019 | Settings/Technique |
+| Data Source / Provider / Connector / Environment / Destination / Policy | Platform Settings | source, access, target and destination projections | read/select/request only | OPEN-008/012/018/019 | Settings/Technique |
 | Tool / Tool Call / Workflow / Automation Run / Agent / Human Gate | Studio | attributed automation and monitoring | select/invoke/read/link | OPEN-015 | Studio/Objects |
 | Entity / Graph / Timeline / Search / Linking / Versioning / Report / Export / Notification / Trace / Activity / Recovery | Shared | generic mechanisms | consume/emit domain semantics | final contracts | Shared/Technique |
 | Intelligence Requirement / Collection Priority / Knowledge Project | Investigate concepts | needs, scope, priority and durable workspace | create/update/pause/close/reopen/supersede | canonical schemas absent | Objects |
@@ -47,5 +47,18 @@ open_decisions: [OPEN-008, OPEN-013, OPEN-014, OPEN-015, OPEN-017, OPEN-018, OPE
 | Correction / Retraction / Product Supersession | Investigate concepts using Shared Versioning | error handling and history | create/review/withdraw/supersede | external recall governed | Objects/Govern |
 | Continuous Improvement Package | Investigate concept | complete lifecycle handoff | prepare/version/withdraw | no active mutation | Objects |
 | Provenance Record | Shared mechanisms + product semantics | complete source/tool/human lineage | read/emit/link/export by permission | audit contracts future | Shared/Trust |
+| Cloud Investigation Session / Cloud Scope Assessment | Investigate concepts | bounded Cloud workspace and selected scope | create/update/close/reopen/version/supersede | no final object/schema | Objects |
+| Cloud Organization / Cloud Tenant / Cloud Account / Cloud Subscription / Cloud Project | Platform Settings projections + Investigate scope semantics | distinct provider-neutral hierarchy units | read/select/include/exclude/link | provider mapping OPEN-012 | Settings/Objects |
+| Cloud Resource Observation / Configuration Observation | Investigate concepts | observed resource, configuration, state, version and drift | create/compare/dispute/supersede | observed ≠ current | Objects |
+| Cloud Identity Observation / Role Observation / Permission Observation / Effective Permission Candidate | Investigate concepts using source projections | identity, assignment, policy and authorization analysis | create/review/dispute/withdraw/supersede | identity/permission final schemas absent | Objects/Permissions |
+| Cloud Audit Event / Cloud Activity Observation | source owner + Investigate concept | actor/action/resource/result/time analysis | read/normalize/link/annotate/version | provider event schemas OPEN-012 | Settings/Objects |
+| Compute Observation / Workload Observation / Container Observation / Serverless Observation | Investigate concepts | control-plane and available runtime context | create/compare/handoff/supersede | not full Endpoint/container forensics | Objects/Endpoint |
+| Cloud Network Observation / Network Exposure Observation | Investigate concepts using Shared Graph | configured and observed connectivity/exposure | create/compare/correlate/dispute | no active scan; not Network Forensics | Objects/Shared |
+| Storage Observation / Data Access Observation | Investigate concepts | metadata, access events, retention/versioning and movement candidates | create/compare/dispute/handoff | metadata ≠ content | Objects/Trust |
+| Sensitive Material Candidate | Investigate concept; Settings/Security own secret administration | candidate presence, metadata, masked view and audit context | create/review/request access/prepare handoff | reveal/copy/export/use remain separate | Objects/Permissions |
+| Cloud Anomaly / Cloud Hypothesis | Investigate concepts | candidate interpretation with support, contradictions and confidence | create/review/dispute/withdraw/supersede | anomaly ≠ Finding/compromise | Objects |
+| Cloud Timeline / Cross-source Correlation Candidate | Investigate semantics using Shared Timeline/Linking | Cloud-local chronology and cross-source candidate relations | create/reconstruct/compare/dispute/supersede | not Case Timeline; correlation ≠ causality | Shared/Objects |
+| Cloud Reproducibility Assessment / Cloud Analysis Provenance Package | Investigate concepts using Shared Trace/Versioning/Export | source/tool/permission/version lineage and reproducibility conditions | create/compare/export by permission/supersede | no guaranteed replay | Shared/Trust |
+| Evidence Candidate Package / Finding Draft / Cloud Detection Gap | Investigate preparation; destination owners qualify/create canonical objects | Evidence, Finding and Detection handoffs | prepare/version/withdraw/link | candidate/draft/package ≠ destination object | Evidence/Detection/Objects |
 
-No complete schema, JSON Schema, final cardinality/state machine, physical graph, algorithm, exchange/report format, technical identifier, runtime package or atomic permission is defined.
+No complete schema, JSON Schema, final cardinality/state machine, physical graph, algorithm, provider event model, exchange/report format, technical identifier, runtime package or atomic permission is defined.

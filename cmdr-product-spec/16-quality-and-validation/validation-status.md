@@ -3,7 +3,7 @@ id: validation-status
 domain: 16-quality-and-validation
 status: draft
 owner: QA and Traceability Lead
-updated: 2026-08-06
+updated: 2026-08-07
 source-of-truth: quality-status
 ---
 # Validation Status
@@ -18,8 +18,10 @@ source-of-truth: quality-status
 | Phase 4B.3B.1 Threat Intelligence Foundations | PASS | 18 capabilities, 486 sections, 108 tables |
 | Phase 4B.3B.2 Analysis/Products/Dissemination | PASS after publication verification | 19 capabilities, 513 sections, 114 tables, 180 gates |
 | Phase 4B.3B Threat Intelligence | PASS | 37 capabilities, 999 sections, 222 tables |
-| Phase 4B.3 | PASS | Detection + Intelligence closure reports |
-| Phase 4B | PARTIAL | OPEN-011 Mobile and OPEN-012 Cloud remain blockers |
+| Phase 4B.3 | PASS | Detection plus Intelligence closure reports |
+| Phase 4B.4A Cloud Analysis | PENDING POST-PUBLICATION VERIFICATION | 18 capabilities, 486 sections, 108 tables; 243-gate catalogue prepared |
+| Phase 4B.4 | PARTIAL | Mobile Forensics not started |
+| Phase 4B | PARTIAL | Cloud remote verification pending and Mobile not started |
 | Phase 4 / global | PARTIAL | later products, objects, permissions, screens, technique and implementation remain future |
 
-`PASS` means documentary functional conformance, not implementation. All 233 capabilities remain `planned`.
+`PASS` means documentary functional conformance, not implementation. All 251 capabilities remain `planned`; 249 are defined and 2 proposed. Cloud Analysis cannot move to PASS until the fifth commit is remotely published and verified.

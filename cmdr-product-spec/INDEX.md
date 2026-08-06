@@ -3,7 +3,7 @@ id: repository-index
 domain: repository
 status: draft
 owner: Product Architecture
-updated: 2026-08-04
+updated: 2026-08-07
 source-of-truth: canonical
 ---
 
@@ -36,6 +36,19 @@ source-of-truth: canonical
 - Risk and Coverage: `06-command/modules/risk-and-coverage/`
 - Readiness and Operations: `06-command/modules/readiness-and-operations/`
 - Customers and Delivery proposal: `06-command/modules/customers-and-delivery/`
+
+## Investigate
+
+- Product source: `07-investigate/README.md`
+- Capability map: `07-investigate/capability-map.md`
+- Detection Engineering: `07-investigate/modules/detection-engineering/`
+- Threat Intelligence: `07-investigate/modules/threat-intelligence/`
+- Cloud Analysis: `07-investigate/modules/cloud-analysis/`
+- Cloud capability map: `07-investigate/modules/cloud-analysis/capability-map.md`
+- Cloud capability-register shard: `00-governance/registers/capability-register-investigate-cloud-analysis.md`
+- Cloud roadmap: `18-roadmap-and-releases/phase-4b4a-cloud-analysis.md`
+- Cloud conformance report: `16-quality-and-validation/reports/phase-4b4a-cloud-analysis-capability-conformance.md`
+- Cloud source audit: `16-quality-and-validation/reports/phase-4b4a-cloud-analysis-source-audit.md`
 
 ## Sources Phase 3
 
