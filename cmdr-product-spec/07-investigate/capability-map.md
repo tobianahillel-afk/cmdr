@@ -38,9 +38,9 @@ open_decisions:
 | CAP-INV-601..618 | Cloud Analysis Foundations and Cloud Investigation | 18 | 18 | 0 | planned |
 | **Total** | **Investigate** | **224** | **223** | **1** | **224 planned** |
 
-## Status before final remote verification
+## Verified status
 - Investigate totals: **6048 sections** and **1344 mandatory tables**.
 - Phase 4B.3 remains PASS.
-- Phase 4B.4A — Cloud Analysis is **PENDING POST-PUBLICATION VERIFICATION**: 18 capabilities, 486 sections, 108 tables and a 243-gate catalogue.
+- Phase 4B.4A — Cloud Analysis is **PASS AFTER POST-PUBLICATION VERIFICATION**: 18 capabilities, 486 sections, 108 tables and 243/243 gates.
 - Phase 4B.4 remains PARTIAL because Mobile Forensics is not started.
 - Phase 4B remains PARTIAL. OPEN-012 remains open for Cloud provider, service and delivery strategy; no provider-specific implementation is claimed.
