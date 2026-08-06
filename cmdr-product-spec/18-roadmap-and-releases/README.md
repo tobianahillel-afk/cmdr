@@ -37,7 +37,7 @@ Product Operations Lead.
 
 - Command: `phase-2-command.md` and related release evidence.
 - Investigate foundation: `phase-3-investigate.md`.
-- Cloud Analysis: `phase-4b4a-cloud-analysis.md` — `CAP-INV-601..618`, provider-neutral functional scope, post-publication verification pending in the closure commit.
+- Cloud Analysis: `phase-4b4a-cloud-analysis.md` — `CAP-INV-601..618`, provider-neutral functional scope, **PASS AFTER POST-PUBLICATION VERIFICATION**.
 - Mobile Forensics: not started; no capability or phase implementation is created by Cloud Analysis.
 
 ## UX et interactions
