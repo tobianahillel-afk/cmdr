@@ -11,7 +11,7 @@ requirements:
   - REQ-PROD-019
   - REQ-INV-006
 ---
-# Capability map — Investigate through Phase 4B.3A.1
+# Capability map — Investigate through Phase 4B.3A
 
 | Range | Module | Count | Defined | Proposed | Delivery mode |
 |---|---|---:|---:|---:|---|
@@ -25,13 +25,15 @@ requirements:
 | CAP-INV-363..379 | Disk and Filesystem Forensics | 17 | 17 | 0 | planned |
 | CAP-INV-380..397 | Network Forensics | 18 | 18 | 0 | planned |
 | CAP-INV-401..417 | Detection Engineering Foundations, Authoring and Validation | 17 | 17 | 0 | planned |
-| **Total** | **Investigate** | **151** | **150** | **1** | **151 planned** |
+| CAP-INV-418..435 | Detection Review, Promotion, Runtime Performance and Lifecycle | 18 | 18 | 0 | planned |
+| **Total** | **Investigate** | **169** | **168** | **1** | **169 planned** |
 
 ## Totals
-- Investigate numbered sections: **4077**.
-- Investigate mandatory S8/S9/S10/S13/S16/S17 tables: **906**.
+- Investigate numbered sections: **4563**.
+- Investigate mandatory S8/S9/S10/S13/S16/S17 tables: **1014**.
 - CAP-INV-3xx: **97**.
-- CAP-INV-4xx: **17**.
-- No CAP-INV-5xx is assigned.
+- CAP-INV-4xx: **35**.
+- CAP-INV-5xx: **0**.
+- Detection Engineering: **35 capabilities, 945 sections and 210 mandatory tables**.
 
-Phase 4B.3A.1 is functionally specified. Phase 4B.3A.2 and Phase 4B.3B remain not started.
+Phase 4B.3A is functionally specified and PASS after publication verification. Phase 4B.3B remains not started.

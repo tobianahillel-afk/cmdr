@@ -28,14 +28,16 @@ The register is split into active shards. IDs are immutable and never recycled.
 | `capability-register-investigate-disk-filesystem-forensics.md` | Investigate CAP-INV-363..379 | 17 | 17 | 0 | 17 planned |
 | `capability-register-investigate-network-forensics.md` | Investigate CAP-INV-380..397 | 18 | 18 | 0 | 18 planned |
 | `capability-register-investigate-detection-authoring.md` | Investigate CAP-INV-401..417 | 17 | 17 | 0 | 17 planned |
-| **Total** | **All registered capabilities** | **178** | **176** | **2** | **178 planned** |
+| `capability-register-investigate-detection-lifecycle.md` | Investigate CAP-INV-418..435 | 18 | 18 | 0 | 18 planned |
+| **Total** | **All registered capabilities** | **196** | **194** | **2** | **196 planned** |
 
 ## Product totals
 - Command: **27** capabilities.
-- Investigate: **151** capabilities.
+- Investigate: **169** capabilities.
 - CAP-INV-3xx: **97**.
-- CAP-INV-4xx: **17**, CAP-INV-401 through CAP-INV-417.
-- No CAP-INV-5xx is assigned.
+- CAP-INV-4xx: **35**, CAP-INV-401 through CAP-INV-435.
+- CAP-INV-5xx: **0**.
+- Detection Engineering: **35** capabilities, 945 numbered sections and 210 mandatory tables.
 - No capability is marked validated, implemented, promoted, deployed, active, native or integrated.
 
 Each shard records owner, users, objects, inputs, outputs, actions, no-AI alternatives, criteria, Requirement IDs, OPEN decisions, dependencies, supersession and date.

@@ -26,6 +26,7 @@ This register records functional and documentary dependencies only. It chooses n
 | DEP-007 | OPEN-013 | class-2 actions | authority | default step-up/Govern policy unresolved | open | Security | yes | OPEN-013 | Phase 7 |
 | DEP-008 | OPEN-014 | Artifact/Attachment/dataset relations | object | relation and retention semantics unresolved | open | Investigate | model blocking | OPEN-014 | Phase 7 |
 | DEP-009 | OPEN-015 | Studio/Govern/Investigate runs | run model | Automation Run / Response Run bridge unresolved | open | Studio + Govern | yes | OPEN-015 | Phase 7 |
+| DEP-010 | OPEN-017 | Detection runtime, target language and portability | product architecture | portable model, native content, hybrid, future CMDR runtime or capability-specific combination remain undecided | open | Product Architecture | before implementation/promotion contract | OPEN-017 | Phase 7/8 |
 | DEP-INV-201 | Collection and Live Response | Analysis Workbench families | source/provenance | authorized acquisition outputs feed analysis | active | Investigate / Endpoint | yes | REQ-INV-001 | 4B.2 |
 | DEP-INV-301 | Artifact Management | CAP-INV-301..397 | analysis source | Artifact, versions, custody and lineage | active | Investigate | yes | REQ-OBJ-003,004 | 4B.2 |
 | DEP-INV-314 | Static Analysis | Dynamic Sandbox | handoff | Derived Artifacts and static context | active | Investigate | no | REQ-INV-002,005 | 4B.2 |
@@ -33,26 +34,21 @@ This register records functional and documentary dependencies only. It chooses n
 | DEP-INV-347 | Collection/Artifact | Memory Forensics | source/custody | Memory Image and acquisition context | active | Investigate / Endpoint | yes | REQ-INV-001; OPEN-008 | 4B.2 |
 | DEP-INV-363 | Collection/Artifact | Disk and Filesystem Forensics | source/custody | Disk Image and acquisition context | active | Investigate / Endpoint | yes | REQ-INV-001; OPEN-008 | 4B.2 |
 | DEP-INV-380 | Collection/Artifact | Network Forensics | source/custody | Capture Artifact and acquisition context | active | Investigate / Endpoint | yes | REQ-INV-001; OPEN-008 | 4B.2 |
-| DEP-INV-401 | Finding/Hypothesis/Case/Incident/Hunt | CAP-INV-401 | intake | source need, observations, contradictions and return origin | active | Investigate / Command projection | yes | REQ-INV-006 | 4B.3A.1 |
-| DEP-INV-402 | CAP-INV-313/328/346/362/379/397 | CAP-INV-401 | technical handoff | behavior, conditions, sources, limitations and provenance | active | Investigate | no | REQ-INV-006 | 4B.3A.1 |
-| DEP-INV-403 | CAP-INV-401 | CAP-INV-402/403 | project/hypothesis | qualified objective and owner context | active | Investigate | yes | REQ-INV-006 | 4B.3A.1 |
-| DEP-INV-404 | Platform Settings Data Source/Parser/Health/Retention | CAP-INV-404/405/409/416 | projection/admin | readiness and schema projections remain Settings-owned | partial | Platform Settings | yes | REQ-PROD-055; OPEN-008 | Settings/Technique |
-| DEP-INV-405 | Endpoint Agent telemetry capabilities | CAP-INV-404/416 | platform projection | declared source/platform support and limitations | partial | Endpoint Agent / Settings | yes | REQ-PROD-049,050; OPEN-008 | Endpoint/Settings |
-| DEP-INV-406 | Shared Telemetry Event/Query/Search/Data Quality/Normalization | CAP-INV-404,405,414,415 | shared data | source events, search, quality and schema projections | partial | Shared | yes | REQ-PROD-019,020 | Shared/Technique |
-| DEP-INV-407 | Detection Hypothesis / field review | CAP-INV-406..410 | authoring | objective, source and semantic dependencies | active | Investigate | yes | REQ-INV-006 | 4B.3A.1 |
-| DEP-INV-408 | Studio Tool / Tool Call | CAP-INV-411/414 and optional assistance | execution/provenance | validation and replay execution identity | partial | Studio | yes | REQ-OBJ-009; OPEN-015 | Studio/Objects |
-| DEP-INV-409 | Studio Automation Run | automated authoring/testing | automation/provenance | optional orchestration and attribution | partial | Studio | no essential dependency | REQ-AI-002,010; OPEN-015 | Studio/Objects |
-| DEP-INV-410 | Artifact / Studio Dataset / Shared storage projection | CAP-INV-412/413 | test data | versioned test data and restrictions | partial | source owner | yes | REQ-OBJ-003; OPEN-014 | Objects/Studio |
-| DEP-INV-411 | CAP-INV-406..410 | CAP-INV-411 | validation | selected draft, metadata and dependencies | active | Investigate | yes | REQ-INV-006 | 4B.3A.1 |
-| DEP-INV-412 | CAP-INV-411 | CAP-INV-412..415 | tests/replay/review | validation results and diagnostics | active | Investigate | no | REQ-INV-006 | 4B.3A.1 |
-| DEP-INV-413 | CAP-INV-412/413 | CAP-INV-414/415 | expected/actual comparison | scenarios, datasets and Expected Outcomes | active | Investigate | no | REQ-INV-006 | 4B.3A.1 |
-| DEP-INV-414 | Event Search and authorized historical access | CAP-INV-414 | replay | period, environment, retention, gaps and source events | active | Investigate / Shared | yes | REQ-PROD-014,019 | 4B.1/3A.1 |
-| DEP-INV-415 | Replay/Validation source events | CAP-INV-415 | match review | actual result, source context and uncertainty | active | Investigate / Shared | yes | REQ-INV-006 | 4B.3A.1 |
-| DEP-INV-416 | Data Readiness/Tests/Replay/Review | CAP-INV-416 | coverage | evidence level, environments and gaps | active | Investigate | yes | REQ-INV-006 | 4B.3A.1 |
-| DEP-INV-417 | CAP-INV-401..416 | CAP-INV-417 | provenance/handoff | versioned authoring chain and unresolved items | active | Investigate | yes | REQ-PROD-020; OPEN-015 | 4B.3A.1 |
-| DEP-INV-418 | CAP-INV-417 | Future Phase 4B.3A.2 | future review/promotion | package only; no Approval, deployment or activation | planned | future owner / Govern as applicable | no | REQ-INV-006; OPEN-013 | 4B.3A.2 |
-| DEP-INV-419 | Future runtime Detection | Command | runtime boundary | Command owns Detection, Signal, Alert and Incident | planned | Command | future | REQ-PROD-013,015 | 4B.3A.2/Command |
-| DEP-INV-420 | Detection engine/language choice | future technical delivery | unresolved decision gap | no existing OPEN covers detection engines/languages; OPEN-005 remains forensic-only | open gap | Product Architecture | before implementation | REQ-INV-006 | decision phase |
-| DEP-INV-421 | Threat Intelligence | future 4B.3B | phase boundary | no Intelligence object or CAP-INV-5xx in 4B.3A.1 | planned | future Investigate owner | no | REQ-INV-006 | 4B.3B |
+| DEP-INV-401 | Finding/Hypothesis/Case/Incident/Hunt and technical handoffs | CAP-INV-401..417 | Detection authoring | need, sources, authoring, validation, replay, review, coverage and Review Package | active | Investigate | yes | REQ-INV-006; OPEN-008/013/014/015 | 4B.3A.1 |
+| DEP-INV-418 | CAP-INV-417 | CAP-INV-418 | review handoff | immutable candidate version and complete authoring evidence | active | Investigate | yes | REQ-INV-006 | 4B.3A.2 |
+| DEP-INV-419 | CAP-INV-418 | CAP-INV-419 | readiness | review disposition, targets, dependencies, rollback and observation plan | active | Investigate / Settings projections | yes | OPEN-008/017 | 4B.3A.2 |
+| DEP-INV-420 | CAP-INV-419/421/423/430/433/434 | Govern Action Request | authority handoff | class, targets, risks, rollout, rollback, criteria and evidence | active | Investigate → Govern | yes for class 3 | REQ-SEC-001,002; OPEN-013 | 4B.3A.2 |
+| DEP-INV-421 | Settings environments/targets/runtimes | CAP-INV-421/424/425/426 | administrative projection | target selection, capability, state, version and health remain Settings-owned | partial | Platform Settings | yes | OPEN-008/017 | Settings/Technique |
+| DEP-INV-422 | Govern Decision/Approval/Response Run/Result | CAP-INV-420/424/433/434 | authority/execution | production change authority and result remain Govern-owned | partial | Govern | yes | REQ-OBJ-006,007,010; OPEN-015 | Govern/Objects |
+| DEP-INV-423 | Endpoint Agent/runtime owner | CAP-INV-422..426/431..433 | runtime projection | execution, version, health and target result | partial | Endpoint/Settings/runtime | yes | OPEN-008/017 | Endpoint/Technique |
+| DEP-INV-424 | Command Detection/Signal/Alert/Incident | CAP-INV-425..428/434/435 | runtime/feedback | Command retains operational objects and dispositions | active | Command | yes | REQ-PROD-013,015 | Command/Objects |
+| DEP-INV-425 | Studio Tool/Tool Call/Automation Run | CAP-INV-422/426/431/432/435 | execution/provenance | optional deterministic assessment and attributed automation | partial | Studio | no essential AI dependency | OPEN-015 | Studio/Objects |
+| DEP-INV-426 | Shared Jobs/Trace/Activity/Versioning/Comparison/Metrics/Reporting | CAP-INV-418..435 | shared | generic execution, lineage, metrics and reporting | partial | Shared | yes | REQ-PROD-019,020 | Shared/Technique |
+| DEP-INV-427 | CAP-INV-422 | CAP-INV-418/423/427/428 | runtime evaluation | shadow evidence is non-alerting and distinct from replay | active | Investigate | no | REQ-INV-006 | 4B.3A.2 |
+| DEP-INV-428 | CAP-INV-423/424 Results | CAP-INV-425/426/427/433 | canary/deployment observation | per-target partiality, versions, errors and stop criteria | active | Investigate projections | yes | OPEN-013/015/017 | 4B.3A.2 |
+| DEP-INV-429 | CAP-INV-427/428/431/432 | CAP-INV-429/430/433/434 | continuous improvement | quality, outcomes, drift and performance create proposals only | active | Investigate | no | REQ-INV-006 | 4B.3A.2 |
+| DEP-INV-430 | CAP-INV-429/431/432/434 | CAP-INV-406/411..417 | return to authoring | new Draft, revalidation, tests, replay and coverage update | active | Investigate | yes | REQ-INV-006 | 4B.3A |
+| DEP-INV-431 | CAP-INV-401..434 | CAP-INV-435 | lifecycle provenance | complete lineage and unresolved links | active | Investigate / source owners | yes | REQ-PROD-020; OPEN-014/015 | 4B.3A.2 |
+| DEP-INV-432 | CAP-INV-435 | future 4B.3B | future Intelligence handoff | candidate context only; no Intelligence object or CAP-INV-5xx | planned | future owner | no | REQ-INV-006 | 4B.3B |
 
-All fifteen OPEN decisions remain unchanged. The engine/language gap is recorded without inventing a new decision or misusing OPEN-005.
+OPEN-017 is now the canonical open decision for Detection runtime, target-language and portability strategy. No option is selected. OPEN-005 remains forensic-only. Sixteen decisions are open; OPEN-009 remains the only historically resolved item.

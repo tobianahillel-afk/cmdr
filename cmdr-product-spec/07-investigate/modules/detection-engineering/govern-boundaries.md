@@ -18,14 +18,15 @@ open_decisions:
 
 Investigate prepares Detection Change Request Drafts, Promotion Plans, Shadow/Canary Plans, Tuning/Suppression/Exception Proposals, Rollback Plans and Retirement Proposals. These are evidence-bearing proposals, not authority.
 
-Govern owns Action Request, Decision, Approval, Response Run and Result. Class-3 promotion, activation, deactivation, active suppression/exception, rollback and runtime modification require the applicable Govern path. Class 4 is denied by default or strictly governed; provenance is never destroyed.
+Govern owns Action Request, Decision, Approval, Response Run and Result. Class-3 promotion, activation, deactivation, active suppression/exception, rollback, retirement and runtime modification require the applicable Govern path. Class 4 is denied by default or strictly governed; provenance is never destroyed.
 
 | Investigate concept | Govern destination | Boundary |
 |---|---|---|
 | Detection Change Request Draft | Action Request | draft ≠ accepted request |
-| Review disposition | Decision input | review ≠ Decision |
+| Detection Review recommendation | Decision input | review ≠ Decision |
 | Approval requirement | Approval | recommendation ≠ Approval |
-| Promotion/rollback/retirement plan | Response Run context | plan ≠ execution |
+| Promotion/Canary/Rollback/Retirement plan | Response Run context | plan ≠ execution |
 | Runtime observation | Result relation | observation ≠ verified Result |
+| Emergency recommendation | emergency policy path | recommendation ≠ emergency authority |
 
-Requester, reviewer, approver and operator separation remains policy-owned. No auto-approval, hidden delegation or implicit emergency authority.
+Requester, reviewer, approver and operator separation remains policy-owned. No auto-approval, hidden delegation, implicit emergency authority or Govern bypass.

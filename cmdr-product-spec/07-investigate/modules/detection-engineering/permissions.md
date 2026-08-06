@@ -12,18 +12,23 @@ open_decisions:
   - OPEN-013
   - OPEN-014
   - OPEN-015
+  - OPEN-017
 ---
 # Functional permission needs
 
 | Family | Functional needs | Risk / future control |
 |---|---|---|
-| Project/Hypothesis | read, create, update, close, reopen, review | ownership, contributor and reviewer separation |
-| Data/Schema | readiness read, schema/field read, mapping propose/review | source admin stays Settings; sensitive examples masked |
-| Detection Content | read, create, update, clone, archive, metadata/logic update | reversible Class 2; no runtime mutation |
-| Tests/Datasets | scenario create/update, dataset read/use, sensitive data read | minimization, source-owner permission, OPEN-014 |
-| Validation/Replay | run/read/cancel, cross-tenant preparation | bounded Class 1; step-up and cost controls future |
-| Match/Coverage | classify candidates, create/update coverage and gaps | candidate labels only; no guaranteed metrics |
-| Review Package | prepare, export, submit to future review | no Approval or deployment; separation of duties future |
-| Automation | authoring/test proposal request | Tool/Run attribution and human disposition mandatory |
+| Authoring | Project/Hypothesis/Draft/validation/test/replay/coverage permissions from CAP-INV-401..417 | reversible classes 0–2; no runtime mutation |
+| Review Candidate | read/create/update/withdraw, assign reviewer, comment and disposition | immutable version, reviewer separation |
+| Readiness/Targets | assessment read/create/update, environment/target read/select | Settings remains administrator; cross-tenant and compatibility step-up future |
+| Govern handoff | Change Request prepare/submit/cancel; Decision/Approval/Run/Result read | no auto-approval; requester/approver/operator separation |
+| Shadow/Canary | plan, request and assessment read | bounded class 1/2 locally; execution requires authority/runtime owner |
+| Runtime projections | Detection/version/health/Signal/Alert/Incident feedback read | source ownership, minimization and tenant scope |
+| Quality/Tuning | production review and Tuning Proposal create/update | proposal only; new Draft and tests required |
+| Suppression/Exception | proposal create/update/renew/revoke request | expiry, scope, alternatives and compensating monitoring; Govern required |
+| Drift/Performance | assessment create/update and source/metric projections read | sensitive infrastructure data masking |
+| Rollback/Retirement | Plan/Proposal create/update; Govern execution projections read | class 3 execution unavailable locally |
+| Provenance | lifecycle read/export and Continuous Improvement Package prepare | cross-product masking, audit and trace immutability |
+| Automation | review/tuning/plan proposal requests | Tool/Run attribution and human disposition mandatory |
 
-Atomic namespaces, RBAC/ABAC, final step-up and production permissions are deferred. Deployment, activation, deactivation and rollback permissions are excluded.
+Atomic namespaces, RBAC/ABAC, final step-up and separation-of-duties rules are deferred. Investigate has no direct permission to deploy, activate, deactivate, apply an exception/suppression, roll back, retire, delete runtime content or delete provenance.

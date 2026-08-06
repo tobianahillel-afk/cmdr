@@ -8,18 +8,37 @@ source-of-truth: canonical
 ---
 # Unresolved decisions
 
-The programme retains **15 open decisions**. OPEN-009 remains the only historically resolved item. Phase 4B.3A.1 closes none.
+The programme retains **16 open decisions**. OPEN-009 remains the only historically resolved item. Phase 4B.3A.2 closes none.
 
-| Relevant decision | Application in 4B.3A.1 | Disposition |
+| Relevant decision | Application in 4B.3A.2 | Disposition |
 |---|---|---|
-| OPEN-008 | availability and support of data sources, endpoint platforms and telemetry | remains open |
-| OPEN-013 | default treatment of reversible Class-2 authoring mutations | remains open |
-| OPEN-014 | Artifact/Attachment and test-dataset relation/retention questions | remains open |
-| OPEN-015 | Automation Run provenance and future cross-run bridge | remains open |
+| OPEN-005 | forensic engine selection only | remains open; not reused for Detection runtimes/languages |
+| OPEN-008 | source, endpoint, target and runtime availability/support | remains open |
 | OPEN-011 / OPEN-012 | Mobile and Cloud scope | remain open and out of scope |
-| OPEN-005 | forensic engine selection only | remains open; not reused for Detection engines/languages |
+| OPEN-013 | reversible Class-2 changes and future class-3 governance defaults | remains open |
+| OPEN-014 | Artifact/Attachment/dataset and lifecycle package relations | remains open |
+| OPEN-015 | Automation Run / Response Run and cross-product provenance bridge | remains open |
+| **OPEN-017** | Detection runtime, target language and portability strategy | **created open; no option selected** |
 
-## Detection engine and language gap
-No existing OPEN explicitly governs future Detection engine or rule-language selection. This is recorded as a product-decision gap in the Dependency Register, but it does not block the present functional documentation and no new OPEN is created merely to classify the phase. No engine or language is selected.
+## OPEN-017 — Detection runtime, target language and portability strategy
+**Status:** open  
+**Owner:** Product Architecture  
+**Consumers:** Detection Engineering, Command, Platform Settings, Endpoint Agent, Govern, Studio, Shared, Objects, Technique and future implementation.
+
+### Decision question
+How will functional Detection Content map to one or more execution runtimes and target representations while preserving versioning, provenance, portability, ownership and governed lifecycle?
+
+### Options retained without selection
+1. Portable canonical model with adapters.
+2. Native contents per engine.
+3. Hybrid model.
+4. Future native CMDR runtime.
+5. Combination by capability or target.
+
+### Constraints
+- no engine, language, vendor syntax, adapter contract, package format or runtime is selected;
+- no API, protocol, compiler, AST, storage model or implementation is defined;
+- target compatibility remains assessed, not assumed;
+- Review, Govern authority and runtime observation remain separate.
 
 All other open decisions retain their prior wording and status.

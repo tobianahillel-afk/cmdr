@@ -3,12 +3,12 @@ id: decision-log
 domain: 00-governance
 status: draft
 owner: Product Architecture
-updated: 2026-08-03
+updated: 2026-08-06
 source-of-truth: index
 ---
 # Journal des décisions
 
-Ce fichier indexe les ADR ; il ne remplace ni leur contenu ni les décisions sources.
+Ce fichier indexe les ADR et décisions ouvertes ; il ne remplace ni leur contenu ni les sources canoniques.
 
 | ADR | Sujet | Requirement IDs | Statut | Résumé |
 |---|---|---|---|---|
@@ -20,4 +20,10 @@ Ce fichier indexe les ADR ; il ne remplace ni leur contenu ni les décisions sou
 | [ADR-0006](adr/ADR-0006-endpoint-agent-ownership.md) | propriété Endpoint Agent | REQ-PROD-018, REQ-OBJ-008 | draft | composant distinct, flotte administrée par Settings |
 | [ADR-0007](adr/ADR-0007-agentic-studio-placement.md) | capacités agentiques | REQ-AI-002, REQ-OBJ-009 | draft | Studio possède les objets agentiques, produits opérationnels consommateurs |
 
-Aucune ADR n'est approuvée dans cette phase. Toute approbation future doit être enregistrée selon `review-and-approval-process.md`.
+## Open decision index update
+- `OPEN-017 — Detection runtime, target language and portability strategy` is created as **open**.
+- No runtime, engine, target language, adapter, portable representation, vendor format or implementation option is selected.
+- Options remain: portable canonical model with adapters; native content per engine; hybrid model; future native CMDR runtime; capability-specific combination.
+- Open decisions: **16**. OPEN-009 remains the only historically resolved item.
+
+Aucune ADR ou décision ouverte n'est approuvée ou fermée dans cette phase.

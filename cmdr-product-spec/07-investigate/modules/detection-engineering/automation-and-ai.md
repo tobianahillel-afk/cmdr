@@ -14,13 +14,14 @@ requirements:
 open_decisions:
   - OPEN-013
   - OPEN-015
+  - OPEN-017
 ---
 # Automation and AI
 
-AI may propose hypotheses, sources, fields, logic, sequence, thresholds, test scenarios, Expected Outcomes, explanations, candidate FP/FN, coverage mappings, gaps and review-package drafts.
+AI may propose authoring content from CAP-INV-401..417 and lifecycle assistance including Review Package summaries, missing evidence, candidate target compatibility, shadow/canary plans, stop criteria, health explanations, feedback grouping, candidate TP/FP/FN, tuning, bounded suppression/exception drafts, drift candidates, performance summaries, rollback/retirement drafts and Continuous Improvement Packages.
 
-Essential workflows remain available through forms, structured editors, deterministic validators, field catalogues, controlled fixtures, manual tests, deterministic replay, comparators, explicit rules, checklists, non-agentic workflows and human review.
+Essential workflows remain available through forms, structured editors, checklists, matrices, deterministic validators, catalogues, controlled fixtures, historical replay, target/version comparisons, health projections, metrics tables, timelines, diff, non-agentic workflows and human review.
 
-Prohibited: silent draft/logic/source/mapping selection, automatically accepted oracle or invented ground truth, certain TP/FN qualification, promotion/deployment/activation/deactivation, production exception, Signal/Alert deletion, self-permission, trace removal or mandatory chatbot.
+Prohibited: silent candidate approval, Approval or Decision creation; silent target selection, promotion, activation, deactivation or rollback; automatic active suppression/exception; silent active-rule modification; Signal/Alert deletion; invented ground truth; self-permission; Govern bypass; trace removal; mandatory chatbot.
 
 Every automated output exposes initiator, agent or engine and version, Automation Run, Tool Calls, sources, parameters, timestamp, status, errors, uncertainty, human owner and accept/modify/reject disposition.

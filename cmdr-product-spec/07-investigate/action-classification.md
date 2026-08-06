@@ -11,13 +11,14 @@ requirements:
 open_decisions:
   - OPEN-013
 ---
-# Action classification — Investigate through Phase 4B.3A.1
+# Action classification — Investigate through Phase 4B.3A
 
-| Class | Meaning | Detection Engineering Authoring examples |
-|---:|---|---|
-| 0 | observation | consult, navigate, filter, search, compare, read data/schema/validation/replay/coverage projections |
-| 1 | bounded analytical execution | validation, controlled test, authorized historical replay, comparison, permitted export |
-| 2 | reversible analytical mutation | create/update Project, Detection Hypothesis, Draft, metadata, logic, scenario, Expected Outcome, candidate match disposition, coverage/gap and review package |
-| 3/4 | production, authority or destructive action | excluded; promotion, deployment, activation, deactivation, rollback, active exception/suppression and runtime object changes are future 4B.3A.2/Govern/owner actions |
+| Class | Meaning | Detection Engineering examples | Local execution |
+|---:|---|---|---|
+| 0 | observation | consult, navigate, filter, compare, read candidate/readiness/Decision/Result/version/health/Signal feedback | allowed by permission |
+| 1 | bounded analytical execution | deterministic validation, shadow assessment request where authorized, comparison, health/drift/performance assessment, permitted export/reproduction | explicit, bounded and attributed |
+| 2 | reversible analytical mutation | create/update Release Candidate review, readiness, Promotion Plan, Change Request Draft, Tuning/Suppression/Exception Proposal, Drift Assessment, Rollback Plan, Retirement Proposal and improvement package | Investigate-owned reversible concepts; OPEN-013 |
+| 3 | governed production change | promotion, activation, deactivation, active suppression/exception, rollback, retirement and modification of an active version | **not executed by Investigate**; Govern/Settings/runtime owner |
+| 4 | destructive/irreversible | deletion of active content or provenance and change without rollback | denied by default or strictly governed; never recommended |
 
-CAP-INV-401..417 use only classes 0, 1 and 2. OPEN-013 remains open. No action changes a runtime Detection, Signal, Alert or Incident.
+CAP-INV-401..435 expose classes 0–2 locally. Any class-3 projection is prepared or observed only. No Signal, Alert, Incident or provenance is silently mutated or deleted.

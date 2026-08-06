@@ -15,13 +15,14 @@ requirements:
 open_decisions:
   - OPEN-013
   - OPEN-015
+  - OPEN-017
 ---
-# Automation and AI model — Investigate through Phase 4B.3A.1
+# Automation and AI model — Investigate through Phase 4B.3A
 
-AI may propose Detection Hypotheses, source and field requirements, functional logic, sequences, thresholds, test scenarios, Expected Outcomes, validation explanations, candidate FP/FN dispositions, coverage mappings, gaps and review-package drafts.
+AI is optional. It may propose authoring content, review summaries, missing evidence, candidate target compatibility, shadow/canary plans, stop criteria, health explanations, feedback groupings, candidate TP/FP/FN, tuning, bounded suppression/exception drafts, drift candidates, performance summaries, rollback/retirement drafts and Continuous Improvement Packages.
 
-Every essential workflow remains available through forms, structured editors, deterministic validators, field catalogues, controlled fixtures, manual tests, deterministic replay, comparators, explicit rules, checklists, non-agentic workflows and human review.
+Every essential workflow remains available through forms, structured editors, validators, field catalogues, controlled fixtures, historical replay, matrices, checklists, target/version comparisons, health projections, metrics, tables, timelines, diff, non-agentic workflows and human review.
 
-Prohibitions: no silent draft/logic/source/field/mapping selection; no automatically accepted test oracle or invented ground truth; no certain TP/FN qualification; no promotion, deployment, activation, deactivation, production exception, Signal/Alert deletion, self-permission, trace removal or mandatory chatbot.
+Prohibitions: no silent candidate approval, Decision/Approval creation, target selection, promotion, activation, deactivation, rollback, active suppression/exception, active-rule mutation, Signal/Alert deletion, invented ground truth, self-permission, Govern bypass, trace removal or mandatory chatbot.
 
-Mandatory attribution: initiator, producer or agent and version, Tool Calls, Automation Run, sources, parameters, timestamp, status, errors, uncertainty, human owner and accept/modify/reject disposition.
+Mandatory attribution: initiator, producer/agent/version, Tool Calls, Automation Run, sources, parameters, timestamp, status, errors, uncertainty, human owner and accept/modify/reject disposition.
