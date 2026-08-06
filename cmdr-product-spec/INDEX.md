@@ -10,6 +10,7 @@ source-of-truth: canonical
 # Index CMDR
 
 ## Start here
+
 1. `00-governance/source-material/cmdr-master-product-brief.md`
 2. `00-governance/source-of-truth-policy.md`
 3. `01-product-vision/product-vision.md`
@@ -21,6 +22,7 @@ source-of-truth: canonical
 9. `00-governance/source-material/requirements-traceability-matrix.md`
 
 ## Phase 4A — Command
+
 - Product boundary and mission: `06-command/README.md`
 - Product definition: `06-command/product-definition.md`
 - Capability map: `06-command/capability-map.md`
@@ -29,8 +31,14 @@ source-of-truth: canonical
 - Automation and AI: `06-command/automation-and-ai-model.md`
 - Action classes: `06-command/action-classification.md`
 - Screen preparation: `06-command/screen-capability-map.md`
+- Mission Control: `06-command/modules/mission-control/`
+- Incidents and Work Queue: `06-command/modules/incidents-and-work-queue/`
+- Risk and Coverage: `06-command/modules/risk-and-coverage/`
+- Readiness and Operations: `06-command/modules/readiness-and-operations/`
+- Customers and Delivery proposal: `06-command/modules/customers-and-delivery/`
 
 ## Investigate
+
 - Product source: `07-investigate/README.md`
 - Capability map: `07-investigate/capability-map.md`
 - Detection Engineering: `07-investigate/modules/detection-engineering/`
@@ -43,6 +51,7 @@ source-of-truth: canonical
 - Cloud source audit: `16-quality-and-validation/reports/phase-4b4a-cloud-analysis-source-audit.md`
 
 ## Sources Phase 3
+
 - Information architecture: `04-experience-architecture/information-architecture.md`
 - Global navigation: `04-experience-architecture/global-navigation.md`
 - Context preservation: `04-experience-architecture/context-preservation.md`
@@ -54,4 +63,5 @@ source-of-truth: canonical
 - Work Queue Views: `06-command/modules/incidents-and-work-queue/saved-views.md`
 
 ## Domain responsibility
+
 Product capability documents own functional behavior. Objects, permissions, shared mechanisms, Design System interaction and technical contracts remain in their canonical domains. Deprecated paths are migration-only and never normative.
