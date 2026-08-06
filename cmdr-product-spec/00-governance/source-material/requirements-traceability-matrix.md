@@ -6,11 +6,11 @@ owner: Product Architecture
 updated: 2026-08-07
 source-of-truth: canonical
 ---
-# Requirements Traceability Matrix — through Phase 4B.4A pre-publication closure
+# Requirements Traceability Matrix — through verified Phase 4B.4A
 
-The 122 source Requirement IDs remain unchanged. `conform` records documentary evidence only, not implementation. Cloud Analysis adds functional evidence without promoting a requirement whose implementation, provider strategy, object model, permission model or detailed UX remains unresolved.
+The 122 source Requirement IDs remain unchanged. `conform` records documentary evidence only, not implementation. Cloud Analysis adds verified functional evidence without promoting a requirement whose implementation, provider strategy, object model, permission model or detailed UX remains unresolved.
 
-| State | After 4B.3B.2 | After 4B.4A documentary update |
+| State | After 4B.3B.2 | After verified 4B.4A |
 |---|---:|---:|
 | conform | 99 | 99 |
 | partial | 20 | 20 |
@@ -34,7 +34,7 @@ The 122 source Requirement IDs remain unchanged. `conform` records documentary e
 
 ## Disposition
 - Threat Intelligence retains complete functional documentary evidence from intake through lifecycle closure without claiming implementation.
-- Cloud Analysis now has provider-neutral functional evidence from intake through provenance, but the fifth commit and remote post-publication verification are still required before the phase verdict can become final.
+- Cloud Analysis has verified provider-neutral functional evidence from intake through provenance and passed all 243 documentary gates after publication verification.
 - REQ-INV-001 and REQ-INV-006 remain globally partial because implementation, final technical contracts and Mobile Forensics are absent.
 - OPEN-012 remains open for Cloud provider, service, SaaS, inventory, evidence, cross-account, cross-tenant and delivery strategy.
 - OPEN-018 records unresolved Threat Intelligence ontology, interoperability and exchange; OPEN-019 records dissemination, releasability, sharing and access policy.
