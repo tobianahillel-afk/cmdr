@@ -3,10 +3,10 @@ id: qualitative-baseline
 domain: 00-governance
 status: draft
 owner: Product Architecture
-updated: 2026-08-06
+updated: 2026-08-07
 source-of-truth: canonical
 ---
-# Qualitative Baseline — Threat Intelligence programme through Phase 4B.3B.2
+# Qualitative Baseline — Investigate programme through Phase 4B.4A pre-publication closure
 
 ## Inherited Phase 4B.3B.1 baseline
 Remote start for 4B.3B.1 was `c84ea542a0831146b075eb0868dc21326b3b9ad8`: Phase 4B.3A PASS, 196 capabilities, 169 Investigate capabilities, 35 CAP-INV-4xx, no CAP-INV-5xx, 16 open decisions and no canonical Investigate Threat Intelligence module.
@@ -69,5 +69,44 @@ Remote start: `b24cb7a373562fb96d6087b5c3a9f7fee91deb94`. It contained Phase 4B.
 | Requirement IDs | 122 | 122 |
 | Open decisions | 17 | 18 |
 
-## Maturity
-Phase 4B.3B.1, 4B.3B.2, 4B.3B and 4B.3 pass their documentary functional gates. Phase 4B remains PARTIAL because OPEN-011 and OPEN-012 remain open and are not explicitly deferred outside its approved scope. Phase 4 and global maturity remain PARTIAL.
+## Phase 4B.4A starting state
+Remote start: `6cc7bf2426c12a6f2f983c62581f9d44e9829990`. The four published functional Cloud commits advanced the canonical branch to `59f69203574a6b1e3dc8c631b3a8a2e4bf5afe42`, adding `CAP-INV-601..618`, the Cloud module documents and the canonical `4B.4A` roadmap while leaving the closing registers and quality evidence incomplete.
+
+### 4B.4A corrective source audit
+- The canonical branch, PR #2, repository visibility, README files, four functional commits, 18 capability paths and temporary closure branch were verified directly.
+- Governance and source-material documents were re-read: master brief, product boundaries, canonical object/ownership decisions, AI constraints, native strategy, non-goals, source-of-truth policy, documentation rules, ownership register, object register, screen register, Requirements Matrix, qualitative baseline and OPEN decisions.
+- Investigate family sources were re-read across Signals/Hunt, Cases/Evidence, Collection/Live Response, Analysis Workbench, Dynamic Sandbox, Reverse/Debugger, Memory, Disk, Network, Detection Engineering and Threat Intelligence.
+- Platform Settings sources were re-read for sources/parsers, secrets/connections, tenants/environments, health and users/roles.
+- Command, Studio, Govern, Shared, permission, tenant-isolation, secret-management and Evidence-trust sources were re-read.
+- Canonical object sources were re-read for Case, Artifact, Evidence, Finding, Hypothesis, Principal, Role, Secret Reference, Data Source, Integration, Environment, Tenant and Timeline Entry.
+- Existing surfaces were re-read for Event Search, Case Workspace, Evidence Board, Hypotheses/Findings and Settings source, secret and tenant administration.
+- No contradiction requiring a change to `CAP-INV-601..618` was found. No historical source was deprecated or condensed.
+
+## Phase 4B.4A measures
+| Measure | Before 4B.4A | After functional Cloud publication | After closure content, before remote verification |
+|---|---:|---:|---:|
+| CAP-INV-601..618 | 0 | 18 | 18 |
+| Cloud Analysis capabilities | 0 | 18 | 18 |
+| Cloud Analysis sections / tables | 0 / 0 | 486 / 108 | 486 / 108 |
+| Investigate capabilities | 206 | 224 | 224 |
+| Investigate sections / tables | 5562 / 1236 | 6048 / 1344 | 6048 / 1344 |
+| Global capabilities | 233 | 251 | 251 |
+| Defined / proposed / planned | 231 / 2 / 233 | 249 / 2 / 251 | 249 / 2 / 251 |
+| Command + Investigate sections / tables | 6291 / 1398 | 6777 / 1506 | 6777 / 1506 |
+| New capability documents | 0 | 18 | 18 |
+| New Cloud supporting and roadmap documents | 0 | 15 | 15 |
+| Capability sections expected / present | 0 | 486 / 486 | 486 / 486 |
+| Mandatory tables expected / present | 0 | 108 / 108 | 108 / 108 |
+| Empty / prose-only / generic mandatory tables | 0 | 0 | 0 |
+| Duplicate/recycled IDs / concurrent owners | 0 / 0 / 0 | 0 / 0 / 0 | 0 / 0 / 0 |
+| Detailed screen rewrites / new Screen IDs | 0 / 0 | 0 / 0 | 0 / 0 |
+| Canonical Cloud object files / atomic permissions | 0 / 0 | 0 / 0 | 0 / 0 |
+| APIs/protocols/providers/connectors/commands/code | 0 | 0 | 0 |
+| Cloud target mutations / secret use / deployed rules / responses | 0 | 0 | 0 |
+| Mobile capabilities | 0 | 0 | 0 |
+| Requirement IDs | 122 | 122 | 122 |
+| Requirement states conform / partial / absent / contradictory | 99 / 20 / 3 / 0 | 99 / 20 / 3 / 0 | 99 / 20 / 3 / 0 |
+| Open decisions | 18 | 18 | 18 |
+
+## Maturity before final publication verification
+Phase 4B.3 remains PASS. The functional Cloud content and closure evidence are complete, but Phase 4B.4A remains **PENDING POST-PUBLICATION VERIFICATION** until the fifth functional commit is published and the remote branch, PR, README, registers, metrics and report are rechecked. Phase 4B.4, Phase 4B, Phase 4 and global maturity remain PARTIAL. Mobile Forensics remains NOT STARTED.
