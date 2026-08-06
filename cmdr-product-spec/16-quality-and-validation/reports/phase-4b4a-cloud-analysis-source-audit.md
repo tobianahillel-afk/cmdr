@@ -58,6 +58,28 @@ This audit records what was actually consulted during the corrective closure. It
 - `07-investigate/object-consumption-map.md` — canonical and temporary variants compared.
 - `07-investigate/screen-capability-map.md` — canonical and temporary variants compared.
 
+## Fully read — Cloud capability contracts
+- `07-investigate/modules/cloud-analysis/capabilities/cloud-analysis-intake-and-preconditions.md`
+- `07-investigate/modules/cloud-analysis/capabilities/cloud-investigation-session-and-workspace-management.md`
+- `07-investigate/modules/cloud-analysis/capabilities/cloud-scope-organization-tenant-and-account-context.md`
+- `07-investigate/modules/cloud-analysis/capabilities/cloud-provider-service-and-resource-inventory-analysis.md`
+- `07-investigate/modules/cloud-analysis/capabilities/cloud-identity-principal-and-role-analysis.md`
+- `07-investigate/modules/cloud-analysis/capabilities/cloud-iam-policy-and-effective-permission-path-analysis.md`
+- `07-investigate/modules/cloud-analysis/capabilities/cloud-audit-event-and-activity-log-analysis.md`
+- `07-investigate/modules/cloud-analysis/capabilities/cloud-resource-configuration-and-state-analysis.md`
+- `07-investigate/modules/cloud-analysis/capabilities/cloud-compute-and-workload-analysis.md`
+- `07-investigate/modules/cloud-analysis/capabilities/container-and-orchestration-workload-analysis.md`
+- `07-investigate/modules/cloud-analysis/capabilities/serverless-and-managed-execution-analysis.md`
+- `07-investigate/modules/cloud-analysis/capabilities/cloud-network-exposure-and-connectivity-analysis.md`
+- `07-investigate/modules/cloud-analysis/capabilities/cloud-storage-and-data-access-analysis.md`
+- `07-investigate/modules/cloud-analysis/capabilities/cloud-secrets-keys-and-sensitive-material-assessment.md`
+- `07-investigate/modules/cloud-analysis/capabilities/cloud-anomaly-misconfiguration-and-hypothesis-management.md`
+- `07-investigate/modules/cloud-analysis/capabilities/cloud-timeline-and-cross-source-correlation.md`
+- `07-investigate/modules/cloud-analysis/capabilities/cloud-analysis-handoff-to-evidence-findings-and-detection.md`
+- `07-investigate/modules/cloud-analysis/capabilities/cloud-analysis-provenance-and-reproducibility.md`
+
+All 18 contracts were read directly on the canonical branch. Each exposes canonical front matter, sections 1 through 27, mandatory tables in sections 8, 9, 10, 13, 16 and 17, functional permissions, non-AI paths, Given/When/Then criteria and explicit non-implementation boundaries.
+
 ## Fully read — Platform Settings, Command, Studio, Govern and Shared
 - `10-platform-settings/sources-and-parsers/README.md`
 - `10-platform-settings/secrets-and-connections/README.md`
@@ -120,11 +142,10 @@ This audit records what was actually consulted during the corrective closure. It
 ## Referenced and structurally inspected
 - `16-quality-and-validation/expected-path-manifest.md` — inspected as a historical minimum-path baseline, not fully re-read and not treated as an exhaustive later-phase inventory.
 - `07-investigate/modules/cloud-analysis/README.md`
-- the Cloud module’s supporting documents under `07-investigate/modules/cloud-analysis/`.
-- `CAP-INV-601..618` capability files.
+- the non-capability supporting documents under `07-investigate/modules/cloud-analysis/`.
 - the Cloud capability-register shard and conformance report.
 
-The Cloud files are the published functional artifacts of the prior run. The corrective closure preserves them. Their existence, continuous IDs, front matter, 27-section contract and six mandatory-table contract are checked in the conformance workflow; they are not represented here as newly authored or re-scoped.
+The Cloud files are the published functional artifacts of the prior run. The corrective closure preserves them and does not represent them as newly authored or re-scoped.
 
 ## Identified but not used as normative evidence in this correction
 - additional product screens not required for the conceptual Cloud mapping;
