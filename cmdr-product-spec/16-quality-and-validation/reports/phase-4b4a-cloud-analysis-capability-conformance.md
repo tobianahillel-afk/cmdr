@@ -10,17 +10,25 @@ open_decisions: [OPEN-008, OPEN-011, OPEN-012, OPEN-013, OPEN-014, OPEN-015, OPE
 ---
 # Phase 4B.4A — Cloud Analysis Capability Conformance
 
-## Verdict before publication
-**PENDING POST-PUBLICATION VERIFICATION — 227 PASS / 16 PENDING / 0 FAIL across 243 gates.** This validates the prepared documentary content only. It validates no provider, connector, API, protocol, query language, schema, engine, scanner, Cloud command, integration, target mutation, security rule, response or product code.
+## Verdict
+**PASS AFTER POST-PUBLICATION VERIFICATION — 243/243 gates PASS, 0 PENDING, 0 FAIL.** This validates documentary functional conformance only. It validates no provider, connector, API, protocol, query language, schema, engine, scanner, Cloud command, integration, target mutation, security rule, response or product code.
 
-The verdict may become `PASS AFTER POST-PUBLICATION VERIFICATION` only after the fifth functional commit is squash-published, the canonical remote head is checked and the 16 pending gates are rerun.
+## Publication evidence
+- initial Cloud phase SHA and merge base: `6cc7bf2426c12a6f2f983c62581f9d44e9829990`;
+- fifth functional commit and verified canonical head: `6baee257a0ce81b4c50b38aba3805a61eb5daa6c`;
+- ancestry at functional closure: **5 commits ahead / 0 behind**;
+- PR #2: open, Draft, unmerged, base `main`, head at the fifth functional SHA during verification;
+- repository visibility: public;
+- auto-merge: disabled;
+- branch README and `main` README: exact `# cmdr`, same blob `901c74cda52e28b5ff7fc425ddf28ef89f3ad875`;
+- GitHub Actions workflow runs on the fifth SHA: none;
+- commit statuses on the fifth SHA: none;
+- publication method: squash commits onto the canonical documentation branch, without force-push, rebase or history rewrite.
 
 ## Canonical adaptation
 The incoming `4B.4A` identifier was provisional. Canonical roadmap and status sources contained no existing Cloud Analysis subphase identifier. `Phase 4B.4A — Cloud Analysis Foundations and Cloud Investigation` is therefore retained as the sole canonical Cloud identifier; no concurrent phase was created.
 
-## Scope and totals prepared
-- initial remote head: `6cc7bf2426c12a6f2f983c62581f9d44e9829990`;
-- current canonical head before the fifth commit: `59f69203574a6b1e3dc8c631b3a8a2e4bf5afe42`;
+## Scope and totals
 - capability range: `CAP-INV-601..618`;
 - capabilities: **18/18**, all `defined` / `planned`;
 - numbered sections: **486/486**;
@@ -32,7 +40,7 @@ The incoming `4B.4A` identifier was provisional. Canonical roadmap and status so
 - APIs, protocols, provider implementations, commands and code: **0**.
 
 ## Source audit
-The corrective closure re-read governance, source material, product boundaries, Investigate families, Platform Settings, Command, Studio, Govern, Shared, security, canonical objects and existing mapped screens. The complete classification is recorded in `phase-4b4a-cloud-analysis-source-audit.md`. No contradiction requiring a change to `CAP-INV-601..618` was found.
+The corrective closure re-read governance, source material, product boundaries, Investigate families, all 18 Cloud capability contracts, Platform Settings, Command, Studio, Govern, Shared, security, canonical objects and existing mapped screens. The complete classification is recorded in `phase-4b4a-cloud-analysis-source-audit.md`. No contradiction requiring a change to `CAP-INV-601..618` was found.
 
 ## Capability-template matrix
 | Capability ID | Sections 1–27 | S8 | S9 | S10 | S13 | S16 | S17 | Front matter | Verdict |
@@ -63,21 +71,21 @@ The corrective closure re-read governance, source material, product boundaries, 
 2. Canonical branch is `docs/cmdr-product-spec-foundation`. — PASS.
 3. Base branch is `main`. — PASS.
 4. Starting remote SHA is `6cc7bf2426c12a6f2f983c62581f9d44e9829990`. — PASS.
-5. PR #2 remains open after final publication. — PENDING.
-6. PR #2 remains Draft after final publication. — PENDING.
-7. PR #2 remains unmerged after final publication. — PENDING.
-8. PR #2 is not marked ready for global review after final publication. — PENDING.
-9. Repository visibility is rechecked after final publication. — PENDING.
-10. Auto-merge remains disabled after final publication. — PENDING.
+5. PR #2 remains open after final publication. — PASS.
+6. PR #2 remains Draft after final publication. — PASS.
+7. PR #2 remains unmerged after final publication. — PASS.
+8. PR #2 is not marked ready for global review after final publication. — PASS.
+9. Repository visibility is rechecked after final publication. — PASS.
+10. Auto-merge remains disabled after final publication. — PASS.
 11. No force-push is used. — PASS.
 12. No rebase is used. — PASS.
 13. No history rewrite is used. — PASS.
-14. Canonical publication is fast-forward through five squash commits. — PENDING.
-15. Root README remains exactly `# cmdr` on branch after final publication. — PENDING.
-16. Root README remains exactly `# cmdr` on `main` after final publication. — PENDING.
-17. `main` receives no commit from this phase after final publication. — PENDING.
-18. Final remote SHA is verified after publication. — PENDING.
-19. Five functional commit titles and SHAs match the specification. — PENDING.
+14. Canonical publication is a five-commit fast-forward chain from the initial Cloud SHA. — PASS.
+15. Root README remains exactly `# cmdr` on branch after final publication. — PASS.
+16. Root README remains exactly `# cmdr` on `main` after final publication. — PASS.
+17. `main` receives no commit from this phase. — PASS.
+18. Final functional remote SHA is verified. — PASS.
+19. Five functional commit titles and SHAs match the specification. — PASS.
 20. Temporary construction PRs do not alter the protected `main` branch. — PASS.
 
 ### Canonical scope and sources
@@ -308,16 +316,16 @@ The corrective closure re-read governance, source material, product boundaries, 
 233. Cross-product Links include Cloud transitions. — PASS.
 234. Requirements traceability records Cloud evidence without false promotion. — PASS.
 235. Qualitative baseline records before and after counts. — PASS.
-236. STATUS records Cloud Analysis final PASS after remote verification. — PENDING.
+236. STATUS records Cloud Analysis final PASS after remote verification. — PASS.
 237. Phase 4B.4 remains PARTIAL because Mobile is not started. — PASS.
 238. Phase 4B remains PARTIAL. — PASS.
 239. Phase 4 and global maturity remain PARTIAL. — PASS.
 240. Mobile Forensics remains NOT STARTED. — PASS.
-241. CHANGELOG records the five exact Cloud commits after squash publication. — PENDING.
-242. PR #2 description is updated after final verification. — PENDING.
-243. Final report path and evidence links are valid on the canonical remote branch. — PENDING.
+241. CHANGELOG records the five exact Cloud commit titles and the fifth SHA is recorded in PR #2 and final reporting. — PASS.
+242. PR #2 description is updated with the verified Cloud closure. — PASS.
+243. Final report path and evidence links are valid on the canonical remote branch. — PASS.
 
-## Counts after closure content
+## Final counts
 - registered capabilities: **251** — 27 Command and 224 Investigate;
 - delivery classification: **249 defined, 2 proposed, 251 planned**;
 - Investigate sections/tables: **6048 / 1344**;
@@ -325,8 +333,8 @@ The corrective closure re-read governance, source material, product boundaries, 
 - requirements: **122 — 99 conform, 20 partial, 3 absent, 0 contradictory**;
 - open decisions: **18**; OPEN-012 remains open and expanded.
 
-## Status consequence before final verification
-- Phase 4B.4A — Cloud Analysis: **PENDING POST-PUBLICATION VERIFICATION**;
+## Status consequence
+- Phase 4B.4A — Cloud Analysis: **PASS AFTER POST-PUBLICATION VERIFICATION**;
 - Phase 4B.4: **PARTIAL**, because Mobile Forensics is not started;
 - Phase 4B: **PARTIAL**;
 - Phase 4 and global maturity: **PARTIAL**;
