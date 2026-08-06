@@ -1,5 +1,27 @@
 # Changelog
 
+## 2026-08-07 — Phase 4B.4A Cloud Analysis closure preparation
+- Preserved the four published Cloud functional commits and `CAP-INV-601..618` without changing IDs, owners or functional scope.
+- Added the Cloud capability-register shard and recalculated 251 global capabilities, 224 Investigate capabilities, 249 defined, 2 proposed and 251 planned.
+- Recalculated Investigate at 6048 sections and 1344 mandatory tables; Command plus Investigate at 6777 sections and 1506 tables.
+- Added provider-neutral Cloud dependencies, object-consumption projections, action classes, AI boundaries, cross-product handoffs and conceptual screen mapping.
+- Expanded `OPEN-012 — Cloud Analysis` for provider priorities, organization/tenant/account/subscription/project scope, services, multi-cloud, log models, inventory, cloud-native workloads, containers, orchestration, serverless, SaaS, Cloud Evidence, cross-account, cross-tenant, collection, coverage and limitations.
+- Kept OPEN-012 open with no provider, engine, connector, protocol, schema, query language or architecture selected.
+- Updated the Requirements Matrix without changing the 122 Requirement IDs or the 99 conform / 20 partial / 3 absent / 0 contradictory distribution.
+- Preserved the full Threat Intelligence baseline and added the Cloud before/after measures and verified source audit.
+- Prepared a 243-gate Cloud conformance report with publication-dependent gates marked pending.
+- Recorded the five intended functional commit titles; the fifth commit is this traceability and quality closure lot once squash-published.
+- Kept Phase 4B.4A `PENDING POST-PUBLICATION VERIFICATION` until remote checks complete.
+- Kept Phase 4B.4, Phase 4B, Phase 4 and global maturity PARTIAL; Mobile Forensics remains NOT STARTED.
+- Added no product code, provider integration, connector, command, active scan, secret use, target mutation, deployed rule, response or Mobile content.
+
+### Cloud functional commits preserved
+1. `779d39a3198c02c50baebb26648cd2edb3c548d2` — `docs: establish Investigate cloud analysis boundaries`.
+2. `7e569536db16f55382d3c393b876423cd00b10c7` — `docs: define cloud scope identity permissions and audit analysis`.
+3. `4f5b5aea6447159f0e836e5bd7d5e42e756865f2` — `docs: specify cloud workloads network storage and sensitive data analysis`.
+4. `59f69203574a6b1e3dc8c631b3a8a2e4bf5afe42` — `docs: document cloud correlation evidence handoff and provenance`.
+5. `pending squash SHA` — `docs: update Cloud Analysis traceability and quality gates`.
+
 ## 2026-08-06 — Post-publication traceability preservation correction
 - Restored the complete pre-4B.3B.2 ADR links, Requirement IDs and detailed Dependency Register rows before retaining the new 4B.3B.2 dependencies.
 - Preserved the complete 4B.3B.1 source audit and before/after baseline alongside the 4B.3B.2 measurements.
