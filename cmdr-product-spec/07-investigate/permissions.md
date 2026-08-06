@@ -17,6 +17,7 @@ open_decisions:
   - OPEN-014
   - OPEN-015
   - OPEN-017
+  - OPEN-018
 ---
 # Functional permission needs — Investigate
 
@@ -26,25 +27,16 @@ This document identifies permission families without final namespaces, RBAC/ABAC
 |---|---|---|
 | Signal / Event Search / Hunt | read, triage, execute/cancel search, raw/field access, create/manage Hunt | runtime priority Command-owned; raw and cross-tenant access distinct |
 | Case / Hypothesis / Artifact / Evidence / Finding | lifecycle, author/review, link, qualify, export | author/reviewer and sensitive-content separation |
-| Detection Project / Hypothesis | read, create, update, close/reopen, review | contributor and owner separation |
-| Data / Schema | readiness read, schema/field read, mapping propose/review | Settings administration remains separate |
-| Detection Content | read, create, update, clone, archive, metadata/condition/correlation/sequence/window/enrichment update | reversible Class 2; no runtime mutation |
-| Test / Dataset / Expected Outcome | scenario create/update, dataset use, sensitive-data read, oracle review | source-owner permission, masking, OPEN-014 |
-| Validation / Historical Replay | run/read/cancel, restricted/cross-tenant preparation | bounded Class 1; cost and future step-up controls |
-| Match / Coverage / Gap | candidate TP/FP/FN classify, assessment/gap create/update | uncertain labels; no automatic approval |
-| Review Package / Release Candidate | prepare, read, create, assign review, comment, disposition, withdraw | review ≠ Approval; immutable selected version |
-| Deployment Readiness / Targets | readiness read/create/update, target projections read/select, Promotion Plan create/update | Settings owns environments/targets; compatibility evaluated per target |
-| Govern Handoff | Change Request Draft prepare/submit/cancel; Decision, Approval, Response Run and Result read | requester/reviewer/approver/operator separation; no self-approval |
-| Shadow / Canary | plan and request authorized observation, read assessment and per-target results | shadow creates no Signal; canary advancement is governed |
-| Runtime / Health | runtime Detection/version/state/health read, reconciliation and assessment | Command/Settings/Endpoint source ownership; health ≠ effectiveness |
-| Command Feedback / Production Review | Signal/Alert/Incident feedback read, production match review create/update | operational disposition is evidence, not absolute ground truth |
-| Tuning / Suppression / Exception | proposal create/update/withdraw and Govern handoff | proposal ≠ active change; expiry and compensating controls required |
-| Drift / Performance | assessment create/update, metrics read, revalidation/capacity request prepare | sensitive infrastructure projections scoped; no automatic active fix |
-| Rollback / Recovery | Rollback Plan create/update, request submit, Run/Result read, recovery assessment | execution Class 3 remains Govern/runtime-owned |
-| Deactivation / Retirement / Replacement | proposal create/update, consumer/coverage read, Action Request preparation | inactive ≠ retired ≠ deleted; historical lineage preserved |
-| Lifecycle provenance | cross-product lineage read/export, Continuous Improvement Package prepare | evidence minimization, owner boundaries and audit integrity |
-| Automation | review/tuning/plan proposal request | Tool/Run attribution and human disposition mandatory |
+| Detection Engineering | Project/Hypothesis/Content/tests/review/readiness/plans/assessments/proposals/handoff | classes 0–2; no runtime production authority |
+| Threat Intelligence Intake / Requirement / Project | read, create, update, close/reopen/archive/supersede | origin sensitivity; author/manager/reviewer separation |
+| Intelligence Source Catalog / Access | source/access/health/marking read, access context assess, request prepare | Settings administers provider/feed/connector/secret/access |
+| Reliability / Credibility / Confidence | assessment read/create/update/review/dispute | methods and limitations visible; no opaque truth score |
+| Intelligence Material | existence, metadata, masked preview, read, copy, extraction, relation, export | independent permissions; classification/licence/OPEN-014 |
+| Observable / Indicator Candidate | read/create/update/review/withdraw/revoke/supersede | candidate ≠ confirmed/deployed Indicator |
+| Threat Entity / Malware / Tool / Infrastructure / Campaign knowledge | read/create/update/review/merge proposal/separate | attribution, reputation and identity risks |
+| TTP / Sighting / Relationship | map/create/link/compare/dispute/withdraw | raw events, causality and tenant isolation |
+| Dedup / Version / Lifecycle | compare, merge proposal/reject, version, supersede, expire/revoke proposal | no silent merge/deletion; consumer impact |
+| Intelligence Handoff / Provenance | prepare Case/Hunt/Detection/Workbench/future-analysis handoff; authorized export | destination permissions re-evaluated; package ≠ Report/publication |
+| Automation | extraction, normalization, relation/duplicate/assessment proposal | Tool/Run attribution and human disposition mandatory |
 
-Classes 0–2 are available locally according to policy. Class-3 promotion, activation, deactivation, application of suppression/exception, production rollback and active-version mutation require Govern and the runtime owner. Class 4 is denied by default; provenance and historical Signals/Alerts are never deleted by Investigate.
-
-Atomic namespaces, RBAC/ABAC, final step-up and final separation of duties remain deferred.
+Classes 0–2 are available locally according to policy. External sharing, active Indicator/watchlist, Detection rule creation/deployment, block, response, source administration and irreversible deletion are unavailable and require future owner/Govern decisions. Atomic namespaces, RBAC/ABAC, final step-up and separation of duties remain deferred.

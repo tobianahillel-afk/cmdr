@@ -15,14 +15,14 @@ requirements:
 open_decisions:
   - OPEN-013
   - OPEN-015
-  - OPEN-017
+  - OPEN-018
 ---
-# Automation and AI model — Investigate through Phase 4B.3A
+# Automation and AI model — Investigate through Phase 4B.3B.1
 
-AI is optional. It may propose authoring content, review summaries, missing evidence, candidate target compatibility, shadow/canary plans, stop criteria, health explanations, feedback groupings, candidate TP/FP/FN, tuning, bounded suppression/exception drafts, drift candidates, performance summaries, rollback/retirement drafts and Continuous Improvement Packages.
+AI is optional. In Detection Engineering it may propose drafts, review summaries, gaps, plans and assessments. In Threat Intelligence it may propose Requirements, source candidates, bounded extractions, Observable/Indicator/Entity candidates, aliases, relations, clusters, TTP mappings, contradictions, duplicates, confidence drafts, expiry candidates, project summaries and Analysis Handoff Packages.
 
-Every essential workflow remains available through forms, structured editors, validators, field catalogues, controlled fixtures, historical replay, matrices, checklists, target/version comparisons, health projections, metrics, tables, timelines, diff, non-agentic workflows and human review.
+Every essential workflow remains available through forms, structured editors, deterministic parsers/extractors/validators, catalogues, matrices, checklists, search, comparisons, health projections, tables, timelines, graph with tabular alternative, diff, non-agentic workflows and human review.
 
-Prohibitions: no silent candidate approval, Decision/Approval creation, target selection, promotion, activation, deactivation, rollback, active suppression/exception, active-rule mutation, Signal/Alert deletion, invented ground truth, self-permission, Govern bypass, trace removal or mandatory chatbot.
+Prohibitions: no silent candidate confirmation, actor/campaign attribution, source reliability, relation/duplicate merge, Decision/Approval, target/source selection, promotion, activation, rollback, active suppression/exception, Indicator/watchlist/rule deployment, block, external sharing, invented ground truth, self-permission, Govern/Settings bypass, contradiction hiding, trace removal or mandatory chatbot.
 
-Mandatory attribution: initiator, producer/agent/version, Tool Calls, Automation Run, sources, parameters, timestamp, status, errors, uncertainty, human owner and accept/modify/reject disposition.
+Mandatory attribution: initiator, producer/agent/version, Tool Calls, Automation Run, sources, parameters, timestamp, status, errors, uncertainty, human owner and accept/modify/reject disposition. Restricted content is never transmitted to a model without explicit permission and policy.

@@ -10,25 +10,27 @@ requirements:
   - REQ-UX-010
   - REQ-INV-006
 ---
-# Screen capability map — Detection Engineering
+# Screen capability map — Detection Engineering and Threat Intelligence Foundations
 
-| Existing screen or surface | Primary owner | Detection Engineering consumption | Change |
+| Existing screen or surface | Primary owner | Threat Intelligence consumption | Change |
 |---|---|---|---|
-| Event Search | Investigate/Shared Query | authoring source, replay and source-event pivot | map and links only |
-| Hunt Workspace | Investigate | intake, Hypothesis, gaps and new-cycle return | map and links only |
-| Case Workspace / Evidence Board | Investigate | source need, Evidence, Findings and return origin | map and links only |
-| Technical Workbench / Builder Shell | Design System / Investigate | CAP-INV-401..435 temporary structured work surface | no detailed composition |
-| Command Signal Queue | Command | CAP-INV-427/428 feedback projection | read/link only |
-| Command Alert Queue | Command | alert dispositions and operational value | read/link only |
-| Command Incident Workspace | Command | incident outcomes and future detection needs | read/link only |
-| Platform Settings Sources & Parsers | Settings | readiness, schema and drift projection | read/request only |
-| Platform Settings Tenants & Environments | Settings | target/environment projection | read/select proposal only |
-| Platform Settings Health | Settings | runtime/source health projection | read/link only |
-| Studio Control Room / Assurance | Studio | Automation Runs, Tools, evaluations and operational trace | ownership unchanged |
-| Govern Action Center / Approvals | Govern | Change Request handoff, Decision and Approval projection | read/link only |
-| Govern Runs & Rollback / Run Shell | Govern | Response Run, Result, partial target and rollback observation | read/link only |
-| Detection Engineering autonomous screen | none | CAP-INV-401..435 | absence recorded; no Screen ID |
-| Rule Builder autonomous screen | none | CAP-INV-406..413 | absence recorded; no Screen ID |
-| Lifecycle/Release screen | none | CAP-INV-418..435 | composition deferred; no Screen ID |
+| Entity Graph | Investigate / Shared Graph | CAP-INV-508,510,511,514,516 relationship and entity-candidate projections | map/links only; Entity/Graph ownership unchanged |
+| Event Search | Investigate / Shared Query | CAP-INV-501,506,507,510,513 source-event and Sighting pivots | map/links only |
+| Hunt Workspace | Investigate | CAP-INV-501..503,513,518 origin and return | map/links only |
+| Case Workspace | Investigate | CAP-INV-501..503,508,513,518 context and handoff | map/links only |
+| Evidence Board / Hypotheses and Findings | Investigate | source Evidence/Findings and contradictions | read/link only; Material ≠ Evidence |
+| Detection Engineering / Technical Workbench | Investigate / Design System | CAP-INV-501,507,512,518 sourced handoffs | no detailed composition |
+| Analysis Workbench technical surfaces | Investigate | CAP-INV-501,506,509,510,512,518 technical handoffs | no rewrite |
+| Platform Settings Integrations / Sources & Parsers | Settings | CAP-INV-504..506 source/access/parser/health projections | read/request only |
+| Platform Settings Tenants / Environments / Health | Settings | tenant, scope, retention, access and health | read only |
+| Studio Control Room / Builder / Library | Studio | Tool, Tool Call, Workflow and Automation Run provenance | ownership unchanged |
+| Govern Decisions / Approvals | Govern | future source access or external-sharing authority | read/link only; no sharing now |
+| Global Search | Shared | authorized project/source/knowledge retrieval | map/links only |
+| Inspector / Context Bar | Design System / Experience | selected source/candidate/project and restrictions | consumption only |
+| Graph / Timeline / Comparison components | Shared / Design System | relationship, Sighting, version and contradiction views | alternative tabular view required |
+| Intelligence Library autonomous screen | none | CAP-INV-501..518 | absence recorded; no Screen ID |
+| Threat Intelligence Workspace autonomous screen | none | CAP-INV-501..518 | absence recorded; no Screen ID |
+| Indicator Explorer / Watchlist screen | none | out of scope 4B.3B.1 | no Screen ID |
+| Intelligence Reports / Dissemination surface | none | future 4B.3B.2 | not started |
 
-Required surfaces examined: **16**. Detailed screen rewrites: **0**. Screen specifications modified: **0**. New Screen IDs: **0**. Wireframes, final buttons, columns, filters, animations, shortcuts and vendor syntax: **0**.
+Required surfaces examined: **18**. Detailed screen rewrites: **0**. Screen specifications modified: **0**. New Screen IDs: **0**. Wireframes, final buttons, columns, filters, animations, shortcuts, graph layout, exchange syntax and vendor branding: **0**.

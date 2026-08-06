@@ -10,8 +10,10 @@ requirements:
   - REQ-PROD-014
   - REQ-PROD-019
   - REQ-INV-006
+open_decisions:
+  - OPEN-018
 ---
-# Capability map — Investigate through Phase 4B.3A
+# Capability map — Investigate through Phase 4B.3B.1
 
 | Range | Module | Count | Defined | Proposed | Delivery mode |
 |---|---|---:|---:|---:|---|
@@ -26,14 +28,16 @@ requirements:
 | CAP-INV-380..397 | Network Forensics | 18 | 18 | 0 | planned |
 | CAP-INV-401..417 | Detection Engineering Foundations, Authoring and Validation | 17 | 17 | 0 | planned |
 | CAP-INV-418..435 | Detection Review, Promotion, Runtime Performance and Lifecycle | 18 | 18 | 0 | planned |
-| **Total** | **Investigate** | **169** | **168** | **1** | **169 planned** |
+| CAP-INV-501..518 | Threat Intelligence Foundations and Knowledge Management | 18 | 18 | 0 | planned |
+| **Total** | **Investigate** | **187** | **186** | **1** | **187 planned** |
 
 ## Totals
-- Investigate numbered sections: **4563**.
-- Investigate mandatory S8/S9/S10/S13/S16/S17 tables: **1014**.
+- Investigate numbered sections: **5049**.
+- Investigate mandatory S8/S9/S10/S13/S16/S17 tables: **1122**.
 - CAP-INV-3xx: **97**.
 - CAP-INV-4xx: **35**.
-- CAP-INV-5xx: **0**.
+- CAP-INV-5xx: **18**.
 - Detection Engineering: **35 capabilities, 945 sections and 210 mandatory tables**.
+- Threat Intelligence Foundations: **18 capabilities, 486 sections and 108 mandatory tables**.
 
-Phase 4B.3A is functionally specified and PASS after publication verification. Phase 4B.3B remains not started.
+Phase 4B.3B.1 is functionally specified. Phase 4B.3B.2 remains not started, so Phase 4B.3B, 4B.3 and 4B remain PARTIAL.

@@ -29,15 +29,17 @@ The register is split into active shards. IDs are immutable and never recycled.
 | `capability-register-investigate-network-forensics.md` | Investigate CAP-INV-380..397 | 18 | 18 | 0 | 18 planned |
 | `capability-register-investigate-detection-authoring.md` | Investigate CAP-INV-401..417 | 17 | 17 | 0 | 17 planned |
 | `capability-register-investigate-detection-lifecycle.md` | Investigate CAP-INV-418..435 | 18 | 18 | 0 | 18 planned |
-| **Total** | **All registered capabilities** | **196** | **194** | **2** | **196 planned** |
+| `capability-register-investigate-threat-intelligence-foundations.md` | Investigate CAP-INV-501..518 | 18 | 18 | 0 | 18 planned |
+| **Total** | **All registered capabilities** | **214** | **212** | **2** | **214 planned** |
 
 ## Product totals
 - Command: **27** capabilities.
-- Investigate: **169** capabilities.
+- Investigate: **187** capabilities.
 - CAP-INV-3xx: **97**.
 - CAP-INV-4xx: **35**, CAP-INV-401 through CAP-INV-435.
-- CAP-INV-5xx: **0**.
+- CAP-INV-5xx: **18**, CAP-INV-501 through CAP-INV-518.
 - Detection Engineering: **35** capabilities, 945 numbered sections and 210 mandatory tables.
+- Threat Intelligence Foundations: **18** capabilities, 486 numbered sections and 108 mandatory tables.
 - No capability is marked validated, implemented, promoted, deployed, active, native or integrated.
 
 Each shard records owner, users, objects, inputs, outputs, actions, no-AI alternatives, criteria, Requirement IDs, OPEN decisions, dependencies, supersession and date.

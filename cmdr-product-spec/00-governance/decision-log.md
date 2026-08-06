@@ -21,9 +21,10 @@ Ce fichier indexe les ADR et décisions ouvertes ; il ne remplace ni leur conten
 | [ADR-0007](adr/ADR-0007-agentic-studio-placement.md) | capacités agentiques | REQ-AI-002, REQ-OBJ-009 | draft | Studio possède les objets agentiques, produits opérationnels consommateurs |
 
 ## Open decision index update
-- `OPEN-017 — Detection runtime, target language and portability strategy` is created as **open**.
-- No runtime, engine, target language, adapter, portable representation, vendor format or implementation option is selected.
-- Options remain: portable canonical model with adapters; native content per engine; hybrid model; future native CMDR runtime; capability-specific combination.
-- Open decisions: **16**. OPEN-009 remains the only historically resolved item.
+- `OPEN-017 — Detection runtime, target language and portability strategy` remains **open**, limited to Detection Engineering.
+- `OPEN-018 — Threat intelligence ontology, interoperability and exchange strategy` is created as **open**.
+- OPEN-018 selects no ontology, standard, protocol, provider, exchange representation, proprietary extension model or implementation.
+- Options remain: CMDR canonical ontology with adapters; primary external-standard alignment; hybrid canonical/external representations; native models per source with projection; progressive combination by object and consumer.
+- Open decisions: **17**. OPEN-009 remains the only historically resolved item.
 
 Aucune ADR ou décision ouverte n'est approuvée ou fermée dans cette phase.
