@@ -34,7 +34,7 @@ Investigate owns investigation work, analyst reasoning, Evidence and Finding pre
 - Intelligence Analysis, Products, Dissemination and Operationalization — CAP-INV-519..537.
 - Cloud Analysis Foundations and Cloud Investigation — CAP-INV-601..618.
 
-## Counts after Cloud closure content
+## Counts
 **224 capabilities:** 223 defined and one proposed (`CAP-INV-106`); all delivery modes are planned. Investigate contains 6048 numbered capability sections and 1344 mandatory tables.
 
 ## Boundaries
@@ -45,4 +45,4 @@ Threat Intelligence creates functional candidates, assessments and products; it 
 Cloud Analysis creates scoped Sessions, observations, candidates, Hypotheses, correlations and handoff packages. It does not configure a provider, use a secret, scan a target, execute a command, qualify Evidence, confirm a Finding, deploy Detection Content or perform response.
 
 ## Maturity
-Phase 4B.3 is PASS. Phase 4B.4A remains `PENDING POST-PUBLICATION VERIFICATION` until the fifth functional commit and remote checks are complete. Phase 4B.4, Phase 4B, Phase 4 and global maturity remain PARTIAL. Mobile Forensics is NOT STARTED. No code, API, protocol, selected provider, connector, actual collection, deployment, target mutation, complete object schema, atomic permission matrix or detailed Cloud screen rewrite is claimed.
+Phase 4B.3 is PASS. Phase 4B.4A is **PASS AFTER POST-PUBLICATION VERIFICATION** with 18 capabilities, 486 sections, 108 tables and 243/243 gates. Phase 4B.4, Phase 4B, Phase 4 and global maturity remain PARTIAL because Mobile Forensics is NOT STARTED and later objects, permissions, screens, technique and implementation remain future. No code, API, protocol, selected provider, connector, actual collection, deployment, target mutation, complete object schema, atomic permission matrix or detailed Cloud screen rewrite is claimed.
