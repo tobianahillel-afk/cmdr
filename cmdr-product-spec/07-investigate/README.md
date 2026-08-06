@@ -40,6 +40,8 @@ Investigate owns investigation work, analyst reasoning, Evidence and Finding pre
 ## Boundaries
 Command owns runtime Detection, Signal, Alert, Incident and operational coordination. Settings owns Data Sources, providers, connectors, credentials, secrets, configured Cloud scopes, schemas, environments, health, retention, Fleet and policies. Endpoint Agent owns declared local capabilities and execution projections. Govern owns Action Request, Decision, Approval, external release authority, Response Run, Result and real-target authority. Studio owns Tool, Tool Call, Workflow, Evaluation and Automation Run. Shared owns Entity, Graph, Query, Timeline, Jobs, Trace, Activity, Versioning, Linking, Search, Export, Reporting, Comparison and collaboration.
 
+Threat Intelligence creates functional candidates, assessments and products; it does not silently confirm attribution, merge identity, deploy an Indicator, activate a watchlist, create Detection Content, block, respond, publish externally or share externally.
+
 Cloud Analysis creates scoped Sessions, observations, candidates, Hypotheses, correlations and handoff packages. It does not configure a provider, use a secret, scan a target, execute a command, qualify Evidence, confirm a Finding, deploy Detection Content or perform response.
 
 ## Maturity
