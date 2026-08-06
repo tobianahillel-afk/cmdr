@@ -3,21 +3,24 @@ id: phase-4b4a-cloud-analysis-capability-conformance
 domain: 16-quality-and-validation
 status: draft
 owner: QA and Traceability Lead
-updated: 2026-08-06
+updated: 2026-08-07
 source-of-truth: quality-report
 requirements: [REQ-PROD-006, REQ-PROD-012, REQ-PROD-014, REQ-PROD-019, REQ-PROD-020, REQ-PROD-055, REQ-INV-001, REQ-INV-006, REQ-AI-002, REQ-SEC-001, REQ-SEC-002, REQ-UX-010]
 open_decisions: [OPEN-008, OPEN-011, OPEN-012, OPEN-013, OPEN-014, OPEN-015, OPEN-017]
 ---
 # Phase 4B.4A — Cloud Analysis Capability Conformance
 
-## Verdict
-**PASS after post-publication verification — 243/243 gates.** This validates documentary functional conformance only. It validates no provider, connector, API, protocol, query language, schema, engine, scanner, Cloud command, integration, target mutation, security rule, response or product code.
+## Verdict before publication
+**PENDING POST-PUBLICATION VERIFICATION — 227 PASS / 16 PENDING / 0 FAIL across 243 gates.** This validates the prepared documentary content only. It validates no provider, connector, API, protocol, query language, schema, engine, scanner, Cloud command, integration, target mutation, security rule, response or product code.
+
+The verdict may become `PASS AFTER POST-PUBLICATION VERIFICATION` only after the fifth functional commit is squash-published, the canonical remote head is checked and the 16 pending gates are rerun.
 
 ## Canonical adaptation
 The incoming `4B.4A` identifier was provisional. Canonical roadmap and status sources contained no existing Cloud Analysis subphase identifier. `Phase 4B.4A — Cloud Analysis Foundations and Cloud Investigation` is therefore retained as the sole canonical Cloud identifier; no concurrent phase was created.
 
-## Scope and totals
+## Scope and totals prepared
 - initial remote head: `6cc7bf2426c12a6f2f983c62581f9d44e9829990`;
+- current canonical head before the fifth commit: `59f69203574a6b1e3dc8c631b3a8a2e4bf5afe42`;
 - capability range: `CAP-INV-601..618`;
 - capabilities: **18/18**, all `defined` / `planned`;
 - numbered sections: **486/486**;
@@ -27,6 +30,9 @@ The incoming `4B.4A` identifier was provisional. Canonical roadmap and status so
 - detailed screen rewrites / new Screen IDs: **0 / 0**;
 - Mobile Forensics capabilities: **0**;
 - APIs, protocols, provider implementations, commands and code: **0**.
+
+## Source audit
+The corrective closure re-read governance, source material, product boundaries, Investigate families, Platform Settings, Command, Studio, Govern, Shared, security, canonical objects and existing mapped screens. The complete classification is recorded in `phase-4b4a-cloud-analysis-source-audit.md`. No contradiction requiring a change to `CAP-INV-601..618` was found.
 
 ## Capability-template matrix
 | Capability ID | Sections 1–27 | S8 | S9 | S10 | S13 | S16 | S17 | Front matter | Verdict |
@@ -57,21 +63,21 @@ The incoming `4B.4A` identifier was provisional. Canonical roadmap and status so
 2. Canonical branch is `docs/cmdr-product-spec-foundation`. — PASS.
 3. Base branch is `main`. — PASS.
 4. Starting remote SHA is `6cc7bf2426c12a6f2f983c62581f9d44e9829990`. — PASS.
-5. PR #2 remains open. — PASS.
-6. PR #2 remains Draft. — PASS.
-7. PR #2 remains unmerged. — PASS.
-8. PR #2 is not marked ready for global review. — PASS.
-9. Repository visibility is recorded. — PASS.
-10. Auto-merge remains disabled. — PASS.
+5. PR #2 remains open after final publication. — PENDING.
+6. PR #2 remains Draft after final publication. — PENDING.
+7. PR #2 remains unmerged after final publication. — PENDING.
+8. PR #2 is not marked ready for global review after final publication. — PENDING.
+9. Repository visibility is rechecked after final publication. — PENDING.
+10. Auto-merge remains disabled after final publication. — PENDING.
 11. No force-push is used. — PASS.
 12. No rebase is used. — PASS.
 13. No history rewrite is used. — PASS.
-14. Canonical publication is fast-forward through five squash commits. — PASS.
-15. Root README remains exactly `# cmdr` on branch. — PASS.
-16. Root README remains exactly `# cmdr` on `main`. — PASS.
-17. `main` receives no commit from this phase. — PASS.
-18. Final remote SHA is verified after publication. — PASS.
-19. Five functional commit titles match the specification. — PASS.
+14. Canonical publication is fast-forward through five squash commits. — PENDING.
+15. Root README remains exactly `# cmdr` on branch after final publication. — PENDING.
+16. Root README remains exactly `# cmdr` on `main` after final publication. — PENDING.
+17. `main` receives no commit from this phase after final publication. — PENDING.
+18. Final remote SHA is verified after publication. — PENDING.
+19. Five functional commit titles and SHAs match the specification. — PENDING.
 20. Temporary construction PRs do not alter the protected `main` branch. — PASS.
 
 ### Canonical scope and sources
@@ -95,17 +101,17 @@ The incoming `4B.4A` identifier was provisional. Canonical roadmap and status so
 38. Screen Register was read. — PASS.
 39. Requirements Matrix was read. — PASS.
 40. Qualitative baseline was read. — PASS.
-41. Cases, Hypotheses, Evidence and Findings sources were considered. — PASS.
-42. Signals and Hunt sources were considered. — PASS.
-43. Collection and Live Response sources were considered. — PASS.
-44. Static/Dynamic/Reverse/Memory/Disk/Network sources were considered. — PASS.
-45. Detection Engineering sources were considered. — PASS.
-46. Threat Intelligence sources were considered. — PASS.
-47. Platform Settings source/secret/health boundaries were considered. — PASS.
-48. Command boundaries were considered. — PASS.
-49. Studio boundaries were considered. — PASS.
-50. Govern boundaries were considered. — PASS.
-51. Shared boundaries were considered. — PASS.
+41. Cases, Hypotheses, Evidence and Findings sources were read or explicitly classified. — PASS.
+42. Signals and Hunt sources were read or explicitly classified. — PASS.
+43. Collection and Live Response sources were read or explicitly classified. — PASS.
+44. Static, Dynamic, Reverse, Memory, Disk and Network sources were read or explicitly classified. — PASS.
+45. Detection Engineering sources were read or explicitly classified. — PASS.
+46. Threat Intelligence sources were read or explicitly classified. — PASS.
+47. Platform Settings source, secret and health boundaries were read. — PASS.
+48. Command boundaries were read. — PASS.
+49. Studio boundaries were read. — PASS.
+50. Govern boundaries were read. — PASS.
+51. Shared boundaries were read. — PASS.
 52. Historical generic Cloud references remain owner-controlled. — PASS.
 
 ### IDs and template
@@ -152,11 +158,11 @@ The incoming `4B.4A` identifier was provisional. Canonical roadmap and status so
 91. Investigate owns Cloud analytical Sessions and observations. — PASS.
 92. Platform Settings owns providers and connectors. — PASS.
 93. Platform Settings owns credentials and secrets administration. — PASS.
-94. Platform Settings owns configured organizations/tenants/accounts/projects. — PASS.
+94. Platform Settings owns configured organizations, tenants, accounts and projects. — PASS.
 95. Platform Settings owns ingestion, schemas, parsers, health and retention. — PASS.
 96. Command owns runtime Detection, Signal, Alert and Incident. — PASS.
 97. Govern owns Decision, Approval, Action Request, Response Run and Result. — PASS.
-98. Govern/destination owners own real target mutation. — PASS.
+98. Govern and destination owners own real target mutation. — PASS.
 99. Studio owns Tool, Tool Call, Workflow and Automation Run. — PASS.
 100. Shared owns Entity, Graph, Timeline, Linking, Trace and Versioning. — PASS.
 101. No concurrent owner is introduced. — PASS.
@@ -177,11 +183,11 @@ The incoming `4B.4A` identifier was provisional. Canonical roadmap and status so
 116. Cloud Network Analysis and Network Forensics remain distinct. — PASS.
 117. Object metadata and object content remain distinct. — PASS.
 118. Secret candidate and valid credential remain distinct. — PASS.
-119. Secret existence and permission to reveal/use remain distinct. — PASS.
+119. Secret existence and permission to reveal or use remain distinct. — PASS.
 120. Image and running workload remain distinct. — PASS.
 121. Container observation and complete container forensics remain distinct. — PASS.
 122. Serverless invocation and malicious execution remain distinct. — PASS.
-123. Anomaly/misconfiguration candidate and Finding/vulnerability remain distinct. — PASS.
+123. Anomaly or misconfiguration candidate and Finding or vulnerability remain distinct. — PASS.
 124. Cloud Timeline and Case Timeline remain distinct. — PASS.
 125. Tool result and analyst conclusion remain distinct. — PASS.
 126. Evidence candidate and qualified Evidence remain distinct. — PASS.
@@ -205,7 +211,7 @@ The incoming `4B.4A` identifier was provisional. Canonical roadmap and status so
 142. CAP-INV-614 covers keys, secrets and sensitive material. — PASS.
 143. CAP-INV-615 covers anomalies, misconfiguration candidates and Hypotheses. — PASS.
 144. CAP-INV-616 covers Cloud Timeline and cross-source correlation. — PASS.
-145. CAP-INV-617 covers Evidence/Finding/Detection/TI/Collection handoffs. — PASS.
+145. CAP-INV-617 covers Evidence, Finding, Detection, TI and Collection handoffs. — PASS.
 146. CAP-INV-618 covers provenance and reproducibility. — PASS.
 147. Cross-source correlations preserve source ownership. — PASS.
 148. Endpoint, Network, Memory and Disk handoffs execute no collection. — PASS.
@@ -216,7 +222,7 @@ The incoming `4B.4A` identifier was provisional. Canonical roadmap and status so
 153. Future-response preparation performs no response. — PASS.
 
 ### AI, secrets and action safety
-154. Every essential workflow has a deterministic/manual path. — PASS.
+154. Every essential workflow has a deterministic or manual path. — PASS.
 155. AI is optional. — PASS.
 156. AI cannot grant a permission. — PASS.
 157. AI cannot mutate a Cloud target. — PASS.
@@ -236,16 +242,16 @@ The incoming `4B.4A` identifier was provisional. Canonical roadmap and status so
 171. Secret use is prohibited in Investigate. — PASS.
 172. Unauthorized secret reveal is blocked and audited. — PASS.
 173. Unauthorized storage content access is prohibited. — PASS.
-174. Class 0 actions remain read/navigation/inspection. — PASS.
+174. Class 0 actions remain read, navigation and inspection. — PASS.
 175. Class 1 actions remain bounded analysis and generation. — PASS.
-176. Class 2 actions remain reversible analytical mutations/handoffs. — PASS.
+176. Class 2 actions remain reversible analytical mutations and handoffs. — PASS.
 177. Class 3 target mutations remain outside Investigate. — PASS.
-178. Class 4 destructive/irreversible actions remain outside Investigate. — PASS.
+178. Class 4 destructive or irreversible actions remain outside Investigate. — PASS.
 179. No active Cloud scan is introduced. — PASS.
 180. No Cloud command is introduced. — PASS.
 181. No permission change is introduced. — PASS.
 182. No credential revocation is executed. — PASS.
-183. No resource shutdown/isolation/deletion is executed. — PASS.
+183. No resource shutdown, isolation or deletion is executed. — PASS.
 184. No trace deletion is introduced. — PASS.
 
 ### Objects, permissions, screens and implementation
@@ -255,17 +261,17 @@ The incoming `4B.4A` identifier was provisional. Canonical roadmap and status so
 188. No final cardinalities are created. — PASS.
 189. No final state machine is created. — PASS.
 190. Functional permission needs are documented. — PASS.
-191. No final RBAC/ABAC namespace is created. — PASS.
+191. No final RBAC or ABAC namespace is created. — PASS.
 192. No final atomic permission matrix is created. — PASS.
 193. No final step-up policy is selected. — PASS.
 194. Cross-tenant analysis requires explicit scope and authority. — PASS.
 195. Session permission never grants source permission. — PASS.
-196. Package/export permission never grants source permission. — PASS.
+196. Package or export permission never grants source permission. — PASS.
 197. Screen Capability Map is updated conceptually. — PASS.
 198. No detailed screen is rewritten. — PASS.
 199. No new Screen ID is created. — PASS.
 200. No wireframe is created. — PASS.
-201. No final button/column/filter/animation/shortcut is specified. — PASS.
+201. No final button, column, filter, animation or shortcut is specified. — PASS.
 202. No API is introduced. — PASS.
 203. No protocol is introduced. — PASS.
 204. No provider-specific schema is introduced. — PASS.
@@ -301,17 +307,17 @@ The incoming `4B.4A` identifier was provisional. Canonical roadmap and status so
 232. Automation and AI Model includes Cloud boundaries. — PASS.
 233. Cross-product Links include Cloud transitions. — PASS.
 234. Requirements traceability records Cloud evidence without false promotion. — PASS.
-235. Qualitative baseline records before/after counts. — PASS.
-236. STATUS records Cloud Analysis PASS. — PASS.
+235. Qualitative baseline records before and after counts. — PASS.
+236. STATUS records Cloud Analysis final PASS after remote verification. — PENDING.
 237. Phase 4B.4 remains PARTIAL because Mobile is not started. — PASS.
 238. Phase 4B remains PARTIAL. — PASS.
 239. Phase 4 and global maturity remain PARTIAL. — PASS.
 240. Mobile Forensics remains NOT STARTED. — PASS.
-241. CHANGELOG records five Cloud functional commits. — PASS.
-242. PR #2 description is updated after final verification. — PASS.
-243. Final report path and evidence links are valid. — PASS.
+241. CHANGELOG records the five exact Cloud commits after squash publication. — PENDING.
+242. PR #2 description is updated after final verification. — PENDING.
+243. Final report path and evidence links are valid on the canonical remote branch. — PENDING.
 
-## Counts after Cloud Analysis
+## Counts after closure content
 - registered capabilities: **251** — 27 Command and 224 Investigate;
 - delivery classification: **249 defined, 2 proposed, 251 planned**;
 - Investigate sections/tables: **6048 / 1344**;
@@ -319,8 +325,8 @@ The incoming `4B.4A` identifier was provisional. Canonical roadmap and status so
 - requirements: **122 — 99 conform, 20 partial, 3 absent, 0 contradictory**;
 - open decisions: **18**; OPEN-012 remains open and expanded.
 
-## Status consequence
-- Phase 4B.4A — Cloud Analysis: **PASS**;
+## Status consequence before final verification
+- Phase 4B.4A — Cloud Analysis: **PENDING POST-PUBLICATION VERIFICATION**;
 - Phase 4B.4: **PARTIAL**, because Mobile Forensics is not started;
 - Phase 4B: **PARTIAL**;
 - Phase 4 and global maturity: **PARTIAL**;
