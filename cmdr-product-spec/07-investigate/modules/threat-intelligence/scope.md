@@ -8,11 +8,11 @@ source-of-truth: canonical
 ---
 # Scope
 
-## Inclus
-Intake depuis Case/Finding/Hypothesis/Hunt/Incident/Detection Engineering/analyses techniques ; Intelligence Requirements et priorités ; Knowledge Projects ; catalogue et contexte d’accès des sources ; reliability et credibility ; material intake et normalisation fonctionnelle ; Observable, Indicator et Threat Entity candidates ; Malware, Tool, Capability et Infrastructure knowledge ; Campaign, Activity Cluster et Intrusion Set candidates ; TTP ; Sightings ; relations sourcées ; confidence, contradictions, déduplication, versioning, supersession, expiration, revocation, provenance et Analysis Handoff Package.
+## Included
+Foundations CAP-INV-501..518 plus Analysis Sessions; analytic questions and competing hypotheses; source fusion/corroboration; structured actor/attribution, campaign/activity, malware/tool/infrastructure/capability assessments; Product planning, authoring, review and release recommendation; markings, releasability and dissemination planning; reversible internal publication and consumer access; functional Watchlist Definitions; Indicator operationalization handoffs to Detection Engineering, Command and Settings; Intelligence monitoring and Sighting/change updates; external-sharing preparation; feedback/effectiveness; Requirement satisfaction and collection feedback; correction, retraction, supersession, provenance and Continuous Improvement.
 
-## Exclus
-Attribution structurée, actor assessment, intelligence analysis avancée, Reports, strategic/tactical/operational intelligence production, dissemination, audience management, external sharing/exchange/publication, customer delivery, continuous monitoring, intelligence alerts, active watchlists, Indicator activation, operational Command handoff complet, Detection rule creation/deployment, blocking, response, scraping, active collection, Cloud Analysis et Mobile Forensics.
+## Excluded
+Automatic attribution; final ontology; active target collection; source/provider administration; active watchlist; deployed Indicator; Detection rule creation/deployment; Signal/Alert/Incident mutation; block/response; external/client/public transmission; final recall; Cloud Analysis; Mobile Forensics; detailed screens; complete objects, atomic permissions or implementation.
 
 ## Technical exclusions
-Aucune API, protocole, message format, physical schema, STIX-like schema, TAXII-like protocol, graph database, matching algorithm, scoring engine, provider, commercial source, parser implementation, command or product code.
+No API, protocol, message/report format, physical schema, graph database, scoring/fusion/attribution algorithm, STIX-like schema, TAXII-like protocol, provider, commercial source, scraper, connector, command or product code.

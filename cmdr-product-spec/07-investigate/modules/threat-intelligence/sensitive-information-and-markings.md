@@ -1,42 +1,30 @@
 ---
-id: investigate-threat-intelligence-sensitive-information
+id: investigate-threat-intelligence-sensitive-information-and-markings
 domain: 07-investigate
 status: draft
 owner: Investigate Product Lead
 updated: 2026-08-06
 source-of-truth: canonical
-requirements:
-  - REQ-SEC-001
-  - REQ-SEC-002
-open_decisions:
-  - OPEN-014
-  - OPEN-018
+open_decisions: [OPEN-018, OPEN-019]
 ---
-# Sensitive information and markings
+# Sensitive information, markings and releasability
 
-## Access levels
-1. existence;
-2. metadata;
-3. masked preview;
-4. read;
-5. copy;
-6. extraction;
-7. relation;
-8. export;
-9. future external sharing.
+## Distinct rights
+1. existence; 2. metadata; 3. masked preview; 4. read; 5. copy; 6. extraction; 7. inclusion in a product; 8. internal publication; 9. export; 10. external-sharing preparation; 11. future external sharing; 12. future recall/revocation.
 
-Each level is independently permissioned. Inaccessible content is not absent; a denied action must not reveal protected data.
-
-## Protected dimensions
-Source restrictions, classifications, handling markings, licence/authorized use, personal data, commercial information, secrets, victim/customer/investigation data, cross-tenant data, confidential-source identity, provider identity and raw-content access.
+## Preserved context
+Source restrictions, licence, classification, tenant/environment, customer/victim/personal data, confidential-source identity, provider identity, investigation information, secrets, raw access, derivative handling, markings, releasability, versions, consumers and access traces survive every transformation and handoff.
 
 ## Invariants
-- no default reveal or unrestricted copy;
-- no model transfer without explicit permission and policy;
-- no export bypassing markings, licence or tenant scope;
-- no external sharing in 4B.3B.1;
-- no marking loss during extraction, normalization, relation, version or merge review;
-- no merge that erases provenance or source-specific restrictions;
-- audit actor, purpose, source version, permission, disposition and redaction reason.
+- product permission ≠ source permission;
+- internal publication ≠ export;
+- export ≠ external sharing;
+- marking ≠ permission;
+- releasable ≠ shared;
+- internal ≠ cross-tenant/client/external/public;
+- masking ≠ deletion;
+- anonymization candidate ≠ guaranteed anonymization;
+- withdrawn source ≠ automatic product deletion;
+- retraction ≠ erasure of historical access.
 
-Detailed dissemination, release markings and external audience policy remain future 4B.3B.2.
+CAP-INV-528 prepares handling/releasability; CAP-INV-529 publishes internally only under policy; CAP-INV-533 prepares external sharing only. OPEN-019 governs unresolved audience, cross-tenant, client, external and recall policy.

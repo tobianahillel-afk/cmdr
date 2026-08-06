@@ -5,24 +5,15 @@ status: draft
 owner: Investigate Product Lead
 updated: 2026-08-06
 source-of-truth: canonical
-requirements:
-  - REQ-AI-001
-  - REQ-AI-002
-  - REQ-AI-003
-  - REQ-AI-006
-  - REQ-AI-010
-  - REQ-AI-011
-open_decisions:
-  - OPEN-013
-  - OPEN-015
-  - OPEN-018
+requirements: [REQ-AI-001, REQ-AI-002, REQ-AI-003, REQ-AI-006, REQ-AI-010, REQ-AI-011]
+open_decisions: [OPEN-013, OPEN-015, OPEN-018, OPEN-019]
 ---
-# Automation and AI model — Investigate through Phase 4B.3B.1
+# Automation and AI model — Investigate through Phase 4B.3B.2
 
-AI is optional. In Detection Engineering it may propose drafts, review summaries, gaps, plans and assessments. In Threat Intelligence it may propose Requirements, source candidates, bounded extractions, Observable/Indicator/Entity candidates, aliases, relations, clusters, TTP mappings, contradictions, duplicates, confidence drafts, expiry candidates, project summaries and Analysis Handoff Packages.
+AI is optional. It may propose analytic questions, competing hypotheses, claim groupings, corroboration/contradiction candidates, actor/campaign/malware/infrastructure assessment drafts, Product Plans, key judgments, limitations, audience/marking candidates, Watchlist Definition drafts, Operationalization Packages, Change Assessments, effectiveness summaries, collection gaps, corrections and Continuous Improvement Packages.
 
-Every essential workflow remains available through forms, structured editors, deterministic parsers/extractors/validators, catalogues, matrices, checklists, search, comparisons, health projections, tables, timelines, graph with tabular alternative, diff, non-agentic workflows and human review.
+Every essential workflow remains available through forms, hypothesis matrices, evidence-for/against tables, deterministic parsing/validation, catalogues, search, comparisons, checklists, templates, tables, timelines, graph with tabular alternative, diff, notifications, non-agentic workflows and human review.
 
-Prohibitions: no silent candidate confirmation, actor/campaign attribution, source reliability, relation/duplicate merge, Decision/Approval, target/source selection, promotion, activation, rollback, active suppression/exception, Indicator/watchlist/rule deployment, block, external sharing, invented ground truth, self-permission, Govern/Settings bypass, contradiction hiding, trace removal or mandatory chatbot.
+Prohibitions: no automatic attribution; no hypothesis or assessment silently confirmed; no conclusion, Release Recommendation or audience silently accepted; no Approval; no marking removed; no external share; no active watchlist/Indicator/rule/block; no Signal deletion; no permission grant; no history/trace removal; no mandatory chatbot or model dependency.
 
-Mandatory attribution: initiator, producer/agent/version, Tool Calls, Automation Run, sources, parameters, timestamp, status, errors, uncertainty, human owner and accept/modify/reject disposition. Restricted content is never transmitted to a model without explicit permission and policy.
+Mandatory attribution: initiator, producer/agent/version, Tool Calls, Automation Run, sources, parameters, timestamp, status, errors, uncertainty, human owner and accept/modify/reject disposition. Restricted content is never sent to a model without explicit permission and policy. AI assessment remains distinct from analyst assessment and confidence is not calibrated probability.

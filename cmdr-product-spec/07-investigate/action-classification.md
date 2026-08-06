@@ -5,20 +5,17 @@ status: draft
 owner: Investigate Product Lead
 updated: 2026-08-06
 source-of-truth: canonical
-requirements:
-  - REQ-SEC-001
-  - REQ-SEC-002
-open_decisions:
-  - OPEN-013
+requirements: [REQ-SEC-001, REQ-SEC-002]
+open_decisions: [OPEN-013, OPEN-019]
 ---
-# Action classification — Investigate through Phase 4B.3B.1
+# Action classification — Investigate through Phase 4B.3B.2
 
-| Class | Meaning | Detection Engineering examples | Threat Intelligence examples | Local execution |
-|---:|---|---|---|---|
-| 0 | observation | consult/read candidate, readiness, version, health and feedback | consult sources, candidates, relations, Sightings, versions and provenance | allowed by permission |
-| 1 | bounded analytical execution | validation, replay, comparison, health/drift/performance assessment | bounded extraction, normalization, comparison, duplicate search, assessment and authorized export | explicit, bounded and attributed |
-| 2 | reversible analytical mutation | Drafts, reviews, plans, proposals and improvement packages | Requirements, Projects, candidates, relations, assessments, versions, supersession, expiry/revocation proposals and handoffs | Investigate-owned reversible concepts; OPEN-013 |
-| 3 | governed production/external action | promotion, activation, rollback and active exceptions | external publication/sharing, active Indicator/watchlist, block or source-admin change | **not executed by Investigate**; Govern/owner |
-| 4 | destructive/irreversible | deletion of active content/provenance | irreversible knowledge/history deletion or exchange without rollback | denied by default or strictly governed |
+| Class | Meaning | Threat Intelligence Analysis/Products examples | Local execution |
+|---:|---|---|---|
+| 0 | observation | read/filter/search/compare Sessions, hypotheses, assessments, products, publications, watchlist projections, feedback and provenance | allowed by permission |
+| 1 | bounded analytical execution | structured analysis, source fusion, comparison, deterministic quality checks, monitoring request/run, package generation and authorized export | explicit, bounded, attributed and reversible |
+| 2 | reversible analytical mutation | create/update/review/version Session, hypothesis, Product Draft, Release Recommendation, Dissemination Plan, Internal Publication Record, Watchlist Definition, handoff, feedback, correction/retraction and improvement package | Investigate-owned concepts; OPEN-013/019 |
+| 3 | governed production/external action | external sharing, client/public publication, watchlist activation, Indicator deployment, runtime change, global revocation/recall | not executed by Investigate; Govern and runtime/destination owner |
+| 4 | destructive/irreversible | provenance/history destruction or non-revocable sensitive disclosure | denied by default or strictly governed |
 
-CAP-INV-001..518 expose classes 0–2 locally. Any class-3/4 action is blocked, prepared as a future request or routed to its owner. No Signal, Alert, Incident, source, Indicator, watchlist or provenance is silently mutated or deleted.
+CAP-INV-001..537 expose only classes 0–2 locally. Internal publication in CAP-INV-529 is policy-bound, reversible and tenant-scoped; it is not class-3 external sharing. Any class-3/4 action is blocked or prepared as an Action Request/handoff. No Signal, Alert, Incident, rule, active watchlist, deployed Indicator, source, permission or provenance is silently mutated.

@@ -2,25 +2,14 @@
 id: investigate-threat-intelligence-source-migration
 domain: 07-investigate
 status: draft
-owner: Investigate Product Lead
+owner: Product Architecture
 updated: 2026-08-06
-source-of-truth: canonical
+source-of-truth: migration
 ---
 # Source migration
 
-## Audit result
-No active standalone Investigate Threat Intelligence functional module, Intelligence Library, Indicator Explorer or CAP-INV-5xx existed at the starting SHA. Historical needs were distributed across Shared Threat Intelligence Enrichment, Entity/Graph, Event Search/Hunt, Cases/Evidence, technical handoffs, Detection Engineering, Settings sources/providers, Studio workflows, Govern release controls and future dissemination concepts.
+A full path and semantic audit found no competing active Investigate functional module for advanced Intelligence Analysis, Product authoring, dissemination, watchlists, operationalization, monitoring, feedback or correction. Historical needs are consumed by CAP-INV-519..537 and `analysis-and-products/`.
 
-## Disposition
-- Competing Investigate functional sources deprecated: **0**.
-- Active screen sources deprecated: **0**.
-- `12-shared-capabilities/threat-intelligence-enrichment.md` remains active under Shared; it is not a competing Intelligence workspace.
-- Entity/Graph/Search/Timeline remain active under Shared.
-- Source/provider/feed administration remains active under Settings.
-- Runtime Detection/Signal/Alert/Incident remain active under Command.
-- Detection Engineering and all technical analysis modules remain active owners of their outputs.
-- Future Report, dissemination, watchlist and external-sharing sources remain future 4B.3B.2 boundaries.
-- Canonical replacement for Investigate foundations: `07-investigate/modules/threat-intelligence/`.
+No active Shared Reporting/Graph/Search/Versioning/Export/Notifications source, Command runtime source, Detection Engineering source, Settings provider/source source, Studio automation source or Govern authority source is deprecated. Existing screen specs remain active and unmodified.
 
-## Acceptance
-Only one Investigate functional architecture remains active; no screen or owner source is deprecated merely because it is consumed by Threat Intelligence.
+Competing functional sources deprecated: **0**. Screen specs rewritten: **0**. New Screen IDs: **0**. Any future duplicate must become a `deprecated` pointer naming replacement, rationale, dependants, date and migration criteria.

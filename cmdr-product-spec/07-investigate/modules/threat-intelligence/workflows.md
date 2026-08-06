@@ -8,11 +8,16 @@ source-of-truth: canonical
 ---
 # Workflows
 
-## Canonical foundations flow
-Case/Finding/Hunt/Incident/technical or Detection handoff → CAP-INV-501 Intake → CAP-INV-502 Requirement → CAP-INV-503 Knowledge Project → CAP-INV-504 Source Catalog → CAP-INV-505 Reliability/Credibility → CAP-INV-506 Material Intake/Normalization → CAP-INV-507..512 candidates and knowledge → CAP-INV-513 Sightings → CAP-INV-514 Relationships → CAP-INV-515 Confidence/Contradictions → CAP-INV-516 Versioning/Deduplication → CAP-INV-517 Lifecycle → CAP-INV-518 Analysis Handoff.
+## Foundations
+Origin → CAP-INV-501 Intake → 502 Requirement → 503 Project → 504/505 Sources/Assessments → 506 Materials → 507..512 Candidates/Knowledge → 513 Sightings → 514 Relations → 515 Confidence/Contradictions → 516 Versions → 517 Lifecycle → 518 Analysis Handoff.
 
-## Required returns
-Every flow preserves origin, source owner, tenant, environment, versions, permissions, markings, restrictions, errors, limitations and human disposition. Returned, disputed, rejected and partial states preserve valid work.
+## Analysis and products
+CAP-INV-518 → 519 Analysis Session → 520 Questions/Hypotheses → 521 Fusion/Structured Analysis → 522..524 Assessments → 525 Product Plan → 526 Product Draft → 527 Quality Review/Release Recommendation.
 
-## Future-only destinations
-CAP-INV-518 can prepare context for future 4B.3B.2, Case, Hunt, Detection Engineering or Analysis Workbench. It does not create a Report, publish externally, activate an Indicator/watchlist or execute a response.
+## Dissemination and operationalization
+CAP-INV-527 → 528 Releasability/Dissemination Plan → 529 Internal Publication or 533 External-Sharing Preparation. Indicator candidates may flow to 530 Watchlist Definition or 531 Operationalization Package, then only by handoff to Settings, Detection Engineering, Command or Govern.
+
+## Monitoring and improvement
+CAP-INV-529/530/531 → 532 Monitoring/Change Assessment → 534 Feedback/Effectiveness → 535 Requirement Satisfaction/Collection Feedback → 536 Correction/Retraction/Supersession → 537 Lifecycle Provenance/Continuous Improvement → new Intake, Requirement, Project, Case, Hunt or Detection cycle.
+
+Every transition preserves owner, tenant, environment, immutable versions, permissions, markings, restrictions, source dependencies, errors, authority, provenance and return origin. Rejected, returned, partial and disputed work remains visible. No destination permission is inherited automatically.

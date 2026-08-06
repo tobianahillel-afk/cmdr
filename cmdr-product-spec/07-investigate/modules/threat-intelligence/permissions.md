@@ -5,28 +5,26 @@ status: draft
 owner: Investigate Product Lead
 updated: 2026-08-06
 source-of-truth: canonical
-requirements:
-  - REQ-SEC-001
-  - REQ-SEC-002
-open_decisions:
-  - OPEN-013
-  - OPEN-014
-  - OPEN-015
-  - OPEN-018
+requirements: [REQ-SEC-001, REQ-SEC-002]
+open_decisions: [OPEN-013, OPEN-014, OPEN-015, OPEN-018, OPEN-019]
 ---
 # Functional permission needs
 
 | Family | Functional needs | Risk / future control |
 |---|---|---|
-| Intake / Requirement / Project | read, create, update, close, reopen, archive, supersede | origin sensitivity; author/manager/reviewer separation |
-| Source Catalog / Access | catalog read, access-context assess, access request prepare | Settings administration and secret access remain separate |
-| Reliability / Credibility | assessment create/update/review/dispute | reputation, source identity and method visibility |
-| Material | reference/import, restricted read, masked preview, extraction run/read | classification, licence, victim/customer data and OPEN-014 |
-| Candidates / Knowledge | create/update/review/withdraw/revoke | false qualification, attribution and consumer impact |
-| Sightings / Relations | create, link, compare, dispute, withdraw | tenant isolation, raw event access and causal overclaim |
-| Confidence / Contradiction | create/update/review/supersede | opaque score and source-independence errors |
-| Dedup / Version / Lifecycle | compare, merge proposal, version, supersede, expire/revoke proposal | no silent merge/deletion; consumer review |
-| Handoff / Export | prepare, cross-product handoff, provenance export | markings, minimization, destination permission recheck |
-| Automation | extraction/enrichment/dedup suggestion request | Tool/Run attribution and human disposition mandatory |
+| Session/questions/hypotheses | read, create, update, close/reopen, review/dispute | source exposure and author/reviewer separation |
+| Fusion/assessments | run/read/create/update/review | dependent sources, opaque confidence, false attribution |
+| Product planning/authoring | create/update/version/clone/archive/comment | sensitive-source inclusion and version confusion |
+| Review/release | assign/comment/disposition/recommend | quality passed ≠ Approval; separation of duties |
+| Markings/releasability | read/update/assess | product permission ≠ source permission |
+| Dissemination/internal publication | prepare/publish/suspend/withdraw by policy | tenant/audience leakage; OPEN-019 |
+| Consumer access | read, grant-request, revoke-request | no implicit source/raw access |
+| Watchlist/operationalization | create/update/review/prepare handoff | activation/runtime remain external owner |
+| Monitoring/change | create/update/run-request/read | monitoring ≠ active target surveillance |
+| Feedback/effectiveness | create/read/compare/assess | personal/customer data and bias |
+| Satisfaction/collection feedback | assess/reopen/prepare package | package does not execute collection |
+| Correction/retraction/supersession | create/update/propose/review | no history deletion; external recall governed |
+| External sharing | prepare package/Action Request only | actual sharing class 3 under Govern/destination owner |
+| Automation/provenance | request proposals/read/export trace | Tool/Run attribution and human disposition |
 
-Classes 0–2 are local according to policy. External sharing, active Indicator/watchlist, deployment, block, source administration or destructive deletion are classes 3/4 and unavailable in this phase. Atomic namespaces, RBAC/ABAC, final step-up and final separation of duties are deferred.
+Classes 0–2 are local subject to policy. Class 3/4 actions are unavailable locally. Atomic namespaces, RBAC/ABAC, final step-up, cross-tenant policy and final separation of duties remain future. Existence, metadata, masked preview, read, copy, extraction, product inclusion, internal publication, export, external preparation, future sharing and future recall are distinct rights.
