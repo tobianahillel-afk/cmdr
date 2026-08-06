@@ -9,12 +9,16 @@ requirements:
   - REQ-PROD-012
   - REQ-PROD-014
   - REQ-PROD-019
+  - REQ-INV-001
   - REQ-INV-006
 open_decisions:
+  - OPEN-008
+  - OPEN-011
+  - OPEN-012
   - OPEN-018
   - OPEN-019
 ---
-# Capability map — Investigate through Phase 4B.3B.2
+# Capability map — Investigate through Phase 4B.4A
 
 | Range | Module | Count | Defined | Proposed | Delivery mode |
 |---|---|---:|---:|---:|---|
@@ -31,6 +35,12 @@ open_decisions:
 | CAP-INV-418..435 | Detection Lifecycle and Production Coordination | 18 | 18 | 0 | planned |
 | CAP-INV-501..518 | Threat Intelligence Foundations and Knowledge Management | 18 | 18 | 0 | planned |
 | CAP-INV-519..537 | Intelligence Analysis, Products, Dissemination and Operationalization | 19 | 19 | 0 | planned |
-| **Total** | **Investigate** | **206** | **205** | **1** | **206 planned** |
+| CAP-INV-601..618 | Cloud Analysis Foundations and Cloud Investigation | 18 | 18 | 0 | planned |
+| **Total** | **Investigate** | **224** | **223** | **1** | **224 planned** |
 
-Investigate totals: **5562 sections** and **1236 mandatory tables**. Phase 4B.3B.2, 4B.3B and 4B.3 are functionally closed. Phase 4B remains PARTIAL because OPEN-011 Mobile Forensics and OPEN-012 Cloud Analysis are still open and not explicitly deferred outside the Phase 4B roadmap.
+## Status
+- Investigate totals: **6048 sections** and **1344 mandatory tables**.
+- Phase 4B.3 remains PASS.
+- Phase 4B.4A — Cloud Analysis is PASS after publication verification: 18 capabilities, 486 sections, 108 tables and 243 gates.
+- Phase 4B.4 remains PARTIAL because Mobile Forensics is not started.
+- Phase 4B remains PARTIAL; OPEN-012 remains open for Cloud provider/service/delivery strategy but does not invalidate provider-neutral 4B.4A functional conformance.
