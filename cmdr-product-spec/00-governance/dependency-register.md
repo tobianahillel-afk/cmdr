@@ -3,7 +3,7 @@ id: dependency-register
 domain: 00-governance
 status: draft
 owner: Product Architecture
-updated: 2026-08-06
+updated: 2026-08-07
 source-of-truth: registry
 requirements:
   - REQ-PROD-006
@@ -70,9 +70,9 @@ This register records functional and documentary dependencies only. It chooses n
 | DEP-INV-608 | inventory/configuration observations | CAP-INV-608..614 | workload/data analysis | observed configuration, workloads, network, storage and sensitive material remain candidates | active | Investigate | yes | OPEN-012/014 | 4B.4A |
 | DEP-INV-609 | Cloud compute/workload observations | Endpoint/Memory/Disk/Network owners | specialist handoff | Cloud Analysis prepares scope and evidence context but executes no acquisition or command | active | destination owners | no active mutation | REQ-INV-001..005; OPEN-008/013/014 | 4B.4A/4B.2 |
 | DEP-INV-615 | CAP-INV-604..614 | CAP-INV-615/616 | interpretation | anomalies, Hypotheses and correlations preserve supporting, contradicting and missing elements | active | Investigate | yes | REQ-PROD-020; OPEN-012/014/015 | 4B.4A |
-| DEP-INV-617 | CAP-INV-601..616 | Evidence/Finding/Detection/TI/Collection/Govern owners | handoff | packages are candidates/drafts/requests and create no destination object or action automatically | active | Investigate / destination owners | yes | OPEN-013/014/015/017 | 4B.4A |
+| DEP-INV-617 | CAP-INV-601..616 | Evidence/Finding/Detection/TI/Collection/Govern owners | handoff | packages are candidates, drafts or requests and create no destination object or action automatically | active | Investigate / destination owners | yes | OPEN-013/014/015/017 | 4B.4A |
 | DEP-INV-618 | CAP-INV-601..617 plus Studio/Shared lineage | provenance | preserve sources, permissions, Tools, Runs, errors, human decisions and versions | active/partial | Investigate / Studio / Shared | yes | REQ-PROD-020; OPEN-014/015 | 4B.4A |
-| DEP-INV-CLOUD | OPEN-012 | Cloud provider/service delivery | scope/implementation | provider priorities, service support, SaaS, Cloud evidence and cross-tenant strategy remain unresolved after functional Cloud conformance | open | Product Architecture | before Cloud implementation, not before 4B.4A documentary PASS | OPEN-012 | roadmap/Technique |
+| DEP-INV-CLOUD | OPEN-012 | Cloud provider/service delivery | scope/implementation | provider priorities, service support, SaaS, Cloud evidence and cross-tenant strategy remain unresolved; functional closure still awaits remote verification | open | Product Architecture | before Cloud implementation, not before provider-neutral documentation | OPEN-012 | roadmap/Technique |
 | DEP-INV-MOBILE | OPEN-011 | Phase 4B.4 and Phase 4B closure | scope | Mobile Forensics remains open and not implemented | blocking | Product Architecture | yes for Phase 4B PASS | OPEN-011 | next subphase |
 
-Eighteen decisions are open. OPEN-017 remains Detection-only; OPEN-018 governs Threat Intelligence ontology/interoperability; OPEN-019 governs Intelligence dissemination/releasability/sharing/access; OPEN-012 governs unresolved Cloud provider/service/delivery strategy. Phase 4B.4A is PASS documentarily, while Phase 4B.4 and Phase 4B remain PARTIAL because Mobile Forensics is not started.
+Eighteen decisions are open. OPEN-017 remains Detection-only; OPEN-018 governs Threat Intelligence ontology and interoperability; OPEN-019 governs Intelligence dissemination, releasability, sharing and access; OPEN-012 governs unresolved Cloud provider, service and delivery strategy. Phase 4B.4A remains **PENDING POST-PUBLICATION VERIFICATION** until the fifth commit and remote checks complete. Phase 4B.4 and Phase 4B remain PARTIAL because Mobile Forensics is not started.
