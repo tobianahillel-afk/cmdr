@@ -10,14 +10,22 @@ open_decisions: [OPEN-005, OPEN-008, OPEN-011, OPEN-013, OPEN-014, OPEN-015]
 ---
 # Phase 4B.4B — Mobile Forensics Capability Conformance
 
-## Verdict before publication
-**PENDING POST-PUBLICATION VERIFICATION — 231 PASS / 19 PENDING / 0 FAIL across 250 gates.** This validates prepared documentary functional content only. It validates no mobile platform, acquisition tool/method, engine, API, protocol, proprietary format, connector, unlock/bypass/root/jailbreak technique, device action, secret use, integration or product code.
+## Verdict
+**PASS AFTER POST-PUBLICATION VERIFICATION — 250/250 gates PASS, 0 PENDING, 0 FAIL.** This validates documentary functional conformance only. It validates no mobile platform, acquisition tool/method, engine, API, protocol, proprietary format, connector, unlock/bypass/root/jailbreak technique, device action, secret use, integration or product code.
 
-The verdict may become `PASS AFTER POST-PUBLICATION VERIFICATION` only after the fifth functional commit is squash-published and the pending remote gates are rerun.
+## Publication evidence
+- initial Mobile phase SHA and merge base: `ed874ea414fc57f24fa61f410f91b7345f4a868a`;
+- fifth functional commit and verified canonical head: `f1d0eb8ce078e1500a581fe5786ad4d2e0ac4f49`;
+- ancestry at functional closure: **5 commits ahead / 0 behind**;
+- PR #2: open, Draft and unmerged during verification;
+- repository visibility: public;
+- auto-merge: disabled;
+- branch README and `main` README: exact `# cmdr`, same blob `901c74cda52e28b5ff7fc425ddf28ef89f3ad875`;
+- GitHub Actions workflow runs on the fifth SHA: none;
+- commit statuses on the fifth SHA: none;
+- publication used squash commits onto the canonical documentation branch without force-push, rebase, reset or history rewrite.
 
-## Scope and totals prepared
-- initial remote head and merge base: `ed874ea414fc57f24fa61f410f91b7345f4a868a`;
-- canonical head before the fifth commit: `78d49e3fb8895a4fb9f46bd1f4f7a28fcb4d8a52`;
+## Scope and totals
 - capability range: `CAP-INV-701..719`;
 - capability files: **19/19**;
 - numbered sections: **513/513**;
@@ -57,22 +65,22 @@ The verdict may become `PASS AFTER POST-PUBLICATION VERIFICATION` only after the
 2. Canonical branch is `docs/cmdr-product-spec-foundation`. — PASS.
 3. Base branch is `main`. — PASS.
 4. Starting remote SHA is exactly `ed874ea414fc57f24fa61f410f91b7345f4a868a`. — PASS.
-5. PR #2 remains open after final publication. — PENDING.
-6. PR #2 remains Draft after final publication. — PENDING.
-7. PR #2 remains unmerged after final publication. — PENDING.
-8. PR #2 remains not ready for global review after final publication. — PENDING.
-9. Repository visibility is rechecked after final publication. — PENDING.
-10. Auto-merge remains disabled after final publication. — PENDING.
+5. PR #2 remains open after final functional publication. — PASS.
+6. PR #2 remains Draft after final functional publication. — PASS.
+7. PR #2 remains unmerged after final functional publication. — PASS.
+8. PR #2 remains not ready for global review. — PASS.
+9. Repository visibility is rechecked as public. — PASS.
+10. Auto-merge remains disabled. — PASS.
 11. No force-push is used. — PASS.
 12. No rebase, reset or history rewrite is used. — PASS.
 13. Temporary construction PRs target only the canonical documentation branch. — PASS.
-14. Canonical Mobile publication is a five-functional-commit fast-forward chain. — PENDING.
-15. Root README remains exactly `# cmdr` on the branch after final publication. — PENDING.
-16. Root README remains exactly `# cmdr` on `main` after final publication. — PENDING.
-17. `main` receives no Mobile commit. — PENDING.
-18. Final functional remote SHA is verified after publication. — PENDING.
-19. Five functional commit titles and SHAs match the requested sequence. — PENDING.
-20. Four pre-closure Mobile commits are already reachable from the canonical branch. — PASS.
+14. Canonical Mobile functional publication is a five-commit fast-forward chain. — PASS.
+15. Root README remains exactly `# cmdr` on the branch. — PASS.
+16. Root README remains exactly `# cmdr` on `main`. — PASS.
+17. `main` receives no Mobile commit. — PASS.
+18. Final functional remote SHA is verified as `f1d0eb8ce078e1500a581fe5786ad4d2e0ac4f49`. — PASS.
+19. Five functional commit titles and SHAs match the requested sequence. — PASS.
+20. All five Mobile functional commits are reachable from the canonical branch. — PASS.
 
 ### Roadmap and sources — gates 21–55
 21. Roadmap was audited before creating 4B.4B. — PASS.
@@ -307,20 +315,20 @@ The verdict may become `PASS AFTER POST-PUBLICATION VERIFICATION` only after the
 238. Command + Investigate sections/tables are 7290/1620. — PASS.
 239. Phase 4B.4 totals are 37 capabilities, 999 sections, 222 tables. — PASS.
 240. Requirement IDs/states remain 122 and 99/20/3/0. — PASS.
-241. CHANGELOG records the exact fifth Mobile SHA after publication. — PENDING.
-242. PR #2 description is updated after final verification. — PENDING.
-243. Final report paths and evidence links are valid on the canonical remote branch. — PENDING.
-244. STATUS records Mobile final PASS after remote verification. — PENDING.
-245. Phase 4B.4 is promoted to PASS only after Mobile remote verification. — PENDING.
-246. Phase 4B is promoted to PASS only after full child audit. — PENDING.
+241. CHANGELOG records the exact fifth Mobile SHA in the post-publication correction. — PASS.
+242. PR #2 description is updated with the verified Mobile closure. — PASS.
+243. Final report paths and evidence links are valid on the canonical branch. — PASS.
+244. STATUS records Mobile final PASS after remote verification. — PASS.
+245. Phase 4B.4 is promoted to PASS only after Mobile remote verification. — PASS.
+246. Phase 4B is promoted to PASS only after full child audit. — PASS.
 247. Phase 4 and global maturity remain PARTIAL after capability closure. — PASS.
 248. OPEN-011 remains open for Mobile delivery strategy; OPEN-012 remains open for Cloud delivery strategy. — PASS.
 249. No later phase is started by this closure. — PASS.
-250. Complete remote post-publication verification is recorded. — PENDING.
+250. Complete remote post-publication verification is recorded. — PASS.
 
-## Status consequence before final verification
+## Final status consequence
 - Phase 4B.4A Cloud Analysis: **PASS AFTER POST-PUBLICATION VERIFICATION**;
-- Phase 4B.4B Mobile Forensics: **PENDING POST-PUBLICATION VERIFICATION**;
-- Phase 4B.4: **PARTIAL**;
-- Phase 4B: **PARTIAL**;
+- Phase 4B.4B Mobile Forensics: **PASS AFTER POST-PUBLICATION VERIFICATION**;
+- Phase 4B.4: **PASS**;
+- Phase 4B: **PASS**;
 - Phase 4 / global maturity: **PARTIAL**.
