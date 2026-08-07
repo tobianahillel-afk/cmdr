@@ -3,7 +3,7 @@ id: capability-register
 domain: 00-governance
 status: draft
 owner: Product Architecture
-updated: 2026-08-06
+updated: 2026-08-07
 source-of-truth: registry
 requirements:
   - REQ-PROD-006
@@ -32,14 +32,17 @@ The register is split into active shards. IDs are immutable and never recycled.
 | `capability-register-investigate-threat-intelligence-foundations.md` | CAP-INV-501..518 | 18 | 18 | 0 | 18 planned |
 | `capability-register-investigate-threat-intelligence-analysis-and-products.md` | CAP-INV-519..537 | 19 | 19 | 0 | 19 planned |
 | `capability-register-investigate-cloud-analysis.md` | CAP-INV-601..618 | 18 | 18 | 0 | 18 planned |
-| **Total** | **All registered capabilities** | **251** | **249** | **2** | **251 planned** |
+| `capability-register-investigate-mobile-forensics.md` | CAP-INV-701..719 | 19 | 19 | 0 | 19 planned |
+| **Total** | **All registered capabilities** | **270** | **268** | **2** | **270 planned** |
 
 ## Product totals
 - Command: **27** capabilities, 729 sections, 162 mandatory tables.
-- Investigate: **224** capabilities, 6048 sections, 1344 mandatory tables.
-- CAP-INV-3xx / 4xx / 5xx / 6xx: **97 / 35 / 37 / 18**.
+- Investigate: **243** capabilities, 6561 sections, 1458 mandatory tables.
+- CAP-INV-3xx / 4xx / 5xx / 6xx / 7xx: **97 / 35 / 37 / 18 / 19**.
 - Detection Engineering: **35 capabilities, 945 sections, 210 tables**.
 - Threat Intelligence: **37 capabilities, 999 sections, 222 tables**.
 - Cloud Analysis: **18 capabilities, 486 sections, 108 tables**.
-- Command + Investigate: **251 capabilities, 6777 sections, 1506 tables**.
+- Mobile Forensics: **19 capabilities, 513 sections, 114 tables**.
+- Phase 4B.4 Cloud + Mobile: **37 capabilities, 999 sections, 222 tables**.
+- Command + Investigate: **270 capabilities, 7290 sections, 1620 tables**.
 - No capability is marked validated, implemented, promoted, deployed, active, native or integrated.
