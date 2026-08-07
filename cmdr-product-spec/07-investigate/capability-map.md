@@ -18,7 +18,7 @@ open_decisions:
   - OPEN-018
   - OPEN-019
 ---
-# Capability map — Investigate through Phase 4B.4A
+# Capability map — Investigate through Phase 4B.4B closure content
 
 | Range | Module | Count | Defined | Proposed | Delivery mode |
 |---|---|---:|---:|---:|---|
@@ -36,11 +36,13 @@ open_decisions:
 | CAP-INV-501..518 | Threat Intelligence Foundations and Knowledge Management | 18 | 18 | 0 | planned |
 | CAP-INV-519..537 | Intelligence Analysis, Products, Dissemination and Operationalization | 19 | 19 | 0 | planned |
 | CAP-INV-601..618 | Cloud Analysis Foundations and Cloud Investigation | 18 | 18 | 0 | planned |
-| **Total** | **Investigate** | **224** | **223** | **1** | **224 planned** |
+| CAP-INV-701..719 | Mobile Forensics Foundations and Mobile Investigation | 19 | 19 | 0 | planned |
+| **Total** | **Investigate** | **243** | **242** | **1** | **243 planned** |
 
-## Verified status
-- Investigate totals: **6048 sections** and **1344 mandatory tables**.
+## Status before final Mobile remote verification
+- Investigate totals: **6561 sections** and **1458 mandatory tables**.
 - Phase 4B.3 remains PASS.
-- Phase 4B.4A — Cloud Analysis is **PASS AFTER POST-PUBLICATION VERIFICATION**: 18 capabilities, 486 sections, 108 tables and 243/243 gates.
-- Phase 4B.4 remains PARTIAL because Mobile Forensics is not started.
-- Phase 4B remains PARTIAL. OPEN-012 remains open for Cloud provider, service and delivery strategy; no provider-specific implementation is claimed.
+- Phase 4B.4A Cloud Analysis is **PASS AFTER POST-PUBLICATION VERIFICATION**: 18 capabilities, 486 sections, 108 tables and 243/243 gates.
+- Phase 4B.4B Mobile Forensics is **PENDING POST-PUBLICATION VERIFICATION**: 19 capabilities, 513 sections and 114 tables.
+- Phase 4B.4 totals **37 capabilities, 999 sections and 222 mandatory tables** and remains PARTIAL until Mobile remote verification.
+- Phase 4B remains PARTIAL until the same verification. OPEN-011/012 remain open for delivery strategy and do not select platform/provider implementations.

@@ -1,5 +1,28 @@
 # Changelog
 
+## 2026-08-07 — Phase 4B.4B Mobile Forensics closure preparation
+- Verified the exact Mobile starting remote head `ed874ea414fc57f24fa61f410f91b7345f4a868a`, PR #2 Draft/open/unmerged, public repository, disabled auto-merge and unchanged root README before modification.
+- Added the unique canonical `Phase 4B.4B — Mobile Forensics Foundations and Mobile Investigation` roadmap and provider/platform-neutral module.
+- Added exactly 19 canonical capabilities `CAP-INV-701..719`, each `draft` / `defined` / `planned`, with 27 sections and six mandatory tables.
+- Added 14 Mobile supporting module documents covering scope, concepts, workflows, states, permissions, privacy, Shared/AI/Collection/Settings/Endpoint/Studio/Govern boundaries, map and source migration.
+- Preserved Collection ownership of acquisition requests/jobs/execution/results/custody; Settings ownership of sources/Fleet/credentials/secrets/retention/policies; Endpoint declared-capability ownership; Govern real-device authority; Studio Tools/Runs; Shared generic engines.
+- Defined Mobile analysis for device/platform scope, acquisition-context review, integrity/completeness/accessibility, filesystem/storage, applications/data, communications, media, location/sensors, sensitive material, connectivity/SIM/pairing, backups/synchronization, deleted/recovered data, Timeline/correlation, Hypotheses, Derived Artifacts/handoffs and provenance.
+- Expanded `OPEN-011 — Mobile Forensics scope and delivery strategy` while keeping it open with no platform/version, acquisition method, Tool, engine, API, protocol, proprietary format or implementation selected.
+- Updated dependencies, Object Consumption, action classes, AI boundaries, cross-product links and conceptual screen mapping without creating a canonical Mobile object schema, atomic permission matrix or Screen ID.
+- Recalculated **270 global capabilities, 243 Investigate, 268 defined, 2 proposed, 270 planned; 6561 Investigate sections / 1458 tables; 7290 Command + Investigate sections / 1620 tables**.
+- Recalculated Phase 4B.4 Cloud + Mobile at **37 capabilities, 999 sections and 222 tables**.
+- Preserved 122 Requirement IDs and the **99 conform / 20 partial / 3 absent / 0 contradictory** distribution.
+- Prepared a Mobile conformance report with **250 gates**; publication-dependent gates remain pending until the fifth functional commit is published and rechecked remotely.
+- Kept Phase 4B.4B, Phase 4B.4 and Phase 4B pending/partial until post-publication verification; Phase 4/global maturity remains PARTIAL regardless.
+- Added no mobile integration, connector, API, protocol, platform/tool/acquisition engine, unlock/bypass/root/jailbreak technique, command, script, device mutation, secret use, deployed rule, response or product code.
+
+### Mobile functional commits
+1. `2626cdb3b502110ef7e06a9f66997b81bed5bacd` — `docs: establish Investigate mobile forensics boundaries`.
+2. `9f18ea128bb5cd8dbeb00f38a5dce7c05d64c37a` — `docs: define mobile acquisition storage and application analysis`.
+3. `b38e40d4385f013e409d2001321e463babe0a2d1` — `docs: specify mobile communications location and sensitive data analysis`.
+4. `78d49e3fb8895a4fb9f46bd1f4f7a28fcb4d8a52` — `docs: document mobile correlation evidence handoff and provenance`.
+5. `docs: close Mobile Forensics and Investigate capability phases` — exact squash SHA recorded only after publication verification.
+
 ## 2026-08-07 — Phase 4B.4A Cloud Analysis verified closure
 - Published the fifth functional commit `6baee257a0ce81b4c50b38aba3805a61eb5daa6c` — `docs: update Cloud Analysis traceability and quality gates`.
 - Verified the functional Cloud chain at five commits ahead and zero behind `6cc7bf2426c12a6f2f983c62581f9d44e9829990`, with the same merge base.

@@ -6,11 +6,11 @@ owner: Product Architecture
 updated: 2026-08-07
 source-of-truth: canonical
 ---
-# Requirements Traceability Matrix — through verified Phase 4B.4A
+# Requirements Traceability Matrix — through Phase 4B.4B closure content
 
-The 122 source Requirement IDs remain unchanged. `conform` records documentary evidence only, not implementation. Cloud Analysis adds verified functional evidence without promoting a requirement whose implementation, provider strategy, object model, permission model or detailed UX remains unresolved.
+The 122 source Requirement IDs remain unchanged. `conform` records documentary evidence only, not implementation. Cloud Analysis retains verified functional evidence. Mobile Forensics adds provider-neutral functional evidence without promoting a requirement whose implementation, platform/tool/acquisition strategy, object model, permission model or detailed UX remains unresolved.
 
-| State | After 4B.3B.2 | After verified 4B.4A |
+| State | After verified 4B.4A | After 4B.4B documentary update |
 |---|---:|---:|
 | conform | 99 | 99 |
 | partial | 20 | 20 |
@@ -31,16 +31,20 @@ The 122 source Requirement IDs remain unchanged. `conform` records documentary e
 | CAP-INV-604..607 | Cloud inventory, identities, roles, IAM permission candidates and audit activity | REQ-PROD-014,019,020,055; REQ-INV-001,006; REQ-AI-002,010,011; REQ-SEC-001,002; REQ-UX-010 | none | provider schemas, connectors, effective-permission implementation and event contracts remain unresolved |
 | CAP-INV-608..614 | Cloud configuration, workloads, containers, serverless, network, storage and sensitive-material assessment | REQ-PROD-014,019,020,055,060,061,062; REQ-INV-001..006; REQ-AI-002,010,011; REQ-SEC-001,002; REQ-UX-006,010 | none | no command, scan, acquisition, secret use, provider implementation or target mutation |
 | CAP-INV-615..618 | Cloud anomalies, Hypotheses, Timeline, correlations, Evidence/Finding/Detection handoffs and provenance | REQ-PROD-002,005,006,008,010,011,012,014,019,020; REQ-INV-001,006; REQ-AI-001..011; REQ-SEC-001,002; REQ-UX-006,010 | none | candidates and packages do not create canonical Evidence, Findings, rules, collection or response automatically |
+| CAP-INV-701..705 | Mobile intake, Session, device/platform/scope, acquisition context and integrity/completeness/accessibility | REQ-PROD-006,012,014,019,020,055; REQ-INV-001; REQ-AI-002,010,011; REQ-SEC-001,002; REQ-UX-010 | none | OPEN-008/011/013/014/015 and final platform, acquisition, objects, permissions and screens remain future |
+| CAP-INV-706..715 | Mobile filesystem/storage, applications/data, communications, media, location/sensors, sensitive material, connectivity, backups/sync and deleted/recovered data | REQ-PROD-014,019,020,055,060,061,062; REQ-INV-001..005; REQ-AI-002,010,011; REQ-SEC-001,002; REQ-UX-006,010 | none | no device acquisition/mutation, unlock/bypass, secret use, final parsers/tools/platform support or implementation |
+| CAP-INV-716..719 | Mobile Timeline/correlation, anomaly/Hypothesis, Derived Artifacts/handoffs and provenance/reproducibility | REQ-PROD-002,005,006,008,010,011,012,014,019,020; REQ-INV-001,006; REQ-AI-001..011; REQ-SEC-001,002; REQ-UX-006,010 | none | correlation/candidates/packages do not create canonical Evidence, Findings, rules, collection or response automatically |
 
 ## Disposition
 - Threat Intelligence retains complete functional documentary evidence from intake through lifecycle closure without claiming implementation.
-- Cloud Analysis has verified provider-neutral functional evidence from intake through provenance and passed all 243 documentary gates after publication verification.
-- REQ-INV-001 and REQ-INV-006 remain globally partial because implementation, final technical contracts and Mobile Forensics are absent.
-- OPEN-012 remains open for Cloud provider, service, SaaS, inventory, evidence, cross-account, cross-tenant and delivery strategy.
+- Cloud Analysis retains verified provider-neutral functional evidence and 243/243 documentary gates.
+- Mobile Forensics now has provider-neutral functional documentary evidence from intake through provenance; the fifth commit and remote post-publication verification are still required before its phase verdict becomes final.
+- REQ-INV-001 and REQ-INV-006 remain globally partial because implementation, final technical contracts, object schemas, atomic permissions and detailed UX remain absent even after Mobile functional coverage.
+- OPEN-011 remains open for Mobile platform/version/tool/acquisition delivery strategy; OPEN-012 remains open for Cloud provider/service/delivery strategy.
 - OPEN-018 records unresolved Threat Intelligence ontology, interoperability and exchange; OPEN-019 records dissemination, releasability, sharing and access policy.
 - OPEN-017 remains Detection-only and unchanged.
-- REQ-PROD-055 remains partial and dependent on OPEN-008/012; source and provider support is not invented.
+- REQ-PROD-055 remains partial and dependent on OPEN-008/011/012; source, platform and provider support is not invented.
 - REQ-PROD-020 and REQ-OBJ-009 remain partial because final trace and run contracts are not defined.
 - REQ-PROD-060/061/062 remain tied to OPEN-013/014/015/019 and final permissions and object relations.
-- REQ-UX-010 remains partial because no detailed Cloud Analysis screen is created or rewritten.
+- REQ-UX-010 remains partial because no detailed Mobile or Cloud Analysis screen is created or rewritten.
 - New Requirement IDs: 0; removed IDs: 0; active contradictions: 0.

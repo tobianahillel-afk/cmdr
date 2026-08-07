@@ -10,13 +10,14 @@ requirements:
   - REQ-INV-001
   - REQ-INV-006
 open_decisions:
+  - OPEN-011
   - OPEN-012
   - OPEN-018
   - OPEN-019
 ---
 # Investigate
 
-Investigate owns investigation work, analyst reasoning, Evidence and Finding preparation, specialized technical analysis, Detection Engineering, Threat Intelligence and provider-neutral Cloud analytical concepts. It does not own platform administration, production response authority or Shared engines.
+Investigate owns investigation work, analyst reasoning, Evidence and Finding preparation, specialized technical analysis, Detection Engineering, Threat Intelligence, provider-neutral Cloud analytical concepts and provider-neutral Mobile Forensics analytical concepts. It does not own platform administration, acquisition execution, production response authority or Shared engines.
 
 ## Canonical modules
 - Signals and Hunt — CAP-INV-001..008.
@@ -33,16 +34,19 @@ Investigate owns investigation work, analyst reasoning, Evidence and Finding pre
 - Threat Intelligence Foundations and Knowledge Management — CAP-INV-501..518.
 - Intelligence Analysis, Products, Dissemination and Operationalization — CAP-INV-519..537.
 - Cloud Analysis Foundations and Cloud Investigation — CAP-INV-601..618.
+- Mobile Forensics Foundations and Mobile Investigation — CAP-INV-701..719.
 
-## Counts
-**224 capabilities:** 223 defined and one proposed (`CAP-INV-106`); all delivery modes are planned. Investigate contains 6048 numbered capability sections and 1344 mandatory tables.
+## Counts after Mobile closure content
+**243 capabilities:** 242 defined and one proposed (`CAP-INV-106`); all delivery modes are planned. Investigate contains **6561 numbered capability sections** and **1458 mandatory tables**.
 
 ## Boundaries
-Command owns runtime Detection, Signal, Alert, Incident and operational coordination. Settings owns Data Sources, providers, connectors, credentials, secrets, configured Cloud scopes, schemas, environments, health, retention, Fleet and policies. Endpoint Agent owns declared local capabilities and execution projections. Govern owns Action Request, Decision, Approval, external release authority, Response Run, Result and real-target authority. Studio owns Tool, Tool Call, Workflow, Evaluation and Automation Run. Shared owns Entity, Graph, Query, Timeline, Jobs, Trace, Activity, Versioning, Linking, Search, Export, Reporting, Comparison and collaboration.
+Command owns runtime Detection, Signal, Alert, Incident and operational coordination. Collection owns acquisition requests/jobs/execution/results and collection-time custody. Settings owns Data Sources, providers, MDM/EMM administration, connectors, credentials, secrets, configured Cloud/mobile scopes, schemas, environments, health, retention, Fleet and policies. Endpoint Agent owns declared local capabilities and execution projections only when present. Govern owns Action Request, Decision, Approval, external release authority, Response Run, Result and real-target/device authority. Studio owns Tool, Tool Call, Workflow, Evaluation and Automation Run. Shared owns Entity, Graph, Query, Timeline, Jobs, Trace, Activity, Versioning, Linking, Search, Export, Reporting, Comparison and collaboration.
 
 Threat Intelligence creates functional candidates, assessments and products; it does not silently confirm attribution, merge identity, deploy an Indicator, activate a watchlist, create Detection Content, block, respond, publish externally or share externally.
 
 Cloud Analysis creates scoped Sessions, observations, candidates, Hypotheses, correlations and handoff packages. It does not configure a provider, use a secret, scan a target, execute a command, qualify Evidence, confirm a Finding, deploy Detection Content or perform response.
 
-## Maturity
-Phase 4B.3 is PASS. Phase 4B.4A is **PASS AFTER POST-PUBLICATION VERIFICATION** with 18 capabilities, 486 sections, 108 tables and 243/243 gates. Phase 4B.4, Phase 4B, Phase 4 and global maturity remain PARTIAL because Mobile Forensics is NOT STARTED and later objects, permissions, screens, technique and implementation remain future. No code, API, protocol, selected provider, connector, actual collection, deployment, target mutation, complete object schema, atomic permission matrix or detailed Cloud screen rewrite is claimed.
+Mobile Forensics creates scoped Sessions, device/platform candidates, source observations, Mobile Timeline/correlation candidates, Mobile Hypotheses, Derived Artifacts and handoff packages. It does not acquire from or modify a real device, unlock/bypass/root/jailbreak, use a secret, attribute a person automatically, qualify Evidence, confirm a Finding, deploy Detection Content or perform response.
+
+## Maturity before final Mobile publication verification
+Phase 4B.3 is PASS. Phase 4B.4A Cloud Analysis is **PASS AFTER POST-PUBLICATION VERIFICATION**. Phase 4B.4B Mobile Forensics is **PENDING POST-PUBLICATION VERIFICATION** with 19 capabilities, 513 sections and 114 mandatory tables. Phase 4B.4 and Phase 4B remain PARTIAL until the fifth Mobile functional commit and remote checks complete. Phase 4 and global maturity remain PARTIAL because later objects, permissions, screens, technique and implementation remain future. No code, API, protocol, selected Cloud/Mobile provider, acquisition tool, connector, actual collection, target/device mutation, complete object schema, atomic permission matrix or detailed Mobile screen rewrite is claimed.
