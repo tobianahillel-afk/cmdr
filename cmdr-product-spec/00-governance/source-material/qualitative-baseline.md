@@ -6,7 +6,7 @@ owner: Product Architecture
 updated: 2026-08-07
 source-of-truth: canonical
 ---
-# Qualitative Baseline — Investigate programme through verified Phase 4B.4A
+# Qualitative Baseline — Investigate programme through Phase 4B.4B pre-publication closure
 
 ## Inherited Phase 4B.3B.1 baseline
 Remote start for 4B.3B.1 was `c84ea542a0831146b075eb0868dc21326b3b9ad8`: Phase 4B.3A PASS, 196 capabilities, 169 Investigate capabilities, 35 CAP-INV-4xx, no CAP-INV-5xx, 16 open decisions and no canonical Investigate Threat Intelligence module.
@@ -110,5 +110,49 @@ Remote start: `6cc7bf2426c12a6f2f983c62581f9d44e9829990`. The four published fun
 | Open decisions | 18 | 18 |
 | Quality gates | not applicable | 243 / 243 PASS |
 
-## Verified maturity
-Phase 4B.3 remains PASS. Phase 4B.4A is **PASS AFTER POST-PUBLICATION VERIFICATION**. Phase 4B.4, Phase 4B, Phase 4 and global maturity remain PARTIAL. Mobile Forensics remains NOT STARTED. The PASS is documentary and does not claim provider selection, integration, native runtime, complete object models, atomic permissions, detailed screens or product implementation.
+## Verified 4B.4A maturity
+Phase 4B.3 remains PASS. Phase 4B.4A is **PASS AFTER POST-PUBLICATION VERIFICATION**. Before Mobile work, Phase 4B.4, Phase 4B, Phase 4 and global maturity remained PARTIAL and Mobile Forensics was NOT STARTED.
+
+## Phase 4B.4B starting state
+Remote start: `ed874ea414fc57f24fa61f410f91b7345f4a868a`. At that exact SHA, Phase 4B.4A was verified PASS; there were 251 global capabilities, 224 Investigate capabilities, no `CAP-INV-7xx`, no canonical Mobile module, no Mobile roadmap file and no Mobile Screen ID. The four published Mobile functional commits advance the canonical branch to `78d49e3fb8895a4fb9f46bd1f4f7a28fcb4d8a52` before the closure commit.
+
+### 4B.4B source and ownership audit
+- Repository, PR #2, public visibility, canonical branch, `main`, root READMEs and start SHA were verified directly before modification.
+- All active capability-register shards through `CAP-INV-618` were read; `CAP-INV-701..719` was confirmed free and unrecycled.
+- Governance/source material read included master brief, capability inventory, product boundaries, native strategy, non-goals, AI constraints, source-of-truth/documentation/terminology rules, ownership/status, open decisions, registers, requirements and baseline.
+- Investigate sources read included Collection/Live Response, Static/Dynamic/Reverse, Memory/Disk/Network, Detection Engineering, Threat Intelligence and Cloud Analysis.
+- Collection acquisition/request/job/custody boundaries were read and retained; Mobile consumes results and never owns acquisition execution.
+- Platform Settings, Endpoint Agent, Studio, Govern, Shared, permissions, privacy/minimization, secrets/key management and Evidence trust sources were read and retained.
+- Existing mapped screens were read for Disk/Artifact, Case, Evidence, Event Search, Static, Reverse, Endpoint Fleet, Settings Sources, Studio Control Room and Govern Action Center; no active Mobile screen existed.
+- No competing canonical Mobile functional source was found; deprecated Mobile sources: 0; active owner documents remain active.
+- No Cloud capability, owner or functional scope was changed.
+
+## Phase 4B.4B measures before final remote verification
+| Measure | Before 4B.4B | After closure content, before remote verification |
+|---|---:|---:|
+| CAP-INV-701..719 | 0 | 19 |
+| Mobile Forensics capabilities | 0 | 19 |
+| Mobile sections / tables | 0 / 0 | 513 / 114 |
+| Phase 4B.4 Cloud + Mobile capabilities | 18 | 37 |
+| Phase 4B.4 sections / tables | 486 / 108 | 999 / 222 |
+| Investigate capabilities | 224 | 243 |
+| Investigate sections / tables | 6048 / 1344 | 6561 / 1458 |
+| Global capabilities | 251 | 270 |
+| Defined / proposed / planned | 249 / 2 / 251 | 268 / 2 / 270 |
+| Command + Investigate sections / tables | 6777 / 1506 | 7290 / 1620 |
+| New capability documents | 0 | 19 |
+| New Mobile supporting + roadmap documents | 0 | 15 |
+| Capability sections expected / present | 0 | 513 / 513 |
+| Mandatory tables expected / present | 0 | 114 / 114 |
+| Empty / prose-only / generic mandatory tables | 0 | 0 |
+| Duplicate/recycled IDs / concurrent owners / active contradictions | 0 / 0 / 0 / 0 | 0 / 0 / 0 / 0 |
+| Detailed screen rewrites / new Screen IDs | 0 / 0 | 0 / 0 |
+| Canonical Mobile object files / atomic permissions | 0 / 0 | 0 / 0 |
+| APIs/protocols/platforms/tools/connectors/commands/code | 0 | 0 |
+| Unlock/bypass/root/jailbreak/device mutation/secret use | 0 | 0 |
+| Requirement IDs | 122 | 122 |
+| Requirement states conform / partial / absent / contradictory | 99 / 20 / 3 / 0 | 99 / 20 / 3 / 0 |
+| Open decisions | 18 | 18 |
+
+## Maturity before final Mobile publication verification
+Phase 4B.3 and verified Cloud Phase 4B.4A remain PASS. Mobile functional and closure content is complete, but Phase 4B.4B remains **PENDING POST-PUBLICATION VERIFICATION** until the fifth functional commit is published and remote branch/PR/README/register/report checks pass. Therefore Phase 4B.4 and Phase 4B remain PARTIAL at this publication stage. Phase 4 and global maturity remain PARTIAL regardless because later objects, permissions, screens, technique and implementation remain future.
