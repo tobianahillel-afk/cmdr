@@ -39,8 +39,11 @@ Quality Lead.
 
 - Validation status: `validation-status.md`.
 - Structural baseline: `architecture-manifest.md` and `expected-path-manifest.md`.
-- Cloud Analysis conformance: `reports/phase-4b4a-cloud-analysis-capability-conformance.md`.
+- Cloud Analysis conformance: `reports/phase-4b4a-cloud-analysis-capability-conformance.md` — verified PASS.
 - Cloud Analysis source audit: `reports/phase-4b4a-cloud-analysis-source-audit.md`.
+- Mobile Forensics conformance: `reports/phase-4b4b-mobile-forensics-capability-conformance.md` — pending final publication verification.
+- Phase 4B.4 closure: `reports/phase-4b4-cloud-and-mobile-analysis-closure.md`.
+- Phase 4B Investigate closure: `reports/phase-4b-investigate-capability-closure.md`.
 - Prior Threat Intelligence closure reports remain active and preserved.
 
 ## Validation rules
@@ -48,8 +51,9 @@ Quality Lead.
 - A planned capability is not implementation evidence.
 - A report cannot claim post-publication PASS before the remote head, PR, README, `main`, registers and metrics are checked.
 - Historical evidence is appended or preserved; closure never condenses earlier traceability.
-- Sources are classified as fully read, referenced, identified or absent.
+- Sources are classified by what was actually read/used; unverified sources are not silently claimed.
 - A failed or pending gate remains visible.
+- Mobile PASS requires all 250 Mobile gates; Phase 4B.4/4B cannot be promoted before that check.
 
 ## UX et interactions
 
@@ -82,5 +86,4 @@ Le statut documentaire suit `00-governance/document-status-model.md`; les états
 
 ## Questions ouvertes
 
-- À compléter — décision source non fournie dans le brief canonique.
-- Cloud Analysis remains pending until remote verification is complete.
+- Cloud Analysis is verified PASS; Mobile Forensics remains pending until its final remote verification.
