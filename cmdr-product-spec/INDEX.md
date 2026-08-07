@@ -41,6 +41,7 @@ source-of-truth: canonical
 
 - Product source: `07-investigate/README.md`
 - Capability map: `07-investigate/capability-map.md`
+- Phase 4B.4 capability map: `07-investigate/phase-4b4-capability-map.md`
 - Detection Engineering: `07-investigate/modules/detection-engineering/`
 - Threat Intelligence: `07-investigate/modules/threat-intelligence/`
 - Cloud Analysis: `07-investigate/modules/cloud-analysis/`
@@ -49,6 +50,13 @@ source-of-truth: canonical
 - Cloud roadmap: `18-roadmap-and-releases/phase-4b4a-cloud-analysis.md`
 - Cloud conformance report: `16-quality-and-validation/reports/phase-4b4a-cloud-analysis-capability-conformance.md`
 - Cloud source audit: `16-quality-and-validation/reports/phase-4b4a-cloud-analysis-source-audit.md`
+- Mobile Forensics: `07-investigate/modules/mobile-forensics/`
+- Mobile capability map: `07-investigate/modules/mobile-forensics/capability-map.md`
+- Mobile capability-register shard: `00-governance/registers/capability-register-investigate-mobile-forensics.md`
+- Mobile roadmap: `18-roadmap-and-releases/phase-4b4b-mobile-forensics.md`
+- Mobile conformance report: `16-quality-and-validation/reports/phase-4b4b-mobile-forensics-capability-conformance.md`
+- Phase 4B.4 closure report: `16-quality-and-validation/reports/phase-4b4-cloud-and-mobile-analysis-closure.md`
+- Phase 4B Investigate closure report: `16-quality-and-validation/reports/phase-4b-investigate-capability-closure.md`
 
 ## Sources Phase 3
 
