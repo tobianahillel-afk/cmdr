@@ -3,12 +3,12 @@ id: investigate-object-consumption-map
 domain: 07-investigate
 status: draft
 owner: Investigate Product Lead
-updated: 2026-08-06
+updated: 2026-08-07
 source-of-truth: canonical
 requirements: [REQ-PROD-006, REQ-PROD-014, REQ-PROD-061, REQ-PROD-062, REQ-INV-001, REQ-INV-006]
-open_decisions: [OPEN-008, OPEN-012, OPEN-013, OPEN-014, OPEN-015, OPEN-017, OPEN-018, OPEN-019]
+open_decisions: [OPEN-008, OPEN-011, OPEN-012, OPEN-013, OPEN-014, OPEN-015, OPEN-017, OPEN-018, OPEN-019]
 ---
-# Object consumption map — Investigate through Phase 4B.4A
+# Object consumption map — Investigate through Phase 4B.4B closure content
 
 | Objet ou concept | Owner actuel | Usage local | Opérations locales | Lacune | Phase propriétaire |
 |---|---|---|---|---|---|
@@ -60,5 +60,24 @@ open_decisions: [OPEN-008, OPEN-012, OPEN-013, OPEN-014, OPEN-015, OPEN-017, OPE
 | Cloud Timeline / Cross-source Correlation Candidate | Investigate semantics using Shared Timeline/Linking | Cloud-local chronology and cross-source candidate relations | create/reconstruct/compare/dispute/supersede | not Case Timeline; correlation ≠ causality | Shared/Objects |
 | Cloud Reproducibility Assessment / Cloud Analysis Provenance Package | Investigate concepts using Shared Trace/Versioning/Export | source/tool/permission/version lineage and reproducibility conditions | create/compare/export by permission/supersede | no guaranteed replay | Shared/Trust |
 | Evidence Candidate Package / Finding Draft / Cloud Detection Gap | Investigate preparation; destination owners qualify/create canonical objects | Evidence, Finding and Detection handoffs | prepare/version/withdraw/link | candidate/draft/package ≠ destination object | Evidence/Detection/Objects |
+| Mobile Device / Mobile Device Candidate / Mobile Platform Candidate | source/Settings projections + Investigate concepts | scoped device/platform/version candidates | read/create/review/dispute/supersede | identifier/platform candidate ≠ person/certain support | Objects/Settings |
+| Mobile Acquisition Request / Collection Request / Collection Job | Mobile request concept + Collection owner | acquisition need/context/status | prepare/read/link only | acquisition execution remains Collection | Collection/Objects |
+| Mobile Evidence Package / Device Backup / Logical Extraction / Filesystem Extraction | source/Collection + Investigate concepts | bounded evidence representations | read/compare/review limitations | package ≠ device; backup ≠ extraction; extraction ≠ original | Objects/Collection |
+| Mobile Forensics Session | Investigate concept | durable mobile analytical workspace | create/update/pause/close/reopen/archive/supersede | final schema absent | Objects |
+| Integrity Assessment / Completeness Assessment / Accessibility Assessment | Investigate concepts using source/Trust facts | separate trust/coverage/access judgments | create/review/dispute/supersede | integrity ≠ completeness ≠ relevance ≠ usability | Objects/Trust |
+| Mobile Filesystem Observation | Investigate concept | represented partitions/filesystems/storage/entries | create/search/compare/dispute/supersede | no final filesystem model | Objects |
+| Application Observation / Application Data Observation | Investigate concepts | app/package and local-record analysis | create/compare/review/dispute/supersede | installed ≠ used; data ≠ user intent | Objects |
+| Communication Observation / Call Observation / Contact Observation | Investigate concepts | messaging/call/contact analysis | create/review/dispute/supersede | stored record ≠ author/read/conversation/relationship truth | Objects/Trust |
+| Media Observation / Document Observation | Investigate concepts | media/document content and metadata | create/compare/review/dispute/supersede | file ≠ user-created; metadata ≠ certain truth | Objects/Trust |
+| Location Observation / Sensor Observation | Investigate concepts | device location/activity/sensor context | create/compare/dispute/supersede | device location ≠ user presence; sensor ≠ human action | Objects/Trust |
+| Account Observation / Sensitive Material Candidate | Investigate concepts; Settings/Security own secret administration | account context and masked sensitive candidates | create/review/dispute/request access/handoff | account ≠ person; candidate ≠ valid/usable; use prohibited | Objects/Permissions |
+| Connectivity Observation / SIM-eSIM Observation / Paired Device Observation | Investigate concepts using source projections | network/wireless/SIM/pairing context | create/compare/correlate/dispute/handoff | record ≠ connection; SIM/paired device ≠ person/owner; no active scan | Objects/Shared |
+| Synchronization Observation | Investigate concept | local/synchronized/cloud-backed/cross-device relation | create/compare/dispute/supersede | synchronized/cloud-backed ≠ certain local state/full Cloud analysis | Objects/Cloud |
+| Deleted Entry Candidate / Recovery Result | Investigate concepts | deleted/residual/recovered/carved analysis | create/run bounded recovery/review/invalidate/supersede | deleted ≠ intent; recovered ≠ complete original/attribution | Objects/Studio |
+| Mobile Anomaly / Mobile Hypothesis | Investigate concepts | candidate anomaly/persistence/compromise interpretation | create/review/dispute/withdraw/supersede | anomaly/persistence/suspicious app ≠ compromise/malware/Finding | Objects |
+| Mobile Timeline / Cross-source Correlation Candidate | Investigate semantics using Shared Timeline/Linking | mobile-local chronology and cross-source relations | create/reconstruct/compare/dispute/supersede | Mobile Timeline ≠ Case Timeline; correlation ≠ causality | Shared/Objects |
+| Derived Artifact | Investigate canonical Artifact semantics + Mobile derivation | bounded transformed/selected mobile material | create/version/export/withdraw | Derived Artifact ≠ Evidence | Objects/Shared |
+| Evidence Candidate Package / Finding Draft / Detection Engineering Package / Intelligence Handoff Package | Investigate preparation; destination owners qualify/create | downstream handoffs | prepare/version/withdraw/link | candidate/draft/package ≠ destination object/action | Evidence/Detection/TI/Objects |
+| Reproducibility Assessment / Mobile Analysis Provenance Package | Investigate concepts using Shared Trace/Versioning/Export | source/acquisition/tool/permission/human lineage | create/review/dispute/export/supersede | no guaranteed replay; no trace deletion | Shared/Trust |
 
-No complete schema, JSON Schema, final cardinality/state machine, physical graph, algorithm, provider event model, exchange/report format, technical identifier, runtime package or atomic permission is defined.
+No complete schema, JSON Schema, final cardinality/state machine, physical graph, algorithm, provider/platform event model, extraction format, filesystem/application/message model, technical identifier, runtime package or atomic permission is defined.
