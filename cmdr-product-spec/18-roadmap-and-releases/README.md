@@ -38,7 +38,8 @@ Product Operations Lead.
 - Command: `phase-2-command.md` and related release evidence.
 - Investigate foundation: `phase-3-investigate.md`.
 - Cloud Analysis: `phase-4b4a-cloud-analysis.md` — `CAP-INV-601..618`, provider-neutral functional scope, **PASS AFTER POST-PUBLICATION VERIFICATION**.
-- Mobile Forensics: not started; no capability or phase implementation is created by Cloud Analysis.
+- Mobile Forensics: `phase-4b4b-mobile-forensics.md` — `CAP-INV-701..719`, provider/platform-neutral functional scope, **PENDING POST-PUBLICATION VERIFICATION** until the fifth functional commit and remote checks complete.
+- Phase 4B.4 combines Cloud and Mobile and remains PARTIAL until Mobile verification.
 
 ## UX et interactions
 
@@ -68,8 +69,9 @@ Le statut documentaire suit `00-governance/document-status-model.md`; les états
 - Les décisions non tranchées sont attribuées.
 - Chaque phase cite son scope, ses dépendances, ses preuves et ses décisions ouvertes.
 - Une phase n’est marquée PASS qu’après les vérifications exigées.
-- Mobile Forensics n’est pas démarrée implicitement par la clôture Cloud.
+- Cloud and Mobile remain separate provider-neutral functional subphases.
+- Mobile Forensics does not select a platform/tool/acquisition method or start a later phase implicitly.
 
 ## Questions ouvertes
 
-- À compléter — décision source non fournie dans le brief canonique.
+- OPEN-011 retains Mobile delivery strategy; OPEN-012 retains Cloud delivery strategy.
