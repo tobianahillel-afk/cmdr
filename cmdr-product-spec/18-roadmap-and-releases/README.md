@@ -3,7 +3,7 @@ id: roadmap-readme
 domain: 18-roadmap-and-releases
 status: draft
 owner: Product Operations Lead
-updated: 2026-08-07
+updated: 2026-08-09
 source-of-truth: canonical
 ---
 # Roadmap and Releases
@@ -12,34 +12,46 @@ source-of-truth: canonical
 
 Ordonner les dépendances, phases, migrations, releases et preuves de readiness sans créer de décisions produit hors de leurs sources.
 
-## Périmètre
+## Phase numbering namespaces
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
+CMDR maintains two independent phase namespaces. The canonical convention is [`phase-numbering-and-namespace-convention.md`](phase-numbering-and-namespace-convention.md).
 
-## Propriétaire fonctionnel
+A bare `Phase 4` must not be used in a new ambiguous context. `Capability Specification Phase 4B — Investigate` and `Delivery Roadmap Phase 4 — Govern` are different phases in different namespaces; the shared number does not create a parent-child relationship and does not imply a `Phase 4C Govern`.
 
-Product Operations Lead.
+## Capability Specification execution plans
 
-## Objets concernés
+This namespace tracks detailed capability specification, ownership, traceability, templates and quality gates.
 
-- Concepts du document
-- Références canoniques liées
+- `Capability Specification Phase 4A — Command`: **PASS**; historical IDs and reports preserved.
+- `Capability Specification Phase 4B — Investigate`: **PASS** after Mobile post-publication verification; historical IDs and reports preserved.
+- `Capability Specification Phase 4` global maturity: **PARTIAL** because later object, permission, screen, technique and implementation work remains future.
+- Cloud Analysis execution evidence: `phase-4b4a-cloud-analysis.md` — `CAP-INV-601..618`, **PASS AFTER POST-PUBLICATION VERIFICATION**.
+- Mobile Forensics execution evidence: `phase-4b4b-mobile-forensics.md` — `CAP-INV-701..719`, **PASS AFTER POST-PUBLICATION VERIFICATION**.
 
-## Fonctionnalités
+The next product candidate for a separate capability-specification execution is Govern. Govern capability specification is **NOT STARTED** by this reconciliation.
 
-- Dependency roadmap.
-- Release strategy.
-- Phase plans.
-- Migration and deprecation.
-- Readiness and release evidence.
+## Delivery Roadmap phases
 
-## Phase plans actifs
+This namespace preserves the historical product-delivery sequence:
 
-- Command: `phase-2-command.md` and related release evidence.
-- Investigate foundation: `phase-3-investigate.md`.
-- Cloud Analysis: `phase-4b4a-cloud-analysis.md` — `CAP-INV-601..618`, provider-neutral functional scope, **PASS AFTER POST-PUBLICATION VERIFICATION**.
-- Mobile Forensics: `phase-4b4b-mobile-forensics.md` — `CAP-INV-701..719`, provider/platform-neutral functional scope, **PENDING POST-PUBLICATION VERIFICATION** until the fifth functional commit and remote checks complete.
-- Phase 4B.4 combines Cloud and Mobile and remains PARTIAL until Mobile verification.
+1. [`phase-1-foundation.md`](phase-1-foundation.md) — `Delivery Roadmap Phase 1 — Foundation`;
+2. [`phase-2-command.md`](phase-2-command.md) — `Delivery Roadmap Phase 2 — Command`;
+3. [`phase-3-investigate.md`](phase-3-investigate.md) — `Delivery Roadmap Phase 3 — Investigate`;
+4. [`phase-4-govern.md`](phase-4-govern.md) — `Delivery Roadmap Phase 4 — Govern`, canonical id `roadmap-phase-4-govern`, Govern capability specification **NOT STARTED**;
+5. [`phase-5-studio-and-endpoint.md`](phase-5-studio-and-endpoint.md) — `Delivery Roadmap Phase 5 — Studio and Endpoint`;
+6. [`phase-6-platform-scale.md`](phase-6-platform-scale.md) — `Delivery Roadmap Phase 6 — Platform Scale`.
+
+The Delivery Roadmap plan files remain historical canonical files and are not renamed to mimic Capability Specification numbering.
+
+## Other active roadmap documents
+
+- dependency ordering: [`dependency-roadmap.md`](dependency-roadmap.md);
+- decision sequencing: [`decision-sequencing.md`](decision-sequencing.md);
+- capability delivery metadata: [`capability-delivery-map.md`](capability-delivery-map.md);
+- release strategy, readiness, evidence, notes and post-release validation;
+- backlog, migration, deprecation, pilot, launch and versioning guidance.
+
+The existing active roadmap corpus is retained. This reconciliation adds one convention document and changes no historical phase filename or ID.
 
 ## UX et interactions
 
@@ -53,12 +65,16 @@ Les modifications suivent le modèle défini dans `../14-security-permissions-an
 
 ## États
 
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques. A roadmap `PASS` is documentary evidence only and never proves implementation.
+Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques. A roadmap `PASS` or capability-specification `PASS` is documentary evidence only and never proves implementation.
+
+Delivery Roadmap Phase 1–3 plan files currently carry document status `draft`; this index does not invent a delivery-completion verdict for them. Delivery Roadmap Phase 4–6 capability-specification work is not started unless a separate execution explicitly begins it.
 
 ## Dépendances
 
 - `../00-governance/source-of-truth-policy.md`
 - `../00-governance/dependency-register.md`
+- [`dependency-roadmap.md`](dependency-roadmap.md)
+- [`phase-numbering-and-namespace-convention.md`](phase-numbering-and-namespace-convention.md)
 - `../STATUS.md`
 - `../16-quality-and-validation/validation-status.md`
 
@@ -67,11 +83,11 @@ Le statut documentaire suit `00-governance/document-status-model.md`; les états
 - Le document a un propriétaire unique.
 - Les liens locaux sont valides.
 - Les décisions non tranchées sont attribuées.
-- Chaque phase cite son scope, ses dépendances, ses preuves et ses décisions ouvertes.
-- Une phase n’est marquée PASS qu’après les vérifications exigées.
-- Cloud and Mobile remain separate provider-neutral functional subphases.
-- Mobile Forensics does not select a platform/tool/acquisition method or start a later phase implicitly.
+- Chaque nouvelle référence de phase ambiguë qualifie son namespace.
+- Aucun identifiant historique n’est renommé pour harmoniser les nombres.
+- `roadmap-phase-4-govern` reste canonique et aucune `Phase 4C Govern` n’est créée.
+- Les dépendances fonctionnelles viennent des sources d’ownership/dependency/transition, jamais de la proximité numérique entre namespaces.
 
 ## Questions ouvertes
 
-- OPEN-011 retains Mobile delivery strategy; OPEN-012 retains Cloud delivery strategy.
+La réconciliation de namespace ne crée ni ne ferme aucune décision produit. Les décisions existantes restent dans `../00-governance/source-material/unresolved-decisions.md`.

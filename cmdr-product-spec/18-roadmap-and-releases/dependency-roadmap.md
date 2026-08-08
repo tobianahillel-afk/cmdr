@@ -3,7 +3,7 @@ id: dependency-roadmap
 domain: 18-roadmap-and-releases
 status: draft
 owner: Product Operations Lead
-updated: 2026-08-03
+updated: 2026-08-09
 source-of-truth: canonical
 ---
 # Dependency Roadmap
@@ -18,5 +18,13 @@ source-of-truth: canonical
 | 6 | Forensic engines et sandbox profiles | Investigate | chaîne d’analyse |
 | 7 | Retention, legal hold, signature et timestamp | Compliance / Security | Evidence, Decisions, Reports, Audit |
 | 8 | SLO, RTO, RPO et deployment models | Platform Engineering | release readiness |
+
+## Phase namespace rule
+
+Phase numbers are not dependency edges. Functional or documentary dependencies MUST NOT be inferred from numeric proximity between `Capability Specification Phase` and `Delivery Roadmap Phase` namespaces.
+
+For example, `Capability Specification Phase 4B — Investigate` does not numerically depend on, contain or precede `Delivery Roadmap Phase 4 — Govern`. Their real relationship is functional: Investigate outputs may produce an `Action Request`; Govern owns authority, Decision, Response Run and Result.
+
+See [`phase-numbering-and-namespace-convention.md`](phase-numbering-and-namespace-convention.md).
 
 Les détails de responsabilité vivent dans `../00-governance/dependency-register.md`. Les questions techniques restent dans les documents propriétaires.

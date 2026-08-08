@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-08-09 — Phase numbering namespace reconciliation
+- Recorded two historical phase namespaces: `Capability Specification Phase` for detailed capability-specification execution and `Delivery Roadmap Phase` for the historical product-delivery sequence.
+- Preserved all existing phase IDs, filenames, reports, SHAs, Capability IDs and PASS history; no historical phase was renumbered.
+- Preserved `phase-4-govern.md`, canonical id `roadmap-phase-4-govern` and title `Phase 4 Govern` as `Delivery Roadmap Phase 4 — Govern`.
+- Explicitly prohibited creating or renaming Govern as `Phase 4C Govern` solely to align with Capability Specification Phase 4A/4B.
+- Required qualified phase names in future ambiguous contexts and prohibited inferring functional dependencies from numeric proximity across namespaces.
+- Confirmed `Capability Specification Phase 4A — Command` PASS and `Capability Specification Phase 4B — Investigate` PASS while `Capability Specification Phase 4` global maturity remains PARTIAL.
+- Recorded Govern capability specification as NOT STARTED; created no CAP-GOV ID, capability, object, screen, atomic permission, API, protocol, implementation or new product decision.
+- Kept the open-decision count unchanged at 18; no OPEN was created or closed.
+
 ## 2026-08-07 — Phase 4B.4B Mobile Forensics closure preparation
 - Verified the exact Mobile starting remote head `ed874ea414fc57f24fa61f410f91b7345f4a868a`, PR #2 Draft/open/unmerged, public repository, disabled auto-merge and unchanged root README before modification.
 - Added the unique canonical `Phase 4B.4B — Mobile Forensics Foundations and Mobile Investigation` roadmap and provider/platform-neutral module.

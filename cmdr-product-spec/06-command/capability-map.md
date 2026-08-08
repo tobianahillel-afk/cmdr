@@ -3,7 +3,7 @@ id: command-capability-map
 domain: 06-command
 status: draft
 owner: Command Product Lead
-updated: 2026-08-04
+updated: 2026-08-09
 source-of-truth: canonical
 requirements:
   - REQ-PROD-003
@@ -21,6 +21,20 @@ open_decisions:
   - OPEN-013
 ---
 # Capability map — Command
+
+## Capability Specification phase namespace
+
+This map is the active Command capability source for `Capability Specification Phase 4A — Command`.
+
+- namespace: **Capability Specification**;
+- canonical execution label: `Capability Specification Phase 4A — Command`;
+- status: **PASS**; unchanged by the phase-numbering reconciliation;
+- Capability IDs: unchanged;
+- historical reports and SHAs: unchanged.
+
+This numbering is not the Delivery Roadmap numbering. `Capability Specification Phase 4A — Command` is not `Delivery Roadmap Phase 2 — Command`, and it does not create a numeric predecessor relationship to `Delivery Roadmap Phase 4 — Govern`. In particular, 4A/4B do not imply a future `4C Govern`.
+
+See `../18-roadmap-and-releases/phase-numbering-and-namespace-convention.md`.
 
 | ID | Capability | Module | Status | Mode | Source |
 |---|---|---|---|---|---|
