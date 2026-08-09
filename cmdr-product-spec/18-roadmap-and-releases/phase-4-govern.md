@@ -14,46 +14,40 @@ source-of-truth: canonical
 - canonical title: `Phase 4 Govern`;
 - qualified title: **Delivery Roadmap Phase 4 — Govern**;
 - previous: Delivery Roadmap Phase 3 — Investigate;
-- next historical candidate: Delivery Roadmap Phase 5 — Studio and Endpoint;
-- current status: **PARTIAL pending GOV-3 post-publication verification**.
+- next verified historical candidate: **Delivery Roadmap Phase 5 — Studio and Endpoint**, id `roadmap-phase-5-studio-and-endpoint`;
+- current status: **PASS**.
 
-Delivery Roadmap and Capability Specification namespaces are independent. `Phase 4C`, `Phase 4D`, `Phase 4E Govern` and `Capability Specification Phase 4C` do not exist. GOV-1/GOV-2/GOV-3 are execution-lot identifiers only.
+Delivery Roadmap and Capability Specification namespaces are independent. `Phase 4C/4D/4E Govern` and `Capability Specification Phase 4C` do not exist. GOV-1/GOV-2/GOV-3 are execution-lot identifiers only.
 
 ## Execution lots
 | Lot | Scope | Capabilities | Sections | Tables | Status |
 |---|---|---:|---:|---:|---|
-| GOV-1 | Action Requests, Policy, Authorities and Decisions | 16 | 432 | 96 | historical PASS 180/180 |
-| GOV-2 | Playbooks, Response Runs, Execution, Verification and Rollback | 17 | 459 | 102 | historical PASS 190/190 |
-| GOV-3 | Audit Trail, Response Metrics and Govern Closure | 14 | 378 | 84 | functional complete; 200-gate remote verification pending |
-| **Govern** | **CAP-GOV-001..047** | **47** | **1269** | **282** | **closure candidate PASS after remote verification** |
+| GOV-1 | Action Requests, Policy, Authorities and Decisions | 16 | 432 | 96 | PASS; historical 180/180 |
+| GOV-2 | Playbooks, Response Runs, Execution, Verification and Rollback | 17 | 459 | 102 | PASS; historical 190/190 |
+| GOV-3 | Audit Trail, Response Metrics and Govern Closure | 14 | 378 | 84 | **PASS AFTER POST-PUBLICATION VERIFICATION — 200/200** |
+| **Govern** | **CAP-GOV-001..047** | **47** | **1269** | **282** | **PASS** |
 
-## GOV-3 scope
-GOV-3 consumes GOV-1/GOV-2 provenance and defines:
-- CAP-GOV-034..038 — Govern Audit Event interpretation, Decision/Run reconstruction, completeness/gap/contradiction review and Audit Evidence Package preparation;
-- CAP-GOV-039..045 — Govern-specific Policy/Exception/Emergency, Approval/Authority/SoD, Decision, Run, verification/rollback/recovery, Result/effectiveness and lifecycle-flow metrics;
-- CAP-GOV-046 — Trend/Comparison and Control Health Assessment;
-- CAP-GOV-047 — no-effect Continuous Improvement Package and documentary closure provenance.
+## Complete scope
+GOV-1 defines Action Request, Policy, Authority, Approval and Decision. GOV-2 defines Playbook/Execution Plan/Readiness, Response Run/Steps, technical handoffs, Verification, Rollback/Recovery and canonical Result. GOV-3 defines Govern Audit Trail semantics/reconstruction/review, Govern-specific metrics/flow/trends/control health and no-effect Continuous Improvement/closure provenance.
 
-Audit Trail does not become Shared Trace/Activity; Response Metrics does not become the Shared Metrics/Reporting engine. Settings/Security and source products retain retention/storage/permission/source-object/technical-metric ownership.
-
-## Full Govern chain
+Canonical chain:
 `Finding/Incident → Action Request → Policy/Authority/Approval → Decision → Execution Handoff → Playbook/Execution Plan/Readiness → Response Run/Steps → Verification → Rollback/Recovery when required → Result → Audit Reconstruction → Govern Metrics/Trends/Control Health → Improvement/closure feedback`.
 
-No derived audit/metric artifact rewrites the source object.
+No derived audit/metric artifact rewrites the source object. Shared Trace/Activity/Metrics/Reporting/Export, Settings/Security administration and product-specific source metrics retain their owners.
 
-## Requirements / OPEN / totals
-- Requirements: **122 = 99 conform / 20 partial / 3 absent / 0 contradictory**; GOV-3 changes no global state.
-- OPEN decisions: **18**; GOV-3 creates/closes 0.
-- Global capabilities after GOV-3 functional set: **317** — 27 Command / 243 Investigate / 47 Govern; **315 defined / 2 proposed / 317 planned**.
-- Total documentation: **8559 sections / 1902 mandatory tables**.
+## Verified closure
+- GOV-3 baseline: `36edacb4eb374e0b56d6c9e9c45931fdb1e0af20`.
+- fifth functional GOV-3 SHA: `042f70d3cfd13467acc294bfff726edde9e16cb0`.
+- baseline → fifth SHA: 5 ahead / 0 behind, same merge base.
+- GOV-3 gates: **200/200 PASS**.
+- Requirements: **122 = 99/20/3/0**; state changes by GOV-3: 0.
+- OPEN: **18**; GOV-3 creates/closes 0.
+- owner conflicts / missing mandatory Govern capabilities: **0 / 0**.
 
-## Closure candidate
-The dedicated `govern-capability-specification-closure.md` and `delivery-roadmap-phase-4-govern-closure.md` reports find all nine Govern modules covered, no missing mandatory provider-neutral Govern capability, no active owner conflict and no blocking functional contradiction. Remaining OPEN decisions concern later delivery/implementation/detail choices.
+## Meaning of PASS
+This PASS closes the provider-neutral **documentary capability-specification scope** of Delivery Roadmap Phase 4 — Govern. It does not claim product implementation, SIEM/audit/metrics engines, warehouse/storage schema, API/protocol/event format, final RBAC/retention policy, detailed screens or external compliance certification.
 
-Therefore Delivery Roadmap Phase 4 — Govern is a **PASS candidate**, but remains **PARTIAL until the fifth GOV-3 functional commit is published and all 200 gates are remotely verified**.
-
-## Implementation boundary
-No product implementation, SIEM, audit/metrics engine, warehouse, storage schema, API/protocol, event format, ML model, final RBAC/retention policy, detailed screen rewrite or external compliance claim is introduced.
+Global Capability Specification maturity and repository global maturity remain **PARTIAL** because Studio/Endpoint, Platform Settings/Scale, final objects/permissions/screens, technique, implementation and global validation remain future.
 
 ## Stop line
-Do not begin Delivery Roadmap Phase 5 during GOV-3. The next roadmap candidate is identified only after final remote closure verification.
+Delivery Roadmap Phase 5 — Studio and Endpoint is identified only. **No Phase 5 capability or implementation is started by this closure.**
