@@ -18,84 +18,74 @@ source-of-truth: canonical
 - next delivery phase: `Delivery Roadmap Phase 5 — Studio and Endpoint`;
 - Govern capability specification status: **PARTIAL**.
 
-`Delivery Roadmap Phase 4 — Govern` and `Capability Specification Phase 4` belong to distinct namespaces and have no numeric parent-child relationship. `Phase 4 Govern` MUST NOT be renamed to `Phase 4C Govern`. `Capability Specification Phase 4C` and `Phase 4C Govern` **do not exist**. See [`phase-numbering-and-namespace-convention.md`](phase-numbering-and-namespace-convention.md).
+`Delivery Roadmap Phase 4 — Govern` and `Capability Specification Phase 4` belong to distinct namespaces. `Phase 4C Govern`, `Phase 4D Govern` and `Capability Specification Phase 4C` **do not exist**. GOV-1/GOV-2/GOV-3 are execution-lot identifiers, not roadmap phases.
 
 ## Capability-specification execution lots
 
 | Execution lot | Scope | Status |
 |---|---|---|
-| **GOV-1** | Action Requests, Policy, Authorities and Decisions | **PENDING POST-PUBLICATION VERIFICATION** |
-| GOV-2 | Playbooks, Response Runs, Execution, Verification and Rollback | **NOT STARTED** |
+| **GOV-1** | Action Requests, Policy, Authorities and Decisions | **PASS AFTER POST-PUBLICATION VERIFICATION — 180/180** |
+| **GOV-2** | Playbooks, Response Runs, Execution, Verification and Rollback | **PENDING POST-PUBLICATION VERIFICATION** |
 | GOV-3 | Audit Trail, Response Metrics and Govern Closure | **NOT STARTED** |
 
-`GOV-1`, `GOV-2` and `GOV-3` are execution-lot identifiers. They are not roadmap phases.
+## GOV-1 preserved closure
 
-## GOV-1 scope
+GOV-1 remains exactly `CAP-GOV-001..016`, 16 defined/planned capabilities, 432 numbered sections and 96 mandatory tables. Its dedicated post-publication record is based on `b8dd93e03443adb9101c7592094a48e358b460e2` (`docs: record Govern GOV-1 post-publication verification`). GOV-2 does not redefine Action Request, Policy/authority/Approval, Decision or Execution Handoff Package semantics.
 
-GOV-1 defines the functional chain from governed request intake to a no-effect execution handoff:
+## GOV-2 scope and chain
 
-`Finding / Incident / Detection Engineering / Threat Intelligence / analysis context → Action Request → Intake → Response Inbox → Action Center → Policy Evaluation → conflict/Exception assessment → authority requirement → approver eligibility/SoD → Approval Request → Approval → Decision Preparation → Decision → Execution Handoff Package`.
+GOV-2 starts from a Decision plus Execution Handoff Package and specifies:
 
-GOV-1 covers modules:
-1. Response Inbox;
-2. Action Center;
-3. Decision Register;
-4. Policy Gates;
-5. Approvals & Authorities.
+`Decision → Execution Handoff Package → Playbook Selection → exact-version Compatibility Review → Execution Plan → Target Resolution/Readiness → Authorization Reconciliation → Response Run → scheduling/control → Response Steps → Studio/Endpoint/provider handoff → Runtime Reconciliation → Error/Retry/Partial Success → Verification Plan → Post-Execution Verification/Residual Risk → Rollback/Recovery when required → canonical Result → cross-product handoff`.
 
-It reads modules 6–9 only to preserve future boundaries:
-6. Playbooks — GOV-2;
-7. Runs & Rollback — GOV-2;
-8. Audit Trail — GOV-3;
-9. Response Metrics — GOV-3.
+GOV-2 primarily covers modules:
+6. Playbooks;
+7. Runs & Rollback.
 
-## GOV-1 capability set
+Modules 1–5 remain GOV-1 and are only consumed/re-entered for review when authority changes. Modules 8–9 remain future GOV-3:
+8. Audit Trail;
+9. Response Metrics.
 
-Exactly `CAP-GOV-001..016` are allocated and functionally specified. They are all `draft` / `defined` / `planned`.
+## GOV-2 capability set
 
-Prepared counts before remote closure verification:
-- GOV-1 capabilities: **16**;
-- numbered capability sections: **432**;
-- mandatory S8/S9/S10/S13/S16/S17 tables: **96**;
-- empty/generic mandatory tables: **0**;
-- GOV-2/GOV-3 capabilities: **0**.
+Exactly `CAP-GOV-017..033` are allocated, all `draft` / `defined` / `planned`:
+- 17 capabilities;
+- 459 numbered sections;
+- 102 mandatory S8/S9/S10/S13/S16/S17 tables;
+- duplicate/recycled IDs: 0;
+- GOV-3 capabilities created: 0.
 
-## Ownership and stop line
+Govern cumulative after GOV-2 functional specification: **33 capabilities / 891 sections / 198 mandatory tables**.
 
-Govern owns Action Request processing, Policy Evaluation/conflict/exception governance, contextual authority, Approval and Decision. Command keeps Incident/general Work Queue; Investigate keeps Case/Evidence/Finding; Studio keeps Workflow/Human Gate/Automation Run; Settings keeps user/role/group/tenant/secret administration; Endpoint/runtime owners keep technical execution; Shared keeps generic engines.
+## Ownership and execution boundary
 
-GOV-1 performs **no target execution**. `Execution Handoff Package` ≠ `Response Run`; `Approval` ≠ `Decision`; `approve` ≠ `execute`. No Result or rollback execution is produced by GOV-1.
+Govern owns Response Playbook semantics, Execution Plan, Response Run/Step governance, runtime reconciliation, verification, rollback/recovery governance and canonical Result. Studio retains Workflow/Tool/Tool Call/Human Gate/Automation Run. Endpoint/provider owners retain technical primitives/raw outcomes. Settings retains providers/integrations/secrets/credentials/runtime/tenant/environment administration. Command retains Incident/Work Queue; Investigate retains Case/Evidence/Finding/analysis; Shared retains generic Jobs/Trace/Activity/Versioning/Reporting/Recovery mechanisms.
 
-## GOV-1 functional commits
+Key distinctions: Playbook != Workflow; Response Run != Automation Run/Job/Tool Call; technical output != canonical Result; retry != reauthorization; cancel/compensation != rollback; runtime success != verification success; Result never rewrites Decision/Evidence/Finding.
 
-Starting baseline:
-- `a6adf28aa0fa64b917a0a37be37de2a4cb28b541` — `docs: record Command Phase 4A post-publication revalidation`.
+## GOV-2 functional commits
 
-Published GOV-1 functional commits:
-1. `587ac4f7f0e437b13c6276e493ad9bf1f3bf6dbd` — `docs: establish Govern request policy and authority boundaries`;
-2. `c45f067c6d108f41d29f6140c1298bee4a263712` — `docs: define Govern intake action requests and policy evaluation`;
-3. `0dc62e1716909f5702bfbb19488f0f9a0d8530d6` — `docs: specify Govern approvals authorities and separation of duties`;
-4. `35f2e5d6f30f4b7cb06c476dc9ea358b4288f349` — `docs: document Govern decisions conditions and execution handoff`;
-5. `docs: update Govern foundation traceability and quality gates` — exact squash SHA recorded only after publication.
+Exact baseline:
+- `b8dd93e03443adb9101c7592094a48e358b460e2` — `docs: record Govern GOV-1 post-publication verification`.
 
-## Pre-publication status rule
+Published functional commits before the traceability/quality commit:
+1. `f2981f5da45c0011390e3b4c9f21b596780758bb` — `docs: establish Govern playbook and execution boundaries`;
+2. `9ff1ebb8fcadb5ea8cccef3ed7901c491d1627e7` — `docs: define Govern execution planning readiness and response runs`;
+3. `8d109caea41867aaf74794fbcad14896b35987ca` — `docs: specify Govern runtime coordination verification and failure handling`;
+4. `c2314c475a75cfc09122917cc72d282f216f2fbd` — `docs: document Govern rollback recovery results and provenance`;
+5. `docs: update Govern execution traceability and quality gates` — exact SHA recorded only after publication.
 
-The functional content, counts and local gates can be prepared before the fifth commit, but remote publication-dependent gates remain `PENDING`. GOV-1 MUST NOT be marked `PASS AFTER POST-PUBLICATION VERIFICATION` until the fifth functional commit is on the canonical branch and PR/head/README/main/commit-chain/Command-non-regression checks have been performed remotely.
+## Requirements / OPEN / implementation
 
-## Requirements and OPEN decisions
+- Requirements remain **122 — 99 conform / 20 partial / 3 absent / 0 contradictory**; GOV-2 adds documentary evidence without global state promotion.
+- Open decisions remain **18**; GOV-2 creates/closes 0. OPEN-007/008/013/015/019 remain relevant.
+- GOV-2 defines no provider/runtime, command, exploit/bypass, API/protocol, raw secret value, complete object schema, final state machine, final RBAC/ABAC or product code.
+- detailed screen rewrites: 0; new Screen IDs: 0.
 
-- Requirement IDs remain **122 — 99 conform / 20 partial / 3 absent / 0 contradictory**; GOV-1 adds documentary evidence but no state promotion.
-- Open decisions remain **18**; GOV-1 creates/closes **0**.
-- `OPEN-007`, `OPEN-013` and `OPEN-015` remain explicitly open and are consumed rather than resolved.
+## Acceptance for GOV-2
 
-## Permissions / objects / technology
+GOV-2 can be promoted to `PASS AFTER POST-PUBLICATION VERIFICATION` only after the fifth required functional commit is published and all **190** gates pass, including exact remote SHA/ancestry, PR/readme/main invariants, 17/459/102 structural conformance and GOV-1/Command/Investigate non-regression.
 
-GOV-1 identifies functional permission needs and local object/concept consumption only. It creates no complete object schema, JSON Schema, final state machine, final RBAC/ABAC matrix, API, protocol, Policy engine, authority engine, execution engine or product code.
+## Stop line
 
-## Acceptance for GOV-1
-
-GOV-1 can be promoted to PASS only if the published chain contains the five required functional commits, `CAP-GOV-001..016` conform at 432/432 sections and 96/96 mandatory tables, all 180 quality gates pass, Command non-regression remains intact, PR #2 remains open/Draft/unmerged, README/main are unchanged and no GOV-2/GOV-3/implementation scope was started.
-
-## Current next action
-
-Publish the fifth GOV-1 traceability/quality commit, verify remote state, then record post-publication evidence. Do **not** start GOV-2 or GOV-3 as part of GOV-1 closure.
+GOV-3 remains NOT STARTED. Govern capability specification and Delivery Roadmap Phase 4 — Govern remain PARTIAL even after successful GOV-2 closure.
