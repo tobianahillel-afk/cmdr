@@ -10,43 +10,49 @@ open_decisions: [OPEN-007, OPEN-008, OPEN-013, OPEN-015, OPEN-019]
 ---
 # Govern GOV-2 — Playbooks, Response Runs, Verification and Rollback Capability Conformance
 
+## Verdict
+
+**PASS AFTER POST-PUBLICATION VERIFICATION — 190/190 mandatory gates PASS, 0 PENDING, 0 FAIL.**
+
+This is documentary functional conformance only. It validates no product implementation, provider/runtime, API/protocol, executable command, complete object schema, final state machine or final RBAC/ABAC.
+
 ## Canonical identity
 
 - Parent: **Delivery Roadmap Phase 4 — Govern**.
 - Canonical roadmap id: `roadmap-phase-4-govern`.
 - Canonical roadmap title: `Phase 4 Govern`.
 - Execution lot: **GOV-2 — Playbooks, Response Runs, Execution, Verification and Rollback**.
-- **GOV-2 is not a roadmap phase or Capability Specification Phase.**
-- **Phase 4C Govern: DOES NOT EXIST.**
-- **Phase 4D Govern: DOES NOT EXIST.**
+- GOV-2 is an execution lot, not a roadmap phase or Capability Specification Phase.
+- `Phase 4C Govern`: **DOES NOT EXIST**.
+- `Phase 4D Govern`: **DOES NOT EXIST**.
 - GOV-3 — Audit Trail, Response Metrics and Govern Closure: **NOT STARTED**.
 
-## Exact GOV-2 baseline
+## Exact publication baseline and functional chain
 
 - repository: `tobianahillel-afk/cmdr`;
 - canonical branch: `docs/cmdr-product-spec-foundation`;
-- PR: #2, base `main`;
+- PR #2, base `main`;
 - exact initial GOV-2 SHA: **`b8dd93e03443adb9101c7592094a48e358b460e2`**;
-- exact initial commit: `docs: record Govern GOV-1 post-publication verification`;
-- direct ancestor requirement: `b8dd93e...` directly descends from `077e3edb5a6fbfe5513279e061e7b4bbee7c71dd`;
-- root README baseline/current prepublication: exact `# cmdr`, canonical blob `901c74cda52e28b5ff7fc425ddf28ef89f3ad875`;
-- `main`: unchanged baseline `bc1ec59e5e79ccbaba291e2984b0eb7d5e54129c`.
+- baseline title: `docs: record Govern GOV-1 post-publication verification`;
+- baseline directly descends from `077e3edb5a6fbfe5513279e061e7b4bbee7c71dd`;
+- fifth functional head verified remotely: **`0bcdaabbed60c041c10e93343013220bea48b1de`**;
+- baseline → fifth functional head: **5 commits ahead / 0 behind**, same merge base;
+- root README canonical/main: exact `# cmdr`, blob `901c74cda52e28b5ff7fc425ddf28ef89f3ad875`;
+- `main`: unchanged at `bc1ec59e5e79ccbaba291e2984b0eb7d5e54129c`;
+- repository public; auto-merge disabled;
+- PR #2 after fifth functional publication: open, Draft, unmerged, head at the fifth functional SHA;
+- workflow runs on fifth functional SHA: none configured;
+- commit statuses on fifth functional SHA: none configured;
+- no force-push, rebase, reset or history rewrite.
 
-The missing GOV-1 post-publication record was detected before any GOV-2 capability creation and repaired with the exact baseline commit above. No SHA is inferred or invented.
+Required five functional commits:
+1. `f2981f5da45c0011390e3b4c9f21b596780758bb` — `docs: establish Govern playbook and execution boundaries`;
+2. `9ff1ebb8fcadb5ea8cccef3ed7901c491d1627e7` — `docs: define Govern execution planning readiness and response runs`;
+3. `8d109caea41867aaf74794fbcad14896b35987ca` — `docs: specify Govern runtime coordination verification and failure handling`;
+4. `c2314c475a75cfc09122917cc72d282f216f2fbd` — `docs: document Govern rollback recovery results and provenance`;
+5. `0bcdaabbed60c041c10e93343013220bea48b1de` — `docs: update Govern execution traceability and quality gates`.
 
-## Pre-publication verdict
-
-**PENDING POST-PUBLICATION VERIFICATION — 186 PASS / 4 PENDING / 0 FAIL across 190 mandatory gates.**
-
-Only gates **20, 185, 189 and 190** remain pending because the fifth required functional commit has not yet been published on the canonical branch at the time this report version is authored. No remote-dependent PASS is claimed prematurely.
-
-## Functional commits published before this report
-
-1. `f2981f5da45c0011390e3b4c9f21b596780758bb` — `docs: establish Govern playbook and execution boundaries`.
-2. `9ff1ebb8fcadb5ea8cccef3ed7901c491d1627e7` — `docs: define Govern execution planning readiness and response runs`.
-3. `8d109caea41867aaf74794fbcad14896b35987ca` — `docs: specify Govern runtime coordination verification and failure handling`.
-4. `c2314c475a75cfc09122917cc72d282f216f2fbd` — `docs: document Govern rollback recovery results and provenance`.
-5. Required title pending publication: `docs: update Govern execution traceability and quality gates`.
+The exact SHA of this post-publication verification-record correction is intentionally not embedded self-referentially in its own commit. It is verified from the canonical branch/PR after publication and recorded in the external final report / PR description.
 
 ## Capability conformance
 
@@ -70,71 +76,47 @@ Only gates **20, 185, 189 and 190** remain pending because the fifth required fu
 | CAP-GOV-032 | 27/27 | PASS | PASS | PASS | PASS | PASS | PASS | draft/defined/planned | PASS |
 | CAP-GOV-033 | 27/27 | PASS | PASS | PASS | PASS | PASS | PASS | draft/defined/planned | PASS |
 
-Structural totals:
-- capability files: **17/17**;
-- numbered sections: **459/459**;
-- mandatory tables: **102/102**;
-- empty mandatory tables: **0**;
-- generic/prose-substitution mandatory tables: **0**;
-- duplicate IDs: **0**;
-- recycled IDs: **0**;
+Totals:
+- **17/17 capability files**;
+- **459/459 numbered sections**;
+- **102/102 mandatory tables**;
+- empty/generic mandatory tables: **0 / 0**;
+- duplicate/recycled IDs: **0 / 0**;
 - owner conflicts: **0**;
-- active contradictions detected: **0**;
-- GOV-3 capability files: **0**.
+- GOV-3 capabilities: **0**.
 
-The four functional construction PRs contain exactly 2 + 5 + 6 + 4 capability files. Patch inspection confirms every capability reaches section 27 and uses the canonical mandatory section/table contract.
+## Functional result
 
-## Functional coverage summary
+GOV-2 now defines the provider/runtime-neutral response chain:
+`Decision → Execution Handoff Package → Playbook Selection → Compatibility Review → Execution Plan → Target Resolution/Readiness → Authorization Reconciliation → Response Run → scheduling/control → Response Steps → Studio/Endpoint/provider handoff → Runtime Reconciliation → Error/Retry/Partial Success → Verification Plan → Post-Execution Verification/Residual Risk → Rollback/Recovery when required → canonical Result → provenance/cross-product handoff`.
 
-GOV-2 defines, functionally and provider/runtime-neutrally:
-1. Playbook catalog and selection;
-2. exact Playbook version and Decision compatibility;
-3. Execution Plan / parameter and Secret Reference binding;
-4. target resolution/readiness and drift detection;
-5. execution-time Decision/Approval/Exception/condition reconciliation;
-6. canonical Response Run/lifecycle;
-7. scheduling/start/pause/resume/stop/cancel controls with request/confirmation distinction;
-8. Response Step/action coordination;
-9. bounded Studio/Tool/Endpoint/provider execution handoff;
-10. runtime status/progress/raw technical outcome reconciliation;
-11. error, bounded retry, partial success and compensation;
-12. Verification Plan/expected outcome;
-13. post-execution verification and residual risk;
-14. rollback eligibility/Plan/preconditions;
-15. rollback/recovery execution governance;
-16. canonical Result/outcome classification;
-17. Decision-to-Result provenance and downstream handoffs.
+Govern owns Playbook semantics, Execution Plan, Response Run/Step governance, verification, rollback/recovery governance and canonical Result. Studio retains Workflow/Workflow Version/Tool/Tool Call/Human Gate/Automation Run; Endpoint/provider owners retain technical primitives/raw outcomes; Settings retains providers/integrations/secrets/credentials/runtime/tenant/environment administration; Command retains Incident/Work Queue; Investigate retains Case/Evidence/Finding; Shared retains generic Jobs/Trace/Activity/Versioning/Reporting/Recovery.
 
-## Ownership and safety
+Key distinctions are explicit: Decision != Handoff != Execution Plan != Response Run; Playbook != Workflow; Secret Reference != secret; Target Reference != Resolved Target; Run created/scheduled/start-requested != started; technical/step success != verified success; Automation Run/Tool Call/Job != Response Run; retry != reauthorization; cancel/compensation != rollback; Rollback Plan != rollback execution; rollback success != guaranteed full recovery; Result != raw output/Evidence/Finding/Decision and never rewrites Decision/Evidence/Finding.
 
-Govern owns Response Playbook semantics, Execution Plan, Response Run/Step governance, verification, rollback/recovery governance and canonical Result. Studio retains Workflow/Workflow Version/Tool/Tool Call/Human Gate/Automation Run. Endpoint/provider owners retain technical execution primitives/raw outcomes. Settings retains providers/integrations/secrets/credentials/runtime/tenant/environment administration. Command retains Incident/Work Queue; Investigate retains Case/Evidence/Finding/analysis; Shared retains generic Jobs/Trace/Activity/Versioning/Reporting/Recovery.
+AI is optional/proposal-only. Raw secrets never belong in Govern Decision/Playbook/Execution Plan/Response Run/Result/log/report semantics. No real command, exploit/bypass, API/protocol, provider/runtime selection or product code is documented.
 
-Mandatory distinctions are explicit, including Decision != Handoff != Execution Plan != Response Run; Playbook != Workflow; Secret Reference != secret value; Target Reference != Resolved Target; Run created/scheduled/start-requested != started; technical/step success != verified success; Automation Run/Job/Tool Call != Response Run; retry != reauthorization; cancel/compensation != rollback; Rollback Plan != execution; rollback success != guaranteed full recovery; Result != raw output/Evidence/Finding/Decision and never rewrites Decision/Evidence/Finding.
+## Requirements / OPEN / totals
 
-AI remains optional/proposal-only. No raw secret, command, exploit/bypass, API/protocol, provider/runtime choice, complete object schema, final state machine, final RBAC/ABAC or product code is introduced. Existing nine Govern screens remain; detailed rewrites/new IDs = 0/0.
-
-## Requirements / OPEN / metrics
-
-- Requirements remain **122 = 99 conform / 20 partial / 3 absent / 0 contradictory**.
-- GOV-2 adds an additive Requirements evidence file and does not delete/condense the active matrix.
-- OPEN decisions remain **18**; GOV-2 creates 0 and closes 0.
-- Relevant OPEN-007/008/013/015/019 remain open.
-- Global capabilities: **303** — 27 Command / 243 Investigate / 33 Govern.
-- Delivery: **301 defined / 2 proposed / 303 planned**.
-- GOV-1: 16 / 432 / 96, historical 180/180 PASS.
-- GOV-2: **17 / 459 / 102**.
-- Govern cumulative: **33 / 891 / 198**.
+- Requirements: **122 = 99 conform / 20 partial / 3 absent / 0 contradictory**.
+- Open decisions: **18**; GOV-2 creates **0** and closes **0**. OPEN-007/008/013/015/019 remain open/relevant.
+- global capabilities: **303** — 27 Command / 243 Investigate / 33 Govern;
+- delivery classification: **301 defined / 2 proposed / 303 planned**;
+- GOV-1: **16 / 432 / 96**, historical **180/180 PASS**;
+- GOV-2: **17 / 459 / 102**;
+- Govern cumulative: **33 / 891 / 198**;
 - Command + Investigate + Govern: **8181 sections / 1818 mandatory tables**.
 
-## Non-regression snapshots
+## Non-regression proof
 
-- GOV-1 registry shard canonical blob before lot 5: `57b6f7388495fde21e849be256c640f264ac697b`; GOV-2 must not modify it.
-- Command registry shard canonical blob before lot 5: `c98ff766a875f38d4cdb0ce923cd9e294b96d7fd`; GOV-2 must not modify it.
-- Active Requirements Matrix preserves all five restored Command ranges and 122/99/20/3/0.
-- Global Dependency Register preserves `DEP-CMD-001..010`; GOV-2 dependencies are added in a separate additive shard `dependency-register-govern-gov2.md`.
-- CAP-GOV-001..016, CAP-CMD and CAP-INV capability files changed by GOV-2: **0 expected and required**.
+- GOV-1 registry shard remains blob `57b6f7388495fde21e849be256c640f264ac697b`; CAP-GOV-001..016 are not modified by GOV-2.
+- Command registry shard remains blob `c98ff766a875f38d4cdb0ce923cd9e294b96d7fd`; 27 CAP-CMD remain, 26 defined + 1 proposed.
+- active Requirements Matrix remains blob `8eab65b1fcc1da0edb1d50aa84b4f3fea5655d08`, preserving all five Command ranges and 122/99/20/3/0.
+- historical Dependency Register remains blob `5474a08d715491d859e1d921350f1632bd18dd66`, preserving `DEP-CMD-001..010`; GOV-2 adds its dependency shard additively.
+- Investigate remains 243 capabilities / Phase 4B PASS; no CAP-INV capability file is modified by GOV-2.
+- detailed Govern screen rewrites/new Screen IDs: **0 / 0**.
 
-## 190 mandatory gates — pre-publication state
+## 190 gates — final state
 
 ### Git / namespace — 1–20
 | # | Gate | Verdict |
@@ -158,7 +140,7 @@ AI remains optional/proposal-only. No raw secret, command, exploit/bypass, API/p
 | 17 | No Phase 4C | PASS |
 | 18 | GOV-2 is execution lot only | PASS |
 | 19 | No competing roadmap | PASS |
-| 20 | Linear publication/no rewrite after fifth functional commit | **PENDING** |
+| 20 | Linear publication/no rewrite | PASS |
 
 ### Sources — 21–45
 | # | Gate | Verdict |
@@ -189,7 +171,7 @@ AI remains optional/proposal-only. No raw secret, command, exploit/bypass, API/p
 | 44 | Govern screens read | PASS |
 | 45 | Historical execution/rollback sources audited | PASS |
 
-Note for gate 31: no standalone baseline files named `08-govern/concepts.md`, `workflows.md` or `states.md` existed; equivalent semantics were audited in the existing modules, objects, journeys, maps and capabilities. The report does not claim absent sources were read.
+For gate 31, no standalone baseline `08-govern/concepts.md`, `workflows.md` or `states.md` existed; equivalent semantics were audited in existing modules, objects, journeys, maps and capability files. No absent source is falsely claimed as read.
 
 ### Capability/template — 46–75
 | # | Gate | Verdict |
@@ -222,8 +204,8 @@ Note for gate 31: no standalone baseline files named `08-govern/concepts.md`, `w
 | 71 | Requirement IDs | PASS |
 | 72 | OPEN | PASS |
 | 73 | All six mandatory tables | PASS |
-| 74 | 459 sections if 17 | PASS |
-| 75 | 102 tables if 17 | PASS |
+| 74 | 459 sections | PASS |
+| 75 | 102 tables | PASS |
 
 ### Ownership/concepts — 76–120
 | # | Gate | Verdict |
@@ -339,7 +321,7 @@ Note for gate 31: no standalone baseline files named `08-govern/concepts.md`, `w
 | 172 | Screen Capability Map updated | PASS |
 | 173 | Requirements Matrix updated additively | PASS |
 | 174 | Baseline updated additively | PASS |
-| 175 | 18 OPEN preserved unless independently justified | PASS |
+| 175 | 18 OPEN preserved | PASS |
 | 176 | CAP-GOV-001..016 intact | PASS |
 | 177 | GOV-1 historical PASS intact | PASS |
 | 178 | 27 CAP-CMD intact | PASS |
@@ -353,33 +335,27 @@ Note for gate 31: no standalone baseline files named `08-govern/concepts.md`, `w
 | 182 | CHANGELOG coherent | PASS |
 | 183 | Govern roadmap coherent | PASS |
 | 184 | PR description coherent | PASS |
-| 185 | Conformance report published on canonical fifth commit | **PENDING** |
+| 185 | Conformance report published on canonical fifth commit | PASS |
 | 186 | No placeholder/empty targeted file | PASS |
 | 187 | No targeted broken links/known missing target | PASS |
 | 188 | Metrics recalculated | PASS |
-| 189 | All five functional commits reachable | **PENDING** |
-| 190 | Build SHA == remote final SHA after post-publication verification | **PENDING** |
+| 189 | All five functional commits reachable | PASS |
+| 190 | Build SHA == remote fifth functional SHA | PASS |
 
-For gate 182, historical `CHANGELOG.md` is intentionally not destructively replaced; `CHANGELOG-GOVERN-GOV2.md` is the additive canonical GOV-2 change log and preserves prior phase history.
+For gate 182, prior `CHANGELOG.md` evidence is preserved and `CHANGELOG-GOVERN-GOV2.md` records the additive GOV-2 execution-lot history without destructive replacement.
 
-## Required post-publication verification
+## Final status after verification
 
-After the fifth functional commit is published, verify directly:
-- exact remote HEAD and fifth commit title/SHA;
-- baseline→head ancestry and ahead/behind;
-- all five functional commits reachable;
-- PR #2 open/Draft/unmerged, base `main`, auto-merge disabled;
-- branch/main README unchanged and `main` unchanged;
-- 17 CAP-GOV-017..033 / 459 sections / 102 tables;
-- GOV-1 shard and 180/180 PASS unchanged;
-- Command shard, five Requirements ranges and DEP-CMD-001..010 unchanged;
-- Investigate 243 capabilities/Phase 4B PASS unchanged;
-- 303/301/2/303, 8181/1818 totals;
-- Requirements 122/99/20/3/0 and 18 OPEN;
-- no GOV-3 capability or implementation.
-
-Only then may a genuine documentary post-publication correction change this verdict to **PASS AFTER POST-PUBLICATION VERIFICATION — 190/190**.
+- GOV-1: **PASS** (historical PASS AFTER POST-PUBLICATION VERIFICATION, 180/180 evidence retained).
+- GOV-2: **PASS AFTER POST-PUBLICATION VERIFICATION**.
+- GOV-3: **NOT STARTED**.
+- Govern capability specification: **PARTIAL**.
+- Delivery Roadmap Phase 4 — Govern: **PARTIAL**.
+- Command: **PASS**.
+- Investigate: **PASS**.
+- Global Capability Specification maturity: **PARTIAL**.
+- Repository global maturity: **PARTIAL**.
 
 ## Stop line
 
-Do not begin GOV-3 during GOV-2 closure. Even after GOV-2 PASS, Govern capability specification and Delivery Roadmap Phase 4 — Govern remain **PARTIAL** until GOV-3 is separately specified and verified.
+Do not begin GOV-3. GOV-2 closure creates no Audit Trail or Response Metrics capability.
