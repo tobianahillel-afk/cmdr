@@ -3,7 +3,7 @@ id: 09-cmdr-studio-readme
 domain: 09-cmdr-studio
 status: draft
 owner: CMDR Studio Product Lead
-updated: 2026-08-10
+updated: 2026-08-09
 source-of-truth: canonical
 requirements:
   - REQ-PROD-016
@@ -29,13 +29,13 @@ Objets et contextes des produits sous permission, policies Govern, providers et 
 - n'est pas l'interface obligatoire.
 
 ## Transitions principales
-Trigger produit → Automation Run → Tool Calls → output vers produit source ; action risquée → Action Request/Govern. STD-2 documente uniquement la définition du Workflow avant ce runtime futur.
+Trigger produit → Automation Run → Tool Calls → output vers produit source ; action risquée → Action Request/Govern.
 
 ## Place de l'IA
 Studio possède les capacités agentiques, leur assurance, leurs versions, coûts et traces. Les workflows opérationnels restent utilisables sans IA.
 
 ## Delivery classification
-Les capabilities Studio sont `planned` tant que leur implémentation et leurs contrats techniques ne sont pas prouvés. Tool Call et Automation Run restent soumis aux objets/contrats finaux futurs.
+Les capabilities Studio sont des cibles produit `planned` tant que leur implémentation et leurs contrats détaillés ne sont pas prouvés. Tool Call et Automation Run restent soumis aux objets/contrats finaux futurs.
 
 ## Sources
 - `../01-product-vision/product-boundaries.md`
@@ -50,26 +50,40 @@ Parent: **Delivery Roadmap Phase 5 — Studio and Endpoint** (`roadmap-phase-5-s
 - 16 capabilities / 432 sections / 96 mandatory tables;
 - all `draft / defined / planned`;
 - Library, asset metadata/ownership, Tool/Tool Call, Skills, Settings dependency-reference boundaries and cross-product provenance;
-- post-publication verification: PASS 190/190;
+- no new Screen ID or detailed rewrite;
+- permission namespace ambiguity preserved, not normalized;
 - no API/protocol/code/runtime implementation.
 
-## STD-2 — Workflow Builder & Orchestration
-STD-2 est un execution lot du même parent roadmap et ne crée aucune Phase 5A/5B.
-
-- `CAP-STD-017..033`;
-- 17 capabilities / 459 sections / 102 mandatory tables;
-- all `draft / defined / planned`;
-- Workflow definition, Builder Session, I/O/variables, graph, Tool/Skill steps, deterministic branches, mappings, subworkflows, parallelism, errors, retry/idempotency, partial/compensation, Human Gate boundary, readiness, versioning, pre-publish lifecycle and provenance;
-- no Automation Run lifecycle, runtime scheduler, Control Room runtime, detailed publishing/deployment, Endpoint capability, API/protocol/code or final RBAC/ABAC;
-- build-time status: PENDING POST-PUBLICATION VERIFICATION.
-
 ### Future execution lots
+- STD-2 — Workflow Builder & orchestration — NOT STARTED.
 - STD-3 — Agents, Human Gates & runtime control — NOT STARTED.
 - STD-4 — Assurance & lifecycle — NOT STARTED.
 - Endpoint capability specification — NOT STARTED.
 
 ## Core non-equivalence
-Tool != Tool Call/Skill/Workflow/Agent/Endpoint primitive/Govern Playbook; Tool Call != Automation Run/Response Run/Job/Result; Tool output != Evidence/Finding/Result automatically; Skill composition != Workflow orchestration; Workflow Definition != Workflow Version; Builder Session != Workflow; Tool step != Tool Call; branch != Govern Decision; condition != Govern Policy; Human Gate != Approval/Decision; retry != authorization renewal; compensation != Govern rollback; validation != execution; approved-for-publishing-candidate != deployed; Automation Run != Response Run.
+Tool != Tool Call/Skill/Workflow/Agent/Endpoint primitive/Govern Playbook; Tool Call != Automation Run/Response Run/Job/Result; Tool output != Evidence/Finding/Result automatically; Skill composition != Workflow orchestration; Human Gate != Approval; Workflow != Playbook; Automation Run != Response Run.
 
 ## Critère d'acceptation
-Un module de ce produit ne peut revendiquer un objet, une authority ou une capability exclue sans mise à jour des frontières, du registre de propriété et d'une ADR lorsqu'elle est transversale.
+Un module de ce produit ne peut revendiquer un objet ou une capability exclue sans mise à jour des frontières, du registre de propriété et d'une ADR lorsqu'elle est transversale.
+
+---
+
+## STD-2 — Workflow Builder & Orchestration — current canonical addendum
+
+The STD-1 section above is preserved as the exact pre-STD-2 historical snapshot. Its former “STD-2 NOT STARTED” line is historical evidence only; current status is defined below.
+
+- execution lot under the same parent `roadmap-phase-5-studio-and-endpoint`;
+- `CAP-STD-017..033`;
+- 17 capabilities / 459 sections / 102 mandatory tables;
+- all `draft / defined / planned`;
+- Workflow definition, Builder Session, I/O/variables, graph, Tool/Skill steps, deterministic conditions/branches, mappings, subworkflows, ordering/parallelism, error paths, retry/idempotency, partial success/compensation, Human Gate/Govern boundary, no-effect readiness, Workflow Version, pre-publish lifecycle and cross-product provenance;
+- no Automation Run lifecycle, scheduler, Control Room runtime, publishing/deployment engine, Endpoint capability, API/protocol/code, final language, final JSON Schema or final RBAC/ABAC;
+- post-publication verdict: **PASS AFTER POST-PUBLICATION VERIFICATION — 200/200**.
+
+### Current future execution lots
+- STD-3 — Agents, Human Gates & Runtime Control — NOT STARTED.
+- STD-4 — Assurance & Lifecycle — NOT STARTED.
+- Endpoint capability specification — NOT STARTED.
+
+### STD-2 additional non-equivalence
+Workflow Definition != Workflow Version; Builder Session != Workflow; draft graph != saved Workflow Version; Tool step != Tool Call; Skill step != Skill; branch != Govern Decision; condition != Govern Policy; Human Gate completion != authorization; variable definition != variable value; mapping != source mutation; retry != authorization renewal; idempotency != exactly-once; compensation != Govern rollback; partial success != success; validation != execution; compatible != authorized; approved-for-publishing-candidate != deployed.

@@ -3,14 +3,15 @@ id: studio-capability-map
 domain: 09-cmdr-studio
 status: draft
 owner: CMDR Studio Product Lead
-updated: 2026-08-10
+updated: 2026-08-09
 source-of-truth: canonical
 ---
 # Studio Capability Map
 
-Parent: **Delivery Roadmap Phase 5 — Studio and Endpoint**. STD-1 and STD-2 are execution lots only; no Phase 5A/5B is created.
+## STD-1 identity
+Parent: **Delivery Roadmap Phase 5 — Studio and Endpoint**. Execution lot: **STD-1 — Studio Foundations — Tools, Skills, Library and Ownership Contracts**. STD-1 is not a roadmap phase and creates no Phase 5A/5B.
 
-## STD-1 — preserved
+## Capabilities
 | ID | Capability | Functional family | Delivery |
 |---|---|---|---|
 | CAP-STD-001 | Studio Library and Asset Catalog | Library | defined / planned |
@@ -30,9 +31,13 @@ Parent: **Delivery Roadmap Phase 5 — Studio and Endpoint**. STD-1 and STD-2 ar
 | CAP-STD-015 | Provider, Runtime, Integration and Secret Reference Boundaries | Foundation boundary | defined / planned |
 | CAP-STD-016 | Studio Foundations Cross-Product Contracts and Provenance | Foundation boundary | defined / planned |
 
-STD-1 total: **16 capabilities / 432 sections / 96 mandatory tables**, post-publication PASS.
+## Structural total
+16 capabilities × 27 numbered sections = **432 sections**. Six mandatory tables per capability = **96 mandatory tables**. No STD-2/STD-3/STD-4 or Endpoint capability belongs to this map.
 
-## STD-2 — Workflow Builder & Orchestration
+## STD-2 addendum — Workflow Builder & Orchestration
+
+The STD-1 map above is preserved verbatim as the pre-STD-2 snapshot. The historical “No STD-2 ... belongs to this map” sentence applies to the STD-1 snapshot only.
+
 | ID | Capability | Functional family | Delivery |
 |---|---|---|---|
 | CAP-STD-017 | Workflow Definition and Functional Contract | Workflow foundations | defined / planned |
@@ -53,7 +58,4 @@ STD-1 total: **16 capabilities / 432 sections / 96 mandatory tables**, post-publ
 | CAP-STD-032 | Workflow Draft, Review and Pre-Publishing Lifecycle | Pre-publish lifecycle | defined / planned |
 | CAP-STD-033 | Workflow Provenance and Cross-Product Orchestration Contracts | Provenance/boundary | defined / planned |
 
-STD-2 total: **17 capabilities / 459 sections / 102 mandatory tables**, PENDING POST-PUBLICATION VERIFICATION at build time.
-
-## Studio total
-**33 capabilities / 891 sections / 198 mandatory tables**. STD-3/STD-4 and Endpoint remain NOT STARTED.
+STD-2 structural total: **17 capabilities / 459 sections / 102 mandatory tables**. Studio cumulative: **33 capabilities / 891 sections / 198 mandatory tables**. STD-3/STD-4 and Endpoint remain NOT STARTED.

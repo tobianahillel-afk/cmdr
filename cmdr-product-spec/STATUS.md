@@ -10,7 +10,7 @@
   - GOV-3: **PASS AFTER POST-PUBLICATION VERIFICATION — 200/200**; 14 / 378 / 84.
 - **Studio capability specification: PARTIAL**.
   - STD-1: **PASS AFTER POST-PUBLICATION VERIFICATION — 190/190**, 16 / 432 / 96.
-  - STD-2: 17 / 459 / 102, `draft / defined / planned`; **PENDING POST-PUBLICATION VERIFICATION** at build time.
+  - STD-2: **PASS AFTER POST-PUBLICATION VERIFICATION — 200/200**, 17 / 459 / 102, `draft / defined / planned`.
   - STD-3: NOT STARTED.
   - STD-4: NOT STARTED.
 - Endpoint capability specification: **NOT STARTED**.
@@ -20,7 +20,7 @@
 Delivery Roadmap is a separate namespace from Capability Specification.
 - Phases 1–3: preserve canonical historical statuses.
 - **Delivery Roadmap Phase 4 — Govern: PASS**, id `roadmap-phase-4-govern`.
-- **Delivery Roadmap Phase 5 — Studio and Endpoint: PARTIAL**, id `roadmap-phase-5-studio-and-endpoint`; STD-1 PASS, STD-2 functional content prepared/published through its fifth functional commit only after remote verification, STD-3/4 and Endpoint not started.
+- **Delivery Roadmap Phase 5 — Studio and Endpoint: PARTIAL**, id `roadmap-phase-5-studio-and-endpoint`; STD-1 PASS, STD-2 PASS after post-publication verification, STD-3/4 and Endpoint not started.
 - Delivery Roadmap Phase 6 — Platform Scale: future.
 
 No `Phase 4C`, `Phase 4D`, `Phase 4E Govern`, `Phase 5A`, `Phase 5B`, `Phase 5C` or `Phase 5D` is introduced. GOV-1/2/3 and STD-1/2 are execution lots, not roadmap phases.
@@ -55,3 +55,16 @@ STD-2 is documentary Workflow/Builder/orchestration-definition coverage only. Sh
 
 ## Stop line
 STD-2 ends at Workflow definition/readiness/pre-publish boundaries. **Do not start STD-3, STD-4 or Endpoint implicitly.**
+
+## STD-2 verified publication
+- baseline: `04dcdb43fd7f944a700bf936eebef003546095eb`;
+- functional commits: `b96168ee222833b2d9e25d94d92a4f36d087218c` → `7117de53a0974079dc6999947185c96650865c4d` → `7aa35292bf2d4192d22ecbcd5c6fe37017fa2bde` → `ccca5733cbb0e25a818fb69cbab0490958d48d59` → `655e9ce0ade2d64a7738a6a479572fef9b6f0e2f`;
+- baseline → fifth functional SHA: **5 ahead / 0 behind**, same merge base;
+- PR #2 open/Draft/unmerged; base `main`;
+- README branch/main exact `# cmdr`, same blob `901c74cda52e28b5ff7fc425ddf28ef89f3ad875`;
+- CI/status: N/A (no commit statuses or workflow runs);
+- gates: **200/200 PASS**;
+- post-publication record changes no capability contract.
+
+## Current stop line after STD-2 PASS
+Studio capability specification remains **PARTIAL**. STD-3, STD-4 and Endpoint remain **NOT STARTED**. Delivery Roadmap Phase 5 and global/repository maturity remain **PARTIAL**.

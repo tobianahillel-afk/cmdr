@@ -47,7 +47,7 @@ Les modifications suivent `../14-security-permissions-and-trust/permission-model
 ## STD-2 — current execution
 - STD-2 — Workflow Builder & Orchestration: 17 capabilities `CAP-STD-017..033` / 459 sections / 102 mandatory tables.
 - scope: Workflow definition/version, Builder, data/graph/composition, deterministic control, errors/retry/partial/compensation, Human Gate boundary, readiness/pre-publish/provenance.
-- build-time status: **PENDING POST-PUBLICATION VERIFICATION** until fifth functional SHA and remote gates are recorded.
+- status: **PASS AFTER POST-PUBLICATION VERIFICATION — 200/200**; fifth functional SHA `655e9ce0ade2d64a7738a6a479572fef9b6f0e2f` verified at 5 ahead / 0 behind from baseline.
 - new Screen IDs / detailed rewrites: 0 / 0.
 - runtime scheduler / Automation Run lifecycle / publishing-deployment / Endpoint implementation: not included.
 
@@ -68,3 +68,8 @@ OPEN-007/013/015 remain open where consumed. OPEN-008 remains Endpoint/platform 
 
 ## Next candidate
 STD-3 — Agents, Human Gates & Runtime Control. **Do not begin STD-3 implicitly.**
+
+## STD-2 post-publication verification evidence
+Baseline `04dcdb43fd7f944a700bf936eebef003546095eb`; fifth functional/build SHA `655e9ce0ade2d64a7738a6a479572fef9b6f0e2f`; five functional commits reachable in order; PR #2 remains Draft/open/unmerged; branch/main README unchanged; CI N/A; `CAP-STD-001..016` intact; Endpoint 0; STD-3/4 not started.
+
+Final STD-2 documentary verdict: **PASS AFTER POST-PUBLICATION VERIFICATION — 200/200**.

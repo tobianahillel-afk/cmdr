@@ -13,8 +13,11 @@ source-of-truth: quality-report
 - sections: 459/459;
 - mandatory tables: 102/102;
 - build-time gates: **191 PASS / 9 PENDING / 0 FAIL**;
-- status: **PENDING POST-PUBLICATION VERIFICATION**;
+- post-publication gates: **200 PASS / 0 PENDING / 0 FAIL**;
+- status: **PASS AFTER POST-PUBLICATION VERIFICATION**;
 - Studio capability specification: PARTIAL;
 - STD-3 / STD-4 / Endpoint: NOT STARTED.
 
-Final status changes only after the fifth functional SHA and remote checks are recorded in the canonical conformance report.
+Fifth functional/build SHA `655e9ce0ade2d64a7738a6a479572fef9b6f0e2f` was remotely verified; canonical conformance report records the final 200/200 evidence.
+
+Post-publication companion: `reports/studio-std2-workflow-builder-orchestration-post-publication-verification.md`.
