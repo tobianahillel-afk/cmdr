@@ -3,18 +3,53 @@ id: unresolved-decisions
 domain: 00-governance
 status: draft
 owner: Product Architecture
-updated: 2026-08-07
+updated: 2026-08-09
 source-of-truth: canonical
 ---
 # Unresolved decisions
 
-The programme retains **18 open decisions**. OPEN-009 remains the only historically resolved item. Phase 4B.4B closes none.
+The programme retains **18 open decisions**. `OPEN-009` remains the only historically resolved item. GOV-1 creates **0** new OPEN decision and closes **0**.
+
+## Complete open-decision audit
+
+| Decision | Current subject | GOV-1 relevance | Disposition |
+|---|---|---|---|
+| OPEN-001 | Investigate product accent/palette | none | remains open |
+| OPEN-002 | Govern product accent/palette | presentation only; not capability authority | remains open |
+| OPEN-003 | Studio product accent/palette | none | remains open |
+| OPEN-004 | final typography stack | presentation only | remains open |
+| OPEN-005 | forensic engine selection | upstream evidence tooling only | remains open |
+| OPEN-006 | Customers and Delivery deployment model | Command/source context only | remains open |
+| **OPEN-007** | **Human Gate / Govern Decision-Approval relation** | **direct: Human Gate must remain distinct from Approval and Decision** | **remains open; GOV-1 selects no equivalence/bridge rule** |
+| OPEN-008 | platform/source availability and support | source/target/context availability | remains open |
+| OPEN-010 | final density by role/activity | Govern screens remain unrevised in detail | remains open |
+| OPEN-011 | Mobile Forensics scope/delivery | upstream source/handoff only | remains open |
+| OPEN-012 | Cloud Analysis scope/delivery | upstream source/handoff only | remains open |
+| **OPEN-013** | **default governance/authority for reversible class-2 mutations** | **direct: all GOV-1 C2 actions preserve this unresolved default** | **remains open** |
+| OPEN-014 | Artifact/Attachment/dataset/material relations/retention | Evidence/context links | remains open |
+| **OPEN-015** | **Tool Call/Automation Run and Response Run/cross-product provenance bridge** | **direct: GOV-1 handoff preserves Studio run refs but creates no Response Run** | **remains open** |
+| OPEN-016 | final wordmark/symbol construction | none | remains open |
+| OPEN-017 | Detection runtime/language/portability | upstream Detection request only | remains open |
+| OPEN-018 | Threat Intelligence ontology/interoperability/exchange | upstream Intelligence context only | remains open |
+| OPEN-019 | Intelligence dissemination/releasability/sharing/access | relevant when a governed external-sharing Action Request is submitted | remains open; no sharing policy selected |
+
+## GOV-1 decision discipline
+
+GOV-1 deliberately uses existing OPEN decisions instead of creating duplicates:
+
+- `OPEN-007` covers the unresolved relationship between Studio Human Gate and Govern Approval/Decision. GOV-1 fixes only the **non-equivalence**: Human Gate ≠ Approval and Human Gate ≠ Decision.
+- `OPEN-013` covers the default governance/step-up policy for reversible class-2 mutations. GOV-1 classifies its C2 actions but does not select the final default.
+- `OPEN-015` covers the Automation Run / future Response Run bridge. GOV-1 preserves Tool/Tool Call/Automation Run provenance in the Execution Handoff Package but creates no Response Run.
+- `OPEN-010` remains relevant to final Govern density; GOV-1 rewrites no detailed screen.
+- `OPEN-019` remains relevant to external-sharing requests; GOV-1 can govern a request but does not decide the global dissemination policy.
+
+## Previously highlighted cross-domain decisions
 
 | Relevant decision | Application | Disposition |
 |---|---|---|
 | OPEN-005 | forensic engine selection | remains open; not reused to select a Mobile acquisition/analysis engine |
 | OPEN-008 | platform/source availability and support | remains open |
-| **OPEN-011** | Mobile Forensics scope and delivery strategy | **remains open; provider-neutral functional capabilities defined, platform/tool/acquisition delivery unresolved** |
+| **OPEN-011** | Mobile Forensics scope and delivery strategy | **remains open; provider-neutral functional capabilities verified, platform/tool/acquisition delivery unresolved** |
 | **OPEN-012** | Cloud Analysis scope | **remains open; provider-neutral functional capabilities verified, provider and delivery scope unresolved** |
 | OPEN-013 | reversible class-2 mutations and authority | remains open |
 | OPEN-014 | Artifact/Attachment/dataset/material relations and retention | remains open |
@@ -75,8 +110,8 @@ Which mobile platforms and versions, phone/tablet classes, managed/unmanaged sta
 - cross-device/cross-tenant correlation does not grant access to either source;
 - Evidence Candidate and Finding Draft remain distinct from qualified Evidence and confirmed Finding.
 
-### Phase disposition before final verification
-`CAP-INV-701..719` provide provider-neutral Mobile functional documentation. The phase remains **PENDING POST-PUBLICATION VERIFICATION** until the fifth functional commit and remote checks complete. OPEN-011 remains open because platform/version/tool/acquisition delivery strategy is not selected.
+### Phase disposition after verification
+`CAP-INV-701..719` provide verified provider-neutral Mobile functional documentation. OPEN-011 remains open because platform/version/tool/acquisition delivery strategy is not selected.
 
 ## OPEN-012 — Cloud Analysis scope and delivery strategy
 **Status:** open  
@@ -147,5 +182,5 @@ Which policy determines internal audiences, markings, releasability, tenant/envi
 - no actual sharing, publication, protocol or destination is configured by this phase;
 - corrections, withdrawals and supersession preserve history and access traces.
 
-## Phase 4B closure consequence before Mobile publication verification
-Cloud Analysis remains verified PASS. Mobile functional content is complete but awaits the fifth functional commit and remote publication verification. Phase 4B.4 and Phase 4B therefore remain PARTIAL until those checks pass. OPEN-011 and OPEN-012 remain open for delivery strategy and do not by themselves invalidate provider-neutral functional coverage once their corresponding subphase is verified.
+## Current capability-programme consequence
+Cloud Analysis and Mobile Forensics remain verified PASS. Capability Specification Phase 4B — Investigate remains PASS. GOV-1 closes no existing decision: its 16 functional capabilities explicitly consume `OPEN-007`, `OPEN-013` and `OPEN-015` without selecting the unresolved bridge/default policies. GOV-1 remains **PENDING POST-PUBLICATION VERIFICATION** until its fifth functional commit and remote gates complete; Govern capability specification and Delivery Roadmap Phase 4 — Govern remain PARTIAL, with GOV-2/GOV-3 NOT STARTED.
