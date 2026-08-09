@@ -8,74 +8,47 @@ source-of-truth: canonical
 ---
 # Roadmap and Releases
 
-## Objectif
+## Phase-numbering namespaces
+CMDR retains two independent namespaces. `Capability Specification Phase 4A — Command`, `Capability Specification Phase 4B — Investigate` and `Delivery Roadmap Phase 4 — Govern` have no numeric parent/child relationship. `Phase 4C/4D/4E Govern` do not exist.
 
-Ordonner dépendances, phases, migrations, releases et preuves de readiness sans créer de décisions produit hors de leurs sources.
-
-## Phase numbering namespaces
-
-CMDR maintains two independent phase namespaces. `Capability Specification Phase 4A — Command`, `Capability Specification Phase 4B — Investigate` and `Delivery Roadmap Phase 4 — Govern` are unrelated numerically. `Phase 4C Govern`, `Phase 4D Govern` and `Capability Specification Phase 4C` do not exist.
-
-## Capability Specification execution status
-
-- `Capability Specification Phase 4A — Command`: **PASS AFTER POST-PUBLICATION VERIFICATION**, current revalidation 60/60; 27 capabilities / 729 sections / 162 tables.
-- `Capability Specification Phase 4B — Investigate`: **PASS**; 243 capabilities / 6561 sections / 1458 tables.
-- `Govern capability specification`: **PARTIAL**.
-  - `GOV-1 — Action Requests, Policy, Authorities and Decisions`: **PASS AFTER POST-PUBLICATION VERIFICATION — 180/180**; 16 capabilities / 432 sections / 96 tables.
-  - `GOV-2 — Playbooks, Response Runs, Execution, Verification and Rollback`: **PASS AFTER POST-PUBLICATION VERIFICATION — 190/190**; 17 capabilities / 459 sections / 102 tables.
-  - `GOV-3 — Audit Trail, Response Metrics and Govern Closure`: **NOT STARTED**.
+## Capability specification status
+- Command: **PASS**, 27 / 729 / 162.
+- Investigate: **PASS**, 243 / 6561 / 1458.
+- Govern: **PARTIAL pending GOV-3 remote closure**.
+  - GOV-1: historical PASS 180/180, 16 / 432 / 96.
+  - GOV-2: historical PASS 190/190, 17 / 459 / 102.
+  - GOV-3: CAP-GOV-034..047, 14 / 378 / 84; prepublication 192 PASS / 8 PENDING / 0 FAIL.
 - Global Capability Specification maturity: **PARTIAL**.
 
-`GOV-1`, `GOV-2`, `GOV-3` are execution-lot identifiers only.
-
 ## Delivery Roadmap phases
-
-1. [`phase-1-foundation.md`](phase-1-foundation.md) — `Delivery Roadmap Phase 1 — Foundation`;
-2. [`phase-2-command.md`](phase-2-command.md) — `Delivery Roadmap Phase 2 — Command`;
-3. [`phase-3-investigate.md`](phase-3-investigate.md) — `Delivery Roadmap Phase 3 — Investigate`;
-4. [`phase-4-govern.md`](phase-4-govern.md) — **Delivery Roadmap Phase 4 — Govern**, canonical id `roadmap-phase-4-govern`, status **PARTIAL**: GOV-1 PASS, GOV-2 PASS, GOV-3 NOT STARTED;
-5. [`phase-5-studio-and-endpoint.md`](phase-5-studio-and-endpoint.md) — future;
-6. [`phase-6-platform-scale.md`](phase-6-platform-scale.md) — future.
-
-Historical phase files/IDs are not renamed to mimic Capability Specification numbering.
+1. `phase-1-foundation.md` — Delivery Roadmap Phase 1 — Foundation.
+2. `phase-2-command.md` — Delivery Roadmap Phase 2 — Command.
+3. `phase-3-investigate.md` — Delivery Roadmap Phase 3 — Investigate.
+4. `phase-4-govern.md` — **Delivery Roadmap Phase 4 — Govern**, id `roadmap-phase-4-govern`, currently **PARTIAL pending GOV-3 post-publication verification**.
+5. `phase-5-studio-and-endpoint.md` — future candidate; not started by GOV-3.
+6. `phase-6-platform-scale.md` — future.
 
 ## Govern execution lots
+- GOV-1 `CAP-GOV-001..016`: Action Request → Policy/Authority/Approval → Decision → Execution Handoff.
+- GOV-2 `CAP-GOV-017..033`: Playbook/Plan/Readiness → Response Run → Verification → Rollback/Recovery → Result.
+- GOV-3 `CAP-GOV-034..047`: Audit Trail semantics/reconstruction/review → Govern metrics/flow/trends/control health → Continuous Improvement/closure.
 
-### GOV-1
-`CAP-GOV-001..016`; Action Request → Policy/Authority/Approval → Decision → no-effect Execution Handoff Package. Historical remote verification PASS 180/180.
-
-### GOV-2
-`CAP-GOV-017..033`; Decision/Handoff → Playbook → Execution Plan → readiness/authority reconciliation → Response Run/Steps → technical executor handoff → runtime/error reconciliation → verification → rollback/recovery if needed → canonical Result → cross-product provenance/handoff. Remote verification PASS **190/190**.
-
-Exact GOV-2 baseline: `b8dd93e03443adb9101c7592094a48e358b460e2`.
-Fifth functional SHA: `0bcdaabbed60c041c10e93343013220bea48b1de`.
-The five functional commits were verified reachable with 5 ahead / 0 behind from the baseline and the same merge base before the post-publication evidence correction.
-
-Key ownership boundaries remain: Workflow/Tool/Automation Run Studio-owned; technical primitives/raw outcomes Endpoint/provider-owned; secrets/providers/integrations Settings-owned; Incident Command-owned; Case/Evidence/Finding Investigate-owned; generic Jobs/Trace/Reporting/Recovery Shared-owned.
-
-### GOV-3
-Audit Trail, Response Metrics and Govern closure remain **NOT STARTED**. GOV-2 only emits provenance/conceptual metric inputs.
+The three lots together cover all nine canonical Govern modules. No Phase 5 capability is created.
 
 ## Current totals
+- global capabilities: **317** — 27 Command / 243 Investigate / 47 Govern;
+- defined/proposed/planned: **315 / 2 / 317**;
+- Govern: **1269 sections / 282 tables**;
+- Command + Investigate + Govern: **8559 sections / 1902 tables**;
+- Requirements: **122 = 99/20/3/0**;
+- OPEN: **18**.
 
-- capabilities: **303** — 27 Command / 243 Investigate / 33 Govern;
-- defined / proposed / planned: **301 / 2 / 303**;
-- Govern: **891 sections / 198 mandatory tables**;
-- all Command + Investigate + Govern: **8181 sections / 1818 mandatory tables**;
-- Requirements: **122 = 99 conform / 20 partial / 3 absent / 0 contradictory**;
-- OPEN decisions: **18**.
+## Closure evidence
+- GOV-3 conformance: `../16-quality-and-validation/reports/govern-gov3-audit-metrics-closure-capability-conformance.md`.
+- Govern full closure: `../16-quality-and-validation/reports/govern-capability-specification-closure.md`.
+- Delivery Roadmap Phase 4 closure: `../16-quality-and-validation/reports/delivery-roadmap-phase-4-govern-closure.md`.
 
-## Other active roadmap documents
+The closure reports identify Govern as a documentary PASS candidate but do not promote status before fifth-commit publication and remote 200-gate verification.
 
-- dependency ordering: [`dependency-roadmap.md`](dependency-roadmap.md);
-- decision sequencing: [`decision-sequencing.md`](decision-sequencing.md);
-- capability delivery metadata: [`capability-delivery-map.md`](capability-delivery-map.md);
-- release/readiness/evidence/migration/deprecation/pilot/launch/versioning guidance.
-
-## Permissions and implementation
-
-The canonical permission source remains `../14-security-permissions-and-trust/permission-model.md`. Capability specification does not prove runtime implementation or grant authority. GOV-2 selects no command, exploit/bypass, API/protocol, provider/runtime, final object schema or final RBAC/ABAC.
-
-## Stop line
-
-GOV-2 is closed at **PASS AFTER POST-PUBLICATION VERIFICATION — 190/190**. GOV-3 must be a separate future execution. Govern capability specification and Delivery Roadmap Phase 4 — Govern remain **PARTIAL** until GOV-3 is completed.
+## Implementation boundary / stop line
+Capability documentation does not prove software delivery. GOV-3 introduces no audit/metrics engine, API/protocol, warehouse/storage schema, final RBAC/retention policy, detailed screen rewrite or product code. **Do not start Delivery Roadmap Phase 5 in this execution.**
