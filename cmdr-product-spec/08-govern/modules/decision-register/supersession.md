@@ -3,59 +3,46 @@ id: govern-decision-register-supersession
 domain: 08-govern
 status: draft
 owner: Govern Product Lead
-updated: 2026-08-03
+updated: 2026-08-09
 source-of-truth: canonical
+requirements: [REQ-PROD-015, REQ-PROD-020]
+open_decisions: [OPEN-013, OPEN-015]
 ---
-# Supersession
+# Decision Supersession and Expiration — GOV-1 Supporting Contract
 
-## Objectif
+## Supersession
 
-Définir supersession dans Govern.
+A Decision is never edited in place to change historical authority. A replacement Decision references the superseded Decision, explains why a new Decision is required, identifies the effective replacement and preserves the complete old request/version/authority/Approval/Policy context.
 
-## Périmètre
+Supersession may be required by:
+- material Action Request/version change;
+- target/scope change;
+- Policy or authority change;
+- expired/revoked Approval or delegation;
+- corrected factual context;
+- changed Decision conditions/time bounds;
+- explicit Decision Maker reconsideration under valid authority.
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
+## Expiration
 
-## Propriétaire fonctionnel
+Expiration means the Decision’s authority/time bound is no longer current. It **does not delete** the Decision, rationale, approvals, provenance or previously prepared handoff package. An expired Decision cannot be treated as current execution authority.
 
-Govern Product Lead.
+## Handoff effects
 
-## Objets concernés
+When a Decision expires or is superseded:
+- any associated Execution Handoff Package becomes `stale`, `expired-with-decision` or `superseded`;
+- future GOV-2 must not create/start a Response Run from that package without a current authoritative Decision;
+- historical links remain navigable under permission.
 
-- Concepts du document
-- Références canoniques liées
+## Comparison
 
-## Fonctionnalités
+Decision Register supports a conceptual version comparison that exposes changed request version, targets/scope, authority, Approvals, Policy context, rationale, conditions, expiry and rollback/verification requirements. Final diff UI belongs to the later screen phase.
 
-- Immutable publication.
-- Correction by superseding Decision.
-- Version comparison.
-- Historical interpretability.
+## Invariants
 
-## UX et interactions
-
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
-
-## Permissions
-
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
-
-## États
-
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
-
-## Dépendances
-
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- À compléter — décision source non fournie dans le brief canonique.
+- reject ≠ delete;
+- defer ≠ reject;
+- request-more-information ≠ reject;
+- supersede ≠ mutate history;
+- expiration ≠ deletion;
+- a new Decision requires current authority and prerequisites rather than inheriting authority silently from the old Decision.

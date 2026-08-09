@@ -3,60 +3,49 @@ id: govern-action-center-decision-package
 domain: 08-govern
 status: draft
 owner: Govern Product Lead
-updated: 2026-08-03
+updated: 2026-08-09
 source-of-truth: canonical
+requirements: [REQ-PROD-004, REQ-PROD-015, REQ-PROD-020]
+open_decisions: [OPEN-007, OPEN-013, OPEN-015]
 ---
-# Decision Package
+# Decision Preparation Package — GOV-1 Supporting Contract
 
-## Objectif
+## Purpose
 
-Définir decision package dans Govern.
+Support `CAP-GOV-014` with a stable list of decision-preparation inputs. This package is a review composition, not a canonical Decision, Approval, Response Run or execution contract.
 
-## Périmètre
+## Required composition for decision readiness
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
+Where applicable to the request, the package exposes by reference and exact version:
+- Action Request and requester;
+- source product and return origin;
+- Incident, Case, Finding and Evidence references with restrictions;
+- exact target and included/excluded scope;
+- impact, risk, uncertainty and reversibility assessments;
+- expected outcome and alternatives;
+- applicable Policy Evaluations and outcomes;
+- Policy conflicts and Exception Candidates/authorized exception context;
+- Authority Requirement and Authority Context;
+- approver eligibility/SoD result;
+- Approval Requests and Approvals;
+- delegation/substitution/escalation/emergency context;
+- unresolved questions and information requests;
+- recommendations, including AI recommendations, with producer/provenance;
+- proposed Decision dispositions, conditions, time bounds, rollback and verification requirements;
+- dissent/challenges and reviewer annotations.
 
-## Propriétaire fonctionnel
+## Readiness
 
-Govern Product Lead.
+A package may be `draft`, `incomplete`, `under-review`, `changes-requested`, `review-ready` or `decision-ready`. `decision-ready` means that the review prerequisites required by the current Policy/authority context are present and current; it is **not** an Approval or Decision.
 
-## Objets concernés
+## Recommendations
 
-- Concepts du document
-- Références canoniques liées
+Human, deterministic, workflow or AI recommendations are inputs only. They must expose producer, source factors and uncertainty where applicable. No recommendation may mutate the effective disposition.
 
-## Fonctionnalités
+## Changes
 
-- Action Request.
-- Finding and Evidence references.
-- Impact.
-- Conditions.
-- Policy and authority snapshots.
+A material change to Action Request, target/scope, Policy, authority, Approval or risk/reversibility input invalidates affected readiness and requires explicit diff/review. Prior package versions remain historical evidence.
 
-## UX et interactions
+## Boundary with Execution Handoff
 
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
-
-## Permissions
-
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
-
-## États
-
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
-
-## Dépendances
-
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- À compléter — décision source non fournie dans le brief canonique.
+Decision Preparation Package feeds `CAP-GOV-015`. Only after a valid `approve` or `approve-with-conditions` Decision may `CAP-GOV-016` create an **Execution Handoff Package**. The two packages are distinct and neither is a Response Run.
