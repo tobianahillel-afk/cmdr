@@ -55,7 +55,7 @@ Registry validation checks duplicate/recycled IDs, concurrent owners, missing ca
 - Detection Engineering: **35 capabilities, 945 sections, 210 tables**.
 - Threat Intelligence: **37 capabilities, 999 sections, 222 tables**.
 - Cloud Analysis: **18 capabilities, 486 sections, 108 tables**.
-- Mobile Forensics: **19 capabilities, 513 sections, 114 tables**.
+- Mobile Forensics: **19 capabilities, 513 sections, 114 mandatory tables**.
 - Phase 4B.4 Cloud + Mobile: **37 capabilities, 999 sections, 222 tables**.
 - Command + Investigate: **270 capabilities, 7290 sections, 1620 tables**.
 - Command + Investigate + Govern: **317 capabilities, 8559 sections, 1902 mandatory tables**.
@@ -66,6 +66,7 @@ The Command shard remains 27 unique IDs, 26 defined / 1 proposed / 27 planned, w
 ## Govern registry state
 - GOV-1: 16 unique `CAP-GOV-001..016`, 16 defined/planned, 432 sections, 96 tables; historical 180/180 PASS evidence retained.
 - GOV-2: 17 unique `CAP-GOV-017..033`, 17 defined/planned, 459 sections, 102 tables; historical 190/190 PASS evidence retained.
-- GOV-3: 14 unique `CAP-GOV-034..047`, 14 defined/planned, 378 sections, 84 tables; final PASS remains post-publication-gate dependent until remote verification.
+- GOV-3: 14 unique `CAP-GOV-034..047`, 14 defined/planned, 378 sections, 84 tables; **200/200 post-publication PASS evidence recorded**.
+- Govern capability specification: **PASS** across 47 capabilities / 1269 sections / 282 tables.
 
-No capability is marked validated, implemented, promoted, deployed, active, native or integrated by the registry.
+No capability is marked implemented, promoted, deployed, active, native or integrated by this registry; `PASS` is documentary capability-specification conformance only.
