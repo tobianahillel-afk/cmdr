@@ -3,65 +3,47 @@ id: govern-approvals-and-authorities
 domain: 08-govern
 status: draft
 owner: Govern Product Lead
-updated: 2026-08-03
+updated: 2026-08-09
 source-of-truth: canonical
+requirements: [REQ-PROD-004, REQ-PROD-015, REQ-SEC-001, REQ-SEC-002]
+open_decisions: [OPEN-007, OPEN-013]
 ---
-# Approvals & Authorities
+# Approvals & Authorities — GOV-1
 
-## Objectif
+## Mission
 
-Définir qui peut approuver quoi, dans quelle portée et pour quelle durée.
+Establish the contextual authority required for an Action Request, determine eligible approvers under scope/expiry/SoD, manage Approval Requests/Approvals and govern delegation, substitution, escalation and emergency paths without administering platform identities or executing the requested action.
 
-## Périmètre
+## Owned capabilities
 
-Module du produit 08-govern. Les objets, permissions, composants et transitions partagés sont référencés et non redéfinis.
+- `CAP-GOV-009` — Authority Requirement and Authorization Context Assessment.
+- `CAP-GOV-010` — Approver Eligibility and Separation-of-Duties Assessment.
+- `CAP-GOV-011` — Approval Request and Approval Record Management.
+- `CAP-GOV-012` — Delegation, Substitution and Escalation Governance.
+- `CAP-GOV-013` — Emergency and Time-Bounded Approval Governance.
 
-## Propriétaire fonctionnel
+## Ownership boundary
 
-Govern Product Lead.
+Platform Settings retains administration of users, Roles, groups, tenants/environments and configured identity/authority sources. Security retains the permission, Decision Authority, SoD and step-up policy. Govern evaluates those sources **in the request context** and owns Approval/Decision authority records.
 
-## Objets concernés
+`role ≠ authority`; `configured authority ≠ contextual authority`; `approver candidate ≠ eligible approver ≠ actual approver`.
 
-- principal
-- role
-- approval
-- decision
+## Approval boundary
 
-## Fonctionnalités
+Approval Request ≠ Approval. Approval ≠ Decision. Approval ≠ execution. A Human Gate remains Studio-owned and is neither an Approval nor a Decision. An Automation Run cannot approve itself or become a Response Run.
 
-- Authority matrix.
-- Delegation.
-- Separation of duties.
-- Emergency authority.
+## SoD
 
-## UX et interactions
+SoD evaluates requester, action owner, candidate approver, authority scope and policy context. Requester self-approval is prohibited whenever applicable SoD requires separation. A simple Role mismatch is not the definition of SoD.
 
-- Conserver le contexte de liste, vue et objet.
-- Utiliser l’Inspector canonique.
-- Afficher les six états obligatoires.
-- Préserver navigation clavier et liens profonds.
+## Delegation/emergency
 
-## Permissions
+Delegation is scoped, time-bound and sourced; it does not create a permanent Role. Escalation routes unresolved authority but is not an Approval. Emergency governance requires explicit justification, bounded scope/target/duration, authority, audit and future retrospective-review requirement; urgency alone is not approval.
 
-Voir `../../14-security-permissions-and-trust/permission-model.md` et le registre des permissions.
+## Screen
 
-## États
+`GOV-AUT-001` remains active. Its detailed screen specification is not rewritten; GOV-1 maps the existing surface to these capabilities and leaves final controls/columns/filters to the later screen phase.
 
-Les états métier viennent des fichiers d’objets canoniques; la page ajoute uniquement Loading, Empty, Partial, Error, Offline et Permission denied.
+## Dependencies
 
-## Dépendances
-
-- 03-design-system/
-- 04-experience-architecture/
-- 05-domain-model/
-- 17-implementation-contracts/
-
-## Critères d’acceptation
-
-- Aucune définition d’objet ou de permission locale.
-- Tous les écrans du module ont un front matter et 27 sections.
-- Les transitions sont auditées et idempotentes.
-
-## Questions ouvertes
-
-- À compléter — contenu source non fourni dans le brief canonique.
+Security authority/SoD/step-up/emergency sources, Settings identities, Shared Notifications/Trace/Versioning/Linking, Action Request/Policy/Risk context, OPEN-007 and OPEN-013.
