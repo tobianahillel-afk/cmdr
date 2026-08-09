@@ -3,65 +3,69 @@ id: govern-response-metrics
 domain: 08-govern
 status: draft
 owner: Govern Product Lead
-updated: 2026-08-03
+updated: 2026-08-09
 source-of-truth: canonical
+requirements: [REQ-PROD-002, REQ-PROD-004, REQ-PROD-005, REQ-PROD-008, REQ-PROD-015, REQ-PROD-019, REQ-PROD-020, REQ-OBJ-007, REQ-SEC-001, REQ-SEC-002]
+open_decisions: [OPEN-007, OPEN-008, OPEN-010, OPEN-013, OPEN-015, OPEN-019]
 ---
-# Response Metrics
+# Response Metrics — GOV-3
 
-## Objectif
+## Mission
 
-Mesurer efficacité, sécurité et gouvernance de la réponse.
+Define Govern-specific metric meanings over the GOV-1/GOV-2 lifecycle, preserve definition/snapshot/freshness/privacy and produce sourced comparisons/control-health/improvement candidates without duplicating the Shared Metrics or Reporting engines and without turning metrics into policy, SLO or automatic decisions.
 
-## Périmètre
+## Owned GOV-3 capabilities
 
-Module du produit 08-govern. Les objets, permissions, composants et transitions partagés sont référencés et non redéfinis.
+- `CAP-GOV-039` — Policy, Exception and Emergency Governance Metrics.
+- `CAP-GOV-040` — Approval, Authority and Separation-of-Duties Metrics.
+- `CAP-GOV-041` — Decision Flow, Disposition and Timeliness Metrics.
+- `CAP-GOV-042` — Response Run Execution and Reliability Metrics.
+- `CAP-GOV-043` — Verification, Rollback and Recovery Metrics.
+- `CAP-GOV-044` — Response Outcome, Residual Risk and Effectiveness Metrics.
+- `CAP-GOV-045` — Govern Queue, Ageing and Lifecycle Flow Metrics.
+- `CAP-GOV-046` — Govern Trend, Comparison and Control Health Assessment.
+- `CAP-GOV-047` — Govern Continuous Improvement, Closure and Provenance.
 
-## Propriétaire fonctionnel
+## Ownership boundary
 
-Govern Product Lead.
+Govern owns metric semantics, dimensions and interpretation for Govern. Shared Capabilities retains the generic Metrics Engine, Reporting Engine, Export, Jobs and dashboard primitives. Command, Investigate, Studio and Endpoint retain their own product/technical metrics. Platform Settings retains tenant/environment/retention/storage configuration.
 
-## Objets concernés
+## Mandatory distinctions
 
-- action-request
-- decision
-- response-run
-- result
+- metric ≠ objective, Policy, SLO or KPI automatically;
+- metric target ≠ universal truth;
+- count ≠ quality;
+- throughput ≠ effectiveness;
+- faster Decision ≠ better Decision;
+- Approval latency ≠ Approval quality;
+- low/high exception rate ≠ governance health automatically;
+- Policy block count ≠ prevented incident count;
+- Run technical success ≠ verified outcome success;
+- verified success ≠ zero residual risk;
+- rollback rate ≠ failure rate automatically;
+- Result success ≠ business value automatically;
+- Result failure ≠ Decision error automatically;
+- feedback ≠ ground truth;
+- trend ≠ causal explanation;
+- anomaly ≠ control failure;
+- dashboard ≠ source of truth.
 
-## Fonctionnalités
+## Definitions and snapshots
 
-- Time to decision.
-- Policy exceptions.
-- Partial success.
-- Rollback reliability.
+Every observation identifies its metric definition/version, source snapshot/time window, dimensions, denominators/exclusions, source coverage, freshness and privacy suppression where relevant. Zero, not-applicable, unavailable and insufficient-data remain distinct.
 
-## UX et interactions
+## Privacy and cross-tenant use
 
-- Conserver le contexte de liste, vue et objet.
-- Utiliser l’Inspector canonique.
-- Afficher les six états obligatoires.
-- Préserver navigation clavier et liens profonds.
+Requester/approver identity, tenant, target, exceptions, emergency paths and sensitive operational dimensions are permission-aware. Cross-tenant comparisons require explicit authorization and may require suppression/aggregation. No dashboard or metric grants access to source data that the user cannot otherwise read.
 
-## Permissions
+## AI/no-AI
 
-Voir `../../14-security-permissions-and-trust/permission-model.md` et le registre des permissions.
+AI may explain sourced observations, summarize trends or draft hypotheses/improvement packages. It cannot mutate a Decision/Result, change thresholds, declare causality/control failure as fact, publish externally or apply an improvement. Deterministic aggregation, tables, comparisons and human review form the complete non-AI path.
 
-## États
+## Screen
 
-Les états métier viennent des fichiers d’objets canoniques; la page ajoute uniquement Loading, Empty, Partial, Error, Offline et Permission denied.
+`GOV-MET-001` remains the existing Response Metrics surface. GOV-3 creates no new Screen ID and defines no final columns, filters, buttons, shortcuts, animations or wireframes. Shared Reporting/Inspector primitives remain source-owned.
 
-## Dépendances
+## Closure boundary
 
-- 03-design-system/
-- 04-experience-architecture/
-- 05-domain-model/
-- 17-implementation-contracts/
-
-## Critères d’acceptation
-
-- Aucune définition d’objet ou de permission locale.
-- Tous les écrans du module ont un front matter et 27 sections.
-- Les transitions sont auditées et idempotentes.
-
-## Questions ouvertes
-
-- À compléter — contenu source non fourni dans le brief canonique.
+`CAP-GOV-047` may assemble evidence for documentary Govern closure after all mandatory gates and post-publication checks complete. Govern PASS never means product implementation complete and does not start Delivery Roadmap Phase 5.
