@@ -3,20 +3,34 @@ id: requirements-traceability-matrix
 domain: 00-governance
 status: draft
 owner: Product Architecture
-updated: 2026-08-07
+updated: 2026-08-09
 source-of-truth: canonical
 ---
-# Requirements Traceability Matrix — through Phase 4B.4B closure content
+# Requirements Traceability Matrix — current capability-specification evidence
 
-The 122 source Requirement IDs remain unchanged. `conform` records documentary evidence only, not implementation. Cloud Analysis retains verified functional evidence. Mobile Forensics adds provider-neutral functional evidence without promoting a requirement whose implementation, platform/tool/acquisition strategy, object model, permission model or detailed UX remains unresolved.
+The **122 source Requirement IDs remain unchanged**. `conform` records documentary evidence only, never implementation. This matrix preserves the verified Investigate evidence and restores the Command `CAP-CMD-*` evidence that was no longer represented in the active matrix.
 
-| State | After verified 4B.4A | After 4B.4B documentary update |
-|---|---:|---:|
-| conform | 99 | 99 |
-| partial | 20 | 20 |
-| absent | 3 | 3 |
-| contradictory | 0 | 0 |
-| **Total** | **122** | **122** |
+| State | Current |
+|---|---:|
+| conform | 99 |
+| partial | 20 |
+| absent | 3 |
+| contradictory | 0 |
+| **Total** | **122** |
+
+## Capability Specification Phase 4A — Command evidence
+
+| Evidence range | Scope | Requirements strengthened | Global state change | Reason |
+|---|---|---|---|---|
+| CAP-CMD-001..006 | Mission Control: situation, priority, timeline, handover, blockers and recent Results | REQ-PROD-003,005,006,008,010,013,021; REQ-UX-007 and supporting requirements | none | functional coordination is defined; implementation, final objects, permissions and screens remain future |
+| CAP-CMD-101..110 | Incidents and Work Queue: one queue, assignment, ownership, priority/severity, SLA, Incident/Task coordination, bulk, freshness and escalation | REQ-OBJ-001,012; REQ-PROD-003,004,005,006,008,009,013,021,053; REQ-SEC-001; REQ-UX-005,008,009 | none | runtime, atomic permissions and final Incident/Task state machines remain future |
+| CAP-CMD-201..205 | Risk and Coverage: Service, Exposure, Coverage, business impact and risk-prioritization context | REQ-PROD-003,005,006,010,013,021,032,037 | none | Service/Exposure detailed objects and final risk engine remain future; no scanner or opaque score is claimed |
+| CAP-CMD-301..305 | Readiness and Operations: readiness, exercises, improvement Tasks, plans and capability readiness | REQ-OBJ-012; REQ-PROD-005,009,012,013,019,021,057 | none | assessments are functional records only; Studio assurance, platform health, final objects and permissions remain source-owned/future |
+| CAP-CMD-401 | Customers and Delivery proposal | REQ-PROD-013,019,033,053 | none | remains `proposed`, `planned`, deployment-dependent and governed by OPEN-006 |
+
+Command evidence preserves these invariants: Incident/operational Task coordination remains Command-owned; Case/Evidence/Finding remain Investigate-owned; Action Request/Decision/Response Run/Result remain Govern-owned; Studio automation objects, Settings administration and Shared engines are consumed but not redefined. The six Work Queue system views remain configurations of one workspace, not separate pages.
+
+## Investigate evidence preserved
 
 | Evidence range | Scope | Requirements strengthened | Global state change | Reason |
 |---|---|---|---|---|
@@ -35,16 +49,13 @@ The 122 source Requirement IDs remain unchanged. `conform` records documentary e
 | CAP-INV-706..715 | Mobile filesystem/storage, applications/data, communications, media, location/sensors, sensitive material, connectivity, backups/sync and deleted/recovered data | REQ-PROD-014,019,020,055,060,061,062; REQ-INV-001..005; REQ-AI-002,010,011; REQ-SEC-001,002; REQ-UX-006,010 | none | no device acquisition/mutation, unlock/bypass, secret use, final parsers/tools/platform support or implementation |
 | CAP-INV-716..719 | Mobile Timeline/correlation, anomaly/Hypothesis, Derived Artifacts/handoffs and provenance/reproducibility | REQ-PROD-002,005,006,008,010,011,012,014,019,020; REQ-INV-001,006; REQ-AI-001..011; REQ-SEC-001,002; REQ-UX-006,010 | none | correlation/candidates/packages do not create canonical Evidence, Findings, rules, collection or response automatically |
 
-## Disposition
-- Threat Intelligence retains complete functional documentary evidence from intake through lifecycle closure without claiming implementation.
-- Cloud Analysis retains verified provider-neutral functional evidence and 243/243 documentary gates.
-- Mobile Forensics now has provider-neutral functional documentary evidence from intake through provenance; the fifth commit and remote post-publication verification are still required before its phase verdict becomes final.
-- REQ-INV-001 and REQ-INV-006 remain globally partial because implementation, final technical contracts, object schemas, atomic permissions and detailed UX remain absent even after Mobile functional coverage.
-- OPEN-011 remains open for Mobile platform/version/tool/acquisition delivery strategy; OPEN-012 remains open for Cloud provider/service/delivery strategy.
-- OPEN-018 records unresolved Threat Intelligence ontology, interoperability and exchange; OPEN-019 records dissemination, releasability, sharing and access policy.
-- OPEN-017 remains Detection-only and unchanged.
-- REQ-PROD-055 remains partial and dependent on OPEN-008/011/012; source, platform and provider support is not invented.
-- REQ-PROD-020 and REQ-OBJ-009 remain partial because final trace and run contracts are not defined.
-- REQ-PROD-060/061/062 remain tied to OPEN-013/014/015/019 and final permissions and object relations.
-- REQ-UX-010 remains partial because no detailed Mobile or Cloud Analysis screen is created or rewritten.
-- New Requirement IDs: 0; removed IDs: 0; active contradictions: 0.
+## Current disposition
+
+- Capability Specification Phase 4A — Command remains **PASS**; this corrective audit changes traceability, not functional scope.
+- Capability Specification Phase 4B — Investigate remains **PASS**; no Investigate capability is created or modified by this Phase 4A corrective run.
+- Cloud Analysis remains verified with 243/243 gates; Mobile Forensics remains verified with 250/250 gates.
+- Capability Specification Phase 4 global maturity remains **PARTIAL** because final object schemas, atomic permissions, detailed screens, technique and implementation remain future.
+- REQ-INV-001 and REQ-INV-006 remain globally partial because implementation, final technical contracts, object schemas, atomic permissions and detailed UX remain absent.
+- OPEN-006 remains open for Customers and Delivery; OPEN-010 remains open for role/activity density; OPEN-013 remains open for default governance of class-2 actions.
+- OPEN-011/012/017/018/019 and all other current decisions retain their existing dispositions.
+- Requirement IDs added: **0**; removed: **0**; state changes: **0**; active contradictions introduced: **0**.
