@@ -3,60 +3,35 @@ id: roadmap-phase-5-studio-and-endpoint
 domain: 18-roadmap-and-releases
 status: draft
 owner: Product Operations Lead
-updated: 2026-08-03
+updated: 2026-08-09
 source-of-truth: canonical
 ---
 # Phase 5 Studio And Endpoint
 
-## Objectif
+## Identity
+Qualified name: **Delivery Roadmap Phase 5 — Studio and Endpoint**. This remains one roadmap phase; STD-1/STD-2/STD-3/STD-4 are execution lots only and do not create Phase 5A/5B/5C/5D.
 
-Définir phase 5 studio and endpoint pour CMDR.
+## Objective
+Define Studio and Endpoint documentary capability coverage while preserving two separate capability domains and all cross-product ownership boundaries.
 
-## Périmètre
+## Current status
+- Preflight: COMPLETE — 80/80.
+- **STD-1 — Studio Foundations — Tools, Skills, Library and Ownership Contracts: functional content published; post-publication verification tracked by its conformance report.**
+- Studio capability specification: PARTIAL.
+- STD-2 Workflow Builder & Orchestration: NOT STARTED.
+- STD-3 Agents, Human Gates & Runtime Control: NOT STARTED.
+- STD-4 Assurance & Lifecycle: NOT STARTED.
+- Endpoint capability specification: NOT STARTED.
+- Delivery Roadmap Phase 5 overall: PARTIAL.
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
+## STD-1 scope
+`CAP-STD-001..016`: Library/catalog, asset metadata/ownership, Tool definition/I-O/version/risk/eligibility, Tool Call request/lifecycle/outcome/provenance, Skill definition/dependencies/I-O/lifecycle/discovery, Settings dependency-reference boundaries and cross-product provenance.
 
-## Propriétaire fonctionnel
+## Preserved boundaries
+Settings retains providers, integrations, credentials, secrets, tenants/environments and administrative runtime/health configuration. Govern retains Decision, Approval, Playbook, Response Run, Result and response authority. Shared retains generic engines. Endpoint retains endpoint technical primitives and device/agent capability. Command/Investigate retain their canonical objects.
 
-Product Operations Lead.
+## Implementation boundary
+STD-1 introduces no API, protocol, code, final Tool/Tool Call physical schema, final RBAC/ABAC, provider/runtime selection, product runtime, screen rewrite or Endpoint capability. Documentary defined/planned != delivered.
 
-## Objets concernés
-
-- Concepts du document
-- Références canoniques liées
-
-## Fonctionnalités
-
-- Skills/Agents/workflows.
-- Assurance/control room.
-- EDR telemetry/detection/response.
-- Fleet administration.
-
-## UX et interactions
-
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
-
-## Permissions
-
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
-
-## États
-
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
-
-## Dépendances
-
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- Quelle date et quel owner doivent être confirmés?
-- Quelle dépendance bloque ce jalon?
+## Next candidate
+STD-2 — Workflow Builder & Orchestration. **Do not begin STD-2 implicitly.**
