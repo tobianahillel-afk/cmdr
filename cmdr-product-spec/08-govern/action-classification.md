@@ -8,28 +8,41 @@ source-of-truth: canonical
 requirements: [REQ-PROD-004, REQ-PROD-015, REQ-SEC-001, REQ-SEC-002]
 open_decisions: [OPEN-007, OPEN-013, OPEN-015]
 ---
-# Action Classification — Govern GOV-1
+# Action Classification — Govern GOV-1 + GOV-2
 
 ## Principle
 
-Action class describes functional effect and authority, not button appearance. GOV-1 governs whether an action may proceed but executes no target mutation and starts no Response Run.
+Action class describes functional effect and authority, not UI appearance. GOV-1 creates authority-bearing records but no target effect. GOV-2 may coordinate authorized execution while preserving exact Decision, target, scope, conditions and executor ownership.
 
-| Class | GOV-1 meaning | Representative GOV-1 actions | Execution boundary |
+| Class | Govern meaning | Representative actions | Execution boundary |
 |---:|---|---|---|
-| 0 | observation | read, search, filter, inspect, compare, view Policy, authority, Approval, Decision, history | local read under permission |
-| 1 | bounded no-effect assessment | completeness check, Policy Evaluation, risk/reversibility assessment, comparison, bounded report, no-effect simulation | deterministic/attributed assessment only |
-| 2 | reversible governance mutation/preparation | request-context edit, Govern assignment, information request, Exception Candidate, Approval Request, comment, permitted delegation, Decision Draft, pre-final conditions, withdrawal/supersession, Execution Handoff preparation | versioned and reversible; OPEN-013 remains open |
-| 3 | authority-bearing governance act | final Approval of a high-risk action, Decision authorizing production action, emergency authorization, active exception allowing high-impact action | may authorize later effect but still performs no target mutation in GOV-1 |
-| 4 | destructive/irreversible target effect | none executed in GOV-1 | prohibited in this lot; future Govern/runtime authority required |
+| 0 | observation | read, search, filter, inspect, compare, view Policy/authority/Approval/Decision/Run/Result/history | local read under permission |
+| 1 | bounded no-effect assessment | completeness, Policy Evaluation, compatibility/readiness/authorization reconciliation, verification query/comparison, outcome reconciliation | deterministic/attributed no-effect assessment |
+| 2 | reversible governance preparation/mutation | request-context edit, assignment, information request, Exception Candidate, Approval Request, Decision Draft, Execution Handoff, Playbook selection, Execution Plan/bindings, Run draft/scheduling, pause/resume request, retry proposal, Verification Plan, Rollback Plan, annotations | versioned/reversible; OPEN-013 remains open |
+| 3 | authority-bearing or reversible production effect | final high-risk Approval/Decision; start/stop/cancel of authorized reversible Response Run; approved production effect; governed retry/rollback/recovery when reversible | requires exact authority/reconciliation and technical-owner execution |
+| 4 | potentially irreversible/destructive production effect | action or rollback/recovery whose effect is destructive/irreversible or cannot be safely reversed | explicit heightened governance; no command/bypass defined by documentation |
 
-## Mandatory distinctions
+## GOV-1 invariants preserved
 
-- a class-3 Approval or Decision is **authority**, not execution;
-- `approved` does not mean `executed`;
-- preparing a class-3/4 target action is a local class-2 governance preparation until an authorized authority-bearing record is finalized;
-- a Policy outcome, risk assessment or AI recommendation cannot silently promote an action class;
-- OPEN-013 remains open for default governance/step-up of class-2 mutations.
+- class-3 Approval/Decision is authority, not execution;
+- `approved` != `executed`;
+- Policy outcome, risk score or AI recommendation does not create authority;
+- GOV-1 still stops at Execution Handoff Package.
 
-## Prohibitions
+## GOV-2 execution rules
 
-GOV-1 never starts Response Run, invokes rollback, mutates a target, executes Endpoint commands, changes Cloud permissions, revokes credentials, blocks networks, deploys Detection content or deletes provenance.
+- Plan/readiness/reconciliation remain no-effect until an effectful control is authorized;
+- start requested != started; stop requested != stopped;
+- retry never expands target/scope, bypasses Decision expiry or silently substitutes Playbook/target;
+- compensation != rollback;
+- rollback planning is class 2; effectful rollback/recovery is class 3/4 according to underlying effect and authority;
+- a technical executor result cannot downgrade action class or become a canonical Result automatically;
+- class 4 handling can be documented functionally but GOV-2 defines no destructive command, exploit, bypass or implementation.
+
+## AI and automation
+
+AI may propose plans, candidates, retry/rollback recommendations and Result drafts. AI never authorizes, starts, retries or rolls back silently. Deterministic automation may perform an effect only under an explicitly applicable canonical governance contract and remains interruptible/auditable.
+
+## OPEN
+
+OPEN-013 remains open for default class-2 governance and effectful step-up policy. OPEN-007 and OPEN-015 remain open for Human Gate and Automation Run/Response Run semantics.
