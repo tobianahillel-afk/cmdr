@@ -18,10 +18,9 @@ requirements:
 The register is split into active shards. IDs are immutable and never recycled. The global file is the authoritative index and total; each shard carries the row-level evidence needed for owner, role, object, delivery and traceability checks.
 
 ## Required row semantics
+An active shard entry identifies Capability ID, name, owner product/module, documentary status, `delivery_status`, `delivery_mode`, canonical file, primary roles, primary objects, consumers, Requirement IDs, OPEN decisions, dependencies, supersession and review date. A shard must not use the registry to claim runtime availability unsupported by implementation/release evidence.
 
-An active shard entry must identify: Capability ID, name, owner product/module, documentary status, `delivery_status`, `delivery_mode`, canonical file, primary roles, primary objects, consumers, Requirement IDs, OPEN decisions, dependencies, supersession and review date. A shard must not use the registry to claim runtime availability that is not supported by implementation/release evidence.
-
-Registry validation checks for duplicate/recycled IDs, concurrent owners, missing canonical files, capabilities without users/objects/requirements, and `planned` capabilities presented as available. Detailed inputs, outputs, actions, states, permissions and acceptance criteria remain in the canonical capability file and are not duplicated into the global index.
+Registry validation checks duplicate/recycled IDs, concurrent owners, missing canonical files, capabilities without users/objects/requirements and `planned` capabilities presented as available. Detailed inputs, outputs, actions, states, permissions and acceptance criteria remain in canonical capability files.
 
 | Shard | Scope | Count | Defined | Proposed | Delivery mode |
 |---|---|---:|---:|---:|---|
@@ -42,14 +41,16 @@ Registry validation checks for duplicate/recycled IDs, concurrent owners, missin
 | `capability-register-investigate-mobile-forensics.md` | CAP-INV-701..719 | 19 | 19 | 0 | 19 planned |
 | `capability-register-govern-gov1.md` | Govern GOV-1 CAP-GOV-001..016 | 16 | 16 | 0 | 16 planned |
 | `capability-register-govern-gov2.md` | Govern GOV-2 CAP-GOV-017..033 | 17 | 17 | 0 | 17 planned |
-| **Total** | **All registered capabilities** | **303** | **301** | **2** | **303 planned** |
+| `capability-register-govern-gov3.md` | Govern GOV-3 CAP-GOV-034..047 | 14 | 14 | 0 | 14 planned |
+| **Total** | **All registered capabilities** | **317** | **315** | **2** | **317 planned** |
 
 ## Product totals
 - Command: **27** capabilities, 729 sections, 162 mandatory tables.
 - Investigate: **243** capabilities, 6561 sections, 1458 mandatory tables.
 - Govern GOV-1: **16** capabilities, 432 sections, 96 mandatory tables.
 - Govern GOV-2: **17** capabilities, 459 sections, 102 mandatory tables.
-- Govern cumulative: **33** capabilities, **891** sections, **198** mandatory tables.
+- Govern GOV-3: **14** capabilities, 378 sections, 84 mandatory tables.
+- Govern cumulative: **47** capabilities, **1269** sections, **282** mandatory tables.
 - CAP-INV-3xx / 4xx / 5xx / 6xx / 7xx: **97 / 35 / 37 / 18 / 19**.
 - Detection Engineering: **35 capabilities, 945 sections, 210 tables**.
 - Threat Intelligence: **37 capabilities, 999 sections, 222 tables**.
@@ -57,15 +58,14 @@ Registry validation checks for duplicate/recycled IDs, concurrent owners, missin
 - Mobile Forensics: **19 capabilities, 513 sections, 114 tables**.
 - Phase 4B.4 Cloud + Mobile: **37 capabilities, 999 sections, 222 tables**.
 - Command + Investigate: **270 capabilities, 7290 sections, 1620 tables**.
-- Command + Investigate + Govern: **303 capabilities, 8181 sections, 1818 mandatory tables**.
+- Command + Investigate + Govern: **317 capabilities, 8559 sections, 1902 mandatory tables**.
 
-## Current Command registry revalidation
-The Command shard has 27 unique IDs, 27 owners, 27 named user sets, 27 primary-object sets and 27 concrete dependency summaries. It retains **26 defined / 1 proposed / 27 planned**, with current `native` or `integrated` claims equal to **0**. `CAP-CMD-401` remains deployment-dependent under OPEN-006.
+## Command registry state
+The Command shard remains 27 unique IDs, 26 defined / 1 proposed / 27 planned, with current native/integrated claims equal to 0. `CAP-CMD-401` remains deployment-dependent under OPEN-006.
 
-## Govern GOV-1 registry state
-The GOV-1 shard remains unchanged with 16 unique `CAP-GOV-001..016`, 16 defined / 16 planned, 432 sections and 96 mandatory tables. Its dedicated post-publication record confirms historical **180/180 PASS**. No GOV-1 capability is redefined by GOV-2.
-
-## Govern GOV-2 registry state
-The GOV-2 shard has 17 unique `CAP-GOV-017..033`, 17 named user sets, 17 owner/module assignments, 17 primary object/concept sets and concrete Requirement/OPEN/dependency evidence. All are `draft` / `defined` / `planned`; **459 sections / 102 mandatory tables**. No current native, integrated, implemented, deployed or active runtime claim is made. GOV-3 registers **0 capabilities**.
+## Govern registry state
+- GOV-1: 16 unique `CAP-GOV-001..016`, 16 defined/planned, 432 sections, 96 tables; historical 180/180 PASS evidence retained.
+- GOV-2: 17 unique `CAP-GOV-017..033`, 17 defined/planned, 459 sections, 102 tables; historical 190/190 PASS evidence retained.
+- GOV-3: 14 unique `CAP-GOV-034..047`, 14 defined/planned, 378 sections, 84 tables; final PASS remains post-publication-gate dependent until remote verification.
 
 No capability is marked validated, implemented, promoted, deployed, active, native or integrated by the registry.

@@ -11,86 +11,71 @@ open_decisions: [OPEN-007, OPEN-008, OPEN-013, OPEN-015, OPEN-019]
 # Govern
 
 ## Mission
-
-Govern is CMDR's authority, execution-governance and response-outcome product. GOV-1 governs Action Requests through Decision and an exact no-effect Execution Handoff Package. GOV-2 governs Playbook selection, execution planning/readiness, Response Runs, technical-executor coordination, verification, rollback/recovery and canonical Result while preserving source ownership and explicit authority.
+Govern is CMDR's authority, governed-response and response-review product. GOV-1 governs Action Requests through Decision/Handoff; GOV-2 governs Playbooks, execution planning, Response Runs, verification, rollback/recovery and canonical Result; GOV-3 defines Govern audit interpretation, Govern-specific metrics, continuous-improvement packages and documentary closure without duplicating Shared infrastructure.
 
 ## Canonical programme identity
+- Parent: **Delivery Roadmap Phase 4 — Govern**.
+- Canonical id: `roadmap-phase-4-govern`.
+- GOV-1 — Action Requests, Policy, Authorities and Decisions: historical **PASS**, 16 capabilities / 432 sections / 96 tables / 180 gates.
+- GOV-2 — Playbooks, Response Runs, Execution, Verification and Rollback: historical **PASS**, 17 / 459 / 102 / 190 gates.
+- Current construction: **GOV-3 — Audit Trail, Response Metrics and Govern Closure**.
+- GOV-1/GOV-2/GOV-3 are execution lots only. `Phase 4C/4D/4E Govern` do not exist.
 
-- Parent roadmap: **Delivery Roadmap Phase 4 — Govern**.
-- Canonical roadmap id: `roadmap-phase-4-govern`.
-- GOV-1: **Action Requests, Policy, Authorities and Decisions** — PASS AFTER POST-PUBLICATION VERIFICATION, 16 capabilities / 432 sections / 96 tables / 180 gates.
-- Current execution lot: **GOV-2 — Playbooks, Response Runs, Execution, Verification and Rollback**.
-- GOV-2 is an execution lot, not a roadmap phase or Capability Specification Phase.
-- `Phase 4C Govern` and `Phase 4D Govern`: **DO NOT EXIST**.
-- GOV-3 — Audit Trail, Response Metrics and Govern Closure: **NOT STARTED**.
-
-## Govern ownership after GOV-2 functional specification
-
-Govern owns:
-- Action Request processing, Policy/authority/Approval/Decision from GOV-1;
-- Response Playbook semantics and selection;
-- Playbook-to-Decision compatibility review;
-- Execution Plan and parameter binding by reference;
-- request-specific target resolution/readiness and execution-time authority reconciliation;
-- canonical Response Run and Response Step governance;
-- scheduling/control intent and execution coordination;
-- runtime normalization/reconciliation relative to the Run;
-- error/retry/partial-success/compensation governance;
-- Verification Plan, Verification Assessment and residual-risk assessment;
-- rollback eligibility/plan, Response Rollback and recovery coordination;
-- canonical Result/outcome classification;
-- GOV-2 provenance and cross-product handoff composition.
+## Govern ownership after GOV-3 functional specification
+Govern owns the semantics/lifecycle established by GOV-1/GOV-2 plus:
+- Govern Audit Event interpretation and lifecycle reconstruction;
+- audit completeness/gap/contradiction assessments and Audit Review;
+- Audit Evidence Package composition;
+- Govern-specific Policy/Exception/Emergency, Approval/Authority/SoD, Decision, Run, verification/rollback/recovery, Result/effectiveness and flow metric semantics;
+- Trend and Control Health Assessments;
+- Govern Continuous Improvement Package and closure provenance.
 
 ## Consumed, not owned
-
-- Command: Detection, Signal, Alert, Incident, general Work Queue, Task coordination and operational priority.
-- Investigate: Case, Hypothesis, Artifact, Evidence, Finding, analyses, forensics, Detection Engineering and Threat Intelligence.
-- Studio: Skill, Tool, Tool Call, Workflow, Workflow Version, Automation Agent, Automation Run and Human Gate.
-- Platform Settings: users, roles, groups, providers, integrations, tenant/environment administration, credentials, secrets, connections and runtime configuration/health.
-- Endpoint Agent / provider runtime owners: technical execution primitives, device/runtime health, technical retry/rollback primitives and raw technical responses.
-- Shared: Search, Linking, Versioning, Notifications, Jobs, Activity, Trace, Reporting, Collaboration, Comments, Inspector and generic Recovery mechanisms.
+- Shared: Trace, Activity, Search, Metrics Engine, Reporting Engine, Export, Jobs, Notifications, Versioning and generic dashboard primitives.
+- Platform Settings: users/roles/tenants/environments, retention/storage, export destinations, providers/integrations/secrets and administrative configuration.
+- Security: permission model, tenant isolation, privacy, secure export, legal hold and audit-integrity policy.
+- Command: Incident, Work Queue and Command KPIs.
+- Investigate: Case, Evidence, Finding and investigation metrics.
+- Studio: Workflow, Tool, Tool Call, Human Gate, Automation Run and Studio metrics.
+- Endpoint/provider owners: technical execution primitives, local audit records and technical runtime metrics.
 
 ## Modules
-
 1. Response Inbox — GOV-1.
-2. Action Center — GOV-1, plus return/review links from GOV-2 reconciliation.
-3. Decision Register — GOV-1 Decision/Handoff plus Run/Result projections.
-4. Policy Gates — GOV-1 plus execution-time validity inputs.
-5. Approvals & Authorities — GOV-1 plus execution/rollback authority rechecks.
-6. **Playbooks — GOV-2 CAP-GOV-017..019.**
-7. **Runs & Rollback — GOV-2 CAP-GOV-020..033.**
-8. Audit Trail — future GOV-3 only.
-9. Response Metrics — future GOV-3 only.
+2. Action Center — GOV-1.
+3. Decision Register — GOV-1.
+4. Policy Gates — GOV-1.
+5. Approvals & Authorities — GOV-1.
+6. Playbooks — GOV-2.
+7. Runs & Rollback — GOV-2.
+8. **Audit Trail — GOV-3 CAP-GOV-034..038.**
+9. **Response Metrics — GOV-3 CAP-GOV-039..047.**
 
-## Mandatory execution distinctions
+## Audit/metrics invariants
+Audit Trail ≠ Trace/Activity. Govern Audit Event ≠ raw log/SIEM event. Reconstruction ≠ execution. Audit completeness ≠ truth completeness. Gap/contradiction ≠ wrongdoing/falsity automatically. Integrity requirement ≠ implemented cryptographic proof. Audit Evidence Package ≠ canonical Evidence.
 
-Decision != Execution Handoff Package != Execution Plan != Response Run. Playbook != Workflow. Playbook selection/version compatibility != authorization/readiness. Secret Reference != secret value. Target Reference != Resolved Target; target drift != scope expansion. Run created/scheduled/start-requested != started. Step/technical success != Run or verified success. Automation Run/Tool Call/Job != Response Run. Technical output != canonical Result. Retry != reauthorization. Cancel/compensation != rollback. Rollback Plan != rollback execution; rolled-back/recovered != guaranteed exact restoration. Runtime success != verification success. Result != Decision/Evidence/Finding and never rewrites them.
+Metric ≠ objective/Policy/SLO/KPI automatically. Count ≠ quality; throughput ≠ effectiveness; faster Decision ≠ better Decision; Policy block count ≠ prevented incidents; runtime success ≠ verified success; rollback rate ≠ failure rate; Result success ≠ business value. Trend ≠ causal explanation; anomaly ≠ control failure; dashboard ≠ source of truth.
 
-## Execution safety
+## AI / sensitive data
+AI is optional and proposal-only. It may summarize sourced audit chains/metrics or draft hypotheses/packages, but cannot invent events, alter history, declare fraud/violation as fact, mutate Decision/Result, hide contradictions, change thresholds, publish externally or apply an improvement. Raw secret material is excluded. Identity/tenant/target/exception/emergency dimensions remain permission-aware.
 
-Every effectful start/resume/retry/rollback/recovery preserves exact Decision version, exact Playbook version, exact target set, allowed/prohibited scope, conditions, expiry, Approval/Exception validity, current readiness and source-executor permission. Unknown/stale/contradictory state is never silently promoted to success or authorization.
+## Canonical GOV-3 addenda
+- `audit-and-metrics-boundaries.md`
+- `capability-map-gov3.md`
+- `object-consumption-map-gov3.md`
+- `action-classification-gov3.md`
+- `automation-and-ai-model-gov3.md`
+- `permissions-gov3.md`
+- `cross-product-links-gov3.md`
+- `screen-capability-map-gov3.md`
+- `source-migration-gov3.md`
 
-## Secrets and AI
+Historical GOV-1/GOV-2 maps remain valid evidence and are not destructively condensed.
 
-Govern normally consumes Secret References/metadata only; raw secret values never belong in Decision, Playbook, Execution Plan, Response Run, Result, logs or reports. AI is optional and proposal-only. It cannot authorize, start, expand scope, select secret values, retry/rollback silently or declare success without evidence. Manual/deterministic paths remain complete.
+## Current construction counts
+- GOV-1: 16 / 432 / 96 — historical PASS.
+- GOV-2: 17 / 459 / 102 — historical PASS.
+- GOV-3 functional set: **14 / 378 / 84**.
+- Govern cumulative: **47 / 1269 / 282**.
+- Global: **317 capabilities / 315 defined / 2 proposed / 317 planned / 8559 sections / 1902 tables**.
 
-## Canonical maps
-
-- `capability-map.md`
-- `functional-dependency-map.md`
-- `object-consumption-map.md`
-- `action-classification.md`
-- `automation-and-ai-model.md`
-- `cross-product-links.md`
-- `execution-boundaries.md`
-- `permissions.md`
-- `screen-capability-map.md`
-
-## Current counts and stop line
-
-- GOV-1: 16 capabilities / 432 sections / 96 mandatory tables — historical verified PASS.
-- GOV-2: 17 capabilities / 459 sections / 102 mandatory tables — functional files published; final PASS requires the fifth traceability commit and remote 190-gate verification.
-- Govern cumulative: 33 capabilities / 891 sections / 198 mandatory tables.
-- GOV-3 capabilities created in GOV-2: **0**.
-
-Govern capability specification and Delivery Roadmap Phase 4 — Govern remain **PARTIAL** until GOV-3 is separately completed. Documentary capability status never proves product implementation.
+At this pre-publication construction point, GOV-3 and parent closure remain pending the fifth functional commit plus remote 200-gate verification. Documentary PASS never means implementation complete and does not start Delivery Roadmap Phase 5.
