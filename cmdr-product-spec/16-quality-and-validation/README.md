@@ -16,76 +16,65 @@ Définir les contrôles qui comparent l’arborescence réelle au manifeste atte
 
 Quality records evidence and verification stages. It does not own product behavior, objects, permissions, roadmap decisions, technology choices or implementation.
 
-## Propriétaire fonctionnel
-
-Quality Lead.
-
 ## Active evidence
 
 - Validation status: `validation-status.md`.
 - Structural baseline: `architecture-manifest.md` and `expected-path-manifest.md`.
-- Current Command revalidation: `reports/phase-4a-command-current-revalidation.md` — **PASS AFTER POST-PUBLICATION VERIFICATION, 60/60**.
-- Phase 4B Investigate closure: `reports/phase-4b-investigate-capability-closure.md` — PASS.
+- Command current revalidation: `reports/phase-4a-command-current-revalidation.md` — **PASS AFTER POST-PUBLICATION VERIFICATION, 60/60**.
+- Phase 4B Investigate closure: `reports/phase-4b-investigate-capability-closure.md` — **PASS**.
 - Cloud Analysis: `reports/phase-4b4a-cloud-analysis-capability-conformance.md` — **243/243 PASS**.
-- Cloud source audit: `reports/phase-4b4a-cloud-analysis-source-audit.md`.
-- Mobile Forensics: `reports/phase-4b4b-mobile-forensics-capability-conformance.md` — **250/250 PASS after publication verification**.
-- Phase 4B.4 closure: `reports/phase-4b4-cloud-and-mobile-analysis-closure.md`.
-- **Govern GOV-1:** `reports/govern-gov1-action-policy-authority-decision-capability-conformance.md` — **PENDING POST-PUBLICATION VERIFICATION, 169 PASS / 11 PENDING / 0 FAIL before the fifth functional commit is remotely verified**.
-- Prior Detection Engineering and Threat Intelligence closure reports remain active and preserved.
+- Mobile Forensics: `reports/phase-4b4b-mobile-forensics-capability-conformance.md` — **250/250 PASS**.
+- Govern GOV-1 dedicated verification: `reports/govern-gov1-post-publication-verification.md` — **180/180 PASS**.
+- **Govern GOV-2:** `reports/govern-gov2-playbooks-response-runs-verification-rollback-capability-conformance.md` — pre-publication remote gates remain PENDING until the fifth functional commit is published and verified.
 
-## GOV-1 quality contract
+## GOV-2 quality contract
 
-Parent roadmap: **Delivery Roadmap Phase 4 — Govern**. Canonical roadmap id: `roadmap-phase-4-govern`. Execution lot: **GOV-1**. GOV-1 is not a roadmap phase. `Phase 4C Govern` does not exist.
+Parent roadmap: **Delivery Roadmap Phase 4 — Govern** (`roadmap-phase-4-govern`). Execution lot: **GOV-2 — Playbooks, Response Runs, Execution, Verification and Rollback**. GOV-2 is not a roadmap phase. `Phase 4C Govern` does not exist.
 
-GOV-1 requires:
-- 16 unique `CAP-GOV-001..016` capability files;
-- 432 numbered capability sections;
-- 96 mandatory S8/S9/S10/S13/S16/S17 tables;
+Required GOV-2 structural evidence:
+- 17 unique `CAP-GOV-017..033` capability files;
+- 459 numbered sections;
+- 102 mandatory S8/S9/S10/S13/S16/S17 tables;
 - zero empty/generic mandatory tables;
 - zero duplicate/recycled IDs or owner conflicts;
-- 180/180 gates after remote verification;
-- no GOV-2/GOV-3 capability or execution implementation;
-- non-regression of the five CAP-CMD Requirements ranges, ten DEP-CMD families and detailed Command registry rows.
+- 190/190 gates only after remote verification;
+- zero GOV-3 capability, detailed screen rewrite, provider/runtime selection, API/protocol, command or product implementation.
+
+## Non-regression contract
+
+GOV-2 closure must preserve:
+- GOV-1 `CAP-GOV-001..016`, 16/432/96 and historical 180/180 PASS;
+- Command 27 capabilities, 26 defined + 1 proposed, five Requirements ranges and `DEP-CMD-001..010`;
+- Investigate 243 capabilities and Phase 4B PASS;
+- Requirements 122 = 99 conform / 20 partial / 3 absent / 0 contradictory unless independently justified;
+- 18 OPEN decisions unless an independently resolved source is found;
+- root README and `main` unchanged;
+- PR #2 open, Draft, unmerged.
 
 ## Validation rules
 
-- A planned capability is not implementation evidence.
-- A report cannot claim post-publication PASS before the remote head, PR, README, `main`, commit chain, registers, metrics and Command non-regression are checked.
-- Historical evidence is appended or preserved; closure never condenses earlier traceability.
-- Sources are classified by what was actually read/used; unverified sources are not silently claimed.
-- A failed or pending gate remains visible.
-- Any single GOV-1 FAIL makes the execution lot PARTIAL.
-- Remote-dependent GOV-1 gates stay PENDING until the fifth functional commit is published.
+- planned capability != implementation evidence;
+- technical executor output != canonical Result;
+- post-publication PASS cannot be claimed before exact remote head, commit chain, PR, README, `main`, structural counts and non-regression are verified;
+- historical evidence is preserved or extended additively rather than destructively condensed;
+- a failed/pending gate remains visible; one FAIL makes GOV-2 PARTIAL;
+- remote-dependent gates stay PENDING until the fifth functional publication and remote check;
+- no-AI paths, source ownership, target/scope/expiry and sensitive-data boundaries are quality requirements, not optional prose.
 
-## UX et interactions
+## Counts prepared for final verification
 
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- No detailed Govern screen rewrite is performed by GOV-1.
+- global capabilities: 303;
+- Command / Investigate / Govern: 27 / 243 / 33;
+- defined / proposed / planned: 301 / 2 / 303;
+- GOV-2: 17 / 459 sections / 102 tables;
+- Govern cumulative: 33 / 891 / 198;
+- all products currently specified: 8181 sections / 1818 mandatory tables;
+- GOV-3 capabilities: 0.
 
-## Permissions
+## Permissions / screens / implementation
 
-The canonical permission source remains `../14-security-permissions-and-trust/permission-model.md`. GOV-1 validates functional permission needs and authority boundaries only; it does not finalize RBAC/ABAC.
+GOV-2 validates functional permission needs only; final RBAC/ABAC remains future. Existing nine Govern screens remain; detailed rewrites/new Screen IDs = 0. No executable command, exploit/bypass, API/protocol, raw secret, provider/runtime or product code is produced.
 
-## États
+## OPEN
 
-Documentary status follows governance lifecycle. GOV-1 `PENDING POST-PUBLICATION VERIFICATION` is a quality stage, not a product runtime status.
-
-## Dépendances
-
-- `../00-governance/source-of-truth-policy.md`
-- `../00-governance/source-material/requirements-traceability-matrix.md`
-- `../00-governance/dependency-register.md`
-- `../18-roadmap-and-releases/phase-4-govern.md`
-- `../STATUS.md`
-
-## Critères d’acceptation
-
-- Every verdict names evidence and verification stage.
-- Counts are recalculated from the final registered scope.
-- No duplicate ID, owner conflict, active contradiction, broken required link or unsupported implementation claim is hidden.
-- Command evidence restored immediately before GOV-1 remains intact.
-
-## Questions ouvertes
-
-OPEN-007, OPEN-013 and OPEN-015 remain open and must not be silently resolved by a quality verdict.
+OPEN-007, OPEN-008, OPEN-013, OPEN-015 and OPEN-019 remain explicitly open. GOV-2 creates/closes no decision.
