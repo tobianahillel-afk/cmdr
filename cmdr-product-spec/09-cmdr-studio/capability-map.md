@@ -3,15 +3,14 @@ id: studio-capability-map
 domain: 09-cmdr-studio
 status: draft
 owner: CMDR Studio Product Lead
-updated: 2026-08-09
+updated: 2026-08-10
 source-of-truth: canonical
 ---
 # Studio Capability Map
 
-## STD-1 identity
-Parent: **Delivery Roadmap Phase 5 — Studio and Endpoint**. Execution lot: **STD-1 — Studio Foundations — Tools, Skills, Library and Ownership Contracts**. STD-1 is not a roadmap phase and creates no Phase 5A/5B.
+Parent: **Delivery Roadmap Phase 5 — Studio and Endpoint**. STD-1 and STD-2 are execution lots only; no Phase 5A/5B is created.
 
-## Capabilities
+## STD-1 — preserved
 | ID | Capability | Functional family | Delivery |
 |---|---|---|---|
 | CAP-STD-001 | Studio Library and Asset Catalog | Library | defined / planned |
@@ -31,5 +30,30 @@ Parent: **Delivery Roadmap Phase 5 — Studio and Endpoint**. Execution lot: **S
 | CAP-STD-015 | Provider, Runtime, Integration and Secret Reference Boundaries | Foundation boundary | defined / planned |
 | CAP-STD-016 | Studio Foundations Cross-Product Contracts and Provenance | Foundation boundary | defined / planned |
 
-## Structural total
-16 capabilities × 27 numbered sections = **432 sections**. Six mandatory tables per capability = **96 mandatory tables**. No STD-2/STD-3/STD-4 or Endpoint capability belongs to this map.
+STD-1 total: **16 capabilities / 432 sections / 96 mandatory tables**, post-publication PASS.
+
+## STD-2 — Workflow Builder & Orchestration
+| ID | Capability | Functional family | Delivery |
+|---|---|---|---|
+| CAP-STD-017 | Workflow Definition and Functional Contract | Workflow foundations | defined / planned |
+| CAP-STD-018 | Workflow Builder Session and Editing Context | Builder | defined / planned |
+| CAP-STD-019 | Workflow Inputs, Outputs, Variables and Data Context | Workflow data | defined / planned |
+| CAP-STD-020 | Workflow Steps, Nodes and Dependency Graph | Graph | defined / planned |
+| CAP-STD-021 | Tool and Skill Step Composition | Composition | defined / planned |
+| CAP-STD-022 | Conditions, Branches and Deterministic Decision Logic | Control flow | defined / planned |
+| CAP-STD-023 | Data Mapping, Transformation and Context Propagation | Mapping | defined / planned |
+| CAP-STD-024 | Subworkflow Composition and Reusable Workflow References | Subworkflow | defined / planned |
+| CAP-STD-025 | Workflow Ordering, Parallelism and Concurrency Constraints | Ordering/concurrency | defined / planned |
+| CAP-STD-026 | Workflow Error Paths and Exception Handling | Errors | defined / planned |
+| CAP-STD-027 | Workflow Retry, Idempotency and Duplicate-Execution Protection | Retry/idempotency | defined / planned |
+| CAP-STD-028 | Workflow Partial Success and Compensation Semantics | Partial/compensation | defined / planned |
+| CAP-STD-029 | Human Gate Step and Govern Boundary | Human Gate boundary | defined / planned |
+| CAP-STD-030 | Workflow Validation, Compatibility and Readiness Assessment | Validation/readiness | defined / planned |
+| CAP-STD-031 | Workflow Versioning and Compatibility | Versioning | defined / planned |
+| CAP-STD-032 | Workflow Draft, Review and Pre-Publishing Lifecycle | Pre-publish lifecycle | defined / planned |
+| CAP-STD-033 | Workflow Provenance and Cross-Product Orchestration Contracts | Provenance/boundary | defined / planned |
+
+STD-2 total: **17 capabilities / 459 sections / 102 mandatory tables**, PENDING POST-PUBLICATION VERIFICATION at build time.
+
+## Studio total
+**33 capabilities / 891 sections / 198 mandatory tables**. STD-3/STD-4 and Endpoint remain NOT STARTED.

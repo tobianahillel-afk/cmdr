@@ -3,16 +3,16 @@ id: roadmap-phase-5-studio-and-endpoint
 domain: 18-roadmap-and-releases
 status: draft
 owner: Product Operations Lead
-updated: 2026-08-09
+updated: 2026-08-10
 source-of-truth: canonical
 ---
 # Phase 5 Studio And Endpoint
 
 ## Objectif
-Définir phase 5 Studio and Endpoint pour CMDR tout en conservant Studio et Endpoint comme deux capability domains séparés.
+Définir Phase 5 Studio and Endpoint pour CMDR tout en conservant Studio et Endpoint comme deux capability domains séparés.
 
 ## Périmètre
-Document canonique du domaine Roadmap. Il ne remplace pas les sources de vérité propriétaires et ne transforme aucun execution lot en sous-phase numérotée.
+Document canonique Roadmap. Il ne remplace pas les sources propriétaires et ne transforme aucun execution lot en sous-phase numérotée.
 
 ## Propriétaire fonctionnel
 Product Operations Lead.
@@ -33,34 +33,38 @@ Product Operations Lead.
 - Aucune duplication des définitions externes.
 
 ## Permissions
-Les modifications suivent `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
-
-## États
-Le statut documentaire suit la gouvernance canonique; les états métier restent dans leurs sources propriétaires.
+Les modifications suivent `../14-security-permissions-and-trust/permission-model.md`; aucun execution lot ne finalise implicitement RBAC/ABAC.
 
 ## Dépendances
 - `../00-governance/source-of-truth-policy.md`
 - `dependency-roadmap.md`
 - Studio/Settings/Govern/Shared/Endpoint ownership sources.
 
-## STD-1 current execution state
-- Preflight: COMPLETE — 80/80.
-- STD-1 — Studio Foundations — Tools, Skills, Library and Ownership Contracts: **functional content published; post-publication evidence recorded separately**.
+## STD-1 — verified
+- STD-1 — Studio Foundations — Tools, Skills, Library and Ownership Contracts: **PASS AFTER POST-PUBLICATION VERIFICATION — 190/190**.
 - `CAP-STD-001..016`: 16 capabilities / 432 sections / 96 mandatory tables.
-- Studio capability specification: PARTIAL.
-- STD-2 Workflow Builder & Orchestration: NOT STARTED.
-- STD-3 Agents, Human Gates & Runtime Control: NOT STARTED.
-- STD-4 Assurance & Lifecycle: NOT STARTED.
+
+## STD-2 — current execution
+- STD-2 — Workflow Builder & Orchestration: 17 capabilities `CAP-STD-017..033` / 459 sections / 102 mandatory tables.
+- scope: Workflow definition/version, Builder, data/graph/composition, deterministic control, errors/retry/partial/compensation, Human Gate boundary, readiness/pre-publish/provenance.
+- build-time status: **PENDING POST-PUBLICATION VERIFICATION** until fifth functional SHA and remote gates are recorded.
+- new Screen IDs / detailed rewrites: 0 / 0.
+- runtime scheduler / Automation Run lifecycle / publishing-deployment / Endpoint implementation: not included.
+
+## Future lots
+- STD-3 — Agents, Human Gates & Runtime Control: NOT STARTED.
+- STD-4 — Assurance & Lifecycle: NOT STARTED.
 - Endpoint capability specification: NOT STARTED.
+- Studio capability specification: PARTIAL.
 - Delivery Roadmap Phase 5 overall: PARTIAL.
 
-STD-1/2/3/4 are execution-lot planning labels only. No Phase 5A/5B/5C/5D exists.
+STD-1/2/3/4 are execution-lot labels only. No Phase 5A/5B/5C/5D exists.
 
 ## Implementation boundary
-No API, protocol, product code, final Tool/Tool Call physical schema, final RBAC/ABAC, provider/runtime selection, detailed screen rewrite or Endpoint implementation is introduced by STD-1.
+No API, protocol, product code, orchestration language/runtime, final graph/Tool/Tool Call physical schema, final RBAC/ABAC, provider/runtime selection, detailed screen rewrite or Endpoint implementation is introduced by STD-2.
 
 ## Questions ouvertes
-OPEN-007/013/015 remain open where consumed. OPEN-008 remains Endpoint/platform support and is not resolved by STD-1. Permission namespace normalization remains an implementation/detail issue, not a new blocking OPEN.
+OPEN-007/013/015 remain open where consumed. OPEN-008 remains Endpoint/platform support. The permission namespace anomaly remains unresolved.
 
 ## Next candidate
-STD-2 — Workflow Builder & Orchestration. **Do not begin STD-2 implicitly.**
+STD-3 — Agents, Human Gates & Runtime Control. **Do not begin STD-3 implicitly.**

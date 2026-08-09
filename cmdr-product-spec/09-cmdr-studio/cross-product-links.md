@@ -1,28 +1,38 @@
 ---
-id: studio-std1-cross-product-links
+id: studio-cross-product-links
 domain: 09-cmdr-studio
 status: draft
 owner: CMDR Studio Product Lead
-updated: 2026-08-09
+updated: 2026-08-10
 source-of-truth: canonical
-open_decisions: [OPEN-007, OPEN-015]
+open_decisions: [OPEN-007, OPEN-013, OPEN-015]
 ---
-# STD-1 Cross-Product Links
+# Studio Cross-Product Links
 
-## Govern
-Workflow != Playbook; Human Gate != Approval; Automation Run != Response Run; Tool Call output != Result. Studio may consume Decision/Response Run references but does not own response authority.
+## STD-1 boundaries — preserved
+- Workflow != Playbook; Human Gate != Approval; Automation Run != Response Run; Tool Call output != Result.
+- Investigate qualifies its own Evidence/Finding from technical outputs.
+- Command retains Incident/Work Queue ownership.
+- Endpoint owns technical primitives.
+- Settings owns provider/runtime/integration/Secret Reference administration.
+- Shared owns Search/Linking/Versioning/Jobs/Notifications/Trace/Activity/Reporting/Export/Collaboration/Recovery.
 
-## Investigate
-Investigate may select an authorized Tool/Skill, trigger a Tool Call, consume technical output and then produce its own conclusions. Tool output != Evidence or Finding automatically.
+## STD-2 additions
 
-## Command
-Command may consume authorized Studio asset references and future execution projections. Studio never becomes the Command Work Queue or Incident owner.
+### Govern
+Workflow Definition/Version and validation remain Studio-owned. Branch != Decision, condition != Policy, Human Gate completion != Approval/Decision, compensation != Govern rollback. CAP-GOV-025 remains the future execution handoff boundary. OPEN-007/013/015 stay open.
 
-## Endpoint Agent
-A Tool/Workflow may later reference Endpoint technical capabilities. Studio never becomes owner of an Endpoint primitive or device/agent health.
+### Investigate
+Investigate may reference a Workflow/Tool/Skill and receive attributed technical outputs later, but retains Case/Evidence/Finding/Hypothesis ownership and qualification.
 
-## Platform Settings
-Studio consumes provider/runtime/integration/Secret Reference and health/config projections. Settings retains providers, integrations, credentials, raw secrets, tenant/environment administration and connection lifecycle.
+### Command
+Command may reference authorized Workflow versions without becoming Studio or transferring Incident/Task ownership.
 
-## Shared Capabilities
-Studio consumes Search, Linking, Versioning, Jobs, Notifications, Trace, Activity, Reporting, Export, Collaboration and Recovery where applicable. It creates no competing generic engine.
+### Endpoint Agent
+A Workflow may reference a future Endpoint capability only by typed reference; Studio never owns or defines the Endpoint primitive.
+
+### Platform Settings
+Workflow data/runtime bindings consume opaque Settings-owned provider/integration/environment/Secret References. Raw secrets are excluded.
+
+### Shared
+Workflow uses generic Trace/Activity/Jobs/Versioning/Search/Notifications/Recovery mechanisms without creating competing engines.

@@ -3,15 +3,20 @@ id: studio-capabilities-readme
 domain: 09-cmdr-studio
 status: draft
 owner: CMDR Studio Product Lead
-updated: 2026-08-09
+updated: 2026-08-10
 source-of-truth: canonical
 ---
 # CMDR Studio Capability Specifications
 
-This directory contains detailed Studio capability contracts. Delivery Roadmap Phase 5 remains the parent roadmap identity; `STD-1` is an execution lot only, not a Roadmap Phase or Capability Specification Phase.
+Delivery Roadmap Phase 5 remains the parent roadmap identity. `STD-1`, `STD-2`, `STD-3` and `STD-4` are execution lots only.
 
-## STD-1 scope
+## STD-1
+`CAP-STD-001..016`: Library, asset metadata/ownership, Tool/Tool Call, Skill foundations, Settings-boundary and provenance. **PASS AFTER POST-PUBLICATION VERIFICATION — 190/190**.
 
-STD-1 covers Library, Studio asset metadata and ownership, Tool and Tool Call functional contracts, Skill foundations, provider/runtime/integration/Secret Reference boundaries, and cross-product provenance. It does not start Workflow Builder/orchestration, Agents/Human Gates/runtime control, Assurance/lifecycle, or Endpoint capabilities.
+## STD-2
+`CAP-STD-017..033`: Workflow Builder & Orchestration definitions. **PENDING POST-PUBLICATION VERIFICATION** at build time. 17 capabilities / 459 sections / 102 mandatory tables.
 
-Canonical capability namespace: `CAP-STD-*`. Detailed contracts follow `../../templates/capability-specification-template.md` and remain `draft / defined / planned` until implementation evidence exists.
+## Not started
+STD-3 Agents/Human Gates/runtime control; STD-4 Assurance/lifecycle; Endpoint capability specification.
+
+Canonical namespace: `CAP-STD-*`. Every detailed contract follows `../../templates/capability-specification-template.md` and remains `draft / defined / planned` until implementation evidence exists.
