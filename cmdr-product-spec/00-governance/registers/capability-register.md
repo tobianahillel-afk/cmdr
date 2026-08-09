@@ -41,12 +41,15 @@ Registry validation checks for duplicate/recycled IDs, concurrent owners, missin
 | `capability-register-investigate-cloud-analysis.md` | CAP-INV-601..618 | 18 | 18 | 0 | 18 planned |
 | `capability-register-investigate-mobile-forensics.md` | CAP-INV-701..719 | 19 | 19 | 0 | 19 planned |
 | `capability-register-govern-gov1.md` | Govern GOV-1 CAP-GOV-001..016 | 16 | 16 | 0 | 16 planned |
-| **Total** | **All registered capabilities** | **286** | **284** | **2** | **286 planned** |
+| `capability-register-govern-gov2.md` | Govern GOV-2 CAP-GOV-017..033 | 17 | 17 | 0 | 17 planned |
+| **Total** | **All registered capabilities** | **303** | **301** | **2** | **303 planned** |
 
 ## Product totals
 - Command: **27** capabilities, 729 sections, 162 mandatory tables.
 - Investigate: **243** capabilities, 6561 sections, 1458 mandatory tables.
 - Govern GOV-1: **16** capabilities, 432 sections, 96 mandatory tables.
+- Govern GOV-2: **17** capabilities, 459 sections, 102 mandatory tables.
+- Govern cumulative: **33** capabilities, **891** sections, **198** mandatory tables.
 - CAP-INV-3xx / 4xx / 5xx / 6xx / 7xx: **97 / 35 / 37 / 18 / 19**.
 - Detection Engineering: **35 capabilities, 945 sections, 210 tables**.
 - Threat Intelligence: **37 capabilities, 999 sections, 222 tables**.
@@ -54,12 +57,15 @@ Registry validation checks for duplicate/recycled IDs, concurrent owners, missin
 - Mobile Forensics: **19 capabilities, 513 sections, 114 tables**.
 - Phase 4B.4 Cloud + Mobile: **37 capabilities, 999 sections, 222 tables**.
 - Command + Investigate: **270 capabilities, 7290 sections, 1620 tables**.
-- Command + Investigate + Govern GOV-1: **286 capabilities, 7722 sections, 1716 mandatory tables**.
+- Command + Investigate + Govern: **303 capabilities, 8181 sections, 1818 mandatory tables**.
 
 ## Current Command registry revalidation
 The Command shard has 27 unique IDs, 27 owners, 27 named user sets, 27 primary-object sets and 27 concrete dependency summaries. It retains **26 defined / 1 proposed / 27 planned**, with current `native` or `integrated` claims equal to **0**. `CAP-CMD-401` remains deployment-dependent under OPEN-006.
 
 ## Govern GOV-1 registry state
-The GOV-1 shard has 16 unique `CAP-GOV-001..016` IDs, 16 named user sets, 16 owner/module assignments, 16 primary object/concept sets and concrete Requirement/OPEN/dependency evidence. All are `draft` / `defined` / `planned`. No current native, integrated, implemented, deployed or active runtime claim is made. GOV-2 and GOV-3 register **0 capabilities**.
+The GOV-1 shard remains unchanged with 16 unique `CAP-GOV-001..016`, 16 defined / 16 planned, 432 sections and 96 mandatory tables. Its dedicated post-publication record confirms historical **180/180 PASS**. No GOV-1 capability is redefined by GOV-2.
+
+## Govern GOV-2 registry state
+The GOV-2 shard has 17 unique `CAP-GOV-017..033`, 17 named user sets, 17 owner/module assignments, 17 primary object/concept sets and concrete Requirement/OPEN/dependency evidence. All are `draft` / `defined` / `planned`; **459 sections / 102 mandatory tables**. No current native, integrated, implemented, deployed or active runtime claim is made. GOV-3 registers **0 capabilities**.
 
 No capability is marked validated, implemented, promoted, deployed, active, native or integrated by the registry.
