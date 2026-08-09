@@ -3,65 +3,53 @@ id: govern-response-inbox
 domain: 08-govern
 status: draft
 owner: Govern Product Lead
-updated: 2026-08-03
+updated: 2026-08-09
 source-of-truth: canonical
+requirements: [REQ-PROD-004, REQ-PROD-008, REQ-PROD-015, REQ-UX-008]
+open_decisions: [OPEN-010, OPEN-013]
 ---
-# Response Inbox
+# Response Inbox — GOV-1
 
-## Objectif
+## Mission
 
-Prioriser les Action Requests soumises et les acheminer vers l’autorité correcte.
+Receive submitted Action Requests into a Govern-only review queue, establish intake/lifecycle state, expose blockers/deadlines/source and route the exact request/version into Action Center.
 
-## Périmètre
+## Owned capabilities
 
-Module du produit 08-govern. Les objets, permissions, composants et transitions partagés sont référencés et non redéfinis.
+- `CAP-GOV-001` — Govern Intake and Preconditions.
+- `CAP-GOV-002` — Govern Response Inbox and Request Queue Management.
+- `CAP-GOV-003` — Action Request Lifecycle Management.
 
-## Propriétaire fonctionnel
+## Boundary with Command Work Queue
 
-Govern Product Lead.
+Response Inbox is **not** Command Work Queue. It contains governed Action Requests/review projections, not general Incidents and Tasks. Shared provides generic search/filter/assignment mechanisms; Govern owns the meaning of request states, deadlines, blockers and Govern review assignment.
 
-## Objets concernés
+## Functional inputs
 
-- action-request
-- decision
-- finding
-- incident
+Action Request/version, source product/return origin, requester, target/scope summary, intake state, review blockers, deadlines/expiration and source projection status.
 
-## Fonctionnalités
+## Functional outputs
 
-- Queue décisionnelle.
-- Échéance et urgence.
-- Complétude des preuves.
-- Autorité requise.
+Govern Review Context, queue projection, assignment/reassignment events, information-request routing, lifecycle transitions and exact Action Center navigation context.
 
-## UX et interactions
+## Key states
 
-- Conserver le contexte de liste, vue et objet.
-- Utiliser l’Inspector canonique.
-- Afficher les six états obligatoires.
-- Préserver navigation clavier et liens profonds.
+`received`, `incomplete`, `ready-for-review`, `blocked`, `information-required`, `policy-review`, `authority-review`, `approval-pending`, `decision-ready`, `decided`, `withdrawn`, `expired`, `superseded`.
 
-## Permissions
+These are processing/queue projections; the complete persisted object state machine remains future.
 
-Voir `../../14-security-permissions-and-trust/permission-model.md` et le registre des permissions.
+## AI and automation
 
-## États
+Deterministic validation, filters, deadlines and assignment rules work without AI. AI may summarize blockers or suggest an assignee but never approves or decides.
 
-Les états métier viennent des fichiers d’objets canoniques; la page ajoute uniquement Loading, Empty, Partial, Error, Offline et Permission denied.
+## Screen
 
-## Dépendances
+Existing screen `GOV-INB-001` remains active and is not rewritten by GOV-1. Its detailed screen design is deferred; `../../screen-capability-map.md` maps it to these capabilities.
 
-- 03-design-system/
-- 04-experience-architecture/
-- 05-domain-model/
-- 17-implementation-contracts/
+## Dependencies
 
-## Critères d’acceptation
+Action Request, Settings identity/tenant/environment projections, Shared Search/Notifications/Assignments/Inspector/Linking/Trace, source-product handoffs, OPEN-010 and OPEN-013.
 
-- Aucune définition d’objet ou de permission locale.
-- Tous les écrans du module ont un front matter et 27 sections.
-- Les transitions sont auditées et idempotentes.
+## Acceptance
 
-## Questions ouvertes
-
-- À compléter — contenu source non fourni dans le brief canonique.
+A request can be received, identified as incomplete, returned for information, assigned and reopened in Action Center while preserving exact version/return origin and without appearing as a duplicate general Command work item or creating authority.

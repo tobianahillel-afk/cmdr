@@ -3,66 +3,55 @@ id: govern-action-center
 domain: 08-govern
 status: draft
 owner: Govern Product Lead
-updated: 2026-08-03
+updated: 2026-08-09
 source-of-truth: canonical
+requirements: [REQ-PROD-004, REQ-PROD-008, REQ-PROD-015, REQ-PROD-020]
+open_decisions: [OPEN-013]
 ---
-# Action Center
+# Action Center — GOV-1
 
-## Objectif
+## Mission
 
-Examiner action, cibles, impact, conditions, autorité et rollback avant décision.
+Provide the focused review workspace for an exact Action Request/version. Action Center assembles source context, scope/target, impact/risk/reversibility, completeness, Policy/authority/Approval projections and Decision preparation while preserving source ownership and performing no target execution.
 
-## Périmètre
+## Owned GOV-1 capabilities
 
-Module du produit 08-govern. Les objets, permissions, composants et transitions partagés sont référencés et non redéfinis.
+- `CAP-GOV-004` — Action Request Context, Scope and Target Review.
+- `CAP-GOV-005` — Action Impact, Risk and Reversibility Assessment.
+- `CAP-GOV-006` — Action Request Completeness and Evidence Context Review.
+- `CAP-GOV-014` — Decision Preparation and Review (defined in the Decision lot).
 
-## Propriétaire fonctionnel
+## Consumed review capabilities
 
-Govern Product Lead.
+- `CAP-GOV-007..008` — Policy outcomes/conflicts/exceptions.
+- `CAP-GOV-009..013` — authority/eligibility/Approval/delegation/emergency.
+- `CAP-GOV-015..016` — final Decision and execution handoff projections.
 
-## Objets concernés
+## Inputs
 
-- action-request
-- decision
-- finding
-- playbook
-- policy
+Current Action Request/version, Incident/Case/Finding/Evidence references, exact target/scope/time bounds, impact and risk context, Policy outcomes, authority requirements, Approvals, unresolved questions and provenance.
 
-## Fonctionnalités
+## Outputs
 
-- Risk of action/inaction.
-- Business impact.
-- Conditions.
-- Decision controls.
+Context/Scope Review, Impact/Risk/Reversibility Assessments, Completeness Review, information requests and a Decision Draft/decision-ready package. None of these outputs is an Approval, Decision, Response Run or Result.
 
-## UX et interactions
+## Distinctions
 
-- Conserver le contexte de liste, vue et objet.
-- Utiliser l’Inspector canonique.
-- Afficher les six états obligatoires.
-- Préserver navigation clavier et liens profonds.
+- target selected ≠ target verified;
+- complete ≠ authorized;
+- risk score/summary ≠ Decision;
+- Evidence context ≠ Evidence qualification;
+- Decision Draft ≠ Decision;
+- approved authority ≠ executed action.
 
-## Permissions
+## AI/no-AI
 
-Voir `../../14-security-permissions-and-trust/permission-model.md` et le registre des permissions.
+AI may draft summaries/options only. Deterministic checks, forms, matrices, diffs, Policy/authority viewers and human review provide the full path.
 
-## États
+## Screen
 
-Les états métier viennent des fichiers d’objets canoniques; la page ajoute uniquement Loading, Empty, Partial, Error, Offline et Permission denied.
+`GOV-ACT-001` remains active and unchanged at detailed-screen level. GOV-1 creates no new Screen ID, column, button, filter, wireframe, shortcut or animation specification.
 
-## Dépendances
+## GOV-2 boundary
 
-- 03-design-system/
-- 04-experience-architecture/
-- 05-domain-model/
-- 17-implementation-contracts/
-
-## Critères d’acceptation
-
-- Aucune définition d’objet ou de permission locale.
-- Tous les écrans du module ont un front matter et 27 sections.
-- Les transitions sont auditées et idempotentes.
-
-## Questions ouvertes
-
-- À compléter — contenu source non fourni dans le brief canonique.
+Rollback information is reviewed as context/requirement only. Action Center does not execute rollback, start a Response Run or create Result. The final GOV-1 output is an Execution Handoff Package consumed later by GOV-2.

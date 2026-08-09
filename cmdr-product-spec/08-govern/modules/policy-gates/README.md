@@ -3,64 +3,49 @@ id: govern-policy-gates
 domain: 08-govern
 status: draft
 owner: Govern Product Lead
-updated: 2026-08-03
+updated: 2026-08-09
 source-of-truth: canonical
+requirements: [REQ-PROD-004, REQ-PROD-015, REQ-SEC-001, REQ-SEC-002]
+open_decisions: [OPEN-013]
 ---
-# Policy Gates
+# Policy Gates — GOV-1
 
-## Objectif
+## Mission
 
-Définir et évaluer les conditions nécessaires à une action.
+Determine which Policy versions are applicable to an Action Request, evaluate explicit conditions, preserve `pass/warn/block/unknown/not-applicable`, surface conflicts and govern Exception Candidates without turning any Policy output into an automatic Decision.
 
-## Périmètre
+## Owned capabilities
 
-Module du produit 08-govern. Les objets, permissions, composants et transitions partagés sont référencés et non redéfinis.
+- `CAP-GOV-007` — Policy Applicability and Evaluation.
+- `CAP-GOV-008` — Policy Conflict, Exception and Waiver Assessment.
 
-## Propriétaire fonctionnel
+## Scope
 
-Govern Product Lead.
+GOV-1 covers candidate discovery, applicability, outcome/reasons, missing inputs, comparison/replay, conflict review and bounded Exception Candidates. It does **not** select a final Policy engine/language, define a production rule-authoring system, silently activate exceptions or execute Policy-driven target changes.
 
-## Objets concernés
+## Functional outcomes
 
-- policy
-- action-request
-- decision
+Canonical GOV-1 Policy Evaluation outcomes:
+- `pass`;
+- `warn`;
+- `block`;
+- `unknown`;
+- `not-applicable`.
 
-## Fonctionnalités
+`pass` does not mean safe; `block` is not an automatic rejection Decision; `unknown` is never silently coerced to pass; applicability is distinct from satisfaction.
 
-- Rule authoring.
-- Simulation.
-- Pass/fail/unknown.
-- Exceptions.
+## Conflict / exception rules
 
-## UX et interactions
+A Policy conflict preserves every involved Policy/version/outcome and reason. An Exception Candidate must have justification, exact target/scope, time bounds/expiry, risks and required authority. Candidate ≠ active exception; exception ≠ Policy deletion; emergency ≠ bypass.
 
-- Conserver le contexte de liste, vue et objet.
-- Utiliser l’Inspector canonique.
-- Afficher les six états obligatoires.
-- Préserver navigation clavier et liens profonds.
+## AI/no-AI
 
-## Permissions
+AI may suggest candidate Policies, summarize outcomes/conflicts or draft an Exception Candidate. Catalogs, deterministic checks, diffs, matrices and human review provide the complete non-AI path.
 
-Voir `../../14-security-permissions-and-trust/permission-model.md` et le registre des permissions.
+## Screen
 
-## États
+`GOV-POL-001` remains active; its generic historical references to authoring/activation are not interpreted as GOV-1 implementation ownership. Detailed screen rewrite is deferred.
 
-Les états métier viennent des fichiers d’objets canoniques; la page ajoute uniquement Loading, Empty, Partial, Error, Offline et Permission denied.
+## Dependencies
 
-## Dépendances
-
-- 03-design-system/
-- 04-experience-architecture/
-- 05-domain-model/
-- 17-implementation-contracts/
-
-## Critères d’acceptation
-
-- Aucune définition d’objet ou de permission locale.
-- Tous les écrans du module ont un front matter et 27 sections.
-- Les transitions sont auditées et idempotentes.
-
-## Questions ouvertes
-
-- À compléter — contenu source non fourni dans le brief canonique.
+Action Request/context/risk/completeness, Security permission/authority rules, Settings scope projections, Shared Versioning/Trace/Linking, Authority/Approval/Decision capabilities, OPEN-013.
