@@ -11,37 +11,37 @@ source-of-truth: canonical
 Quality records evidence and verification stages; it does not own product behavior, technology choices or implementation.
 
 ## Active capability evidence
-- Command revalidation: `reports/phase-4a-command-current-revalidation.md` — historical PASS 60/60.
-- Investigate closure: `reports/phase-4b-investigate-capability-closure.md` — PASS.
-- Govern GOV-1 verification: `reports/govern-gov1-post-publication-verification.md` — 180/180 PASS.
-- Govern GOV-2 conformance: `reports/govern-gov2-playbooks-response-runs-verification-rollback-capability-conformance.md` — 190/190 PASS.
-- **Govern GOV-3 conformance:** `reports/govern-gov3-audit-metrics-closure-capability-conformance.md` — **pre-publication 192 PASS / 8 PENDING / 0 FAIL**.
-- **Govern full capability closure:** `reports/govern-capability-specification-closure.md` — READY/PENDING remote verification.
-- **Delivery Roadmap Phase 4 closure:** `reports/delivery-roadmap-phase-4-govern-closure.md` — PASS candidate/PENDING remote verification.
+- Command revalidation — historical PASS 60/60.
+- Investigate closure — PASS.
+- Govern GOV-1 — historical 180/180 PASS.
+- Govern GOV-2 — historical 190/190 PASS.
+- **Govern GOV-3:** `reports/govern-gov3-audit-metrics-closure-capability-conformance.md` — **PASS AFTER POST-PUBLICATION VERIFICATION, 200/200**.
+- **Govern full capability closure:** `reports/govern-capability-specification-closure.md` — **PASS**.
+- **Delivery Roadmap Phase 4 Govern closure:** `reports/delivery-roadmap-phase-4-govern-closure.md` — **PASS**.
 
-## GOV-3 quality contract
-- baseline: `36edacb4eb374e0b56d6c9e9c45931fdb1e0af20` — `docs: record Govern GOV-2 post-publication verification`;
-- CAP-GOV-034..047: **14 unique capabilities**;
-- sections/tables: **378 / 84**;
-- duplicate/recycled IDs or owner conflicts: **0**;
-- empty/generic mandatory tables: **0**;
+## Verified GOV-3 evidence
+- baseline: `36edacb4eb374e0b56d6c9e9c45931fdb1e0af20`;
+- fifth functional SHA: `042f70d3cfd13467acc294bfff726edde9e16cb0`;
+- baseline → fifth SHA: 5 ahead / 0 behind, same merge base;
+- PR #2 open/Draft/unmerged; repository public; auto-merge disabled;
+- README branch/main exact `# cmdr`, `main` unchanged;
+- CI/status: N/A on fifth functional SHA;
+- CAP-GOV-034..047: **14 / 378 sections / 84 tables**;
+- duplicate/recycled IDs, owner conflicts, empty/generic tables: **0**;
 - new Screen IDs/detailed rewrites: **0 / 0**;
-- new OPEN/closed OPEN: **0 / 0**;
-- Audit Trail/Response Metrics generic placeholders replaced by functional module contracts;
-- Shared Trace/Activity/Metrics/Reporting/Export ownership preserved;
-- no implementation/API/protocol/engine/warehouse/storage schema/final RBAC/retention policy/external compliance claim.
+- new/closed OPEN: **0 / 0**.
 
-## Totals after GOV-3 functional set
+## Final totals
 - global capabilities: **317**;
 - Command / Investigate / Govern: **27 / 243 / 47**;
 - defined / proposed / planned: **315 / 2 / 317**;
-- Govern: **47 / 1269 sections / 282 tables**;
+- Govern: **47 / 1269 / 282**;
 - total sections/tables: **8559 / 1902**;
 - Requirements: **122 = 99/20/3/0**;
 - OPEN: **18**.
 
-## Non-regression contract
-Post-publication closure must preserve GOV-1 16/432/96/180, GOV-2 17/459/102/190, Command 27 with its five Requirements ranges and DEP-CMD-001..010, Investigate 243/PASS, canonical Requirements 122/99/20/3/0, 18 OPEN, PR #2 Draft/unmerged, README exact `# cmdr` and unchanged `main`.
+## Non-regression verified
+GOV-1 16/432/96/180, GOV-2 17/459/102/190, Command 27/26+1/five Requirements ranges/DEP-CMD-001..010 and Investigate 243/PASS remain intact. Canonical Requirements Matrix and historical Dependency Register remain preserved; GOV-3 traceability is additive.
 
-## Publication rule
-Remote-dependent gates remain PENDING until the fifth GOV-3 functional commit is published and checked. One FAIL keeps GOV-3 and Govern PARTIAL. Final documentary PASS never means implemented software and never starts Delivery Roadmap Phase 5.
+## Boundary
+GOV-3 introduces no audit/metrics engine, API/protocol, warehouse/storage schema, final RBAC/retention policy, detailed screen rewrite, raw secret, product code or external compliance claim. Documentary PASS never means implemented software. Delivery Roadmap Phase 5 is identified only and not started.
