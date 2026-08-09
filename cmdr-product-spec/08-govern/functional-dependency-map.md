@@ -6,47 +6,50 @@ owner: Govern Product Lead
 updated: 2026-08-09
 source-of-truth: canonical
 requirements: [REQ-PROD-006, REQ-PROD-015, REQ-PROD-019, REQ-PROD-020]
-open_decisions: [OPEN-007, OPEN-013, OPEN-015, OPEN-019]
+open_decisions: [OPEN-007, OPEN-008, OPEN-013, OPEN-015, OPEN-019]
 ---
-# Functional Dependency Map — Govern GOV-1
+# Functional Dependency Map — Govern GOV-1 + GOV-2
+
+## GOV-1 dependencies preserved
 
 | Capability | Dependency | Type | Failure behavior |
 |---|---|---|---|
-| CAP-GOV-001 | Action Request source/version/return origin | source | remain incomplete/blocked; never invent context |
-| CAP-GOV-001 | tenant/environment and permission context | Settings/Security projection | deny or partial without cross-scope leakage |
-| CAP-GOV-002 | CAP-GOV-001/003 | queue/lifecycle | preserve received request; expose unavailable dependency |
-| CAP-GOV-002 | Shared Search/Notifications/Assignments/Inspector | shared | degraded queue remains readable where source allows |
-| CAP-GOV-003 | Action Request canonical object | object | no lifecycle mutation if current version unavailable |
-| CAP-GOV-003 | Shared Versioning/Linking/Trace | shared | no silent overwrite; conflict/retry explicit |
-| CAP-GOV-004 | Incident/Case/Finding/Evidence/target projections | cross-product | ambiguous/restricted/stale remains visible and blocks readiness as required |
-| CAP-GOV-004 | Settings tenant/environment/identity context | projection | unknown or restricted; never infer authority |
-| CAP-GOV-005 | CAP-GOV-004 | context | risk/reversibility cannot claim completeness without target/scope |
-| CAP-GOV-005 | future GOV-2 rollback capability context | future boundary | record requirement/unknown; never invent rollback availability |
-| CAP-GOV-006 | Action Request + source Evidence/Finding projections | completeness | request information or mark partial; never requalify Evidence/Finding |
-| CAP-GOV-007 | Policy/version/scope | Govern/Security | outcome unknown/not-applicable if required source unavailable |
-| CAP-GOV-007 | deterministic Policy evaluator future | technique | manual review/checklist remains valid; no implementation assumed |
-| CAP-GOV-008 | CAP-GOV-007 | conflict/exception | conflict stays unresolved; no automatic rejection or bypass |
-| CAP-GOV-008 | authority/approver context | Govern/Security | Exception Candidate remains non-active |
-| CAP-GOV-009 | Security Decision Authority rules | security | missing authority => not decision-ready |
-| CAP-GOV-009 | Settings Principal/Role/tenant/environment projections | admin source | configured role alone never proves contextual authority |
-| CAP-GOV-010 | CAP-GOV-009 | authority | no eligible approver selected when authority incomplete |
-| CAP-GOV-010 | Security SoD/step-up | security | mark ineligible/step-up-required with reason |
-| CAP-GOV-011 | CAP-GOV-010 | approval routing | Approval Request blocked if no eligible approver |
-| CAP-GOV-011 | Shared Notifications/Collaboration/Trace | shared | preserve request state and allow explicit retry/manual routing |
-| CAP-GOV-012 | CAP-GOV-009/010/011 | delegation/escalation | no implicit delegation; retain original authority context |
-| CAP-GOV-013 | Security emergency-access/step-up | security | emergency path blocked if authority/expiry/justification unavailable |
-| CAP-GOV-014 | CAP-GOV-004..013 | decision inputs | remain not-ready; unresolved questions visible |
-| CAP-GOV-014 | Studio AI/Workflow provenance | optional automation | manual/deterministic Decision Draft remains available |
-| CAP-GOV-015 | CAP-GOV-014 | Decision preparation | no Decision finalization unless authorized review is complete |
-| CAP-GOV-015 | Action Request/Approval/Policy/authority/versioning | governance | preserve exact source snapshots/references and dissent |
-| CAP-GOV-016 | CAP-GOV-015 | authoritative Decision | no handoff if Decision rejected/deferred/expired or scope unresolved |
-| CAP-GOV-016 | Studio Tool/Tool Call/Automation Run provenance | provenance | package marks missing automation provenance; no execution inferred |
-| CAP-GOV-016 | future GOV-2 Response Run | future handoff | package remains prepared/queued-for-future only; no Response Run created |
-| CAP-GOV-001..016 | Shared Linking/Trace/Activity/Reporting/Export/Collaboration | shared | owner data preserved; degraded shared service exposed |
-| CAP-GOV-001..016 | OPEN-013 | authority policy | no silent default for class-2 step-up/governance |
-| CAP-GOV-010..016 | OPEN-007 | Human Gate relation | Human Gate never treated as Approval/Decision |
-| CAP-GOV-016 | OPEN-015 | Automation Run/Response Run bridge | package preserves Run refs without converting run type |
+| CAP-GOV-001 | Action Request source/version/return origin | source | incomplete/blocked; never invent context |
+| CAP-GOV-001..006 | Command/Investigate/target + Settings/Security projections | cross-product | restricted/stale/missing remains explicit |
+| CAP-GOV-002/003 | Shared Search/Notifications/Assignments/Versioning/Linking/Trace | shared | degraded state exposed; no silent overwrite |
+| CAP-GOV-007/008 | Policy/version/scope + future evaluator | policy | unknown/conflict explicit; no automatic rejection/bypass |
+| CAP-GOV-009..013 | Security authority/SoD/step-up/emergency + Settings identities | authority | missing/expired authority blocks; Role never proves authority |
+| CAP-GOV-014/015 | CAP-GOV-004..013 + Action Request/Approval/Policy/authority | Decision | unresolved/stale input prevents silent finalization |
+| CAP-GOV-016 | CAP-GOV-015 + Studio provenance | handoff | rejected/expired/scope mismatch produces no execution handoff |
+| CAP-GOV-010..016 | OPEN-007/013/015 | open governance | no silent Human Gate equivalence, class-2 default or run bridge |
+
+## GOV-2 dependencies
+
+| Capability | Dependency | Type | Failure behavior |
+|---|---|---|---|
+| CAP-GOV-017 | GOV-1 Execution Handoff + Playbook catalog | planning | no candidate invented; selection remains no-effect |
+| CAP-GOV-017/018 | Studio Workflow/Tool + Settings/Endpoint dependency metadata | procedure/runtime projection | missing/deprecated/incompatible dependency is explicit |
+| CAP-GOV-018 | exact Decision/Playbook versions | compatibility | version change forces recheck; no silent substitution |
+| CAP-GOV-019 | Playbook/Decision/Handoff + parameter definitions | plan | incomplete/mismatched binding blocks plan readiness |
+| CAP-GOV-019 | Settings Secret Reference | sensitive input | missing reference blocks; raw secret never copied into Govern |
+| CAP-GOV-020 | target source + Settings/Endpoint/Studio health/capability | readiness | stale/drifted/ambiguous/unavailable target never expands scope |
+| CAP-GOV-021 | GOV-1 Decision/Approval/Exception + current Plan/readiness | authority reconciliation | expired/mismatched authority blocks Run preparation |
+| CAP-GOV-022 | CAP-GOV-018..021 | canonical Run creation | Run not created without pinned lineage; creation != start |
+| CAP-GOV-023 | CAP-GOV-020..022 + executor controls/time | Run control | request != confirmation; expired/stale state blocks effectful start/resume |
+| CAP-GOV-024 | Plan/Run/step dependencies | execution coordination | failed dependency prevents silent downstream effect |
+| CAP-GOV-025 | Studio Workflow/Tool/Automation Run or Endpoint/provider primitive | execution handoff | source rejection/timeout remains explicit; owner not transferred |
+| CAP-GOV-026 | technical executor raw status/output | runtime reconciliation | unknown/stale/contradictory state never maps silently to success |
+| CAP-GOV-027 | CAP-GOV-020/021/026 + retry/idempotency constraints | error/retry | expiry/drift/limit/non-idempotent uncertainty blocks automatic retry |
+| CAP-GOV-028 | Decision/Run expected outcome + authorized observation sources | verification planning | missing criterion/source yields incomplete plan, not success |
+| CAP-GOV-029 | Verification Plan + runtime/target/source observations | verification | insufficient/conflicting evidence yields inconclusive/failed/partial state |
+| CAP-GOV-030 | original Run/Decision + verification/error + rollback capability | rollback planning | unsupported/unsafe/expired/drifted state blocks effectful rollback |
+| CAP-GOV-031 | Rollback Plan + technical rollback/recovery owner + verification | rollback/recovery | partial/failure remains explicit; no exact-restoration claim |
+| CAP-GOV-032 | Run + runtime/error + verification + rollback/recovery | Result | missing/contradictory sources prevent fabricated `success` |
+| CAP-GOV-033 | CAP-GOV-016..032 + destination owners + Shared Trace/Linking | provenance/handoff | missing/restricted links remain explicit; no destination mutation |
+| CAP-GOV-017..033 | Shared Jobs/Notifications/Trace/Activity/Versioning/Reporting/Linking/Recovery | shared mechanisms | shared degradation exposed; generic mechanisms never become Run owner |
+| CAP-GOV-017..033 | OPEN-008/013/015 | implementation/authority bridge | no assumed runtime, class-2 default or Automation Run/Response Run equivalence |
+| CAP-GOV-033 | OPEN-019 | dissemination | cross-tenant/external handoff blocked unless explicitly authorized |
 
 ## Dependency rules
 
-Dependencies never transfer ownership. GOV-1 may remain functionally defined while implementation dependencies are planned or unresolved. Missing data, stale sources, permission denial or unavailable Shared/Studio/Settings services must produce explicit partial/blocked/unknown behavior rather than a silent default.
+Dependencies never transfer ownership. Missing data, stale sources, permission denial or unavailable Shared/Studio/Settings/Endpoint/provider services produce explicit partial/blocked/unknown behavior. GOV-2 remains provider/runtime neutral, defines no command/API/protocol and leaves GOV-3 Audit Trail/Response Metrics capabilities untouched.
