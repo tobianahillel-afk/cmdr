@@ -3,59 +3,45 @@ id: 08-govern-navigation
 domain: 08-govern
 status: draft
 owner: Govern Product Lead
-updated: 2026-08-03
+updated: 2026-08-09
 source-of-truth: canonical
+requirements: [REQ-PROD-008, REQ-PROD-015, REQ-UX-001, REQ-UX-009]
+open_decisions: [OPEN-010]
 ---
-# Navigation Govern
+# Govern Navigation
 
-## Objectif
+## Local order
 
-Définir la sidebar et la navigation locale de Govern.
+The nine canonical Govern modules remain visible according to the existing product navigation model. GOV-1 does not create a second navigation tree.
 
-## Périmètre
+For the GOV-1 workflow, the normal path is:
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
+`Response Inbox → Action Center → Policy Gates / Approvals & Authorities → Decision Register`.
 
-## Propriétaire fonctionnel
+Playbooks and Runs & Rollback remain future GOV-2 destinations. Audit Trail and Response Metrics remain future GOV-3 destinations.
 
-Govern Product Lead.
+## Deep-link context
 
-## Objets concernés
+A Govern deep link must preserve, subject to permission:
+- tenant and environment;
+- Action Request id and version;
+- source product and return origin;
+- selected Incident/Case/Finding references;
+- target/scope identifiers without leaking restricted values;
+- active review context when safe to restore.
 
-- Concepts du document
-- Références canoniques liées
+## Cross-product entry
 
-## Fonctionnalités
+Command, Investigate, Detection Engineering, Threat Intelligence and analysis modules can enter Govern through an Action Request or request-preparation handoff. Govern never interprets a generic cross-product navigation link as an Approval or Decision.
 
-- Ordre par workflow.
-- État actif accessible.
-- Liens profonds.
-- Retour interproduits.
+## Return behavior
 
-## UX et interactions
+`request-more-information`, rejection, deferral and final Decision dispositions preserve a stable return origin. Returning to a source product restores the source object/workspace when still authorized; otherwise the source product opens its safe parent context without exposing restricted data.
 
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
+## Permission behavior
 
-## Permissions
+Navigation never grants authority. A visible Action Center or Decision Register route does not imply permission to read all context, approve, decide or execute. Missing permission produces an explicit permission-denied/partial state and preserves safe return behavior.
 
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
+## Screen rule
 
-## États
-
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
-
-## Dépendances
-
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- À compléter — décision source non fournie dans le brief canonique.
+GOV-1 modifies no detailed screen specification and creates no Screen ID. Module routes and screen identities remain those already registered.
