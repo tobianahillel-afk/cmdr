@@ -1,5 +1,17 @@
 # Changelog
 
+## 2026-08-09 — Current Phase 4A Command corrective revalidation
+- Revalidated `Capability Specification Phase 4A — Command` from exact remote SHA `edbc67be43f971e4c49e91518e3e21517ef69410` without recreating any CAP-CMD file or modifying historical Phase 4B functional content.
+- Re-read all 27 Command capability contracts, Command architecture/module sources, active Command screens and five deprecated Work Queue aliases; retained 729/729 sections and 162/162 mandatory tables.
+- Restored five `CAP-CMD-*` evidence ranges in the active Requirements Traceability Matrix while keeping all 122 Requirement IDs and the 99 conform / 20 partial / 3 absent / 0 contradictory distribution unchanged.
+- Replaced generic Command capability-register role/dependency summaries with capability-specific roles, objects, consumers and dependency families; retained 26 defined, 1 proposed and 27 planned.
+- Added ten Command dependency families to the global Dependency Register while preserving the detailed 161-edge Command functional dependency map.
+- Preserved one Work Queue workspace and exactly six system views: All, Incidents, Tasks, Unassigned, SLA Risk and My Work; Team Load remains non-canonical as a system view.
+- Preserved CAP-CMD-401 Customers and Delivery as proposed, planned and deployment-dependent; OPEN-006 remains open. OPEN-010 and OPEN-013 remain open.
+- Modified no Command capability, screen, domain object, permission source, API, protocol, font or product code; created no new OPEN decision.
+- Preserved the current total of 18 open decisions and all later Investigate/Cloud/Mobile historical evidence.
+- Added a current 60-control Phase 4A revalidation report; publication-dependent Git/PR/README controls are verified only after canonical squash publication.
+
 ## 2026-08-09 — Phase numbering namespace reconciliation
 - Recorded two historical phase namespaces: `Capability Specification Phase` for detailed capability-specification execution and `Delivery Roadmap Phase` for the historical product-delivery sequence.
 - Preserved all existing phase IDs, filenames, reports, SHAs, Capability IDs and PASS history; no historical phase was renumbered.

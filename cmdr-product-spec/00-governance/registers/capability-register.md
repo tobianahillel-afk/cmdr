@@ -3,7 +3,7 @@ id: capability-register
 domain: 00-governance
 status: draft
 owner: Product Architecture
-updated: 2026-08-07
+updated: 2026-08-09
 source-of-truth: registry
 requirements:
   - REQ-PROD-006
@@ -14,7 +14,13 @@ requirements:
 ---
 # Capability Register
 
-The register is split into active shards. IDs are immutable and never recycled.
+The register is split into active shards. IDs are immutable and never recycled. The global file is the authoritative index and total; each shard carries the row-level evidence needed for owner, role, object, delivery and traceability checks.
+
+## Required row semantics
+
+An active shard entry must identify: Capability ID, name, owner product/module, documentary status, `delivery_status`, `delivery_mode`, canonical file, primary roles, primary objects, consumers, Requirement IDs, OPEN decisions, dependencies, supersession and review date. A shard must not use the registry to claim runtime availability that is not supported by implementation/release evidence.
+
+Registry validation checks for duplicate/recycled IDs, concurrent owners, missing canonical files, capabilities without users/objects/requirements, and `planned` capabilities presented as available. Detailed inputs, outputs, actions, states, permissions and acceptance criteria remain in the canonical capability file and are not duplicated into the global index.
 
 | Shard | Scope | Count | Defined | Proposed | Delivery mode |
 |---|---|---:|---:|---:|---|
@@ -45,4 +51,8 @@ The register is split into active shards. IDs are immutable and never recycled.
 - Mobile Forensics: **19 capabilities, 513 sections, 114 tables**.
 - Phase 4B.4 Cloud + Mobile: **37 capabilities, 999 sections, 222 tables**.
 - Command + Investigate: **270 capabilities, 7290 sections, 1620 tables**.
-- No capability is marked validated, implemented, promoted, deployed, active, native or integrated.
+
+## Current Command registry revalidation
+The Command shard has 27 unique IDs, 27 owners, 27 named user sets, 27 primary-object sets and 27 concrete dependency summaries. It retains **26 defined / 1 proposed / 27 planned**, with current `native` or `integrated` claims equal to **0**. `CAP-CMD-401` remains deployment-dependent under OPEN-006.
+
+No capability is marked validated, implemented, promoted, deployed, active, native or integrated by the registry.

@@ -3,10 +3,69 @@ id: qualitative-baseline
 domain: 00-governance
 status: draft
 owner: Product Architecture
-updated: 2026-08-07
+updated: 2026-08-09
 source-of-truth: canonical
 ---
-# Qualitative Baseline — Investigate programme through Phase 4B.4B pre-publication closure
+# Qualitative Baseline — current capability programme with preserved historical evidence
+
+## Current Phase 4A Command revalidation — 2026-08-09
+
+Remote start: `edbc67be43f971e4c49e91518e3e21517ef69410`. At that exact SHA, Capability Specification Phase 4A — Command and Phase 4B — Investigate were already historically PASS, the phase-numbering namespaces were reconciled, the repository had 270 registered capabilities and 18 open decisions, and no Govern capability specification had started.
+
+### Source and scope audit
+- The canonical repository, branch, PR #2, base `main`, Draft/unmerged status and root README were verified before modification.
+- All active Command capability contracts `CAP-CMD-001..006`, `101..110`, `201..205`, `301..305` and `401` were directly re-read.
+- All Command top-level architecture/maps, module READMEs, capability indexes, active screen sources and five deprecated Work Queue aliases were directly re-read.
+- Required source material, governance, ADRs, Product Vision, Design System/Experience Architecture, Command object owners and dependent product boundaries were re-read.
+- Existing shared sources were checked for Search, Saved Views, Notifications, Background Jobs, Collaboration, Object Linking, Reporting, Export and Business Service Catalog ownership.
+- Historical Phase 4A and later Phase 4B quality evidence is preserved rather than rewritten.
+
+### Current Phase 4A measures
+| Measure | Before current revalidation | After corrective content |
+|---|---:|---:|
+| Command files under `06-command/` | 69 | 69 |
+| Active Command documents | 61 | 61 |
+| Deprecated Command migration documents/pointers | 8 | 8 |
+| Active Command capability files | 27 | 27 |
+| Active Command screen specs | 10 | 10 |
+| Deferred generic Phase-3 screen specs / placeholders | 10 / 10 | 10 / 10 |
+| Generic active capability/module specifications | 0 | 0 |
+| Capability IDs | 27 | 27 |
+| Registered Command capabilities | 27 | 27 |
+| Defined / proposed | 26 / 1 | 26 / 1 |
+| Native / integrated / temporary-integration / planned / out-of-scope | 0 / 0 / 0 / 27 / 0 | 0 / 0 / 0 / 27 / 0 |
+| Capabilities without owner | 0 | 0 |
+| Capabilities without named users | 0 | 0 |
+| Capabilities without functional inputs | 0 | 0 |
+| Capabilities without outputs | 0 | 0 |
+| Capabilities without object semantics | 0 | 0 |
+| Capabilities without classified actions | 0 | 0 |
+| Capabilities without non-AI alternative | 0 | 0 |
+| Capabilities without Given/When/Then criteria | 0 | 0 |
+| Numbered Command capability sections | 729 | 729 |
+| Mandatory capability tables | 162 | 162 |
+| Detailed functional dependency edges | 161 | 161 |
+| Command dependency families in global Dependency Register | 0 | 10 |
+| Command evidence ranges in active Requirements Matrix | 0 | 5 |
+| Command registry rows using generic `Command roles` | 27 | 0 |
+| Command registry rows using generic `canonical specification` dependency | 27 | 0 |
+| Duplicate Command Capability IDs | 0 | 0 |
+| Concurrent active owners | 0 | 0 |
+| Command screens modified by this corrective run | 0 | 0 |
+| Domain objects modified by this corrective run | 0 | 0 |
+| Permission sources modified/finalized | 0 | 0 |
+| Product code / APIs / protocols / font files added | 0 / 0 / 0 / 0 | 0 / 0 / 0 / 0 |
+| Requirement IDs | 122 | 122 |
+| Requirement states conform / partial / absent / contradictory | 99 / 20 / 3 / 0 | 99 / 20 / 3 / 0 |
+| Open decisions | 18 | 18 |
+| New OPEN decisions | 0 | 0 |
+| Targeted broken links introduced | 0 | 0 |
+| Targeted empty files | 0 | 0 |
+
+The ten generic/placeholder documents are existing **screen specifications deliberately deferred to the later screen phase**. They are not active capability or module specifications and are not rewritten by this Phase 4A corrective audit. The five Work Queue aliases remain deprecated and are counted among the eight deprecated migration documents.
+
+### Current Phase 4A correction consequence
+The functional Command specification itself required no capability rewrite. The corrective content restores Command evidence in the active Requirements Matrix, replaces registry-generic role/dependency summaries with capability-specific evidence, and adds global Command dependency families while preserving the detailed 161-edge map. No Requirement state, Capability ID, owner, delivery classification, open decision, object, permission, screen or implementation claim changes.
 
 ## Inherited Phase 4B.3B.1 baseline
 Remote start for 4B.3B.1 was `c84ea542a0831146b075eb0868dc21326b3b9ad8`: Phase 4B.3A PASS, 196 capabilities, 169 Investigate capabilities, 35 CAP-INV-4xx, no CAP-INV-5xx, 16 open decisions and no canonical Investigate Threat Intelligence module.
@@ -154,5 +213,5 @@ Remote start: `ed874ea414fc57f24fa61f410f91b7345f4a868a`. At that exact SHA, Pha
 | Requirement states conform / partial / absent / contradictory | 99 / 20 / 3 / 0 | 99 / 20 / 3 / 0 |
 | Open decisions | 18 | 18 |
 
-## Maturity before final Mobile publication verification
-Phase 4B.3 and verified Cloud Phase 4B.4A remain PASS. Mobile functional and closure content is complete, but Phase 4B.4B remains **PENDING POST-PUBLICATION VERIFICATION** until the fifth functional commit is published and remote branch/PR/README/register/report checks pass. Therefore Phase 4B.4 and Phase 4B remain PARTIAL at this publication stage. Phase 4 and global maturity remain PARTIAL regardless because later objects, permissions, screens, technique and implementation remain future.
+## Verified 4B.4B maturity
+Phase 4B.3, Cloud Phase 4B.4A and Mobile Phase 4B.4B are verified PASS in their documentary functional scopes. Capability Specification Phase 4B — Investigate is PASS. Capability Specification Phase 4 global maturity remains PARTIAL because later objects, permissions, detailed screens, technique and implementation remain future.
