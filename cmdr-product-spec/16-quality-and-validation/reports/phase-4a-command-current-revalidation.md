@@ -10,13 +10,13 @@ open_decisions: [OPEN-006, OPEN-010, OPEN-013]
 ---
 # Capability Specification Phase 4A — Command Current Revalidation
 
-## Verdict before canonical publication
+## Verdict
 
-**PENDING POST-PUBLICATION VERIFICATION — 55 PASS / 5 PENDING / 0 FAIL across 60 mandatory controls.**
+**PASS AFTER POST-PUBLICATION VERIFICATION — 60/60 mandatory controls PASS, 0 PENDING, 0 FAIL.**
 
-The five pending controls are only the final remote invariants for PR open/Draft/unmerged, root README and `main` after canonical publication. Functional/documentary Command conformance is complete on the prepared branch. This report validates documentation only; it validates no software implementation, API, protocol, runtime, final object schema, atomic permission matrix or detailed screen implementation.
+This validates documentary functional conformance only. It validates no software implementation, API, protocol, runtime, final object schema, atomic permission matrix or detailed screen implementation.
 
-## Baseline
+## Publication evidence
 
 - repository: `tobianahillel-afk/cmdr`;
 - canonical branch: `docs/cmdr-product-spec-foundation`;
@@ -24,19 +24,26 @@ The five pending controls are only the final remote invariants for PR open/Draft
 - PR: #2;
 - exact initial SHA: `edbc67be43f971e4c49e91518e3e21517ef69410`;
 - initial commit: `docs: reconcile capability and delivery roadmap phase numbering`;
-- root README at branch and `main`: exact `# cmdr`, same blob `901c74cda52e28b5ff7fc425ddf28ef89f3ad875`;
-- starting PR: open, Draft and unmerged.
+- corrective functional commit: `caa786d8adb8cace93ddfe3f1573a4c79a6dd900` — `docs: revalidate Command Phase 4A traceability and capability register`;
+- functional publication ancestry: **1 commit ahead / 0 behind**, same merge base;
+- PR #2 after publication: open, Draft, unmerged and mergeable;
+- root README on canonical branch and `main`: exact `# cmdr`, same blob `901c74cda52e28b5ff7fc425ddf28ef89f3ad875`;
+- `main`: unchanged from `bc1ec59e5e79ccbaba291e2984b0eb7d5e54129c`;
+- workflow runs on the functional commit: none;
+- commit statuses on the functional commit: none;
+- publication used a squash commit onto the canonical documentation branch; no force-push, rebase, reset or history rewrite.
+
+The exact SHA of this post-publication verification-record correction is verified externally against the canonical branch and PR #2 after publication rather than embedded self-referentially in this commit.
 
 ## Why this is a corrective revalidation
 
-Capability Specification Phase 4A had already been historically completed and validated before later Investigate work. The current run therefore did not recreate or renumber Command capabilities. It re-read the full current Command corpus and corrected only drift in active traceability/register views.
+Capability Specification Phase 4A had already been historically completed and validated before later Investigate work. The current run therefore did not recreate or renumber Command capabilities. It re-read the current Command corpus and corrected only drift in active traceability/register views.
 
-Two material current-state gaps were found:
+Three material current-state gaps were corrected:
 
 1. the active Requirements Traceability Matrix contained Investigate evidence but no `CAP-CMD-*` evidence ranges;
-2. the Command capability-register shard used generic `Command roles` and `canonical specification` dependency values even though every canonical capability file contained specific roles and dependencies.
-
-A third registry-level gap was corrected by adding summary Command dependency families to the global Dependency Register while preserving the detailed Command dependency graph as its canonical local source.
+2. the Command capability-register shard used generic `Command roles` and `canonical specification` dependency values even though every canonical capability file contained specific roles and dependencies;
+3. the global Dependency Register had no Command summary families even though the canonical Command dependency map already carried the detailed graph.
 
 ## Source audit
 
@@ -121,7 +128,7 @@ Every essential capability has a manual and/or deterministic path without a mode
 
 ## Dependencies
 
-`06-command/functional-dependency-map.md` contains **161 detailed dependency edges**. The global Dependency Register now contains **10 Command dependency families** for registry-level traceability without duplicating the detailed graph. Dependencies do not transfer ownership.
+`06-command/functional-dependency-map.md` contains **161 detailed dependency edges**. The global Dependency Register contains **10 Command dependency families** for registry-level traceability without duplicating the detailed graph. Dependencies do not transfer ownership.
 
 ## Screen status
 
@@ -136,7 +143,7 @@ Those ten screen placeholders are explicitly deferred to the later screen phase 
 
 ## Before / after corrective metrics
 
-| Measure | Before | Prepared after |
+| Measure | Before | After |
 |---|---:|---:|
 | Command files | 69 | 69 |
 | Active Command docs | 61 | 61 |
@@ -163,7 +170,7 @@ Those ten screen placeholders are explicitly deferred to the later screen phase 
 | Targeted broken links introduced | 0 | 0 |
 | Targeted empty files | 0 | 0 |
 
-## Mandatory controls — 60
+## Mandatory controls — 60/60 PASS
 
 | # | Control | Verdict | Evidence |
 |---:|---|---|---|
@@ -171,11 +178,11 @@ Those ten screen placeholders are explicitly deferred to the later screen phase 
 | 2 | Correct PR | PASS | PR #2 |
 | 3 | Correct branch | PASS | `docs/cmdr-product-spec-foundation` |
 | 4 | Correct base | PASS | `main` |
-| 5 | PR open after canonical publication | PENDING | remote recheck after squash |
-| 6 | PR Draft after canonical publication | PENDING | remote recheck after squash |
-| 7 | PR unmerged after canonical publication | PENDING | remote recheck after squash |
-| 8 | Root README unchanged after canonical publication | PENDING | remote recheck after squash |
-| 9 | `main` unchanged after canonical publication | PENDING | remote recheck after squash |
+| 5 | PR open after canonical publication | PASS | PR #2 state open |
+| 6 | PR Draft after canonical publication | PASS | PR #2 draft true |
+| 7 | PR unmerged after canonical publication | PASS | PR #2 merged false |
+| 8 | Root README unchanged after canonical publication | PASS | exact `# cmdr`, unchanged blob |
+| 9 | `main` unchanged after canonical publication | PASS | `main` still at `bc1ec59e5e79ccbaba291e2984b0eb7d5e54129c` |
 | 10 | All active Command files read | PASS | 61 active documents; deprecated pointers also audited |
 | 11 | Required governance files read | PASS | source material, governance, registers and ADRs audited |
 | 12 | Required Command objects read | PASS | Incident/Task/Alert/Signal and cross-product owners audited |
@@ -238,8 +245,12 @@ The programme retains **18 open decisions**; this Phase 4A corrective run create
 
 Other current OPEN decisions retain their canonical dispositions; no identifier is reused.
 
-## Final status rule
+## Final status
 
-If the post-publication checks for controls 5–9 pass, this report may be promoted to **PASS — 60/60**. Otherwise Phase 4A current revalidation remains PARTIAL/FAIL according to the failed invariant.
+- Capability Specification Phase 4A — Command: **PASS**.
+- Capability Specification Phase 4B — Investigate: **PASS and unchanged by this run**.
+- Capability Specification Phase 4 global maturity: **PARTIAL**.
+- Global repository maturity: **PARTIAL**.
+- Delivery Roadmap Phase 4 — Govern capability specification: **NOT STARTED**.
 
-Capability Specification Phase 4 global maturity remains **PARTIAL** even if this revalidation passes. This corrective run does not start Govern, Studio, Settings, Endpoint, a new Investigate phase, objects, permissions, screens, technique or implementation.
+No later capability-specification phase is started by this verification record.
