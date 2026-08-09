@@ -3,59 +3,42 @@ id: govern-policy-gates-gate-evaluation
 domain: 08-govern
 status: draft
 owner: Govern Product Lead
-updated: 2026-08-03
+updated: 2026-08-09
 source-of-truth: canonical
+requirements: [REQ-PROD-004, REQ-PROD-015, REQ-PROD-020]
 ---
-# Gate Evaluation
+# Policy Gate Evaluation — GOV-1 Supporting Contract
 
-## Objectif
+## Purpose
 
-Définir gate evaluation dans Govern.
+Provide the module-level supporting semantics consumed by `CAP-GOV-007`. The canonical functional contract remains the capability file; this document prevents historical `pass/fail` shorthand from being mistaken for final GOV-1 semantics.
 
-## Périmètre
+## Outcomes
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
+GOV-1 uses exactly these functional evaluation outcomes:
 
-## Propriétaire fonctionnel
+- `pass` — explicit evaluated conditions are satisfied for the bound inputs; **not** proof that the action is safe or authorized;
+- `warn` — a non-blocking Policy concern requires visibility/review;
+- `block` — the Policy context blocks progression unless governance legitimately resolves the condition; **not** an automatic Decision of rejection;
+- `unknown` — required input/evaluation cannot be established; never silently passes;
+- `not-applicable` — Policy does not apply to this request/scope/version, with reason.
 
-Govern Product Lead.
+## Bound evaluation context
 
-## Objets concernés
+Every evaluation is bound to:
+- Action Request id/version;
+- Policy id/version;
+- applicability scope and effective period;
+- relevant target/scope references;
+- input source references/versions;
+- evaluation method or Tool/Tool Call if used;
+- outcome/reasons/missing inputs;
+- timestamp, reviewer and automation provenance.
 
-- Concepts du document
-- Références canoniques liées
+## Re-evaluation
 
-## Fonctionnalités
+A material change to request, target/scope, Policy version or dependent input makes the prior evaluation stale. Re-evaluation creates a new attributable record/diff; it never rewrites historical evidence.
 
-- Résultats pass/fail/unknown/not-applicable.
-- Input snapshot.
-- Explanation.
-- Unknown never silently passes.
+## Boundary
 
-## UX et interactions
-
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
-
-## Permissions
-
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
-
-## États
-
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
-
-## Dépendances
-
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- À compléter — décision source non fournie dans le brief canonique.
+No Policy Evaluation creates Approval, Decision, active exception, Response Run or target effect. Conflict and exception review routes to `CAP-GOV-008`; final authority routes through CAP-GOV-009..015.
