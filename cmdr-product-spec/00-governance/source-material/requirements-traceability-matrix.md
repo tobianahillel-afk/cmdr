@@ -8,7 +8,7 @@ source-of-truth: canonical
 ---
 # Requirements Traceability Matrix — current capability-specification evidence
 
-The **122 source Requirement IDs remain unchanged**. `conform` records documentary evidence only, never implementation. This matrix preserves the verified Investigate evidence and restores the Command `CAP-CMD-*` evidence that was no longer represented in the active matrix.
+The **122 source Requirement IDs remain unchanged**. `conform` records documentary evidence only, never implementation. This matrix preserves the verified Command and Investigate evidence and adds GOV-1 documentary evidence without changing any global Requirement state.
 
 | State | Current |
 |---|---:|
@@ -29,6 +29,20 @@ The **122 source Requirement IDs remain unchanged**. `conform` records documenta
 | CAP-CMD-401 | Customers and Delivery proposal | REQ-PROD-013,019,033,053 | none | remains `proposed`, `planned`, deployment-dependent and governed by OPEN-006 |
 
 Command evidence preserves these invariants: Incident/operational Task coordination remains Command-owned; Case/Evidence/Finding remain Investigate-owned; Action Request/Decision/Response Run/Result remain Govern-owned; Studio automation objects, Settings administration and Shared engines are consumed but not redefined. The six Work Queue system views remain configurations of one workspace, not separate pages.
+
+## Govern GOV-1 evidence
+
+Parent roadmap: **Delivery Roadmap Phase 4 — Govern** (`roadmap-phase-4-govern`). Execution lot: **GOV-1**. GOV-1 is not a roadmap phase and `Phase 4C Govern` does not exist.
+
+| Evidence range | Scope | Requirements strengthened | Global state change | Reason |
+|---|---|---|---|---|
+| CAP-GOV-001..003 | Govern intake, Response Inbox and Action Request processing lifecycle | REQ-PROD-004,006,008,015,019,020; REQ-SEC-001,002; REQ-UX-008,009 | none | received/submitted/complete/authorized remain distinct; no general Command Work Queue duplication or execution |
+| CAP-GOV-004..006 | context/scope/target, impact/risk/reversibility and completeness/Evidence-context review | REQ-PROD-003,004,008,014,015,020; REQ-SEC-001,002 | none | target verification is not authorization; Govern does not requalify Evidence/Finding; no opaque universal risk score |
+| CAP-GOV-007..008 | Policy applicability/evaluation, conflicts and Exception Candidates | REQ-PROD-004,015,019,020; REQ-SEC-001,002 | none | Policy outcome is not Decision; conflict is not automatic rejection; Exception Candidate is not active exception |
+| CAP-GOV-009..013 | authority requirements/context, approver eligibility/SoD, Approval lifecycle, delegation/escalation and emergency governance | REQ-PROD-004,015,020; REQ-SEC-001,002; REQ-AI-004 | none | authority remains distinct from Role/permission; Human Gate is not Approval; no self-approval under applicable SoD or uncontrolled emergency bypass |
+| CAP-GOV-014..016 | Decision preparation, Decision disposition/conditions/expiration and no-effect Execution Handoff Package | REQ-PROD-004,008,015,016,020; REQ-AI-002; REQ-SEC-001,002 | none | no auto-Decision; approve is not execution; package is not Response Run; GOV-2/GOV-3 remain not started |
+
+GOV-1 documentary evidence strengthens the functional definition of Govern but does not promote any Requirement from partial/absent to conform because final object schemas, atomic permissions, policy/authority engines, detailed screens, response execution, technique and implementation remain future.
 
 ## Investigate evidence preserved
 
@@ -51,11 +65,12 @@ Command evidence preserves these invariants: Incident/operational Task coordinat
 
 ## Current disposition
 
-- Capability Specification Phase 4A — Command remains **PASS**; this corrective audit changes traceability, not functional scope.
-- Capability Specification Phase 4B — Investigate remains **PASS**; no Investigate capability is created or modified by this Phase 4A corrective run.
-- Cloud Analysis remains verified with 243/243 gates; Mobile Forensics remains verified with 250/250 gates.
-- Capability Specification Phase 4 global maturity remains **PARTIAL** because final object schemas, atomic permissions, detailed screens, technique and implementation remain future.
+- Capability Specification Phase 4A — Command remains **PASS** and its five evidence ranges above are preserved unchanged.
+- Capability Specification Phase 4B — Investigate remains **PASS**; no Investigate capability is created or modified by GOV-1.
+- GOV-1 functional documentary scope is complete but remains **PENDING POST-PUBLICATION VERIFICATION** until the fifth functional commit and remote gates complete.
+- Govern capability specification remains **PARTIAL** because GOV-2 and GOV-3 are NOT STARTED.
+- Delivery Roadmap Phase 4 — Govern remains **PARTIAL/PENDING GOV-1 verification**, never `Phase 4C`.
+- Capability Specification global maturity remains **PARTIAL** because final object schemas, atomic permissions, detailed screens, technique and implementation remain future.
 - REQ-INV-001 and REQ-INV-006 remain globally partial because implementation, final technical contracts, object schemas, atomic permissions and detailed UX remain absent.
-- OPEN-006 remains open for Customers and Delivery; OPEN-010 remains open for role/activity density; OPEN-013 remains open for default governance of class-2 actions.
-- OPEN-011/012/017/018/019 and all other current decisions retain their existing dispositions.
+- OPEN-006/007/010/011/012/013/014/015/016/017/018/019 and all other current decisions retain their existing dispositions; GOV-1 closes none and creates none.
 - Requirement IDs added: **0**; removed: **0**; state changes: **0**; active contradictions introduced: **0**.
