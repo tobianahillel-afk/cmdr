@@ -215,3 +215,47 @@ Remote start: `ed874ea414fc57f24fa61f410f91b7345f4a868a`. At that exact SHA, Pha
 
 ## Verified 4B.4B maturity
 Phase 4B.3, Cloud Phase 4B.4A and Mobile Phase 4B.4B are verified PASS in their documentary functional scopes. Capability Specification Phase 4B — Investigate is PASS. Capability Specification Phase 4 global maturity remains PARTIAL because later objects, permissions, detailed screens, technique and implementation remain future.
+
+## Govern GOV-1 starting state and prepared closure — 2026-08-09
+
+Remote start: `a6adf28aa0fa64b917a0a37be37de2a4cb28b541`. At that exact SHA, Command was PASS after current revalidation, Investigate was PASS, there were **270 registered capabilities** (27 Command / 243 Investigate / 0 Govern), **268 defined / 2 proposed / 270 planned**, **122 Requirements at 99/20/3/0**, **18 open decisions**, and Delivery Roadmap Phase 4 — Govern capability specification was NOT STARTED.
+
+### GOV-1 source and boundary audit
+- Repository, visibility, canonical branch, PR #2, base `main`, Draft/unmerged status, auto-merge, start SHA and branch/main root README were verified before writing.
+- Namespace sources and the canonical `roadmap-phase-4-govern` roadmap were read; `Phase 4C Govern` and competing Govern roadmap/capability IDs were confirmed absent.
+- Governance/source material, complete capability-register shards, object/dependency/screen/permission/decision registers, Requirements Matrix, qualitative baseline, STATUS, CHANGELOG and prior Command/namespace quality reports were read.
+- All active `08-govern/` documents were read, including all nine modules and all nine existing Govern screen specifications. GOV-2/GOV-3 modules were read for boundary only.
+- Command, Investigate, Detection Engineering, Threat Intelligence, Cloud, Mobile, Studio, Platform Settings, Endpoint Agent, Shared and Security authority/SoD/emergency/step-up sources needed for GOV-1 ownership were read.
+- `CAP-GOV` was free and unrecycled; exactly `CAP-GOV-001..016` were allocated.
+- No detailed screen rewrite, new Screen ID, complete object schema, atomic permission matrix, API, protocol, code, target mutation, Response Run, Result or rollback was created.
+
+### GOV-1 measures before final remote verification
+| Measure | Before GOV-1 | Prepared after GOV-1 |
+|---|---:|---:|
+| CAP-GOV IDs / capability files | 0 / 0 | 16 / 16 |
+| Govern capabilities | 0 | 16 |
+| GOV-1 sections | 0 | 432 |
+| GOV-1 mandatory tables | 0 | 96 |
+| Empty / prose-only / generic mandatory tables | 0 | 0 |
+| Global capabilities | 270 | 286 |
+| Command / Investigate / Govern | 27 / 243 / 0 | 27 / 243 / 16 |
+| Defined / proposed / planned | 268 / 2 / 270 | 284 / 2 / 286 |
+| Command + Investigate + Govern sections / tables | 7290 / 1620 | 7722 / 1716 |
+| Duplicate/recycled CAP-GOV IDs / concurrent owners | 0 / 0 / 0 | 0 / 0 / 0 |
+| Govern screens read / modified / detailed rewrites / new IDs | 9 / 0 / 0 / 0 | 9 / 0 / 0 / 0 |
+| Command capability files modified | 0 | 0 |
+| Investigate capability files modified | 0 | 0 |
+| GOV-2/GOV-3 capabilities | 0 | 0 |
+| Response Run / Result created by GOV-1 | 0 / 0 | 0 / 0 |
+| Target mutations / rollback executions | 0 / 0 | 0 / 0 |
+| Complete object schemas / JSON Schema / final RBAC-ABAC | 0 / 0 / 0 | 0 / 0 / 0 |
+| APIs / protocols / commands / product code | 0 / 0 / 0 / 0 | 0 / 0 / 0 / 0 |
+| Requirement IDs | 122 | 122 |
+| Requirement states conform / partial / absent / contradictory | 99 / 20 / 3 / 0 | 99 / 20 / 3 / 0 |
+| Open decisions / new OPEN / closed OPEN | 18 / 0 / 0 | 18 / 0 / 0 |
+| Command Requirements evidence ranges | 5 | 5 |
+| DEP-CMD families | 10 | 10 |
+| Generic `Command roles` / generic Command dependency summaries reintroduced | 0 / 0 | 0 / 0 |
+
+### GOV-1 prepared maturity
+The 16 GOV-1 functional contracts and supporting maps are complete in the construction chain, but GOV-1 remains **PENDING POST-PUBLICATION VERIFICATION** until the fifth functional commit is published and the remote 180-gate verification is complete. Govern capability specification and Delivery Roadmap Phase 4 — Govern remain **PARTIAL**. GOV-2 and GOV-3 remain **NOT STARTED**. Capability Specification Phase 4A — Command and Phase 4B — Investigate remain PASS; global capability-specification/repository maturity remains PARTIAL.
