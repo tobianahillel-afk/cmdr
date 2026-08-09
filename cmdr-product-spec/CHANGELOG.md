@@ -1,5 +1,33 @@
 # Changelog
 
+## 2026-08-09 — Studio STD-1 post-publication verified execution
+- Executed **STD-1 — Studio Foundations — Tools, Skills, Library and Ownership Contracts** under **Delivery Roadmap Phase 5 — Studio and Endpoint**, canonical id `roadmap-phase-5-studio-and-endpoint`; STD-1 remains an execution lot only and creates no Phase 5A/5B.
+- Verified exact starting remote baseline `e0c23764df80a3d7109c156d1a2ee0962d19cda6` — `docs: audit Studio and Endpoint Phase 5 capability foundations` — with PR #2 open/Draft/unmerged on `main`, unchanged root README and no existing concrete `CAP-STD-*` or `CAP-EPT-*` capability.
+- Audited the current Studio corpus, all 11 active Studio screens, Settings/Govern/Shared/Command/Investigate/Endpoint boundaries, capability/object/dependency/permission/screen registers, Requirements, OPEN decisions, roadmap/preflight and canonical capability template before allocation.
+- Added exactly **16** capabilities `CAP-STD-001..016`, all `draft / defined / planned`, covering Library/catalog and asset metadata, Tool definition/I-O/version/risk/eligibility, Tool Call request/lifecycle/outcome/provenance, Skill definition/dependencies/I-O/lifecycle/discovery, provider/runtime/integration/Secret Reference boundaries and cross-product provenance.
+- Verified structural totals **16 capabilities / 432 numbered sections / 96 mandatory tables**, with 0 duplicate/recycled ID, 0 owner conflict, 0 empty/generic mandatory table, 0 new Screen ID and 0 detailed screen rewrite.
+- Preserved Studio ownership of Tool/Tool Call/Skill/Library semantics; Platform Settings ownership of providers/integrations/credentials/secrets/tenant-environment administration; Shared ownership of generic Search/Trace/Activity/Jobs/Versioning/Reporting/Export/Notifications/Collaboration; Govern ownership of Decision/Approval/Playbook/Response Run/Result/authority; Endpoint ownership of technical primitives.
+- Preserved mandatory distinctions: Library != generic Search; Tool != Tool Call/Skill/Workflow/Agent/Endpoint primitive/Govern Playbook; Tool Call != Automation Run/Response Run/Job/Result; Tool output != Evidence/Finding/Result automatically; Skill composition != Workflow orchestration; Human Gate != Approval; Workflow != Playbook; Automation Run != Response Run.
+- Documented the historical permission namespace ambiguity `perm.studio.*` vs `perm.cmdr-studio.*` without bulk rename, final RBAC/ABAC choice or new OPEN decision.
+- Preserved all **18 OPEN** decisions; OPEN-007, OPEN-013 and OPEN-015 remain open where consumed; OPEN-008 remains Endpoint/platform scope and is not resolved by STD-1.
+- Recalculated **333 global capabilities — 27 Command / 243 Investigate / 47 Govern / 16 Studio / 0 Endpoint; 331 defined / 2 proposed / 333 planned; 8991 sections / 1998 mandatory tables**.
+- Preserved **122 Requirements — 99 conform / 20 partial / 3 absent / 0 contradictory**; Command remains PASS with 27, Investigate PASS with 243 and Govern PASS with 47 plus historical 180/190/200 gate evidence.
+- Added Studio capability/dependency/object/action/AI/cross-product/screen maps, Studio register shard, traceability/baseline supplements, source audit and STD-1 conformance evidence without creating final Tool/Tool Call physical schemas, API, protocol, product code, provider/runtime selection, final atomic permissions or Endpoint capability.
+- Published the five required functional commits linearly, then used post-publication corrective commits only for real documentary divergences: restoration of historical register/status/roadmap evidence and this canonical changelog entry. No capability contract changed in those corrective commits.
+- Post-publication verification confirms the fifth functional SHA is reachable from the baseline at five commits ahead / zero behind with the same merge base; later corrective documentation is append/restoration-only.
+- STD-1 final status: **PASS AFTER POST-PUBLICATION VERIFICATION — 190/190 gates**. Studio capability specification remains PARTIAL; STD-2, STD-3, STD-4 and Endpoint capability specification remain NOT STARTED; Delivery Roadmap Phase 5 and global/repository maturity remain PARTIAL.
+
+### STD-1 functional commits
+1. `e850cea0c34bf45b8ada0d771885c2ee925e61aa` — `docs: establish Studio library tool and skill ownership boundaries`.
+2. `e08b732f9cc79df7ddef7045620656817d04ba4d` — `docs: define Studio tools contracts versions and execution eligibility`.
+3. `f8b0a8ed8b7ba4ab0ca2292caec02759f1189726` — `docs: specify Studio tool calls outcomes and provenance`.
+4. `ca743b04c4fdc5259a240d31bce82368b12f5024` — `docs: document Studio skills reuse dependencies and lifecycle`.
+5. `d9eb3001482989ab491e1c5446319f410d89d4e8` — `docs: update Studio foundations traceability and quality gates`.
+
+### STD-1 post-publication corrections
+- `6ab1f26cfbdb6bc6b9efdd238ac07592851be83c` — `docs: restore Studio STD-1 historical evidence after publication audit`; restored historical evidence only, no capability contract modified.
+- `docs: record Studio STD-1 in canonical changelog` — canonical changelog correction; exact final SHA is recorded in PR #2 after remote verification to avoid self-referential commit metadata.
+
 ## 2026-08-09 — Govern GOV-1 closure preparation
 - Began capability specification only under **Delivery Roadmap Phase 4 — Govern**, canonical id `roadmap-phase-4-govern`; `GOV-1` is an execution lot and `Phase 4C Govern` does not exist.
 - Verified exact starting remote SHA `a6adf28aa0fa64b917a0a37be37de2a4cb28b541` and preserved both immediately preceding Command corrective commits and all Command non-regression evidence.
