@@ -1,5 +1,30 @@
 # Changelog
 
+## 2026-08-10 — Studio STD-2 post-publication verified execution
+- Executed **STD-2 — Workflow Builder & Orchestration** under **Delivery Roadmap Phase 5 — Studio and Endpoint**, canonical id `roadmap-phase-5-studio-and-endpoint`; STD-2 remains an execution lot and creates no Phase 5A/5B/5C/5D.
+- Verified exact starting baseline `04dcdb43fd7f944a700bf936eebef003546095eb` with STD-1 post-publication evidence intact, PR #2 open/Draft/unmerged on `main`, branch/main README exact `# cmdr`, no existing `CAP-STD-017+` and Endpoint capabilities at 0.
+- Added exactly **17** capabilities `CAP-STD-017..033`, all `draft / defined / planned`, covering Workflow definition, Builder Session, I/O/variables, graph, Tool/Skill steps, deterministic conditions/branches, mappings, subworkflows, ordering/parallelism, error paths, retry/idempotency, partial success/compensation, Human Gate/Govern boundary, readiness, versioning, pre-publish lifecycle and provenance.
+- Structural result: **17/17 capability files / 459/459 numbered sections / 102/102 mandatory tables**, 0 empty/generic mandatory table, 0 duplicate/recycled ID, 0 owner conflict.
+- Published five functional commits linearly from the baseline:
+  1. `b96168ee222833b2d9e25d94d92a4f36d087218c` — `docs: establish Studio workflow builder and orchestration boundaries`;
+  2. `7117de53a0974079dc6999947185c96650865c4d` — `docs: define Studio workflow graphs bindings and deterministic control`;
+  3. `7aa35292bf2d4192d22ecbcd5c6fe37017fa2bde` — `docs: specify Studio branching retries compensation and Human Gates`;
+  4. `ccca5733cbb0e25a818fb69cbab0490958d48d59` — `docs: document Studio workflow validation versions and provenance`;
+  5. `655e9ce0ade2d64a7738a6a479572fef9b6f0e2f` — `docs: update Studio workflow traceability and quality gates`.
+- Verified baseline → fifth functional/build SHA at **5 ahead / 0 behind with the same merge base**.
+- Verified PR #2 remains open/Draft/unmerged, base `main`; branch/main README unchanged with blob `901c74cda52e28b5ff7fc425ddf28ef89f3ad875`; no commit statuses or workflow runs exist on the build SHA, so CI = N/A.
+- Preserved STD-1 `CAP-STD-001..016` and its 190/190 evidence, Command 27 PASS, Investigate 243 PASS, Govern 47 PASS and historical 180/190/200 Govern gates.
+- Preserved all **18 OPEN** decisions; OPEN-007/013/015 remain open, OPEN-008 remains Endpoint, and no new OPEN was created.
+- Preserved ownership: Govern retains Playbook/Approval/Decision/Response Run/Result; Settings retains provider/integration/secret/environment administration; Shared retains generic Jobs/Trace/Activity/Search/Versioning/Recovery; Endpoint retains technical primitives.
+- Preserved mandatory non-equivalence: Workflow != Tool/Skill/Agent/Automation Run/Govern Playbook/Endpoint primitive; Builder Session != Workflow; Tool step != Tool Call; branch != Decision; condition != Policy; Human Gate != Approval/Decision; retry != authorization renewal; idempotency != exactly-once; compensation != Govern rollback; validation != execution; approved-for-publishing-candidate != deployed.
+- Recalculated current totals to **350 capabilities — 27 Command / 243 Investigate / 47 Govern / 33 Studio / 0 Endpoint; 348 defined / 2 proposed / 350 planned; 9450 sections / 2100 mandatory tables**.
+- Requirements remain **122 = 99 conform / 20 partial / 3 absent / 0 contradictory**.
+- No new Screen ID, detailed screen rewrite, runtime scheduler, Automation Run lifecycle, orchestration language, API, protocol, product code, final JSON Schema/RBAC, publishing/deployment engine or Endpoint capability was introduced.
+- Post-publication audit found historical index/map condensation in the fifth functional commit; the verification record restores the affected historical evidence additively without changing any `CAP-STD-*` capability contract.
+- Final STD-2 verdict: **PASS AFTER POST-PUBLICATION VERIFICATION — 200/200 gates PASS, 0 PENDING, 0 FAIL**.
+- Studio capability specification remains PARTIAL; STD-3, STD-4 and Endpoint remain NOT STARTED; Delivery Roadmap Phase 5 and global/repository maturity remain PARTIAL.
+
+
 ## 2026-08-09 — Studio STD-1 post-publication verified execution
 - Executed **STD-1 — Studio Foundations — Tools, Skills, Library and Ownership Contracts** under **Delivery Roadmap Phase 5 — Studio and Endpoint**, canonical id `roadmap-phase-5-studio-and-endpoint`; STD-1 remains an execution lot only and creates no Phase 5A/5B.
 - Verified exact starting remote baseline `e0c23764df80a3d7109c156d1a2ee0962d19cda6` — `docs: audit Studio and Endpoint Phase 5 capability foundations` — with PR #2 open/Draft/unmerged on `main`, unchanged root README and no existing concrete `CAP-STD-*` or `CAP-EPT-*` capability.
@@ -77,7 +102,6 @@
 - Verified the exact Mobile starting remote head `ed874ea414fc57f24fa61f410f91b7345f4a868a`, PR #2 Draft/open/unmerged, public repository, disabled auto-merge and unchanged root README before modification.
 - Added the unique canonical `Phase 4B.4B — Mobile Forensics Foundations and Mobile Investigation` roadmap and provider/platform-neutral module.
 - Added exactly 19 canonical capabilities `CAP-INV-701..719`, each `draft` / `defined` / `planned`, with 27 sections and six mandatory tables.
-- Added 14 Mobile supporting module documents covering scope, concepts, workflows, states, permissions, privacy, Shared/AI/Collection/Settings/Endpoint/Studio/Govern boundaries, map and source migration.
 - Preserved Collection ownership of acquisition requests/jobs/execution/results/custody; Settings ownership of sources/Fleet/credentials/secrets/retention/policies; Endpoint declared-capability ownership; Govern real-device authority; Studio Tools/Runs; Shared generic engines.
 - Defined Mobile analysis for device/platform scope, acquisition-context review, integrity/completeness/accessibility, filesystem/storage, applications/data, communications, media, location/sensors, sensitive material, connectivity/SIM/pairing, backups/synchronization, deleted/recovered data, Timeline/correlation, Hypotheses, Derived Artifacts/handoffs and provenance.
 - Expanded `OPEN-011 — Mobile Forensics scope and delivery strategy` while keeping it open with no platform/version, acquisition method, Tool, engine, API, protocol, proprietary format or implementation selected.
