@@ -3,64 +3,60 @@ id: 08-govern-information-architecture
 domain: 08-govern
 status: draft
 owner: Govern Product Lead
-updated: 2026-08-03
+updated: 2026-08-09
 source-of-truth: canonical
+requirements: [REQ-PROD-015, REQ-UX-001, REQ-UX-008, REQ-UX-009, REQ-UX-010]
+open_decisions: [OPEN-010]
 ---
-# Architecture d’information Govern
+# Govern Information Architecture
 
-## Objectif
+## Canonical modules
 
-Définir les modules et workspaces de Govern.
+Govern retains exactly nine existing product modules:
 
-## Périmètre
+1. `response-inbox`
+2. `action-center`
+3. `decision-register`
+4. `policy-gates`
+5. `approvals-and-authorities`
+6. `playbooks`
+7. `runs-and-rollback`
+8. `audit-trail`
+9. `response-metrics`
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
+GOV-1 specifies modules 1–5 functionally. Modules 6–7 are read-only boundaries for future GOV-2. Modules 8–9 are read-only boundaries for future GOV-3.
 
-## Propriétaire fonctionnel
+## Workspace responsibilities
 
-Govern Product Lead.
+### Response Inbox
+Govern-only queue of received/submitted Action Requests and their review states. It is not Command Work Queue. It owns queue semantics such as Govern assignment, expiry/deadline context, blockers and information-required state, while Shared provides generic filtering/search/assignment mechanisms.
 
-## Objets concernés
+### Action Center
+Focused review workspace for one Action Request/version. It composes context/scope/target, impact/risk/reversibility, completeness, Policy/authority/Approval projections and Decision preparation without taking ownership of source objects.
 
-- Concepts du document
-- Références canoniques liées
+### Decision Register
+Immutable/supersedable authority history: Decision disposition, rationale, conditions, time bounds, authority/Approval references and future execution-handoff status. Rejection/expiry never deletes history.
 
-## Fonctionnalités
+### Policy Gates
+Govern view of applicable Policy versions, evaluation outcomes, conflicts, warnings, blocks, unknowns and Exception Candidates. It does not define a final Policy authoring engine or automatic Decision engine.
 
-- `response-inbox`
-- `action-center`
-- `decision-register`
-- `policy-gates`
-- `approvals-and-authorities`
-- `playbooks`
-- `runs-and-rollback`
-- `audit-trail`
-- `response-metrics`
+### Approvals & Authorities
+Contextual authority, approver eligibility, SoD, Approval Requests/records, delegation/escalation and emergency/time-bound authorization. Platform Settings still administers users/roles/groups and configured authority sources.
 
-## UX et interactions
+## Cross-module flow
 
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
+`Response Inbox → Action Center → Policy Gates / Approvals & Authorities → Action Center Decision Preparation → Decision Register → Execution Handoff Package → future GOV-2`.
 
-## Permissions
+A reviewer may move backward for information, conflict resolution or authority clarification. Context preservation must return to the exact Action Request/version and previous queue selection.
 
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
+## Shared capability use
 
-## États
+Govern consumes Shared Search, Linking, Notifications, Jobs, Activity, Trace, Reporting, Collaboration, Comments, Assignments, Inspector, Versioning and Recovery. These are mechanisms, not extra Govern modules.
 
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
+## Screen boundary
 
-## Dépendances
+Existing screen IDs remain stable. GOV-1 does not define final visual composition, columns, filters, buttons, animations or shortcuts. `screen-capability-map.md` is the only GOV-1 mapping update required at this level.
 
-- 00-governance/source-of-truth-policy.md
+## Acceptance
 
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- À compléter — décision source non fournie dans le brief canonique.
+A user can identify which of the nine modules owns each Govern activity, which modules are in GOV-1, and where the execution boundary begins without inferring a new roadmap phase or a new screen.
