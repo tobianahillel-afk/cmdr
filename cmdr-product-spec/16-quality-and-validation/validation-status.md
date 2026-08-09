@@ -15,27 +15,33 @@ source-of-truth: quality-status
 | Phase 4B Investigate | PASS | 243 / 6561 / 1458 |
 | Govern GOV-1 | PASS | 16 / 432 / 96 / 180 historical gates |
 | Govern GOV-2 | PASS | 17 / 459 / 102 / 190 historical gates |
-| Govern GOV-3 | **PENDING POST-PUBLICATION VERIFICATION** | CAP-GOV-034..047, 14 / 378 / 84; 192 PASS / 8 PENDING / 0 FAIL prepublication |
-| Govern capability specification | **PARTIAL / PASS candidate** | all 47 capabilities and 9 modules covered; final remote verification pending |
-| Delivery Roadmap Phase 4 — Govern | **PARTIAL / PASS candidate** | canonical `roadmap-phase-4-govern`; closure report ready, final remote verification pending |
+| Govern GOV-3 | **PASS AFTER POST-PUBLICATION VERIFICATION** | CAP-GOV-034..047, 14 / 378 / 84; **200/200 gates** |
+| Govern capability specification | **PASS** | CAP-GOV-001..047; 47 / 1269 / 282; 9/9 modules |
+| Delivery Roadmap Phase 4 — Govern | **PASS** | `roadmap-phase-4-govern`; closure verified |
 | Global Capability Specification maturity | PARTIAL | Studio/Endpoint, Settings/Scale, final objects/permissions/screens/technique/implementation/global validation future |
-| Repository global maturity | PARTIAL | documentary progress ≠ implementation |
+| Repository global maturity | PARTIAL | documentary PASS ≠ implementation |
 
-## GOV-3 baseline
-`36edacb4eb374e0b56d6c9e9c45931fdb1e0af20` — `docs: record Govern GOV-2 post-publication verification`.
+## Verified GOV-3 publication
+- baseline: `36edacb4eb374e0b56d6c9e9c45931fdb1e0af20` — `docs: record Govern GOV-2 post-publication verification`;
+- fifth functional SHA: `042f70d3cfd13467acc294bfff726edde9e16cb0` — `docs: close Govern capability specification and quality gates`;
+- baseline → fifth SHA: **5 ahead / 0 behind**, same merge base;
+- PR #2 open/Draft/unmerged; repo public; auto-merge disabled;
+- README branch/main exact `# cmdr`, main unchanged;
+- CI/status: N/A on fifth functional SHA;
+- GOV-3: **200 PASS / 0 PENDING / 0 FAIL**.
 
-## Current counts
+## Final counts
 - capabilities: **317** = 27 Command + 243 Investigate + 47 Govern;
 - delivery: **315 defined / 2 proposed / 317 planned**;
 - Govern: **47 / 1269 / 282**;
 - total: **8559 sections / 1902 tables**;
 - Requirements: **122 = 99 conform / 20 partial / 3 absent / 0 contradictory**;
-- OPEN: **18**.
-
-## Prepublication closure state
-The 14 GOV-3 capability files and three closure/conformance reports are present on the construction branch. Gates 192–198 and 200 remain PENDING until the fifth required functional commit is published and the canonical branch, PR, README and `main` are rechecked.
+- OPEN: **18**; GOV-3 creates/closes 0.
 
 ## Non-regression
-GOV-1/GOV-2 historical capability ranges and gate evidence, Command 27/26+1/five Requirements ranges/DEP-CMD-001..010 and Investigate 243/PASS are preserved. No GOV-1/GOV-2/Command/Investigate capability file is intentionally changed by GOV-3.
+GOV-1/GOV-2 historical ranges and gate evidence, Command 27/26+1/five Requirements ranges/DEP-CMD-001..010 and Investigate 243/PASS remain intact. Canonical Requirements Matrix and historical Dependency Register remain preserved; GOV-3 evidence is additive.
 
-`PASS` means provider-neutral documentary functional conformance only. No audit/metrics engine, API/protocol, warehouse/storage schema, final RBAC/retention policy, detailed screen or product implementation is delivered.
+## Next roadmap boundary
+Verified next historical candidate: **Delivery Roadmap Phase 5 — Studio and Endpoint**, id `roadmap-phase-5-studio-and-endpoint`, title `Phase 5 Studio And Endpoint`. It is identified only and **NOT STARTED** here.
+
+No audit/metrics engine, API/protocol, warehouse/storage schema, final RBAC/retention policy, detailed screen, product implementation or external compliance claim is delivered.
