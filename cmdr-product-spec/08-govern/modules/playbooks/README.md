@@ -3,65 +3,73 @@ id: govern-playbooks
 domain: 08-govern
 status: draft
 owner: Govern Product Lead
-updated: 2026-08-03
+updated: 2026-08-09
 source-of-truth: canonical
+requirements: [REQ-PROD-004, REQ-PROD-006, REQ-PROD-015, REQ-PROD-016, REQ-PROD-020, REQ-SEC-001, REQ-SEC-002]
+open_decisions: [OPEN-008, OPEN-013, OPEN-015]
 ---
-# Playbooks
+# Playbooks — GOV-2
 
-## Objectif
+## Mission
 
-Définir les procédures versionnées que Govern peut exécuter.
+Own the response-procedure semantics used by Govern between an approved **Execution Handoff Package** and an **Execution Plan**. GOV-2 selects and validates an exact Response Playbook version but does not absorb Studio Workflow ownership or infer execution authority from selection.
 
-## Périmètre
+## Owned GOV-2 capabilities
 
-Module du produit 08-govern. Les objets, permissions, composants et transitions partagés sont référencés et non redéfinis.
+- `CAP-GOV-017` — Response Playbook Catalog and Selection.
+- `CAP-GOV-018` — Playbook Version, Preconditions and Decision Compatibility Review.
 
-## Propriétaire fonctionnel
+Later GOV-2 capabilities consume the selected compatible version to create an Execution Plan and Response Run.
 
-Govern Product Lead.
+## Canonical boundary
 
-## Objets concernés
+- **Response Playbook** is Govern-owned response semantics.
+- **Studio Workflow** is CMDR Studio-owned orchestration.
+- Playbook ≠ Workflow.
+- Playbook version ≠ Workflow version.
+- Playbook selected ≠ execution authorized.
+- compatibility passed ≠ target ready.
+- published/deployed Workflow availability is a referenced dependency, not Govern ownership.
 
-- playbook
-- response-step
-- response-rollback
-- workflow
+A Playbook may reference one or more Studio Workflows, Tools, Endpoint capabilities or other executor capabilities. Those references retain their original owner and permission model.
 
-## Fonctionnalités
+## Selection contract
 
-- Versioning.
-- Preconditions.
-- Rollback.
-- Testing evidence.
+Selection must preserve:
+- exact Decision and Execution Handoff Package versions;
+- exact Playbook candidate/version;
+- supported action and target types;
+- tenant/environment constraints;
+- risk/reversibility metadata;
+- rollback and verification support;
+- dependencies and declared runtime availability;
+- restrictions, deprecation and limitations;
+- selection/rejection rationale and provenance.
 
-## UX et interactions
+No candidate/version is silently substituted.
 
-- Conserver le contexte de liste, vue et objet.
-- Utiliser l’Inspector canonique.
-- Afficher les six états obligatoires.
-- Préserver navigation clavier et liens profonds.
+## Version compatibility
 
-## Permissions
+A version change after Decision or handoff triggers explicit compatibility re-review. If the change can alter authorized action, target, scope, conditions, rollback or verification requirements, GOV-2 records `re-decision-required` rather than carrying authority forward silently.
 
-Voir `../../14-security-permissions-and-trust/permission-model.md` et le registre des permissions.
+Published versions remain resolvable for historical Runs. Deprecation does not delete history.
 
-## États
+## Secrets and parameters
 
-Les états métier viennent des fichiers d’objets canoniques; la page ajoute uniquement Loading, Empty, Partial, Error, Offline et Permission denied.
+Playbook definitions may declare parameter definitions and **Secret Reference requirements**, but never raw secret values. Platform Settings remains owner of secrets, credentials and connections. Parameter binding belongs to CAP-GOV-019.
 
-## Dépendances
+## Execution boundary
 
-- 03-design-system/
-- 04-experience-architecture/
-- 05-domain-model/
-- 17-implementation-contracts/
+This module performs no target mutation and starts no Response Run. Its output is a selected, compatibility-reviewed Playbook version consumed by CAP-GOV-019. Actual production execution is governed later in GOV-2 and performed by the appropriate technical owner.
 
-## Critères d’acceptation
+## Screen
 
-- Aucune définition d’objet ou de permission locale.
-- Tous les écrans du module ont un front matter et 27 sections.
-- Les transitions sont auditées et idempotentes.
+`GOV-PLB-001` remains the existing Playbooks surface. GOV-2 creates no new Screen ID and does not rewrite its detailed buttons, columns, filters, wireframes, shortcuts or animations. The Screen Capability Map may only add capability links/ownership pointers.
 
-## Questions ouvertes
+## Dependencies
 
-- À compléter — contenu source non fourni dans le brief canonique.
+Decision/Execution Handoff Package, Playbook object, Studio Workflow/Version/Tool, Settings environment/integration/health/Secret Reference metadata, Endpoint capability projections, Shared Search/Versioning/Trace/Linking, Security permissions and OPEN-008/013/015.
+
+## GOV-3 boundary
+
+Audit Trail and Response Metrics consume Playbook/Run provenance later. GOV-2 does not create GOV-3 capability contracts.
