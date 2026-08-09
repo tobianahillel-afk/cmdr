@@ -3,60 +3,57 @@ id: govern-runs-and-rollback-rollback-model
 domain: 08-govern
 status: draft
 owner: Govern Product Lead
-updated: 2026-08-03
+updated: 2026-08-09
 source-of-truth: canonical
+requirements: [REQ-PROD-004, REQ-PROD-005, REQ-PROD-015, REQ-PROD-016, REQ-PROD-020, REQ-OBJ-007, REQ-SEC-001, REQ-SEC-002]
+open_decisions: [OPEN-008, OPEN-013, OPEN-015]
 ---
-# Rollback Model
+# Rollback Model — GOV-2 Supporting Contract
 
-## Objectif
+## Purpose
 
-Définir rollback model dans Govern.
+Support `CAP-GOV-030` and `CAP-GOV-031` with stable functional rollback distinctions. The capability files remain normative for complete inputs, outputs, actions, permissions and acceptance criteria.
 
-## Périmètre
+## Mandatory separation
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
+- rollback supported ≠ rollback eligible;
+- rollback eligible ≠ rollback authorized;
+- rollback available ≠ rollback safe;
+- Rollback Plan ≠ rollback execution;
+- rollback request ≠ rollback started;
+- technical rollback completion ≠ verified rollback success;
+- rollback success ≠ full recovery guaranteed;
+- `rolled-back` ≠ exact original state restored;
+- `recovered` ≠ exact restoration;
+- compensation ≠ rollback;
+- cancellation ≠ rollback;
+- rollback failure ≠ automatic retry of the original action.
 
-## Propriétaire fonctionnel
+## Required rollback context
 
-Govern Product Lead.
+A rollback review preserves by reference:
+- original Response Run, Decision, Execution Plan and Playbook/version;
+- exact affected effects, targets and scope;
+- rollback trigger and authority context;
+- current target/readiness state;
+- rollback capability owner/version;
+- expected restored state and explicitly non-restored elements;
+- potential data loss, limitations and residual risk;
+- parameter/Secret References only, never raw secrets;
+- verification criteria and recovery/manual fallback.
 
-## Objets concernés
+## Ownership
 
-- Concepts du document
-- Références canoniques liées
+Govern owns rollback eligibility, Rollback Plan, Response Rollback governance, recovery coordination and canonical Result relations. Studio/Endpoint/provider owners retain technical reverse/recovery primitives and raw outputs. Platform Settings retains secrets, connections and runtime configuration. Shared Recovery remains a generic mechanism, not a competing response owner.
 
-## Fonctionnalités
+## Verification
 
-- Eligibility.
-- Scope.
-- What is not reverted.
-- Verification.
-- Rollback Result.
+Rollback is not considered successful solely because the technical executor returned success. GOV-2 must compare expected restored/recovered state with authorized verification observations and preserve partial, failed, inconclusive and residual-impact outcomes.
 
-## UX et interactions
+## Safety
 
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
+Target drift, expired/missing authority, unknown original effect state, unsupported primitive, data-loss risk, unavailable executor/secret or missing verification can block effectful rollback or require re-decision/manual recovery. No command, bypass, API, protocol or provider/runtime is selected by this document.
 
-## Permissions
+## GOV-3 boundary
 
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
-
-## États
-
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
-
-## Dépendances
-
-- 00-governance/source-of-truth-policy.md
-
-## Critères d’acceptation
-
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
-
-## Questions ouvertes
-
-- À compléter — décision source non fournie dans le brief canonique.
+Rollback provenance and conceptual outcome inputs are emitted for future Audit Trail and Response Metrics. GOV-2 does not create either GOV-3 capability.
