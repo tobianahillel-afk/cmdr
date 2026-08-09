@@ -1,5 +1,28 @@
 # Changelog
 
+## 2026-08-09 — Govern GOV-1 closure preparation
+- Began capability specification only under **Delivery Roadmap Phase 4 — Govern**, canonical id `roadmap-phase-4-govern`; `GOV-1` is an execution lot and `Phase 4C Govern` does not exist.
+- Verified exact starting remote SHA `a6adf28aa0fa64b917a0a37be37de2a4cb28b541` and preserved both immediately preceding Command corrective commits and all Command non-regression evidence.
+- Audited the complete existing `08-govern/` corpus, all nine Govern modules/screens, required governance/register/roadmap/security sources and dependent Command/Investigate/Studio/Settings/Endpoint/Shared boundaries before capability creation.
+- Confirmed the `CAP-GOV` namespace was free/unrecycled and added exactly **16** capabilities `CAP-GOV-001..016`, each `draft` / `defined` / `planned`, with 27 sections and six mandatory tables.
+- Defined GOV-1 intake/Response Inbox/Action Request lifecycle, context-scope-target review, impact-risk-reversibility, completeness/Evidence context, Policy Evaluation, Policy conflicts/Exception Candidates, contextual authority, approver eligibility/SoD, Approval, delegation/escalation, emergency governance, Decision preparation/recording/conditions/expiry and no-effect Execution Handoff Package.
+- Preserved Command Incident/Work Queue/Task coordination, Investigate Case/Evidence/Finding, Studio Workflow/Human Gate/Automation Run, Settings identity/admin configuration, Endpoint technical execution and Shared generic engines.
+- Preserved distinctions including Action Request ≠ Decision/Response Run, Approval ≠ Decision/execution, Human Gate ≠ Approval/Decision, Automation Run ≠ Response Run, Policy outcome ≠ Decision, approve ≠ execute and expiration ≠ deletion.
+- Added Govern capability/dependency/object/permission/action/AI/cross-product/screen maps without creating a complete object schema, JSON Schema, final state machine, final RBAC/ABAC matrix, API, protocol, Policy/authority/execution engine, code, target mutation, Response Run, Result or rollback.
+- Recalculated **286 global capabilities — 27 Command / 243 Investigate / 16 Govern; 284 defined / 2 proposed / 286 planned; 7722 sections and 1716 mandatory tables across Command + Investigate + GOV-1**.
+- Preserved **122 Requirements — 99 conform / 20 partial / 3 absent / 0 contradictory** and all five Command evidence ranges.
+- Preserved **18 OPEN** decisions; GOV-1 creates/closes 0. OPEN-007, OPEN-013 and OPEN-015 remain directly relevant and open.
+- Preserved the ten `DEP-CMD-*` families and detailed Command registry values; no Command or Investigate capability file was modified.
+- Prepared the GOV-1 conformance report with **180 gates**; publication-dependent gates remain PENDING until the fifth functional commit is published and remotely verified.
+- Kept Govern capability specification and Delivery Roadmap Phase 4 — Govern PARTIAL; GOV-2 and GOV-3 remain NOT STARTED.
+
+### GOV-1 functional commits
+1. `587ac4f7f0e437b13c6276e493ad9bf1f3bf6dbd` — `docs: establish Govern request policy and authority boundaries`.
+2. `c45f067c6d108f41d29f6140c1298bee4a263712` — `docs: define Govern intake action requests and policy evaluation`.
+3. `0dc62e1716909f5702bfbb19488f0f9a0d8530d6` — `docs: specify Govern approvals authorities and separation of duties`.
+4. `35f2e5d6f30f4b7cb06c476dc9ea358b4288f349` — `docs: document Govern decisions conditions and execution handoff`.
+5. `docs: update Govern foundation traceability and quality gates` — exact squash SHA recorded after publication.
+
 ## 2026-08-09 — Current Phase 4A Command corrective revalidation
 - Revalidated `Capability Specification Phase 4A — Command` from exact remote SHA `edbc67be43f971e4c49e91518e3e21517ef69410` without recreating any CAP-CMD file or modifying historical Phase 4B functional content.
 - Re-read all 27 Command capability contracts, Command architecture/module sources, active Command screens and five deprecated Work Queue aliases; retained 729/729 sections and 162/162 mandatory tables.
