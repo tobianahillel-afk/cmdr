@@ -3,7 +3,7 @@ id: 09-cmdr-studio-readme
 domain: 09-cmdr-studio
 status: draft
 owner: CMDR Studio Product Lead
-updated: 2026-08-10
+updated: 2026-08-09
 source-of-truth: canonical
 requirements:
   - REQ-PROD-016
@@ -90,26 +90,27 @@ Workflow Definition != Workflow Version; Builder Session != Workflow; draft grap
 
 ---
 
-## STD-3 — Agents, Human Gates & Runtime Control — build-time addendum
+## STD-3 — Agents, Human Gates & Runtime Control — current addendum
 
-The STD-1 and STD-2 sections above remain historical/current evidence and are not redefined by STD-3.
+The STD-1 and STD-2 sections above are preserved as exact historical snapshots. Their earlier STD-3 `NOT STARTED` statements are historical evidence only.
 
-- execution lot under the same parent `roadmap-phase-5-studio-and-endpoint`;
+- parent: `roadmap-phase-5-studio-and-endpoint`;
 - `CAP-STD-034..051`;
 - **18 capabilities / 486 sections / 108 mandatory tables**;
 - all `draft / defined / planned`;
-- Automation Agent definition/objectives/constraints/access, Agent Team, bounded planning and oversight;
-- Human Gate request/lifecycle/runtime response with `accepted-for-workflow` explicitly distinct from Govern Approval/Decision;
-- Automation Run creation/lifecycle/steps/attempts/Tool Call coordination, queue/scheduling/concurrency and start/pause/resume/stop/cancel;
-- runtime errors/timeouts/retry realization/partial completion/context, Control Room, Studio Runtime Outcome and full provenance;
+- Automation Agent/Agent Team definitions, bounded objectives/access/planning/oversight;
+- Human Gate request/runtime lifecycle with `accepted-for-workflow` distinct from Govern Approval/Decision;
+- Automation Run creation/lifecycle/steps/attempts, queue/scheduling, controls, failures/retries/partial completion/context;
+- Control Room, Studio Runtime Outcome, consumer handoff and runtime provenance;
 - no new Screen ID or detailed rewrite;
 - no agent framework, model/provider, scheduler/runtime selection, API/protocol/code, final JSON Schema/RBAC, publishing/deployment or Endpoint capability;
-- build-time status: **PENDING POST-PUBLICATION VERIFICATION** until the fifth functional SHA and remote gates are actually checked.
+- fifth functional/build SHA: `c658168c9de6bd803941116989bc3aaedf154260`;
+- post-publication verification is being recorded separately after a documentary history-preservation correction.
 
-### Current next boundary
+### Current future boundary
 - STD-4 — Assurance & Lifecycle — NOT STARTED.
 - Endpoint capability specification — NOT STARTED.
 - Studio capability specification remains PARTIAL.
 
 ### STD-3 additional non-equivalence
-Automation Agent != Workflow/Skill/Tool/Automation Run/human user; Agent Team != human Team/Workflow; Agent role/objective/access/proposal/plan != authorization/action; Human Gate != Approval/Decision; Human Gate response != production authority; Automation Run != Workflow/Version/Tool Call/Job/Response Run; Run created/queued/start-requested != running; paused != stopped; cancel != rollback; attempt != Run; retry != new Run; idempotency != exactly-once; Tool Call/step success != Run success; partial completion != success; Studio outcome != Govern Result; Control Room != Command Work Queue/Govern Runs & Rollback.
+Automation Agent != Workflow/Skill/Tool/Automation Run/human user; Agent Team != human Team/Workflow; role/objective/access/proposal/plan != authorization/action; Human Gate != Approval/Decision; Automation Run != Workflow/Version/Tool Call/Job/Response Run; created/queued/start-requested != running; paused != stopped; cancellation != rollback; retry attempt != Run; retry != new Run; idempotency != exactly-once; Tool Call/step success != Run success; partial completion != success; Studio outcome != Govern Result/Evidence/Finding; Control Room != Command Work Queue/Govern Runs & Rollback.

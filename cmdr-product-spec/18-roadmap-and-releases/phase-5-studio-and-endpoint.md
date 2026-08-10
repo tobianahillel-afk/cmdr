@@ -41,23 +41,18 @@ Les modifications suivent `../14-security-permissions-and-trust/permission-model
 - Studio/Settings/Govern/Shared/Endpoint ownership sources.
 
 ## STD-1 — verified
-- **PASS AFTER POST-PUBLICATION VERIFICATION — 190/190**.
-- `CAP-STD-001..016`: 16 / 432 / 96.
+- STD-1 — Studio Foundations — Tools, Skills, Library and Ownership Contracts: **PASS AFTER POST-PUBLICATION VERIFICATION — 190/190**.
+- `CAP-STD-001..016`: 16 capabilities / 432 sections / 96 mandatory tables.
 
-## STD-2 — verified
-- **PASS AFTER POST-PUBLICATION VERIFICATION — 200/200**.
-- `CAP-STD-017..033`: 17 / 459 / 102.
-- fifth functional/build SHA `655e9ce0ade2d64a7738a6a479572fef9b6f0e2f`.
-
-## STD-3 — current execution
-- `CAP-STD-034..051`: **18 capabilities / 486 sections / 108 mandatory tables**.
-- scope: Automation Agents/Teams, bounded autonomy/oversight, Human Gate runtime, Automation Run lifecycle/control, queue/scheduling semantics, failures/retries/partial, runtime context, Control Room, outcome/handoff and provenance.
-- build-time status: **PENDING POST-PUBLICATION VERIFICATION — 202 PASS / 8 PENDING-REMOTE / 0 FAIL**.
-- no new Screen IDs/detailed rewrites.
-- no agent framework/model/provider/runtime/scheduler/API/protocol/code/final JSON Schema/RBAC.
-- STD-3 remains documentary and PARTIAL until actual remote verification.
+## STD-2 — current execution
+- STD-2 — Workflow Builder & Orchestration: 17 capabilities `CAP-STD-017..033` / 459 sections / 102 mandatory tables.
+- scope: Workflow definition/version, Builder, data/graph/composition, deterministic control, errors/retry/partial/compensation, Human Gate boundary, readiness/pre-publish/provenance.
+- status: **PASS AFTER POST-PUBLICATION VERIFICATION — 200/200**; fifth functional SHA `655e9ce0ade2d64a7738a6a479572fef9b6f0e2f` verified at 5 ahead / 0 behind from baseline.
+- new Screen IDs / detailed rewrites: 0 / 0.
+- runtime scheduler / Automation Run lifecycle / publishing-deployment / Endpoint implementation: not included.
 
 ## Future lots
+- STD-3 — Agents, Human Gates & Runtime Control: NOT STARTED.
 - STD-4 — Assurance & Lifecycle: NOT STARTED.
 - Endpoint capability specification: NOT STARTED.
 - Studio capability specification: PARTIAL.
@@ -65,11 +60,30 @@ Les modifications suivent `../14-security-permissions-and-trust/permission-model
 
 STD-1/2/3/4 are execution-lot labels only. No Phase 5A/5B/5C/5D exists.
 
-## Ownership boundary
-Automation Run ≠ Govern Response Run; Human Gate ≠ Govern Approval/Decision; Studio Runtime Outcome ≠ Govern Result. Shared owns generic Jobs/queue/scheduling mechanisms; Settings owns provider/secret/runtime administration; Endpoint owns technical endpoint primitives.
+## Implementation boundary
+No API, protocol, product code, orchestration language/runtime, final graph/Tool/Tool Call physical schema, final RBAC/ABAC, provider/runtime selection, detailed screen rewrite or Endpoint implementation is introduced by STD-2.
 
 ## Questions ouvertes
-OPEN-007/013/015 remain open where consumed. OPEN-003 is palette-only and OPEN-008 remains Endpoint/platform support. Permission namespace ambiguity remains unresolved.
+OPEN-007/013/015 remain open where consumed. OPEN-008 remains Endpoint/platform support. The permission namespace anomaly remains unresolved.
 
 ## Next candidate
-STD-4 — Assurance & Lifecycle, **but it must not start until STD-3 post-publication verification is complete and explicitly authorized**.
+STD-3 — Agents, Human Gates & Runtime Control. **Do not begin STD-3 implicitly.**
+
+## STD-2 post-publication verification evidence
+Baseline `04dcdb43fd7f944a700bf936eebef003546095eb`; fifth functional/build SHA `655e9ce0ade2d64a7738a6a479572fef9b6f0e2f`; five functional commits reachable in order; PR #2 remains Draft/open/unmerged; branch/main README unchanged; CI N/A; `CAP-STD-001..016` intact; Endpoint 0; STD-3/4 not started.
+
+Final STD-2 documentary verdict: **PASS AFTER POST-PUBLICATION VERIFICATION — 200/200**.
+
+## STD-3 current execution addendum
+The full STD-1/STD-2 roadmap text above is preserved as the exact pre-STD-3 snapshot; its STD-3 `NOT STARTED` / `Next candidate` text is historical evidence only.
+
+- execution lot: **STD-3 — Agents, Human Gates & Runtime Control**;
+- `CAP-STD-034..051`: **18 capabilities / 486 sections / 108 mandatory tables**;
+- fifth functional/build SHA: `c658168c9de6bd803941116989bc3aaedf154260`;
+- baseline `c472b055ce00fd33efd96ac920b0add5f65ab8f7` → build: **5 ahead / 0 behind**, same merge base;
+- scope: Agents/Teams, bounded planning/oversight, Human Gate runtime, Automation Runs/control, queue/scheduling semantics, failures/retries/partial, transient context, Control Room, outcome/handoff and provenance;
+- ownership boundaries: Govern retains Approval/Decision/Response Run/Result; Settings retains provider/secret/runtime administration; Shared retains generic Jobs/queue/scheduling/Trace; Endpoint retains technical primitives;
+- no new Screen ID/detailed rewrite, agent framework/model/provider/runtime/scheduler/API/protocol/code/final JSON Schema/RBAC;
+- post-publication history-preservation correction is being recorded before the final 210-gate verdict.
+
+STD-3 remains **PENDING POST-PUBLICATION VERIFICATION**. STD-4 and Endpoint remain **NOT STARTED**; Delivery Roadmap Phase 5 and global/repository maturity remain PARTIAL.

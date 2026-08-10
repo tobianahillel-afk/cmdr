@@ -3,9 +3,9 @@ id: studio-std1-action-classification
 domain: 09-cmdr-studio
 status: draft
 owner: CMDR Studio Product Lead
-updated: 2026-08-10
+updated: 2026-08-09
 source-of-truth: canonical
-open_decisions: [OPEN-007, OPEN-013, OPEN-015]
+open_decisions: [OPEN-013]
 ---
 # STD-1 Action Classification
 
@@ -35,10 +35,10 @@ STD-2 adds no class-3/4 execution authority. A Workflow definition or validation
 
 | Class | STD-3 meaning | Representative actions | Boundary |
 |---:|---|---|---|
-| 0 | observation | view Agent/Team/Run, inspect state, Tool Calls, Human Gates and provenance | read under product/source permissions |
-| 1 | no-effect assessment | bounded planning, context/compatibility/readiness checks, retry eligibility, runtime-status normalization | no production effect or authority |
-| 2 | reversible Studio control/preparation | Agent config, Run creation/queue/schedule, Human Gate request/response, pause/resume/cancel-before-effect, bounded intervention | versioned/audited; OPEN-013 remains open |
-| 3 | effectful execution | start/resume/retry/Tool action whose underlying effect is class 3 | requires current permission and Govern/runtime authority where applicable |
+| 0 | observation | view Agent/Team/Run; inspect state, Tool Calls, Human Gates and provenance | read under product/source permissions |
+| 1 | no-effect assessment | bounded planning, context/compatibility/readiness checks, retry eligibility and runtime-status normalization | no production effect or authority |
+| 2 | reversible Studio preparation/control | Agent config, Run creation/queue/schedule, Human Gate request/response, pause/resume/cancel-before-effect and bounded intervention | versioned/audited; OPEN-013 remains open |
+| 3 | effectful execution | start/resume/retry/Tool action whose underlying effect is class 3 | current permission plus Govern/runtime authority when applicable |
 | 4 | destructive/irreversible authority | not created by STD-3 | Govern/runtime owner only |
 
 Agent objective/role/access, Human Gate response and Automation Run control never create parallel authority. Studio compensation remains distinct from Govern rollback.

@@ -3,9 +3,9 @@ id: studio-std1-cross-product-links
 domain: 09-cmdr-studio
 status: draft
 owner: CMDR Studio Product Lead
-updated: 2026-08-10
+updated: 2026-08-09
 source-of-truth: canonical
-open_decisions: [OPEN-007, OPEN-013, OPEN-015]
+open_decisions: [OPEN-007, OPEN-015]
 ---
 # STD-1 Cross-Product Links
 

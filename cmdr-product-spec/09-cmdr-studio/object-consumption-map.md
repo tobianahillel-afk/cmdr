@@ -3,7 +3,7 @@ id: studio-std1-object-consumption-map
 domain: 09-cmdr-studio
 status: draft
 owner: CMDR Studio Product Lead
-updated: 2026-08-10
+updated: 2026-08-09
 source-of-truth: canonical
 ---
 # STD-1 Object / Concept Consumption Map

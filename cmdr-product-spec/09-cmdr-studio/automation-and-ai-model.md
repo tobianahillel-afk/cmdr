@@ -3,7 +3,7 @@ id: studio-std1-automation-and-ai-model
 domain: 09-cmdr-studio
 status: draft
 owner: CMDR Studio Product Lead
-updated: 2026-08-10
+updated: 2026-08-09
 source-of-truth: canonical
 requirements: [REQ-AI-001, REQ-AI-002]
 ---
@@ -42,8 +42,8 @@ STD-2 does not redefine the STD-1 Tool/Tool Call/Skill AI boundaries above.
 
 ## STD-3 — Agents, Human Gates & Runtime Control addendum
 
-AI may propose bounded Agent plans, next-step/Tool/Skill candidates, missing-input or human-review needs, stuck-Run candidates, retry/intervention/escalation candidates and source-backed Run summaries.
+AI may propose a bounded Agent plan, next-step/Tool/Skill candidate, missing-input or human-review need, stuck-Run candidate, retry/intervention/escalation candidate and source-backed Run summary.
 
-AI may never grant permission, enlarge scope, authorize a production effect, create Govern Approval/Decision, bypass a Human Gate, reveal a raw secret, restart or retry silently, retry indefinitely, hide/launder errors, alter provenance or create a Govern Result/Evidence/Finding.
+AI may never grant permission, expand scope, authorize a production effect, create Govern Approval/Decision, bypass a Human Gate, reveal a raw secret, restart/retry silently, retry indefinitely, hide errors, alter provenance or create a Govern Result/Evidence/Finding.
 
-Essential runtime management remains available without AI through Workflow-defined paths, explicit Human Gates, deterministic eligibility/retry/readiness/status rules and human Control Room controls. No agent framework, model or provider is selected by STD-3.
+Every essential STD-3 management function retains a non-AI path through Workflow-defined behavior, explicit Human Gates, deterministic eligibility/retry/readiness/status checks and human Control Room controls. STD-3 selects no agent framework, model or provider.

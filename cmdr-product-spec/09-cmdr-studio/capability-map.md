@@ -3,7 +3,7 @@ id: studio-capability-map
 domain: 09-cmdr-studio
 status: draft
 owner: CMDR Studio Product Lead
-updated: 2026-08-10
+updated: 2026-08-09
 source-of-truth: canonical
 ---
 # Studio Capability Map
@@ -58,9 +58,11 @@ The STD-1 map above is preserved verbatim as the pre-STD-2 snapshot. The histori
 | CAP-STD-032 | Workflow Draft, Review and Pre-Publishing Lifecycle | Pre-publish lifecycle | defined / planned |
 | CAP-STD-033 | Workflow Provenance and Cross-Product Orchestration Contracts | Provenance/boundary | defined / planned |
 
-STD-2 structural total: **17 capabilities / 459 sections / 102 mandatory tables**. Studio cumulative after STD-2: **33 capabilities / 891 sections / 198 mandatory tables**.
+STD-2 structural total: **17 capabilities / 459 sections / 102 mandatory tables**. Studio cumulative: **33 capabilities / 891 sections / 198 mandatory tables**. STD-3/STD-4 and Endpoint remain NOT STARTED.
 
-## STD-3 addendum — Agents, Human Gates & Runtime Control
+## STD-3 current addendum — Agents, Human Gates & Runtime Control
+
+The STD-1 and STD-2 sections above remain exact historical snapshots. Their pre-STD-3 `NOT STARTED` statements are historical evidence only.
 
 | ID | Capability | Functional family | Delivery |
 |---|---|---|---|
@@ -83,6 +85,4 @@ STD-2 structural total: **17 capabilities / 459 sections / 102 mandatory tables*
 | CAP-STD-050 | Automation Run Outcome, Consumer Handoff and Follow-up | Runtime outcome | defined / planned |
 | CAP-STD-051 | Studio Runtime Provenance and Cross-Product Contracts | Provenance/boundary | defined / planned |
 
-STD-3 structural total: **18 capabilities / 486 sections / 108 mandatory tables**. Studio cumulative after STD-3 content: **51 capabilities / 1377 sections / 306 mandatory tables**.
-
-STD-1 and STD-2 are preserved. STD-4 and Endpoint remain NOT STARTED. No STD-3 capability claims implementation, promotion/deployment, final runtime technology or Endpoint ownership.
+STD-3 content total: **18 capabilities / 486 sections / 108 mandatory tables**. Studio cumulative: **51 capabilities / 1377 sections / 306 mandatory tables**. Post-publication documentary verification is in progress; STD-4 and Endpoint remain NOT STARTED.

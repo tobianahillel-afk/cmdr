@@ -10,8 +10,8 @@
   - GOV-3: **PASS AFTER POST-PUBLICATION VERIFICATION — 200/200**; 14 / 378 / 84.
 - **Studio capability specification: PARTIAL**.
   - STD-1: **PASS AFTER POST-PUBLICATION VERIFICATION — 190/190**, 16 / 432 / 96.
-  - STD-2: **PASS AFTER POST-PUBLICATION VERIFICATION — 200/200**, 17 / 459 / 102.
-  - STD-3: **PENDING POST-PUBLICATION VERIFICATION**, 18 / 486 / 108, `draft / defined / planned`.
+  - STD-2: **PASS AFTER POST-PUBLICATION VERIFICATION — 200/200**, 17 / 459 / 102, `draft / defined / planned`.
+  - STD-3: NOT STARTED.
   - STD-4: NOT STARTED.
 - Endpoint capability specification: **NOT STARTED**.
 - Global Capability Specification maturity: **PARTIAL**.
@@ -20,35 +20,68 @@
 Delivery Roadmap is a separate namespace from Capability Specification.
 - Phases 1–3: preserve canonical historical statuses.
 - **Delivery Roadmap Phase 4 — Govern: PASS**, id `roadmap-phase-4-govern`.
-- **Delivery Roadmap Phase 5 — Studio and Endpoint: PARTIAL**, id `roadmap-phase-5-studio-and-endpoint`; STD-1/2 PASS, STD-3 content built pending remote verification, STD-4 and Endpoint not started.
+- **Delivery Roadmap Phase 5 — Studio and Endpoint: PARTIAL**, id `roadmap-phase-5-studio-and-endpoint`; STD-1 PASS, STD-2 PASS after post-publication verification, STD-3/4 and Endpoint not started.
 - Delivery Roadmap Phase 6 — Platform Scale: future.
 
-No `Phase 4C`, `Phase 4D`, `Phase 4E Govern`, `Phase 5A`, `Phase 5B`, `Phase 5C` or `Phase 5D` is introduced. GOV-1/2/3 and STD-1/2/3 are execution lots, not roadmap phases.
+No `Phase 4C`, `Phase 4D`, `Phase 4E Govern`, `Phase 5A`, `Phase 5B`, `Phase 5C` or `Phase 5D` is introduced. GOV-1/2/3 and STD-1/2 are execution lots, not roadmap phases.
 
-## Preserved verified evidence
-- STD-1: baseline `e0c23764df80a3d7109c156d1a2ee0962d19cda6`; fifth functional SHA `d9eb3001482989ab491e1c5446319f410d89d4e8`; post-publication head before STD-2 `04dcdb43fd7f944a700bf936eebef003546095eb`; **190/190 PASS**.
-- STD-2: baseline `04dcdb43fd7f944a700bf936eebef003546095eb`; fifth functional/build SHA `655e9ce0ade2d64a7738a6a479572fef9b6f0e2f`; post-publication head before STD-3 `c472b055ce00fd33efd96ac920b0add5f65ab8f7`; **200/200 PASS**.
+## GOV-3 verified publication — preserved historical evidence
+- baseline: `36edacb4eb374e0b56d6c9e9c45931fdb1e0af20`;
+- fifth functional SHA: `042f70d3cfd13467acc294bfff726edde9e16cb0`;
+- 5 ahead / 0 behind, same merge base;
+- GOV-3 gates: **200/200 PASS**.
 
-## Counts after STD-3 content
-- capabilities: **368** — 27 Command / 243 Investigate / 47 Govern / 51 Studio / 0 Endpoint;
-- delivery: **366 defined / 2 proposed / 368 planned**;
+## STD-1 verified publication — preserved historical evidence
+- baseline: `e0c23764df80a3d7109c156d1a2ee0962d19cda6`;
+- fifth functional SHA: `d9eb3001482989ab491e1c5446319f410d89d4e8`;
+- post-publication correction head before STD-2: `04dcdb43fd7f944a700bf936eebef003546095eb`;
+- STD-1 gates: **190/190 PASS**.
+
+## Counts after STD-2 content
+- capabilities: **350** — 27 Command / 243 Investigate / 47 Govern / 33 Studio / 0 Endpoint;
+- delivery: **348 defined / 2 proposed / 350 planned**;
 - Govern: **47 / 1269 / 282**;
 - Studio STD-1: **16 / 432 / 96**;
 - Studio STD-2: **17 / 459 / 102**;
-- Studio STD-3: **18 / 486 / 108**;
-- Studio cumulative: **51 / 1377 / 306**;
-- total: **9936 sections / 2208 mandatory tables**;
+- Studio cumulative: **33 / 891 / 198**;
+- total: **9450 sections / 2100 mandatory tables**;
 - Requirements: **122 = 99 conform / 20 partial / 3 absent / 0 contradictory**;
-- OPEN decisions: **18**; STD-3 creates/closes 0;
+- OPEN decisions: **18**; STD-2 creates/closes 0;
 - new Studio Screen IDs / detailed rewrites: **0 / 0**;
 - Endpoint capabilities / Screen IDs: **0 / 0**.
 
-## STD-3 build-time boundary
-STD-3 defines documentary Agent/Human Gate/Automation Run/runtime-control semantics only. Govern retains Approval/Decision/Response Run/Result and authority; Settings retains identities/providers/secrets/environments/runtime administration; Shared retains generic Jobs/queue/scheduling/Trace/Activity/Notifications/Recovery; Endpoint retains technical primitives.
-
-No runtime, scheduler, agent framework, model/provider, API/protocol, product code, final JSON Schema/RBAC, detailed screen rewrite, publishing/deployment or Endpoint capability is introduced.
-
-Build-time quality: **202 PASS / 8 PENDING-REMOTE / 0 FAIL**. STD-3 does not become PASS until the published fifth functional SHA is remotely verified and the canonical report is updated.
+## Boundary / maturity
+STD-2 is documentary Workflow/Builder/orchestration-definition coverage only. Shared retains generic Trace/Activity/Search/Jobs/Versioning/Recovery; Settings retains providers/integrations/credentials/secrets/tenant/environment administration; Govern retains Playbook/Approval/Decision/Response Run/Result/authority; Endpoint retains technical primitives. No runtime scheduler, Automation Run lifecycle, API/protocol, product code, final language, final JSON Schema, final RBAC/ABAC, detailed screen rewrite or Endpoint capability is introduced.
 
 ## Stop line
-**Do not start STD-4 or Endpoint implicitly.**
+STD-2 ends at Workflow definition/readiness/pre-publish boundaries. **Do not start STD-3, STD-4 or Endpoint implicitly.**
+
+## STD-2 verified publication
+- baseline: `04dcdb43fd7f944a700bf936eebef003546095eb`;
+- functional commits: `b96168ee222833b2d9e25d94d92a4f36d087218c` → `7117de53a0974079dc6999947185c96650865c4d` → `7aa35292bf2d4192d22ecbcd5c6fe37017fa2bde` → `ccca5733cbb0e25a818fb69cbab0490958d48d59` → `655e9ce0ade2d64a7738a6a479572fef9b6f0e2f`;
+- baseline → fifth functional SHA: **5 ahead / 0 behind**, same merge base;
+- PR #2 open/Draft/unmerged; base `main`;
+- README branch/main exact `# cmdr`, same blob `901c74cda52e28b5ff7fc425ddf28ef89f3ad875`;
+- CI/status: N/A (no commit statuses or workflow runs);
+- gates: **200/200 PASS**;
+- post-publication record changes no capability contract.
+
+## Current stop line after STD-2 PASS
+Studio capability specification remains **PARTIAL**. STD-3, STD-4 and Endpoint remain **NOT STARTED**. Delivery Roadmap Phase 5 and global/repository maturity remain **PARTIAL**.
+
+---
+
+## STD-3 current execution — post-publication correction state
+The complete STD-2 status above is preserved as the exact pre-STD-3 snapshot; its STD-3 `NOT STARTED` statements are historical evidence only.
+
+- baseline: `c472b055ce00fd33efd96ac920b0add5f65ab8f7`;
+- functional commits: `61950bb522e271cf55b1bd4f6052d06b1088870b` → `9336a2c5aee4e27942c6084eae55922ebc65f5fc` → `22e2609d0e3f4cccfaf13aa882208200a5118a6d` → `f275c65f7c96bb05ad406a37c0797a55763ca875` → `c658168c9de6bd803941116989bc3aaedf154260`;
+- baseline → fifth functional/build SHA: **5 ahead / 0 behind**, same merge base;
+- `CAP-STD-034..051`: **18 / 486 / 108**, all `draft / defined / planned`;
+- Studio cumulative: **51 / 1377 / 306**;
+- global: **368 capabilities / 366 defined / 2 proposed / 368 planned / 9936 sections / 2208 tables**;
+- Requirements: **122 = 99/20/3/0**; OPEN: **18**;
+- PR/README/main/CI remote checks on the build SHA passed; CI N/A;
+- post-publication audit found a real history-preservation divergence in index formatting; this correction restores the exact pre-STD-3 documents and appends STD-3 evidence without changing any `CAP-STD-*` contract.
+
+STD-3 remains **PENDING POST-PUBLICATION VERIFICATION** until the final verification record resolves the 210 gates. STD-4 and Endpoint remain **NOT STARTED**.
