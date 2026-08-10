@@ -3,7 +3,7 @@ id: dependency-register
 domain: 00-governance
 status: draft
 owner: Product Architecture
-updated: 2026-08-09
+updated: 2026-08-10
 source-of-truth: registry
 requirements:
   - REQ-PROD-006
@@ -106,5 +106,18 @@ This register records functional and documentary dependencies only. It chooses n
 | DEP-GOV-008 | Studio Tool/Tool Call/Workflow/Human Gate/Automation Run provenance | CAP-GOV-001,011,014,016 | automation/provenance | Studio objects remain Studio-owned; Human Gate != Approval/Decision and Automation Run != Response Run | partial | Studio / Govern | no essential AI dependency | REQ-AI-002,004; OPEN-007,015 | Studio/Objects |
 | DEP-GOV-009 | Shared Search/Linking/Versioning/Notifications/Jobs/Activity/Trace/Reporting/Collaboration/Inspector/Recovery | CAP-GOV-001..016 | shared mechanisms | Govern consumes generic mechanisms without creating duplicate engines or transferring business ownership | partial | Shared / Govern | yes where source mechanism required | REQ-PROD-019,020 | Shared/Technique |
 | DEP-GOV-010 | Execution Handoff Package to future GOV-2 and Audit/Metrics to future GOV-3 | CAP-GOV-016 | future boundary | GOV-1 ends at a no-effect package; Response Run, Result, target execution, verification, rollback, Audit Trail capabilities and Response Metrics remain not started | planned | Govern | yes before execution | REQ-PROD-004,015,020; OPEN-015 | GOV-2/GOV-3 |
+| DEP-STD4-001 | CAP-STD-052..060 | Evaluation/Simulation/Regression evidence | assurance | Studio assurance semantics only; no authority transfer | active | Studio | yes for documentary closure | REQ-PROD-016; OPEN-013 | STD-4 |
+| DEP-STD4-002 | CAP-STD-052..068 | Tool/Skill/Workflow/Agent/Automation Run exact versions | versioned dependency | consumes STD-1/2/3 without redefining them | active | Studio | yes | REQ-PROD-016,020 | STD-4 |
+| DEP-STD4-003 | CAP-STD-058/062/065/066/068 | Govern Approval/Decision/Response Run/Result | governance boundary | Studio references authority/outcomes; never synthesizes them | active/partial | Govern / Studio | yes where required | OPEN-007/013/015 | STD-4/Govern |
+| DEP-STD4-004 | CAP-STD-058/064..068 | tenant/environment/provider/integration/Secret Reference/health | Settings projection | administration and raw secrets remain Settings-owned | partial | Platform Settings / Studio | yes where required | REQ-PROD-017; OPEN-008/013 | STD-4/Settings |
+| DEP-STD4-005 | CAP-STD-052..068 | Jobs/Trace/Activity/Reporting/Export/Notifications/Versioning/Recovery | shared mechanism | generic engines remain Shared-owned | partial | Shared / Studio | yes where required | REQ-PROD-019,020 | STD-4/Shared |
+| DEP-STD4-006 | CAP-STD-064..068 | Endpoint technical deployment/update/runtime | endpoint boundary | Studio deployment target does not create Endpoint deployment semantics | open/partial | Endpoint Agent / Studio | before Endpoint delivery | OPEN-008 | Endpoint future |
+| DEP-STD4-007 | CAP-STD-052..067 | Security permission model | security | functional needs only; permission namespace remains unresolved | partial | Security / Studio | yes | REQ-SEC-001,002; OPEN-013 | Permissions |
+| DEP-STD4-008 | CAP-STD-061..067 | exact Studio Version lineage | lifecycle | release/promotion/deployment/deprecation pin immutable versions | active | Studio | yes | REQ-OBJ-009 | STD-4 |
+| DEP-STD4-009 | CAP-STD-066 | prior Studio asset version | reversion | Studio Deployment Reversion != Govern Response Rollback | active | Studio / Govern boundary | yes | OPEN-015 | STD-4/Govern |
+| DEP-STD4-010 | CAP-STD-068 | STD-1/2/3/4 evidence + registers | closure | documentary Studio closure; no implementation claim | active | Studio / Product Architecture | yes for closure | REQ-PROD-006,020 | STD-4 |
 
 Eighteen decisions are open. OPEN-006 remains open for Customers and Delivery, OPEN-007 for Human Gate/Govern Decision-Approval semantics, OPEN-010 for final role/activity density, OPEN-011 for Mobile delivery strategy, OPEN-012 for Cloud delivery strategy, OPEN-013 for default governance of class-2 mutations, OPEN-015 for the Automation Run/Response Run bridge, OPEN-017 for Detection runtime, OPEN-018 for Threat Intelligence ontology/interoperability and OPEN-019 for Intelligence dissemination/releasability/sharing/access. Cloud and Mobile provider-neutral capability specifications are verified PASS. `Capability Specification Phase 4A — Command` and `Capability Specification Phase 4B — Investigate` remain PASS. GOV-1 functional documentation is complete but remains **PENDING POST-PUBLICATION VERIFICATION** until the fifth functional commit and remote gates are verified; Govern capability specification and global capability-specification maturity remain PARTIAL.
+
+## Studio STD-4 canonical dependency addendum
+The ten `DEP-STD4-*` rows above are canonical functional/documentary dependencies for STD-4. They do not declare an implementation, close any OPEN, create an Endpoint capability or transfer Govern/Settings/Shared/Endpoint ownership.
