@@ -87,3 +87,15 @@ The full STD-1/STD-2 roadmap text above is preserved as the exact pre-STD-3 snap
 - post-publication history-preservation correction is being recorded before the final 210-gate verdict.
 
 STD-3 remains **PENDING POST-PUBLICATION VERIFICATION**. STD-4 and Endpoint remain **NOT STARTED**; Delivery Roadmap Phase 5 and global/repository maturity remain PARTIAL.
+
+## STD-3 final verification addendum
+The preceding `PENDING` state is preserved as historical evidence. STD-3 final documentary verdict is **PASS AFTER POST-PUBLICATION VERIFICATION — 210/210 gates PASS, 0 PENDING, 0 FAIL**.
+
+- canonical companion: `../16-quality-and-validation/reports/studio-std3-agents-human-gates-runtime-control-post-publication-verification.md`;
+- history restoration: `bff197f7cc33296220a211425f62ac6b806a5f7a` changes no capability contract;
+- Studio now has **51 capabilities / 1377 sections / 306 mandatory tables** across STD-1/2/3;
+- global total: **368 capabilities / 9936 sections / 2208 mandatory tables**;
+- STD-4 — Assurance & Lifecycle: **NOT STARTED**;
+- Endpoint capability specification: **NOT STARTED**;
+- Delivery Roadmap Phase 5 overall remains **PARTIAL**;
+- next candidate is STD-4, but **do not begin it implicitly**.

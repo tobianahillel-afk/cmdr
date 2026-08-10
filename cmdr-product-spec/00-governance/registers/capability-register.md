@@ -86,4 +86,7 @@ The Command shard remains 27 unique IDs, 26 defined / 1 proposed / 27 planned, w
 - No `CAP-EPT-*` capability exists.
 - Permission namespace ambiguity `perm.studio.*` vs `perm.cmdr-studio.*` remains documented and unresolved; no atomic namespace is selected.
 
+## Studio STD-3 final verification addendum
+The build-time `PENDING` line above is retained as historical evidence. Current final documentary status is **PASS AFTER POST-PUBLICATION VERIFICATION — 210/210 gates PASS**. The canonical companion is `16-quality-and-validation/reports/studio-std3-agents-human-gates-runtime-control-post-publication-verification.md`. STD-4 and Endpoint remain NOT STARTED.
+
 No capability is marked implemented, promoted, deployed, active, native or integrated by this registry; documentary PASS never proves implementation.

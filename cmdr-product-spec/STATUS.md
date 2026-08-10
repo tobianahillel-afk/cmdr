@@ -85,3 +85,15 @@ The complete STD-2 status above is preserved as the exact pre-STD-3 snapshot; it
 - post-publication audit found a real history-preservation divergence in index formatting; this correction restores the exact pre-STD-3 documents and appends STD-3 evidence without changing any `CAP-STD-*` contract.
 
 STD-3 remains **PENDING POST-PUBLICATION VERIFICATION** until the final verification record resolves the 210 gates. STD-4 and Endpoint remain **NOT STARTED**.
+
+## STD-3 final verified publication
+The preceding `PENDING` state is the preserved pre-final snapshot. Final documentary status is **PASS AFTER POST-PUBLICATION VERIFICATION — 210/210 gates PASS, 0 PENDING, 0 FAIL**.
+
+- build SHA: `c658168c9de6bd803941116989bc3aaedf154260`;
+- history-restoration commit: `bff197f7cc33296220a211425f62ac6b806a5f7a`;
+- canonical companion: `16-quality-and-validation/reports/studio-std3-agents-human-gates-runtime-control-post-publication-verification.md`;
+- PR #2 remains open/Draft/unmerged on `main`;
+- root README branch/main unchanged; CI N/A;
+- STD-1/STD-2 and Command/Investigate/Govern PASS histories preserved;
+- STD-4 and Endpoint remain **NOT STARTED**;
+- Studio capability specification, Delivery Roadmap Phase 5 and global/repository maturity remain **PARTIAL**.

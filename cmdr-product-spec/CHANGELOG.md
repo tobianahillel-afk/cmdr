@@ -1,5 +1,31 @@
 # Changelog
 
+## 2026-08-10 — Studio STD-3 post-publication verified execution
+- Executed **STD-3 — Agents, Human Gates & Runtime Control** under **Delivery Roadmap Phase 5 — Studio and Endpoint**, canonical id `roadmap-phase-5-studio-and-endpoint`; STD-3 is an execution lot only and creates no Phase 5A/5B/5C/5D.
+- Verified exact starting baseline `c472b055ce00fd33efd96ac920b0add5f65ab8f7` with STD-1/STD-2 verified evidence intact, PR #2 open/Draft/unmerged on `main`, branch/main README exact `# cmdr`, no existing `CAP-STD-034+` and Endpoint capabilities at 0.
+- Added exactly **18** capabilities `CAP-STD-034..051`, all `draft / defined / planned`, covering Automation Agents, Agent Teams, bounded objectives/access/planning/oversight, Human Gate request/lifecycle, Automation Run creation/lifecycle/steps/attempts, queue/scheduling/concurrency, start/pause/resume/stop/cancel, runtime failures/retries/partial completion, transient context, Control Room, outcome/handoff and provenance.
+- Structural result: **18/18 capability files / 486/486 numbered sections / 108/108 mandatory tables / 59 Given/When/Then scenarios**, 0 empty/generic mandatory table, 0 duplicate/recycled ID and 0 owner conflict.
+- Published five functional commits linearly from the baseline:
+  1. `61950bb522e271cf55b1bd4f6052d06b1088870b` — `docs: establish Studio agent Human Gate and runtime boundaries`;
+  2. `9336a2c5aee4e27942c6084eae55922ebc65f5fc` — `docs: define Studio agents teams access and bounded autonomy`;
+  3. `22e2609d0e3f4cccfaf13aa882208200a5118a6d` — `docs: specify Studio Human Gates automation runs and runtime control`;
+  4. `f275c65f7c96bb05ad406a37c0797a55763ca875` — `docs: document Studio runtime failures outcomes and provenance`;
+  5. `c658168c9de6bd803941116989bc3aaedf154260` — `docs: update Studio runtime traceability and quality gates`.
+- Verified baseline → fifth functional/build SHA at **5 ahead / 0 behind with the same merge base**.
+- Post-publication audit found historical condensation/reformatting in selected index/status documents; restored their exact pre-STD-3 content and appended STD-3 evidence in `bff197f7cc33296220a211425f62ac6b806a5f7a` — `docs: restore Studio STD-3 historical evidence after publication audit`; that correction modifies no `CAP-STD-*` contract.
+- Verified PR #2 remains open/Draft/unmerged, base `main`; `main` remains `bc1ec59e5e79ccbaba291e2984b0eb7d5e54129c`; branch/main README remain exact `# cmdr` with blob `901c74cda52e28b5ff7fc425ddf28ef89f3ad875`; build SHA has no commit statuses or workflow runs, so CI = N/A.
+- Preserved STD-1 **190/190**, STD-2 **200/200**, Command 27 PASS, Investigate 243 PASS, Govern 47 PASS and historical Govern 180/190/200 gate evidence.
+- Preserved all **18 OPEN** decisions; OPEN-007/013/015 remain open, OPEN-008 remains Endpoint, and STD-3 creates/closes 0.
+- Preserved ownership: Govern retains Approval/Decision/Playbook/Response Run/Result and production-response authority; Settings retains identities/providers/integrations/secrets/tenant-environment/admin health; Shared retains generic Jobs/queue/scheduling/Trace/Activity/Notifications/Search/Versioning/Recovery; Endpoint retains endpoint technical primitives/local queue-retry mechanics.
+- Preserved mandatory non-equivalence: Agent objective/role/access/proposal ≠ authorization/action; Human Gate ≠ Approval/Decision; `accepted-for-workflow` ≠ Govern approval; Automation Run ≠ Response Run/Shared Job; created/queued/scheduled/start-requested ≠ running; Attempt ≠ Run; cancel ≠ rollback; retry ≠ new authorization; idempotency ≠ exactly-once; Tool Call/step success ≠ Run success; runtime outcome ≠ Govern Result; transient context ≠ canonical object/permanent memory.
+- AI remains optional and cannot grant permission/authority, self-approve, bypass Human Gates, reveal raw secrets, expand scope silently, retry indefinitely or alter provenance.
+- Recalculated current totals to **368 capabilities — 27 Command / 243 Investigate / 47 Govern / 51 Studio / 0 Endpoint; 366 defined / 2 proposed / 368 planned; 9936 sections / 2208 mandatory tables**; Studio cumulative **51 / 1377 / 306**.
+- Requirements remain **122 = 99 conform / 20 partial / 3 absent / 0 contradictory**.
+- No new Screen ID, detailed screen rewrite, agent framework, model/provider, scheduler implementation, API, protocol, product code, final Automation Run physical schema, final JSON Schema/RBAC, publishing/deployment engine or Endpoint capability was introduced.
+- Final STD-3 verdict: **PASS AFTER POST-PUBLICATION VERIFICATION — 210/210 gates PASS, 0 PENDING, 0 FAIL**.
+- The exact SHA of the final verification-record commit is recorded in PR #2 immediately after publication to avoid self-referential commit metadata.
+- Studio capability specification remains PARTIAL; STD-4 and Endpoint remain NOT STARTED; Delivery Roadmap Phase 5 and global/repository maturity remain PARTIAL.
+
 ## 2026-08-10 — Studio STD-2 post-publication verified execution
 - Executed **STD-2 — Workflow Builder & Orchestration** under **Delivery Roadmap Phase 5 — Studio and Endpoint**, canonical id `roadmap-phase-5-studio-and-endpoint`; STD-2 remains an execution lot and creates no Phase 5A/5B/5C/5D.
 - Verified exact starting baseline `04dcdb43fd7f944a700bf936eebef003546095eb` with STD-1 post-publication evidence intact, PR #2 open/Draft/unmerged on `main`, branch/main README exact `# cmdr`, no existing `CAP-STD-017+` and Endpoint capabilities at 0.

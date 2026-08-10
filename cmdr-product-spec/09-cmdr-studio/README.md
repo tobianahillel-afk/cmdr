@@ -114,3 +114,6 @@ The STD-1 and STD-2 sections above are preserved as exact historical snapshots. 
 
 ### STD-3 additional non-equivalence
 Automation Agent != Workflow/Skill/Tool/Automation Run/human user; Agent Team != human Team/Workflow; role/objective/access/proposal/plan != authorization/action; Human Gate != Approval/Decision; Automation Run != Workflow/Version/Tool Call/Job/Response Run; created/queued/start-requested != running; paused != stopped; cancellation != rollback; retry attempt != Run; retry != new Run; idempotency != exactly-once; Tool Call/step success != Run success; partial completion != success; Studio outcome != Govern Result/Evidence/Finding; Control Room != Command Work Queue/Govern Runs & Rollback.
+
+## STD-3 final verification addendum
+STD-3 final documentary verdict is **PASS AFTER POST-PUBLICATION VERIFICATION — 210/210 gates PASS, 0 PENDING, 0 FAIL**. Canonical evidence: `../16-quality-and-validation/reports/studio-std3-agents-human-gates-runtime-control-post-publication-verification.md`. Studio capability specification remains PARTIAL because STD-4 is NOT STARTED; Endpoint remains NOT STARTED.

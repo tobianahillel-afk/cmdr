@@ -29,3 +29,6 @@ The STD-2 `PENDING` and `STD-3 NOT STARTED` lines above are preserved as the his
 - STD-3 fifth functional/build SHA: `c658168c9de6bd803941116989bc3aaedf154260`.
 - STD-3 post-publication verification is being recorded after a history-preservation correction.
 - STD-4 and Endpoint remain NOT STARTED.
+
+## STD-3 final verification
+STD-3 is **PASS AFTER POST-PUBLICATION VERIFICATION — 210/210 gates PASS, 0 PENDING, 0 FAIL**. The prior `PENDING`/`NOT STARTED` lines are historical snapshots only. Documentary PASS does not imply an implemented runtime. STD-4 and Endpoint remain NOT STARTED.

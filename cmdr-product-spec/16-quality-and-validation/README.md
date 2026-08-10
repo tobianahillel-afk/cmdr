@@ -93,3 +93,15 @@ The complete pre-STD-3 quality text above is preserved verbatim. Its STD-3 `NOT 
 - a real documentary condensation divergence was found in index files; this correction restores the baseline verbatim and appends STD-3 without modifying capability contracts.
 
 Current content totals: **368 capabilities / 366 defined / 2 proposed / 368 planned / 9936 sections / 2208 tables**; Studio **51 / 1377 / 306**; Endpoint 0; Requirements and OPEN unchanged. Final STD-3 PASS is not declared until the verification record closes all 210 gates.
+
+## Studio STD-3 — final verified addendum
+The preceding build/correction states are preserved as historical evidence. Canonical final companion: `reports/studio-std3-agents-human-gates-runtime-control-post-publication-verification.md`.
+
+- final verdict: **PASS AFTER POST-PUBLICATION VERIFICATION — 210/210 gates PASS, 0 PENDING, 0 FAIL**;
+- structural result: **18 / 486 / 108** with 59 Given/When/Then scenarios;
+- build SHA: `c658168c9de6bd803941116989bc3aaedf154260`;
+- history-restoration SHA: `bff197f7cc33296220a211425f62ac6b806a5f7a`;
+- PR #2 metadata updated additively; final verification-record SHA is recorded there after publication;
+- no capability contract changed in post-publication documentary records;
+- STD-4 and Endpoint remain NOT STARTED;
+- Studio capability specification and Delivery Roadmap Phase 5 remain PARTIAL.
