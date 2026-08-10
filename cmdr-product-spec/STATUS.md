@@ -97,3 +97,19 @@ The preceding `PENDING` state is the preserved pre-final snapshot. Final documen
 - STD-1/STD-2 and Command/Investigate/Govern PASS histories preserved;
 - STD-4 and Endpoint remain **NOT STARTED**;
 - Studio capability specification, Delivery Roadmap Phase 5 and global/repository maturity remain **PARTIAL**.
+
+---
+
+## STD-4 current execution — build-time closure state
+The complete STD-1/2/3 status above remains historical evidence; earlier `STD-4 NOT STARTED` statements are snapshots only.
+
+- baseline: `9babd679f52f3f28458a5f8f4d9c76698ebf875a`;
+- `CAP-STD-052..068`: **17 / 459 / 102**, all `draft / defined / planned`;
+- Studio cumulative content: **68 / 1836 / 408**;
+- global content totals: **385 capabilities / 383 defined / 2 proposed / 385 planned / 10395 sections / 2310 tables**;
+- Requirements: **122 = 99/20/3/0**; OPEN: **18**;
+- Endpoint: **0 / NOT STARTED**;
+- content closure audit: **positive** — no mandatory Studio capability family missing, no owner conflict, no capability-layer placeholder or blocking competing source found;
+- build-time gates: **212 PASS / 8 PENDING-REMOTE / 0 FAIL**.
+
+STD-4 and Studio remain **PENDING POST-PUBLICATION VERIFICATION / PARTIAL** until the fifth functional commit is remotely verified at 220/220. Delivery Roadmap Phase 5 remains **PARTIAL** regardless because Endpoint is NOT STARTED. No implementation/API/protocol/engine/final schema/RBAC or Endpoint capability is introduced.

@@ -47,3 +47,11 @@ AI may propose a bounded Agent plan, next-step/Tool/Skill candidate, missing-inp
 AI may never grant permission, expand scope, authorize a production effect, create Govern Approval/Decision, bypass a Human Gate, reveal a raw secret, restart/retry silently, retry indefinitely, hide errors, alter provenance or create a Govern Result/Evidence/Finding.
 
 Every essential STD-3 management function retains a non-AI path through Workflow-defined behavior, explicit Human Gates, deterministic eligibility/retry/readiness/status checks and human Control Room controls. STD-3 selects no agent framework, model or provider.
+
+## STD-4 — Assurance & Lifecycle addendum
+
+AI may propose Evaluation Cases/expected outcomes, summarize source-backed Evaluation/Simulation results, identify regression candidates, suggest failure modes/readiness issues, generate release summaries/migration notes and explain deployment anomalies.
+
+AI may never declare an asset production-safe by itself, publish or deploy autonomously, grant permission/authority, bypass Govern/Human Gates, invent or suppress evaluation results, hide a regression, reveal a raw secret, silently reclassify an evaluation, delete lifecycle history or declare Studio PASS without the closure gates.
+
+Every essential STD-4 path has a non-AI alternative: human-authored suites/reviews, deterministic checks/comparisons/gates, no-effect simulations and explicit accountable lifecycle actions. STD-4 selects no model/provider, evaluation engine, simulation engine or deployment engine.

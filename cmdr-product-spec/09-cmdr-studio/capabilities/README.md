@@ -32,3 +32,10 @@ The STD-2 `PENDING` and `STD-3 NOT STARTED` lines above are preserved as the his
 
 ## STD-3 final verification
 STD-3 is **PASS AFTER POST-PUBLICATION VERIFICATION — 210/210 gates PASS, 0 PENDING, 0 FAIL**. The prior `PENDING`/`NOT STARTED` lines are historical snapshots only. Documentary PASS does not imply an implemented runtime. STD-4 and Endpoint remain NOT STARTED.
+
+## STD-4 build-time addendum
+The earlier `STD-4 NOT STARTED` statements are preserved historical snapshots.
+
+`CAP-STD-052..068`: **17 capabilities / 459 sections / 102 mandatory tables**, all `draft / defined / planned`, covering Evaluation/Suites/Simulation/Regression/Reliability/Safety/Boundary Assurance/Results/Readiness and publishing/release/deployment/reversion/deprecation/retirement/migration/provenance.
+
+Studio cumulative content: **68 capabilities / 1836 sections / 408 mandatory tables**. Content closure audit is positive, but STD-4 remains **PENDING POST-PUBLICATION VERIFICATION — 212 PASS / 8 PENDING-REMOTE / 0 FAIL** until remote checks complete. Endpoint remains NOT STARTED.

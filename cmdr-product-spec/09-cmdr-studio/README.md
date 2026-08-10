@@ -117,3 +117,21 @@ Automation Agent != Workflow/Skill/Tool/Automation Run/human user; Agent Team !=
 
 ## STD-3 final verification addendum
 STD-3 final documentary verdict is **PASS AFTER POST-PUBLICATION VERIFICATION — 210/210 gates PASS, 0 PENDING, 0 FAIL**. Canonical evidence: `../16-quality-and-validation/reports/studio-std3-agents-human-gates-runtime-control-post-publication-verification.md`. Studio capability specification remains PARTIAL because STD-4 is NOT STARTED; Endpoint remains NOT STARTED.
+
+---
+
+## STD-4 — Assurance & Lifecycle — build-time addendum
+The sections above remain exact historical evidence. Their earlier `STD-4 NOT STARTED` statements are historical snapshots only.
+
+- `CAP-STD-052..068`;
+- **17 capabilities / 459 sections / 102 mandatory tables / 68 Given/When/Then scenarios**;
+- evaluation, suites/cases, deterministic/assisted evaluation, simulation, regression, reliability/safety, boundary assurance, Evaluation Result and readiness;
+- Publishing Candidate, publication lifecycle, release/promotion/channel, deployment compatibility/lifecycle, health/reversion, deprecation/retirement/migration and lifecycle provenance;
+- content closure audit across `CAP-STD-001..068` is positive;
+- Studio cumulative content: **68 capabilities / 1836 sections / 408 mandatory tables**;
+- build-time gates: **212 PASS / 8 PENDING-REMOTE / 0 FAIL**;
+- Studio remains **PARTIAL / PENDING POST-PUBLICATION VERIFICATION** until 220/220 remote closure;
+- Endpoint remains **NOT STARTED** and Delivery Roadmap Phase 5 remains **PARTIAL**.
+
+### STD-4 boundaries
+Evaluation != Simulation/runtime/Approval; Evaluation Result != Govern Result; readiness != authorization; candidate != published; published != deployed; Deployment Reversion != Govern Response Rollback; retired != deleted; Studio PASS != implementation or Endpoint completion. No engine/API/protocol/code/final JSON Schema/RBAC/provider/runtime selection is introduced.

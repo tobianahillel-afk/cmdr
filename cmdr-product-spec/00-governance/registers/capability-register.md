@@ -45,7 +45,8 @@ Registry validation checks duplicate/recycled IDs, concurrent owners, missing ca
 | `capability-register-studio-std1.md` | Studio STD-1 CAP-STD-001..016 | 16 | 16 | 0 | 16 planned |
 | `capability-register-studio-std2.md` | Studio STD-2 CAP-STD-017..033 | 17 | 17 | 0 | 17 planned |
 | `capability-register-studio-std3.md` | Studio STD-3 CAP-STD-034..051 | 18 | 18 | 0 | 18 planned |
-| **Total** | **All registered capabilities** | **368** | **366** | **2** | **368 planned** |
+| `capability-register-studio-std4.md` | Studio STD-4 CAP-STD-052..068 | 17 | 17 | 0 | 17 planned |
+| **Total** | **All registered capabilities** | **385** | **383** | **2** | **385 planned** |
 
 ## Product totals
 - Command: **27** capabilities, 729 sections, 162 mandatory tables.
@@ -57,7 +58,8 @@ Registry validation checks duplicate/recycled IDs, concurrent owners, missing ca
 - Studio STD-1: **16** capabilities, **432** sections, **96** mandatory tables.
 - Studio STD-2: **17** capabilities, **459** sections, **102** mandatory tables.
 - Studio STD-3: **18** capabilities, **486** sections, **108** mandatory tables.
-- Studio cumulative: **51** capabilities, **1377** sections, **306** mandatory tables.
+- Studio STD-4: **17** capabilities, **459** sections, **102** mandatory tables.
+- Studio cumulative: **68** capabilities, **1836** sections, **408** mandatory tables.
 - Endpoint: **0** capabilities; NOT STARTED.
 - CAP-INV-3xx / 4xx / 5xx / 6xx / 7xx: **97 / 35 / 37 / 18 / 19**.
 - Detection Engineering: **35 capabilities, 945 sections, 210 tables**.
@@ -67,7 +69,7 @@ Registry validation checks duplicate/recycled IDs, concurrent owners, missing ca
 - Phase 4B.4 Cloud + Mobile: **37 capabilities, 999 sections, 222 tables**.
 - Command + Investigate: **270 capabilities, 7290 sections, 1620 tables**.
 - Command + Investigate + Govern: **317 capabilities, 8559 sections, 1902 mandatory tables**.
-- Command + Investigate + Govern + Studio: **368 capabilities, 9936 sections, 2208 mandatory tables**.
+- Command + Investigate + Govern + Studio: **385 capabilities, 10395 sections, 2310 mandatory tables**.
 
 ## Command registry state
 The Command shard remains 27 unique IDs, 26 defined / 1 proposed / 27 planned, with current native/integrated claims equal to 0. `CAP-CMD-401` remains deployment-dependent under OPEN-006.
@@ -81,12 +83,12 @@ The Command shard remains 27 unique IDs, 26 defined / 1 proposed / 27 planned, w
 ## Studio registry state
 - STD-1: 16 unique `CAP-STD-001..016`, all `draft / defined / planned`, 432 sections, 96 mandatory tables; **PASS AFTER POST-PUBLICATION VERIFICATION — 190/190**.
 - STD-2: 17 unique `CAP-STD-017..033`, all `draft / defined / planned`, 459 sections, 102 mandatory tables; **PASS AFTER POST-PUBLICATION VERIFICATION — 200/200**.
-- STD-3: 18 unique `CAP-STD-034..051`, all `draft / defined / planned`, 486 sections, 108 mandatory tables; **PENDING POST-PUBLICATION VERIFICATION** at build time.
-- STD-4 remains NOT STARTED.
+- STD-3: 18 unique `CAP-STD-034..051`, all `draft / defined / planned`, 486 sections, 108 mandatory tables; historical build PENDING retained; current final **PASS AFTER POST-PUBLICATION VERIFICATION — 210/210**.
+- STD-4: 17 unique `CAP-STD-052..068`, all `draft / defined / planned`, 459 sections, 102 mandatory tables; **PENDING POST-PUBLICATION VERIFICATION** at build time.
 - No `CAP-EPT-*` capability exists.
 - Permission namespace ambiguity `perm.studio.*` vs `perm.cmdr-studio.*` remains documented and unresolved; no atomic namespace is selected.
 
-## Studio STD-3 final verification addendum
-The build-time `PENDING` line above is retained as historical evidence. Current final documentary status is **PASS AFTER POST-PUBLICATION VERIFICATION — 210/210 gates PASS**. The canonical companion is `16-quality-and-validation/reports/studio-std3-agents-human-gates-runtime-control-post-publication-verification.md`. STD-4 and Endpoint remain NOT STARTED.
+## Studio STD-4 closure addendum
+The content audit finds all required Studio capability families represented across `CAP-STD-001..068`, with **68 / 1836 / 408** cumulative structure, no owner conflict and no capability-layer placeholder. Studio may become PASS only after STD-4 reaches **220/220** post-publication. Delivery Roadmap Phase 5 remains PARTIAL because Endpoint is NOT STARTED.
 
 No capability is marked implemented, promoted, deployed, active, native or integrated by this registry; documentary PASS never proves implementation.

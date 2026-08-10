@@ -88,4 +88,29 @@ The STD-1 table above is preserved verbatim as historical evidence; its Workflow
 | Endpoint Capability | Endpoint Agent | future executor reference | read/reference only | no Endpoint capability created | Endpoint future |
 | Job / Trace / Activity | Shared Capabilities | generic execution/provenance mechanisms | consume/link | not Automation Run business object | Shared |
 
+## STD-4 assurance/lifecycle concept addendum
+
+| Object/concept | Canonical owner | Studio usage | Local operations | Boundary |
+|---|---|---|---|---|
+| Evaluation Definition / Suite / Case | CMDR Studio | assurance design | create/read/review/supersede | no physical test format selected |
+| Evaluation Observation / Result | CMDR Studio | attributed assessment output | create/read/compare | Evaluation Result != Govern Result |
+| Simulation Scenario / Result | CMDR Studio | no-effect scenario evidence | create/run-no-effect/read | simulation != production execution |
+| Regression Assessment | CMDR Studio | baseline/candidate comparison | create/read/review | regression != bug/root cause automatically |
+| Reliability / Safety Assessment | CMDR Studio | failure/safety evidence | create/read/review | assessment != authority |
+| Boundary Assurance Assessment | CMDR Studio | permission/owner/dependency projection | create/read/review | PASS != Govern Approval/Decision |
+| Quality Gate / Readiness Assessment | CMDR Studio | readiness evidence | create/read/review | ready != authorized/published |
+| Publishing Candidate Package | CMDR Studio | release-preparation record | create/read/review | package != publication |
+| Published Studio Asset Version | CMDR Studio | immutable published lifecycle ref | create/reference/supersede | published != deployed |
+| Studio Asset Release / Promotion | CMDR Studio | lifecycle/channel semantics | create/read/promote | admin channel config remains Settings-owned |
+| Deployment Compatibility Assessment | CMDR Studio | target compatibility | create/read/review | target != Endpoint target automatically |
+| Studio Deployment / Rollout Stage | CMDR Studio | Studio asset deployment lifecycle | create/read/control | no deployment engine selected |
+| Deployment Health Assessment | CMDR Studio | Studio asset availability/health | create/read | health != business success |
+| Deployment Reversion Record | CMDR Studio | previous-version recovery | create/read | **not Govern Response Rollback** |
+| Deprecation / Retirement Record | CMDR Studio | asset lifecycle | create/read | retired != deleted; history retained |
+| Migration Plan | CMDR Studio | consumer migration preparation | create/read | migration != automatic conversion |
+| Approval / Decision / Response Run / Result | Govern | authority/outcome refs | read/link only | no ownership transfer |
+| Provider / Integration / Secret / Environment | Platform Settings | dependency projections | read/reference only | no raw secret/admin config transfer |
+| Endpoint Agent / update primitive | Endpoint Agent | technical boundary ref | read/reference only | no CAP-EPT created |
+| Job / Trace / Activity / Report / Export / Notification | Shared | generic mechanisms | consume/link | no competing generic engine |
+
 No physical schema or JSON Schema is introduced by this map.

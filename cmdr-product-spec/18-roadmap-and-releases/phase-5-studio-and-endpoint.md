@@ -99,3 +99,20 @@ The preceding `PENDING` state is preserved as historical evidence. STD-3 final d
 - Endpoint capability specification: **NOT STARTED**;
 - Delivery Roadmap Phase 5 overall remains **PARTIAL**;
 - next candidate is STD-4, but **do not begin it implicitly**.
+
+## STD-4 current execution addendum
+The complete STD-1/2/3 roadmap text above remains preserved. Earlier `STD-4 NOT STARTED` / `next candidate` text is historical evidence only.
+
+- execution lot: **STD-4 — Assurance & Lifecycle**;
+- `CAP-STD-052..068`: **17 capabilities / 459 sections / 102 mandatory tables**;
+- content: Evaluation/Suites/Cases, deterministic/assisted evaluation, Simulation, Regression, Reliability/Safety, Boundary Assurance, Evaluation Result, Quality Gates/Readiness, Publishing Candidate/Review, release/promotion/channel, deployment compatibility/lifecycle/health/reversion, deprecation/retirement/migration and lifecycle provenance;
+- Studio cumulative content: **68 capabilities / 1836 sections / 408 mandatory tables**;
+- global content total: **385 capabilities / 10395 sections / 2310 mandatory tables**;
+- content closure audit across Studio is positive;
+- build-time gates: **212 PASS / 8 PENDING-REMOTE / 0 FAIL**;
+- Studio is **PARTIAL / PENDING POST-PUBLICATION VERIFICATION** until 220/220;
+- Endpoint capability specification remains **NOT STARTED / 0**;
+- Delivery Roadmap Phase 5 remains **PARTIAL** and must remain PARTIAL even after Studio PASS until Endpoint closes;
+- no Phase 5A/B/C/D/E, no implementation, no Endpoint capability.
+
+Next after successful Studio closure: **Endpoint lot 1 — Enrollment, Inventory, Health and Platform Foundations**, but it must not start in STD-4.

@@ -42,3 +42,15 @@ STD-2 adds no class-3/4 execution authority. A Workflow definition or validation
 | 4 | destructive/irreversible authority | not created by STD-3 | Govern/runtime owner only |
 
 Agent objective/role/access, Human Gate response and Automation Run control never create parallel authority. Studio compensation remains distinct from Govern rollback.
+
+## STD-4 action-classification addendum
+
+| Class | STD-4 meaning | Representative actions | Boundary |
+|---:|---|---|---|
+| 0 | observation | inspect evaluations/simulations/results/readiness/publication/deployment/lifecycle | read under source permissions |
+| 1 | no-effect assurance | deterministic evaluation, compatibility, simulation, regression comparison, readiness assessment | no production effect/authority |
+| 2 | reversible/versioned preparation | Evaluation Suite, no-effect evaluation, Publishing Candidate, review submission, deployment candidate, migration/deprecation preparation | OPEN-013 remains open |
+| 3 | lifecycle action with real effect | publish, promote, staged deployment or reversion where the action actually affects a runtime/consumer | current permissions and applicable Govern/Settings/technical authority |
+| 4 | irreversible/destructive | no history deletion defined by STD-4 | outside STD-4; heightened authority required |
+
+Quality Gate/Readiness/Publishing Review never creates Govern Approval/Decision. Studio Deployment Reversion is Studio asset lifecycle control and is not Govern Response Rollback.

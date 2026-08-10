@@ -65,3 +65,23 @@ The prior `STD-3 NOT STARTED` cells above are preserved as the exact STD-2 closu
 | STD-DEP-001 | runtime refs do not imply deployment/promotion | STD-4 NOT STARTED |
 
 After STD-3 content: new Screen IDs = **0**; detailed rewrites/wireframes/final buttons/columns/filters/animations/shortcuts = **0**; Endpoint Screen IDs = **0**.
+
+## STD-4 capability-link addendum
+
+The historical `STD-4 NOT STARTED` cells above remain preserved snapshots. STD-4 adds conceptual links only.
+
+| Screen ID | STD-4 relevance | Disposition |
+|---|---|---|
+| STD-EVL-001 | primary CAP-STD-052..054/059/060 | existing screen unchanged; “Approve result” does not mean Govern Approval |
+| STD-SIM-001 | primary CAP-STD-055..057/059/060 | existing screen unchanged; no sandbox engine selected |
+| STD-DEP-001 | primary CAP-STD-061..067 | existing screen unchanged; “Rollback” normalized functionally as Studio Deployment Reversion |
+| STD-ASR-001 | primary CAP-STD-052..060/068 | existing screen unchanged; “Approve promotion” does not create Govern Approval |
+| STD-LIB-001 | published/deprecated/version discovery | existing screen unchanged |
+| STD-SKL-001 | evaluated/released Skill version links | existing screen unchanged |
+| STD-WFL-001 | evaluated/released Workflow version links | existing screen unchanged |
+| STD-BLD-001 | readiness/publishing handoff refs | existing screen unchanged |
+| STD-AGT-001 | evaluated/released Agent refs | existing screen unchanged |
+| STD-ATM-001 | team-related assurance refs | existing screen unchanged |
+| STD-CTL-001 | deployment/runtime health correlation only | existing screen unchanged; deployment health != Run/business success |
+
+After STD-4 content: new Screen IDs = **0**; detailed rewrites/wireframes/final buttons/columns/filters/animations/shortcuts = **0**; Endpoint Screen IDs = **0**.

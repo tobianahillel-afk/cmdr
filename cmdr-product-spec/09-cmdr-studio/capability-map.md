@@ -86,3 +86,29 @@ The STD-1 and STD-2 sections above remain exact historical snapshots. Their pre-
 | CAP-STD-051 | Studio Runtime Provenance and Cross-Product Contracts | Provenance/boundary | defined / planned |
 
 STD-3 content total: **18 capabilities / 486 sections / 108 mandatory tables**. Studio cumulative: **51 capabilities / 1377 sections / 306 mandatory tables**. Post-publication documentary verification is in progress; STD-4 and Endpoint remain NOT STARTED.
+
+## STD-4 addendum — Assurance & Lifecycle
+
+The STD-1/2/3 text above is preserved as historical evidence; earlier `STD-4 NOT STARTED` statements are historical snapshots only.
+
+| ID | Capability | Functional family | Delivery |
+|---|---|---|---|
+| CAP-STD-052 | Studio Evaluation Definition and Success Criteria | Evaluation | defined / planned |
+| CAP-STD-053 | Evaluation Suite, Cases, Inputs and Expected Outcomes | Evaluation suites | defined / planned |
+| CAP-STD-054 | Deterministic and Assisted Evaluation Execution | Evaluation execution | defined / planned |
+| CAP-STD-055 | Studio Simulation and No-Effect Scenario Execution | Simulation | defined / planned |
+| CAP-STD-056 | Workflow, Agent and Tool Regression Testing | Regression | defined / planned |
+| CAP-STD-057 | Reliability, Failure-Mode and Safety Assessment | Reliability/safety | defined / planned |
+| CAP-STD-058 | Permission, Governance and Boundary Assurance | Boundary assurance | defined / planned |
+| CAP-STD-059 | Evaluation Result, Comparison and Regression Analysis | Evaluation result | defined / planned |
+| CAP-STD-060 | Studio Quality Gates and Readiness Assessment | Readiness | defined / planned |
+| CAP-STD-061 | Publishing Candidate and Release Package Preparation | Publishing candidate | defined / planned |
+| CAP-STD-062 | Publishing Review, Approval Boundary and Publication Lifecycle | Publication | defined / planned |
+| CAP-STD-063 | Studio Asset Release, Version Promotion and Channel Management | Release/promotion | defined / planned |
+| CAP-STD-064 | Deployment Target and Compatibility Assessment | Deployment compatibility | defined / planned |
+| CAP-STD-065 | Studio Deployment, Promotion and Rollout Lifecycle | Deployment lifecycle | defined / planned |
+| CAP-STD-066 | Deployment Health, Reversion and Previous-Version Recovery | Health/reversion | defined / planned |
+| CAP-STD-067 | Studio Asset Deprecation, Retirement and Migration | Deprecation/migration | defined / planned |
+| CAP-STD-068 | Studio Assurance, Lifecycle Provenance and Capability Closure | Provenance/closure | defined / planned |
+
+STD-4 content total: **17 capabilities / 459 sections / 102 mandatory tables**. Studio cumulative after STD-4 content: **68 capabilities / 1836 sections / 408 mandatory tables**. Final Studio PASS is pending post-publication 220-gate verification. Endpoint remains NOT STARTED.

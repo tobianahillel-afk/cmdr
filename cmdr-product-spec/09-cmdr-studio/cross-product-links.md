@@ -66,3 +66,23 @@ Agent/runtime consumers use Settings-owned Principal/Role, provider/integration,
 
 ### Shared Capabilities
 Automation Run != Shared Job. Generic queue/scheduling, Jobs, Trace, Activity, Notifications and Recovery remain Shared; Studio owns Run business semantics.
+
+## STD-4 — Assurance & Lifecycle addendum
+
+### Govern
+Evaluation/Simulation/Quality Gate/Publishing Review are Studio assurance/lifecycle records, not Approval or Decision. Evaluation Result != Govern Result. Studio Deployment Reversion != Govern Response Rollback. If production policy requires Govern authority, Studio references it rather than synthesizing it.
+
+### Investigate
+Studio assurance may evaluate versions consumed by Investigate but does not create Evidence/Finding or alter Investigate conclusions.
+
+### Command
+Studio release/deployment metadata may be referenced operationally, but Studio does not own Incident/Task/Work Queue or business success.
+
+### Endpoint Agent
+Deployment Target != Endpoint target automatically. Endpoint installation/update/runtime/local rollback remain Endpoint-owned and Platform Settings retains fleet upgrade administration. STD-4 creates no CAP-EPT.
+
+### Platform Settings
+Studio consumes tenant/environment/provider/integration/Secret Reference/health and administrative channel/runtime configuration. Raw secrets and admin configuration remain Settings-owned.
+
+### Shared Capabilities
+Studio consumes generic Jobs, Reporting, Export, Trace, Activity, Notifications, Search, Versioning infrastructure and Recovery; it creates no competing generic engine. Published Studio Asset != Shared Report publication.

@@ -105,3 +105,19 @@ The preceding build/correction states are preserved as historical evidence. Cano
 - no capability contract changed in post-publication documentary records;
 - STD-4 and Endpoint remain NOT STARTED;
 - Studio capability specification and Delivery Roadmap Phase 5 remain PARTIAL.
+
+## Studio STD-4 — build-time closure addendum
+The complete prior quality history above is preserved. Earlier `STD-4 NOT STARTED` statements are historical snapshots only.
+
+- source audit: `reports/studio-std4-source-audit.md`;
+- conformance: `reports/studio-std4-assurance-lifecycle-capability-conformance.md`;
+- Studio closure audit: `reports/studio-capability-specification-closure.md`;
+- Phase-5 Studio-domain closure: `reports/delivery-roadmap-phase-5-studio-domain-closure.md`;
+- `CAP-STD-052..068`: **17 / 459 / 102**, 68 GWT;
+- Studio cumulative: **68 / 1836 / 408**;
+- global content totals: **385 capabilities / 383 defined / 2 proposed / 385 planned / 10395 sections / 2310 tables**;
+- Requirements **122 = 99/20/3/0**; OPEN **18**; Endpoint **0**;
+- content closure audit positive;
+- build-time gates: **212 PASS / 8 PENDING-REMOTE / 0 FAIL**.
+
+STD-4/Studio remain PENDING/PARTIAL until remote 220/220 verification. No implementation, engine, API/protocol, final schema/RBAC, new Screen ID or Endpoint capability is introduced.
