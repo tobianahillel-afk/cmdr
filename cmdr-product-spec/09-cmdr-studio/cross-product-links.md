@@ -3,9 +3,9 @@ id: studio-std1-cross-product-links
 domain: 09-cmdr-studio
 status: draft
 owner: CMDR Studio Product Lead
-updated: 2026-08-09
+updated: 2026-08-10
 source-of-truth: canonical
-open_decisions: [OPEN-007, OPEN-015]
+open_decisions: [OPEN-007, OPEN-013, OPEN-015]
 ---
 # STD-1 Cross-Product Links
 
@@ -46,3 +46,23 @@ Workflow data/runtime bindings consume opaque Settings-owned provider/integratio
 
 ### Shared Capabilities
 Workflow uses generic Trace/Activity/Jobs/Versioning/Search/Notifications/Recovery mechanisms without creating competing engines.
+
+## STD-3 — Agents, Human Gates & Runtime Control addendum
+
+### Govern
+Automation Run != Response Run; Human Gate != Approval/Decision; Studio Runtime Outcome != Result. Effectful start/resume/retry uses explicit Govern authority when required. OPEN-007/013/015 remain open.
+
+### Investigate
+Investigate may receive attributed automation/agent outputs, but qualification as Evidence/Finding remains Investigate-owned.
+
+### Command
+Command may call/observe an authorized Automation Run but Studio does not become Incident/Task/Work Queue owner.
+
+### Endpoint Agent
+Studio may later orchestrate a typed Endpoint technical capability; Endpoint retains its primitive, local runtime/state and device-side result. STD-3 creates no Endpoint capability.
+
+### Platform Settings
+Agent/runtime consumers use Settings-owned Principal/Role, provider/integration, environment, health and opaque Secret Reference projections; no raw secret/admin ownership transfers.
+
+### Shared Capabilities
+Automation Run != Shared Job. Generic queue/scheduling, Jobs, Trace, Activity, Notifications and Recovery remain Shared; Studio owns Run business semantics.

@@ -3,7 +3,7 @@ id: studio-std1-object-consumption-map
 domain: 09-cmdr-studio
 status: draft
 owner: CMDR Studio Product Lead
-updated: 2026-08-09
+updated: 2026-08-10
 source-of-truth: canonical
 ---
 # STD-1 Object / Concept Consumption Map
@@ -60,3 +60,32 @@ The STD-1 table above is preserved verbatim as historical evidence; its Workflow
 | Retry Policy / Idempotency Requirement | CMDR Studio | bounded retry expectation | read/edit/validate | exactly-once not claimed |
 | Compensation Step | CMDR Studio | candidate compensation definition | read/edit/validate | not Govern rollback |
 | Validation / Compatibility Assessment | CMDR Studio | no-effect readiness evidence | create/read | not execution/deployment |
+
+## STD-3 runtime concept addendum
+
+| Object/concept | Canonical owner | Studio usage | Local operations | Gap | Owning lot/phase |
+|---|---|---|---|---|---|
+| Automation Agent | CMDR Studio | executable-agent definition ref | read/create/update/reference | canonical object exists; final technical runtime absent | STD-3 functional / Technique |
+| Agent Version/reference | CMDR Studio | exact reproducible Agent ref | read/reference/compare | dedicated physical version representation unresolved | Objects/Technique |
+| Agent Objective / Constraint | CMDR Studio | bounded task/scope context | define/bind/validate | not permission/authority | STD-3 |
+| Agent Team | CMDR Studio | member/role/coordination definition | read/create/update/reference | canonical object exists; framework absent | STD-3 |
+| Agent Role | CMDR Studio | functional coordination role | configure/read | not authorization/Settings Role | STD-3 |
+| Agent Plan / Step Proposal | CMDR Studio | no-effect candidate plan/step | create/review/reject | not Workflow Definition/action | STD-3 |
+| Human Oversight Context | CMDR Studio | supervision/intervention record | inspect/intervene/escalate | no canonical object required | STD-3 |
+| Human Gate | CMDR Studio | runtime review checkpoint | request/read/respond/expire/escalate | physical historical states remain; OPEN-007 | STD-3 / Govern |
+| Human Gate Request / Response | CMDR Studio | runtime review context/outcome | create/respond/link | not Govern Approval Request/Approval | STD-3 |
+| Automation Run | CMDR Studio | business runtime identity/lifecycle | create/read/control/reconcile | physical object file deferred Phase 7 | STD-3 / Objects Phase 7 |
+| Automation Run State | CMDR Studio | source-backed lifecycle projection | read/transition on evidence | no final technical state machine | STD-3 / Technique |
+| Run Context | CMDR Studio | temporary execution context | bind/read/mask/expire | not canonical source object/memory | STD-3 |
+| Run Step / Run Attempt | CMDR Studio | runtime projection/attempt | instantiate/read/retry-link | no final physical schema | STD-3 / Objects/Technique |
+| Runtime Queue Item / Schedule | CMDR Studio semantics + Shared mechanism | Run queue/schedule projection | request/read/cancel-before-start | generic engine not Studio-owned | Shared/Technique |
+| Runtime Intervention | CMDR Studio | attributed operator control context | prepare/request/record | no Decision mutation | STD-3 |
+| Studio Runtime Outcome | CMDR Studio | technical Run outcome | create/read/handoff | not Govern Result/Evidence/Finding | STD-3 |
+| Workflow / Workflow Version | CMDR Studio | source definition for Run | read/reference only at runtime | definition remains STD-2-owned | STD-2 |
+| Tool / Tool Call / Skill | CMDR Studio | dependencies and runtime calls | reference/call via existing contracts | Tool Call remains distinct from Run | STD-1 |
+| Secret / Provider / Runtime Reference | Platform Settings | opaque runtime dependency projection | read/reference | raw secret/admin config prohibited | Settings |
+| Approval / Decision / Response Run / Result | Govern | authority/correlation/outcome refs | read/link/handoff only | OPEN-007/015 bridges remain | Govern |
+| Endpoint Capability | Endpoint Agent | future executor reference | read/reference only | no Endpoint capability created | Endpoint future |
+| Job / Trace / Activity | Shared Capabilities | generic execution/provenance mechanisms | consume/link | not Automation Run business object | Shared |
+
+No physical schema or JSON Schema is introduced by this map.

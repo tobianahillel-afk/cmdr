@@ -44,7 +44,8 @@ Registry validation checks duplicate/recycled IDs, concurrent owners, missing ca
 | `capability-register-govern-gov3.md` | Govern GOV-3 CAP-GOV-034..047 | 14 | 14 | 0 | 14 planned |
 | `capability-register-studio-std1.md` | Studio STD-1 CAP-STD-001..016 | 16 | 16 | 0 | 16 planned |
 | `capability-register-studio-std2.md` | Studio STD-2 CAP-STD-017..033 | 17 | 17 | 0 | 17 planned |
-| **Total** | **All registered capabilities** | **350** | **348** | **2** | **350 planned** |
+| `capability-register-studio-std3.md` | Studio STD-3 CAP-STD-034..051 | 18 | 18 | 0 | 18 planned |
+| **Total** | **All registered capabilities** | **368** | **366** | **2** | **368 planned** |
 
 ## Product totals
 - Command: **27** capabilities, 729 sections, 162 mandatory tables.
@@ -55,7 +56,8 @@ Registry validation checks duplicate/recycled IDs, concurrent owners, missing ca
 - Govern cumulative: **47** capabilities, **1269** sections, **282** tables.
 - Studio STD-1: **16** capabilities, **432** sections, **96** mandatory tables.
 - Studio STD-2: **17** capabilities, **459** sections, **102** mandatory tables.
-- Studio cumulative: **33** capabilities, **891** sections, **198** mandatory tables.
+- Studio STD-3: **18** capabilities, **486** sections, **108** mandatory tables.
+- Studio cumulative: **51** capabilities, **1377** sections, **306** mandatory tables.
 - Endpoint: **0** capabilities; NOT STARTED.
 - CAP-INV-3xx / 4xx / 5xx / 6xx / 7xx: **97 / 35 / 37 / 18 / 19**.
 - Detection Engineering: **35 capabilities, 945 sections, 210 tables**.
@@ -65,7 +67,7 @@ Registry validation checks duplicate/recycled IDs, concurrent owners, missing ca
 - Phase 4B.4 Cloud + Mobile: **37 capabilities, 999 sections, 222 tables**.
 - Command + Investigate: **270 capabilities, 7290 sections, 1620 tables**.
 - Command + Investigate + Govern: **317 capabilities, 8559 sections, 1902 mandatory tables**.
-- Command + Investigate + Govern + Studio: **350 capabilities, 9450 sections, 2100 mandatory tables**.
+- Command + Investigate + Govern + Studio: **368 capabilities, 9936 sections, 2208 mandatory tables**.
 
 ## Command registry state
 The Command shard remains 27 unique IDs, 26 defined / 1 proposed / 27 planned, with current native/integrated claims equal to 0. `CAP-CMD-401` remains deployment-dependent under OPEN-006.
@@ -77,9 +79,10 @@ The Command shard remains 27 unique IDs, 26 defined / 1 proposed / 27 planned, w
 - Govern capability specification: **PASS** across 47 capabilities / 1269 sections / 282 tables.
 
 ## Studio registry state
-- STD-1: 16 unique `CAP-STD-001..016`, all `draft / defined / planned`, 432 sections, 96 mandatory tables; post-publication PASS evidence retained.
-- STD-2: 17 unique `CAP-STD-017..033`, all `draft / defined / planned`, 459 sections, 102 mandatory tables; **PENDING POST-PUBLICATION VERIFICATION** at build time.
-- STD-3 and STD-4 remain NOT STARTED.
+- STD-1: 16 unique `CAP-STD-001..016`, all `draft / defined / planned`, 432 sections, 96 mandatory tables; **PASS AFTER POST-PUBLICATION VERIFICATION — 190/190**.
+- STD-2: 17 unique `CAP-STD-017..033`, all `draft / defined / planned`, 459 sections, 102 mandatory tables; **PASS AFTER POST-PUBLICATION VERIFICATION — 200/200**.
+- STD-3: 18 unique `CAP-STD-034..051`, all `draft / defined / planned`, 486 sections, 108 mandatory tables; **PENDING POST-PUBLICATION VERIFICATION** at build time.
+- STD-4 remains NOT STARTED.
 - No `CAP-EPT-*` capability exists.
 - Permission namespace ambiguity `perm.studio.*` vs `perm.cmdr-studio.*` remains documented and unresolved; no atomic namespace is selected.
 

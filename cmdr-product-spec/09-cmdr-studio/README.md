@@ -3,7 +3,7 @@ id: 09-cmdr-studio-readme
 domain: 09-cmdr-studio
 status: draft
 owner: CMDR Studio Product Lead
-updated: 2026-08-09
+updated: 2026-08-10
 source-of-truth: canonical
 requirements:
   - REQ-PROD-016
@@ -87,3 +87,29 @@ The STD-1 section above is preserved as the exact pre-STD-2 historical snapshot.
 
 ### STD-2 additional non-equivalence
 Workflow Definition != Workflow Version; Builder Session != Workflow; draft graph != saved Workflow Version; Tool step != Tool Call; Skill step != Skill; branch != Govern Decision; condition != Govern Policy; Human Gate completion != authorization; variable definition != variable value; mapping != source mutation; retry != authorization renewal; idempotency != exactly-once; compensation != Govern rollback; partial success != success; validation != execution; compatible != authorized; approved-for-publishing-candidate != deployed.
+
+---
+
+## STD-3 — Agents, Human Gates & Runtime Control — build-time addendum
+
+The STD-1 and STD-2 sections above remain historical/current evidence and are not redefined by STD-3.
+
+- execution lot under the same parent `roadmap-phase-5-studio-and-endpoint`;
+- `CAP-STD-034..051`;
+- **18 capabilities / 486 sections / 108 mandatory tables**;
+- all `draft / defined / planned`;
+- Automation Agent definition/objectives/constraints/access, Agent Team, bounded planning and oversight;
+- Human Gate request/lifecycle/runtime response with `accepted-for-workflow` explicitly distinct from Govern Approval/Decision;
+- Automation Run creation/lifecycle/steps/attempts/Tool Call coordination, queue/scheduling/concurrency and start/pause/resume/stop/cancel;
+- runtime errors/timeouts/retry realization/partial completion/context, Control Room, Studio Runtime Outcome and full provenance;
+- no new Screen ID or detailed rewrite;
+- no agent framework, model/provider, scheduler/runtime selection, API/protocol/code, final JSON Schema/RBAC, publishing/deployment or Endpoint capability;
+- build-time status: **PENDING POST-PUBLICATION VERIFICATION** until the fifth functional SHA and remote gates are actually checked.
+
+### Current next boundary
+- STD-4 — Assurance & Lifecycle — NOT STARTED.
+- Endpoint capability specification — NOT STARTED.
+- Studio capability specification remains PARTIAL.
+
+### STD-3 additional non-equivalence
+Automation Agent != Workflow/Skill/Tool/Automation Run/human user; Agent Team != human Team/Workflow; Agent role/objective/access/proposal/plan != authorization/action; Human Gate != Approval/Decision; Human Gate response != production authority; Automation Run != Workflow/Version/Tool Call/Job/Response Run; Run created/queued/start-requested != running; paused != stopped; cancel != rollback; attempt != Run; retry != new Run; idempotency != exactly-once; Tool Call/step success != Run success; partial completion != success; Studio outcome != Govern Result; Control Room != Command Work Queue/Govern Runs & Rollback.
