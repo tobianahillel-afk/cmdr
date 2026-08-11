@@ -68,3 +68,18 @@ The preceding EPT-4 NOT STARTED statement is historical pre-EPT-4 evidence.
 | CAP-EPT-062..064 | technical outputs/errors, operator closure, provenance/contracts | 3 | output != Result; OPEN-014/015 preserved |
 
 EPT-4: **18 capabilities / 486 sections / 108 mandatory tables**. Endpoint cumulative: **64 / 1728 / 384**. EPT-5/EPT-6 remain NOT STARTED. Endpoint Screen IDs remain 0.
+
+---
+
+## EPT-5 Containment / Verification technical capability layer — build
+The preceding EPT-5 NOT STARTED statement is historical pre-EPT-5 evidence.
+
+| Range | Family | Capabilities | Boundary |
+|---|---|---:|---|
+| CAP-EPT-065..066 | primitive request/eligibility/authority + precheck/readiness | 2 | authority and response plan remain Govern |
+| CAP-EPT-067..072 | process, host isolation, bounded network control, quarantine, file delete/restore, service control | 6 | target-side primitives only; no Result/rollback ownership |
+| CAP-EPT-073..076 | execution state/outcome, technical verification, target observation, partial/unknown/drift | 4 | Technical Outcome/Verification != Govern Result/Verification |
+| CAP-EPT-077..080 | technical reversal, release, Govern reconciliation handoff, provenance | 4 | Technical Reversal != Response Rollback |
+| CAP-EPT-081 | local account-session lock/termination | 1 | directory account actions remain external |
+
+EPT-5: **17 capabilities / 459 sections / 102 mandatory tables / at least 51 GWT**. Endpoint cumulative: **81 / 2187 / 486**. EPT-6 remains NOT STARTED. Endpoint Screen IDs remain 0.

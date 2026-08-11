@@ -261,3 +261,26 @@ The preceding EPT-4 NOT STARTED statements are historical pre-EPT-4 snapshots. E
 - Endpoint Capability Specification, Delivery Roadmap Phase 5, Global Capability Specification and repository maturity remain **PARTIAL**.
 
 EPT-4 may become **PASS AFTER POST-PUBLICATION VERIFICATION — 220/220** only after the exact five-commit build is remotely verified and a final post-publication record closes gates 214–219. **Do not begin EPT-5.**
+
+---
+
+## EPT-5 current execution — build-time state — 2026-08-11
+The preceding EPT-5 NOT STARTED/Do not begin EPT-5 statements are historical pre-EPT-5 evidence.
+
+- exact baseline: `5d576295fa12693ef375a35cfe515d7bdf577f68`;
+- EPT-1 **PASS 190/190**, EPT-2 **PASS 200/200**, EPT-3 **PASS 210/210**, EPT-4 **PASS 220/220**; `CAP-EPT-001..064` intact;
+- EPT-5: **`CAP-EPT-065..081` — 17 capabilities / 459 sections / 102 mandatory tables / at least 51 GWT**, all `draft / defined / planned`;
+- final count is source-driven: local-session lock/termination is independent and directory actions remain external;
+- Endpoint cumulative: **81 / 2187 / 486**;
+- global: **466 capabilities / 464 defined / 2 proposed / 466 planned / 12582 sections / 2796 mandatory tables**;
+- Requirements remain **122 = 99/20/3/0**; OPEN remains **18**; OPEN-007/008/013/014/015/017 remain OPEN;
+- Govern owns authority/Approval/Decision/Response Run/response verification/rollback/Result; Endpoint owns technical primitives/readiness/target-side facts/reversal;
+- Technical Outcome != Result; Endpoint Technical Verification != Govern Verification; Technical Reversal != Govern Response Rollback;
+- Command 27, Investigate 243, Govern 47 and Studio 68 remain PASS;
+- Endpoint Screen IDs remain **0**;
+- EPT-6 remains **NOT STARTED**;
+- build-time gates: **224 PASS / 6 PENDING-BUILD-OR-REMOTE / 0 FAIL**, pending **224–229**;
+- no API/protocol/native command/PowerShell/shell/firewall syntax/physical schema/final policy/approval/verification/rollback engine/final RBAC/product implementation is introduced;
+- Endpoint Capability Specification, Delivery Roadmap Phase 5, Global Capability Specification and repository maturity remain **PARTIAL**.
+
+EPT-5 may become **PASS AFTER POST-PUBLICATION VERIFICATION — 230/230** only after exact five-commit publication and remote verification. **EPT-6 is NOT STARTED.**

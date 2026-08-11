@@ -78,3 +78,20 @@ The historical EPT-4 NOT STARTED wording above is preserved as the pre-EPT-4 sna
 - Shared generic Jobs/Trace/Activity/Export remain mechanisms, not Endpoint object owners.
 
 No Endpoint Screen ID, wireframe, shell/terminal design, button, filter, shortcut, final column, API/protocol/transport, runtime architecture or platform-support claim is introduced. OPEN-008/014/015/017 remain open. EPT-5/EPT-6 remain NOT STARTED.
+
+---
+
+## EPT-5 Containment and Verification linkage
+The historical “future Containment / EPT-5 NOT STARTED” wording above is preserved as the pre-EPT-5 snapshot. EPT-5 extends the conceptual flow to:
+
+**Telemetry → Detection → Investigation → Collection → Live Response → Containment → Verification → Govern reconciliation → future EPT-6.**
+
+- Investigate can prepare containment context; Govern owns Action Request/Approval/Decision/Response Run and authorizes the effect.
+- Endpoint resolves the technical primitive, eligibility/readiness and target state, then performs only the target-side primitive allowed by the governed handoff.
+- Process, host isolation, bounded network control, quarantine, file state, service/system and local-session primitives remain target-side technical concepts.
+- Endpoint Technical Verification compares expected technical state to observed target facts; Govern separately interprets response success/residual risk.
+- Technical reversal/release remain primitives; Govern owns Response Rollback/recovery and Result.
+- `CAP-EPT-081` keeps local-session lock/termination distinct from external directory account actions.
+- EPT-6 remains the future update/resilience/security-depth boundary.
+
+No Endpoint Screen ID, kill-process UI, isolation screen, button, confirmation flow, terminal, wireframe, filter, column, API/protocol/runtime architecture or support claim is introduced.

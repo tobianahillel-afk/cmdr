@@ -75,3 +75,14 @@ Endpoint cumulative content becomes **46 capabilities / 1242 sections / 276 mand
 The historical EPT-4 NOT STARTED wording above is the pre-EPT-4 snapshot. EPT-4 allocates `CAP-EPT-047..064`, all `draft / defined / planned`, covering Collection technical intake/eligibility/authority refs, bounded planning, file/process-system/memory/network acquisition, operation progress, neutral packaging/integrity metadata, transfer/handoff, technical Live Response sessions, command/shell/script/file execution boundaries, technical outputs/errors/operator controls and provenance.
 
 Endpoint cumulative content becomes **64 capabilities / 1728 sections / 384 mandatory tables**. EPT-1/2/3 remain PASS and `CAP-EPT-001..046` are unchanged. Investigate retains Collection Request/Case/Evidence/Finding/Artifact qualification; Govern retains Decision/Response Run/Result/authority; Studio retains Tool Call/Automation Run; Settings retains Fleet/Policy/Secret References; Shared retains Jobs/Trace/Activity/Export. `OPEN-008`, `OPEN-014`, `OPEN-015` and `OPEN-017` remain open. Endpoint Screen IDs remain 0. EPT-5/EPT-6 remain NOT STARTED. No containment, API/protocol/transport/final shell/runtime/physical schema/storage/final RBAC or implementation is introduced.
+
+---
+
+## EPT-5 build addendum — Containment, Verification and Governed Response Primitives
+The historical EPT-5 NOT STARTED wording above is the pre-EPT-5 snapshot. EPT-5 allocates `CAP-EPT-065..081`, all `draft / defined / planned`, after complete Containment/effectful/Govern source audit.
+
+Endpoint now has **81 capabilities / 2187 sections / 486 mandatory tables**. EPT-5 itself is **17 / 459 / 102 / at least 51 GWT**. EPT-1/2/3/4 remain PASS and `CAP-EPT-001..064` are unchanged.
+
+EPT-5 covers primitive request/eligibility/authority boundary, readiness/precheck/target state, process/isolation/network/quarantine/delete-restore/service/local-session primitives, normalized technical outcomes, technical verification, partial/unknown/drift, technical reversal, containment release, Govern reconciliation input and provenance. `CAP-EPT-081` is source-driven local-session containment only; directory account actions remain external.
+
+Govern retains Approval/Decision/Response Run/response verification/rollback/Result; Settings retains Fleet/Policy/admin/secrets; Studio retains Human Gate/Tool Call/Automation Run; Shared retains generic mechanisms; Investigate retains Case/Finding/Evidence. OPEN remains 18 and OPEN-007/008/013/014/015/017 stay open. Endpoint Screen IDs remain 0. EPT-6 remains **NOT STARTED**. No implementation, API/protocol/native command/final engine/schema/RBAC is introduced.

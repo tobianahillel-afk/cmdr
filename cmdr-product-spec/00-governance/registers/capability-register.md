@@ -50,7 +50,8 @@ Registry validation checks duplicate/recycled IDs, concurrent owners, missing ca
 | `capability-register-endpoint-ept2.md` | Endpoint EPT-2 CAP-EPT-015..030 | 16 | 16 | 0 | 16 planned |
 | `capability-register-endpoint-ept3.md` | Endpoint EPT-3 CAP-EPT-031..046 | 16 | 16 | 0 | 16 planned |
 | `capability-register-endpoint-ept4.md` | Endpoint EPT-4 CAP-EPT-047..064 | 18 | 18 | 0 | 18 planned |
-| **Total** | **All registered capabilities** | **449** | **447** | **2** | **449 planned** |
+| `capability-register-endpoint-ept5.md` | Endpoint EPT-5 CAP-EPT-065..081 | 17 | 17 | 0 | 17 planned |
+| **Total** | **All registered capabilities** | **466** | **464** | **2** | **466 planned** |
 
 ## Product totals
 - Command: **27** capabilities, 729 sections, 162 mandatory tables.
@@ -68,7 +69,8 @@ Registry validation checks duplicate/recycled IDs, concurrent owners, missing ca
 - Endpoint EPT-2: **16** capabilities, **432** sections, **96** mandatory tables.
 - Endpoint EPT-3: **16** capabilities, **432** sections, **96** mandatory tables.
 - Endpoint EPT-4: **18** capabilities, **486** sections, **108** mandatory tables.
-- Endpoint cumulative: **64 capabilities / 1728 sections / 384 mandatory tables**; EPT-1/EPT-2/EPT-3 verified PASS, EPT-4 defined/planned pending post-publication verification, EPT-5/EPT-6 NOT STARTED.
+- Endpoint EPT-5: **17** capabilities, **459** sections, **102** mandatory tables.
+- Endpoint cumulative: **81 capabilities / 2187 sections / 486 mandatory tables**; EPT-1/EPT-2/EPT-3/EPT-4 verified PASS, EPT-5 defined/planned pending post-publication verification, EPT-6 NOT STARTED.
 - CAP-INV-3xx / 4xx / 5xx / 6xx / 7xx: **97 / 35 / 37 / 18 / 19**.
 - Detection Engineering: **35 capabilities, 945 sections, 210 tables**.
 - Threat Intelligence: **37 capabilities, 999 sections, 222 tables**.
@@ -82,6 +84,7 @@ Registry validation checks duplicate/recycled IDs, concurrent owners, missing ca
 - Command + Investigate + Govern + Studio + Endpoint EPT-1/EPT-2: **415 capabilities, 11205 sections, 2490 mandatory tables**.
 - Command + Investigate + Govern + Studio + Endpoint EPT-1/EPT-2/EPT-3: **431 capabilities, 11637 sections, 2586 mandatory tables**.
 - Command + Investigate + Govern + Studio + Endpoint EPT-1/EPT-2/EPT-3/EPT-4: **449 capabilities, 12123 sections, 2694 mandatory tables**.
+- Command + Investigate + Govern + Studio + Endpoint EPT-1/EPT-2/EPT-3/EPT-4/EPT-5: **466 capabilities, 12582 sections, 2796 mandatory tables**.
 
 ## Command registry state
 The Command shard remains 27 unique IDs, 26 defined / 1 proposed / 27 planned, with current native/integrated claims equal to 0. `CAP-CMD-401` remains deployment-dependent under OPEN-006.
@@ -177,3 +180,18 @@ The EPT-4 pre-state is the final EPT-3 HEAD above. After exact namespace/source/
 - Endpoint Screen IDs remain 0; EPT-5/EPT-6 remain NOT STARTED;
 - build-time quality: **214 PASS / 6 PENDING-BUILD-OR-REMOTE / 0 FAIL**, pending 214–219 until exact fifth commit and remote verification;
 - no capability is reclassified as implemented/native/integrated and no API/protocol/transport/physical schema/storage/final RBAC/product code is introduced.
+
+## Endpoint EPT-5 build addendum — 2026-08-11
+The prior EPT-5 NOT STARTED lines are historical snapshots. Exact baseline: `5d576295fa12693ef375a35cfe515d7bdf577f68`, final EPT-4 verification record.
+
+- complete source audit: all 7 Containment docs, effectful Live Response process/network/file/service sources, Govern authority/Run/Verification/Rollback/Result, Studio/Settings/Investigate/Shared/Security/EPT-6 boundaries;
+- final source-driven set: **`CAP-EPT-065..081` — 17 capabilities / 459 sections / 102 mandatory tables / at least 51 GWT**;
+- `CAP-EPT-081` is independently justified local-session lock/termination; directory identity actions remain external;
+- Endpoint cumulative: **81 / 2187 / 486**;
+- global content: **466 capabilities / 464 defined / 2 proposed / 466 planned / 12582 sections / 2796 mandatory tables**;
+- Requirements remain **122 = 99/20/3/0**; OPEN remains **18**;
+- Govern owns authority/Approval/Decision/Response Run/response verification/rollback/Result; Endpoint owns technical primitive/readiness/effect/target observations/reversal only;
+- OPEN-007/008/013/014/015/017 remain open;
+- Endpoint Screen IDs remain 0; EPT-6 remains NOT STARTED;
+- build-time quality: **224 PASS / 6 PENDING-BUILD-OR-REMOTE / 0 FAIL**, pending gates 224–229;
+- no capability is reclassified as implemented/native/integrated and no API/protocol/native command/shell/physical schema/final RBAC/final response engine/product code is introduced.

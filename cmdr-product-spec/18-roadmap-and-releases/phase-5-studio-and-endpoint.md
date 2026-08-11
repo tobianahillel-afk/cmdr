@@ -245,3 +245,22 @@ The preceding EPT-4 NOT STARTED statements are historical pre-EPT-4 evidence. EP
 - no API/protocol/remote-shell protocol/transport/command catalog/final runtime/physical schema/storage/final RBAC/product implementation.
 
 EPT-4 may become **PASS AFTER POST-PUBLICATION VERIFICATION — 220/220** only after exact five-commit ancestry and remote verification. Endpoint Capability Specification and Delivery Roadmap Phase 5 remain PARTIAL. **Do not begin EPT-5.**
+
+---
+
+## EPT-5 current execution — build-time addendum — 2026-08-11
+The preceding EPT-5 NOT STARTED/Do not begin EPT-5 wording is historical pre-EPT-5 evidence.
+
+- exact baseline: `5d576295fa12693ef375a35cfe515d7bdf577f68` — final EPT-4 verification record;
+- EPT-1 **PASS 190/190**, EPT-2 **PASS 200/200**, EPT-3 **PASS 210/210**, EPT-4 **PASS 220/220**; `CAP-EPT-001..064` intact;
+- source-driven EPT-5 set: `CAP-EPT-065..081`, **17 capabilities / 459 sections / 102 mandatory tables / at least 51 GWT**, all `draft / defined / planned`;
+- Endpoint cumulative: **81 / 2187 / 486**;
+- global: **466 capabilities / 464 defined / 2 proposed / 466 planned / 12582 sections / 2796 mandatory tables**;
+- Govern remains authority/Approval/Decision/Response Run/response verification/rollback/Result owner; Endpoint remains target-side technical primitive/observation/reversal owner;
+- `CAP-EPT-081` is local account-session lock/termination only; directory actions remain external;
+- OPEN-007/008/013/014/015/017 remain open; OPEN total 18; Endpoint Screen IDs 0;
+- build-time gates: **224 PASS / 6 PENDING-BUILD-OR-REMOTE / 0 FAIL**, pending 224–229;
+- EPT-6 remains **NOT STARTED**;
+- no Phase 5E5, API/protocol/native command/PowerShell/shell/final response engine/schema/RBAC/implementation.
+
+EPT-5 can become **PASS AFTER POST-PUBLICATION VERIFICATION — 230/230** only after the exact five-commit chain is published and remotely verified. Next candidate after PASS is **EPT-6 — Updates, Resilience, Security and Endpoint Provenance**, but **do not begin EPT-6 in this run**.

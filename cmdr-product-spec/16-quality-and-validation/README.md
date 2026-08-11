@@ -253,3 +253,23 @@ Canonical source audit: `reports/endpoint-ept4-source-audit.md`. Conformance: `r
 - no containment/remediation, API/protocol/remote-shell protocol/transport/command catalog/final runtime/physical schema/storage/final RBAC/product implementation.
 
 EPT-4 remains **PENDING POST-PUBLICATION VERIFICATION** until all 220 gates close. Documentary PASS never proves implementation, supported-platform delivery or response authority.
+
+---
+
+## Endpoint EPT-5 — build-time evidence
+Canonical source audit: `reports/endpoint-ept5-source-audit.md`. Conformance: `reports/endpoint-ept5-containment-verification-governed-response-primitives-capability-conformance.md`. Validation: `validation-status-endpoint-ept5.md`.
+
+- exact baseline: `5d576295fa12693ef375a35cfe515d7bdf577f68`;
+- source audit: all **7/7 Containment** docs, effectful Live Response process/network/file/service sources, Govern authority/Run/verification/rollback/Result and cross-product/security/EPT-6 boundaries;
+- source-driven final set: `CAP-EPT-065..081` — **17 / 459 / 102 / at least 51 GWT**, all `draft / defined / planned`;
+- Endpoint cumulative: **81 / 2187 / 486**;
+- global: **466 capabilities / 464 defined / 2 proposed / 466 planned / 12582 sections / 2796 tables**;
+- EPT-1 **190/190**, EPT-2 **200/200**, EPT-3 **210/210**, EPT-4 **220/220** preserved; Command 27, Investigate 243, Govern 47 and Studio 68 remain PASS;
+- `CAP-EPT-081` is local session lock/termination only; directory identity actions remain external;
+- Govern owns authority/Approval/Decision/Response Run/response verification/rollback/Result; technical verification/reversal remain Endpoint facts/primitives only;
+- OPEN-007/008/013/014/015/017 remain open; OPEN total 18; Endpoint Screen IDs 0;
+- build-time gates: **224 PASS / 6 PENDING-BUILD-OR-REMOTE / 0 FAIL**, pending gates 224–229;
+- EPT-6 remains **NOT STARTED**;
+- no API/protocol/native command/PowerShell/shell/firewall syntax/physical schema/final policy/approval/verification/rollback engine/final RBAC/product implementation.
+
+EPT-5 remains **PENDING POST-PUBLICATION VERIFICATION** until all 230 gates close.
