@@ -121,3 +121,23 @@ The complete prior quality history above is preserved. Earlier `STD-4 NOT STARTE
 - build-time gates: **212 PASS / 8 PENDING-REMOTE / 0 FAIL**.
 
 STD-4/Studio remain PENDING/PARTIAL until remote 220/220 verification. No implementation, engine, API/protocol, final schema/RBAC, new Screen ID or Endpoint capability is introduced.
+
+---
+
+## Studio STD-4 — final post-publication evidence
+The build-time section above remains historical evidence. Canonical final companion: `reports/studio-std4-assurance-lifecycle-post-publication-verification.md`.
+
+- exact baseline: `9babd679f52f3f28458a5f8f4d9c76698ebf875a`;
+- fifth functional/build SHA: `216bff304fa389e4814cb610097571a4a83c1c54`;
+- documentary correction: `c21ea86cde1bea425d7d9233d9973b867f5ef9e8`;
+- baseline → build: **5 ahead / 0 behind**, same merge base;
+- build → correction: **1 ahead / 0 behind**;
+- final verification-record title: `docs: record Studio STD-4 post-publication verification`; exact SHA is recorded in PR #2 after publication;
+- final verdict: **PASS AFTER POST-PUBLICATION VERIFICATION — 220/220 PASS, 0 PENDING, 0 FAIL**;
+- Studio Capability Specification: **PASS**;
+- global content totals remain **385 capabilities / 383 defined / 2 proposed / 385 planned / 10395 sections / 2310 tables**;
+- Studio remains **68 / 1836 / 408**;
+- Requirements remain **122 = 99/20/3/0**; OPEN **18**;
+- Endpoint remains **NOT STARTED / 0**;
+- Delivery Roadmap Phase 5, global Capability Specification and repository maturity remain **PARTIAL**;
+- recovery modified no capability, object model, permission, screen or implementation file.

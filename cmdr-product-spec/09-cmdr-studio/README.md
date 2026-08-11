@@ -135,3 +135,16 @@ The sections above remain exact historical evidence. Their earlier `STD-4 NOT ST
 
 ### STD-4 boundaries
 Evaluation != Simulation/runtime/Approval; Evaluation Result != Govern Result; readiness != authorization; candidate != published; published != deployed; Deployment Reversion != Govern Response Rollback; retired != deleted; Studio PASS != implementation or Endpoint completion. No engine/API/protocol/code/final JSON Schema/RBAC/provider/runtime selection is introduced.
+
+## STD-4 final verification addendum — 2026-08-11
+The preceding build-time section remains historical evidence. Canonical final companion: `../16-quality-and-validation/reports/studio-std4-assurance-lifecycle-post-publication-verification.md`.
+
+- final STD-4 verdict: **PASS AFTER POST-PUBLICATION VERIFICATION — 220/220 PASS, 0 PENDING, 0 FAIL**;
+- Studio Capability Specification: **PASS**;
+- Studio cumulative: **68 capabilities / 1836 sections / 408 mandatory tables**;
+- Endpoint Capability Specification: **NOT STARTED / 0**;
+- Delivery Roadmap Phase 5: **PARTIAL**;
+- documentary PASS introduces no implementation, endpoint work, final schema/RBAC or provider/runtime choice;
+- exact final verification-record SHA is recorded in PR #2 after publication.
+
+Next execution boundary: **ENDPOINT PREFLIGHT RERUN / CLOSURE** only. Do not start EPT-1 before that preflight reaches 100/100.

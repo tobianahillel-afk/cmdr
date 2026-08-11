@@ -95,3 +95,14 @@ The STD-3 build-time `PENDING` state is retained historically. Final documentary
 The content audit finds all required Studio capability families represented across `CAP-STD-001..068`, with **68 / 1836 / 408** cumulative structure, no owner conflict and no capability-layer placeholder. Studio may become PASS only after STD-4 reaches **220/220** post-publication. Delivery Roadmap Phase 5 remains PARTIAL because Endpoint is NOT STARTED.
 
 No capability is marked implemented, promoted, deployed, active, native or integrated by this registry; documentary PASS never proves implementation.
+
+## Studio STD-4 final verification addendum — 2026-08-11
+The build-time `PENDING` line and closure condition above remain historical evidence. Canonical post-publication companion: `16-quality-and-validation/reports/studio-std4-assurance-lifecycle-post-publication-verification.md`.
+
+- STD-4 final documentary verdict: **PASS AFTER POST-PUBLICATION VERIFICATION — 220/220 PASS, 0 PENDING, 0 FAIL**;
+- Studio Capability Specification: **PASS** across `CAP-STD-001..068`;
+- Studio cumulative: **68 capabilities / 1836 sections / 408 mandatory tables**;
+- Endpoint: **0 capabilities / NOT STARTED**;
+- Delivery Roadmap Phase 5: **PARTIAL**;
+- no capability is reclassified as implemented/native/integrated by this documentary PASS;
+- exact final verification-record SHA is recorded in PR #2 after remote publication.

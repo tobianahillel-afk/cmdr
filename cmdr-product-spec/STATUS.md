@@ -113,3 +113,26 @@ The complete STD-1/2/3 status above remains historical evidence; earlier `STD-4 
 - build-time gates: **212 PASS / 8 PENDING-REMOTE / 0 FAIL**.
 
 STD-4 and Studio remain **PENDING POST-PUBLICATION VERIFICATION / PARTIAL** until the fifth functional commit is remotely verified at 220/220. Delivery Roadmap Phase 5 remains **PARTIAL** regardless because Endpoint is NOT STARTED. No implementation/API/protocol/engine/final schema/RBAC or Endpoint capability is introduced.
+
+---
+
+## STD-4 final verified publication — 2026-08-11
+The preceding build-time/PENDING state is preserved as historical evidence. Final remote verification closes publication-dependent gates **193, 195, 212, 215, 216, 217, 218 and 219**.
+
+- exact baseline: `9babd679f52f3f28458a5f8f4d9c76698ebf875a`;
+- functional build SHA: `216bff304fa389e4814cb610097571a4a83c1c54`;
+- documentary correction: `c21ea86cde1bea425d7d9233d9973b867f5ef9e8`;
+- final verification-record title: `docs: record Studio STD-4 post-publication verification`;
+- exact final remote SHA is recorded in PR #2 after publication to avoid self-reference;
+- canonical companion: `16-quality-and-validation/reports/studio-std4-assurance-lifecycle-post-publication-verification.md`;
+- STD-4: **PASS AFTER POST-PUBLICATION VERIFICATION — 220/220 PASS, 0 PENDING, 0 FAIL**;
+- Studio Capability Specification: **PASS**;
+- global totals: **385 capabilities / 383 defined / 2 proposed / 385 planned / 10395 sections / 2310 tables**;
+- Studio: **68 / 1836 / 408**;
+- Requirements: **122 = 99/20/3/0**; OPEN: **18**;
+- Endpoint Capability Specification: **NOT STARTED**; Endpoint capabilities/screens/implementation: **0 / 0 / 0**;
+- Delivery Roadmap Phase 5: **PARTIAL**;
+- Global Capability Specification / repository maturity: **PARTIAL**;
+- no `CAP-STD-*` capability contract is modified by this recovery.
+
+The historically blocked Endpoint preflight remains **BLOCKED 96/100** until its dedicated rerun. The next run is **ENDPOINT PREFLIGHT RERUN / CLOSURE**, not EPT-1.

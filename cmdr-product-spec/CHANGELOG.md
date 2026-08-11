@@ -230,3 +230,19 @@
 - Added CAP-INV-380 through CAP-INV-397 and closed Phase 4B.2 as PASS.
 
 Earlier phases remain preserved.
+
+## 2026-08-11 — Studio STD-4 post-publication verified recovery
+- Recovered the real remote STD-4 closure from initial HEAD `c21ea86cde1bea425d7d9233d9973b867f5ef9e8` after confirming that the previously reported `fa465460...` record did not exist remotely.
+- Preserved exact STD-4 baseline `9babd679f52f3f28458a5f8f4d9c76698ebf875a` and the five functional commits: `57bb92140f1fdd7cf0234934bee8aff0c469b881`, `799d2554e3c625b7484be7203733380d464beed3`, `6f74db55580df2fcdb648819b174602352030419`, `fc5a3ed73cc1ce8265099d23c61c6223d21bab98`, `216bff304fa389e4814cb610097571a4a83c1c54`.
+- Verified baseline → fifth functional/build SHA at **5 ahead / 0 behind**, same merge base; verified build → `c21ea86...` as exactly one documentary fast-forward correction that changes no `CAP-STD-*` capability contract.
+- Preserved `CAP-STD-052..068`: **17/17 files / 459/459 sections / 102/102 mandatory tables / 68 GWT**, 0 duplicate/recycled ID, 0 owner conflict, 0 empty/generic mandatory table.
+- Resolved publication-dependent gates **193, 195, 212, 215, 216, 217, 218 and 219** through canonical changelog/status/roadmap/closure/validation/quality evidence, exact remote Git verification, final PR metadata and the canonical companion `16-quality-and-validation/reports/studio-std4-assurance-lifecycle-post-publication-verification.md`.
+- Build-time history remains **212 PASS / 8 PENDING-REMOTE / 0 FAIL**; final documentary verdict is **STD-4 PASS AFTER POST-PUBLICATION VERIFICATION — 220/220 PASS, 0 PENDING, 0 FAIL**.
+- Studio Capability Specification is **PASS** across **68 capabilities / 1836 sections / 408 mandatory tables**.
+- Global totals remain **385 capabilities — 27 Command / 243 Investigate / 47 Govern / 68 Studio / 0 Endpoint; 383 defined / 2 proposed / 385 planned; 10395 sections / 2310 mandatory tables**.
+- Requirements remain **122 = 99 conform / 20 partial / 3 absent / 0 contradictory** and OPEN remains **18**.
+- PR #2 remains open/Draft/unmerged on `main`; repository auto-merge remains disabled; branch/main README remain exact `# cmdr`; build CI/status is N/A because no workflow runs or commit statuses exist.
+- The exact SHA of `docs: record Studio STD-4 post-publication verification` is recorded in PR #2 immediately after publication to avoid self-referential commit metadata.
+- No `CAP-STD-*` capability, Endpoint file, object model, permission, screen or implementation file is modified by this recovery.
+- Endpoint Capability Specification remains **NOT STARTED / 0**, the prior Endpoint preflight remains historically **BLOCKED 96/100**, and Delivery Roadmap Phase 5/global/repository maturity remain **PARTIAL**.
+- Next run: **ENDPOINT PREFLIGHT RERUN / CLOSURE** only; do not start EPT-1 before that preflight reaches 100/100.

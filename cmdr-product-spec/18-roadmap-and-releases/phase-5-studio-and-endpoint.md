@@ -116,3 +116,19 @@ The complete STD-1/2/3 roadmap text above remains preserved. Earlier `STD-4 NOT 
 - no Phase 5A/B/C/D/E, no implementation, no Endpoint capability.
 
 Next after successful Studio closure: **Endpoint lot 1 — Enrollment, Inventory, Health and Platform Foundations**, but it must not start in STD-4.
+
+---
+
+## STD-4 final verification addendum — 2026-08-11
+The preceding build-time/PENDING material remains historical evidence. Remote recovery verifies the exact five functional commits from baseline `9babd679f52f3f28458a5f8f4d9c76698ebf875a` to build `216bff304fa389e4814cb610097571a4a83c1c54` at **5 ahead / 0 behind**, then documentary correction `c21ea86cde1bea425d7d9233d9973b867f5ef9e8`.
+
+- canonical companion: `../16-quality-and-validation/reports/studio-std4-assurance-lifecycle-post-publication-verification.md`;
+- STD-4 final documentary verdict: **PASS AFTER POST-PUBLICATION VERIFICATION — 220/220 PASS, 0 PENDING, 0 FAIL**;
+- Studio Capability Specification: **PASS** across **68 capabilities / 1836 sections / 408 mandatory tables**;
+- global capabilities remain **385**, Requirements **122 = 99/20/3/0**, OPEN **18**;
+- Endpoint Capability Specification remains **NOT STARTED / 0**;
+- Delivery Roadmap Phase 5 remains **PARTIAL**;
+- Global Capability Specification / repository maturity remain **PARTIAL**;
+- no Phase 5A/B/C/D/E, implementation, Endpoint capability or Endpoint Screen ID is introduced.
+
+The next run after successful final remote publication is **ENDPOINT PREFLIGHT RERUN / CLOSURE**. The previous Endpoint preflight remains historically **BLOCKED 96/100** until that rerun; EPT-1 must not begin before a 100/100 preflight.

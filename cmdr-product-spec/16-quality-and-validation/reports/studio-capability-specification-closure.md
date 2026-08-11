@@ -36,3 +36,24 @@ No product code, engine, API/protocol, final physical schema, final JSON Schema/
 The **content closure audit is positive**. Studio may become **PASS** only after STD-4 reaches 220/220 post-publication. Until then Studio is **PARTIAL / PENDING POST-PUBLICATION VERIFICATION**.
 
 Delivery Roadmap Phase 5 remains PARTIAL because Endpoint is NOT STARTED.
+
+---
+
+## STD-4 final post-publication closure — 2026-08-11
+The build-time decision above is preserved as historical evidence. Remote recovery verification confirms the exact five-functional-commit chain from baseline `9babd679f52f3f28458a5f8f4d9c76698ebf875a` to build `216bff304fa389e4814cb610097571a4a83c1c54` at **5 ahead / 0 behind**, followed by documentary correction `c21ea86cde1bea425d7d9233d9973b867f5ef9e8` without capability-contract modification.
+
+Canonical companion: `studio-std4-assurance-lifecycle-post-publication-verification.md`.
+
+Final STD-4 documentary verdict after final remote publication checks: **PASS AFTER POST-PUBLICATION VERIFICATION — 220/220 PASS, 0 PENDING, 0 FAIL**.
+
+Revalidated closure facts:
+- `CAP-STD-001..068`: **68 capabilities**;
+- Studio sections / mandatory tables: **1836 / 408**;
+- mandatory Studio capability families missing: **0**;
+- active owner conflicts: **0**;
+- capability-layer placeholders: **0**;
+- blocking competing active functional sources: **0**;
+- false implementation claims: **0**;
+- Endpoint capabilities: **0**.
+
+Therefore **Studio Capability Specification = PASS**. This remains a documentary capability-specification verdict, not an implementation or deployment claim. Delivery Roadmap Phase 5 remains **PARTIAL** because Endpoint Capability Specification remains **NOT STARTED / 0**.
