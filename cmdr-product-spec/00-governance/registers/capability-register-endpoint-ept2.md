@@ -33,3 +33,8 @@ EPT-2 is an execution lot under Delivery Roadmap Phase 5 — Studio and Endpoint
 Exactly **16 capabilities / 432 numbered sections / 96 mandatory tables / at least 48 Given/When/Then scenarios**. Duplicate/recycled IDs: **0**. Owner conflicts: **0**. Endpoint Screen IDs added: **0**.
 
 Endpoint cumulative after EPT-2 content: **30 capabilities / 810 sections / 180 mandatory tables**. EPT-3..EPT-6 remain **NOT STARTED**. `OPEN-008` remains **OPEN**.
+
+## Post-publication verification addendum
+The build-time 194/6 quality state is retained in the conformance report as historical evidence. Canonical final companion: `16-quality-and-validation/reports/endpoint-ept2-telemetry-observation-capability-declaration-post-publication-verification.md`.
+
+After publication/recheck of the documentation-only verification-record commit and recording its exact SHA in PR #2, EPT-2 documentary verdict is **PASS AFTER POST-PUBLICATION VERIFICATION — 200/200 PASS, 0 PENDING, 0 FAIL**. This status does not reclassify any capability as implemented/native/integrated and does not close OPEN-008. EPT-3..EPT-6 remain NOT STARTED.
