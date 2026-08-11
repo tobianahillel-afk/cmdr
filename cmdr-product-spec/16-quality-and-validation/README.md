@@ -198,3 +198,20 @@ Canonical companion: `reports/endpoint-ept1-enrollment-inventory-health-platform
 - global totals remain **399 / 397 defined / 2 proposed / 399 planned / 10773 sections / 2394 tables**; Requirements **122 = 99/20/3/0**, OPEN **18**;
 - Command/Investigate/Govern/Studio remain PASS; Delivery Roadmap Phase 5/global/repository maturity remain PARTIAL;
 - EPT-2 is the next candidate and is not started by this verification.
+
+---
+
+## Endpoint EPT-2 — build-time evidence
+Canonical source audit: `reports/endpoint-ept2-source-audit.md`. Conformance: `reports/endpoint-ept2-telemetry-observation-capability-declaration-conformance.md`. Validation: `validation-status-endpoint-ept2.md`.
+
+- exact baseline: `1f8e482f6b7949885bd1bd7ae691215bde187b28`;
+- `CAP-EPT-015..030`: **16 / 432 / 96 / at least 48 GWT**, all `draft / defined / planned`;
+- Endpoint cumulative content: **30 / 810 / 180**;
+- global content: **415 capabilities / 413 defined / 2 proposed / 415 planned / 11205 sections / 2490 tables**;
+- EPT-1 remains PASS 190/190; Command 27, Investigate 243, Govern 47 and Studio 68 remain PASS;
+- Shared `telemetry-event` and generic normalization ownership is preserved; `CAP-EPT-011` is not duplicated;
+- `OPEN-008` remains open; Endpoint Screen IDs remain 0; EPT-3..EPT-6 remain NOT STARTED;
+- build-time gates: **194 PASS / 6 PENDING-BUILD-OR-REMOTE / 0 FAIL**, pending gates 194–199;
+- no API/protocol/port/physical event schema/storage engine/event bus/SIEM/final query language/product code/final RBAC or EPT-3+ implementation is introduced.
+
+EPT-2 remains pending post-publication verification until all 200 gates close. Documentary PASS never proves implementation or supported-platform delivery.

@@ -32,3 +32,18 @@ Product consumers can navigate by stable Agent/Endpoint/Fleet/Policy/tenant/envi
 
 ## Open support boundary
 OPEN-008 remains open. Windows, Linux and macOS remain referenced candidates with actual release support/version NOT DECIDED.
+
+---
+
+## EPT-2 Telemetry linkage
+The historical “Telemetry — future EPT-2” line above is the pre-EPT-2 snapshot. EPT-2 now defines the functional Telemetry capability layer `CAP-EPT-015..030` without creating a product screen or technical architecture.
+
+Conceptual navigation/relationships only:
+- source/sensor → local observation → Shared `telemetry-event` projection;
+- observation families → process/file/network/auth/system/sensor facts;
+- normalization → ordering/freshness/gap/loss/rate/sampling/backpressure/privacy states;
+- detailed capability declaration/availability → CAP-EPT-011 foundation summary and Settings capability-inventory projection;
+- observations → authorized Investigate/Command/Govern consumers without Evidence/Finding/Result promotion;
+- capability declarations → Studio consumers without becoming Tools.
+
+No Screen ID, wireframe, final layout, API, protocol, event schema, storage/event-bus/SIEM architecture or platform-support claim is introduced. EPT-3..EPT-6 remain NOT STARTED.

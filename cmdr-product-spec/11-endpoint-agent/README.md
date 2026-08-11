@@ -54,3 +54,10 @@ Les fonctions essentielles de l'agent ne dépendent pas d'un modèle. Toute infe
 
 ## Critère d'acceptation
 Un module de ce produit ne peut revendiquer un objet ou une capability exclue sans mise à jour des frontières, du registre de propriété et d'une ADR lorsqu'elle est transversale.
+
+---
+
+## EPT-2 build addendum — Telemetry, Observation and Technical Capability Declaration
+`CAP-EPT-015..030` add **16 capabilities / 432 sections / 96 mandatory tables** for source/observation semantics, Shared telemetry-event projection, process/file/network/auth/system/sensor observations, normalization, quality/loss/rate/backpressure, privacy, detailed capability declaration/availability, cross-product handoff and provenance.
+
+Endpoint cumulative content becomes **30 capabilities / 810 sections / 180 mandatory tables**. EPT-1 `CAP-EPT-001..014` remain intact. Shared retains `telemetry-event` and generic normalization; Settings retains source/Fleet/Policy administration; Investigate retains Evidence/Finding/Case; Studio retains Tool/Run; Govern retains Decision/Response Run/Result. `OPEN-008` remains open. No Endpoint Screen ID, implementation, API/protocol, physical schema or EPT-3+ work is introduced.

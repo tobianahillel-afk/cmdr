@@ -186,3 +186,22 @@ The preceding build-time state remains historical evidence. Canonical companion:
 - Delivery Roadmap Phase 5/global/repository maturity remain PARTIAL;
 - exact documentary correction SHA is recorded in PR #2 after publication;
 - next candidate is **EPT-2 — Telemetry, Observation and Technical Capability Declaration**, but it remains **NOT STARTED**.
+
+---
+
+## EPT-2 current execution — build-time addendum — 2026-08-11
+The preceding EPT-2 NOT STARTED statement remains historical pre-EPT-2 evidence. EPT-2 is an execution lot only; no Phase 5E2 is created.
+
+- exact baseline: `1f8e482f6b7949885bd1bd7ae691215bde187b28`;
+- EPT-1 remains **PASS 190/190** with `CAP-EPT-001..014` intact;
+- EPT-2 allocates exactly `CAP-EPT-015..030`: **16 capabilities / 432 sections / 96 mandatory tables / at least 48 GWT**, all `draft / defined / planned`;
+- Endpoint cumulative: **30 capabilities / 810 sections / 180 mandatory tables**;
+- global content: **415 capabilities / 413 defined / 2 proposed / 415 planned / 11205 sections / 2490 tables**;
+- Shared retains `telemetry-event` and generic normalization; Settings administration, Investigate Evidence/Finding/Case, Studio Tool/Run and Govern Decision/Response Run/Result remain external owners;
+- `OPEN-008` remains open; no platform/source support is declared delivered;
+- Endpoint Screen IDs remain 0; EPT-3..EPT-6 remain NOT STARTED;
+- build-time quality: **194 PASS / 6 PENDING-BUILD-OR-REMOTE / 0 FAIL**, gates 194–199 pending until fifth-commit/remote verification;
+- Delivery Roadmap Phase 5 remains **PARTIAL**; Global Capability Specification and repository maturity remain **PARTIAL**;
+- no implementation/API/protocol/port/physical schema/storage/event bus/SIEM/final RBAC or EPT-3+ work is introduced.
+
+EPT-2 may become **PASS AFTER POST-PUBLICATION VERIFICATION — 200/200** only after remote verification. Do not start EPT-3.

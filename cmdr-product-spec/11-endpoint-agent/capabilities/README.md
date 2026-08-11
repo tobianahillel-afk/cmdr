@@ -24,3 +24,19 @@ Every capability is `draft / defined / planned`, uses 27 sections and the six ma
 
 ## Mandatory boundaries
 Fleet, enrollment administration and Endpoint Policy remain Platform Settings-owned; Endpoint Agent owns individual local technical state. Endpoint Agent != Studio Automation Agent; technical capability != Studio Tool; technical output != Govern Result; Endpoint execution != Response Run/Tool Call. OPEN-008 remains open.
+
+---
+
+## EPT-2 — build-time capability layer
+The preceding EPT-2 NOT STARTED line is preserved as the pre-EPT-2 snapshot. Current EPT-2 content allocates exactly `CAP-EPT-015..030`, all `draft / defined / planned`.
+
+- EPT-2 structure: **16 capabilities / 432 sections / 96 mandatory tables / at least 48 GWT**;
+- Endpoint cumulative: **30 capabilities / 810 sections / 180 mandatory tables**;
+- EPT-1 `CAP-EPT-001..014` remain intact;
+- `CAP-EPT-011` remains the foundation availability summary; `CAP-EPT-027/028` provide detailed declaration/dynamic availability without duplication;
+- Shared retains `telemetry-event` and generic normalization;
+- `OPEN-008` remains open; no platform/source support is declared delivered;
+- EPT-3..EPT-6 remain **NOT STARTED**;
+- Endpoint Screen IDs remain **0** and no implementation/API/protocol/physical schema/final RBAC is introduced.
+
+EPT-2 remains pending final post-publication verification until all 200 gates close.

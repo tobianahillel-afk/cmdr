@@ -196,3 +196,25 @@ The preceding build-time/PENDING state is preserved as historical evidence. Cano
 - Endpoint Screen IDs remain **0**; no implementation/API/protocol/PKI/ports/certificates/tokens/final RBAC is introduced;
 - Delivery Roadmap Phase 5, Global Capability Specification and repository maturity remain **PARTIAL**;
 - next candidate: **EPT-2 — Telemetry, Observation and Technical Capability Declaration** — **NOT STARTED**.
+
+---
+
+## EPT-2 current execution — build-time state — 2026-08-11
+The preceding EPT-2 NOT STARTED line is preserved as historical pre-EPT-2 evidence. EPT-2 is an execution lot only and creates no Phase 5E2.
+
+- exact baseline: `1f8e482f6b7949885bd1bd7ae691215bde187b28`;
+- EPT-1: **PASS AFTER POST-PUBLICATION VERIFICATION — 190/190**; `CAP-EPT-001..014` intact;
+- EPT-2 capabilities: **`CAP-EPT-015..030` — 16 / 432 sections / 96 mandatory tables / at least 48 GWT**, all `draft / defined / planned`;
+- Endpoint cumulative content: **30 capabilities / 810 sections / 180 mandatory tables**;
+- global content: **415 capabilities / 413 defined / 2 proposed / 415 planned / 11205 sections / 2490 mandatory tables**;
+- Requirements: **122 = 99 conform / 20 partial / 3 absent / 0 contradictory**; OPEN: **18**;
+- `OPEN-008`: **OPEN**; no Windows/Linux/macOS/cloud/container/mobile or universal sensor/source delivery claim;
+- Shared retains `telemetry-event` and generic normalization; Settings retains source/Fleet/Policy administration; Investigate Evidence/Finding/Case; Studio Tool/Run; Govern Decision/Response Run/Result;
+- Endpoint Screen IDs: **0**;
+- EPT-3..EPT-6: **NOT STARTED**;
+- build-time gates: **194 PASS / 6 PENDING-BUILD-OR-REMOTE / 0 FAIL**, pending 194–199 until fifth-commit reachability and remote verification;
+- Command 27, Investigate 243, Govern 47 and Studio 68 remain PASS;
+- Endpoint Capability Specification, Delivery Roadmap Phase 5, Global Capability Specification and repository maturity remain **PARTIAL**;
+- no Detection/Investigation/Collection/Live Response/containment/update implementation, API/protocol/port/physical event schema/storage/event bus/SIEM/final RBAC or EPT-3+ work is introduced.
+
+EPT-2 may become **PASS AFTER POST-PUBLICATION VERIFICATION — 200/200** only after the five-commit build is remotely verified. Do not begin EPT-3 in this run.

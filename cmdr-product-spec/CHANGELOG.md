@@ -262,3 +262,15 @@ Earlier phases remain preserved.
 - After remote verification of that correction, final verdict is **EPT-1 PASS AFTER POST-PUBLICATION VERIFICATION — 190/190 PASS, 0 PENDING, 0 FAIL**. Exact correction SHA is recorded in PR #2 after publication.
 - Endpoint Capability Specification remains **PARTIAL**; EPT-2..EPT-6 remain **NOT STARTED**; Command/Investigate/Govern/Studio remain PASS; Delivery Roadmap Phase 5/global/repository maturity remain PARTIAL.
 - No detailed telemetry, detection, endpoint investigation, collection, Live Response, containment, update/deep resilience/security implementation, API/protocol/PKI/port/certificate/token/code/final RBAC or EPT-2+ capability is introduced.
+
+## 2026-08-11 — Endpoint EPT-2 build execution
+- Began **EPT-2 — Telemetry, Observation and Technical Capability Declaration** from exact EPT-1 verification baseline `1f8e482f6b7949885bd1bd7ae691215bde187b28`.
+- Revalidated `CAP-EPT-015+` as free and selected exactly `CAP-EPT-015..030` after reading all 11 Endpoint Telemetry source documents and Shared/Investigate/Settings/Studio/Govern boundaries.
+- Added **16 `draft / defined / planned` capabilities / 432 sections / 96 mandatory tables / at least 48 GWT**, preserving EPT-1 `CAP-EPT-001..014` intact.
+- Preserved Shared ownership of `telemetry-event` and generic normalization; CAP-EPT-011 remains the foundation availability summary, while CAP-EPT-027/028 provide detailed declaration/dynamic availability without duplication.
+- Defined process/file/network/auth/system/sensor observations; source/time/provenance; normalization; ordering/dedup/freshness/loss; volume/sampling/backpressure; privacy/masking; technical declaration/availability; handoff and provenance.
+- `OPEN-008` remains open; no Windows/Linux/macOS/cloud/container/mobile/source delivery support is declared.
+- Endpoint cumulative content becomes **30 capabilities / 810 sections / 180 tables**; global becomes **415 capabilities / 413 defined / 2 proposed / 415 planned / 11205 sections / 2490 tables**. Requirements remain 122=99/20/3/0; OPEN remains 18.
+- Endpoint Screen IDs remain 0; EPT-3..EPT-6 remain NOT STARTED; Command/Investigate/Govern/Studio and EPT-1 PASS histories remain intact.
+- Build-time conformance is **194 PASS / 6 PENDING-BUILD-OR-REMOTE / 0 FAIL**; final 200/200 requires exact fifth-commit and remote post-publication verification.
+- No Detection/Investigation/Collection/Live Response/containment/update implementation, API/protocol/port/physical schema/storage engine/event bus/SIEM/final RBAC or product code is introduced.

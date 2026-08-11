@@ -23,3 +23,17 @@ EPT-2 Telemetry; EPT-3 Detection/Investigation; EPT-4 Collection/Live Response; 
 
 ## Non-equivalence
 Endpoint Agent != Automation Agent; Endpoint != Agent automatically; Device != Agent Instance; Host Identity != Agent Identity; inventory != Fleet; health != security posture; advertised != authorized/available; Endpoint Policy != effective local state; technical output != Govern Result; execution != Response Run/Tool Call.
+
+---
+
+## EPT-2 telemetry/observation capability layer — build
+The preceding EPT-2 NOT STARTED statement is historical pre-EPT-2 evidence.
+
+| Range | Family | Capabilities | Boundary |
+|---|---|---:|---|
+| CAP-EPT-015..016 | source/observation and Shared event projection | 2 | Endpoint local facts; Shared owns generic event envelope |
+| CAP-EPT-017..022 | process/file/network/auth/system/sensor observations | 6 | technical facts only; no Detection/Finding/Evidence |
+| CAP-EPT-023..026 | normalization/quality/rate/privacy | 4 | no final schema, storage, event bus or RBAC |
+| CAP-EPT-027..030 | declaration/availability/handoff/provenance | 4 | CAP-EPT-011 summary preserved; no Tool/Result ownership transfer |
+
+EPT-2: **16 capabilities / 432 sections / 96 mandatory tables**. Endpoint cumulative: **30 / 810 / 180**. `OPEN-008` remains open. Endpoint Screen IDs remain 0. EPT-3..EPT-6 remain NOT STARTED.

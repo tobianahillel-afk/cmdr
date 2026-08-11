@@ -47,7 +47,8 @@ Registry validation checks duplicate/recycled IDs, concurrent owners, missing ca
 | `capability-register-studio-std3.md` | Studio STD-3 CAP-STD-034..051 | 18 | 18 | 0 | 18 planned |
 | `capability-register-studio-std4.md` | Studio STD-4 CAP-STD-052..068 | 17 | 17 | 0 | 17 planned |
 | `capability-register-endpoint-ept1.md` | Endpoint EPT-1 CAP-EPT-001..014 | 14 | 14 | 0 | 14 planned |
-| **Total** | **All registered capabilities** | **399** | **397** | **2** | **399 planned** |
+| `capability-register-endpoint-ept2.md` | Endpoint EPT-2 CAP-EPT-015..030 | 16 | 16 | 0 | 16 planned |
+| **Total** | **All registered capabilities** | **415** | **413** | **2** | **415 planned** |
 
 ## Product totals
 - Command: **27** capabilities, 729 sections, 162 mandatory tables.
@@ -62,17 +63,19 @@ Registry validation checks duplicate/recycled IDs, concurrent owners, missing ca
 - Studio STD-4: **17** capabilities, **459** sections, **102** mandatory tables.
 - Studio cumulative: **68** capabilities, **1836** sections, **408** mandatory tables.
 - Endpoint EPT-1: **14** capabilities, **378** sections, **84** mandatory tables.
-- Endpoint cumulative: **14** capabilities; EPT-1 defined/planned, EPT-2..EPT-6 NOT STARTED.
+- Endpoint EPT-2: **16** capabilities, **432** sections, **96** mandatory tables.
+- Endpoint cumulative: **30 capabilities / 810 sections / 180 mandatory tables**; EPT-1 defined/planned, EPT-2 defined/planned pending post-publication verification, EPT-3..EPT-6 NOT STARTED.
 - CAP-INV-3xx / 4xx / 5xx / 6xx / 7xx: **97 / 35 / 37 / 18 / 19**.
 - Detection Engineering: **35 capabilities, 945 sections, 210 tables**.
 - Threat Intelligence: **37 capabilities, 999 sections, 222 tables**.
 - Cloud Analysis: **18 capabilities, 486 sections, 108 tables**.
 - Mobile Forensics: **19 capabilities, 513 sections, 114 mandatory tables**.
-- Phase 4B.4 Cloud + Mobile: **37 capabilities, 999 sections, 222 tables**.
+- Phase 4B.4 Cloud + Mobile: **37 capabilities, 999 sections and 222 tables**.
 - Command + Investigate: **270 capabilities, 7290 sections, 1620 tables**.
 - Command + Investigate + Govern: **317 capabilities, 8559 sections, 1902 mandatory tables**.
 - Command + Investigate + Govern + Studio: **385 capabilities, 10395 sections, 2310 mandatory tables**.
 - Command + Investigate + Govern + Studio + Endpoint EPT-1: **399 capabilities, 10773 sections, 2394 mandatory tables**.
+- Command + Investigate + Govern + Studio + Endpoint EPT-1/EPT-2: **415 capabilities, 11205 sections, 2490 mandatory tables**.
 
 ## Command registry state
 The Command shard remains 27 unique IDs, 26 defined / 1 proposed / 27 planned, with current native/integrated claims equal to 0. `CAP-CMD-401` remains deployment-dependent under OPEN-006.
@@ -118,3 +121,16 @@ The historical pre-EPT-1 state had **0 `CAP-EPT-*` capabilities**. After exact b
 - build-time quality remains pending remote publication gates; final EPT-1 PASS requires 190/190 post-publication verification;
 - Endpoint Capability Specification is **PARTIAL** once EPT-1 content exists;
 - Delivery Roadmap Phase 5/global/repository maturity remain **PARTIAL**.
+
+## Endpoint EPT-2 build addendum — 2026-08-11
+The preceding EPT-2 NOT STARTED statements are historical pre-EPT-2 snapshots. After namespace/source revalidation, EPT-2 allocates immutable `CAP-EPT-015..030`, all `draft / defined / planned`.
+
+- EPT-2: **16 capabilities / 432 sections / 96 mandatory tables / at least 48 GWT**;
+- Endpoint cumulative: **30 / 810 / 180**;
+- global current content: **415 capabilities / 413 defined / 2 proposed / 415 planned / 11205 sections / 2490 mandatory tables**;
+- EPT-1 remains PASS 190/190 and `CAP-EPT-001..014` are intact;
+- Shared owns `telemetry-event` and generic normalization; CAP-EPT-011 remains the foundation availability summary;
+- `OPEN-008` remains open; no delivered-platform/source claim is made;
+- Endpoint Screen IDs remain 0; EPT-3..EPT-6 remain NOT STARTED;
+- build-time EPT-2 quality is **194 PASS / 6 PENDING-BUILD-OR-REMOTE / 0 FAIL** and final PASS requires remote post-publication verification;
+- no capability is reclassified as implemented/native/integrated.
