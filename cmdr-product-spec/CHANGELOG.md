@@ -274,3 +274,15 @@ Earlier phases remain preserved.
 - Endpoint Screen IDs remain 0; EPT-3..EPT-6 remain NOT STARTED; Command/Investigate/Govern/Studio and EPT-1 PASS histories remain intact.
 - Build-time conformance is **194 PASS / 6 PENDING-BUILD-OR-REMOTE / 0 FAIL**; final 200/200 requires exact fifth-commit and remote post-publication verification.
 - No Detection/Investigation/Collection/Live Response/containment/update implementation, API/protocol/port/physical schema/storage engine/event bus/SIEM/final RBAC or product code is introduced.
+
+## 2026-08-11 — Endpoint EPT-3 build execution
+- Began **EPT-3 — Local Detection and Endpoint Investigation** from exact EPT-2 post-publication verification baseline `5d7c037aff6004984416665e7e188a8700e62b2f`.
+- Revalidated `CAP-EPT-031..046` as free/unreserved and selected exactly 16 independently justified capabilities after reading all 8 Endpoint Detection and all 8 Endpoint Investigation source documents plus EPT-2/Investigate/Command/Shared/Settings/Govern boundaries.
+- Added **16 `draft / defined / planned` capabilities / 432 sections / 96 mandatory tables / at least 48 GWT** covering Detection Content consumption/eligibility, local evaluation/match/local candidate/context/grouping/coverage, process/file/network/user-session/system contexts, local timeline/correlation, pivots, detection-to-investigation expansion, summary/handoff and provenance.
+- Preserved EPT-1 **190/190** and EPT-2 **200/200** with `CAP-EPT-001..030` intact.
+- Preserved Investigate ownership of Detection Engineering/Case/Evidence/Finding, Command ownership of canonical Detection/Signal/Alert/Incident, Shared generic Search/Timeline/Linking/Correlation, Settings administration, Govern response authority and Studio Tool/Run semantics.
+- `OPEN-008` and `OPEN-017` remain open; no platform/source support, detection runtime/language/model/engine or portability model is selected.
+- Endpoint cumulative becomes **46 capabilities / 1242 sections / 276 tables**; global becomes **431 capabilities / 429 defined / 2 proposed / 431 planned / 11637 sections / 2586 tables**. Requirements remain 122=99/20/3/0; OPEN remains 18.
+- Endpoint Screen IDs remain 0; EPT-4..EPT-6 remain NOT STARTED; Command/Investigate/Govern/Studio remain PASS.
+- Build-time conformance is **204 PASS / 6 PENDING-BUILD-OR-REMOTE / 0 FAIL**, pending gates 204–209 until exact fifth-commit and remote publication verification.
+- No acquisition, Live Response, containment, response execution, API/protocol, physical schema, final RBAC or product code is introduced. **Do not start EPT-4.**

@@ -218,3 +218,25 @@ The preceding EPT-2 NOT STARTED line is preserved as historical pre-EPT-2 eviden
 - no Detection/Investigation/Collection/Live Response/containment/update implementation, API/protocol/port/physical event schema/storage/event bus/SIEM/final RBAC or EPT-3+ work is introduced.
 
 EPT-2 may become **PASS AFTER POST-PUBLICATION VERIFICATION — 200/200** only after the five-commit build is remotely verified. Do not begin EPT-3 in this run.
+
+---
+
+## EPT-3 current execution — build-time state — 2026-08-11
+The preceding EPT-3 NOT STARTED statements are preserved as historical pre-EPT-3 evidence. EPT-3 is an execution lot only and creates no Phase 5E3 or Capability Specification Phase.
+
+- exact baseline: `5d7c037aff6004984416665e7e188a8700e62b2f`;
+- EPT-1: **PASS 190/190**; EPT-2: **PASS 200/200**; `CAP-EPT-001..030` intact;
+- EPT-3 capabilities: **`CAP-EPT-031..046` — 16 / 432 sections / 96 mandatory tables / at least 48 GWT**, all `draft / defined / planned`;
+- Endpoint cumulative content: **46 capabilities / 1242 sections / 276 mandatory tables**;
+- global content: **431 capabilities / 429 defined / 2 proposed / 431 planned / 11637 sections / 2586 mandatory tables**;
+- Requirements: **122 = 99 conform / 20 partial / 3 absent / 0 contradictory**; OPEN: **18**;
+- `OPEN-008` and `OPEN-017`: **OPEN**; no final supported platform/source or detection runtime/language/model/portability decision;
+- Investigate retains Detection Engineering/Case/Evidence/Finding; Command retains canonical Detection/Signal/Alert/Incident; Shared, Settings, Govern and Studio boundaries remain unchanged;
+- Endpoint Screen IDs: **0**;
+- EPT-4..EPT-6: **NOT STARTED**;
+- build-time gates before exact fifth-commit/remote verification: **204 PASS / 6 PENDING-BUILD-OR-REMOTE / 0 FAIL**, pending **204–209**;
+- Command 27, Investigate 243, Govern 47 and Studio 68 remain PASS;
+- Endpoint Capability Specification, Delivery Roadmap Phase 5, Global Capability Specification and repository maturity remain **PARTIAL**;
+- no Collection, Live Response, containment, response execution, API/protocol, physical schema, final RBAC or implementation is introduced.
+
+EPT-3 may become **PASS AFTER POST-PUBLICATION VERIFICATION — 210/210** only after the five-commit build is remotely verified. **Do not begin EPT-4 in this run.**

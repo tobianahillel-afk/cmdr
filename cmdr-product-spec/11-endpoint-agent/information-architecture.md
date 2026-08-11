@@ -47,3 +47,19 @@ Conceptual navigation/relationships only:
 - capability declarations → Studio consumers without becoming Tools.
 
 No Screen ID, wireframe, final layout, API, protocol, event schema, storage/event-bus/SIEM architecture or platform-support claim is introduced. EPT-3..EPT-6 remain NOT STARTED.
+
+---
+
+## EPT-3 Detection and Investigation linkage
+The historical “Detection/Investigation — future EPT-3” lines above remain the pre-EPT-3 snapshot. EPT-3 now defines `CAP-EPT-031..046` with the conceptual module flow:
+
+**Telemetry → Detection → Investigation → future Collection / Live Response.**
+
+- Telemetry remains EPT-2 source-backed observations and Shared `telemetry-event` projection.
+- Detection consumes Investigate-owned Detection Content/version and produces Endpoint-local eligibility/evaluation/match/local-signal-candidate/context/coverage projections. Canonical Command Detection/Signal remain external.
+- Investigation provides read-only local process/file/network/user-session/system contexts, contextual timeline/correlation and permission-aware pivots using already available data.
+- Detection-to-Investigation expansion stops at `collection-required` whenever new acquisition would be necessary; EPT-4 remains NOT STARTED.
+- Endpoint Investigation Summary is a technical handoff only; Investigate retains Case/Evidence/Finding and analyst qualification.
+- Shared retains generic Search/Timeline/Linking/Correlation and navigation never grants source permission.
+
+No Endpoint Screen ID, detailed UX, wireframe, button, final filter/column, API/protocol, runtime architecture or platform-support claim is introduced. `OPEN-008` and `OPEN-017` remain open. EPT-4..EPT-6 remain NOT STARTED.

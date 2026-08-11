@@ -37,3 +37,18 @@ The preceding EPT-2 NOT STARTED statement is historical pre-EPT-2 evidence.
 | CAP-EPT-027..030 | declaration/availability/handoff/provenance | 4 | CAP-EPT-011 summary preserved; no Tool/Result ownership transfer |
 
 EPT-2: **16 capabilities / 432 sections / 96 mandatory tables**. Endpoint cumulative: **30 / 810 / 180**. `OPEN-008` remains open. Endpoint Screen IDs remain 0. EPT-3..EPT-6 remain NOT STARTED.
+
+---
+
+## EPT-3 local detection/investigation capability layer — build
+The preceding EPT-3 NOT STARTED statement is historical pre-EPT-3 evidence.
+
+| Range | Family | Capabilities | Boundary |
+|---|---|---:|---|
+| CAP-EPT-031..033 | Detection Content consumption, local evaluation/match, local signal-candidate | 3 | Investigate owns content; Command owns canonical Detection/Signal |
+| CAP-EPT-034..036 | context/severity/confidence, grouping/suppression projection, coverage/health/gaps | 3 | no impact/Finding/response promotion |
+| CAP-EPT-037..041 | process/file/network/user-session/system local investigation | 5 | existing data only; no acquisition |
+| CAP-EPT-042..044 | local timeline/correlation and pivots/context expansion | 3 | Shared generic mechanisms retained; pivot != Collection |
+| CAP-EPT-045..046 | summary/handoff and provenance/cross-product contracts | 2 | summary != Finding/Evidence/Case/Result |
+
+EPT-3: **16 capabilities / 432 sections / 96 mandatory tables**. Endpoint cumulative: **46 / 1242 / 276**. `OPEN-008` and `OPEN-017` remain open. Endpoint Screen IDs remain 0. EPT-4..EPT-6 remain NOT STARTED.

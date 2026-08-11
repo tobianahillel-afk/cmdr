@@ -61,3 +61,10 @@ Un module de ce produit ne peut revendiquer un objet ou une capability exclue sa
 `CAP-EPT-015..030` add **16 capabilities / 432 sections / 96 mandatory tables** for source/observation semantics, Shared telemetry-event projection, process/file/network/auth/system/sensor observations, normalization, quality/loss/rate/backpressure, privacy, detailed capability declaration/availability, cross-product handoff and provenance.
 
 Endpoint cumulative content becomes **30 capabilities / 810 sections / 180 mandatory tables**. EPT-1 `CAP-EPT-001..014` remain intact. Shared retains `telemetry-event` and generic normalization; Settings retains source/Fleet/Policy administration; Investigate retains Evidence/Finding/Case; Studio retains Tool/Run; Govern retains Decision/Response Run/Result. `OPEN-008` remains open. No Endpoint Screen ID, implementation, API/protocol, physical schema or EPT-3+ work is introduced.
+
+---
+
+## EPT-3 build addendum — Local Detection and Endpoint Investigation
+The earlier EPT-3 NOT STARTED wording is preserved as historical pre-EPT-3 evidence. EPT-3 now allocates `CAP-EPT-031..046`, all `draft / defined / planned`, for Detection Content consumption/eligibility, local evaluation/match/local signal-candidate semantics, detection context/grouping/coverage, local process/file/network/user-session/system investigation, local timeline/correlation, pivots, detection-to-investigation expansion, local summary/handoff and provenance.
+
+Endpoint cumulative content becomes **46 capabilities / 1242 sections / 276 mandatory tables**. EPT-1 remains 190/190 PASS and EPT-2 remains 200/200 PASS; `CAP-EPT-001..030` are unchanged. Investigate retains Detection Engineering/Case/Evidence/Finding, Command retains canonical Detection/Signal/Alert/Incident, Shared retains generic Search/Timeline/Linking/Correlation, Settings retains administration and Govern retains response authority. `OPEN-008` and `OPEN-017` remain open. Endpoint Screen IDs remain 0. EPT-4..EPT-6 remain NOT STARTED. No acquisition, Live Response, containment, API/protocol, physical schema, final detection runtime/language/model, final RBAC or implementation is introduced.

@@ -215,3 +215,22 @@ Canonical source audit: `reports/endpoint-ept2-source-audit.md`. Conformance: `r
 - no API/protocol/port/physical event schema/storage engine/event bus/SIEM/final query language/product code/final RBAC or EPT-3+ implementation is introduced.
 
 EPT-2 remains pending post-publication verification until all 200 gates close. Documentary PASS never proves implementation or supported-platform delivery.
+
+---
+
+## Endpoint EPT-3 — build-time evidence
+Canonical source audit: `reports/endpoint-ept3-source-audit.md`. Conformance: `reports/endpoint-ept3-local-detection-investigation-capability-conformance.md`. Validation: `validation-status-endpoint-ept3.md`.
+
+- exact baseline: `5d7c037aff6004984416665e7e188a8700e62b2f`;
+- `CAP-EPT-031..046`: **16 / 432 / 96 / at least 48 GWT**, all `draft / defined / planned`;
+- Endpoint cumulative content: **46 / 1242 / 276**;
+- global content: **431 capabilities / 429 defined / 2 proposed / 431 planned / 11637 sections / 2586 tables**;
+- source audit: all **8 Detection + 8 Investigation** Endpoint source documents plus EPT-2 and cross-product ownership boundaries;
+- EPT-1 remains PASS 190/190; EPT-2 remains PASS 200/200; Command 27, Investigate 243, Govern 47 and Studio 68 remain PASS;
+- Investigate owns Detection Engineering/Case/Evidence/Finding; Command owns canonical Detection/Signal/Alert/Incident; Shared/Settings/Govern/Studio boundaries are preserved;
+- `OPEN-008` and `OPEN-017` remain open; no supported platform/source or final detection runtime/language/model/engine is selected;
+- Endpoint Screen IDs remain 0; EPT-4..EPT-6 remain NOT STARTED;
+- build-time gates: **204 PASS / 6 PENDING-BUILD-OR-REMOTE / 0 FAIL**, pending gates 204–209;
+- no Collection, Live Response, containment, response execution, API/protocol, physical schema, final RBAC or product code is introduced.
+
+EPT-3 remains pending post-publication verification until all 210 gates close. Documentary PASS never proves implementation or supported-platform delivery.

@@ -48,7 +48,8 @@ Registry validation checks duplicate/recycled IDs, concurrent owners, missing ca
 | `capability-register-studio-std4.md` | Studio STD-4 CAP-STD-052..068 | 17 | 17 | 0 | 17 planned |
 | `capability-register-endpoint-ept1.md` | Endpoint EPT-1 CAP-EPT-001..014 | 14 | 14 | 0 | 14 planned |
 | `capability-register-endpoint-ept2.md` | Endpoint EPT-2 CAP-EPT-015..030 | 16 | 16 | 0 | 16 planned |
-| **Total** | **All registered capabilities** | **415** | **413** | **2** | **415 planned** |
+| `capability-register-endpoint-ept3.md` | Endpoint EPT-3 CAP-EPT-031..046 | 16 | 16 | 0 | 16 planned |
+| **Total** | **All registered capabilities** | **431** | **429** | **2** | **431 planned** |
 
 ## Product totals
 - Command: **27** capabilities, 729 sections, 162 mandatory tables.
@@ -64,7 +65,8 @@ Registry validation checks duplicate/recycled IDs, concurrent owners, missing ca
 - Studio cumulative: **68** capabilities, **1836** sections, **408** mandatory tables.
 - Endpoint EPT-1: **14** capabilities, **378** sections, **84** mandatory tables.
 - Endpoint EPT-2: **16** capabilities, **432** sections, **96** mandatory tables.
-- Endpoint cumulative: **30 capabilities / 810 sections / 180 mandatory tables**; EPT-1 defined/planned, EPT-2 defined/planned pending post-publication verification, EPT-3..EPT-6 NOT STARTED.
+- Endpoint EPT-3: **16** capabilities, **432** sections, **96** mandatory tables.
+- Endpoint cumulative: **46 capabilities / 1242 sections / 276 mandatory tables**; EPT-1 and EPT-2 verified PASS, EPT-3 defined/planned pending post-publication verification, EPT-4..EPT-6 NOT STARTED.
 - CAP-INV-3xx / 4xx / 5xx / 6xx / 7xx: **97 / 35 / 37 / 18 / 19**.
 - Detection Engineering: **35 capabilities, 945 sections, 210 tables**.
 - Threat Intelligence: **37 capabilities, 999 sections, 222 tables**.
@@ -76,6 +78,7 @@ Registry validation checks duplicate/recycled IDs, concurrent owners, missing ca
 - Command + Investigate + Govern + Studio: **385 capabilities, 10395 sections, 2310 mandatory tables**.
 - Command + Investigate + Govern + Studio + Endpoint EPT-1: **399 capabilities, 10773 sections, 2394 mandatory tables**.
 - Command + Investigate + Govern + Studio + Endpoint EPT-1/EPT-2: **415 capabilities, 11205 sections, 2490 mandatory tables**.
+- Command + Investigate + Govern + Studio + Endpoint EPT-1/EPT-2/EPT-3: **431 capabilities, 11637 sections, 2586 mandatory tables**.
 
 ## Command registry state
 The Command shard remains 27 unique IDs, 26 defined / 1 proposed / 27 planned, with current native/integrated claims equal to 0. `CAP-CMD-401` remains deployment-dependent under OPEN-006.
@@ -133,4 +136,18 @@ The preceding EPT-2 NOT STARTED statements are historical pre-EPT-2 snapshots. A
 - `OPEN-008` remains open; no delivered-platform/source claim is made;
 - Endpoint Screen IDs remain 0; EPT-3..EPT-6 remain NOT STARTED;
 - build-time EPT-2 quality is **194 PASS / 6 PENDING-BUILD-OR-REMOTE / 0 FAIL** and final PASS requires remote post-publication verification;
+- no capability is reclassified as implemented/native/integrated.
+
+## Endpoint EPT-3 build addendum — 2026-08-11
+The preceding EPT-3 NOT STARTED statement is historical pre-EPT-3 evidence. After source/namespace/ownership revalidation, EPT-3 allocates immutable `CAP-EPT-031..046`, all `draft / defined / planned`.
+
+- EPT-3: **16 capabilities / 432 sections / 96 mandatory tables / at least 48 GWT**;
+- Endpoint cumulative: **46 / 1242 / 276**;
+- global content: **431 capabilities / 429 defined / 2 proposed / 431 planned / 11637 sections / 2586 mandatory tables**;
+- EPT-1 remains PASS 190/190 and EPT-2 remains PASS 200/200; `CAP-EPT-001..030` are intact;
+- Investigate retains Detection Engineering/Case/Evidence/Finding; Command retains canonical Detection/Signal/Alert/Incident; Shared/Settings/Govern/Studio boundaries are preserved;
+- `OPEN-008` and `OPEN-017` remain open; no delivered-platform/source claim or final detection runtime/language/model is selected;
+- Endpoint Screen IDs remain **0**; EPT-4..EPT-6 remain **NOT STARTED**;
+- build-time EPT-3 quality is **204 PASS / 6 PENDING-BUILD-OR-REMOTE / 0 FAIL**, pending 204–209 until exact fifth-commit and remote publication verification;
+- no acquisition, Live Response, containment, API/protocol, physical schema, final RBAC or implementation is introduced;
 - no capability is reclassified as implemented/native/integrated.
