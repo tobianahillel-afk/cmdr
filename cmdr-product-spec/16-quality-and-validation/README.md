@@ -141,3 +141,25 @@ The build-time section above remains historical evidence. Canonical final compan
 - Endpoint remains **NOT STARTED / 0**;
 - Delivery Roadmap Phase 5, global Capability Specification and repository maturity remain **PARTIAL**;
 - recovery modified no capability, object model, permission, screen or implementation file.
+
+---
+
+## Endpoint capability foundations preflight — rerun evidence
+Canonical report: `reports/endpoint-capability-specification-foundations-preflight.md`.
+
+The report preserves the previous **BLOCKED 96/100** attempt at `c21ea86cde1bea425d7d9233d9973b867f5ef9e8`, revalidates from exact Studio-closure baseline `9030186e7aa12990a3d8fb6f30aa107539e2a117`, and records all 100 Endpoint foundations gates.
+
+After successful publication and remote verification of the single closure commit:
+- Endpoint preflight: **PASS — 100/100**;
+- Endpoint Capability Specification: **NOT STARTED**;
+- Endpoint capabilities: **0**;
+- concrete/reserved `CAP-EPT-*` IDs: **0 / 0**;
+- Endpoint Screen IDs: **0**;
+- Endpoint corpus remains **74 documents**, unchanged since the blocked read-only audit;
+- Endpoint README → missing `information-architecture.md` remains a genuine non-blocking gap;
+- OPEN-008 remains open and no Windows/Linux/macOS delivery claim is made;
+- Fleet and Endpoint Policy remain Platform Settings-owned;
+- Studio remains PASS;
+- Delivery Roadmap Phase 5/global/repository maturity remain PARTIAL.
+
+This evidence does not start EPT-1. The next functional run after verified 100/100 is **EPT-1 — Enrollment, Inventory, Health and Platform Foundations**, with a mandatory fresh namespace/HEAD/OPEN-008/ownership recheck before any ID allocation.

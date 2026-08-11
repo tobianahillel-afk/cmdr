@@ -136,3 +136,22 @@ The preceding build-time/PENDING state is preserved as historical evidence. Fina
 - no `CAP-STD-*` capability contract is modified by this recovery.
 
 The historically blocked Endpoint preflight remains **BLOCKED 96/100** until its dedicated rerun. The next run is **ENDPOINT PREFLIGHT RERUN / CLOSURE**, not EPT-1.
+
+---
+
+## Endpoint foundations preflight rerun — closure addendum — 2026-08-11
+The preceding `BLOCKED 96/100` line is preserved as historical evidence. Canonical rerun report: `16-quality-and-validation/reports/endpoint-capability-specification-foundations-preflight.md`.
+
+- rerun baseline: `9030186e7aa12990a3d8fb6f30aa107539e2a117`;
+- exact baseline title: `docs: record Studio STD-4 post-publication verification`;
+- Endpoint files changed since the blocked audit: **0**;
+- Endpoint preflight: **PASS — 100/100**, effective only after successful remote publication/recheck of the same commit;
+- Endpoint Capability Specification: **NOT STARTED**;
+- Endpoint capabilities / reserved `CAP-EPT-*` IDs / Endpoint Screen IDs: **0 / 0 / 0**;
+- canonical Endpoint capability namespace: `CAP-EPT-*`;
+- Studio remains **PASS**;
+- Delivery Roadmap Phase 5 remains **PARTIAL**;
+- Global Capability Specification / repository maturity remain **PARTIAL**;
+- this preflight creates no API, protocol, implementation, object schema, permission, support-platform commitment or capability.
+
+After successful post-publication verification, the next functional run becomes **EPT-1 — Enrollment, Inventory, Health and Platform Foundations**. **EPT-1 is not started by this preflight and no `CAP-EPT-001..014` ID is allocated or reserved here.**

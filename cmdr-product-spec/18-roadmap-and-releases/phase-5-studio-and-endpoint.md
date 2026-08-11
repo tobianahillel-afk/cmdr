@@ -132,3 +132,20 @@ The preceding build-time/PENDING material remains historical evidence. Remote re
 - no Phase 5A/B/C/D/E, implementation, Endpoint capability or Endpoint Screen ID is introduced.
 
 The next run after successful final remote publication is **ENDPOINT PREFLIGHT RERUN / CLOSURE**. The previous Endpoint preflight remains historically **BLOCKED 96/100** until that rerun; EPT-1 must not begin before a 100/100 preflight.
+
+---
+
+## Endpoint foundations preflight rerun — closure addendum — 2026-08-11
+The previous Endpoint preflight remains preserved historically as **BLOCKED 96/100** at `c21ea86cde1bea425d7d9233d9973b867f5ef9e8`. The current rerun starts from exact Studio-closure HEAD `9030186e7aa12990a3d8fb6f30aa107539e2a117` and is recorded in `../16-quality-and-validation/reports/endpoint-capability-specification-foundations-preflight.md`.
+
+After successful publication and remote verification of the single preflight-closure commit:
+- Endpoint preflight: **PASS — 100/100**;
+- Endpoint Capability Specification: **NOT STARTED**;
+- Endpoint capabilities: **0**;
+- concrete/reserved `CAP-EPT-*` IDs: **0 / 0**;
+- Endpoint Screen IDs: **0**;
+- Studio remains **PASS**;
+- Delivery Roadmap Phase 5 remains **PARTIAL**;
+- Global Capability Specification / repository maturity remain **PARTIAL**.
+
+Endpoint execution-lot decomposition is retained as EPT-1 through EPT-6. The next functional execution becomes **EPT-1 — Enrollment, Inventory, Health and Platform Foundations** only after this preflight is remotely confirmed 100/100. This addendum does not start EPT-1, allocate `CAP-EPT-001..014`, create a platform-support promise or transfer Fleet/Policy ownership from Settings.
