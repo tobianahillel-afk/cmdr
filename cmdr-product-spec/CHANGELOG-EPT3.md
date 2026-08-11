@@ -10,3 +10,11 @@
 - Endpoint cumulative build target: **46 / 1242 / 276**. Global target: **431 capabilities / 429 defined / 2 proposed / 431 planned / 11637 sections / 2586 tables**.
 - Build-time quality before publication: **204 PASS / 6 PENDING-BUILD-OR-REMOTE / 0 FAIL**; EPT-4..6 remain NOT STARTED.
 - No acquisition, Live Response, containment, response execution, API/protocol, physical schema, final RBAC or product code is introduced.
+
+## 2026-08-11 — post-publication verification
+- Functional build SHA: `941bfb5da8a3598ca3dd79d135246b0a8865a31a`; baseline → build **5 ahead / 0 behind**, same merge base.
+- Remote checks confirmed PR #2 open/Draft/unmerged, `main` unchanged, README branch/main unchanged and CI/status N/A.
+- `CAP-EPT-031..046` remain **16 / 432 / 96 / >=48 GWT**; `CAP-EPT-001..030` remain intact and `CAP-EPT-047` is absent.
+- OPEN remains 18 with OPEN-008 and OPEN-017 open; Endpoint Screen IDs remain 0; EPT-4..6 remain NOT STARTED.
+- Final verdict becomes effective after publication/recheck of this documentation-only record: **EPT-3 PASS AFTER POST-PUBLICATION VERIFICATION — 210/210 PASS, 0 PENDING, 0 FAIL**.
+- Exact final verification-record SHA is recorded in PR #2 after publication to avoid self-reference.

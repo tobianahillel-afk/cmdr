@@ -33,3 +33,6 @@ Execution lot: **EPT-3 — Local Detection and Endpoint Investigation** under De
 **16 capabilities / 432 numbered sections / 96 mandatory tables / at least 48 GWT.** Duplicate IDs 0; recycled IDs 0; owner conflicts 0; empty mandatory tables 0. Endpoint cumulative after EPT-3: **46 / 1242 / 276**.
 
 `CAP-EPT-001..030` remain unchanged. `CAP-EPT-047+` is not allocated or reserved by EPT-3. EPT-4..EPT-6 remain NOT STARTED.
+
+## Post-publication verification
+Fifth functional/build SHA: `941bfb5da8a3598ca3dd79d135246b0a8865a31a`; baseline → build verified **5 ahead / 0 behind**, same merge base. Canonical companion: `../../16-quality-and-validation/reports/endpoint-ept3-local-detection-investigation-post-publication-verification.md`. After publication/recheck of the documentation-only verification record and recording its exact SHA in PR #2, EPT-3 final documentary verdict is **PASS AFTER POST-PUBLICATION VERIFICATION — 210/210 PASS, 0 PENDING, 0 FAIL**. This does not change delivery mode or imply implementation.
