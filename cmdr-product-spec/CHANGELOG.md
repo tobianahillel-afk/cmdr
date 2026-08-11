@@ -246,3 +246,19 @@ Earlier phases remain preserved.
 - No `CAP-STD-*` capability, Endpoint file, object model, permission, screen or implementation file is modified by this recovery.
 - Endpoint Capability Specification remains **NOT STARTED / 0**, the prior Endpoint preflight remains historically **BLOCKED 96/100**, and Delivery Roadmap Phase 5/global/repository maturity remain **PARTIAL**.
 - Next run: **ENDPOINT PREFLIGHT RERUN / CLOSURE** only; do not start EPT-1 before that preflight reaches 100/100.
+
+## 2026-08-11 — Endpoint EPT-1 post-publication verified execution
+- Executed **EPT-1 — Enrollment, Inventory, Health and Platform Foundations** under **Delivery Roadmap Phase 5 — Studio and Endpoint** after exact Endpoint preflight PASS 100/100 baseline `8326a8cf9e9ca3b645395d192c24856058e67034`.
+- Revalidated the canonical `CAP-EPT-*` namespace at **0 concrete / 0 reserved IDs**, then allocated exactly `CAP-EPT-001..014` with no recycled ID.
+- Published the five required functional commits: `e2805d55f9700296b14e824f28934139099fcc48`, `8e5435499d88836abe4f33b34203a1b93dff704b`, `5995d3aad377395107abcfae4657f1950d6649c5`, `f5929e17a55cb621b19e51aa328b2f958077579b`, `828b231ec2de4d3b891410a643898577f14cbcc4`.
+- Verified baseline → fifth functional/build SHA at **5 ahead / 0 behind**, same merge base; build remote PR/main/README checks passed and CI/status is N/A.
+- Structural result: **14 capabilities / 378 numbered sections / 84 mandatory tables / at least 42 GWT**, with 0 duplicate/recycled ID, owner conflict, empty/generic mandatory table or Endpoint Screen ID.
+- Scope is Agent identity/registration, local enrollment state, tenant/environment binding, observed platform/OS/architecture, version/build/compatibility, inventory/freshness, health/self-check, heartbeat/connectivity, operational states, technical capability availability, Fleet/Policy projection boundaries and provenance/handoff.
+- Preserved Settings ownership of Fleet/enrollment administration/Endpoint Policy/assignment/upgrade waves/admin configuration, Studio ownership of Tool/Automation constructs, Govern ownership of Response Run/Result/rollback/authority and Shared generic mechanisms.
+- Created a functional/navigation-only Endpoint `information-architecture.md` from canonical boundaries, resolving the prior README link gap without Screen ID, wireframe, final layout, implementation architecture, protocol or support claim.
+- OPEN remains **18** and OPEN-008 remains **open**; Windows/Linux/macOS and all exact platform/version delivery support remain undecided.
+- Global totals are **399 capabilities — 27 Command / 243 Investigate / 47 Govern / 68 Studio / 14 Endpoint; 397 defined / 2 proposed / 399 planned; 10773 sections / 2394 mandatory tables**. Requirements remain **122 = 99 conform / 20 partial / 3 absent / 0 contradictory**.
+- Post-publication audit identified one real documentary divergence: canonical global changelog/final status surfaces did not yet record the completed remote verification. One documentation-only fast-forward correction records the final evidence and changes no `CAP-EPT-*` capability contract.
+- After remote verification of that correction, final verdict is **EPT-1 PASS AFTER POST-PUBLICATION VERIFICATION — 190/190 PASS, 0 PENDING, 0 FAIL**. Exact correction SHA is recorded in PR #2 after publication.
+- Endpoint Capability Specification remains **PARTIAL**; EPT-2..EPT-6 remain **NOT STARTED**; Command/Investigate/Govern/Studio remain PASS; Delivery Roadmap Phase 5/global/repository maturity remain PARTIAL.
+- No detailed telemetry, detection, endpoint investigation, collection, Live Response, containment, update/deep resilience/security implementation, API/protocol/PKI/port/certificate/token/code/final RBAC or EPT-2+ capability is introduced.

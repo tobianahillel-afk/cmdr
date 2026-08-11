@@ -181,3 +181,20 @@ Canonical source audit: `reports/endpoint-ept1-source-audit.md`. Canonical confo
 - Endpoint Capability Specification becomes **PARTIAL** with EPT-1 content; Delivery Roadmap Phase 5/global/repository maturity remain **PARTIAL**.
 
 EPT-1 becomes **PASS AFTER POST-PUBLICATION VERIFICATION — 190/190** only if the exact five-commit chain, remote HEAD, PR/main/README, exact build/final SHA and post-publication evidence all verify. No EPT-2 work may begin in this run.
+
+---
+
+## Endpoint EPT-1 — final post-publication evidence
+Canonical companion: `reports/endpoint-ept1-enrollment-inventory-health-platform-foundations-post-publication-verification.md`.
+
+- exact five functional commits are verified from baseline `8326a8cf9e9ca3b645395d192c24856058e67034` to build `828b231ec2de4d3b891410a643898577f14cbcc4` at **5 ahead / 0 behind**, same merge base;
+- build PR #2 remained open/Draft/unmerged on `main`; root README branch/main unchanged; CI/status N/A;
+- EPT-1 structure remains **14 / 378 / 84**, at least 42 GWT, with zero duplicate/recycled ID, owner conflict, empty mandatory table or Endpoint Screen ID;
+- OPEN-008 remains open and no platform delivery/support claim is introduced;
+- a real documentary gap in canonical final changelog/status surfaces is corrected by one post-publication documentation-only fast-forward commit; no capability contract changes;
+- after remote verification of that correction, final verdict is **PASS AFTER POST-PUBLICATION VERIFICATION — 190/190 PASS, 0 PENDING, 0 FAIL**;
+- exact final correction SHA is recorded in PR #2 after publication;
+- Endpoint Capability Specification remains **PARTIAL**, EPT-2..EPT-6 **NOT STARTED**;
+- global totals remain **399 / 397 defined / 2 proposed / 399 planned / 10773 sections / 2394 tables**; Requirements **122 = 99/20/3/0**, OPEN **18**;
+- Command/Investigate/Govern/Studio remain PASS; Delivery Roadmap Phase 5/global/repository maturity remain PARTIAL;
+- EPT-2 is the next candidate and is not started by this verification.

@@ -169,3 +169,20 @@ The preflight section above is preserved as the exact pre-EPT-1 snapshot. EPT-1 
 - Endpoint Capability Specification is **PARTIAL** with EPT-1 content; Delivery Roadmap Phase 5/global/repository maturity remain **PARTIAL**.
 
 After successful remote 190/190 verification, EPT-1 becomes **PASS AFTER POST-PUBLICATION VERIFICATION**. The next candidate is **EPT-2 — Telemetry, Observation and Technical Capability Declaration**, but EPT-2 must not start in this run.
+
+---
+
+## EPT-1 final post-publication verification — 2026-08-11
+The preceding build-time state remains historical evidence. Canonical companion: `../16-quality-and-validation/reports/endpoint-ept1-enrollment-inventory-health-platform-foundations-post-publication-verification.md`.
+
+- five functional commits from `8326a8cf9e9ca3b645395d192c24856058e67034` to build `828b231ec2de4d3b891410a643898577f14cbcc4` are verified at **5 ahead / 0 behind**, same merge base;
+- build remote PR/main/README checks passed; CI/status = N/A;
+- a real post-publication documentary divergence is corrected without changing any capability contract;
+- after remote verification of the documentary correction, EPT-1 final verdict is **PASS AFTER POST-PUBLICATION VERIFICATION — 190/190 PASS, 0 PENDING, 0 FAIL**;
+- Endpoint Capability Specification remains **PARTIAL**: EPT-1 PASS, EPT-2..EPT-6 NOT STARTED;
+- Endpoint remains **14 / 378 / 84** and global remains **399 / 397 defined / 2 proposed / 399 planned / 10773 / 2394**;
+- OPEN-008 remains open; no supported-platform delivery claim is created;
+- Command/Investigate/Govern/Studio remain PASS;
+- Delivery Roadmap Phase 5/global/repository maturity remain PARTIAL;
+- exact documentary correction SHA is recorded in PR #2 after publication;
+- next candidate is **EPT-2 — Telemetry, Observation and Technical Capability Declaration**, but it remains **NOT STARTED**.

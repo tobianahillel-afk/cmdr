@@ -175,3 +175,24 @@ The entire preflight history above remains historical evidence. EPT-1 is an exec
 - no EPT-2+ capability, implementation, API/protocol/PKI/port/certificate/token, final RBAC or Endpoint Screen is introduced.
 
 If the fifth functional commit is reachable and the remote gates close without divergence, EPT-1 becomes **PASS AFTER POST-PUBLICATION VERIFICATION — 190/190**. Exact build/final SHA and post-publication evidence are recorded in PR #2 to avoid a self-referential SHA-only repository commit. Next candidate after PASS: **EPT-2 — Telemetry, Observation and Technical Capability Declaration**; do not start it in this run.
+
+---
+
+## EPT-1 final post-publication verification — 2026-08-11
+The preceding build-time/PENDING state is preserved as historical evidence. Canonical companion: `16-quality-and-validation/reports/endpoint-ept1-enrollment-inventory-health-platform-foundations-post-publication-verification.md`.
+
+- baseline: `8326a8cf9e9ca3b645395d192c24856058e67034`;
+- fifth functional/build SHA: `828b231ec2de4d3b891410a643898577f14cbcc4`;
+- exact five functional commits verified at **5 ahead / 0 behind**, same merge base;
+- build remote checks passed; CI/status = **N/A**;
+- a real documentary divergence required one post-publication verification correction to canonical changelog/status/roadmap/quality evidence; no `CAP-EPT-*` contract is changed;
+- final documentary verdict becomes effective after remote publication/recheck of that correction: **EPT-1 PASS AFTER POST-PUBLICATION VERIFICATION — 190/190 PASS, 0 PENDING, 0 FAIL**;
+- exact final correction SHA is recorded in PR #2 after publication to avoid self-reference;
+- Endpoint Capability Specification: **PARTIAL** — EPT-1 PASS; EPT-2..EPT-6 **NOT STARTED**;
+- Endpoint: **14 capabilities / 378 sections / 84 mandatory tables**;
+- global: **399 capabilities / 397 defined / 2 proposed / 399 planned / 10773 sections / 2394 mandatory tables**;
+- Requirements remain **122 = 99/20/3/0**; OPEN remains **18** and OPEN-008 remains **OPEN**;
+- Command 27, Investigate 243, Govern 47 and Studio 68 remain **PASS**;
+- Endpoint Screen IDs remain **0**; no implementation/API/protocol/PKI/ports/certificates/tokens/final RBAC is introduced;
+- Delivery Roadmap Phase 5, Global Capability Specification and repository maturity remain **PARTIAL**;
+- next candidate: **EPT-2 — Telemetry, Observation and Technical Capability Declaration** — **NOT STARTED**.
