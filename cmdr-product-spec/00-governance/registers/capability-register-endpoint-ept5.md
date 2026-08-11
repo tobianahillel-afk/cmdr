@@ -36,3 +36,6 @@ Execution lot: **EPT-5 — Containment, Verification and Governed Response Primi
 Endpoint cumulative after EPT-5: **81 capabilities / 2187 sections / 486 mandatory tables**. Global content after EPT-5: **466 capabilities / 464 defined / 2 proposed / 466 planned / 12582 sections / 2796 mandatory tables**.
 
 `CAP-EPT-001..064` remain unchanged. `CAP-EPT-082+` is not allocated or reserved by EPT-5. EPT-6 remains **NOT STARTED**. OPEN remains 18.
+
+## Post-publication verification addendum
+Build SHA: `b346491d4f09541b0064db1e1ec4764f113804ce`. Baseline → build is **5 ahead / 0 behind**, same merge base. Remote build checks passed for PR/main/README/CI/namespace/non-regression. Final EPT-5 verdict becomes **PASS AFTER POST-PUBLICATION VERIFICATION — 230/230 PASS** after this verification-record commit is remotely published and rechecked. Exact final verification-record SHA is recorded in PR #2.

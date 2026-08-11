@@ -10,3 +10,12 @@
 - No Endpoint Screen ID, API/protocol/native command/PowerShell/shell/firewall syntax/final schema/RBAC/policy/approval/verification/rollback engine or implementation is introduced.
 - EPT-6 remains NOT STARTED.
 - Build-time conformance is **224 PASS / 6 PENDING-BUILD-OR-REMOTE / 0 FAIL**; final EPT-5 PASS requires 230/230 remote post-publication verification.
+
+## Post-publication verification
+- functional/build SHA: `b346491d4f09541b0064db1e1ec4764f113804ce`;
+- baseline → build: **5 ahead / 0 behind**, same merge base;
+- remote build PR/main/README/non-regression/namespace checks passed; CI/status = N/A;
+- post-publication companion records source audit, exact 17-capability set, governance/verification/rollback/Result boundaries, metrics and gates;
+- final verification-record commit changes no `CAP-EPT-*` capability contract;
+- after its remote publication/recheck and exact SHA recording in PR #2, EPT-5 is **PASS AFTER POST-PUBLICATION VERIFICATION — 230/230 PASS, 0 PENDING, 0 FAIL**;
+- EPT-6 remains NOT STARTED; Endpoint/Phase5/global/repository maturity remain PARTIAL.

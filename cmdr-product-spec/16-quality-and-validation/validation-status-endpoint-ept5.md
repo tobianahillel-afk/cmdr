@@ -8,7 +8,7 @@ source-of-truth: quality-report
 ---
 # Validation Status — Endpoint EPT-5
 
-## Build-time state
+## Build-time state — preserved historical evidence
 - baseline: `5d576295fa12693ef375a35cfe515d7bdf577f68`;
 - EPT-5 set: **`CAP-EPT-065..081` — 17 capabilities / 459 sections / 102 mandatory tables / at least 51 GWT**;
 - duplicate/recycled/owner-conflict/empty-generic tables: **0/0/0/0**;
@@ -21,6 +21,19 @@ source-of-truth: quality-report
 - EPT-6: **NOT STARTED**;
 - implementation/API/protocol/native-command/final-RBAC/final-engines: **0**.
 
-Build-time gates before branch publication: **224 PASS / 6 PENDING-BUILD-OR-REMOTE / 0 FAIL**. Pending: **224–229**. Gate 230 is PASS because EPT-6 is untouched.
+Historical build-time gates before branch publication: **224 PASS / 6 PENDING-BUILD-OR-REMOTE / 0 FAIL**, pending **224–229**. Gate 230 was PASS because EPT-6 was untouched.
 
-Final PASS is prohibited until exact fifth functional SHA, ancestry, remote HEAD, PR/main/README, CI/status, namespace and post-publication evidence are rechecked.
+## Final post-publication state
+- functional/build SHA: `b346491d4f09541b0064db1e1ec4764f113804ce`;
+- baseline → build: **5 ahead / 0 behind**, same merge base;
+- PR #2 remained open/Draft/unmerged, base `main`;
+- main remained `bc1ec59e5e79ccbaba291e2984b0eb7d5e54129c`;
+- branch/main README remained exact `# cmdr`, same blob `901c74cda52e28b5ff7fc425ddf28ef89f3ad875`;
+- CI/status: **N/A** — no commit statuses or workflow runs;
+- `CAP-EPT-001..064` unchanged; `CAP-EPT-065..081` exact EPT-5 set; `CAP-EPT-082` absent;
+- final companion: `reports/endpoint-ept5-containment-verification-governed-response-primitives-post-publication-verification.md`;
+- EPT-6 remains NOT STARTED.
+
+**Final documentary verdict after publication of this verification record and final remote recheck: EPT-5 PASS AFTER POST-PUBLICATION VERIFICATION — 230/230 PASS, 0 PENDING, 0 FAIL.**
+
+Endpoint Capability Specification remains PARTIAL. Documentary PASS does not prove implementation, supported platform, policy/approval/verification/rollback engine or response efficacy.
