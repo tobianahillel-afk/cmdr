@@ -49,7 +49,8 @@ Registry validation checks duplicate/recycled IDs, concurrent owners, missing ca
 | `capability-register-endpoint-ept1.md` | Endpoint EPT-1 CAP-EPT-001..014 | 14 | 14 | 0 | 14 planned |
 | `capability-register-endpoint-ept2.md` | Endpoint EPT-2 CAP-EPT-015..030 | 16 | 16 | 0 | 16 planned |
 | `capability-register-endpoint-ept3.md` | Endpoint EPT-3 CAP-EPT-031..046 | 16 | 16 | 0 | 16 planned |
-| **Total** | **All registered capabilities** | **431** | **429** | **2** | **431 planned** |
+| `capability-register-endpoint-ept4.md` | Endpoint EPT-4 CAP-EPT-047..064 | 18 | 18 | 0 | 18 planned |
+| **Total** | **All registered capabilities** | **449** | **447** | **2** | **449 planned** |
 
 ## Product totals
 - Command: **27** capabilities, 729 sections, 162 mandatory tables.
@@ -66,7 +67,8 @@ Registry validation checks duplicate/recycled IDs, concurrent owners, missing ca
 - Endpoint EPT-1: **14** capabilities, **378** sections, **84** mandatory tables.
 - Endpoint EPT-2: **16** capabilities, **432** sections, **96** mandatory tables.
 - Endpoint EPT-3: **16** capabilities, **432** sections, **96** mandatory tables.
-- Endpoint cumulative: **46 capabilities / 1242 sections / 276 mandatory tables**; EPT-1 and EPT-2 verified PASS, EPT-3 defined/planned pending post-publication verification, EPT-4..EPT-6 NOT STARTED.
+- Endpoint EPT-4: **18** capabilities, **486** sections, **108** mandatory tables.
+- Endpoint cumulative: **64 capabilities / 1728 sections / 384 mandatory tables**; EPT-1/EPT-2/EPT-3 verified PASS, EPT-4 defined/planned pending post-publication verification, EPT-5/EPT-6 NOT STARTED.
 - CAP-INV-3xx / 4xx / 5xx / 6xx / 7xx: **97 / 35 / 37 / 18 / 19**.
 - Detection Engineering: **35 capabilities, 945 sections, 210 tables**.
 - Threat Intelligence: **37 capabilities, 999 sections, 222 tables**.
@@ -79,6 +81,7 @@ Registry validation checks duplicate/recycled IDs, concurrent owners, missing ca
 - Command + Investigate + Govern + Studio + Endpoint EPT-1: **399 capabilities, 10773 sections, 2394 mandatory tables**.
 - Command + Investigate + Govern + Studio + Endpoint EPT-1/EPT-2: **415 capabilities, 11205 sections, 2490 mandatory tables**.
 - Command + Investigate + Govern + Studio + Endpoint EPT-1/EPT-2/EPT-3: **431 capabilities, 11637 sections, 2586 mandatory tables**.
+- Command + Investigate + Govern + Studio + Endpoint EPT-1/EPT-2/EPT-3/EPT-4: **449 capabilities, 12123 sections, 2694 mandatory tables**.
 
 ## Command registry state
 The Command shard remains 27 unique IDs, 26 defined / 1 proposed / 27 planned, with current native/integrated claims equal to 0. `CAP-CMD-401` remains deployment-dependent under OPEN-006.
@@ -151,3 +154,26 @@ The preceding EPT-3 NOT STARTED statement is historical pre-EPT-3 evidence. Afte
 - build-time EPT-3 quality is **204 PASS / 6 PENDING-BUILD-OR-REMOTE / 0 FAIL**, pending 204–209 until exact fifth-commit and remote publication verification;
 - no acquisition, Live Response, containment, API/protocol, physical schema, final RBAC or implementation is introduced;
 - no capability is reclassified as implemented/native/integrated.
+
+## Endpoint EPT-3 final verification addendum — 2026-08-11
+The preceding EPT-3 build-time PENDING material remains historical evidence. Canonical companion: `16-quality-and-validation/reports/endpoint-ept3-local-detection-investigation-post-publication-verification.md`.
+
+- final EPT-3 verdict: **PASS AFTER POST-PUBLICATION VERIFICATION — 210/210 PASS, 0 PENDING, 0 FAIL**;
+- exact final EPT-3 HEAD before EPT-4: `67ea28d221ed70baae83ff0689048685e1aacf74`;
+- `CAP-EPT-001..046` remain immutable `draft / defined / planned` capability contracts;
+- EPT-4 was NOT STARTED at that closure point.
+
+## Endpoint EPT-4 build addendum — 2026-08-11
+The EPT-4 pre-state is the final EPT-3 HEAD above. After exact namespace/source/ownership audit, EPT-4 allocates `CAP-EPT-047..064`, all `draft / defined / planned`.
+
+- EPT-4 structure: **18 capabilities / 486 sections / 108 mandatory tables / at least 54 GWT**;
+- Endpoint cumulative: **64 / 1728 / 384**;
+- global content: **449 capabilities / 447 defined / 2 proposed / 449 planned / 12123 sections / 2694 mandatory tables**;
+- Collection Request remains Investigate-owned; Endpoint owns local technical eligibility/operation/output only;
+- OPEN-014 remains open: Collection Item/Collected Technical Output/Package do not become Artifact/Attachment/Evidence automatically;
+- OPEN-015 remains open: Endpoint Technical Execution != Studio Tool Call/Automation Run != Govern Response Run;
+- OPEN-008/017 remain open; no supported platform or universal detection/script runtime is selected;
+- effectful/destructive containment primitives remain EPT-5 boundary;
+- Endpoint Screen IDs remain 0; EPT-5/EPT-6 remain NOT STARTED;
+- build-time quality: **214 PASS / 6 PENDING-BUILD-OR-REMOTE / 0 FAIL**, pending 214–219 until exact fifth commit and remote verification;
+- no capability is reclassified as implemented/native/integrated and no API/protocol/transport/physical schema/storage/final RBAC/product code is introduced.

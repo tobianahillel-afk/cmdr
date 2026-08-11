@@ -240,3 +240,24 @@ The preceding EPT-3 NOT STARTED statements are preserved as historical pre-EPT-3
 - no Collection, Live Response, containment, response execution, API/protocol, physical schema, final RBAC or implementation is introduced.
 
 EPT-3 may become **PASS AFTER POST-PUBLICATION VERIFICATION — 210/210** only after the five-commit build is remotely verified. **Do not begin EPT-4 in this run.**
+
+---
+
+## EPT-4 current execution — build-time state — 2026-08-11
+The preceding EPT-4 NOT STARTED statements are historical pre-EPT-4 snapshots. EPT-4 is an execution lot only and creates no Phase 5E4.
+
+- exact baseline: `67ea28d221ed70baae83ff0689048685e1aacf74`;
+- EPT-1 **PASS 190/190**, EPT-2 **PASS 200/200**, EPT-3 **PASS 210/210**; `CAP-EPT-001..046` intact;
+- EPT-4: **`CAP-EPT-047..064` — 18 capabilities / 486 sections / 108 mandatory tables / at least 54 GWT**, all `draft / defined / planned`;
+- Endpoint cumulative content: **64 capabilities / 1728 sections / 384 mandatory tables**;
+- global content: **449 capabilities / 447 defined / 2 proposed / 449 planned / 12123 sections / 2694 mandatory tables**;
+- Requirements remain **122 = 99/20/3/0**; OPEN remains **18**; OPEN-008/014/015/017 remain OPEN;
+- Investigate retains Collection Request/Case/Evidence/Finding/Artifact qualification; Govern Decision/Response Run/Result/authority; Studio Tool Call/Automation Run; Settings Fleet/Policy/Secret References; Shared Jobs/Trace/Activity/Export;
+- `Collection Item`, `Collection Package` and `Collected Technical Output` are neutral Endpoint concepts and are not Artifact/Evidence automatically;
+- Endpoint Technical Session/Execution remain distinct from Investigate Live Session, Studio runs/calls and Govern Response Run;
+- Endpoint Screen IDs remain **0**; EPT-5/EPT-6 remain **NOT STARTED**;
+- build-time gates: **214 PASS / 6 PENDING-BUILD-OR-REMOTE / 0 FAIL**, pending **214–219**;
+- no containment/remediation, API/protocol/remote-shell protocol/transport/command catalog/final runtime/physical schema/storage/final RBAC/product implementation is introduced;
+- Endpoint Capability Specification, Delivery Roadmap Phase 5, Global Capability Specification and repository maturity remain **PARTIAL**.
+
+EPT-4 may become **PASS AFTER POST-PUBLICATION VERIFICATION — 220/220** only after the exact five-commit build is remotely verified and a final post-publication record closes gates 214–219. **Do not begin EPT-5.**

@@ -225,3 +225,23 @@ The preceding EPT-3 NOT STARTED statement is historical pre-EPT-3 evidence. EPT-
 - no Collection, Live Response, containment, response execution, API/protocol, physical schema, final RBAC or implementation is introduced.
 
 EPT-3 may become **PASS AFTER POST-PUBLICATION VERIFICATION — 210/210** only after remote verification. Next candidate after PASS is **EPT-4 — Collection and Live Response Technical Execution**, but **do not begin EPT-4 in this run**.
+
+---
+
+## EPT-4 current execution — build-time addendum — 2026-08-11
+The preceding EPT-4 NOT STARTED statements are historical pre-EPT-4 evidence. EPT-4 is an execution lot only and creates no Phase 5E4.
+
+- exact baseline: `67ea28d221ed70baae83ff0689048685e1aacf74` — final EPT-3 verification record;
+- EPT-1 **PASS 190/190**, EPT-2 **PASS 200/200**, EPT-3 **PASS 210/210**; `CAP-EPT-001..046` intact;
+- EPT-4 allocates exactly `CAP-EPT-047..064`: **18 capabilities / 486 sections / 108 mandatory tables / at least 54 GWT**, all `draft / defined / planned`;
+- Endpoint cumulative: **64 capabilities / 1728 sections / 384 mandatory tables**;
+- global content: **449 capabilities / 447 defined / 2 proposed / 449 planned / 12123 sections / 2694 tables**;
+- Collection Request/Case/Evidence/Finding/Artifact qualification remain Investigate-owned; Endpoint owns technical eligibility/operations/output only;
+- Govern retains Decision/Response Run/Result and response authority; Studio retains Tool Call/Automation Run; Settings Fleet/Policy/Secret References; Shared generic Jobs/Trace/Activity/Export;
+- OPEN-008/014/015/017 remain open; no platform support, Artifact identity, execution bridge or universal runtime is finalized;
+- Endpoint Screen IDs remain 0; EPT-5/EPT-6 remain **NOT STARTED**;
+- build-time quality: **214 PASS / 6 PENDING-BUILD-OR-REMOTE / 0 FAIL**, pending gates 214–219 until exact fifth-commit and remote verification;
+- effectful containment/remediation actions remain future EPT-5; update/resilience/security depth remains future EPT-6;
+- no API/protocol/remote-shell protocol/transport/command catalog/final runtime/physical schema/storage/final RBAC/product implementation.
+
+EPT-4 may become **PASS AFTER POST-PUBLICATION VERIFICATION — 220/220** only after exact five-commit ancestry and remote verification. Endpoint Capability Specification and Delivery Roadmap Phase 5 remain PARTIAL. **Do not begin EPT-5.**

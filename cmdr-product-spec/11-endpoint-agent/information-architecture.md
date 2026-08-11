@@ -63,3 +63,18 @@ The historical “Detection/Investigation — future EPT-3” lines above remain
 - Shared retains generic Search/Timeline/Linking/Correlation and navigation never grants source permission.
 
 No Endpoint Screen ID, detailed UX, wireframe, button, final filter/column, API/protocol, runtime architecture or platform-support claim is introduced. `OPEN-008` and `OPEN-017` remain open. EPT-4..EPT-6 remain NOT STARTED.
+
+---
+
+## EPT-4 Collection and Live Response linkage
+The historical EPT-4 NOT STARTED wording above is preserved as the pre-EPT-4 snapshot. EPT-4 extends the conceptual flow to:
+
+**Telemetry → Detection → Investigation → Collection → Live Response → future Containment.**
+
+- `collection-required` from EPT-3 can become an Investigate-owned Collection Request and then an Endpoint technical intake/operation only after eligibility and authority boundaries.
+- Collection provides bounded acquisition, local progress, neutral Collection Items/Package, completeness/integrity metadata and transfer; Investigate performs Artifact/Evidence qualification.
+- Live Response provides Endpoint Technical Session, command/script/file execution requests and target-side technical outputs under policy/authority; it is not a Govern Response Run or Studio Automation Run.
+- Effectful/destructive process/network/service/file containment actions stop at future EPT-5.
+- Shared generic Jobs/Trace/Activity/Export remain mechanisms, not Endpoint object owners.
+
+No Endpoint Screen ID, wireframe, shell/terminal design, button, filter, shortcut, final column, API/protocol/transport, runtime architecture or platform-support claim is introduced. OPEN-008/014/015/017 remain open. EPT-5/EPT-6 remain NOT STARTED.

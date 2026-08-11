@@ -234,3 +234,22 @@ Canonical source audit: `reports/endpoint-ept3-source-audit.md`. Conformance: `r
 - no Collection, Live Response, containment, response execution, API/protocol, physical schema, final RBAC or product code is introduced.
 
 EPT-3 remains pending post-publication verification until all 210 gates close. Documentary PASS never proves implementation or supported-platform delivery.
+
+---
+
+## Endpoint EPT-4 — build-time evidence
+Canonical source audit: `reports/endpoint-ept4-source-audit.md`. Conformance: `reports/endpoint-ept4-collection-live-response-technical-execution-capability-conformance.md`. Validation: `validation-status-endpoint-ept4.md`.
+
+- exact baseline: `67ea28d221ed70baae83ff0689048685e1aacf74`;
+- source audit: **7/7 Endpoint Collection + 9/9 Endpoint Live Response** documents, plus EPT-3, Investigate, Govern, Studio, Settings, Shared and containment/resilience boundaries;
+- `CAP-EPT-047..064`: **18 / 486 / 108 / at least 54 GWT**, all `draft / defined / planned`;
+- Endpoint cumulative content: **64 / 1728 / 384**;
+- global content: **449 capabilities / 447 defined / 2 proposed / 449 planned / 12123 sections / 2694 tables**;
+- EPT-1 **190/190**, EPT-2 **200/200**, EPT-3 **210/210** remain preserved; Command 27, Investigate 243, Govern 47 and Studio 68 remain PASS;
+- Collection Request remains Investigate-owned; neutral Collection Items/Packages/Technical Outputs are not Artifact/Evidence automatically under OPEN-014;
+- Endpoint Technical Session/Execution remain distinct from Studio Tool Call/Automation Run and Govern Response Run/Result under OPEN-015;
+- OPEN-008/014/015/017 remain open; Endpoint Screen IDs remain 0; EPT-5/EPT-6 remain NOT STARTED;
+- build-time gates: **214 PASS / 6 PENDING-BUILD-OR-REMOTE / 0 FAIL**, pending gates 214–219;
+- no containment/remediation, API/protocol/remote-shell protocol/transport/command catalog/final runtime/physical schema/storage/final RBAC/product implementation.
+
+EPT-4 remains **PENDING POST-PUBLICATION VERIFICATION** until all 220 gates close. Documentary PASS never proves implementation, supported-platform delivery or response authority.

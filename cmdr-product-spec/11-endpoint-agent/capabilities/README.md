@@ -56,3 +56,21 @@ The preceding EPT-3 NOT STARTED line is historical pre-EPT-3 evidence. EPT-3 all
 - Endpoint Screen IDs remain **0**; no Collection, Live Response, containment, API/protocol, physical schema, final RBAC or implementation is introduced.
 
 EPT-3 build-time quality remains pending publication-dependent gates until all 210 gates close.
+
+---
+
+## EPT-4 — build-time capability layer
+The preceding EPT-4 NOT STARTED line is historical pre-EPT-4 evidence. EPT-4 allocates exactly `CAP-EPT-047..064`, all `draft / defined / planned`.
+
+- EPT-4 structure: **18 capabilities / 486 sections / 108 mandatory tables / at least 54 GWT**;
+- Endpoint cumulative: **64 capabilities / 1728 sections / 384 mandatory tables**;
+- EPT-1 **190/190**, EPT-2 **200/200**, EPT-3 **210/210** remain preserved and `CAP-EPT-001..046` remain intact;
+- canonical Investigate Collection Request remains Investigate-owned; Endpoint owns local technical intake/operations/outputs only;
+- neutral Collection Item/Collected Technical Output do not become Artifact/Evidence under OPEN-014;
+- Endpoint Technical Session/Execution remain distinct from Studio Tool Call/Automation Run and Govern Response Run/Result under OPEN-015;
+- OPEN-008/014/015/017 remain open;
+- Endpoint Screen IDs remain 0;
+- EPT-5/EPT-6 remain NOT STARTED; containment/remediation/update/resilience are not started;
+- no API/protocol/transport/final shell/runtime/physical schema/storage/final RBAC/implementation.
+
+EPT-4 remains pending final post-publication verification until all 220 gates close.

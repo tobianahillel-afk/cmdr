@@ -52,3 +52,19 @@ The preceding EPT-3 NOT STARTED statement is historical pre-EPT-3 evidence.
 | CAP-EPT-045..046 | summary/handoff and provenance/cross-product contracts | 2 | summary != Finding/Evidence/Case/Result |
 
 EPT-3: **16 capabilities / 432 sections / 96 mandatory tables**. Endpoint cumulative: **46 / 1242 / 276**. `OPEN-008` and `OPEN-017` remain open. Endpoint Screen IDs remain 0. EPT-4..EPT-6 remain NOT STARTED.
+
+---
+
+## EPT-4 Collection / Live Response technical capability layer — build
+The preceding EPT-4 NOT STARTED statement is historical pre-EPT-4 evidence.
+
+| Range | Family | Capabilities | Boundary |
+|---|---|---:|---|
+| CAP-EPT-047..048 | request eligibility/authority + bounded technical planning | 2 | Collection Request remains Investigate-owned |
+| CAP-EPT-049..052 | file, process/system, memory, network acquisition | 4 | neutral collection output; no analysis/containment |
+| CAP-EPT-053..055 | progress, packaging/integrity, transfer/handoff | 3 | local state != Job; package/output != Evidence/Artifact automatically |
+| CAP-EPT-056..057 | technical LR session definition/lifecycle | 2 | != Investigate Live Session / Govern Response Run |
+| CAP-EPT-058..061 | command request, interactive execution, scripts, file operations | 4 | no command catalog/runtime; effectful operations require authority |
+| CAP-EPT-062..064 | technical outputs/errors, operator closure, provenance/contracts | 3 | output != Result; OPEN-014/015 preserved |
+
+EPT-4: **18 capabilities / 486 sections / 108 mandatory tables**. Endpoint cumulative: **64 / 1728 / 384**. EPT-5/EPT-6 remain NOT STARTED. Endpoint Screen IDs remain 0.
