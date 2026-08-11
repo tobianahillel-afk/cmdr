@@ -3,7 +3,7 @@ id: capability-register
 domain: 00-governance
 status: draft
 owner: Product Architecture
-updated: 2026-08-10
+updated: 2026-08-11
 source-of-truth: registry
 requirements:
   - REQ-PROD-006
@@ -46,7 +46,8 @@ Registry validation checks duplicate/recycled IDs, concurrent owners, missing ca
 | `capability-register-studio-std2.md` | Studio STD-2 CAP-STD-017..033 | 17 | 17 | 0 | 17 planned |
 | `capability-register-studio-std3.md` | Studio STD-3 CAP-STD-034..051 | 18 | 18 | 0 | 18 planned |
 | `capability-register-studio-std4.md` | Studio STD-4 CAP-STD-052..068 | 17 | 17 | 0 | 17 planned |
-| **Total** | **All registered capabilities** | **385** | **383** | **2** | **385 planned** |
+| `capability-register-endpoint-ept1.md` | Endpoint EPT-1 CAP-EPT-001..014 | 14 | 14 | 0 | 14 planned |
+| **Total** | **All registered capabilities** | **399** | **397** | **2** | **399 planned** |
 
 ## Product totals
 - Command: **27** capabilities, 729 sections, 162 mandatory tables.
@@ -60,7 +61,8 @@ Registry validation checks duplicate/recycled IDs, concurrent owners, missing ca
 - Studio STD-3: **18** capabilities, **486** sections, **108** mandatory tables.
 - Studio STD-4: **17** capabilities, **459** sections, **102** mandatory tables.
 - Studio cumulative: **68** capabilities, **1836** sections, **408** mandatory tables.
-- Endpoint: **0** capabilities; NOT STARTED.
+- Endpoint EPT-1: **14** capabilities, **378** sections, **84** mandatory tables.
+- Endpoint cumulative: **14** capabilities; EPT-1 defined/planned, EPT-2..EPT-6 NOT STARTED.
 - CAP-INV-3xx / 4xx / 5xx / 6xx / 7xx: **97 / 35 / 37 / 18 / 19**.
 - Detection Engineering: **35 capabilities, 945 sections, 210 tables**.
 - Threat Intelligence: **37 capabilities, 999 sections, 222 tables**.
@@ -70,6 +72,7 @@ Registry validation checks duplicate/recycled IDs, concurrent owners, missing ca
 - Command + Investigate: **270 capabilities, 7290 sections, 1620 tables**.
 - Command + Investigate + Govern: **317 capabilities, 8559 sections, 1902 mandatory tables**.
 - Command + Investigate + Govern + Studio: **385 capabilities, 10395 sections, 2310 mandatory tables**.
+- Command + Investigate + Govern + Studio + Endpoint EPT-1: **399 capabilities, 10773 sections, 2394 mandatory tables**.
 
 ## Command registry state
 The Command shard remains 27 unique IDs, 26 defined / 1 proposed / 27 planned, with current native/integrated claims equal to 0. `CAP-CMD-401` remains deployment-dependent under OPEN-006.
@@ -84,15 +87,14 @@ The Command shard remains 27 unique IDs, 26 defined / 1 proposed / 27 planned, w
 - STD-1: 16 unique `CAP-STD-001..016`, all `draft / defined / planned`, 432 sections, 96 mandatory tables; **PASS AFTER POST-PUBLICATION VERIFICATION — 190/190**.
 - STD-2: 17 unique `CAP-STD-017..033`, all `draft / defined / planned`, 459 sections, 102 mandatory tables; **PASS AFTER POST-PUBLICATION VERIFICATION — 200/200**.
 - STD-3: 18 unique `CAP-STD-034..051`, all `draft / defined / planned`, 486 sections, 108 mandatory tables; historical build PENDING retained; current final **PASS AFTER POST-PUBLICATION VERIFICATION — 210/210**.
-- STD-4: 17 unique `CAP-STD-052..068`, all `draft / defined / planned`, 459 sections, 102 mandatory tables; **PENDING POST-PUBLICATION VERIFICATION** at build time.
-- No `CAP-EPT-*` capability exists.
+- STD-4: 17 unique `CAP-STD-052..068`, all `draft / defined / planned`, 459 sections, 102 mandatory tables; build-time PENDING is historical; final companion records **PASS AFTER POST-PUBLICATION VERIFICATION — 220/220**.
 - Permission namespace ambiguity `perm.studio.*` vs `perm.cmdr-studio.*` remains documented and unresolved; no atomic namespace is selected.
 
 ## Studio STD-3 final verification addendum — preserved historical evidence
 The STD-3 build-time `PENDING` state is retained historically. Final documentary status is **PASS AFTER POST-PUBLICATION VERIFICATION — 210/210 gates PASS**. Canonical companion: `16-quality-and-validation/reports/studio-std3-agents-human-gates-runtime-control-post-publication-verification.md`. The exact STD-3 verification-record SHA is `9babd679f52f3f28458a5f8f4d9c76698ebf875a`. At that closure point STD-4 and Endpoint were NOT STARTED.
 
 ## Studio STD-4 closure addendum
-The content audit finds all required Studio capability families represented across `CAP-STD-001..068`, with **68 / 1836 / 408** cumulative structure, no owner conflict and no capability-layer placeholder. Studio may become PASS only after STD-4 reaches **220/220** post-publication. Delivery Roadmap Phase 5 remains PARTIAL because Endpoint is NOT STARTED.
+The content audit finds all required Studio capability families represented across `CAP-STD-001..068`, with **68 / 1836 / 408** cumulative structure, no owner conflict and no capability-layer placeholder. Studio becomes PASS only after STD-4 reaches **220/220** post-publication. Delivery Roadmap Phase 5 remains PARTIAL because Endpoint is not complete.
 
 No capability is marked implemented, promoted, deployed, active, native or integrated by this registry; documentary PASS never proves implementation.
 
@@ -102,7 +104,17 @@ The build-time `PENDING` line and closure condition above remain historical evid
 - STD-4 final documentary verdict: **PASS AFTER POST-PUBLICATION VERIFICATION — 220/220 PASS, 0 PENDING, 0 FAIL**;
 - Studio Capability Specification: **PASS** across `CAP-STD-001..068`;
 - Studio cumulative: **68 capabilities / 1836 sections / 408 mandatory tables**;
-- Endpoint: **0 capabilities / NOT STARTED**;
 - Delivery Roadmap Phase 5: **PARTIAL**;
-- no capability is reclassified as implemented/native/integrated by this documentary PASS;
-- exact final verification-record SHA is recorded in PR #2 after remote publication.
+- no capability is reclassified as implemented/native/integrated by this documentary PASS.
+
+## Endpoint EPT-1 build addendum — 2026-08-11
+The historical pre-EPT-1 state had **0 `CAP-EPT-*` capabilities**. After exact baseline/preflight/namespace revalidation, EPT-1 allocates immutable `CAP-EPT-001..014`, all `draft / defined / planned`.
+
+- structure: **14 capabilities / 378 sections / 84 mandatory tables**;
+- scope: enrollment/identity/platform/version/inventory/health/heartbeat/state/capability/Fleet-Policy boundaries/provenance foundations only;
+- OPEN-008 remains open; no supported platform is declared;
+- Endpoint Screen IDs remain **0**;
+- EPT-2..EPT-6 remain **NOT STARTED**;
+- build-time quality remains pending remote publication gates; final EPT-1 PASS requires 190/190 post-publication verification;
+- Endpoint Capability Specification is **PARTIAL** once EPT-1 content exists;
+- Delivery Roadmap Phase 5/global/repository maturity remain **PARTIAL**.

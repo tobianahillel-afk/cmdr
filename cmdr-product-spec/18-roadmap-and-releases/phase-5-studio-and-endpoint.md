@@ -3,7 +3,7 @@ id: roadmap-phase-5-studio-and-endpoint
 domain: 18-roadmap-and-releases
 status: draft
 owner: Product Operations Lead
-updated: 2026-08-10
+updated: 2026-08-11
 source-of-truth: canonical
 ---
 # Phase 5 Studio And Endpoint
@@ -149,3 +149,23 @@ After successful publication and remote verification of the single preflight-clo
 - Global Capability Specification / repository maturity remain **PARTIAL**.
 
 Endpoint execution-lot decomposition is retained as EPT-1 through EPT-6. The next functional execution becomes **EPT-1 — Enrollment, Inventory, Health and Platform Foundations** only after this preflight is remotely confirmed 100/100. This addendum does not start EPT-1, allocate `CAP-EPT-001..014`, create a platform-support promise or transfer Fleet/Policy ownership from Settings.
+
+---
+
+## EPT-1 current execution — build-time addendum — 2026-08-11
+The preflight section above is preserved as the exact pre-EPT-1 snapshot. EPT-1 is an execution lot only and creates no Phase 5E1/5E2/etc.
+
+- lot: **EPT-1 — Enrollment, Inventory, Health and Platform Foundations**;
+- exact baseline: `8326a8cf9e9ca3b645395d192c24856058e67034`;
+- `CAP-EPT-001..014`: **14 capabilities / 378 sections / 84 mandatory tables**, all `draft / defined / planned`;
+- scope: Agent identity/registration, local enrollment, tenant/environment binding, platform/OS/architecture, version/build/compatibility, inventory/freshness, health/self-check, heartbeat/connectivity, operational states, capability availability, Fleet/Policy boundaries and provenance/handoff;
+- OPEN-008 remains open; no Windows/Linux/macOS or other platform is declared officially supported/delivered;
+- Platform Settings retains Fleet, enrollment administration, Endpoint Policy/assignment, upgrade waves and administrative configuration;
+- Endpoint Screen IDs remain **0**;
+- EPT-2 through EPT-6 remain **NOT STARTED**;
+- content totals become **399 global capabilities / 397 defined / 2 proposed / 399 planned / 10773 sections / 2394 mandatory tables**;
+- Requirements remain **122 = 99/20/3/0**, OPEN remains **18**;
+- build-time quality: **184 PASS / 6 PENDING-BUILD-OR-REMOTE / 0 FAIL** before exact fifth-commit and remote checks;
+- Endpoint Capability Specification is **PARTIAL** with EPT-1 content; Delivery Roadmap Phase 5/global/repository maturity remain **PARTIAL**.
+
+After successful remote 190/190 verification, EPT-1 becomes **PASS AFTER POST-PUBLICATION VERIFICATION**. The next candidate is **EPT-2 — Telemetry, Observation and Technical Capability Declaration**, but EPT-2 must not start in this run.

@@ -155,3 +155,23 @@ The preceding `BLOCKED 96/100` line is preserved as historical evidence. Canonic
 - this preflight creates no API, protocol, implementation, object schema, permission, support-platform commitment or capability.
 
 After successful post-publication verification, the next functional run becomes **EPT-1 — Enrollment, Inventory, Health and Platform Foundations**. **EPT-1 is not started by this preflight and no `CAP-EPT-001..014` ID is allocated or reserved here.**
+
+---
+
+## EPT-1 current execution — build-time state — 2026-08-11
+The entire preflight history above remains historical evidence. EPT-1 is an execution lot under Delivery Roadmap Phase 5 and is not Phase 5E1 or a Capability Specification Phase.
+
+- exact baseline: `8326a8cf9e9ca3b645395d192c24856058e67034`;
+- capabilities: **`CAP-EPT-001..014` — 14 / 378 sections / 84 mandatory tables**, all `draft / defined / planned`;
+- Endpoint Capability Specification: **PARTIAL / PENDING POST-PUBLICATION VERIFICATION**;
+- EPT-2, EPT-3, EPT-4, EPT-5 and EPT-6: **NOT STARTED**;
+- Endpoint Screen IDs: **0**;
+- OPEN-008: **OPEN**; Windows/Linux/macOS and all exact release/platform support remain undecided;
+- global content: **399 capabilities / 397 defined / 2 proposed / 399 planned / 10773 sections / 2394 mandatory tables**;
+- Requirements: **122 = 99 conform / 20 partial / 3 absent / 0 contradictory**; OPEN: **18**;
+- Command **PASS 27**, Investigate **PASS 243**, Govern **PASS 47**, Studio **PASS 68** are preserved;
+- build-time gates before exact fifth-commit/remote verification: **184 PASS / 6 PENDING-BUILD-OR-REMOTE / 0 FAIL**;
+- Delivery Roadmap Phase 5, Global Capability Specification and repository maturity remain **PARTIAL**;
+- no EPT-2+ capability, implementation, API/protocol/PKI/port/certificate/token, final RBAC or Endpoint Screen is introduced.
+
+If the fifth functional commit is reachable and the remote gates close without divergence, EPT-1 becomes **PASS AFTER POST-PUBLICATION VERIFICATION — 190/190**. Exact build/final SHA and post-publication evidence are recorded in PR #2 to avoid a self-referential SHA-only repository commit. Next candidate after PASS: **EPT-2 — Telemetry, Observation and Technical Capability Declaration**; do not start it in this run.

@@ -3,7 +3,7 @@ id: quality-readme
 domain: 16-quality-and-validation
 status: draft
 owner: Quality Lead
-updated: 2026-08-09
+updated: 2026-08-11
 source-of-truth: canonical
 ---
 # Quality and Validation
@@ -49,7 +49,6 @@ GOV-3 introduces no audit/metrics engine, API/protocol, warehouse/storage schema
 ---
 
 ## Studio programme evidence — current addendum
-
 The GOV-3 section above is preserved as the exact pre-Studio quality snapshot. Its statement that Phase 5 was “not started” is historical evidence only.
 
 ### Studio STD-1
@@ -163,3 +162,22 @@ After successful publication and remote verification of the single closure commi
 - Delivery Roadmap Phase 5/global/repository maturity remain PARTIAL.
 
 This evidence does not start EPT-1. The next functional run after verified 100/100 is **EPT-1 — Enrollment, Inventory, Health and Platform Foundations**, with a mandatory fresh namespace/HEAD/OPEN-008/ownership recheck before any ID allocation.
+
+---
+
+## Endpoint EPT-1 — build-time evidence
+Canonical source audit: `reports/endpoint-ept1-source-audit.md`. Canonical conformance report: `reports/endpoint-ept1-enrollment-inventory-health-platform-foundations-capability-conformance.md`. Validation status: `validation-status-endpoint-ept1.md`.
+
+- baseline: `8326a8cf9e9ca3b645395d192c24856058e67034`;
+- `CAP-EPT-001..014`: **14 / 378 / 84**, all `draft / defined / planned`;
+- minimum GWT: **42**;
+- duplicate/recycled IDs, owner conflicts, empty mandatory tables: **0 / 0 / 0**;
+- Endpoint Screen IDs / implementation/API/protocol/PKI/final RBAC: **0 / 0**;
+- OPEN-008 remains open; no supported-platform claim;
+- EPT-2..EPT-6 remain NOT STARTED;
+- global content totals: **399 capabilities / 397 defined / 2 proposed / 399 planned / 10773 sections / 2394 tables**;
+- Requirements remain **122 = 99/20/3/0** and OPEN **18**;
+- build-time gates before fifth-commit publication: **184 PASS / 6 PENDING-BUILD-OR-REMOTE / 0 FAIL**;
+- Endpoint Capability Specification becomes **PARTIAL** with EPT-1 content; Delivery Roadmap Phase 5/global/repository maturity remain **PARTIAL**.
+
+EPT-1 becomes **PASS AFTER POST-PUBLICATION VERIFICATION — 190/190** only if the exact five-commit chain, remote HEAD, PR/main/README, exact build/final SHA and post-publication evidence all verify. No EPT-2 work may begin in this run.
