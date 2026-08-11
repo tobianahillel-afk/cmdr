@@ -95,3 +95,21 @@ The historical “future Containment / EPT-5 NOT STARTED” wording above is pre
 - EPT-6 remains the future update/resilience/security-depth boundary.
 
 No Endpoint Screen ID, kill-process UI, isolation screen, button, confirmation flow, terminal, wireframe, filter, column, API/protocol/runtime architecture or support claim is introduced.
+
+---
+
+## EPT-6 Updates, Resilience and Security linkage — 2026-08-12
+The historical EPT-6 future wording above is the pre-EPT-6 snapshot. EPT-6 extends the conceptual module flow to:
+
+**Telemetry → Detection → Investigation → Collection → Live Response → Containment → Verification → Update / Resilience / Security → cross-product consumers.**
+
+Conceptual relationships only:
+- Settings administrative target/channel/wave → Endpoint local update assignment → package/compatibility → download/staging/readiness → install/activation → progress/failure/retry → post-update technical verification → optional previous-version recovery;
+- offline/local buffering → reconnect/replay → restart/crash recovery → resource/dependency degradation and reassessment;
+- self-protection/anti-tamper → privilege/component security context → Secret Reference handling → Local Audit Event → security-state handoff;
+- security-state handoff may reach Command, Investigate, Settings or Govern according permission, but does not auto-create Incident/Finding/Decision/Result;
+- Endpoint closure consolidates provenance across `CAP-EPT-001..099` without becoming implementation architecture.
+
+Endpoint update != Studio Deployment; Endpoint Update Reversion != Studio Deployment Reversion; local update/recovery != Govern Response Rollback; local audit != Shared Trace.
+
+No Endpoint Screen ID, update dashboard, anti-tamper UX, terminal, buttons, filters, columns, wireframe, API/protocol/runtime architecture or platform-support claim is introduced. Endpoint Screen IDs remain **0**.

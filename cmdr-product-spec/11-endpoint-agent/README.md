@@ -86,3 +86,16 @@ Endpoint now has **81 capabilities / 2187 sections / 486 mandatory tables**. EPT
 EPT-5 covers primitive request/eligibility/authority boundary, readiness/precheck/target state, process/isolation/network/quarantine/delete-restore/service/local-session primitives, normalized technical outcomes, technical verification, partial/unknown/drift, technical reversal, containment release, Govern reconciliation input and provenance. `CAP-EPT-081` is source-driven local-session containment only; directory account actions remain external.
 
 Govern retains Approval/Decision/Response Run/response verification/rollback/Result; Settings retains Fleet/Policy/admin/secrets; Studio retains Human Gate/Tool Call/Automation Run; Shared retains generic mechanisms; Investigate retains Case/Finding/Evidence. OPEN remains 18 and OPEN-007/008/013/014/015/017 stay open. Endpoint Screen IDs remain 0. EPT-6 remains **NOT STARTED**. No implementation, API/protocol/native command/final engine/schema/RBAC is introduced.
+
+---
+
+## EPT-6 build addendum — Updates, Resilience, Security and Endpoint Provenance — 2026-08-12
+The earlier EPT-6 `NOT STARTED` wording is preserved above as the exact pre-EPT-6 snapshot. EPT-6 now allocates the source-driven range `CAP-EPT-082..099`, all `draft / defined / planned`.
+
+EPT-6 contributes **18 capabilities / 486 sections / 108 mandatory tables / at least 54 GWT**: update assignment/package/download/readiness/install/activation/progress/retry/health/reversion; offline buffering/replay/restart/crash/resource/dependency resilience; self-protection/anti-tamper, privilege/security context, Secret Reference handling, Local Audit Event, security-state handoff and Endpoint closure.
+
+Endpoint cumulative content becomes **99 capabilities / 2673 sections / 594 mandatory tables**. Global content becomes **484 capabilities / 482 defined / 2 proposed / 484 planned / 13068 sections / 2904 mandatory tables**. Requirements remain conservatively **122 = 99/20/3/0** and OPEN remains **18**.
+
+Settings retains Fleet/update target/channel/wave/Policy and Secret administration; Studio retains Studio Deployment/Reversion; Govern retains response authority/rollback/Result; Shared retains generic Jobs/Retry/Recovery/Trace/Activity; Security retains global permission/privacy/audit-integrity policy. Endpoint Screen IDs remain **0**. No API/protocol/code/package/crypto/physical schema/final RBAC or Phase 6 capability is introduced.
+
+Build-time quality is **233 PASS / 7 PENDING-REMOTE / 0 FAIL**. EPT-6, Endpoint Capability Specification and Delivery Roadmap Phase 5 remain PENDING/PARTIAL until actual post-publication verification closes gates 234–240.

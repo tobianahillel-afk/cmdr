@@ -83,3 +83,19 @@ The preceding EPT-5 NOT STARTED statement is historical pre-EPT-5 evidence.
 | CAP-EPT-081 | local account-session lock/termination | 1 | directory account actions remain external |
 
 EPT-5: **17 capabilities / 459 sections / 102 mandatory tables / at least 51 GWT**. Endpoint cumulative: **81 / 2187 / 486**. EPT-6 remains NOT STARTED. Endpoint Screen IDs remain 0.
+
+---
+
+## EPT-6 Updates / Resilience / Security / Closure capability layer — build — 2026-08-12
+The preceding EPT-6 NOT STARTED statements are historical pre-EPT-6 evidence.
+
+| Range | Family | Capabilities | Boundary |
+|---|---|---:|---|
+| CAP-EPT-082..088 | update assignment/package/download/readiness/install/activation/progress/health/reversion | 7 | Settings owns admin targeting/waves; Endpoint owns local technical lifecycle; update reversion != Studio/Govern rollback |
+| CAP-EPT-089..093 | buffering/replay/persistence/crash/resource/dependency resilience | 5 | local facts only; Shared generic Jobs/Retry/Recovery retained; replay != exactly-once |
+| CAP-EPT-094..098 | self-protection/anti-tamper, privilege, Secret Reference handling, Local Audit, security-state handoff | 5 | Security/Settings/global owners retained; technical candidates != Finding/Incident/Result |
+| CAP-EPT-099 | Endpoint capability/provenance closure | 1 | documentary closure only; no implementation/Phase6 work |
+
+EPT-6: **18 capabilities / 486 sections / 108 mandatory tables / at least 54 GWT**. Endpoint cumulative content: **99 / 2673 / 594**. Endpoint Screen IDs remain **0**. OPEN remains **18**.
+
+Build-time closure is structurally positive but publication gates 234–240 remain pending; Endpoint/Phase 5 cannot become final PASS until post-publication verification.
