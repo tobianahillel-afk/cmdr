@@ -52,7 +52,8 @@ Registry validation checks duplicate/recycled IDs, concurrent owners, missing ca
 | `capability-register-endpoint-ept4.md` | Endpoint EPT-4 CAP-EPT-047..064 | 18 | 18 | 0 | 18 planned |
 | `capability-register-endpoint-ept5.md` | Endpoint EPT-5 CAP-EPT-065..081 | 17 | 17 | 0 | 17 planned |
 | `capability-register-endpoint-ept6.md` | Endpoint EPT-6 CAP-EPT-082..099 | 18 | 18 | 0 | 18 planned |
-| **Total** | **All registered capabilities** | **484** | **482** | **2** | **484 planned** |
+| `capability-register-settings-tenant-environment-foundations.md` | Settings Tenant/Environment CAP-SET-001..004 | 4 | 4 | 0 | 4 planned |
+| **Total** | **All registered capabilities** | **488** | **486** | **2** | **488 planned** |
 
 ## Product totals
 - Command: **27** capabilities, 729 sections, 162 mandatory tables.
@@ -73,6 +74,7 @@ Registry validation checks duplicate/recycled IDs, concurrent owners, missing ca
 - Endpoint EPT-5: **17** capabilities, **459** sections, **102** mandatory tables.
 - Endpoint EPT-6: **18** capabilities, **486** sections, **108** mandatory tables.
 - Endpoint cumulative: **99 capabilities / 2673 sections / 594 mandatory tables**; EPT-1/EPT-2/EPT-3/EPT-4/EPT-5/EPT-6 verified PASS after their respective post-publication verification records.
+- Settings Tenant/Environment foundations: **4 capabilities / 108 sections / 24 mandatory tables**; build-time publication verification pending.
 - CAP-INV-3xx / 4xx / 5xx / 6xx / 7xx: **97 / 35 / 37 / 18 / 19**.
 - Detection Engineering: **35 capabilities, 945 sections, 210 tables**.
 - Threat Intelligence: **37 capabilities, 999 sections, 222 tables**.
@@ -88,6 +90,7 @@ Registry validation checks duplicate/recycled IDs, concurrent owners, missing ca
 - Command + Investigate + Govern + Studio + Endpoint EPT-1/EPT-2/EPT-3/EPT-4: **449 capabilities, 12123 sections, 2694 mandatory tables**.
 - Command + Investigate + Govern + Studio + Endpoint EPT-1/EPT-2/EPT-3/EPT-4/EPT-5: **466 capabilities, 12582 sections, 2796 mandatory tables**.
 - Command + Investigate + Govern + Studio + Endpoint EPT-1/EPT-2/EPT-3/EPT-4/EPT-5/EPT-6: **484 capabilities, 13068 sections, 2904 mandatory tables**.
+- Current global content including Settings Tenant/Environment foundations: **488 capabilities, 13176 sections, 2928 mandatory tables**.
 
 ## Command registry state
 The Command shard remains 27 unique IDs, 26 defined / 1 proposed / 27 planned, with current native/integrated claims equal to 0. `CAP-CMD-401` remains deployment-dependent under OPEN-006.
@@ -205,13 +208,32 @@ The preceding EPT-5 totals and EPT-6 NOT STARTED statements remain preserved as 
 - EPT-6 immutable set: **`CAP-EPT-082..099` — 18 capabilities / 486 sections / 108 mandatory tables / at least 54 GWT**;
 - all 18 are `draft / defined / planned`; no capability contract is modified by this reconciliation;
 - Endpoint cumulative current state: **99 capabilities / 2673 sections / 594 mandatory tables**;
-- global current state: **484 capabilities / 482 defined / 2 proposed / 484 planned / 13068 sections / 2904 mandatory tables**;
+- global current state at EPT-6 closure: **484 capabilities / 482 defined / 2 proposed / 484 planned / 13068 sections / 2904 mandatory tables**;
 - Requirements remain **122 = 99 conform / 20 partial / 3 absent / 0 contradictory**;
 - OPEN decisions remain **18**;
 - Endpoint Screen IDs remain **0**;
-- Command **27**, Investigate **243**, Govern **47**, Studio **68**, Endpoint **99** remain the current domain counts;
+- Command **27**, Investigate **243**, Govern **47**, Studio **68**, Endpoint **99** remain the current closed-domain counts;
 - Endpoint Capability Specification remains **PASS** and Delivery Roadmap Phase 5 remains **PASS — capability specification complete**;
-- Delivery Roadmap Phase 6 — Platform Scale remains **NOT STARTED**;
-- Phase 6 capability created/reserved, new capability namespace, new Screen and implementation remain **0**.
+- Delivery Roadmap Phase 6 — Platform Scale was **NOT STARTED** at this historical closure point;
+- Phase 6 capability created/reserved, new capability namespace, new Screen and implementation were **0** at that historical closure point.
 
-This reconciliation corrects only the stale canonical global register summary after EPT-6 publication. It does not allocate or reserve any ID, alter any `CAP-*` file, change any Requirement or OPEN decision, or begin Phase 6 functional work.
+This reconciliation corrected only the stale canonical global register summary after EPT-6 publication. It allocated or reserved no ID and began no Phase 6 functional work.
+
+## Settings Tenant, Environment and Administrative Foundations build addendum — 2026-08-12
+The preceding Phase-6 NOT STARTED statements remain historical pre-build evidence. After the 120/120 Platform Scale foundations preflight and execution-time namespace revalidation, this first functional Phase-6 lot allocates exactly `CAP-SET-001..004`.
+
+- all four are `draft / defined / planned` and owned uniquely by Platform Settings Product Lead;
+- structure: **4 capabilities / 108 numbered sections / 24 mandatory capability tables / at least 12 GWT**;
+- current global build state: **488 capabilities / 486 defined / 2 proposed / 488 planned / 13176 sections / 2928 mandatory tables**;
+- Settings capability specification: **PARTIAL**;
+- Delivery Roadmap Phase 6 Capability Specification: **PARTIAL / PENDING POST-PUBLICATION VERIFICATION**;
+- Requirements remain **122 = 99 conform / 20 partial / 3 absent / 0 contradictory**; no Requirement ID is added or removed;
+- OPEN decisions remain **18**; this lot creates/closes 0;
+- new Permission IDs: **0**; new Screen IDs: **0**; new canonical objects: **0**;
+- `CAP-SET-004` capability owner is Platform Settings Product Lead only; Experience Architecture remains dependency/mechanism owner;
+- `CAP-SET-005+` remains unallocated/unreserved;
+- build-time quality target is **154 PASS / 6 PENDING-REMOTE / 0 FAIL** and final PASS requires 160/160 after remote verification;
+- Command 27, Investigate 243, Govern 47, Studio 68 and Endpoint 99 capability contracts remain unchanged;
+- no implementation/API/protocol/physical schema/final RBAC/platform-support claim is introduced.
+
+No capability is reclassified as implemented, native, integrated, active or deployed by this documentary build state.
