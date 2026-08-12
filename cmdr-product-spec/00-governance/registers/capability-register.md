@@ -53,7 +53,8 @@ Registry validation checks duplicate/recycled IDs, concurrent owners, missing ca
 | `capability-register-endpoint-ept5.md` | Endpoint EPT-5 CAP-EPT-065..081 | 17 | 17 | 0 | 17 planned |
 | `capability-register-endpoint-ept6.md` | Endpoint EPT-6 CAP-EPT-082..099 | 18 | 18 | 0 | 18 planned |
 | `capability-register-settings-tenant-environment-foundations.md` | Settings Tenant/Environment CAP-SET-001..004 | 4 | 4 | 0 | 4 planned |
-| **Total** | **All registered capabilities** | **488** | **486** | **2** | **488 planned** |
+| `capability-register-settings-identity-administration.md` | Settings Identity CAP-SET-005..007 | 3 | 3 | 0 | 3 planned |
+| **Total** | **All registered capabilities** | **491** | **489** | **2** | **491 planned** |
 
 ## Product totals
 - Command: **27** capabilities, 729 sections, 162 mandatory tables.
@@ -74,7 +75,9 @@ Registry validation checks duplicate/recycled IDs, concurrent owners, missing ca
 - Endpoint EPT-5: **17** capabilities, **459** sections, **102** mandatory tables.
 - Endpoint EPT-6: **18** capabilities, **486** sections, **108** mandatory tables.
 - Endpoint cumulative: **99 capabilities / 2673 sections / 594 mandatory tables**; EPT-1/EPT-2/EPT-3/EPT-4/EPT-5/EPT-6 verified PASS after their respective post-publication verification records.
-- Settings Tenant/Environment foundations: **4 capabilities / 108 sections / 24 mandatory tables**; build-time publication verification pending.
+- Settings Tenant/Environment foundations: **4 capabilities / 108 sections / 24 mandatory tables**; **PASS AFTER POST-PUBLICATION VERIFICATION — 160/160**.
+- Settings Identity Administration: **3 capabilities / 81 sections / 18 mandatory tables / at least 9 GWT**; build-time remote verification pending.
+- Settings cumulative current content: **7 capabilities / 189 sections / 42 mandatory tables**.
 - CAP-INV-3xx / 4xx / 5xx / 6xx / 7xx: **97 / 35 / 37 / 18 / 19**.
 - Detection Engineering: **35 capabilities, 945 sections, 210 tables**.
 - Threat Intelligence: **37 capabilities, 999 sections, 222 tables**.
@@ -90,7 +93,8 @@ Registry validation checks duplicate/recycled IDs, concurrent owners, missing ca
 - Command + Investigate + Govern + Studio + Endpoint EPT-1/EPT-2/EPT-3/EPT-4: **449 capabilities, 12123 sections, 2694 mandatory tables**.
 - Command + Investigate + Govern + Studio + Endpoint EPT-1/EPT-2/EPT-3/EPT-4/EPT-5: **466 capabilities, 12582 sections, 2796 mandatory tables**.
 - Command + Investigate + Govern + Studio + Endpoint EPT-1/EPT-2/EPT-3/EPT-4/EPT-5/EPT-6: **484 capabilities, 13068 sections, 2904 mandatory tables**.
-- Current global content including Settings Tenant/Environment foundations: **488 capabilities, 13176 sections, 2928 mandatory tables**.
+- Historical current state after first Settings lot: **488 capabilities, 13176 sections, 2928 mandatory tables**.
+- Current global build content including Settings Identity Administration: **491 capabilities, 13257 sections, 2946 mandatory tables**.
 
 ## Command registry state
 The Command shard remains 27 unique IDs, 26 defined / 1 proposed / 27 planned, with current native/integrated claims equal to 0. `CAP-CMD-401` remains deployment-dependent under OPEN-006.
@@ -235,5 +239,35 @@ The preceding Phase-6 NOT STARTED statements remain historical pre-build evidenc
 - build-time quality target is **154 PASS / 6 PENDING-REMOTE / 0 FAIL** and final PASS requires 160/160 after remote verification;
 - Command 27, Investigate 243, Govern 47, Studio 68 and Endpoint 99 capability contracts remain unchanged;
 - no implementation/API/protocol/physical schema/final RBAC/platform-support claim is introduced.
+
+No capability is reclassified as implemented, native, integrated, active or deployed by this documentary build state.
+
+## Settings Tenant, Environment and Administrative Foundations post-publication addendum — 2026-08-12
+The preceding build-time PENDING material remains historical evidence. Canonical companion: `16-quality-and-validation/reports/platform-scale-tenant-environment-administrative-foundations-post-publication-verification.md`.
+
+- final first-lot verdict: **PASS AFTER POST-PUBLICATION VERIFICATION — 160/160 PASS, 0 PENDING, 0 FAIL**;
+- exact baseline for Identity Administration is `d605265f5b8a2e4350388b4ec9cfe51920a4aa50`;
+- `CAP-SET-001..004` remain immutable `draft / defined / planned`;
+- no `CAP-SET-005+` was allocated or reserved at that closure point;
+- Settings and Delivery Roadmap Phase 6 Capability Specification remained **PARTIAL**.
+
+## Settings Identity Administration build addendum — 2026-08-12
+After exact execution-time preflight and source/namespace/ownership audit, Identity Administration — Principals, Roles and Access Reviews allocates exactly `CAP-SET-005..007`.
+
+- all three are `draft / defined / planned`, owned uniquely by Platform Settings Product Lead;
+- structure: **3 capabilities / 81 numbered sections / 18 mandatory tables / at least 9 meaningful GWT**;
+- Settings cumulative build state: **7 capabilities / 189 sections / 42 mandatory tables**;
+- global build state: **491 capabilities / 489 defined / 2 proposed / 491 planned / 13257 sections / 2946 mandatory tables**;
+- Requirements remain **122 = 99 conform / 20 partial / 3 absent / 0 contradictory**; no Requirement ID or state changes are introduced by this documentary evidence;
+- OPEN remains **18**; no decision is created or closed; OPEN-013 remains unresolved;
+- Principal states remain `pending/active/suspended/revoked`; Role states remain `draft/active/deprecated`; Role expiry is a condition/constraint only;
+- Groups, Group Membership, generic Access Assignment and Effective Access remain outside scope;
+- CAP-SET-007 uses a **revocation disposition/handoff**, not direct generic assignment removal, because concrete assignment-removal mechanics are not canonically sourced;
+- new Permission IDs: **0**; new Screen IDs: **0**; new canonical objects: **0**;
+- existing `SET-IAM-001` and `SET-AUD-001` are reused; Security retains authorization semantics and Govern retains authority/Decision/Response objects;
+- build-time conformance: **168 PASS / 6 PENDING-REMOTE / 0 FAIL**; final PASS requires remote publication verification;
+- Command 27, Investigate 243, Govern 47, Studio 68 and Endpoint 99 closed-domain capability contracts remain unchanged;
+- no implementation/API/protocol/physical schema/final RBAC/ABAC/authentication protocol/platform-support claim is introduced;
+- `CAP-SET-008+` is neither allocated nor reserved.
 
 No capability is reclassified as implemented, native, integrated, active or deployed by this documentary build state.

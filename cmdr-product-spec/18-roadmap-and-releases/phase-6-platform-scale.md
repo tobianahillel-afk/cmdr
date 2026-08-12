@@ -43,17 +43,45 @@ Structure: **4 capabilities / 108 numbered sections / 24 mandatory tables / at l
 
 Functional build: `90684aaa9badf8ee76e54fdccd11bcd3e7fdde89`. Historical build-time gate state: **154 PASS / 6 PENDING-REMOTE / 0 FAIL**. Post-publication verification: **PASS — 160/160 PASS, 0 PENDING, 0 FAIL**.
 
-Settings Capability Specification remains **PARTIAL** and Delivery Roadmap Phase 6 Capability Specification is now **PARTIAL** because later Platform Scale lots remain. Identity Administration, integration/provider/secret, Shared/platform-scale and Customer/MSSP/Delivery scope are **NOT STARTED** by this lot.
+### Identity Administration — Principals, Roles and Access Reviews
+
+Second source-audited functional execution lot under the same Delivery Roadmap Phase 6 — Platform Scale. It is **not** Phase 6B and creates no new roadmap phase.
+
+Exactly `CAP-SET-005..007`, owned by Platform Settings Product Lead, cover:
+
+- Principal administrative lifecycle and human/service identity-state projection;
+- Role lifecycle, constraints and the bounded typed Principal/Role relation boundary;
+- periodic Access Review, evidence/provenance and keep/revoke disposition/handoff.
+
+Structure: **3 capabilities / 81 numbered sections / 18 mandatory tables / at least 9 meaningful GWT**. Settings cumulative build content becomes **7 capabilities / 189 sections / 42 mandatory tables**.
+
+Hard boundaries:
+
+- Principal states remain `pending`, `active`, `suspended`, `revoked`;
+- Role states remain `draft`, `active`, `deprecated`; Role expiry is a condition/constraint, never a state;
+- Groups, Group Membership, generic Access Assignment and Effective Access are outside this lot;
+- CAP-SET-007 uses revocation **disposition/handoff** because no generic canonical assignment-removal mechanic is sourced;
+- Security retains Permission Model/RBAC/ABAC/authorization/tenant isolation/SoD/step-up;
+- Govern retains Approval/Decision/Decision Authority/Response Run/Result;
+- existing `SET-IAM-001` and `SET-AUD-001` are reused;
+- new Permission IDs: **0**; new Screen IDs: **0**; new canonical objects: **0**.
+
+Build-time quality state: **168 PASS / 6 PENDING-REMOTE / 0 FAIL**. The functional BUILD SHA is intentionally not predicted inside the fifth functional commit; post-publication evidence remains pending until remote publication and verification.
+
+Global build content is expected and locally indexed as **491 capabilities / 489 defined / 2 proposed / 491 planned / 13257 sections / 2946 mandatory tables**. Requirements remain **122 = 99 conform / 20 partial / 3 absent / 0 contradictory** and OPEN remains **18**.
+
+Settings Capability Specification remains **PARTIAL** and Delivery Roadmap Phase 6 Capability Specification remains **PARTIAL** because later integration/provider/secret, Shared/platform-scale and potentially Customer/MSSP/Delivery scope remain separate source-audited work.
 
 ## UX et interactions
 
 - Navigation par liens stables.
 - Contenu lisible en thème clair et sombre.
 - Aucune duplication des définitions externes.
+- Reuse existing Settings modules and screens; no Phase-6 navigation shell is created by Identity Administration.
 
 ## Permissions
 
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable. This first lot creates zero new Permission IDs and zero new Screen IDs; if either becomes necessary in a future lot, that prerequisite requires a separate run.
+Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable. Both completed/current Settings lots create zero new Permission IDs and zero new Screen IDs; if either becomes necessary in a future lot, that prerequisite requires a separate source-owned run.
 
 ## États
 
@@ -65,15 +93,18 @@ Le statut documentaire suit `00-governance/document-status-model.md`; les états
 - `../10-platform-settings/capabilities/README.md`
 - `../16-quality-and-validation/reports/platform-scale-tenant-environment-administrative-foundations-capability-conformance.md`
 - `../16-quality-and-validation/reports/platform-scale-tenant-environment-administrative-foundations-post-publication-verification.md`
+- `../16-quality-and-validation/reports/platform-scale-identity-administration-principals-roles-access-reviews-capability-conformance.md`
 
 ## Critères d’acceptation
 
 - Le document a un propriétaire unique.
 - Les liens locaux sont valides.
 - Les décisions non tranchées sont attribuées.
-- No Phase 6A is created; execution lots remain subordinate to this roadmap phase.
+- No Phase 6A/6B is created; execution lots remain subordinate to this roadmap phase.
+- Documentary PASS does not claim implementation/runtime availability.
 
 ## Questions ouvertes
 
 - Quelle date et quel owner doivent être confirmés?
 - Quelle dépendance bloque ce jalon?
+- Later source-confirmed Platform Scale lots require their own preparation/execution audit and cannot be inferred from this Identity lot.
