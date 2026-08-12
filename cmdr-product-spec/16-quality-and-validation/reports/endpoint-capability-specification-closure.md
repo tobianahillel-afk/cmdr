@@ -9,15 +9,17 @@ source-of-truth: quality-report
 # Endpoint Capability Specification Closure
 
 ## Scope
-Evaluate capability-layer completeness for the Endpoint Agent across EPT-1 through EPT-6. This document distinguishes content closure from publication verification and from software implementation.
+Evaluate capability-layer completeness for the Endpoint Agent across EPT-1 through EPT-6. This document distinguishes documentary capability-specification closure from post-publication verification and from software implementation.
 
-## Lot status entering EPT-6
-- EPT-1: PASS AFTER POST-PUBLICATION VERIFICATION — 190/190;
-- EPT-2: PASS — 200/200;
-- EPT-3: PASS — 210/210;
-- EPT-4: PASS — 220/220;
-- EPT-5: PASS — 230/230;
-- EPT-6: build content complete, post-publication verification pending.
+## Historical lot status
+- EPT-1: **PASS AFTER POST-PUBLICATION VERIFICATION — 190/190**;
+- EPT-2: **PASS — 200/200**;
+- EPT-3: **PASS — 210/210**;
+- EPT-4: **PASS — 220/220**;
+- EPT-5: **PASS — 230/230**;
+- EPT-6 build-time historical state: **233/240 PASS / 7 PENDING-REMOTE / 0 FAIL**.
+
+The EPT-6 build-time result above remains historical evidence and is not rewritten.
 
 ## Final content inventory
 - EPT-1 `CAP-EPT-001..014`: 14 / 378 / 84;
@@ -29,8 +31,10 @@ Evaluate capability-layer completeness for the Endpoint Agent across EPT-1 throu
 
 Endpoint total: **99 capabilities / 2673 sections / 594 mandatory tables**.
 
+Direct capability-layer and register verification confirms `CAP-EPT-001..099`, no `CAP-EPT-100+`, no duplicate/recycled ID and no unjustified gap.
+
 ## Mandatory-family completeness
-The capability audit finds all required Endpoint families represented:
+All required Endpoint families are represented:
 1. identity/enrollment/platform/version/inventory/health;
 2. telemetry/observations/capability declaration;
 3. local detection/investigation;
@@ -44,20 +48,39 @@ The capability audit finds all required Endpoint families represented:
 11. Local Audit Event and Endpoint provenance;
 12. cross-product security-state handoff and overall capability closure.
 
-No mandatory capability family is missing in the content layer. No blocking owner conflict, recycled ID, placeholder capability or competing canonical capability source was identified in the EPT-6 source/migration audit.
+Closure checks:
+- mandatory Endpoint families missing: **0**;
+- owner conflicts: **0**;
+- capability-layer placeholders: **0**;
+- blocking competing active sources: **0**;
+- false implementation claims: **0**;
+- unjustified ID gaps: **0**;
+- duplicate/recycled IDs: **0**;
+- blocking migration contradictions: **0**.
 
 ## Ownership closure
-Settings retains Fleet/update administration, policy and Secret administration. Studio retains Studio deployment lifecycle. Govern retains response authority/rollback/Result. Shared retains generic mechanisms. Security retains global policy. Endpoint retains individual local technical facts and operations only.
+Platform Settings retains Fleet/update administration, policy assignment and Secret administration. Studio retains Studio deployment/reversion lifecycle. Govern retains response authority, Response Rollback and Result. Shared retains generic Jobs/Retry/Recovery/Trace/Activity. Security retains global permissions/privacy/audit-integrity policy. Endpoint owns individual local technical facts and operations only.
 
-## OPEN decisions
-OPEN count remains **18**. OPEN-008/013/015/017 and other historical OPEN decisions remain explicit. OPEN-008 does not block documentary Endpoint closure because EPT contracts remain platform-neutral and make no delivered-platform claim.
+## Requirements and OPEN decisions
+Requirements remain **122 = 99 conform / 20 partial / 3 absent / 0 contradictory**.
+OPEN decisions remain **18**. No OPEN is closed merely to obtain PASS. Platform-specific support and historical cross-product decisions remain explicit.
 
-## Screens / implementation
-Endpoint Screen IDs remain **0**. Capability closure introduces no code/API/protocol/final schema/final RBAC/physical engine or supported-platform promise.
+## Screens and implementation
+Endpoint Screen IDs remain **0**. Capability closure introduces no product code, API, protocol, package format, cryptographic scheme, physical schema, final RBAC/ABAC, runtime engine or supported-platform promise.
 
-## Build-time verdict
-**CONTENT CLOSURE POSITIVE / FINAL VERDICT PENDING REMOTE EPT-6 VERIFICATION.**
+## EPT-6 post-publication closure condition
+Canonical companion: `endpoint-ept6-updates-resilience-security-provenance-post-publication-verification.md`.
 
-Endpoint Capability Specification must remain **PARTIAL/PENDING** until EPT-6 reaches final **240/240** after remote publication. If and only if all EPT-6 publication gates pass with no regression, the final documentary status becomes **PASS**.
+The final documentary record may prepare the closure status below because the build remote verification has already been executed. The status becomes effective only after that record is published, remotely re-read, PR/main/README/CI are rechecked and its exact SHA is recorded in PR #2.
 
-`Endpoint Capability Specification PASS != Endpoint implementation complete`.
+Prepared final EPT-6 verdict: **PASS AFTER POST-PUBLICATION VERIFICATION — 240/240 PASS, 0 PENDING, 0 FAIL**.
+
+## Endpoint final verdict
+Provided the final publication/re-read checks remain unchanged:
+
+**Endpoint Capability Specification: PASS**.
+
+This verdict means **capability specification complete across `CAP-EPT-001..099`**. It does not mean Endpoint implementation complete, production ready, deployed or operationally validated.
+
+## Phase 6 boundary
+Delivery Roadmap Phase 6 — Platform Scale remains **NOT STARTED**. This closure creates or reserves zero Phase 6 capability, zero new capability namespace, zero Screen and zero implementation.
