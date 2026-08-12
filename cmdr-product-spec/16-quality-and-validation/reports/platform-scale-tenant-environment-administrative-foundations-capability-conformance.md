@@ -26,7 +26,7 @@ First functional Delivery Roadmap Phase 6 — Platform Scale execution lot. Exac
 2. `d3f075f0f69dfcf8f49d85c9b1a399e49ebd3842` — `docs: define Settings tenant and environment lifecycle scope and relationships`;
 3. `4c5b472112ea6375aa8473283b41493c4f35f5a9` — `docs: specify Settings tenant environment administrative validation and provenance`;
 4. `b45656106d4070ba703cc9d925b098de9d4698f3` — `docs: document Settings tenant environment cross-product context and security boundaries`;
-5. fifth functional commit SHA is intentionally recorded only after commit creation/post-publication; a commit never predicts its own SHA.
+5. `90684aaa9badf8ee76e54fdccd11bcd3e7fdde89` — `docs: update Settings tenant environment traceability and quality gates`.
 
 ## Structural verification
 
@@ -51,7 +51,7 @@ If any new Permission ID or Screen ID is necessary, this lot is BLOCKED and the 
 
 Platform Settings owns Tenant/Environment administrative capability semantics. Security owns Permission Model, tenant isolation, ABAC/RBAC, SoD and step-up. Experience Architecture owns context-preservation mechanics. Design System owns Context Bar/Inspector presentation. Govern retains Action Request/Approval/Decision/Response Run/Result authority. Shared mechanisms remain shared.
 
-## Build-time gate matrix
+## Build-time gate matrix — preserved historical snapshot
 
 | Gate family | Count | Build result |
 |---|---:|---|
@@ -64,15 +64,21 @@ Platform Settings owns Tenant/Environment administrative capability semantics. S
 | Security/permissions/AI | 14 | PASS |
 | screens/IA | 10 | PASS |
 | Requirements/OPEN/migration/history | 12 | PASS |
-| registers/traceability/roadmap | 8 | PASS when fifth tree is complete |
-| local build diff/count/non-regression | 4 | PASS when fifth commit is audited |
+| registers/traceability/roadmap | 8 | PASS |
+| local build diff/count/non-regression | 4 | PASS |
 | remote publication | 6 | PENDING-REMOTE |
-| **Total** | **160** | **154 PASS / 6 PENDING-REMOTE / 0 FAIL** after fifth-commit local audit |
+| **Total** | **160** | **154 PASS / 6 PENDING-REMOTE / 0 FAIL** |
 
-## Expected build totals
+## Build totals
 
-488 capabilities / 486 defined / 2 proposed / 488 planned / 13176 sections / 2928 mandatory tables. Settings = 4 / 108 / 24. Requirements remain 122 unless independently justified; OPEN remains 18.
+488 capabilities / 486 defined / 2 proposed / 488 planned / 13176 sections / 2928 mandatory tables. Settings = 4 / 108 / 24. Requirements remain 122; OPEN remains 18.
 
-## Stop line
+## Post-publication verification
 
-Before remote verification, do not claim 160/160. After successful remote fast-forward and re-read, create a documentary verification record without modifying any `CAP-SET-*` contract.
+Canonical companion: `platform-scale-tenant-environment-administrative-foundations-post-publication-verification.md`.
+
+The functional build `90684aaa9badf8ee76e54fdccd11bcd3e7fdde89` was published by non-forced fast-forward, re-read remotely, and retained the exact five-commit ancestry. PR #2 remained open/Draft/unmerged; main and both README copies remained unchanged; no statuses or workflow runs were configured. All six remote gates pass.
+
+**FINAL: PASS AFTER POST-PUBLICATION VERIFICATION — 160/160 PASS, 0 PENDING, 0 FAIL.**
+
+Settings Capability Specification: PARTIAL. Delivery Roadmap Phase 6 Capability Specification: PARTIAL. Global Capability Specification and repository maturity remain PARTIAL. Identity Administration remains NOT STARTED.
