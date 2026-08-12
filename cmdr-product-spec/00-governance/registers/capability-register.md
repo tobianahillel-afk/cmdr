@@ -3,7 +3,7 @@ id: capability-register
 domain: 00-governance
 status: draft
 owner: Product Architecture
-updated: 2026-08-11
+updated: 2026-08-12
 source-of-truth: registry
 requirements:
   - REQ-PROD-006
@@ -51,7 +51,8 @@ Registry validation checks duplicate/recycled IDs, concurrent owners, missing ca
 | `capability-register-endpoint-ept3.md` | Endpoint EPT-3 CAP-EPT-031..046 | 16 | 16 | 0 | 16 planned |
 | `capability-register-endpoint-ept4.md` | Endpoint EPT-4 CAP-EPT-047..064 | 18 | 18 | 0 | 18 planned |
 | `capability-register-endpoint-ept5.md` | Endpoint EPT-5 CAP-EPT-065..081 | 17 | 17 | 0 | 17 planned |
-| **Total** | **All registered capabilities** | **466** | **464** | **2** | **466 planned** |
+| `capability-register-endpoint-ept6.md` | Endpoint EPT-6 CAP-EPT-082..099 | 18 | 18 | 0 | 18 planned |
+| **Total** | **All registered capabilities** | **484** | **482** | **2** | **484 planned** |
 
 ## Product totals
 - Command: **27** capabilities, 729 sections, 162 mandatory tables.
@@ -70,7 +71,8 @@ Registry validation checks duplicate/recycled IDs, concurrent owners, missing ca
 - Endpoint EPT-3: **16** capabilities, **432** sections, **96** mandatory tables.
 - Endpoint EPT-4: **18** capabilities, **486** sections, **108** mandatory tables.
 - Endpoint EPT-5: **17** capabilities, **459** sections, **102** mandatory tables.
-- Endpoint cumulative: **81 capabilities / 2187 sections / 486 mandatory tables**; EPT-1/EPT-2/EPT-3/EPT-4 verified PASS, EPT-5 defined/planned pending post-publication verification, EPT-6 NOT STARTED.
+- Endpoint EPT-6: **18** capabilities, **486** sections, **108** mandatory tables.
+- Endpoint cumulative: **99 capabilities / 2673 sections / 594 mandatory tables**; EPT-1/EPT-2/EPT-3/EPT-4/EPT-5/EPT-6 verified PASS after their respective post-publication verification records.
 - CAP-INV-3xx / 4xx / 5xx / 6xx / 7xx: **97 / 35 / 37 / 18 / 19**.
 - Detection Engineering: **35 capabilities, 945 sections, 210 tables**.
 - Threat Intelligence: **37 capabilities, 999 sections, 222 tables**.
@@ -85,6 +87,7 @@ Registry validation checks duplicate/recycled IDs, concurrent owners, missing ca
 - Command + Investigate + Govern + Studio + Endpoint EPT-1/EPT-2/EPT-3: **431 capabilities, 11637 sections, 2586 mandatory tables**.
 - Command + Investigate + Govern + Studio + Endpoint EPT-1/EPT-2/EPT-3/EPT-4: **449 capabilities, 12123 sections, 2694 mandatory tables**.
 - Command + Investigate + Govern + Studio + Endpoint EPT-1/EPT-2/EPT-3/EPT-4/EPT-5: **466 capabilities, 12582 sections, 2796 mandatory tables**.
+- Command + Investigate + Govern + Studio + Endpoint EPT-1/EPT-2/EPT-3/EPT-4/EPT-5/EPT-6: **484 capabilities, 13068 sections, 2904 mandatory tables**.
 
 ## Command registry state
 The Command shard remains 27 unique IDs, 26 defined / 1 proposed / 27 planned, with current native/integrated claims equal to 0. `CAP-CMD-401` remains deployment-dependent under OPEN-006.
@@ -195,3 +198,20 @@ The prior EPT-5 NOT STARTED lines are historical snapshots. Exact baseline: `5d5
 - Endpoint Screen IDs remain 0; EPT-6 remains NOT STARTED;
 - build-time quality: **224 PASS / 6 PENDING-BUILD-OR-REMOTE / 0 FAIL**, pending gates 224–229;
 - no capability is reclassified as implemented/native/integrated and no API/protocol/native command/shell/physical schema/final RBAC/final response engine/product code is introduced.
+
+## Endpoint EPT-6 reconciliation addendum — 2026-08-12
+The preceding EPT-5 totals and EPT-6 NOT STARTED statements remain preserved as historical pre-EPT-6 evidence. The published EPT-6 shard and closure records supersede them for current-state indexing only.
+
+- EPT-6 immutable set: **`CAP-EPT-082..099` — 18 capabilities / 486 sections / 108 mandatory tables / at least 54 GWT**;
+- all 18 are `draft / defined / planned`; no capability contract is modified by this reconciliation;
+- Endpoint cumulative current state: **99 capabilities / 2673 sections / 594 mandatory tables**;
+- global current state: **484 capabilities / 482 defined / 2 proposed / 484 planned / 13068 sections / 2904 mandatory tables**;
+- Requirements remain **122 = 99 conform / 20 partial / 3 absent / 0 contradictory**;
+- OPEN decisions remain **18**;
+- Endpoint Screen IDs remain **0**;
+- Command **27**, Investigate **243**, Govern **47**, Studio **68**, Endpoint **99** remain the current domain counts;
+- Endpoint Capability Specification remains **PASS** and Delivery Roadmap Phase 5 remains **PASS — capability specification complete**;
+- Delivery Roadmap Phase 6 — Platform Scale remains **NOT STARTED**;
+- Phase 6 capability created/reserved, new capability namespace, new Screen and implementation remain **0**.
+
+This reconciliation corrects only the stale canonical global register summary after EPT-6 publication. It does not allocate or reserve any ID, alter any `CAP-*` file, change any Requirement or OPEN decision, or begin Phase 6 functional work.
