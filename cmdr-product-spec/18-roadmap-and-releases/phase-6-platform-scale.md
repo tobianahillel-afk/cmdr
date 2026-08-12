@@ -3,7 +3,7 @@ id: roadmap-phase-6-platform-scale
 domain: 18-roadmap-and-releases
 status: draft
 owner: Product Operations Lead
-updated: 2026-08-12
+updated: 2026-08-13
 source-of-truth: canonical
 ---
 # Phase 6 Platform Scale
@@ -53,7 +53,7 @@ Exactly `CAP-SET-005..007`, owned by Platform Settings Product Lead, cover:
 - Role lifecycle, constraints and the bounded typed Principal/Role relation boundary;
 - periodic Access Review, evidence/provenance and keep/revoke disposition/handoff.
 
-Structure: **3 capabilities / 81 numbered sections / 18 mandatory tables / at least 9 meaningful GWT**. Settings cumulative build content becomes **7 capabilities / 189 sections / 42 mandatory tables**.
+Structure: **3 capabilities / 81 numbered sections / 18 mandatory tables / 12 meaningful GWT**. Settings cumulative state is **7 capabilities / 189 sections / 42 mandatory tables**.
 
 Hard boundaries:
 
@@ -64,11 +64,23 @@ Hard boundaries:
 - Security retains Permission Model/RBAC/ABAC/authorization/tenant isolation/SoD/step-up;
 - Govern retains Approval/Decision/Decision Authority/Response Run/Result;
 - existing `SET-IAM-001` and `SET-AUD-001` are reused;
-- new Permission IDs: **0**; new Screen IDs: **0**; new canonical objects: **0**.
+- new Permission IDs: **0**; new Screen IDs: **0**; new canonical objects: **0**;
+- `CAP-SET-008+` remains unallocated and unreserved.
 
-Build-time quality state: **168 PASS / 6 PENDING-REMOTE / 0 FAIL**. The functional BUILD SHA is intentionally not predicted inside the fifth functional commit; post-publication evidence remains pending until remote publication and verification.
+Functional BUILD: `75a1fdeff9acc589c13773e95f8953ceeb29edd3`.
 
-Global build content is expected and locally indexed as **491 capabilities / 489 defined / 2 proposed / 491 planned / 13257 sections / 2946 mandatory tables**. Requirements remain **122 = 99 conform / 20 partial / 3 absent / 0 contradictory** and OPEN remains **18**.
+Historical build-time quality state is preserved as **168 PASS / 6 PENDING-REMOTE / 0 FAIL**. Remote publication verification completed all six remote gates: **PASS AFTER POST-PUBLICATION VERIFICATION — 174/174 PASS, 0 PENDING, 0 FAIL**.
+
+Remote closure evidence confirms:
+
+- baseline `d605265f5b8a2e4350388b4ec9cfe51920a4aa50` → BUILD = **5 ahead / 0 behind**, same merge-base;
+- global state = **491 capabilities / 489 defined / 2 proposed / 491 planned / 13,257 sections / 2,946 mandatory tables**;
+- Requirements = **122 = 99 conform / 20 partial / 3 absent / 0 contradictory**;
+- OPEN = **18**;
+- PR #2 remains open / Draft / unmerged on `main`, auto-merge disabled;
+- `main` remains `bc1ec59e5e79ccbaba291e2984b0eb7d5e54129c`;
+- branch/main README remain exactly `# cmdr`;
+- CI/status = **N/A** after verification of 0 statuses, 0 check runs, 0 check suites, 0 workflow runs and no `.github/workflows` directory at BUILD.
 
 Settings Capability Specification remains **PARTIAL** and Delivery Roadmap Phase 6 Capability Specification remains **PARTIAL** because later integration/provider/secret, Shared/platform-scale and potentially Customer/MSSP/Delivery scope remain separate source-audited work.
 
@@ -81,7 +93,7 @@ Settings Capability Specification remains **PARTIAL** and Delivery Roadmap Phase
 
 ## Permissions
 
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable. Both completed/current Settings lots create zero new Permission IDs and zero new Screen IDs; if either becomes necessary in a future lot, that prerequisite requires a separate source-owned run.
+Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable. Both completed Settings lots create zero new Permission IDs and zero new Screen IDs; if either becomes necessary in a future lot, that prerequisite requires a separate source-owned run.
 
 ## États
 
@@ -94,6 +106,8 @@ Le statut documentaire suit `00-governance/document-status-model.md`; les états
 - `../16-quality-and-validation/reports/platform-scale-tenant-environment-administrative-foundations-capability-conformance.md`
 - `../16-quality-and-validation/reports/platform-scale-tenant-environment-administrative-foundations-post-publication-verification.md`
 - `../16-quality-and-validation/reports/platform-scale-identity-administration-principals-roles-access-reviews-capability-conformance.md`
+- `../16-quality-and-validation/validation-status-platform-scale-identity-administration.md`
+- `../16-quality-and-validation/quality-index-platform-scale-identity-administration.md`
 
 ## Critères d’acceptation
 

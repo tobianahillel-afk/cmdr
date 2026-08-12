@@ -3,7 +3,7 @@ id: platform-scale-identity-administration-principals-roles-access-reviews-capab
 domain: 16-quality-and-validation
 status: draft
 owner: QA and Traceability Lead
-updated: 2026-08-12
+updated: 2026-08-13
 source-of-truth: quality-report
 ---
 # Platform Scale — Identity Administration — Principals, Roles and Access Reviews — Capability Conformance
@@ -53,10 +53,10 @@ No `CAP-SET-008+` reservation or allocation is made.
 
 | Capability | Responsibility | Primary objects | Sections | Mandatory tables | GWT | Delivery |
 |---|---|---|---:|---:|---:|---|
-| `CAP-SET-005` | Principal administrative lifecycle and identity state | Principal; Tenant ref | 27 | 6 | >=3 | draft / defined / planned |
-| `CAP-SET-006` | Role lifecycle/constraints and bounded Principal relation | Role; Principal ref; Tenant ref | 27 | 6 | >=3 | draft / defined / planned |
-| `CAP-SET-007` | Access Review evidence and revocation disposition | Principal/Role refs | 27 | 6 | >=3 | draft / defined / planned |
-| **Total** | | | **81** | **18** | **>=9** | |
+| `CAP-SET-005` | Principal administrative lifecycle and identity state | Principal; Tenant ref | 27 | 6 | 4 | draft / defined / planned |
+| `CAP-SET-006` | Role lifecycle/constraints and bounded Principal relation | Role; Principal ref; Tenant ref | 27 | 6 | 4 | draft / defined / planned |
+| `CAP-SET-007` | Access Review evidence and revocation disposition | Principal/Role refs | 27 | 6 | 4 | draft / defined / planned |
+| **Total** | | | **81** | **18** | **12** | |
 
 The six mandatory non-empty capability-specific tables are S8 Inputs, S9 Objects Read, S10 Objects Created/Modified, S13 Automation/AI, S16 Outputs and S17 Transitions/Handoffs.
 
@@ -90,11 +90,11 @@ Created or defined by this build:
 
 ### Screens
 
-- active Screen Register baseline: **56**;
+- active Screen Register baseline/current total: **56**;
 - Settings screens: **12**;
 - reused: `SET-IAM-001`, `SET-AUD-001`;
 - new Screen IDs: **0**;
-- Screen Register functional change expected: **0**.
+- Screen Register functional changes: **0**.
 
 ### Permissions
 
@@ -160,27 +160,93 @@ Closed domains remain unchanged: Command 27 PASS; Investigate 243 PASS; Govern 4
 | 169–174 | 6 | remote publication/final verification | **PENDING-REMOTE** |
 | **Total** | **174** | | **168 PASS / 6 PENDING-REMOTE / 0 FAIL** |
 
-The fifth functional commit SHA is intentionally not predicted inside its own content.
+The build-time snapshot above is preserved as historical evidence.
 
 ## POST-PUBLICATION EVIDENCE
 
-**PENDING.** This section may be finalized only after the five functional commits are published by non-forced fast-forward and the published remote content, ancestry, PR/main/README and CI/status are independently re-read.
+Functional BUILD SHA: `75a1fdeff9acc589c13773e95f8953ceeb29edd3`.
 
-Required final checks:
+Remote publication and post-publication verification were independently completed before this documentary closure record was created.
 
-1. remote BUILD SHA equals the fifth functional commit;
-2. baseline → BUILD = 5 ahead / 0 behind with same merge-base;
-3. published CAP-SET-005..007 = 3 / 81 / 18 / >=9 GWT;
-4. global/Settings counts and zero-ID/object invariants are remotely confirmed;
-5. PR #2/main/README state is revalidated;
-6. applicable status/workflow state is checked.
+### Functional ancestry
 
-Only then may the documentary post-publication record state **PASS AFTER POST-PUBLICATION VERIFICATION — 174/174 PASS, 0 PENDING, 0 FAIL**.
+- baseline: `d605265f5b8a2e4350388b4ec9cfe51920a4aa50`;
+- BUILD: `75a1fdeff9acc589c13773e95f8953ceeb29edd3`;
+- baseline → BUILD: **5 ahead / 0 behind**;
+- merge-base: exactly `d605265f5b8a2e4350388b4ec9cfe51920a4aa50`;
+- exactly five functional commits are present, in the planned order, with no sixth functional commit or merge inserted into the lot.
 
-## Build disposition
+### Published remote structure and semantics
+
+Remote re-read confirms:
+
+- exactly `CAP-SET-005..007`;
+- `CAP-SET-008+` allocation/reservation: **0**;
+- each capability: `draft / defined / planned`, owner **Platform Settings Product Lead**;
+- each capability: **27 numbered sections**, **6 mandatory non-empty tables**, **4 GWT**;
+- Identity lot total: **3 capabilities / 81 sections / 18 mandatory tables / 12 GWT**;
+- Principal states: `pending`, `active`, `suspended`, `revoked` only;
+- Role states: `draft`, `active`, `deprecated` only;
+- Role expiry remains a condition/constraint, never a fourth state;
+- Group / Group Membership / AccessAssignment / RoleAssignment / PermissionAssignment / EffectiveAccess created: **0**;
+- `CAP-SET-007` revocation mode: **revocation disposition / handoff**, not source-invented direct assignment mutation;
+- Principal administration ≠ authorization evaluation; Role ≠ Permission; Role ≠ Decision Authority; Access Review ≠ Govern Approval/Decision; review evidence ≠ Investigate Evidence automatically.
+
+### Published counts and zero-change invariants
+
+- Settings cumulative: **7 capabilities / 189 sections / 42 mandatory tables**;
+- global: **491 capabilities / 489 defined / 2 proposed / 491 planned / 13,257 numbered sections / 2,946 mandatory tables**;
+- Requirements: **122 = 99 conform / 20 partial / 3 absent / 0 contradictory**;
+- OPEN decisions: **18**;
+- new Screen IDs: **0**; Screen Register remains **56** active screens; `SET-IAM-001` and `SET-AUD-001` are reused;
+- new Permission IDs: **0**; existing identity/principal/role permission families remain consumed without bulk namespace normalization;
+- new canonical objects: **0**;
+- closed-domain capability contracts remain unchanged: Command 27 PASS; Investigate 243 PASS; Govern 47 PASS; Studio 68 PASS; Endpoint 99 PASS.
+
+### PR / main / README
+
+At post-publication verification:
+
+- PR #2: **open / Draft / unmerged**, base `main`, auto-merge disabled;
+- `main`: `bc1ec59e5e79ccbaba291e2984b0eb7d5e54129c`;
+- branch README: exactly `# cmdr`;
+- main README: exactly `# cmdr`.
+
+### CI / status / workflow evidence
+
+CI/status outcome: **N/A** because actual inspection found no applicable CI/check surface for this BUILD:
+
+- combined commit statuses: **0 statuses** (`total_count: 0`);
+- check runs: **0**;
+- check suites: **0**;
+- GitHub Actions workflow runs associated with BUILD: **0**;
+- `.github/workflows` at BUILD: **absent**;
+- PR status surface points to the BUILD SHA and exposes no applicable status/check.
+
+The GitHub combined-status API may display an aggregate `pending` state when no statuses exist; with zero statuses, zero checks, zero workflow runs and no workflow configuration, that aggregate is not an applicable pending CI job.
+
+### Gates 169–174
+
+| Gate | Remote-dependent requirement | Final result |
+|---:|---|---|
+| 169 | remote branch HEAD equals exact functional BUILD before closure | PASS |
+| 170 | baseline → BUILD = 5 ahead / 0 behind, same merge-base | PASS |
+| 171 | published `CAP-SET-005..007` and associated registers/quality surfaces are remotely present and coherent | PASS |
+| 172 | published counts, zero-ID/object rules and closed-domain non-regression are correct | PASS |
+| 173 | PR #2 / main / branch README / main README invariants remain correct | PASS |
+| 174 | applicable commit status/check/workflow state is actually verified | PASS — CI N/A |
+
+### Final gate verdict
+
+**PASS AFTER POST-PUBLICATION VERIFICATION — 174/174 PASS, 0 PENDING, 0 FAIL**.
+
+## Build disposition — historical
 
 Identity Administration functional build: **168 PASS / 6 PENDING-REMOTE / 0 FAIL**.
 
+## Final disposition
+
+Identity Administration — Principals, Roles and Access Reviews: **PASS AFTER POST-PUBLICATION VERIFICATION — 174/174 PASS, 0 PENDING, 0 FAIL**.  
 Settings Capability Specification: **PARTIAL**.  
 Delivery Roadmap Phase 6 Capability Specification: **PARTIAL**.  
 Global Capability Specification: **PARTIAL**.  
