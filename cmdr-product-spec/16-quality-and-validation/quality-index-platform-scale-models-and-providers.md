@@ -10,19 +10,23 @@ source-of-truth: validation
 
 | Surface | State |
 |---|---|
-| CAP-SET-010 structural contract | PASS — 27 sections / 6 tables / 7 GWT |
-| CAP-SET-011 structural contract | PASS — 27 sections / 6 tables / 6 GWT |
-| ownership/object terminology | PASS |
-| provider lifecycle/validation/availability/health projection | PASS |
-| routing/eligibility/fallback/provider-switch provenance | PASS |
-| runtime-executor boundary | PASS |
-| screen/permission/object expansion | PASS — 0/0/0 new IDs/objects |
-| Requirements | PASS — 122 = 99/20/3/0 unchanged |
-| OPEN | PASS — 18 unchanged |
+| CAP-SET-010 structure | PASS — 27 / 6 / 7 GWT |
+| CAP-SET-011 structure | PASS — 27 / 6 / 6 GWT |
+| ownership and terminology | PASS |
+| lifecycle and sourced projections | PASS |
+| routing configuration and provenance | PASS |
+| execution boundary | PASS |
+| new Screen / Permission / object IDs | PASS — 0 / 0 / 0 |
+| Requirements | PASS — 122 = 99 / 20 / 3 / 0 |
+| OPEN | PASS — 18 |
 | namespace | PASS — CAP-SET-010/011 only; CAP-SET-012+ untouched |
-| build-time gates | **198 PASS / 6 PENDING-REMOTE / 0 FAIL** |
-| final post-publication gates | PENDING |
+| historical BUILD | 198 PASS / 6 PENDING-REMOTE / 0 FAIL |
+| remote gates | PASS — 6 / 6 |
+| final | **204 PASS / 0 PENDING / 0 FAIL** |
 
-Canonical conformance report: `reports/platform-scale-models-providers-administration-routing-capability-conformance.md`.
+BUILD: `7748715e58a39d1d1100342f162c03c8acecdad5`.
+Report: `reports/platform-scale-models-providers-administration-routing-capability-conformance.md`.
 
-Final documentary PASS may be recorded only after the six remote-dependent gates are closed.
+**PASS AFTER POST-PUBLICATION VERIFICATION — 204/204 PASS, 0 PENDING, 0 FAIL**.
+
+Settings, Phase 6, Global Capability Specification and repository maturity remain **PARTIAL**.

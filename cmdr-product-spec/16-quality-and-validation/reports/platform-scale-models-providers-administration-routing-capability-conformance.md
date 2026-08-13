@@ -67,9 +67,25 @@ Mandatory total: **204 gates**.
 | remote publication/post-publication | 6 |
 | **Total** | **204** |
 
-## BUILD verdict
-**198 PASS / 6 PENDING-REMOTE / 0 FAIL**.
+## Historical BUILD verdict
+Functional BUILD: `7748715e58a39d1d1100342f162c03c8acecdad5`.
 
-The six remote-dependent gates are intentionally not closed before publication. `204/204` and `PASS AFTER POST-PUBLICATION VERIFICATION` are forbidden until the published BUILD, ancestry, remote canonical surfaces, PR/main/README invariants and CI/status/workflow applicability have been independently verified.
+Historical build-time state: **198 PASS / 6 PENDING-REMOTE / 0 FAIL**. The six remote-dependent gates were intentionally left pending until actual publication.
+
+## Post-publication verification
+All six remote-dependent gates were executed against the published BUILD and passed:
+1. remote branch HEAD = exact BUILD `7748715e58a39d1d1100342f162c03c8acecdad5`;
+2. execution baseline `8d90a80655e362bd6a53a7d06087bbdf6450de63` → BUILD = **4 ahead / 0 behind**, same merge-base;
+3. published CAP-SET-010/011, Settings shard/global register, Requirements, OPEN, screens, permissions, Model Provider, Secret Reference, quality and roadmap surfaces are coherent;
+4. PR #2 remains open, Draft, unmerged, base `main`, head BUILD, with auto-merge disabled (`auto_merge=null`);
+5. `main` remains `bc1ec59e5e79ccbaba291e2984b0eb7d5e54129c`; BUILD/main README remain exact `# cmdr`, same blob `901c74cda52e28b5ff7fc425ddf28ef89f3ad875`;
+6. CI/status/workflow applicability = **N/A WITH EVIDENCE**: 0 commit statuses, 0 workflow runs, 0 check runs, 0 check suites, and no `.github/workflows` directory.
+
+Remote re-read reconfirmed **2 capabilities / 54 sections / 12 tables / 13 GWT**, Settings **11 / 297 / 66**, global **495 capabilities / 493 defined / 2 proposed / 495 planned / 13,365 sections / 2,970 tables**, Requirements **122 = 99/20/3/0**, OPEN **18**, and `CAP-SET-012+` allocated/reserved **0 / 0**.
+
+## Final documentary verdict
+**PASS AFTER POST-PUBLICATION VERIFICATION — 204/204 PASS, 0 PENDING, 0 FAIL**.
 
 Platform Settings Capability Specification: **PARTIAL**. Delivery Roadmap Phase 6 Capability Specification: **PARTIAL**. Global Capability Specification: **PARTIAL**. Repository maturity: **PARTIAL**.
+
+This documentary closure does not modify CAP-SET-010/011 functional semantics and does not claim provider/runtime implementation.
