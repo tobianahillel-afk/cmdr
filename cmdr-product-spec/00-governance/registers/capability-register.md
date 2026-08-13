@@ -3,7 +3,7 @@ id: capability-register
 domain: 00-governance
 status: draft
 owner: Product Architecture
-updated: 2026-08-12
+updated: 2026-08-13
 source-of-truth: registry
 requirements:
   - REQ-PROD-006
@@ -54,7 +54,8 @@ Registry validation checks duplicate/recycled IDs, concurrent owners, missing ca
 | `capability-register-endpoint-ept6.md` | Endpoint EPT-6 CAP-EPT-082..099 | 18 | 18 | 0 | 18 planned |
 | `capability-register-settings-tenant-environment-foundations.md` | Settings Tenant/Environment CAP-SET-001..004 | 4 | 4 | 0 | 4 planned |
 | `capability-register-settings-identity-administration.md` | Settings Identity CAP-SET-005..007 | 3 | 3 | 0 | 3 planned |
-| **Total** | **All registered capabilities** | **491** | **489** | **2** | **491 planned** |
+| `capability-register-settings-secrets-and-connections.md` | Settings Secrets & Connections CAP-SET-008..009 | 2 | 2 | 0 | 2 planned |
+| **Total** | **All registered capabilities** | **493** | **491** | **2** | **493 planned** |
 
 ## Product totals
 - Command: **27** capabilities, 729 sections, 162 mandatory tables.
@@ -76,8 +77,9 @@ Registry validation checks duplicate/recycled IDs, concurrent owners, missing ca
 - Endpoint EPT-6: **18** capabilities, **486** sections, **108** mandatory tables.
 - Endpoint cumulative: **99 capabilities / 2673 sections / 594 mandatory tables**; EPT-1/EPT-2/EPT-3/EPT-4/EPT-5/EPT-6 verified PASS after their respective post-publication verification records.
 - Settings Tenant/Environment foundations: **4 capabilities / 108 sections / 24 mandatory tables**; **PASS AFTER POST-PUBLICATION VERIFICATION — 160/160**.
-- Settings Identity Administration: **3 capabilities / 81 sections / 18 mandatory tables / at least 9 GWT**; build-time remote verification pending.
-- Settings cumulative current content: **7 capabilities / 189 sections / 42 mandatory tables**.
+- Settings Identity Administration: **3 capabilities / 81 sections / 18 mandatory tables / 12 meaningful GWT**; **PASS AFTER POST-PUBLICATION VERIFICATION — 174/174**.
+- Settings Secrets & Connections functional build: **2 capabilities / 54 sections / 12 mandatory tables / 12 meaningful GWT**; build-time **166 PASS / 6 PENDING-REMOTE / 0 FAIL**.
+- Settings cumulative current build content: **9 capabilities / 243 sections / 54 mandatory tables**.
 - CAP-INV-3xx / 4xx / 5xx / 6xx / 7xx: **97 / 35 / 37 / 18 / 19**.
 - Detection Engineering: **35 capabilities, 945 sections, 210 tables**.
 - Threat Intelligence: **37 capabilities, 999 sections, 222 tables**.
@@ -94,7 +96,8 @@ Registry validation checks duplicate/recycled IDs, concurrent owners, missing ca
 - Command + Investigate + Govern + Studio + Endpoint EPT-1/EPT-2/EPT-3/EPT-4/EPT-5: **466 capabilities, 12582 sections, 2796 mandatory tables**.
 - Command + Investigate + Govern + Studio + Endpoint EPT-1/EPT-2/EPT-3/EPT-4/EPT-5/EPT-6: **484 capabilities, 13068 sections, 2904 mandatory tables**.
 - Historical current state after first Settings lot: **488 capabilities, 13176 sections, 2928 mandatory tables**.
-- Current global build content including Settings Identity Administration: **491 capabilities, 13257 sections, 2946 mandatory tables**.
+- Historical Identity Administration build/closure state: **491 capabilities, 13257 sections, 2946 mandatory tables**.
+- Current global build content including Settings Secrets & Connections: **493 capabilities / 491 defined / 2 proposed / 493 planned / 13311 sections / 2958 mandatory tables**.
 
 ## Command registry state
 The Command shard remains 27 unique IDs, 26 defined / 1 proposed / 27 planned, with current native/integrated claims equal to 0. `CAP-CMD-401` remains deployment-dependent under OPEN-006.
@@ -268,6 +271,42 @@ After exact execution-time preflight and source/namespace/ownership audit, Ident
 - build-time conformance: **168 PASS / 6 PENDING-REMOTE / 0 FAIL**; final PASS requires remote publication verification;
 - Command 27, Investigate 243, Govern 47, Studio 68 and Endpoint 99 closed-domain capability contracts remain unchanged;
 - no implementation/API/protocol/physical schema/final RBAC/ABAC/authentication protocol/platform-support claim is introduced;
-- `CAP-SET-008+` is neither allocated nor reserved.
+- `CAP-SET-008+` is neither allocated nor reserved at this historical build snapshot.
+
+No capability is reclassified as implemented, native, integrated, active or deployed by this documentary build state.
+
+## Settings Identity Administration post-publication addendum — 2026-08-13
+The preceding Identity build-time PENDING material remains historical evidence. Canonical post-publication verification closed all six remote-dependent gates without changing `CAP-SET-005..007`.
+
+- final Identity verdict: **PASS AFTER POST-PUBLICATION VERIFICATION — 174/174 PASS, 0 PENDING, 0 FAIL**;
+- exact Identity final HEAD / Secrets & Connections baseline: `a5c450528ad25f090832adcda4ae37c79bea072b`;
+- Identity structure remains **3 capabilities / 81 sections / 18 mandatory tables / 12 meaningful GWT**;
+- global state at Identity closure remains **491 / 489 defined / 2 proposed / 491 planned / 13257 sections / 2946 tables**;
+- Settings remains **PARTIAL** and Phase 6 remains **PARTIAL**.
+
+## Settings Secrets & Connections functional build addendum — 2026-08-13
+After exact execution-time branch/PR/main/README/source/namespace/security/ownership revalidation, **Secrets & Connections — Integration and Secret Reference Administration** allocates exactly `CAP-SET-008..009`.
+
+- `CAP-SET-008` — Integration Administrative Lifecycle, Validation and Connection State;
+- `CAP-SET-009` — Secret Reference Administrative Lifecycle, Rotation and Revocation;
+- both are `draft / defined / planned`, owned uniquely by Platform Settings Product Lead;
+- structure: **2 capabilities / 54 numbered sections / 12 mandatory tables / 12 meaningful GWT**;
+- Settings cumulative build state: **9 capabilities / 243 sections / 54 mandatory tables**;
+- global build state: **493 capabilities / 491 defined / 2 proposed / 493 planned / 13311 sections / 2958 mandatory tables**;
+- `CAP-SET-010+` is neither allocated nor reserved;
+- new Permission IDs: **0**; new Screen IDs: **0**; new canonical objects: **0**;
+- canonical Integration states remain `draft/validating/active/degraded/disabled/error`;
+- canonical Secret Reference states remain `pending/active/rotating/expired/revoked`;
+- Integration `capabilities` metadata is explicitly not CMDR Capability/CAP-* allocation;
+- no Connection/Connector/Credential/raw Secret object is created;
+- current sources do not assign Settings the technical external connection-probe executor; CAP-SET-008 therefore owns administrative test request/preconditions/status/result projection/provenance and handoff only for external testing;
+- current sources do not assign Settings underlying-secret generation/write/rotation or external credential revocation; CAP-SET-009 remains reference-only and owns administrative lifecycle/reference mutation/handoff/result projection only;
+- Tenant is mandatory and Environment source-dependent only;
+- Requirements remain **122 = 99 conform / 20 partial / 3 absent / 0 contradictory**;
+- OPEN remains **18**; `OPEN-008`, `OPEN-012`, `OPEN-013` remain open as applicable;
+- Command 27, Investigate 243, Govern 47, Studio 68, Endpoint 99 and `CAP-SET-001..007` remain unchanged;
+- Models & Providers, Sources & Parsers, Customer/MSSP/Delivery and implementation remain outside this lot;
+- build-time quality: **166 PASS / 6 PENDING-REMOTE / 0 FAIL**; final 172/172 is forbidden before actual remote verification;
+- no implementation/API/protocol/physical schema/provider support/Vault/KMS/HSM/final RBAC claim is introduced.
 
 No capability is reclassified as implemented, native, integrated, active or deployed by this documentary build state.
