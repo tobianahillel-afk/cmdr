@@ -55,7 +55,8 @@ Registry validation checks duplicate/recycled IDs, concurrent owners, missing ca
 | `capability-register-settings-tenant-environment-foundations.md` | Settings Tenant/Environment CAP-SET-001..004 | 4 | 4 | 0 | 4 planned |
 | `capability-register-settings-identity-administration.md` | Settings Identity CAP-SET-005..007 | 3 | 3 | 0 | 3 planned |
 | `capability-register-settings-secrets-and-connections.md` | Settings Secrets & Connections CAP-SET-008..009 | 2 | 2 | 0 | 2 planned |
-| **Total** | **All registered capabilities** | **493** | **491** | **2** | **493 planned** |
+| `capability-register-settings-models-and-providers.md` | Settings Models & Providers CAP-SET-010..011 | 2 | 2 | 0 | 2 planned |
+| **Total** | **All registered capabilities** | **495** | **493** | **2** | **495 planned** |
 
 ## Product totals
 - Command: **27** capabilities, 729 sections, 162 mandatory tables.
@@ -78,8 +79,9 @@ Registry validation checks duplicate/recycled IDs, concurrent owners, missing ca
 - Endpoint cumulative: **99 capabilities / 2673 sections / 594 mandatory tables**; EPT-1/EPT-2/EPT-3/EPT-4/EPT-5/EPT-6 verified PASS after their respective post-publication verification records.
 - Settings Tenant/Environment foundations: **4 capabilities / 108 sections / 24 mandatory tables**; **PASS AFTER POST-PUBLICATION VERIFICATION — 160/160**.
 - Settings Identity Administration: **3 capabilities / 81 sections / 18 mandatory tables / 12 meaningful GWT**; **PASS AFTER POST-PUBLICATION VERIFICATION — 174/174**.
-- Settings Secrets & Connections functional build: **2 capabilities / 54 sections / 12 mandatory tables / 12 meaningful GWT**; build-time **166 PASS / 6 PENDING-REMOTE / 0 FAIL**.
-- Settings cumulative current build content: **9 capabilities / 243 sections / 54 mandatory tables**.
+- Settings Secrets & Connections: **2 capabilities / 54 sections / 12 mandatory tables / 12 meaningful GWT**; **PASS AFTER POST-PUBLICATION VERIFICATION — 172/172**.
+- Settings Models & Providers functional build: **2 capabilities / 54 sections / 12 mandatory tables / 13 meaningful GWT**; build-time **198 PASS / 6 PENDING-REMOTE / 0 FAIL**.
+- Settings cumulative current build content: **11 capabilities / 297 sections / 66 mandatory tables**.
 - CAP-INV-3xx / 4xx / 5xx / 6xx / 7xx: **97 / 35 / 37 / 18 / 19**.
 - Detection Engineering: **35 capabilities, 945 sections, 210 tables**.
 - Threat Intelligence: **37 capabilities, 999 sections, 222 tables**.
@@ -97,7 +99,8 @@ Registry validation checks duplicate/recycled IDs, concurrent owners, missing ca
 - Command + Investigate + Govern + Studio + Endpoint EPT-1/EPT-2/EPT-3/EPT-4/EPT-5/EPT-6: **484 capabilities, 13068 sections, 2904 mandatory tables**.
 - Historical current state after first Settings lot: **488 capabilities, 13176 sections, 2928 mandatory tables**.
 - Historical Identity Administration build/closure state: **491 capabilities, 13257 sections, 2946 mandatory tables**.
-- Current global build content including Settings Secrets & Connections: **493 capabilities / 491 defined / 2 proposed / 493 planned / 13311 sections / 2958 mandatory tables**.
+- Historical Secrets & Connections build/closure state: **493 capabilities, 13311 sections, 2958 mandatory tables**.
+- Current global functional build content including Settings Models & Providers: **495 capabilities / 493 defined / 2 proposed / 495 planned / 13365 sections / 2970 mandatory tables**.
 
 ## Command registry state
 The Command shard remains 27 unique IDs, 26 defined / 1 proposed / 27 planned, with current native/integrated claims equal to 0. `CAP-CMD-401` remains deployment-dependent under OPEN-006.
@@ -308,5 +311,28 @@ After exact execution-time branch/PR/main/README/source/namespace/security/owner
 - Models & Providers, Sources & Parsers, Customer/MSSP/Delivery and implementation remain outside this lot;
 - build-time quality: **166 PASS / 6 PENDING-REMOTE / 0 FAIL**; final 172/172 is forbidden before actual remote verification;
 - no implementation/API/protocol/physical schema/provider support/Vault/KMS/HSM/final RBAC claim is introduced.
+
+No capability is reclassified as implemented, native, integrated, active or deployed by this documentary build state.
+
+## Settings Models & Providers functional build addendum — 2026-08-13
+After execution-time revalidation, **Models & Providers — Model Provider Administration and Model Routing** allocates exactly `CAP-SET-010..011`.
+
+- `CAP-SET-010` — Model Provider Administrative Lifecycle, Validation, Model Availability and Health Projection;
+- `CAP-SET-011` — Model Routing Configuration, Eligibility, Fallback Constraints and Provider Switch Provenance;
+- both are `draft / defined / planned`, owned uniquely by Platform Settings Product Lead;
+- structure: **2 capabilities / 54 numbered sections / 12 mandatory tables / 13 meaningful GWT**;
+- Settings cumulative build state: **11 capabilities / 297 sections / 66 mandatory tables**;
+- global build state: **495 capabilities / 493 defined / 2 proposed / 495 planned / 13365 sections / 2970 mandatory tables**;
+- `CAP-SET-012+` remains unallocated and unreserved;
+- new Permission IDs: **0**; new Screen IDs: **0**; new canonical objects: **0**;
+- Model Provider remains distinct from Integration and no canonical Model or routing-policy object is created;
+- provider administration/routing configuration remains distinct from provider execution;
+- availability, health and effective selection remain source-attributed projections;
+- fallback configuration does not assert automatic failover;
+- Requirements remain **122 = 99 conform / 20 partial / 3 absent / 0 contradictory**;
+- OPEN remains **18**; `OPEN-008`, `OPEN-012`, `OPEN-013` remain open;
+- Command 27, Investigate 243, Govern 47, Studio 68, Endpoint 99 and `CAP-SET-001..009` remain unchanged;
+- Sources & Parsers, Customer/MSSP/Delivery and implementation remain outside this lot;
+- build-time quality: **198 PASS / 6 PENDING-REMOTE / 0 FAIL**; final 204/204 requires actual remote verification.
 
 No capability is reclassified as implemented, native, integrated, active or deployed by this documentary build state.

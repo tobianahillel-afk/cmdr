@@ -9,7 +9,6 @@ source-of-truth: canonical
 # Platform Settings Capability Map
 
 ## Tenant, Environment and Administrative Foundations
-
 | Capability | Canonical responsibility | Primary objects | Primary screen | Dependencies |
 |---|---|---|---|---|
 | CAP-SET-001 | Tenant lifecycle and isolation boundary | Tenant | SET-TEN-001 | Security, Administrative Audit |
@@ -17,27 +16,27 @@ source-of-truth: canonical
 | CAP-SET-003 | administrative change validation and provenance | Tenant, Environment | SET-TEN-001, SET-AUD-001 | Security, Administrative Audit |
 | CAP-SET-004 | cross-product Tenant/Environment context semantics | Tenant/Environment refs | existing product screens | Experience Architecture, Design System, Security |
 
-## Identity Administration — Principals, Roles and Access Reviews
-
+## Identity Administration
 | Capability | Canonical responsibility | Primary objects | Primary screen | Dependencies |
 |---|---|---|---|---|
-| CAP-SET-005 | Principal lifecycle and human/service identity-state administration | Principal, Tenant ref | SET-IAM-001 | Security, Administrative Audit |
-| CAP-SET-006 | Role lifecycle/constraints and bounded typed Principal/Role relation | Role, Principal ref, Tenant ref | SET-IAM-001 | Security Permission Model, ABAC, SoD, Decision Authority boundary |
-| CAP-SET-007 | periodic Access Review, evidence/provenance and keep/revoke disposition/handoff | Principal/Role refs | SET-IAM-001, SET-AUD-001 | Security, Administrative Audit; Govern only when separately required |
+| CAP-SET-005 | Principal lifecycle and identity-state administration | Principal, Tenant ref | SET-IAM-001 | Security, Administrative Audit |
+| CAP-SET-006 | Role lifecycle/constraints and bounded Principal/Role relation | Role, Principal ref, Tenant ref | SET-IAM-001 | Security, ABAC, SoD |
+| CAP-SET-007 | Access Review evidence/provenance and disposition/handoff | Principal/Role refs | SET-IAM-001, SET-AUD-001 | Security, Administrative Audit |
 
-## Secrets & Connections — Integration and Secret Reference Administration
-
+## Secrets & Connections
 | Capability | Canonical responsibility | Primary objects | Primary screen | Dependencies |
 |---|---|---|---|---|
-| CAP-SET-008 | Integration administrative lifecycle, local validation, connection-test administrative request/result projection and safe disable | Integration, Tenant ref; Environment only if sourced | SET-SEC-001, SET-AUD-001 | Security, Administrative Audit; external probe executor remains separately owned/unassigned until sourced |
-| CAP-SET-009 | Secret Reference lifecycle, reference-only registration, rotation/expiry/revocation of the reference and security handoff | Secret Reference, Tenant ref; Environment only if sourced | SET-SEC-001, SET-AUD-001 | Security secret controls, SoD, step-up, Administrative Audit; underlying secret executor remains external/unassigned until sourced |
+| CAP-SET-008 | Integration lifecycle, local validation and administrative result projection | Integration, Tenant ref | SET-SEC-001, SET-AUD-001 | Security, Administrative Audit |
+| CAP-SET-009 | Secret Reference lifecycle and reference administration | Secret Reference, Tenant ref | SET-SEC-001, SET-AUD-001 | Security, Administrative Audit |
 
-Settings owns the capability semantics. Dependency/source ownership remains with the canonical domain. No new Screen ID, Permission ID or canonical object is introduced.
+## Models & Providers
+| Capability | Canonical responsibility | Primary objects | Primary screen | Dependencies |
+|---|---|---|---|---|
+| CAP-SET-010 | Model Provider lifecycle/configuration, local validation and sourced availability/health projection | Model Provider, Tenant ref; optional sourced refs | SET-MDL-001, SET-HLT-001, SET-AUD-001 | Security, Administrative Audit, Health, Studio consumers |
+| CAP-SET-011 | routing/eligibility/fallback configuration and provenance of sourced effective-selection observations | Model Provider configuration, Tenant ref | SET-MDL-001, SET-AUD-001 | Security, data-policy owners, Studio/runtime consumers, Administrative Audit |
 
-`Principal` ≠ Person/Customer/Tenant; `Role` ≠ Permission/Group/Decision Authority. A typed Principal/Role relation is not itself a Permission grant. CAP-SET-007 does not invent direct assignment-removal mechanics; its `revoke` outcome is a disposition/handoff under the current sources.
+No new Screen ID, Permission ID or canonical object is introduced.
 
-`Integration` ≠ Connection object ≠ Connector object ≠ Model Provider ≠ Data Source. Integration `capabilities` metadata is external-connection metadata, not the CMDR Capability object and never creates a `CAP-*` ID. A `Test Connection` action does not transfer technical probe execution to Settings; CAP-SET-008 owns the administrative request/status/result projection and provenance only where the executor is not canonically assigned.
+Key distinctions remain: Model Provider is distinct from Integration; model metadata is not a canonical Model object; Policy remains Govern-owned; provider administration/routing configuration is distinct from provider execution; availability, health and effective selection are sourced projections; fallback configuration does not assert automatic failover.
 
-`Secret Reference` ≠ raw Secret ≠ Credential/API Key/Token/Certificate. Secret Reference `rotating`/`revoked` states and reference mutation do not prove generation, write, rotation or revocation of underlying external secret material. CAP-SET-009 remains reference-only and provider-neutral.
-
-Current Settings capability structure after the functional build: **9 capabilities / 243 numbered sections / 54 mandatory tables**. `CAP-SET-010+` is not allocated or reserved. Platform Settings Capability Specification remains **PARTIAL**.
+Current Settings functional BUILD structure: **11 capabilities / 297 numbered sections / 66 mandatory tables**. Requirements remain **122 = 99/20/3/0**. OPEN remains **18**. `CAP-SET-012+` remains unallocated and unreserved. Platform Settings Capability Specification remains **PARTIAL**.

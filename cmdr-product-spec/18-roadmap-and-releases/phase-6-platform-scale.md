@@ -118,6 +118,44 @@ Final lot verdict: **PASS AFTER POST-PUBLICATION VERIFICATION — 172/172 PASS, 
 
 Settings Capability Specification remains **PARTIAL** and Delivery Roadmap Phase 6 Capability Specification remains **PARTIAL** because later Models & Providers, Sources & Parsers and other source-audited Platform Scale work remain separate. Global Capability Specification and repository maturity remain **PARTIAL**. Documentary PASS does not claim implementation/runtime availability.
 
+### Models & Providers — Model Provider Administration and Model Routing
+
+Fourth source-audited functional execution lot under the same Delivery Roadmap Phase 6 — Platform Scale. It is **not** a new roadmap phase.
+
+Exactly `CAP-SET-010..011`, owned by Platform Settings Product Lead:
+- `CAP-SET-010` — Model Provider Administrative Lifecycle, Validation, Model Availability and Health Projection;
+- `CAP-SET-011` — Model Routing Configuration, Eligibility, Fallback Constraints and Provider Switch Provenance.
+
+Structure: **2 capabilities / 54 numbered sections / 12 mandatory tables / 13 meaningful GWT**. Settings cumulative functional BUILD becomes **11 capabilities / 297 sections / 66 mandatory tables**.
+
+Functional chain from execution baseline `8d90a80655e362bd6a53a7d06087bbdf6450de63`:
+1. `bfa7be2b685eeac143ef5f531fee3144a2fcf131` — `docs: establish Settings Models and Providers capability ownership and runtime boundaries`;
+2. `0e6cfdbc346004702db688bd6f2d87d9c693b256` — `docs: define Settings model provider lifecycle validation availability and health projection`;
+3. `4d87c04851256826ee543b6b2024cff22ba70017` — `docs: specify Settings model routing fallback constraints and provider switch provenance`;
+4. BUILD = the commit containing the traceability/quality update; its exact SHA is recorded after construction/publication rather than predicted inside itself.
+
+Hard boundaries:
+- canonical Model Provider lifecycle remains `configured`, `validating`, `active`, `degraded`, `disabled`;
+- Model Provider remains distinct from Integration;
+- model metadata/availability does not create a canonical `Model` object;
+- provider administration and routing configuration do not transfer provider/runtime execution to Settings;
+- model availability, provider health and effective provider/model selection are source-attributed projections;
+- fallback configuration does not assert automatic failover;
+- an observed provider/model change is not represented as a silent Settings-executed switch;
+- `Policy` remains Govern-owned;
+- source-dependent `Secret Reference` use does not create an invented mandatory relation;
+- Tenant remains mandatory; Environment remains source-dependent;
+- existing `SET-MDL-001`, `SET-HLT-001`, `SET-AUD-001` and existing Model Provider permission families are reused;
+- new Permission IDs: **0**; new Screen IDs: **0**; new canonical objects: **0**.
+
+Global functional BUILD content becomes **495 capabilities / 493 defined / 2 proposed / 495 planned / 13,365 numbered sections / 2,970 mandatory tables**. Requirements remain **122 = 99 conform / 20 partial / 3 absent / 0 contradictory**. OPEN remains **18**; `OPEN-008`, `OPEN-012` and `OPEN-013` remain unresolved.
+
+Build-time conformance is **198 PASS / 6 PENDING-REMOTE / 0 FAIL**. Final `204/204` is forbidden before actual remote publication verification.
+
+Settings Capability Specification remains **PARTIAL** and Delivery Roadmap Phase 6 Capability Specification remains **PARTIAL**. Global Capability Specification and repository maturity remain **PARTIAL**. Documentary PASS does not claim implementation/runtime availability.
+
+`CAP-SET-012+` remains unallocated and unreserved. Sources & Parsers remains a separate future source-audited lot and is not started here.
+
 ## UX et interactions
 
 - Navigation par liens stables.
@@ -127,7 +165,7 @@ Settings Capability Specification remains **PARTIAL** and Delivery Roadmap Phase
 
 ## Permissions
 
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable. The three Settings execution lots through Secrets & Connections create zero new Permission IDs and zero new Screen IDs; if either becomes necessary in a future lot, that prerequisite requires a separate source-owned run.
+Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable. The four Settings execution lots through Models & Providers create zero new Permission IDs and zero new Screen IDs; if either becomes necessary in a future lot, that prerequisite requires a separate source-owned run.
 
 ## États
 
@@ -145,6 +183,9 @@ Le statut documentaire suit `00-governance/document-status-model.md`; les états
 - `../16-quality-and-validation/reports/platform-scale-secrets-connections-integration-secret-reference-capability-conformance.md`
 - `../16-quality-and-validation/validation-status-platform-scale-secrets-and-connections.md`
 - `../16-quality-and-validation/quality-index-platform-scale-secrets-and-connections.md`
+- `../16-quality-and-validation/reports/platform-scale-models-providers-administration-routing-capability-conformance.md`
+- `../16-quality-and-validation/validation-status-platform-scale-models-and-providers.md`
+- `../16-quality-and-validation/quality-index-platform-scale-models-and-providers.md`
 
 ## Critères d’acceptation
 
@@ -158,4 +199,4 @@ Le statut documentaire suit `00-governance/document-status-model.md`; les états
 
 - Quelle date et quel owner doivent être confirmés?
 - Quelle dépendance bloque ce jalon?
-- Later source-confirmed Platform Scale lots require their own preparation/execution audit and cannot be inferred from Secrets & Connections.
+- Later source-confirmed Platform Scale lots require their own preparation/execution audit and cannot be inferred from Models & Providers.

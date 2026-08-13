@@ -8,7 +8,7 @@ source-of-truth: canonical
 ---
 # Platform Settings Capabilities
 
-Platform Settings capability contracts use the immutable owner-aligned namespace `CAP-SET-*`. IDs are never recycled. Current allocation is exactly `CAP-SET-001..009`; `CAP-SET-010+` is neither allocated nor reserved.
+Platform Settings capability contracts use the immutable owner-aligned namespace `CAP-SET-*`. IDs are never recycled. Current allocation is exactly `CAP-SET-001..011`; `CAP-SET-012+` is neither allocated nor reserved.
 
 ## Tenant, Environment and Administrative Foundations
 
@@ -36,16 +36,34 @@ Identity Administration remains **PASS AFTER POST-PUBLICATION VERIFICATION — 1
 | `CAP-SET-008` | Integration Administrative Lifecycle, Validation and Connection State | draft | defined / planned |
 | `CAP-SET-009` | Secret Reference Administrative Lifecycle, Rotation and Revocation | draft | defined / planned |
 
-This lot contributes **2 capabilities / 54 numbered sections / 12 mandatory tables / 12 meaningful GWT**. Settings cumulative build content is **9 capabilities / 243 sections / 54 mandatory tables**.
+Secrets & Connections contributes **2 capabilities / 54 numbered sections / 12 mandatory tables / 12 meaningful GWT** and remains **PASS AFTER POST-PUBLICATION VERIFICATION — 172/172 PASS, 0 PENDING, 0 FAIL**.
 
-`Integration` remains the canonical object; `Connection` is functional/module terminology and Integration `capabilities` metadata is not the CMDR Capability object or a CAP-* namespace. `Secret Reference` remains reference-only. No Connection, Connector, Credential or raw Secret object is created.
+`Integration` remains canonical; `Connection` is functional terminology. `Secret Reference` remains reference-only. CAP-SET-008 does not claim the technical external connection-probe executor; CAP-SET-009 does not claim the underlying external value-management executor.
 
-`CAP-SET-008` does not claim ownership of the technical external connection-probe engine: current sources support administrative request/preconditions/status/result projection/provenance and handoff only. `CAP-SET-009` does not claim generation, write, rotation or revocation of underlying external secret/credential material: its lifecycle and mutations are Secret Reference administrative semantics only unless a canonical external owner supplies an observed outcome.
+## Models & Providers — Model Provider Administration and Model Routing
 
-All nine capabilities have one canonical capability owner: **Platform Settings Product Lead**. Security, Shared, Experience Architecture, Design System and Govern remain dependency/source owners where applicable.
+| Capability | Title | Status | Delivery |
+|---|---|---|---|
+| `CAP-SET-010` | Model Provider Administrative Lifecycle, Validation, Model Availability and Health Projection | draft | defined / planned |
+| `CAP-SET-011` | Model Routing Configuration, Eligibility, Fallback Constraints and Provider Switch Provenance | draft | defined / planned |
 
-The Secrets & Connections lot reuses `SET-SEC-001` and `SET-AUD-001`, creates **0 new Screen IDs**, **0 new Permission IDs** and **0 new canonical objects**. Existing Integration/Secret Reference object-facing permissions and current Secrets & Connections surface permissions are reused without bulk namespace normalization.
+Models & Providers contributes **2 capabilities / 54 numbered sections / 12 mandatory tables / 13 meaningful GWT**. Settings cumulative functional BUILD content is **11 capabilities / 297 sections / 66 mandatory tables**.
 
-Build-time quality for Secrets & Connections is **166 PASS / 6 PENDING-REMOTE / 0 FAIL**. Final PASS is forbidden until the remote-dependent gates are actually executed after publication.
+Canonical boundaries:
+- Model Provider remains distinct from Integration;
+- model metadata and availability projections do not create a canonical Model object;
+- provider administration and routing configuration do not transfer provider/runtime execution to Settings;
+- fallback configuration does not assert automatic failover;
+- effective provider/model selection is a source-attributed observation when supplied by a runtime owner;
+- Policy remains Govern-owned;
+- optional source-backed Secret Reference use does not create an invented mandatory relation.
 
-Platform Settings Capability Specification remains **PARTIAL** after this lot; Models & Providers, Sources & Parsers and other later Platform Scale work remain separate source-audited lots.
+All eleven capabilities have one capability owner: **Platform Settings Product Lead**. Security, Shared, Experience Architecture, Design System, Govern, Health, Administrative Audit and Studio/runtime consumers retain their canonical dependency/source ownership.
+
+The Models & Providers lot reuses `SET-MDL-001`, `SET-HLT-001`, `SET-AUD-001`, existing Model Provider permissions and current UI aliases. It creates **0 new Screen IDs, 0 new Permission IDs and 0 new canonical objects**.
+
+Build-time quality for Models & Providers is **198 PASS / 6 PENDING-REMOTE / 0 FAIL**. Final `204/204` is forbidden until remote publication verification is complete.
+
+Requirements remain **122 = 99 conform / 20 partial / 3 absent / 0 contradictory**. OPEN remains **18**, including `OPEN-008`, `OPEN-012` and `OPEN-013` unresolved. Documentary capability definition does not claim implementation/runtime availability.
+
+Platform Settings Capability Specification remains **PARTIAL** after this lot; Sources & Parsers and other later Platform Scale work remain separate source-audited lots. `CAP-SET-012+` remains unallocated and unreserved.
