@@ -3,12 +3,12 @@ id: platform-settings-capabilities
 domain: 10-platform-settings
 status: draft
 owner: Platform Settings Product Lead
-updated: 2026-08-13
+updated: 2026-08-14
 source-of-truth: canonical
 ---
 # Platform Settings Capabilities
 
-Platform Settings capability contracts use the immutable owner-aligned namespace `CAP-SET-*`. IDs are never recycled. Current allocation is exactly `CAP-SET-001..011`; `CAP-SET-012+` is neither allocated nor reserved.
+Platform Settings capability contracts use the immutable owner-aligned namespace `CAP-SET-*`. IDs are never recycled. Current allocation is exactly `CAP-SET-001..013`; `CAP-SET-014+` is neither allocated nor reserved.
 
 ## Tenant, Environment and Administrative Foundations
 
@@ -47,23 +47,34 @@ Secrets & Connections contributes **2 capabilities / 54 numbered sections / 12 m
 | `CAP-SET-010` | Model Provider Administrative Lifecycle, Validation, Model Availability and Health Projection | draft | defined / planned |
 | `CAP-SET-011` | Model Routing Configuration, Eligibility, Fallback Constraints and Provider Switch Provenance | draft | defined / planned |
 
-Models & Providers contributes **2 capabilities / 54 numbered sections / 12 mandatory tables / 13 meaningful GWT**. Settings cumulative functional BUILD content is **11 capabilities / 297 sections / 66 mandatory tables**.
+Models & Providers contributes **2 capabilities / 54 numbered sections / 12 mandatory tables / 13 meaningful GWT** and remains **PASS AFTER POST-PUBLICATION VERIFICATION — 204/204 PASS, 0 PENDING, 0 FAIL**.
+
+Canonical boundaries remain: Model Provider is distinct from Integration; model metadata is not a canonical Model object; Policy remains Govern-owned; provider administration/routing configuration is distinct from provider execution; availability, health and effective selection are sourced projections; fallback configuration does not assert automatic failover.
+
+## Sources & Parsers — Data Source Administration and Parser Transformation Administration
+
+| Capability | Title | Status | Delivery |
+|---|---|---|---|
+| `CAP-SET-012` | Data Source Administrative Lifecycle, Scope, Freshness and Health Projection | draft | defined / planned |
+| `CAP-SET-013` | Parser Administrative Lifecycle, Versioned Transformation, Fixtures and Validation | draft | defined / planned |
+
+Sources & Parsers contributes **2 capabilities / 54 numbered sections / 12 mandatory tables / 8 meaningful GWT**. Settings cumulative functional BUILD content becomes **13 capabilities / 351 sections / 78 mandatory tables**.
 
 Canonical boundaries:
-- Model Provider remains distinct from Integration;
-- model metadata and availability projections do not create a canonical Model object;
-- provider administration and routing configuration do not transfer provider/runtime execution to Settings;
-- fallback configuration does not assert automatic failover;
-- effective provider/model selection is a source-attributed observation when supplied by a runtime owner;
-- Policy remains Govern-owned;
-- optional source-backed Secret Reference use does not create an invented mandatory relation.
+- `Data Source` and `Parser` remain distinct canonical objects with no direct canonical relationship;
+- no Source→Parser assignment, compatibility object, routing, selection, fallback or precedence is introduced;
+- `Integration` remains distinct from Data Source;
+- source health/freshness and Parser error/quality/test results are source-attributed projections when runtime-derived;
+- Settings does not own acquisition, collection, ingestion, connector/probe execution, parser engine, normalization, stream processing, schema-registry implementation or storage merely by defining these capabilities;
+- schema format, initial schema version and SLO/limits remain unresolved in implementation contracts;
+- no ECS, OCSF, CIM, OpenTelemetry or other unsourced schema standard is selected.
 
-All eleven capabilities have one capability owner: **Platform Settings Product Lead**. Security, Shared, Experience Architecture, Design System, Govern, Health, Administrative Audit and Studio/runtime consumers retain their canonical dependency/source ownership.
+All thirteen capabilities have one capability owner: **Platform Settings Product Lead**. Security, Shared, Experience Architecture, Design System, Govern, Health, Administrative Audit, Studio/runtime and other product/runtime owners retain their canonical ownership.
 
-The Models & Providers lot reuses `SET-MDL-001`, `SET-HLT-001`, `SET-AUD-001`, existing Model Provider permissions and current UI aliases. It creates **0 new Screen IDs, 0 new Permission IDs and 0 new canonical objects**.
+The lot reuses `SET-SRC-001`, `SET-HLT-001`, `SET-AUD-001`, `SET-SEC-001`, existing `perm.platform-settings.data-source.*`, `perm.platform-settings.parser.*` and existing `perm.settings.source.*` aliases. It creates **0 new Screen IDs, 0 new Permission IDs and 0 new canonical objects**.
 
-Build-time quality for Models & Providers is **198 PASS / 6 PENDING-REMOTE / 0 FAIL**. Final `204/204` is forbidden until remote publication verification is complete.
+BUILD-time quality for Sources & Parsers is **292 PASS / 24 PENDING-REMOTE / 0 FAIL**. Final `316/316` is forbidden until actual remote publication, CI/applicability inspection and documentary closure complete.
 
-Requirements remain **122 = 99 conform / 20 partial / 3 absent / 0 contradictory**. OPEN remains **18**, including `OPEN-008`, `OPEN-012` and `OPEN-013` unresolved. Documentary capability definition does not claim implementation/runtime availability.
+Requirements remain **122 = 99 conform / 20 partial / 3 absent / 0 contradictory**. OPEN remains **18**. Documentary capability definition does not claim implementation/runtime availability.
 
-Platform Settings Capability Specification remains **PARTIAL** after this lot; Sources & Parsers and other later Platform Scale work remain separate source-audited lots. `CAP-SET-012+` remains unallocated and unreserved.
+Platform Settings Capability Specification remains **PARTIAL** after this lot; later Platform Scale work remains separate source-audited work. `CAP-SET-014+` remains unallocated and unreserved.

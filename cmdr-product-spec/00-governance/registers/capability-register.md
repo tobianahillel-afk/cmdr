@@ -3,7 +3,7 @@ id: capability-register
 domain: 00-governance
 status: draft
 owner: Product Architecture
-updated: 2026-08-13
+updated: 2026-08-14
 source-of-truth: registry
 requirements:
   - REQ-PROD-006
@@ -56,7 +56,8 @@ Registry validation checks duplicate/recycled IDs, concurrent owners, missing ca
 | `capability-register-settings-identity-administration.md` | Settings Identity CAP-SET-005..007 | 3 | 3 | 0 | 3 planned |
 | `capability-register-settings-secrets-and-connections.md` | Settings Secrets & Connections CAP-SET-008..009 | 2 | 2 | 0 | 2 planned |
 | `capability-register-settings-models-and-providers.md` | Settings Models & Providers CAP-SET-010..011 | 2 | 2 | 0 | 2 planned |
-| **Total** | **All registered capabilities** | **495** | **493** | **2** | **495 planned** |
+| `capability-register-settings-sources-and-parsers.md` | Settings Sources & Parsers CAP-SET-012..013 | 2 | 2 | 0 | 2 planned |
+| **Total** | **All registered capabilities** | **497** | **495** | **2** | **497 planned** |
 
 ## Product totals
 - Command: **27** capabilities, 729 sections, 162 mandatory tables.
@@ -80,8 +81,9 @@ Registry validation checks duplicate/recycled IDs, concurrent owners, missing ca
 - Settings Tenant/Environment foundations: **4 capabilities / 108 sections / 24 mandatory tables**; **PASS AFTER POST-PUBLICATION VERIFICATION — 160/160**.
 - Settings Identity Administration: **3 capabilities / 81 sections / 18 mandatory tables / 12 meaningful GWT**; **PASS AFTER POST-PUBLICATION VERIFICATION — 174/174**.
 - Settings Secrets & Connections: **2 capabilities / 54 sections / 12 mandatory tables / 12 meaningful GWT**; **PASS AFTER POST-PUBLICATION VERIFICATION — 172/172**.
-- Settings Models & Providers functional build: **2 capabilities / 54 sections / 12 mandatory tables / 13 meaningful GWT**; build-time **198 PASS / 6 PENDING-REMOTE / 0 FAIL**.
-- Settings cumulative current build content: **11 capabilities / 297 sections / 66 mandatory tables**.
+- Settings Models & Providers functional build: **2 capabilities / 54 sections / 12 mandatory tables / 13 meaningful GWT**; final **PASS AFTER POST-PUBLICATION VERIFICATION — 204/204**.
+- Settings Sources & Parsers functional BUILD: **2 capabilities / 54 sections / 12 mandatory tables / 8 meaningful GWT**; build-time **292 PASS / 24 PENDING-REMOTE / 0 FAIL**.
+- Settings cumulative current build content: **13 capabilities / 351 sections / 78 mandatory tables**.
 - CAP-INV-3xx / 4xx / 5xx / 6xx / 7xx: **97 / 35 / 37 / 18 / 19**.
 - Detection Engineering: **35 capabilities, 945 sections, 210 tables**.
 - Threat Intelligence: **37 capabilities, 999 sections, 222 tables**.
@@ -100,7 +102,8 @@ Registry validation checks duplicate/recycled IDs, concurrent owners, missing ca
 - Historical current state after first Settings lot: **488 capabilities, 13176 sections, 2928 mandatory tables**.
 - Historical Identity Administration build/closure state: **491 capabilities, 13257 sections, 2946 mandatory tables**.
 - Historical Secrets & Connections build/closure state: **493 capabilities, 13311 sections, 2958 mandatory tables**.
-- Current global functional build content including Settings Models & Providers: **495 capabilities / 493 defined / 2 proposed / 495 planned / 13365 sections / 2970 mandatory tables**.
+- Historical Models & Providers build/closure state: **495 capabilities / 493 defined / 2 proposed / 495 planned / 13365 sections / 2970 mandatory tables**.
+- Current global functional BUILD content including Settings Sources & Parsers: **497 capabilities / 495 defined / 2 proposed / 497 planned / 13419 sections / 2982 mandatory tables**.
 
 ## Command registry state
 The Command shard remains 27 unique IDs, 26 defined / 1 proposed / 27 planned, with current native/integrated claims equal to 0. `CAP-CMD-401` remains deployment-dependent under OPEN-006.
@@ -336,3 +339,26 @@ After execution-time revalidation, **Models & Providers — Model Provider Admin
 - build-time quality: **198 PASS / 6 PENDING-REMOTE / 0 FAIL**; final 204/204 requires actual remote verification.
 
 No capability is reclassified as implemented, native, integrated, active or deployed by this documentary build state.
+
+## Settings Sources & Parsers functional BUILD addendum — 2026-08-14
+After the blocking preflight, source-semantic lock and execution-time namespace race guard, **Sources & Parsers — Data Source Administration and Parser Transformation Administration** allocates exactly `CAP-SET-012..013`.
+
+- `CAP-SET-012` — Data Source Administrative Lifecycle, Scope, Freshness and Health Projection;
+- `CAP-SET-013` — Parser Administrative Lifecycle, Versioned Transformation, Fixtures and Validation;
+- both are `draft / defined / planned`, owned uniquely by Platform Settings Product Lead;
+- both contain exactly 27 numbered sections, six mandatory non-empty tables and four meaningful GWT;
+- lot structure: **2 capabilities / 54 sections / 12 mandatory tables / 8 GWT**;
+- Settings cumulative: **13 capabilities / 351 sections / 78 mandatory tables**;
+- global functional BUILD: **497 capabilities / 495 defined / 2 proposed / 497 planned / 13419 sections / 2982 mandatory tables**;
+- `CAP-SET-014+` remains unallocated and unreserved;
+- new Permission IDs / Screen IDs / canonical objects: **0 / 0 / 0**;
+- Data Source and Parser remain distinct tenant-mandatory canonical objects and no direct Source→Parser relation is created;
+- no assignment, compatibility object, routing, automatic selection, fallback or precedence is introduced;
+- source health/freshness and Parser test/error/quality facts are source-attributed projections when runtime-derived;
+- acquisition, collection, ingestion, connectors/probes, parser runtime, normalization, stream processing, schema-registry implementation and storage remain outside Settings capability ownership absent separate canonical evidence;
+- schema format, initial version and SLO/limits remain unresolved; no unsourced schema standard is selected;
+- Requirements remain **122 = 99 conform / 20 partial / 3 absent / 0 contradictory** with zero ID/state changes;
+- OPEN remains **18**, with zero created/closed;
+- build-time quality: **292 PASS / 24 PENDING-REMOTE / 0 FAIL**; final 316/316 requires actual remote publication, CI/applicability inspection and documentary closure.
+
+No capability is reclassified as implemented, native, integrated, active, deployed or available by this documentary build state.

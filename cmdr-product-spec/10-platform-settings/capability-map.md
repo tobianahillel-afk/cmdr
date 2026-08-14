@@ -3,7 +3,7 @@ id: platform-settings-capability-map
 domain: 10-platform-settings
 status: draft
 owner: Platform Settings Product Lead
-updated: 2026-08-13
+updated: 2026-08-14
 source-of-truth: canonical
 ---
 # Platform Settings Capability Map
@@ -35,8 +35,14 @@ source-of-truth: canonical
 | CAP-SET-010 | Model Provider lifecycle/configuration, local validation and sourced availability/health projection | Model Provider, Tenant ref; optional sourced refs | SET-MDL-001, SET-HLT-001, SET-AUD-001 | Security, Administrative Audit, Health, Studio consumers |
 | CAP-SET-011 | routing/eligibility/fallback configuration and provenance of sourced effective-selection observations | Model Provider configuration, Tenant ref | SET-MDL-001, SET-AUD-001 | Security, data-policy owners, Studio/runtime consumers, Administrative Audit |
 
+## Sources & Parsers
+| Capability | Canonical responsibility | Primary objects | Primary screen | Dependencies |
+|---|---|---|---|---|
+| CAP-SET-012 | Data Source lifecycle/configuration, scope, freshness, safe disable, local validation and sourced health projection | Data Source, Tenant ref; optional sourced Integration/Secret Reference refs | SET-SRC-001, SET-HLT-001, SET-AUD-001 | Security, Health/Event contracts, Administrative Audit, runtime owner via handoff |
+| CAP-SET-013 | Parser lifecycle/versioned transformation contract, fixtures, errors/quality, local validation and source-backed administrative rollback | Parser, Tenant ref | SET-SRC-001, SET-AUD-001 | Security, Parser/Event contracts, Administrative Audit, parser runtime owner via handoff |
+
 No new Screen ID, Permission ID or canonical object is introduced.
 
-Key distinctions remain: Model Provider is distinct from Integration; model metadata is not a canonical Model object; Policy remains Govern-owned; provider administration/routing configuration is distinct from provider execution; availability, health and effective selection are sourced projections; fallback configuration does not assert automatic failover.
+Key Sources & Parsers distinctions: Data Source != Parser != Integration; the canonical objects define no direct Data Source→Parser relation; no assignment/compatibility/routing/selection/fallback/precedence is invented. Health/test/error/quality facts derived from runtime are sourced projections. Settings administrative configuration does not become acquisition, collection, ingestion, connector/probe, parser, normalization, stream-processing, schema-registry or storage execution.
 
-Current Settings functional BUILD structure: **11 capabilities / 297 numbered sections / 66 mandatory tables**. Requirements remain **122 = 99/20/3/0**. OPEN remains **18**. `CAP-SET-012+` remains unallocated and unreserved. Platform Settings Capability Specification remains **PARTIAL**.
+Current Settings functional BUILD structure: **13 capabilities / 351 numbered sections / 78 mandatory tables**. Sources & Parsers contributes **8 meaningful GWT**. Requirements remain **122 = 99/20/3/0**. OPEN remains **18**. `CAP-SET-014+` remains unallocated and unreserved. Platform Settings Capability Specification remains **PARTIAL**.

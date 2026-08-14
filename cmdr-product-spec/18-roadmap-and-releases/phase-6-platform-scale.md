@@ -3,7 +3,7 @@ id: roadmap-phase-6-platform-scale
 domain: 18-roadmap-and-releases
 status: draft
 owner: Product Operations Lead
-updated: 2026-08-13
+updated: 2026-08-14
 source-of-truth: canonical
 ---
 # Phase 6 Platform Scale
@@ -216,3 +216,38 @@ Le statut documentaire suit `00-governance/document-status-model.md`; les états
 - Quelle date et quel owner doivent être confirmés?
 - Quelle dépendance bloque ce jalon?
 - Later source-confirmed Platform Scale lots require their own preparation/execution audit and cannot be inferred from Models & Providers.
+
+### Sources & Parsers — Data Source Administration and Parser Transformation Administration
+
+Fifth source-audited functional execution lot under the same Delivery Roadmap Phase 6 — Platform Scale. It is not a new roadmap phase.
+
+Exactly `CAP-SET-012..013`, owned by Platform Settings Product Lead:
+- `CAP-SET-012` — Data Source Administrative Lifecycle, Scope, Freshness and Health Projection;
+- `CAP-SET-013` — Parser Administrative Lifecycle, Versioned Transformation, Fixtures and Validation.
+
+Structure: **2 capabilities / 54 numbered sections / 12 mandatory tables / 8 meaningful GWT**. Settings cumulative functional BUILD becomes **13 capabilities / 351 sections / 78 mandatory tables**.
+
+Execution baseline: `06a29ddc9ef526ff8a0df3dc2dc52e7918bd02c7` — `docs: restore Phase 6 roadmap historical detail after Models and Providers closure`.
+
+Hard boundaries:
+- canonical Data Source states remain `configured`, `active`, `degraded`, `disabled`;
+- canonical Parser states remain `draft`, `testing`, `active`, `degraded`, `retired`;
+- Tenant remains mandatory; Environment is context/source-dependent only;
+- Data Source and Parser remain distinct canonical objects and define no direct canonical upstream/downstream relation;
+- no `ParserAssignment`, `SourceParserAssignment`, `ParserCompatibility`, `ParserRoute`, `ParserSelection`, `ParserFallback`, `ParserPrecedence` or `SourceParserRelation` is introduced;
+- `Integration` and `Secret Reference` remain distinct sourced references only when applicable;
+- Settings owns administrative lifecycle/configuration, deterministic local validation and source-attributed projections only;
+- acquisition, collection, ingestion, connector/probe execution, parser runtime, normalization, stream processing, schema-registry implementation and storage remain outside this lot;
+- `Test Source` / `Test Parser` are not automatically no-effect local validation when runtime/external effects are required;
+- schema format, initial schema version and SLO/limits remain unresolved; no ECS/OCSF/CIM/OpenTelemetry or other unsourced schema standard is selected;
+- existing `SET-SRC-001`, `SET-HLT-001`, `SET-AUD-001`, `SET-SEC-001` and existing Data Source/Parser permission families are reused;
+- new Permission IDs / Screen IDs / canonical objects: **0 / 0 / 0**;
+- Requirements remain **122 = 99 conform / 20 partial / 3 absent / 0 contradictory**;
+- OPEN remains **18**; zero created/closed;
+- `CAP-SET-014+` remains unallocated and unreserved.
+
+Global functional BUILD content becomes **497 capabilities / 495 defined / 2 proposed / 497 planned / 13,419 numbered sections / 2,982 mandatory tables**.
+
+Build-time quality is **292 PASS / 24 PENDING-REMOTE / 0 FAIL**. Final `316/316` is forbidden until actual BUILD publication, post-publication verification, CI/status/check/workflow applicability inspection and documentary closure.
+
+Platform Settings Capability Specification remains **PARTIAL**. Delivery Roadmap Phase 6 Capability Specification remains **PARTIAL**. Global Capability Specification and repository maturity remain **PARTIAL**. Documentary capability definition does not claim implementation/runtime availability.

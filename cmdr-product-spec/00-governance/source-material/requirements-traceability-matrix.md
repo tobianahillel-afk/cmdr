@@ -3,7 +3,7 @@ id: requirements-traceability-matrix
 domain: 00-governance
 status: draft
 owner: Product Architecture
-updated: 2026-08-09
+updated: 2026-08-14
 source-of-truth: canonical
 ---
 # Requirements Traceability Matrix — current capability-specification evidence
@@ -74,3 +74,14 @@ GOV-1 documentary evidence strengthens the functional definition of Govern but d
 - REQ-INV-001 and REQ-INV-006 remain globally partial because implementation, final technical contracts, object schemas, atomic permissions and detailed UX remain absent.
 - OPEN-006/007/010/011/012/013/014/015/016/017/018/019 and all other current decisions retain their existing dispositions; GOV-1 closes none and creates none.
 - Requirement IDs added: **0**; removed: **0**; state changes: **0**; active contradictions introduced: **0**.
+
+## Platform Settings Sources & Parsers evidence — 2026-08-14
+
+This additive evidence does not alter any preceding row or Requirement state.
+
+| Evidence range | Scope | Requirements strengthened | Individual status | Global state change | Reason |
+|---|---|---|---|---|---|
+| `CAP-SET-012` | Data Source administrative lifecycle/configuration, tenant scope, sourced freshness/health, safe disable, deterministic local validation and provenance | REQ-PROD-003,004,005,006,008,009,010,011,012; REQ-AI-001,002,003,004,007,008,009,010,011 | N/E where the active matrix exposes no normative individual state | none | definition does not prove source support, acquisition, ingestion, connector/probe execution or implementation |
+| `CAP-SET-013` | Parser lifecycle/versioning, transformation contract, input/output references, fixtures, error/quality metadata, local validation, source-backed administrative rollback and provenance | REQ-PROD-003,004,005,006,008,009,010,011,012; REQ-AI-001,002,003,004,007,008,009,010,011 | N/E where the active matrix exposes no normative individual state | none | definition does not prove parser runtime, normalization, schema standard, Source→Parser relation or implementation |
+
+Sources & Parsers creates/deletes **0** Requirement IDs and changes **0** Requirement states. Global distribution remains **122 = 99 conform / 20 partial / 3 absent / 0 contradictory**. Specification evidence remains distinct from implementation evidence.
