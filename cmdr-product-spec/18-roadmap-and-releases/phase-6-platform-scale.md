@@ -251,3 +251,23 @@ Global functional BUILD content becomes **497 capabilities / 495 defined / 2 pro
 Build-time quality is **292 PASS / 24 PENDING-REMOTE / 0 FAIL**. Final `316/316` is forbidden until actual BUILD publication, post-publication verification, CI/status/check/workflow applicability inspection and documentary closure.
 
 Platform Settings Capability Specification remains **PARTIAL**. Delivery Roadmap Phase 6 Capability Specification remains **PARTIAL**. Global Capability Specification and repository maturity remain **PARTIAL**. Documentary capability definition does not claim implementation/runtime availability.
+
+#### Post-publication closure — Sources & Parsers
+
+Functional BUILD: `dfeeb94b430b5e62d212716bda5bb51a3138a524`.
+
+Remote publication verification confirmed:
+- baseline `06a29ddc9ef526ff8a0df3dc2dc52e7918bd02c7` → BUILD = **4 ahead / 0 behind**, same merge-base;
+- remote HEAD = exact BUILD after non-forced fast-forward publication;
+- remote CAP-SET-012/013, shard/global register, Requirements, quality and roadmap were coherent;
+- PR #2 remained open, Draft, unmerged, base `main`, `auto_merge=null`;
+- `main` remained `bc1ec59e5e79ccbaba291e2984b0eb7d5e54129c`; branch/main README remained exact `# cmdr`, blob `901c74cda52e28b5ff7fc425ddf28ef89f3ad875`;
+- CI/status/check/workflow applicability was **N/A WITH EVIDENCE**: 0 statuses, 0 check runs, 0 check suites, 0 workflow runs and no `.github/workflows` directory;
+- roadmap historical preservation remained **REMOVED 0 / WEAKENED 0 / UNKNOWN 0**;
+- `CAP-SET-014+` remained unallocated and unreserved.
+
+Final Sources & Parsers verdict: **PASS AFTER POST-PUBLICATION VERIFICATION — 316/316 PASS, 0 PENDING, 0 FAIL**.
+
+This is capability-definition/documentary PASS only. It does not claim source-adapter support, parser runtime, ingestion, connectors, schema-standard selection or production deployment.
+
+Platform Settings Capability Specification remains **PARTIAL**. Delivery Roadmap Phase 6 Capability Specification remains **PARTIAL**. Global Capability Specification and repository maturity remain **PARTIAL**. No subsequent Phase-6 lot is started by this closure.

@@ -10,13 +10,13 @@ source-of-truth: quality-index
 
 Canonical conformance report: `reports/platform-scale-sources-parsers-data-source-parser-administration-capability-conformance.md`.
 
-| Dimension | BUILD result |
+| Dimension | Final result |
 |---|---|
 | Blocking preflight / baseline / PR / README | PASS |
 | Roadmap repair baseline | PASS |
 | Four predecessor closures | PASS |
 | Namespace `CAP-SET-012..013` | PASS |
-| CAP-SET-014+ untouched | PASS |
+| `CAP-SET-014+` untouched | PASS |
 | Capability structure | PASS — 2 / 54 / 12 / 8 GWT |
 | Data Source canonical lifecycle / tenant | PASS |
 | Parser canonical lifecycle / versioned transformation | PASS |
@@ -31,8 +31,11 @@ Canonical conformance report: `reports/platform-scale-sources-parsers-data-sourc
 | Canonical object reuse | PASS — 0 new objects |
 | Requirements | PASS — 122 = 99/20/3/0 unchanged |
 | OPEN | PASS — 18 unchanged |
-| Counts / registers / roadmap / non-regression | PASS at candidate BUILD |
-| BUILD gates | **292 PASS / 24 PENDING-REMOTE / 0 FAIL** |
-| Final post-publication verdict | **PENDING** |
+| Counts / registers / roadmap / non-regression | PASS |
+| Historical BUILD | 292 PASS / 24 PENDING-REMOTE / 0 FAIL |
+| BUILD publication / remote verification | PASS |
+| CI/status/check/workflow | N/A WITH EVIDENCE — no configured result surfaces at BUILD |
+| Documentary closure | PASS after non-forced publication and final invariance checks |
+| **Final** | **PASS AFTER POST-PUBLICATION VERIFICATION — 316/316 PASS, 0 PENDING, 0 FAIL** |
 
-Final **316/316** is prohibited until the 24 remote/post-publication gates are actually completed. Documentary PASS never proves runtime implementation or availability.
+Documentary PASS does not prove runtime implementation, source support, parser execution, ingestion, connector implementation, schema-standard selection or production deployment. Platform Settings, Phase 6, Global Capability Specification and repository maturity remain **PARTIAL**.
