@@ -3,7 +3,7 @@ id: ADR-0001-product-separation
 domain: 00-governance
 status: draft
 owner: Product Architecture
-updated: 2026-08-03
+updated: 2026-08-14
 source-of-truth: canonical
 requirements:
   - REQ-PROD-013
@@ -114,6 +114,6 @@ Les anciennes consoles condensées sont réparties selon propriété ; aucune se
 
 Réévaluer si un workflow majeur ne peut être attribué sans double propriété ou si la navigation exige des duplications.
 
-## 24. Questions encore ouvertes
+## 24. Décision Customers and Delivery
 
-- OPEN-006 — Customers and Delivery selon le modèle de déploiement.
+`OPEN-006` a été résolue le 2026-08-14 par `ADR-0008 — Customers, MSSP, Delivery Deployment and Cross-Tenant Architecture`. Cette résolution précise le modèle de déploiement sans modifier la séparation des produits définie par ADR-0001 : Command consomme le contexte Customer/engagement, Security conserve l'autorisation, Shared conserve Search/Reporting/Export, Settings conserve Tenant et Govern conserve l'autorité de réponse.

@@ -3,45 +3,114 @@ id: unresolved-decisions
 domain: 00-governance
 status: draft
 owner: Product Architecture
-updated: 2026-08-09
+updated: 2026-08-14
 source-of-truth: canonical
 ---
 # Unresolved decisions
 
-The programme retains **18 open decisions**. `OPEN-009` remains the only historically resolved item. GOV-1 creates **0** new OPEN decision and closes **0**.
+The programme retains **17 open decisions**. `OPEN-006` is resolved on 2026-08-14 by explicit project-owner approval recorded in `ADR-0008`; `OPEN-009` remains the historically resolved item from the earlier programme state.
+
+## Resolved decision record — OPEN-006 — Customers and Delivery deployment model
+
+**Status:** resolved  
+**Resolved:** 2026-08-14  
+**Owner:** Product Architecture  
+**Approval reference:** Hillel Tobiana — explicit project-owner approval in ChatGPT conversation  
+**Canonical ADR:** `../adr/ADR-0008-customers-mssp-delivery-deployment-and-cross-tenant-architecture.md`
+
+### Approved authority input — verbatim
+
+**APPROVED_D1_DEPLOYMENT_MODES:**  
+CMDR supports Internal, Enterprise multi-tenant, and MSP/MSSP deployment modes.  
+MSSP capabilities are deployment-dependent.
+
+**APPROVED_D2_CUSTOMER_SEMANTICS:**  
+Customer remains an external/deployment/customer/contract projection.  
+Customer is NOT a canonical CMDR object and is NOT an alias of Tenant.
+
+**APPROVED_D3_MSSP_TENANT_MODEL:**  
+MSSP operates over independent Tenants.  
+No parent/child Tenant hierarchy.  
+No ManagedTenant, TenantGroup, Portfolio, CustomerTenant, or equivalent canonical object for the MVP.
+
+**APPROVED_D4_CROSS_TENANT_AUTH_MVP:**  
+Security resolves an Authorized Tenant Set as a non-canonical authorization projection.  
+The MVP allows read-only aggregation across that explicitly authorized Tenant set and explicit Tenant context switching.  
+Cross-tenant mutation, administration, response, delegated administration, and automatic export widening are not allowed.  
+Existing object read permissions remain subject to server-side RBAC/ABAC and Tenant-set evaluation.  
+No generic cross-tenant.manage permission is created.
+
+**APPROVED_D5_SEARCH_REPORTING_SCOPE:**  
+Search is single-selected-Tenant initially.  
+Report is single-Tenant initially.  
+Export is single-Tenant initially and must never widen visibility.  
+Multi-tenant Search, Reporting, and Export are deferred.  
+Shared retains Search / Reporting / Export ownership.
+
+**APPROVED_D6_RESPONSE_AUTHORITY:**  
+MSSP response requires explicit Tenant selection, Security authorization re-evaluation inside that Tenant, then Govern Decision Authority evaluation inside that Tenant.  
+No centralized cross-tenant response authority is introduced.
+
+**APPROVED_D7_CAP_CMD_401_DISPOSITION:**  
+CAP-CMD-401 keeps the same ID and owner.  
+After the architecture is canonically recorded, it may move from delivery_status: proposed to delivery_status: defined.  
+Its scope is narrowed to deployment-aware activation, external Customer/engagement projection, authorized read-only multi-tenant overview, Tenant selector/context switching, portfolio-like UI projection without a Portfolio object, single-Tenant Reporting requests, service-delivery Tasks, contractual SLA projection, and source/freshness/audience visibility.
+
+**Explicitly OUT:**  
+canonical Customer lifecycle/admin,  
+Tenant hierarchy,  
+cross-tenant mutation/admin/response,  
+delegated administration,  
+initial multi-tenant Search/Report/Export,  
+CRM,  
+billing,  
+customer portal,  
+contract mutation.
+
+`OPEN-013` remains OPEN.  
+`OPEN-019` remains OPEN.
+
+`OPEN-006`: **APPROVED AS RESOLVED BY D1–D7 ABOVE.**
+
+No new capability ID.  
+No CAP-SET-014.  
+No CAP-CMD-402.  
+No new canonical object.  
+No new Permission ID.  
+No new Screen ID.
+
+The approved decision set above must be used verbatim as the authority input for the architecture-recording run.
 
 ## Complete open-decision audit
 
-| Decision | Current subject | GOV-1 relevance | Disposition |
+| Decision | Current subject | Current relevance | Disposition |
 |---|---|---|---|
-| OPEN-001 | Investigate product accent/palette | none | remains open |
+| OPEN-001 | Investigate product accent/palette | presentation | remains open |
 | OPEN-002 | Govern product accent/palette | presentation only; not capability authority | remains open |
-| OPEN-003 | Studio product accent/palette | none | remains open |
+| OPEN-003 | Studio product accent/palette | presentation | remains open |
 | OPEN-004 | final typography stack | presentation only | remains open |
-| OPEN-005 | forensic engine selection | upstream evidence tooling only | remains open |
-| OPEN-006 | Customers and Delivery deployment model | Command/source context only | remains open |
-| **OPEN-007** | **Human Gate / Govern Decision-Approval relation** | **direct: Human Gate must remain distinct from Approval and Decision** | **remains open; GOV-1 selects no equivalence/bridge rule** |
+| OPEN-005 | forensic engine selection | upstream evidence tooling | remains open |
+| **OPEN-007** | **Human Gate / Govern Decision-Approval relation** | **Human Gate must remain distinct from Approval and Decision** | **remains open** |
 | OPEN-008 | platform/source availability and support | source/target/context availability | remains open |
-| OPEN-010 | final density by role/activity | Govern screens remain unrevised in detail | remains open |
-| OPEN-011 | Mobile Forensics scope/delivery | upstream source/handoff only | remains open |
-| OPEN-012 | Cloud Analysis scope/delivery | upstream source/handoff only | remains open |
-| **OPEN-013** | **default governance/authority for reversible class-2 mutations** | **direct: all GOV-1 C2 actions preserve this unresolved default** | **remains open** |
+| OPEN-010 | final density by role/activity | final screen density | remains open |
+| OPEN-011 | Mobile Forensics scope/delivery | Mobile platform/tool delivery | remains open |
+| OPEN-012 | Cloud Analysis scope/delivery | Cloud provider/service delivery | remains open |
+| **OPEN-013** | **default governance/authority for reversible class-2 mutations** | **direct for C2 actions, including delivery Tasks where applicable** | **remains open** |
 | OPEN-014 | Artifact/Attachment/dataset/material relations/retention | Evidence/context links | remains open |
-| **OPEN-015** | **Tool Call/Automation Run and Response Run/cross-product provenance bridge** | **direct: GOV-1 handoff preserves Studio run refs but creates no Response Run** | **remains open** |
-| OPEN-016 | final wordmark/symbol construction | none | remains open |
-| OPEN-017 | Detection runtime/language/portability | upstream Detection request only | remains open |
-| OPEN-018 | Threat Intelligence ontology/interoperability/exchange | upstream Intelligence context only | remains open |
-| OPEN-019 | Intelligence dissemination/releasability/sharing/access | relevant when a governed external-sharing Action Request is submitted | remains open; no sharing policy selected |
+| **OPEN-015** | **Tool Call/Automation Run and Response Run/cross-product provenance bridge** | **cross-product provenance** | **remains open** |
+| OPEN-016 | final wordmark/symbol construction | brand | remains open |
+| OPEN-017 | Detection runtime/language/portability | Detection implementation | remains open |
+| OPEN-018 | Threat Intelligence ontology/interoperability/exchange | Intelligence interoperability | remains open |
+| OPEN-019 | Intelligence dissemination/releasability/sharing/access | external/client sharing and audience policy | remains open; no sharing policy selected |
 
-## GOV-1 decision discipline
+## Decision discipline after OPEN-006
 
-GOV-1 deliberately uses existing OPEN decisions instead of creating duplicates:
-
-- `OPEN-007` covers the unresolved relationship between Studio Human Gate and Govern Approval/Decision. GOV-1 fixes only the **non-equivalence**: Human Gate ≠ Approval and Human Gate ≠ Decision.
-- `OPEN-013` covers the default governance/step-up policy for reversible class-2 mutations. GOV-1 classifies its C2 actions but does not select the final default.
-- `OPEN-015` covers the Automation Run / future Response Run bridge. GOV-1 preserves Tool/Tool Call/Automation Run provenance in the Execution Handoff Package but creates no Response Run.
-- `OPEN-010` remains relevant to final Govern density; GOV-1 rewrites no detailed screen.
-- `OPEN-019` remains relevant to external-sharing requests; GOV-1 can govern a request but does not decide the global dissemination policy.
+- `OPEN-006` is resolved only by the exact D1–D7 approval recorded above and ADR-0008.
+- `OPEN-013` remains the unresolved default-governance question for reversible Class-2 mutations; the OPEN-006 resolution does not select its default.
+- `OPEN-019` remains relevant to external/client-facing sharing and publication; read-only internal MSSP aggregation does not resolve dissemination policy.
+- `OPEN-007` continues to keep Studio Human Gate distinct from Govern Approval and Decision.
+- `OPEN-015` continues to govern the Automation Run / Response Run provenance bridge.
+- no other OPEN is closed or weakened by the Customers/MSSP/Delivery decision.
 
 ## Previously highlighted cross-domain decisions
 
@@ -183,4 +252,4 @@ Which policy determines internal audiences, markings, releasability, tenant/envi
 - corrections, withdrawals and supersession preserve history and access traces.
 
 ## Current capability-programme consequence
-Cloud Analysis and Mobile Forensics remain verified PASS. Capability Specification Phase 4B — Investigate remains PASS. GOV-1 closes no existing decision: its 16 functional capabilities explicitly consume `OPEN-007`, `OPEN-013` and `OPEN-015` without selecting the unresolved bridge/default policies. GOV-1 remains **PENDING POST-PUBLICATION VERIFICATION** until its fifth functional commit and remote gates complete; Govern capability specification and Delivery Roadmap Phase 4 — Govern remain PARTIAL, with GOV-2/GOV-3 NOT STARTED.
+Cloud Analysis and Mobile Forensics remain verified PASS. Capability Specification Phase 4B — Investigate remains PASS. `OPEN-006` is resolved by ADR-0008 and is no longer counted among the 17 OPEN decisions. `OPEN-007`, `OPEN-010`, `OPEN-011`, `OPEN-012`, `OPEN-013`, `OPEN-014`, `OPEN-015`, `OPEN-016`, `OPEN-017`, `OPEN-018`, `OPEN-019` and all other current open decisions retain their dispositions. The Customers/MSSP/Delivery architecture creates no new Capability ID, object, Permission ID or Screen ID and does not claim implementation.
