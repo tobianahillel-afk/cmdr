@@ -8,7 +8,7 @@ Une véritable spécification d'écran possède un objectif autonome, un Screen 
 
 | ID | Produit | Module | Workspace | Statut | Source canonique |
 |---|---|---|---|---|---|
-| `CMD-CRP-001` | command | customer-and-reports | overview | draft | [`06-command/modules/customer-and-reports/screens/customer-overview.md`](../../06-command/modules/customer-and-reports/screens/customer-overview.md) |
+| `CMD-CRP-001` | command | customers-and-delivery | overview | draft | [`06-command/modules/customer-and-reports/screens/customer-overview.md`](../../06-command/modules/customer-and-reports/screens/customer-overview.md) |
 | `CMD-EXC-001` | command | exposure-and-coverage | overview | draft | [`06-command/modules/exposure-and-coverage/screens/exposure-overview.md`](../../06-command/modules/exposure-and-coverage/screens/exposure-overview.md) |
 | `CMD-IWQ-006` | command | incidents-and-work-queue | incident-detail | draft | [`06-command/modules/incidents-and-work-queue/screens/incident-detail.md`](../../06-command/modules/incidents-and-work-queue/screens/incident-detail.md) |
 | `CMD-MC-001` | command | mission-control | now | draft | [`06-command/modules/mission-control/screens/mission-control-now.md`](../../06-command/modules/mission-control/screens/mission-control-now.md) |
@@ -77,6 +77,10 @@ Une véritable spécification d'écran possède un objectif autonome, un Screen 
 
 Ces aliases conservent les liens historiques ; ils ne sont pas des sources normatives et seront réévalués en Phase 6.
 
+`CMD-CRP-001` conserve son ID et son chemin de fichier de migration, mais son module fonctionnel actif est `customers-and-delivery` conformément à ADR-0008. Le portfolio-like overview reste une View et ne crée aucun Screen ID.
+
 ## Critère d’acceptation
 
 **Given** l'ID `CMD-IWQ-003`, **When** le registre est consulté, **Then** il est identifié comme alias `view=unassigned`, pas comme écran actif, et `CMD-IWQ-006` reste le seul écran actif du module Work Queue.
+
+**Given** `CMD-CRP-001`, **When** le registre est consulté après ADR-0008, **Then** le même Screen ID est associé au module Customers & Delivery et aucun nouvel écran Portfolio n'est créé.

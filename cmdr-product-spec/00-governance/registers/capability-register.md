@@ -24,7 +24,7 @@ Registry validation checks duplicate/recycled IDs, concurrent owners, missing ca
 
 | Shard | Scope | Count | Defined | Proposed | Delivery mode |
 |---|---|---:|---:|---:|---|
-| `capability-register-command.md` | Command | 27 | 26 | 1 | 27 planned |
+| `capability-register-command.md` | Command | 27 | 27 | 0 | 27 planned |
 | `capability-register-investigate-foundation.md` | Investigate CAP-INV-001..114 | 22 | 21 | 1 | 22 planned |
 | `capability-register-investigate-collection.md` | CAP-INV-201..215 | 15 | 15 | 0 | 15 planned |
 | `capability-register-investigate-analysis-workbench.md` | CAP-INV-301..313 | 13 | 13 | 0 | 13 planned |
@@ -57,7 +57,7 @@ Registry validation checks duplicate/recycled IDs, concurrent owners, missing ca
 | `capability-register-settings-secrets-and-connections.md` | Settings Secrets & Connections CAP-SET-008..009 | 2 | 2 | 0 | 2 planned |
 | `capability-register-settings-models-and-providers.md` | Settings Models & Providers CAP-SET-010..011 | 2 | 2 | 0 | 2 planned |
 | `capability-register-settings-sources-and-parsers.md` | Settings Sources & Parsers CAP-SET-012..013 | 2 | 2 | 0 | 2 planned |
-| **Total** | **All registered capabilities** | **497** | **495** | **2** | **497 planned** |
+| **Total** | **All registered capabilities** | **497** | **496** | **1** | **497 planned** |
 
 ## Product totals
 - Command: **27** capabilities, 729 sections, 162 mandatory tables.
@@ -82,7 +82,7 @@ Registry validation checks duplicate/recycled IDs, concurrent owners, missing ca
 - Settings Identity Administration: **3 capabilities / 81 sections / 18 mandatory tables / 12 meaningful GWT**; **PASS AFTER POST-PUBLICATION VERIFICATION — 174/174**.
 - Settings Secrets & Connections: **2 capabilities / 54 sections / 12 mandatory tables / 12 meaningful GWT**; **PASS AFTER POST-PUBLICATION VERIFICATION — 172/172**.
 - Settings Models & Providers functional build: **2 capabilities / 54 sections / 12 mandatory tables / 13 meaningful GWT**; final **PASS AFTER POST-PUBLICATION VERIFICATION — 204/204**.
-- Settings Sources & Parsers functional BUILD: **2 capabilities / 54 sections / 12 mandatory tables / 8 meaningful GWT**; build-time **292 PASS / 24 PENDING-REMOTE / 0 FAIL**.
+- Settings Sources & Parsers functional BUILD: **2 capabilities / 54 sections / 12 mandatory tables / 8 meaningful GWT**; final **PASS AFTER POST-PUBLICATION VERIFICATION — 316/316**.
 - Settings cumulative current build content: **13 capabilities / 351 sections / 78 mandatory tables**.
 - CAP-INV-3xx / 4xx / 5xx / 6xx / 7xx: **97 / 35 / 37 / 18 / 19**.
 - Detection Engineering: **35 capabilities, 945 sections, 210 tables**.
@@ -103,10 +103,11 @@ Registry validation checks duplicate/recycled IDs, concurrent owners, missing ca
 - Historical Identity Administration build/closure state: **491 capabilities, 13257 sections, 2946 mandatory tables**.
 - Historical Secrets & Connections build/closure state: **493 capabilities, 13311 sections, 2958 mandatory tables**.
 - Historical Models & Providers build/closure state: **495 capabilities / 493 defined / 2 proposed / 495 planned / 13365 sections / 2970 mandatory tables**.
-- Current global functional BUILD content including Settings Sources & Parsers: **497 capabilities / 495 defined / 2 proposed / 497 planned / 13419 sections / 2982 mandatory tables**.
+- Historical Sources & Parsers functional BUILD content: **497 capabilities / 495 defined / 2 proposed / 497 planned / 13419 sections / 2982 mandatory tables**.
+- **Current architecture-decision content after OPEN-006 resolution: 497 capabilities / 496 defined / 1 proposed / 497 planned / 13419 sections / 2982 mandatory tables**.
 
 ## Command registry state
-The Command shard remains 27 unique IDs, 26 defined / 1 proposed / 27 planned, with current native/integrated claims equal to 0. `CAP-CMD-401` remains deployment-dependent under OPEN-006.
+The Command shard remains **27 unique IDs, 27 defined / 0 proposed / 27 planned**, with current native/integrated claims equal to 0. `CAP-CMD-401` remains `draft / defined / planned`, deployment-dependent under validated ADR-0008. `OPEN-006` is resolved; `OPEN-013` and `OPEN-019` remain open where applicable.
 
 ## Govern registry state
 - GOV-1: 16 unique `CAP-GOV-001..016`, 16 defined/planned, 432 sections, 96 tables; historical 180/180 PASS evidence retained.
@@ -362,3 +363,20 @@ After the blocking preflight, source-semantic lock and execution-time namespace 
 - build-time quality: **292 PASS / 24 PENDING-REMOTE / 0 FAIL**; final 316/316 requires actual remote publication, CI/applicability inspection and documentary closure.
 
 No capability is reclassified as implemented, native, integrated, active, deployed or available by this documentary build state.
+
+## Customers / MSSP / Delivery architecture decision addendum — 2026-08-14
+This addendum is the current-state successor to the Sources & Parsers closure while preserving every historical count above.
+
+- `OPEN-006` is resolved by explicit project-owner approval and validated ADR-0008;
+- `CAP-CMD-401` keeps its immutable ID and Command Product Lead owner and becomes `draft / defined / planned`, deployment-dependent;
+- Command remains **27 capabilities / 729 sections / 162 mandatory tables**, now **27 defined / 0 proposed**;
+- global current state becomes **497 capabilities / 496 defined / 1 proposed / 497 planned / 13419 sections / 2982 mandatory tables**;
+- the remaining proposed capability is outside this Command status change and is not modified by this architecture run;
+- Settings remains **13 capabilities / 351 sections / 78 mandatory tables**;
+- `CAP-SET-014+` remains unallocated and unreserved;
+- new Capability IDs / Permission IDs / Screen IDs / canonical objects: **0 / 0 / 0 / 0**;
+- active Screen IDs remain **56**; `CMD-CRP-001` is reused for Customers & Delivery and no Portfolio screen is allocated;
+- Requirements remain **122 = 99 conform / 20 partial / 3 absent / 0 contradictory** with no state change implied by the decision;
+- OPEN becomes **17** because only OPEN-006 is resolved; OPEN-013 and OPEN-019 remain open;
+- Customer remains an external projection, Tenant remains the isolation boundary, Authorized Tenant Set remains non-canonical, and Search/Report/Export remain single-selected-Tenant initially;
+- no implementation, runtime availability, CRM, billing, customer portal, delegated administration, Tenant hierarchy or cross-tenant response is claimed.

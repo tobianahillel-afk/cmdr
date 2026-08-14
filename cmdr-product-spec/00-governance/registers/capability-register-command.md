@@ -3,7 +3,7 @@ id: capability-register-command
 domain: 00-governance
 status: draft
 owner: Product Architecture
-updated: 2026-08-09
+updated: 2026-08-14
 source-of-truth: registry-shard
 ---
 # Capability Register — Command
@@ -14,7 +14,7 @@ This shard is the registry view for `Capability Specification Phase 4A — Comma
 
 Every active Command row must expose a stable Capability ID, product/module owner, documentary and delivery status, canonical file, actual user roles, primary objects, consumers, Requirement IDs, OPEN decisions and concrete dependency families. The registry is used to detect duplicate IDs, concurrent owners, missing canonical files, capabilities without users or objects, and delivery claims unsupported by evidence.
 
-`delivery_status` and `delivery_mode` remain distinct. `planned` is not evidence of availability. No Command capability is marked `native`, `integrated`, implemented, deployed or active by this registry.
+`delivery_status` and `delivery_mode` remain distinct. `planned` is not evidence of availability. No Command capability is marked native, integrated, implemented, deployed or active by this registry.
 
 | ID | Name | Product | Module | Status | Delivery status | Delivery mode | Canonical file | Primary roles | Primary objects | Consumers | Requirements | OPEN | Dependencies | Supersedes | Last reviewed |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
@@ -28,7 +28,7 @@ Every active Command row must expose a stable Capability ID, product/module owne
 | CAP-CMD-102 | Work Assignment | Command | incidents-and-work-queue | draft | defined | planned | `06-command/modules/incidents-and-work-queue/capabilities/work-assignment.md` | Incident Commander; SOC Analyst; Team Lead; Task owner | Incident; Task; Principal; Team; Notification | Work Queue; handover; escalation | REQ-PROD-003,013,021; REQ-SEC-001 | OPEN-013 | Identity projections; Notifications; Collaboration; CAP-CMD-103/110 | — | 2026-08-09 |
 | CAP-CMD-103 | Operational Ownership | Command | incidents-and-work-queue | draft | defined | planned | `06-command/modules/incidents-and-work-queue/capabilities/operational-ownership.md` | Incident Commander; SOC Analyst; Team Lead; Auditor | Incident; Task; Principal; Team; ownership relations | Work Queue; Inspector; handover | REQ-PROD-006,009,013; REQ-OBJ-001 | OPEN-013 | CAP-CMD-102; Ownership Register; Identity projections; Linking; audit hooks | — | 2026-08-09 |
 | CAP-CMD-104 | Priority and Severity Coordination | Command | incidents-and-work-queue | draft | defined | planned | `06-command/modules/incidents-and-work-queue/capabilities/priority-and-severity-coordination.md` | SOC Analyst L2; Incident Commander; Business Owner | Incident; Task; Signal; Alert; Service/SLA context | Work Queue; Mission Control; risk context | REQ-PROD-005,013,021; REQ-UX-005 | OPEN-013 | CAP-CMD-002/105/204/205; Metrics | — | 2026-08-09 |
-| CAP-CMD-105 | SLA Tracking | Command | incidents-and-work-queue | draft | defined | planned | `06-command/modules/incidents-and-work-queue/capabilities/sla-tracking.md` | SOC Analyst L1/L2; Incident Commander; Service Delivery Manager | Incident; Task; SLA policy/engagement | Work Queue; Mission Control; Customers proposal | REQ-PROD-005,013,053; REQ-OBJ-012 | OPEN-006,013 | CAP-CMD-101/102/110; Notifications; Metrics; deployment SLA source | — | 2026-08-09 |
+| CAP-CMD-105 | SLA Tracking | Command | incidents-and-work-queue | draft | defined | planned | `06-command/modules/incidents-and-work-queue/capabilities/sla-tracking.md` | SOC Analyst L1/L2; Incident Commander; Service Delivery Manager | Incident; Task; SLA policy/engagement; external Customer context | Work Queue; Mission Control; Customers & Delivery | REQ-PROD-005,013,053; REQ-OBJ-012 | OPEN-013 | CAP-CMD-101/102/110/401; ADR-0008; Notifications; Metrics; deployment SLA source | — | 2026-08-14 |
 | CAP-CMD-106 | Incident Coordination | Command | incidents-and-work-queue | draft | defined | planned | `06-command/modules/incidents-and-work-queue/capabilities/incident-coordination.md` | Incident Commander; SOC Analyst L1/L2; Business Owner; Response Operator | Signal; Alert; Incident; Task; Case/Finding; Action Request/Decision/Run/Result | Incident Detail; Work Queue; Investigate; Govern | REQ-OBJ-001; REQ-PROD-003,008,013; REQ-SEC-001 | OPEN-013 | CAP-CMD-102/104/107/110; Linking; Timeline; Investigate Case; Govern Action Request | — | 2026-08-09 |
 | CAP-CMD-107 | Task Coordination | Command | incidents-and-work-queue | draft | defined | planned | `06-command/modules/incidents-and-work-queue/capabilities/task-coordination.md` | SOC Analyst; Incident Commander; Readiness Coordinator; Task owner | Task; source object; dependency relation | Work Queue; Readiness; source products | REQ-PROD-009,013,021; REQ-OBJ-012 | OPEN-013 | CAP-CMD-102/103/005; Linking; Notifications; Task Inbox projection | — | 2026-08-09 |
 | CAP-CMD-108 | Bulk Coordination | Command | incidents-and-work-queue | draft | defined | planned | `06-command/modules/incidents-and-work-queue/capabilities/bulk-coordination.md` | Incident Commander; SOC Analyst L2; Team Lead | Incident; Task; Saved View; Export Job; bulk result | Work Queue; Jobs; Export; audit | REQ-PROD-004,009,013; REQ-SEC-001 | OPEN-013 | CAP-CMD-101/102/104; Background Jobs; Export Engine; audit hooks | — | 2026-08-09 |
@@ -44,7 +44,7 @@ Every active Command row must expose a stable Capability ID, product/module owne
 | CAP-CMD-303 | Improvement Actions | Command | readiness-and-operations | draft | defined | planned | `06-command/modules/readiness-and-operations/capabilities/improvement-actions.md` | Readiness Coordinator; Incident Commander; Task owner; Service Owner | Task; Result; Exercise; Coverage/Readiness source | Work Queue; Readiness; source products | REQ-PROD-009,013,021; REQ-OBJ-012 | OPEN-013 | CAP-CMD-107/301/302/203; Linking | — | 2026-08-09 |
 | CAP-CMD-304 | Operational Plans | Command | readiness-and-operations | draft | defined | planned | `06-command/modules/readiness-and-operations/capabilities/operational-plans.md` | Readiness Coordinator; Incident Commander; Business Owner; Response Operator | Operational Plan; Task; Playbook/Workflow refs; readiness | Readiness; Exercises; Studio/Govern handoff | REQ-PROD-005,013,021,057 | OPEN-010,013 | CAP-CMD-301/302/305; Linking; Versioning; Notifications | — | 2026-08-09 |
 | CAP-CMD-305 | Capability Readiness | Command | readiness-and-operations | draft | defined | planned | `06-command/modules/readiness-and-operations/capabilities/capability-readiness.md` | Readiness Coordinator; Incident Commander; Product Owner; Platform Administrator | Capability entry; readiness assessment; health/assurance evidence; Task | Readiness; Mission Control; Studio/Settings | REQ-PROD-012,013,019,057 | OPEN-010,013 | Capability Register; CAP-CMD-301/303; Platform Health; Studio Assurance; Metrics | — | 2026-08-09 |
-| CAP-CMD-401 | Customers and Delivery Context | Command | customers-and-delivery | draft | proposed | planned | `06-command/modules/customers-and-delivery/capabilities/customers-and-delivery-context.md` | Service Delivery Manager; Customer Success; Incident Commander; Business Owner | Incident; Task; Result; Report; customer/engagement projection | Reporting; Work Queue; optional customer context | REQ-PROD-013,019,033,053 | OPEN-006,013 | OPEN-006; Reporting; Metrics; Export; Service Catalog; CAP-CMD-105/303 | — | 2026-08-09 |
+| CAP-CMD-401 | Customers and Delivery Context | Command | customers-and-delivery | draft | defined | planned | `06-command/modules/customers-and-delivery/capabilities/customers-and-delivery-context.md` | Service Delivery Manager; Customer Success; Incident Commander; Business Owner; authorized MSSP operator | Tenant refs; Authorized Tenant Set projection; Incident; Task; Result; Report; external customer/engagement projection | Reporting; Search; Work Queue; Govern; optional customer context | REQ-PROD-013,019,033,053 | OPEN-013,019 | ADR-0008; Tenant Isolation; Permission Model; Reporting; Global Search; Export; Service Catalog; CAP-CMD-105/303 | — | 2026-08-14 |
 
 ## Current Phase 4A checks
 
@@ -56,7 +56,7 @@ Every active Command row must expose a stable Capability ID, product/module owne
 - capabilities without Requirement IDs: **0**;
 - capabilities claiming current native/integrated delivery: **0**;
 - capabilities `planned` but described as runtime-available by this registry: **0**;
-- delivery status: **26 defined / 1 proposed**;
+- delivery status: **27 defined / 0 proposed**;
 - delivery mode: **27 planned**.
 
-Detailed dependency edges remain in `06-command/functional-dependency-map.md`; this shard records the dependency families needed for registry-level validation without duplicating the full dependency graph.
+`OPEN-006` is resolved by ADR-0008. `OPEN-013` and `OPEN-019` remain open where applicable. Detailed dependency edges remain in `06-command/functional-dependency-map.md`; this shard records the dependency families needed for registry-level validation without duplicating the full dependency graph.
