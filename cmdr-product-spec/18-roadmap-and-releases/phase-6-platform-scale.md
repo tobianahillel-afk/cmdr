@@ -271,3 +271,71 @@ Final Sources & Parsers verdict: **PASS AFTER POST-PUBLICATION VERIFICATION — 
 This is capability-definition/documentary PASS only. It does not claim source-adapter support, parser runtime, ingestion, connectors, schema-standard selection or production deployment.
 
 Platform Settings Capability Specification remains **PARTIAL**. Delivery Roadmap Phase 6 Capability Specification remains **PARTIAL**. Global Capability Specification and repository maturity remain **PARTIAL**. No subsequent Phase-6 lot is started by this closure.
+
+### Customers / MSSP / Delivery — OPEN-006 architecture decision
+
+Architecture-unblocking work under the same Delivery Roadmap Phase 6 — Platform Scale. It is **not** a new roadmap phase and allocates **0 new Capability IDs**.
+
+Approval reference: **Hillel Tobiana — explicit project-owner approval in ChatGPT conversation**.
+
+Canonical decision: `../00-governance/adr/ADR-0008-customers-mssp-delivery-deployment-and-cross-tenant-architecture.md`.
+
+#### Approved architecture
+
+- deployment modes: Internal, Enterprise multi-tenant and MSP/MSSP ; MSSP is deployment-dependent ;
+- Customer remains an external deployment/customer/contract projection and is neither canonical object nor Tenant alias ;
+- MSSP operates over independent Tenants with no parent/child hierarchy and no ManagedTenant/TenantGroup/Portfolio/CustomerTenant object for the MVP ;
+- Security resolves an Authorized Tenant Set as a non-canonical authorization projection ;
+- read-only aggregation and explicit Tenant switching are allowed ; cross-tenant mutation/admin/response/delegated administration/automatic export widening are forbidden ;
+- Search, Report and Export are single-selected-Tenant initially ; multi-tenant variants are deferred and Shared retains ownership ;
+- response requires Tenant selection, Security re-evaluation and Govern Decision Authority in that Tenant ;
+- `CAP-CMD-401` retains ID/owner and becomes `draft / defined / planned`, deployment-dependent ;
+- `OPEN-013` and `OPEN-019` remain open.
+
+#### Explicit non-allocation
+
+- new Capability IDs: **0** ;
+- `CAP-SET-014`: **not allocated / not reserved** ;
+- `CAP-CMD-402`: **not allocated / not reserved** ;
+- new canonical objects: **0** ;
+- new Permission IDs: **0** ;
+- new Screen IDs: **0**.
+
+#### Current counters after approved architecture content
+
+- global: **497 capabilities / 496 defined / 1 proposed / 497 planned / 13,419 sections / 2,982 mandatory tables** ;
+- Command: **27 capabilities / 27 defined / 0 proposed / 27 planned / 729 sections / 162 tables** ;
+- Settings: **13 capabilities / 351 sections / 78 tables** ;
+- Screens: **56 active** ;
+- Requirements: **122 = 99 conform / 20 partial / 3 absent / 0 contradictory** ;
+- OPEN: **17** after resolution of OPEN-006 only.
+
+#### Functional chain before BUILD publication
+
+1. `0cfef4c56825c76865a4aaefa3182c9d382186d5` — `docs: record Customers and Delivery deployment architecture decision` ;
+2. `e533346197bf70e90af49c4232cc611fc9a8d83f` — `docs: define MSSP authorized tenant-set and cross-tenant safety boundaries` ;
+3. `1eb1bb15de57cc878ec541bb2bb4ef9c724f3fe9` — `docs: align Command Customers and Delivery with approved deployment model` ;
+4. this quality/traceability commit is the functional/documentary BUILD; its exact SHA is recorded by post-publication verification.
+
+#### Build-time quality target
+
+The approved 51-gate model is exact for the approved D1–D7 package:
+- A baseline/Git: 6 ;
+- B approved-decision integrity: 7 ;
+- C source-of-truth/objects: 6 ;
+- D Security/Identity: 8 ;
+- E Command/Shared/UX: 7 ;
+- F registries/Requirements/roadmap: 7 ;
+- G BUILD/publication/closure: 10.
+
+Before publication, A–F and G1–G3 are **44 PASS / 7 PENDING-REMOTE / 0 FAIL**. Final PASS requires actual non-forced publication, remote verification, CI/status/workflow applicability evidence and documentary closure.
+
+#### Non-regression
+
+- Sources & Parsers remains **316/316 PASS** ;
+- Settings `CAP-SET-001..013` are not reopened ;
+- roadmap preservation target remains **REMOVED 0 / WEAKENED 0 / UNKNOWN 0** ;
+- no SLO/resilience, Localization, Advanced Integrations or Compliance decision is opportunistically resolved ;
+- documentary architecture approval does not claim runtime implementation or MSSP production support.
+
+Platform Settings Capability Specification remains **PARTIAL**. Delivery Roadmap Phase 6 Capability Specification remains **PARTIAL** because other Platform Scale work remains. Global Capability Specification and repository maturity remain **PARTIAL**.

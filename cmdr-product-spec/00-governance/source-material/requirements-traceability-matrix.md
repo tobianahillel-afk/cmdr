@@ -8,7 +8,7 @@ source-of-truth: canonical
 ---
 # Requirements Traceability Matrix — current capability-specification evidence
 
-The **122 source Requirement IDs remain unchanged**. `conform` records documentary evidence only, never implementation. This matrix preserves the verified Command and Investigate evidence and adds GOV-1 documentary evidence without changing any global Requirement state.
+The **122 source Requirement IDs remain unchanged**. `conform` records documentary evidence only, never implementation. This matrix preserves all previously verified evidence and adds the approved Customers/MSSP/Delivery architecture evidence without automatically changing any global Requirement state.
 
 | State | Current |
 |---|---:|
@@ -26,7 +26,7 @@ The **122 source Requirement IDs remain unchanged**. `conform` records documenta
 | CAP-CMD-101..110 | Incidents and Work Queue: one queue, assignment, ownership, priority/severity, SLA, Incident/Task coordination, bulk, freshness and escalation | REQ-OBJ-001,012; REQ-PROD-003,004,005,006,008,009,013,021,053; REQ-SEC-001; REQ-UX-005,008,009 | none | runtime, atomic permissions and final Incident/Task state machines remain future |
 | CAP-CMD-201..205 | Risk and Coverage: Service, Exposure, Coverage, business impact and risk-prioritization context | REQ-PROD-003,005,006,010,013,021,032,037 | none | Service/Exposure detailed objects and final risk engine remain future; no scanner or opaque score is claimed |
 | CAP-CMD-301..305 | Readiness and Operations: readiness, exercises, improvement Tasks, plans and capability readiness | REQ-OBJ-012; REQ-PROD-005,009,012,013,019,021,057 | none | assessments are functional records only; Studio assurance, platform health, final objects and permissions remain source-owned/future |
-| CAP-CMD-401 | Customers and Delivery proposal | REQ-PROD-013,019,033,053 | none | remains `proposed`, `planned`, deployment-dependent and governed by OPEN-006 |
+| CAP-CMD-401 | Customers and Delivery Context | REQ-PROD-013,019,033,053 | none | `defined / planned`, deployment-dependent after OPEN-006 resolution; implementation, Customer master data, cross-tenant mutation/admin/response and multi-tenant Search/Report/Export remain outside the defined MVP |
 
 Command evidence preserves these invariants: Incident/operational Task coordination remains Command-owned; Case/Evidence/Finding remain Investigate-owned; Action Request/Decision/Response Run/Result remain Govern-owned; Studio automation objects, Settings administration and Shared engines are consumed but not redefined. The six Work Queue system views remain configurations of one workspace, not separate pages.
 
@@ -40,9 +40,9 @@ Parent roadmap: **Delivery Roadmap Phase 4 — Govern** (`roadmap-phase-4-govern
 | CAP-GOV-004..006 | context/scope/target, impact/risk/reversibility and completeness/Evidence-context review | REQ-PROD-003,004,008,014,015,020; REQ-SEC-001,002 | none | target verification is not authorization; Govern does not requalify Evidence/Finding; no opaque universal risk score |
 | CAP-GOV-007..008 | Policy applicability/evaluation, conflicts and Exception Candidates | REQ-PROD-004,015,019,020; REQ-SEC-001,002 | none | Policy outcome is not Decision; conflict is not automatic rejection; Exception Candidate is not active exception |
 | CAP-GOV-009..013 | authority requirements/context, approver eligibility/SoD, Approval lifecycle, delegation/escalation and emergency governance | REQ-PROD-004,015,020; REQ-SEC-001,002; REQ-AI-004 | none | authority remains distinct from Role/permission; Human Gate is not Approval; no self-approval under applicable SoD or uncontrolled emergency bypass |
-| CAP-GOV-014..016 | Decision preparation, Decision disposition/conditions/expiration and no-effect Execution Handoff Package | REQ-PROD-004,008,015,016,020; REQ-AI-002; REQ-SEC-001,002 | none | no auto-Decision; approve is not execution; package is not Response Run; GOV-2/GOV-3 remain not started |
+| CAP-GOV-014..016 | Decision preparation, Decision disposition/conditions/expiration and no-effect Execution Handoff Package | REQ-PROD-004,008,015,016,020; REQ-AI-002; REQ-SEC-001,002 | none | no auto-Decision; approve is not execution; package is not Response Run; GOV-2/GOV-3 remain historically separate lots |
 
-GOV-1 documentary evidence strengthens the functional definition of Govern but does not promote any Requirement from partial/absent to conform because final object schemas, atomic permissions, policy/authority engines, detailed screens, response execution, technique and implementation remain future.
+GOV-1 documentary evidence strengthens the functional definition of Govern but does not promote any Requirement from partial/absent to conform because final implementation and other evidence classes remain separate.
 
 ## Investigate evidence preserved
 
@@ -65,14 +65,13 @@ GOV-1 documentary evidence strengthens the functional definition of Govern but d
 
 ## Current disposition
 
-- Capability Specification Phase 4A — Command remains **PASS** and its five evidence ranges above are preserved unchanged.
-- Capability Specification Phase 4B — Investigate remains **PASS**; no Investigate capability is created or modified by GOV-1.
-- GOV-1 functional documentary scope is complete but remains **PENDING POST-PUBLICATION VERIFICATION** until the fifth functional commit and remote gates complete.
-- Govern capability specification remains **PARTIAL** because GOV-2 and GOV-3 are NOT STARTED.
-- Delivery Roadmap Phase 4 — Govern remains **PARTIAL/PENDING GOV-1 verification**, never `Phase 4C`.
-- Capability Specification global maturity remains **PARTIAL** because final object schemas, atomic permissions, detailed screens, technique and implementation remain future.
-- REQ-INV-001 and REQ-INV-006 remain globally partial because implementation, final technical contracts, object schemas, atomic permissions and detailed UX remain absent.
-- OPEN-006/007/010/011/012/013/014/015/016/017/018/019 and all other current decisions retain their existing dispositions; GOV-1 closes none and creates none.
+- Capability Specification Phase 4A — Command remains **PASS** with 27 capabilities; `CAP-CMD-401` is now `defined / planned`, deployment-dependent under validated ADR-0008.
+- Capability Specification Phase 4B — Investigate remains **PASS**; no Investigate capability is created or modified by this architecture decision.
+- Govern, Studio and Endpoint verified capability evidence remains unchanged.
+- Platform Settings `CAP-SET-001..013` and their post-publication closures remain unchanged.
+- `OPEN-006` is **resolved** on 2026-08-14 by explicit project-owner approval and ADR-0008.
+- `OPEN-007`, `OPEN-010`, `OPEN-011`, `OPEN-012`, `OPEN-013`, `OPEN-014`, `OPEN-015`, `OPEN-016`, `OPEN-017`, `OPEN-018`, `OPEN-019` and all other current open decisions retain their existing dispositions.
+- `OPEN-013` and `OPEN-019` remain explicitly open after OPEN-006 resolution.
 - Requirement IDs added: **0**; removed: **0**; state changes: **0**; active contradictions introduced: **0**.
 
 ## Platform Settings Sources & Parsers evidence — 2026-08-14
@@ -80,8 +79,20 @@ GOV-1 documentary evidence strengthens the functional definition of Govern but d
 This additive evidence does not alter any preceding row or Requirement state.
 
 | Evidence range | Scope | Requirements strengthened | Individual status | Global state change | Reason |
-|---|---|---|---|---|---|
+|---|---|---|---|---|
 | `CAP-SET-012` | Data Source administrative lifecycle/configuration, tenant scope, sourced freshness/health, safe disable, deterministic local validation and provenance | REQ-PROD-003,004,005,006,008,009,010,011,012; REQ-AI-001,002,003,004,007,008,009,010,011 | N/E where the active matrix exposes no normative individual state | none | definition does not prove source support, acquisition, ingestion, connector/probe execution or implementation |
 | `CAP-SET-013` | Parser lifecycle/versioning, transformation contract, input/output references, fixtures, error/quality metadata, local validation, source-backed administrative rollback and provenance | REQ-PROD-003,004,005,006,008,009,010,011,012; REQ-AI-001,002,003,004,007,008,009,010,011 | N/E where the active matrix exposes no normative individual state | none | definition does not prove parser runtime, normalization, schema standard, Source→Parser relation or implementation |
 
-Sources & Parsers creates/deletes **0** Requirement IDs and changes **0** Requirement states. Global distribution remains **122 = 99 conform / 20 partial / 3 absent / 0 contradictory**. Specification evidence remains distinct from implementation evidence.
+Sources & Parsers creates/deletes **0** Requirement IDs and changes **0** Requirement states. Its historical closure distribution remains **122 = 99 conform / 20 partial / 3 absent / 0 contradictory**.
+
+## Phase 6 Customers / MSSP / Delivery architecture evidence — 2026-08-14
+
+Approval reference: **Hillel Tobiana — explicit project-owner approval in ChatGPT conversation**. Canonical decision: `ADR-0008`.
+
+| Evidence | Scope | Requirements strengthened | Global state change | Reason |
+|---|---|---|---|---|
+| ADR-0008 + Tenant Isolation + Permission Model | Internal/Enterprise/MSSP deployment, independent Tenants, Authorized Tenant Set read-only, tenant-local action/response | REQ-PROD-006,008,009,012,013,019,033,053; REQ-SEC-001,002 | none | approved architecture resolves OPEN-006 but does not prove runtime authorization, implementation or production support |
+| CAP-CMD-401 | deployment-aware Customers & Delivery context, external Customer/engagement projection, read-only multi-tenant overview, single-Tenant Reporting request and delivery Tasks | REQ-PROD-013,019,033,053 | none | capability becomes documentary `defined / planned`; implementation and excluded cross-tenant actions remain future |
+| CMD-CRP-001 reuse | same Screen ID, portfolio-like View, Tenant selection before actions | REQ-PROD-008,012,013; supporting UX/security invariants | none | no new Screen ID and no Customer/Portfolio object is introduced |
+
+The architecture decision changes no Requirement ID or global Requirement state. Current distribution remains **122 = 99 conform / 20 partial / 3 absent / 0 contradictory**. OPEN becomes **17** because only OPEN-006 is resolved. Documentary approval does not claim implementation.
