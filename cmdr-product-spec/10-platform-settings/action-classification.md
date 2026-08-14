@@ -3,7 +3,7 @@ id: platform-settings-action-classification
 domain: 10-platform-settings
 status: draft
 owner: Platform Settings Product Lead
-updated: 2026-08-13
+updated: 2026-08-14
 source-of-truth: canonical
 open_decisions: [OPEN-013]
 ---
@@ -44,5 +44,17 @@ Role expiry is a condition/constraint, never a Role state. Access Review revocat
 | 4 | destructive/irreversible effect | none defined by this lot | separate source and heightened authority required |
 
 A provider-test request, model availability observation, health observation or effective provider/model selection is not reclassified as a local Settings execution. Fallback configuration is not automatic failover. No silent provider switch is permitted in the Settings projection.
+
+## Sources & Parsers — Data Source and Parser Administration
+
+| Class | Settings meaning | Representative actions | Boundary |
+|---:|---|---|---|
+| 0 | observation | inspect Data Source/Parser state, configuration, version, freshness, sourced health, error/quality metadata and provenance | read only; runtime observations remain source-attributed projections |
+| 1 | strictly local no-effect assessment | validate Tenant scope, lifecycle preconditions, stale version, schema reference, fixture definition or other locally available configuration facts | deterministic local validation only; no connector, collection, probe or parser-engine execution |
+| 2 | reversible/versioned Settings administration | create/update/activate/disable Data Source configuration; create/update/version/activate/retire Parser configuration where source-backed | tenant-scoped, auditable; `OPEN-013` remains open; no Source→Parser assignment is implied |
+| 3 | external/runtime or authority-bearing effect | `Test Source` or `Test Parser` only when it invokes an external service, connector, collection path, parser engine or other runtime | Settings owns request/preconditions/handoff/observed-result projection only; executor remains with its separately sourced owner |
+| 4 | destructive/irreversible effect | none defined by this lot | separate source and heightened authority required |
+
+`Test Source` and `Test Parser` are therefore not automatically Class 1. An administrative test button cannot silently reclassify an outbound probe, collection, ingestion or parser execution as a no-effect Settings operation. The current corpus also defines no automatic parser selection, Source→Parser routing, fallback or precedence.
 
 Ordinary Settings administration does not become Govern Response execution merely because it is important. No new Permission ID, Screen ID, canonical object, Requirement ID or OPEN ID is introduced. If a genuinely required operation cannot be expressed within these existing boundaries, the lot is BLOCKED rather than reclassified locally.

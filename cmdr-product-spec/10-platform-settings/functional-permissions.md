@@ -3,7 +3,7 @@ id: platform-settings-functional-permissions
 domain: 10-platform-settings
 status: draft
 owner: Platform Settings Product Lead
-updated: 2026-08-12
+updated: 2026-08-14
 source-of-truth: canonical
 ---
 # Platform Settings Functional Permissions
@@ -31,4 +31,15 @@ Security Architecture owns the Permission Model, canonical permission catalogue,
 
 The `perm.settings.identity.*` screen family and `perm.platform-settings.principal.*` / `perm.platform-settings.role.*` object-facing families are existing identifiers with an unresolved alias/normalization relationship. This lot documents that coexistence and performs **no bulk normalization**.
 
-Across all Settings capability lots, **zero new Permission IDs** are created. Identifiers such as `principal.invite`, `principal.suspend`, `role.assign` and `review.execute` are explicitly not introduced. If a capability cannot be expressed safely with the existing permission families, the relevant lot is BLOCKED and a separate Security-owned permission-design run is required.
+## Sources & Parsers — existing permission mapping
+
+The Sources & Parsers execution lot uses existing permission families only. At this boundary-preparation step the capability identifiers are not yet claimed as canonically allocated; their object-facing permission mappings are fixed by the canonical objects and existing `SET-SRC-001` surface.
+
+| Administrative scope | Surface permission | Object-facing permission | Additional constraint |
+|---|---|---|---|
+| Data Source administration | `perm.settings.source.read/manage` | `perm.platform-settings.data-source.read/manage` | Tenant first; RBAC/ABAC; local validation does not grant connector/collection/ingestion/probe execution |
+| Parser administration | `perm.settings.source.read/manage` | `perm.platform-settings.parser.read/manage` | Tenant first; RBAC/ABAC; manage does not grant parser-engine execution, Source→Parser assignment or schema-standard selection |
+
+The `perm.settings.source.*` screen family and `perm.platform-settings.data-source.*` / `perm.platform-settings.parser.*` object-facing families already coexist. This run preserves that coexistence and performs **no bulk normalization**. `read` never implies export, execute or approve. An existing `.manage` permission cannot be expanded into an unsourced runtime authority.
+
+Across all Settings capability lots, **zero new Permission IDs** are created. Identifiers such as `principal.invite`, `principal.suspend`, `role.assign`, `review.execute`, `source.test.execute`, `parser.execute` or `parser.assign` are explicitly not introduced. If a capability cannot be expressed safely with the existing permission families, the relevant lot is BLOCKED and a separate Security-owned permission-design run is required.
