@@ -10,63 +10,60 @@ source-of-truth: quality-status
 
 Execution type: **OPEN-006 architecture-recording / unblocking run** under Delivery Roadmap Phase 6 — Platform Scale.
 
-## Approval
+## Approval and decision
 
 Approval reference: **Hillel Tobiana — explicit project-owner approval in ChatGPT conversation**.
 
-ADR-0008 records the complete D1–D7 approved authority input verbatim. OPEN-006 is resolved only by that approved set. OPEN-013 and OPEN-019 remain open.
+ADR-0008 is `validated` and records D1–D7 verbatim. `OPEN-006` is resolved. `OPEN-013` and `OPEN-019` remain open.
 
-## Baseline
+## Exact BUILD
 
-- branch baseline: `6206fa322895bface4c11d173afc5c30ceaa472c` ;
-- main: `bc1ec59e5e79ccbaba291e2984b0eb7d5e54129c` ;
-- predecessor Sources & Parsers: **316/316 PASS** ;
-- global baseline: **497 / 495 defined / 2 proposed / 497 planned / 13,419 / 2,982** ;
-- Requirements: **122 = 99/20/3/0** ;
-- OPEN: **18** ;
-- Settings namespace: `CAP-SET-001..013`, `CAP-SET-014+` free.
+`4c181a631981f97abdb0aadef44438b1da849ab1` — `docs: update Customers and Delivery traceability roadmap and quality gates`.
 
-## Build content
+Baseline `6206fa322895bface4c11d173afc5c30ceaa472c` → BUILD = **4 ahead / 0 behind**, same merge-base. BUILD publication was non-forced.
 
-- no new Capability ID ;
-- no `CAP-SET-014` ;
-- no `CAP-CMD-402` ;
-- no new canonical object ;
-- no new Permission ID ;
-- no new Screen ID ;
-- `CAP-CMD-401` remains same ID/owner and becomes `draft / defined / planned` ;
-- Customer remains external projection ;
-- Authorized Tenant Set remains Security-owned non-canonical projection ;
-- MSSP aggregate mode is read-only ;
-- all action/admin/response remains tenant-local after explicit context selection ;
+## Verified build state
+
+- CAP-CMD-401 = `draft / defined / planned`, same ID/owner;
+- global = **497 / 496 defined / 1 proposed / 497 planned / 13,419 / 2,982**;
+- Command = **27 / 27 defined / 0 proposed / 27 planned / 729 / 162**;
+- Settings = **13 / 351 / 78**;
+- Requirements = **122 = 99/20/3/0**;
+- OPEN = **17**;
+- Screens = **56**;
+- new Capability / Permission / Screen / canonical object IDs = **0 / 0 / 0 / 0**;
+- `CAP-SET-014+` remains free;
+- Customer remains external projection;
+- Authorized Tenant Set remains non-canonical;
+- aggregate MSSP scope remains read-only;
+- action/response remains tenant-local;
 - Search/Report/Export remain single-selected-Tenant initially.
 
-## Current counters
+## Remote and CI verification
 
-- global: **497 capabilities / 496 defined / 1 proposed / 497 planned / 13,419 sections / 2,982 mandatory tables** ;
-- Command: **27 capabilities / 27 defined / 0 proposed / 27 planned / 729 / 162** ;
-- Settings: **13 / 351 / 78** ;
-- Requirements: **122 = 99 conform / 20 partial / 3 absent / 0 contradictory** ;
-- OPEN: **17** ;
-- Screens: **56**.
+- remote BUILD exact: PASS;
+- PR/main/README invariants: PASS;
+- expected 19 BUILD surfaces only: PASS;
+- roadmap REMOVED/WEAKENED/UNKNOWN = **0/0/0**: PASS;
+- statuses: 0;
+- workflow runs: 0;
+- check runs: 0;
+- check suites: 0;
+- `.github/workflows`: absent;
+- CI/status/check/workflow: **N/A WITH EVIDENCE**.
 
-## Build-time state
+## Final state
 
-Approved quality model: **51 mandatory gates**.
+The documentary closure commit containing the post-publication verification report is the only permitted descendant of BUILD for this run. Once final remote verification confirms it is exactly one documentary commit ahead of BUILD and all functional blobs/Git invariants remain unchanged, the final verdict is:
 
-Before publication and after the final concurrency guard:
+**PASS AFTER POST-PUBLICATION VERIFICATION — 51/51 PASS, 0 PENDING, 0 FAIL.**
 
-**44 PASS / 7 PENDING-REMOTE / 0 FAIL**.
-
-The seven pending gates are publication, remote BUILD verification, ancestry/invariants, CI/status/check/workflow applicability, documentary closure and final remote verification activities that cannot truthfully pass before remote execution.
-
-## Maturity
-
-- Customers/MSSP/Delivery architecture decision: **APPROVED / CANONICALLY RECORDED IN BUILD CONTENT, PENDING REMOTE PUBLICATION VERIFICATION** ;
-- CAP-CMD-401 documentary delivery status: **defined / planned** ;
-- Platform Settings Capability Specification: **PARTIAL** ;
-- Delivery Roadmap Phase 6 Capability Specification: **PARTIAL** ;
-- Global Capability Specification: **PARTIAL** ;
+Maturity after closure:
+- Customers/MSSP/Delivery architecture decision: **PASS AFTER POST-PUBLICATION VERIFICATION**;
+- CAP-CMD-401: **defined / planned, documentary only**;
+- Platform Settings Capability Specification: **PARTIAL**;
+- Delivery Roadmap Phase 6 Capability Specification: **PARTIAL**;
+- Global Capability Specification: **PARTIAL**;
 - Repository maturity: **PARTIAL**.
 
 No runtime implementation or production support is implied.

@@ -8,9 +8,11 @@ source-of-truth: quality-index
 ---
 # Quality Index — Platform Scale Customers / MSSP / Delivery Architecture
 
-Canonical build conformance report: `reports/platform-scale-customers-mssp-delivery-architecture-decision-conformance.md`.
+Canonical conformance report: `reports/platform-scale-customers-mssp-delivery-architecture-decision-conformance.md`.
 
-| Dimension | Build-time result |
+Post-publication companion: `reports/platform-scale-customers-mssp-delivery-architecture-post-publication-verification.md`.
+
+| Dimension | Final result |
 |---|---|
 | Baseline / branch / main / PR / README | PASS |
 | Approval D1–D7 verbatim integrity | PASS |
@@ -34,11 +36,11 @@ Canonical build conformance report: `reports/platform-scale-customers-mssp-deliv
 | OPEN | PASS — 17 after OPEN-006 only |
 | Current counters | PASS — 497 / 496 defined / 1 proposed / 497 planned |
 | Roadmap preservation | PASS — REMOVED 0 / WEAKENED 0 / UNKNOWN 0 |
-| Functional chain | PASS — 3 predecessor commits + BUILD construction |
-| Publication / remote verification | PENDING-REMOTE |
-| CI/status/check/workflow applicability | PENDING-REMOTE |
-| Documentary closure | PENDING-REMOTE |
-| Final ancestry/blob verification | PENDING-REMOTE |
-| **51-gate state** | **44 PASS / 7 PENDING-REMOTE / 0 FAIL** before publication |
+| BUILD publication | PASS — non-forced fast-forward |
+| Remote BUILD verification | PASS |
+| CI/status/check/workflow applicability | PASS — N/A WITH EVIDENCE: all counts 0, no workflows directory |
+| Documentary closure | PASS when this closure commit is published |
+| Final ancestry/blob verification | PASS required immediately after closure publication |
+| **51-gate final target** | **51 PASS / 0 PENDING / 0 FAIL after immediate final verification** |
 
-Final PASS requires actual remote publication and closure. Documentary architecture definition does not prove runtime implementation.
+Documentary architecture PASS does not prove runtime implementation or production support.
