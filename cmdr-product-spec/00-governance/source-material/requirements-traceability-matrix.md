@@ -3,12 +3,12 @@ id: requirements-traceability-matrix
 domain: 00-governance
 status: draft
 owner: Product Architecture
-updated: 2026-08-14
+updated: 2026-08-16
 source-of-truth: canonical
 ---
 # Requirements Traceability Matrix — current capability-specification evidence
 
-The **122 source Requirement IDs remain unchanged**. `conform` records documentary evidence only, never implementation. This matrix preserves all previously verified evidence and adds the approved Customers/MSSP/Delivery architecture evidence without automatically changing any global Requirement state.
+The **122 source Requirement IDs remain unchanged**. `conform` records documentary evidence only, never implementation. This matrix preserves all previously verified evidence and adds the approved Customers/MSSP/Delivery and SLO/Health/Resilience architecture evidence without automatically changing any global Requirement state.
 
 | State | Current |
 |---|---:|
@@ -79,7 +79,7 @@ GOV-1 documentary evidence strengthens the functional definition of Govern but d
 This additive evidence does not alter any preceding row or Requirement state.
 
 | Evidence range | Scope | Requirements strengthened | Individual status | Global state change | Reason |
-|---|---|---|---|---|
+|---|---|---|---|---|---|
 | `CAP-SET-012` | Data Source administrative lifecycle/configuration, tenant scope, sourced freshness/health, safe disable, deterministic local validation and provenance | REQ-PROD-003,004,005,006,008,009,010,011,012; REQ-AI-001,002,003,004,007,008,009,010,011 | N/E where the active matrix exposes no normative individual state | none | definition does not prove source support, acquisition, ingestion, connector/probe execution or implementation |
 | `CAP-SET-013` | Parser lifecycle/versioning, transformation contract, input/output references, fixtures, error/quality metadata, local validation, source-backed administrative rollback and provenance | REQ-PROD-003,004,005,006,008,009,010,011,012; REQ-AI-001,002,003,004,007,008,009,010,011 | N/E where the active matrix exposes no normative individual state | none | definition does not prove parser runtime, normalization, schema standard, Source→Parser relation or implementation |
 
@@ -96,3 +96,15 @@ Approval reference: **Hillel Tobiana — explicit project-owner approval in Chat
 | CMD-CRP-001 reuse | same Screen ID, portfolio-like View, Tenant selection before actions | REQ-PROD-008,012,013; supporting UX/security invariants | none | no new Screen ID and no Customer/Portfolio object is introduced |
 
 The architecture decision changes no Requirement ID or global Requirement state. Current distribution remains **122 = 99 conform / 20 partial / 3 absent / 0 contradictory**. OPEN becomes **17** because only OPEN-006 is resolved. Documentary approval does not claim implementation.
+
+## Phase 6 SLO / Health / Resilience architecture evidence — 2026-08-16
+
+Approval reference: **Explicit project-owner approval in this conversation.** Canonical decision: `ADR-0009`. Decision checksum: `adb8312c2eb5cb65062177c72ee3b23cbe9f3c165593dab514a5aa53d6ad674a`.
+
+| Evidence | Scope | Requirements strengthened | Global state change | Reason |
+|---|---|---|---|---|
+| ADR-0009 + Health/Metrics contracts | source-attributed noncanonical SLO, Health projection/runtime separation, measurement/calculation provenance | REQ-PROD-003,005,006,008,009,010,012,013,019,021; REQ-SEC-001,002 | none | architecture defines documentary boundaries only; source/runtime support and implementation remain future |
+| Permission Model + SET-HLT-001 reuse | read-only Health/SLO projection, MSSP Authorized Tenant Set read aggregation, no configuration/export/failover/recovery implied | REQ-PROD-006,008,009,012,019; REQ-SEC-001,002 | none | no Permission ID or Screen ID added; enforcement/runtime remains future |
+| Shared Metrics + Business Service context | generic metric/version/freshness mechanisms and typed subject context without object transfer | REQ-PROD-003,005,010,013,021 | none | no central SLO calculator or new Service/SLO canonical object |
+
+Requirement IDs added: **0**; removed: **0**; state changes: **0**; active contradictions introduced: **0**. Distribution remains **122 = 99 conform / 20 partial / 3 absent / 0 contradictory**. OPEN remains **17**; `OPEN-008`, `OPEN-013`, `OPEN-015` and `OPEN-019` remain open. Documentary architecture evidence does not claim implementation/runtime availability.

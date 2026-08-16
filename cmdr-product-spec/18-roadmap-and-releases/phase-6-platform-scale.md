@@ -3,7 +3,7 @@ id: roadmap-phase-6-platform-scale
 domain: 18-roadmap-and-releases
 status: draft
 owner: Product Operations Lead
-updated: 2026-08-14
+updated: 2026-08-16
 source-of-truth: canonical
 ---
 # Phase 6 Platform Scale
@@ -84,7 +84,7 @@ Hard boundaries:
 - canonical Integration states remain `draft`, `validating`, `active`, `degraded`, `disabled`, `error`;
 - canonical Secret Reference states remain `pending`, `active`, `rotating`, `expired`, `revoked`;
 - Integration `capabilities` metadata is not the CMDR Capability object and cannot allocate `CAP-*` IDs;
-- `Connection` remains module/functional terminology; no Connection, Connector or Credential canonical object is created;
+- `Connection` remains module/functional terminology; no Connection, Connector ou Credential canonical object is created;
 - `Secret Reference` remains reference-only and no raw secret value is read, logged or exposed by the contracts;
 - current canonical sources do **not** assign Platform Settings the technical external connection-probe executor; CAP-SET-008 is limited to administrative request/preconditions/status/result projection/provenance and handoff for external testing;
 - current canonical sources do **not** assign Platform Settings underlying-secret generation/write/rotation or external credential revocation; CAP-SET-009 defines Secret Reference lifecycle/reference mutation and administrative handoff/result projection only;
@@ -339,3 +339,60 @@ Before publication, A–F and G1–G3 are **44 PASS / 7 PENDING-REMOTE / 0 FAIL*
 - documentary architecture approval does not claim runtime implementation or MSSP production support.
 
 Platform Settings Capability Specification remains **PARTIAL**. Delivery Roadmap Phase 6 Capability Specification remains **PARTIAL** because other Platform Scale work remains. Global Capability Specification and repository maturity remain **PARTIAL**.
+
+### SLO / Health / Resilience — architecture decision
+
+Architecture-recording work under the same Delivery Roadmap Phase 6 — Platform Scale. It is **not** a new roadmap phase, is **not** a capability lot and allocates **0 new Capability IDs**.
+
+Approval reference: **Explicit project-owner approval in this conversation.**  
+Approved decision checksum: `adb8312c2eb5cb65062177c72ee3b23cbe9f3c165593dab514a5aa53d6ad674a`.  
+Canonical decision: `../00-governance/adr/ADR-0009-slo-health-resilience-source-ownership-and-runtime-boundary.md`.
+
+#### Approved architecture
+
+- SLO uses a hybrid source-attributed source-of-truth model with no generic CMDR target store or configuration ;
+- SLO remains non-canonical; no SLO/Health Observation/Threshold/Service Level/Availability/Reliability/Resilience/RTO/RPO object is created ;
+- Platform Architecture owns the neutral Health/Metrics contract envelope; Shared retains generic metric mechanisms; source/runtime owners retain acquisition and authoritative source-specific calculations ;
+- Platform Health is a bounded deterministic Settings projection/presentation layer, not probe/monitoring/acquisition/SLO-calculation runtime ;
+- initial Resilience scope is sourced degradation observability, existing Offline/Retry semantics and provider fallback constraints as configuration ; generic failover/recovery/DR/RTO/RPO stay outside ;
+- no generic SLO mutation or new Permission ID; `perm.settings.health.read` remains read-only; `Acknowledge maintenance` remains disabled/non-executable until separately sourced ;
+- no generic failover/recovery execution; future governed effects require selected Tenant, Security re-evaluation and Govern authority ;
+- initial Phase-6 MVP visibility is Tenant-local plus MSSP read-only aggregation through the Authorized Tenant Set; Customer remains external and external publication stays fenced by `OPEN-019` ;
+- Search remains single-selected-Tenant; Report/Export remain single-Tenant and Shared-owned.
+
+#### Explicit non-allocation and preserved state
+
+- new Capability IDs: **0** ;
+- `CAP-SET-014+`: **not allocated / not reserved** ;
+- new canonical objects: **0** ;
+- new Permission IDs: **0** ;
+- new Screen IDs: **0** ;
+- Requirements remain **122 = 99 conform / 20 partial / 3 absent / 0 contradictory** ;
+- OPEN remains **17** ; `OPEN-006` remains resolved; `OPEN-008`, `OPEN-013`, `OPEN-015`, `OPEN-019` remain open ;
+- global counters remain **497 / 496 defined / 1 proposed / 497 planned / 13,419 / 2,982** ;
+- Settings remains **13 / 351 / 78** ; Screens remain **56**.
+
+#### Architecture-recording chain before BUILD publication
+
+1. `38286754f75ff46611f20a605c13e75dda3b66f3` — `docs: record Phase 6 SLO health resilience architecture decision` ;
+2. `b296d0a6720395fe239b5c601a9b4717ddfae362` — `docs: define source-attributed SLO health metrics and resilience boundaries` ;
+3. this traceability/quality commit is BUILD; its exact SHA is recorded after creation and in post-publication verification.
+
+#### Quality model
+
+The approved architecture model is exactly **48 gates**:
+- A baseline/Git/approval/ADR race guard: 8 ;
+- B source/prior closure/roadmap: 5 ;
+- C SLO semantics/source/identity: 7 ;
+- D Health/measurement/calculation: 6 ;
+- E Resilience/runtime/authority: 7 ;
+- F Security/UX/objects/Requirements: 7 ;
+- G publication/remote/final: 8.
+
+At BUILD before publication: **40 PASS / 8 PENDING-REMOTE / 0 FAIL**. Final PASS is forbidden until non-forced publication, remote verification, CI/status/check/workflow applicability evidence and documentary closure are complete.
+
+#### Stop line
+
+After architecture closure: **STOP**. Do not start a functional SLO capability, do not allocate or reserve `CAP-SET-014+`, and do not start Localization, Advanced Integrations or Compliance implicitly. A new source-audited capability preparation against the resulting FINAL HEAD is required.
+
+Roadmap preservation remains **REMOVED 0 / WEAKENED 0 / UNKNOWN 0**. Documentary architecture approval does not claim runtime implementation or production support.
