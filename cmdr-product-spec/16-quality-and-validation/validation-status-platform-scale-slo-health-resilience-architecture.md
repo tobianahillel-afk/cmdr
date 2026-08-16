@@ -17,14 +17,13 @@ Decision checksum: `adb8312c2eb5cb65062177c72ee3b23cbe9f3c165593dab514a5aa53d6ad
 
 ADR-0009 is `validated` and records D1–D9 verbatim.
 
-## Baseline and chain
+## Exact BUILD
 
-- starting HEAD: `af6a4724388a92de7915d7db48a8a4b27eb6014c`;
-- commit 1: `38286754f75ff46611f20a605c13e75dda3b66f3`;
-- commit 2: `b296d0a6720395fe239b5c601a9b4717ddfae362`;
-- BUILD: the commit containing this status with message `docs: update Phase 6 SLO health resilience traceability and quality gates`; exact SHA is verified after creation.
+`badd12d97a6d551e05f1b3ecd2ec260323e2f3f2` — `docs: update Phase 6 SLO health resilience traceability and quality gates`.
 
-## Verified local architecture state
+Baseline `af6a4724388a92de7915d7db48a8a4b27eb6014c` → BUILD = **3 ahead / 0 behind**, same merge-base, 16 approved surfaces. BUILD publication used `force:false`.
+
+## Verified architecture state
 
 - SLO source-attributed and noncanonical;
 - no generic target store/configuration or central SLO calculator;
@@ -45,17 +44,28 @@ ADR-0009 is `validated` and records D1–D9 verbatim.
 - Settings = **13 / 351 / 78**;
 - Screens = **56**.
 
-## Quality state before publication
+## Remote and CI verification
 
-A–F = **40/40 PASS**.  
-G remote/post-publication = **0/8 PASS, 8 PENDING-REMOTE**.
+- remote BUILD exact: PASS;
+- baseline ancestry/diff: PASS — 3 ahead / 0 behind / same merge-base / 16 approved surfaces;
+- PR #2: PASS — open / Draft / unmerged / base `main` / head BUILD / `auto_merge=null` before closure;
+- main: PASS — `bc1ec59e5e79ccbaba291e2984b0eb7d5e54129c`;
+- branch/main README: PASS — exact `# cmdr`, blob `901c74cda52e28b5ff7fc425ddf28ef89f3ad875`;
+- remote ADR-0009 / namespace / OPEN / Requirements reread: PASS;
+- roadmap preservation: PASS — REMOVED 0 / WEAKENED 0 / UNKNOWN 0;
+- statuses: **0**;
+- workflow runs: **0**;
+- check runs: **0**;
+- check suites: **0**;
+- `.github/workflows`: **absent (404)**;
+- CI/status/check/workflow: **N/A WITH EVIDENCE**.
 
-Current BUILD-time verdict: **40 PASS / 8 PENDING-REMOTE / 0 FAIL**.
+## Final state
 
-No final PASS may be claimed until exact BUILD publication, remote reread, CI/status/check/workflow applicability inspection and documentary closure are complete.
+The documentary closure commit is the only permitted descendant of BUILD in this run and modifies only the three SLO/Health/Resilience quality surfaces plus the post-publication verification report. Immediate FINAL comparison must confirm functional BUILD blobs unchanged and all Git/namespace/OPEN/Requirements invariants.
 
-## Required final state
+Final verdict after that immediate verification:
 
 **PASS AFTER POST-PUBLICATION VERIFICATION — 48/48 PASS, 0 PENDING, 0 FAIL.**
 
-After that closure the run must STOP. No functional SLO capability or `CAP-SET-014+` allocation/reservation begins in the same run.
+After closure: **STOP**. No functional SLO capability, no `CAP-SET-014` allocation/reservation, no failover/recovery implementation.

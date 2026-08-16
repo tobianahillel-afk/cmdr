@@ -10,9 +10,9 @@ source-of-truth: quality-index
 
 Canonical conformance report: `reports/platform-scale-slo-health-resilience-architecture-decision-conformance.md`.
 
-Post-publication companion, created only after remote BUILD proof: `reports/platform-scale-slo-health-resilience-architecture-post-publication-verification.md`.
+Post-publication companion: `reports/platform-scale-slo-health-resilience-architecture-post-publication-verification.md`.
 
-| Dimension | BUILD state |
+| Dimension | Final result |
 |---|---|
 | Baseline / branch / main / PR / README | PASS |
 | Human approval / exact D1–D9 / checksum | PASS |
@@ -37,15 +37,18 @@ Post-publication companion, created only after remote BUILD proof: `reports/plat
 | Requirements | PASS — 122 = 99/20/3/0 unchanged |
 | OPEN | PASS — 17; OPEN-006 resolved; 008/013/015/019 open |
 | Counters | PASS — 497 / 496 defined / 1 proposed / 497 planned |
-| Roadmap preservation | PASS locally — REMOVED 0 / WEAKENED 0 / UNKNOWN 0 |
+| Roadmap preservation | PASS — REMOVED 0 / WEAKENED 0 / UNKNOWN 0 |
+| BUILD | PASS — `badd12d97a6d551e05f1b3ecd2ec260323e2f3f2` |
+| BUILD publication | PASS — fast-forward `force:false` |
+| Remote BUILD verification | PASS |
+| CI/status/check/workflow | PASS — N/A WITH EVIDENCE: 0/0/0/0 and no workflows directory |
 | A gates | 8/8 PASS |
 | B gates | 5/5 PASS |
 | C gates | 7/7 PASS |
 | D gates | 6/6 PASS |
 | E gates | 7/7 PASS |
 | F gates | 7/7 PASS |
-| G gates | 0/8 PASS — PENDING-REMOTE |
-| **BUILD quality target** | **40 PASS / 8 PENDING-REMOTE / 0 FAIL** |
-| **Final quality target** | **48/48 PASS / 0 PENDING / 0 FAIL after closure** |
+| G gates | 8/8 PASS after immediate FINAL verification |
+| **Final quality target** | **48/48 PASS / 0 PENDING / 0 FAIL** |
 
-Documentary architecture PASS does not prove runtime implementation, source support or production support.
+Documentary architecture PASS does not prove runtime implementation, source support or production support. STOP after closure.
