@@ -3,59 +3,97 @@ id: settings-health-platform-health-model
 domain: 10-platform-settings
 status: draft
 owner: Platform Settings Product Lead
-updated: 2026-08-03
+updated: 2026-08-16
 source-of-truth: canonical
 ---
 # Platform Health Model
 
 ## Objectif
 
-Définir platform health model dans Platform Settings.
+Définir la projection Platform Health alignée sur `ADR-0009`, sans devenir runtime de probe, acquisition, monitoring ou calcul SLO.
 
 ## Périmètre
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
+Platform Settings possède la présentation/projection Health et les dérivations déterministes bornées de présentation. Platform Architecture possède le contrat neutre Health/Metrics. Les sources/runtime owners conservent les mesures et calculs faisant autorité.
 
 ## Propriétaire fonctionnel
 
-Platform Settings Product Lead.
+Platform Settings Product Lead pour la surface Health. Les ownerships source/runtime restent inchangés.
 
-## Objets concernés
+## Identité et source
 
-- Concepts du document
-- Références canoniques liées
+SLO reste une projection/configuration source-attributed non canonique. La projection référence :
+- Tenant ;
+- typed subject reference ;
+- authoritative source reference ;
+- target value/unit ;
+- target version et effective period ;
+- measurement window ;
+- calculation provenance lorsqu'un état/breach est présenté ;
+- freshness ;
+- Environment seulement lorsqu'il est sourcé.
+
+Aucun objet canonique SLO/Health Observation/Threshold/Service Level/Availability/Reliability/Resilience/RTO/RPO n'est créé.
 
 ## Fonctionnalités
 
-- Service health.
+- Service health projection.
 - Data freshness.
+- Source-attributed SLO target/state/breach visibility.
 - Impact mapping.
-- Customer visibility.
+- Tenant-local visibility.
+- MSSP read-only aggregation.
+- Customer visibility uniquement lorsqu'une politique future autorise la publication externe.
 
-## UX et interactions
+## États et calcul
 
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
+Settings peut dériver des faits de présentation bornés comme age, stale, unknown ou partial depuis les métadonnées sources explicites. Settings ne synthétise ni mesure, ni SLO compliance, ni breach lorsque la preuve autoritative manque.
+
+Missing, stale, conflicting et unsupported ne sont jamais normalisés en healthy.
+
+## Resilience boundary
+
+La portée initiale comprend degradation observability, Offline/Retry existant et provider fallback constraints comme configuration. Elle n'inclut pas generic redundancy, automatic/manual failover, data-source fallback, recovery, DR, RTO ou RPO.
+
+## MSSP et Tenant
+
+L'agrégation MSSP read-only est bornée par l'Authorized Tenant Set Security. Le Tenant de chaque projection reste visible. Toute mutation/admin/response reste single-selected-Tenant. Search reste single-selected-Tenant; Report/Export restent single-Tenant.
+
+## Breach handoff
+
+Chaîne initiale :
+`authoritative source/runtime → sourced SLO state/breach → Platform Health projection → optional Shared Notification → explicit selected-Tenant human handoff → existing Command action`.
+
+Aucun Incident, Task, changement de priorité, Govern flow ou automation n'est créé automatiquement.
 
 ## Permissions
 
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
+`perm.settings.health.read` couvre uniquement la lecture des projections autorisées. Aucune permission de configuration Health/SLO n'est créée. `Acknowledge maintenance` reste désactivé/non exécutable tant qu'une permission et une autorité ne sont pas séparément sourcées.
 
-## États
+## UX et interactions
 
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
+- Source, freshness, Tenant et target version restent visibles.
+- Unknown/partial/stale sont distingués.
+- Les actions interdites restent désactivées avec raison sans révéler de données protégées.
+- Le contexte Tenant est explicite avant tout handoff tenant-local.
 
 ## Dépendances
 
-- 00-governance/source-of-truth-policy.md
+- `../../00-governance/adr/ADR-0009-slo-health-resilience-source-ownership-and-runtime-boundary.md`
+- `../../12-shared-capabilities/business-service-catalog.md`
+- `../../12-shared-capabilities/metrics-engine.md`
+- `../../14-security-permissions-and-trust/permission-model.md`
+- `../../17-implementation-contracts/health-contract.md`
+- `../../17-implementation-contracts/metrics-contract.md`
 
 ## Critères d’acceptation
 
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
+- Le document conserve un owner unique de projection.
+- Aucun runtime owner n'est transféré à Settings.
+- Toute projection SLO/Health est source-attributed.
+- Aucun cross-tenant effect ni export widening.
+- Les OPEN-008/013/015/019 restent ouvertes.
 
 ## Questions ouvertes
 
-- À compléter — décision source non fournie dans le brief canonique.
+Les décisions de source availability/support, futures mutations, automation/response bridge et external dissemination restent respectivement dans `OPEN-008`, `OPEN-013`, `OPEN-015` et `OPEN-019`.

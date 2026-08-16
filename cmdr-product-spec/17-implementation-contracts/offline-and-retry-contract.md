@@ -3,27 +3,22 @@ id: contract-offline-and-retry-contract
 domain: 17-implementation-contracts
 status: draft
 owner: Platform Architecture Lead
-updated: 2026-08-03
+updated: 2026-08-16
 source-of-truth: canonical
 ---
 # Offline And Retry Contract
 
 ## Objectif
 
-Définir le contrat Offline And Retry Contract.
+Définir le contrat Offline/Retry sans le transformer en architecture générique de failover ou recovery.
 
 ## Périmètre
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
+Le contrat conserve ses primitives existantes. ADR-0009 borne la Resilience initiale à degradation observability, Offline/Retry existant et provider fallback constraints comme configuration.
 
 ## Propriétaire fonctionnel
 
 Platform Architecture Lead.
-
-## Objets concernés
-
-- Concepts du document
-- Références canoniques liées
 
 ## Fonctionnalités
 
@@ -34,31 +29,49 @@ Platform Architecture Lead.
 - Conflict.
 - User visibility.
 
+## Distinctions normatives
+
+- retry != fallback ;
+- fallback != failover ;
+- failover != recovery ;
+- recovery != rollback ;
+- offline != permission d'exécuter une mutation ;
+- retry policy != SLO target.
+
+Le provider fallback configuré ailleurs ne prouve jamais un automatic failover.
+
+## Hors scope initial
+
+Ce contrat ne définit pas :
+- generic runtime redundancy ;
+- automatic ou manual failover ;
+- data-source fallback ;
+- generic recovery ;
+- DR ;
+- RTO/RPO ;
+- un executor de résilience.
+
 ## UX et interactions
 
-- Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
-- Aucune duplication des définitions externes.
+Les états Offline/Retry montrent dernière synchronisation, retry state et limites sans présenter un failover/recovery inexistant.
 
 ## Permissions
 
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
-
-## États
-
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
+Aucune permission de failover/recovery n'est créée. Une opération future effectful doit être séparément sourcée et autorisée.
 
 ## Dépendances
 
-- 00-governance/source-of-truth-policy.md
+- `../00-governance/adr/ADR-0009-slo-health-resilience-source-ownership-and-runtime-boundary.md`
+- `health-contract.md`
+- `../14-security-permissions-and-trust/permission-model.md`
 
 ## Critères d’acceptation
 
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
+- Les primitives retry restent distinctes des actions runtime de résilience.
+- Aucun executor ou SLO n'est inventé.
+- Unknown/offline ne devient jamais healthy/compliant.
 
 ## Questions ouvertes
 
 - Quel format de schéma et quelle version initiale?
-- Quels SLO et limites?
+- Backpressure générique, failover, recovery, DR, RTO/RPO restent des décisions futures source-auditées.

@@ -3,7 +3,7 @@ id: permission-model
 domain: 14-security-permissions-and-trust
 status: draft
 owner: Security Architecture Lead
-updated: 2026-08-14
+updated: 2026-08-16
 source-of-truth: canonical
 requirements:
   - REQ-PROD-004
@@ -87,6 +87,33 @@ L'administration est tenant-local. Un Principal qui peut lire plusieurs Tenants 
 
 Pour toute mutation Settings, les permissions administratives existantes et les contraintes RBAC/ABAC/SoD/step-up continuent de s'appliquer après sélection du Tenant.
 
+## SLO / Health permission boundary
+
+ADR-0009 n'alloue aucune permission.
+
+`perm.settings.health.read` autorise uniquement la lecture des projections Health/SLO autorisées dans le scope Tenant courant, ou l'agrégation MSSP read-only lorsque l'Authorized Tenant Set et les checks objet l'autorisent.
+
+Cette permission n'autorise jamais :
+- SLO target/threshold/window/breach-policy configuration ;
+- monitoring enable/disable ;
+- export ou publication ;
+- failover ;
+- recovery ;
+- response.
+
+Aucune `perm.settings.health.manage`, `perm.settings.slo.*` ou `perm.settings.resilience.*` n'est créée.
+
+`Acknowledge maintenance` reste non exécutable/désactivé jusqu'à attribution séparément sourcée d'un owner, d'une action class et d'une permission explicite. Une future configuration SLO réévalue `OPEN-013`.
+
+## Failover / recovery authority
+
+L'architecture initiale n'expose aucun generic failover/recovery execution.
+
+Un futur effet, s'il est modélisé comme governed response, exige :
+`select Tenant → Security authorization re-evaluation → Govern Decision Authority evaluation → Action Request/Decision/Response Run → verification/Result`.
+
+Un Platform Administrator, un Authorized Tenant Set ou `health.read` ne constitue jamais cette autorité. Automated failover/recovery reste hors scope initial et `OPEN-015` reste ouvert.
+
 ## Response Authority
 
 La réponse MSSP suit obligatoirement :
@@ -105,14 +132,15 @@ Pour le MVP :
 - Export est single-Tenant et ne peut jamais élargir la visibilité ;
 - multi-tenant Search/Report/Export sont différés.
 
-Le droit de lecture d'un objet ou Tenant ne confère jamais automatiquement le droit `export` ou `publish`.
+Une vue MSSP Health/SLO agrégée ne crée aucune exception. Le droit de lecture d'un objet ou Tenant ne confère jamais automatiquement le droit `export` ou `publish`.
 
 ## UX
 
 Une action non pertinente peut être cachée. Une action pertinente mais interdite est désactivée avec raison, permission requise et chemin de demande d’accès sans révéler de donnée protégée.
 
 Dans une vue MSSP agrégée :
-- le Tenant de chaque objet reste visible ;
+- le Tenant de chaque projection reste visible ;
+- authoritative source, target version et freshness restent visibles lorsqu'applicables ;
 - les mutations et réponses cross-tenant sont indisponibles ;
 - une action tenant-local exige une sélection explicite de Tenant avant affichage de l'action applicable.
 
@@ -126,10 +154,12 @@ Cette architecture ne crée ni Group, ni AccessAssignment, ni RoleAssignment, ni
 
 ## OPEN préservées
 
+- `OPEN-008` reste ouverte pour disponibilité/support des sources ;
 - `OPEN-013` reste ouverte pour la politique par défaut des mutations réversibles Class 2 ;
+- `OPEN-015` reste ouverte pour Automation Run / Response Run provenance ;
 - `OPEN-019` reste ouverte pour dissemination/releasability/external sharing.
 
-Aucune de ces OPEN n'est résolue par le simple droit de lecture multi-tenant.
+Aucune de ces OPEN n'est résolue par la projection SLO/Health ou le droit de lecture multi-tenant.
 
 ## Sources liées
 
@@ -139,11 +169,12 @@ Aucune de ces OPEN n'est résolue par le simple droit de lecture multi-tenant.
 - Autorité : `decision-authority.md`
 - Séparation des tâches : `separation-of-duties.md`
 - Décision de déploiement : `../00-governance/adr/ADR-0008-customers-mssp-delivery-deployment-and-cross-tenant-architecture.md`
+- SLO / Health / Resilience : `../00-governance/adr/ADR-0009-slo-health-resilience-source-ownership-and-runtime-boundary.md`
 
 ## Critères d'acceptation
 
-**Given** un Principal autorisé sur plusieurs Tenants, **When** une lecture agrégée est demandée, **Then** l'ensemble demandé est borné par l'Authorized Tenant Set et chaque objet est encore contrôlé côté serveur.
+**Given** un Principal autorisé sur plusieurs Tenants, **When** une lecture Health/SLO agrégée est demandée, **Then** l'ensemble demandé est borné par l'Authorized Tenant Set et chaque projection est encore contrôlée côté serveur.
+
+**Given** une permission `perm.settings.health.read`, **When** une configuration, un export, un failover, une recovery ou une réponse est demandée, **Then** le droit de lecture seul est insuffisant.
 
 **Given** un contexte MSSP agrégé, **When** une action d'administration ou de réponse est demandée, **Then** elle n'est pas autorisée par le scope agrégé et exige un Tenant unique avec nouvelle évaluation.
-
-**Given** une permission `read`, **When** un export, une exécution ou une approbation est demandée, **Then** le droit de lecture seul est insuffisant.

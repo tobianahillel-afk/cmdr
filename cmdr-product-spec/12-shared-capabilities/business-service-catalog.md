@@ -3,27 +3,22 @@ id: shared-business-service-catalog
 domain: 12-shared-capabilities
 status: draft
 owner: Shared Capabilities Product Lead
-updated: 2026-08-03
+updated: 2026-08-16
 source-of-truth: canonical
 ---
 # Business Service Catalog
 
 ## Objectif
 
-Définir la capacité partagée Business Service Catalog.
+Définir la capacité partagée Business Service Catalog et fournir une identité de contexte réutilisable par les projections Health/SLO sans créer un nouvel objet Service.
 
 ## Périmètre
 
-Document canonique du domaine. Il définit uniquement son sujet et renvoie vers les autres sources de vérité pour les concepts partagés.
+Le catalogue reste Shared-owned. ADR-0009 permet à une projection SLO de référencer une Business Service catalog identity comme typed subject reference; cela ne transforme ni Service ni SLO en nouvel objet canonique.
 
 ## Propriétaire fonctionnel
 
 Shared Capabilities Product Lead.
-
-## Objets concernés
-
-- Concepts du document
-- Références canoniques liées
 
 ## Fonctionnalités
 
@@ -33,31 +28,39 @@ Shared Capabilities Product Lead.
 - Dependencies.
 - Tenant scope.
 
+## SLO / Health relationship
+
+Une projection SLO/Health peut référencer l'identité stable fournie par ce catalogue, avec son Tenant et sa source autoritative. Le catalogue :
+- ne possède pas le SLO target ;
+- ne calcule pas le SLO state/breach ;
+- ne publie pas un Customer commitment ;
+- ne devient pas un runtime de monitoring.
+
+Les Customer/contract projections restent externes et la publication external/customer reste gouvernée séparément.
+
 ## UX et interactions
 
 - Navigation par liens stables.
-- Contenu lisible en thème clair et sombre.
+- Tenant et identité Service restent visibles dans les consumers.
 - Aucune duplication des définitions externes.
 
 ## Permissions
 
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
-
-## États
-
-Le statut documentaire suit `00-governance/document-status-model.md`; les états métier restent dans leurs sources canoniques.
+Les permissions du consumer et du contexte Tenant continuent de s'appliquer. Une relation Service↔SLO n'accorde aucun droit.
 
 ## Dépendances
 
-- 00-governance/source-of-truth-policy.md
+- `../00-governance/adr/ADR-0009-slo-health-resilience-source-ownership-and-runtime-boundary.md`
+- `metrics-engine.md`
+- `../17-implementation-contracts/health-contract.md`
 
 ## Critères d’acceptation
 
-- Le document a un propriétaire unique.
-- Les liens locaux sont valides.
-- Les décisions non tranchées sont attribuées.
+- Service identity peut être référencée sans nouvelle définition d'objet.
+- Ownership Service, SLO target et runtime restent séparés.
+- Tenant scope est préservé.
 
 ## Questions ouvertes
 
-- Quels SLO et volumes sont requis?
-- Quelles capacités sont natives ou intégrées?
+- Les capacités natives/intégrées et volumes restent source/deployment-dependent.
+- `OPEN-019` reste applicable à toute diffusion external/customer.
