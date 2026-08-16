@@ -68,7 +68,7 @@ GOV-1 documentary evidence strengthens the functional definition of Govern but d
 - Capability Specification Phase 4A — Command remains **PASS** with 27 capabilities; `CAP-CMD-401` is now `defined / planned`, deployment-dependent under validated ADR-0008.
 - Capability Specification Phase 4B — Investigate remains **PASS**; no Investigate capability is created or modified by this architecture decision.
 - Govern, Studio and Endpoint verified capability evidence remains unchanged.
-- Platform Settings `CAP-SET-001..013` and their post-publication closures remain unchanged.
+- Platform Settings `CAP-SET-001..014` and all predecessor post-publication closures remain unchanged except for the additive CAP-SET-014 definition introduced by this functional lot.
 - `OPEN-006` is **resolved** on 2026-08-14 by explicit project-owner approval and ADR-0008.
 - `OPEN-007`, `OPEN-010`, `OPEN-011`, `OPEN-012`, `OPEN-013`, `OPEN-014`, `OPEN-015`, `OPEN-016`, `OPEN-017`, `OPEN-018`, `OPEN-019` and all other current open decisions retain their existing dispositions.
 - `OPEN-013` and `OPEN-019` remain explicitly open after OPEN-006 resolution.
@@ -108,3 +108,13 @@ Approval reference: **Explicit project-owner approval in this conversation.** Ca
 | Shared Metrics + Business Service context | generic metric/version/freshness mechanisms and typed subject context without object transfer | REQ-PROD-003,005,010,013,021 | none | no central SLO calculator or new Service/SLO canonical object |
 
 Requirement IDs added: **0**; removed: **0**; state changes: **0**; active contradictions introduced: **0**. Distribution remains **122 = 99 conform / 20 partial / 3 absent / 0 contradictory**. OPEN remains **17**; `OPEN-008`, `OPEN-013`, `OPEN-015` and `OPEN-019` remain open. Documentary architecture evidence does not claim implementation/runtime availability.
+
+## Platform Settings Platform Health / SLO projection capability evidence — 2026-08-16
+
+This additive evidence records the source-audited functional definition of `CAP-SET-014` without changing any global Requirement state.
+
+| Evidence range | Scope | Requirements strengthened | Individual status | Global state change | Reason |
+|---|---|---|---|---|---|
+| `CAP-SET-014` | deterministic read-only Platform Health and source-attributed SLO target/state/breach projection; source/freshness/provenance/uncertainty/impact; Authorized-Tenant-Set MSSP read aggregation; explicit selected-Tenant Command and Shared handoffs | REQ-PROD-003,005,006,008,009,010,012,013,019,021; REQ-SEC-001,002 | N/E where the active matrix exposes no normative individual state | none | documentary capability definition does not prove source/runtime support, authorization enforcement, monitoring, measurement acquisition, SLO calculation, failover/recovery or production implementation |
+
+`CAP-SET-014` creates/deletes **0** Requirement IDs and changes **0** Requirement states. Distribution remains **122 = 99 conform / 20 partial / 3 absent / 0 contradictory**. OPEN remains **17** with `OPEN-006` resolved and `OPEN-008`, `OPEN-013`, `OPEN-015`, `OPEN-019` open. Documentary `defined / planned` status does not claim implementation/runtime availability.

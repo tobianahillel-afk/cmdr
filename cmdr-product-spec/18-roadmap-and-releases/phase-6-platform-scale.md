@@ -396,3 +396,29 @@ At BUILD before publication: **40 PASS / 8 PENDING-REMOTE / 0 FAIL**. Final PASS
 After architecture closure: **STOP**. Do not start a functional SLO capability, do not allocate or reserve `CAP-SET-014+`, and do not start Localization, Advanced Integrations or Compliance implicitly. A new source-audited capability preparation against the resulting FINAL HEAD is required.
 
 Roadmap preservation remains **REMOVED 0 / WEAKENED 0 / UNKNOWN 0**. Documentary architecture approval does not claim runtime implementation or production support.
+
+### Platform Health and Source-Attributed SLO Projection — functional capability definition
+
+This source-audited functional execution follows the required post-ADR-0009 preparation run. It is not a new roadmap phase and allocates exactly one Settings capability: `CAP-SET-014 — Platform Health and Source-Attributed SLO Projection`.
+
+- owner: **Platform Settings Product Lead**;
+- documentary status: **draft / defined / planned**;
+- structure: **1 capability / 27 numbered sections / 6 mandatory substantive tables / 5 meaningful GWT**;
+- Settings cumulative: **14 capabilities / 378 sections / 84 mandatory tables**;
+- global functional content: **498 capabilities / 497 defined / 1 proposed / 498 planned / 13,446 sections / 2,988 mandatory tables**;
+- primary existing Screen: `SET-HLT-001`; new Screen IDs: **0**;
+- existing permission: `perm.settings.health.read`; new Permission IDs: **0**;
+- new canonical objects: **0**; writes: **none**;
+- SLO remains source-attributed and non-canonical; no generic target store/configuration or central SLO calculator is introduced;
+- Settings owns deterministic Health/SLO projection only; source/runtime owners retain acquisition and authoritative calculation;
+- MSSP aggregation is Security-resolved Authorized-Tenant-Set read-only and preserves Tenant/source/version/freshness/provenance per projection;
+- Search remains single-selected-Tenant; Report/Export remain Shared-owned, single-Tenant and non-widening;
+- no automatic Incident, Task, priority change, Govern flow, Response Run or Automation Run;
+- generic monitoring mutation, failover, recovery, DR and RTO/RPO remain outside scope;
+- Requirements remain **122 = 99 conform / 20 partial / 3 absent / 0 contradictory** with zero ID/state changes;
+- OPEN remains **17**; `OPEN-006` stays resolved and `OPEN-008`, `OPEN-013`, `OPEN-015`, `OPEN-019` stay open;
+- `CAP-SET-015+` remains unallocated and unreserved.
+
+The quality model for this lot is exactly **134 source/local + 8 remote/post-publication = 142**. Before publication the allowed verdict is **134 PASS / 8 PENDING-REMOTE / 0 FAIL**; `142/142` is forbidden until actual remote verification and documentary closure.
+
+Roadmap historical preservation for this additive lot is **REMOVED 0 / WEAKENED 0 / UNKNOWN 0**. Localization, Advanced Integrations and Compliance are not started by this capability definition.

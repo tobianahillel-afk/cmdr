@@ -3,12 +3,12 @@ id: platform-settings-capabilities
 domain: 10-platform-settings
 status: draft
 owner: Platform Settings Product Lead
-updated: 2026-08-14
+updated: 2026-08-16
 source-of-truth: canonical
 ---
 # Platform Settings Capabilities
 
-Platform Settings capability contracts use the immutable owner-aligned namespace `CAP-SET-*`. IDs are never recycled. Current allocation is exactly `CAP-SET-001..013`; `CAP-SET-014+` is neither allocated nor reserved.
+Platform Settings capability contracts use the immutable owner-aligned namespace `CAP-SET-*`. IDs are never recycled. Current allocation is exactly `CAP-SET-001..014`; `CAP-SET-015+` is neither allocated nor reserved.
 
 ## Tenant, Environment and Administrative Foundations
 
@@ -58,7 +58,7 @@ Canonical boundaries remain: Model Provider is distinct from Integration; model 
 | `CAP-SET-012` | Data Source Administrative Lifecycle, Scope, Freshness and Health Projection | draft | defined / planned |
 | `CAP-SET-013` | Parser Administrative Lifecycle, Versioned Transformation, Fixtures and Validation | draft | defined / planned |
 
-Sources & Parsers contributes **2 capabilities / 54 numbered sections / 12 mandatory tables / 8 meaningful GWT**. Settings cumulative functional BUILD content becomes **13 capabilities / 351 sections / 78 mandatory tables**.
+Sources & Parsers contributes **2 capabilities / 54 numbered sections / 12 mandatory tables / 8 meaningful GWT**. Its historical Settings cumulative functional BUILD content is **13 capabilities / 351 sections / 78 mandatory tables**.
 
 Canonical boundaries:
 - `Data Source` and `Parser` remain distinct canonical objects with no direct canonical relationship;
@@ -69,12 +69,35 @@ Canonical boundaries:
 - schema format, initial schema version and SLO/limits remain unresolved in implementation contracts;
 - no ECS, OCSF, CIM, OpenTelemetry or other unsourced schema standard is selected.
 
-All thirteen capabilities have one capability owner: **Platform Settings Product Lead**. Security, Shared, Experience Architecture, Design System, Govern, Health, Administrative Audit, Studio/runtime and other product/runtime owners retain their canonical ownership.
+## Platform Health — Source-Attributed SLO Projection
 
-The lot reuses `SET-SRC-001`, `SET-HLT-001`, `SET-AUD-001`, `SET-SEC-001`, existing `perm.platform-settings.data-source.*`, `perm.platform-settings.parser.*` and existing `perm.settings.source.*` aliases. It creates **0 new Screen IDs, 0 new Permission IDs and 0 new canonical objects**.
+| Capability | Title | Status | Delivery |
+|---|---|---|---|
+| `CAP-SET-014` | Platform Health and Source-Attributed SLO Projection | draft | defined / planned |
 
-BUILD-time quality for Sources & Parsers is **292 PASS / 24 PENDING-REMOTE / 0 FAIL**. Final `316/316` is forbidden until actual remote publication, CI/applicability inspection and documentary closure complete.
+Platform Health contributes **1 capability / 27 numbered sections / 6 mandatory substantive tables / 5 meaningful GWT**. Settings cumulative functional content becomes **14 capabilities / 378 sections / 84 mandatory tables**.
 
-Requirements remain **122 = 99 conform / 20 partial / 3 absent / 0 contradictory**. OPEN remains **18**. Documentary capability definition does not claim implementation/runtime availability.
+Canonical boundaries:
+- SLO remains source-attributed and non-canonical under validated ADR-0009;
+- Platform Settings owns bounded deterministic Health/SLO projection and presentation only;
+- Platform Architecture retains neutral Health/Metrics contract semantics;
+- Shared retains generic Metrics, Search, Reporting, Export and Notification mechanisms;
+- authoritative source/runtime owners retain measurement acquisition and authoritative source-specific Health/SLO calculation;
+- `perm.settings.health.read` remains strictly read-only;
+- existing `SET-HLT-001` is reused; new Screen IDs are zero;
+- new canonical objects / Permission IDs / Screen IDs are **0 / 0 / 0**;
+- writes are **none**;
+- MSSP visibility is Authorized-Tenant-Set read-only and preserves Tenant/source/version/freshness/provenance per projection;
+- Search stays single-selected-Tenant; Report/Export stay Shared-owned, single-Tenant and non-widening;
+- generic SLO configuration, monitoring mutation, failover, recovery, DR and RTO/RPO administration remain outside this capability;
+- `OPEN-008`, `OPEN-013`, `OPEN-015` and `OPEN-019` remain open.
 
-Platform Settings Capability Specification remains **PARTIAL** after this lot; later Platform Scale work remains separate source-audited work. `CAP-SET-014+` remains unallocated and unreserved.
+All fourteen capabilities have one capability owner: **Platform Settings Product Lead**. Security, Shared, Experience Architecture, Design System, Govern, Health contract architecture, Administrative Audit, Studio/runtime and other product/runtime owners retain their canonical ownership.
+
+The Platform Health lot reuses `SET-HLT-001`, `SET-TEN-001`, `SET-AUD-001`, `CMD-MC-001`, `CMD-IWQ-006`, `CMD-RBI-001`, `CMD-CRP-001` and existing `perm.settings.health.read`. It creates **0 new Screen IDs, 0 new Permission IDs and 0 new canonical objects**.
+
+Historical Sources & Parsers BUILD-time quality remains **292 PASS / 24 PENDING-REMOTE / 0 FAIL** and its final **316/316** remains preserved historical evidence.
+
+Requirements remain **122 = 99 conform / 20 partial / 3 absent / 0 contradictory**. OPEN remains **17** in current state; this Platform Health capability creates/closes 0. Documentary capability definition does not claim implementation/runtime availability.
+
+Platform Settings Capability Specification remains **PARTIAL** after this lot; later Platform Scale work remains separate source-audited work. `CAP-SET-015+` remains unallocated and unreserved.

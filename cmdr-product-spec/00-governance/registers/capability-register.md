@@ -3,7 +3,7 @@ id: capability-register
 domain: 00-governance
 status: draft
 owner: Product Architecture
-updated: 2026-08-14
+updated: 2026-08-16
 source-of-truth: registry
 requirements:
   - REQ-PROD-006
@@ -57,7 +57,8 @@ Registry validation checks duplicate/recycled IDs, concurrent owners, missing ca
 | `capability-register-settings-secrets-and-connections.md` | Settings Secrets & Connections CAP-SET-008..009 | 2 | 2 | 0 | 2 planned |
 | `capability-register-settings-models-and-providers.md` | Settings Models & Providers CAP-SET-010..011 | 2 | 2 | 0 | 2 planned |
 | `capability-register-settings-sources-and-parsers.md` | Settings Sources & Parsers CAP-SET-012..013 | 2 | 2 | 0 | 2 planned |
-| **Total** | **All registered capabilities** | **497** | **496** | **1** | **497 planned** |
+| `capability-register-settings-health-and-slo.md` | Settings Platform Health / SLO CAP-SET-014 | 1 | 1 | 0 | 1 planned |
+| **Total** | **All registered capabilities** | **498** | **497** | **1** | **498 planned** |
 
 ## Product totals
 - Command: **27** capabilities, 729 sections, 162 mandatory tables.
@@ -83,7 +84,8 @@ Registry validation checks duplicate/recycled IDs, concurrent owners, missing ca
 - Settings Secrets & Connections: **2 capabilities / 54 sections / 12 mandatory tables / 12 meaningful GWT**; **PASS AFTER POST-PUBLICATION VERIFICATION — 172/172**.
 - Settings Models & Providers functional build: **2 capabilities / 54 sections / 12 mandatory tables / 13 meaningful GWT**; final **PASS AFTER POST-PUBLICATION VERIFICATION — 204/204**.
 - Settings Sources & Parsers functional BUILD: **2 capabilities / 54 sections / 12 mandatory tables / 8 meaningful GWT**; final **PASS AFTER POST-PUBLICATION VERIFICATION — 316/316**.
-- Settings cumulative current build content: **13 capabilities / 351 sections / 78 mandatory tables**.
+- Settings Platform Health and Source-Attributed SLO Projection: **1 capability / 27 sections / 6 mandatory tables / 5 meaningful GWT**.
+- Settings cumulative current functional content: **14 capabilities / 378 sections / 84 mandatory tables**.
 - CAP-INV-3xx / 4xx / 5xx / 6xx / 7xx: **97 / 35 / 37 / 18 / 19**.
 - Detection Engineering: **35 capabilities, 945 sections, 210 tables**.
 - Threat Intelligence: **37 capabilities, 999 sections, 222 tables**.
@@ -104,7 +106,8 @@ Registry validation checks duplicate/recycled IDs, concurrent owners, missing ca
 - Historical Secrets & Connections build/closure state: **493 capabilities, 13311 sections, 2958 mandatory tables**.
 - Historical Models & Providers build/closure state: **495 capabilities / 493 defined / 2 proposed / 495 planned / 13365 sections / 2970 mandatory tables**.
 - Historical Sources & Parsers functional BUILD content: **497 capabilities / 495 defined / 2 proposed / 497 planned / 13419 sections / 2982 mandatory tables**.
-- **Current architecture-decision content after OPEN-006 resolution: 497 capabilities / 496 defined / 1 proposed / 497 planned / 13419 sections / 2982 mandatory tables**.
+- Historical architecture-decision content after OPEN-006 resolution and ADR-0009 closure: **497 capabilities / 496 defined / 1 proposed / 497 planned / 13419 sections / 2982 mandatory tables**.
+- **Current functional content after CAP-SET-014 definition: 498 capabilities / 497 defined / 1 proposed / 498 planned / 13446 sections / 2988 mandatory tables**.
 
 ## Command registry state
 The Command shard remains **27 unique IDs, 27 defined / 0 proposed / 27 planned**, with current native/integrated claims equal to 0. `CAP-CMD-401` remains `draft / defined / planned`, deployment-dependent under validated ADR-0008. `OPEN-006` is resolved; `OPEN-013` and `OPEN-019` remain open where applicable.
@@ -380,3 +383,23 @@ This addendum is the current-state successor to the Sources & Parsers closure wh
 - OPEN becomes **17** because only OPEN-006 is resolved; OPEN-013 and OPEN-019 remain open;
 - Customer remains an external projection, Tenant remains the isolation boundary, Authorized Tenant Set remains non-canonical, and Search/Report/Export remain single-selected-Tenant initially;
 - no implementation, runtime availability, CRM, billing, customer portal, delegated administration, Tenant hierarchy or cross-tenant response is claimed.
+
+## Platform Health and Source-Attributed SLO Projection functional addendum — 2026-08-16
+This addendum succeeds the validated ADR-0009 architecture closure for current capability indexing while preserving every historical count and closure statement above.
+
+- exactly `CAP-SET-014` is allocated to **Platform Health and Source-Attributed SLO Projection**;
+- owner: **Platform Settings Product Lead**;
+- documentary state: **draft / defined / planned**;
+- structure: **1 capability / 27 numbered sections / 6 mandatory substantive tables / 5 meaningful GWT**;
+- Settings cumulative current state: **14 capabilities / 378 sections / 84 mandatory tables**;
+- global current state: **498 capabilities / 497 defined / 1 proposed / 498 planned / 13446 sections / 2988 mandatory tables**;
+- `CAP-SET-015+` remains unallocated and unreserved;
+- new canonical objects / Permission IDs / Screen IDs: **0 / 0 / 0**;
+- writes: **none**;
+- existing `SET-HLT-001` and `perm.settings.health.read` are reused;
+- SLO remains source-attributed and non-canonical; no generic target store/configuration or central calculator is introduced;
+- Platform Settings owns bounded deterministic projection only; Platform Architecture, Shared, source/runtime, Security, Command and Govern ownership boundaries remain unchanged;
+- MSSP aggregation is Authorized-Tenant-Set read-only; Search remains single-selected-Tenant; Report/Export remain Shared-owned and single-Tenant;
+- Requirements remain **122 = 99 conform / 20 partial / 3 absent / 0 contradictory** with zero ID/state changes;
+- OPEN remains **17**; `OPEN-006` stays resolved and `OPEN-008`, `OPEN-013`, `OPEN-015`, `OPEN-019` stay open;
+- documentary capability definition does not claim implementation, runtime/source support, monitoring, failover, recovery or production availability.
