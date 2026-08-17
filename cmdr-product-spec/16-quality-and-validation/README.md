@@ -273,3 +273,13 @@ Canonical source audit: `reports/endpoint-ept5-source-audit.md`. Conformance: `r
 - no API/protocol/native command/PowerShell/shell/firewall syntax/physical schema/final policy/approval/verification/rollback engine/final RBAC/product implementation.
 
 EPT-5 remains **PENDING POST-PUBLICATION VERIFICATION** until all 230 gates close.
+
+---
+
+## Phase 6 Localization documentary reconciliation
+
+Localization quality artifacts are indexed without changing any functional source:
+- `validation-status-platform-scale-localization.md`;
+- `quality-index-platform-scale-localization.md`.
+
+Final source-audited disposition: **L5 — DOCUMENTARY RECONCILIATION ONLY**. The lot creates no capability, canonical object, Permission ID, Screen ID, Requirement state change or OPEN state change. Localization closure is product-spec/documentary only; runtime implementation and production readiness are not claimed. Advanced Integrations and Compliance are not started by this lot. Delivery Roadmap Phase 6 remains **PARTIAL**.

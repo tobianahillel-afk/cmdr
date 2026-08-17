@@ -77,7 +77,6 @@ Third source-audited functional execution lot under the same Delivery Roadmap Ph
 Exactly `CAP-SET-008..009`, owned by Platform Settings Product Lead, cover:
 - `CAP-SET-008` — Integration administrative lifecycle, deterministic local validation, connection-test administrative request/preconditions/status/result projection, safe disable and provenance;
 - `CAP-SET-009` — Secret Reference reference-only administration, lifecycle, rotation/expiry/revocation of the reference, Security handoff and provenance.
-
 Structure: **2 capabilities / 54 numbered sections / 12 mandatory tables / 12 meaningful GWT**. Settings cumulative state becomes **9 capabilities / 243 sections / 54 mandatory tables**.
 
 Hard boundaries:
@@ -422,3 +421,34 @@ This source-audited functional execution follows the required post-ADR-0009 prep
 The quality model for this lot is exactly **134 source/local + 8 remote/post-publication = 142**. Before publication the allowed verdict is **134 PASS / 8 PENDING-REMOTE / 0 FAIL**; `142/142` is forbidden until actual remote verification and documentary closure.
 
 Roadmap historical preservation for this additive lot is **REMOVED 0 / WEAKENED 0 / UNKNOWN 0**. Localization, Advanced Integrations and Compliance are not started by this capability definition.
+
+### Localization — documentary reconciliation / product-spec closure
+
+The complete Phase 6 Localization source-audit and governance reconciliation is complete. The final source-backed disposition is **L5 — DOCUMENTARY RECONCILIATION ONLY**. This is documentary/product-spec closure only and is not a runtime, delivery or production-readiness claim.
+
+Ownership remains distributed across existing bounded contexts:
+- **Content Design** owns normative content/language rules, terminology, approved translations, locale keys, localized labels and formatting semantics;
+- **Platform Settings** owns the personal `Language/timezone` preference surface;
+- **Shared Localization** owns generic localization mechanics including locale resources, fallback and pluralization;
+- Reporting, Export, Notification, Studio and downstream business domains retain their existing business semantics and ownership.
+
+Final reconciliation consequences:
+- new Localization capability required: **NO**;
+- new Capability IDs: **0**;
+- new canonical objects: **0**;
+- new Permission IDs: **0**;
+- new Screen IDs: **0**;
+- Localization-specific Requirements: **0**;
+- blocking Localization OPEN decisions: **0**;
+- ADR / human architecture decision required: **NO**;
+- functional capability/service extension required: **NO**;
+- final governance queue: **11/11 resolved**;
+- final Localization semantic matrix: **LOC-1..LOC-22 covered**.
+
+Residual Localization runtime mechanics remain implementation-level or non-required current product-spec details. They include physical persistence of Language/timezone preferences, preference-to-runtime/consumer binding, localization-resource selection, fallback-order implementation, pluralization execution, missing-key execution, date/time/number formatting execution, Report Template Localization runtime wiring and downstream consumer rendering where implemented.
+
+This reconciliation does **not** claim that the Localization runtime is implemented, that the localization engine is delivered, that a multilingual product or translation system is delivered, that full i18n is complete, that runtime validation passed or that production readiness exists.
+
+Roadmap preservation for this additive reconciliation is **REMOVED 0 / WEAKENED 0 / UNKNOWN 0**. Residual SLO/Resilience state is unchanged. **Advanced Integrations is NOT STARTED by this run. Compliance is NOT STARTED by this run.**
+
+Localization is **DOCUMENTARILY RECONCILED / CLOSED AT PRODUCT-SPEC LEVEL** with final disposition **L5**. Delivery Roadmap Phase 6 remains **PARTIAL**. Global Capability Specification maturity remains **PARTIAL** and repository maturity remains **PARTIAL**.
