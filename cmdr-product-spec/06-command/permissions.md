@@ -41,7 +41,7 @@ Command consomme RBAC, ABAC tenant/environnement/ownership/classification, Decis
 | bulk actions | CAP-CMD-108 | permission batch et limites non définies |
 | handover send/ack | CAP-CMD-004 | permissions par rôle non définies |
 | readiness/exercise/plan | CAP-CMD-301..305 | namespaces spécifiques absents |
-| customer/contract scope | CAP-CMD-401 | dépend de OPEN-006 |
+| customer/contract scope | CAP-CMD-401 | permissions de lecture existantes + Tenant scope / Authorized Tenant Set + RBAC/ABAC côté serveur ; agrégation read-only, mutation/réponse après sélection explicite d’un Tenant, réévaluation Security et Govern Decision Authority lorsque applicable |
 
 ## Règles
 

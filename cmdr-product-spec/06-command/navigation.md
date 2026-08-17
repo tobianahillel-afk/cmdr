@@ -25,7 +25,9 @@ Command est une destination produit du Global Header. Investigate, Govern et Stu
 | Work Queue | workspace | toujours si au moins Incident ou Task autorisé |
 | Risk and Coverage | module | projections disponibles ou Empty explicable |
 | Readiness and Operations | module | lecture readiness autorisée |
-| Customers and Delivery | module proposé | deployment profile + permission |
+| Customers and Delivery | module deployment-dependent | deployment profile + permission |
+
+La visibilité de Customers and Delivery n’accorde aucune autorité supplémentaire. Le changement de Tenant reste un changement explicite de contexte et ne constitue jamais un grant d’autorisation.
 
 ## Liens d’objet
 

@@ -11,7 +11,6 @@ requirements:
   - REQ-UX-008
   - REQ-UX-009
 open_decisions:
-  - OPEN-006
   - OPEN-010
 ---
 # Information architecture — Command
@@ -40,7 +39,7 @@ Global Header → Context Bar → navigation locale Command → workspace actif 
 |---|---|---|
 | exposure-and-coverage | Risk and Coverage | CMD-EXC-001 |
 | risk-and-business-impact | Risk and Coverage | CMD-RBI-001 |
-| customer-and-reports | Customers and Delivery proposé | CMD-CRP-001 |
+| customer-and-reports | Customers and Delivery — dépendant du déploiement | CMD-CRP-001 |
 
 Les fichiers d’écran ne sont pas réécrits en Phase 4A.
 

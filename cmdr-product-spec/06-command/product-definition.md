@@ -16,7 +16,6 @@ requirements:
   - REQ-UX-008
   - REQ-UX-009
 open_decisions:
-  - OPEN-006
   - OPEN-013
 ---
 # Product boundary and functional definition — Command

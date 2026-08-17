@@ -10,7 +10,6 @@ requirements:
   - REQ-UX-010
   - REQ-PROD-013
 open_decisions:
-  - OPEN-006
   - OPEN-010
 ---
 # Screen readiness and capability map — Command
@@ -26,7 +25,7 @@ open_decisions:
 | CMD-EXC-001 — Exposure & Coverage | CAP-CMD-202 | CAP-CMD-201, CAP-CMD-203 | legacy module path; canonical Risk and Coverage | Phase 6 migration |
 | CMD-RBI-001 — Risk & Business Impact | CAP-CMD-205 | CAP-CMD-201, CAP-CMD-203, CAP-CMD-204 | legacy module path; canonical Risk and Coverage | Phase 6 migration |
 | CMD-RDO-001 — Readiness & Operations | CAP-CMD-301 | CAP-CMD-302..305 | screen content later | Phase 6 |
-| CMD-CRP-001 — Customer & Reports | CAP-CMD-401 | — | module proposed; OPEN-006 | Phase 6 only if retained |
+| CMD-CRP-001 — Customer & Reports | CAP-CMD-401 | — | deployment-dependent Customers & Delivery context | Phase 6 |
 | Work Queue workspace — No active Screen ID | CAP-CMD-101 | CAP-CMD-102..110 | six views, no page file | Phase 6 screen/workspace contract |
 
 ## Phase 4A disposition

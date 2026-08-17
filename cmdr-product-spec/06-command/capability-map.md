@@ -16,7 +16,6 @@ requirements:
   - REQ-UX-008
   - REQ-UX-009
 open_decisions:
-  - OPEN-006
   - OPEN-010
   - OPEN-013
 ---
@@ -64,12 +63,12 @@ See `../18-roadmap-and-releases/phase-numbering-and-namespace-convention.md`.
 | CAP-CMD-303 | Improvement Actions | Readiness and Operations | defined | planned | `modules/readiness-and-operations/capabilities/improvement-actions.md` |
 | CAP-CMD-304 | Operational Plans | Readiness and Operations | defined | planned | `modules/readiness-and-operations/capabilities/operational-plans.md` |
 | CAP-CMD-305 | Capability Readiness | Readiness and Operations | defined | planned | `modules/readiness-and-operations/capabilities/capability-readiness.md` |
-| CAP-CMD-401 | Customers and Delivery Context | Customers and Delivery | proposed | planned | `modules/customers-and-delivery/capabilities/customers-and-delivery-context.md` |
+| CAP-CMD-401 | Customers and Delivery Context | Customers and Delivery | defined | planned | `modules/customers-and-delivery/capabilities/customers-and-delivery-context.md` |
 
 ## Comptage
 
 - 27 Capability IDs canoniques Command ;
-- 26 `defined` et 1 `proposed` ;
+- 27 `defined` et 0 `proposed` ;
 - 27 `delivery_mode: planned` ;
 - cible native pour les 26 capabilities cœur ;
 - Customers and Delivery deployment-dependent.

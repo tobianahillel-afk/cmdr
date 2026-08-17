@@ -77,7 +77,7 @@ requirements:
 | CAP-CMD-105 | CAP-CMD-110 | functional | visible Partial/blocked; no silent fallback |
 | CAP-CMD-105 | Notification Center | functional | visible Partial/blocked; no silent fallback |
 | CAP-CMD-105 | Metrics Engine | functional | visible Partial/blocked; no silent fallback |
-| CAP-CMD-105 | OPEN-006 for contractual SLA | functional | visible Partial/blocked; no silent fallback |
+| CAP-CMD-105 | ADR-0008 / deployment SLA source / CAP-CMD-401 | functional | source-backed contractual SLA context; no silent fallback |
 | CAP-CMD-106 | CAP-CMD-102 | functional | visible Partial/blocked; no silent fallback |
 | CAP-CMD-106 | CAP-CMD-104 | functional | visible Partial/blocked; no silent fallback |
 | CAP-CMD-106 | CAP-CMD-107 | functional | visible Partial/blocked; no silent fallback |
@@ -168,10 +168,13 @@ requirements:
 | CAP-CMD-305 | Platform Health | functional | visible Partial/blocked; no silent fallback |
 | CAP-CMD-305 | Studio Assurance | functional | visible Partial/blocked; no silent fallback |
 | CAP-CMD-305 | Metrics Engine | functional | visible Partial/blocked; no silent fallback |
-| CAP-CMD-401 | OPEN-006 | functional | visible Partial/blocked; no silent fallback |
-| CAP-CMD-401 | Reporting Engine | functional | visible Partial/blocked; no silent fallback |
+| CAP-CMD-401 | ADR-0008 / deployment customer-contract source | functional | source-backed deployment context; no silent fallback |
+| CAP-CMD-401 | Security Tenant isolation / Authorized Tenant Set | functional | authorized read-only aggregation; explicit single-Tenant context before mutation/response |
+| CAP-CMD-401 | Govern Decision Authority | functional | required after explicit single-Tenant selection where response is applicable |
+| CAP-CMD-401 | Shared Global Search | functional | initial scope is one selected Tenant; no silent widening |
+| CAP-CMD-401 | Reporting Engine | functional | initial report scope is single-Tenant; no silent widening |
 | CAP-CMD-401 | Metrics Engine | functional | visible Partial/blocked; no silent fallback |
-| CAP-CMD-401 | Export Engine | functional | visible Partial/blocked; no silent fallback |
+| CAP-CMD-401 | Export Engine | functional | single-Tenant export must not widen visibility |
 | CAP-CMD-401 | Business Service Catalog | functional | visible Partial/blocked; no silent fallback |
 | CAP-CMD-401 | CAP-CMD-105 | functional | visible Partial/blocked; no silent fallback |
 | CAP-CMD-401 | CAP-CMD-303 | functional | visible Partial/blocked; no silent fallback |

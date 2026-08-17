@@ -16,7 +16,6 @@ requirements:
   - REQ-UX-008
   - REQ-UX-009
 open_decisions:
-  - OPEN-006
   - OPEN-010
   - OPEN-013
 ---
@@ -51,7 +50,7 @@ Command coordonne la situation opérationnelle, Incidents, Tasks, priorité, own
 | Incidents and Work Queue | file unique, assignment, SLA et coordination Incident/Task | `modules/incidents-and-work-queue/README.md` |
 | Risk and Coverage | service, exposure, coverage, impact et contexte de risque | `modules/risk-and-coverage/README.md` |
 | Readiness and Operations | readiness, exercices, plans et improvement Tasks | `modules/readiness-and-operations/README.md` |
-| Customers and Delivery | proposition deployment-dependent | `modules/customers-and-delivery/README.md` |
+| Customers and Delivery | contexte deployment-dependent | `modules/customers-and-delivery/README.md` |
 
 Les anciens modules `exposure-and-coverage`, `risk-and-business-impact` et `customer-and-reports` deviennent des points de migration documentaires. Leurs écrans actifs restent inchangés jusqu’à la phase écrans et sont reliés par `screen-capability-map.md`.
 
@@ -65,7 +64,7 @@ L’IA est facultative. Elle peut résumer, proposer une priorité, une affectat
 
 ## Delivery
 
-Les specifications fonctionnelles Phase 4A sont `defined`, mais leur mode courant est `planned` tant qu’aucun logiciel, API ou runtime n’est prouvé. Customers and Delivery est `proposed`.
+Les 27 capabilities Command sont `defined` au niveau product-spec et leur mode courant est `planned` tant qu’aucun logiciel, API ou runtime n’est prouvé. Customers and Delivery est deployment-dependent ; sa définition documentaire n’implique aucune disponibilité runtime.
 
 ## Sources de Phase 4A
 
