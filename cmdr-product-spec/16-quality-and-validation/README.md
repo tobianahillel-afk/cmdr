@@ -313,3 +313,30 @@ The frozen quality model is **79 gates = 33 local/source/structural + 46 remote/
 The owner sources for Privacy & Minimization, Data Residency, Legal Hold, Settings Retention and Data Retention Contract remain `draft` with their existing owners, canonical source-of-truth status and open questions unchanged. Documentary reconciliation does not claim legal compliance, regulatory applicability, framework conformance, certification, attestation, runtime implementation, control effectiveness or production readiness.
 
 `CAP-SET-015+` remains **UNALLOCATED / UNRESERVED**. Localization remains closed at **L5 / 197/197 PASS**. Advanced Integrations remains closed at **ADV-5 / 173/173 PASS**. Delivery Roadmap Phase 6 remains **PARTIAL**.
+
+---
+
+## CURRENT Phase 6 global documentary closure evidence
+
+This section is the current Quality synthesis for the Phase-6 closure publication and supersedes current-looking Phase-6 `PARTIAL` statements in this file once the required post-publication verification is complete. All preceding execution/BUILD sections remain historical evidence at their recorded points.
+
+New global closure records:
+- `quality-index-platform-scale-global-closure.md`;
+- `validation-status-platform-scale-global-closure.md`.
+
+Accepted closure baseline: `2522974ab996f7472b91ce9a682626cac19e4147`.
+
+Accepted closure audit: **A–O = 15 PASS / 0 FAIL**, Criterion I/L/N **PASS/PASS/PASS**, PRODUCT-SPEC GAP **NONE**, disposition **P6-CLOSE-2 — READY WITH NON-BLOCKING IMPLEMENTATION RESIDUALS**.
+
+Frozen global closure quality model: **105 gates = 57 local/source/structural + 48 remote/publication**. BUILD state is **57 PASS / 48 PENDING-REMOTE / 0 FAIL**. The Phase-6 PASS state becomes effective only after the exact BUILD is remotely verified and the two-file Quality-only FINAL is published and re-read.
+
+Prepared final current projection:
+- Delivery Roadmap Phase 5: **PASS — capability specification complete**;
+- Delivery Roadmap Phase 6: **PASS — PRODUCT-SPEC / DOCUMENTARY CLOSURE**, publication-verification dependent;
+- Global Capability Specification: **PASS — DOCUMENTARY CAPABILITY-SPECIFICATION COMPLETE**, same condition;
+- Repository global maturity: **PARTIAL**;
+- Phase 7: **NOT STARTED**.
+
+Frozen denominator remains **498 / 497 defined / 1 proposed / 498 planned**, **13,446 / 2,988**, Settings **14/378/84**, Requirements **122 = 99/20/3/0**, OPEN **17**, Screens **56**, `CAP-SET-015+` **UNALLOCATED / UNRESERVED**.
+
+Quality PASS is not runtime PASS, legal compliance, external certification, attestation or production readiness. No capability, object, permission, screen, Requirement, OPEN, ADR, DEP ID or dependency semantic change is introduced by this closure.

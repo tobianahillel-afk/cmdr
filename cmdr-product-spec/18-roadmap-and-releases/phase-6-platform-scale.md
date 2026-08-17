@@ -529,3 +529,41 @@ Quality evidence is staged in `../16-quality-and-validation/validation-status-pl
 Product-spec roadmap closure is distinct from runtime implementation, legal compliance, regulatory applicability, certification, attestation and production readiness. No external framework, law, jurisdiction or certification is asserted by this reconciliation.
 
 Localization remains **L5 / 197/197 PASS**. Advanced Integrations remains **ADV-5 / 173/173 PASS**. Delivery Roadmap Phase 6 remains **PARTIAL**.
+
+---
+
+## CURRENT global closure — Phase 6 documentary publication
+
+This section supersedes earlier current-looking Phase-6 `PARTIAL` statements after the required global post-publication verification is complete. Every ten-concern execution history and denominator above remains preserved exactly as its historical evidence.
+
+### Accepted final audit
+- zero-mutation audit baseline: `2522974ab996f7472b91ce9a682626cac19e4147`;
+- A–O: **15 PASS / 0 FAIL**;
+- Criterion I: **PASS**;
+- Criterion L: **PASS**;
+- Criterion N: **PASS**;
+- disposition: **P6-CLOSE-2 — READY WITH NON-BLOCKING IMPLEMENTATION RESIDUALS**;
+- PRODUCT-SPEC GAP: **NONE**.
+
+### Ten concern dispositions
+- Tenant / Environment / Administrative Foundations: **160/160 PASS**;
+- Identity Administration: **174/174 PASS**;
+- Secrets & Connections: **172/172 PASS**;
+- Models & Providers: **204/204 PASS**;
+- Sources & Parsers: **316/316 PASS**;
+- Customers / MSSP / Delivery: **51/51 PASS**;
+- SLO / Health / Resilience: **48/48 architecture PASS + CAP-SET-014 142/142 PASS**;
+- Localization: **L5 — 197/197 PASS**;
+- Advanced Integrations: **ADV-5 — 173/173 PASS**;
+- Compliance: **COMP-5 — 79/79 PASS**.
+
+### Prepared effective state after required post-publication verification
+- Delivery Roadmap Phase 5 — Studio and Endpoint: **PASS — capability specification complete**;
+- Delivery Roadmap Phase 6 — Platform Scale: **PASS — PRODUCT-SPEC / DOCUMENTARY CLOSURE**;
+- Global Capability Specification: **PASS — DOCUMENTARY CAPABILITY-SPECIFICATION COMPLETE**;
+- Repository global maturity: **PARTIAL**;
+- Phase 7: **NOT STARTED**.
+
+Frozen current denominator remains **498 capabilities / 497 defined / 1 proposed / 498 planned**, **13,446 sections / 2,988 mandatory tables**, Settings **14/378/84**, Requirements **122 = 99/20/3/0**, OPEN **17**, active Screens **56**, and `CAP-SET-015+` **UNALLOCATED / UNRESERVED**.
+
+No historical concern denominator is rewritten. No capability, object, permission, screen, Requirement, RTM semantic, OPEN, ADR, dependency, ownership or implementation contract source semantic is changed by this closure. This closure does not establish implementation completeness, runtime availability, production readiness, deployment, legal compliance, regulatory applicability, certification, attestation or external assurance.

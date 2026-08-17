@@ -72,3 +72,21 @@ Delivery Roadmap Phase 6 remains **PARTIAL**. This synthesis does not close Phas
 
 ## Implementation boundary / stop line
 Documentary PASS proves capability-specification completeness only. It does not prove implementation complete, production readiness, deployment or operational/runtime validation. Repository/global maturity remains **PARTIAL**.
+
+---
+
+## CURRENT roadmap projection — Phase 6 documentary closure publication
+
+This section supersedes the earlier current-looking Phase-6 `PARTIAL` projection in this file once the required post-publication verification recorded by the Phase-6 global Quality records is complete. Earlier Phase-6 `PARTIAL` statements above are retained as the exact pre-closure snapshot.
+
+- Delivery Roadmap Phase 5 — Studio and Endpoint: **PASS — capability specification complete**.
+- Delivery Roadmap Phase 6 — Platform Scale: **PASS — PRODUCT-SPEC / DOCUMENTARY CLOSURE**, effective only after required post-publication verification.
+- Global Capability Specification: **PASS — documentary capability-specification complete**, effective under the same verification condition.
+- Repository/global implementation maturity: **PARTIAL**.
+- Phase 7: **NOT STARTED**.
+
+Closure disposition: **P6-CLOSE-2 — READY WITH NON-BLOCKING IMPLEMENTATION RESIDUALS**. PRODUCT-SPEC GAP: **NONE**.
+
+Frozen current denominator remains **498 capabilities / 497 defined / 1 proposed / 498 planned**, **13,446 sections / 2,988 mandatory tables**, Requirements **122 = 99/20/3/0**, OPEN **17**, Screens **56**, Settings **14/378/84**, and `CAP-SET-015+` **UNALLOCATED / UNRESERVED**.
+
+This closure is documentary/product-spec only. It does not establish implementation completeness, production readiness, deployment, runtime validation, legal compliance, certification or external assurance. No Phase 6A/6B, Phase 7, new roadmap phase or new execution lot is created here.

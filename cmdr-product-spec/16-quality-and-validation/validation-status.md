@@ -87,3 +87,37 @@ GOV-1/GOV-2 historical ranges and gate evidence, Command 27 and its historical 2
 At the Govern closure point, Delivery Roadmap Phase 5 — Studio and Endpoint was only the verified next candidate and was not started. That statement is historical; the CURRENT projection above now records Phase 5 **PASS — capability specification complete** and Phase 6 **PARTIAL**.
 
 No audit/metrics engine, API/protocol, warehouse/storage schema, final RBAC/retention policy, detailed screen, product implementation or external compliance claim is delivered by these documentary verdicts.
+
+---
+
+## CURRENT global validation projection — Phase 6 documentary closure publication
+
+This section supersedes the earlier `CURRENT global validation projection` after the required Phase-6 post-publication verification is recorded. The earlier projection remains the exact pre-closure snapshot.
+
+| Scope | Prepared post-closure documentary verdict | Evidence |
+|---|---|---|
+| Phase 4A Command | **PASS** | 27 / 729 / 162; 27 defined / 0 proposed / 27 planned |
+| Phase 4B Investigate | **PASS** | 243 / 6561 / 1458 |
+| Govern capability specification | **PASS** | 47 / 1269 / 282 |
+| Studio capability specification | **PASS** | 68 / 1836 / 408 |
+| Endpoint capability specification | **PASS** | 99 / 2673 / 594; EPT-6 current 240/240 |
+| Delivery Roadmap Phase 4 — Govern | **PASS** | historical closure evidence preserved |
+| Delivery Roadmap Phase 5 — Studio and Endpoint | **PASS — capability specification complete** | Studio + Endpoint documentary closure |
+| Delivery Roadmap Phase 6 — Platform Scale | **PASS — PRODUCT-SPEC / DOCUMENTARY CLOSURE** | effective only after required post-publication verification in the global closure Quality records |
+| Global Capability Specification maturity | **PASS — DOCUMENTARY CAPABILITY-SPECIFICATION COMPLETE** | same verification condition |
+| Repository global maturity | **PARTIAL** | implementation/runtime/provider/deployment/legal/future-roadmap residuals remain |
+
+### Frozen current denominator
+- capabilities: **498**;
+- delivery: **497 defined / 1 proposed / 498 planned**;
+- only proposed: `CAP-INV-106`;
+- structure: **13446 / 2988**;
+- Settings: **14 / 378 / 84**;
+- Requirements: **122 = 99 / 20 / 3 / 0**;
+- OPEN: **17**;
+- active Screens: **56**;
+- `CAP-SET-015+`: **UNALLOCATED / UNRESERVED**.
+
+Closure disposition: **P6-CLOSE-2**. PRODUCT-SPEC GAP: **NONE**. Phase 7: **NOT STARTED**.
+
+This is a documentary/product-spec closure only. It does not establish implementation completeness, production readiness, deployment, runtime validation, legal compliance, certification or external assurance.

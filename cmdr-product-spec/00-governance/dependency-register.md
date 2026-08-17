@@ -129,3 +129,24 @@ Seventeen decisions are open. `OPEN-006` is resolved by ADR-0008. OPEN-007 remai
 
 ## Studio STD-4 canonical dependency addendum
 The ten `DEP-STD4-*` rows above are canonical functional/documentary dependencies for STD-4. They do not declare an implementation, close any OPEN, create an Endpoint capability or transfer Govern/Settings/Shared/Endpoint ownership.
+
+---
+
+## CURRENT Phase 6 documentary closure projection
+
+This status-only projection supersedes the current-looking Phase-6 `PARTIAL` sentence above after the required post-publication verification is complete. All dependency rows, IDs, edges, relation types, owners, Requirement/OPEN/ADR references and dependency semantics above remain unchanged.
+
+- audited closure baseline: `2522974ab996f7472b91ce9a682626cac19e4147`;
+- A–O closure audit: **15 PASS / 0 FAIL**;
+- Criterion I / L / N: **PASS / PASS / PASS**;
+- disposition: **P6-CLOSE-2 — READY WITH NON-BLOCKING IMPLEMENTATION RESIDUALS**;
+- PRODUCT-SPEC GAP: **NONE**;
+- Delivery Roadmap Phase 5: **PASS — capability specification complete**;
+- Delivery Roadmap Phase 6: **PASS — PRODUCT-SPEC / DOCUMENTARY CLOSURE**, effective only after the required global post-publication verification;
+- Global Capability Specification: **PASS — DOCUMENTARY CAPABILITY-SPECIFICATION COMPLETE**, under the same verification condition;
+- Repository global maturity: **PARTIAL**;
+- Phase 7: **NOT STARTED**.
+
+Frozen current denominator remains **498 / 497 defined / 1 proposed / 498 planned**, **13,446 / 2,988**, Settings **14/378/84**, Requirements **122 = 99/20/3/0**, OPEN **17**, Screens **56**, with `CAP-SET-015+` **UNALLOCATED / UNRESERVED**.
+
+This addendum changes status projection only. It creates no DEP row, deletes or renumbers no DEP row, changes no dependency meaning, transfers no ownership, closes no OPEN, and does not alter CAP-CMD-401, MSSP, SLO or Compliance semantics.

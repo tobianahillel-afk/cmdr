@@ -328,3 +328,46 @@ No execution-lot label is converted into a roadmap subphase. This status creates
 
 ### Current maturity boundary
 Documentary PASS remains distinct from implementation/runtime state. This current synthesis does not claim implementation complete, production ready, deployed or runtime verified. Delivery Roadmap Phase 6 remains **PARTIAL**, repository/global maturity remains **PARTIAL**, and Phase 7 is not started.
+
+---
+
+## CURRENT synthesis — Phase 6 documentary closure publication
+
+This section supersedes the immediately preceding `CURRENT synthesis` after the required post-publication verification is completed. Every earlier execution section remains historical evidence.
+
+### Current capability specification status
+- Command: **PASS — 27 capabilities / 729 sections / 162 tables; 27 defined / 0 proposed / 27 planned**.
+- Investigate: **PASS — 243 / 6561 / 1458**.
+- Govern: **PASS — 47 / 1269 / 282**.
+- Studio: **PASS — 68 / 1836 / 408**.
+- Endpoint: **PASS — 99 / 2673 / 594**; EPT-6 current **240/240 PASS** and historical BUILD **233/240 + 7 PENDING-REMOTE** remains preserved.
+- Global Capability Specification maturity: **PASS — DOCUMENTARY CAPABILITY-SPECIFICATION COMPLETE**, effective only after required Phase-6 post-publication verification.
+
+### Current Delivery Roadmap status
+- Delivery Roadmap Phase 4 — Govern: **PASS**.
+- Delivery Roadmap Phase 5 — Studio and Endpoint: **PASS — CAPABILITY SPECIFICATION COMPLETE**.
+- Delivery Roadmap Phase 6 — Platform Scale: **PASS — PRODUCT-SPEC / DOCUMENTARY CLOSURE**, effective only after required post-publication verification.
+- Repository global maturity: **PARTIAL**.
+
+### Frozen current denominator
+- capabilities: **498**;
+- defined / proposed / planned: **497 / 1 / 498**;
+- only proposed capability: `CAP-INV-106`;
+- structural total: **13446 / 2988**;
+- Platform Settings: **14 / 378 / 84**;
+- Requirements: **122 = 99 / 20 / 3 / 0**;
+- OPEN: **17**;
+- active Screens: **56**;
+- `CAP-SET-015+`: **UNALLOCATED / UNRESERVED**.
+
+### Closure disposition and maturity boundary
+- disposition: **P6-CLOSE-2 — READY WITH NON-BLOCKING IMPLEMENTATION RESIDUALS**;
+- PRODUCT-SPEC GAP: **NONE**;
+- implementation/runtime residuals: preserved;
+- provider/vendor residuals: preserved;
+- customer/deployment residuals: preserved;
+- legal/human residuals: preserved;
+- future-roadmap residuals: preserved;
+- Phase 7: **NOT STARTED**.
+
+Documentary PASS does not establish implementation completeness, production readiness, deployment, runtime effectiveness, legal compliance, regulatory applicability, certification, attestation or external assurance.
