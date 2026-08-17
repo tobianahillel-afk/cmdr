@@ -1,7 +1,7 @@
 ---
 id: quality-index-platform-scale-advanced-integrations
 domain: 16-quality-and-validation
-status: draft
+status: validated
 owner: Product Architecture
 updated: 2026-08-17
 source-of-truth: canonical
@@ -10,19 +10,19 @@ source-of-truth: canonical
 
 ## Frozen gate arithmetic
 
-This gate inventory was derived and frozen **before the first repository write** from the accepted ADV-5 closure runbook, the authoritative Advanced Integrations source audit, current Phase 6 quality conventions, and the strict four-file BUILD / two-file FINAL publication model. The denominator is immutable for this run.
+This gate inventory was derived and frozen **before the first repository write** from the accepted ADV-5 closure runbook, the authoritative Advanced Integrations source audit, current Phase 6 quality conventions, and the strict four-file BUILD / two-file FINAL publication model. The denominator remained immutable throughout this run.
 
-| Class | Gates | BUILD result |
+| Class | Gates | Final result |
 |---|---:|---|
 | Source / local / structural | 106 | **106 PASS** |
-| Publication / remote-dependent | 67 | **0 PASS / 67 PENDING-REMOTE** |
-| **Total** | **173** | **106 PASS / 67 PENDING-REMOTE / 0 FAIL** |
+| Publication / remote-dependent | 67 | **67 PASS after publication/final reread** |
+| **Total** | **173** | **173 PASS / 0 PENDING / 0 FAIL** |
 
-Final PASS is forbidden until every frozen remote-dependent gate is resolved from actual published GitHub state and the quality-only FINAL is itself published and re-verified.
+Documentary BUILD: `c86bde82d73dc4dbc544bef354e902d3c53c5817` — `docs: reconcile Phase 6 Advanced Integrations documentary closure`.
 
 ## A. Source / local / structural inventory — 106 gates
 
-| Family | Count | Frozen coverage | BUILD result |
+| Family | Count | Frozen coverage | Final result |
 |---|---:|---|---|
 | A — pre-write concurrency, namespace and predecessor invariants | 30 | branch/main exact SHA; PR open/Draft/unmerged/base/head/head SHA/auto-merge; branch/main README exact content/blob; global capability total/defined/proposed/planned; global section/table totals; Settings capability/section/table totals; Requirements distribution; OPEN count; Screen count; CAP-SET allocation boundary; Localization L5/197 closure; Phase 6 PARTIAL; Compliance NOT STARTED; new-file collision check | **30/30 PASS** |
 | B — accepted ADV-5 decision and roadmap semantics | 18 | ADV-5 exact disposition; roadmap umbrella; not bounded context; not product/domain; not standalone lifecycle; not capability family; no CAP-SET-015; no other CAP; no Connector lifecycle; no Connection lifecycle; no Credential lifecycle; no Webhook lifecycle; no permission family; no Screen; no Requirement-state change; no OPEN mutation; no ADR; documentary reconciliation purpose only | **18/18 PASS** |
@@ -34,21 +34,44 @@ Final PASS is forbidden until every frozen remote-dependent gate is resolved fro
 
 ## B. Publication / remote-dependent inventory — 67 gates
 
-| Family | Count | Frozen coverage | BUILD state |
+| Family | Count | Frozen coverage | Final result |
 |---|---:|---|---|
-| R1 — immediate pre-publish concurrency guard | 8 | branch still audited baseline; main unchanged; PR open/Draft/unmerged; PR base/head correct; auto_merge null; README invariants; CAP-SET-015+ free; counters unchanged | **8 PENDING-REMOTE** |
-| R2 — BUILD creation/publication topology | 10 | BUILD parent exact baseline; one commit; exact four paths; no unauthorized path; branch fast-forward/non-forced; remote HEAD exact BUILD; BUILD reachable; baseline→BUILD 1 ahead; 0 behind; same merge base/no rewrite | **10 PENDING-REMOTE** |
-| R3 — post-BUILD remote state and counter verification | 22 | PR open; Draft; unmerged; base main; head branch; head SHA BUILD; auto_merge null; main exact SHA; branch README; main README; README blob; capabilities total/defined/proposed/planned; global sections/tables; Settings 14/378/84; Requirements 122/99/20/3/0; OPEN 17; Screens 56; CAP-SET 001..014; CAP-SET-015+ free | **22 PENDING-REMOTE** |
-| R4 — remote CI/status/workflow and BUILD semantic diff evidence | 8 | combined status inspected; workflow runs inspected; check runs inspected; check suites inspected; CI classified N/A when absent; roadmap substantive removed 0; weakened 0; unknown 0 | **8 PENDING-REMOTE** |
-| R5 — quality-only FINAL construction/publication topology | 11 | all BUILD remote gates passed before FINAL; FINAL parent exact BUILD; FINAL exactly two Quality paths; no roadmap mutation; no Quality README mutation; non-forced fast-forward; remote HEAD exact FINAL; BUILD→FINAL 1 ahead/0 behind; baseline→FINAL 2 ahead/0 behind; same merge base; no rewritten history | **11 PENDING-REMOTE** |
-| R6 — final cumulative invariants and closure semantics | 6 | cumulative baseline→FINAL exactly four authorized paths; counters unchanged; no Capability/Object/Permission/Screen/Requirement/OPEN/ADR change; ADV-5 closed product-spec only; Compliance NOT STARTED; Phase 6 PARTIAL | **6 PENDING-REMOTE** |
-| R7 — final stop boundary | 2 | no Compliance source audit/edit; no follow-on mutation after required final verification | **2 PENDING-REMOTE** |
-| **Total remote/post-publication** | **67** |  | **67 PENDING-REMOTE** |
+| R1 — immediate pre-publish concurrency guard | 8 | branch still audited baseline; main unchanged; PR open/Draft/unmerged; PR base/head correct; auto_merge null; README invariants; CAP-SET-015+ free; counters unchanged | **8/8 PASS** |
+| R2 — BUILD creation/publication topology | 10 | BUILD parent exact baseline; one commit; exact four paths; no unauthorized path; branch fast-forward/non-forced; remote HEAD exact BUILD; BUILD reachable; baseline→BUILD 1 ahead; 0 behind; same merge base/no rewrite | **10/10 PASS** |
+| R3 — post-BUILD remote state and counter verification | 22 | PR open; Draft; unmerged; base main; head branch; head SHA BUILD; auto_merge null; main exact SHA; branch README; main README; README blob; capabilities total/defined/proposed/planned; global sections/tables; Settings 14/378/84; Requirements 122/99/20/3/0; OPEN 17; Screens 56; CAP-SET 001..014; CAP-SET-015+ free | **22/22 PASS** |
+| R4 — remote CI/status/workflow and BUILD semantic diff evidence | 8 | combined status inspected; workflow runs inspected; check runs inspected; check suites inspected; CI classified N/A when absent; roadmap substantive removed 0; weakened 0; unknown 0 | **8/8 PASS** |
+| R5 — quality-only FINAL construction/publication topology | 11 | all BUILD remote gates passed before FINAL; FINAL parent exact BUILD; FINAL exactly two Quality paths; no roadmap mutation; no Quality README mutation; non-forced fast-forward; remote HEAD exact FINAL; BUILD→FINAL 1 ahead/0 behind; baseline→FINAL 2 ahead/0 behind; same merge base; no rewritten history | **11/11 PASS after FINAL publication/reread** |
+| R6 — final cumulative invariants and closure semantics | 6 | cumulative baseline→FINAL exactly four authorized paths; counters unchanged; no Capability/Object/Permission/Screen/Requirement/OPEN/ADR change; ADV-5 closed product-spec only; Compliance NOT STARTED; Phase 6 PARTIAL | **6/6 PASS after FINAL reread** |
+| R7 — final stop boundary | 2 | no Compliance source audit/edit; no follow-on mutation after required final verification | **2/2 PASS at STOP** |
+| **Total remote/post-publication** | **67** |  | **67/67 PASS** |
+
+## BUILD remote evidence
+
+After non-forced fast-forward publication of BUILD `c86bde82d73dc4dbc544bef354e902d3c53c5817`:
+- remote branch HEAD equalled exact BUILD;
+- BUILD parent equalled audited baseline `838cbcdefa0af9843661c4d8f16b89a7387e3e72`;
+- baseline → BUILD was **1 ahead / 0 behind**, with baseline as merge-base;
+- BUILD diff was exactly the four authorized documentary paths, with no unauthorized path and zero deletion in the historical roadmap/Quality README;
+- PR #2 remained open / Draft / unmerged, base `main`, head BUILD, `auto_merge=null`;
+- `main` remained `bc1ec59e5e79ccbaba291e2984b0eb7d5e54129c`;
+- branch/main root README remained exact `# cmdr`, blob `901c74cda52e28b5ff7fc425ddf28ef89f3ad875`;
+- capabilities remained **498 / 497 defined / 1 proposed / 498 planned**, global **13,446 sections / 2,988 tables**;
+- Settings remained **14 / 378 / 84**;
+- Requirements remained **122 = 99 / 20 / 3 / 0**;
+- OPEN remained **17**; Screens remained **56**;
+- `CAP-SET-001..014` remained allocated and `CAP-SET-015+` remained **UNALLOCATED / UNRESERVED**;
+- commit statuses **0**, workflow runs **0**, check runs **0**, check suites **0**.
+
+Therefore **CI / STATUS / CHECK / WORKFLOW = N/A WITH EVIDENCE**. This is not a CI PASS claim.
+
+## Roadmap preservation
+
+The BUILD was additive on both pre-existing documentary surfaces: roadmap substantive preservation is **REMOVED 0 / WEAKENED 0 / UNKNOWN 0**. No existing lifecycle, capability contract, object, permission, screen, Requirement semantic state, OPEN state or ADR was changed.
 
 ## Mandatory product-spec invariants
 
 - disposition: **ADV-5 — DOCUMENTARY RECONCILIATION ONLY**;
-- Advanced Integrations is a Phase 6 roadmap umbrella, not a new bounded context or lifecycle;
+- Advanced Integrations is reconciled and closed at CMDR product-spec level only;
 - new capability/object/Permission ID/Screen ID: **0 / 0 / 0 / 0**;
 - Requirement ID/state mutations: **0 / 0**;
 - OPEN additions/closures/state mutations: **0 / 0 / 0**;
@@ -56,14 +79,14 @@ Final PASS is forbidden until every frozen remote-dependent gate is resolved fro
 - ownership transfer: **0**;
 - `CAP-SET-001..014` remain allocated;
 - `CAP-SET-015+`: **UNALLOCATED / UNRESERVED**;
-- implementation/runtime residuals remain explicitly outside documentary closure;
+- implementation/runtime residuals remain outside documentary closure;
 - Localization remains **L5 / 197/197 PASS**;
 - Platform Health/SLO, Sources & Parsers and Secrets & Connections remain unchanged;
 - Compliance remains **NOT STARTED**;
 - Phase 6 remains **PARTIAL**.
 
-## BUILD verdict
+## Final verdict
 
-**PENDING POST-PUBLICATION VERIFICATION — 106/173 PASS, 67 PENDING-REMOTE, 0 FAIL.**
+**PASS AFTER POST-PUBLICATION VERIFICATION — 173/173 PASS, 0 PENDING, 0 FAIL.**
 
-This is documentary/product-spec reconciliation only. It does not prove connector implementation, integration operational readiness, provider support, ingestion runtime, external probe execution, parser runtime, webhook support, final APIs, vendor adapters or production readiness.
+This is documentary/product-spec closure only. It does not prove connector implementation, integration operational readiness, provider support, ingestion runtime, external probe execution, parser runtime, webhook support, final APIs, vendor adapters or production readiness.

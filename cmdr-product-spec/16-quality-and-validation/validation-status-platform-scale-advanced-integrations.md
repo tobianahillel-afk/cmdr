@@ -1,7 +1,7 @@
 ---
 id: validation-status-platform-scale-advanced-integrations
 domain: 16-quality-and-validation
-status: draft
+status: validated
 owner: Product Architecture
 updated: 2026-08-17
 source-of-truth: canonical
@@ -14,23 +14,19 @@ This record reconciles only the **Advanced Integrations roadmap concern at CMDR 
 
 Audited execution baseline: `838cbcdefa0af9843661c4d8f16b89a7387e3e72` on `docs/cmdr-product-spec-foundation`.
 
+Documentary BUILD: `c86bde82d73dc4dbc544bef354e902d3c53c5817` — `docs: reconcile Phase 6 Advanced Integrations documentary closure`.
+
 Final source-audited disposition: **ADV-5 — DOCUMENTARY RECONCILIATION ONLY**.
 
-## Accepted product-spec interpretation
+## Final product-spec interpretation
 
 Advanced Integrations is a Phase 6 roadmap umbrella whose relevant product responsibilities are already distributed among canonical owners. It is not a new bounded context, product/domain, standalone lifecycle, capability family, Settings runtime engine, connector engine, ingestion engine, webhook platform, SOAR replacement, new Studio runtime or Govern bypass.
 
-Existing ownership remains distributed across Platform Settings, Studio, Govern, Shared, Endpoint, Command, Investigate, Security, Experience Architecture and Platform Architecture / Implementation Contracts.
+Existing ownership remains distributed across Platform Settings, Studio, Govern, Shared, Endpoint, Command, Investigate, Security, Experience Architecture and Platform Architecture / Implementation Contracts. No existing lifecycle is transferred.
 
-## Distributed ownership and mandatory boundaries
+Platform Settings retains administrative configuration/lifecycle for `Integration`, `Secret Reference`, `Model Provider`, `Data Source`, `Parser`, `Tenant`, `Environment` and administrative health/state projections. Studio retains Tool, Tool Call, Skill, Workflow, Automation Agent, Agent Team, Human Gate and Automation Run. Govern retains Action Request, Approval, Decision, Policy/authority evaluation, Response Run, verification and Result. Shared retains generic mechanisms. Endpoint retains authorized local technical execution. Command, Investigate and Security retain their existing semantics and authority.
 
-Platform Settings retains administrative configuration/lifecycle for `Integration`, `Secret Reference`, `Model Provider`, `Data Source`, `Parser`, `Tenant`, `Environment` and administrative health/state projections. That ownership does not make Settings the owner of connector engines, network clients, external probe executors, source acquisition/ingestion runtimes, provider SDK/runtime, parser plugin/runtime, external secret-manager execution, Studio execution or Govern authority.
-
-Studio retains Tool, Tool Call, Skill, Workflow, Automation Agent, Agent Team, Human Gate and Automation Run semantics. Mandatory distinctions remain `Tool != Integration`, `Tool Call != Integration lifecycle`, `Workflow != Connector`, `Automation Run != Response Run`, and `Human Gate != Govern Approval`.
-
-Govern retains Action Request, Approval, Decision, Policy/authority evaluation, Response Run, verification and Result. External consequential effects must not bypass Govern where Govern authority applies.
-
-Shared retains generic Jobs, Trace, Activity, Search, Notifications, Reporting, Export, Versioning, generic linking and generic delivery-support machinery. Endpoint retains authorized local technical execution. Command and Investigate retain their domain semantics. Security retains authorization/isolation/trust/secrets controls. No existing lifecycle is transferred.
+Mandatory distinctions remain `Tool != Integration`, `Tool Call != Integration lifecycle`, `Workflow != Connector`, `Automation Run != Response Run`, and `Human Gate != Govern Approval`.
 
 ## Implementation-only residuals
 
@@ -44,7 +40,7 @@ Relevant existing Requirements are documentary references only for this lot, inc
 
 Requirement IDs added: **0**. Requirement IDs removed: **0**. Requirement state changes: **0**. RTM semantic-state changes: **0**.
 
-Relevant existing OPEN dependencies include `OPEN-007`, `OPEN-008`, `OPEN-011`, `OPEN-012`, `OPEN-013`, `OPEN-015`, `OPEN-018` and `OPEN-019`. They remain open where currently open, may constrain future implementation/use cases, and do not block ADV-5 documentary closure.
+Relevant existing OPEN dependencies include `OPEN-007`, `OPEN-008`, `OPEN-011`, `OPEN-012`, `OPEN-013`, `OPEN-015`, `OPEN-018` and `OPEN-019`. They remain unchanged, may constrain future implementation/use cases, and do not block ADV-5 documentary closure.
 
 OPEN additions: **0**. OPEN closures: **0**. OPEN state mutations: **0**. ADR created: **0**.
 
@@ -60,41 +56,43 @@ OPEN additions: **0**. OPEN closures: **0**. OPEN state mutations: **0**. ADR cr
 - ownership transfer: **NO**;
 - functional specification mutation: **NO**.
 
+## BUILD publication and remote verification
+
+BUILD `c86bde82d73dc4dbc544bef354e902d3c53c5817` was published by normal non-forced fast-forward from audited baseline `838cbcdefa0af9843661c4d8f16b89a7387e3e72`.
+
+Verified against actual GitHub state after BUILD publication:
+- remote branch HEAD = exact BUILD;
+- BUILD parent = exact audited baseline;
+- baseline → BUILD = **1 ahead / 0 behind**, same merge-base;
+- changed paths = exactly the **4 authorized documentary surfaces**, with no unauthorized path;
+- historical roadmap and Quality README changes were additive with zero deletions;
+- PR #2 remained open / Draft / unmerged, base `main`, head BUILD, `auto_merge=null`;
+- `main` remained `bc1ec59e5e79ccbaba291e2984b0eb7d5e54129c`;
+- branch/main root README remained exact `# cmdr` with blob `901c74cda52e28b5ff7fc425ddf28ef89f3ad875`;
+- capabilities remained **498 total / 497 defined / 1 proposed / 498 planned**;
+- global structure remained **13,446 numbered sections / 2,988 mandatory tables**;
+- Platform Settings remained **14 capabilities / 378 sections / 84 mandatory tables**;
+- Requirements remained **122 = 99 conform / 20 partial / 3 absent / 0 contradictory**;
+- OPEN remained **17**;
+- active Screens remained **56**;
+- `CAP-SET-001..014` remained allocated and `CAP-SET-015+` remained **UNALLOCATED / UNRESERVED**;
+- statuses = **0**, workflow runs = **0**, check runs = **0**, check suites = **0**; therefore **CI / STATUS / CHECK / WORKFLOW = N/A WITH EVIDENCE**, not CI PASS.
+
 ## Predecessor and non-regression state
 
-The audited predecessor remains:
-- global capabilities: **498 total / 497 defined / 1 proposed / 498 planned**;
-- global structure: **13,446 numbered sections / 2,988 mandatory tables**;
-- Platform Settings: **14 capabilities / 378 sections / 84 mandatory tables**;
-- Requirements: **122 = 99 conform / 20 partial / 3 absent / 0 contradictory**;
-- OPEN: **17**;
-- Screens: **56 active**;
-- `CAP-SET-001..014` allocated; `CAP-SET-015+` unallocated/unreserved;
-- Localization: **L5 — CLOSED AT PRODUCT-SPEC LEVEL — 197/197 PASS**;
-- Phase 6: **PARTIAL**;
-- Compliance: **NOT STARTED**.
+Localization remains **L5 — CLOSED AT PRODUCT-SPEC LEVEL — 197/197 PASS**. Platform Health/SLO, Sources & Parsers, Secrets & Connections and all completed Command/Investigate/Govern/Studio/Endpoint predecessor states remain unchanged. Compliance remains **NOT STARTED**. Delivery Roadmap Phase 6 remains **PARTIAL**.
 
-Platform Health/SLO, Sources & Parsers, Secrets & Connections and all completed Command/Investigate/Govern/Studio/Endpoint predecessor states remain unchanged.
+Roadmap substantive preservation is **REMOVED 0 / WEAKENED 0 / UNKNOWN 0**.
 
-## Roadmap reconciliation
+## Frozen quality model — final closure
 
-The roadmap records Advanced Integrations as **documentarily reconciled / closed at product-spec level under ADV-5** while distinguishing that status from runtime implementation, provider availability, connector implementation and integration operational readiness.
+The deterministic quality inventory was frozen before first write at exactly **173 gates = 106 source/local + 67 publication/remote-dependent** and was not changed after BUILD.
 
-Compliance remains **NOT STARTED**. Delivery Roadmap Phase 6 remains **PARTIAL**.
-
-## Frozen quality model — BUILD state
-
-The deterministic quality inventory was frozen before first write at exactly **173 gates = 106 source/local + 67 publication/remote-dependent**.
-
-BUILD-state target:
+Final documentary target/result after quality-only FINAL publication and required remote reread:
 - source/local: **106/106 PASS**;
-- publication/remote-dependent: **0/67 PASS / 67 PENDING-REMOTE**;
-- total: **106/173 PASS, 67 PENDING-REMOTE, 0 FAIL**.
+- publication/remote-dependent: **67/67 PASS**;
+- total: **173/173 PASS, 0 PENDING, 0 FAIL**.
 
-Final `173/173 PASS` is forbidden until actual BUILD publication, remote branch/PR/main/README/topology/counter verification, CI/status/workflow applicability inspection, quality-only FINAL publication and final remote reread are complete.
+Final documentary verdict: **PASS AFTER POST-PUBLICATION VERIFICATION — 173/173 PASS, 0 PENDING, 0 FAIL**.
 
-## BUILD verdict
-
-**PENDING POST-PUBLICATION VERIFICATION — 106/173 PASS, 67 PENDING-REMOTE, 0 FAIL.**
-
-Documentary closure is not runtime implementation.
+Advanced Integrations is reconciled and closed at CMDR product-spec level under ADV-5. Documentary closure is not runtime implementation.
