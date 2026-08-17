@@ -1,0 +1,342 @@
+---
+id: quality-readme
+domain: 16-quality-and-validation
+status: draft
+owner: Quality Lead
+updated: 2026-08-11
+source-of-truth: canonical
+---
+# Quality and Validation
+
+Quality records evidence and verification stages; it does not own product behavior, technology choices or implementation.
+
+## Active capability evidence
+- Command revalidation — historical PASS 60/60.
+- Investigate closure — PASS.
+- Govern GOV-1 — historical 180/180 PASS.
+- Govern GOV-2 — historical 190/190 PASS.
+- **Govern GOV-3:** `reports/govern-gov3-audit-metrics-closure-capability-conformance.md` — **PASS AFTER POST-PUBLICATION VERIFICATION, 200/200**.
+- **Govern full capability closure:** `reports/govern-capability-specification-closure.md` — **PASS**.
+- **Delivery Roadmap Phase 4 Govern closure:** `reports/delivery-roadmap-phase-4-govern-closure.md` — **PASS**.
+
+## Verified GOV-3 evidence
+- baseline: `36edacb4eb374e0b56d6c9e9c45931fdb1e0af20`;
+- fifth functional SHA: `042f70d3cfd13467acc294bfff726edde9e16cb0`;
+- baseline → fifth SHA: 5 ahead / 0 behind, same merge base;
+- PR #2 open/Draft/unmerged; repository public; auto-merge disabled;
+- README branch/main exact `# cmdr`, `main` unchanged;
+- CI/status: N/A on fifth functional SHA;
+- CAP-GOV-034..047: **14 / 378 sections / 84 tables**;
+- duplicate/recycled IDs, owner conflicts, empty/generic tables: **0**;
+- new Screen IDs/detailed rewrites: **0 / 0**;
+- new/closed OPEN: **0 / 0**.
+
+## Final totals
+- global capabilities: **317**;
+- Command / Investigate / Govern: **27 / 243 / 47**;
+- defined / proposed / planned: **315 / 2 / 317**;
+- Govern: **47 / 1269 / 282**;
+- total sections/tables: **8559 / 1902**;
+- Requirements: **122 = 99/20/3/0**;
+- OPEN: **18**.
+
+## Non-regression verified
+GOV-1 16/432/96/180, GOV-2 17/459/102/190, Command 27/26+1/five Requirements ranges/DEP-CMD-001..010 and Investigate 243/PASS remain intact. Canonical Requirements Matrix and historical Dependency Register remain preserved; GOV-3 traceability is additive.
+
+## Boundary
+GOV-3 introduces no audit/metrics engine, API/protocol, warehouse/storage schema, final RBAC/retention policy, detailed screen rewrite, raw secret, product code or external compliance claim. Documentary PASS never means implemented software. Delivery Roadmap Phase 5 is identified only and not started.
+
+---
+
+## Studio programme evidence — current addendum
+The GOV-3 section above is preserved as the exact pre-Studio quality snapshot. Its statement that Phase 5 was “not started” is historical evidence only.
+
+### Studio STD-1
+- `reports/studio-std1-tools-skills-library-foundations-capability-conformance.md` — **PASS AFTER POST-PUBLICATION VERIFICATION — 190/190**;
+- `CAP-STD-001..016`: 16 / 432 / 96.
+
+### Studio STD-2
+- source audit: `reports/studio-std2-source-audit.md`;
+- conformance build-time: `reports/studio-std2-workflow-builder-orchestration-capability-conformance.md`;
+- post-publication companion: `reports/studio-std2-workflow-builder-orchestration-post-publication-verification.md`;
+- validation status: `validation-status-studio-std2.md`;
+- `CAP-STD-017..033`: **17 / 459 / 102**;
+- build-time historical gate state: **191 PASS / 9 PENDING / 0 FAIL**;
+- post-publication verdict: **PASS AFTER POST-PUBLICATION VERIFICATION — 200/200**;
+- baseline: `04dcdb43fd7f944a700bf936eebef003546095eb`;
+- fifth functional/build SHA: `655e9ce0ade2d64a7738a6a479572fef9b6f0e2f`;
+- baseline → fifth SHA: **5 ahead / 0 behind**, same merge base;
+- PR #2 open/Draft/unmerged; README branch/main unchanged; CI N/A.
+
+### Current totals after STD-2
+- global capabilities: **350**;
+- Command / Investigate / Govern / Studio / Endpoint: **27 / 243 / 47 / 33 / 0**;
+- defined / proposed / planned: **348 / 2 / 350**;
+- total sections/tables: **9450 / 2100**;
+- Requirements: **122 = 99/20/3/0**;
+- OPEN: **18**.
+
+STD-1 remains intact. Command, Investigate and Govern remain PASS. STD-3, STD-4 and Endpoint remain NOT STARTED. No runtime scheduler, Automation Run lifecycle, API/protocol, orchestration language, final JSON Schema/RBAC, detailed screen rewrite, raw secret, product code, Endpoint capability, publishing or deployment engine is introduced by STD-2.
+
+## Studio STD-3 — post-publication correction addendum
+The complete pre-STD-3 quality text above is preserved verbatim. Its STD-3 `NOT STARTED` line is historical evidence only.
+
+- source audit: `reports/studio-std3-source-audit.md`;
+- canonical conformance: `reports/studio-std3-agents-human-gates-runtime-control-capability-conformance.md`;
+- validation status: `validation-status-studio-std3.md`;
+- `CAP-STD-034..051`: **18 / 486 / 108**;
+- build-time gate state: **202 PASS / 8 PENDING-REMOTE / 0 FAIL**;
+- functional/build SHA: `c658168c9de6bd803941116989bc3aaedf154260`;
+- baseline → build: **5 ahead / 0 behind**, same merge base;
+- PR #2 open/Draft/unmerged, README branch/main exact `# cmdr`, main unchanged, CI N/A were checked after build publication;
+- a real documentary condensation divergence was found in index files; this correction restores the baseline verbatim and appends STD-3 without modifying capability contracts.
+
+Current content totals: **368 capabilities / 366 defined / 2 proposed / 368 planned / 9936 sections / 2208 tables**; Studio **51 / 1377 / 306**; Endpoint 0; Requirements and OPEN unchanged. Final STD-3 PASS is not declared until the verification record closes all 210 gates.
+
+## Studio STD-3 — final verified addendum
+The preceding build/correction states are preserved as historical evidence. Canonical final companion: `reports/studio-std3-agents-human-gates-runtime-control-post-publication-verification.md`.
+
+- final verdict: **PASS AFTER POST-PUBLICATION VERIFICATION — 210/210 gates PASS, 0 PENDING, 0 FAIL**;
+- structural result: **18 / 486 / 108** with 59 Given/When/Then scenarios;
+- build SHA: `c658168c9de6bd803941116989bc3aaedf154260`;
+- history-restoration SHA: `bff197f7cc33296220a211425f62ac6b806a5f7a`;
+- PR #2 metadata updated additively; final verification-record SHA is recorded there after publication;
+- no capability contract changed in post-publication documentary records;
+- STD-4 and Endpoint remain NOT STARTED;
+- Studio capability specification and Delivery Roadmap Phase 5 remain PARTIAL.
+
+## Studio STD-4 — build-time closure addendum
+The complete prior quality history above is preserved. Earlier `STD-4 NOT STARTED` statements are historical snapshots only.
+
+- source audit: `reports/studio-std4-source-audit.md`;
+- conformance: `reports/studio-std4-assurance-lifecycle-capability-conformance.md`;
+- Studio closure audit: `reports/studio-capability-specification-closure.md`;
+- Phase-5 Studio-domain closure: `reports/delivery-roadmap-phase-5-studio-domain-closure.md`;
+- `CAP-STD-052..068`: **17 / 459 / 102**, 68 GWT;
+- Studio cumulative: **68 / 1836 / 408**;
+- global content totals: **385 capabilities / 383 defined / 2 proposed / 385 planned / 10395 sections / 2310 tables**;
+- Requirements **122 = 99/20/3/0**; OPEN **18**; Endpoint **0**;
+- content closure audit positive;
+- build-time gates: **212 PASS / 8 PENDING-REMOTE / 0 FAIL**.
+
+STD-4/Studio remain PENDING/PARTIAL until remote 220/220 verification. No implementation, engine, API/protocol, final schema/RBAC, new Screen ID or Endpoint capability is introduced.
+
+---
+
+## Studio STD-4 — final post-publication evidence
+The build-time section above remains historical evidence. Canonical final companion: `reports/studio-std4-assurance-lifecycle-post-publication-verification.md`.
+
+- exact baseline: `9babd679f52f3f28458a5f8f4d9c76698ebf875a`;
+- fifth functional/build SHA: `216bff304fa389e4814cb610097571a4a83c1c54`;
+- documentary correction: `c21ea86cde1bea425d7d9233d9973b867f5ef9e8`;
+- baseline → build: **5 ahead / 0 behind**, same merge base;
+- build → correction: **1 ahead / 0 behind**;
+- final verification-record title: `docs: record Studio STD-4 post-publication verification`; exact SHA is recorded in PR #2 after publication;
+- final verdict: **PASS AFTER POST-PUBLICATION VERIFICATION — 220/220 PASS, 0 PENDING, 0 FAIL**;
+- Studio Capability Specification: **PASS**;
+- global content totals remain **385 capabilities / 383 defined / 2 proposed / 385 planned / 10395 sections / 2310 tables**;
+- Studio remains **68 / 1836 / 408**;
+- Requirements remain **122 = 99/20/3/0**; OPEN **18**;
+- Endpoint remains **NOT STARTED / 0**;
+- Delivery Roadmap Phase 5, global Capability Specification and repository maturity remain **PARTIAL**;
+- recovery modified no capability, object model, permission, screen or implementation file.
+
+---
+
+## Endpoint capability foundations preflight — rerun evidence
+Canonical report: `reports/endpoint-capability-specification-foundations-preflight.md`.
+
+The report preserves the previous **BLOCKED 96/100** attempt at `c21ea86cde1bea425d7d9233d9973b867f5ef9e8`, revalidates from exact Studio-closure baseline `9030186e7aa12990a3d8fb6f30aa107539e2a117`, and records all 100 Endpoint foundations gates.
+
+After successful publication and remote verification of the single closure commit:
+- Endpoint preflight: **PASS — 100/100**;
+- Endpoint Capability Specification: **NOT STARTED**;
+- Endpoint capabilities: **0**;
+- concrete/reserved `CAP-EPT-*` IDs: **0 / 0**;
+- Endpoint Screen IDs: **0**;
+- Endpoint corpus remains **74 documents**, unchanged since the blocked read-only audit;
+- Endpoint README → missing `information-architecture.md` remains a genuine non-blocking gap;
+- OPEN-008 remains open and no Windows/Linux/macOS delivery claim is made;
+- Fleet and Endpoint Policy remain Platform Settings-owned;
+- Studio remains PASS;
+- Delivery Roadmap Phase 5/global/repository maturity remain PARTIAL.
+
+This evidence does not start EPT-1. The next functional run after verified 100/100 is **EPT-1 — Enrollment, Inventory, Health and Platform Foundations**, with a mandatory fresh namespace/HEAD/OPEN-008/ownership recheck before any ID allocation.
+
+---
+
+## Endpoint EPT-1 — build-time evidence
+Canonical source audit: `reports/endpoint-ept1-source-audit.md`. Canonical conformance report: `reports/endpoint-ept1-enrollment-inventory-health-platform-foundations-capability-conformance.md`. Validation status: `validation-status-endpoint-ept1.md`.
+
+- baseline: `8326a8cf9e9ca3b645395d192c24856058e67034`;
+- `CAP-EPT-001..014`: **14 / 378 / 84**, all `draft / defined / planned`;
+- minimum GWT: **42**;
+- duplicate/recycled IDs, owner conflicts, empty mandatory tables: **0 / 0 / 0**;
+- Endpoint Screen IDs / implementation/API/protocol/PKI/final RBAC: **0 / 0**;
+- OPEN-008 remains open; no supported-platform claim;
+- EPT-2..EPT-6 remain NOT STARTED;
+- global content totals: **399 capabilities / 397 defined / 2 proposed / 399 planned / 10773 sections / 2394 tables**;
+- Requirements remain **122 = 99/20/3/0** and OPEN **18**;
+- build-time gates before fifth-commit publication: **184 PASS / 6 PENDING-BUILD-OR-REMOTE / 0 FAIL**;
+- Endpoint Capability Specification becomes **PARTIAL** with EPT-1 content; Delivery Roadmap Phase 5/global/repository maturity remain **PARTIAL**.
+
+EPT-1 becomes **PASS AFTER POST-PUBLICATION VERIFICATION — 190/190** only if the exact five-commit chain, remote HEAD, PR/main/README, exact build/final SHA and post-publication evidence all verify. No EPT-2 work may begin in this run.
+
+---
+
+## Endpoint EPT-1 — final post-publication evidence
+Canonical companion: `reports/endpoint-ept1-enrollment-inventory-health-platform-foundations-post-publication-verification.md`.
+
+- exact five functional commits are verified from baseline `8326a8cf9e9ca3b645395d192c24856058e67034` to build `828b231ec2de4d3b891410a643898577f14cbcc4` at **5 ahead / 0 behind**, same merge base;
+- build PR #2 remained open/Draft/unmerged on `main`; root README branch/main unchanged; CI/status N/A;
+- EPT-1 structure remains **14 / 378 / 84**, at least 42 GWT, with zero duplicate/recycled ID, owner conflict, empty mandatory table or Endpoint Screen ID;
+- OPEN-008 remains open and no platform delivery/support claim is introduced;
+- a real documentary gap in canonical final changelog/status surfaces is corrected by one post-publication documentation-only fast-forward commit; no capability contract changes;
+- after remote verification of that correction, final verdict is **PASS AFTER POST-PUBLICATION VERIFICATION — 190/190 PASS, 0 PENDING, 0 FAIL**;
+- exact final correction SHA is recorded in PR #2 after publication;
+- Endpoint Capability Specification remains **PARTIAL**, EPT-2..EPT-6 **NOT STARTED**;
+- global totals remain **399 / 397 defined / 2 proposed / 399 planned / 10773 sections / 2394 tables**; Requirements **122 = 99/20/3/0**, OPEN **18**;
+- Command/Investigate/Govern/Studio remain PASS; Delivery Roadmap Phase 5/global/repository maturity remain PARTIAL;
+- EPT-2 is the next candidate and is not started by this verification.
+
+---
+
+## Endpoint EPT-2 — build-time evidence
+Canonical source audit: `reports/endpoint-ept2-source-audit.md`. Conformance: `reports/endpoint-ept2-telemetry-observation-capability-declaration-conformance.md`. Validation: `validation-status-endpoint-ept2.md`.
+
+- exact baseline: `1f8e482f6b7949885bd1bd7ae691215bde187b28`;
+- `CAP-EPT-015..030`: **16 / 432 / 96 / at least 48 GWT**, all `draft / defined / planned`;
+- Endpoint cumulative content: **30 / 810 / 180**;
+- global content: **415 capabilities / 413 defined / 2 proposed / 415 planned / 11205 sections / 2490 tables**;
+- EPT-1 remains PASS 190/190; Command 27, Investigate 243, Govern 47 and Studio 68 remain PASS;
+- Shared `telemetry-event` and generic normalization ownership is preserved; `CAP-EPT-011` is not duplicated;
+- `OPEN-008` remains open; Endpoint Screen IDs remain 0; EPT-3..EPT-6 remain NOT STARTED;
+- build-time gates: **194 PASS / 6 PENDING-BUILD-OR-REMOTE / 0 FAIL**, pending gates 194–199;
+- no API/protocol/port/physical event schema/storage engine/event bus/SIEM/final query language/product code/final RBAC or EPT-3+ implementation is introduced.
+
+EPT-2 remains pending post-publication verification until all 200 gates close. Documentary PASS never proves implementation or supported-platform delivery.
+
+---
+
+## Endpoint EPT-3 — build-time evidence
+Canonical source audit: `reports/endpoint-ept3-source-audit.md`. Conformance: `reports/endpoint-ept3-local-detection-investigation-capability-conformance.md`. Validation: `validation-status-endpoint-ept3.md`.
+
+- exact baseline: `5d7c037aff6004984416665e7e188a8700e62b2f`;
+- `CAP-EPT-031..046`: **16 / 432 / 96 / at least 48 GWT**, all `draft / defined / planned`;
+- Endpoint cumulative content: **46 / 1242 / 276**;
+- global content: **431 capabilities / 429 defined / 2 proposed / 431 planned / 11637 sections / 2586 tables**;
+- source audit: all **8 Detection + 8 Investigation** Endpoint source documents plus EPT-2 and cross-product ownership boundaries;
+- EPT-1 remains PASS 190/190; EPT-2 remains PASS 200/200; Command 27, Investigate 243, Govern 47 and Studio 68 remain PASS;
+- Investigate owns Detection Engineering/Case/Evidence/Finding; Command owns canonical Detection/Signal/Alert/Incident; Shared/Settings/Govern/Studio boundaries are preserved;
+- `OPEN-008` and `OPEN-017` remain open; no supported platform/source or final detection runtime/language/model/engine is selected;
+- Endpoint Screen IDs remain 0; EPT-4..EPT-6 remain NOT STARTED;
+- build-time gates: **204 PASS / 6 PENDING-BUILD-OR-REMOTE / 0 FAIL**, pending gates 204–209;
+- no Collection, Live Response, containment, response execution, API/protocol, physical schema, final RBAC or product code is introduced.
+
+EPT-3 remains pending post-publication verification until all 210 gates close. Documentary PASS never proves implementation or supported-platform delivery.
+
+---
+
+## Endpoint EPT-4 — build-time evidence
+Canonical source audit: `reports/endpoint-ept4-source-audit.md`. Conformance: `reports/endpoint-ept4-collection-live-response-technical-execution-capability-conformance.md`. Validation: `validation-status-endpoint-ept4.md`.
+
+- exact baseline: `67ea28d221ed70baae83ff0689048685e1aacf74`;
+- source audit: **7/7 Endpoint Collection + 9/9 Endpoint Live Response** documents, plus EPT-3, Investigate, Govern, Studio, Settings, Shared and containment/resilience boundaries;
+- `CAP-EPT-047..064`: **18 / 486 / 108 / at least 54 GWT**, all `draft / defined / planned`;
+- Endpoint cumulative content: **64 / 1728 / 384**;
+- global content: **449 capabilities / 447 defined / 2 proposed / 449 planned / 12123 sections / 2694 tables**;
+- EPT-1 **190/190**, EPT-2 **200/200**, EPT-3 **210/210** remain preserved; Command 27, Investigate 243, Govern 47 and Studio 68 remain PASS;
+- Collection Request remains Investigate-owned; neutral Collection Items/Packages/Technical Outputs are not Artifact/Evidence automatically under OPEN-014;
+- Endpoint Technical Session/Execution remain distinct from Studio Tool Call/Automation Run and Govern Response Run/Result under OPEN-015;
+- OPEN-008/014/015/017 remain open; Endpoint Screen IDs remain 0; EPT-5/EPT-6 remain NOT STARTED;
+- build-time gates: **214 PASS / 6 PENDING-BUILD-OR-REMOTE / 0 FAIL**, pending gates 214–219;
+- no containment/remediation, API/protocol/remote-shell protocol/transport/command catalog/final runtime/physical schema/storage/final RBAC/product implementation.
+
+EPT-4 remains **PENDING POST-PUBLICATION VERIFICATION** until all 220 gates close. Documentary PASS never proves implementation, supported-platform delivery or response authority.
+
+---
+
+## Endpoint EPT-5 — build-time evidence
+Canonical source audit: `reports/endpoint-ept5-source-audit.md`. Conformance: `reports/endpoint-ept5-containment-verification-governed-response-primitives-capability-conformance.md`. Validation: `validation-status-endpoint-ept5.md`.
+
+- exact baseline: `5d576295fa12693ef375a35cfe515d7bdf577f68`;
+- source audit: all **7/7 Containment** docs, effectful Live Response process/network/file/service sources, Govern authority/Run/verification/rollback/Result and cross-product/security/EPT-6 boundaries;
+- source-driven final set: `CAP-EPT-065..081` — **17 / 459 / 102 / at least 51 GWT**, all `draft / defined / planned`;
+- Endpoint cumulative: **81 / 2187 / 486**;
+- global: **466 capabilities / 464 defined / 2 proposed / 466 planned / 12582 sections / 2796 tables**;
+- EPT-1 **190/190**, EPT-2 **200/200**, EPT-3 **210/210**, EPT-4 **220/220** preserved; Command 27, Investigate 243, Govern 47 and Studio 68 remain PASS;
+- `CAP-EPT-081` is local session lock/termination only; directory identity actions remain external;
+- Govern owns authority/Approval/Decision/Response Run/response verification/rollback/Result; technical verification/reversal remain Endpoint facts/primitives only;
+- OPEN-007/008/013/014/015/017 remain open; OPEN total 18; Endpoint Screen IDs 0;
+- build-time gates: **224 PASS / 6 PENDING-BUILD-OR-REMOTE / 0 FAIL**, pending gates 224–229;
+- EPT-6 remains **NOT STARTED**;
+- no API/protocol/native command/PowerShell/shell/firewall syntax/physical schema/final policy/approval/verification/rollback engine/final RBAC/product implementation.
+
+EPT-5 remains **PENDING POST-PUBLICATION VERIFICATION** until all 230 gates close.
+
+---
+
+## Phase 6 Localization documentary reconciliation
+
+Localization quality artifacts are indexed without changing any functional source:
+- `validation-status-platform-scale-localization.md`;
+- `quality-index-platform-scale-localization.md`.
+
+Final source-audited disposition: **L5 — DOCUMENTARY RECONCILIATION ONLY**. The lot creates no capability, canonical object, Permission ID, Screen ID, Requirement state change or OPEN state change. Localization closure is product-spec/documentary only; runtime implementation and production readiness are not claimed. Advanced Integrations and Compliance are not started by this lot. Delivery Roadmap Phase 6 remains **PARTIAL**.
+
+---
+
+## Phase 6 Advanced Integrations documentary reconciliation — BUILD evidence
+
+Advanced Integrations quality artifacts are indexed without changing any functional source:
+- `validation-status-platform-scale-advanced-integrations.md`;
+- `quality-index-platform-scale-advanced-integrations.md`.
+
+Accepted disposition: **ADV-5 — DOCUMENTARY RECONCILIATION ONLY**. Advanced Integrations is a Phase 6 roadmap umbrella over responsibilities already distributed among Platform Settings, Studio, Govern, Shared, Endpoint, Command, Investigate, Security, Experience Architecture and Platform Architecture / Implementation Contracts. It creates no capability, canonical object, Permission ID, Screen ID, Requirement state change, OPEN state change or ADR and transfers no lifecycle ownership.
+
+The frozen quality model is **173 gates = 106 source/local + 67 publication/remote-dependent**. BUILD-time state is **106 PASS / 67 PENDING-REMOTE / 0 FAIL**. The authoritative final state is recorded only in the two Advanced Integrations quality documents after actual publication and remote verification; this README entry intentionally remains the historical BUILD snapshot.
+
+Documentary reconciliation does not claim connector implementation, integration operational readiness, provider availability, ingestion runtime, external probe execution, parser runtime, webhook support, final APIs, vendor adapters or production readiness. `CAP-SET-015+` remains unallocated/unreserved. Localization remains closed at L5/197. Compliance remains **NOT STARTED** and Delivery Roadmap Phase 6 remains **PARTIAL**.
+
+---
+
+## Phase 6 Compliance documentary reconciliation — BUILD evidence
+
+Compliance quality artifacts are indexed without changing any functional or owner-domain source:
+- `validation-status-platform-scale-compliance.md`;
+- `quality-index-platform-scale-compliance.md`.
+
+Accepted disposition: **COMP-5 — DOCUMENTARY RECONCILIATION ONLY**. Compliance is a cross-cutting Phase 6 roadmap concern over responsibilities already distributed among canonical owners. This lot creates no capability, canonical object, Permission ID, Screen ID, Requirement/RTM mutation, OPEN mutation or ADR and transfers no ownership.
+
+The frozen quality model is **79 gates = 33 local/source/structural + 46 remote/publication**. BUILD-time state is **33 PASS / 46 PENDING-REMOTE / 0 FAIL**. The authoritative final state is recorded only in the two Compliance Quality documents after actual publication, remote verification and the quality-only FINAL; this README entry intentionally remains the historical BUILD snapshot.
+
+The owner sources for Privacy & Minimization, Data Residency, Legal Hold, Settings Retention and Data Retention Contract remain `draft` with their existing owners, canonical source-of-truth status and open questions unchanged. Documentary reconciliation does not claim legal compliance, regulatory applicability, framework conformance, certification, attestation, runtime implementation, control effectiveness or production readiness.
+
+`CAP-SET-015+` remains **UNALLOCATED / UNRESERVED**. Localization remains closed at **L5 / 197/197 PASS**. Advanced Integrations remains closed at **ADV-5 / 173/173 PASS**. Delivery Roadmap Phase 6 remains **PARTIAL**.
+
+---
+
+## CURRENT Phase 6 global documentary closure evidence
+
+This section is the current Quality synthesis for the Phase-6 closure publication and supersedes current-looking Phase-6 `PARTIAL` statements in this file once the required post-publication verification is complete. All preceding execution/BUILD sections remain historical evidence at their recorded points.
+
+New global closure records:
+- `quality-index-platform-scale-global-closure.md`;
+- `validation-status-platform-scale-global-closure.md`.
+
+Accepted closure baseline: `2522974ab996f7472b91ce9a682626cac19e4147`.
+
+Accepted closure audit: **A–O = 15 PASS / 0 FAIL**, Criterion I/L/N **PASS/PASS/PASS**, PRODUCT-SPEC GAP **NONE**, disposition **P6-CLOSE-2 — READY WITH NON-BLOCKING IMPLEMENTATION RESIDUALS**.
+
+Frozen global closure quality model: **105 gates = 57 local/source/structural + 48 remote/publication**. BUILD state is **57 PASS / 48 PENDING-REMOTE / 0 FAIL**. The Phase-6 PASS state becomes effective only after the exact BUILD is remotely verified and the two-file Quality-only FINAL is published and re-read.
+
+Prepared final current projection:
+- Delivery Roadmap Phase 5: **PASS — capability specification complete**;
+- Delivery Roadmap Phase 6: **PASS — PRODUCT-SPEC / DOCUMENTARY CLOSURE**, publication-verification dependent;
+- Global Capability Specification: **PASS — DOCUMENTARY CAPABILITY-SPECIFICATION COMPLETE**, same condition;
+- Repository global maturity: **PARTIAL**;
+- Phase 7: **NOT STARTED**.
+
+Frozen denominator remains **498 / 497 defined / 1 proposed / 498 planned**, **13,446 / 2,988**, Settings **14/378/84**, Requirements **122 = 99/20/3/0**, OPEN **17**, Screens **56**, `CAP-SET-015+` **UNALLOCATED / UNRESERVED**.
+
+Quality PASS is not runtime PASS, legal compliance, external certification, attestation or production readiness. No capability, object, permission, screen, Requirement, OPEN, ADR, DEP ID or dependency semantic change is introduced by this closure.

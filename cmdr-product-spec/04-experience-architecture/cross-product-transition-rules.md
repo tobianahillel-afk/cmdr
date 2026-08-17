@@ -1,0 +1,41 @@
+---
+id: deprecated-experience-cross-product-transition-rules
+domain: 04-experience-architecture
+status: deprecated
+owner: UX Architecture Lead
+updated: 2026-08-03
+source-of-truth: deprecated
+replaced-by: cross-product-transitions.md
+requirements:
+  - REQ-UX-001
+  - REQ-UX-006
+  - REQ-UX-007
+---
+
+# Pointeur déprécié
+
+## Remplaçant
+
+[`cross-product-transitions.md`](cross-product-transitions.md)
+
+## Justification
+
+La responsabilité a été consolidée dans une source Phase 3 unique et testable afin de supprimer les architectures concurrentes.
+
+## Migration
+
+Les consommateurs migrent vers `cross-product-transitions.md` et conservent uniquement leur usage local.
+
+## Dépendants
+
+Produits, écrans et composants qui citaient cet ancien document.
+
+## Date de retrait
+
+2026-08-03. Le chemin reste disponible pour l'historique et les liens de migration, mais ne porte plus de règle normative.
+
+## Critère d'acceptation
+
+**Given** un consommateur de cet ancien chemin,  
+**When** sa dépendance est mise à jour,  
+**Then** il référence le remplaçant, ne copie aucune règle locale et ce document n'est jamais utilisé comme source active.

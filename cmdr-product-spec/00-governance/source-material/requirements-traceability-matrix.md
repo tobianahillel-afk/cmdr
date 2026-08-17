@@ -1,0 +1,120 @@
+---
+id: requirements-traceability-matrix
+domain: 00-governance
+status: draft
+owner: Product Architecture
+updated: 2026-08-16
+source-of-truth: canonical
+---
+# Requirements Traceability Matrix — current capability-specification evidence
+
+The **122 source Requirement IDs remain unchanged**. `conform` records documentary evidence only, never implementation. This matrix preserves all previously verified evidence and adds the approved Customers/MSSP/Delivery and SLO/Health/Resilience architecture evidence without automatically changing any global Requirement state.
+
+| State | Current |
+|---|---:|
+| conform | 99 |
+| partial | 20 |
+| absent | 3 |
+| contradictory | 0 |
+| **Total** | **122** |
+
+## Capability Specification Phase 4A — Command evidence
+
+| Evidence range | Scope | Requirements strengthened | Global state change | Reason |
+|---|---|---|---|---|
+| CAP-CMD-001..006 | Mission Control: situation, priority, timeline, handover, blockers and recent Results | REQ-PROD-003,005,006,008,010,013,021; REQ-UX-007 and supporting requirements | none | functional coordination is defined; implementation, final objects, permissions and screens remain future |
+| CAP-CMD-101..110 | Incidents and Work Queue: one queue, assignment, ownership, priority/severity, SLA, Incident/Task coordination, bulk, freshness and escalation | REQ-OBJ-001,012; REQ-PROD-003,004,005,006,008,009,013,021,053; REQ-SEC-001; REQ-UX-005,008,009 | none | runtime, atomic permissions and final Incident/Task state machines remain future |
+| CAP-CMD-201..205 | Risk and Coverage: Service, Exposure, Coverage, business impact and risk-prioritization context | REQ-PROD-003,005,006,010,013,021,032,037 | none | Service/Exposure detailed objects and final risk engine remain future; no scanner or opaque score is claimed |
+| CAP-CMD-301..305 | Readiness and Operations: readiness, exercises, improvement Tasks, plans and capability readiness | REQ-OBJ-012; REQ-PROD-005,009,012,013,019,021,057 | none | assessments are functional records only; Studio assurance, platform health, final objects and permissions remain source-owned/future |
+| CAP-CMD-401 | Customers and Delivery Context | REQ-PROD-013,019,033,053 | none | `defined / planned`, deployment-dependent after OPEN-006 resolution; implementation, Customer master data, cross-tenant mutation/admin/response and multi-tenant Search/Report/Export remain outside the defined MVP |
+
+Command evidence preserves these invariants: Incident/operational Task coordination remains Command-owned; Case/Evidence/Finding remain Investigate-owned; Action Request/Decision/Response Run/Result remain Govern-owned; Studio automation objects, Settings administration and Shared engines are consumed but not redefined. The six Work Queue system views remain configurations of one workspace, not separate pages.
+
+## Govern GOV-1 evidence
+
+Parent roadmap: **Delivery Roadmap Phase 4 — Govern** (`roadmap-phase-4-govern`). Execution lot: **GOV-1**. GOV-1 is not a roadmap phase and `Phase 4C Govern` does not exist.
+
+| Evidence range | Scope | Requirements strengthened | Global state change | Reason |
+|---|---|---|---|---|
+| CAP-GOV-001..003 | Govern intake, Response Inbox and Action Request processing lifecycle | REQ-PROD-004,006,008,015,019,020; REQ-SEC-001,002; REQ-UX-008,009 | none | received/submitted/complete/authorized remain distinct; no general Command Work Queue duplication or execution |
+| CAP-GOV-004..006 | context/scope/target, impact/risk/reversibility and completeness/Evidence-context review | REQ-PROD-003,004,008,014,015,020; REQ-SEC-001,002 | none | target verification is not authorization; Govern does not requalify Evidence/Finding; no opaque universal risk score |
+| CAP-GOV-007..008 | Policy applicability/evaluation, conflicts and Exception Candidates | REQ-PROD-004,015,019,020; REQ-SEC-001,002 | none | Policy outcome is not Decision; conflict is not automatic rejection; Exception Candidate is not active exception |
+| CAP-GOV-009..013 | authority requirements/context, approver eligibility/SoD, Approval lifecycle, delegation/escalation and emergency governance | REQ-PROD-004,015,020; REQ-SEC-001,002; REQ-AI-004 | none | authority remains distinct from Role/permission; Human Gate is not Approval; no self-approval under applicable SoD or uncontrolled emergency bypass |
+| CAP-GOV-014..016 | Decision preparation, Decision disposition/conditions/expiration and no-effect Execution Handoff Package | REQ-PROD-004,008,015,016,020; REQ-AI-002; REQ-SEC-001,002 | none | no auto-Decision; approve is not execution; package is not Response Run; GOV-2/GOV-3 remain historically separate lots |
+
+GOV-1 documentary evidence strengthens the functional definition of Govern but does not promote any Requirement from partial/absent to conform because final implementation and other evidence classes remain separate.
+
+## Investigate evidence preserved
+
+| Evidence range | Scope | Requirements strengthened | Global state change | Reason |
+|---|---|---|---|---|
+| CAP-INV-001..397 | Investigate foundation, collection and analysis | REQ-INV-001..005 and supporting requirements | none | final engines, models and implementation remain future |
+| CAP-INV-401..435 | complete Detection Engineering lifecycle | REQ-INV-006 and supporting product, AI, security and UX requirements | none | runtime, language and implementation remain future |
+| CAP-INV-501..518 | Threat Intelligence intake, requirements, sources, materials, candidate knowledge, Sightings, relationships, confidence, lifecycle and analysis handoff | REQ-PROD-014,019,020,055,060,061,062; REQ-INV-006; REQ-AI-002,010,011; REQ-SEC-001,002; REQ-UX-006,010 | none | final ontology, objects, permissions, screens, exchange and implementation remain future |
+| CAP-INV-519..524 | sessions, competing hypotheses, fusion and actor, campaign, malware and infrastructure assessments | REQ-PROD-014,019,020; REQ-INV-006; REQ-AI-002; REQ-SEC-001,002; REQ-UX-010 | none | final objects, algorithms and implementation remain future |
+| CAP-INV-525..529 | product planning, authoring, review, releasability and internal publication | REQ-PROD-014,019,020,055; REQ-INV-006; REQ-AI-002; REQ-SEC-001,002; REQ-UX-010 | none | OPEN-019 and final permissions, screens and delivery contracts remain future |
+| CAP-INV-530..533 | watchlist definition, operationalization, monitoring and external-sharing preparation | REQ-PROD-014,019,020,055; REQ-INV-006; REQ-SEC-001,002 | none | no activation, deployment, runtime mutation or actual sharing |
+| CAP-INV-534..537 | feedback, effectiveness, satisfaction, correction and lifecycle closure | REQ-PROD-014,019,020; REQ-INV-006; REQ-AI-002 | none | final metrics, contracts and implementation remain future |
+| CAP-INV-601..603 | Cloud intake, preconditions, Session and provider-neutral scope hierarchy | REQ-PROD-006,012,014,019,020,055; REQ-INV-001,006; REQ-AI-002; REQ-SEC-001,002; REQ-UX-010 | none | OPEN-008/012 and final objects, permissions, screens and implementation remain future |
+| CAP-INV-604..607 | Cloud inventory, identities, roles, IAM permission candidates and audit activity | REQ-PROD-014,019,020,055; REQ-INV-001,006; REQ-AI-002,010,011; REQ-SEC-001,002; REQ-UX-010 | none | provider schemas, connectors, effective-permission implementation and event contracts remain unresolved |
+| CAP-INV-608..614 | Cloud configuration, workloads, containers, serverless, network, storage and sensitive-material assessment | REQ-PROD-014,019,020,055,060,061,062; REQ-INV-001..006; REQ-AI-002,010,011; REQ-SEC-001,002; REQ-UX-006,010 | none | no command, scan, acquisition, secret use, provider implementation or target mutation |
+| CAP-INV-615..618 | Cloud anomalies, Hypotheses, Timeline, correlations, Evidence/Finding/Detection handoffs and provenance | REQ-PROD-002,005,006,008,010,011,012,014,019,020; REQ-INV-001,006; REQ-AI-001..011; REQ-SEC-001,002; REQ-UX-006,010 | none | candidates and packages do not create canonical Evidence, Findings, rules, collection or response automatically |
+| CAP-INV-701..705 | Mobile intake, Session, device/platform/scope, acquisition context and integrity/completeness/accessibility | REQ-PROD-006,012,014,019,020,055; REQ-INV-001; REQ-AI-002,010,011; REQ-SEC-001,002; REQ-UX-010 | none | OPEN-008/011/013/014/015 and final platform, acquisition, objects, permissions and screens remain future |
+| CAP-INV-706..715 | Mobile filesystem/storage, applications/data, communications, media, location/sensors, sensitive material, connectivity, backups/sync and deleted/recovered data | REQ-PROD-014,019,020,055,060,061,062; REQ-INV-001..005; REQ-AI-002,010,011; REQ-SEC-001,002; REQ-UX-006,010 | none | no device acquisition/mutation, unlock/bypass, secret use, final parsers/tools/platform support or implementation |
+| CAP-INV-716..719 | Mobile Timeline/correlation, anomaly/Hypothesis, Derived Artifacts/handoffs and provenance/reproducibility | REQ-PROD-002,005,006,008,010,011,012,014,019,020; REQ-INV-001,006; REQ-AI-001..011; REQ-SEC-001,002; REQ-UX-006,010 | none | correlation/candidates/packages do not create canonical Evidence, Findings, rules, collection or response automatically |
+
+## Current disposition
+
+- Capability Specification Phase 4A — Command remains **PASS** with 27 capabilities; `CAP-CMD-401` is now `defined / planned`, deployment-dependent under validated ADR-0008.
+- Capability Specification Phase 4B — Investigate remains **PASS**; no Investigate capability is created or modified by this architecture decision.
+- Govern, Studio and Endpoint verified capability evidence remains unchanged.
+- Platform Settings `CAP-SET-001..014` and all predecessor post-publication closures remain unchanged except for the additive CAP-SET-014 definition introduced by this functional lot.
+- `OPEN-006` is **resolved** on 2026-08-14 by explicit project-owner approval and ADR-0008.
+- `OPEN-007`, `OPEN-010`, `OPEN-011`, `OPEN-012`, `OPEN-013`, `OPEN-014`, `OPEN-015`, `OPEN-016`, `OPEN-017`, `OPEN-018`, `OPEN-019` and all other current open decisions retain their existing dispositions.
+- `OPEN-013` and `OPEN-019` remain explicitly open after OPEN-006 resolution.
+- Requirement IDs added: **0**; removed: **0**; state changes: **0**; active contradictions introduced: **0**.
+
+## Platform Settings Sources & Parsers evidence — 2026-08-14
+
+This additive evidence does not alter any preceding row or Requirement state.
+
+| Evidence range | Scope | Requirements strengthened | Individual status | Global state change | Reason |
+|---|---|---|---|---|---|
+| `CAP-SET-012` | Data Source administrative lifecycle/configuration, tenant scope, sourced freshness/health, safe disable, deterministic local validation and provenance | REQ-PROD-003,004,005,006,008,009,010,011,012; REQ-AI-001,002,003,004,007,008,009,010,011 | N/E where the active matrix exposes no normative individual state | none | definition does not prove source support, acquisition, ingestion, connector/probe execution or implementation |
+| `CAP-SET-013` | Parser lifecycle/versioning, transformation contract, input/output references, fixtures, error/quality metadata, local validation, source-backed administrative rollback and provenance | REQ-PROD-003,004,005,006,008,009,010,011,012; REQ-AI-001,002,003,004,007,008,009,010,011 | N/E where the active matrix exposes no normative individual state | none | definition does not prove parser runtime, normalization, schema standard, Source→Parser relation or implementation |
+
+Sources & Parsers creates/deletes **0** Requirement IDs and changes **0** Requirement states. Its historical closure distribution remains **122 = 99 conform / 20 partial / 3 absent / 0 contradictory**.
+
+## Phase 6 Customers / MSSP / Delivery architecture evidence — 2026-08-14
+
+Approval reference: **Hillel Tobiana — explicit project-owner approval in ChatGPT conversation**. Canonical decision: `ADR-0008`.
+
+| Evidence | Scope | Requirements strengthened | Global state change | Reason |
+|---|---|---|---|---|
+| ADR-0008 + Tenant Isolation + Permission Model | Internal/Enterprise/MSSP deployment, independent Tenants, Authorized Tenant Set read-only, tenant-local action/response | REQ-PROD-006,008,009,012,013,019,033,053; REQ-SEC-001,002 | none | approved architecture resolves OPEN-006 but does not prove runtime authorization, implementation or production support |
+| CAP-CMD-401 | deployment-aware Customers & Delivery context, external Customer/engagement projection, read-only multi-tenant overview, single-Tenant Reporting request and delivery Tasks | REQ-PROD-013,019,033,053 | none | capability becomes documentary `defined / planned`; implementation and excluded cross-tenant actions remain future |
+| CMD-CRP-001 reuse | same Screen ID, portfolio-like View, Tenant selection before actions | REQ-PROD-008,012,013; supporting UX/security invariants | none | no new Screen ID and no Customer/Portfolio object is introduced |
+
+The architecture decision changes no Requirement ID or global Requirement state. Current distribution remains **122 = 99 conform / 20 partial / 3 absent / 0 contradictory**. OPEN becomes **17** because only OPEN-006 is resolved. Documentary approval does not claim implementation.
+
+## Phase 6 SLO / Health / Resilience architecture evidence — 2026-08-16
+
+Approval reference: **Explicit project-owner approval in this conversation.** Canonical decision: `ADR-0009`. Decision checksum: `adb8312c2eb5cb65062177c72ee3b23cbe9f3c165593dab514a5aa53d6ad674a`.
+
+| Evidence | Scope | Requirements strengthened | Global state change | Reason |
+|---|---|---|---|---|
+| ADR-0009 + Health/Metrics contracts | source-attributed noncanonical SLO, Health projection/runtime separation, measurement/calculation provenance | REQ-PROD-003,005,006,008,009,010,012,013,019,021; REQ-SEC-001,002 | none | architecture defines documentary boundaries only; source/runtime support and implementation remain future |
+| Permission Model + SET-HLT-001 reuse | read-only Health/SLO projection, MSSP Authorized Tenant Set read aggregation, no configuration/export/failover/recovery implied | REQ-PROD-006,008,009,012,019; REQ-SEC-001,002 | none | no Permission ID or Screen ID added; enforcement/runtime remains future |
+| Shared Metrics + Business Service context | generic metric/version/freshness mechanisms and typed subject context without object transfer | REQ-PROD-003,005,010,013,021 | none | no central SLO calculator or new Service/SLO canonical object |
+
+Requirement IDs added: **0**; removed: **0**; state changes: **0**; active contradictions introduced: **0**. Distribution remains **122 = 99 conform / 20 partial / 3 absent / 0 contradictory**. OPEN remains **17**; `OPEN-008`, `OPEN-013`, `OPEN-015` and `OPEN-019` remain open. Documentary architecture evidence does not claim implementation/runtime availability.
+
+## Platform Settings Platform Health / SLO projection capability evidence — 2026-08-16
+
+This additive evidence records the source-audited functional definition of `CAP-SET-014` without changing any global Requirement state.
+
+| Evidence range | Scope | Requirements strengthened | Individual status | Global state change | Reason |
+|---|---|---|---|---|---|
+| `CAP-SET-014` | deterministic read-only Platform Health and source-attributed SLO target/state/breach projection; source/freshness/provenance/uncertainty/impact; Authorized-Tenant-Set MSSP read aggregation; explicit selected-Tenant Command and Shared handoffs | REQ-PROD-003,005,006,008,009,010,012,013,019,021; REQ-SEC-001,002 | N/E where the active matrix exposes no normative individual state | none | documentary capability definition does not prove source/runtime support, authorization enforcement, monitoring, measurement acquisition, SLO calculation, failover/recovery or production implementation |
+
+`CAP-SET-014` creates/deletes **0** Requirement IDs and changes **0** Requirement states. Distribution remains **122 = 99 conform / 20 partial / 3 absent / 0 contradictory**. OPEN remains **17** with `OPEN-006` resolved and `OPEN-008`, `OPEN-013`, `OPEN-015`, `OPEN-019` open. Documentary `defined / planned` status does not claim implementation/runtime availability.

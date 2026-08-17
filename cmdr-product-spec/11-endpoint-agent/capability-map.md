@@ -1,0 +1,101 @@
+---
+id: endpoint-capability-map
+domain: 11-endpoint-agent
+status: draft
+owner: Endpoint Agent Product Lead
+updated: 2026-08-11
+source-of-truth: canonical
+---
+# Endpoint Capability Map
+
+## EPT-1 foundations
+| Range | Family | Capabilities | Boundary |
+|---|---|---:|---|
+| CAP-EPT-001..003 | identity/enrollment/scope | 3 | local Agent state; Settings admin remains external |
+| CAP-EPT-004..007 | platform/version/inventory/freshness | 4 | observed facts; no support or global CMDB claim |
+| CAP-EPT-008..010 | health/heartbeat/operational state | 3 | technical state only; health != security posture |
+| CAP-EPT-011..014 | capability/Fleet/Policy/provenance | 4 | projections/handoffs; no foreign ownership transfer |
+
+Total EPT-1: **14 capabilities / 378 sections / 84 mandatory tables**.
+
+## Future capability families
+EPT-2 Telemetry; EPT-3 Detection/Investigation; EPT-4 Collection/Live Response; EPT-5 Containment/Verification; EPT-6 Updates/Resilience/Security. All remain **NOT STARTED**.
+
+## Non-equivalence
+Endpoint Agent != Automation Agent; Endpoint != Agent automatically; Device != Agent Instance; Host Identity != Agent Identity; inventory != Fleet; health != security posture; advertised != authorized/available; Endpoint Policy != effective local state; technical output != Govern Result; execution != Response Run/Tool Call.
+
+---
+
+## EPT-2 telemetry/observation capability layer — build
+The preceding EPT-2 NOT STARTED statement is historical pre-EPT-2 evidence.
+
+| Range | Family | Capabilities | Boundary |
+|---|---|---:|---|
+| CAP-EPT-015..016 | source/observation and Shared event projection | 2 | Endpoint local facts; Shared owns generic event envelope |
+| CAP-EPT-017..022 | process/file/network/auth/system/sensor observations | 6 | technical facts only; no Detection/Finding/Evidence |
+| CAP-EPT-023..026 | normalization/quality/rate/privacy | 4 | no final schema, storage, event bus or RBAC |
+| CAP-EPT-027..030 | declaration/availability/handoff/provenance | 4 | CAP-EPT-011 summary preserved; no Tool/Result ownership transfer |
+
+EPT-2: **16 capabilities / 432 sections / 96 mandatory tables**. Endpoint cumulative: **30 / 810 / 180**. `OPEN-008` remains open. Endpoint Screen IDs remain 0. EPT-3..EPT-6 remain NOT STARTED.
+
+---
+
+## EPT-3 local detection/investigation capability layer — build
+The preceding EPT-3 NOT STARTED statement is historical pre-EPT-3 evidence.
+
+| Range | Family | Capabilities | Boundary |
+|---|---|---:|---|
+| CAP-EPT-031..033 | Detection Content consumption, local evaluation/match, local signal-candidate | 3 | Investigate owns content; Command owns canonical Detection/Signal |
+| CAP-EPT-034..036 | context/severity/confidence, grouping/suppression projection, coverage/health/gaps | 3 | no impact/Finding/response promotion |
+| CAP-EPT-037..041 | process/file/network/user-session/system local investigation | 5 | existing data only; no acquisition |
+| CAP-EPT-042..044 | local timeline/correlation and pivots/context expansion | 3 | Shared generic mechanisms retained; pivot != Collection |
+| CAP-EPT-045..046 | summary/handoff and provenance/cross-product contracts | 2 | summary != Finding/Evidence/Case/Result |
+
+EPT-3: **16 capabilities / 432 sections / 96 mandatory tables**. Endpoint cumulative: **46 / 1242 / 276**. `OPEN-008` and `OPEN-017` remain open. Endpoint Screen IDs remain 0. EPT-4..EPT-6 remain NOT STARTED.
+
+---
+
+## EPT-4 Collection / Live Response technical capability layer — build
+The preceding EPT-4 NOT STARTED statement is historical pre-EPT-4 evidence.
+
+| Range | Family | Capabilities | Boundary |
+|---|---|---:|---|
+| CAP-EPT-047..048 | request eligibility/authority + bounded technical planning | 2 | Collection Request remains Investigate-owned |
+| CAP-EPT-049..052 | file, process/system, memory, network acquisition | 4 | neutral collection output; no analysis/containment |
+| CAP-EPT-053..055 | progress, packaging/integrity, transfer/handoff | 3 | local state != Job; package/output != Evidence/Artifact automatically |
+| CAP-EPT-056..057 | technical LR session definition/lifecycle | 2 | != Investigate Live Session / Govern Response Run |
+| CAP-EPT-058..061 | command request, interactive execution, scripts, file operations | 4 | no command catalog/runtime; effectful operations require authority |
+| CAP-EPT-062..064 | technical outputs/errors, operator closure, provenance/contracts | 3 | output != Result; OPEN-014/015 preserved |
+
+EPT-4: **18 capabilities / 486 sections / 108 mandatory tables**. Endpoint cumulative: **64 / 1728 / 384**. EPT-5/EPT-6 remain NOT STARTED. Endpoint Screen IDs remain 0.
+
+---
+
+## EPT-5 Containment / Verification technical capability layer — build
+The preceding EPT-5 NOT STARTED statement is historical pre-EPT-5 evidence.
+
+| Range | Family | Capabilities | Boundary |
+|---|---|---:|---|
+| CAP-EPT-065..066 | primitive request/eligibility/authority + precheck/readiness | 2 | authority and response plan remain Govern |
+| CAP-EPT-067..072 | process, host isolation, bounded network control, quarantine, file delete/restore, service control | 6 | target-side primitives only; no Result/rollback ownership |
+| CAP-EPT-073..076 | execution state/outcome, technical verification, target observation, partial/unknown/drift | 4 | Technical Outcome/Verification != Govern Result/Verification |
+| CAP-EPT-077..080 | technical reversal, release, Govern reconciliation handoff, provenance | 4 | Technical Reversal != Response Rollback |
+| CAP-EPT-081 | local account-session lock/termination | 1 | directory account actions remain external |
+
+EPT-5: **17 capabilities / 459 sections / 102 mandatory tables / at least 51 GWT**. Endpoint cumulative: **81 / 2187 / 486**. EPT-6 remains NOT STARTED. Endpoint Screen IDs remain 0.
+
+---
+
+## EPT-6 Updates / Resilience / Security / Closure capability layer — build — 2026-08-12
+The preceding EPT-6 NOT STARTED statements are historical pre-EPT-6 evidence.
+
+| Range | Family | Capabilities | Boundary |
+|---|---|---:|---|
+| CAP-EPT-082..088 | update assignment/package/download/readiness/install/activation/progress/health/reversion | 7 | Settings owns admin targeting/waves; Endpoint owns local technical lifecycle; update reversion != Studio/Govern rollback |
+| CAP-EPT-089..093 | buffering/replay/persistence/crash/resource/dependency resilience | 5 | local facts only; Shared generic Jobs/Retry/Recovery retained; replay != exactly-once |
+| CAP-EPT-094..098 | self-protection/anti-tamper, privilege, Secret Reference handling, Local Audit, security-state handoff | 5 | Security/Settings/global owners retained; technical candidates != Finding/Incident/Result |
+| CAP-EPT-099 | Endpoint capability/provenance closure | 1 | documentary closure only; no implementation/Phase6 work |
+
+EPT-6: **18 capabilities / 486 sections / 108 mandatory tables / at least 54 GWT**. Endpoint cumulative content: **99 / 2673 / 594**. Endpoint Screen IDs remain **0**. OPEN remains **18**.
+
+Build-time closure is structurally positive but publication gates 234–240 remain pending; Endpoint/Phase 5 cannot become final PASS until post-publication verification.
