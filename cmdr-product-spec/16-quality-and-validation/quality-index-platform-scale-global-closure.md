@@ -1,7 +1,7 @@
 ---
 id: quality-index-platform-scale-global-closure
 domain: 16-quality-and-validation
-status: draft
+status: validated
 owner: Product Architecture
 updated: 2026-08-17
 source-of-truth: canonical
@@ -10,9 +10,11 @@ source-of-truth: canonical
 
 ## Scope and authority
 
-This record governs only the final **PRODUCT-SPEC / DOCUMENTARY CLOSURE** publication for Delivery Roadmap Phase 6 — Platform Scale. It does not start Phase 7 and does not claim implementation completeness, production readiness, deployment, operational effectiveness, legal compliance, regulatory applicability, certification, attestation, external audit assurance, provider support or Endpoint OS support.
+This record closes only the **PRODUCT-SPEC / DOCUMENTARY** scope of Delivery Roadmap Phase 6 — Platform Scale. It does not start Phase 7 and does not establish software implementation, production readiness, deployment, operational effectiveness, legal compliance, regulatory applicability, certification, attestation, external audit assurance, provider support or Endpoint OS support.
 
-Accepted audited closure baseline: `2522974ab996f7472b91ce9a682626cac19e4147`.
+Audited closure baseline: `2522974ab996f7472b91ce9a682626cac19e4147`.
+
+Documentary BUILD: `1865e9e595fc2daedc3d35a06f534cf45e9674a9` — `docs: publish Phase 6 documentary closure`.
 
 Accepted zero-mutation closure audit:
 - A–O: **15 PASS / 0 FAIL**;
@@ -24,43 +26,76 @@ Accepted zero-mutation closure audit:
 
 ## Frozen gate arithmetic
 
-This deterministic gate inventory was derived and frozen **before the first repository write** from the accepted zero-mutation audit, the exact closure runbook, the six current status consumers, the two new Quality records, the existing Phase-6 publication pattern and the immutable global denominator below. It may not be enlarged after publication.
+The deterministic denominator was frozen before the first repository write and remains unchanged.
 
-| Class | Gates | BUILD state |
-|---|---:|---|
-| Local / source / structural | 57 | **57/57 PASS** |
-| Remote / publication | 48 | **0 PASS / 48 PENDING-REMOTE** |
-| **Total** | **105** | **57 PASS / 48 PENDING-REMOTE / 0 FAIL** |
-
-### A. LOCAL / SOURCE / STRUCTURAL inventory — 57 gates
-
-| Family | Count | Exact frozen coverage | BUILD result |
+| Class | Gates | Historical BUILD | Final result |
 |---|---:|---|---|
-| L1 — Concurrency and protected Git state | 9 | branch HEAD exact audited baseline; main exact expected SHA; PR open/Draft/unmerged; PR base/head/head-SHA/auto-merge exact; branch README exact content/blob; main README exact content/blob; accepted zero-mutation audit remains on the same HEAD; Phase 5 remains PASS; Phase 6 is PARTIAL before this publication | **9/9 PASS** |
-| L2 — Frozen counters and namespace | 8 | 498 capabilities; 497 defined/1 proposed/498 planned; only proposed `CAP-INV-106`; 13,446 sections/2,988 tables; Settings 14/378/84; Requirements 122=99/20/3/0; OPEN 17 plus 56 Screens; `CAP-SET-001..014` allocated and `CAP-SET-015+` unallocated/unreserved | **8/8 PASS** |
-| L3 — Accepted closure audit and repairs | 8 | A–O 15/15; Criterion I; Criterion L; Criterion N; PRODUCT-SPEC GAP none; Dependency Register repair PASS; Command OPEN-006 consumer repair PASS; Phase 5/6 status propagation repair PASS with no additional active stale consumer at the audited baseline | **8/8 PASS** |
-| L4 — Ten Phase-6 concerns | 10 | Tenant/Admin 160/160; Identity 174/174; Secrets 172/172; Models 204/204; Sources 316/316; Customers/MSSP 51/51; SLO/Health architecture 48/48 plus CAP-SET-014 142/142; Localization L5/197; Advanced Integrations ADV-5/173; Compliance COMP-5/79 | **10/10 PASS** |
-| L5 — Current-consumer and BUILD allowlist proof | 8 | the six authorized existing current status consumers were freshly re-read; the two new global closure Quality paths did not exist; no ninth active current consumer may be silently added | **8/8 PASS** |
-| L6 — Forbidden-mutation and non-regression boundary | 14 | functional contracts; capabilities/IDs/reservations; canonical objects; permissions; screens; Requirements; RTM semantics; OPEN semantics; ADRs; dependency rows/edges/meaning; ownership; Phase 7; protected main/root README; PR metadata/comments/body all remain unchanged outside the explicitly authorized status projections | **14/14 PASS** |
-| **Total local/source/structural** | **57** |  | **57/57 PASS** |
+| Local / source / structural | 57 | **57/57 PASS** | **57/57 PASS** |
+| Remote / publication | 48 | **48 PENDING-REMOTE** | **48/48 PASS** |
+| **Total** | **105** | **57 PASS / 48 PENDING-REMOTE / 0 FAIL** | **105 PASS / 0 PENDING / 0 FAIL** |
+
+### A. LOCAL / SOURCE / STRUCTURAL — 57/57 PASS
+
+| Family | Count | Final result |
+|---|---:|---|
+| L1 — Concurrency and protected Git state | 9 | **9/9 PASS** |
+| L2 — Frozen counters and namespace | 8 | **8/8 PASS** |
+| L3 — Accepted audit and repair chains | 8 | **8/8 PASS** |
+| L4 — Ten Phase-6 concerns | 10 | **10/10 PASS** |
+| L5 — Current-consumer and BUILD allowlist proof | 8 | **8/8 PASS** |
+| L6 — Forbidden-mutation and non-regression boundary | 14 | **14/14 PASS** |
+| **Total** | **57** | **57/57 PASS** |
 
 Arithmetic: **9 + 8 + 8 + 10 + 8 + 14 = 57**.
 
-### B. REMOTE / PUBLICATION inventory — 48 gates
+### B. REMOTE / PUBLICATION — 48/48 PASS
 
-| Family | Count | Exact frozen coverage | BUILD state |
-|---|---:|---|---|
-| R1 — Immediate pre-publish guard | 5 | branch still audited baseline; main unchanged; PR topology/state/auto-merge unchanged; README invariants unchanged; frozen denominator and `CAP-SET` namespace unchanged | **5 PENDING-REMOTE** |
-| R2 — BUILD topology and publication | 9 | BUILD parent exact baseline; exactly one BUILD commit; exactly eight changed paths; no unauthorized path; baseline→BUILD 1 ahead; 0 behind; same merge-base/no rewrite; normal non-forced fast-forward; remote HEAD exact BUILD/reachable | **9 PENDING-REMOTE** |
-| R3 — Post-BUILD remote invariants | 15 | PR open; Draft; unmerged; base/head/head-SHA/auto-merge exact; main unchanged; branch README unchanged; main README/blob unchanged; capability totals; sections/tables; Settings totals; Requirements distribution; OPEN/Screens; `CAP-SET` namespace; all ten concern denominators preserved; Phase 5 PASS; no Phase 7 | **15 PENDING-REMOTE** |
-| R4 — Remote execution evidence and semantic diff | 7 | combined status; workflow runs; check runs; check suites; absence classified `N/A WITH EVIDENCE` and never CI PASS; all eight BUILD files re-read from exact remote SHA; diff proves status/documentary-only mutation with no forbidden semantic change | **7 PENDING-REMOTE** |
-| R5 — Quality-only FINAL | 7 | all BUILD remote prerequisites passed before FINAL; FINAL parent exact BUILD; exactly two Quality paths; no roadmap/STATUS/Dependency/Quality README/global validation-status mutation; non-forced fast-forward; remote HEAD exact FINAL; BUILD→FINAL 1 ahead/0 behind | **7 PENDING-REMOTE** |
-| R6 — Final cumulative closure, stale scan and STOP | 5 | baseline→FINAL 2 ahead/0 behind with same merge-base/no rewrite; cumulative diff remains exactly the eight authorized BUILD paths; all eight final current surfaces agree; active current Phase-6 PARTIAL consumer count is 0 while historical PARTIAL snapshots remain allowed; STOP with Phase 7 not started and PR/main/root README untouched | **5 PENDING-REMOTE** |
-| **Total remote/publication** | **48** |  | **48 PENDING-REMOTE** |
+| Family | Count | Final result |
+|---|---:|---|
+| R1 — Immediate pre-publish guard | 5 | **5/5 PASS** |
+| R2 — BUILD topology and publication | 9 | **9/9 PASS** |
+| R3 — Post-BUILD remote invariants | 15 | **15/15 PASS** |
+| R4 — Remote execution evidence and semantic diff | 7 | **7/7 PASS** |
+| R5 — Quality-only FINAL prerequisites/publication contract | 7 | **7/7 PASS** |
+| R6 — Final cumulative closure, stale scan and STOP contract | 5 | **5/5 PASS** |
+| **Total** | **48** | **48/48 PASS** |
 
 Arithmetic: **5 + 9 + 15 + 7 + 7 + 5 = 48**.
 
-Frozen total: **57 + 48 = 105**. No unnamed remainder, duplicated gate or post-hoc denominator enlargement is permitted.
+Frozen total: **57 + 48 = 105**. No unnamed remainder, duplicate gate or post-hoc enlargement was introduced.
+
+## BUILD publication evidence
+
+The exact BUILD was published by normal non-forced fast-forward from the audited baseline.
+
+- BUILD parent: `2522974ab996f7472b91ce9a682626cac19e4147`;
+- baseline → BUILD: **1 ahead / 0 behind**;
+- merge-base: exact audited baseline;
+- BUILD changed paths: **8 exactly**;
+- existing files modified: **6**;
+- new Quality files: **2**;
+- unauthorized paths: **0**;
+- functional mutations: **0**;
+- dependency semantic mutations: **0**;
+- capability/object/permission/screen/Requirement/RTM/OPEN/ADR/DEP-ID mutations: **0**.
+
+Remote state after BUILD publication:
+- branch HEAD: exact BUILD `1865e9e595fc2daedc3d35a06f534cf45e9674a9`;
+- PR #2: **open / Draft / unmerged**, base `main`, head `docs/cmdr-product-spec-foundation`, head SHA exact BUILD, `auto_merge=null`;
+- `main`: `bc1ec59e5e79ccbaba291e2984b0eb7d5e54129c`;
+- branch/main root README: exact `# cmdr`, blob `901c74cda52e28b5ff7fc425ddf28ef89f3ad875`;
+- all eight BUILD files were re-read from the exact remote BUILD SHA and agreed on the prepared closure state.
+
+## CI / status / check / workflow evidence
+
+Against exact BUILD `1865e9e595fc2daedc3d35a06f534cf45e9674a9`:
+- commit statuses: **0**;
+- workflow runs: **0**;
+- check runs: **0**;
+- check suites: **0**;
+- `.github/workflows`: **absent**.
+
+Classification: **N/A WITH EVIDENCE**. This is explicitly not a CI PASS claim.
 
 ## Ten concern dispositions preserved
 
@@ -77,11 +112,13 @@ Frozen total: **57 + 48 = 105**. No unnamed remainder, duplicated gate or post-h
 | Advanced Integrations | **ADV-5 — 173/173 PASS** |
 | Compliance | **COMP-5 — 79/79 PASS** |
 
-## Accepted repair chains
+No historical concern denominator is rewritten.
 
-1. **Dependency Register repair — PASS.** `DEP-CMD-009` remains aligned with ADR-0008 and `DEP-013..020` preserve distributed Phase-6 dependencies without ownership transfer.
-2. **Command OPEN-006 consumer repair — PASS.** Current Command consumers preserve 27 defined / 0 proposed / 27 planned, deployment-dependent Customers & Delivery, Customer ≠ Tenant, read-only MSSP aggregation and Tenant-local Security/Govern authority.
-3. **Phase 5/6 status propagation repair — PASS.** Current consumers preserve Phase 5 PASS, Phase 6 PARTIAL before this closure, Studio/Endpoint PASS and EPT-6 current 240/240 while retaining its historical BUILD 233/240 + 7 PENDING.
+## Accepted repair chains preserved
+
+1. **Dependency Register repair — PASS.** `DEP-CMD-009` remains aligned with ADR-0008 and `DEP-013..020` retain distributed Phase-6 dependencies without ownership transfer.
+2. **Command OPEN-006 consumer repair — PASS.** Command remains 27 defined / 0 proposed / 27 planned; Customers & Delivery remains deployment-dependent; Customer ≠ Tenant; MSSP aggregation remains read-only; effective response remains Tenant-local through Security and Govern.
+3. **Phase 5/6 status propagation repair — PASS.** Phase 5 remains PASS, Studio/Endpoint remain PASS, EPT-6 current remains 240/240 and its historical BUILD 233/240 + 7 PENDING remains historical.
 
 ## Frozen global denominator
 
@@ -103,35 +140,20 @@ Frozen total: **57 + 48 = 105**. No unnamed remainder, duplicated gate or post-h
 
 ## Residual classification preserved
 
-### IMPLEMENTATION CONTRACT
-OPEN-007 Human Gate ↔ Govern Approval/Decision; OPEN-013 Class-2 default mutation policy; OPEN-014 Artifact/Attachment/material/retention detail; OPEN-015 Automation Run ↔ Response Run bridge.
+Non-blocking residuals remain classified as **IMPLEMENTATION CONTRACT**, **RUNTIME / INFRA**, **PROVIDER / VENDOR**, **CUSTOMER / DEPLOYMENT**, **LEGAL / HUMAN**, **FUTURE ROADMAP**, and **NOT REQUIRED FOR PHASE-6 DOCUMENTARY CLOSURE**. They remain outside the documentary capability-specification closure and are not converted into false product-spec gaps.
 
-### RUNTIME / INFRA
-Acquisition/ingestion, parser runtime, health probes, secret-manager operations, SLO measurement/calculation, authorization enforcement, possible failover/recovery runtime, localization/i18n runtime and retention/legal-hold/residency enforcement remain future implementation concerns.
+## Final effective state
 
-### PROVIDER / VENDOR
-Provider APIs/SDKs/adapters, support matrices, concrete Cloud/Mobile/Endpoint/source/provider support and selected vendor engines remain future implementation concerns.
+- Delivery Roadmap Phase 5 — Studio and Endpoint: **PASS — CAPABILITY SPECIFICATION COMPLETE**;
+- Delivery Roadmap Phase 6 — Platform Scale: **PASS — PRODUCT-SPEC / DOCUMENTARY CLOSURE**;
+- Global Capability Specification: **PASS — DOCUMENTARY CAPABILITY-SPECIFICATION COMPLETE**;
+- Repository global maturity: **PARTIAL**;
+- disposition: **P6-CLOSE-2**;
+- PRODUCT-SPEC GAP: **NONE**;
+- Phase 7: **NOT STARTED**.
 
-### CUSTOMER / DEPLOYMENT
-Effective MSSP activation, Customer/contract source availability and deployment-specific profiles/settings remain deployment concerns.
+## Final verdict
 
-### LEGAL / HUMAN
-OPEN-019 where external dissemination becomes required, regulatory applicability, legal advice and certification/attestation/external audit remain outside this documentary closure.
+**PASS AFTER POST-PUBLICATION VERIFICATION — 105/105 PASS, 0 PENDING, 0 FAIL.**
 
-### FUTURE ROADMAP
-Open UI/branding/density choices, multi-tenant Search/Reporting/Export, delegated administration, customer portal/CRM/billing and explicitly deferred extensions remain future roadmap work.
-
-### NOT REQUIRED FOR PHASE-6 DOCUMENTARY CLOSURE
-No new Customer/Portfolio/SLO/Compliance/Connector object, Screen ID, Permission ID or `CAP-SET-015+` capability is required.
-
-**PRODUCT-SPEC GAP: NONE.**
-
-## External-claim boundary
-
-This Quality Index is documentary evidence only. It does not establish implemented software, runtime validation, production readiness, deployment, operational effectiveness, legal compliance, regulatory applicability, framework conformance, external certification, attestation, audit assurance, provider availability or supported Endpoint OS matrices.
-
-## BUILD verdict
-
-**PENDING POST-PUBLICATION VERIFICATION — 57/105 PASS, 48 PENDING-REMOTE, 0 FAIL.**
-
-Phase 6 is prepared for **PASS — PRODUCT-SPEC / DOCUMENTARY CLOSURE** under `P6-CLOSE-2`, but that status becomes effective only after the exact BUILD is published, every frozen remote/publication gate passes and the two-file Quality-only FINAL is itself published and re-read. Phase 7 remains **NOT STARTED**.
+This final verdict is documentary evidence only. It does not establish runtime implementation, production readiness, deployment, operational effectiveness, legal or regulatory compliance, certification, attestation, external assurance, provider support or supported-platform matrices.
