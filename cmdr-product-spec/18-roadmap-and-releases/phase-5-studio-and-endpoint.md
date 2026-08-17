@@ -264,3 +264,26 @@ The preceding EPT-5 NOT STARTED/Do not begin EPT-5 wording is historical pre-EPT
 - no Phase 5E5, API/protocol/native command/PowerShell/shell/final response engine/schema/RBAC/implementation.
 
 EPT-5 can become **PASS AFTER POST-PUBLICATION VERIFICATION — 230/230** only after the exact five-commit chain is published and remotely verified. Next candidate after PASS is **EPT-6 — Updates, Resilience, Security and Endpoint Provenance**, but **do not begin EPT-6 in this run**.
+
+---
+
+## Current Phase 5 reconciliation — post EPT-6 publication
+The complete STD/EPT progression above is preserved as historical execution evidence. Earlier `PARTIAL`, `NOT STARTED`, next-candidate and EPT-6-not-started statements remain true only at their recorded execution points and do not represent the current Phase-5 state.
+
+Current canonical backing:
+- `phase-5-studio-and-endpoint-ept6-build-addendum.md`;
+- `../16-quality-and-validation/reports/endpoint-ept6-updates-resilience-security-provenance-post-publication-verification.md`;
+- `../16-quality-and-validation/reports/endpoint-capability-specification-closure.md`;
+- `../16-quality-and-validation/reports/delivery-roadmap-phase-5-studio-and-endpoint-closure.md`;
+- `../16-quality-and-validation/reports/platform-scale-capability-specification-foundations-preflight.md`.
+
+Current status:
+- Studio Capability Specification: **PASS — 68 capabilities / 1836 sections / 408 mandatory tables**.
+- Endpoint Capability Specification: **PASS — 99 capabilities / 2673 sections / 594 mandatory tables**.
+- EPT-6 historical BUILD remains **233/240 PASS / 7 PENDING-REMOTE / 0 FAIL**.
+- EPT-6 current state is **PASS AFTER POST-PUBLICATION VERIFICATION — 240/240 PASS, 0 PENDING, 0 FAIL**.
+- Delivery Roadmap Phase 5 — Studio and Endpoint: **PASS — capability specification complete**.
+
+Phase 5 PASS means capability-specification completeness only. It does **not** mean implementation complete, production ready, deployed or operationally validated.
+
+Delivery Roadmap Phase 6 is owned by `phase-6-platform-scale.md`; this Phase-5 reconciliation does not mutate or close Phase 6.

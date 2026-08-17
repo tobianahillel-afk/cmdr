@@ -3,7 +3,7 @@ id: repository-index
 domain: repository
 status: draft
 owner: Product Architecture
-updated: 2026-08-07
+updated: 2026-08-17
 source-of-truth: canonical
 ---
 
@@ -35,7 +35,7 @@ source-of-truth: canonical
 - Incidents and Work Queue: `06-command/modules/incidents-and-work-queue/`
 - Risk and Coverage: `06-command/modules/risk-and-coverage/`
 - Readiness and Operations: `06-command/modules/readiness-and-operations/`
-- Customers and Delivery proposal: `06-command/modules/customers-and-delivery/`
+- Customers and Delivery — deployment-dependent: `06-command/modules/customers-and-delivery/`
 
 ## Investigate
 

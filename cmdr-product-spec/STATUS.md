@@ -228,7 +228,7 @@ The preceding EPT-3 NOT STARTED statements are preserved as historical pre-EPT-3
 - EPT-1: **PASS 190/190**; EPT-2: **PASS 200/200**; `CAP-EPT-001..030` intact;
 - EPT-3 capabilities: **`CAP-EPT-031..046` — 16 / 432 sections / 96 mandatory tables / at least 48 GWT**, all `draft / defined / planned`;
 - Endpoint cumulative content: **46 capabilities / 1242 sections / 276 mandatory tables**;
-- global content: **431 capabilities / 429 defined / 2 proposed / 431 planned / 11637 sections / 2586 mandatory tables**;
+- global content: **431 capabilities / 429 defined / 2 proposed / 431 planned / 11637 sections / 2586 tables**;
 - Requirements: **122 = 99 conform / 20 partial / 3 absent / 0 contradictory**; OPEN: **18**;
 - `OPEN-008` and `OPEN-017`: **OPEN**; no final supported platform/source or detection runtime/language/model/portability decision;
 - Investigate retains Detection Engineering/Case/Evidence/Finding; Command retains canonical Detection/Signal/Alert/Incident; Shared, Settings, Govern and Studio boundaries remain unchanged;
@@ -284,3 +284,47 @@ The preceding EPT-5 NOT STARTED/Do not begin EPT-5 statements are historical pre
 - Endpoint Capability Specification, Delivery Roadmap Phase 5, Global Capability Specification and repository maturity remain **PARTIAL**.
 
 EPT-5 may become **PASS AFTER POST-PUBLICATION VERIFICATION — 230/230** only after exact five-commit publication and remote verification. **EPT-6 is NOT STARTED.**
+
+---
+
+## CURRENT synthesis — post Phase 5 closure and Phase 6 status propagation
+All preceding execution snapshots remain preserved historical evidence at their recorded points. For current repository status, this section supersedes earlier current-looking `PARTIAL`, `NOT STARTED`, old capability counts, OPEN=18, Command 26+1 and `Phase 6 future` statements above.
+
+### Current capability specification status
+- Command: **PASS — 27 capabilities / 729 sections / 162 tables; 27 defined / 0 proposed / 27 planned**.
+  - `CAP-CMD-401`: `draft / defined / planned`; Customers & Delivery is deployment-dependent.
+- Investigate: **PASS — 243 capabilities / 6561 sections / 1458 tables**.
+- Govern: **PASS — 47 capabilities / 1269 sections / 282 tables**.
+- Studio: **PASS — 68 capabilities / 1836 sections / 408 mandatory tables**.
+- Endpoint: **PASS — 99 capabilities / 2673 sections / 594 mandatory tables**.
+  - EPT-1: **PASS — 190/190**.
+  - EPT-2: **PASS — 200/200**.
+  - EPT-3: **PASS — 210/210**.
+  - EPT-4: **PASS — 220/220**.
+  - EPT-5: **PASS — 230/230**.
+  - EPT-6: **PASS AFTER POST-PUBLICATION VERIFICATION — 240/240 PASS, 0 PENDING, 0 FAIL**.
+- Global Capability Specification maturity: **PARTIAL**.
+
+EPT-6's historical BUILD remains **233/240 PASS / 7 PENDING-REMOTE / 0 FAIL**. The 240/240 value above is its current post-publication documentary state and does not rewrite that historical BUILD snapshot.
+
+### Current Delivery Roadmap status
+- Delivery Roadmap Phase 4 — Govern: **PASS**.
+- Delivery Roadmap Phase 5 — Studio and Endpoint: **PASS — capability specification complete**.
+- Delivery Roadmap Phase 6 — Platform Scale: **PARTIAL**.
+
+No execution-lot label is converted into a roadmap subphase. This status creates no Phase 5A/5B/5C/5D/E/E6 and no Phase 6A/6B.
+
+### Current repository counters
+- capabilities: **498**;
+- defined / proposed / planned: **497 / 1 / 498**;
+- only proposed capability: `CAP-INV-106`;
+- structural total: **13446 sections / 2988 mandatory tables**;
+- Platform Settings: **14 capabilities / 378 sections / 84 mandatory tables**;
+- Requirements: **122 = 99 conform / 20 partial / 3 absent / 0 contradictory**;
+- OPEN decisions: **17**;
+- active Screens: **56**;
+- `CAP-SET-001..014`: allocated;
+- `CAP-SET-015+`: unallocated / unreserved.
+
+### Current maturity boundary
+Documentary PASS remains distinct from implementation/runtime state. This current synthesis does not claim implementation complete, production ready, deployed or runtime verified. Delivery Roadmap Phase 6 remains **PARTIAL**, repository/global maturity remains **PARTIAL**, and Phase 7 is not started.
