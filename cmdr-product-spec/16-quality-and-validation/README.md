@@ -283,3 +283,17 @@ Localization quality artifacts are indexed without changing any functional sourc
 - `quality-index-platform-scale-localization.md`.
 
 Final source-audited disposition: **L5 — DOCUMENTARY RECONCILIATION ONLY**. The lot creates no capability, canonical object, Permission ID, Screen ID, Requirement state change or OPEN state change. Localization closure is product-spec/documentary only; runtime implementation and production readiness are not claimed. Advanced Integrations and Compliance are not started by this lot. Delivery Roadmap Phase 6 remains **PARTIAL**.
+
+---
+
+## Phase 6 Advanced Integrations documentary reconciliation — BUILD evidence
+
+Advanced Integrations quality artifacts are indexed without changing any functional source:
+- `validation-status-platform-scale-advanced-integrations.md`;
+- `quality-index-platform-scale-advanced-integrations.md`.
+
+Accepted disposition: **ADV-5 — DOCUMENTARY RECONCILIATION ONLY**. Advanced Integrations is a Phase 6 roadmap umbrella over responsibilities already distributed among Platform Settings, Studio, Govern, Shared, Endpoint, Command, Investigate, Security, Experience Architecture and Platform Architecture / Implementation Contracts. It creates no capability, canonical object, Permission ID, Screen ID, Requirement state change, OPEN state change or ADR and transfers no lifecycle ownership.
+
+The frozen quality model is **173 gates = 106 source/local + 67 publication/remote-dependent**. BUILD-time state is **106 PASS / 67 PENDING-REMOTE / 0 FAIL**. The authoritative final state is recorded only in the two Advanced Integrations quality documents after actual publication and remote verification; this README entry intentionally remains the historical BUILD snapshot.
+
+Documentary reconciliation does not claim connector implementation, integration operational readiness, provider availability, ingestion runtime, external probe execution, parser runtime, webhook support, final APIs, vendor adapters or production readiness. `CAP-SET-015+` remains unallocated/unreserved. Localization remains closed at L5/197. Compliance remains **NOT STARTED** and Delivery Roadmap Phase 6 remains **PARTIAL**.

@@ -452,3 +452,44 @@ This reconciliation does **not** claim that the Localization runtime is implemen
 Roadmap preservation for this additive reconciliation is **REMOVED 0 / WEAKENED 0 / UNKNOWN 0**. Residual SLO/Resilience state is unchanged. **Advanced Integrations is NOT STARTED by this run. Compliance is NOT STARTED by this run.**
 
 Localization is **DOCUMENTARILY RECONCILED / CLOSED AT PRODUCT-SPEC LEVEL** with final disposition **L5**. Delivery Roadmap Phase 6 remains **PARTIAL**. Global Capability Specification maturity remains **PARTIAL** and repository maturity remains **PARTIAL**.
+
+### Advanced Integrations — documentary reconciliation / product-spec closure
+
+The complete Phase 6 Advanced Integrations source-audited preparation has been accepted by project direction. The canonical disposition is **ADV-5 — DOCUMENTARY RECONCILIATION ONLY**.
+
+Advanced Integrations is a Phase 6 roadmap concern whose relevant product responsibilities are already distributed among canonical owners. It is **not** a standalone CMDR domain, standalone lifecycle, capability namespace, Settings runtime engine, connector engine, ingestion engine, webhook platform, SOAR replacement, new Studio runtime or Govern bypass.
+
+Ownership remains distributed without transfer:
+- **Platform Settings** retains administrative configuration/lifecycle for `Integration`, `Secret Reference`, `Model Provider`, `Data Source`, `Parser`, `Tenant`, `Environment` and administrative health/state projections;
+- **Studio** retains Tool, Tool Call, Skill, Workflow, Automation Agent, Agent Team, Human Gate and Automation Run semantics;
+- **Govern** retains Action Request, Approval, Decision, Policy/authority evaluation, Response Run, verification and Result; external consequential effects do not bypass Govern where Govern authority applies;
+- **Shared** retains generic Jobs, Trace, Activity, Search, Notifications, Reporting, Export, Versioning, generic linking and generic delivery-support machinery;
+- **Endpoint** retains authorized local technical execution;
+- **Command** and **Investigate** retain their existing domain semantics;
+- **Security** retains authorization, isolation, trust and secrets controls;
+- **Experience Architecture** and **Platform Architecture / Implementation Contracts** retain their existing cross-cutting and technical contracts.
+
+Mandatory distinctions remain `Tool != Integration`, `Tool Call != Integration lifecycle`, `Workflow != Connector`, `Automation Run != Response Run` and `Human Gate != Govern Approval`. No existing lifecycle is transferred.
+
+Final reconciliation consequences:
+- new capability required: **NO**;
+- new Capability IDs allocated/reserved: **0 / 0**;
+- `CAP-SET-015+`: **UNALLOCATED / UNRESERVED**;
+- new canonical objects: **0**;
+- new Permission IDs/families: **0**;
+- new Screen IDs: **0**;
+- Requirement IDs/state changes: **0 / 0**;
+- OPEN additions/closures/state changes: **0 / 0 / 0**;
+- ADR required/created: **NO / 0**;
+- ownership transfer: **NO**;
+- functional capability/service mutation: **NO**.
+
+Relevant existing OPEN dependencies, including `OPEN-007`, `OPEN-008`, `OPEN-011`, `OPEN-012`, `OPEN-013`, `OPEN-015`, `OPEN-018` and `OPEN-019`, remain unchanged. They may constrain future implementation or specific use cases but do not block this documentary product-spec disposition.
+
+Implementation-only residuals remain outside this closure: external probe executors, connector implementations, provider APIs/SDKs/runtimes, source acquisition/ingestion runtime, parser runtime/plugin engine, underlying secret-manager operations, concrete schemas/versions, rate limits, retry/backoff, transports, queues, storage, support matrices and vendor adapters. Webhook/Callback/Subscription canonical lifecycle is not source-required and is not invented here.
+
+Advanced Integrations is **DOCUMENTARILY RECONCILED / CLOSED AT PRODUCT-SPEC LEVEL** under **ADV-5**. This does not mean connectors are implemented, integrations are operational, providers are supported, ingestion exists at runtime, probes/parser runtimes/webhooks are delivered, APIs are final, vendor adapters exist or the product is production ready.
+
+Quality evidence is recorded in `../16-quality-and-validation/quality-index-platform-scale-advanced-integrations.md` and `../16-quality-and-validation/validation-status-platform-scale-advanced-integrations.md`. The frozen quality model is **173 gates = 106 source/local + 67 remote-dependent**; final PASS requires actual publication and remote verification.
+
+Localization remains **L5 / 197/197 PASS**. Platform Health/SLO, Sources & Parsers and Secrets & Connections remain unchanged. **Compliance remains NOT STARTED. Delivery Roadmap Phase 6 remains PARTIAL.**
