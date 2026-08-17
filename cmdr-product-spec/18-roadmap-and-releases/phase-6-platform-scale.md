@@ -493,3 +493,39 @@ Advanced Integrations is **DOCUMENTARILY RECONCILED / CLOSED AT PRODUCT-SPEC LEV
 Quality evidence is recorded in `../16-quality-and-validation/quality-index-platform-scale-advanced-integrations.md` and `../16-quality-and-validation/validation-status-platform-scale-advanced-integrations.md`. The frozen quality model is **173 gates = 106 source/local + 67 remote-dependent**; final PASS requires actual publication and remote verification.
 
 Localization remains **L5 / 197/197 PASS**. Platform Health/SLO, Sources & Parsers and Secrets & Connections remain unchanged. **Compliance remains NOT STARTED. Delivery Roadmap Phase 6 remains PARTIAL.**
+
+### Compliance — documentary reconciliation / product-spec closure
+
+The accepted Phase 6 Compliance disposition is **COMP-5 — DOCUMENTARY RECONCILIATION ONLY**. Compliance is a cross-cutting roadmap concern over responsibilities already distributed among canonical owners; it is not a standalone product/domain, lifecycle, capability family, Settings capability namespace, legal-control engine, certification subsystem or runtime implementation.
+
+Ownership remains distributed without transfer:
+- **Security** retains privacy/minimization, data-residency, legal-hold, authorization, isolation and trust source semantics;
+- **Platform Settings** retains the retention administrative surface and other existing administrative lifecycles; this reconciliation does not allocate `CAP-SET-015`;
+- **Govern** retains Action Request, Approval, Decision, Policy/authority evaluation, Response Run, verification, rollback and Result;
+- **Shared** retains generic Trace, Activity, Search, Metrics, Reporting, Export, Notification and other generic mechanisms;
+- **Investigate** retains Case, Evidence, Finding and investigation semantics;
+- **Platform Architecture / Implementation Contracts** retains implementation-neutral technical contracts, including the existing draft Data Retention Contract.
+
+The owner sources for Privacy & Minimization, Data Residency, Legal Hold, Settings Retention and Data Retention Contract remain `draft`, retain their current owners and `canonical` source-of-truth status, and retain all existing open questions. COMP-5 does not resolve, close, weaken, promote or reinterpret them. `already distributed / already owned` does not mean `complete / validated / implemented`.
+
+Reconciliation consequences:
+- new capability: **NO**;
+- new Capability ID allocated: **NO**;
+- new Capability ID reserved: **NO**;
+- `CAP-SET-015+`: **UNALLOCATED / UNRESERVED**;
+- new canonical object: **NO**;
+- new Permission ID/family: **NO**;
+- new Screen ID: **NO**;
+- Requirement/RTM mutations: **0 / 0**;
+- OPEN mutations: **0**;
+- ADR: **0**;
+- ownership transfer: **0**;
+- external compliance claim: **NO**;
+- certification/attestation claim: **NO**;
+- runtime implementation claim: **NO**.
+
+Quality evidence is staged in `../16-quality-and-validation/validation-status-platform-scale-compliance.md` and `../16-quality-and-validation/quality-index-platform-scale-compliance.md`. The frozen model is **79 gates = 33 local/source/structural + 46 remote/publication**. At documentary BUILD, **33/33 local gates PASS and 46 remote/publication gates remain PENDING-REMOTE**. The authoritative `CLOSED AT PRODUCT-SPEC LEVEL` state is carried only by the quality-only FINAL after actual publication and remote verification reaches **79/79 PASS**.
+
+Product-spec roadmap closure is distinct from runtime implementation, legal compliance, regulatory applicability, certification, attestation and production readiness. No external framework, law, jurisdiction or certification is asserted by this reconciliation.
+
+Localization remains **L5 / 197/197 PASS**. Advanced Integrations remains **ADV-5 / 173/173 PASS**. Delivery Roadmap Phase 6 remains **PARTIAL**.

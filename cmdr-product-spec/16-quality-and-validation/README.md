@@ -297,3 +297,19 @@ Accepted disposition: **ADV-5 — DOCUMENTARY RECONCILIATION ONLY**. Advanced In
 The frozen quality model is **173 gates = 106 source/local + 67 publication/remote-dependent**. BUILD-time state is **106 PASS / 67 PENDING-REMOTE / 0 FAIL**. The authoritative final state is recorded only in the two Advanced Integrations quality documents after actual publication and remote verification; this README entry intentionally remains the historical BUILD snapshot.
 
 Documentary reconciliation does not claim connector implementation, integration operational readiness, provider availability, ingestion runtime, external probe execution, parser runtime, webhook support, final APIs, vendor adapters or production readiness. `CAP-SET-015+` remains unallocated/unreserved. Localization remains closed at L5/197. Compliance remains **NOT STARTED** and Delivery Roadmap Phase 6 remains **PARTIAL**.
+
+---
+
+## Phase 6 Compliance documentary reconciliation — BUILD evidence
+
+Compliance quality artifacts are indexed without changing any functional or owner-domain source:
+- `validation-status-platform-scale-compliance.md`;
+- `quality-index-platform-scale-compliance.md`.
+
+Accepted disposition: **COMP-5 — DOCUMENTARY RECONCILIATION ONLY**. Compliance is a cross-cutting Phase 6 roadmap concern over responsibilities already distributed among canonical owners. This lot creates no capability, canonical object, Permission ID, Screen ID, Requirement/RTM mutation, OPEN mutation or ADR and transfers no ownership.
+
+The frozen quality model is **79 gates = 33 local/source/structural + 46 remote/publication**. BUILD-time state is **33 PASS / 46 PENDING-REMOTE / 0 FAIL**. The authoritative final state is recorded only in the two Compliance Quality documents after actual publication, remote verification and the quality-only FINAL; this README entry intentionally remains the historical BUILD snapshot.
+
+The owner sources for Privacy & Minimization, Data Residency, Legal Hold, Settings Retention and Data Retention Contract remain `draft` with their existing owners, canonical source-of-truth status and open questions unchanged. Documentary reconciliation does not claim legal compliance, regulatory applicability, framework conformance, certification, attestation, runtime implementation, control effectiveness or production readiness.
+
+`CAP-SET-015+` remains **UNALLOCATED / UNRESERVED**. Localization remains closed at **L5 / 197/197 PASS**. Advanced Integrations remains closed at **ADV-5 / 173/173 PASS**. Delivery Roadmap Phase 6 remains **PARTIAL**.
