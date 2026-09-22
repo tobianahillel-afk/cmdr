@@ -18,8 +18,8 @@
     {"id":"E2-ARCH-001B","title":"Enforce third-party product runtime dependency policy","type":"sublot","status":"VERIFIED","depends_on":["E2-ARCH-001A"],"dependency_terminal_state":"VERIFIED","unlocks":["E2-ARCH-001C"]},
     {"id":"E2-ARCH-001C","title":"Enforce cross-boundary dependency edges","type":"sublot","status":"VERIFIED","depends_on":["E2-ARCH-001B"],"dependency_terminal_state":"VERIFIED","unlocks":["E3-IMPACT-001A"]},
     {"id":"E3-IMPACT-001","title":"Implement impact and test selection engine","type":"epic","status":"DECOMPOSED","depends_on":["E2-ARCH-001C"],"dependency_terminal_state":"VERIFIED","unlocks":["E3-IMPACT-001A"]},
-    {"id":"E3-IMPACT-001A","title":"Define validation check catalog and risk metadata","type":"sublot","status":"READY","depends_on":["E2-ARCH-001C"],"dependency_terminal_state":"VERIFIED","unlocks":["E3-IMPACT-001B"]},
-    {"id":"E3-IMPACT-001B","title":"Compute change impact and affected validation domains","type":"sublot","status":"BLOCKED","depends_on":["E3-IMPACT-001A"],"dependency_terminal_state":"VERIFIED","unlocks":["E3-IMPACT-001C"]},
+    {"id":"E3-IMPACT-001A","title":"Define validation check catalog and risk metadata","type":"sublot","status":"VERIFIED","depends_on":["E2-ARCH-001C"],"dependency_terminal_state":"VERIFIED","unlocks":["E3-IMPACT-001B"]},
+    {"id":"E3-IMPACT-001B","title":"Compute change impact and affected validation domains","type":"sublot","status":"READY","depends_on":["E3-IMPACT-001A"],"dependency_terminal_state":"VERIFIED","unlocks":["E3-IMPACT-001C"]},
     {"id":"E3-IMPACT-001C","title":"Select deterministic risk-adaptive validation plan","type":"sublot","status":"BLOCKED","depends_on":["E3-IMPACT-001B"],"dependency_terminal_state":"VERIFIED","unlocks":[]}
   ]
 }
