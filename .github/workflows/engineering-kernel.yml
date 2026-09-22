@@ -41,6 +41,17 @@ jobs:
           go-version-file: tools/cmdr-dev/go.mod
           cache: false
 
+      - name: Derive real change set and shadow validation plan
+        working-directory: tools/cmdr-dev
+        shell: bash
+        env:
+          CMDR_BASE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
+          CMDR_HEAD_SHA: ${{ github.sha }}
+        run: |
+          changes="$(mktemp)"
+          go run . git-changes --root ../.. --base-commit "$CMDR_BASE_SHA" --head-commit "$CMDR_HEAD_SHA" --output "$changes" --json
+          go run . validation-plan --root ../.. --changes-file "$changes" --json
+
       - name: Enforce gofmt
         working-directory: tools/cmdr-dev
         shell: bash

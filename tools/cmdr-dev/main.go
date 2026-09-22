@@ -113,6 +113,8 @@ func main() {
 	outputFlag := fs.String("output", "engineering/spec-index/inventory.json", "generated output path")
 	workUnitFlag := fs.String("work-unit", "", "work unit id; defaults to active work unit")
 	changesFileFlag := fs.String("changes-file", "", "newline-delimited repository-relative changed paths")
+	baseCommitFlag := fs.String("base-commit", "", "full Git base commit id")
+	headCommitFlag := fs.String("head-commit", "", "full Git head commit id")
 	if err := fs.Parse(os.Args[2:]); err != nil {
 		fail(err)
 	}
@@ -312,6 +314,15 @@ func main() {
 			fail(err)
 		}
 		printValue(plan, *jsonFlag)
+	case "git-changes":
+		if err := validateState(root, state, graph); err != nil {
+			fail(err)
+		}
+		summary, err := runGitChanges(root, *baseCommitFlag, *headCommitFlag, *outputFlag)
+		if err != nil {
+			fail(err)
+		}
+		printValue(summary, *jsonFlag)
 	default:
 		usage(os.Stderr)
 		fail(fmt.Errorf("unknown command %q", command))
@@ -697,6 +708,11 @@ func printValue(v any, asJSON bool) {
 		fmt.Printf("selected checks: %d\n", len(x.SelectedChecks))
 		fmt.Printf("by cost tier: %v\n", x.ByCostTier)
 		fmt.Printf("cost units: %d\n", x.CostUnits)
+	case GitChangesSummary:
+		fmt.Printf("base commit: %s\n", x.BaseCommit)
+		fmt.Printf("head commit: %s\n", x.HeadCommit)
+		fmt.Printf("changed paths: %d\n", x.Count)
+		fmt.Printf("output: %s\n", x.Output)
 	default:
 		b, _ := json.MarshalIndent(v, "", "  ")
 		fmt.Println(string(b))
@@ -704,7 +720,7 @@ func printValue(v any, asJSON bool) {
 }
 
 func usage(w io.Writer) {
-	fmt.Fprintln(w, "usage: cmdr-dev <doctor|status|next|spec-index|spec-baseline|coverage-graph|obligations|coverage-audit|validate-manifests|complexity-audit|context|architecture-audit|dependency-audit|boundary-edge-audit|check-catalog-audit|impact|validation-plan> [--root PATH] [--json] [--check] [--output PATH]")
+	fmt.Fprintln(w, "usage: cmdr-dev <doctor|status|next|spec-index|spec-baseline|coverage-graph|obligations|coverage-audit|validate-manifests|complexity-audit|context|architecture-audit|dependency-audit|boundary-edge-audit|check-catalog-audit|impact|validation-plan|git-changes> [--root PATH] [--json] [--check] [--output PATH]")
 }
 
 func fail(err error) {

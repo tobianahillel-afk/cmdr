@@ -35,7 +35,10 @@
   ],
   "outputs": [
     "CI-derived change evidence",
-    "risk-adaptive validation execution evidence"
+    "risk-adaptive validation execution evidence",
+    "exact-SHA git change-set compiler",
+    "shadow plan from GitHub event commit range",
+    "catalogued CHK-CHANGESET bootstrap primitive"
   ],
   "invariants": [
     "Product Spec remains read-only",
@@ -52,7 +55,9 @@
     "go test ./...",
     "cmdr-dev validate-manifests succeeds",
     "cmdr-dev architecture-audit succeeds",
-    "cmdr-dev complexity-audit succeeds"
+    "cmdr-dev complexity-audit succeeds",
+    "unit test proves additions, deletions and both sides of a rename reach the change set",
+    "push and pull_request workflows execute real git-changes plus validation-plan before the full kernel"
   ],
   "performance_budget": {
     "applicable": true,
@@ -79,7 +84,8 @@
     "go test ./...",
     "cmdr-dev validate-manifests",
     "cmdr-dev architecture-audit",
-    "cmdr-dev complexity-audit"
+    "cmdr-dev complexity-audit",
+    "cmdr-dev git-changes shadow mode"
   ],
   "definition_of_ready": [
     "dependencies are VERIFIED",
