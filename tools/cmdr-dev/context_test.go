@@ -25,9 +25,9 @@ func TestDependencyClosureIsDeterministic(t *testing.T) {
 func TestContextBundleDigestIsDeterministic(t *testing.T) {
 	root := t.TempDir()
 	for path, content := range map[string]string{
-		"AGENTS.md": "rules\n",
+		"AGENTS.md":        "rules\n",
 		"engineering/x.md": "engineering\n",
-		"work/x.json": "{}\n",
+		"work/x.json":      "{}\n",
 	} {
 		full := filepath.Join(root, filepath.FromSlash(path))
 		if err := os.MkdirAll(filepath.Dir(full), 0o755); err != nil {
