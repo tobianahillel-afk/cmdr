@@ -23,17 +23,44 @@
       "id": "E0-SPEC-001",
       "title": "Implement product-spec inventory compiler",
       "type": "lot",
-      "status": "READY",
+      "status": "VERIFIED",
       "depends_on": ["E0-KERNEL-001"],
       "dependency_terminal_state": "VERIFIED",
-      "unlocks": ["E0-COVERAGE-001"]
+      "unlocks": ["E0-COVERAGE-001A"]
     },
     {
       "id": "E0-COVERAGE-001",
       "title": "Build product obligation and coverage graph",
-      "type": "lot",
-      "status": "BLOCKED",
+      "type": "epic",
+      "status": "DECOMPOSED",
       "depends_on": ["E0-SPEC-001"],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": ["E0-COVERAGE-001A"]
+    },
+    {
+      "id": "E0-COVERAGE-001A",
+      "title": "Build canonical product entity and reference graph",
+      "type": "sublot",
+      "status": "READY",
+      "depends_on": ["E0-SPEC-001"],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": ["E0-COVERAGE-001B"]
+    },
+    {
+      "id": "E0-COVERAGE-001B",
+      "title": "Derive implementation obligations from product graph",
+      "type": "sublot",
+      "status": "BLOCKED",
+      "depends_on": ["E0-COVERAGE-001A"],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": ["E0-COVERAGE-001C"]
+    },
+    {
+      "id": "E0-COVERAGE-001C",
+      "title": "Detect unmapped and inconsistent product coverage",
+      "type": "sublot",
+      "status": "BLOCKED",
+      "depends_on": ["E0-COVERAGE-001B"],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": []
     }
