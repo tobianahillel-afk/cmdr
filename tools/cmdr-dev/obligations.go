@@ -76,8 +76,7 @@ func runObligations(root, specRel, output string, check bool) (ObligationSummary
 	if err != nil {
 		return ObligationSummary{}, err
 	}
-	data = append(data, '
-')
+	data = append(data, '\n')
 	outputPath := output
 	if !filepath.IsAbs(outputPath) {
 		outputPath = filepath.Join(root, filepath.FromSlash(outputPath))
