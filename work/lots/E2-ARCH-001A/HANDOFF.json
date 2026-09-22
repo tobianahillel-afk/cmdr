@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "work_unit": "E2-ARCH-001A",
+  "result": "VERIFIED",
+  "final_validated_head": "c061b070665cb073184f4218c3c1e57b30b3e5f4",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 35793790133,
+    "pull_request_run": 35793793525,
+    "boundaries": 4,
+    "strict_v2_manifests": 8,
+    "allowed_path_claims": 56
+  },
+  "rules": [
+    "architecture paths are deny-by-default",
+    "Product Spec is a non-mutable boundary",
+    "strict-v2 allowed paths must belong to exactly one mutable boundary",
+    "no product-runtime source root exists until explicitly registered"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": ["E2-ARCH-001B"]
+}
