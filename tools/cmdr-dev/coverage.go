@@ -40,20 +40,20 @@ type ProductGraph struct {
 }
 
 type CoverageGraphSummary struct {
-	Entities                       int    `json:"entities"`
-	Edges                          int    `json:"edges"`
-	OwnedCapabilities              int    `json:"owned_capabilities"`
-	ReferenceOnlyCapabilities      int    `json:"reference_only_capabilities"`
-	DistinctRequirementReferences  int    `json:"distinct_requirement_references"`
-	DistinctOpenDecisionReferences int    `json:"distinct_open_decision_references"`
-	DistinctPermissionReferences   int    `json:"distinct_permission_references"`
+	Entities                       int      `json:"entities"`
+	Edges                          int      `json:"edges"`
+	OwnedCapabilities              int      `json:"owned_capabilities"`
+	ReferenceOnlyCapabilities      int      `json:"reference_only_capabilities"`
+	DistinctRequirementReferences  int      `json:"distinct_requirement_references"`
+	DistinctOpenDecisionReferences int      `json:"distinct_open_decision_references"`
+	DistinctPermissionReferences   int      `json:"distinct_permission_references"`
 	OwnedScreens                   int      `json:"owned_screens"`
 	RegisteredActiveScreens        int      `json:"registered_active_screens"`
 	UnregisteredOwnedScreens       []string `json:"unregistered_owned_screens,omitempty"`
 	ReferenceOnlyScreens           int      `json:"reference_only_screens"`
 	SpecTreeDigest                 string   `json:"spec_tree_digest"`
-	Output                         string `json:"output"`
-	Mode                           string `json:"mode"`
+	Output                         string   `json:"output"`
+	Mode                           string   `json:"mode"`
 }
 
 var capabilityIDPattern = regexp.MustCompile(`^CAP-[A-Z0-9]+-[0-9]{3}$`)
