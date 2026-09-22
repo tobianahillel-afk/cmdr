@@ -85,12 +85,3 @@ func TestNormalizeChangedPathsRejectsEscape(t *testing.T) {
 		t.Fatal("expected repository escape rejection")
 	}
 }
-
-func containsString(values []string, want string) bool {
-	for _, value := range values {
-		if value == want {
-			return true
-		}
-	}
-	return false
-}
