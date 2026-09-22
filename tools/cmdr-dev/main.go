@@ -235,6 +235,18 @@ func main() {
 			fail(err)
 		}
 		printValue(summary, *jsonFlag)
+	case "complexity-audit":
+		if err := validateState(root, state, graph); err != nil {
+			fail(err)
+		}
+		summary, err := runComplexityAudit(root, graph)
+		if err != nil {
+			fail(err)
+		}
+		if err := validateComplexityReadiness(summary); err != nil {
+			fail(err)
+		}
+		printValue(summary, *jsonFlag)
 	default:
 		usage(os.Stderr)
 		fail(fmt.Errorf("unknown command %q", command))
@@ -565,6 +577,12 @@ func printValue(v any, asJSON bool) {
 		fmt.Printf("legacy v1: %d\n", x.LegacyV1)
 		fmt.Printf("strict v2: %d\n", x.StrictV2)
 		fmt.Printf("mode: %s\n", x.Mode)
+	case ComplexityAuditSummary:
+		fmt.Printf("evaluated: %d\n", x.Evaluated)
+		fmt.Printf("within budget: %d\n", x.WithinBudget)
+		fmt.Printf("with warnings: %d\n", x.WithWarnings)
+		fmt.Printf("split required: %d\n", x.SplitRequired)
+		fmt.Printf("readiness violations: %d\n", x.ReadinessViolations)
 	default:
 		b, _ := json.MarshalIndent(v, "", "  ")
 		fmt.Println(string(b))
@@ -572,7 +590,7 @@ func printValue(v any, asJSON bool) {
 }
 
 func usage(w io.Writer) {
-	fmt.Fprintln(w, "usage: cmdr-dev <doctor|status|next|spec-index|spec-baseline|coverage-graph|obligations|coverage-audit|validate-manifests> [--root PATH] [--json] [--check] [--output PATH]")
+	fmt.Fprintln(w, "usage: cmdr-dev <doctor|status|next|spec-index|spec-baseline|coverage-graph|obligations|coverage-audit|validate-manifests|complexity-audit> [--root PATH] [--json] [--check] [--output PATH]")
 }
 
 func fail(err error) {

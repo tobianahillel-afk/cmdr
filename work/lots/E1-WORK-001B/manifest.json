@@ -35,7 +35,8 @@
   "outputs": [
     "complexity evaluator",
     "soft-budget warnings",
-    "hard split decision"
+    "hard split decision",
+    "READY-state split guard"
   ],
   "invariants": [
     "canonical Product Spec remains read-only",
@@ -47,7 +48,8 @@
   ],
   "acceptance_tests": [
     "go test ./...",
-    "cmdr-dev validate-manifests succeeds on repository manifests"
+    "cmdr-dev validate-manifests succeeds on repository manifests",
+    "cmdr-dev complexity-audit succeeds and blocks synthetic hard-limit violations in unit tests"
   ],
   "performance_budget": {
     "applicable": false,
@@ -69,7 +71,8 @@
     "gofmt",
     "go vet ./...",
     "go test ./...",
-    "cmdr-dev validate-manifests"
+    "cmdr-dev validate-manifests",
+    "cmdr-dev complexity-audit"
   ],
   "definition_of_ready": [
     "dependencies satisfy their required terminal state",
@@ -84,8 +87,8 @@
     "primary_components": 1,
     "estimated_files_changed": 5,
     "estimated_net_loc": 350,
-    "production_files": 0,
-    "net_production_loc": 0,
+    "production_files": 2,
+    "net_production_loc": 260,
     "bounded_contexts": 1,
     "independent_migrations": 0,
     "distinct_security_models": 0,

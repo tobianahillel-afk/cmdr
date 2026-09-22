@@ -99,6 +99,10 @@ jobs:
         working-directory: tools/cmdr-dev
         run: go run . validate-manifests --root ../.. --json
 
+      - name: Audit work-unit complexity
+        working-directory: tools/cmdr-dev
+        run: go run . complexity-audit --root ../.. --json
+
       - name: Bootstrap doctor
         working-directory: tools/cmdr-dev
         run: go run . doctor --root ../..
