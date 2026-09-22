@@ -10,26 +10,26 @@ import (
 )
 
 type LocalPackage struct {
-	Boundary string `json:"boundary"`
+	Boundary  string `json:"boundary"`
 	Ecosystem string `json:"ecosystem"`
-	Name string `json:"name"`
-	Manifest string `json:"manifest"`
+	Name      string `json:"name"`
+	Manifest  string `json:"manifest"`
 	Directory string `json:"directory"`
 }
 
 type BoundaryDependencyEdge struct {
-	From string `json:"from"`
-	To string `json:"to"`
-	Kind string `json:"kind"`
+	From       string `json:"from"`
+	To         string `json:"to"`
+	Kind       string `json:"kind"`
 	SourcePath string `json:"source_path"`
 	TargetPath string `json:"target_path"`
 	Dependency string `json:"dependency"`
 }
 
 type BoundaryEdgeAuditSummary struct {
-	RuntimeBoundaries int `json:"runtime_boundaries"`
-	LocalPackages int `json:"local_packages"`
-	ObservedEdges int `json:"observed_edges"`
+	RuntimeBoundaries  int `json:"runtime_boundaries"`
+	LocalPackages      int `json:"local_packages"`
+	ObservedEdges      int `json:"observed_edges"`
 	CrossBoundaryEdges int `json:"cross_boundary_edges"`
 }
 
@@ -60,8 +60,8 @@ func runBoundaryEdgeAudit(root string) (BoundaryEdgeAuditSummary, error) {
 	}
 	summary := BoundaryEdgeAuditSummary{
 		RuntimeBoundaries: runtimeBoundaries,
-		LocalPackages: len(packages),
-		ObservedEdges: len(edges),
+		LocalPackages:     len(packages),
+		ObservedEdges:     len(edges),
 	}
 	for _, edge := range edges {
 		if edge.From != edge.To {
@@ -119,10 +119,10 @@ func discoverLocalPackages(root string, registry ArchitectureRegistry) ([]LocalP
 					return fmt.Errorf("%s has no local package/module identity", rel)
 				}
 				packages = append(packages, LocalPackage{
-					Boundary: boundary.ID,
+					Boundary:  boundary.ID,
 					Ecosystem: ecosystem,
-					Name: name,
-					Manifest: rel,
+					Name:      name,
+					Manifest:  rel,
 					Directory: dir,
 				})
 				return nil
@@ -199,10 +199,10 @@ func discoverBoundaryEdges(root string, registry ArchitectureRegistry, packages 
 
 func parseNodeLocalRefs(path string) (string, []localDependencyRef, error) {
 	var pkg struct {
-		Name string `json:"name"`
-		Dependencies map[string]string `json:"dependencies"`
+		Name                 string            `json:"name"`
+		Dependencies         map[string]string `json:"dependencies"`
 		OptionalDependencies map[string]string `json:"optionalDependencies"`
-		PeerDependencies map[string]string `json:"peerDependencies"`
+		PeerDependencies     map[string]string `json:"peerDependencies"`
 	}
 	data, err := os.ReadFile(path)
 	if err != nil {
@@ -378,12 +378,20 @@ func validateBoundaryEdges(registry ArchitectureRegistry, edges []BoundaryDepend
 
 func dedupeBoundaryEdges(edges []BoundaryDependencyEdge) []BoundaryDependencyEdge {
 	sort.Slice(edges, func(i, j int) bool {
-		if edges[i].From != edges[j].From { return edges[i].From < edges[j].From }
-		if edges[i].To != edges[j].To { return edges[i].To < edges[j].To }
-		if edges[i].SourcePath != edges[j].SourcePath { return edges[i].SourcePath < edges[j].SourcePath }
+		if edges[i].From != edges[j].From {
+			return edges[i].From < edges[j].From
+		}
+		if edges[i].To != edges[j].To {
+			return edges[i].To < edges[j].To
+		}
+		if edges[i].SourcePath != edges[j].SourcePath {
+			return edges[i].SourcePath < edges[j].SourcePath
+		}
 		return edges[i].Dependency < edges[j].Dependency
 	})
-	if len(edges) == 0 { return nil }
+	if len(edges) == 0 {
+		return nil
+	}
 	out := edges[:0]
 	var previous BoundaryDependencyEdge
 	for i, edge := range edges {
