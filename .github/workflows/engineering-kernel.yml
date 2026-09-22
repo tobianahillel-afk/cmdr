@@ -45,9 +45,9 @@ jobs:
         working-directory: tools/cmdr-dev
         shell: bash
         run: |
-          files="$(gofmt -l .)"
-          if [ -n "$files" ]; then
-            printf 'Files requiring gofmt:\n%s\n' "$files"
+          diff="$(gofmt -d .)"
+          if [ -n "$diff" ]; then
+            printf 'gofmt diff:\n%s\n' "$diff"
             exit 1
           fi
 
