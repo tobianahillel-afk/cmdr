@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "work_unit": "E0-SPEC-001",
+  "status": "IN_PROGRESS",
+  "implementation_commits": [
+    "57be611ee2400ce4fc407c86acc3123bb4c8ee22",
+    "cdd79d57633cfe8d4fa3dcc2acd680ea2cddf8da"
+  ],
+  "validation": {
+    "workflow_run": 35777318597,
+    "result": "PASS",
+    "gofmt": "PASS",
+    "go_vet": "PASS",
+    "unit_tests": "PASS",
+    "canonical_corpus_compile": "PASS",
+    "doctor": "PASS",
+    "next_resolution": "PASS"
+  },
+  "corpus_observation": {
+    "markdown_files": 1879,
+    "active_canonical_documents": 1428,
+    "tree_digest": "a5f45351eba180d0edb734f33ecbeaabb7eceb7143305e201e207e8ae5a60d27"
+  },
+  "completed": [
+    "deterministic product-spec walk",
+    "source SHA-256 hashing",
+    "front-matter identity extraction",
+    "CMDR reference extraction",
+    "active canonical duplicate-id rejection",
+    "deterministic ordering",
+    "full canonical-corpus smoke validation"
+  ],
+  "remaining_before_verified": [
+    "choose and document compact persistent baseline versus full generated inventory policy",
+    "wire stale-baseline/check semantics into CI",
+    "record final evidence and transition graph state"
+  ],
+  "product_spec_mutated": false
+}
