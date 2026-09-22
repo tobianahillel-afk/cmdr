@@ -41,7 +41,7 @@
       "id": "E0-COVERAGE-001A",
       "title": "Build canonical product entity and reference graph",
       "type": "sublot",
-      "status": "READY",
+      "status": "VERIFIED",
       "depends_on": ["E0-SPEC-001"],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": ["E0-COVERAGE-001B"]
@@ -50,7 +50,7 @@
       "id": "E0-COVERAGE-001B",
       "title": "Derive implementation obligations from product graph",
       "type": "sublot",
-      "status": "BLOCKED",
+      "status": "READY",
       "depends_on": ["E0-COVERAGE-001A"],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": ["E0-COVERAGE-001C"]
