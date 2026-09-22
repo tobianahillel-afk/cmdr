@@ -32,8 +32,9 @@ type ObligationSet struct {
 type ObligationSummary struct {
 	Obligations            int            `json:"obligations"`
 	ByFamily               map[string]int `json:"by_family"`
-	UnresolvedReferences   int            `json:"unresolved_references"`
-	RegisteredCapabilities int            `json:"registered_capabilities"`
+	UnresolvedReferences              int      `json:"unresolved_references"`
+	UnregisteredRequirementReferences []string `json:"unregistered_requirement_references,omitempty"`
+	RegisteredCapabilities            int      `json:"registered_capabilities"`
 	RegisteredRequirements int            `json:"registered_requirements"`
 	RegisteredScreens      int            `json:"registered_screens"`
 	RegisteredPermissions  int            `json:"registered_permissions"`
@@ -264,5 +265,11 @@ func summarizeObligations(set ObligationSet) ObligationSummary {
 	for _, obligation := range set.Obligations {
 		summary.ByFamily[obligation.Family]++
 	}
+	for _, unresolved := range set.UnresolvedReferences {
+		if unresolved.Kind == "requirement" {
+			summary.UnregisteredRequirementReferences = append(summary.UnregisteredRequirementReferences, unresolved.ID)
+		}
+	}
+	sort.Strings(summary.UnregisteredRequirementReferences)
 	return summary
 }
