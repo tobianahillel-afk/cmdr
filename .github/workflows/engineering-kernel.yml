@@ -103,6 +103,10 @@ jobs:
         working-directory: tools/cmdr-dev
         run: go run . architecture-audit --root ../.. --json
 
+      - name: Audit product runtime dependencies
+        working-directory: tools/cmdr-dev
+        run: go run . dependency-audit --root ../.. --json
+
       - name: Audit work-unit complexity
         working-directory: tools/cmdr-dev
         run: go run . complexity-audit --root ../.. --json

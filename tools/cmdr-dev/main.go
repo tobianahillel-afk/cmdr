@@ -266,6 +266,15 @@ func main() {
 			fail(err)
 		}
 		printValue(summary, *jsonFlag)
+	case "dependency-audit":
+		if err := validateState(root, state, graph); err != nil {
+			fail(err)
+		}
+		summary, err := runDependencyAudit(root)
+		if err != nil {
+			fail(err)
+		}
+		printValue(summary, *jsonFlag)
 	default:
 		usage(os.Stderr)
 		fail(fmt.Errorf("unknown command %q", command))
@@ -617,6 +626,13 @@ func printValue(v any, asJSON bool) {
 		fmt.Printf("strict v2 manifests: %d\n", x.StrictV2Manifests)
 		fmt.Printf("allowed path claims: %d\n", x.AllowedPathClaims)
 		fmt.Printf("product spec read only: %t\n", x.ProductSpecReadOnly)
+	case DependencyAuditSummary:
+		fmt.Printf("runtime boundaries: %d\n", x.RuntimeBoundaries)
+		fmt.Printf("supported manifests: %d\n", x.SupportedManifests)
+		fmt.Printf("runtime dependencies: %d\n", x.RuntimeDependencies)
+		fmt.Printf("approved: %d\n", x.Approved)
+		fmt.Printf("unapproved: %d\n", x.Unapproved)
+		fmt.Printf("unsupported manifests: %d\n", x.UnsupportedManifests)
 	default:
 		b, _ := json.MarshalIndent(v, "", "  ")
 		fmt.Println(string(b))
@@ -624,7 +640,7 @@ func printValue(v any, asJSON bool) {
 }
 
 func usage(w io.Writer) {
-	fmt.Fprintln(w, "usage: cmdr-dev <doctor|status|next|spec-index|spec-baseline|coverage-graph|obligations|coverage-audit|validate-manifests|complexity-audit|context|architecture-audit> [--root PATH] [--json] [--check] [--output PATH]")
+	fmt.Fprintln(w, "usage: cmdr-dev <doctor|status|next|spec-index|spec-baseline|coverage-graph|obligations|coverage-audit|validate-manifests|complexity-audit|context|architecture-audit|dependency-audit> [--root PATH] [--json] [--check] [--output PATH]")
 }
 
 func fail(err error) {

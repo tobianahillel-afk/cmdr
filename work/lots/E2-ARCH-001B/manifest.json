@@ -38,7 +38,9 @@
   "outputs": [
     "runtime dependency inventory",
     "Trusted Base gate",
-    "transitive-review hooks"
+    "transitive-review hooks",
+    "fail-closed unsupported-runtime-manifest detector",
+    "exact-version Trusted Base gate"
   ],
   "invariants": [
     "canonical Product Spec remains read-only",
@@ -51,7 +53,9 @@
   "acceptance_tests": [
     "go test ./...",
     "cmdr-dev validate-manifests succeeds",
-    "cmdr-dev complexity-audit succeeds"
+    "cmdr-dev complexity-audit succeeds",
+    "cmdr-dev dependency-audit succeeds with no registered product-runtime boundary",
+    "unit tests prove dev/local dependency exclusion and exact Trusted Base version matching"
   ],
   "performance_budget": {
     "applicable": false,
@@ -74,7 +78,8 @@
     "go vet ./...",
     "go test ./...",
     "cmdr-dev validate-manifests",
-    "cmdr-dev complexity-audit"
+    "cmdr-dev complexity-audit",
+    "cmdr-dev dependency-audit"
   ],
   "definition_of_ready": [
     "dependencies are VERIFIED",
