@@ -26,8 +26,9 @@ type CoverageAuditReport struct {
 
 type CoverageAuditSummary struct {
 	Gaps                   int            `json:"gaps"`
-	ByCode                 map[string]int `json:"by_code"`
-	RegisteredCapabilities int            `json:"registered_capabilities"`
+	ByCode                 map[string]int      `json:"by_code"`
+	SubjectsByCode         map[string][]string `json:"subjects_by_code"`
+	RegisteredCapabilities int                 `json:"registered_capabilities"`
 	RegisteredRequirements int            `json:"registered_requirements"`
 	RegisteredScreens      int            `json:"registered_screens"`
 	RegisteredPermissions  int            `json:"registered_permissions"`
@@ -100,6 +101,7 @@ func runCoverageAudit(root, specRel, output string, check bool) (CoverageAuditSu
 	summary := CoverageAuditSummary{
 		Gaps:                   len(report.Gaps),
 		ByCode:                 map[string]int{},
+		SubjectsByCode:         map[string][]string{},
 		RegisteredCapabilities: len(capabilities),
 		RegisteredRequirements: len(requirements),
 		RegisteredScreens:      len(screens),
@@ -111,6 +113,10 @@ func runCoverageAudit(root, specRel, output string, check bool) (CoverageAuditSu
 	}
 	for _, gap := range report.Gaps {
 		summary.ByCode[gap.Code]++
+		summary.SubjectsByCode[gap.Code] = append(summary.SubjectsByCode[gap.Code], gap.SubjectID)
+	}
+	for code := range summary.SubjectsByCode {
+		sort.Strings(summary.SubjectsByCode[code])
 	}
 	return summary, nil
 }
