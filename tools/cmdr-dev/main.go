@@ -111,6 +111,7 @@ func main() {
 	jsonFlag := fs.Bool("json", false, "machine-readable output")
 	checkFlag := fs.Bool("check", false, "check generated output instead of writing it")
 	outputFlag := fs.String("output", "engineering/spec-index/inventory.json", "generated output path")
+	workUnitFlag := fs.String("work-unit", "", "work unit id; defaults to active work unit")
 	if err := fs.Parse(os.Args[2:]); err != nil {
 		fail(err)
 	}
@@ -244,6 +245,15 @@ func main() {
 			fail(err)
 		}
 		if err := validateComplexityReadiness(summary); err != nil {
+			fail(err)
+		}
+		printValue(summary, *jsonFlag)
+	case "context":
+		if err := validateState(root, state, graph); err != nil {
+			fail(err)
+		}
+		summary, err := runContextCompiler(root, *workUnitFlag, *outputFlag, *checkFlag, state, graph)
+		if err != nil {
 			fail(err)
 		}
 		printValue(summary, *jsonFlag)
@@ -583,6 +593,16 @@ func printValue(v any, asJSON bool) {
 		fmt.Printf("with warnings: %d\n", x.WithWarnings)
 		fmt.Printf("split required: %d\n", x.SplitRequired)
 		fmt.Printf("readiness violations: %d\n", x.ReadinessViolations)
+	case ContextSummary:
+		fmt.Printf("work unit: %s\n", x.WorkUnit)
+		fmt.Printf("sources: %d\n", x.Sources)
+		fmt.Printf("product sources: %d\n", x.ProductSources)
+		fmt.Printf("engineering sources: %d\n", x.EngineeringSources)
+		fmt.Printf("execution sources: %d\n", x.ExecutionSources)
+		fmt.Printf("dependency units: %d\n", x.DependencyUnits)
+		fmt.Printf("bundle digest: %s\n", x.BundleDigest)
+		fmt.Printf("output: %s\n", x.Output)
+		fmt.Printf("mode: %s\n", x.Mode)
 	default:
 		b, _ := json.MarshalIndent(v, "", "  ")
 		fmt.Println(string(b))
@@ -590,7 +610,7 @@ func printValue(v any, asJSON bool) {
 }
 
 func usage(w io.Writer) {
-	fmt.Fprintln(w, "usage: cmdr-dev <doctor|status|next|spec-index|spec-baseline|coverage-graph|obligations|coverage-audit|validate-manifests|complexity-audit> [--root PATH] [--json] [--check] [--output PATH]")
+	fmt.Fprintln(w, "usage: cmdr-dev <doctor|status|next|spec-index|spec-baseline|coverage-graph|obligations|coverage-audit|validate-manifests|complexity-audit|context> [--root PATH] [--json] [--check] [--output PATH]")
 }
 
 func fail(err error) {

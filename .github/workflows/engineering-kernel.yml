@@ -103,6 +103,14 @@ jobs:
         working-directory: tools/cmdr-dev
         run: go run . complexity-audit --root ../.. --json
 
+      - name: Compile active agent context
+        working-directory: tools/cmdr-dev
+        shell: bash
+        run: |
+          output="$(mktemp)"
+          go run . context --root ../.. --output "$output" --json
+          test -s "$output"
+
       - name: Bootstrap doctor
         working-directory: tools/cmdr-dev
         run: go run . doctor --root ../..

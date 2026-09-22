@@ -35,7 +35,9 @@
   ],
   "outputs": [
     "content-addressed context bundle",
-    "missing-source blocker"
+    "missing-source blocker",
+    "active product-reference validation",
+    "dependency-closure context selection"
   ],
   "invariants": [
     "canonical Product Spec remains read-only",
@@ -47,7 +49,9 @@
   ],
   "acceptance_tests": [
     "go test ./...",
-    "cmdr-dev validate-manifests succeeds on repository manifests"
+    "cmdr-dev validate-manifests succeeds on repository manifests",
+    "cmdr-dev context compiles the active work unit to a non-empty deterministic bundle",
+    "unit tests reject inactive product identifiers and prove canonical capability source resolution"
   ],
   "performance_budget": {
     "applicable": false,
@@ -69,7 +73,8 @@
     "gofmt",
     "go vet ./...",
     "go test ./...",
-    "cmdr-dev validate-manifests"
+    "cmdr-dev validate-manifests",
+    "cmdr-dev context"
   ],
   "definition_of_ready": [
     "dependencies satisfy their required terminal state",
@@ -84,9 +89,9 @@
   "complexity": {
     "primary_components": 1,
     "estimated_files_changed": 6,
-    "estimated_net_loc": 450,
-    "production_files": 0,
-    "net_production_loc": 0,
+    "estimated_net_loc": 390,
+    "production_files": 2,
+    "net_production_loc": 360,
     "bounded_contexts": 1,
     "independent_migrations": 0,
     "distinct_security_models": 0,
