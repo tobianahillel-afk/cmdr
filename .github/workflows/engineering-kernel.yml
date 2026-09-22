@@ -1,0 +1,68 @@
+name: engineering-kernel
+
+on:
+  pull_request:
+    paths:
+      - "AGENTS.md"
+      - "AI_START_HERE.md"
+      - "engineering/**"
+      - "work/**"
+      - "tools/cmdr-dev/**"
+      - ".github/workflows/engineering-kernel.yml"
+  push:
+    branches:
+      - "engineering/autonomous-development-foundation"
+    paths:
+      - "AGENTS.md"
+      - "AI_START_HERE.md"
+      - "engineering/**"
+      - "work/**"
+      - "tools/cmdr-dev/**"
+      - ".github/workflows/engineering-kernel.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: engineering-kernel-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  kernel:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: tools/cmdr-dev/go.mod
+          cache: false
+
+      - name: Enforce gofmt
+        working-directory: tools/cmdr-dev
+        shell: bash
+        run: |
+          files="$(gofmt -l .)"
+          if [ -n "$files" ]; then
+            printf 'Files requiring gofmt:\n%s\n' "$files"
+            exit 1
+          fi
+
+      - name: Vet kernel
+        working-directory: tools/cmdr-dev
+        run: go vet ./...
+
+      - name: Test kernel
+        working-directory: tools/cmdr-dev
+        run: go test ./...
+
+      - name: Bootstrap doctor
+        working-directory: tools/cmdr-dev
+        run: go run . doctor --root ../..
+
+      - name: Resolve next work
+        working-directory: tools/cmdr-dev
+        run: go run . next --root ../.. --json
