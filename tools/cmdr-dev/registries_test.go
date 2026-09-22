@@ -13,7 +13,7 @@ func TestLoadActiveScreenIDsStopsBeforeAliases(t *testing.T) {
 		t.Fatal(err)
 	}
 	tick := string(rune(96))
-	content := "# Screen Register\\n\\n## Écrans actifs — 1\\n\\n| ID | Product |\\n|---|---|\\n| " + tick + "CMD-MC-001" + tick + " | command |\\n\\n## Aliases de migration\\n\\n| " + tick + "CMD-IWQ-001" + tick + " | deprecated |\\n"
+	content := "# Screen Register\n\n## Écrans actifs — 1\n\n| ID | Product |\n|---|---|\n| " + tick + "CMD-MC-001" + tick + " | command |\n\n## Aliases de migration\n\n| " + tick + "CMD-IWQ-001" + tick + " | deprecated |\n"
 	if err := os.WriteFile(filepath.Join(dir, "screen-register.md"), []byte(content), 0o600); err != nil {
 		t.Fatal(err)
 	}
