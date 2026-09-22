@@ -21,16 +21,13 @@
   "allowed_paths": [
     "tools/cmdr-dev/**",
     "engineering/state/**",
+    "work/graph.json",
     "work/lots/E0-KERNEL-001/**"
   ],
   "forbidden_paths": [
     "cmdr-product-spec/**"
   ],
-  "required_capabilities": [
-    "doctor",
-    "status",
-    "next"
-  ],
+  "required_capabilities": ["doctor", "status", "next"],
   "constraints": {
     "third_party_runtime_dependencies": 0,
     "preferred_implementation": "Go standard library only",
@@ -40,7 +37,8 @@
   "definition_of_ready": [
     "bootstrap engineering authority exists",
     "canonical current state exists",
-    "canonical work graph exists"
+    "canonical work graph exists",
+    "E0-BOOTSTRAP-001 is IMPLEMENTED"
   ],
   "definition_of_done": [
     "CLI parses canonical JSON state and graph",

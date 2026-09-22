@@ -6,7 +6,7 @@
       "id": "E0-BOOTSTRAP-001",
       "title": "Establish autonomous engineering foundation",
       "type": "lot",
-      "status": "IN_PROGRESS",
+      "status": "IMPLEMENTED",
       "depends_on": [],
       "unlocks": ["E0-KERNEL-001"]
     },
