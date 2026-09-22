@@ -44,6 +44,25 @@ type SpecIndexSummary struct {
 	Mode                     string `json:"mode"`
 }
 
+type SpecBaseline struct {
+	SchemaVersion                int    `json:"schema_version"`
+	CompilerSchemaVersion        int    `json:"compiler_schema_version"`
+	SpecRoot                     string `json:"spec_root"`
+	ProductSpecBaselineCommit    string `json:"product_spec_baseline_commit"`
+	TreeDigest                   string `json:"tree_digest"`
+	Files                        int    `json:"files"`
+	ActiveCanonicalDocuments     int    `json:"active_canonical_documents"`
+}
+
+type SpecBaselineSummary struct {
+	Files                     int    `json:"files"`
+	ActiveCanonicalDocuments  int    `json:"active_canonical_documents"`
+	TreeDigest                string `json:"tree_digest"`
+	ProductSpecBaselineCommit string `json:"product_spec_baseline_commit"`
+	Output                    string `json:"output"`
+	Mode                      string `json:"mode"`
+}
+
 var cmrdIDPattern = regexp.MustCompile(`\b(?:CAP-[A-Z0-9]+-[0-9]{3}|REQ-[A-Z0-9]+-[0-9]{3}|OPEN-[0-9]{3}|ADR-[0-9]{4}|DEP-(?:[A-Z0-9]+-)?[0-9]{3})\b`)
 var permissionPattern = regexp.MustCompile(`\bperm\.[a-zA-Z0-9.*_-]+(?:\.[a-zA-Z0-9.*_-]+)*\b`)
 
@@ -273,4 +292,64 @@ func uniqueSorted(values []string) []string {
 		}
 	}
 	return out
+}
+
+
+func runSpecBaseline(root, specRel, baselineCommit, output string, check bool) (SpecBaselineSummary, error) {
+	inventory, err := buildSpecInventory(root, specRel)
+	if err != nil {
+		return SpecBaselineSummary{}, err
+	}
+	activeCanonical := 0
+	for _, doc := range inventory.Documents {
+		if doc.Active && doc.Canonical {
+			activeCanonical++
+		}
+	}
+	baseline := SpecBaseline{
+		SchemaVersion:             1,
+		CompilerSchemaVersion:     1,
+		SpecRoot:                  inventory.SpecRoot,
+		ProductSpecBaselineCommit: baselineCommit,
+		TreeDigest:                inventory.TreeDigest,
+		Files:                     inventory.Files,
+		ActiveCanonicalDocuments:  activeCanonical,
+	}
+	data, err := json.MarshalIndent(baseline, "", "  ")
+	if err != nil {
+		return SpecBaselineSummary{}, err
+	}
+	data = append(data, '\n')
+
+	outputPath := output
+	if !filepath.IsAbs(outputPath) {
+		outputPath = filepath.Join(root, filepath.FromSlash(outputPath))
+	}
+	mode := "write"
+	if check {
+		mode = "check"
+		existing, err := os.ReadFile(outputPath)
+		if err != nil {
+			return SpecBaselineSummary{}, fmt.Errorf("read spec baseline: %w", err)
+		}
+		if !bytes.Equal(existing, data) {
+			return SpecBaselineSummary{}, fmt.Errorf("spec baseline is stale: %s", outputPath)
+		}
+	} else {
+		if err := os.MkdirAll(filepath.Dir(outputPath), 0o755); err != nil {
+			return SpecBaselineSummary{}, err
+		}
+		if err := os.WriteFile(outputPath, data, 0o644); err != nil {
+			return SpecBaselineSummary{}, err
+		}
+	}
+
+	return SpecBaselineSummary{
+		Files:                     inventory.Files,
+		ActiveCanonicalDocuments:  activeCanonical,
+		TreeDigest:                inventory.TreeDigest,
+		ProductSpecBaselineCommit: baselineCommit,
+		Output:                    outputPath,
+		Mode:                      mode,
+	}, nil
 }

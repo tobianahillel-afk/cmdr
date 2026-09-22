@@ -101,3 +101,29 @@ func contains(values []string, target string) bool {
 	}
 	return false
 }
+
+
+func TestRunSpecBaselineWriteAndCheck(t *testing.T) {
+	root := t.TempDir()
+	specRoot := filepath.Join(root, "cmdr-product-spec")
+	if err := os.MkdirAll(specRoot, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	content := "---\nid: sample\nstatus: validated\nsource-of-truth: canonical\n---\n"
+	if err := os.WriteFile(filepath.Join(specRoot, "sample.md"), []byte(content), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	output := filepath.Join(root, "engineering", "spec-index", "baseline.json")
+	if _, err := runSpecBaseline(root, "cmdr-product-spec", "abc123", output, false); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := runSpecBaseline(root, "cmdr-product-spec", "abc123", output, true); err != nil {
+		t.Fatalf("expected fresh baseline: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(specRoot, "sample.md"), []byte(content+"changed\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := runSpecBaseline(root, "cmdr-product-spec", "abc123", output, true); err == nil {
+		t.Fatal("expected stale baseline error")
+	}
+}

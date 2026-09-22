@@ -168,6 +168,19 @@ func main() {
 			fail(err)
 		}
 		printValue(summary, *jsonFlag)
+	case "spec-baseline":
+		if err := validateState(root, state, graph); err != nil {
+			fail(err)
+		}
+		output := *outputFlag
+		if output == "engineering/spec-index/inventory.json" {
+			output = "engineering/spec-index/baseline.json"
+		}
+		summary, err := runSpecBaseline(root, state.ProductSpec.CanonicalPath, state.ProductSpec.BaselineCommit, output, *checkFlag)
+		if err != nil {
+			fail(err)
+		}
+		printValue(summary, *jsonFlag)
 	default:
 		usage(os.Stderr)
 		fail(fmt.Errorf("unknown command %q", command))
@@ -449,6 +462,13 @@ func printValue(v any, asJSON bool) {
 		fmt.Printf("tree digest: %s\n", x.TreeDigest)
 		fmt.Printf("output: %s\n", x.Output)
 		fmt.Printf("mode: %s\n", x.Mode)
+	case SpecBaselineSummary:
+		fmt.Printf("spec files: %d\n", x.Files)
+		fmt.Printf("active canonical documents: %d\n", x.ActiveCanonicalDocuments)
+		fmt.Printf("tree digest: %s\n", x.TreeDigest)
+		fmt.Printf("baseline commit: %s\n", x.ProductSpecBaselineCommit)
+		fmt.Printf("output: %s\n", x.Output)
+		fmt.Printf("mode: %s\n", x.Mode)
 	default:
 		b, _ := json.MarshalIndent(v, "", "  ")
 		fmt.Println(string(b))
@@ -456,7 +476,7 @@ func printValue(v any, asJSON bool) {
 }
 
 func usage(w io.Writer) {
-	fmt.Fprintln(w, "usage: cmdr-dev <doctor|status|next|spec-index> [--root PATH] [--json] [--check] [--output PATH]")
+	fmt.Fprintln(w, "usage: cmdr-dev <doctor|status|next|spec-index|spec-baseline> [--root PATH] [--json] [--check] [--output PATH]")
 }
 
 func fail(err error) {
