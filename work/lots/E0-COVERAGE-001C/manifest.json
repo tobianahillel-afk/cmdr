@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "id": "E0-COVERAGE-001C",
+  "title": "Detect unmapped and inconsistent product coverage",
+  "parent": "E0-COVERAGE-001",
+  "goal": "Compare active registries, canonical owned entities, source Requirement identities and observed references to produce a deterministic, source-backed coverage-gap report.",
+  "depends_on": ["E0-COVERAGE-001B"],
+  "requires_reading": [
+    "engineering/coverage/README.md",
+    "engineering/coverage/source-requirements-baseline.json",
+    "cmdr-product-spec/00-governance/registers/capability-register.md",
+    "cmdr-product-spec/00-governance/registers/screen-register.md",
+    "cmdr-product-spec/00-governance/registers/permission-register.md",
+    "cmdr-product-spec/00-governance/source-material/unresolved-decisions.md"
+  ],
+  "allowed_paths": [
+    "tools/cmdr-dev/**",
+    "engineering/coverage/**",
+    "engineering/state/**",
+    "work/graph.json",
+    "work/lots/E0-COVERAGE-001*/**",
+    ".github/workflows/engineering-kernel.yml"
+  ],
+  "forbidden_paths": ["cmdr-product-spec/**"],
+  "required_checks": [
+    "registered capability missing canonical owner",
+    "canonical capability absent from active register",
+    "registered screen missing canonical owner",
+    "canonical screen absent from active register",
+    "source Requirement never referenced by active corpus",
+    "Requirement-shaped reference outside source catalog",
+    "permission reference absent from permission register",
+    "registered permission never referenced",
+    "open-decision reference absent from active open-decision register",
+    "active open decision never referenced"
+  ],
+  "constraints": {
+    "report_only": true,
+    "no_product_spec_mutation": true,
+    "historical_or_reference_only_items_must_not_be_silently_promoted": true,
+    "gaps_must_include_source_evidence": true
+  },
+  "definition_of_done": [
+    "coverage audit is deterministic",
+    "gap categories are explicit and independently countable",
+    "every reported reference gap includes at least one source path",
+    "known active sets are reconciled against owned entities",
+    "current corpus gap report is generated in CI",
+    "tests cover missing owner, unregistered owner, unreferenced active id and unregistered reference",
+    "report generation does not mutate Product Spec"
+  ]
+}
