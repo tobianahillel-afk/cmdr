@@ -11,7 +11,7 @@
     {"id":"E0-COVERAGE-001C","title":"Detect unmapped and inconsistent product coverage","type":"sublot","status":"VERIFIED","depends_on":["E0-COVERAGE-001B"],"dependency_terminal_state":"VERIFIED","unlocks":["E1-WORK-001A"]},
     {"id":"E1-WORK-001","title":"Implement work decomposition engine","type":"epic","status":"DECOMPOSED","depends_on":["E0-COVERAGE-001C"],"dependency_terminal_state":"VERIFIED","unlocks":["E1-WORK-001A"]},
     {"id":"E1-WORK-001A","title":"Define and validate implementation work manifests","type":"sublot","status":"VERIFIED","depends_on":["E0-COVERAGE-001C"],"dependency_terminal_state":"VERIFIED","unlocks":["E1-WORK-001B"]},
-    {"id":"E1-WORK-001B","title":"Enforce complexity budgets and mandatory split rules","type":"sublot","status":"READY","depends_on":["E1-WORK-001A"],"dependency_terminal_state":"VERIFIED","unlocks":["E1-WORK-001C"]},
-    {"id":"E1-WORK-001C","title":"Compile minimal deterministic agent context bundles","type":"sublot","status":"BLOCKED","depends_on":["E1-WORK-001B"],"dependency_terminal_state":"VERIFIED","unlocks":[]}
+    {"id":"E1-WORK-001B","title":"Enforce complexity budgets and mandatory split rules","type":"sublot","status":"VERIFIED","depends_on":["E1-WORK-001A"],"dependency_terminal_state":"VERIFIED","unlocks":["E1-WORK-001C"]},
+    {"id":"E1-WORK-001C","title":"Compile minimal deterministic agent context bundles","type":"sublot","status":"READY","depends_on":["E1-WORK-001B"],"dependency_terminal_state":"VERIFIED","unlocks":[]}
   ]
 }
