@@ -300,13 +300,23 @@ func validateProductRefs(root string, refs ProductRefsV2) error {
 		}
 		return nil
 	}
-	if err := checkIDs("capabilities", refs.Capabilities, capabilityIDPattern); err != nil { return err }
-	if err := checkIDs("requirements", refs.Requirements, requirementIDPattern); err != nil { return err }
-	if err := checkIDs("screens", refs.Screens, screenIDPattern); err != nil { return err }
-	for _, value := range refs.Permissions {
-		if !strings.HasPrefix(value, "perm.") { return fmt.Errorf("product_refs.permissions contains invalid id %q", value) }
+	if err := checkIDs("capabilities", refs.Capabilities, capabilityIDPattern); err != nil {
+		return err
 	}
-	if err := checkIDs("open_decisions", refs.OpenDecisions, openDecisionIDPattern); err != nil { return err }
+	if err := checkIDs("requirements", refs.Requirements, requirementIDPattern); err != nil {
+		return err
+	}
+	if err := checkIDs("screens", refs.Screens, screenIDPattern); err != nil {
+		return err
+	}
+	for _, value := range refs.Permissions {
+		if !strings.HasPrefix(value, "perm.") {
+			return fmt.Errorf("product_refs.permissions contains invalid id %q", value)
+		}
+	}
+	if err := checkIDs("open_decisions", refs.OpenDecisions, openDecisionIDPattern); err != nil {
+		return err
+	}
 	for _, value := range append(append([]string(nil), refs.ImplementationContracts...), refs.CanonicalObjects...) {
 		if !strings.HasPrefix(value, "cmdr-product-spec/") {
 			return fmt.Errorf("product source path %q must be under cmdr-product-spec/", value)
@@ -322,7 +332,9 @@ func validateProductRefs(root string, refs ProductRefsV2) error {
 func pathPatternsOverlap(a, b string) bool {
 	a = filepath.ToSlash(strings.TrimSpace(a))
 	b = filepath.ToSlash(strings.TrimSpace(b))
-	if a == b { return true }
+	if a == b {
+		return true
+	}
 	prefix := func(pattern string) string { return strings.TrimSuffix(pattern, "**") }
 	ap, bp := prefix(a), prefix(b)
 	return strings.HasPrefix(ap, bp) || strings.HasPrefix(bp, ap)
