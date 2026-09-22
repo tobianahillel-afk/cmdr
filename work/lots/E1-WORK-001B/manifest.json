@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "id": "E1-WORK-001B",
+  "title": "Enforce complexity budgets and mandatory split rules",
+  "parent": "E1-WORK-001",
+  "goal": "Make lot sizing machine-checkable so a coding agent is never silently assigned a unit beyond the approved complexity envelope.",
+  "depends_on": ["E1-WORK-001A"],
+  "target_budgets": {
+    "primary_components": 2,
+    "production_files": 8,
+    "net_production_loc": 400
+  },
+  "mandatory_split_triggers": [
+    "production_files > 12",
+    "net_production_loc > 800",
+    "bounded_contexts > 1",
+    "independent_migrations > 1",
+    "distinct_security_models > 1",
+    "separately_testable_behaviors > 1"
+  ],
+  "definition_of_done": [
+    "complexity evaluation is deterministic",
+    "soft budget warnings are distinct from hard split triggers",
+    "tests fixtures and generated code do not count as production LOC",
+    "a manifest requiring split cannot become implementation-ready"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "id": "E1-WORK-001",
+  "title": "Implement work decomposition engine",
+  "type": "epic",
+  "goal": "Turn implementation obligations into bounded, dependency-aware, agent-safe work units with deterministic validation and context compilation.",
+  "sublots": ["E1-WORK-001A", "E1-WORK-001B", "E1-WORK-001C"],
+  "product_scope": {
+    "changes_product_behavior": false,
+    "canonical_product_spec_is_read_only": true
+  }
+}

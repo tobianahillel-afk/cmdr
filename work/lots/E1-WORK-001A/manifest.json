@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "id": "E1-WORK-001A",
+  "title": "Define and validate implementation work manifests",
+  "parent": "E1-WORK-001",
+  "goal": "Introduce a strict versioned manifest contract for future implementation epics, lots, sublots and atomic tasks and validate it without breaking legacy E0 bootstrap manifests.",
+  "depends_on": ["E0-COVERAGE-001C"],
+  "allowed_paths": [
+    "tools/cmdr-dev/**",
+    "engineering/work/**",
+    "work/schema/**",
+    "work/lots/E1-WORK-001*/**",
+    ".github/workflows/engineering-kernel.yml",
+    "engineering/state/**",
+    "work/graph.json"
+  ],
+  "forbidden_paths": ["cmdr-product-spec/**"],
+  "definition_of_done": [
+    "manifest v2 has a documented machine-readable contract",
+    "unknown fields and invalid work-unit types are rejected",
+    "allowed and forbidden paths cannot conflict",
+    "product references use recognized CMDR identifier families",
+    "dependencies and parent identifiers are validated",
+    "legacy schema-v1 bootstrap manifests remain readable but are not accepted as future implementation manifests",
+    "CI validates every schema-v2 work manifest"
+  ]
+}

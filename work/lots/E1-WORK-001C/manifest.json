@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "id": "E1-WORK-001C",
+  "title": "Compile minimal deterministic agent context bundles",
+  "parent": "E1-WORK-001",
+  "goal": "Compile only the authoritative product, engineering and dependency context required for one work unit so autonomous agents avoid full-repository rereads.",
+  "depends_on": ["E1-WORK-001B"],
+  "definition_of_done": [
+    "context bundle follows manifest references and dependency closure",
+    "canonical Product Spec sources outrank generated summaries",
+    "bundle is deterministic and content-addressed",
+    "missing required source blocks the unit",
+    "unreferenced repository content is excluded by default"
+  ]
+}
