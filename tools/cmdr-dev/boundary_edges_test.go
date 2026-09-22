@@ -39,9 +39,13 @@ func TestWorkspaceDependencyCreatesAllowedBoundaryEdge(t *testing.T) {
 	writePackage(t, root, "libs/b/package.json", `{"name":"b"}`)
 	registry := runtimeRegistry(true)
 	packages, _, err := discoverLocalPackages(root, registry)
-	if err != nil { t.Fatal(err) }
+	if err != nil {
+		t.Fatal(err)
+	}
 	edges, err := discoverBoundaryEdges(root, registry, packages)
-	if err != nil { t.Fatal(err) }
+	if err != nil {
+		t.Fatal(err)
+	}
 	if len(edges) != 1 || edges[0].From != "runtime-a" || edges[0].To != "runtime-b" {
 		t.Fatalf("unexpected edges: %#v", edges)
 	}
@@ -56,9 +60,13 @@ func TestForbiddenBoundaryEdgeFails(t *testing.T) {
 	writePackage(t, root, "libs/b/package.json", `{"name":"b"}`)
 	registry := runtimeRegistry(false)
 	packages, _, err := discoverLocalPackages(root, registry)
-	if err != nil { t.Fatal(err) }
+	if err != nil {
+		t.Fatal(err)
+	}
 	edges, err := discoverBoundaryEdges(root, registry, packages)
-	if err != nil { t.Fatal(err) }
+	if err != nil {
+		t.Fatal(err)
+	}
 	if err := validateBoundaryEdges(registry, edges); err == nil {
 		t.Fatal("expected forbidden cross-boundary edge")
 	}
@@ -69,7 +77,9 @@ func TestLocalPathOutsideRuntimeBoundaryFails(t *testing.T) {
 	writePackage(t, root, "apps/a/package.json", `{"name":"a","dependencies":{"outside":"file:../../outside"}}`)
 	registry := runtimeRegistry(true)
 	packages, _, err := discoverLocalPackages(root, registry)
-	if err != nil { t.Fatal(err) }
+	if err != nil {
+		t.Fatal(err)
+	}
 	if _, err := discoverBoundaryEdges(root, registry, packages); err == nil {
 		t.Fatal("expected unowned local target rejection")
 	}
@@ -81,9 +91,13 @@ func TestGoLocalReplacementCreatesBoundaryEdge(t *testing.T) {
 	writePackage(t, root, "libs/b/go.mod", "module example/b\n\ngo 1.25\n")
 	registry := runtimeRegistry(true)
 	packages, _, err := discoverLocalPackages(root, registry)
-	if err != nil { t.Fatal(err) }
+	if err != nil {
+		t.Fatal(err)
+	}
 	edges, err := discoverBoundaryEdges(root, registry, packages)
-	if err != nil { t.Fatal(err) }
+	if err != nil {
+		t.Fatal(err)
+	}
 	if len(edges) != 1 || edges[0].To != "runtime-b" {
 		t.Fatalf("unexpected Go edges: %#v", edges)
 	}
