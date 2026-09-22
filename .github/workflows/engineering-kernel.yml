@@ -111,6 +111,14 @@ jobs:
           printf '%s\n' 'engineering/testing/check-catalog.json' 'work/graph.json' > "$changes"
           go run . impact --root ../.. --changes-file "$changes" --json
 
+      - name: Validate risk-adaptive plan
+        working-directory: tools/cmdr-dev
+        shell: bash
+        run: |
+          changes="$(mktemp)"
+          printf '%s\n' 'engineering/testing/check-catalog.json' 'work/graph.json' > "$changes"
+          go run . validation-plan --root ../.. --changes-file "$changes" --json
+
       - name: Audit architecture path ownership
         working-directory: tools/cmdr-dev
         run: go run . architecture-audit --root ../.. --json

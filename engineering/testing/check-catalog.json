@@ -347,6 +347,76 @@
         "CHK-DOCTOR"
       ],
       "evidence_kind": "selection"
+    },
+    {
+      "id": "CHK-CATALOG",
+      "title": "Validation check catalog audit",
+      "executor_key": "check-catalog-audit",
+      "risk_domains": [
+        "work-governance",
+        "security"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": true,
+      "trigger_paths": [
+        "engineering/testing/check-catalog.json",
+        "engineering/testing/check-catalog.schema.json",
+        "tools/cmdr-dev/check_catalog.go",
+        "tools/cmdr-dev/check_catalog_test.go"
+      ],
+      "prerequisites": [
+        "CHK-UNIT"
+      ],
+      "evidence_kind": "invariant"
+    },
+    {
+      "id": "CHK-IMPACT",
+      "title": "Change impact analysis",
+      "executor_key": "impact",
+      "risk_domains": [
+        "work-governance",
+        "architecture",
+        "security"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": true,
+      "trigger_paths": [
+        "engineering/testing/**",
+        "engineering/architecture/**",
+        "engineering/security/**",
+        "work/**",
+        "tools/cmdr-dev/impact.go",
+        "tools/cmdr-dev/impact_test.go"
+      ],
+      "prerequisites": [
+        "CHK-CATALOG",
+        "CHK-ARCHITECTURE"
+      ],
+      "evidence_kind": "impact-report"
+    },
+    {
+      "id": "CHK-PLAN",
+      "title": "Risk-adaptive validation plan",
+      "executor_key": "validation-plan",
+      "risk_domains": [
+        "work-governance",
+        "security"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": true,
+      "trigger_paths": [
+        "engineering/testing/**",
+        "work/**",
+        "tools/cmdr-dev/validation_plan.go",
+        "tools/cmdr-dev/validation_plan_test.go"
+      ],
+      "prerequisites": [
+        "CHK-IMPACT"
+      ],
+      "evidence_kind": "selection"
     }
   ]
 }

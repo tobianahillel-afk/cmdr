@@ -303,6 +303,15 @@ func main() {
 			fail(err)
 		}
 		printValue(report, *jsonFlag)
+	case "validation-plan":
+		if err := validateState(root, state, graph); err != nil {
+			fail(err)
+		}
+		plan, err := runValidationPlan(root, *workUnitFlag, *changesFileFlag, state, graph)
+		if err != nil {
+			fail(err)
+		}
+		printValue(plan, *jsonFlag)
 	default:
 		usage(os.Stderr)
 		fail(fmt.Errorf("unknown command %q", command))
@@ -680,6 +689,14 @@ func printValue(v any, asJSON bool) {
 		fmt.Printf("high risk: %t\n", x.HighRisk)
 		fmt.Printf("high risk reasons: %v\n", x.HighRiskReasons)
 		fmt.Printf("unknown paths: %v\n", x.UnknownPaths)
+	case ValidationPlan:
+		fmt.Printf("work unit: %s\n", x.WorkUnit)
+		fmt.Printf("tier: %s\n", x.Tier)
+		fmt.Printf("high risk: %t\n", x.HighRisk)
+		fmt.Printf("risk domains: %v\n", x.RiskDomains)
+		fmt.Printf("selected checks: %d\n", len(x.SelectedChecks))
+		fmt.Printf("by cost tier: %v\n", x.ByCostTier)
+		fmt.Printf("cost units: %d\n", x.CostUnits)
 	default:
 		b, _ := json.MarshalIndent(v, "", "  ")
 		fmt.Println(string(b))
@@ -687,7 +704,7 @@ func printValue(v any, asJSON bool) {
 }
 
 func usage(w io.Writer) {
-	fmt.Fprintln(w, "usage: cmdr-dev <doctor|status|next|spec-index|spec-baseline|coverage-graph|obligations|coverage-audit|validate-manifests|complexity-audit|context|architecture-audit|dependency-audit|boundary-edge-audit|check-catalog-audit|impact> [--root PATH] [--json] [--check] [--output PATH]")
+	fmt.Fprintln(w, "usage: cmdr-dev <doctor|status|next|spec-index|spec-baseline|coverage-graph|obligations|coverage-audit|validate-manifests|complexity-audit|context|architecture-audit|dependency-audit|boundary-edge-audit|check-catalog-audit|impact|validation-plan> [--root PATH] [--json] [--check] [--output PATH]")
 }
 
 func fail(err error) {

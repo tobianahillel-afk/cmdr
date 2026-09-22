@@ -34,7 +34,10 @@
     "repository change evidence"
   ],
   "outputs": [
-    "deterministic validation metadata"
+    "deterministic validation metadata",
+    "fast/standard/strict deterministic validation plan",
+    "prerequisite-closed ordered check list",
+    "relative validation cost units"
   ],
   "invariants": [
     "Product Spec remains read-only",
@@ -49,7 +52,9 @@
     "go test ./...",
     "cmdr-dev validate-manifests succeeds",
     "cmdr-dev architecture-audit succeeds",
-    "cmdr-dev complexity-audit succeeds"
+    "cmdr-dev complexity-audit succeeds",
+    "cmdr-dev validation-plan produces a valid plan for representative changes",
+    "unit tests prove safety floor, strict escalation, prerequisite closure and manifest-scope selection"
   ],
   "performance_budget": {
     "applicable": true,
@@ -75,7 +80,8 @@
     "go test ./...",
     "cmdr-dev validate-manifests",
     "cmdr-dev architecture-audit",
-    "cmdr-dev complexity-audit"
+    "cmdr-dev complexity-audit",
+    "cmdr-dev validation-plan"
   ],
   "definition_of_ready": [
     "dependencies are VERIFIED",
@@ -91,9 +97,9 @@
   "complexity": {
     "primary_components": 1,
     "estimated_files_changed": 6,
-    "estimated_net_loc": 390,
+    "estimated_net_loc": 395,
     "production_files": 2,
-    "net_production_loc": 310,
+    "net_production_loc": 350,
     "bounded_contexts": 1,
     "independent_migrations": 0,
     "distinct_security_models": 1,
