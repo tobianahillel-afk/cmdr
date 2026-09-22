@@ -257,6 +257,15 @@ func main() {
 			fail(err)
 		}
 		printValue(summary, *jsonFlag)
+	case "architecture-audit":
+		if err := validateState(root, state, graph); err != nil {
+			fail(err)
+		}
+		summary, err := runArchitectureAudit(root)
+		if err != nil {
+			fail(err)
+		}
+		printValue(summary, *jsonFlag)
 	default:
 		usage(os.Stderr)
 		fail(fmt.Errorf("unknown command %q", command))
@@ -603,6 +612,11 @@ func printValue(v any, asJSON bool) {
 		fmt.Printf("bundle digest: %s\n", x.BundleDigest)
 		fmt.Printf("output: %s\n", x.Output)
 		fmt.Printf("mode: %s\n", x.Mode)
+	case ArchitectureAuditSummary:
+		fmt.Printf("boundaries: %d\n", x.Boundaries)
+		fmt.Printf("strict v2 manifests: %d\n", x.StrictV2Manifests)
+		fmt.Printf("allowed path claims: %d\n", x.AllowedPathClaims)
+		fmt.Printf("product spec read only: %t\n", x.ProductSpecReadOnly)
 	default:
 		b, _ := json.MarshalIndent(v, "", "  ")
 		fmt.Println(string(b))
@@ -610,7 +624,7 @@ func printValue(v any, asJSON bool) {
 }
 
 func usage(w io.Writer) {
-	fmt.Fprintln(w, "usage: cmdr-dev <doctor|status|next|spec-index|spec-baseline|coverage-graph|obligations|coverage-audit|validate-manifests|complexity-audit|context> [--root PATH] [--json] [--check] [--output PATH]")
+	fmt.Fprintln(w, "usage: cmdr-dev <doctor|status|next|spec-index|spec-baseline|coverage-graph|obligations|coverage-audit|validate-manifests|complexity-audit|context|architecture-audit> [--root PATH] [--json] [--check] [--output PATH]")
 }
 
 func fail(err error) {
