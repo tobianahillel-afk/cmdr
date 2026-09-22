@@ -87,6 +87,14 @@ jobs:
           go run . obligations --root ../.. --output "$output" --json
           test -s "$output"
 
+      - name: Audit product coverage gaps
+        working-directory: tools/cmdr-dev
+        shell: bash
+        run: |
+          output="$(mktemp)"
+          go run . coverage-audit --root ../.. --output "$output" --json
+          test -s "$output"
+
       - name: Bootstrap doctor
         working-directory: tools/cmdr-dev
         run: go run . doctor --root ../..

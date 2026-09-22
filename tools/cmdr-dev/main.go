@@ -210,6 +210,22 @@ func main() {
 			fail(err)
 		}
 		printValue(summary, *jsonFlag)
+	case "coverage-audit":
+		if err := validateState(root, state, graph); err != nil {
+			fail(err)
+		}
+		output := *outputFlag
+		if output == "engineering/spec-index/inventory.json" {
+			output = "engineering/coverage/audit.json"
+		}
+		summary, err := runCoverageAudit(root, state.ProductSpec.CanonicalPath, output, *checkFlag)
+		if err != nil {
+			fail(err)
+		}
+		if err := validateKnownCoverageAuditCounts(summary, state); err != nil {
+			fail(err)
+		}
+		printValue(summary, *jsonFlag)
 	default:
 		usage(os.Stderr)
 		fail(fmt.Errorf("unknown command %q", command))
@@ -524,6 +540,17 @@ func printValue(v any, asJSON bool) {
 		fmt.Printf("tree digest: %s\n", x.SpecTreeDigest)
 		fmt.Printf("output: %s\n", x.Output)
 		fmt.Printf("mode: %s\n", x.Mode)
+	case CoverageAuditSummary:
+		fmt.Printf("coverage gaps: %d\n", x.Gaps)
+		fmt.Printf("by code: %v\n", x.ByCode)
+		fmt.Printf("registered capabilities: %d\n", x.RegisteredCapabilities)
+		fmt.Printf("registered requirements: %d\n", x.RegisteredRequirements)
+		fmt.Printf("registered screens: %d\n", x.RegisteredScreens)
+		fmt.Printf("registered permissions: %d\n", x.RegisteredPermissions)
+		fmt.Printf("active open decisions: %d\n", x.ActiveOpenDecisions)
+		fmt.Printf("tree digest: %s\n", x.SpecTreeDigest)
+		fmt.Printf("output: %s\n", x.Output)
+		fmt.Printf("mode: %s\n", x.Mode)
 	default:
 		b, _ := json.MarshalIndent(v, "", "  ")
 		fmt.Println(string(b))
@@ -531,7 +558,7 @@ func printValue(v any, asJSON bool) {
 }
 
 func usage(w io.Writer) {
-	fmt.Fprintln(w, "usage: cmdr-dev <doctor|status|next|spec-index|spec-baseline|coverage-graph|obligations> [--root PATH] [--json] [--check] [--output PATH]")
+	fmt.Fprintln(w, "usage: cmdr-dev <doctor|status|next|spec-index|spec-baseline|coverage-graph|obligations|coverage-audit> [--root PATH] [--json] [--check] [--output PATH]")
 }
 
 func fail(err error) {
@@ -548,6 +575,22 @@ func validateKnownObligationCounts(summary ObligationSummary, state CurrentState
 	}
 	if summary.RegisteredScreens != state.ProductSpec.KnownActiveScreens {
 		return fmt.Errorf("registered active screen count mismatch: expected %d, got %d", state.ProductSpec.KnownActiveScreens, summary.RegisteredScreens)
+	}
+	return nil
+}
+
+func validateKnownCoverageAuditCounts(summary CoverageAuditSummary, state CurrentState) error {
+	if summary.RegisteredCapabilities != state.ProductSpec.KnownCapabilities {
+		return fmt.Errorf("coverage audit capability count mismatch: expected %d, got %d", state.ProductSpec.KnownCapabilities, summary.RegisteredCapabilities)
+	}
+	if summary.RegisteredRequirements != state.ProductSpec.KnownRequirements {
+		return fmt.Errorf("coverage audit requirement count mismatch: expected %d, got %d", state.ProductSpec.KnownRequirements, summary.RegisteredRequirements)
+	}
+	if summary.RegisteredScreens != state.ProductSpec.KnownActiveScreens {
+		return fmt.Errorf("coverage audit active screen count mismatch: expected %d, got %d", state.ProductSpec.KnownActiveScreens, summary.RegisteredScreens)
+	}
+	if summary.ActiveOpenDecisions != state.ProductSpec.KnownOpenDecisions {
+		return fmt.Errorf("coverage audit open-decision count mismatch: expected %d, got %d", state.ProductSpec.KnownOpenDecisions, summary.ActiveOpenDecisions)
 	}
 	return nil
 }

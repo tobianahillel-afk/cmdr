@@ -51,3 +51,12 @@ Its provenance is pinned to Product Spec commit `0d4c6183daa5d7a99b51718a99250a2
 The snapshot contains identities only, never requirement semantics. Current Product Spec documents remain authoritative for meaning and evidence. This prevents later documentary references, historical aliases or extra `REQ-*`-shaped identifiers from silently changing the implementation obligation universe.
 
 The obligations command hard-fails when registered capability, source-requirement or active-screen counts diverge from the repository state baseline.
+
+
+## E0-COVERAGE-001C
+
+`cmdr-dev coverage-audit` compares authoritative active sets with owned canonical entities and observed source references.
+
+The audit is report-only. A non-zero gap count does not by itself fail CI because the purpose of this stage is to expose documentary/reference inconsistencies without silently rewriting Product Spec. CI does fail if the authority sets drift from known repository invariants: 498 capabilities, 122 source Requirements, 56 active screens and 17 open decisions.
+
+Gap records are deterministic and source-backed. Historical/reference-only identifiers are never promoted into active obligations merely to make the report green.

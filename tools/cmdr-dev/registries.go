@@ -59,7 +59,7 @@ func firstTableCell(line string) (string, bool) {
 		return "", false
 	}
 	value := strings.TrimSpace(rest[:end])
-	value = strings.Trim(value, "`")
+	value = strings.Trim(value, "`*")
 	if value == "" || strings.EqualFold(value, "id") || strings.EqualFold(value, "capability id") || strings.EqualFold(value, "permission") {
 		return "", false
 	}
@@ -187,4 +187,44 @@ func normalizeRegistryEvidence(values map[string][]string) {
 		}
 		values[id] = unique
 	}
+}
+
+func loadActiveOpenDecisionIDs(root, specRel string) (map[string][]string, error) {
+	rel := filepath.ToSlash(filepath.Join(specRel, "00-governance", "source-material", "unresolved-decisions.md"))
+	path := filepath.Join(root, filepath.FromSlash(rel))
+	f, err := os.Open(path)
+	if err != nil {
+		return nil, fmt.Errorf("open unresolved decisions: %w", err)
+	}
+	defer f.Close()
+
+	out := map[string][]string{}
+	inAudit := false
+	scanner := bufio.NewScanner(f)
+	for scanner.Scan() {
+		trimmed := strings.TrimSpace(scanner.Text())
+		if strings.HasPrefix(trimmed, "## ") {
+			switch {
+			case strings.HasPrefix(trimmed, "## Complete open-decision audit"):
+				inAudit = true
+				continue
+			case inAudit:
+				inAudit = false
+			}
+		}
+		if !inAudit {
+			continue
+		}
+		if id, ok := firstTableCell(trimmed); ok && openDecisionIDPattern.MatchString(id) {
+			out[id] = append(out[id], rel)
+		}
+	}
+	if err := scanner.Err(); err != nil {
+		return nil, fmt.Errorf("read unresolved decisions: %w", err)
+	}
+	if len(out) == 0 {
+		return nil, fmt.Errorf("unresolved decision register yielded no active ids")
+	}
+	normalizeRegistryEvidence(out)
+	return out, nil
 }
