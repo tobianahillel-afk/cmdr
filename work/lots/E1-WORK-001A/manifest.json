@@ -1,27 +1,95 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "id": "E1-WORK-001A",
   "title": "Define and validate implementation work manifests",
+  "type": "sublot",
   "parent": "E1-WORK-001",
-  "goal": "Introduce a strict versioned manifest contract for future implementation epics, lots, sublots and atomic tasks and validate it without breaking legacy E0 bootstrap manifests.",
-  "depends_on": ["E0-COVERAGE-001C"],
+  "goal": "Introduce a strict versioned manifest contract for future implementation work units.",
+  "product_refs": {
+    "capabilities": [],
+    "requirements": [],
+    "screens": [],
+    "permissions": [],
+    "open_decisions": [],
+    "implementation_contracts": [],
+    "canonical_objects": []
+  },
+  "depends_on": [
+    "E0-COVERAGE-001C"
+  ],
   "allowed_paths": [
     "tools/cmdr-dev/**",
     "engineering/work/**",
     "work/schema/**",
     "work/lots/E1-WORK-001*/**",
-    ".github/workflows/engineering-kernel.yml",
-    "engineering/state/**",
-    "work/graph.json"
+    ".github/workflows/engineering-kernel.yml"
   ],
-  "forbidden_paths": ["cmdr-product-spec/**"],
+  "forbidden_paths": [
+    "cmdr-product-spec/**"
+  ],
+  "inputs": [
+    "legacy E0 manifests",
+    "E1 work graph",
+    "engineering governance"
+  ],
+  "outputs": [
+    "work manifest v2 contract",
+    "strict validator",
+    "CI manifest gate"
+  ],
+  "invariants": [
+    "canonical Product Spec remains read-only",
+    "manifest validation must be deterministic"
+  ],
+  "security_properties": [
+    "manifest parsing rejects unknown fields",
+    "path authorization is explicit"
+  ],
+  "acceptance_tests": [
+    "go test ./...",
+    "cmdr-dev validate-manifests succeeds on repository manifests"
+  ],
+  "performance_budget": {
+    "applicable": false,
+    "rationale": "engineering control-plane operation; no product runtime performance claim",
+    "metrics": []
+  },
+  "migration": {
+    "required": false,
+    "rationale": "no product runtime persistent data migration",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert the work-engine commit",
+    "verification": [
+      "validate-manifests returns to the previous verified behavior"
+    ]
+  },
+  "required_checks": [
+    "gofmt",
+    "go vet ./...",
+    "go test ./...",
+    "cmdr-dev validate-manifests"
+  ],
+  "definition_of_ready": [
+    "dependencies satisfy their required terminal state",
+    "authorized paths and goal are explicit"
+  ],
   "definition_of_done": [
-    "manifest v2 has a documented machine-readable contract",
-    "unknown fields and invalid work-unit types are rejected",
-    "allowed and forbidden paths cannot conflict",
-    "product references use recognized CMDR identifier families",
-    "dependencies and parent identifiers are validated",
-    "legacy schema-v1 bootstrap manifests remain readable but are not accepted as future implementation manifests",
-    "CI validates every schema-v2 work manifest"
-  ]
+    "manifest v2 has a machine-readable contract",
+    "unknown fields and invalid types are rejected",
+    "legacy schema-v1 manifests are accepted only for E0",
+    "all E1 manifests validate in CI"
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 7,
+    "estimated_net_loc": 500,
+    "production_files": 0,
+    "net_production_loc": 0,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 0,
+    "separately_testable_behaviors": 1
+  }
 }

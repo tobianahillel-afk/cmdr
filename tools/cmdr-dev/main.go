@@ -226,6 +226,15 @@ func main() {
 			fail(err)
 		}
 		printValue(summary, *jsonFlag)
+	case "validate-manifests":
+		if err := validateState(root, state, graph); err != nil {
+			fail(err)
+		}
+		summary, err := runManifestValidation(root)
+		if err != nil {
+			fail(err)
+		}
+		printValue(summary, *jsonFlag)
 	default:
 		usage(os.Stderr)
 		fail(fmt.Errorf("unknown command %q", command))
@@ -551,6 +560,11 @@ func printValue(v any, asJSON bool) {
 		fmt.Printf("tree digest: %s\n", x.SpecTreeDigest)
 		fmt.Printf("output: %s\n", x.Output)
 		fmt.Printf("mode: %s\n", x.Mode)
+	case ManifestValidationSummary:
+		fmt.Printf("manifests: %d\n", x.Manifests)
+		fmt.Printf("legacy v1: %d\n", x.LegacyV1)
+		fmt.Printf("strict v2: %d\n", x.StrictV2)
+		fmt.Printf("mode: %s\n", x.Mode)
 	default:
 		b, _ := json.MarshalIndent(v, "", "  ")
 		fmt.Println(string(b))
@@ -558,7 +572,7 @@ func printValue(v any, asJSON bool) {
 }
 
 func usage(w io.Writer) {
-	fmt.Fprintln(w, "usage: cmdr-dev <doctor|status|next|spec-index|spec-baseline|coverage-graph|obligations|coverage-audit> [--root PATH] [--json] [--check] [--output PATH]")
+	fmt.Fprintln(w, "usage: cmdr-dev <doctor|status|next|spec-index|spec-baseline|coverage-graph|obligations|coverage-audit|validate-manifests> [--root PATH] [--json] [--check] [--output PATH]")
 }
 
 func fail(err error) {

@@ -1,27 +1,94 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "id": "E1-WORK-001B",
   "title": "Enforce complexity budgets and mandatory split rules",
+  "type": "sublot",
   "parent": "E1-WORK-001",
-  "goal": "Make lot sizing machine-checkable so a coding agent is never silently assigned a unit beyond the approved complexity envelope.",
-  "depends_on": ["E1-WORK-001A"],
-  "target_budgets": {
-    "primary_components": 2,
-    "production_files": 8,
-    "net_production_loc": 400
+  "goal": "Make work-unit sizing machine-checkable and block implementation-ready state when hard split triggers apply.",
+  "product_refs": {
+    "capabilities": [],
+    "requirements": [],
+    "screens": [],
+    "permissions": [],
+    "open_decisions": [],
+    "implementation_contracts": [],
+    "canonical_objects": []
   },
-  "mandatory_split_triggers": [
-    "production_files > 12",
-    "net_production_loc > 800",
-    "bounded_contexts > 1",
-    "independent_migrations > 1",
-    "distinct_security_models > 1",
-    "separately_testable_behaviors > 1"
+  "depends_on": [
+    "E1-WORK-001A"
+  ],
+  "allowed_paths": [
+    "tools/cmdr-dev/**",
+    "engineering/work/**",
+    "work/lots/E1-WORK-001B/**",
+    ".github/workflows/engineering-kernel.yml",
+    "engineering/state/**",
+    "work/graph.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**"
+  ],
+  "inputs": [
+    "validated work manifest v2",
+    "approved lot-sizing policy"
+  ],
+  "outputs": [
+    "complexity evaluator",
+    "soft-budget warnings",
+    "hard split decision"
+  ],
+  "invariants": [
+    "canonical Product Spec remains read-only",
+    "manifest validation must be deterministic"
+  ],
+  "security_properties": [
+    "manifest parsing rejects unknown fields",
+    "path authorization is explicit"
+  ],
+  "acceptance_tests": [
+    "go test ./...",
+    "cmdr-dev validate-manifests succeeds on repository manifests"
+  ],
+  "performance_budget": {
+    "applicable": false,
+    "rationale": "engineering control-plane operation; no product runtime performance claim",
+    "metrics": []
+  },
+  "migration": {
+    "required": false,
+    "rationale": "no product runtime persistent data migration",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert the work-engine commit",
+    "verification": [
+      "validate-manifests returns to the previous verified behavior"
+    ]
+  },
+  "required_checks": [
+    "gofmt",
+    "go vet ./...",
+    "go test ./...",
+    "cmdr-dev validate-manifests"
+  ],
+  "definition_of_ready": [
+    "dependencies satisfy their required terminal state",
+    "authorized paths and goal are explicit"
   ],
   "definition_of_done": [
-    "complexity evaluation is deterministic",
-    "soft budget warnings are distinct from hard split triggers",
-    "tests fixtures and generated code do not count as production LOC",
-    "a manifest requiring split cannot become implementation-ready"
-  ]
+    "soft budgets and hard triggers are distinct",
+    "tests fixtures and generated code are excluded from production LOC",
+    "hard split prevents implementation-ready state"
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 5,
+    "estimated_net_loc": 350,
+    "production_files": 0,
+    "net_production_loc": 0,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 0,
+    "separately_testable_behaviors": 1
+  }
 }
