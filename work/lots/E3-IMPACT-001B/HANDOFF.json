@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "work_unit": "E3-IMPACT-001B",
+  "result": "VERIFIED",
+  "final_validated_head": "328a59f10447f25d7e089766a60e21ad2384c088",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 35795592293,
+    "pull_request_run": 35795601139,
+    "representative_changed_paths": 2,
+    "representative_risk_domains": 5,
+    "representative_high_risk": false,
+    "representative_unknown_paths": 0
+  },
+  "rules": [
+    "changed paths are normalized and repository-relative",
+    "unowned or untriggered paths escalate to unknown/high-risk",
+    "CI, architecture, security and product-runtime control changes escalate explicitly",
+    "manifest product references contribute product/security impact without inventing semantics"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": ["E3-IMPACT-001C"]
+}
