@@ -17,12 +17,17 @@ type SpecDocument struct {
 	Path          string   `json:"path"`
 	SHA256        string   `json:"sha256"`
 	ID            string   `json:"id,omitempty"`
+	Type          string   `json:"type,omitempty"`
 	Domain        string   `json:"domain,omitempty"`
+	Product       string   `json:"product,omitempty"`
+	Module        string   `json:"module,omitempty"`
 	Status        string   `json:"status,omitempty"`
 	Owner         string   `json:"owner,omitempty"`
 	Updated       string   `json:"updated,omitempty"`
 	SourceOfTruth string   `json:"source_of_truth,omitempty"`
 	Requirements  []string `json:"requirements,omitempty"`
+	OpenDecisions []string `json:"open_decisions,omitempty"`
+	Permissions   []string `json:"permissions,omitempty"`
 	References    []string `json:"references,omitempty"`
 	Active        bool     `json:"active"`
 	Canonical     bool     `json:"canonical"`
@@ -172,18 +177,25 @@ func parseSpecDocument(path string, content []byte) SpecDocument {
 	canonical := strings.EqualFold(meta.scalar["source-of-truth"], "canonical")
 
 	reqs := append([]string(nil), meta.lists["requirements"]...)
-	sort.Strings(reqs)
+	reqs = append(reqs, meta.lists["requirement_ids"]...)
+	openDecisions := append([]string(nil), meta.lists["open_decisions"]...)
+	permissions := append([]string(nil), meta.lists["permissions"]...)
 
 	return SpecDocument{
 		Path:          path,
 		SHA256:        hex.EncodeToString(sum[:]),
 		ID:            meta.scalar["id"],
+		Type:          meta.scalar["type"],
 		Domain:        meta.scalar["domain"],
+		Product:       meta.scalar["product"],
+		Module:        meta.scalar["module"],
 		Status:        meta.scalar["status"],
 		Owner:         meta.scalar["owner"],
 		Updated:       meta.scalar["updated"],
 		SourceOfTruth: meta.scalar["source-of-truth"],
 		Requirements:  uniqueSorted(reqs),
+		OpenDecisions: uniqueSorted(openDecisions),
+		Permissions:   uniqueSorted(permissions),
 		References:    refs,
 		Active:        active,
 		Canonical:     canonical,
@@ -307,7 +319,7 @@ func runSpecBaseline(root, specRel, baselineCommit, output string, check bool) (
 	}
 	baseline := SpecBaseline{
 		SchemaVersion:             1,
-		CompilerSchemaVersion:     1,
+		CompilerSchemaVersion:     2,
 		SpecRoot:                  inventory.SpecRoot,
 		ProductSpecBaselineCommit: baselineCommit,
 		TreeDigest:                inventory.TreeDigest,

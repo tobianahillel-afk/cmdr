@@ -181,6 +181,19 @@ func main() {
 			fail(err)
 		}
 		printValue(summary, *jsonFlag)
+	case "coverage-graph":
+		if err := validateState(root, state, graph); err != nil {
+			fail(err)
+		}
+		output := *outputFlag
+		if output == "engineering/spec-index/inventory.json" {
+			output = "engineering/coverage/product-graph.json"
+		}
+		summary, err := runCoverageGraph(root, state.ProductSpec.CanonicalPath, output, *checkFlag)
+		if err != nil {
+			fail(err)
+		}
+		printValue(summary, *jsonFlag)
 	default:
 		usage(os.Stderr)
 		fail(fmt.Errorf("unknown command %q", command))
@@ -469,6 +482,17 @@ func printValue(v any, asJSON bool) {
 		fmt.Printf("baseline commit: %s\n", x.ProductSpecBaselineCommit)
 		fmt.Printf("output: %s\n", x.Output)
 		fmt.Printf("mode: %s\n", x.Mode)
+	case CoverageGraphSummary:
+		fmt.Printf("entities: %d\n", x.Entities)
+		fmt.Printf("edges: %d\n", x.Edges)
+		fmt.Printf("capabilities: %d\n", x.Capabilities)
+		fmt.Printf("requirements: %d\n", x.Requirements)
+		fmt.Printf("open decisions: %d\n", x.OpenDecisions)
+		fmt.Printf("permissions: %d\n", x.Permissions)
+		fmt.Printf("screens: %d\n", x.Screens)
+		fmt.Printf("tree digest: %s\n", x.SpecTreeDigest)
+		fmt.Printf("output: %s\n", x.Output)
+		fmt.Printf("mode: %s\n", x.Mode)
 	default:
 		b, _ := json.MarshalIndent(v, "", "  ")
 		fmt.Println(string(b))
@@ -476,7 +500,7 @@ func printValue(v any, asJSON bool) {
 }
 
 func usage(w io.Writer) {
-	fmt.Fprintln(w, "usage: cmdr-dev <doctor|status|next|spec-index|spec-baseline> [--root PATH] [--json] [--check] [--output PATH]")
+	fmt.Fprintln(w, "usage: cmdr-dev <doctor|status|next|spec-index|spec-baseline|coverage-graph> [--root PATH] [--json] [--check] [--output PATH]")
 }
 
 func fail(err error) {

@@ -126,3 +126,32 @@ func TestRunSpecBaselineWriteAndCheck(t *testing.T) {
 		t.Fatal("expected stale baseline error")
 	}
 }
+
+func TestParseCapabilityFrontMatterAliases(t *testing.T) {
+	content := `---
+id: CAP-CMD-001
+product: command
+module: mission-control
+requirement_ids:
+  - REQ-PROD-013
+open_decisions:
+  - OPEN-007
+permissions:
+  - perm.command.read
+source-of-truth: canonical
+---
+`
+	doc := parseSpecDocument("cmdr-product-spec/cap.md", []byte(content))
+	if doc.Product != "command" || doc.Module != "mission-control" {
+		t.Fatalf("unexpected product/module: %#v", doc)
+	}
+	if !reflect.DeepEqual(doc.Requirements, []string{"REQ-PROD-013"}) {
+		t.Fatalf("unexpected requirements: %v", doc.Requirements)
+	}
+	if !reflect.DeepEqual(doc.OpenDecisions, []string{"OPEN-007"}) {
+		t.Fatalf("unexpected open decisions: %v", doc.OpenDecisions)
+	}
+	if !reflect.DeepEqual(doc.Permissions, []string{"perm.command.read"}) {
+		t.Fatalf("unexpected permissions: %v", doc.Permissions)
+	}
+}

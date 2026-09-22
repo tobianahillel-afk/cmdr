@@ -71,6 +71,14 @@ jobs:
         working-directory: tools/cmdr-dev
         run: go run . spec-baseline --root ../.. --check --json
 
+      - name: Build canonical product entity graph
+        working-directory: tools/cmdr-dev
+        shell: bash
+        run: |
+          output="$(mktemp)"
+          go run . coverage-graph --root ../.. --output "$output" --json
+          test -s "$output"
+
       - name: Bootstrap doctor
         working-directory: tools/cmdr-dev
         run: go run . doctor --root ../..
