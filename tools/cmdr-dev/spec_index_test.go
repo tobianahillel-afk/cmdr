@@ -102,7 +102,6 @@ func contains(values []string, target string) bool {
 	return false
 }
 
-
 func TestRunSpecBaselineWriteAndCheck(t *testing.T) {
 	root := t.TempDir()
 	specRoot := filepath.Join(root, "cmdr-product-spec")
