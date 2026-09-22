@@ -75,8 +75,8 @@ var knownSecurityStages = map[string]bool{
 }
 
 var knownSecurityDataPolicies = map[string]bool{
-	"source-local-only":     true,
-	"artifact-local-only":   true,
+	"source-local-only":      true,
+	"artifact-local-only":    true,
 	"synthetic-runtime-only": true,
 }
 
