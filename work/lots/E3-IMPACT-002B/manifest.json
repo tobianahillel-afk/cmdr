@@ -35,7 +35,10 @@
   ],
   "outputs": [
     "CI-derived change evidence",
-    "risk-adaptive validation execution evidence"
+    "risk-adaptive validation execution evidence",
+    "closed adaptive executor",
+    "selected-check execution summary",
+    "parity-mode adaptive execution before full kernel"
   ],
   "invariants": [
     "Product Spec remains read-only",
@@ -52,7 +55,10 @@
     "go test ./...",
     "cmdr-dev validate-manifests succeeds",
     "cmdr-dev architecture-audit succeeds",
-    "cmdr-dev complexity-audit succeeds"
+    "cmdr-dev complexity-audit succeeds",
+    "validationExecutorMode covers every catalogued executor key",
+    "unknown executor keys fail closed",
+    "push and PR execute adaptive validation before the unchanged full kernel"
   ],
   "performance_budget": {
     "applicable": true,
@@ -79,7 +85,8 @@
     "go test ./...",
     "cmdr-dev validate-manifests",
     "cmdr-dev architecture-audit",
-    "cmdr-dev complexity-audit"
+    "cmdr-dev complexity-audit",
+    "cmdr-dev validation-run parity"
   ],
   "definition_of_ready": [
     "dependencies are VERIFIED",

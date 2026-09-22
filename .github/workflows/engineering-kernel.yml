@@ -41,7 +41,7 @@ jobs:
           go-version-file: tools/cmdr-dev/go.mod
           cache: false
 
-      - name: Derive real change set and shadow validation plan
+      - name: Derive change set and run adaptive parity validation
         working-directory: tools/cmdr-dev
         shell: bash
         env:
@@ -51,6 +51,7 @@ jobs:
           changes="$(mktemp)"
           go run . git-changes --root ../.. --base-commit "$CMDR_BASE_SHA" --head-commit "$CMDR_HEAD_SHA" --output "$changes" --json
           go run . validation-plan --root ../.. --changes-file "$changes" --json
+          go run . validation-run --root ../.. --changes-file "$changes" --json
 
       - name: Enforce gofmt
         working-directory: tools/cmdr-dev

@@ -437,6 +437,29 @@
       ],
       "prerequisites": [],
       "evidence_kind": "change-set"
+    },
+    {
+      "id": "CHK-ADAPTIVE-RUN",
+      "title": "Adaptive validation executor",
+      "executor_key": "validation-run",
+      "risk_domains": [
+        "work-governance",
+        "security"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": true,
+      "trigger_paths": [
+        "engineering/testing/**",
+        "work/**",
+        "tools/cmdr-dev/validation_run.go",
+        "tools/cmdr-dev/validation_run_test.go",
+        ".github/workflows/engineering-kernel.yml"
+      ],
+      "prerequisites": [
+        "CHK-PLAN"
+      ],
+      "evidence_kind": "execution-summary"
     }
   ]
 }

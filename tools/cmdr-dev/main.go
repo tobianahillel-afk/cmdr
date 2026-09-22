@@ -323,6 +323,15 @@ func main() {
 			fail(err)
 		}
 		printValue(summary, *jsonFlag)
+	case "validation-run":
+		if err := validateState(root, state, graph); err != nil {
+			fail(err)
+		}
+		summary, err := runValidationExecution(root, *workUnitFlag, *changesFileFlag, state, graph)
+		if err != nil {
+			fail(err)
+		}
+		printValue(summary, *jsonFlag)
 	default:
 		usage(os.Stderr)
 		fail(fmt.Errorf("unknown command %q", command))
@@ -713,6 +722,12 @@ func printValue(v any, asJSON bool) {
 		fmt.Printf("head commit: %s\n", x.HeadCommit)
 		fmt.Printf("changed paths: %d\n", x.Count)
 		fmt.Printf("output: %s\n", x.Output)
+	case ValidationExecutionSummary:
+		fmt.Printf("work unit: %s\n", x.WorkUnit)
+		fmt.Printf("tier: %s\n", x.Tier)
+		fmt.Printf("selected checks: %d\n", x.SelectedChecks)
+		fmt.Printf("executed checks: %d\n", x.ExecutedChecks)
+		fmt.Printf("preflight satisfied: %d\n", x.PreflightSatisfied)
 	default:
 		b, _ := json.MarshalIndent(v, "", "  ")
 		fmt.Println(string(b))
@@ -720,7 +735,7 @@ func printValue(v any, asJSON bool) {
 }
 
 func usage(w io.Writer) {
-	fmt.Fprintln(w, "usage: cmdr-dev <doctor|status|next|spec-index|spec-baseline|coverage-graph|obligations|coverage-audit|validate-manifests|complexity-audit|context|architecture-audit|dependency-audit|boundary-edge-audit|check-catalog-audit|impact|validation-plan|git-changes> [--root PATH] [--json] [--check] [--output PATH]")
+	fmt.Fprintln(w, "usage: cmdr-dev <doctor|status|next|spec-index|spec-baseline|coverage-graph|obligations|coverage-audit|validate-manifests|complexity-audit|context|architecture-audit|dependency-audit|boundary-edge-audit|check-catalog-audit|impact|validation-plan|git-changes|validation-run> [--root PATH] [--json] [--check] [--output PATH]")
 }
 
 func fail(err error) {
