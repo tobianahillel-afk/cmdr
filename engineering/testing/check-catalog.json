@@ -431,7 +431,7 @@
       "mandatory": true,
       "always_on_pr": true,
       "trigger_paths": [
-        ".github/workflows/engineering-kernel.yml",
+        ".github/workflows/**",
         "tools/cmdr-dev/git_changes.go",
         "tools/cmdr-dev/git_changes_test.go"
       ],
@@ -454,7 +454,7 @@
         "work/**",
         "tools/cmdr-dev/validation_run.go",
         "tools/cmdr-dev/validation_run_test.go",
-        ".github/workflows/engineering-kernel.yml"
+        ".github/workflows/**"
       ],
       "prerequisites": [
         "CHK-PLAN"

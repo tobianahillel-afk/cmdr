@@ -9,6 +9,7 @@ on:
       - "work/**"
       - "tools/cmdr-dev/**"
       - ".github/workflows/engineering-kernel.yml"
+      - ".github/workflows/engineering-kernel-full.yml"
   push:
     branches:
       - "engineering/autonomous-development-foundation"
@@ -19,6 +20,7 @@ on:
       - "work/**"
       - "tools/cmdr-dev/**"
       - ".github/workflows/engineering-kernel.yml"
+      - ".github/workflows/engineering-kernel-full.yml"
 
 permissions:
   contents: read
@@ -41,7 +43,7 @@ jobs:
           go-version-file: tools/cmdr-dev/go.mod
           cache: false
 
-      - name: Derive change set and run adaptive parity validation
+      - name: Derive change set and run adaptive validation
         working-directory: tools/cmdr-dev
         shell: bash
         env:
@@ -52,113 +54,3 @@ jobs:
           go run . git-changes --root ../.. --base-commit "$CMDR_BASE_SHA" --head-commit "$CMDR_HEAD_SHA" --output "$changes" --json
           go run . validation-plan --root ../.. --changes-file "$changes" --json
           go run . validation-run --root ../.. --changes-file "$changes" --json
-
-      - name: Enforce gofmt
-        working-directory: tools/cmdr-dev
-        shell: bash
-        run: |
-          diff="$(gofmt -d .)"
-          if [ -n "$diff" ]; then
-            printf 'gofmt diff:\n%s\n' "$diff"
-            exit 1
-          fi
-
-      - name: Vet kernel
-        working-directory: tools/cmdr-dev
-        run: go vet ./...
-
-      - name: Test kernel
-        working-directory: tools/cmdr-dev
-        run: go test ./...
-
-      - name: Compile canonical product spec inventory
-        working-directory: tools/cmdr-dev
-        shell: bash
-        run: |
-          output="$(mktemp)"
-          go run . spec-index --root ../.. --output "$output" --json
-          test -s "$output"
-
-      - name: Verify canonical product spec baseline
-        working-directory: tools/cmdr-dev
-        run: go run . spec-baseline --root ../.. --check --json
-
-      - name: Build canonical product entity graph
-        working-directory: tools/cmdr-dev
-        shell: bash
-        run: |
-          output="$(mktemp)"
-          go run . coverage-graph --root ../.. --output "$output" --json
-          test -s "$output"
-
-      - name: Derive active implementation obligations
-        working-directory: tools/cmdr-dev
-        shell: bash
-        run: |
-          output="$(mktemp)"
-          go run . obligations --root ../.. --output "$output" --json
-          test -s "$output"
-
-      - name: Audit product coverage gaps
-        working-directory: tools/cmdr-dev
-        shell: bash
-        run: |
-          output="$(mktemp)"
-          go run . coverage-audit --root ../.. --output "$output" --json
-          test -s "$output"
-
-      - name: Validate work manifests
-        working-directory: tools/cmdr-dev
-        run: go run . validate-manifests --root ../.. --json
-
-      - name: Validate check catalog
-        working-directory: tools/cmdr-dev
-        run: go run . check-catalog-audit --root ../.. --json
-
-      - name: Validate impact analysis engine
-        working-directory: tools/cmdr-dev
-        shell: bash
-        run: |
-          changes="$(mktemp)"
-          printf '%s\n' 'engineering/testing/check-catalog.json' 'work/graph.json' > "$changes"
-          go run . impact --root ../.. --changes-file "$changes" --json
-
-      - name: Validate risk-adaptive plan
-        working-directory: tools/cmdr-dev
-        shell: bash
-        run: |
-          changes="$(mktemp)"
-          printf '%s\n' 'engineering/testing/check-catalog.json' 'work/graph.json' > "$changes"
-          go run . validation-plan --root ../.. --changes-file "$changes" --json
-
-      - name: Audit architecture path ownership
-        working-directory: tools/cmdr-dev
-        run: go run . architecture-audit --root ../.. --json
-
-      - name: Audit product runtime dependencies
-        working-directory: tools/cmdr-dev
-        run: go run . dependency-audit --root ../.. --json
-
-      - name: Audit cross-boundary dependencies
-        working-directory: tools/cmdr-dev
-        run: go run . boundary-edge-audit --root ../.. --json
-
-      - name: Audit work-unit complexity
-        working-directory: tools/cmdr-dev
-        run: go run . complexity-audit --root ../.. --json
-
-      - name: Compile active agent context
-        working-directory: tools/cmdr-dev
-        shell: bash
-        run: |
-          output="$(mktemp)"
-          go run . context --root ../.. --output "$output" --json
-          test -s "$output"
-
-      - name: Bootstrap doctor
-        working-directory: tools/cmdr-dev
-        run: go run . doctor --root ../..
-
-      - name: Resolve next work
-        working-directory: tools/cmdr-dev
-        run: go run . next --root ../.. --json

@@ -23,7 +23,8 @@
     ".github/workflows/engineering-kernel.yml",
     "work/lots/E3-IMPACT-002*/**",
     "engineering/state/**",
-    "work/graph.json"
+    "work/graph.json",
+    ".github/workflows/engineering-kernel-full.yml"
   ],
   "forbidden_paths": [
     "cmdr-product-spec/**"
@@ -38,7 +39,9 @@
     "risk-adaptive validation execution evidence",
     "closed adaptive executor",
     "selected-check execution summary",
-    "parity-mode adaptive execution before full kernel"
+    "parity-mode adaptive execution before full kernel",
+    "adaptive ordinary push/PR CI gate",
+    "independent static full-kernel fallback workflow"
   ],
   "invariants": [
     "Product Spec remains read-only",
@@ -58,7 +61,10 @@
     "cmdr-dev complexity-audit succeeds",
     "validationExecutorMode covers every catalogued executor key",
     "unknown executor keys fail closed",
-    "push and PR execute adaptive validation before the unchanged full kernel"
+    "push and PR execute adaptive validation before the unchanged full kernel",
+    "parity proof exists on push 35798358793 and PR 35798364603",
+    "rollout commit runs adaptive strict validation because CI workflows changed",
+    "independent full-kernel fallback runs on its creation/modification"
   ],
   "performance_budget": {
     "applicable": true,
@@ -97,7 +103,9 @@
     "no plan can execute arbitrary shell",
     "strict plans execute all mandatory checks",
     "CI keeps a documented full-kernel fallback",
-    "adaptive and full-kernel results are compared before rollout"
+    "adaptive and full-kernel results are compared before rollout",
+    "ordinary push/PR workflow uses real diff plus adaptive validation after parity proof",
+    "independent static full-kernel workflow remains available as rollback/fallback evidence"
   ],
   "complexity": {
     "primary_components": 1,
