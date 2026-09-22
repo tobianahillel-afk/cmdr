@@ -30,16 +30,16 @@ type ObligationSet struct {
 }
 
 type ObligationSummary struct {
-	Obligations             int            `json:"obligations"`
-	ByFamily                map[string]int `json:"by_family"`
-	UnresolvedReferences    int            `json:"unresolved_references"`
-	RegisteredCapabilities  int            `json:"registered_capabilities"`
-	RegisteredRequirements  int            `json:"registered_requirements"`
-	RegisteredScreens       int            `json:"registered_screens"`
-	RegisteredPermissions   int            `json:"registered_permissions"`
-	SpecTreeDigest          string         `json:"spec_tree_digest"`
-	Output                  string         `json:"output"`
-	Mode                    string         `json:"mode"`
+	Obligations            int            `json:"obligations"`
+	ByFamily               map[string]int `json:"by_family"`
+	UnresolvedReferences   int            `json:"unresolved_references"`
+	RegisteredCapabilities int            `json:"registered_capabilities"`
+	RegisteredRequirements int            `json:"registered_requirements"`
+	RegisteredScreens      int            `json:"registered_screens"`
+	RegisteredPermissions  int            `json:"registered_permissions"`
+	SpecTreeDigest         string         `json:"spec_tree_digest"`
+	Output                 string         `json:"output"`
+	Mode                   string         `json:"mode"`
 }
 
 func runObligations(root, specRel, output string, check bool) (ObligationSummary, error) {
