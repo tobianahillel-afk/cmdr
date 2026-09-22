@@ -1,0 +1,101 @@
+{
+  "schema_version": 2,
+  "id": "E4-SEC-001B1",
+  "title": "Implement deterministic secret scanning",
+  "type": "sublot",
+  "parent": "E4-SEC-001B",
+  "goal": "Implement a local, deterministic secret detector with redacted evidence, allowlisted false-positive handling, binary/generated-file exclusions and changed-path/full-scan modes; activate SEC-SECRETS-001 only after push/PR proof.",
+  "product_refs": {
+    "capabilities": [],
+    "requirements": [],
+    "screens": [],
+    "permissions": [],
+    "open_decisions": [],
+    "implementation_contracts": [],
+    "canonical_objects": []
+  },
+  "depends_on": [
+    "E4-SEC-001A"
+  ],
+  "allowed_paths": [
+    "tools/cmdr-dev/**",
+    "engineering/security/**",
+    "engineering/testing/**",
+    ".github/workflows/**",
+    "work/lots/E4-SEC-001B*/**",
+    "engineering/state/**",
+    "work/graph.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**"
+  ],
+  "inputs": [
+    "verified security gate registry",
+    "adaptive validation engine",
+    "development tooling may be external only when reviewed/pinned and must not become product runtime dependencies"
+  ],
+  "outputs": [
+    "executable evidence-backed security control"
+  ],
+  "invariants": [
+    "Product Spec remains read-only",
+    "security findings never expose secret material in CI logs",
+    "tooling does not silently become a product runtime dependency",
+    "a gate is activated only in the same change that proves its implementation"
+  ],
+  "security_properties": [
+    "fail closed on ambiguous security evidence",
+    "no production/customer data leaves the repository/build boundary",
+    "tool identity/version/provenance is explicit when external tooling is used"
+  ],
+  "acceptance_tests": [
+    "go test ./...",
+    "adaptive engineering-kernel succeeds in push and PR",
+    "security-gate audit succeeds with truthful readiness"
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "fast source security controls must remain PR-suitable",
+    "metrics": [
+      "fast gate execution remains bounded and change-aware"
+    ]
+  },
+  "migration": {
+    "required": false,
+    "rationale": "engineering security control-plane only",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert the sublot and return its security gate to specified without claiming active enforcement",
+    "verification": [
+      "security-gate audit and adaptive kernel remain green"
+    ]
+  },
+  "required_checks": [
+    "adaptive engineering-kernel",
+    "security-gate audit"
+  ],
+  "definition_of_ready": [
+    "dependencies are VERIFIED",
+    "implementation scope is one coherent security behavior"
+  ],
+  "definition_of_done": [
+    "secret scanner never logs matched secret values",
+    "high-confidence private-key/token patterns block",
+    "allowlist entries are path/fingerprint scoped rather than raw-secret scoped",
+    "changed-path scans ignore deleted/nonexistent files safely",
+    "full-scan mode can audit the engineering/runtime repository scope",
+    "SEC-SECRETS-001 becomes active with a compiled implementation key"
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 7,
+    "estimated_net_loc": 390,
+    "production_files": 3,
+    "net_production_loc": 320,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

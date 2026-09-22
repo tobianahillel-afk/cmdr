@@ -300,7 +300,7 @@
       "id": "E4-SEC-001A",
       "title": "Define security gate registry and evidence model",
       "type": "sublot",
-      "status": "READY",
+      "status": "VERIFIED",
       "depends_on": [
         "E3-IMPACT-002B"
       ],
@@ -311,15 +311,15 @@
     },
     {
       "id": "E4-SEC-001B",
-      "title": "Implement secrets, SAST, SCA and SBOM security controls",
-      "type": "sublot",
-      "status": "BLOCKED",
+      "title": "Implement source and supply-chain security controls",
+      "type": "lot",
+      "status": "DECOMPOSED",
       "depends_on": [
         "E4-SEC-001A"
       ],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": [
-        "E4-SEC-001C"
+        "E4-SEC-001B1"
       ]
     },
     {
@@ -328,7 +328,7 @@
       "type": "sublot",
       "status": "BLOCKED",
       "depends_on": [
-        "E4-SEC-001B"
+        "E4-SEC-001B3"
       ],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": [
@@ -345,6 +345,45 @@
       ],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": []
+    },
+    {
+      "id": "E4-SEC-001B1",
+      "title": "Implement deterministic secret scanning",
+      "type": "sublot",
+      "status": "READY",
+      "depends_on": [
+        "E4-SEC-001A"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E4-SEC-001B2"
+      ]
+    },
+    {
+      "id": "E4-SEC-001B2",
+      "title": "Implement SAST and dependency vulnerability controls",
+      "type": "sublot",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E4-SEC-001B1"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E4-SEC-001B3"
+      ]
+    },
+    {
+      "id": "E4-SEC-001B3",
+      "title": "Generate deterministic SBOM and supply-chain evidence",
+      "type": "sublot",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E4-SEC-001B2"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E4-SEC-001C"
+      ]
     }
   ]
 }

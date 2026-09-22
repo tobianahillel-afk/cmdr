@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "work_unit": "E4-SEC-001A",
+  "result": "VERIFIED",
+  "final_validated_head": "490046513dec3c087ca0569431415cf53a5211b6",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 35799330869,
+    "pull_request_run": 35799336192,
+    "security_gates": 12,
+    "active": 0,
+    "specified": 6,
+    "deferred_runtime": 6
+  },
+  "rules": [
+    "security control families are closed and canonical",
+    "non-active gates cannot claim implementation keys",
+    "active gates require compiled known implementation keys",
+    "every security gate includes the security risk domain",
+    "security tooling data policies are limited to source-local, artifact-local, or synthetic-runtime data"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E4-SEC-001B1"
+  ]
+}

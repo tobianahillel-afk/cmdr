@@ -1,10 +1,10 @@
 {
   "schema_version": 2,
   "id": "E4-SEC-001B",
-  "title": "Implement secrets, SAST, SCA and SBOM security controls",
-  "type": "sublot",
+  "title": "Implement source and supply-chain security controls",
+  "type": "lot",
   "parent": "E4-SEC-001",
-  "goal": "Implement fast source/supply-chain security gates for secrets, static analysis, dependency vulnerability policy and SBOM evidence, with reviewed development-tool boundaries and no product-runtime dependency leakage.",
+  "goal": "Coordinate bounded implementations for secret detection, static/vulnerability analysis, and deterministic SBOM/supply-chain evidence.",
   "product_refs": {
     "capabilities": [],
     "requirements": [],
@@ -83,18 +83,15 @@
     "security scope is bounded and does not claim runtime product behavior"
   ],
   "definition_of_done": [
-    "secret scanning blocks verified secret patterns without leaking secret contents to logs",
-    "SAST has a deterministic built-in or pinned reviewed tool path",
-    "dependency/SCA findings are severity/policy gated",
-    "SBOM generation is deterministic and attached to exact source/dependency identity",
-    "security tool versions/provenance are pinned and recorded"
+    "E4-SEC-001B1, E4-SEC-001B2 and E4-SEC-001B3 are VERIFIED",
+    "applicable source/supply-chain security gates are active only with executable evidence"
   ],
   "complexity": {
-    "primary_components": 2,
-    "estimated_files_changed": 8,
-    "estimated_net_loc": 520,
-    "production_files": 3,
-    "net_production_loc": 400,
+    "primary_components": 1,
+    "estimated_files_changed": 12,
+    "estimated_net_loc": 1050,
+    "production_files": 0,
+    "net_production_loc": 0,
     "bounded_contexts": 1,
     "independent_migrations": 0,
     "distinct_security_models": 1,
