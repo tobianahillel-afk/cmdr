@@ -132,12 +132,8 @@ func loadActiveRequirementIDs(root, specRel string) (map[string][]string, error)
 	out := map[string][]string{}
 	for _, name := range files {
 		rel := filepath.ToSlash(filepath.Join(base, name))
-		data, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(rel)))
-		if err != nil {
-			return nil, fmt.Errorf("read requirement source %s: %w", rel, err)
-		}
-		for _, id := range requirementIDPattern.FindAllString(string(data), -1) {
-			out[id] = append(out[id], rel)
+		if err := collectFirstColumnIDs(filepath.Join(root, filepath.FromSlash(rel)), rel, requirementIDPattern, out); err != nil {
+			return nil, err
 		}
 	}
 	if len(out) == 0 {
