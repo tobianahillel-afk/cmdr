@@ -283,3 +283,12 @@ func architectureBoundaryForPath(registry ArchitectureRegistry, path string) (Ar
 	}
 	return *found, true
 }
+
+func containsString(values []string, want string) bool {
+	for _, value := range values {
+		if value == want {
+			return true
+		}
+	}
+	return false
+}
