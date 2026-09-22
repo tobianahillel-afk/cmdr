@@ -194,6 +194,19 @@ func main() {
 			fail(err)
 		}
 		printValue(summary, *jsonFlag)
+	case "obligations":
+		if err := validateState(root, state, graph); err != nil {
+			fail(err)
+		}
+		output := *outputFlag
+		if output == "engineering/spec-index/inventory.json" {
+			output = "engineering/coverage/obligations.json"
+		}
+		summary, err := runObligations(root, state.ProductSpec.CanonicalPath, output, *checkFlag)
+		if err != nil {
+			fail(err)
+		}
+		printValue(summary, *jsonFlag)
 	default:
 		usage(os.Stderr)
 		fail(fmt.Errorf("unknown command %q", command))
@@ -497,6 +510,17 @@ func printValue(v any, asJSON bool) {
 		fmt.Printf("tree digest: %s\n", x.SpecTreeDigest)
 		fmt.Printf("output: %s\n", x.Output)
 		fmt.Printf("mode: %s\n", x.Mode)
+	case ObligationSummary:
+		fmt.Printf("obligations: %d\n", x.Obligations)
+		fmt.Printf("by family: %v\n", x.ByFamily)
+		fmt.Printf("unresolved references: %d\n", x.UnresolvedReferences)
+		fmt.Printf("registered capabilities: %d\n", x.RegisteredCapabilities)
+		fmt.Printf("registered requirements: %d\n", x.RegisteredRequirements)
+		fmt.Printf("registered screens: %d\n", x.RegisteredScreens)
+		fmt.Printf("registered permissions: %d\n", x.RegisteredPermissions)
+		fmt.Printf("tree digest: %s\n", x.SpecTreeDigest)
+		fmt.Printf("output: %s\n", x.Output)
+		fmt.Printf("mode: %s\n", x.Mode)
 	default:
 		b, _ := json.MarshalIndent(v, "", "  ")
 		fmt.Println(string(b))
@@ -504,7 +528,7 @@ func printValue(v any, asJSON bool) {
 }
 
 func usage(w io.Writer) {
-	fmt.Fprintln(w, "usage: cmdr-dev <doctor|status|next|spec-index|spec-baseline|coverage-graph> [--root PATH] [--json] [--check] [--output PATH]")
+	fmt.Fprintln(w, "usage: cmdr-dev <doctor|status|next|spec-index|spec-baseline|coverage-graph|obligations> [--root PATH] [--json] [--check] [--output PATH]")
 }
 
 func fail(err error) {

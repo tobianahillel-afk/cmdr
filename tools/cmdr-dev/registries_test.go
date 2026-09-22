@@ -31,3 +31,16 @@ func TestLoadActiveScreenIDsStopsBeforeAliases(t *testing.T) {
 		t.Fatal("deprecated alias must not be active")
 	}
 }
+
+func TestFirstTableCellAcceptsPlainAndBacktickValues(t *testing.T) {
+	for line, want := range map[string]string{
+		"| CAP-CMD-001 | Name |": "CAP-CMD-001",
+		"| `CAP-SET-014` | Name |": "CAP-SET-014",
+		"| `perm.command.read` | Command |": "perm.command.read",
+	} {
+		got, ok := firstTableCell(line)
+		if !ok || got != want {
+			t.Fatalf("%q: got %q ok=%t want %q", line, got, ok, want)
+		}
+	}
+}

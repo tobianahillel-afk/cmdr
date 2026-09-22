@@ -24,3 +24,19 @@ Edge types in this first sublot are restricted to facts directly visible in sour
 - `reference`.
 
 Implementation obligations are **not** inferred in this sublot; that is E0-COVERAGE-001B.
+
+
+## E0-COVERAGE-001B
+
+`cmdr-dev obligations` derives the implementation obligation set from active normative evidence.
+
+An identifier becomes an active obligation only when its family-specific source of authority says it is active:
+- capabilities: active Capability Register shards + canonical capability source;
+- requirements: the ten core sponsor/source requirement documents listed by Source Material governance;
+- screens: the active section of the Screen Register + canonical screen source;
+- permissions: Permission Register rows;
+- implementation contracts and canonical objects: active canonical source documents.
+
+Reference-only or historical identifiers remain traceable in `unresolved_references` but do not silently become delivery obligations.
+
+The detailed obligation file is generated on demand while corpus compilation remains cheap.

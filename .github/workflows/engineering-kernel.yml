@@ -79,6 +79,14 @@ jobs:
           go run . coverage-graph --root ../.. --output "$output" --json
           test -s "$output"
 
+      - name: Derive active implementation obligations
+        working-directory: tools/cmdr-dev
+        shell: bash
+        run: |
+          output="$(mktemp)"
+          go run . obligations --root ../.. --output "$output" --json
+          test -s "$output"
+
       - name: Bootstrap doctor
         working-directory: tools/cmdr-dev
         run: go run . doctor --root ../..
