@@ -25,17 +25,17 @@ type CoverageAuditReport struct {
 }
 
 type CoverageAuditSummary struct {
-	Gaps                   int            `json:"gaps"`
+	Gaps                   int                 `json:"gaps"`
 	ByCode                 map[string]int      `json:"by_code"`
 	SubjectsByCode         map[string][]string `json:"subjects_by_code"`
 	RegisteredCapabilities int                 `json:"registered_capabilities"`
-	RegisteredRequirements int            `json:"registered_requirements"`
-	RegisteredScreens      int            `json:"registered_screens"`
-	RegisteredPermissions  int            `json:"registered_permissions"`
-	ActiveOpenDecisions    int            `json:"active_open_decisions"`
-	SpecTreeDigest         string         `json:"spec_tree_digest"`
-	Output                 string         `json:"output"`
-	Mode                   string         `json:"mode"`
+	RegisteredRequirements int                 `json:"registered_requirements"`
+	RegisteredScreens      int                 `json:"registered_screens"`
+	RegisteredPermissions  int                 `json:"registered_permissions"`
+	ActiveOpenDecisions    int                 `json:"active_open_decisions"`
+	SpecTreeDigest         string              `json:"spec_tree_digest"`
+	Output                 string              `json:"output"`
+	Mode                   string              `json:"mode"`
 }
 
 func runCoverageAudit(root, specRel, output string, check bool) (CoverageAuditSummary, error) {
