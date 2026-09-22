@@ -9,9 +9,13 @@
     {"id":"E0-COVERAGE-001A","title":"Build canonical product entity and reference graph","type":"sublot","status":"VERIFIED","depends_on":["E0-SPEC-001"],"dependency_terminal_state":"VERIFIED","unlocks":["E0-COVERAGE-001B"]},
     {"id":"E0-COVERAGE-001B","title":"Derive implementation obligations from product graph","type":"sublot","status":"VERIFIED","depends_on":["E0-COVERAGE-001A"],"dependency_terminal_state":"VERIFIED","unlocks":["E0-COVERAGE-001C"]},
     {"id":"E0-COVERAGE-001C","title":"Detect unmapped and inconsistent product coverage","type":"sublot","status":"VERIFIED","depends_on":["E0-COVERAGE-001B"],"dependency_terminal_state":"VERIFIED","unlocks":["E1-WORK-001A"]},
-    {"id":"E1-WORK-001","title":"Implement work decomposition engine","type":"epic","status":"DECOMPOSED","depends_on":["E0-COVERAGE-001C"],"dependency_terminal_state":"VERIFIED","unlocks":["E1-WORK-001A"]},
+    {"id":"E1-WORK-001","title":"Implement work decomposition engine","type":"epic","status":"VERIFIED","depends_on":["E0-COVERAGE-001C"],"dependency_terminal_state":"VERIFIED","unlocks":["E1-WORK-001A"]},
     {"id":"E1-WORK-001A","title":"Define and validate implementation work manifests","type":"sublot","status":"VERIFIED","depends_on":["E0-COVERAGE-001C"],"dependency_terminal_state":"VERIFIED","unlocks":["E1-WORK-001B"]},
     {"id":"E1-WORK-001B","title":"Enforce complexity budgets and mandatory split rules","type":"sublot","status":"VERIFIED","depends_on":["E1-WORK-001A"],"dependency_terminal_state":"VERIFIED","unlocks":["E1-WORK-001C"]},
-    {"id":"E1-WORK-001C","title":"Compile minimal deterministic agent context bundles","type":"sublot","status":"READY","depends_on":["E1-WORK-001B"],"dependency_terminal_state":"VERIFIED","unlocks":[]}
+    {"id":"E1-WORK-001C","title":"Compile minimal deterministic agent context bundles","type":"sublot","status":"VERIFIED","depends_on":["E1-WORK-001B"],"dependency_terminal_state":"VERIFIED","unlocks":["E2-ARCH-001A"]},
+    {"id":"E2-ARCH-001","title":"Implement architecture and dependency enforcement","type":"epic","status":"DECOMPOSED","depends_on":["E1-WORK-001C"],"dependency_terminal_state":"VERIFIED","unlocks":["E2-ARCH-001A"]},
+    {"id":"E2-ARCH-001A","title":"Define architecture boundary and path ownership registry","type":"sublot","status":"READY","depends_on":["E1-WORK-001C"],"dependency_terminal_state":"VERIFIED","unlocks":["E2-ARCH-001B"]},
+    {"id":"E2-ARCH-001B","title":"Enforce third-party product runtime dependency policy","type":"sublot","status":"BLOCKED","depends_on":["E2-ARCH-001A"],"dependency_terminal_state":"VERIFIED","unlocks":["E2-ARCH-001C"]},
+    {"id":"E2-ARCH-001C","title":"Enforce cross-boundary dependency edges","type":"sublot","status":"BLOCKED","depends_on":["E2-ARCH-001B"],"dependency_terminal_state":"VERIFIED","unlocks":[]}
   ]
 }
