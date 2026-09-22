@@ -44,3 +44,28 @@ func TestFirstTableCellAcceptsPlainAndBacktickValues(t *testing.T) {
 		}
 	}
 }
+
+func TestLoadActiveRequirementIDsUsesProvenanceBaseline(t *testing.T) {
+	root := t.TempDir()
+	dir := filepath.Join(root, "engineering", "coverage")
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	content := "{\n  \"schema_version\": 1,\n  \"baseline_kind\": \"source-requirement-identity\",\n  \"source_commit\": \"abc\",\n  \"source_path\": \"cmdr-product-spec/requirements.md\",\n  \"source_blob_sha\": \"def\",\n  \"expected_count\": 2,\n  \"requirement_ids\": [\"REQ-PROD-001\", \"REQ-SEC-001\"]\n}\n"
+	if err := os.WriteFile(filepath.Join(dir, "source-requirements-baseline.json"), []byte(content), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	ids, err := loadActiveRequirementIDs(root, "cmdr-product-spec")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(ids) != 2 {
+		t.Fatalf("expected 2 requirement ids, got %d", len(ids))
+	}
+	if _, ok := ids["REQ-PROD-001"]; !ok {
+		t.Fatal("missing REQ-PROD-001")
+	}
+	if _, ok := ids["REQ-SEC-001"]; !ok {
+		t.Fatal("missing REQ-SEC-001")
+	}
+}

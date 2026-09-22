@@ -40,3 +40,14 @@ An identifier becomes an active obligation only when its family-specific source 
 Reference-only or historical identifiers remain traceable in `unresolved_references` but do not silently become delivery obligations.
 
 The detailed obligation file is generated on demand while corpus compilation remains cheap.
+
+
+### Source requirement identity baseline
+
+The initial Phase-0 Requirement Catalog is the identity authority for the 122 source Requirement IDs. The compact engineering snapshot is `source-requirements-baseline.json`.
+
+Its provenance is pinned to Product Spec commit `0d4c6183daa5d7a99b51718a99250a2dfcb4ecc6`, source file `00-governance/source-material/requirements-traceability-matrix.md`, and source blob `652c7e2300664a70a9257d4fbb6f971b210a5a8e`.
+
+The snapshot contains identities only, never requirement semantics. Current Product Spec documents remain authoritative for meaning and evidence. This prevents later documentary references, historical aliases or extra `REQ-*`-shaped identifiers from silently changing the implementation obligation universe.
+
+The obligations command hard-fails when registered capability, source-requirement or active-screen counts diverge from the repository state baseline.

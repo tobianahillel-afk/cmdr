@@ -206,6 +206,9 @@ func main() {
 		if err != nil {
 			fail(err)
 		}
+		if err := validateKnownObligationCounts(summary, state); err != nil {
+			fail(err)
+		}
 		printValue(summary, *jsonFlag)
 	default:
 		usage(os.Stderr)
@@ -534,4 +537,17 @@ func usage(w io.Writer) {
 func fail(err error) {
 	fmt.Fprintln(os.Stderr, "cmdr-dev:", err)
 	os.Exit(1)
+}
+
+func validateKnownObligationCounts(summary ObligationSummary, state CurrentState) error {
+	if summary.RegisteredCapabilities != state.ProductSpec.KnownCapabilities {
+		return fmt.Errorf("registered capability count mismatch: expected %d, got %d", state.ProductSpec.KnownCapabilities, summary.RegisteredCapabilities)
+	}
+	if summary.RegisteredRequirements != state.ProductSpec.KnownRequirements {
+		return fmt.Errorf("registered requirement count mismatch: expected %d, got %d", state.ProductSpec.KnownRequirements, summary.RegisteredRequirements)
+	}
+	if summary.RegisteredScreens != state.ProductSpec.KnownActiveScreens {
+		return fmt.Errorf("registered active screen count mismatch: expected %d, got %d", state.ProductSpec.KnownActiveScreens, summary.RegisteredScreens)
+	}
+	return nil
 }

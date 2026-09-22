@@ -57,3 +57,18 @@ func TestNewObligationDeduplicatesAndSortsSources(t *testing.T) {
 		t.Fatalf("unexpected source paths: %v", obligation.SourcePaths)
 	}
 }
+
+func TestValidateKnownObligationCounts(t *testing.T) {
+	var state CurrentState
+	state.ProductSpec.KnownCapabilities = 498
+	state.ProductSpec.KnownRequirements = 122
+	state.ProductSpec.KnownActiveScreens = 56
+	summary := ObligationSummary{RegisteredCapabilities: 498, RegisteredRequirements: 122, RegisteredScreens: 56}
+	if err := validateKnownObligationCounts(summary, state); err != nil {
+		t.Fatal(err)
+	}
+	summary.RegisteredRequirements = 121
+	if err := validateKnownObligationCounts(summary, state); err == nil {
+		t.Fatal("expected requirement count mismatch")
+	}
+}

@@ -115,31 +115,43 @@ func loadActivePermissionIDs(root, specRel string) (map[string][]string, error) 
 	return out, nil
 }
 
+type SourceRequirementBaseline struct {
+	SchemaVersion  int      `json:"schema_version"`
+	BaselineKind   string   `json:"baseline_kind"`
+	SourceCommit   string   `json:"source_commit"`
+	SourcePath     string   `json:"source_path"`
+	SourceBlobSHA  string   `json:"source_blob_sha"`
+	ExpectedCount  int      `json:"expected_count"`
+	RequirementIDs []string `json:"requirement_ids"`
+}
+
 func loadActiveRequirementIDs(root, specRel string) (map[string][]string, error) {
-	base := filepath.ToSlash(filepath.Join(specRel, "00-governance", "source-material"))
-	files := []string{
-		"cmdr-master-product-brief.md",
-		"product-boundaries.md",
-		"canonical-object-and-ownership-decisions.md",
-		"ai-and-automation-constraints.md",
-		"native-capability-strategy.md",
-		"ux-and-navigation-decisions.md",
-		"brand-and-visual-decisions.md",
-		"product-capability-inventory.md",
-		"user-role-and-journey-inventory.md",
-		"explicit-non-goals.md",
+	_ = specRel
+	rel := "engineering/coverage/source-requirements-baseline.json"
+	var baseline SourceRequirementBaseline
+	if err := decodeStrict(filepath.Join(root, filepath.FromSlash(rel)), &baseline); err != nil {
+		return nil, fmt.Errorf("decode source requirement baseline: %w", err)
 	}
-	out := map[string][]string{}
-	for _, name := range files {
-		rel := filepath.ToSlash(filepath.Join(base, name))
-		if err := collectFirstColumnIDs(filepath.Join(root, filepath.FromSlash(rel)), rel, requirementIDPattern, out); err != nil {
-			return nil, err
+	if baseline.SchemaVersion != 1 || baseline.BaselineKind != "source-requirement-identity" {
+		return nil, fmt.Errorf("unsupported source requirement baseline")
+	}
+	if baseline.SourceCommit == "" || baseline.SourcePath == "" || baseline.SourceBlobSHA == "" {
+		return nil, fmt.Errorf("source requirement baseline lacks provenance")
+	}
+	if baseline.ExpectedCount <= 0 || len(baseline.RequirementIDs) != baseline.ExpectedCount {
+		return nil, fmt.Errorf("source requirement baseline count mismatch: expected %d, got %d", baseline.ExpectedCount, len(baseline.RequirementIDs))
+	}
+
+	out := make(map[string][]string, len(baseline.RequirementIDs))
+	for _, id := range baseline.RequirementIDs {
+		if !requirementIDPattern.MatchString(id) {
+			return nil, fmt.Errorf("invalid source requirement id %q", id)
 		}
+		if _, exists := out[id]; exists {
+			return nil, fmt.Errorf("duplicate source requirement id %q", id)
+		}
+		out[id] = []string{rel}
 	}
-	if len(out) == 0 {
-		return nil, fmt.Errorf("requirement sources yielded no active requirement ids")
-	}
-	normalizeRegistryEvidence(out)
 	return out, nil
 }
 
