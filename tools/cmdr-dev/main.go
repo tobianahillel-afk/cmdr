@@ -109,6 +109,8 @@ func main() {
 	fs.SetOutput(io.Discard)
 	rootFlag := fs.String("root", "", "repository root")
 	jsonFlag := fs.Bool("json", false, "machine-readable output")
+	checkFlag := fs.Bool("check", false, "check generated output instead of writing it")
+	outputFlag := fs.String("output", "engineering/spec-index/inventory.json", "generated output path")
 	if err := fs.Parse(os.Args[2:]); err != nil {
 		fail(err)
 	}
@@ -157,6 +159,15 @@ func main() {
 			fail(errors.New("no executable READY work unit"))
 		}
 		printValue(next, *jsonFlag)
+	case "spec-index":
+		if err := validateState(root, state, graph); err != nil {
+			fail(err)
+		}
+		summary, err := runSpecIndex(root, state.ProductSpec.CanonicalPath, *outputFlag, *checkFlag)
+		if err != nil {
+			fail(err)
+		}
+		printValue(summary, *jsonFlag)
 	default:
 		usage(os.Stderr)
 		fail(fmt.Errorf("unknown command %q", command))
@@ -196,12 +207,7 @@ func resolveRoot(explicit string) (string, error) {
 }
 
 func isRepoRoot(root string) bool {
-	required := []string{
-		"AGENTS.md",
-		"AI_START_HERE.md",
-		statePath,
-		graphPath,
-	}
+	required := []string{"AGENTS.md", "AI_START_HERE.md", statePath, graphPath}
 	for _, rel := range required {
 		info, err := os.Stat(filepath.Join(root, filepath.FromSlash(rel)))
 		if err != nil || info.IsDir() {
@@ -235,8 +241,12 @@ func decodeStrict(path string, dst any) error {
 	if err := dec.Decode(dst); err != nil {
 		return fmt.Errorf("decode %s: %w", path, err)
 	}
-	if dec.More() {
-		return fmt.Errorf("decode %s: trailing JSON values", path)
+	var extra any
+	if err := dec.Decode(&extra); err != io.EOF {
+		if err == nil {
+			return fmt.Errorf("decode %s: trailing JSON value", path)
+		}
+		return fmt.Errorf("decode %s: trailing content: %w", path, err)
 	}
 	return nil
 }
@@ -328,7 +338,6 @@ func validateState(root string, state CurrentState, graph WorkGraph) error {
 
 func validateAcyclic(nodes []WorkNode, index map[string]WorkNode) error {
 	const (
-		white = 0
 		gray  = 1
 		black = 2
 	)
@@ -434,6 +443,12 @@ func printValue(v any, asJSON bool) {
 		fmt.Printf("product baseline: %s\n", x.ProductBaseline)
 	case *WorkNode:
 		fmt.Printf("%s — %s [%s]\n", x.ID, x.Title, x.Status)
+	case SpecIndexSummary:
+		fmt.Printf("spec files: %d\n", x.Files)
+		fmt.Printf("active canonical documents: %d\n", x.ActiveCanonicalDocuments)
+		fmt.Printf("tree digest: %s\n", x.TreeDigest)
+		fmt.Printf("output: %s\n", x.Output)
+		fmt.Printf("mode: %s\n", x.Mode)
 	default:
 		b, _ := json.MarshalIndent(v, "", "  ")
 		fmt.Println(string(b))
@@ -441,7 +456,7 @@ func printValue(v any, asJSON bool) {
 }
 
 func usage(w io.Writer) {
-	fmt.Fprintln(w, "usage: cmdr-dev <doctor|status|next> [--root PATH] [--json]")
+	fmt.Fprintln(w, "usage: cmdr-dev <doctor|status|next|spec-index> [--root PATH] [--json] [--check] [--output PATH]")
 }
 
 func fail(err error) {

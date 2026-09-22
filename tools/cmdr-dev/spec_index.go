@@ -1,0 +1,276 @@
+package main
+
+import (
+	"bytes"
+	"crypto/sha256"
+	"encoding/hex"
+	"encoding/json"
+	"fmt"
+	"os"
+	"path/filepath"
+	"regexp"
+	"sort"
+	"strings"
+)
+
+type SpecDocument struct {
+	Path          string   `json:"path"`
+	SHA256        string   `json:"sha256"`
+	ID            string   `json:"id,omitempty"`
+	Domain        string   `json:"domain,omitempty"`
+	Status        string   `json:"status,omitempty"`
+	Owner         string   `json:"owner,omitempty"`
+	Updated       string   `json:"updated,omitempty"`
+	SourceOfTruth string   `json:"source_of_truth,omitempty"`
+	Requirements  []string `json:"requirements,omitempty"`
+	References    []string `json:"references,omitempty"`
+	Active        bool     `json:"active"`
+	Canonical     bool     `json:"canonical"`
+}
+
+type SpecInventory struct {
+	SchemaVersion int            `json:"schema_version"`
+	SpecRoot      string         `json:"spec_root"`
+	TreeDigest    string         `json:"tree_digest"`
+	Files         int            `json:"files"`
+	Documents     []SpecDocument `json:"documents"`
+}
+
+type SpecIndexSummary struct {
+	Files                    int    `json:"files"`
+	ActiveCanonicalDocuments int    `json:"active_canonical_documents"`
+	TreeDigest               string `json:"tree_digest"`
+	Output                   string `json:"output"`
+	Mode                     string `json:"mode"`
+}
+
+var cmrdIDPattern = regexp.MustCompile(`\b(?:CAP-[A-Z0-9]+-[0-9]{3}|REQ-[A-Z0-9]+-[0-9]{3}|OPEN-[0-9]{3}|ADR-[0-9]{4}|DEP-(?:[A-Z0-9]+-)?[0-9]{3})\b`)
+var permissionPattern = regexp.MustCompile(`\bperm\.[a-zA-Z0-9.*_-]+(?:\.[a-zA-Z0-9.*_-]+)*\b`)
+
+func runSpecIndex(root, specRel, output string, check bool) (SpecIndexSummary, error) {
+	inventory, err := buildSpecInventory(root, specRel)
+	if err != nil {
+		return SpecIndexSummary{}, err
+	}
+	data, err := json.MarshalIndent(inventory, "", "  ")
+	if err != nil {
+		return SpecIndexSummary{}, err
+	}
+	data = append(data, '\n')
+
+	outputPath := output
+	if !filepath.IsAbs(outputPath) {
+		outputPath = filepath.Join(root, filepath.FromSlash(outputPath))
+	}
+	mode := "write"
+	if check {
+		mode = "check"
+		existing, err := os.ReadFile(outputPath)
+		if err != nil {
+			return SpecIndexSummary{}, fmt.Errorf("read generated spec index: %w", err)
+		}
+		if !bytes.Equal(existing, data) {
+			return SpecIndexSummary{}, fmt.Errorf("generated spec index is stale: %s", outputPath)
+		}
+	} else {
+		if err := os.MkdirAll(filepath.Dir(outputPath), 0o755); err != nil {
+			return SpecIndexSummary{}, err
+		}
+		if err := os.WriteFile(outputPath, data, 0o644); err != nil {
+			return SpecIndexSummary{}, err
+		}
+	}
+
+	activeCanonical := 0
+	for _, doc := range inventory.Documents {
+		if doc.Active && doc.Canonical {
+			activeCanonical++
+		}
+	}
+	return SpecIndexSummary{
+		Files:                    inventory.Files,
+		ActiveCanonicalDocuments: activeCanonical,
+		TreeDigest:               inventory.TreeDigest,
+		Output:                   outputPath,
+		Mode:                     mode,
+	}, nil
+}
+
+func buildSpecInventory(root, specRel string) (SpecInventory, error) {
+	specRoot := filepath.Join(root, filepath.FromSlash(specRel))
+	var docs []SpecDocument
+	err := filepath.WalkDir(specRoot, func(path string, entry os.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if entry.IsDir() || !strings.EqualFold(filepath.Ext(entry.Name()), ".md") {
+			return nil
+		}
+		content, err := os.ReadFile(path)
+		if err != nil {
+			return err
+		}
+		rel, err := filepath.Rel(root, path)
+		if err != nil {
+			return err
+		}
+		rel = filepath.ToSlash(rel)
+		doc := parseSpecDocument(rel, content)
+		docs = append(docs, doc)
+		return nil
+	})
+	if err != nil {
+		return SpecInventory{}, err
+	}
+	sort.Slice(docs, func(i, j int) bool { return docs[i].Path < docs[j].Path })
+	if err := rejectDuplicateCanonicalIDs(docs); err != nil {
+		return SpecInventory{}, err
+	}
+
+	h := sha256.New()
+	for _, doc := range docs {
+		h.Write([]byte(doc.Path))
+		h.Write([]byte{0})
+		h.Write([]byte(doc.SHA256))
+		h.Write([]byte{0})
+	}
+	return SpecInventory{
+		SchemaVersion: 1,
+		SpecRoot:      filepath.ToSlash(specRel),
+		TreeDigest:    hex.EncodeToString(h.Sum(nil)),
+		Files:         len(docs),
+		Documents:     docs,
+	}, nil
+}
+
+func parseSpecDocument(path string, content []byte) SpecDocument {
+	sum := sha256.Sum256(content)
+	meta := parseFrontMatter(string(content))
+	refs := extractReferences(string(content))
+
+	status := strings.ToLower(meta.scalar["status"])
+	active := !strings.Contains("/"+path, "/99-archive/") && status != "deprecated" && status != "archived"
+	canonical := strings.EqualFold(meta.scalar["source-of-truth"], "canonical")
+
+	reqs := append([]string(nil), meta.lists["requirements"]...)
+	sort.Strings(reqs)
+
+	return SpecDocument{
+		Path:          path,
+		SHA256:        hex.EncodeToString(sum[:]),
+		ID:            meta.scalar["id"],
+		Domain:        meta.scalar["domain"],
+		Status:        meta.scalar["status"],
+		Owner:         meta.scalar["owner"],
+		Updated:       meta.scalar["updated"],
+		SourceOfTruth: meta.scalar["source-of-truth"],
+		Requirements:  uniqueSorted(reqs),
+		References:    refs,
+		Active:        active,
+		Canonical:     canonical,
+	}
+}
+
+type frontMatter struct {
+	scalar map[string]string
+	lists  map[string][]string
+}
+
+func parseFrontMatter(content string) frontMatter {
+	out := frontMatter{scalar: map[string]string{}, lists: map[string][]string{}}
+	lines := strings.Split(strings.ReplaceAll(content, "\r\n", "\n"), "\n")
+	if len(lines) == 0 || strings.TrimSpace(lines[0]) != "---" {
+		return out
+	}
+	currentList := ""
+	for i := 1; i < len(lines); i++ {
+		line := lines[i]
+		trimmed := strings.TrimSpace(line)
+		if trimmed == "---" {
+			break
+		}
+		if trimmed == "" || strings.HasPrefix(trimmed, "#") {
+			continue
+		}
+		if strings.HasPrefix(trimmed, "- ") && currentList != "" {
+			value := cleanYAMLScalar(strings.TrimSpace(strings.TrimPrefix(trimmed, "- ")))
+			if value != "" {
+				out.lists[currentList] = append(out.lists[currentList], value)
+			}
+			continue
+		}
+		idx := strings.Index(line, ":")
+		if idx < 0 {
+			currentList = ""
+			continue
+		}
+		key := strings.TrimSpace(line[:idx])
+		value := cleanYAMLScalar(strings.TrimSpace(line[idx+1:]))
+		if value == "" {
+			currentList = key
+			if _, ok := out.lists[key]; !ok {
+				out.lists[key] = nil
+			}
+			continue
+		}
+		currentList = ""
+		out.scalar[key] = value
+	}
+	return out
+}
+
+func cleanYAMLScalar(v string) string {
+	v = strings.TrimSpace(v)
+	if len(v) >= 2 {
+		if (v[0] == '"' && v[len(v)-1] == '"') || (v[0] == '\'' && v[len(v)-1] == '\'') {
+			return v[1 : len(v)-1]
+		}
+	}
+	return v
+}
+
+func extractReferences(content string) []string {
+	seen := map[string]struct{}{}
+	for _, match := range cmrdIDPattern.FindAllString(content, -1) {
+		seen[match] = struct{}{}
+	}
+	for _, match := range permissionPattern.FindAllString(content, -1) {
+		seen[match] = struct{}{}
+	}
+	refs := make([]string, 0, len(seen))
+	for ref := range seen {
+		refs = append(refs, ref)
+	}
+	sort.Strings(refs)
+	return refs
+}
+
+func rejectDuplicateCanonicalIDs(docs []SpecDocument) error {
+	seen := map[string]string{}
+	for _, doc := range docs {
+		if !doc.Active || !doc.Canonical || doc.ID == "" {
+			continue
+		}
+		if previous, ok := seen[doc.ID]; ok {
+			return fmt.Errorf("duplicate active canonical document id %q in %s and %s", doc.ID, previous, doc.Path)
+		}
+		seen[doc.ID] = doc.Path
+	}
+	return nil
+}
+
+func uniqueSorted(values []string) []string {
+	if len(values) == 0 {
+		return nil
+	}
+	sort.Strings(values)
+	out := values[:0]
+	var last string
+	for i, value := range values {
+		if i == 0 || value != last {
+			out = append(out, value)
+			last = value
+		}
+	}
+	return out
+}
