@@ -250,7 +250,7 @@
       "id": "E3-IMPACT-002",
       "title": "Integrate risk-adaptive validation with CI change evidence",
       "type": "epic",
-      "status": "DECOMPOSED",
+      "status": "VERIFIED",
       "depends_on": [
         "E3-IMPACT-001C"
       ],
@@ -276,9 +276,72 @@
       "id": "E3-IMPACT-002B",
       "title": "Execute selected validation plan and gate adaptive CI rollout",
       "type": "sublot",
-      "status": "READY",
+      "status": "VERIFIED",
       "depends_on": [
         "E3-IMPACT-002A"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": []
+    },
+    {
+      "id": "E4-SEC-001",
+      "title": "Implement security verification engine",
+      "type": "epic",
+      "status": "DECOMPOSED",
+      "depends_on": [
+        "E3-IMPACT-002B"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E4-SEC-001A"
+      ]
+    },
+    {
+      "id": "E4-SEC-001A",
+      "title": "Define security gate registry and evidence model",
+      "type": "sublot",
+      "status": "READY",
+      "depends_on": [
+        "E3-IMPACT-002B"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E4-SEC-001B"
+      ]
+    },
+    {
+      "id": "E4-SEC-001B",
+      "title": "Implement secrets, SAST, SCA and SBOM security controls",
+      "type": "sublot",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E4-SEC-001A"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E4-SEC-001C"
+      ]
+    },
+    {
+      "id": "E4-SEC-001C",
+      "title": "Enforce security-critical negative tests and coverage floors",
+      "type": "sublot",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E4-SEC-001B"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E4-SEC-001D"
+      ]
+    },
+    {
+      "id": "E4-SEC-001D",
+      "title": "Schedule fuzz, DAST, race and deep security validation",
+      "type": "sublot",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E4-SEC-001C"
       ],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": []

@@ -1,0 +1,103 @@
+{
+  "schema_version": 2,
+  "id": "E4-SEC-001C",
+  "title": "Enforce security-critical negative tests and coverage floors",
+  "type": "sublot",
+  "parent": "E4-SEC-001",
+  "goal": "Define and enforce security-critical test obligations for authorization, tenant isolation and other trust boundaries, including stronger changed-code coverage floors where runtime code exists.",
+  "product_refs": {
+    "capabilities": [],
+    "requirements": [],
+    "screens": [],
+    "permissions": [],
+    "open_decisions": [],
+    "implementation_contracts": [],
+    "canonical_objects": []
+  },
+  "depends_on": [
+    "E4-SEC-001B"
+  ],
+  "allowed_paths": [
+    "tools/cmdr-dev/**",
+    "engineering/security/**",
+    "engineering/testing/**",
+    ".github/workflows/**",
+    "work/lots/E4-SEC-001*/**",
+    "engineering/state/**",
+    "work/graph.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**"
+  ],
+  "inputs": [
+    "verified adaptive validation engine",
+    "engineering dependency and architecture policy",
+    "empty-by-default Trusted Base",
+    "canonical Product Spec remains read-only"
+  ],
+  "outputs": [
+    "machine-enforced engineering security controls"
+  ],
+  "invariants": [
+    "Product Spec remains read-only",
+    "security tooling cannot silently become a product runtime dependency",
+    "security controls fail closed when evidence is unavailable or ambiguous",
+    "heavy security checks are risk-adaptive rather than blindly repeated on every trivial change"
+  ],
+  "security_properties": [
+    "no production/customer data is sent to unreviewed external security tooling",
+    "security-critical changes cannot lower required gates or coverage floors",
+    "unknown tool or evidence identities are rejected"
+  ],
+  "acceptance_tests": [
+    "go test ./...",
+    "cmdr-dev validate-manifests succeeds",
+    "cmdr-dev architecture-audit succeeds",
+    "cmdr-dev validation-run succeeds for the selected plan"
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "security gates must preserve developer/agent throughput",
+    "metrics": [
+      "fast source-level security gates remain PR-suitable",
+      "heavy dynamic security controls are scheduled only by explicit risk triggers"
+    ]
+  },
+  "migration": {
+    "required": false,
+    "rationale": "engineering control-plane changes; no product persistent data",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert the security-engine lot while retaining the verified E3 adaptive/full-kernel fallback",
+    "verification": [
+      "engineering-kernel remains green"
+    ]
+  },
+  "required_checks": [
+    "adaptive engineering-kernel",
+    "independent full-kernel fallback when CI/security control-plane changes require it"
+  ],
+  "definition_of_ready": [
+    "dependencies are VERIFIED",
+    "security scope is bounded and does not claim runtime product behavior"
+  ],
+  "definition_of_done": [
+    "security-critical scope has explicit ownership metadata",
+    "authorization and tenant-isolation negative-test obligations are machine-checkable",
+    "global coverage floor is at least 80 percent when measurable",
+    "new/changed security-critical code targets at least 90 percent coverage",
+    "absence of measurable runtime coverage before runtime exists is reported as not-applicable rather than falsely passed"
+  ],
+  "complexity": {
+    "primary_components": 2,
+    "estimated_files_changed": 8,
+    "estimated_net_loc": 500,
+    "production_files": 3,
+    "net_production_loc": 390,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}
