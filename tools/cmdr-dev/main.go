@@ -112,6 +112,7 @@ func main() {
 	checkFlag := fs.Bool("check", false, "check generated output instead of writing it")
 	outputFlag := fs.String("output", "engineering/spec-index/inventory.json", "generated output path")
 	workUnitFlag := fs.String("work-unit", "", "work unit id; defaults to active work unit")
+	changesFileFlag := fs.String("changes-file", "", "newline-delimited repository-relative changed paths")
 	if err := fs.Parse(os.Args[2:]); err != nil {
 		fail(err)
 	}
@@ -293,6 +294,15 @@ func main() {
 			fail(err)
 		}
 		printValue(summary, *jsonFlag)
+	case "impact":
+		if err := validateState(root, state, graph); err != nil {
+			fail(err)
+		}
+		report, err := runImpactAnalysis(root, *workUnitFlag, *changesFileFlag, state, graph)
+		if err != nil {
+			fail(err)
+		}
+		printValue(report, *jsonFlag)
 	default:
 		usage(os.Stderr)
 		fail(fmt.Errorf("unknown command %q", command))
@@ -663,6 +673,13 @@ func printValue(v any, asJSON bool) {
 		fmt.Printf("by cost tier: %v\n", x.ByCostTier)
 		fmt.Printf("by risk domain: %v\n", x.ByRiskDomain)
 		fmt.Printf("prerequisite edges: %d\n", x.Prerequisites)
+	case ImpactReport:
+		fmt.Printf("work unit: %s\n", x.WorkUnit)
+		fmt.Printf("changed paths: %v\n", x.ChangedPaths)
+		fmt.Printf("risk domains: %v\n", x.RiskDomains)
+		fmt.Printf("high risk: %t\n", x.HighRisk)
+		fmt.Printf("high risk reasons: %v\n", x.HighRiskReasons)
+		fmt.Printf("unknown paths: %v\n", x.UnknownPaths)
 	default:
 		b, _ := json.MarshalIndent(v, "", "  ")
 		fmt.Println(string(b))
@@ -670,7 +687,7 @@ func printValue(v any, asJSON bool) {
 }
 
 func usage(w io.Writer) {
-	fmt.Fprintln(w, "usage: cmdr-dev <doctor|status|next|spec-index|spec-baseline|coverage-graph|obligations|coverage-audit|validate-manifests|complexity-audit|context|architecture-audit|dependency-audit|boundary-edge-audit|check-catalog-audit> [--root PATH] [--json] [--check] [--output PATH]")
+	fmt.Fprintln(w, "usage: cmdr-dev <doctor|status|next|spec-index|spec-baseline|coverage-graph|obligations|coverage-audit|validate-manifests|complexity-audit|context|architecture-audit|dependency-audit|boundary-edge-audit|check-catalog-audit|impact> [--root PATH] [--json] [--check] [--output PATH]")
 }
 
 func fail(err error) {
