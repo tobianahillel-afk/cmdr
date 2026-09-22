@@ -99,6 +99,10 @@ jobs:
         working-directory: tools/cmdr-dev
         run: go run . validate-manifests --root ../.. --json
 
+      - name: Validate check catalog
+        working-directory: tools/cmdr-dev
+        run: go run . check-catalog-audit --root ../.. --json
+
       - name: Audit architecture path ownership
         working-directory: tools/cmdr-dev
         run: go run . architecture-audit --root ../.. --json

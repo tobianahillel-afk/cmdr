@@ -1,0 +1,352 @@
+{
+  "schema_version": 1,
+  "default_policy": "deny-unknown-check",
+  "risk_domains": [
+    "code-quality",
+    "unit-correctness",
+    "product-spec",
+    "coverage-traceability",
+    "work-governance",
+    "architecture",
+    "runtime-dependencies",
+    "security",
+    "agent-context",
+    "repository-health",
+    "unknown"
+  ],
+  "cost_tiers": [
+    "fast",
+    "standard",
+    "heavy"
+  ],
+  "checks": [
+    {
+      "id": "CHK-FORMAT",
+      "title": "Go formatting",
+      "executor_key": "gofmt",
+      "risk_domains": [
+        "code-quality"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": true,
+      "trigger_paths": [
+        "tools/cmdr-dev/**"
+      ],
+      "prerequisites": [],
+      "evidence_kind": "process-exit"
+    },
+    {
+      "id": "CHK-VET",
+      "title": "Go static vet",
+      "executor_key": "go-vet",
+      "risk_domains": [
+        "code-quality"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": true,
+      "trigger_paths": [
+        "tools/cmdr-dev/**"
+      ],
+      "prerequisites": [
+        "CHK-FORMAT"
+      ],
+      "evidence_kind": "process-exit"
+    },
+    {
+      "id": "CHK-UNIT",
+      "title": "Engineering kernel unit tests",
+      "executor_key": "go-unit",
+      "risk_domains": [
+        "unit-correctness",
+        "security"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": true,
+      "trigger_paths": [
+        "tools/cmdr-dev/**"
+      ],
+      "prerequisites": [
+        "CHK-VET"
+      ],
+      "evidence_kind": "test-result"
+    },
+    {
+      "id": "CHK-SPEC-INVENTORY",
+      "title": "Product Spec inventory compile",
+      "executor_key": "spec-index",
+      "risk_domains": [
+        "product-spec",
+        "coverage-traceability"
+      ],
+      "cost_tier": "standard",
+      "mandatory": true,
+      "always_on_pr": false,
+      "trigger_paths": [
+        "cmdr-product-spec/**",
+        "tools/cmdr-dev/**",
+        "engineering/coverage/**"
+      ],
+      "prerequisites": [
+        "CHK-UNIT"
+      ],
+      "evidence_kind": "generated-artifact"
+    },
+    {
+      "id": "CHK-SPEC-BASELINE",
+      "title": "Product Spec baseline verification",
+      "executor_key": "spec-baseline",
+      "risk_domains": [
+        "product-spec"
+      ],
+      "cost_tier": "standard",
+      "mandatory": true,
+      "always_on_pr": false,
+      "trigger_paths": [
+        "cmdr-product-spec/**",
+        "engineering/spec-index/**",
+        "tools/cmdr-dev/**"
+      ],
+      "prerequisites": [
+        "CHK-SPEC-INVENTORY"
+      ],
+      "evidence_kind": "invariant"
+    },
+    {
+      "id": "CHK-COVERAGE-GRAPH",
+      "title": "Product entity graph compile",
+      "executor_key": "coverage-graph",
+      "risk_domains": [
+        "coverage-traceability",
+        "product-spec"
+      ],
+      "cost_tier": "standard",
+      "mandatory": true,
+      "always_on_pr": false,
+      "trigger_paths": [
+        "cmdr-product-spec/**",
+        "engineering/coverage/**",
+        "tools/cmdr-dev/**"
+      ],
+      "prerequisites": [
+        "CHK-SPEC-BASELINE"
+      ],
+      "evidence_kind": "generated-artifact"
+    },
+    {
+      "id": "CHK-OBLIGATIONS",
+      "title": "Implementation obligation derivation",
+      "executor_key": "obligations",
+      "risk_domains": [
+        "coverage-traceability",
+        "product-spec"
+      ],
+      "cost_tier": "standard",
+      "mandatory": true,
+      "always_on_pr": false,
+      "trigger_paths": [
+        "cmdr-product-spec/**",
+        "engineering/coverage/**",
+        "tools/cmdr-dev/**"
+      ],
+      "prerequisites": [
+        "CHK-COVERAGE-GRAPH"
+      ],
+      "evidence_kind": "generated-artifact"
+    },
+    {
+      "id": "CHK-COVERAGE-AUDIT",
+      "title": "Product coverage gap audit",
+      "executor_key": "coverage-audit",
+      "risk_domains": [
+        "coverage-traceability"
+      ],
+      "cost_tier": "standard",
+      "mandatory": true,
+      "always_on_pr": false,
+      "trigger_paths": [
+        "cmdr-product-spec/**",
+        "engineering/coverage/**",
+        "tools/cmdr-dev/**"
+      ],
+      "prerequisites": [
+        "CHK-OBLIGATIONS"
+      ],
+      "evidence_kind": "audit-report"
+    },
+    {
+      "id": "CHK-MANIFESTS",
+      "title": "Strict work manifest validation",
+      "executor_key": "validate-manifests",
+      "risk_domains": [
+        "work-governance",
+        "security"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": true,
+      "trigger_paths": [
+        "work/**",
+        "tools/cmdr-dev/**"
+      ],
+      "prerequisites": [
+        "CHK-UNIT"
+      ],
+      "evidence_kind": "invariant"
+    },
+    {
+      "id": "CHK-ARCHITECTURE",
+      "title": "Architecture path ownership audit",
+      "executor_key": "architecture-audit",
+      "risk_domains": [
+        "architecture",
+        "security"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": false,
+      "trigger_paths": [
+        "engineering/architecture/**",
+        "work/**",
+        "tools/cmdr-dev/**"
+      ],
+      "prerequisites": [
+        "CHK-MANIFESTS"
+      ],
+      "evidence_kind": "audit-report"
+    },
+    {
+      "id": "CHK-RUNTIME-DEPS",
+      "title": "Product runtime dependency audit",
+      "executor_key": "dependency-audit",
+      "risk_domains": [
+        "runtime-dependencies",
+        "security"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": false,
+      "trigger_paths": [
+        "engineering/security/**",
+        "engineering/dependencies/**",
+        "engineering/architecture/**",
+        "tools/cmdr-dev/**"
+      ],
+      "prerequisites": [
+        "CHK-ARCHITECTURE"
+      ],
+      "evidence_kind": "audit-report"
+    },
+    {
+      "id": "CHK-BOUNDARY-EDGES",
+      "title": "Cross-boundary dependency audit",
+      "executor_key": "boundary-edge-audit",
+      "risk_domains": [
+        "architecture",
+        "runtime-dependencies",
+        "security"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": false,
+      "trigger_paths": [
+        "engineering/architecture/**",
+        "tools/cmdr-dev/**"
+      ],
+      "prerequisites": [
+        "CHK-RUNTIME-DEPS"
+      ],
+      "evidence_kind": "audit-report"
+    },
+    {
+      "id": "CHK-COMPLEXITY",
+      "title": "Work-unit complexity audit",
+      "executor_key": "complexity-audit",
+      "risk_domains": [
+        "work-governance"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": true,
+      "trigger_paths": [
+        "work/**",
+        "engineering/work/**",
+        "tools/cmdr-dev/**"
+      ],
+      "prerequisites": [
+        "CHK-MANIFESTS"
+      ],
+      "evidence_kind": "audit-report"
+    },
+    {
+      "id": "CHK-CONTEXT",
+      "title": "Active agent context compilation",
+      "executor_key": "context",
+      "risk_domains": [
+        "agent-context",
+        "work-governance"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": false,
+      "trigger_paths": [
+        "AGENTS.md",
+        "AI_START_HERE.md",
+        "engineering/**",
+        "work/**",
+        "cmdr-product-spec/**",
+        "tools/cmdr-dev/**"
+      ],
+      "prerequisites": [
+        "CHK-COMPLEXITY",
+        "CHK-ARCHITECTURE"
+      ],
+      "evidence_kind": "generated-artifact"
+    },
+    {
+      "id": "CHK-DOCTOR",
+      "title": "Engineering repository doctor",
+      "executor_key": "doctor",
+      "risk_domains": [
+        "repository-health"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": true,
+      "trigger_paths": [
+        "AGENTS.md",
+        "AI_START_HERE.md",
+        "engineering/**",
+        "work/**",
+        "tools/cmdr-dev/**"
+      ],
+      "prerequisites": [
+        "CHK-MANIFESTS"
+      ],
+      "evidence_kind": "invariant"
+    },
+    {
+      "id": "CHK-NEXT",
+      "title": "Next work resolution",
+      "executor_key": "next",
+      "risk_domains": [
+        "work-governance",
+        "repository-health"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": true,
+      "trigger_paths": [
+        "engineering/state/**",
+        "work/**",
+        "tools/cmdr-dev/**"
+      ],
+      "prerequisites": [
+        "CHK-DOCTOR"
+      ],
+      "evidence_kind": "selection"
+    }
+  ]
+}
