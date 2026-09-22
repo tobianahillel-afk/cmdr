@@ -314,6 +314,15 @@ func main() {
 			fail(err)
 		}
 		printValue(plan, *jsonFlag)
+	case "security-gate-audit":
+		if err := validateState(root, state, graph); err != nil {
+			fail(err)
+		}
+		summary, err := runSecurityGateAudit(root)
+		if err != nil {
+			fail(err)
+		}
+		printValue(summary, *jsonFlag)
 	case "git-changes":
 		if err := validateState(root, state, graph); err != nil {
 			fail(err)
@@ -717,6 +726,13 @@ func printValue(v any, asJSON bool) {
 		fmt.Printf("selected checks: %d\n", len(x.SelectedChecks))
 		fmt.Printf("by cost tier: %v\n", x.ByCostTier)
 		fmt.Printf("cost units: %d\n", x.CostUnits)
+	case SecurityGateAuditSummary:
+		fmt.Printf("security gates: %d\n", x.Gates)
+		fmt.Printf("by readiness: %v\n", x.ByReadiness)
+		fmt.Printf("by family: %v\n", x.ByFamily)
+		fmt.Printf("by stage: %v\n", x.ByStage)
+		fmt.Printf("blocking: %d\n", x.Blocking)
+		fmt.Printf("conditional blocking: %d\n", x.Conditional)
 	case GitChangesSummary:
 		fmt.Printf("base commit: %s\n", x.BaseCommit)
 		fmt.Printf("head commit: %s\n", x.HeadCommit)
@@ -735,7 +751,7 @@ func printValue(v any, asJSON bool) {
 }
 
 func usage(w io.Writer) {
-	fmt.Fprintln(w, "usage: cmdr-dev <doctor|status|next|spec-index|spec-baseline|coverage-graph|obligations|coverage-audit|validate-manifests|complexity-audit|context|architecture-audit|dependency-audit|boundary-edge-audit|check-catalog-audit|impact|validation-plan|git-changes|validation-run> [--root PATH] [--json] [--check] [--output PATH]")
+	fmt.Fprintln(w, "usage: cmdr-dev <doctor|status|next|spec-index|spec-baseline|coverage-graph|obligations|coverage-audit|validate-manifests|complexity-audit|context|architecture-audit|dependency-audit|boundary-edge-audit|check-catalog-audit|impact|validation-plan|security-gate-audit|git-changes|validation-run> [--root PATH] [--json] [--check] [--output PATH]")
 }
 
 func fail(err error) {

@@ -80,6 +80,7 @@ var knownExecutorKeys = map[string]bool{
 	"validation-plan":     true,
 	"git-changes":         true,
 	"validation-run":      true,
+	"security-gate-audit": true,
 	"complexity-audit":    true,
 	"context":             true,
 	"doctor":              true,

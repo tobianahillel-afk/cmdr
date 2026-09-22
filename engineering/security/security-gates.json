@@ -1,0 +1,329 @@
+{
+  "schema_version": 1,
+  "default_policy": "deny-unregistered-security-control",
+  "readiness_states": [
+    "specified",
+    "active",
+    "deferred-runtime"
+  ],
+  "execution_stages": [
+    "pr",
+    "nightly",
+    "release",
+    "on-demand"
+  ],
+  "data_policies": [
+    "source-local-only",
+    "artifact-local-only",
+    "synthetic-runtime-only"
+  ],
+  "evidence_kinds": [
+    "process-exit",
+    "finding-report",
+    "sbom",
+    "test-result",
+    "fuzz-report",
+    "dast-report",
+    "provenance"
+  ],
+  "gates": [
+    {
+      "id": "SEC-SECRETS-001",
+      "title": "Secret detection",
+      "control_family": "secrets",
+      "readiness": "specified",
+      "stages": [
+        "pr"
+      ],
+      "blocking_policy": "blocking",
+      "risk_domains": [
+        "security",
+        "code-quality"
+      ],
+      "trigger_paths": [
+        "**"
+      ],
+      "data_policy": "source-local-only",
+      "evidence_kinds": [
+        "finding-report",
+        "process-exit"
+      ],
+      "implementation_key": "",
+      "activation_condition": "activate after a deterministic secret scanner and redaction contract are verified"
+    },
+    {
+      "id": "SEC-SAST-001",
+      "title": "Static application security analysis",
+      "control_family": "sast",
+      "readiness": "specified",
+      "stages": [
+        "pr"
+      ],
+      "blocking_policy": "conditional-blocking",
+      "risk_domains": [
+        "security",
+        "code-quality"
+      ],
+      "trigger_paths": [
+        "**"
+      ],
+      "data_policy": "source-local-only",
+      "evidence_kinds": [
+        "finding-report",
+        "process-exit"
+      ],
+      "implementation_key": "",
+      "activation_condition": "activate per implemented language once a reviewed analyzer path exists"
+    },
+    {
+      "id": "SEC-SCA-001",
+      "title": "Software composition analysis",
+      "control_family": "sca",
+      "readiness": "specified",
+      "stages": [
+        "pr",
+        "release"
+      ],
+      "blocking_policy": "blocking",
+      "risk_domains": [
+        "security",
+        "runtime-dependencies"
+      ],
+      "trigger_paths": [
+        "**/go.mod",
+        "**/package.json",
+        "**/vcpkg.json"
+      ],
+      "data_policy": "source-local-only",
+      "evidence_kinds": [
+        "finding-report",
+        "process-exit"
+      ],
+      "implementation_key": "",
+      "activation_condition": "activate with reviewed advisory sources and severity policy"
+    },
+    {
+      "id": "SEC-SBOM-001",
+      "title": "Software bill of materials",
+      "control_family": "sbom",
+      "readiness": "specified",
+      "stages": [
+        "release",
+        "on-demand"
+      ],
+      "blocking_policy": "blocking",
+      "risk_domains": [
+        "security",
+        "runtime-dependencies"
+      ],
+      "trigger_paths": [
+        "**/go.mod",
+        "**/package.json",
+        "**/vcpkg.json"
+      ],
+      "data_policy": "artifact-local-only",
+      "evidence_kinds": [
+        "sbom",
+        "provenance"
+      ],
+      "implementation_key": "",
+      "activation_condition": "activate once runtime/build package roots exist and deterministic component identity is available"
+    },
+    {
+      "id": "SEC-IAC-001",
+      "title": "Infrastructure-as-code security analysis",
+      "control_family": "iac",
+      "readiness": "specified",
+      "stages": [
+        "pr",
+        "release"
+      ],
+      "blocking_policy": "conditional-blocking",
+      "risk_domains": [
+        "security",
+        "architecture"
+      ],
+      "trigger_paths": [
+        "infra/**",
+        "deploy/**",
+        ".github/**"
+      ],
+      "data_policy": "source-local-only",
+      "evidence_kinds": [
+        "finding-report",
+        "process-exit"
+      ],
+      "implementation_key": "",
+      "activation_condition": "activate for registered IaC/deployment paths"
+    },
+    {
+      "id": "SEC-CONTAINER-001",
+      "title": "Container image security analysis",
+      "control_family": "container",
+      "readiness": "deferred-runtime",
+      "stages": [
+        "pr",
+        "release"
+      ],
+      "blocking_policy": "blocking",
+      "risk_domains": [
+        "security",
+        "runtime-dependencies"
+      ],
+      "trigger_paths": [
+        "**/Dockerfile",
+        "**/Containerfile"
+      ],
+      "data_policy": "artifact-local-only",
+      "evidence_kinds": [
+        "finding-report",
+        "provenance"
+      ],
+      "implementation_key": "",
+      "activation_condition": "requires a concrete CMDR container build artifact"
+    },
+    {
+      "id": "SEC-AUTH-NEG-001",
+      "title": "Authorization negative testing",
+      "control_family": "authorization-negative",
+      "readiness": "deferred-runtime",
+      "stages": [
+        "pr",
+        "release"
+      ],
+      "blocking_policy": "blocking",
+      "risk_domains": [
+        "security",
+        "unit-correctness"
+      ],
+      "trigger_paths": [
+        "**"
+      ],
+      "data_policy": "synthetic-runtime-only",
+      "evidence_kinds": [
+        "test-result"
+      ],
+      "implementation_key": "",
+      "activation_condition": "requires implemented authorization boundaries and executable negative-test targets"
+    },
+    {
+      "id": "SEC-TENANT-ISO-001",
+      "title": "Tenant isolation negative testing",
+      "control_family": "tenant-isolation",
+      "readiness": "deferred-runtime",
+      "stages": [
+        "pr",
+        "release"
+      ],
+      "blocking_policy": "blocking",
+      "risk_domains": [
+        "security",
+        "unit-correctness"
+      ],
+      "trigger_paths": [
+        "**"
+      ],
+      "data_policy": "synthetic-runtime-only",
+      "evidence_kinds": [
+        "test-result"
+      ],
+      "implementation_key": "",
+      "activation_condition": "requires implemented tenant-scoped runtime boundaries and synthetic multi-tenant fixtures"
+    },
+    {
+      "id": "SEC-FUZZ-001",
+      "title": "Parser and protocol fuzzing",
+      "control_family": "fuzz",
+      "readiness": "deferred-runtime",
+      "stages": [
+        "nightly",
+        "on-demand"
+      ],
+      "blocking_policy": "conditional-blocking",
+      "risk_domains": [
+        "security",
+        "unit-correctness"
+      ],
+      "trigger_paths": [
+        "**"
+      ],
+      "data_policy": "synthetic-runtime-only",
+      "evidence_kinds": [
+        "fuzz-report"
+      ],
+      "implementation_key": "",
+      "activation_condition": "requires concrete parser/protocol fuzz targets"
+    },
+    {
+      "id": "SEC-DAST-001",
+      "title": "Dynamic application security testing",
+      "control_family": "dast",
+      "readiness": "deferred-runtime",
+      "stages": [
+        "nightly",
+        "release",
+        "on-demand"
+      ],
+      "blocking_policy": "conditional-blocking",
+      "risk_domains": [
+        "security"
+      ],
+      "trigger_paths": [
+        "**"
+      ],
+      "data_policy": "synthetic-runtime-only",
+      "evidence_kinds": [
+        "dast-report"
+      ],
+      "implementation_key": "",
+      "activation_condition": "requires an isolated runnable web/API target with synthetic data"
+    },
+    {
+      "id": "SEC-RACE-001",
+      "title": "Race and concurrency security testing",
+      "control_family": "race-concurrency",
+      "readiness": "deferred-runtime",
+      "stages": [
+        "nightly",
+        "on-demand"
+      ],
+      "blocking_policy": "conditional-blocking",
+      "risk_domains": [
+        "security",
+        "unit-correctness"
+      ],
+      "trigger_paths": [
+        "**"
+      ],
+      "data_policy": "synthetic-runtime-only",
+      "evidence_kinds": [
+        "test-result"
+      ],
+      "implementation_key": "",
+      "activation_condition": "requires concurrent runtime components or language-specific race tooling"
+    },
+    {
+      "id": "SEC-SUPPLY-001",
+      "title": "Build provenance and artifact integrity",
+      "control_family": "supply-chain",
+      "readiness": "specified",
+      "stages": [
+        "release"
+      ],
+      "blocking_policy": "blocking",
+      "risk_domains": [
+        "security",
+        "runtime-dependencies"
+      ],
+      "trigger_paths": [
+        "**"
+      ],
+      "data_policy": "artifact-local-only",
+      "evidence_kinds": [
+        "provenance"
+      ],
+      "implementation_key": "",
+      "activation_condition": "activate when releasable CMDR artifacts exist"
+    }
+  ]
+}

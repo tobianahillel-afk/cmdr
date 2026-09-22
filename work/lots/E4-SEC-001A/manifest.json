@@ -36,7 +36,10 @@
     "canonical Product Spec remains read-only"
   ],
   "outputs": [
-    "machine-enforced engineering security controls"
+    "machine-enforced engineering security controls",
+    "deny-by-default security gate registry",
+    "closed security evidence/data-policy model",
+    "adaptive CHK-SECURITY-GATES"
   ],
   "invariants": [
     "Product Spec remains read-only",
@@ -53,7 +56,9 @@
     "go test ./...",
     "cmdr-dev validate-manifests succeeds",
     "cmdr-dev architecture-audit succeeds",
-    "cmdr-dev validation-run succeeds for the selected plan"
+    "cmdr-dev validation-run succeeds for the selected plan",
+    "cmdr-dev security-gate-audit validates all canonical control families",
+    "unit tests reject missing families, false active claims, non-security gates and unknown evidence kinds"
   ],
   "performance_budget": {
     "applicable": true,
@@ -76,7 +81,8 @@
   },
   "required_checks": [
     "adaptive engineering-kernel",
-    "independent full-kernel fallback when CI/security control-plane changes require it"
+    "independent full-kernel fallback when CI/security control-plane changes require it",
+    "cmdr-dev security-gate-audit"
   ],
   "definition_of_ready": [
     "dependencies are VERIFIED",
@@ -90,10 +96,10 @@
   ],
   "complexity": {
     "primary_components": 1,
-    "estimated_files_changed": 7,
-    "estimated_net_loc": 380,
-    "production_files": 2,
-    "net_production_loc": 300,
+    "estimated_files_changed": 8,
+    "estimated_net_loc": 430,
+    "production_files": 4,
+    "net_production_loc": 360,
     "bounded_contexts": 1,
     "independent_migrations": 0,
     "distinct_security_models": 1,

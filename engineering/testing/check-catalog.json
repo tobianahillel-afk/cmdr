@@ -460,6 +460,27 @@
         "CHK-PLAN"
       ],
       "evidence_kind": "execution-summary"
+    },
+    {
+      "id": "CHK-SECURITY-GATES",
+      "title": "Security gate registry audit",
+      "executor_key": "security-gate-audit",
+      "risk_domains": [
+        "security",
+        "work-governance"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": true,
+      "trigger_paths": [
+        "engineering/security/**",
+        "tools/cmdr-dev/security_gates.go",
+        "tools/cmdr-dev/security_gates_test.go"
+      ],
+      "prerequisites": [
+        "CHK-CATALOG"
+      ],
+      "evidence_kind": "audit-report"
     }
   ]
 }

@@ -91,7 +91,7 @@ func validationExecutorMode(key string) (string, error) {
 	case "gofmt", "go-vet", "go-unit",
 		"spec-index", "spec-baseline", "coverage-graph", "obligations", "coverage-audit",
 		"validate-manifests", "architecture-audit", "dependency-audit", "boundary-edge-audit",
-		"complexity-audit", "context", "doctor", "next", "check-catalog-audit":
+		"complexity-audit", "context", "doctor", "next", "check-catalog-audit", "security-gate-audit":
 		return "execute", nil
 	default:
 		return "", fmt.Errorf("unsupported executor_key %q", key)
@@ -234,6 +234,16 @@ func executeValidationCheck(root, tempDir, changesFile, key string, state Curren
 			return "", err
 		}
 		return fmt.Sprintf("checks=%d mandatory=%d", summary.Checks, summary.Mandatory), nil
+	case "security-gate-audit":
+		summary, err := runSecurityGateAudit(root)
+		if err != nil {
+			return "", err
+		}
+		return fmt.Sprintf("security_gates=%d active=%d specified=%d deferred_runtime=%d",
+			summary.Gates,
+			summary.ByReadiness["active"],
+			summary.ByReadiness["specified"],
+			summary.ByReadiness["deferred-runtime"]), nil
 	default:
 		return "", fmt.Errorf("unsupported executable key %q", key)
 	}
