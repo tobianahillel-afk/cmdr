@@ -17,9 +17,9 @@ func planningCatalog() CheckCatalog {
 
 func TestValidationPlanIncludesSafetyFloorAndDirectTriggers(t *testing.T) {
 	impact := ImpactReport{
-		WorkUnit: "E3-X-001",
+		WorkUnit:     "E3-X-001",
 		ChangedPaths: []string{"cmdr-product-spec/x.md"},
-		RiskDomains: []string{"product-spec"},
+		RiskDomains:  []string{"product-spec"},
 	}
 	plan, err := buildValidationPlan(impact, planningCatalog())
 	if err != nil {
@@ -40,10 +40,10 @@ func TestValidationPlanIncludesSafetyFloorAndDirectTriggers(t *testing.T) {
 
 func TestValidationPlanStrictSelectsEveryMandatoryCheck(t *testing.T) {
 	impact := ImpactReport{
-		WorkUnit: "E3-X-001",
+		WorkUnit:     "E3-X-001",
 		ChangedPaths: []string{"mystery/file"},
-		RiskDomains: []string{"unknown", "security"},
-		HighRisk: true,
+		RiskDomains:  []string{"unknown", "security"},
+		HighRisk:     true,
 		UnknownPaths: []string{"mystery/file"},
 	}
 	catalog := planningCatalog()
@@ -63,9 +63,9 @@ func TestValidationPlanStrictSelectsEveryMandatoryCheck(t *testing.T) {
 
 func TestValidationPlanClosesPrerequisites(t *testing.T) {
 	impact := ImpactReport{
-		WorkUnit: "E3-X-001",
+		WorkUnit:     "E3-X-001",
 		ChangedPaths: []string{"cmdr-product-spec/x.md"},
-		RiskDomains: []string{"product-spec"},
+		RiskDomains:  []string{"product-spec"},
 	}
 	plan, err := buildValidationPlan(impact, planningCatalog())
 	if err != nil {
@@ -81,10 +81,10 @@ func TestValidationPlanClosesPrerequisites(t *testing.T) {
 
 func TestManifestScopeSelectsDomainChecks(t *testing.T) {
 	impact := ImpactReport{
-		WorkUnit: "E3-X-001",
+		WorkUnit:     "E3-X-001",
 		ChangedPaths: []string{"work/graph.json"},
-		RiskDomains: []string{"product-spec"},
-		Evidence: []ImpactEvidence{{Domain:"product-spec",Reason:"manifest-product-references",Paths:[]string{"E3-X-001"}}},
+		RiskDomains:  []string{"product-spec"},
+		Evidence:     []ImpactEvidence{{Domain: "product-spec", Reason: "manifest-product-references", Paths: []string{"E3-X-001"}}},
 	}
 	plan, err := buildValidationPlan(impact, planningCatalog())
 	if err != nil {
