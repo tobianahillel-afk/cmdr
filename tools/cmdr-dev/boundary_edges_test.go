@@ -75,6 +75,7 @@ func TestForbiddenBoundaryEdgeFails(t *testing.T) {
 func TestLocalPathOutsideRuntimeBoundaryFails(t *testing.T) {
 	root := t.TempDir()
 	writePackage(t, root, "apps/a/package.json", `{"name":"a","dependencies":{"outside":"file:../../outside"}}`)
+	writePackage(t, root, "libs/b/package.json", `{"name":"b"}`)
 	registry := runtimeRegistry(true)
 	packages, _, err := discoverLocalPackages(root, registry)
 	if err != nil {
