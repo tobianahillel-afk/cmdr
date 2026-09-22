@@ -59,6 +59,14 @@ jobs:
         working-directory: tools/cmdr-dev
         run: go test ./...
 
+      - name: Compile canonical product spec inventory
+        working-directory: tools/cmdr-dev
+        shell: bash
+        run: |
+          output="$(mktemp)"
+          go run . spec-index --root ../.. --output "$output" --json
+          test -s "$output"
+
       - name: Bootstrap doctor
         working-directory: tools/cmdr-dev
         run: go run . doctor --root ../..
