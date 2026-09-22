@@ -60,7 +60,7 @@ func TestEvaluateComplexityHardSplitAllowedWhileDecomposed(t *testing.T) {
 func TestValidateComplexityReadiness(t *testing.T) {
 	summary := ComplexityAuditSummary{
 		ReadinessViolations: 1,
-		Results: []ComplexityResult{{ID: "E2-X-001", ReadinessViolation: true}},
+		Results:             []ComplexityResult{{ID: "E2-X-001", ReadinessViolation: true}},
 	}
 	if err := validateComplexityReadiness(summary); err == nil {
 		t.Fatal("expected readiness violation")
