@@ -58,7 +58,7 @@ func runValidationExecution(root, workUnit, changesFile string, state CurrentSta
 			summary.PreflightSatisfied++
 			summary.Checks = append(summary.Checks, ExecutedCheck{
 				ID: planned.ID, ExecutorKey: planned.ExecutorKey,
-				Status: "PREFLIGHT_SATISFIED",
+				Status:   "PREFLIGHT_SATISFIED",
 				Evidence: preflightEvidence(planned.ExecutorKey),
 			})
 			continue
