@@ -12,16 +12,17 @@ import (
 )
 
 type ProductEntity struct {
-	ID            string `json:"id"`
-	Kind          string `json:"kind"`
-	SourcePath    string `json:"source_path,omitempty"`
-	SourceSHA256  string `json:"source_sha256,omitempty"`
-	Domain        string `json:"domain,omitempty"`
-	Product       string `json:"product,omitempty"`
-	Module        string `json:"module,omitempty"`
-	Status        string `json:"status,omitempty"`
-	SourceOfTruth string `json:"source_of_truth,omitempty"`
-	ReferenceOnly bool   `json:"reference_only"`
+	ID             string `json:"id"`
+	Kind           string `json:"kind"`
+	SourcePath     string `json:"source_path,omitempty"`
+	SourceSHA256   string `json:"source_sha256,omitempty"`
+	Domain         string `json:"domain,omitempty"`
+	Product        string `json:"product,omitempty"`
+	Module         string `json:"module,omitempty"`
+	Status         string `json:"status,omitempty"`
+	SourceOfTruth  string `json:"source_of_truth,omitempty"`
+	RegistryStatus string `json:"registry_status,omitempty"`
+	ReferenceOnly  bool   `json:"reference_only"`
 }
 
 type ProductEdge struct {
@@ -46,9 +47,11 @@ type CoverageGraphSummary struct {
 	DistinctRequirementReferences  int    `json:"distinct_requirement_references"`
 	DistinctOpenDecisionReferences int    `json:"distinct_open_decision_references"`
 	DistinctPermissionReferences   int    `json:"distinct_permission_references"`
-	OwnedScreens                   int    `json:"owned_screens"`
-	ReferenceOnlyScreens           int    `json:"reference_only_screens"`
-	SpecTreeDigest                 string `json:"spec_tree_digest"`
+	OwnedScreens                   int      `json:"owned_screens"`
+	RegisteredActiveScreens        int      `json:"registered_active_screens"`
+	UnregisteredOwnedScreens       []string `json:"unregistered_owned_screens,omitempty"`
+	ReferenceOnlyScreens           int      `json:"reference_only_screens"`
+	SpecTreeDigest                 string   `json:"spec_tree_digest"`
 	Output                         string `json:"output"`
 	Mode                           string `json:"mode"`
 }
@@ -64,7 +67,11 @@ func runCoverageGraph(root, specRel, output string, check bool) (CoverageGraphSu
 	if err != nil {
 		return CoverageGraphSummary{}, err
 	}
-	graph, err := buildProductGraph(inventory)
+	activeScreens, err := loadActiveScreenIDs(root, specRel)
+	if err != nil {
+		return CoverageGraphSummary{}, err
+	}
+	graph, err := buildProductGraph(inventory, activeScreens)
 	if err != nil {
 		return CoverageGraphSummary{}, err
 	}
@@ -103,7 +110,7 @@ func runCoverageGraph(root, specRel, output string, check bool) (CoverageGraphSu
 	return summary, nil
 }
 
-func buildProductGraph(inventory SpecInventory) (ProductGraph, error) {
+func buildProductGraph(inventory SpecInventory, activeScreens map[string]struct{}) (ProductGraph, error) {
 	entities := map[string]ProductEntity{}
 	var edges []ProductEdge
 
@@ -112,17 +119,27 @@ func buildProductGraph(inventory SpecInventory) (ProductGraph, error) {
 			continue
 		}
 		sourceID := documentEntityID(doc)
+		kind := classifyOwnedDocument(doc)
+		registryStatus := ""
+		if kind == "screen" {
+			if _, ok := activeScreens[sourceID]; ok {
+				registryStatus = "registered-active"
+			} else {
+				registryStatus = "unregistered"
+			}
+		}
 		entity := ProductEntity{
-			ID:            sourceID,
-			Kind:          classifyOwnedDocument(doc),
-			SourcePath:    doc.Path,
-			SourceSHA256:  doc.SHA256,
-			Domain:        doc.Domain,
-			Product:       doc.Product,
-			Module:        doc.Module,
-			Status:        doc.Status,
-			SourceOfTruth: doc.SourceOfTruth,
-			ReferenceOnly: false,
+			ID:             sourceID,
+			Kind:           kind,
+			SourcePath:     doc.Path,
+			SourceSHA256:   doc.SHA256,
+			Domain:         doc.Domain,
+			Product:        doc.Product,
+			Module:         doc.Module,
+			Status:         doc.Status,
+			SourceOfTruth:  doc.SourceOfTruth,
+			RegistryStatus: registryStatus,
+			ReferenceOnly:  false,
 		}
 		if err := addEntity(entities, entity); err != nil {
 			return ProductGraph{}, err
@@ -353,8 +370,14 @@ func summarizeProductGraph(graph ProductGraph) CoverageGraphSummary {
 				summary.ReferenceOnlyScreens++
 			} else {
 				summary.OwnedScreens++
+				if entity.RegistryStatus == "registered-active" {
+					summary.RegisteredActiveScreens++
+				} else {
+					summary.UnregisteredOwnedScreens = append(summary.UnregisteredOwnedScreens, entity.ID)
+				}
 			}
 		}
 	}
+	sort.Strings(summary.UnregisteredOwnedScreens)
 	return summary
 }

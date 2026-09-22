@@ -47,7 +47,7 @@ func TestBuildProductGraphCreatesSourceBackedAndReferenceOnlyEntities(t *testing
 			},
 		},
 	}
-	graph, err := buildProductGraph(inventory)
+	graph, err := buildProductGraph(inventory, map[string]struct{}{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -77,11 +77,11 @@ func TestBuildProductGraphOrderingIsDeterministic(t *testing.T) {
 			{Path: "a.md", SHA256: "a", ID: "CAP-CMD-001", Active: true, References: []string{"REQ-PROD-002", "REQ-PROD-001"}},
 		},
 	}
-	first, err := buildProductGraph(inventory)
+	first, err := buildProductGraph(inventory, map[string]struct{}{})
 	if err != nil {
 		t.Fatal(err)
 	}
-	second, err := buildProductGraph(inventory)
+	second, err := buildProductGraph(inventory, map[string]struct{}{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -102,5 +102,29 @@ func TestAddEntityRejectsMultipleOwnedSources(t *testing.T) {
 	}
 	if err := addEntity(entities, ProductEntity{ID: "X", SourcePath: "b.md", SourceSHA256: "b"}); err == nil {
 		t.Fatal("expected duplicate owned source error")
+	}
+}
+
+func TestBuildProductGraphMarksRegisteredScreen(t *testing.T) {
+	inventory := SpecInventory{
+		TreeDigest: "digest",
+		Documents: []SpecDocument{
+			{Path: "cmdr-product-spec/screens/a.md", SHA256: "a", ID: "CMD-MC-001", Type: "screen", Active: true},
+			{Path: "cmdr-product-spec/screens/b.md", SHA256: "b", ID: "CMD-MC-999", Type: "screen", Active: true},
+		},
+	}
+	graph, err := buildProductGraph(inventory, map[string]struct{}{"CMD-MC-001": {}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	entities := map[string]ProductEntity{}
+	for _, entity := range graph.Entities {
+		entities[entity.ID] = entity
+	}
+	if entities["CMD-MC-001"].RegistryStatus != "registered-active" {
+		t.Fatalf("expected registered active screen, got %#v", entities["CMD-MC-001"])
+	}
+	if entities["CMD-MC-999"].RegistryStatus != "unregistered" {
+		t.Fatalf("expected unregistered screen, got %#v", entities["CMD-MC-999"])
 	}
 }

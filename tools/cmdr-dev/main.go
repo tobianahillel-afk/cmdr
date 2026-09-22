@@ -491,6 +491,8 @@ func printValue(v any, asJSON bool) {
 		fmt.Printf("distinct open-decision references: %d\n", x.DistinctOpenDecisionReferences)
 		fmt.Printf("distinct permission references: %d\n", x.DistinctPermissionReferences)
 		fmt.Printf("owned screens: %d\n", x.OwnedScreens)
+		fmt.Printf("registered active screens: %d\n", x.RegisteredActiveScreens)
+		fmt.Printf("unregistered owned screens: %v\n", x.UnregisteredOwnedScreens)
 		fmt.Printf("reference-only screens: %d\n", x.ReferenceOnlyScreens)
 		fmt.Printf("tree digest: %s\n", x.SpecTreeDigest)
 		fmt.Printf("output: %s\n", x.Output)
