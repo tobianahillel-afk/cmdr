@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "graph_kind": "cmrd-engineering-work-graph",
+  "nodes": [
+    {
+      "id": "E0-BOOTSTRAP-001",
+      "title": "Establish autonomous engineering foundation",
+      "type": "lot",
+      "status": "IN_PROGRESS",
+      "depends_on": [],
+      "unlocks": ["E0-KERNEL-001"]
+    },
+    {
+      "id": "E0-KERNEL-001",
+      "title": "Implement minimal cmdr-dev kernel",
+      "type": "lot",
+      "status": "READY",
+      "depends_on": ["E0-BOOTSTRAP-001"],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": ["E0-SPEC-001"]
+    },
+    {
+      "id": "E0-SPEC-001",
+      "title": "Implement product-spec inventory compiler",
+      "type": "lot",
+      "status": "BLOCKED",
+      "depends_on": ["E0-KERNEL-001"],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": ["E0-COVERAGE-001"]
+    },
+    {
+      "id": "E0-COVERAGE-001",
+      "title": "Build product obligation and coverage graph",
+      "type": "lot",
+      "status": "BLOCKED",
+      "depends_on": ["E0-SPEC-001"],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": []
+    }
+  ]
+}
