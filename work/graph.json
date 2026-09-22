@@ -14,7 +14,7 @@
       "id": "E0-KERNEL-001",
       "title": "Implement minimal cmdr-dev kernel",
       "type": "lot",
-      "status": "READY",
+      "status": "VERIFIED",
       "depends_on": ["E0-BOOTSTRAP-001"],
       "dependency_terminal_state": "IMPLEMENTED",
       "unlocks": ["E0-SPEC-001"]
@@ -23,7 +23,7 @@
       "id": "E0-SPEC-001",
       "title": "Implement product-spec inventory compiler",
       "type": "lot",
-      "status": "BLOCKED",
+      "status": "READY",
       "depends_on": ["E0-KERNEL-001"],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": ["E0-COVERAGE-001"]
