@@ -1,10 +1,10 @@
 {
   "schema_version": 2,
-  "id": "E4-SEC-001B1",
-  "title": "Implement deterministic secret scanning",
+  "id": "E4-SEC-002C",
+  "title": "Generate deterministic SBOM and supply-chain evidence",
   "type": "sublot",
   "parent": "E4-SEC-001B",
-  "goal": "Implement a local, deterministic secret detector with redacted evidence, allowlisted false-positive handling, binary/generated-file exclusions and changed-path/full-scan modes; activate SEC-SECRETS-001 only after push/PR proof.",
+  "goal": "Generate deterministic standards-oriented component inventory and provenance evidence from supported dependency manifests without claiming components that cannot be resolved.",
   "product_refs": {
     "capabilities": [],
     "requirements": [],
@@ -15,7 +15,7 @@
     "canonical_objects": []
   },
   "depends_on": [
-    "E4-SEC-001A"
+    "E4-SEC-002B"
   ],
   "allowed_paths": [
     "tools/cmdr-dev/**",
@@ -80,19 +80,18 @@
     "implementation scope is one coherent security behavior"
   ],
   "definition_of_done": [
-    "secret scanner never logs matched secret values",
-    "high-confidence private-key/token patterns block",
-    "allowlist entries are path/fingerprint scoped rather than raw-secret scoped",
-    "changed-path scans ignore deleted/nonexistent files safely",
-    "full-scan mode can audit the engineering/runtime repository scope",
-    "SEC-SECRETS-001 becomes active with a compiled implementation key"
+    "SBOM component identity is deterministic and tied to source SHA",
+    "direct/runtime/dev scope is explicit",
+    "unknown package ecosystems fail or remain explicitly unsupported rather than disappearing",
+    "release evidence records generator/version/schema identity",
+    "SEC-SBOM-001 and applicable supply-chain gate activate only after evidence validation"
   ],
   "complexity": {
     "primary_components": 1,
     "estimated_files_changed": 7,
-    "estimated_net_loc": 390,
+    "estimated_net_loc": 420,
     "production_files": 3,
-    "net_production_loc": 320,
+    "net_production_loc": 330,
     "bounded_contexts": 1,
     "independent_migrations": 0,
     "distinct_security_models": 1,

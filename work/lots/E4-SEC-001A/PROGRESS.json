@@ -20,6 +20,6 @@
   "truthfulness_invariant": "No security family is marked active until a compiled implementation key and executable evidence exist.",
   "product_spec_mutated": false,
   "next_unlocked": [
-    "E4-SEC-001B1"
+    "E4-SEC-002A"
   ]
 }

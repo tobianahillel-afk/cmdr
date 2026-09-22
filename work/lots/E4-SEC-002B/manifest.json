@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "id": "E4-SEC-001B2",
+  "id": "E4-SEC-002B",
   "title": "Implement SAST and dependency vulnerability controls",
   "type": "sublot",
   "parent": "E4-SEC-001B",
@@ -15,7 +15,7 @@
     "canonical_objects": []
   },
   "depends_on": [
-    "E4-SEC-001B1"
+    "E4-SEC-002A"
   ],
   "allowed_paths": [
     "tools/cmdr-dev/**",

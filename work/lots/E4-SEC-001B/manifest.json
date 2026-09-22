@@ -83,7 +83,7 @@
     "security scope is bounded and does not claim runtime product behavior"
   ],
   "definition_of_done": [
-    "E4-SEC-001B1, E4-SEC-001B2 and E4-SEC-001B3 are VERIFIED",
+    "E4-SEC-002A, E4-SEC-002B and E4-SEC-002C are VERIFIED",
     "applicable source/supply-chain security gates are active only with executable evidence"
   ],
   "complexity": {
