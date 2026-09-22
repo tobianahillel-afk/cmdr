@@ -275,6 +275,15 @@ func main() {
 			fail(err)
 		}
 		printValue(summary, *jsonFlag)
+	case "boundary-edge-audit":
+		if err := validateState(root, state, graph); err != nil {
+			fail(err)
+		}
+		summary, err := runBoundaryEdgeAudit(root)
+		if err != nil {
+			fail(err)
+		}
+		printValue(summary, *jsonFlag)
 	default:
 		usage(os.Stderr)
 		fail(fmt.Errorf("unknown command %q", command))
@@ -633,6 +642,11 @@ func printValue(v any, asJSON bool) {
 		fmt.Printf("approved: %d\n", x.Approved)
 		fmt.Printf("unapproved: %d\n", x.Unapproved)
 		fmt.Printf("unsupported manifests: %d\n", x.UnsupportedManifests)
+	case BoundaryEdgeAuditSummary:
+		fmt.Printf("runtime boundaries: %d\n", x.RuntimeBoundaries)
+		fmt.Printf("local packages: %d\n", x.LocalPackages)
+		fmt.Printf("observed edges: %d\n", x.ObservedEdges)
+		fmt.Printf("cross-boundary edges: %d\n", x.CrossBoundaryEdges)
 	default:
 		b, _ := json.MarshalIndent(v, "", "  ")
 		fmt.Println(string(b))
@@ -640,7 +654,7 @@ func printValue(v any, asJSON bool) {
 }
 
 func usage(w io.Writer) {
-	fmt.Fprintln(w, "usage: cmdr-dev <doctor|status|next|spec-index|spec-baseline|coverage-graph|obligations|coverage-audit|validate-manifests|complexity-audit|context|architecture-audit|dependency-audit> [--root PATH] [--json] [--check] [--output PATH]")
+	fmt.Fprintln(w, "usage: cmdr-dev <doctor|status|next|spec-index|spec-baseline|coverage-graph|obligations|coverage-audit|validate-manifests|complexity-audit|context|architecture-audit|dependency-audit|boundary-edge-audit> [--root PATH] [--json] [--check] [--output PATH]")
 }
 
 func fail(err error) {
