@@ -45,13 +45,13 @@ type SpecIndexSummary struct {
 }
 
 type SpecBaseline struct {
-	SchemaVersion                int    `json:"schema_version"`
-	CompilerSchemaVersion        int    `json:"compiler_schema_version"`
-	SpecRoot                     string `json:"spec_root"`
-	ProductSpecBaselineCommit    string `json:"product_spec_baseline_commit"`
-	TreeDigest                   string `json:"tree_digest"`
-	Files                        int    `json:"files"`
-	ActiveCanonicalDocuments     int    `json:"active_canonical_documents"`
+	SchemaVersion             int    `json:"schema_version"`
+	CompilerSchemaVersion     int    `json:"compiler_schema_version"`
+	SpecRoot                  string `json:"spec_root"`
+	ProductSpecBaselineCommit string `json:"product_spec_baseline_commit"`
+	TreeDigest                string `json:"tree_digest"`
+	Files                     int    `json:"files"`
+	ActiveCanonicalDocuments  int    `json:"active_canonical_documents"`
 }
 
 type SpecBaselineSummary struct {
@@ -293,7 +293,6 @@ func uniqueSorted(values []string) []string {
 	}
 	return out
 }
-
 
 func runSpecBaseline(root, specRel, baselineCommit, output string, check bool) (SpecBaselineSummary, error) {
 	inventory, err := buildSpecInventory(root, specRel)
