@@ -5,11 +5,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strings"
 )
-
-var screenRegisterRowPattern = regexp.MustCompile("^\\| \\x60([^\\x60]+)\\x60 \\|")
 
 func loadActiveScreenIDs(root, specRel string) (map[string]struct{}, error) {
 	path := filepath.Join(root, filepath.FromSlash(specRel), "00-governance", "registers", "screen-register.md")
@@ -37,9 +34,8 @@ func loadActiveScreenIDs(root, specRel string) (map[string]struct{}, error) {
 		if !inActiveSection {
 			continue
 		}
-		match := screenRegisterRowPattern.FindStringSubmatch(trimmed)
-		if len(match) == 2 {
-			active[match[1]] = struct{}{}
+		if id, ok := firstBacktickTableCell(trimmed); ok {
+			active[id] = struct{}{}
 		}
 	}
 	if err := scanner.Err(); err != nil {
@@ -49,4 +45,17 @@ func loadActiveScreenIDs(root, specRel string) (map[string]struct{}, error) {
 		return nil, fmt.Errorf("screen register yielded no active screen ids")
 	}
 	return active, nil
+}
+
+func firstBacktickTableCell(line string) (string, bool) {
+	line = strings.TrimSpace(line)
+	if !strings.HasPrefix(line, "| `") {
+		return "", false
+	}
+	rest := strings.TrimPrefix(line, "| `")
+	end := strings.Index(rest, "` |")
+	if end <= 0 {
+		return "", false
+	}
+	return rest[:end], true
 }
