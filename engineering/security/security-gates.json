@@ -55,7 +55,7 @@
       "id": "SEC-SAST-001",
       "title": "Static application security analysis",
       "control_family": "sast",
-      "readiness": "specified",
+      "readiness": "active",
       "stages": [
         "pr"
       ],
@@ -72,14 +72,14 @@
         "finding-report",
         "process-exit"
       ],
-      "implementation_key": "",
-      "activation_condition": "activate per implemented language once a reviewed analyzer path exists"
+      "implementation_key": "gosec-go-v1",
+      "activation_condition": "active for tools/cmdr-dev Go engineering code: gosec v2.28.0 verified with 0 findings on push 35845737139 and pull_request 35845742512"
     },
     {
       "id": "SEC-SCA-001",
       "title": "Software composition analysis",
       "control_family": "sca",
-      "readiness": "specified",
+      "readiness": "active",
       "stages": [
         "pr",
         "release"
@@ -99,8 +99,8 @@
         "finding-report",
         "process-exit"
       ],
-      "implementation_key": "",
-      "activation_condition": "activate with reviewed advisory sources and severity policy"
+      "implementation_key": "govulncheck-go-v1",
+      "activation_condition": "active for tools/cmdr-dev Go engineering code: govulncheck v1.8.0 verified with 2 modules, 0 informational findings, and 0 reachable actionable vulnerabilities on push 35845737139 and pull_request 35845742512"
     },
     {
       "id": "SEC-SBOM-001",

@@ -92,6 +92,8 @@ var knownSecurityEvidenceKinds = map[string]bool{
 
 var knownSecurityImplementationKeys = map[string]bool{
 	"builtin-secret-scan-v1": true,
+	"gosec-go-v1":            true,
+	"govulncheck-go-v1":      true,
 }
 
 func loadSecurityGateRegistry(root string) (SecurityGateRegistry, error) {

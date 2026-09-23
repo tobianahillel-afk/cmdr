@@ -43,4 +43,4 @@ govulncheck does not expose a normalized high/critical severity on its Finding o
 
 These tools are development-only. They never become CMDR product-runtime dependencies. gosec analyzes source locally. govulncheck analyzes source locally and may query the official Go vulnerability database using module identity/version metadata; it does not upload repository source code.
 
-SEC-SAST-001 and SEC-SCA-001 remain `specified` until this implementation passes both push and pull-request CI.
+`SEC-SAST-001` and `SEC-SCA-001` are active for the current Go engineering module. Activation evidence: push run `35845737139` and pull-request run `35845742512`; gosec v2.28.0 reported 0 findings and govulncheck v1.8.0 reported 0 reachable actionable vulnerabilities across 2 modules. No SAST baseline exception was required.
