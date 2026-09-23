@@ -32,10 +32,10 @@ func validDecisionValidationFixture(class string, performanceSensitive bool) (De
 		}},
 		AdversarialReviews: []AdversarialReview{{
 			ID: "ADV-0001", RunAt: "2026-09-23", TargetCandidateID: "CAND-LSM",
-			Hypothesis: "Preferred candidate fails under adversarial failure/load assumptions",
+			Hypothesis:            "Preferred candidate fails under adversarial failure/load assumptions",
 			FalsificationAttempts: []string{"stress failure recovery", "challenge durability assumptions"},
-			CounterEvidence: []string{"compaction pressure remains a known trade-off"},
-			Outcome: "survived", EvidenceRefs: []string{"RES-PKT-0001"},
+			CounterEvidence:       []string{"compaction pressure remains a known trade-off"},
+			Outcome:               "survived", EvidenceRefs: []string{"RES-PKT-0001"},
 		}},
 	}
 	return DecisionRegistry{Decisions: []EngineeringDecision{d}}, ResearchRegistry{SchemaVersion: 1, RegistryKind: "engineering-research-evidence", Packets: []ResearchPacket{packet}}, DecisionValidationRegistry{SchemaVersion: 1, RegistryKind: "engineering-decision-validation", Validations: []DecisionValidation{validation}}
