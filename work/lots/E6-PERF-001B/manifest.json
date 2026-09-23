@@ -36,9 +36,11 @@
     "risk-adaptive validation engine"
   ],
   "outputs": [
-    "representative benchmark runner",
-    "normalized sample/result schema",
-    "budget and baseline regression evaluator"
+    "compiled representative benchmark workload registry",
+    "normalized benchmark sample and result schema",
+    "absolute budget and relative baseline regression evaluator",
+    "source/target/environment/workload/toolchain-bound benchmark identity",
+    "adaptive CHK-PERFORMANCE-BENCHMARK"
   ],
   "invariants": [
     "Product Spec remains read-only",
@@ -59,7 +61,11 @@
     "cmdr-dev complexity-audit succeeds",
     "adaptive engineering-kernel remains green",
     "synthetic tests detect absolute and relative regressions",
-    "benchmark result identity includes target environment toolchain and source SHA"
+    "benchmark result identity includes target environment toolchain and source SHA",
+    "unit tests cover median p95 p99 max and mean aggregation",
+    "unit tests reject upper-bound and lower-bound absolute regressions",
+    "unit tests reject relative regressions and accept measured improvements",
+    "unit tests prove stage environment and changed-path target selection"
   ],
   "performance_budget": {
     "applicable": true,
@@ -100,10 +106,10 @@
   ],
   "complexity": {
     "primary_components": 2,
-    "estimated_files_changed": 9,
-    "estimated_net_loc": 620,
+    "estimated_files_changed": 10,
+    "estimated_net_loc": 690,
     "production_files": 4,
-    "net_production_loc": 460,
+    "net_production_loc": 520,
     "bounded_contexts": 1,
     "independent_migrations": 0,
     "distinct_security_models": 1,

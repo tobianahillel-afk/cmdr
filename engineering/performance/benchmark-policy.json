@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "policy_kind": "compiled-performance-workloads",
+  "workloads": [
+    {
+      "key": "cmdr-dev-metadata-audit-v1",
+      "handler_key": "builtin-cmdr-dev-metadata-audit-v1",
+      "warmup_iterations": 1,
+      "sample_count": 5,
+      "max_sample_duration_ms": 2000
+    }
+  ]
+}

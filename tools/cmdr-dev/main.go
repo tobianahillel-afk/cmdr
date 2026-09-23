@@ -121,6 +121,7 @@ func main() {
 	fullScanFlag := fs.Bool("full-scan", false, "scan all Git-tracked repository files")
 	stageFlag := fs.String("stage", "pr", "security execution stage: pr, nightly, release, or on-demand")
 	requestedGateFlag := fs.String("requested-gate", "", "optional exact deep security gate id for on-demand execution")
+	performanceEnvironmentFlag := fs.String("performance-environment", defaultCIEnvironment, "performance benchmark environment id")
 	if err := fs.Parse(os.Args[2:]); err != nil {
 		fail(err)
 	}
@@ -388,6 +389,15 @@ func main() {
 			fail(err)
 		}
 		summary, err := runPerformanceRegistryAudit(root)
+		printValue(summary, *jsonFlag)
+		if err != nil {
+			fail(err)
+		}
+	case "performance-benchmark-audit":
+		if err := validateState(root, state, graph); err != nil {
+			fail(err)
+		}
+		summary, err := runPerformanceBenchmarkAudit(root, *stageFlag, *performanceEnvironmentFlag, *changesFileFlag)
 		printValue(summary, *jsonFlag)
 		if err != nil {
 			fail(err)
@@ -906,6 +916,15 @@ func printValue(v any, asJSON bool) {
 		fmt.Printf("runtime coverage status: %s\n", x.RuntimeCoverageStatus)
 		fmt.Printf("by scope: %v\n", x.ByScope)
 		fmt.Printf("by stage: %v\n", x.ByStage)
+	case PerformanceBenchmarkAuditSummary:
+		fmt.Printf("stage: %s\n", x.Stage)
+		fmt.Printf("environment: %s\n", x.EnvironmentID)
+		fmt.Printf("source SHA: %s\n", x.SourceSHA)
+		fmt.Printf("registered targets: %d\n", x.Registered)
+		fmt.Printf("selected targets: %d\n", x.Selected)
+		fmt.Printf("executed targets: %d\n", x.Executed)
+		fmt.Printf("metrics evaluated: %d\n", x.Metrics)
+		fmt.Printf("status: %s\n", x.Status)
 	case SecretScanSummary:
 		fmt.Printf("mode: %s\n", x.Mode)
 		fmt.Printf("candidate paths: %d\n", x.CandidatePaths)
@@ -951,7 +970,7 @@ func printValue(v any, asJSON bool) {
 }
 
 func usage(w io.Writer) {
-	fmt.Fprintln(w, "usage: cmdr-dev <doctor|status|next|spec-index|spec-baseline|coverage-graph|obligations|coverage-audit|validate-manifests|complexity-audit|context|architecture-audit|dependency-audit|boundary-edge-audit|check-catalog-audit|impact|validation-plan|security-gate-audit|security-test-audit|deep-security-audit|decision-registry-audit|research-packet-audit|decision-gate-audit|decision-freshness-audit|performance-registry-audit|decision-cache|decision-freshness-snapshot|research-context|secret-scan|sast-go|sca-go|sbom|git-changes|validation-run> [--root PATH] [--json] [--check] [--output PATH]")
+	fmt.Fprintln(w, "usage: cmdr-dev <doctor|status|next|spec-index|spec-baseline|coverage-graph|obligations|coverage-audit|validate-manifests|complexity-audit|context|architecture-audit|dependency-audit|boundary-edge-audit|check-catalog-audit|impact|validation-plan|security-gate-audit|security-test-audit|deep-security-audit|decision-registry-audit|research-packet-audit|decision-gate-audit|decision-freshness-audit|performance-registry-audit|performance-benchmark-audit|decision-cache|decision-freshness-snapshot|research-context|secret-scan|sast-go|sca-go|sbom|git-changes|validation-run> [--root PATH] [--json] [--check] [--output PATH]")
 }
 
 func fail(err error) {
