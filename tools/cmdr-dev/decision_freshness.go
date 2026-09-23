@@ -39,10 +39,10 @@ type TrackedInputBinding struct {
 
 type FreshnessSnapshot struct {
 	ProductSpecBaseline string                `json:"product_spec_baseline"`
-	Decision             EvidenceBinding       `json:"decision"`
-	ResearchPackets      []EvidenceBinding     `json:"research_packets"`
-	Validation           EvidenceBinding       `json:"validation"`
-	TrackedInputs        []TrackedInputBinding `json:"tracked_inputs"`
+	Decision            EvidenceBinding       `json:"decision"`
+	ResearchPackets     []EvidenceBinding     `json:"research_packets"`
+	Validation          EvidenceBinding       `json:"validation"`
+	TrackedInputs       []TrackedInputBinding `json:"tracked_inputs"`
 }
 
 type RevisitSignal struct {
@@ -101,31 +101,31 @@ var freshnessRecordIDPattern = regexp.MustCompile(`^FRESH-[0-9]{4,}$`)
 var sha256Pattern = regexp.MustCompile(`^[0-9a-f]{64}$`)
 
 var knownFreshnessAutomaticTriggers = map[string]bool{
-	"date-expiry": true,
-	"decision-change": true,
-	"research-evidence-change": true,
-	"validation-evidence-change": true,
-	"repository-input-change": true,
+	"date-expiry":                  true,
+	"decision-change":              true,
+	"research-evidence-change":     true,
+	"validation-evidence-change":   true,
+	"repository-input-change":      true,
 	"product-spec-baseline-change": true,
 }
 
 var knownFreshnessExternalTriggers = map[string]bool{
 	"upstream-version-change": true,
-	"security-advisory": true,
-	"threat-model-change": true,
-	"benchmark-regression": true,
-	"assumption-change": true,
-	"material-new-research": true,
+	"security-advisory":       true,
+	"threat-model-change":     true,
+	"benchmark-regression":    true,
+	"assumption-change":       true,
+	"material-new-research":   true,
 }
 
 var knownFreshnessTrackedInputKinds = map[string]bool{
-	"assumption": true,
-	"threat-model": true,
-	"benchmark-fixture": true,
-	"constraint": true,
-	"dependency-lock": true,
+	"assumption":            true,
+	"threat-model":          true,
+	"benchmark-fixture":     true,
+	"constraint":            true,
+	"dependency-lock":       true,
 	"architecture-contract": true,
-	"security-policy": true,
+	"security-policy":       true,
 }
 
 var knownFreshnessSignalStates = map[string]bool{"clear": true, "fired": true}
@@ -214,13 +214,13 @@ func evaluateDecisionFreshness(root, asOf string, state CurrentState, graph Work
 			packetIDs = append(packetIDs, binding.ID)
 		}
 		cache.Entries = append(cache.Entries, ReusableEvidenceEntry{
-			DecisionID: decision.ID,
-			DecisionKey: decision.DecisionKey,
-			Class: decision.Class,
-			FreshUntil: record.FreshUntil,
-			BasisDigest: digestCanonical(currentSnapshot),
+			DecisionID:        decision.ID,
+			DecisionKey:       decision.DecisionKey,
+			Class:             decision.Class,
+			FreshUntil:        record.FreshUntil,
+			BasisDigest:       digestCanonical(currentSnapshot),
 			ResearchPacketIDs: packetIDs,
-			ValidationID: currentSnapshot.Validation.ID,
+			ValidationID:      currentSnapshot.Validation.ID,
 		})
 	}
 	sort.Slice(cache.Entries, func(i, j int) bool { return cache.Entries[i].DecisionID < cache.Entries[j].DecisionID })
@@ -346,8 +346,12 @@ func validateFreshnessRegistry(policy FreshnessPolicy, registry FreshnessRegistr
 
 func validateFreshnessTriggers(record DecisionFreshnessRecord, decision EngineeringDecision, policy FreshnessPolicy) error {
 	known := map[string]bool{}
-	for trigger := range knownFreshnessAutomaticTriggers { known[trigger] = true }
-	for trigger := range knownFreshnessExternalTriggers { known[trigger] = true }
+	for trigger := range knownFreshnessAutomaticTriggers {
+		known[trigger] = true
+	}
+	for trigger := range knownFreshnessExternalTriggers {
+		known[trigger] = true
+	}
 	if err := validateKnownUniqueStrings(record.ID+" revisit trigger", record.RevisitTriggers, known); err != nil {
 		return err
 	}
@@ -357,13 +361,19 @@ func validateFreshnessTriggers(record DecisionFreshnessRecord, decision Engineer
 		}
 	}
 	requiredExternal := map[string]bool{}
-	if decision.Class == "C" { requiredExternal["material-new-research"] = true }
-	if decision.PerformanceSensitive { requiredExternal["benchmark-regression"] = true }
+	if decision.Class == "C" {
+		requiredExternal["material-new-research"] = true
+	}
+	if decision.PerformanceSensitive {
+		requiredExternal["benchmark-regression"] = true
+	}
 	if containsString(decision.RiskTags, "security") || containsString(decision.CriticalFactors, "security-critical") {
 		requiredExternal["security-advisory"] = true
 		requiredExternal["threat-model-change"] = true
 	}
-	if containsString(decision.RiskTags, "dependency") { requiredExternal["upstream-version-change"] = true }
+	if containsString(decision.RiskTags, "dependency") {
+		requiredExternal["upstream-version-change"] = true
+	}
 	for _, input := range record.Snapshot.TrackedInputs {
 		switch input.Kind {
 		case "assumption":
@@ -421,7 +431,9 @@ func evaluateFreshnessRecord(root string, asOf time.Time, policy FreshnessPolicy
 		return false, nil, current, err
 	}
 	var reasons []string
-	if asOf.After(freshUntil) { reasons = append(reasons, "date-expiry") }
+	if asOf.After(freshUntil) {
+		reasons = append(reasons, "date-expiry")
+	}
 	if digestCanonical(current) != digestCanonical(record.Snapshot) {
 		reasons = append(reasons, classifySnapshotDrift(record.Snapshot, current)...)
 	}
@@ -444,13 +456,17 @@ func evaluateFreshnessRecord(root string, asOf time.Time, policy FreshnessPolicy
 func buildFreshnessSnapshot(root string, decision EngineeringDecision, research ResearchRegistry, validations DecisionValidationRegistry, productBaseline string, tracked []TrackedInputBinding) (FreshnessSnapshot, error) {
 	snapshot := FreshnessSnapshot{
 		ProductSpecBaseline: productBaseline,
-		Decision: EvidenceBinding{ID: decision.ID, Digest: digestCanonical(decision)},
+		Decision:            EvidenceBinding{ID: decision.ID, Digest: digestCanonical(decision)},
 	}
 	packetByID := map[string]ResearchPacket{}
-	for _, packet := range research.Packets { packetByID[packet.ID] = packet }
+	for _, packet := range research.Packets {
+		packetByID[packet.ID] = packet
+	}
 	for _, ref := range decision.EvidenceRefs {
 		packet, ok := packetByID[ref]
-		if !ok { return snapshot, fmt.Errorf("decision %s evidence packet %s is missing", decision.ID, ref) }
+		if !ok {
+			return snapshot, fmt.Errorf("decision %s evidence packet %s is missing", decision.ID, ref)
+		}
 		snapshot.ResearchPackets = append(snapshot.ResearchPackets, EvidenceBinding{ID: ref, Digest: digestCanonical(packet)})
 	}
 	sort.Slice(snapshot.ResearchPackets, func(i, j int) bool { return snapshot.ResearchPackets[i].ID < snapshot.ResearchPackets[j].ID })
@@ -470,14 +486,18 @@ func buildFreshnessSnapshot(root string, decision EngineeringDecision, research 
 			return snapshot, fmt.Errorf("decision %s has unknown tracked input kind %s", decision.ID, input.Kind)
 		}
 		data, err := readRepoFile(root, input.Path)
-		if err != nil { return snapshot, fmt.Errorf("tracked input %s: %w", input.Path, err) }
+		if err != nil {
+			return snapshot, fmt.Errorf("tracked input %s: %w", input.Path, err)
+		}
 		sum := sha256.Sum256(data)
 		snapshot.TrackedInputs = append(snapshot.TrackedInputs, TrackedInputBinding{
 			Kind: input.Kind, Path: input.Path, Digest: hex.EncodeToString(sum[:]),
 		})
 	}
 	sort.Slice(snapshot.TrackedInputs, func(i, j int) bool {
-		if snapshot.TrackedInputs[i].Kind != snapshot.TrackedInputs[j].Kind { return snapshot.TrackedInputs[i].Kind < snapshot.TrackedInputs[j].Kind }
+		if snapshot.TrackedInputs[i].Kind != snapshot.TrackedInputs[j].Kind {
+			return snapshot.TrackedInputs[i].Kind < snapshot.TrackedInputs[j].Kind
+		}
 		return snapshot.TrackedInputs[i].Path < snapshot.TrackedInputs[j].Path
 	})
 	return snapshot, nil
@@ -489,7 +509,9 @@ func validateEvidenceBindings(label string, bindings []EvidenceBinding) error {
 		if strings.TrimSpace(binding.ID) == "" || !sha256Pattern.MatchString(binding.Digest) {
 			return fmt.Errorf("%s contains invalid binding", label)
 		}
-		if seen[binding.ID] { return fmt.Errorf("%s duplicates binding %s", label, binding.ID) }
+		if seen[binding.ID] {
+			return fmt.Errorf("%s duplicates binding %s", label, binding.ID)
+		}
 		seen[binding.ID] = true
 	}
 	return nil
@@ -506,7 +528,9 @@ func validateTrackedInputBindings(label string, inputs []TrackedInputBinding) er
 			return fmt.Errorf("%s has non-canonical tracked input path %q", label, input.Path)
 		}
 		key := input.Kind + "\x00" + input.Path
-		if seen[key] { return fmt.Errorf("%s duplicates tracked input %s", label, input.Path) }
+		if seen[key] {
+			return fmt.Errorf("%s duplicates tracked input %s", label, input.Path)
+		}
 		seen[key] = true
 	}
 	return nil
@@ -514,17 +538,29 @@ func validateTrackedInputBindings(label string, inputs []TrackedInputBinding) er
 
 func classifySnapshotDrift(old, current FreshnessSnapshot) []string {
 	var reasons []string
-	if old.ProductSpecBaseline != current.ProductSpecBaseline { reasons = append(reasons, "product-spec-baseline-change") }
-	if old.Decision != current.Decision { reasons = append(reasons, "decision-change") }
-	if digestCanonical(old.ResearchPackets) != digestCanonical(current.ResearchPackets) { reasons = append(reasons, "research-evidence-change") }
-	if old.Validation != current.Validation { reasons = append(reasons, "validation-evidence-change") }
-	if digestCanonical(old.TrackedInputs) != digestCanonical(current.TrackedInputs) { reasons = append(reasons, "repository-input-change") }
+	if old.ProductSpecBaseline != current.ProductSpecBaseline {
+		reasons = append(reasons, "product-spec-baseline-change")
+	}
+	if old.Decision != current.Decision {
+		reasons = append(reasons, "decision-change")
+	}
+	if digestCanonical(old.ResearchPackets) != digestCanonical(current.ResearchPackets) {
+		reasons = append(reasons, "research-evidence-change")
+	}
+	if old.Validation != current.Validation {
+		reasons = append(reasons, "validation-evidence-change")
+	}
+	if digestCanonical(old.TrackedInputs) != digestCanonical(current.TrackedInputs) {
+		reasons = append(reasons, "repository-input-change")
+	}
 	return reasons
 }
 
 func digestCanonical(value any) string {
 	data, err := json.Marshal(value)
-	if err != nil { panic(err) }
+	if err != nil {
+		panic(err)
+	}
 	sum := sha256.Sum256(data)
 	return hex.EncodeToString(sum[:])
 }
@@ -536,4 +572,3 @@ func parseFreshnessAsOf(value string) (time.Time, error) {
 	}
 	return parseResearchDate(value)
 }
-
