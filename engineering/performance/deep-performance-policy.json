@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "default_policy": "deny-unregistered-deep-performance-target",
+  "evidence_directory": "engineering/testing/deep-performance-evidence",
+  "control_plane_paths": [
+    "engineering/performance/**",
+    "engineering/architecture/**",
+    ".github/workflows/performance-deep.yml",
+    "tools/cmdr-dev/deep_performance.go",
+    "tools/cmdr-dev/deep_performance_test.go"
+  ],
+  "caps": {
+    "max_target_duration_seconds": 600,
+    "max_target_memory_mib": 2048,
+    "max_concurrency": 64,
+    "max_targets_per_run": 2
+  },
+  "targets": []
+}
