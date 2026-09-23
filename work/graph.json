@@ -530,7 +530,7 @@
       "id": "E6-PERF-001C",
       "title": "Schedule profiling load soak and resource validation",
       "type": "sublot",
-      "status": "READY",
+      "status": "VERIFIED",
       "depends_on": [
         "E6-PERF-001B"
       ],
@@ -543,7 +543,7 @@
       "id": "E6-PERF-001D",
       "title": "Cache performance evidence and integrate adaptive revisit triggers",
       "type": "sublot",
-      "status": "BLOCKED",
+      "status": "READY",
       "depends_on": [
         "E6-PERF-001C"
       ],
