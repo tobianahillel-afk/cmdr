@@ -656,7 +656,7 @@
       "id": "E8-MET-001C",
       "title": "Derive safety-constrained optimization recommendations",
       "type": "sublot",
-      "status": "READY",
+      "status": "VERIFIED",
       "depends_on": [
         "E8-MET-001B"
       ],
@@ -669,7 +669,7 @@
       "id": "E8-MET-001D",
       "title": "Enforce engine efficiency regression budgets and optimization handoff",
       "type": "sublot",
-      "status": "BLOCKED",
+      "status": "READY",
       "depends_on": [
         "E8-MET-001C"
       ],
