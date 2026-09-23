@@ -287,13 +287,13 @@
       "id": "E4-SEC-001",
       "title": "Implement security verification engine",
       "type": "epic",
-      "status": "DECOMPOSED",
+      "status": "VERIFIED",
       "depends_on": [
         "E3-IMPACT-002B"
       ],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": [
-        "E4-SEC-001A"
+        "E5-RES-001A"
       ]
     },
     {
@@ -313,7 +313,7 @@
       "id": "E4-SEC-001B",
       "title": "Implement source and supply-chain security controls",
       "type": "lot",
-      "status": "DECOMPOSED",
+      "status": "VERIFIED",
       "depends_on": [
         "E4-SEC-001A"
       ],
@@ -339,7 +339,7 @@
       "id": "E4-SEC-001D",
       "title": "Schedule fuzz, DAST, race and deep security validation",
       "type": "sublot",
-      "status": "READY",
+      "status": "VERIFIED",
       "depends_on": [
         "E4-SEC-001C"
       ],
@@ -363,7 +363,7 @@
       "id": "E4-SEC-002B",
       "title": "Implement SAST and dependency vulnerability controls",
       "type": "sublot",
-      "status": "DECOMPOSED",
+      "status": "VERIFIED",
       "depends_on": [
         "E4-SEC-002A"
       ],
@@ -423,6 +423,69 @@
       "unlocks": [
         "E4-SEC-002B-ACTIVATE"
       ]
+    },
+    {
+      "id": "E5-RES-001",
+      "title": "Implement research and technical decision engine",
+      "type": "epic",
+      "status": "DECOMPOSED",
+      "depends_on": [
+        "E4-SEC-001"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E5-RES-001A"
+      ]
+    },
+    {
+      "id": "E5-RES-001A",
+      "title": "Define canonical engineering decision and research registry",
+      "type": "sublot",
+      "status": "READY",
+      "depends_on": [
+        "E4-SEC-001"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E5-RES-001B"
+      ]
+    },
+    {
+      "id": "E5-RES-001B",
+      "title": "Compile source-backed research evidence packets",
+      "type": "sublot",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E5-RES-001A"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E5-RES-001C"
+      ]
+    },
+    {
+      "id": "E5-RES-001C",
+      "title": "Enforce benchmark prototype and adversarial decision gates",
+      "type": "sublot",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E5-RES-001B"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E5-RES-001D"
+      ]
+    },
+    {
+      "id": "E5-RES-001D",
+      "title": "Enforce decision freshness revisit triggers and reusable evidence cache",
+      "type": "sublot",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E5-RES-001C"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": []
     }
   ]
 }

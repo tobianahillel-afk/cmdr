@@ -1,0 +1,112 @@
+{
+  "schema_version": 2,
+  "id": "E5-RES-001D",
+  "title": "Enforce decision freshness revisit triggers and reusable evidence cache",
+  "type": "sublot",
+  "parent": "E5-RES-001",
+  "goal": "Cache accepted research safely while binding it to versions assumptions dates and revisit triggers so agents reuse valid work instead of re-researching every continuation.",
+  "product_refs": {
+    "capabilities": [],
+    "requirements": [],
+    "screens": [],
+    "permissions": [],
+    "open_decisions": [],
+    "implementation_contracts": [],
+    "canonical_objects": []
+  },
+  "depends_on": [
+    "E5-RES-001C"
+  ],
+  "allowed_paths": [
+    "tools/cmdr-dev/**",
+    "engineering/governance/**",
+    "engineering/research/**",
+    "engineering/decisions/**",
+    "engineering/testing/**",
+    "work/lots/E5-RES-001*/**",
+    "engineering/state/**",
+    "work/graph.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**"
+  ],
+  "inputs": [
+    "verified E4 security engine",
+    "engineering/governance/autonomous-decision-policy.md",
+    "canonical Product Spec remains read-only",
+    "real repository and work-unit context"
+  ],
+  "outputs": [
+    "decision freshness policy",
+    "revisit-trigger evaluator",
+    "reusable evidence cache index",
+    "staleness audit"
+  ],
+  "invariants": [
+    "Product Spec remains read-only",
+    "engineering decisions never silently resolve product-owned OPEN decisions",
+    "claims of best fastest safest or most advanced require dated evidence or representative measurement",
+    "research effort is proportional to decision class and stops at evidence saturation",
+    "reusable evidence is invalidated when assumptions version constraints or revisit triggers change"
+  ],
+  "security_properties": [
+    "unknown decision class or missing mandatory evidence fails closed",
+    "critical security architecture algorithm and durability decisions require adversarial review",
+    "external research evidence is treated as untrusted input and never executable configuration"
+  ],
+  "acceptance_tests": [
+    "go test ./...",
+    "cmdr-dev validate-manifests succeeds",
+    "cmdr-dev architecture-audit succeeds",
+    "cmdr-dev complexity-audit succeeds",
+    "adaptive engineering-kernel remains green"
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "research must improve decision quality without becoming a repeated bottleneck",
+    "metrics": [
+      "Class A decisions require no research packet",
+      "accepted reusable evidence avoids duplicate research until a revisit trigger fires",
+      "research stops at explicit saturation rather than arbitrary source-count inflation"
+    ]
+  },
+  "migration": {
+    "required": false,
+    "rationale": "engineering control-plane only",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert the E5 lot while retaining verified E0-E4 controls",
+    "verification": [
+      "engineering-kernel remains green",
+      "no accepted product contract changed"
+    ]
+  },
+  "required_checks": [
+    "adaptive engineering-kernel",
+    "cmdr-dev validate-manifests",
+    "cmdr-dev complexity-audit"
+  ],
+  "definition_of_ready": [
+    "dependencies are VERIFIED",
+    "decision-engine scope is bounded",
+    "Product Spec is read-only"
+  ],
+  "definition_of_done": [
+    "accepted evidence has explicit freshness and revisit triggers",
+    "material version assumption threat-model or benchmark changes invalidate reuse",
+    "stale critical decisions return to review rather than remaining silently accepted",
+    "fresh agents can identify reusable versus invalidated evidence deterministically"
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 7,
+    "estimated_net_loc": 450,
+    "production_files": 2,
+    "net_production_loc": 330,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}
