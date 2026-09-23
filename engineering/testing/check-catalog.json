@@ -788,6 +788,34 @@
         "CHK-PERFORMANCE-BENCHMARK"
       ],
       "evidence_kind": "audit-report"
+    },
+    {
+      "id": "CHK-PERFORMANCE-CACHE",
+      "title": "Performance evidence cache freshness and revisit audit",
+      "executor_key": "performance-cache-audit",
+      "risk_domains": [
+        "performance",
+        "repository-health",
+        "work-governance"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": true,
+      "trigger_paths": [
+        "engineering/performance/**",
+        "engineering/decisions/**",
+        "engineering/research/**",
+        "engineering/state/**",
+        "work/**",
+        "tools/cmdr-dev/performance_cache.go",
+        "tools/cmdr-dev/performance_cache_test.go",
+        "tools/cmdr-dev/performance_benchmark.go"
+      ],
+      "prerequisites": [
+        "CHK-DEEP-PERFORMANCE",
+        "CHK-DECISION-FRESHNESS"
+      ],
+      "evidence_kind": "audit-report"
     }
   ]
 }

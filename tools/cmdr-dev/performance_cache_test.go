@@ -58,7 +58,7 @@ func cacheRecord(source, decisionBasis string, outcome string, decisionIDs []str
 }
 
 func TestPerformanceCacheFreshPassIsReusable(t *testing.T) {
-	source := "0123456789abcdef0123456789abcdef01234567"
+	source := digestCanonical("source-v1")
 	basis := digestCanonical([]ReusableEvidenceEntry{})
 	record := cacheRecord(source, basis, "pass", nil)
 	status, signals, _, _ := evaluatePerformanceCacheRecord(
@@ -74,7 +74,7 @@ func TestPerformanceCacheFreshPassIsReusable(t *testing.T) {
 }
 
 func TestPerformanceCacheInvalidatesEveryIdentityDimension(t *testing.T) {
-	source := "0123456789abcdef0123456789abcdef01234567"
+	source := digestCanonical("source-v1")
 	basis := digestCanonical([]ReusableEvidenceEntry{})
 	base := cacheRecord(source, basis, "pass", nil)
 	tests := []struct {
@@ -84,7 +84,7 @@ func TestPerformanceCacheInvalidatesEveryIdentityDimension(t *testing.T) {
 		currentBasis  string
 		want          string
 	}{
-		{"source", func(*PerformanceCacheRecord) {}, "1123456789abcdef0123456789abcdef01234567", basis, "source-change"},
+		{"source", func(*PerformanceCacheRecord) {}, digestCanonical("source-v2"), basis, "source-change"},
 		{"toolchain", func(r *PerformanceCacheRecord) { r.Toolchain = "go0.0.0" }, source, basis, "toolchain-change"},
 		{"target", func(r *PerformanceCacheRecord) { r.TargetDigest = digestCanonical("changed") }, source, basis, "target-change"},
 		{"budget", func(r *PerformanceCacheRecord) { r.BudgetDigest = digestCanonical("changed") }, source, basis, "budget-change"},
@@ -111,7 +111,7 @@ func TestPerformanceCacheInvalidatesEveryIdentityDimension(t *testing.T) {
 }
 
 func TestBenchmarkRegressionFiresE5Signal(t *testing.T) {
-	source := "0123456789abcdef0123456789abcdef01234567"
+	source := digestCanonical("source-v1")
 	decisionID := "ENG-DEC-0001"
 	entry := ReusableEvidenceEntry{DecisionID: decisionID}
 	basis := digestCanonical([]ReusableEvidenceEntry{entry})
@@ -133,7 +133,7 @@ func TestBenchmarkRegressionFiresE5Signal(t *testing.T) {
 }
 
 func TestRegressionRequiresValidPerformanceDecisionBinding(t *testing.T) {
-	source := "0123456789abcdef0123456789abcdef01234567"
+	source := digestCanonical("source-v1")
 	basis := digestCanonical([]ReusableEvidenceEntry{})
 	record := cacheRecord(source, basis, "regression", []string{"ENG-DEC-9999"})
 	status, _, _, _ := evaluatePerformanceCacheRecord(
@@ -145,5 +145,54 @@ func TestRegressionRequiresValidPerformanceDecisionBinding(t *testing.T) {
 	)
 	if !containsString(status.Reasons, "decision-binding-invalid") {
 		t.Fatalf("expected invalid decision binding, got %#v", status)
+	}
+}
+
+func TestPerformanceTargetSourceDigestIgnoresUnrelatedTrackedEvidence(t *testing.T) {
+	root := t.TempDir()
+	runTestGit(t, root, "init")
+	runTestGit(t, root, "config", "user.name", "CMDR Test")
+	runTestGit(t, root, "config", "user.email", "cmdr-test@example.invalid")
+	writeTestFile(t, root, "src/engine.go", "package engine\n")
+	writeTestFile(t, root, "engineering/performance/performance-cache.json", "{}\n")
+	runTestGit(t, root, "add", ".")
+	runTestGit(t, root, "commit", "-m", "baseline")
+
+	target := cacheTarget()
+	target.TriggerPaths = []string{"src/**"}
+	first, err := performanceTargetSourceDigest(root, target)
+	if err != nil {
+		t.Fatal(err)
+	}
+	writeTestFile(t, root, "engineering/performance/performance-cache.json", "{\"changed\":true}\n")
+	second, err := performanceTargetSourceDigest(root, target)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if first != second {
+		t.Fatalf("unrelated cache metadata invalidated source identity: %s != %s", first, second)
+	}
+	writeTestFile(t, root, "src/engine.go", "package engine\n// changed\n")
+	third, err := performanceTargetSourceDigest(root, target)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if third == second {
+		t.Fatal("benchmark source change did not invalidate source identity")
+	}
+}
+
+func TestPerformanceTargetSourceDigestRequiresTrackedSource(t *testing.T) {
+	root := t.TempDir()
+	runTestGit(t, root, "init")
+	runTestGit(t, root, "config", "user.name", "CMDR Test")
+	runTestGit(t, root, "config", "user.email", "cmdr-test@example.invalid")
+	writeTestFile(t, root, "other/file.txt", "tracked\n")
+	runTestGit(t, root, "add", ".")
+	runTestGit(t, root, "commit", "-m", "baseline")
+	target := cacheTarget()
+	target.TriggerPaths = []string{"src/**"}
+	if _, err := performanceTargetSourceDigest(root, target); err == nil {
+		t.Fatal("expected empty benchmark source scope rejection")
 	}
 }

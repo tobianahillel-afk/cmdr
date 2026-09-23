@@ -412,6 +412,15 @@ func main() {
 		if err != nil {
 			fail(err)
 		}
+	case "performance-cache-audit":
+		if err := validateState(root, state, graph); err != nil {
+			fail(err)
+		}
+		summary, err := runPerformanceCacheAudit(root, state, graph)
+		printValue(summary, *jsonFlag)
+		if err != nil {
+			fail(err)
+		}
 	case "decision-cache":
 		if err := validateState(root, state, graph); err != nil {
 			fail(err)
@@ -935,6 +944,13 @@ func printValue(v any, asJSON bool) {
 		fmt.Printf("executed targets: %d\n", x.Executed)
 		fmt.Printf("metrics evaluated: %d\n", x.Metrics)
 		fmt.Printf("status: %s\n", x.Status)
+	case PerformanceCacheAuditSummary:
+		fmt.Printf("cache records: %d\n", x.Records)
+		fmt.Printf("reusable records: %d\n", x.Reusable)
+		fmt.Printf("invalid records: %d\n", x.Invalid)
+		fmt.Printf("regressions: %d\n", x.Regressions)
+		fmt.Printf("status: %s\n", x.Status)
+		fmt.Printf("revisit signals: %d\n", len(x.Signals))
 	case SecretScanSummary:
 		fmt.Printf("mode: %s\n", x.Mode)
 		fmt.Printf("candidate paths: %d\n", x.CandidatePaths)
@@ -980,7 +996,7 @@ func printValue(v any, asJSON bool) {
 }
 
 func usage(w io.Writer) {
-	fmt.Fprintln(w, "usage: cmdr-dev <doctor|status|next|spec-index|spec-baseline|coverage-graph|obligations|coverage-audit|validate-manifests|complexity-audit|context|architecture-audit|dependency-audit|boundary-edge-audit|check-catalog-audit|impact|validation-plan|security-gate-audit|security-test-audit|deep-security-audit|decision-registry-audit|research-packet-audit|decision-gate-audit|decision-freshness-audit|performance-registry-audit|performance-benchmark-audit|deep-performance-audit|decision-cache|decision-freshness-snapshot|research-context|secret-scan|sast-go|sca-go|sbom|git-changes|validation-run> [--root PATH] [--json] [--check] [--output PATH]")
+	fmt.Fprintln(w, "usage: cmdr-dev <doctor|status|next|spec-index|spec-baseline|coverage-graph|obligations|coverage-audit|validate-manifests|complexity-audit|context|architecture-audit|dependency-audit|boundary-edge-audit|check-catalog-audit|impact|validation-plan|security-gate-audit|security-test-audit|deep-security-audit|decision-registry-audit|research-packet-audit|decision-gate-audit|decision-freshness-audit|performance-registry-audit|performance-benchmark-audit|deep-performance-audit|performance-cache-audit|decision-cache|decision-freshness-snapshot|research-context|secret-scan|sast-go|sca-go|sbom|git-changes|validation-run> [--root PATH] [--json] [--check] [--output PATH]")
 }
 
 func fail(err error) {

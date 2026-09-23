@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/sha256"
 	"fmt"
 	"path/filepath"
 	"sort"
@@ -123,13 +124,15 @@ func evaluatePerformanceCache(root string, state CurrentState, graph WorkGraph) 
 		decisionByID[decision.ID] = decision
 	}
 
-	sourceSHA, err := currentSourceCommit(root)
-	if err != nil {
-		return PerformanceCacheAuditSummary{}, nil, err
-	}
 	targets := map[string]PerformanceTarget{}
+	sourceDigests := map[string]string{}
 	for _, target := range registry.Targets {
 		targets[target.ID] = target
+		sourceDigest, err := performanceTargetSourceDigest(root, target)
+		if err != nil {
+			return PerformanceCacheAuditSummary{}, nil, fmt.Errorf("performance target %s source identity: %w", target.ID, err)
+		}
+		sourceDigests[target.ID] = sourceDigest
 	}
 	environments := map[string]PerformanceEnvironment{}
 	for _, environment := range registry.Environments {
@@ -150,12 +153,15 @@ func evaluatePerformanceCache(root string, state CurrentState, graph WorkGraph) 
 		if record.Outcome != "pass" && record.Outcome != "regression" {
 			return summary, nil, fmt.Errorf("performance cache %s has invalid outcome %q", record.ID, record.Outcome)
 		}
-		if !sha256Pattern.MatchString(record.CacheKey) || !sha256Pattern.MatchString(record.EvidenceDigest) {
-			return summary, nil, fmt.Errorf("performance cache %s requires SHA-256 cache/evidence digests", record.ID)
+		if !sha256Pattern.MatchString(record.SourceSHA) ||
+			!sha256Pattern.MatchString(record.CacheKey) ||
+			!sha256Pattern.MatchString(record.EvidenceDigest) {
+			return summary, nil, fmt.Errorf("performance cache %s requires SHA-256 source/cache/evidence digests", record.ID)
 		}
 
+		currentSourceDigest := sourceDigests[record.TargetID]
 		status, signalItems, result, key := evaluatePerformanceCacheRecord(
-			record, sourceSHA, decisionBasisDigest, targets, environments, workloads, decisionByID, reusableDecision,
+			record, currentSourceDigest, decisionBasisDigest, targets, environments, workloads, decisionByID, reusableDecision,
 		)
 		summary.Entries = append(summary.Entries, status)
 		summary.Signals = append(summary.Signals, signalItems...)
@@ -320,4 +326,40 @@ func evaluatePerformanceCacheRecord(
 	sort.Strings(status.Reasons)
 	status.Reusable = record.Outcome == "pass" && len(status.Reasons) == 0
 	return status, signals, record.Result, expectedKey
+}
+
+type performanceSourceEntry struct {
+	Path   string `json:"path"`
+	Digest string `json:"digest"`
+}
+
+func performanceTargetSourceDigest(root string, target PerformanceTarget) (string, error) {
+	paths, err := trackedRepositoryPaths(root)
+	if err != nil {
+		return "", err
+	}
+	var entries []performanceSourceEntry
+	for _, rel := range paths {
+		matched := false
+		for _, pattern := range target.TriggerPaths {
+			if triggerPatternMatches(pattern, rel) {
+				matched = true
+				break
+			}
+		}
+		if !matched {
+			continue
+		}
+		data, err := readRepoFile(root, rel)
+		if err != nil {
+			return "", fmt.Errorf("read benchmark source %s: %w", rel, err)
+		}
+		sum := sha256.Sum256(data)
+		entries = append(entries, performanceSourceEntry{Path: rel, Digest: fmt.Sprintf("%x", sum[:])})
+	}
+	if len(entries) == 0 {
+		return "", fmt.Errorf("trigger_paths matched no Git-tracked source files")
+	}
+	sort.Slice(entries, func(i, j int) bool { return entries[i].Path < entries[j].Path })
+	return digestCanonical(entries), nil
 }

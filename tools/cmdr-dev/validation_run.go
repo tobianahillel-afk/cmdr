@@ -91,7 +91,7 @@ func validationExecutorMode(key string) (string, error) {
 	case "gofmt", "go-vet", "go-unit",
 		"spec-index", "spec-baseline", "coverage-graph", "obligations", "coverage-audit",
 		"validate-manifests", "architecture-audit", "dependency-audit", "boundary-edge-audit",
-		"complexity-audit", "context", "doctor", "next", "check-catalog-audit", "security-gate-audit", "security-test-audit", "deep-security-audit", "decision-registry-audit", "research-packet-audit", "decision-gate-audit", "decision-freshness-audit", "performance-registry-audit", "performance-benchmark-audit", "deep-performance-audit", "secret-scan", "gosec-go", "govulncheck-go", "sbom":
+		"complexity-audit", "context", "doctor", "next", "check-catalog-audit", "security-gate-audit", "security-test-audit", "deep-security-audit", "decision-registry-audit", "research-packet-audit", "decision-gate-audit", "decision-freshness-audit", "performance-registry-audit", "performance-benchmark-audit", "deep-performance-audit", "performance-cache-audit", "secret-scan", "gosec-go", "govulncheck-go", "sbom":
 		return "execute", nil
 	default:
 		return "", fmt.Errorf("unsupported executor_key %q", key)
@@ -324,6 +324,13 @@ func executeValidationCheck(root, tempDir, changesFile, key string, state Curren
 		return fmt.Sprintf("stage=%s runtime_boundaries=%d registered=%d selected=%d executed=%d sensitive=%t status=%s source=%s",
 			summary.Stage, summary.RuntimeBoundaries, summary.RegisteredTargets, summary.SelectedTargets,
 			summary.ExecutedTargets, summary.RiskSensitiveChange, summary.Status, summary.SourceSHA), nil
+	case "performance-cache-audit":
+		summary, err := runPerformanceCacheAudit(root, state, graph)
+		if err != nil {
+			return "", err
+		}
+		return fmt.Sprintf("records=%d reusable=%d invalid=%d regressions=%d status=%s revisit_signals=%d",
+			summary.Records, summary.Reusable, summary.Invalid, summary.Regressions, summary.Status, len(summary.Signals)), nil
 	case "secret-scan":
 		summary, err := runSecretScan(root, changesFile, false)
 		if err != nil {

@@ -160,6 +160,10 @@ func runPerformanceBenchmarkAudit(root, stage, environmentID, changesFile string
 	}
 
 	for _, target := range selected {
+		sourceDigest, err := performanceTargetSourceDigest(root, target)
+		if err != nil {
+			return summary, fmt.Errorf("performance target %s source identity: %w", target.ID, err)
+		}
 		if cached, ok := cachedResults[benchmarkBaselineKey(target.ID, environmentID)]; ok {
 			summary.Reused++
 			summary.Metrics += len(cached.Metrics)
@@ -171,7 +175,7 @@ func runPerformanceBenchmarkAudit(root, stage, environmentID, changesFile string
 		if !ok {
 			return summary, fmt.Errorf("performance target %s has no benchmark workload definition for %s", target.ID, target.WorkloadKey)
 		}
-		result, err := executePerformanceTarget(root, sourceSHA, target, env, definition, baselines)
+		result, err := executePerformanceTarget(root, sourceDigest, target, env, definition, baselines)
 		if err != nil {
 			return summary, err
 		}
