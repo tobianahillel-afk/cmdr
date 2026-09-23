@@ -31,7 +31,7 @@
       "id": "SEC-SECRETS-001",
       "title": "Secret detection",
       "control_family": "secrets",
-      "readiness": "specified",
+      "readiness": "active",
       "stages": [
         "pr"
       ],
@@ -48,8 +48,8 @@
         "finding-report",
         "process-exit"
       ],
-      "implementation_key": "",
-      "activation_condition": "activate after a deterministic secret scanner and redaction contract are verified"
+      "implementation_key": "builtin-secret-scan-v1",
+      "activation_condition": "active: builtin deterministic scanner verified on push 35832984027 and pull_request 35832989117 with redacted zero-finding evidence"
     },
     {
       "id": "SEC-SAST-001",

@@ -46,4 +46,4 @@ E4-SEC-001A defines and validates the gate contracts only. It does **not** claim
 
 ## Deterministic secret scanner
 
-E4-SEC-002A introduces a local source scanner with redacted SHA-256 finding evidence and a path/fingerprint-scoped allowlist. It runs from the adaptive PR/push validation plan and can also perform a full Git-tracked scan. The security gate remains `specified` until push and pull-request evidence for the implementation commit is green.
+E4-SEC-002A introduces a local source scanner with redacted SHA-256 finding evidence and a path/fingerprint-scoped allowlist. It runs from the adaptive PR/push validation plan and can also perform a full Git-tracked scan. The implementation commit passed push and pull-request validation with zero findings, so `SEC-SECRETS-001` is now active under compiled implementation key `builtin-secret-scan-v1`.
