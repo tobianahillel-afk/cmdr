@@ -10,8 +10,8 @@ import (
 )
 
 const (
-	engineEfficiencyPolicyPath    = "engineering/metrics/efficiency-budget-policy.json"
-	engineEfficiencyBaselinePath  = "engineering/metrics/efficiency-baselines.json"
+	engineEfficiencyPolicyPath   = "engineering/metrics/efficiency-budget-policy.json"
+	engineEfficiencyBaselinePath = "engineering/metrics/efficiency-baselines.json"
 )
 
 type EngineEfficiencyFloorRule struct {
@@ -35,13 +35,13 @@ type EngineEfficiencyFloorProvenance struct {
 }
 
 type EngineEfficiencyBudgetPolicy struct {
-	SchemaVersion            int                              `json:"schema_version"`
-	PolicyKind               string                           `json:"policy_kind"`
-	DefaultPolicy            string                           `json:"default_policy"`
-	ProfileMatch             []string                         `json:"profile_match"`
+	SchemaVersion            int                             `json:"schema_version"`
+	PolicyKind               string                          `json:"policy_kind"`
+	DefaultPolicy            string                          `json:"default_policy"`
+	ProfileMatch             []string                        `json:"profile_match"`
 	MandatoryFloorProvenance EngineEfficiencyFloorProvenance `json:"mandatory_floor_provenance"`
-	SafetyFloors             []EngineEfficiencyFloorRule      `json:"safety_floors"`
-	EfficiencyBudgets        []EngineEfficiencyBudgetRule     `json:"efficiency_budgets"`
+	SafetyFloors             []EngineEfficiencyFloorRule     `json:"safety_floors"`
+	EfficiencyBudgets        []EngineEfficiencyBudgetRule    `json:"efficiency_budgets"`
 }
 
 type EngineEfficiencyBaselineMetric struct {
@@ -83,35 +83,35 @@ type EngineEfficiencyBudgetWithheld struct {
 }
 
 type EngineEfficiencyBudgetReport struct {
-	SchemaVersion      int                             `json:"schema_version"`
-	ReportKind         string                          `json:"report_kind"`
-	WorkUnit           string                          `json:"work_unit"`
-	SourceSHA          string                          `json:"source_sha"`
-	SnapshotDigest     string                          `json:"snapshot_digest"`
-	ProfileKey         string                          `json:"profile_key"`
-	BaselineID         string                          `json:"baseline_id,omitempty"`
-	BaselineStatus     string                          `json:"baseline_status"`
-	SafetyStatus       string                          `json:"safety_status"`
-	EfficiencyStatus   string                          `json:"efficiency_status"`
-	BlockingViolations []EngineEfficiencyBudgetFinding `json:"blocking_violations,omitempty"`
-	Advisories         []EngineEfficiencyBudgetFinding `json:"advisories,omitempty"`
+	SchemaVersion      int                              `json:"schema_version"`
+	ReportKind         string                           `json:"report_kind"`
+	WorkUnit           string                           `json:"work_unit"`
+	SourceSHA          string                           `json:"source_sha"`
+	SnapshotDigest     string                           `json:"snapshot_digest"`
+	ProfileKey         string                           `json:"profile_key"`
+	BaselineID         string                           `json:"baseline_id,omitempty"`
+	BaselineStatus     string                           `json:"baseline_status"`
+	SafetyStatus       string                           `json:"safety_status"`
+	EfficiencyStatus   string                           `json:"efficiency_status"`
+	BlockingViolations []EngineEfficiencyBudgetFinding  `json:"blocking_violations,omitempty"`
+	Advisories         []EngineEfficiencyBudgetFinding  `json:"advisories,omitempty"`
 	Withheld           []EngineEfficiencyBudgetWithheld `json:"withheld,omitempty"`
-	Digest             string                          `json:"digest_sha256"`
+	Digest             string                           `json:"digest_sha256"`
 }
 
 type engineEfficiencyBudgetReportBody struct {
-	SchemaVersion      int                             `json:"schema_version"`
-	ReportKind         string                          `json:"report_kind"`
-	WorkUnit           string                          `json:"work_unit"`
-	SourceSHA          string                          `json:"source_sha"`
-	SnapshotDigest     string                          `json:"snapshot_digest"`
-	ProfileKey         string                          `json:"profile_key"`
-	BaselineID         string                          `json:"baseline_id,omitempty"`
-	BaselineStatus     string                          `json:"baseline_status"`
-	SafetyStatus       string                          `json:"safety_status"`
-	EfficiencyStatus   string                          `json:"efficiency_status"`
-	BlockingViolations []EngineEfficiencyBudgetFinding `json:"blocking_violations,omitempty"`
-	Advisories         []EngineEfficiencyBudgetFinding `json:"advisories,omitempty"`
+	SchemaVersion      int                              `json:"schema_version"`
+	ReportKind         string                           `json:"report_kind"`
+	WorkUnit           string                           `json:"work_unit"`
+	SourceSHA          string                           `json:"source_sha"`
+	SnapshotDigest     string                           `json:"snapshot_digest"`
+	ProfileKey         string                           `json:"profile_key"`
+	BaselineID         string                           `json:"baseline_id,omitempty"`
+	BaselineStatus     string                           `json:"baseline_status"`
+	SafetyStatus       string                           `json:"safety_status"`
+	EfficiencyStatus   string                           `json:"efficiency_status"`
+	BlockingViolations []EngineEfficiencyBudgetFinding  `json:"blocking_violations,omitempty"`
+	Advisories         []EngineEfficiencyBudgetFinding  `json:"advisories,omitempty"`
 	Withheld           []EngineEfficiencyBudgetWithheld `json:"withheld,omitempty"`
 }
 
@@ -280,14 +280,14 @@ func evaluateEngineEfficiencyBudget(
 	sort.Strings(risks)
 	profileKey := efficiencyProfileKey(plan.Tier, risks, int(mandatoryValue))
 	body := engineEfficiencyBudgetReportBody{
-		SchemaVersion: 1,
-		ReportKind: "engineering-engine-efficiency-budget",
-		WorkUnit: snapshot.WorkUnit,
-		SourceSHA: snapshot.SourceSHA,
-		SnapshotDigest: snapshot.Digest,
-		ProfileKey: profileKey,
-		BaselineStatus: "unavailable",
-		SafetyStatus: "pass",
+		SchemaVersion:    1,
+		ReportKind:       "engineering-engine-efficiency-budget",
+		WorkUnit:         snapshot.WorkUnit,
+		SourceSHA:        snapshot.SourceSHA,
+		SnapshotDigest:   snapshot.Digest,
+		ProfileKey:       profileKey,
+		BaselineStatus:   "unavailable",
+		SafetyStatus:     "pass",
 		EfficiencyStatus: "not-enforced-no-baseline",
 	}
 	for _, floor := range policy.SafetyFloors {
