@@ -41,7 +41,7 @@ func deepRuntimeArchitecture() ArchitectureRegistry {
 func deepRuntimePolicy() RuntimeSecurityPolicy {
 	return baseRuntimePolicy(RuntimeSecurityScope{
 		BoundaryID: "api", Owner: "runtime-security",
-		SecurityCriticalPaths: []string{"services/api/security/**"},
+		SecurityCriticalPaths:  []string{"services/api/security/**"},
 		AuthorizationRationale: "synthetic test", TenantIsolationRationale: "synthetic test",
 	})
 }
