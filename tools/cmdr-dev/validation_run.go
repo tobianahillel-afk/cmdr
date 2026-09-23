@@ -17,14 +17,14 @@ type ExecutedCheck struct {
 }
 
 type ValidationExecutionSummary struct {
-	WorkUnit           string                    `json:"work_unit"`
-	Tier               string                    `json:"tier"`
-	SelectedChecks     int                       `json:"selected_checks"`
-	ExecutedChecks     int                       `json:"executed_checks"`
-	PreflightSatisfied int                       `json:"preflight_satisfied"`
-	Checks             []ExecutedCheck           `json:"checks"`
-	Metrics            *EngineMetricSnapshot     `json:"metrics,omitempty"`
-	Optimizations      *EngineOptimizationReport `json:"optimizations,omitempty"`
+	WorkUnit           string                        `json:"work_unit"`
+	Tier               string                        `json:"tier"`
+	SelectedChecks     int                           `json:"selected_checks"`
+	ExecutedChecks     int                           `json:"executed_checks"`
+	PreflightSatisfied int                           `json:"preflight_satisfied"`
+	Checks             []ExecutedCheck               `json:"checks"`
+	Metrics            *EngineMetricSnapshot         `json:"metrics,omitempty"`
+	Optimizations      *EngineOptimizationReport     `json:"optimizations,omitempty"`
 	EfficiencyBudgets  *EngineEfficiencyBudgetReport `json:"efficiency_budgets,omitempty"`
 }
 
