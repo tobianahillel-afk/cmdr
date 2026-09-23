@@ -381,6 +381,23 @@ func parseGovulncheckStream(data []byte) (SCASummary, error) {
 	return summary, nil
 }
 
+func formatSASTSafeFindings(summary SASTSummary) string {
+	if len(summary.Findings) == 0 {
+		return "[]"
+	}
+	var b strings.Builder
+	b.WriteByte('[')
+	for i, finding := range summary.Findings {
+		if i > 0 {
+			b.WriteByte(',')
+		}
+		fmt.Fprintf(&b, "%s/%s/%s:%d/%s",
+			finding.RuleID, finding.Severity, finding.Path, finding.Line, finding.CWE)
+	}
+	b.WriteByte(']')
+	return b.String()
+}
+
 func normalizeSecurityToolPath(root, moduleRoot, reported string) (string, error) {
 	reported = strings.TrimSpace(reported)
 	if reported == "" {
