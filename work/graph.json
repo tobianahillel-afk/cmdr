@@ -313,7 +313,7 @@
       "id": "E4-SEC-001B",
       "title": "Implement source and supply-chain security controls",
       "type": "lot",
-      "status": "VERIFIED",
+      "status": "DECOMPOSED",
       "depends_on": [
         "E4-SEC-001A"
       ],
@@ -363,7 +363,7 @@
       "id": "E4-SEC-002B",
       "title": "Implement SAST and dependency vulnerability controls",
       "type": "sublot",
-      "status": "VERIFIED",
+      "status": "DECOMPOSED",
       "depends_on": [
         "E4-SEC-002A"
       ],
