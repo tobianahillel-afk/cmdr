@@ -153,8 +153,14 @@ func scanRuntimeBoundary(root, boundaryID, rootPattern string) ([]RuntimeDepende
 	}
 	var deps []RuntimeDependency
 	var unsupported []UnsupportedDependencyManifest
+	// #nosec G703 -- scanRoot is repository-confined by runtimeScanRoot; symlink entries are rejected below.
 	err = filepath.WalkDir(scanRoot, func(path string, entry os.DirEntry, err error) error {
 		if err != nil {
+			return err
+		}
+		if entry.Type()&os.ModeSymlink != 0 {
+			return fmt.Errorf("runtime boundary contains symlink: %s", path)
+		}
 			return err
 		}
 		if entry.IsDir() {
