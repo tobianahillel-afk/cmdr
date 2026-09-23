@@ -15,53 +15,53 @@ const (
 )
 
 type RuntimeSecurityScope struct {
-	BoundaryID                  string   `json:"boundary_id"`
-	Owner                       string   `json:"owner"`
-	SecurityCriticalPaths       []string `json:"security_critical_paths"`
-	AuthorizationRequired       bool     `json:"authorization_required"`
-	AuthorizationRationale      string   `json:"authorization_rationale"`
-	TenantIsolationRequired     bool     `json:"tenant_isolation_required"`
-	TenantIsolationRationale    string   `json:"tenant_isolation_rationale"`
+	BoundaryID               string   `json:"boundary_id"`
+	Owner                    string   `json:"owner"`
+	SecurityCriticalPaths    []string `json:"security_critical_paths"`
+	AuthorizationRequired    bool     `json:"authorization_required"`
+	AuthorizationRationale   string   `json:"authorization_rationale"`
+	TenantIsolationRequired  bool     `json:"tenant_isolation_required"`
+	TenantIsolationRationale string   `json:"tenant_isolation_rationale"`
 }
 
 type RuntimeSecurityPolicy struct {
-	SchemaVersion                         int                    `json:"schema_version"`
-	DefaultPolicy                         string                 `json:"default_policy"`
-	GlobalCoverageFloorPercent            float64                `json:"global_coverage_floor_percent"`
-	ChangedSecurityCriticalCoverageFloor  float64                `json:"changed_security_critical_coverage_floor_percent"`
-	AuthorizationGateID                   string                 `json:"authorization_gate_id"`
-	TenantIsolationGateID                 string                 `json:"tenant_isolation_gate_id"`
-	Scopes                                []RuntimeSecurityScope `json:"scopes"`
+	SchemaVersion                        int                    `json:"schema_version"`
+	DefaultPolicy                        string                 `json:"default_policy"`
+	GlobalCoverageFloorPercent           float64                `json:"global_coverage_floor_percent"`
+	ChangedSecurityCriticalCoverageFloor float64                `json:"changed_security_critical_coverage_floor_percent"`
+	AuthorizationGateID                  string                 `json:"authorization_gate_id"`
+	TenantIsolationGateID                string                 `json:"tenant_isolation_gate_id"`
+	Scopes                               []RuntimeSecurityScope `json:"scopes"`
 }
 
 type RuntimeSecurityEvidenceScope struct {
-	BoundaryID                       string   `json:"boundary_id"`
-	ChangedSecurityCritical          bool     `json:"changed_security_critical"`
-	ChangedSecurityCriticalPercent   *float64 `json:"changed_security_critical_coverage_percent"`
-	AuthorizationNegativePassed      *bool    `json:"authorization_negative_passed"`
-	TenantIsolationNegativePassed    *bool    `json:"tenant_isolation_negative_passed"`
+	BoundaryID                     string   `json:"boundary_id"`
+	ChangedSecurityCritical        bool     `json:"changed_security_critical"`
+	ChangedSecurityCriticalPercent *float64 `json:"changed_security_critical_coverage_percent"`
+	AuthorizationNegativePassed    *bool    `json:"authorization_negative_passed"`
+	TenantIsolationNegativePassed  *bool    `json:"tenant_isolation_negative_passed"`
 }
 
 type RuntimeSecurityEvidence struct {
-	SchemaVersion          int                            `json:"schema_version"`
-	Status                 string                         `json:"status"`
-	Reason                 string                         `json:"reason"`
-	SourceCommit           string                         `json:"source_commit"`
-	GlobalCoveragePercent  *float64                       `json:"global_coverage_percent"`
-	Scopes                 []RuntimeSecurityEvidenceScope `json:"scopes"`
+	SchemaVersion         int                            `json:"schema_version"`
+	Status                string                         `json:"status"`
+	Reason                string                         `json:"reason"`
+	SourceCommit          string                         `json:"source_commit"`
+	GlobalCoveragePercent *float64                       `json:"global_coverage_percent"`
+	Scopes                []RuntimeSecurityEvidenceScope `json:"scopes"`
 }
 
 type SecurityTestAuditSummary struct {
-	RuntimeBoundaries               int      `json:"runtime_boundaries"`
-	RegisteredScopes                int      `json:"registered_scopes"`
-	AuthorizationRequired           int      `json:"authorization_required"`
-	TenantIsolationRequired         int      `json:"tenant_isolation_required"`
-	ChangedSecurityCriticalScopes   int      `json:"changed_security_critical_scopes"`
-	CoverageStatus                  string   `json:"coverage_status"`
-	GlobalCoveragePercent           *float64 `json:"global_coverage_percent,omitempty"`
-	GlobalCoverageFloorPercent      float64  `json:"global_coverage_floor_percent"`
-	ChangedCoverageFloorPercent     float64  `json:"changed_security_critical_coverage_floor_percent"`
-	NotApplicableReason             string   `json:"not_applicable_reason,omitempty"`
+	RuntimeBoundaries             int      `json:"runtime_boundaries"`
+	RegisteredScopes              int      `json:"registered_scopes"`
+	AuthorizationRequired         int      `json:"authorization_required"`
+	TenantIsolationRequired       int      `json:"tenant_isolation_required"`
+	ChangedSecurityCriticalScopes int      `json:"changed_security_critical_scopes"`
+	CoverageStatus                string   `json:"coverage_status"`
+	GlobalCoveragePercent         *float64 `json:"global_coverage_percent,omitempty"`
+	GlobalCoverageFloorPercent    float64  `json:"global_coverage_floor_percent"`
+	ChangedCoverageFloorPercent   float64  `json:"changed_security_critical_coverage_floor_percent"`
+	NotApplicableReason           string   `json:"not_applicable_reason,omitempty"`
 }
 
 func runSecurityTestAudit(root, changesFile string) (SecurityTestAuditSummary, error) {
