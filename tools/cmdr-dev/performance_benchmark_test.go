@@ -115,7 +115,7 @@ func TestBenchmarkResultIdentityIsDigestBound(t *testing.T) {
 		Key: "cmdr-dev-metadata-audit-v1", HandlerKey: "builtin-cmdr-dev-metadata-audit-v1",
 		WarmupIterations: 1, SampleCount: 3, MaxSampleDurationMS: 1000,
 	}
-	result := BenchmarkResult{
+	result := PerformanceBenchmarkResult{
 		TargetID: target.ID, EnvironmentID: env.ID,
 		SourceSHA: strings.Repeat("a", 40), Toolchain: "go" + engineeringGoVersion,
 		TargetDigest: digestCanonical(target), EnvironmentDigest: digestCanonical(env),
