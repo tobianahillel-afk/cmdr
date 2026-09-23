@@ -46,6 +46,7 @@
     "tools/cmdr-dev/**",
     "engineering/security/**",
     "engineering/testing/**",
+    ".github/workflows/**",
     "work/lots/E4-SEC-002B*/**",
     "engineering/state/**",
     "work/graph.json"
@@ -88,7 +89,7 @@
   ],
   "complexity": {
     "primary_components": 2,
-    "estimated_files_changed": 12,
+    "estimated_files_changed": 13,
     "estimated_net_loc": 520,
     "production_files": 8,
     "net_production_loc": 390,
