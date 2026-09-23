@@ -122,9 +122,12 @@ func executeValidationCheck(root, tempDir, changesFile, key string, state Curren
 		cmd.Stdout = &stdout
 		cmd.Stderr = &stderr
 		if err := cmd.Run(); err != nil {
+			if exitErr, ok := err.(*exec.ExitError); ok && exitErr.ExitCode() == 1 && len(bytes.TrimSpace(stdout.Bytes())) > 0 {
+				return "", fmt.Errorf("gofmt diff is non-empty:\n%s", stdout.String())
+			}
 			diagnostic := strings.TrimSpace(stderr.String())
 			if diagnostic == "" {
-				diagnostic = "no formatter diagnostic"
+				diagnostic = err.Error()
 			}
 			return "", fmt.Errorf("gofmt execution failed: %s", diagnostic)
 		}
