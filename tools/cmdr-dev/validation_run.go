@@ -118,12 +118,18 @@ func executeValidationCheck(root, tempDir, changesFile, key string, state Curren
 	case "gofmt":
 		cmd := exec.Command("gofmt", "-d", ".")
 		cmd.Dir = filepath.Join(root, "tools", "cmdr-dev")
-		out, err := cmd.Output()
-		if err != nil {
-			return "", err
+		var stdout, stderr bytes.Buffer
+		cmd.Stdout = &stdout
+		cmd.Stderr = &stderr
+		if err := cmd.Run(); err != nil {
+			diagnostic := strings.TrimSpace(stderr.String())
+			if diagnostic == "" {
+				diagnostic = "no formatter diagnostic"
+			}
+			return "", fmt.Errorf("gofmt execution failed: %s", diagnostic)
 		}
-		if len(bytes.TrimSpace(out)) > 0 {
-			return "", fmt.Errorf("gofmt diff is non-empty:\n%s", string(out))
+		if len(bytes.TrimSpace(stdout.Bytes())) > 0 {
+			return "", fmt.Errorf("gofmt diff is non-empty:\n%s", stdout.String())
 		}
 		return "gofmt produced no diff", nil
 	case "go-vet":
