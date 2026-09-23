@@ -49,12 +49,12 @@ type SASTFinding struct {
 }
 
 type SASTSummary struct {
-	Tool         string          `json:"tool"`
-	Version      string          `json:"version"`
-	ScanRoot     string          `json:"scan_root"`
-	FindingCount int             `json:"findings"`
-	BySeverity   map[string]int  `json:"by_severity"`
-	Findings     []SASTFinding   `json:"finding_items,omitempty"`
+	Tool         string         `json:"tool"`
+	Version      string         `json:"version"`
+	ScanRoot     string         `json:"scan_root"`
+	FindingCount int            `json:"findings"`
+	BySeverity   map[string]int `json:"by_severity"`
+	Findings     []SASTFinding  `json:"finding_items,omitempty"`
 }
 
 type SCAFinding struct {
@@ -283,9 +283,9 @@ func parseGovulncheckStream(data []byte) (SCASummary, error) {
 	summary := SCASummary{Tool: "govulncheck", Version: govulncheckVersion}
 	moduleVersions := map[string]string{}
 	type rawFinding struct {
-		osv, fixed string
+		osv, fixed                               string
 		module, version, pkg, function, receiver string
-		actionable bool
+		actionable                               bool
 	}
 	var raw []rawFinding
 	dec := json.NewDecoder(bytes.NewReader(data))
