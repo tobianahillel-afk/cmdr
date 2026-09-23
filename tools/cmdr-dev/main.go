@@ -121,6 +121,11 @@ func main() {
 	agentIDFlag := fs.String("agent-id", "", "opaque non-secret agent id")
 	leaseBaseHeadFlag := fs.String("lease-base-head", "", "full Git commit id used as lease base")
 	leaseDurationFlag := fs.Int("lease-duration-minutes", 0, "lease duration; 0 uses policy default")
+	ciHeadFlag := fs.String("ci-head", "", "full commit SHA for observed CI run")
+	ciRunIDFlag := fs.String("ci-run-id", "", "positive source CI run id")
+	ciEventFlag := fs.String("ci-event", "", "source CI event: push or pull_request")
+	ciConclusionFlag := fs.String("ci-conclusion", "", "source CI conclusion")
+	ciObservedAtFlag := fs.String("ci-observed-at", "", "source CI observation time RFC3339 UTC")
 	changesFileFlag := fs.String("changes-file", "", "newline-delimited repository-relative changed paths")
 	baseCommitFlag := fs.String("base-commit", "", "full Git base commit id")
 	headCommitFlag := fs.String("head-commit", "", "full Git head commit id")
@@ -471,6 +476,30 @@ func main() {
 			fail(err)
 		}
 		printValue(checkpoint, *jsonFlag)
+	case "recovery-reconcile":
+		if err := validateState(root, state, graph); err != nil {
+			fail(err)
+		}
+		ci, err := ciObservationFromFlags(*ciHeadFlag, *ciRunIDFlag, *ciEventFlag, *ciConclusionFlag, *ciObservedAtFlag)
+		if err != nil {
+			fail(err)
+		}
+		result, err := runRecoveryReconciliation(root, RecoveryReconcileRequest{
+			WorkUnit: *workUnitFlag, AsOf: *asOfTimeFlag, CI: ci,
+		}, state, graph)
+		printValue(result, *jsonFlag)
+		if err != nil {
+			fail(err)
+		}
+	case "recovery-reconcile-audit":
+		if err := validateState(root, state, graph); err != nil {
+			fail(err)
+		}
+		result, err := runRecoveryReconciliationAudit(root, state, graph)
+		printValue(result, *jsonFlag)
+		if err != nil {
+			fail(err)
+		}
 	case "decision-cache":
 		if err := validateState(root, state, graph); err != nil {
 			fail(err)
@@ -1018,6 +1047,16 @@ func printValue(v any, asJSON bool) {
 		fmt.Printf("work unit: %s\n", x.WorkUnit)
 		fmt.Printf("events: %d\n", x.Events)
 		fmt.Printf("head: %s\n", x.HeadSHA)
+	case RecoveryReconciliation:
+		fmt.Printf("work unit: %s\n", x.WorkUnit)
+		fmt.Printf("current head: %s\n", x.CurrentHead)
+		fmt.Printf("checkpoint: %s (%s)\n", x.Checkpoint, x.CheckpointHead)
+		fmt.Printf("git relation: %s\n", x.GitRelation)
+		fmt.Printf("lease status: %s\n", x.LeaseStatus)
+		fmt.Printf("ci status: %s\n", x.CIStatus)
+		fmt.Printf("outcome: %s\n", x.Outcome)
+		fmt.Printf("next action: %s\n", x.NextAction)
+		fmt.Printf("reasons: %v\n", x.Reasons)
 	case SecretScanSummary:
 		fmt.Printf("mode: %s\n", x.Mode)
 		fmt.Printf("candidate paths: %d\n", x.CandidatePaths)
@@ -1063,7 +1102,7 @@ func printValue(v any, asJSON bool) {
 }
 
 func usage(w io.Writer) {
-	fmt.Fprintln(w, "usage: cmdr-dev <doctor|status|next|spec-index|spec-baseline|coverage-graph|obligations|coverage-audit|validate-manifests|complexity-audit|context|architecture-audit|dependency-audit|boundary-edge-audit|check-catalog-audit|impact|validation-plan|security-gate-audit|security-test-audit|deep-security-audit|decision-registry-audit|research-packet-audit|decision-gate-audit|decision-freshness-audit|performance-registry-audit|performance-benchmark-audit|deep-performance-audit|performance-cache-audit|lease-audit|lease-evaluate|recovery-journal-audit|resume-checkpoint|decision-cache|decision-freshness-snapshot|research-context|secret-scan|sast-go|sca-go|sbom|git-changes|validation-run> [--root PATH] [--json] [--check] [--output PATH]")
+	fmt.Fprintln(w, "usage: cmdr-dev <doctor|status|next|spec-index|spec-baseline|coverage-graph|obligations|coverage-audit|validate-manifests|complexity-audit|context|architecture-audit|dependency-audit|boundary-edge-audit|check-catalog-audit|impact|validation-plan|security-gate-audit|security-test-audit|deep-security-audit|decision-registry-audit|research-packet-audit|decision-gate-audit|decision-freshness-audit|performance-registry-audit|performance-benchmark-audit|deep-performance-audit|performance-cache-audit|lease-audit|lease-evaluate|recovery-journal-audit|resume-checkpoint|recovery-reconcile|recovery-reconcile-audit|decision-cache|decision-freshness-snapshot|research-context|secret-scan|sast-go|sca-go|sbom|git-changes|validation-run> [--root PATH] [--json] [--check] [--output PATH]")
 }
 
 func fail(err error) {

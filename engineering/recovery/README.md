@@ -20,3 +20,12 @@ The execution journal is append-only by invariant and protected by a SHA-256 has
 The journal is initially empty. Events must occur inside the bound lease interval. Sequence gaps, event mutation, chain rewrites, unknown work units or mismatched lease ownership fail closed.
 
 `resume-checkpoint` is derived data: it compiles the last valid state for one work unit and includes at most five recent event IDs. It never overrides Git or CI reality and is intentionally not persisted as a second source of truth.
+
+
+## Reconciliation
+
+`recovery-reconcile` compares a derived work-unit checkpoint with the local Git HEAD and the current lease registry. It never calls GitHub or another network service.
+
+CI evidence is optional input. When supplied, it must include the exact commit SHA, positive run ID, push/pull_request event, supported conclusion and canonical UTC observation time as one complete observation. A journal event that says `validation-passed` without matching successful CI evidence is conservatively classified `revalidate`.
+
+Outcomes are `resume`, `revalidate`, `stale-claim` or `conflict`. Diverged Git history and missing lease bindings fail closed as conflicts. An expired/released lease requires reacquisition before mutation. A checkpoint head that is merely an ancestor of the current HEAD requires revalidation instead of silently trusting old evidence.

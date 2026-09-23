@@ -860,6 +860,29 @@
         "CHK-WORK-LEASES"
       ],
       "evidence_kind": "audit-report"
+    },
+    {
+      "id": "CHK-RECOVERY-RECONCILE",
+      "title": "Interrupted-work Git and CI reconciliation audit",
+      "executor_key": "recovery-reconcile-audit",
+      "risk_domains": [
+        "work-governance",
+        "repository-health"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": true,
+      "trigger_paths": [
+        "engineering/recovery/**",
+        "engineering/state/**",
+        "work/**",
+        "tools/cmdr-dev/recovery_reconcile.go",
+        "tools/cmdr-dev/recovery_reconcile_test.go"
+      ],
+      "prerequisites": [
+        "CHK-RECOVERY-JOURNAL"
+      ],
+      "evidence_kind": "reconciliation"
     }
   ]
 }

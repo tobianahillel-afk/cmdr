@@ -36,9 +36,10 @@
     "active work graph and strict manifests"
   ],
   "outputs": [
-    "reconciliation state machine",
-    "resume/revalidate/conflict outcomes",
-    "source-backed reconciliation evidence"
+    "deterministic Git/lease/CI reconciliation state machine",
+    "resume/revalidate/stale-claim/conflict outcomes",
+    "explicit validated CI observation contract",
+    "adaptive CHK-RECOVERY-RECONCILE safety gate"
   ],
   "invariants": [
     "Product Spec remains read-only",
@@ -57,7 +58,12 @@
     "go test ./...",
     "cmdr-dev validate-manifests succeeds",
     "cmdr-dev complexity-audit succeeds",
-    "adaptive engineering-kernel remains green"
+    "adaptive engineering-kernel remains green",
+    "tests require revalidation when validation-passed lacks CI evidence",
+    "tests allow resume only with matching successful CI evidence",
+    "tests revalidate ancestor checkpoints after repository advance",
+    "tests fail closed on divergent history",
+    "tests require reacquisition for expired leases"
   ],
   "performance_budget": {
     "applicable": true,
@@ -81,7 +87,8 @@
   "required_checks": [
     "adaptive engineering-kernel",
     "cmdr-dev validate-manifests",
-    "cmdr-dev complexity-audit"
+    "cmdr-dev complexity-audit",
+    "cmdr-dev recovery-reconcile-audit"
   ],
   "definition_of_ready": [
     "dependencies are VERIFIED",
@@ -96,10 +103,10 @@
   ],
   "complexity": {
     "primary_components": 1,
-    "estimated_files_changed": 7,
-    "estimated_net_loc": 480,
+    "estimated_files_changed": 9,
+    "estimated_net_loc": 560,
     "production_files": 2,
-    "net_production_loc": 350,
+    "net_production_loc": 410,
     "bounded_contexts": 1,
     "independent_migrations": 0,
     "distinct_security_models": 1,
