@@ -91,7 +91,7 @@ func validationExecutorMode(key string) (string, error) {
 	case "gofmt", "go-vet", "go-unit",
 		"spec-index", "spec-baseline", "coverage-graph", "obligations", "coverage-audit",
 		"validate-manifests", "architecture-audit", "dependency-audit", "boundary-edge-audit",
-		"complexity-audit", "context", "doctor", "next", "check-catalog-audit", "security-gate-audit", "security-test-audit", "secret-scan", "gosec-go", "govulncheck-go", "sbom":
+		"complexity-audit", "context", "doctor", "next", "check-catalog-audit", "security-gate-audit", "security-test-audit", "deep-security-audit", "secret-scan", "gosec-go", "govulncheck-go", "sbom":
 		return "execute", nil
 	default:
 		return "", fmt.Errorf("unsupported executor_key %q", key)
@@ -262,6 +262,14 @@ func executeValidationCheck(root, tempDir, changesFile, key string, state Curren
 			summary.RuntimeBoundaries, summary.RegisteredScopes, summary.CoverageStatus,
 			summary.GlobalCoverageFloorPercent, summary.ChangedCoverageFloorPercent,
 			summary.AuthorizationRequired, summary.TenantIsolationRequired), nil
+	case "deep-security-audit":
+		summary, err := runDeepSecurityAudit(root, "pr", changesFile, "")
+		if err != nil {
+			return "", err
+		}
+		return fmt.Sprintf("stage=%s sensitive=%t runtime_boundaries=%d targets=%d selected=%d deferred=%d evidence=%d",
+			summary.Stage, summary.SecuritySensitiveChange, summary.RuntimeBoundaries,
+			summary.RegisteredTargets, summary.SelectedTargets, summary.DeferredGates, summary.ValidatedEvidence), nil
 	case "secret-scan":
 		summary, err := runSecretScan(root, changesFile, false)
 		if err != nil {

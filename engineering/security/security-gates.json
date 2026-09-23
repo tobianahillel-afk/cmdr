@@ -236,6 +236,7 @@
       "control_family": "fuzz",
       "readiness": "deferred-runtime",
       "stages": [
+        "pr",
         "nightly",
         "on-demand"
       ],
@@ -260,6 +261,7 @@
       "control_family": "dast",
       "readiness": "deferred-runtime",
       "stages": [
+        "pr",
         "nightly",
         "release",
         "on-demand"
@@ -280,11 +282,13 @@
     },
     {
       "id": "SEC-RACE-001",
-      "title": "Race and concurrency security testing",
+      "title": "Race, concurrency and sanitizer security testing",
       "control_family": "race-concurrency",
       "readiness": "deferred-runtime",
       "stages": [
+        "pr",
         "nightly",
+        "release",
         "on-demand"
       ],
       "blocking_policy": "conditional-blocking",
@@ -300,7 +304,7 @@
         "test-result"
       ],
       "implementation_key": "",
-      "activation_condition": "requires concurrent runtime components or language-specific race tooling"
+      "activation_condition": "requires concrete concurrent/native runtime targets and language-specific race or sanitizer tooling"
     },
     {
       "id": "SEC-SUPPLY-001",

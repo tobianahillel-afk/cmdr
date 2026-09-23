@@ -116,6 +116,8 @@ func main() {
 	baseCommitFlag := fs.String("base-commit", "", "full Git base commit id")
 	headCommitFlag := fs.String("head-commit", "", "full Git head commit id")
 	fullScanFlag := fs.Bool("full-scan", false, "scan all Git-tracked repository files")
+	stageFlag := fs.String("stage", "pr", "security execution stage: pr, nightly, release, or on-demand")
+	requestedGateFlag := fs.String("requested-gate", "", "optional exact deep security gate id for on-demand execution")
 	if err := fs.Parse(os.Args[2:]); err != nil {
 		fail(err)
 	}
@@ -329,6 +331,15 @@ func main() {
 			fail(err)
 		}
 		summary, err := runSecurityTestAudit(root, *changesFileFlag)
+		if err != nil {
+			fail(err)
+		}
+		printValue(summary, *jsonFlag)
+	case "deep-security-audit":
+		if err := validateState(root, state, graph); err != nil {
+			fail(err)
+		}
+		summary, err := runDeepSecurityAudit(root, *stageFlag, *changesFileFlag, *requestedGateFlag)
 		if err != nil {
 			fail(err)
 		}
@@ -795,6 +806,14 @@ func printValue(v any, asJSON bool) {
 		fmt.Printf("coverage status: %s\n", x.CoverageStatus)
 		fmt.Printf("global coverage floor: %.2f\n", x.GlobalCoverageFloorPercent)
 		fmt.Printf("changed security-critical coverage floor: %.2f\n", x.ChangedCoverageFloorPercent)
+	case DeepSecurityAuditSummary:
+		fmt.Printf("stage: %s\n", x.Stage)
+		fmt.Printf("runtime boundaries: %d\n", x.RuntimeBoundaries)
+		fmt.Printf("security-sensitive change: %t\n", x.SecuritySensitiveChange)
+		fmt.Printf("registered targets: %d\n", x.RegisteredTargets)
+		fmt.Printf("selected targets: %d\n", x.SelectedTargets)
+		fmt.Printf("deferred gates: %d\n", x.DeferredGates)
+		fmt.Printf("validated evidence: %d\n", x.ValidatedEvidence)
 	case SecretScanSummary:
 		fmt.Printf("mode: %s\n", x.Mode)
 		fmt.Printf("candidate paths: %d\n", x.CandidatePaths)
@@ -840,7 +859,7 @@ func printValue(v any, asJSON bool) {
 }
 
 func usage(w io.Writer) {
-	fmt.Fprintln(w, "usage: cmdr-dev <doctor|status|next|spec-index|spec-baseline|coverage-graph|obligations|coverage-audit|validate-manifests|complexity-audit|context|architecture-audit|dependency-audit|boundary-edge-audit|check-catalog-audit|impact|validation-plan|security-gate-audit|security-test-audit|secret-scan|sast-go|sca-go|sbom|git-changes|validation-run> [--root PATH] [--json] [--check] [--output PATH]")
+	fmt.Fprintln(w, "usage: cmdr-dev <doctor|status|next|spec-index|spec-baseline|coverage-graph|obligations|coverage-audit|validate-manifests|complexity-audit|context|architecture-audit|dependency-audit|boundary-edge-audit|check-catalog-audit|impact|validation-plan|security-gate-audit|security-test-audit|deep-security-audit|secret-scan|sast-go|sca-go|sbom|git-changes|validation-run> [--root PATH] [--json] [--check] [--output PATH]")
 }
 
 func fail(err error) {

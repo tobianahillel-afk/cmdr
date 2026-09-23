@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "default_policy": "deny-unregistered-deep-security-target",
+  "evidence_directory": "engineering/testing/deep-security-evidence",
+  "control_plane_paths": [
+    "engineering/security/**",
+    "engineering/architecture/**",
+    ".github/workflows/**"
+  ],
+  "gates": [
+    {
+      "gate_id": "SEC-FUZZ-001",
+      "target_kinds": ["fuzz"],
+      "pr_mode": "security-sensitive-only"
+    },
+    {
+      "gate_id": "SEC-DAST-001",
+      "target_kinds": ["dast"],
+      "pr_mode": "security-sensitive-only"
+    },
+    {
+      "gate_id": "SEC-RACE-001",
+      "target_kinds": ["race", "sanitizer"],
+      "pr_mode": "security-sensitive-only"
+    }
+  ],
+  "targets": []
+}

@@ -588,6 +588,31 @@
         "CHK-ARCHITECTURE"
       ],
       "evidence_kind": "audit-report"
+    },
+    {
+      "id": "CHK-DEEP-SECURITY",
+      "title": "Risk-adaptive deep security schedule and evidence audit",
+      "executor_key": "deep-security-audit",
+      "risk_domains": [
+        "security",
+        "unit-correctness",
+        "work-governance"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": true,
+      "trigger_paths": [
+        "engineering/security/**",
+        "engineering/architecture/**",
+        ".github/workflows/**",
+        "tools/cmdr-dev/deep_security.go",
+        "tools/cmdr-dev/deep_security_test.go"
+      ],
+      "prerequisites": [
+        "CHK-SECURITY-TESTS",
+        "CHK-SECURITY-GATES"
+      ],
+      "evidence_kind": "audit-report"
     }
   ]
 }

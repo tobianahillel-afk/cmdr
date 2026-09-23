@@ -82,6 +82,7 @@ var knownExecutorKeys = map[string]bool{
 	"validation-run":      true,
 	"security-gate-audit": true,
 	"security-test-audit": true,
+	"deep-security-audit": true,
 	"secret-scan":         true,
 	"gosec-go":            true,
 	"govulncheck-go":      true,
