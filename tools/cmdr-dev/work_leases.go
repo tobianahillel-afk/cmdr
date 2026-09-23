@@ -15,14 +15,14 @@ const (
 )
 
 type WorkLeasePolicy struct {
-	SchemaVersion            int      `json:"schema_version"`
-	RegistryKind             string   `json:"registry_kind"`
-	DefaultPolicy            string   `json:"default_policy"`
-	DefaultLeaseMinutes      int      `json:"default_lease_minutes"`
-	MinLeaseMinutes          int      `json:"min_lease_minutes"`
-	MaxLeaseMinutes          int      `json:"max_lease_minutes"`
-	MaxActiveClaimsPerAgent  int      `json:"max_active_claims_per_agent"`
-	AcquireStatuses          []string `json:"acquire_statuses"`
+	SchemaVersion           int      `json:"schema_version"`
+	RegistryKind            string   `json:"registry_kind"`
+	DefaultPolicy           string   `json:"default_policy"`
+	DefaultLeaseMinutes     int      `json:"default_lease_minutes"`
+	MinLeaseMinutes         int      `json:"min_lease_minutes"`
+	MaxLeaseMinutes         int      `json:"max_lease_minutes"`
+	MaxActiveClaimsPerAgent int      `json:"max_active_claims_per_agent"`
+	AcquireStatuses         []string `json:"acquire_statuses"`
 }
 
 type WorkLease struct {
