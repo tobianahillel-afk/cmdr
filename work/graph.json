@@ -363,13 +363,13 @@
       "id": "E4-SEC-002B",
       "title": "Implement SAST and dependency vulnerability controls",
       "type": "sublot",
-      "status": "VERIFIED",
+      "status": "DECOMPOSED",
       "depends_on": [
         "E4-SEC-002A"
       ],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": [
-        "E4-SEC-002C"
+        "E4-SEC-002B-OUTPUT"
       ]
     },
     {
@@ -378,7 +378,7 @@
       "type": "sublot",
       "status": "READY",
       "depends_on": [
-        "E4-SEC-002B"
+        "E4-SEC-002B-ACTIVATE"
       ],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": [
