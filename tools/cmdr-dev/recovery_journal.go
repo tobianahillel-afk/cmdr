@@ -69,18 +69,18 @@ type RecoveryJournalAuditSummary struct {
 }
 
 type ResumeCheckpoint struct {
-	Status         string   `json:"status"`
-	WorkUnit       string   `json:"work_unit"`
-	Events         int      `json:"events"`
-	LastSequence   int      `json:"last_sequence,omitempty"`
-	LastEventID    string   `json:"last_event_id,omitempty"`
-	LastEventKind  string   `json:"last_event_kind,omitempty"`
-	LastEventDigest string  `json:"last_event_digest,omitempty"`
-	AgentID        string   `json:"agent_id,omitempty"`
-	LeaseID        string   `json:"lease_id,omitempty"`
-	HeadSHA        string   `json:"head_sha,omitempty"`
-	EvidenceRefs   []string `json:"evidence_refs,omitempty"`
-	RecentEventIDs []string `json:"recent_event_ids,omitempty"`
+	Status          string   `json:"status"`
+	WorkUnit        string   `json:"work_unit"`
+	Events          int      `json:"events"`
+	LastSequence    int      `json:"last_sequence,omitempty"`
+	LastEventID     string   `json:"last_event_id,omitempty"`
+	LastEventKind   string   `json:"last_event_kind,omitempty"`
+	LastEventDigest string   `json:"last_event_digest,omitempty"`
+	AgentID         string   `json:"agent_id,omitempty"`
+	LeaseID         string   `json:"lease_id,omitempty"`
+	HeadSHA         string   `json:"head_sha,omitempty"`
+	EvidenceRefs    []string `json:"evidence_refs,omitempty"`
+	RecentEventIDs  []string `json:"recent_event_ids,omitempty"`
 }
 
 func runRecoveryJournalAudit(root string, graph WorkGraph) (RecoveryJournalAuditSummary, error) {
@@ -187,7 +187,7 @@ func recoveryEventDigest(event RecoveryJournalEvent) string {
 		Sequence: event.Sequence, ID: event.ID, WorkUnit: event.WorkUnit,
 		AgentID: event.AgentID, LeaseID: event.LeaseID, Kind: event.Kind,
 		ObservedAt: event.ObservedAt, HeadSHA: strings.ToLower(event.HeadSHA),
-		EvidenceRefs: append([]string(nil), event.EvidenceRefs...),
+		EvidenceRefs:   append([]string(nil), event.EvidenceRefs...),
 		PreviousDigest: event.PreviousDigest,
 	})
 }
