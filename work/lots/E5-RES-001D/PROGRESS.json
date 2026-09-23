@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "work_unit": "E5-RES-001D",
+  "status": "VERIFIED",
+  "final_validated_head": "b692a9a2bc2b051e8cfc2b62a256b20703f1c269",
+  "validation": {
+    "push_workflow_run": 35873056256,
+    "pull_request_workflow_run": 35873063289,
+    "result": "PASS",
+    "decision_freshness_gate": "PASS",
+    "unit_tests": "PASS",
+    "sast": "PASS",
+    "sca": "PASS",
+    "secret_scan": "PASS"
+  },
+  "freshness_gate_observation": {
+    "as_of": "2026-09-23",
+    "records": 0,
+    "accepted_evaluated": 0,
+    "fresh": 0,
+    "stale": 0,
+    "reusable": 0,
+    "note": "repository currently contains no accepted Class B/C engineering decisions; non-empty freshness behavior is covered by six unit scenarios"
+  },
+  "tested_scenarios": [
+    "fresh accepted decision is reusable",
+    "date expiry invalidates reuse",
+    "research and validation drift invalidate reuse",
+    "tracked repository input drift invalidates reuse",
+    "fired external signal invalidates reuse",
+    "Class C/performance decisions require specific revisit triggers"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E6-PERF-001A"
+  ]
+}

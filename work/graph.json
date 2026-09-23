@@ -428,7 +428,7 @@
       "id": "E5-RES-001",
       "title": "Implement research and technical decision engine",
       "type": "epic",
-      "status": "DECOMPOSED",
+      "status": "VERIFIED",
       "depends_on": [
         "E4-SEC-001"
       ],
@@ -480,9 +480,72 @@
       "id": "E5-RES-001D",
       "title": "Enforce decision freshness revisit triggers and reusable evidence cache",
       "type": "sublot",
-      "status": "READY",
+      "status": "VERIFIED",
       "depends_on": [
         "E5-RES-001C"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": []
+    },
+    {
+      "id": "E6-PERF-001",
+      "title": "Implement performance engineering engine",
+      "type": "epic",
+      "status": "DECOMPOSED",
+      "depends_on": [
+        "E5-RES-001D"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E6-PERF-001A"
+      ]
+    },
+    {
+      "id": "E6-PERF-001A",
+      "title": "Define performance targets budgets and benchmark registry",
+      "type": "sublot",
+      "status": "READY",
+      "depends_on": [
+        "E5-RES-001D"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E6-PERF-001B"
+      ]
+    },
+    {
+      "id": "E6-PERF-001B",
+      "title": "Execute representative benchmarks and regression gates",
+      "type": "sublot",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E6-PERF-001A"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E6-PERF-001C"
+      ]
+    },
+    {
+      "id": "E6-PERF-001C",
+      "title": "Schedule profiling load soak and resource validation",
+      "type": "sublot",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E6-PERF-001B"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E6-PERF-001D"
+      ]
+    },
+    {
+      "id": "E6-PERF-001D",
+      "title": "Cache performance evidence and integrate adaptive revisit triggers",
+      "type": "sublot",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E6-PERF-001C"
       ],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": []

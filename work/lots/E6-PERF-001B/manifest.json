@@ -1,0 +1,112 @@
+{
+  "schema_version": 2,
+  "id": "E6-PERF-001B",
+  "title": "Execute representative benchmarks and regression gates",
+  "type": "sublot",
+  "parent": "E6-PERF-001",
+  "goal": "Run only registered representative benchmarks, normalize measured samples, compare them with explicit budgets/baselines and fail on statistically/materially meaningful regressions.",
+  "product_refs": {
+    "capabilities": [],
+    "requirements": [],
+    "screens": [],
+    "permissions": [],
+    "open_decisions": [],
+    "implementation_contracts": [],
+    "canonical_objects": []
+  },
+  "depends_on": [
+    "E6-PERF-001A"
+  ],
+  "allowed_paths": [
+    "tools/cmdr-dev/**",
+    "engineering/performance/**",
+    "engineering/testing/**",
+    ".github/workflows/**",
+    "work/lots/E6-PERF-001*/**",
+    "engineering/state/**",
+    "work/graph.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**"
+  ],
+  "inputs": [
+    "verified E0-E5 engineering foundation",
+    "canonical Product Spec remains read-only",
+    "architecture/runtime boundary registry",
+    "risk-adaptive validation engine"
+  ],
+  "outputs": [
+    "representative benchmark runner",
+    "normalized sample/result schema",
+    "budget and baseline regression evaluator"
+  ],
+  "invariants": [
+    "Product Spec remains read-only",
+    "performance claims require representative measured evidence",
+    "no runtime target is fabricated when no product-runtime boundary exists",
+    "benchmark noise cannot silently relax an explicit budget",
+    "expensive performance work is triggered proportionally rather than on every trivial change"
+  ],
+  "security_properties": [
+    "benchmark inputs and result files are untrusted data, never executable configuration",
+    "performance tooling remains development-only unless separately approved",
+    "resource tests use explicit bounded time and memory limits"
+  ],
+  "acceptance_tests": [
+    "go test ./...",
+    "cmdr-dev validate-manifests succeeds",
+    "cmdr-dev architecture-audit succeeds",
+    "cmdr-dev complexity-audit succeeds",
+    "adaptive engineering-kernel remains green",
+    "synthetic tests detect absolute and relative regressions",
+    "benchmark result identity includes target environment toolchain and source SHA"
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "this layer governs performance measurement overhead as well as product targets",
+    "metrics": [
+      "routine benchmark selection executes only affected targets"
+    ]
+  },
+  "migration": {
+    "required": false,
+    "rationale": "engineering control-plane only",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert the E6 unit while retaining verified E0-E5 controls",
+    "verification": [
+      "engineering-kernel remains green",
+      "no accepted product contract changed"
+    ]
+  },
+  "required_checks": [
+    "adaptive engineering-kernel",
+    "cmdr-dev validate-manifests",
+    "cmdr-dev complexity-audit",
+    "cmdr-dev performance-benchmark-audit"
+  ],
+  "definition_of_ready": [
+    "dependencies are VERIFIED",
+    "scope is bounded",
+    "Product Spec is read-only"
+  ],
+  "definition_of_done": [
+    "benchmark runner uses registered commands/handlers only",
+    "warmup and sample counts are explicit",
+    "median/tail/resource metrics preserve units",
+    "budget and relative-regression failures are explainable",
+    "no target means deterministic not-applicable"
+  ],
+  "complexity": {
+    "primary_components": 2,
+    "estimated_files_changed": 9,
+    "estimated_net_loc": 620,
+    "production_files": 4,
+    "net_production_loc": 460,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}
