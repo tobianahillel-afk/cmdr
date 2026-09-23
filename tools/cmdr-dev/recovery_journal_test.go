@@ -9,7 +9,7 @@ func journalClaim() WorkLease {
 	return WorkLease{
 		ID: "LEASE-TEST0001", WorkUnit: "E7-REC-001B", AgentID: "AGENT-test",
 		BaseHeadSHA: strings.Repeat("a", 40),
-		AcquiredAt: "2026-09-23T10:00:00Z", ExpiresAt: "2026-09-23T14:00:00Z",
+		AcquiredAt:  "2026-09-23T10:00:00Z", ExpiresAt: "2026-09-23T14:00:00Z",
 	}
 }
 
