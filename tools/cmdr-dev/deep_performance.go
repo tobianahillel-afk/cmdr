@@ -12,6 +12,7 @@ import (
 	"runtime/debug"
 	"runtime/pprof"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -460,7 +461,11 @@ func validateDeepPerformanceObservation(target DeepPerformanceTarget, observatio
 	if observation.DurationMS > int64(target.TimeoutSeconds)*1000 {
 		return fmt.Errorf("deep performance duration %dms exceeds timeout %ds", observation.DurationMS, target.TimeoutSeconds)
 	}
-	memoryLimit := uint64(target.MemoryLimitMiB) * 1024 * 1024
+	memoryMiB, err := strconv.ParseUint(strconv.Itoa(target.MemoryLimitMiB), 10, 64)
+	if err != nil {
+		return fmt.Errorf("invalid deep performance memory limit: %w", err)
+	}
+	memoryLimit := memoryMiB * 1024 * 1024
 	if observation.PeakHeapBytes > memoryLimit {
 		return fmt.Errorf("deep performance peak heap %d exceeds memory limit %d", observation.PeakHeapBytes, memoryLimit)
 	}
