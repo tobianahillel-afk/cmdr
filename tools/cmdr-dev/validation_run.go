@@ -91,7 +91,7 @@ func validationExecutorMode(key string) (string, error) {
 	case "gofmt", "go-vet", "go-unit",
 		"spec-index", "spec-baseline", "coverage-graph", "obligations", "coverage-audit",
 		"validate-manifests", "architecture-audit", "dependency-audit", "boundary-edge-audit",
-		"complexity-audit", "context", "doctor", "next", "check-catalog-audit", "security-gate-audit", "security-test-audit", "deep-security-audit", "decision-registry-audit", "secret-scan", "gosec-go", "govulncheck-go", "sbom":
+		"complexity-audit", "context", "doctor", "next", "check-catalog-audit", "security-gate-audit", "security-test-audit", "deep-security-audit", "decision-registry-audit", "research-packet-audit", "secret-scan", "gosec-go", "govulncheck-go", "sbom":
 		return "execute", nil
 	default:
 		return "", fmt.Errorf("unsupported executor_key %q", key)
@@ -277,6 +277,14 @@ func executeValidationCheck(root, tempDir, changesFile, key string, state Curren
 		}
 		return fmt.Sprintf("decisions=%d accepted=%d blocked_product=%d critical=%d performance_sensitive=%d",
 			summary.Decisions, summary.Accepted, summary.BlockedProduct, summary.Critical, summary.PerformanceSensitive), nil
+	case "research-packet-audit":
+		summary, err := runResearchPacketAudit(root)
+		if err != nil {
+			return "", err
+		}
+		return fmt.Sprintf("packets=%d saturated=%d collecting=%d superseded=%d sources=%d claims=%d critical=%d unresolved_critical=%d",
+			summary.Packets, summary.Saturated, summary.Collecting, summary.Superseded,
+			summary.Sources, summary.Claims, summary.CriticalClaims, summary.UnresolvedCritical), nil
 	case "secret-scan":
 		summary, err := runSecretScan(root, changesFile, false)
 		if err != nil {

@@ -637,6 +637,31 @@
         "CHK-MANIFESTS"
       ],
       "evidence_kind": "audit-report"
+    },
+    {
+      "id": "CHK-RESEARCH",
+      "title": "Research evidence packet audit",
+      "executor_key": "research-packet-audit",
+      "risk_domains": [
+        "work-governance",
+        "architecture",
+        "security"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": true,
+      "trigger_paths": [
+        "engineering/research/**",
+        "engineering/decisions/**",
+        "engineering/governance/autonomous-decision-policy.md",
+        "work/**",
+        "tools/cmdr-dev/research_registry.go",
+        "tools/cmdr-dev/research_registry_test.go"
+      ],
+      "prerequisites": [
+        "CHK-DECISIONS"
+      ],
+      "evidence_kind": "audit-report"
     }
   ]
 }

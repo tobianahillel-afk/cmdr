@@ -112,6 +112,7 @@ func main() {
 	checkFlag := fs.Bool("check", false, "check generated output instead of writing it")
 	outputFlag := fs.String("output", "engineering/spec-index/inventory.json", "generated output path")
 	workUnitFlag := fs.String("work-unit", "", "work unit id; defaults to active work unit")
+	packetIDFlag := fs.String("packet-id", "", "research packet id")
 	changesFileFlag := fs.String("changes-file", "", "newline-delimited repository-relative changed paths")
 	baseCommitFlag := fs.String("base-commit", "", "full Git base commit id")
 	headCommitFlag := fs.String("head-commit", "", "full Git head commit id")
@@ -353,6 +354,24 @@ func main() {
 			fail(err)
 		}
 		printValue(summary, *jsonFlag)
+	case "research-packet-audit":
+		if err := validateState(root, state, graph); err != nil {
+			fail(err)
+		}
+		summary, err := runResearchPacketAudit(root)
+		if err != nil {
+			fail(err)
+		}
+		printValue(summary, *jsonFlag)
+	case "research-context":
+		if err := validateState(root, state, graph); err != nil {
+			fail(err)
+		}
+		bundle, err := compileResearchContext(root, *packetIDFlag)
+		if err != nil {
+			fail(err)
+		}
+		printValue(bundle, *jsonFlag)
 	case "secret-scan":
 		if err := validateState(root, state, graph); err != nil {
 			fail(err)
@@ -876,7 +895,7 @@ func printValue(v any, asJSON bool) {
 }
 
 func usage(w io.Writer) {
-	fmt.Fprintln(w, "usage: cmdr-dev <doctor|status|next|spec-index|spec-baseline|coverage-graph|obligations|coverage-audit|validate-manifests|complexity-audit|context|architecture-audit|dependency-audit|boundary-edge-audit|check-catalog-audit|impact|validation-plan|security-gate-audit|security-test-audit|deep-security-audit|decision-registry-audit|secret-scan|sast-go|sca-go|sbom|git-changes|validation-run> [--root PATH] [--json] [--check] [--output PATH]")
+	fmt.Fprintln(w, "usage: cmdr-dev <doctor|status|next|spec-index|spec-baseline|coverage-graph|obligations|coverage-audit|validate-manifests|complexity-audit|context|architecture-audit|dependency-audit|boundary-edge-audit|check-catalog-audit|impact|validation-plan|security-gate-audit|security-test-audit|deep-security-audit|decision-registry-audit|research-packet-audit|research-context|secret-scan|sast-go|sca-go|sbom|git-changes|validation-run> [--root PATH] [--json] [--check] [--output PATH]")
 }
 
 func fail(err error) {
