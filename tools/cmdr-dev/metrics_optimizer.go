@@ -34,7 +34,7 @@ type EngineOptimizationSafetyProof struct {
 	BaselineSnapshotDigest      string `json:"baseline_snapshot_digest,omitempty"`
 	SafetyGreen                 bool   `json:"safety_green"`
 	CoordinationConflictFree    bool   `json:"coordination_conflict_free"`
-	RecoveryRevalidationClear  bool   `json:"recovery_revalidation_clear"`
+	RecoveryRevalidationClear   bool   `json:"recovery_revalidation_clear"`
 	MandatoryFloorKnown         bool   `json:"mandatory_floor_known"`
 	DirectPlanMutationAllowed   bool   `json:"direct_plan_mutation_allowed"`
 	MandatoryMutationAllowed    bool   `json:"mandatory_mutation_allowed"`
@@ -43,30 +43,30 @@ type EngineOptimizationSafetyProof struct {
 }
 
 type EngineOptimizationReport struct {
-	SchemaVersion   int                              `json:"schema_version"`
-	ReportKind      string                           `json:"report_kind"`
-	WorkUnit        string                           `json:"work_unit"`
-	SourceSHA       string                           `json:"source_sha"`
-	SnapshotDigest  string                           `json:"snapshot_digest"`
-	BaselineDigest  string                           `json:"baseline_digest,omitempty"`
-	SafetyStatus    string                           `json:"safety_status"`
+	SchemaVersion   int                                `json:"schema_version"`
+	ReportKind      string                             `json:"report_kind"`
+	WorkUnit        string                             `json:"work_unit"`
+	SourceSHA       string                             `json:"source_sha"`
+	SnapshotDigest  string                             `json:"snapshot_digest"`
+	BaselineDigest  string                             `json:"baseline_digest,omitempty"`
+	SafetyStatus    string                             `json:"safety_status"`
 	Recommendations []EngineOptimizationRecommendation `json:"recommendations"`
-	Withheld        []EngineOptimizationWithheld     `json:"withheld,omitempty"`
-	Proof           EngineOptimizationSafetyProof    `json:"proof"`
-	Digest          string                           `json:"digest_sha256"`
+	Withheld        []EngineOptimizationWithheld       `json:"withheld,omitempty"`
+	Proof           EngineOptimizationSafetyProof      `json:"proof"`
+	Digest          string                             `json:"digest_sha256"`
 }
 
 type engineOptimizationReportBody struct {
-	SchemaVersion   int                              `json:"schema_version"`
-	ReportKind      string                           `json:"report_kind"`
-	WorkUnit        string                           `json:"work_unit"`
-	SourceSHA       string                           `json:"source_sha"`
-	SnapshotDigest  string                           `json:"snapshot_digest"`
-	BaselineDigest  string                           `json:"baseline_digest,omitempty"`
-	SafetyStatus    string                           `json:"safety_status"`
+	SchemaVersion   int                                `json:"schema_version"`
+	ReportKind      string                             `json:"report_kind"`
+	WorkUnit        string                             `json:"work_unit"`
+	SourceSHA       string                             `json:"source_sha"`
+	SnapshotDigest  string                             `json:"snapshot_digest"`
+	BaselineDigest  string                             `json:"baseline_digest,omitempty"`
+	SafetyStatus    string                             `json:"safety_status"`
 	Recommendations []EngineOptimizationRecommendation `json:"recommendations"`
-	Withheld        []EngineOptimizationWithheld     `json:"withheld,omitempty"`
-	Proof           EngineOptimizationSafetyProof    `json:"proof"`
+	Withheld        []EngineOptimizationWithheld       `json:"withheld,omitempty"`
+	Proof           EngineOptimizationSafetyProof      `json:"proof"`
 }
 
 var optimizationOpportunityMetrics = map[string][]string{
@@ -289,7 +289,7 @@ func deriveCacheOptimization(
 	body.Recommendations = append(body.Recommendations, EngineOptimizationRecommendation{
 		ID: id, Kind: "investigate-cache-reuse", Advisory: true, MetricIDs: append([]string(nil), metrics...),
 		EstimatedBenefit: []EngineOptimizationBenefit{{MetricID: "MET-CACHE-REUSE-RATE", Value: delta, Unit: "percent"}},
-		Rationale: "verified reusable-evidence rate regressed versus the comparable baseline",
+		Rationale:        "verified reusable-evidence rate regressed versus the comparable baseline",
 		Constraints: []string{
 			"evidence freshness and decision revisit rules must remain unchanged",
 			"invalid or stale cache entries must never become reusable",
@@ -333,7 +333,7 @@ func deriveContextOptimization(
 	body.Recommendations = append(body.Recommendations, EngineOptimizationRecommendation{
 		ID: id, Kind: "investigate-context-bounding", Advisory: true, MetricIDs: append([]string(nil), metrics...),
 		EstimatedBenefit: benefits,
-		Rationale: "the deterministic agent context grew versus the verified comparable baseline",
+		Rationale:        "the deterministic agent context grew versus the verified comparable baseline",
 		Constraints: []string{
 			"required product and dependency sources must remain present",
 			"context digest and traceability requirements must remain intact",
