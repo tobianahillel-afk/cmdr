@@ -580,7 +580,7 @@
       "id": "E7-REC-001B",
       "title": "Persist crash-safe execution journal and resume checkpoints",
       "type": "sublot",
-      "status": "READY",
+      "status": "VERIFIED",
       "depends_on": [
         "E7-REC-001A"
       ],
@@ -593,7 +593,7 @@
       "id": "E7-REC-001C",
       "title": "Reconcile interrupted work against Git and CI reality",
       "type": "sublot",
-      "status": "BLOCKED",
+      "status": "READY",
       "depends_on": [
         "E7-REC-001B"
       ],
