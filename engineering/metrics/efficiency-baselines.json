@@ -122,6 +122,127 @@
           "value": 43
         }
       ]
+    },
+    {
+      "id": "BASE-E8D-STANDARD-FLOOR44-20260923",
+      "plan_tier": "standard",
+      "risk_domains": [
+        "agent-context",
+        "architecture",
+        "code-quality",
+        "coverage-traceability",
+        "performance",
+        "product-spec",
+        "repository-health",
+        "runtime-dependencies",
+        "security",
+        "unit-correctness",
+        "work-governance"
+      ],
+      "mandatory_floor": 44,
+      "source_sha": "86264f5473a21c09af5aa8e4f9dcae073cd9ae35",
+      "observed_at": "2026-09-23T22:46:54Z",
+      "snapshot_digest": "e61316d50f00e2ef5da9de4bf33885ac6242ff1588703117c334fe98510d6933",
+      "workflow_run_id": 35930072585,
+      "metrics": [
+        {
+          "metric_id": "MET-CONTEXT-DEPENDENCIES",
+          "value": 33
+        },
+        {
+          "metric_id": "MET-CONTEXT-SOURCES",
+          "value": 103
+        },
+        {
+          "metric_id": "MET-COORDINATION-CONFLICTS",
+          "value": 0
+        },
+        {
+          "metric_id": "MET-MANDATORY-CHECKS",
+          "value": 44
+        },
+        {
+          "metric_id": "MET-RECOVERY-REVALIDATE",
+          "value": 0
+        },
+        {
+          "metric_id": "MET-SAFETY-GREEN",
+          "value": 1
+        },
+        {
+          "metric_id": "MET-VALIDATION-COST",
+          "value": 72
+        },
+        {
+          "metric_id": "MET-VALIDATION-EXECUTED",
+          "value": 37
+        },
+        {
+          "metric_id": "MET-VALIDATION-SELECTED",
+          "value": 44
+        }
+      ]
+    },
+    {
+      "id": "BASE-E8D-STRICT-FLOOR44-20260923",
+      "plan_tier": "strict",
+      "risk_domains": [
+        "agent-context",
+        "architecture",
+        "code-quality",
+        "coverage-traceability",
+        "performance",
+        "product-spec",
+        "repository-health",
+        "runtime-dependencies",
+        "security",
+        "unit-correctness",
+        "unknown",
+        "work-governance"
+      ],
+      "mandatory_floor": 44,
+      "source_sha": "f0fee6bc13f70b5b6727e11eba50e729947a1552",
+      "observed_at": "2026-09-23T22:46:59Z",
+      "snapshot_digest": "a56c9f6f177bc91cb005aada4647e6a8289a10651a1a06c68790b9941846bf84",
+      "workflow_run_id": 35930077289,
+      "metrics": [
+        {
+          "metric_id": "MET-CONTEXT-DEPENDENCIES",
+          "value": 33
+        },
+        {
+          "metric_id": "MET-CONTEXT-SOURCES",
+          "value": 103
+        },
+        {
+          "metric_id": "MET-COORDINATION-CONFLICTS",
+          "value": 0
+        },
+        {
+          "metric_id": "MET-MANDATORY-CHECKS",
+          "value": 44
+        },
+        {
+          "metric_id": "MET-RECOVERY-REVALIDATE",
+          "value": 0
+        },
+        {
+          "metric_id": "MET-SAFETY-GREEN",
+          "value": 1
+        },
+        {
+          "metric_id": "MET-VALIDATION-COST",
+          "value": 72
+        },
+        {
+          "metric_id": "MET-VALIDATION-EXECUTED",
+          "value": 37
+        },
+        {
+          "metric_id": "MET-VALIDATION-SELECTED",
+          "value": 44
+        }
+      ]
     }
   ]
 }
