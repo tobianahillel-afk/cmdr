@@ -84,8 +84,14 @@ func discoverLocalPackages(root string, registry ArchitectureRegistry) ([]LocalP
 			if err != nil {
 				return nil, 0, err
 			}
+			// #nosec G703 -- scanRoot is repository-confined by runtimeScanRoot; symlink entries are rejected below.
 			err = filepath.WalkDir(scanRoot, func(path string, entry os.DirEntry, err error) error {
 				if err != nil {
+					return err
+				}
+				if entry.Type()&os.ModeSymlink != 0 {
+					return fmt.Errorf("runtime boundary contains symlink: %s", path)
+				}
 					return err
 				}
 				if entry.IsDir() {
