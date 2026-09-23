@@ -17,8 +17,8 @@
     "phase_title": "Security engine"
   },
   "execution": {
-    "active_work_unit": "E4-SEC-001C",
-    "preferred_next_unit": "E4-SEC-001C",
+    "active_work_unit": "E4-SEC-001D",
+    "preferred_next_unit": "E4-SEC-001D",
     "selection_rule": "first READY unit whose dependencies satisfy their required terminal state"
   },
   "reconciliation": {
