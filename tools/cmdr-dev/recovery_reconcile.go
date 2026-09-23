@@ -18,23 +18,23 @@ type CIObservation struct {
 }
 
 type RecoveryReconcileRequest struct {
-	WorkUnit     string
-	AsOf         string
-	CI           *CIObservation
+	WorkUnit string
+	AsOf     string
+	CI       *CIObservation
 }
 
 type RecoveryReconciliation struct {
-	WorkUnit        string         `json:"work_unit"`
-	CurrentHead     string         `json:"current_head"`
-	Checkpoint      string         `json:"checkpoint_status"`
-	CheckpointHead  string         `json:"checkpoint_head,omitempty"`
-	GitRelation     string         `json:"git_relation"`
-	LeaseStatus     string         `json:"lease_status"`
-	CIStatus        string         `json:"ci_status"`
-	Outcome         string         `json:"outcome"`
-	NextAction      string         `json:"next_action"`
-	Reasons         []string       `json:"reasons"`
-	CI              *CIObservation `json:"ci,omitempty"`
+	WorkUnit       string         `json:"work_unit"`
+	CurrentHead    string         `json:"current_head"`
+	Checkpoint     string         `json:"checkpoint_status"`
+	CheckpointHead string         `json:"checkpoint_head,omitempty"`
+	GitRelation    string         `json:"git_relation"`
+	LeaseStatus    string         `json:"lease_status"`
+	CIStatus       string         `json:"ci_status"`
+	Outcome        string         `json:"outcome"`
+	NextAction     string         `json:"next_action"`
+	Reasons        []string       `json:"reasons"`
+	CI             *CIObservation `json:"ci,omitempty"`
 }
 
 var knownCIConclusions = map[string]bool{
@@ -133,7 +133,7 @@ func reconcileRecovery(root string, checkpoint ResumeCheckpoint, claims WorkLeas
 	if result.LeaseStatus == "expired" || result.LeaseStatus == "released" {
 		result.Outcome = "stale-claim"
 		result.NextAction = "reacquire-before-mutation"
-		add("checkpoint-lease-"+result.LeaseStatus)
+		add("checkpoint-lease-" + result.LeaseStatus)
 		if relation == "ancestor" {
 			add("repository-advanced-since-checkpoint")
 		}
