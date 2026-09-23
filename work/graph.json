@@ -517,7 +517,7 @@
       "id": "E6-PERF-001B",
       "title": "Execute representative benchmarks and regression gates",
       "type": "sublot",
-      "status": "READY",
+      "status": "VERIFIED",
       "depends_on": [
         "E6-PERF-001A"
       ],
@@ -530,7 +530,7 @@
       "id": "E6-PERF-001C",
       "title": "Schedule profiling load soak and resource validation",
       "type": "sublot",
-      "status": "BLOCKED",
+      "status": "READY",
       "depends_on": [
         "E6-PERF-001B"
       ],
