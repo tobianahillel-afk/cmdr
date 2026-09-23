@@ -402,7 +402,7 @@
       "id": "E4-SEC-002B-OUTPUT",
       "title": "Confine generated outputs and CI evidence to repository boundaries",
       "type": "task",
-      "status": "READY",
+      "status": "VERIFIED",
       "depends_on": [
         "E4-SEC-002A"
       ],
@@ -415,7 +415,7 @@
       "id": "E4-SEC-002B-READ",
       "title": "Harden repository reads and reject symlink traversal",
       "type": "task",
-      "status": "BLOCKED",
+      "status": "READY",
       "depends_on": [
         "E4-SEC-002B-OUTPUT"
       ],
