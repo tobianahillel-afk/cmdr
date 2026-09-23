@@ -50,8 +50,10 @@ jobs:
           CMDR_BASE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
           CMDR_HEAD_SHA: ${{ github.sha }}
         run: |
+          kernel="$GITHUB_WORKSPACE/.cmdr-dev-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
           changes="$GITHUB_WORKSPACE/.cmdr-changes-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}.txt"
-          trap 'rm -f "$changes"' EXIT
-          go run . git-changes --root ../.. --base-commit "$CMDR_BASE_SHA" --head-commit "$CMDR_HEAD_SHA" --output "$changes" --json
-          go run . validation-plan --root ../.. --changes-file "$changes" --json
-          go run . validation-run --root ../.. --changes-file "$changes" --json
+          trap 'rm -f "$kernel" "$changes"' EXIT
+          go build -o "$kernel" .
+          "$kernel" git-changes --root ../.. --base-commit "$CMDR_BASE_SHA" --head-commit "$CMDR_HEAD_SHA" --output "$changes" --json
+          "$kernel" validation-plan --root ../.. --changes-file "$changes" --json
+          "$kernel" validation-run --root ../.. --changes-file "$changes" --json
