@@ -91,6 +91,7 @@ type PerformanceBenchmarkAuditSummary struct {
 	Registered    int                          `json:"registered_targets"`
 	Selected      int                          `json:"selected_targets"`
 	Executed      int                          `json:"executed_targets"`
+	Reused        int                          `json:"reused_targets"`
 	Metrics       int                          `json:"metrics_evaluated"`
 	Status        string                       `json:"status"`
 	ByScope       map[string]int               `json:"by_scope"`
@@ -153,8 +154,19 @@ func runPerformanceBenchmarkAudit(root, stage, environmentID, changesFile string
 		summary.Status = "not-selected"
 		return summary, nil
 	}
+	cachedResults, _, err := reusablePerformanceResults(root)
+	if err != nil {
+		return summary, err
+	}
 
 	for _, target := range selected {
+		if cached, ok := cachedResults[benchmarkBaselineKey(target.ID, environmentID)]; ok {
+			summary.Reused++
+			summary.Metrics += len(cached.Metrics)
+			summary.ByScope[target.ScopeKind]++
+			summary.Results = append(summary.Results, cached)
+			continue
+		}
 		definition, ok := workloads[target.WorkloadKey]
 		if !ok {
 			return summary, fmt.Errorf("performance target %s has no benchmark workload definition for %s", target.ID, target.WorkloadKey)
