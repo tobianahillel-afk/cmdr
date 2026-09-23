@@ -9,14 +9,14 @@ import (
 )
 
 type CoordinationConflict struct {
-	LeftLease    string `json:"left_lease"`
-	LeftWorkUnit string `json:"left_work_unit"`
-	LeftAgent    string `json:"left_agent"`
-	LeftPath     string `json:"left_path"`
-	RightLease   string `json:"right_lease"`
+	LeftLease     string `json:"left_lease"`
+	LeftWorkUnit  string `json:"left_work_unit"`
+	LeftAgent     string `json:"left_agent"`
+	LeftPath      string `json:"left_path"`
+	RightLease    string `json:"right_lease"`
 	RightWorkUnit string `json:"right_work_unit"`
-	RightAgent   string `json:"right_agent"`
-	RightPath    string `json:"right_path"`
+	RightAgent    string `json:"right_agent"`
+	RightPath     string `json:"right_path"`
 }
 
 type CoordinationAuditSummary struct {
@@ -30,40 +30,40 @@ type CoordinationAuditSummary struct {
 }
 
 type CoordinationHandoff struct {
-	SchemaVersion          int      `json:"schema_version"`
-	WorkUnit               string   `json:"work_unit"`
-	LeaseID                string   `json:"lease_id"`
-	LeaseMode              string   `json:"lease_mode"`
-	FromAgent              string   `json:"from_agent"`
-	HeadSHA                string   `json:"head_sha"`
-	GeneratedAt            string   `json:"generated_at"`
-	CheckpointStatus       string   `json:"checkpoint_status"`
-	CheckpointDigest       string   `json:"checkpoint_digest,omitempty"`
-	RevalidationRequired   bool     `json:"revalidation_required"`
-	JournalEventKind       string   `json:"journal_event_kind"`
-	ReleaseRequired        bool     `json:"release_required"`
-	ReceiverMustReacquire  bool     `json:"receiver_must_reacquire"`
-	MutationAfterRelease   bool     `json:"mutation_after_release_allowed"`
-	Protocol               []string `json:"protocol"`
-	Digest                  string   `json:"digest_sha256"`
+	SchemaVersion         int      `json:"schema_version"`
+	WorkUnit              string   `json:"work_unit"`
+	LeaseID               string   `json:"lease_id"`
+	LeaseMode             string   `json:"lease_mode"`
+	FromAgent             string   `json:"from_agent"`
+	HeadSHA               string   `json:"head_sha"`
+	GeneratedAt           string   `json:"generated_at"`
+	CheckpointStatus      string   `json:"checkpoint_status"`
+	CheckpointDigest      string   `json:"checkpoint_digest,omitempty"`
+	RevalidationRequired  bool     `json:"revalidation_required"`
+	JournalEventKind      string   `json:"journal_event_kind"`
+	ReleaseRequired       bool     `json:"release_required"`
+	ReceiverMustReacquire bool     `json:"receiver_must_reacquire"`
+	MutationAfterRelease  bool     `json:"mutation_after_release_allowed"`
+	Protocol              []string `json:"protocol"`
+	Digest                string   `json:"digest_sha256"`
 }
 
 type coordinationHandoffBody struct {
-	SchemaVersion          int      `json:"schema_version"`
-	WorkUnit               string   `json:"work_unit"`
-	LeaseID                string   `json:"lease_id"`
-	LeaseMode              string   `json:"lease_mode"`
-	FromAgent              string   `json:"from_agent"`
-	HeadSHA                string   `json:"head_sha"`
-	GeneratedAt            string   `json:"generated_at"`
-	CheckpointStatus       string   `json:"checkpoint_status"`
-	CheckpointDigest       string   `json:"checkpoint_digest,omitempty"`
-	RevalidationRequired   bool     `json:"revalidation_required"`
-	JournalEventKind       string   `json:"journal_event_kind"`
-	ReleaseRequired        bool     `json:"release_required"`
-	ReceiverMustReacquire  bool     `json:"receiver_must_reacquire"`
-	MutationAfterRelease   bool     `json:"mutation_after_release_allowed"`
-	Protocol               []string `json:"protocol"`
+	SchemaVersion         int      `json:"schema_version"`
+	WorkUnit              string   `json:"work_unit"`
+	LeaseID               string   `json:"lease_id"`
+	LeaseMode             string   `json:"lease_mode"`
+	FromAgent             string   `json:"from_agent"`
+	HeadSHA               string   `json:"head_sha"`
+	GeneratedAt           string   `json:"generated_at"`
+	CheckpointStatus      string   `json:"checkpoint_status"`
+	CheckpointDigest      string   `json:"checkpoint_digest,omitempty"`
+	RevalidationRequired  bool     `json:"revalidation_required"`
+	JournalEventKind      string   `json:"journal_event_kind"`
+	ReleaseRequired       bool     `json:"release_required"`
+	ReceiverMustReacquire bool     `json:"receiver_must_reacquire"`
+	MutationAfterRelease  bool     `json:"mutation_after_release_allowed"`
+	Protocol              []string `json:"protocol"`
 }
 
 type activeCoordinationClaim struct {
@@ -157,9 +157,15 @@ func evaluateCoordinationConflicts(active []activeCoordinationClaim, asOf time.T
 	}
 	sort.Slice(summary.ConflictItems, func(i, j int) bool {
 		a, b := summary.ConflictItems[i], summary.ConflictItems[j]
-		if a.LeftLease != b.LeftLease { return a.LeftLease < b.LeftLease }
-		if a.RightLease != b.RightLease { return a.RightLease < b.RightLease }
-		if a.LeftPath != b.LeftPath { return a.LeftPath < b.LeftPath }
+		if a.LeftLease != b.LeftLease {
+			return a.LeftLease < b.LeftLease
+		}
+		if a.RightLease != b.RightLease {
+			return a.RightLease < b.RightLease
+		}
+		if a.LeftPath != b.LeftPath {
+			return a.LeftPath < b.LeftPath
+		}
 		return a.RightPath < b.RightPath
 	})
 	summary.Conflicts = len(summary.ConflictItems)
@@ -188,7 +194,9 @@ func runCoordinationHandoff(root, workUnit, leaseID, agentID, asOfValue string, 
 		return CoordinationHandoff{}, err
 	}
 	nodes := map[string]WorkNode{}
-	for _, node := range graph.Nodes { nodes[node.ID] = node }
+	for _, node := range graph.Nodes {
+		nodes[node.ID] = node
+	}
 	var claim *WorkLease
 	for i := range registry.Claims {
 		if registry.Claims[i].ID == leaseID {
@@ -235,11 +243,11 @@ func runCoordinationHandoff(root, workUnit, leaseID, agentID, asOfValue string, 
 func buildCoordinationHandoff(claim WorkLease, head string, asOf time.Time, checkpoint ResumeCheckpoint, reconciliation RecoveryReconciliation) CoordinationHandoff {
 	body := coordinationHandoffBody{
 		SchemaVersion: 1,
-		WorkUnit: claim.WorkUnit, LeaseID: claim.ID, LeaseMode: normalizedLeaseMode(claim.Mode),
+		WorkUnit:      claim.WorkUnit, LeaseID: claim.ID, LeaseMode: normalizedLeaseMode(claim.Mode),
 		FromAgent: claim.AgentID, HeadSHA: head, GeneratedAt: asOf.UTC().Format(time.RFC3339),
 		CheckpointStatus: checkpoint.Status, CheckpointDigest: checkpoint.LastEventDigest,
 		RevalidationRequired: reconciliation.Outcome == "revalidate",
-		JournalEventKind: "handoff", ReleaseRequired: true, ReceiverMustReacquire: true,
+		JournalEventKind:     "handoff", ReleaseRequired: true, ReceiverMustReacquire: true,
 		MutationAfterRelease: false,
 		Protocol: []string{
 			"append a handoff journal event bound to this exact work unit, lease and Git head",
