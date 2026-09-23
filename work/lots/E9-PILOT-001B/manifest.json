@@ -1,0 +1,105 @@
+{
+  "schema_version": 2,
+  "id": "E9-PILOT-001B",
+  "title": "Establish pilot runtime boundary and executable contracts",
+  "type": "sublot",
+  "parent": "E9-PILOT-001",
+  "goal": "Translate the verified pilot scope into runtime ownership dependency edges executable contracts and test fixtures before implementation.",
+  "product_refs": {
+    "capabilities": [],
+    "requirements": [],
+    "screens": [],
+    "permissions": [],
+    "open_decisions": [],
+    "implementation_contracts": [],
+    "canonical_objects": []
+  },
+  "depends_on": [
+    "E9-PILOT-001A"
+  ],
+  "allowed_paths": [
+    "engineering/pilot/**",
+    "engineering/architecture/**",
+    "engineering/testing/**",
+    "work/lots/E9-PILOT-001*/**",
+    "engineering/state/**",
+    "work/graph.json",
+    "tools/cmdr-dev/**",
+    ".github/workflows/**"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**"
+  ],
+  "inputs": [
+    "verified E0-E8 engineering foundation",
+    "canonical Product Spec read-only baseline",
+    "canonical MVP dependency roadmap and pilot plan"
+  ],
+  "outputs": [
+    "traceable E9 pilot evidence"
+  ],
+  "invariants": [
+    "Product Spec remains read-only",
+    "no unresolved blocking decision is silently defaulted",
+    "pilot scope remains bounded and decomposed",
+    "security and correctness floors remain mandatory"
+  ],
+  "security_properties": [
+    "tenant scope and authority contracts remain mandatory where applicable",
+    "external product-runtime dependencies remain denied unless explicitly approved",
+    "pilot cannot weaken existing validation gates"
+  ],
+  "acceptance_tests": [
+    "go test ./...",
+    "cmdr-dev validate-manifests succeeds",
+    "cmdr-dev complexity-audit succeeds",
+    "adaptive engineering-kernel remains green"
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "pilot must prove the engineering path without unbounded runtime or CI cost",
+    "metrics": [
+      "pilot lot stays inside complexity budgets",
+      "existing E8 efficiency floors remain green"
+    ]
+  },
+  "migration": {
+    "required": false,
+    "rationale": "scope and contract work precedes product persistence",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert the bounded E9 lot while retaining verified E0-E8 foundation",
+    "verification": [
+      "adaptive engineering-kernel remains green",
+      "Product Spec baseline remains unchanged"
+    ]
+  },
+  "required_checks": [
+    "adaptive engineering-kernel",
+    "cmdr-dev validate-manifests",
+    "cmdr-dev complexity-audit",
+    "CHK-METRICS-BUDGET"
+  ],
+  "definition_of_ready": [
+    "E8-MET-001D is VERIFIED",
+    "Product Spec baseline is unchanged"
+  ],
+  "definition_of_done": [
+    "pilot runtime root is uniquely owned",
+    "runtime dependency policy is explicit",
+    "selected Product Spec contracts are executable test fixtures without changing Product Spec",
+    "negative tenant and permission cases are defined before implementation"
+  ],
+  "complexity": {
+    "primary_components": 2,
+    "estimated_files_changed": 9,
+    "estimated_net_loc": 500,
+    "production_files": 4,
+    "net_production_loc": 360,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}
