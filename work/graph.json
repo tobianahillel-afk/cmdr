@@ -389,7 +389,7 @@
       "id": "E4-SEC-002B-ACTIVATE",
       "title": "Finalize and activate Go SAST and SCA controls",
       "type": "task",
-      "status": "BLOCKED",
+      "status": "READY",
       "depends_on": [
         "E4-SEC-002B-READ"
       ],
@@ -415,7 +415,7 @@
       "id": "E4-SEC-002B-READ",
       "title": "Harden repository reads and reject symlink traversal",
       "type": "task",
-      "status": "READY",
+      "status": "VERIFIED",
       "depends_on": [
         "E4-SEC-002B-OUTPUT"
       ],
