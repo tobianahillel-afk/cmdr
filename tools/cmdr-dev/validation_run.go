@@ -264,7 +264,7 @@ func executeValidationCheck(root, tempDir, changesFile, key string, state Curren
 	case "gosec-go":
 		summary, err := runGoSAST(root)
 		if err != nil {
-			return "", err
+			return "", fmt.Errorf("%w; safe_findings=%s", err, formatSASTSafeFindings(summary))
 		}
 		return fmt.Sprintf("tool=%s version=%s scan_root=%s findings=%d",
 			summary.Tool, summary.Version, summary.ScanRoot, summary.FindingCount), nil
