@@ -11,6 +11,7 @@ on:
       - ".github/workflows/engineering-kernel.yml"
       - ".github/workflows/engineering-kernel-full.yml"
       - ".github/workflows/security-deep.yml"
+      - ".github/workflows/performance-deep.yml"
   push:
     branches:
       - "engineering/autonomous-development-foundation"
@@ -23,6 +24,7 @@ on:
       - ".github/workflows/engineering-kernel.yml"
       - ".github/workflows/engineering-kernel-full.yml"
       - ".github/workflows/security-deep.yml"
+      - ".github/workflows/performance-deep.yml"
 
 permissions:
   contents: read

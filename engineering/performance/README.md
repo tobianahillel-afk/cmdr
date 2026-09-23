@@ -27,3 +27,14 @@ Throughput metrics use lower bounds. Latency, CPU, memory, allocation and utiliz
 Shared CI environments are useful for coarse bounded smoke budgets, but they are not authoritative for tight relative regression claims. Relative baselines require a dedicated or explicitly calibrated environment.
 
 The Product Spec remains read-only. Performance evidence is an engineering implementation concern unless a product-owned requirement explicitly states otherwise.
+
+
+## Deep performance validation
+
+`deep-performance-audit` adds bounded profiling, load, soak and resource validation without making performance tooling a product-runtime dependency. Every deep target must reference an already registered performance target and a compiled handler key.
+
+The current repository still has no product-runtime boundary and therefore no deep target is fabricated: the real repository result is `not-applicable`.
+
+Global caps are machine-readable in `deep-performance-policy.json`: 600 seconds per target, 2048 MiB of Go runtime memory, concurrency 64 and at most two deep targets per run. The separate `performance-deep` workflow is bounded to 25 minutes and runs on nightly, release or explicit on-demand stages.
+
+PR validation remains lightweight: it validates policy and change sensitivity but does not execute deep workloads. Heavy execution happens only in the separate workflow. Profile output is engineering evidence under `engineering/testing/deep-performance-evidence` in the workflow workspace and is never linked into the CMDR product runtime.

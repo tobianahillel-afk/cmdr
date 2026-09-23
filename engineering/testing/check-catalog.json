@@ -763,6 +763,31 @@
         "CHK-PERFORMANCE-REGISTRY"
       ],
       "evidence_kind": "benchmark-report"
+    },
+    {
+      "id": "CHK-DEEP-PERFORMANCE",
+      "title": "Bounded deep performance scheduling and resource audit",
+      "executor_key": "deep-performance-audit",
+      "risk_domains": [
+        "performance",
+        "architecture",
+        "repository-health",
+        "work-governance"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": true,
+      "trigger_paths": [
+        "engineering/performance/**",
+        "engineering/architecture/**",
+        ".github/workflows/performance-deep.yml",
+        "tools/cmdr-dev/deep_performance.go",
+        "tools/cmdr-dev/deep_performance_test.go"
+      ],
+      "prerequisites": [
+        "CHK-PERFORMANCE-BENCHMARK"
+      ],
+      "evidence_kind": "audit-report"
     }
   ]
 }
