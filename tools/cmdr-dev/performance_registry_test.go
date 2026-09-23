@@ -6,21 +6,21 @@ func validPerformancePolicy() PerformancePolicy {
 	return PerformancePolicy{
 		SchemaVersion: 1,
 		DefaultPolicy: "deny-unregistered-performance-target",
-		ScopeKinds: []string{"engineering-control-plane", "product-runtime"},
+		ScopeKinds:  []string{"engineering-control-plane", "product-runtime"},
 		MetricKinds: []string{"latency", "throughput", "cpu-time", "memory", "allocation", "utilization"},
 		MetricUnits: map[string][]string{
-			"latency": {"ns", "us", "ms", "s"},
-			"throughput": {"ops/s", "events/s", "bytes/s"},
-			"cpu-time": {"ns/op", "us/op", "ms/op"},
-			"memory": {"bytes", "MiB"},
-			"allocation": {"bytes/op", "allocs/op"},
+			"latency":     {"ns", "us", "ms", "s"},
+			"throughput":  {"ops/s", "events/s", "bytes/s"},
+			"cpu-time":    {"ns/op", "us/op", "ms/op"},
+			"memory":      {"bytes", "MiB"},
+			"allocation":  {"bytes/op", "allocs/op"},
 			"utilization": {"percent"},
 		},
-		Aggregations: []string{"median", "p95", "p99", "max", "mean"},
-		Comparators: []string{"upper-bound", "lower-bound"},
+		Aggregations:     []string{"median", "p95", "p99", "max", "mean"},
+		Comparators:      []string{"upper-bound", "lower-bound"},
 		EnvironmentKinds: []string{"shared-ci", "dedicated", "local-calibrated"},
-		Stages: []string{"pr", "nightly", "release", "on-demand"},
-		WorkloadKeys: []string{"cmdr-dev-metadata-audit-v1"},
+		Stages:           []string{"pr", "nightly", "release", "on-demand"},
+		WorkloadKeys:     []string{"cmdr-dev-metadata-audit-v1"},
 	}
 }
 
@@ -85,7 +85,7 @@ func TestPerformanceRegistryAcceptsOwnedRuntimeTarget(t *testing.T) {
 	registry := PerformanceRegistry{
 		SchemaVersion: 1, RegistryKind: "performance-targets",
 		Environments: []PerformanceEnvironment{validPerformanceEnvironment()},
-		Targets: []PerformanceTarget{validRuntimePerformanceTarget()},
+		Targets:      []PerformanceTarget{validRuntimePerformanceTarget()},
 	}
 	summary, err := validatePerformanceRegistry(validPerformancePolicy(), registry, performanceArchitecture(true))
 	if err != nil {
@@ -102,7 +102,7 @@ func TestPerformanceRegistryRejectsUnknownRuntimeBoundary(t *testing.T) {
 	registry := PerformanceRegistry{
 		SchemaVersion: 1, RegistryKind: "performance-targets",
 		Environments: []PerformanceEnvironment{validPerformanceEnvironment()},
-		Targets: []PerformanceTarget{target},
+		Targets:      []PerformanceTarget{target},
 	}
 	if _, err := validatePerformanceRegistry(validPerformancePolicy(), registry, performanceArchitecture(false)); err == nil {
 		t.Fatal("expected unknown runtime boundary rejection")
@@ -115,7 +115,7 @@ func TestPerformanceRegistryRejectsOwnerOutsideBoundary(t *testing.T) {
 	registry := PerformanceRegistry{
 		SchemaVersion: 1, RegistryKind: "performance-targets",
 		Environments: []PerformanceEnvironment{validPerformanceEnvironment()},
-		Targets: []PerformanceTarget{target},
+		Targets:      []PerformanceTarget{target},
 	}
 	if _, err := validatePerformanceRegistry(validPerformancePolicy(), registry, performanceArchitecture(true)); err == nil {
 		t.Fatal("expected owner-path rejection")
@@ -148,7 +148,7 @@ func TestSharedCIRejectsRelativeRegressionBudget(t *testing.T) {
 	registry := PerformanceRegistry{
 		SchemaVersion: 1, RegistryKind: "performance-targets",
 		Environments: []PerformanceEnvironment{env},
-		Targets: []PerformanceTarget{target},
+		Targets:      []PerformanceTarget{target},
 	}
 	if _, err := validatePerformanceRegistry(validPerformancePolicy(), registry, performanceArchitecture(true)); err == nil {
 		t.Fatal("expected relative-regression rejection on shared CI")
