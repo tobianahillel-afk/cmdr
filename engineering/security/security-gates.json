@@ -106,7 +106,7 @@
       "id": "SEC-SBOM-001",
       "title": "Software bill of materials",
       "control_family": "sbom",
-      "readiness": "specified",
+      "readiness": "active",
       "stages": [
         "release",
         "on-demand"
@@ -126,8 +126,8 @@
         "sbom",
         "provenance"
       ],
-      "implementation_key": "",
-      "activation_condition": "activate once runtime/build package roots exist and deterministic component identity is available"
+      "implementation_key": "builtin-cyclonedx17-sbom-v1",
+      "activation_condition": "active for current source/development inventory: CycloneDX 1.7 cmdr-dev/sbom-v1 verified by pull_request run 35850552860 with 2 development components, 0 runtime components, 0 unsupported manifests, source-SHA binding and deterministic SHA-256 evidence"
     },
     {
       "id": "SEC-IAC-001",

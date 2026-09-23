@@ -42,4 +42,4 @@ The SBOM records:
 - reviewed development-tool module/version/commit/license metadata;
 - SHA-256 of the serialized SBOM.
 
-`SEC-SBOM-001` remains `specified` until this executable implementation passes both push and pull-request validation. `SEC-SUPPLY-001` remains specified because no releasable CMDR product artifact/signature pipeline exists yet.
+`SEC-SBOM-001` is active for the current source/development inventory. Evidence: pull-request run `35850552860` generated CycloneDX 1.7 with 2 development components, 0 runtime components, 0 unsupported manifests, exact source-SHA binding and deterministic SHA-256 digest. `SEC-SUPPLY-001` remains specified because no releasable CMDR product artifact/signature pipeline exists yet; SBOM generation alone is not artifact-signing/provenance enforcement.
