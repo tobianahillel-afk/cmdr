@@ -454,7 +454,7 @@
       "id": "E5-RES-001B",
       "title": "Compile source-backed research evidence packets",
       "type": "sublot",
-      "status": "READY",
+      "status": "VERIFIED",
       "depends_on": [
         "E5-RES-001A"
       ],
@@ -467,7 +467,7 @@
       "id": "E5-RES-001C",
       "title": "Enforce benchmark prototype and adversarial decision gates",
       "type": "sublot",
-      "status": "BLOCKED",
+      "status": "READY",
       "depends_on": [
         "E5-RES-001B"
       ],
