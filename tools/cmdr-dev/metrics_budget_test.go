@@ -8,9 +8,9 @@ import (
 func testEfficiencyPolicy() EngineEfficiencyBudgetPolicy {
 	return EngineEfficiencyBudgetPolicy{
 		SchemaVersion: 1,
-		PolicyKind: "engineering-engine-efficiency-budgets",
+		PolicyKind:    "engineering-engine-efficiency-budgets",
 		DefaultPolicy: "deny-unknown-metric",
-		ProfileMatch: []string{"plan_tier", "risk_domains", "mandatory_floor"},
+		ProfileMatch:  []string{"plan_tier", "risk_domains", "mandatory_floor"},
 		MandatoryFloorProvenance: EngineEfficiencyFloorProvenance{
 			SourceSHA: strings.Repeat("a", 40), WorkflowRunID: 1, MandatoryFloor: 43,
 		},
