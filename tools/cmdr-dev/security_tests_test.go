@@ -35,7 +35,7 @@ func baseRuntimePolicy(scopes ...RuntimeSecurityScope) RuntimeSecurityPolicy {
 }
 
 func ptrFloat(v float64) *float64 { return &v }
-func ptrBool(v bool) *bool { return &v }
+func ptrBool(v bool) *bool        { return &v }
 
 func TestSecurityTestAuditReportsNotApplicableWithoutRuntime(t *testing.T) {
 	evidence := RuntimeSecurityEvidence{
@@ -79,7 +79,7 @@ func TestSecurityTestAuditEnforcesCoverageAndNegativeTests(t *testing.T) {
 		Scopes: []RuntimeSecurityEvidenceScope{{
 			BoundaryID: "api", ChangedSecurityCritical: true,
 			ChangedSecurityCriticalPercent: ptrFloat(91),
-			AuthorizationNegativePassed: ptrBool(true), TenantIsolationNegativePassed: ptrBool(true),
+			AuthorizationNegativePassed:    ptrBool(true), TenantIsolationNegativePassed: ptrBool(true),
 		}},
 	}
 	summary, err := evaluateSecurityTestPolicy(
@@ -98,8 +98,8 @@ func TestSecurityTestAuditRejectsCoverageBelowFloors(t *testing.T) {
 	runtime := ArchitectureBoundary{ID: "api", Kind: "product-runtime", Roots: []string{"services/api/**"}}
 	scope := RuntimeSecurityScope{
 		BoundaryID: "api", Owner: "security-platform",
-		SecurityCriticalPaths: []string{"services/api/auth/**"},
-		AuthorizationRationale: "authorization is outside this synthetic scope",
+		SecurityCriticalPaths:    []string{"services/api/auth/**"},
+		AuthorizationRationale:   "authorization is outside this synthetic scope",
 		TenantIsolationRationale: "tenant isolation is outside this synthetic scope",
 	}
 	commit := "0123456789abcdef0123456789abcdef01234567"
@@ -128,14 +128,14 @@ func TestSecurityTestAuditRejectsStaleEvidence(t *testing.T) {
 	runtime := ArchitectureBoundary{ID: "api", Kind: "product-runtime", Roots: []string{"services/api/**"}}
 	scope := RuntimeSecurityScope{
 		BoundaryID: "api", Owner: "security-platform",
-		SecurityCriticalPaths: []string{"services/api/**"},
+		SecurityCriticalPaths:  []string{"services/api/**"},
 		AuthorizationRationale: "not required", TenantIsolationRationale: "not required",
 	}
 	evidence := RuntimeSecurityEvidence{
 		SchemaVersion: 1, Status: "measured",
-		SourceCommit: "0123456789abcdef0123456789abcdef01234567",
+		SourceCommit:          "0123456789abcdef0123456789abcdef01234567",
 		GlobalCoveragePercent: ptrFloat(90),
-		Scopes: []RuntimeSecurityEvidenceScope{{BoundaryID: "api", ChangedSecurityCritical: true, ChangedSecurityCriticalPercent: ptrFloat(95)}},
+		Scopes:                []RuntimeSecurityEvidenceScope{{BoundaryID: "api", ChangedSecurityCritical: true, ChangedSecurityCriticalPercent: ptrFloat(95)}},
 	}
 	if _, err := evaluateSecurityTestPolicy(
 		securityTestArchitecture(runtime), securityTestGates(false, false),
@@ -150,7 +150,7 @@ func TestSecurityScopeRejectsPathOutsideBoundary(t *testing.T) {
 	boundary := ArchitectureBoundary{ID: "api", Kind: "product-runtime", Roots: []string{"services/api/**"}}
 	scope := RuntimeSecurityScope{
 		BoundaryID: "api", Owner: "security-platform",
-		SecurityCriticalPaths: []string{"services/other/**"},
+		SecurityCriticalPaths:  []string{"services/other/**"},
 		AuthorizationRationale: "not required", TenantIsolationRationale: "not required",
 	}
 	if err := validateRuntimeSecurityScope(scope, boundary); err == nil {
