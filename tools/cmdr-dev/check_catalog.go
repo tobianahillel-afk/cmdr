@@ -93,6 +93,7 @@ var knownExecutorKeys = map[string]bool{
 	"deep-performance-audit":      true,
 	"performance-cache-audit":     true,
 	"lease-audit":                 true,
+	"recovery-journal-audit":      true,
 	"secret-scan":                 true,
 	"gosec-go":                    true,
 	"govulncheck-go":              true,
