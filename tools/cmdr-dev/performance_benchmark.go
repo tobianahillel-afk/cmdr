@@ -72,7 +72,7 @@ type BenchmarkMetricResult struct {
 	RelativePass                 bool    `json:"relative_pass"`
 }
 
-type BenchmarkResult struct {
+type PerformanceBenchmarkResult struct {
 	TargetID          string                  `json:"target_id"`
 	EnvironmentID     string                  `json:"environment_id"`
 	SourceSHA         string                  `json:"source_sha"`
@@ -94,7 +94,7 @@ type PerformanceBenchmarkAuditSummary struct {
 	Metrics        int               `json:"metrics_evaluated"`
 	Status         string            `json:"status"`
 	ByScope        map[string]int    `json:"by_scope"`
-	Results        []BenchmarkResult `json:"results,omitempty"`
+	Results        []PerformanceBenchmarkResult `json:"results,omitempty"`
 }
 
 var knownBenchmarkHandlerKeys = map[string]bool{
@@ -127,7 +127,7 @@ func runPerformanceBenchmarkAudit(root, stage, environmentID, changesFile string
 
 	var changed []string
 	if strings.TrimSpace(changesFile) != "" {
-		changed, err = readChangedPaths(changesFile)
+		changed, err = readChangedPaths(root, changesFile)
 		if err != nil {
 			return PerformanceBenchmarkAuditSummary{}, err
 		}
@@ -278,10 +278,10 @@ func loadBenchmarkBaselines(root string, registry PerformanceRegistry, policy Be
 	return index, nil
 }
 
-func executePerformanceTarget(root, sourceSHA string, target PerformanceTarget, env PerformanceEnvironment, workload BenchmarkWorkloadDefinition, baselines map[string]PerformanceBaseline) (BenchmarkResult, error) {
+func executePerformanceTarget(root, sourceSHA string, target PerformanceTarget, env PerformanceEnvironment, workload BenchmarkWorkloadDefinition, baselines map[string]PerformanceBaseline) (PerformanceBenchmarkResult, error) {
 	for i := 0; i < workload.WarmupIterations; i++ {
 		if _, err := runBenchmarkHandler(root, workload); err != nil {
-			return BenchmarkResult{}, fmt.Errorf("performance target %s warmup %d: %w", target.ID, i+1, err)
+			return PerformanceBenchmarkResult{}, fmt.Errorf("performance target %s warmup %d: %w", target.ID, i+1, err)
 		}
 	}
 	samples := make([]BenchmarkSample, 0, workload.SampleCount)
@@ -289,11 +289,11 @@ func executePerformanceTarget(root, sourceSHA string, target PerformanceTarget, 
 		started := time.Now()
 		sample, err := runBenchmarkHandler(root, workload)
 		if err != nil {
-			return BenchmarkResult{}, fmt.Errorf("performance target %s sample %d: %w", target.ID, i+1, err)
+			return PerformanceBenchmarkResult{}, fmt.Errorf("performance target %s sample %d: %w", target.ID, i+1, err)
 		}
 		elapsed := time.Since(started)
 		if elapsed > time.Duration(workload.MaxSampleDurationMS)*time.Millisecond {
-			return BenchmarkResult{}, fmt.Errorf("performance target %s sample %d exceeded %dms cap", target.ID, i+1, workload.MaxSampleDurationMS)
+			return PerformanceBenchmarkResult{}, fmt.Errorf("performance target %s sample %d exceeded %dms cap", target.ID, i+1, workload.MaxSampleDurationMS)
 		}
 		samples = append(samples, sample)
 	}
@@ -305,9 +305,9 @@ func executePerformanceTarget(root, sourceSHA string, target PerformanceTarget, 
 	}
 	metrics, err := evaluatePerformanceMetrics(target, env, samples, baseline)
 	if err != nil {
-		return BenchmarkResult{}, err
+		return PerformanceBenchmarkResult{}, err
 	}
-	return BenchmarkResult{
+	return PerformanceBenchmarkResult{
 		TargetID: target.ID, EnvironmentID: env.ID, SourceSHA: sourceSHA,
 		Toolchain: "go" + engineeringGoVersion,
 		TargetDigest: digestCanonical(target), EnvironmentDigest: digestCanonical(env),
