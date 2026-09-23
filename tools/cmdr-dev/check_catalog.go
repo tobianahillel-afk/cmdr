@@ -98,6 +98,7 @@ var knownExecutorKeys = map[string]bool{
 	"coordination-audit":          true,
 	"metrics-registry-audit":      true,
 	"metrics-snapshot":            true,
+	"metrics-optimizer":           true,
 	"secret-scan":                 true,
 	"gosec-go":                    true,
 	"govulncheck-go":              true,

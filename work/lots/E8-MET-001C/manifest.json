@@ -35,9 +35,10 @@
     "canonical Product Spec remains read-only"
   ],
   "outputs": [
-    "optimization recommendation compiler",
-    "safety invariant proof for every recommendation",
-    "estimated benefit and revisit trigger"
+    "advisory comparative optimization report",
+    "per-recommendation quantified relative benefit",
+    "explicit safety invariant proof and withheld reasons",
+    "catalogued CHK-METRICS-OPTIMIZER preflight contract"
   ],
   "invariants": [
     "Product Spec remains read-only",
@@ -56,7 +57,12 @@
     "go test ./...",
     "cmdr-dev validate-manifests succeeds",
     "cmdr-dev complexity-audit succeeds",
-    "adaptive engineering-kernel remains green"
+    "adaptive engineering-kernel remains green",
+    "unit tests prove zero recommendations without baseline",
+    "unit tests prove unsafe safety floors withhold all recommendations",
+    "unit tests prove comparable regressions create advisory-only quantified recommendations",
+    "unit tests reject tampered snapshot digests",
+    "real adaptive validation emits zero recommendations when verified baseline is unavailable"
   ],
   "performance_budget": {
     "applicable": true,
@@ -81,7 +87,8 @@
   "required_checks": [
     "adaptive engineering-kernel",
     "cmdr-dev validate-manifests",
-    "cmdr-dev complexity-audit"
+    "cmdr-dev complexity-audit",
+    "CHK-METRICS-OPTIMIZER"
   ],
   "definition_of_ready": [
     "dependencies are VERIFIED",
@@ -98,7 +105,7 @@
     "primary_components": 1,
     "estimated_files_changed": 7,
     "estimated_net_loc": 480,
-    "production_files": 2,
+    "production_files": 3,
     "net_production_loc": 350,
     "bounded_contexts": 1,
     "independent_migrations": 0,

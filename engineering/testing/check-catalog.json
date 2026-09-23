@@ -959,6 +959,32 @@
         "CHK-METRICS-REGISTRY"
       ],
       "evidence_kind": "metric-snapshot"
+    },
+    {
+      "id": "CHK-METRICS-OPTIMIZER",
+      "title": "Safety-constrained engine optimization recommendation derivation",
+      "executor_key": "metrics-optimizer",
+      "risk_domains": [
+        "work-governance",
+        "repository-health",
+        "performance",
+        "security"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": true,
+      "trigger_paths": [
+        "engineering/metrics/**",
+        "engineering/state/**",
+        "work/**",
+        "tools/cmdr-dev/metrics_optimizer.go",
+        "tools/cmdr-dev/metrics_optimizer_test.go",
+        "tools/cmdr-dev/validation_run.go"
+      ],
+      "prerequisites": [
+        "CHK-METRICS-SNAPSHOT"
+      ],
+      "evidence_kind": "optimization-report"
     }
   ]
 }

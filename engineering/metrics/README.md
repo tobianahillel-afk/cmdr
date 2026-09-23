@@ -29,3 +29,27 @@ Every registered metric must appear exactly once as either:
 For example, an empty performance cache is recorded as `MET-CACHE-REUSE-RATE = unavailable / performance-cache:not-applicable`; it is never guessed as 0% or 100%.
 
 `MET-SAFETY-GREEN` is derived from the selected mandatory checks. Missing or failed mandatory execution produces value 0. A snapshot compilation failure fails the validation run; metrics cannot silently disappear to make the engine look faster.
+
+
+## Safety-constrained optimization recommendations
+
+E8-C derives advisory recommendations only from a current verified metric snapshot and, when available, an older comparable verified baseline.
+
+There are no absolute performance thresholds in this layer. An opportunity exists only when comparable evidence demonstrates a regression. This prevents the engine from inventing arbitrary targets.
+
+The current recommendation families are:
+
+- validation selectivity: only when validation tier and mandatory-check floor are unchanged while selected work and cost both regress;
+- cache reuse: only when a measured cache-reuse rate regresses versus baseline;
+- context bounding: only when deterministic context source/dependency counts grow versus baseline.
+
+Before any recommendation is possible, the current snapshot must prove:
+
+- mandatory safety execution is green;
+- coordination conflicts are zero;
+- recovery does not require revalidation;
+- mandatory check floor is known.
+
+Recommendations are advisory artifacts only. Their proof object hard-codes that direct plan mutation, mandatory-check mutation, prerequisite mutation and Product Spec mutation are not allowed. Any suggested change requires a later separately verified lot.
+
+When no baseline exists, when metrics are unavailable, or when snapshots are not comparable, the optimizer returns zero recommendations and explicit withheld reasons. This is a successful safe outcome, not an error.
