@@ -1,3 +1,1 @@
-module github.com/tobianahillel-afk/cmdr/tools/cmdr-dev
-
-go 1.23
+module github.com/tobianahillel-afk/cmdr/tools/cmdr-dev\n\ngo 1.26.8\n

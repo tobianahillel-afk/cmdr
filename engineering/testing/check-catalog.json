@@ -500,6 +500,44 @@
         "CHK-UNIT"
       ],
       "evidence_kind": "finding-report"
+    },
+    {
+      "id": "CHK-SAST-GO",
+      "title": "Go static application security analysis",
+      "executor_key": "gosec-go",
+      "risk_domains": [
+        "security",
+        "code-quality"
+      ],
+      "cost_tier": "standard",
+      "mandatory": true,
+      "always_on_pr": false,
+      "trigger_paths": [
+        "tools/cmdr-dev/**"
+      ],
+      "prerequisites": [
+        "CHK-SECRETS"
+      ],
+      "evidence_kind": "finding-report"
+    },
+    {
+      "id": "CHK-SCA-GO",
+      "title": "Go reachable dependency vulnerability analysis",
+      "executor_key": "govulncheck-go",
+      "risk_domains": [
+        "security",
+        "runtime-dependencies"
+      ],
+      "cost_tier": "standard",
+      "mandatory": true,
+      "always_on_pr": false,
+      "trigger_paths": [
+        "tools/cmdr-dev/**"
+      ],
+      "prerequisites": [
+        "CHK-SECRETS"
+      ],
+      "evidence_kind": "finding-report"
     }
   ]
-}
+}\n

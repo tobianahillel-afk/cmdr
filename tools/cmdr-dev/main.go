@@ -333,6 +333,24 @@ func main() {
 		if err != nil {
 			fail(err)
 		}
+	case "sast-go":
+		if err := validateState(root, state, graph); err != nil {
+			fail(err)
+		}
+		summary, err := runGoSAST(root)
+		printValue(summary, *jsonFlag)
+		if err != nil {
+			fail(err)
+		}
+	case "sca-go":
+		if err := validateState(root, state, graph); err != nil {
+			fail(err)
+		}
+		summary, err := runGoSCA(root)
+		printValue(summary, *jsonFlag)
+		if err != nil {
+			fail(err)
+		}
 	case "git-changes":
 		if err := validateState(root, state, graph); err != nil {
 			fail(err)
@@ -750,6 +768,18 @@ func printValue(v any, asJSON bool) {
 		fmt.Printf("allowlisted: %d\n", x.Allowlisted)
 		fmt.Printf("findings: %d\n", x.FindingCount)
 		fmt.Printf("by rule: %v\n", x.ByRule)
+	case SASTSummary:
+		fmt.Printf("tool: %s %s\n", x.Tool, x.Version)
+		fmt.Printf("scan root: %s\n", x.ScanRoot)
+		fmt.Printf("findings: %d\n", x.FindingCount)
+		fmt.Printf("by severity: %v\n", x.BySeverity)
+	case SCASummary:
+		fmt.Printf("tool: %s %s\n", x.Tool, x.Version)
+		fmt.Printf("database: %s\n", x.Database)
+		fmt.Printf("go version: %s\n", x.GoVersion)
+		fmt.Printf("modules: %d\n", x.Modules)
+		fmt.Printf("informational findings: %d\n", x.InformationalFindings)
+		fmt.Printf("actionable findings: %d\n", x.ActionableFindings)
 	case GitChangesSummary:
 		fmt.Printf("base commit: %s\n", x.BaseCommit)
 		fmt.Printf("head commit: %s\n", x.HeadCommit)
@@ -768,7 +798,7 @@ func printValue(v any, asJSON bool) {
 }
 
 func usage(w io.Writer) {
-	fmt.Fprintln(w, "usage: cmdr-dev <doctor|status|next|spec-index|spec-baseline|coverage-graph|obligations|coverage-audit|validate-manifests|complexity-audit|context|architecture-audit|dependency-audit|boundary-edge-audit|check-catalog-audit|impact|validation-plan|security-gate-audit|secret-scan|git-changes|validation-run> [--root PATH] [--json] [--check] [--output PATH]")
+	fmt.Fprintln(w, "usage: cmdr-dev <doctor|status|next|spec-index|spec-baseline|coverage-graph|obligations|coverage-audit|validate-manifests|complexity-audit|context|architecture-audit|dependency-audit|boundary-edge-audit|check-catalog-audit|impact|validation-plan|security-gate-audit|secret-scan|sast-go|sca-go|git-changes|validation-run> [--root PATH] [--json] [--check] [--output PATH]")
 }
 
 func fail(err error) {

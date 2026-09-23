@@ -91,7 +91,7 @@ func validationExecutorMode(key string) (string, error) {
 	case "gofmt", "go-vet", "go-unit",
 		"spec-index", "spec-baseline", "coverage-graph", "obligations", "coverage-audit",
 		"validate-manifests", "architecture-audit", "dependency-audit", "boundary-edge-audit",
-		"complexity-audit", "context", "doctor", "next", "check-catalog-audit", "security-gate-audit", "secret-scan":
+		"complexity-audit", "context", "doctor", "next", "check-catalog-audit", "security-gate-audit", "secret-scan", "gosec-go", "govulncheck-go":
 		return "execute", nil
 	default:
 		return "", fmt.Errorf("unsupported executor_key %q", key)
@@ -252,6 +252,21 @@ func executeValidationCheck(root, tempDir, changesFile, key string, state Curren
 		return fmt.Sprintf("mode=%s candidates=%d scanned=%d findings=%d allowlisted=%d skipped_binary=%d skipped_generated=%d",
 			summary.Mode, summary.CandidatePaths, summary.ScannedFiles, summary.FindingCount,
 			summary.Allowlisted, summary.SkippedBinary, summary.SkippedGenerated), nil
+	case "gosec-go":
+		summary, err := runGoSAST(root)
+		if err != nil {
+			return "", err
+		}
+		return fmt.Sprintf("tool=%s version=%s scan_root=%s findings=%d",
+			summary.Tool, summary.Version, summary.ScanRoot, summary.FindingCount), nil
+	case "govulncheck-go":
+		summary, err := runGoSCA(root)
+		if err != nil {
+			return "", err
+		}
+		return fmt.Sprintf("tool=%s version=%s modules=%d informational=%d actionable=%d db=%s",
+			summary.Tool, summary.Version, summary.Modules, summary.InformationalFindings,
+			summary.ActionableFindings, summary.Database), nil
 	default:
 		return "", fmt.Errorf("unsupported executable key %q", key)
 	}
