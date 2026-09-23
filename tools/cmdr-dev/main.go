@@ -344,6 +344,15 @@ func main() {
 			fail(err)
 		}
 		printValue(summary, *jsonFlag)
+	case "decision-registry-audit":
+		if err := validateState(root, state, graph); err != nil {
+			fail(err)
+		}
+		summary, err := runDecisionRegistryAudit(root, graph)
+		if err != nil {
+			fail(err)
+		}
+		printValue(summary, *jsonFlag)
 	case "secret-scan":
 		if err := validateState(root, state, graph); err != nil {
 			fail(err)
@@ -814,6 +823,14 @@ func printValue(v any, asJSON bool) {
 		fmt.Printf("selected targets: %d\n", x.SelectedTargets)
 		fmt.Printf("deferred gates: %d\n", x.DeferredGates)
 		fmt.Printf("validated evidence: %d\n", x.ValidatedEvidence)
+	case DecisionRegistryAuditSummary:
+		fmt.Printf("decisions: %d\n", x.Decisions)
+		fmt.Printf("by class: %v\n", x.ByClass)
+		fmt.Printf("by status: %v\n", x.ByStatus)
+		fmt.Printf("accepted: %d\n", x.Accepted)
+		fmt.Printf("blocked product: %d\n", x.BlockedProduct)
+		fmt.Printf("performance-sensitive: %d\n", x.PerformanceSensitive)
+		fmt.Printf("critical: %d\n", x.Critical)
 	case SecretScanSummary:
 		fmt.Printf("mode: %s\n", x.Mode)
 		fmt.Printf("candidate paths: %d\n", x.CandidatePaths)
@@ -859,7 +876,7 @@ func printValue(v any, asJSON bool) {
 }
 
 func usage(w io.Writer) {
-	fmt.Fprintln(w, "usage: cmdr-dev <doctor|status|next|spec-index|spec-baseline|coverage-graph|obligations|coverage-audit|validate-manifests|complexity-audit|context|architecture-audit|dependency-audit|boundary-edge-audit|check-catalog-audit|impact|validation-plan|security-gate-audit|security-test-audit|deep-security-audit|secret-scan|sast-go|sca-go|sbom|git-changes|validation-run> [--root PATH] [--json] [--check] [--output PATH]")
+	fmt.Fprintln(w, "usage: cmdr-dev <doctor|status|next|spec-index|spec-baseline|coverage-graph|obligations|coverage-audit|validate-manifests|complexity-audit|context|architecture-audit|dependency-audit|boundary-edge-audit|check-catalog-audit|impact|validation-plan|security-gate-audit|security-test-audit|deep-security-audit|decision-registry-audit|secret-scan|sast-go|sca-go|sbom|git-changes|validation-run> [--root PATH] [--json] [--check] [--output PATH]")
 }
 
 func fail(err error) {

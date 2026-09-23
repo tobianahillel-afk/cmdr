@@ -37,10 +37,11 @@
     "real repository and work-unit context"
   ],
   "outputs": [
-    "strict decision registry",
-    "decision-class policy",
-    "decision registry audit",
-    "agent-visible accepted/blocked decision state"
+    "canonical machine-readable A/B/C decision policy",
+    "strict engineering decision registry",
+    "product-decision boundary enforcement",
+    "decision supersession and live-key uniqueness rules",
+    "adaptive CHK-DECISIONS gate"
   ],
   "invariants": [
     "Product Spec remains read-only",
@@ -59,7 +60,12 @@
     "cmdr-dev validate-manifests succeeds",
     "cmdr-dev architecture-audit succeeds",
     "cmdr-dev complexity-audit succeeds",
-    "adaptive engineering-kernel remains green"
+    "adaptive engineering-kernel remains green",
+    "unit tests prove accepted product-boundary decisions are rejected",
+    "unit tests enforce evidence benchmark and adversarial prerequisites for accepted B/C decisions",
+    "unit tests reject duplicate live decision keys and invalid supersession",
+    "unit tests reject unknown affected work units",
+    "push and pull-request CI execute CHK-DECISIONS"
   ],
   "performance_budget": {
     "applicable": true,
@@ -85,7 +91,8 @@
   "required_checks": [
     "adaptive engineering-kernel",
     "cmdr-dev validate-manifests",
-    "cmdr-dev complexity-audit"
+    "cmdr-dev complexity-audit",
+    "cmdr-dev decision-registry-audit"
   ],
   "definition_of_ready": [
     "dependencies are VERIFIED",
@@ -100,10 +107,10 @@
   ],
   "complexity": {
     "primary_components": 1,
-    "estimated_files_changed": 7,
-    "estimated_net_loc": 430,
-    "production_files": 2,
-    "net_production_loc": 320,
+    "estimated_files_changed": 10,
+    "estimated_net_loc": 650,
+    "production_files": 3,
+    "net_production_loc": 480,
     "bounded_contexts": 1,
     "independent_migrations": 0,
     "distinct_security_models": 1,
