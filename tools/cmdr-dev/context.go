@@ -141,14 +141,14 @@ func runContextCompiler(root, workUnit, output string, check bool, state Current
 	if output == "" || output == "engineering/spec-index/inventory.json" {
 		output = filepath.ToSlash(filepath.Join("engineering", "context", workUnit+".json"))
 	}
-	outputPath := output
-	if !filepath.IsAbs(outputPath) {
-		outputPath = filepath.Join(root, filepath.FromSlash(outputPath))
+	outputPath, err := resolveRepoPath(root, output, !check)
+	if err != nil {
+		return ContextSummary{}, err
 	}
 	mode := "write"
 	if check {
 		mode = "check"
-		existing, err := os.ReadFile(outputPath)
+		existing, err := readRepoFile(root, outputPath)
 		if err != nil {
 			return ContextSummary{}, fmt.Errorf("read context bundle: %w", err)
 		}
@@ -156,10 +156,8 @@ func runContextCompiler(root, workUnit, output string, check bool, state Current
 			return ContextSummary{}, fmt.Errorf("context bundle is stale: %s", outputPath)
 		}
 	} else {
-		if err := os.MkdirAll(filepath.Dir(outputPath), 0o755); err != nil {
-			return ContextSummary{}, err
-		}
-		if err := os.WriteFile(outputPath, data, 0o644); err != nil {
+		outputPath, err = writeRepoFile(root, outputPath, data)
+		if err != nil {
 			return ContextSummary{}, err
 		}
 	}
@@ -439,7 +437,7 @@ func validateExplicitProductPath(root, specRel, rel string) error {
 	if !strings.HasPrefix(rel, strings.TrimSuffix(specRel, "/")+"/") {
 		return fmt.Errorf("product source %s is outside %s", rel, specRel)
 	}
-	info, err := os.Stat(filepath.Join(root, filepath.FromSlash(rel)))
+	info, err := statRepoPath(root, rel)
 	if err != nil || info.IsDir() {
 		return fmt.Errorf("product source %s does not exist as a file", rel)
 	}

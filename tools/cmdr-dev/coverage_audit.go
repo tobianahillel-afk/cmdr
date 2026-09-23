@@ -75,14 +75,14 @@ func runCoverageAudit(root, specRel, output string, check bool) (CoverageAuditSu
 	}
 	data = append(data, '\n')
 
-	outputPath := output
-	if !filepath.IsAbs(outputPath) {
-		outputPath = filepath.Join(root, filepath.FromSlash(outputPath))
+	outputPath, err := resolveRepoPath(root, output, !check)
+	if err != nil {
+		return CoverageAuditSummary{}, err
 	}
 	mode := "write"
 	if check {
 		mode = "check"
-		existing, err := os.ReadFile(outputPath)
+		existing, err := readRepoFile(root, outputPath)
 		if err != nil {
 			return CoverageAuditSummary{}, fmt.Errorf("read coverage audit: %w", err)
 		}
@@ -90,10 +90,8 @@ func runCoverageAudit(root, specRel, output string, check bool) (CoverageAuditSu
 			return CoverageAuditSummary{}, fmt.Errorf("coverage audit is stale: %s", outputPath)
 		}
 	} else {
-		if err := os.MkdirAll(filepath.Dir(outputPath), 0o755); err != nil {
-			return CoverageAuditSummary{}, err
-		}
-		if err := os.WriteFile(outputPath, data, 0o644); err != nil {
+		outputPath, err = writeRepoFile(root, outputPath, data)
+		if err != nil {
 			return CoverageAuditSummary{}, err
 		}
 	}

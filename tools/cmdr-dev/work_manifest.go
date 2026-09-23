@@ -321,7 +321,7 @@ func validateProductRefs(root string, refs ProductRefsV2) error {
 		if !strings.HasPrefix(value, "cmdr-product-spec/") {
 			return fmt.Errorf("product source path %q must be under cmdr-product-spec/", value)
 		}
-		info, err := os.Stat(filepath.Join(root, filepath.FromSlash(value)))
+		info, err := statRepoPath(root, value)
 		if err != nil || info.IsDir() {
 			return fmt.Errorf("product source path %q does not exist as a file", value)
 		}

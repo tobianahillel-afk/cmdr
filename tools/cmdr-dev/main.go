@@ -491,7 +491,11 @@ func validateState(root string, state CurrentState, graph WorkGraph) error {
 	if state.ProductSpec.CanonicalPath == "" {
 		return errors.New("canonical product-spec path is empty")
 	}
-	if info, err := os.Stat(filepath.Join(root, filepath.FromSlash(state.ProductSpec.CanonicalPath))); err != nil || !info.IsDir() {
+	productPath, err := resolveRepoPath(root, state.ProductSpec.CanonicalPath, false)
+	if err != nil {
+		return fmt.Errorf("canonical product-spec path %q is invalid: %w", state.ProductSpec.CanonicalPath, err)
+	}
+	if info, err := os.Stat(productPath); err != nil || !info.IsDir() { // #nosec G703 -- productPath is repository-confined and symlink-free.
 		return fmt.Errorf("canonical product-spec path %q does not exist", state.ProductSpec.CanonicalPath)
 	}
 

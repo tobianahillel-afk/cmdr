@@ -82,14 +82,14 @@ func runCoverageGraph(root, specRel, output string, check bool) (CoverageGraphSu
 	}
 	data = append(data, '\n')
 
-	outputPath := output
-	if !filepath.IsAbs(outputPath) {
-		outputPath = filepath.Join(root, filepath.FromSlash(outputPath))
+	outputPath, err := resolveRepoPath(root, output, !check)
+	if err != nil {
+		return CoverageGraphSummary{}, err
 	}
 	mode := "write"
 	if check {
 		mode = "check"
-		existing, err := os.ReadFile(outputPath)
+		existing, err := readRepoFile(root, outputPath)
 		if err != nil {
 			return CoverageGraphSummary{}, fmt.Errorf("read product graph: %w", err)
 		}
@@ -97,10 +97,8 @@ func runCoverageGraph(root, specRel, output string, check bool) (CoverageGraphSu
 			return CoverageGraphSummary{}, fmt.Errorf("product graph is stale: %s", outputPath)
 		}
 	} else {
-		if err := os.MkdirAll(filepath.Dir(outputPath), 0o755); err != nil {
-			return CoverageGraphSummary{}, err
-		}
-		if err := os.WriteFile(outputPath, data, 0o644); err != nil {
+		outputPath, err = writeRepoFile(root, outputPath, data)
+		if err != nil {
 			return CoverageGraphSummary{}, err
 		}
 	}

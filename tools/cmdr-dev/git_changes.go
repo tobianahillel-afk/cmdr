@@ -62,15 +62,13 @@ func runGitChanges(root, baseCommit, headCommit, output string) (GitChangesSumma
 	if output == "" || output == "engineering/spec-index/inventory.json" {
 		output = filepath.ToSlash(filepath.Join("engineering", "testing", "changes.txt"))
 	}
-	outputPath := output
-	if !filepath.IsAbs(outputPath) {
-		outputPath = filepath.Join(root, filepath.FromSlash(outputPath))
-	}
-	if err := os.MkdirAll(filepath.Dir(outputPath), 0o755); err != nil {
+	outputPath, err := resolveRepoPath(root, output, true)
+	if err != nil {
 		return GitChangesSummary{}, err
 	}
 	data := []byte(strings.Join(paths, "\n") + "\n")
-	if err := os.WriteFile(outputPath, data, 0o644); err != nil {
+	outputPath, err = writeRepoFile(root, outputPath, data)
+	if err != nil {
 		return GitChangesSummary{}, fmt.Errorf("write change set: %w", err)
 	}
 

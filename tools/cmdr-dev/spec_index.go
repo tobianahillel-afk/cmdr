@@ -82,14 +82,14 @@ func runSpecIndex(root, specRel, output string, check bool) (SpecIndexSummary, e
 	}
 	data = append(data, '\n')
 
-	outputPath := output
-	if !filepath.IsAbs(outputPath) {
-		outputPath = filepath.Join(root, filepath.FromSlash(outputPath))
+	outputPath, err := resolveRepoPath(root, output, !check)
+	if err != nil {
+		return SpecIndexSummary{}, err
 	}
 	mode := "write"
 	if check {
 		mode = "check"
-		existing, err := os.ReadFile(outputPath)
+		existing, err := readRepoFile(root, outputPath)
 		if err != nil {
 			return SpecIndexSummary{}, fmt.Errorf("read generated spec index: %w", err)
 		}
@@ -97,10 +97,8 @@ func runSpecIndex(root, specRel, output string, check bool) (SpecIndexSummary, e
 			return SpecIndexSummary{}, fmt.Errorf("generated spec index is stale: %s", outputPath)
 		}
 	} else {
-		if err := os.MkdirAll(filepath.Dir(outputPath), 0o755); err != nil {
-			return SpecIndexSummary{}, err
-		}
-		if err := os.WriteFile(outputPath, data, 0o644); err != nil {
+		outputPath, err = writeRepoFile(root, outputPath, data)
+		if err != nil {
 			return SpecIndexSummary{}, err
 		}
 	}
@@ -121,16 +119,22 @@ func runSpecIndex(root, specRel, output string, check bool) (SpecIndexSummary, e
 }
 
 func buildSpecInventory(root, specRel string) (SpecInventory, error) {
-	specRoot := filepath.Join(root, filepath.FromSlash(specRel))
+	specRoot, err := resolveRepoPath(root, specRel, false)
+	if err != nil {
+		return SpecInventory{}, err
+	}
 	var docs []SpecDocument
-	err := filepath.WalkDir(specRoot, func(path string, entry os.DirEntry, err error) error {
+	err = filepath.WalkDir(specRoot, func(path string, entry os.DirEntry, err error) error {
 		if err != nil {
 			return err
+		}
+		if entry.Type()&os.ModeSymlink != 0 {
+			return fmt.Errorf("product spec contains symlink: %s", path)
 		}
 		if entry.IsDir() || !strings.EqualFold(filepath.Ext(entry.Name()), ".md") {
 			return nil
 		}
-		content, err := os.ReadFile(path)
+		content, err := readRepoFile(root, path)
 		if err != nil {
 			return err
 		}
@@ -332,14 +336,14 @@ func runSpecBaseline(root, specRel, baselineCommit, output string, check bool) (
 	}
 	data = append(data, '\n')
 
-	outputPath := output
-	if !filepath.IsAbs(outputPath) {
-		outputPath = filepath.Join(root, filepath.FromSlash(outputPath))
+	outputPath, err := resolveRepoPath(root, output, !check)
+	if err != nil {
+		return SpecBaselineSummary{}, err
 	}
 	mode := "write"
 	if check {
 		mode = "check"
-		existing, err := os.ReadFile(outputPath)
+		existing, err := readRepoFile(root, outputPath)
 		if err != nil {
 			return SpecBaselineSummary{}, fmt.Errorf("read spec baseline: %w", err)
 		}
@@ -347,10 +351,8 @@ func runSpecBaseline(root, specRel, baselineCommit, output string, check bool) (
 			return SpecBaselineSummary{}, fmt.Errorf("spec baseline is stale: %s", outputPath)
 		}
 	} else {
-		if err := os.MkdirAll(filepath.Dir(outputPath), 0o755); err != nil {
-			return SpecBaselineSummary{}, err
-		}
-		if err := os.WriteFile(outputPath, data, 0o644); err != nil {
+		outputPath, err = writeRepoFile(root, outputPath, data)
+		if err != nil {
 			return SpecBaselineSummary{}, err
 		}
 	}
