@@ -92,8 +92,6 @@ func discoverLocalPackages(root string, registry ArchitectureRegistry) ([]LocalP
 				if entry.Type()&os.ModeSymlink != 0 {
 					return fmt.Errorf("runtime boundary contains symlink: %s", path)
 				}
-					return err
-				}
 				if entry.IsDir() {
 					if path != scanRoot && ignoredDependencyDir(entry.Name()) {
 						return filepath.SkipDir

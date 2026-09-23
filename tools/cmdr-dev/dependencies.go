@@ -161,8 +161,6 @@ func scanRuntimeBoundary(root, boundaryID, rootPattern string) ([]RuntimeDepende
 		if entry.Type()&os.ModeSymlink != 0 {
 			return fmt.Errorf("runtime boundary contains symlink: %s", path)
 		}
-			return err
-		}
 		if entry.IsDir() {
 			if path != scanRoot && ignoredDependencyDir(entry.Name()) {
 				return filepath.SkipDir
