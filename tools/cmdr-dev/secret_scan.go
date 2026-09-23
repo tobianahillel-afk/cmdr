@@ -184,7 +184,7 @@ func secretFingerprint(ruleID string, secret []byte) string {
 
 func loadSecretAllowlist(root string) (SecretAllowlist, error) {
 	var allowlist SecretAllowlist
-	if err := decodeStrict(filepath.Join(root, filepath.FromSlash(secretAllowlistPath)), &allowlist); err != nil {
+	if err := decodeStrict(root, filepath.Join(root, filepath.FromSlash(secretAllowlistPath)), &allowlist); err != nil {
 		return allowlist, err
 	}
 	if allowlist.SchemaVersion != 1 {

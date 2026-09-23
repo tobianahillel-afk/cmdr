@@ -129,7 +129,7 @@ func loadActiveRequirementIDs(root, specRel string) (map[string][]string, error)
 	_ = specRel
 	rel := "engineering/coverage/source-requirements-baseline.json"
 	var baseline SourceRequirementBaseline
-	if err := decodeStrict(filepath.Join(root, filepath.FromSlash(rel)), &baseline); err != nil {
+	if err := decodeStrict(root, filepath.Join(root, filepath.FromSlash(rel)), &baseline); err != nil {
 		return nil, fmt.Errorf("decode source requirement baseline: %w", err)
 	}
 	if baseline.SchemaVersion != 1 || baseline.BaselineKind != "source-requirement-identity" {

@@ -70,7 +70,7 @@ func runImpactAnalysis(root, workUnit, changesFile string, state CurrentState, g
 		return ImpactReport{}, err
 	}
 	var registry ArchitectureRegistry
-	if err := decodeStrict(filepath.Join(root, filepath.FromSlash(architectureRegistryPath)), &registry); err != nil {
+	if err := decodeStrict(root, filepath.Join(root, filepath.FromSlash(architectureRegistryPath)), &registry); err != nil {
 		return ImpactReport{}, err
 	}
 	if err := validateArchitectureRegistry(registry); err != nil {

@@ -421,17 +421,17 @@ func isRepoRoot(root string) bool {
 func loadRepositoryState(root string) (CurrentState, WorkGraph, error) {
 	var state CurrentState
 	var graph WorkGraph
-	if err := decodeStrict(filepath.Join(root, filepath.FromSlash(statePath)), &state); err != nil {
+	if err := decodeStrict(root, filepath.Join(root, filepath.FromSlash(statePath)), &state); err != nil {
 		return state, graph, err
 	}
-	if err := decodeStrict(filepath.Join(root, filepath.FromSlash(graphPath)), &graph); err != nil {
+	if err := decodeStrict(root, filepath.Join(root, filepath.FromSlash(graphPath)), &graph); err != nil {
 		return state, graph, err
 	}
 	return state, graph, nil
 }
 
-func decodeStrict(path string, dst any) error {
-	f, err := os.Open(path)
+func decodeStrict(root, path string, dst any) error {
+	f, err := openRepoFile(root, path)
 	if err != nil {
 		return fmt.Errorf("open %s: %w", path, err)
 	}

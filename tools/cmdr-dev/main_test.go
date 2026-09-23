@@ -61,7 +61,7 @@ func TestDecodeStrictRejectsUnknownField(t *testing.T) {
 		t.Fatal(err)
 	}
 	var state CurrentState
-	if err := decodeStrict(path, &state); err == nil {
+	if err := decodeStrict(dir, path, &state); err == nil {
 		t.Fatal("expected strict decode error")
 	}
 }

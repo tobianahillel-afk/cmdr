@@ -59,14 +59,14 @@ type DependencyAuditSummary struct {
 
 func runDependencyAudit(root string) (DependencyAuditSummary, error) {
 	var registry ArchitectureRegistry
-	if err := decodeStrict(filepath.Join(root, filepath.FromSlash(architectureRegistryPath)), &registry); err != nil {
+	if err := decodeStrict(root, filepath.Join(root, filepath.FromSlash(architectureRegistryPath)), &registry); err != nil {
 		return DependencyAuditSummary{}, err
 	}
 	if err := validateArchitectureRegistry(registry); err != nil {
 		return DependencyAuditSummary{}, err
 	}
 	var trusted TrustedBase
-	if err := decodeStrict(filepath.Join(root, filepath.FromSlash(trustedBasePath)), &trusted); err != nil {
+	if err := decodeStrict(root, filepath.Join(root, filepath.FromSlash(trustedBasePath)), &trusted); err != nil {
 		return DependencyAuditSummary{}, err
 	}
 	if err := validateTrustedBase(trusted); err != nil {

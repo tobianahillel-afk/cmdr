@@ -32,7 +32,7 @@ type ArchitectureAuditSummary struct {
 
 func runArchitectureAudit(root string) (ArchitectureAuditSummary, error) {
 	var registry ArchitectureRegistry
-	if err := decodeStrict(filepath.Join(root, filepath.FromSlash(architectureRegistryPath)), &registry); err != nil {
+	if err := decodeStrict(root, filepath.Join(root, filepath.FromSlash(architectureRegistryPath)), &registry); err != nil {
 		return ArchitectureAuditSummary{}, err
 	}
 	if err := validateArchitectureRegistry(registry); err != nil {

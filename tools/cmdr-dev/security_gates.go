@@ -96,7 +96,7 @@ var knownSecurityImplementationKeys = map[string]bool{
 
 func loadSecurityGateRegistry(root string) (SecurityGateRegistry, error) {
 	var registry SecurityGateRegistry
-	if err := decodeStrict(filepath.Join(root, filepath.FromSlash(securityGateRegistryPath)), &registry); err != nil {
+	if err := decodeStrict(root, filepath.Join(root, filepath.FromSlash(securityGateRegistryPath)), &registry); err != nil {
 		return registry, err
 	}
 	if err := validateSecurityGateRegistry(registry); err != nil {

@@ -125,7 +125,7 @@ type govulnJSONMessage struct {
 
 func loadDevelopmentTools(root string) (DevelopmentToolRegistry, error) {
 	var registry DevelopmentToolRegistry
-	if err := decodeStrict(filepath.Join(root, filepath.FromSlash(developmentToolRegistryPath)), &registry); err != nil {
+	if err := decodeStrict(root, filepath.Join(root, filepath.FromSlash(developmentToolRegistryPath)), &registry); err != nil {
 		return registry, err
 	}
 	if registry.SchemaVersion != 1 {

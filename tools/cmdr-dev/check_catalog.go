@@ -92,7 +92,7 @@ var knownExecutorKeys = map[string]bool{
 
 func loadCheckCatalog(root string) (CheckCatalog, error) {
 	var catalog CheckCatalog
-	if err := decodeStrict(filepath.Join(root, filepath.FromSlash(checkCatalogPath)), &catalog); err != nil {
+	if err := decodeStrict(root, filepath.Join(root, filepath.FromSlash(checkCatalogPath)), &catalog); err != nil {
 		return catalog, err
 	}
 	if err := validateCheckCatalog(catalog); err != nil {
