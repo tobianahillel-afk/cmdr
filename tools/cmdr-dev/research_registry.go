@@ -15,21 +15,21 @@ const (
 )
 
 type ResearchLimits struct {
-	MaxPackets          int `json:"max_packets"`
-	MaxFamiliesPerPacket int `json:"max_families_per_packet"`
-	MaxSourcesPerPacket int `json:"max_sources_per_packet"`
-	MaxClaimsPerPacket  int `json:"max_claims_per_packet"`
+	MaxPackets              int `json:"max_packets"`
+	MaxFamiliesPerPacket    int `json:"max_families_per_packet"`
+	MaxSourcesPerPacket     int `json:"max_sources_per_packet"`
+	MaxClaimsPerPacket      int `json:"max_claims_per_packet"`
 	MaxLimitationsPerPacket int `json:"max_limitations_per_packet"`
 }
 
 type ResearchPolicy struct {
-	SchemaVersion      int      `json:"schema_version"`
-	DefaultPolicy      string   `json:"default_policy"`
-	PacketStatuses     []string `json:"packet_statuses"`
-	SourceKinds        []string `json:"source_kinds"`
-	ClaimCriticalities []string `json:"claim_criticalities"`
-	ClaimStatuses      []string `json:"claim_statuses"`
-	FamilyDispositions []string `json:"family_dispositions"`
+	SchemaVersion      int            `json:"schema_version"`
+	DefaultPolicy      string         `json:"default_policy"`
+	PacketStatuses     []string       `json:"packet_statuses"`
+	SourceKinds        []string       `json:"source_kinds"`
+	ClaimCriticalities []string       `json:"claim_criticalities"`
+	ClaimStatuses      []string       `json:"claim_statuses"`
+	FamilyDispositions []string       `json:"family_dispositions"`
 	Limits             ResearchLimits `json:"limits"`
 }
 
@@ -98,29 +98,29 @@ type ResearchRegistry struct {
 }
 
 type ResearchAuditSummary struct {
-	Packets              int            `json:"packets"`
-	Saturated            int            `json:"saturated"`
-	Collecting           int            `json:"collecting"`
-	Superseded           int            `json:"superseded"`
-	Sources              int            `json:"sources"`
-	Claims               int            `json:"claims"`
-	CriticalClaims       int            `json:"critical_claims"`
-	UnresolvedCritical   int            `json:"unresolved_critical_claims"`
-	BySourceKind         map[string]int `json:"by_source_kind"`
+	Packets            int            `json:"packets"`
+	Saturated          int            `json:"saturated"`
+	Collecting         int            `json:"collecting"`
+	Superseded         int            `json:"superseded"`
+	Sources            int            `json:"sources"`
+	Claims             int            `json:"claims"`
+	CriticalClaims     int            `json:"critical_claims"`
+	UnresolvedCritical int            `json:"unresolved_critical_claims"`
+	BySourceKind       map[string]int `json:"by_source_kind"`
 }
 
 type ResearchContextBundle struct {
-	PacketID          string                   `json:"packet_id"`
-	DecisionID        string                   `json:"decision_id"`
-	Topic             string                   `json:"topic"`
-	Question          string                   `json:"question"`
-	AsOf              string                   `json:"as_of"`
-	Constraints       []string                 `json:"constraints"`
-	SolutionFamilies  []ResearchSolutionFamily `json:"solution_families"`
-	Sources           []ResearchSource         `json:"sources"`
-	Claims            []ResearchClaim          `json:"claims"`
-	Limitations       []ResearchLimitation     `json:"limitations"`
-	Saturation        ResearchSaturation       `json:"saturation"`
+	PacketID         string                   `json:"packet_id"`
+	DecisionID       string                   `json:"decision_id"`
+	Topic            string                   `json:"topic"`
+	Question         string                   `json:"question"`
+	AsOf             string                   `json:"as_of"`
+	Constraints      []string                 `json:"constraints"`
+	SolutionFamilies []ResearchSolutionFamily `json:"solution_families"`
+	Sources          []ResearchSource         `json:"sources"`
+	Claims           []ResearchClaim          `json:"claims"`
+	Limitations      []ResearchLimitation     `json:"limitations"`
+	Saturation       ResearchSaturation       `json:"saturation"`
 }
 
 var researchPacketIDPattern = regexp.MustCompile(`^RES-PKT-[0-9]{4,}$`)
@@ -191,10 +191,10 @@ func compileResearchContext(root, packetID string) (ResearchContextBundle, error
 				PacketID: packet.ID, DecisionID: packet.DecisionID, Topic: packet.Topic, Question: packet.Question,
 				AsOf: packet.AsOf, Constraints: append([]string(nil), packet.Constraints...),
 				SolutionFamilies: append([]ResearchSolutionFamily(nil), packet.SolutionFamilies...),
-				Sources: append([]ResearchSource(nil), packet.Sources...),
-				Claims: append([]ResearchClaim(nil), packet.Claims...),
-				Limitations: append([]ResearchLimitation(nil), packet.Limitations...),
-				Saturation: packet.Saturation,
+				Sources:          append([]ResearchSource(nil), packet.Sources...),
+				Claims:           append([]ResearchClaim(nil), packet.Claims...),
+				Limitations:      append([]ResearchLimitation(nil), packet.Limitations...),
+				Saturation:       packet.Saturation,
 			}, nil
 		}
 	}
