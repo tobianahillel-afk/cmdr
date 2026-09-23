@@ -554,7 +554,7 @@
       "id": "E7-REC-001",
       "title": "Implement recovery and multi-agent coordination engine",
       "type": "epic",
-      "status": "DECOMPOSED",
+      "status": "VERIFIED",
       "depends_on": [
         "E6-PERF-001D"
       ],
@@ -606,9 +606,72 @@
       "id": "E7-REC-001D",
       "title": "Enforce multi-agent conflict detection and safe handoff",
       "type": "sublot",
-      "status": "READY",
+      "status": "VERIFIED",
       "depends_on": [
         "E7-REC-001C"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": []
+    },
+    {
+      "id": "E8-MET-001",
+      "title": "Implement engine metrics and optimization layer",
+      "type": "epic",
+      "status": "DECOMPOSED",
+      "depends_on": [
+        "E7-REC-001D"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E8-MET-001A"
+      ]
+    },
+    {
+      "id": "E8-MET-001A",
+      "title": "Define deterministic engine metrics registry and evidence model",
+      "type": "sublot",
+      "status": "READY",
+      "depends_on": [
+        "E7-REC-001D"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E8-MET-001B"
+      ]
+    },
+    {
+      "id": "E8-MET-001B",
+      "title": "Collect validation throughput context and cache efficiency metrics",
+      "type": "sublot",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E8-MET-001A"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E8-MET-001C"
+      ]
+    },
+    {
+      "id": "E8-MET-001C",
+      "title": "Derive safety-constrained optimization recommendations",
+      "type": "sublot",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E8-MET-001B"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E8-MET-001D"
+      ]
+    },
+    {
+      "id": "E8-MET-001D",
+      "title": "Enforce engine efficiency regression budgets and optimization handoff",
+      "type": "sublot",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E8-MET-001C"
       ],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": []
