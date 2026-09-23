@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "work_unit": "E4-SEC-002A",
+  "result": "VERIFIED",
+  "final_validated_head": "4515387c45714f20fb91cfaebd28bd2e8be4cf71",
+  "pull_request": 36,
+  "evidence": {
+    "implementation_push_run": 35832984027,
+    "implementation_pr_run": 35832989117,
+    "activation_push_run": 35833151606,
+    "activation_pr_run": 35833155410,
+    "catalog_check": "CHK-SECRETS",
+    "security_gate": "SEC-SECRETS-001",
+    "implementation_key": "builtin-secret-scan-v1"
+  },
+  "rules": [
+    "secret scanning is local and deterministic",
+    "finding evidence is redacted to rule/path/line/SHA-256 fingerprint",
+    "allowlisting is exact rule/path/fingerprint scoped",
+    "active gate status is backed by successful push and pull-request execution"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E4-SEC-002B"
+  ]
+}

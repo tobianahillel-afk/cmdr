@@ -350,7 +350,7 @@
       "id": "E4-SEC-002A",
       "title": "Implement deterministic secret scanning",
       "type": "sublot",
-      "status": "READY",
+      "status": "VERIFIED",
       "depends_on": [
         "E4-SEC-001A"
       ],
@@ -363,7 +363,7 @@
       "id": "E4-SEC-002B",
       "title": "Implement SAST and dependency vulnerability controls",
       "type": "sublot",
-      "status": "BLOCKED",
+      "status": "READY",
       "depends_on": [
         "E4-SEC-002A"
       ],

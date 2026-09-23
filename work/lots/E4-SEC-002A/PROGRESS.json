@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "work_unit": "E4-SEC-002A",
+  "status": "VERIFIED",
+  "final_validated_head": "4515387c45714f20fb91cfaebd28bd2e8be4cf71",
+  "implementation_proof": {
+    "commit": "200c179616b48c6f5914400e4205ee486b54ceee",
+    "push_run": 35832984027,
+    "pull_request_run": 35832989117,
+    "push_scan": {
+      "candidate_paths": 11,
+      "scanned_files": 10,
+      "findings": 0,
+      "allowlisted": 0,
+      "skipped_generated": 1
+    },
+    "pull_request_scan": {
+      "candidate_paths": 142,
+      "scanned_files": 139,
+      "findings": 0,
+      "allowlisted": 0,
+      "skipped_generated": 3
+    }
+  },
+  "activation_proof": {
+    "commit": "4515387c45714f20fb91cfaebd28bd2e8be4cf71",
+    "push_run": 35833151606,
+    "pull_request_run": 35833155410,
+    "result": "PASS",
+    "gate": "SEC-SECRETS-001",
+    "readiness": "active",
+    "implementation_key": "builtin-secret-scan-v1"
+  },
+  "invariants": [
+    "matched secret bytes are never emitted in findings or errors",
+    "allowlist entries contain exact path and SHA-256 fingerprint, never raw secret",
+    "changed-path scans safely ignore deleted files and never follow symlinks",
+    "full scan uses Git-tracked files only",
+    "oversized regular text candidates fail closed"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E4-SEC-002B"
+  ]
+}
