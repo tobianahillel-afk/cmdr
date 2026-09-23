@@ -662,6 +662,30 @@
         "CHK-DECISIONS"
       ],
       "evidence_kind": "audit-report"
+    },
+    {
+      "id": "CHK-DECISION-GATES",
+      "title": "Benchmark prototype and adversarial decision gate",
+      "executor_key": "decision-gate-audit",
+      "risk_domains": [
+        "work-governance",
+        "architecture",
+        "security"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": true,
+      "trigger_paths": [
+        "engineering/decisions/**",
+        "engineering/research/**",
+        "work/**",
+        "tools/cmdr-dev/decision_validation.go",
+        "tools/cmdr-dev/decision_validation_test.go"
+      ],
+      "prerequisites": [
+        "CHK-RESEARCH"
+      ],
+      "evidence_kind": "audit-report"
     }
   ]
 }

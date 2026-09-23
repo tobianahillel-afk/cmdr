@@ -41,3 +41,8 @@ Evidence references are identifiers in this lot. E5-RES-001B/C make their backin
 Historical entries may be `superseded`. They must point to another registered decision with the same `decision_key`. At most one live entry may exist for a decision key.
 
 This makes a fresh agent able to distinguish active, blocked, rejected and historical choices without relying on chat history.
+
+
+## Validation evidence
+
+`decision-validation.json` holds the engineering proof required before Class B/C acceptance: candidate trade-offs, representative CMDR benchmarks, prototypes when external evidence is insufficient, and adversarial falsification for Class C. These objects are validated by `CHK-DECISION-GATES`; opaque references alone are no longer sufficient once a decision is accepted.

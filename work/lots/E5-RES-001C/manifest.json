@@ -37,10 +37,12 @@
     "real repository and work-unit context"
   ],
   "outputs": [
-    "benchmark/prototype evidence contract",
+    "strict decision validation registry",
+    "candidate trade-off evidence contract",
+    "representative CMDR benchmark contract",
+    "prototype trigger/evidence contract",
     "adversarial falsification record",
-    "decision acceptance gate",
-    "candidate trade-off evidence"
+    "adaptive CHK-DECISION-GATES gate"
   ],
   "invariants": [
     "Product Spec remains read-only",
@@ -59,7 +61,12 @@
     "cmdr-dev validate-manifests succeeds",
     "cmdr-dev architecture-audit succeeds",
     "cmdr-dev complexity-audit succeeds",
-    "adaptive engineering-kernel remains green"
+    "adaptive engineering-kernel remains green",
+    "unit tests block accepted decisions with fewer than two compared candidates",
+    "unit tests require representative benchmark evidence for performance-sensitive acceptance",
+    "unit tests require conclusive prototype evidence when external evidence is insufficient",
+    "unit tests require clean survived adversarial falsification for Class C",
+    "push and pull-request CI execute CHK-DECISION-GATES"
   ],
   "performance_budget": {
     "applicable": true,
@@ -85,7 +92,8 @@
   "required_checks": [
     "adaptive engineering-kernel",
     "cmdr-dev validate-manifests",
-    "cmdr-dev complexity-audit"
+    "cmdr-dev complexity-audit",
+    "cmdr-dev decision-gate-audit"
   ],
   "definition_of_ready": [
     "dependencies are VERIFIED",
@@ -100,10 +108,10 @@
   ],
   "complexity": {
     "primary_components": 1,
-    "estimated_files_changed": 7,
-    "estimated_net_loc": 500,
-    "production_files": 2,
-    "net_production_loc": 370,
+    "estimated_files_changed": 9,
+    "estimated_net_loc": 650,
+    "production_files": 4,
+    "net_production_loc": 500,
     "bounded_contexts": 1,
     "independent_migrations": 0,
     "distinct_security_models": 1,
