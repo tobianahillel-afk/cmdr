@@ -243,6 +243,60 @@
           "value": 44
         }
       ]
+    },
+    {
+      "id": "BASE-E8D-STANDARD-METADATA-FLOOR44-20260923",
+      "plan_tier": "standard",
+      "risk_domains": [
+        "agent-context",
+        "performance",
+        "repository-health",
+        "security",
+        "work-governance"
+      ],
+      "mandatory_floor": 44,
+      "source_sha": "ce51ffb464b229f012e84063b7a5983625637c66",
+      "observed_at": "2026-09-23T22:49:01Z",
+      "snapshot_digest": "b2bf99038485743fa1131e5935780d1f2e799d4cb3a2dc87b381523e68d456e0",
+      "workflow_run_id": 35930351513,
+      "metrics": [
+        {
+          "metric_id": "MET-CONTEXT-DEPENDENCIES",
+          "value": 33
+        },
+        {
+          "metric_id": "MET-CONTEXT-SOURCES",
+          "value": 103
+        },
+        {
+          "metric_id": "MET-COORDINATION-CONFLICTS",
+          "value": 0
+        },
+        {
+          "metric_id": "MET-MANDATORY-CHECKS",
+          "value": 44
+        },
+        {
+          "metric_id": "MET-RECOVERY-REVALIDATE",
+          "value": 0
+        },
+        {
+          "metric_id": "MET-SAFETY-GREEN",
+          "value": 1
+        },
+        {
+          "metric_id": "MET-VALIDATION-COST",
+          "value": 34
+        },
+        {
+          "metric_id": "MET-VALIDATION-EXECUTED",
+          "value": 27
+        },
+        {
+          "metric_id": "MET-VALIDATION-SELECTED",
+          "value": 34
+        }
+      ]
     }
   ]
 }

@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "handoff_kind": "e9-end-to-end-pilot-readiness",
-  "status": "pending-e8d-enforced-proof",
-  "engineering_head": "86264f5473a21c09af5aa8e4f9dcae073cd9ae35",
+  "status": "pending-e8d-dual-profile-enforcement-proof",
+  "engineering_head": "ce51ffb464b229f012e84063b7a5983625637c66",
   "product_spec_baseline": "99c3826cdcbc79bad51631cf6462450f92e012eb",
   "canonical_pilot_plan": "cmdr-product-spec/18-roadmap-and-releases/pilot-plan.md",
   "canonical_pilot_plan_status": "draft",
@@ -35,6 +35,24 @@
     "mandatory_floor": 44,
     "standard_profile_key": "75cadb139029a0737cdcb760106cc99ca2f8d1255212dce9a33cf9d4e75d0873",
     "strict_profile_key": "b4831c98e1c4af90cf6ae37852c7ccfc872f60c00da2a8e762db29f75876e669",
-    "status": "recorded-awaiting-enforcement-proof"
+    "status": "recorded-awaiting-enforcement-proof",
+    "standard_metadata_profile": {
+      "workflow_run_id": 35930351513,
+      "profile_key": "1c4283e132b2d17f618a2234d5bc46f56a442542b50dd55e77f6fcb8e89ac9bd",
+      "mandatory_floor": 44,
+      "selected_checks": 34,
+      "executed_checks": 27,
+      "cost_units": 34,
+      "status": "recorded-awaiting-matched-proof"
+    },
+    "strict_profile": {
+      "workflow_run_id": 35930355436,
+      "profile_key": "b4831c98e1c4af90cf6ae37852c7ccfc872f60c00da2a8e762db29f75876e669",
+      "mandatory_floor": 44,
+      "selected_checks": 44,
+      "executed_checks": 37,
+      "cost_units": 72,
+      "status": "matched-pass"
+    }
   }
 }
