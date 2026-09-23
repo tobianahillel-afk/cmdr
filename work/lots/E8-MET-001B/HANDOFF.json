@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "work_unit": "E8-MET-001B",
+  "result": "VERIFIED",
+  "final_validated_head": "a0e79303ed35d15b36a21618c77f4016936dcb2f",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 35919929654,
+    "pull_request_run": 35919929580,
+    "check": "CHK-METRICS-SNAPSHOT",
+    "observations": 9,
+    "unavailable": 1,
+    "safety_green": 1
+  },
+  "rules": [
+    "metric snapshots are post-validation evidence",
+    "missing source evidence is explicit unavailable state",
+    "snapshots bind exact Git SHA and canonical UTC time",
+    "snapshot compilation cannot weaken or skip selected validation"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E8-MET-001C"
+  ]
+}

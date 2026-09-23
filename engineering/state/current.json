@@ -17,8 +17,8 @@
     "phase_title": "Engine metrics and optimization"
   },
   "execution": {
-    "active_work_unit": "E8-MET-001B",
-    "preferred_next_unit": "E8-MET-001B",
+    "active_work_unit": "E8-MET-001C",
+    "preferred_next_unit": "E8-MET-001C",
     "selection_rule": "first READY unit whose dependencies satisfy their required terminal state"
   },
   "reconciliation": {
