@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"crypto/sha256"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -40,12 +41,13 @@ type DevelopmentToolRegistry struct {
 }
 
 type SASTFinding struct {
-	RuleID     string `json:"rule_id"`
-	Severity   string `json:"severity"`
-	Confidence string `json:"confidence"`
-	CWE        string `json:"cwe,omitempty"`
-	Path       string `json:"path"`
-	Line       int    `json:"line"`
+	RuleID      string `json:"rule_id"`
+	Severity    string `json:"severity"`
+	Confidence  string `json:"confidence"`
+	CWE         string `json:"cwe,omitempty"`
+	Path        string `json:"path"`
+	Line        int    `json:"line"`
+	Fingerprint string `json:"fingerprint_sha256"`
 }
 
 type SASTSummary struct {
@@ -89,6 +91,7 @@ type gosecJSONReport struct {
 		RuleID string `json:"rule_id"`
 		File   string `json:"file"`
 		Line   string `json:"line"`
+		Code   string `json:"code"`
 	} `json:"Issues"`
 }
 
@@ -242,6 +245,7 @@ func parseGosecReport(root, moduleRoot string, data []byte) (SASTSummary, error)
 		summary.Findings = append(summary.Findings, SASTFinding{
 			RuleID: issue.RuleID, Severity: severity, Confidence: confidence,
 			CWE: cwe, Path: path, Line: line,
+			Fingerprint: sastFindingFingerprint(issue.RuleID, path, issue.Code),
 		})
 		summary.BySeverity[severity]++
 	}
@@ -381,6 +385,11 @@ func parseGovulncheckStream(data []byte) (SCASummary, error) {
 	return summary, nil
 }
 
+func sastFindingFingerprint(ruleID, path, code string) string {
+	sum := sha256.Sum256([]byte(ruleID + "\x00" + path + "\x00" + code))
+	return fmt.Sprintf("%x", sum[:])
+}
+
 func formatSASTSafeFindings(summary SASTSummary) string {
 	if len(summary.Findings) == 0 {
 		return "[]"
@@ -391,8 +400,8 @@ func formatSASTSafeFindings(summary SASTSummary) string {
 		if i > 0 {
 			b.WriteByte(',')
 		}
-		fmt.Fprintf(&b, "%s/%s/%s:%d/%s",
-			finding.RuleID, finding.Severity, finding.Path, finding.Line, finding.CWE)
+		fmt.Fprintf(&b, "%s/%s/%s:%d/%s/%s",
+			finding.RuleID, finding.Severity, finding.Path, finding.Line, finding.CWE, finding.Fingerprint)
 	}
 	b.WriteByte(']')
 	return b.String()
