@@ -78,19 +78,19 @@ func TestPerformanceCacheInvalidatesEveryIdentityDimension(t *testing.T) {
 	basis := digestCanonical([]ReusableEvidenceEntry{})
 	base := cacheRecord(source, basis, "pass", nil)
 	tests := []struct {
-		name string
-		mutate func(*PerformanceCacheRecord)
+		name          string
+		mutate        func(*PerformanceCacheRecord)
 		currentSource string
-		currentBasis string
-		want string
+		currentBasis  string
+		want          string
 	}{
-		{"source", func(*PerformanceCacheRecord){}, "1123456789abcdef0123456789abcdef01234567", basis, "source-change"},
-		{"toolchain", func(r *PerformanceCacheRecord){ r.Toolchain = "go0.0.0" }, source, basis, "toolchain-change"},
-		{"target", func(r *PerformanceCacheRecord){ r.TargetDigest = digestCanonical("changed") }, source, basis, "target-change"},
-		{"budget", func(r *PerformanceCacheRecord){ r.BudgetDigest = digestCanonical("changed") }, source, basis, "budget-change"},
-		{"environment", func(r *PerformanceCacheRecord){ r.EnvironmentDigest = digestCanonical("changed") }, source, basis, "environment-change"},
-		{"workload", func(r *PerformanceCacheRecord){ r.WorkloadDigest = digestCanonical("changed") }, source, basis, "workload-change"},
-		{"decision", func(*PerformanceCacheRecord){}, source, digestCanonical("changed"), "research-decision-freshness-change"},
+		{"source", func(*PerformanceCacheRecord) {}, "1123456789abcdef0123456789abcdef01234567", basis, "source-change"},
+		{"toolchain", func(r *PerformanceCacheRecord) { r.Toolchain = "go0.0.0" }, source, basis, "toolchain-change"},
+		{"target", func(r *PerformanceCacheRecord) { r.TargetDigest = digestCanonical("changed") }, source, basis, "target-change"},
+		{"budget", func(r *PerformanceCacheRecord) { r.BudgetDigest = digestCanonical("changed") }, source, basis, "budget-change"},
+		{"environment", func(r *PerformanceCacheRecord) { r.EnvironmentDigest = digestCanonical("changed") }, source, basis, "environment-change"},
+		{"workload", func(r *PerformanceCacheRecord) { r.WorkloadDigest = digestCanonical("changed") }, source, basis, "workload-change"},
+		{"decision", func(*PerformanceCacheRecord) {}, source, digestCanonical("changed"), "research-decision-freshness-change"},
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
@@ -122,7 +122,7 @@ func TestBenchmarkRegressionFiresE5Signal(t *testing.T) {
 		map[string]PerformanceTarget{record.TargetID: cacheTarget()},
 		map[string]PerformanceEnvironment{record.EnvironmentID: cacheEnvironment()},
 		map[string]BenchmarkWorkloadDefinition{"cmdr-dev-metadata-audit-v1": cacheWorkload()},
-		map[string]EngineeringDecision{decisionID: decision}, map[string]bool{decisionID:true},
+		map[string]EngineeringDecision{decisionID: decision}, map[string]bool{decisionID: true},
 	)
 	if status.Reusable {
 		t.Fatal("regression must never be reusable")
