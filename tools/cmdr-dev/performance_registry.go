@@ -15,16 +15,16 @@ const (
 )
 
 type PerformancePolicy struct {
-	SchemaVersion     int                 `json:"schema_version"`
-	DefaultPolicy     string              `json:"default_policy"`
-	ScopeKinds        []string            `json:"scope_kinds"`
-	MetricKinds       []string            `json:"metric_kinds"`
-	MetricUnits       map[string][]string `json:"metric_units"`
-	Aggregations      []string            `json:"aggregations"`
-	Comparators       []string            `json:"comparators"`
+	SchemaVersion    int                 `json:"schema_version"`
+	DefaultPolicy    string              `json:"default_policy"`
+	ScopeKinds       []string            `json:"scope_kinds"`
+	MetricKinds      []string            `json:"metric_kinds"`
+	MetricUnits      map[string][]string `json:"metric_units"`
+	Aggregations     []string            `json:"aggregations"`
+	Comparators      []string            `json:"comparators"`
 	EnvironmentKinds []string            `json:"environment_kinds"`
-	Stages            []string            `json:"stages"`
-	WorkloadKeys      []string            `json:"workload_keys"`
+	Stages           []string            `json:"stages"`
+	WorkloadKeys     []string            `json:"workload_keys"`
 }
 
 type PerformanceEnvironment struct {
@@ -69,14 +69,14 @@ type PerformanceRegistry struct {
 }
 
 type PerformanceRegistryAuditSummary struct {
-	Environments             int            `json:"environments"`
-	Targets                  int            `json:"targets"`
-	Metrics                  int            `json:"metrics"`
-	RuntimeBoundaries        int            `json:"runtime_boundaries"`
+	Environments              int            `json:"environments"`
+	Targets                   int            `json:"targets"`
+	Metrics                   int            `json:"metrics"`
+	RuntimeBoundaries         int            `json:"runtime_boundaries"`
 	RuntimeTargetedBoundaries int            `json:"runtime_targeted_boundaries"`
-	RuntimeCoverageStatus    string         `json:"runtime_coverage_status"`
-	ByScope                  map[string]int `json:"by_scope"`
-	ByStage                  map[string]int `json:"by_stage"`
+	RuntimeCoverageStatus     string         `json:"runtime_coverage_status"`
+	ByScope                   map[string]int `json:"by_scope"`
+	ByStage                   map[string]int `json:"by_stage"`
 }
 
 var performanceEnvironmentIDPattern = regexp.MustCompile(`^PERF-ENV-[A-Z0-9-]+$`)
