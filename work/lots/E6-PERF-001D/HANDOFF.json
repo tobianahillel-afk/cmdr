@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "work_unit": "E6-PERF-001D",
+  "result": "VERIFIED",
+  "final_validated_head": "9715f00f9066f72c0db615a6be71d13f09a00535",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 35885634552,
+    "pull_request_run": 35885635714,
+    "check": "CHK-PERFORMANCE-CACHE",
+    "cache_records": 0,
+    "status": "not-applicable"
+  },
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E7-REC-001A"
+  ]
+}

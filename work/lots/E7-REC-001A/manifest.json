@@ -1,0 +1,109 @@
+{
+  "schema_version": 2,
+  "id": "E7-REC-001A",
+  "title": "Define deterministic work leases and agent claims",
+  "type": "sublot",
+  "parent": "E7-REC-001",
+  "goal": "Define a strict lightweight lease/claim registry so only one active agent owns a mutable work unit at a time and stale claims expire deterministically.",
+  "product_refs": {
+    "capabilities": [],
+    "requirements": [],
+    "screens": [],
+    "permissions": [],
+    "open_decisions": [],
+    "implementation_contracts": [],
+    "canonical_objects": []
+  },
+  "depends_on": [
+    "E6-PERF-001D"
+  ],
+  "allowed_paths": [
+    "tools/cmdr-dev/**",
+    "engineering/recovery/**",
+    "engineering/testing/**",
+    "work/lots/E7-REC-001*/**",
+    "engineering/state/**",
+    "work/graph.json",
+    ".github/workflows/**"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**"
+  ],
+  "inputs": [
+    "verified E0-E6 engineering foundation",
+    "canonical Product Spec remains read-only",
+    "Git repository and CI evidence",
+    "active work graph and strict manifests"
+  ],
+  "outputs": [
+    "machine-readable lease policy",
+    "claim registry and validator",
+    "deterministic acquire/renew/release eligibility evaluator"
+  ],
+  "invariants": [
+    "Product Spec remains read-only",
+    "Git and CI reality outrank cached coordination state",
+    "coordination metadata never authorizes product-runtime behavior",
+    "a stale agent cannot silently overwrite a valid newer claim",
+    "recovery avoids repeating expensive verified work when evidence is still valid"
+  ],
+  "security_properties": [
+    "lease and journal inputs are untrusted data and strictly validated",
+    "agent identity is opaque coordination metadata, not an authentication credential",
+    "conflicting ownership fails closed",
+    "recovery never force-pushes or rewrites Git history"
+  ],
+  "acceptance_tests": [
+    "go test ./...",
+    "cmdr-dev validate-manifests succeeds",
+    "cmdr-dev complexity-audit succeeds",
+    "adaptive engineering-kernel remains green"
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "coordination must reduce recovery/context cost rather than dominate ordinary development",
+    "metrics": [
+      "coordination checks remain metadata-scale and PR-suitable"
+    ]
+  },
+  "migration": {
+    "required": false,
+    "rationale": "engineering control-plane only",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert the E7 unit while retaining verified E0-E6 controls",
+    "verification": [
+      "engineering-kernel remains green",
+      "no accepted product contract changed"
+    ]
+  },
+  "required_checks": [
+    "adaptive engineering-kernel",
+    "cmdr-dev validate-manifests",
+    "cmdr-dev complexity-audit"
+  ],
+  "definition_of_ready": [
+    "dependencies are VERIFIED",
+    "scope is bounded",
+    "Product Spec is read-only"
+  ],
+  "definition_of_done": [
+    "claim IDs and agent IDs are unique opaque identifiers",
+    "one work unit has at most one non-expired active lease",
+    "lease expiry/renewal rules are deterministic",
+    "blocked or terminal work units cannot be newly claimed",
+    "stale claims do not block safe continuation"
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 7,
+    "estimated_net_loc": 420,
+    "production_files": 2,
+    "net_production_loc": 310,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

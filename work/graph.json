@@ -491,7 +491,7 @@
       "id": "E6-PERF-001",
       "title": "Implement performance engineering engine",
       "type": "epic",
-      "status": "DECOMPOSED",
+      "status": "VERIFIED",
       "depends_on": [
         "E5-RES-001D"
       ],
@@ -543,9 +543,72 @@
       "id": "E6-PERF-001D",
       "title": "Cache performance evidence and integrate adaptive revisit triggers",
       "type": "sublot",
-      "status": "READY",
+      "status": "VERIFIED",
       "depends_on": [
         "E6-PERF-001C"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": []
+    },
+    {
+      "id": "E7-REC-001",
+      "title": "Implement recovery and multi-agent coordination engine",
+      "type": "epic",
+      "status": "DECOMPOSED",
+      "depends_on": [
+        "E6-PERF-001D"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E7-REC-001A"
+      ]
+    },
+    {
+      "id": "E7-REC-001A",
+      "title": "Define deterministic work leases and agent claims",
+      "type": "sublot",
+      "status": "READY",
+      "depends_on": [
+        "E6-PERF-001D"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E7-REC-001B"
+      ]
+    },
+    {
+      "id": "E7-REC-001B",
+      "title": "Persist crash-safe execution journal and resume checkpoints",
+      "type": "sublot",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E7-REC-001A"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E7-REC-001C"
+      ]
+    },
+    {
+      "id": "E7-REC-001C",
+      "title": "Reconcile interrupted work against Git and CI reality",
+      "type": "sublot",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E7-REC-001B"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E7-REC-001D"
+      ]
+    },
+    {
+      "id": "E7-REC-001D",
+      "title": "Enforce multi-agent conflict detection and safe handoff",
+      "type": "sublot",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E7-REC-001C"
       ],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": []

@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "work_unit": "E6-PERF-001D",
+  "status": "VERIFIED",
+  "final_validated_head": "9715f00f9066f72c0db615a6be71d13f09a00535",
+  "validation": {
+    "push_workflow_run": 35885634552,
+    "pull_request_workflow_run": 35885635714,
+    "result": "PASS",
+    "performance_cache_audit": "PASS",
+    "unit_tests": "PASS",
+    "sast": "PASS",
+    "sca": "PASS",
+    "sbom": "PASS"
+  },
+  "repository_observation": {
+    "runtime_boundaries": 0,
+    "cache_records": 0,
+    "reusable_records": 0,
+    "invalid_records": 0,
+    "regressions": 0,
+    "revisit_signals": 0,
+    "status": "not-applicable"
+  },
+  "rules": [
+    "cache identity binds benchmark-relevant source target budget environment workload toolchain and reusable decision evidence",
+    "stale evidence becomes a cache miss rather than satisfying a current gate",
+    "cached regressions are never reusable and deterministically emit benchmark-regression revisit signals for valid performance-sensitive E5 decisions",
+    "no product-runtime boundary means no fabricated performance cache record"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E7-REC-001A"
+  ]
+}

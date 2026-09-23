@@ -13,12 +13,12 @@
   },
   "engineering_foundation": {
     "status": "IN_PROGRESS",
-    "phase": "E6",
-    "phase_title": "Performance engine"
+    "phase": "E7",
+    "phase_title": "Recovery and multi-agent coordination"
   },
   "execution": {
-    "active_work_unit": "E6-PERF-001D",
-    "preferred_next_unit": "E6-PERF-001D",
+    "active_work_unit": "E7-REC-001A",
+    "preferred_next_unit": "E7-REC-001A",
     "selection_rule": "first READY unit whose dependencies satisfy their required terminal state"
   },
   "reconciliation": {

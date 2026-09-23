@@ -1,0 +1,107 @@
+{
+  "schema_version": 2,
+  "id": "E7-REC-001",
+  "title": "Implement recovery and multi-agent coordination engine",
+  "type": "epic",
+  "parent": "",
+  "goal": "Make autonomous development resumable and concurrency-safe across agent interruptions without adding heavy orchestration overhead.",
+  "product_refs": {
+    "capabilities": [],
+    "requirements": [],
+    "screens": [],
+    "permissions": [],
+    "open_decisions": [],
+    "implementation_contracts": [],
+    "canonical_objects": []
+  },
+  "depends_on": [
+    "E6-PERF-001D"
+  ],
+  "allowed_paths": [
+    "tools/cmdr-dev/**",
+    "engineering/recovery/**",
+    "engineering/testing/**",
+    "work/lots/E7-REC-001*/**",
+    "engineering/state/**",
+    "work/graph.json",
+    ".github/workflows/**"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**"
+  ],
+  "inputs": [
+    "verified E0-E6 engineering foundation",
+    "canonical Product Spec remains read-only",
+    "Git repository and CI evidence",
+    "active work graph and strict manifests"
+  ],
+  "outputs": [
+    "verified work lease protocol",
+    "crash-safe execution journal",
+    "Git/CI reconciliation engine",
+    "multi-agent conflict and handoff protocol"
+  ],
+  "invariants": [
+    "Product Spec remains read-only",
+    "Git and CI reality outrank cached coordination state",
+    "coordination metadata never authorizes product-runtime behavior",
+    "a stale agent cannot silently overwrite a valid newer claim",
+    "recovery avoids repeating expensive verified work when evidence is still valid"
+  ],
+  "security_properties": [
+    "lease and journal inputs are untrusted data and strictly validated",
+    "agent identity is opaque coordination metadata, not an authentication credential",
+    "conflicting ownership fails closed",
+    "recovery never force-pushes or rewrites Git history"
+  ],
+  "acceptance_tests": [
+    "go test ./...",
+    "cmdr-dev validate-manifests succeeds",
+    "cmdr-dev complexity-audit succeeds",
+    "adaptive engineering-kernel remains green"
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "coordination must reduce recovery/context cost rather than dominate ordinary development",
+    "metrics": [
+      "coordination checks remain metadata-scale and PR-suitable"
+    ]
+  },
+  "migration": {
+    "required": false,
+    "rationale": "engineering control-plane only",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert the E7 unit while retaining verified E0-E6 controls",
+    "verification": [
+      "engineering-kernel remains green",
+      "no accepted product contract changed"
+    ]
+  },
+  "required_checks": [
+    "adaptive engineering-kernel",
+    "cmdr-dev validate-manifests",
+    "cmdr-dev complexity-audit"
+  ],
+  "definition_of_ready": [
+    "dependencies are VERIFIED",
+    "scope is bounded",
+    "Product Spec is read-only"
+  ],
+  "definition_of_done": [
+    "E7-REC-001A through E7-REC-001D are VERIFIED",
+    "fresh agents can derive safe continuation from repository reality plus bounded coordination metadata"
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 10,
+    "estimated_net_loc": 900,
+    "production_files": 0,
+    "net_production_loc": 0,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 4
+  }
+}
