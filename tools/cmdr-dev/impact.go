@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"os"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -36,7 +35,7 @@ func runImpactAnalysis(root, workUnit, changesFile string, state CurrentState, g
 	if strings.TrimSpace(changesFile) == "" {
 		return ImpactReport{}, fmt.Errorf("impact analysis requires --changes-file")
 	}
-	changedPaths, err := readChangedPaths(changesFile)
+	changedPaths, err := readChangedPaths(root, changesFile)
 	if err != nil {
 		return ImpactReport{}, err
 	}
@@ -54,14 +53,14 @@ func runImpactAnalysis(root, workUnit, changesFile string, state CurrentState, g
 		return ImpactReport{}, fmt.Errorf("impact work unit %s is blocked", workUnit)
 	}
 	manifestPath := filepath.Join(root, "work", "lots", workUnit, "manifest.json")
-	header, err := decodeManifestHeader(manifestPath)
+	header, err := decodeManifestHeader(root, manifestPath)
 	if err != nil {
 		return ImpactReport{}, err
 	}
 	if header.SchemaVersion != 2 {
 		return ImpactReport{}, fmt.Errorf("impact analysis requires strict manifest v2")
 	}
-	manifest, err := decodeWorkManifestV2(manifestPath)
+	manifest, err := decodeWorkManifestV2(root, manifestPath)
 	if err != nil {
 		return ImpactReport{}, err
 	}
@@ -213,8 +212,8 @@ func (a *impactAccumulator) report(workUnit string, changedPaths []string) Impac
 	return report
 }
 
-func readChangedPaths(path string) ([]string, error) {
-	f, err := os.Open(path)
+func readChangedPaths(root, path string) ([]string, error) {
+	f, err := openRepoFile(root, path)
 	if err != nil {
 		return nil, fmt.Errorf("open changes file: %w", err)
 	}

@@ -11,7 +11,7 @@ import (
 
 func loadActiveScreenIDs(root, specRel string) (map[string]struct{}, error) {
 	path := filepath.Join(root, filepath.FromSlash(specRel), "00-governance", "registers", "screen-register.md")
-	f, err := os.Open(path)
+	f, err := openRepoFile(root, path)
 	if err != nil {
 		return nil, fmt.Errorf("open screen register: %w", err)
 	}
@@ -78,7 +78,7 @@ func loadActiveCapabilityIDs(root, specRel string) (map[string][]string, error) 
 			continue
 		}
 		rel := filepath.ToSlash(filepath.Join(specRel, "00-governance", "registers", entry.Name()))
-		if err := collectFirstColumnIDs(filepath.Join(root, filepath.FromSlash(rel)), rel, capabilityIDPattern, out); err != nil {
+		if err := collectFirstColumnIDs(root, rel, rel, capabilityIDPattern, out); err != nil {
 			return nil, err
 		}
 	}
@@ -93,7 +93,7 @@ func loadActivePermissionIDs(root, specRel string) (map[string][]string, error) 
 	rel := filepath.ToSlash(filepath.Join(specRel, "00-governance", "registers", "permission-register.md"))
 	out := map[string][]string{}
 	path := filepath.Join(root, filepath.FromSlash(rel))
-	f, err := os.Open(path)
+	f, err := openRepoFile(root, path)
 	if err != nil {
 		return nil, fmt.Errorf("open permission register: %w", err)
 	}
@@ -155,8 +155,8 @@ func loadActiveRequirementIDs(root, specRel string) (map[string][]string, error)
 	return out, nil
 }
 
-func collectFirstColumnIDs(path, rel string, matcher interface{ MatchString(string) bool }, out map[string][]string) error {
-	f, err := os.Open(path)
+func collectFirstColumnIDs(root, path, rel string, matcher interface{ MatchString(string) bool }, out map[string][]string) error {
+	f, err := openRepoFile(root, path)
 	if err != nil {
 		return fmt.Errorf("open registry %s: %w", rel, err)
 	}
@@ -192,7 +192,7 @@ func normalizeRegistryEvidence(values map[string][]string) {
 func loadActiveOpenDecisionIDs(root, specRel string) (map[string][]string, error) {
 	rel := filepath.ToSlash(filepath.Join(specRel, "00-governance", "source-material", "unresolved-decisions.md"))
 	path := filepath.Join(root, filepath.FromSlash(rel))
-	f, err := os.Open(path)
+	f, err := openRepoFile(root, path)
 	if err != nil {
 		return nil, fmt.Errorf("open unresolved decisions: %w", err)
 	}

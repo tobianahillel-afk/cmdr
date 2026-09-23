@@ -124,6 +124,7 @@ func buildSpecInventory(root, specRel string) (SpecInventory, error) {
 		return SpecInventory{}, err
 	}
 	var docs []SpecDocument
+	// #nosec G703 -- specRoot is repository-confined by resolveRepoPath; symlink entries are rejected below.
 	err = filepath.WalkDir(specRoot, func(path string, entry os.DirEntry, err error) error {
 		if err != nil {
 			return err

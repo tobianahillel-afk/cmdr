@@ -98,7 +98,7 @@ func runManifestValidation(root string) (ManifestValidationSummary, error) {
 	headers := map[string]string{}
 	versions := map[string]int{}
 	for _, path := range paths {
-		header, err := decodeManifestHeader(path)
+		header, err := decodeManifestHeader(root, path)
 		if err != nil {
 			return ManifestValidationSummary{}, err
 		}
@@ -121,7 +121,7 @@ func runManifestValidation(root string) (ManifestValidationSummary, error) {
 			}
 			summary.LegacyV1++
 		case 2:
-			manifest, err := decodeWorkManifestV2(path)
+			manifest, err := decodeWorkManifestV2(root, path)
 			if err != nil {
 				return ManifestValidationSummary{}, err
 			}
@@ -137,11 +137,18 @@ func runManifestValidation(root string) (ManifestValidationSummary, error) {
 }
 
 func manifestPaths(root string) ([]string, error) {
-	base := filepath.Join(root, "work", "lots")
+	base, err := resolveRepoPath(root, filepath.Join("work", "lots"), false)
+	if err != nil {
+		return nil, err
+	}
 	var paths []string
-	err := filepath.WalkDir(base, func(path string, entry os.DirEntry, err error) error {
+	// #nosec G703 -- base is repository-confined by resolveRepoPath; symlink entries are rejected below.
+	err = filepath.WalkDir(base, func(path string, entry os.DirEntry, err error) error {
 		if err != nil {
 			return err
+		}
+		if entry.Type()&os.ModeSymlink != 0 {
+			return fmt.Errorf("work manifest tree contains symlink: %s", path)
 		}
 		if !entry.IsDir() && entry.Name() == "manifest.json" {
 			paths = append(paths, path)
@@ -155,9 +162,9 @@ func manifestPaths(root string) ([]string, error) {
 	return paths, nil
 }
 
-func decodeManifestHeader(path string) (manifestHeader, error) {
+func decodeManifestHeader(root, path string) (manifestHeader, error) {
 	var header manifestHeader
-	data, err := os.ReadFile(path)
+	data, err := readRepoFile(root, path)
 	if err != nil {
 		return header, err
 	}
@@ -167,9 +174,9 @@ func decodeManifestHeader(path string) (manifestHeader, error) {
 	return header, nil
 }
 
-func decodeWorkManifestV2(path string) (WorkManifestV2, error) {
+func decodeWorkManifestV2(root, path string) (WorkManifestV2, error) {
 	var manifest WorkManifestV2
-	f, err := os.Open(path)
+	f, err := openRepoFile(root, path)
 	if err != nil {
 		return manifest, err
 	}

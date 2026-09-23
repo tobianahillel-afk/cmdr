@@ -58,14 +58,14 @@ func runContextCompiler(root, workUnit, output string, check bool, state Current
 	}
 
 	manifestPath := filepath.Join(root, "work", "lots", workUnit, "manifest.json")
-	header, err := decodeManifestHeader(manifestPath)
+	header, err := decodeManifestHeader(root, manifestPath)
 	if err != nil {
 		return ContextSummary{}, err
 	}
 	if header.SchemaVersion != 2 {
 		return ContextSummary{}, fmt.Errorf("%s: context compilation requires strict manifest v2", workUnit)
 	}
-	manifest, err := decodeWorkManifestV2(manifestPath)
+	manifest, err := decodeWorkManifestV2(root, manifestPath)
 	if err != nil {
 		return ContextSummary{}, err
 	}
@@ -108,7 +108,7 @@ func runContextCompiler(root, workUnit, output string, check bool, state Current
 		}
 		for _, name := range []string{"HANDOFF.json", "PROGRESS.json"} {
 			rel := base + "/" + name
-			if fileExists(filepath.Join(root, filepath.FromSlash(rel))) {
+			if fileExists(root, rel) {
 				if err := collector.add(rel, "dependency evidence: "+dep); err != nil {
 					return ContextSummary{}, err
 				}
@@ -360,7 +360,7 @@ func capabilityCanonicalPath(root, specRel, id string) (string, error) {
 }
 
 func registryCanonicalPath(root, registryRel, id, column string) (string, error) {
-	data, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(registryRel)))
+	data, err := readRepoFile(root, registryRel)
 	if err != nil {
 		return "", err
 	}
@@ -520,7 +520,7 @@ func appendUnique(values []string, value string) []string {
 	return append(values, value)
 }
 
-func fileExists(path string) bool {
-	info, err := os.Stat(path)
+func fileExists(root, path string) bool {
+	info, err := statRepoPath(root, path)
 	return err == nil && !info.IsDir()
 }

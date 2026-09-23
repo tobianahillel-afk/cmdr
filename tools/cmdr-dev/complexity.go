@@ -44,14 +44,14 @@ func runComplexityAudit(root string, graph WorkGraph) (ComplexityAuditSummary, e
 
 	var summary ComplexityAuditSummary
 	for _, path := range paths {
-		header, err := decodeManifestHeader(path)
+		header, err := decodeManifestHeader(root, path)
 		if err != nil {
 			return ComplexityAuditSummary{}, err
 		}
 		if header.SchemaVersion != 2 {
 			continue
 		}
-		manifest, err := decodeWorkManifestV2(path)
+		manifest, err := decodeWorkManifestV2(root, path)
 		if err != nil {
 			return ComplexityAuditSummary{}, err
 		}

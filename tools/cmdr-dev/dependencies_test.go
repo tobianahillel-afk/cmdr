@@ -7,7 +7,8 @@ import (
 )
 
 func TestParsePackageJSONExcludesDevAndLocalDependencies(t *testing.T) {
-	path := filepath.Join(t.TempDir(), "package.json")
+	root := t.TempDir()
+	path := filepath.Join(root, "package.json")
 	content := `{
   "dependencies": {"external": "^1.2.3", "internal": "workspace:*"},
   "optionalDependencies": {"optional": "2.0.0"},
@@ -17,7 +18,7 @@ func TestParsePackageJSONExcludesDevAndLocalDependencies(t *testing.T) {
 	if err := os.WriteFile(path, []byte(content), 0o600); err != nil {
 		t.Fatal(err)
 	}
-	deps, err := parsePackageJSON(path, "runtime", "src/package.json")
+	deps, err := parsePackageJSON(root, path, "runtime", "src/package.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -32,7 +33,8 @@ func TestParsePackageJSONExcludesDevAndLocalDependencies(t *testing.T) {
 }
 
 func TestParseGoModExcludesLocalReplacement(t *testing.T) {
-	path := filepath.Join(t.TempDir(), "go.mod")
+	root := t.TempDir()
+	path := filepath.Join(root, "go.mod")
 	content := `module example.local/app
 
 go 1.25
@@ -47,7 +49,7 @@ replace example.local/internal => ../internal
 	if err := os.WriteFile(path, []byte(content), 0o600); err != nil {
 		t.Fatal(err)
 	}
-	deps, err := parseGoMod(path, "runtime", "src/go.mod")
+	deps, err := parseGoMod(root, path, "runtime", "src/go.mod")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -57,12 +59,13 @@ replace example.local/internal => ../internal
 }
 
 func TestParseVCPKGDependencies(t *testing.T) {
-	path := filepath.Join(t.TempDir(), "vcpkg.json")
+	root := t.TempDir()
+	path := filepath.Join(root, "vcpkg.json")
 	content := `{"dependencies":["openssl",{"name":"zlib","version>=":"1.3.1"}]}`
 	if err := os.WriteFile(path, []byte(content), 0o600); err != nil {
 		t.Fatal(err)
 	}
-	deps, err := parseVCPKG(path, "runtime", "src/vcpkg.json")
+	deps, err := parseVCPKG(root, path, "runtime", "src/vcpkg.json")
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -171,19 +170,19 @@ func scanRuntimeBoundary(root, boundaryID, rootPattern string) ([]RuntimeDepende
 		rel = filepath.ToSlash(rel)
 		switch entry.Name() {
 		case "go.mod":
-			found, err := parseGoMod(path, boundaryID, rel)
+			found, err := parseGoMod(root, path, boundaryID, rel)
 			if err != nil {
 				return err
 			}
 			deps = append(deps, found...)
 		case "package.json":
-			found, err := parsePackageJSON(path, boundaryID, rel)
+			found, err := parsePackageJSON(root, path, boundaryID, rel)
 			if err != nil {
 				return err
 			}
 			deps = append(deps, found...)
 		case "vcpkg.json":
-			found, err := parseVCPKG(path, boundaryID, rel)
+			found, err := parseVCPKG(root, path, boundaryID, rel)
 			if err != nil {
 				return err
 			}
@@ -208,16 +207,19 @@ func runtimeScanRoot(root, pattern string) (string, error) {
 	if prefix == "" {
 		return "", fmt.Errorf("product-runtime boundary root cannot be repository root")
 	}
-	path := filepath.Join(root, filepath.FromSlash(prefix))
-	info, err := os.Stat(path)
+	path, err := resolveRepoPath(root, prefix, false)
+	if err != nil {
+		return "", fmt.Errorf("product-runtime boundary root %s is invalid: %w", pattern, err)
+	}
+	info, err := statRepoPath(root, path)
 	if err != nil || !info.IsDir() {
 		return "", fmt.Errorf("product-runtime boundary root %s is not an existing directory", pattern)
 	}
 	return path, nil
 }
 
-func parseGoMod(path, boundary, manifest string) ([]RuntimeDependency, error) {
-	data, err := os.ReadFile(path)
+func parseGoMod(root, path, boundary, manifest string) ([]RuntimeDependency, error) {
+	data, err := readRepoFile(root, path)
 	if err != nil {
 		return nil, err
 	}
@@ -281,13 +283,13 @@ func parseGoMod(path, boundary, manifest string) ([]RuntimeDependency, error) {
 	return out, nil
 }
 
-func parsePackageJSON(path, boundary, manifest string) ([]RuntimeDependency, error) {
+func parsePackageJSON(root, path, boundary, manifest string) ([]RuntimeDependency, error) {
 	var pkg struct {
 		Dependencies         map[string]string `json:"dependencies"`
 		OptionalDependencies map[string]string `json:"optionalDependencies"`
 		PeerDependencies     map[string]string `json:"peerDependencies"`
 	}
-	data, err := os.ReadFile(path)
+	data, err := readRepoFile(root, path)
 	if err != nil {
 		return nil, err
 	}
@@ -311,11 +313,11 @@ func parsePackageJSON(path, boundary, manifest string) ([]RuntimeDependency, err
 	return out, nil
 }
 
-func parseVCPKG(path, boundary, manifest string) ([]RuntimeDependency, error) {
+func parseVCPKG(root, path, boundary, manifest string) ([]RuntimeDependency, error) {
 	var doc struct {
 		Dependencies []json.RawMessage `json:"dependencies"`
 	}
-	data, err := os.ReadFile(path)
+	data, err := readRepoFile(root, path)
 	if err != nil {
 		return nil, err
 	}
@@ -469,16 +471,4 @@ func unsupportedManifestKind(name string) string {
 	}
 }
 
-func scanLines(path string) ([]string, error) {
-	f, err := os.Open(path)
-	if err != nil {
-		return nil, err
-	}
-	defer f.Close()
-	var lines []string
-	scanner := bufio.NewScanner(f)
-	for scanner.Scan() {
-		lines = append(lines, scanner.Text())
-	}
-	return lines, scanner.Err()
-}
+

@@ -106,10 +106,10 @@ func discoverLocalPackages(root string, registry ArchitectureRegistry) ([]LocalP
 				var name, ecosystem string
 				switch entry.Name() {
 				case "package.json":
-					name, _, err = parseNodeLocalRefs(path)
+					name, _, err = parseNodeLocalRefs(root, path)
 					ecosystem = "npm"
 				case "go.mod":
-					name, _, err = parseGoLocalRefs(path)
+					name, _, err = parseGoLocalRefs(root, path)
 					ecosystem = "go"
 				}
 				if err != nil {
@@ -162,7 +162,7 @@ func discoverBoundaryEdges(root string, registry ArchitectureRegistry, packages 
 		full := filepath.Join(root, filepath.FromSlash(pkg.Manifest))
 		switch pkg.Ecosystem {
 		case "npm":
-			_, refs, err := parseNodeLocalRefs(full)
+			_, refs, err := parseNodeLocalRefs(root, full)
 			if err != nil {
 				return nil, err
 			}
@@ -177,7 +177,7 @@ func discoverBoundaryEdges(root string, registry ArchitectureRegistry, packages 
 				})
 			}
 		case "go":
-			_, refs, err := parseGoLocalRefs(full)
+			_, refs, err := parseGoLocalRefs(root, full)
 			if err != nil {
 				return nil, err
 			}
@@ -197,14 +197,14 @@ func discoverBoundaryEdges(root string, registry ArchitectureRegistry, packages 
 	return dedupeBoundaryEdges(edges), nil
 }
 
-func parseNodeLocalRefs(path string) (string, []localDependencyRef, error) {
+func parseNodeLocalRefs(root, path string) (string, []localDependencyRef, error) {
 	var pkg struct {
 		Name                 string            `json:"name"`
 		Dependencies         map[string]string `json:"dependencies"`
 		OptionalDependencies map[string]string `json:"optionalDependencies"`
 		PeerDependencies     map[string]string `json:"peerDependencies"`
 	}
-	data, err := os.ReadFile(path)
+	data, err := readRepoFile(root, path)
 	if err != nil {
 		return "", nil, err
 	}
@@ -227,8 +227,8 @@ func parseNodeLocalRefs(path string) (string, []localDependencyRef, error) {
 	return pkg.Name, refs, nil
 }
 
-func parseGoLocalRefs(path string) (string, []localDependencyRef, error) {
-	data, err := os.ReadFile(path)
+func parseGoLocalRefs(root, path string) (string, []localDependencyRef, error) {
+	data, err := readRepoFile(root, path)
 	if err != nil {
 		return "", nil, err
 	}

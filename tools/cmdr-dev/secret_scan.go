@@ -86,7 +86,7 @@ func runSecretScan(root, changesFile string, fullScan bool) (SecretScanSummary, 
 		mode = "full"
 		candidates, err = trackedRepositoryPaths(root)
 	case strings.TrimSpace(changesFile) != "":
-		candidates, err = readChangedPaths(changesFile)
+		candidates, err = readChangedPaths(root, changesFile)
 	default:
 		return SecretScanSummary{}, fmt.Errorf("secret scan requires --changes-file or --full-scan")
 	}
@@ -100,8 +100,7 @@ func runSecretScan(root, changesFile string, fullScan bool) (SecretScanSummary, 
 			summary.SkippedGenerated++
 			continue
 		}
-		abs := filepath.Join(root, filepath.FromSlash(rel))
-		info, err := os.Lstat(abs)
+		info, err := lstatRepoEntry(root, rel)
 		if os.IsNotExist(err) {
 			summary.SkippedDeleted++
 			continue
@@ -119,7 +118,7 @@ func runSecretScan(root, changesFile string, fullScan bool) (SecretScanSummary, 
 		if info.Size() > maxSecretScanBytes {
 			return summary, fmt.Errorf("secret scan refuses oversized text candidate %s (%d bytes > %d)", rel, info.Size(), maxSecretScanBytes)
 		}
-		data, err := os.ReadFile(abs)
+		data, err := readRepoFile(root, rel)
 		if err != nil {
 			return summary, fmt.Errorf("read secret-scan path %s: %w", rel, err)
 		}

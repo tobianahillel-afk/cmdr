@@ -61,6 +61,21 @@ func resolveRepoPath(root, candidate string, allowMissing bool) (string, error) 
 	return path, nil
 }
 
+func lstatRepoEntry(root, candidate string) (os.FileInfo, error) {
+	cleaned := filepath.Clean(filepath.FromSlash(candidate))
+	parentCandidate := filepath.Dir(cleaned)
+	parent, err := resolveRepoPath(root, parentCandidate, false)
+	if err != nil {
+		return nil, err
+	}
+	path := filepath.Join(parent, filepath.Base(cleaned))
+	info, err := os.Lstat(path) // #nosec G703 -- parent is repository-confined; final entry is intentionally lstat'ed to detect a symlink without following it.
+	if err != nil {
+		return nil, err
+	}
+	return info, nil
+}
+
 func readRepoFile(root, candidate string) ([]byte, error) {
 	path, err := resolveRepoPath(root, candidate, false)
 	if err != nil {
