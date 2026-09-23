@@ -39,7 +39,7 @@ type DeepSecurityPolicy struct {
 }
 
 type DeepSecurityEvidence struct {
-	SchemaVersion   int    `json:"schema_version"`
+	SchemaVersion  int    `json:"schema_version"`
 	GateID         string `json:"gate_id"`
 	TargetID       string `json:"target_id"`
 	Stage          string `json:"stage"`
