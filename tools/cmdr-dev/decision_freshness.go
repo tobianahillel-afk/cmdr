@@ -537,11 +537,3 @@ func parseFreshnessAsOf(value string) (time.Time, error) {
 	return parseResearchDate(value)
 }
 
-func uniqueSorted(values []string) []string {
-	seen := map[string]bool{}
-	for _, value := range values { if value != "" { seen[value] = true } }
-	out := make([]string, 0, len(seen))
-	for value := range seen { out = append(out, value) }
-	sort.Strings(out)
-	return out
-}
