@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "registry_kind": "performance-targets",
+  "environments": [
+    {
+      "id": "PERF-ENV-GITHUB-UBUNTU-SHARED",
+      "kind": "shared-ci",
+      "os": "linux",
+      "arch": "amd64",
+      "runner_class": "github-hosted-ubuntu-latest",
+      "relative_regression_allowed": false,
+      "rationale": "shared CI is suitable for bounded smoke budgets but too noisy to claim tight relative performance superiority"
+    }
+  ],
+  "targets": []
+}

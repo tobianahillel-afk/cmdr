@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "default_policy": "deny-unregistered-performance-target",
+  "scope_kinds": [
+    "engineering-control-plane",
+    "product-runtime"
+  ],
+  "metric_kinds": [
+    "latency",
+    "throughput",
+    "cpu-time",
+    "memory",
+    "allocation",
+    "utilization"
+  ],
+  "metric_units": {
+    "latency": [
+      "ns",
+      "us",
+      "ms",
+      "s"
+    ],
+    "throughput": [
+      "ops/s",
+      "events/s",
+      "bytes/s"
+    ],
+    "cpu-time": [
+      "ns/op",
+      "us/op",
+      "ms/op"
+    ],
+    "memory": [
+      "bytes",
+      "MiB"
+    ],
+    "allocation": [
+      "bytes/op",
+      "allocs/op"
+    ],
+    "utilization": [
+      "percent"
+    ]
+  },
+  "aggregations": [
+    "median",
+    "p95",
+    "p99",
+    "max",
+    "mean"
+  ],
+  "comparators": [
+    "upper-bound",
+    "lower-bound"
+  ],
+  "environment_kinds": [
+    "shared-ci",
+    "dedicated",
+    "local-calibrated"
+  ],
+  "stages": [
+    "pr",
+    "nightly",
+    "release",
+    "on-demand"
+  ],
+  "workload_keys": [
+    "cmdr-dev-metadata-audit-v1"
+  ]
+}

@@ -143,7 +143,7 @@ func buildValidationPlan(impact ImpactReport, catalog CheckCatalog) (ValidationP
 func normalImpactTier(impact ImpactReport) string {
 	for _, domain := range impact.RiskDomains {
 		switch domain {
-		case "product-spec", "coverage-traceability", "architecture", "runtime-dependencies", "security":
+		case "product-spec", "coverage-traceability", "architecture", "runtime-dependencies", "security", "performance":
 			return "standard"
 		}
 	}

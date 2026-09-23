@@ -53,6 +53,7 @@ var knownRiskDomains = map[string]bool{
 	"security":              true,
 	"agent-context":         true,
 	"repository-health":     true,
+	"performance":           true,
 	"unknown":               true,
 }
 
@@ -87,6 +88,7 @@ var knownExecutorKeys = map[string]bool{
 	"research-packet-audit":    true,
 	"decision-gate-audit":      true,
 	"decision-freshness-audit": true,
+	"performance-registry-audit": true,
 	"secret-scan":              true,
 	"gosec-go":                 true,
 	"govulncheck-go":           true,
