@@ -489,7 +489,7 @@ func persistDeepPerformanceEvidence(
 		DurationMS: observation.DurationMS, PeakHeapBytes: observation.PeakHeapBytes,
 		TotalAllocationBytes: observation.TotalAllocationBytes, Operations: observation.Operations,
 		ThroughputOpsPerSec: observation.ThroughputOpsPerSec,
-		ArtifactKind: observation.ArtifactKind, ArtifactSHA256: observation.ArtifactSHA256,
+		ArtifactKind:        observation.ArtifactKind, ArtifactSHA256: observation.ArtifactSHA256,
 	}
 	if len(observation.artifact) > 0 {
 		artifactPath := filepath.ToSlash(filepath.Join(directory, target.ID+".pprof"))
