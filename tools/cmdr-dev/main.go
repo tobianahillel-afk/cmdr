@@ -510,6 +510,15 @@ func main() {
 		if err != nil {
 			fail(err)
 		}
+	case "metrics-registry-audit":
+		if err := validateState(root, state, graph); err != nil {
+			fail(err)
+		}
+		summary, err := runEngineMetricsRegistryAudit(root)
+		printValue(summary, *jsonFlag)
+		if err != nil {
+			fail(err)
+		}
 	case "coordination-handoff":
 		if err := validateState(root, state, graph); err != nil {
 			fail(err)
@@ -1081,6 +1090,12 @@ func printValue(v any, asJSON bool) {
 		fmt.Printf("active claims: %d mutating=%d read-only=%d\n", x.ActiveClaims, x.Mutating, x.ReadOnly)
 		fmt.Printf("conflicts: %d\n", x.Conflicts)
 		fmt.Printf("status: %s\n", x.Status)
+	case EngineMetricsRegistrySummary:
+		fmt.Printf("metrics: %d\n", x.Metrics)
+		fmt.Printf("optimization eligible: %d\n", x.OptimizationEligible)
+		fmt.Printf("non-optimizable: %d\n", x.NonOptimizable)
+		fmt.Printf("by category: %v\n", x.ByCategory)
+		fmt.Printf("by safety class: %v\n", x.BySafetyClass)
 	case CoordinationHandoff:
 		fmt.Printf("work unit: %s\n", x.WorkUnit)
 		fmt.Printf("lease: %s (%s)\n", x.LeaseID, x.LeaseMode)
@@ -1133,7 +1148,7 @@ func printValue(v any, asJSON bool) {
 }
 
 func usage(w io.Writer) {
-	fmt.Fprintln(w, "usage: cmdr-dev <doctor|status|next|spec-index|spec-baseline|coverage-graph|obligations|coverage-audit|validate-manifests|complexity-audit|context|architecture-audit|dependency-audit|boundary-edge-audit|check-catalog-audit|impact|validation-plan|security-gate-audit|security-test-audit|deep-security-audit|decision-registry-audit|research-packet-audit|decision-gate-audit|decision-freshness-audit|performance-registry-audit|performance-benchmark-audit|deep-performance-audit|performance-cache-audit|lease-audit|lease-evaluate|recovery-journal-audit|resume-checkpoint|recovery-reconcile|recovery-reconcile-audit|coordination-audit|coordination-handoff|decision-cache|decision-freshness-snapshot|research-context|secret-scan|sast-go|sca-go|sbom|git-changes|validation-run> [--root PATH] [--json] [--check] [--output PATH]")
+	fmt.Fprintln(w, "usage: cmdr-dev <doctor|status|next|spec-index|spec-baseline|coverage-graph|obligations|coverage-audit|validate-manifests|complexity-audit|context|architecture-audit|dependency-audit|boundary-edge-audit|check-catalog-audit|impact|validation-plan|security-gate-audit|security-test-audit|deep-security-audit|decision-registry-audit|research-packet-audit|decision-gate-audit|decision-freshness-audit|performance-registry-audit|performance-benchmark-audit|deep-performance-audit|performance-cache-audit|lease-audit|lease-evaluate|recovery-journal-audit|resume-checkpoint|recovery-reconcile|recovery-reconcile-audit|coordination-audit|coordination-handoff|metrics-registry-audit|decision-cache|decision-freshness-snapshot|research-context|secret-scan|sast-go|sca-go|sbom|git-changes|validation-run> [--root PATH] [--json] [--check] [--output PATH]")
 }
 
 func fail(err error) {

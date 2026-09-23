@@ -908,6 +908,31 @@
         "CHK-RECOVERY-RECONCILE"
       ],
       "evidence_kind": "coordination-report"
+    },
+    {
+      "id": "CHK-METRICS-REGISTRY",
+      "title": "Engineering engine metrics registry audit",
+      "executor_key": "metrics-registry-audit",
+      "risk_domains": [
+        "work-governance",
+        "repository-health",
+        "performance",
+        "security"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": true,
+      "trigger_paths": [
+        "engineering/metrics/**",
+        "engineering/state/**",
+        "work/**",
+        "tools/cmdr-dev/metrics_registry.go",
+        "tools/cmdr-dev/metrics_registry_test.go"
+      ],
+      "prerequisites": [
+        "CHK-COORDINATION"
+      ],
+      "evidence_kind": "metrics-registry-audit"
     }
   ]
 }

@@ -35,9 +35,10 @@
     "canonical Product Spec remains read-only"
   ],
   "outputs": [
-    "strict engine metrics registry",
-    "closed metric units and safety classes",
-    "metric evidence schema and validator"
+    "strict local engine metrics registry",
+    "closed units aggregations sources safety classes and directions",
+    "validated bounded metric observation model",
+    "catalogued CHK-METRICS-REGISTRY gate"
   ],
   "invariants": [
     "Product Spec remains read-only",
@@ -56,7 +57,10 @@
     "go test ./...",
     "cmdr-dev validate-manifests succeeds",
     "cmdr-dev complexity-audit succeeds",
-    "adaptive engineering-kernel remains green"
+    "adaptive engineering-kernel remains green",
+    "unit tests reject optimization of safety/quality floors",
+    "unit tests reject unknown enums duplicate IDs source mismatches and non-finite observations",
+    "cmdr-dev metrics-registry-audit succeeds"
   ],
   "performance_budget": {
     "applicable": true,
@@ -81,7 +85,9 @@
   "required_checks": [
     "adaptive engineering-kernel",
     "cmdr-dev validate-manifests",
-    "cmdr-dev complexity-audit"
+    "cmdr-dev complexity-audit",
+    "CHK-METRICS-REGISTRY",
+    "cmdr-dev metrics-registry-audit"
   ],
   "definition_of_ready": [
     "dependencies are VERIFIED",
@@ -95,10 +101,10 @@
   ],
   "complexity": {
     "primary_components": 1,
-    "estimated_files_changed": 7,
-    "estimated_net_loc": 430,
-    "production_files": 2,
-    "net_production_loc": 320,
+    "estimated_files_changed": 9,
+    "estimated_net_loc": 500,
+    "production_files": 3,
+    "net_production_loc": 360,
     "bounded_contexts": 1,
     "independent_migrations": 0,
     "distinct_security_models": 1,
