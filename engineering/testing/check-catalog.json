@@ -985,6 +985,32 @@
         "CHK-METRICS-SNAPSHOT"
       ],
       "evidence_kind": "optimization-report"
+    },
+    {
+      "id": "CHK-METRICS-BUDGET",
+      "title": "Engineering engine efficiency regression budget",
+      "executor_key": "metrics-budget",
+      "risk_domains": [
+        "work-governance",
+        "repository-health",
+        "performance",
+        "security"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": true,
+      "trigger_paths": [
+        "engineering/metrics/**",
+        "engineering/state/**",
+        "work/**",
+        "tools/cmdr-dev/metrics_budget.go",
+        "tools/cmdr-dev/metrics_budget_test.go",
+        "tools/cmdr-dev/validation_run.go"
+      ],
+      "prerequisites": [
+        "CHK-METRICS-OPTIMIZER"
+      ],
+      "evidence_kind": "efficiency-budget-report"
     }
   ]
 }

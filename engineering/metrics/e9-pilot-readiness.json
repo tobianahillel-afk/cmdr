@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "handoff_kind": "e9-end-to-end-pilot-readiness",
+  "status": "pending-e8d-budget-proof",
+  "engineering_head": "2615201b95c5f179856b0feb1c5d4da19e1c2dbd",
+  "product_spec_baseline": "99c3826cdcbc79bad51631cf6462450f92e012eb",
+  "canonical_pilot_plan": "cmdr-product-spec/18-roadmap-and-releases/pilot-plan.md",
+  "canonical_pilot_plan_status": "draft",
+  "ready_foundation": [
+    "product obligation and coverage graph",
+    "bounded work decomposition and deterministic context",
+    "architecture and dependency enforcement",
+    "risk-adaptive validation",
+    "security gates and supply-chain evidence",
+    "research and decision governance",
+    "performance gates",
+    "recovery and multi-agent coordination",
+    "metrics and advisory optimization"
+  ],
+  "remaining_before_pilot": [
+    "prove E8-D regression gate on a current mandatory-floor profile",
+    "record a verified E9-profile efficiency baseline after the first green pilot validation",
+    "the canonical Product Spec pilot plan still leaves date owner and blocking dependency open",
+    "no product-runtime implementation or production-readiness claim exists yet"
+  ],
+  "pilot_constraints": [
+    "Product Spec remains the source of truth and read-only to implementation agents",
+    "pilot work must be decomposed before product code is written",
+    "security and correctness floors cannot be traded for throughput",
+    "pilot telemetry must follow the canonical pilot plan and must not leak product data"
+  ]
+}

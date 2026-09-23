@@ -53,3 +53,16 @@ Before any recommendation is possible, the current snapshot must prove:
 Recommendations are advisory artifacts only. Their proof object hard-codes that direct plan mutation, mandatory-check mutation, prerequisite mutation and Product Spec mutation are not allowed. Any suggested change requires a later separately verified lot.
 
 When no baseline exists, when metrics are unavailable, or when snapshots are not comparable, the optimizer returns zero recommendations and explicit withheld reasons. This is a successful safe outcome, not an error.
+
+
+## Efficiency regression budgets
+
+E8-D separates safety floors from efficiency budgets.
+
+Safety and quality floors are enforced even when no comparable performance baseline exists. The mandatory-check floor is pinned to the verified E8-C floor and may increase but cannot decrease without an explicit reviewed policy change.
+
+Efficiency comparisons use exact profiles composed of validation tier, sorted risk domains and mandatory-check floor. This prevents a new mandatory security gate from being rejected merely because it increases validation cost. For an exact comparable profile, validation selection, execution and relative cost have a zero-regression budget. Cache reuse also has a zero-regression budget when both snapshots contain measured cache evidence.
+
+Context source/dependency growth is reported as advisory rather than blocking because required traceability may legitimately expand the deterministic context graph.
+
+The baseline registry records only verified metadata: source SHA, workflow run, observed time, snapshot digest and metric values. No source code, secrets or product telemetry are stored.

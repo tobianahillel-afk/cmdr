@@ -25,6 +25,7 @@ type ValidationExecutionSummary struct {
 	Checks             []ExecutedCheck           `json:"checks"`
 	Metrics            *EngineMetricSnapshot     `json:"metrics,omitempty"`
 	Optimizations      *EngineOptimizationReport `json:"optimizations,omitempty"`
+	EfficiencyBudgets  *EngineEfficiencyBudgetReport `json:"efficiency_budgets,omitempty"`
 }
 
 func runValidationExecution(root, workUnit, changesFile string, state CurrentState, graph WorkGraph) (ValidationExecutionSummary, error) {
@@ -93,12 +94,17 @@ func runValidationExecution(root, workUnit, changesFile string, state CurrentSta
 		return summary, fmt.Errorf("compile engine optimization report: %w", err)
 	}
 	summary.Optimizations = &optimizations
+	budgetReport, err := compileEngineEfficiencyBudgetReport(root, metrics, plan)
+	summary.EfficiencyBudgets = &budgetReport
+	if err != nil {
+		return summary, fmt.Errorf("engine efficiency budget: %w", err)
+	}
 	return summary, nil
 }
 
 func validationExecutorMode(key string) (string, error) {
 	switch key {
-	case "git-changes", "impact", "validation-plan", "validation-run", "metrics-snapshot", "metrics-optimizer":
+	case "git-changes", "impact", "validation-plan", "validation-run", "metrics-snapshot", "metrics-optimizer", "metrics-budget":
 		return "preflight", nil
 	case "gofmt", "go-vet", "go-unit",
 		"spec-index", "spec-baseline", "coverage-graph", "obligations", "coverage-audit",
@@ -124,6 +130,8 @@ func preflightEvidence(key string) string {
 		return "current validation process compiles the metric snapshot after selected checks complete"
 	case "metrics-optimizer":
 		return "current validation process derives advisory optimizations after metric snapshot compilation"
+	case "metrics-budget":
+		return "current validation process evaluates safety floors and same-profile efficiency budgets after metric snapshot compilation"
 	default:
 		return "preflight satisfied"
 	}
