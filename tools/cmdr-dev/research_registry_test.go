@@ -1,22 +1,20 @@
 package main
 
-import (
-	"testing"
-)
+import "testing"
 
 func canonicalResearchPolicy() ResearchPolicy {
 	return ResearchPolicy{
-		SchemaVersion: 1,
-		DefaultPolicy: "deny-unsourced-material-claim",
+		SchemaVersion:  1,
+		DefaultPolicy:  "deny-unsourced-material-claim",
 		PacketStatuses: []string{"collecting", "saturated", "superseded"},
 		SourceKinds: []string{
 			"official-doc", "scientific-paper", "standard", "security-advisory",
 			"source-code", "benchmark-report", "independent-analysis", "community-discussion",
 		},
 		ClaimCriticalities: []string{"supporting", "material", "critical"},
-		ClaimStatuses: []string{"supported", "contested", "unresolved"},
+		ClaimStatuses:      []string{"supported", "contested", "unresolved"},
 		FamilyDispositions: []string{"candidate", "excluded"},
-		Limits: ResearchLimits{MaxPackets: 256, MaxFamiliesPerPacket: 16, MaxSourcesPerPacket: 64, MaxClaimsPerPacket: 96, MaxLimitationsPerPacket: 32},
+		Limits:             ResearchLimits{MaxPackets: 256, MaxFamiliesPerPacket: 16, MaxSourcesPerPacket: 64, MaxClaimsPerPacket: 96, MaxLimitationsPerPacket: 32},
 	}
 }
 
@@ -52,10 +50,10 @@ func validSaturatedPacket() ResearchPacket {
 			{ID: "CLAIM-002", Statement: "B-tree is a credible family", Criticality: "material", Status: "supported", SourceRefs: []string{"SRC-002"}, FamilyRefs: []string{"FAMILY-BTREE"}},
 		},
 		Saturation: ResearchSaturation{
-			MajorFamilyIDs: []string{"FAMILY-LSM", "FAMILY-BTREE"},
-			MajorSolutionFamiliesCovered: true,
+			MajorFamilyIDs:                       []string{"FAMILY-LSM", "FAMILY-BTREE"},
+			MajorSolutionFamiliesCovered:         true,
 			NewSourcesMateriallyChangeCandidates: false,
-			CriticalLimitationsKnown: true,
+			CriticalLimitationsKnown:             true,
 		},
 	}
 }
