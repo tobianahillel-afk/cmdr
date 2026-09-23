@@ -6,8 +6,8 @@ func validPerformancePolicy() PerformancePolicy {
 	return PerformancePolicy{
 		SchemaVersion: 1,
 		DefaultPolicy: "deny-unregistered-performance-target",
-		ScopeKinds:  []string{"engineering-control-plane", "product-runtime"},
-		MetricKinds: []string{"latency", "throughput", "cpu-time", "memory", "allocation", "utilization"},
+		ScopeKinds:    []string{"engineering-control-plane", "product-runtime"},
+		MetricKinds:   []string{"latency", "throughput", "cpu-time", "memory", "allocation", "utilization"},
 		MetricUnits: map[string][]string{
 			"latency":     {"ns", "us", "ms", "s"},
 			"throughput":  {"ops/s", "events/s", "bytes/s"},
@@ -132,7 +132,7 @@ func TestPerformanceRegistryRejectsInvalidMetricUnitAndBudget(t *testing.T) {
 		registry := PerformanceRegistry{
 			SchemaVersion: 1, RegistryKind: "performance-targets",
 			Environments: []PerformanceEnvironment{validPerformanceEnvironment()},
-			Targets: []PerformanceTarget{target},
+			Targets:      []PerformanceTarget{target},
 		}
 		if _, err := validatePerformanceRegistry(validPerformancePolicy(), registry, performanceArchitecture(true)); err == nil {
 			t.Fatal("expected invalid metric rejection")
