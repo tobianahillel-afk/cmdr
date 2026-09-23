@@ -38,7 +38,7 @@ func runValidationExecution(root, workUnit, changesFile string, state CurrentSta
 		return ValidationExecutionSummary{}, err
 	}
 
-	tempDir, err := os.MkdirTemp("", "cmdr-validation-")
+	tempDir, err := os.MkdirTemp(root, ".cmdr-validation-")
 	if err != nil {
 		return ValidationExecutionSummary{}, err
 	}
