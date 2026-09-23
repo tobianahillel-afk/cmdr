@@ -32,15 +32,15 @@ func optimizerSnapshot(registry EngineMetricsRegistry, sha, observedAt, tier str
 
 func safeOptimizerValues() map[string]float64 {
 	return map[string]float64{
-		"MET-VALIDATION-SELECTED": 40,
-		"MET-VALIDATION-EXECUTED": 36,
-		"MET-VALIDATION-COST": 60,
-		"MET-MANDATORY-CHECKS": 42,
-		"MET-SAFETY-GREEN": 1,
-		"MET-CONTEXT-SOURCES": 80,
-		"MET-CONTEXT-DEPENDENCIES": 20,
-		"MET-CACHE-REUSE-RATE": 80,
-		"MET-RECOVERY-REVALIDATE": 0,
+		"MET-VALIDATION-SELECTED":    40,
+		"MET-VALIDATION-EXECUTED":    36,
+		"MET-VALIDATION-COST":        60,
+		"MET-MANDATORY-CHECKS":       42,
+		"MET-SAFETY-GREEN":           1,
+		"MET-CONTEXT-SOURCES":        80,
+		"MET-CONTEXT-DEPENDENCIES":   20,
+		"MET-CACHE-REUSE-RATE":       80,
+		"MET-RECOVERY-REVALIDATE":    0,
 		"MET-COORDINATION-CONFLICTS": 0,
 	}
 }
