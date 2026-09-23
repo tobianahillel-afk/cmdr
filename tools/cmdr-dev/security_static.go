@@ -175,6 +175,7 @@ func runGoSAST(root string) (SASTSummary, error) {
 	defer os.RemoveAll(tmp)
 	reportPath := filepath.Join(tmp, "gosec.json")
 	spec := gosecModule + "@" + gosecVersion
+	// #nosec G204 -- executable is fixed; spec is constructed only from pinned constants and reportPath is an internally-created temporary path; no shell is used.
 	cmd := exec.Command("go", "run", spec,
 		"-no-fail",
 		"-fmt=json",
@@ -193,7 +194,7 @@ func runGoSAST(root string) (SASTSummary, error) {
 	if err := cmd.Run(); err != nil {
 		return SASTSummary{}, fmt.Errorf("gosec %s execution failed; diagnostic output withheld from CI evidence: %w", gosecVersion, err)
 	}
-	data, err := os.ReadFile(reportPath)
+	data, err := os.ReadFile(reportPath) // #nosec G304 -- reportPath is derived only from os.MkdirTemp plus the constant gosec.json filename.
 	if err != nil {
 		return SASTSummary{}, fmt.Errorf("read gosec report: %w", err)
 	}

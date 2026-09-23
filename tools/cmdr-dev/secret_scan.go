@@ -231,7 +231,7 @@ func secretRuleKnown(id string) bool {
 }
 
 func trackedRepositoryPaths(root string) ([]string, error) {
-	cmd := exec.Command("git", "-C", root, "ls-files", "-z", "--cached")
+	cmd := exec.Command("git", "-C", root, "ls-files", "-z", "--cached") // #nosec G204,G702 -- executable and arguments are fixed; root is the resolved repository root and no shell is used.
 	out, err := cmd.Output()
 	if err != nil {
 		return nil, fmt.Errorf("list tracked files for secret scan: %w", err)

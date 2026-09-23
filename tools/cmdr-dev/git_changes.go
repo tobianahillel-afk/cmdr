@@ -40,7 +40,7 @@ func runGitChanges(root, baseCommit, headCommit, output string) (GitChangesSumma
 		return GitChangesSummary{}, fmt.Errorf("head commit %s: %w", headCommit, err)
 	}
 
-	cmd := exec.Command("git", "-C", root, "diff", "--name-only", "-z", "--no-renames", "--diff-filter=ACDMRTUXB", baseCommit, headCommit, "--")
+	cmd := exec.Command("git", "-C", root, "diff", "--name-only", "-z", "--no-renames", "--diff-filter=ACDMRTUXB", baseCommit, headCommit, "--") // #nosec G204,G702 -- executable is fixed, root is the resolved repository root, and both commit ids are full-hex validated before argument passing; no shell is used.
 	raw, err := cmd.Output()
 	if err != nil {
 		var exitErr *exec.ExitError
@@ -99,10 +99,15 @@ func validateFullCommitID(value string) (string, error) {
 }
 
 func ensureGitCommit(root, commit string) error {
+	normalized, err := validateFullCommitID(commit)
+	if err != nil {
+		return err
+	}
+	commit = normalized
 	if gitCommitExists(root, commit) {
 		return nil
 	}
-	fetch := exec.Command("git", "-C", root, "fetch", "--no-tags", "--depth=1", "origin", commit)
+	fetch := exec.Command("git", "-C", root, "fetch", "--no-tags", "--depth=1", "origin", commit) // #nosec G204,G702 -- executable/flags/remote are fixed and commit is revalidated as full hexadecimal; no shell is used.
 	var stderr bytes.Buffer
 	fetch.Stderr = &stderr
 	if err := fetch.Run(); err != nil {
@@ -115,7 +120,12 @@ func ensureGitCommit(root, commit string) error {
 }
 
 func gitCommitExists(root, commit string) bool {
-	cmd := exec.Command("git", "-C", root, "cat-file", "-e", commit+"^{commit}")
+	normalized, err := validateFullCommitID(commit)
+	if err != nil {
+		return false
+	}
+	commit = normalized
+	cmd := exec.Command("git", "-C", root, "cat-file", "-e", commit+"^{commit}") // #nosec G204,G702 -- executable/flags are fixed and commit is full-hex validated; no shell is used.
 	return cmd.Run() == nil
 }
 

@@ -136,9 +136,9 @@ func executeValidationCheck(root, tempDir, changesFile, key string, state Curren
 		}
 		return "gofmt produced no diff", nil
 	case "go-vet":
-		return runFixedProcess(filepath.Join(root, "tools", "cmdr-dev"), "go", "vet", "./...")
+		return runFixedGoProcess(filepath.Join(root, "tools", "cmdr-dev"), "vet")
 	case "go-unit":
-		return runFixedProcess(filepath.Join(root, "tools", "cmdr-dev"), "go", "test", "./...")
+		return runFixedGoProcess(filepath.Join(root, "tools", "cmdr-dev"), "test")
 	case "spec-index":
 		out := filepath.Join(tempDir, "spec-inventory.json")
 		summary, err := runSpecIndex(root, state.ProductSpec.CanonicalPath, out, false)
@@ -281,8 +281,19 @@ func executeValidationCheck(root, tempDir, changesFile, key string, state Curren
 	}
 }
 
-func runFixedProcess(dir, name string, args ...string) (string, error) {
-	cmd := exec.Command(name, args...)
+func runFixedGoProcess(dir, action string) (string, error) {
+	var cmd *exec.Cmd
+	var label string
+	switch action {
+	case "vet":
+		cmd = exec.Command("go", "vet", "./...")
+		label = "go vet ./..."
+	case "test":
+		cmd = exec.Command("go", "test", "./...")
+		label = "go test ./..."
+	default:
+		return "", fmt.Errorf("unsupported fixed Go action %q", action)
+	}
 	cmd.Dir = dir
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout = &stdout
@@ -292,7 +303,7 @@ func runFixedProcess(dir, name string, args ...string) (string, error) {
 		if message == "" {
 			message = strings.TrimSpace(stdout.String())
 		}
-		return "", fmt.Errorf("%s %s failed: %s", name, strings.Join(args, " "), message)
+		return "", fmt.Errorf("%s failed: %s", label, message)
 	}
 	message := strings.TrimSpace(stdout.String())
 	if message == "" {
