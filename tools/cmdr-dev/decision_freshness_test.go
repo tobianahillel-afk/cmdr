@@ -48,7 +48,9 @@ func canonicalFreshnessPolicy() FreshnessPolicy {
 func TestFreshAcceptedDecisionIsReusable(t *testing.T) {
 	root, state, _, decisions, research, validations, record := freshnessFixture(t)
 	registry := FreshnessRegistry{SchemaVersion: 1, RegistryKind: "engineering-decision-freshness", Records: []DecisionFreshnessRecord{record}}
-	if err := validateFreshnessRegistry(canonicalFreshnessPolicy(), registry, decisions); err != nil { t.Fatal(err) }
+	if err := validateFreshnessRegistry(canonicalFreshnessPolicy(), registry, decisions); err != nil {
+		t.Fatal(err)
+	}
 	fresh, reasons, current, err := evaluateFreshnessRecord(root, mustResearchDate(t, "2026-10-01"), canonicalFreshnessPolicy(), record, decisions.Decisions[0], research, validations, state)
 	if err != nil {
 		t.Fatal(err)
