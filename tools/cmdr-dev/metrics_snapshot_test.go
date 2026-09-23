@@ -26,9 +26,9 @@ func completeSnapshotRegistry() EngineMetricsRegistry {
 func TestBuildEngineMetricSnapshotAccountsForEveryMetric(t *testing.T) {
 	registry := completeSnapshotRegistry()
 	plan := ValidationPlan{
-		WorkUnit:      "E8-MET-001B",
-		Tier:          "standard",
-		CostUnits:     12,
+		WorkUnit:       "E8-MET-001B",
+		Tier:           "standard",
+		CostUnits:      12,
 		SelectedChecks: []PlannedCheck{{ID: "CHK-A", Mandatory: true}, {ID: "CHK-B", Mandatory: true}},
 	}
 	execution := ValidationExecutionSummary{
