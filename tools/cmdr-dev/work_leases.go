@@ -29,6 +29,7 @@ type WorkLease struct {
 	ID          string `json:"id"`
 	WorkUnit    string `json:"work_unit"`
 	AgentID     string `json:"agent_id"`
+	Mode        string `json:"mode,omitempty"`
 	BaseHeadSHA string `json:"base_head_sha"`
 	AcquiredAt  string `json:"acquired_at"`
 	ExpiresAt   string `json:"expires_at"`
@@ -61,6 +62,7 @@ type WorkLeaseActionRequest struct {
 	Action          string
 	LeaseID         string
 	AgentID         string
+	Mode            string
 	WorkUnit        string
 	BaseHeadSHA     string
 	AsOf            string
@@ -179,6 +181,9 @@ func validateWorkLeaseRecord(policy WorkLeasePolicy, claim WorkLease, nodes map[
 	if _, ok := nodes[claim.WorkUnit]; !ok {
 		return time.Time{}, time.Time{}, nil, fmt.Errorf("lease %s references unknown work unit %s", claim.ID, claim.WorkUnit)
 	}
+	if normalizedLeaseMode(claim.Mode) == "invalid" {
+		return time.Time{}, time.Time{}, nil, fmt.Errorf("lease %s has invalid mode %q", claim.ID, claim.Mode)
+	}
 	if _, err := validateFullCommitID(claim.BaseHeadSHA); err != nil {
 		return time.Time{}, time.Time{}, nil, fmt.Errorf("lease %s base_head_sha: %w", claim.ID, err)
 	}
@@ -283,6 +288,10 @@ func evaluateWorkLeaseAction(policy WorkLeasePolicy, registry WorkLeaseRegistry,
 
 	switch request.Action {
 	case "acquire":
+		mode := normalizedLeaseMode(request.Mode)
+		if mode == "invalid" {
+			add("invalid-lease-mode")
+		}
 		node, ok := nodes[request.WorkUnit]
 		if !ok {
 			add("unknown-work-unit")
@@ -303,7 +312,7 @@ func evaluateWorkLeaseAction(policy WorkLeasePolicy, registry WorkLeaseRegistry,
 		}
 		if len(result.Reasons) == 0 {
 			result.ProposedClaim = &WorkLease{
-				ID: request.LeaseID, WorkUnit: request.WorkUnit, AgentID: request.AgentID,
+				ID: request.LeaseID, WorkUnit: request.WorkUnit, AgentID: request.AgentID, Mode: mode,
 				BaseHeadSHA: strings.ToLower(request.BaseHeadSHA), AcquiredAt: asOf.Format(time.RFC3339),
 				ExpiresAt: asOf.Add(time.Duration(duration) * time.Minute).Format(time.RFC3339),
 			}

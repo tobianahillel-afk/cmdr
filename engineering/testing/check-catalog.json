@@ -883,6 +883,31 @@
         "CHK-RECOVERY-JOURNAL"
       ],
       "evidence_kind": "reconciliation"
+    },
+    {
+      "id": "CHK-COORDINATION",
+      "title": "Multi-agent mutable-scope coordination audit",
+      "executor_key": "coordination-audit",
+      "risk_domains": [
+        "work-governance",
+        "repository-health",
+        "security"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": true,
+      "trigger_paths": [
+        "engineering/recovery/**",
+        "engineering/state/**",
+        "work/**",
+        "tools/cmdr-dev/work_leases.go",
+        "tools/cmdr-dev/coordination.go",
+        "tools/cmdr-dev/coordination_test.go"
+      ],
+      "prerequisites": [
+        "CHK-RECOVERY-RECONCILE"
+      ],
+      "evidence_kind": "coordination-report"
     }
   ]
 }

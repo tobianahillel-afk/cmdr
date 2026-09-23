@@ -36,9 +36,10 @@
     "active work graph and strict manifests"
   ],
   "outputs": [
-    "scope-overlap detector",
-    "conflict report",
-    "safe handoff artifact and release protocol"
+    "scope-overlap detector over active lease manifest allowed_paths",
+    "deterministic conflict report",
+    "exact-head safe handoff artifact and release/reacquire protocol",
+    "explicit read-only lease mode for non-mutating concurrent agents"
   ],
   "invariants": [
     "Product Spec remains read-only",
@@ -57,7 +58,11 @@
     "go test ./...",
     "cmdr-dev validate-manifests succeeds",
     "cmdr-dev complexity-audit succeeds",
-    "adaptive engineering-kernel remains green"
+    "adaptive engineering-kernel remains green",
+    "unit tests reject overlapping mutating scopes",
+    "unit tests allow overlap only when one lease is explicitly read-only",
+    "unit tests prove handoff identity/digest and post-release reacquisition requirement",
+    "cmdr-dev coordination-audit succeeds"
   ],
   "performance_budget": {
     "applicable": true,
@@ -81,7 +86,9 @@
   "required_checks": [
     "adaptive engineering-kernel",
     "cmdr-dev validate-manifests",
-    "cmdr-dev complexity-audit"
+    "cmdr-dev complexity-audit",
+    "CHK-COORDINATION",
+    "cmdr-dev coordination-audit"
   ],
   "definition_of_ready": [
     "dependencies are VERIFIED",
@@ -96,10 +103,10 @@
   ],
   "complexity": {
     "primary_components": 1,
-    "estimated_files_changed": 7,
-    "estimated_net_loc": 460,
-    "production_files": 2,
-    "net_production_loc": 330,
+    "estimated_files_changed": 9,
+    "estimated_net_loc": 520,
+    "production_files": 3,
+    "net_production_loc": 390,
     "bounded_contexts": 1,
     "independent_migrations": 0,
     "distinct_security_models": 1,

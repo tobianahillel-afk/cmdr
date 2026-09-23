@@ -117,6 +117,7 @@ func main() {
 	asOfDateFlag := fs.String("as-of-date", "", "freshness evaluation date YYYY-MM-DD; defaults to current UTC date")
 	asOfTimeFlag := fs.String("as-of-time", "", "lease evaluation time RFC3339 UTC; defaults to current UTC time")
 	leaseActionFlag := fs.String("lease-action", "", "lease action: acquire, renew, or release")
+	leaseModeFlag := fs.String("lease-mode", "", "lease mode for acquire: mutating or read-only; blank defaults to mutating")
 	leaseIDFlag := fs.String("lease-id", "", "opaque work lease id")
 	agentIDFlag := fs.String("agent-id", "", "opaque non-secret agent id")
 	leaseBaseHeadFlag := fs.String("lease-base-head", "", "full Git commit id used as lease base")
@@ -450,7 +451,7 @@ func main() {
 			workUnit = state.Execution.ActiveWorkUnit
 		}
 		result, err := runWorkLeaseEvaluation(root, WorkLeaseActionRequest{
-			Action: *leaseActionFlag, LeaseID: *leaseIDFlag, AgentID: *agentIDFlag,
+			Action: *leaseActionFlag, LeaseID: *leaseIDFlag, AgentID: *agentIDFlag, Mode: *leaseModeFlag,
 			WorkUnit: workUnit, BaseHeadSHA: *leaseBaseHeadFlag,
 			AsOf: *asOfTimeFlag, DurationMinutes: *leaseDurationFlag,
 		}, graph)
@@ -497,6 +498,24 @@ func main() {
 		}
 		result, err := runRecoveryReconciliationAudit(root, state, graph)
 		printValue(result, *jsonFlag)
+		if err != nil {
+			fail(err)
+		}
+	case "coordination-audit":
+		if err := validateState(root, state, graph); err != nil {
+			fail(err)
+		}
+		summary, err := runCoordinationAudit(root, *asOfTimeFlag, graph)
+		printValue(summary, *jsonFlag)
+		if err != nil {
+			fail(err)
+		}
+	case "coordination-handoff":
+		if err := validateState(root, state, graph); err != nil {
+			fail(err)
+		}
+		handoff, err := runCoordinationHandoff(root, *workUnitFlag, *leaseIDFlag, *agentIDFlag, *asOfTimeFlag, state, graph)
+		printValue(handoff, *jsonFlag)
 		if err != nil {
 			fail(err)
 		}
@@ -1057,6 +1076,18 @@ func printValue(v any, asJSON bool) {
 		fmt.Printf("outcome: %s\n", x.Outcome)
 		fmt.Printf("next action: %s\n", x.NextAction)
 		fmt.Printf("reasons: %v\n", x.Reasons)
+	case CoordinationAuditSummary:
+		fmt.Printf("as of: %s\n", x.AsOf)
+		fmt.Printf("active claims: %d mutating=%d read-only=%d\n", x.ActiveClaims, x.Mutating, x.ReadOnly)
+		fmt.Printf("conflicts: %d\n", x.Conflicts)
+		fmt.Printf("status: %s\n", x.Status)
+	case CoordinationHandoff:
+		fmt.Printf("work unit: %s\n", x.WorkUnit)
+		fmt.Printf("lease: %s (%s)\n", x.LeaseID, x.LeaseMode)
+		fmt.Printf("from agent: %s\n", x.FromAgent)
+		fmt.Printf("head: %s\n", x.HeadSHA)
+		fmt.Printf("revalidation required: %t\n", x.RevalidationRequired)
+		fmt.Printf("digest: %s\n", x.Digest)
 	case SecretScanSummary:
 		fmt.Printf("mode: %s\n", x.Mode)
 		fmt.Printf("candidate paths: %d\n", x.CandidatePaths)
@@ -1102,7 +1133,7 @@ func printValue(v any, asJSON bool) {
 }
 
 func usage(w io.Writer) {
-	fmt.Fprintln(w, "usage: cmdr-dev <doctor|status|next|spec-index|spec-baseline|coverage-graph|obligations|coverage-audit|validate-manifests|complexity-audit|context|architecture-audit|dependency-audit|boundary-edge-audit|check-catalog-audit|impact|validation-plan|security-gate-audit|security-test-audit|deep-security-audit|decision-registry-audit|research-packet-audit|decision-gate-audit|decision-freshness-audit|performance-registry-audit|performance-benchmark-audit|deep-performance-audit|performance-cache-audit|lease-audit|lease-evaluate|recovery-journal-audit|resume-checkpoint|recovery-reconcile|recovery-reconcile-audit|decision-cache|decision-freshness-snapshot|research-context|secret-scan|sast-go|sca-go|sbom|git-changes|validation-run> [--root PATH] [--json] [--check] [--output PATH]")
+	fmt.Fprintln(w, "usage: cmdr-dev <doctor|status|next|spec-index|spec-baseline|coverage-graph|obligations|coverage-audit|validate-manifests|complexity-audit|context|architecture-audit|dependency-audit|boundary-edge-audit|check-catalog-audit|impact|validation-plan|security-gate-audit|security-test-audit|deep-security-audit|decision-registry-audit|research-packet-audit|decision-gate-audit|decision-freshness-audit|performance-registry-audit|performance-benchmark-audit|deep-performance-audit|performance-cache-audit|lease-audit|lease-evaluate|recovery-journal-audit|resume-checkpoint|recovery-reconcile|recovery-reconcile-audit|coordination-audit|coordination-handoff|decision-cache|decision-freshness-snapshot|research-context|secret-scan|sast-go|sca-go|sbom|git-changes|validation-run> [--root PATH] [--json] [--check] [--output PATH]")
 }
 
 func fail(err error) {
