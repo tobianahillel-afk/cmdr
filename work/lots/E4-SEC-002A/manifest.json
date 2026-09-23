@@ -35,7 +35,11 @@
     "development tooling may be external only when reviewed/pinned and must not become product runtime dependencies"
   ],
   "outputs": [
-    "executable evidence-backed security control"
+    "local deterministic secret scanner",
+    "redacted finding report with SHA-256 fingerprints",
+    "path/fingerprint scoped allowlist",
+    "changed-path and full Git-tracked scan modes",
+    "catalogued CHK-SECRETS adaptive CI gate"
   ],
   "invariants": [
     "Product Spec remains read-only",
@@ -51,7 +55,11 @@
   "acceptance_tests": [
     "go test ./...",
     "adaptive engineering-kernel succeeds in push and PR",
-    "security-gate audit succeeds with truthful readiness"
+    "security-gate audit succeeds with truthful readiness",
+    "unit tests prove high-confidence token/private-key detection without raw-secret evidence",
+    "unit tests prove exact path/fingerprint allowlisting",
+    "unit tests prove deleted, binary, generated and symlink exclusions",
+    "full-scan unit test ignores untracked files"
   ],
   "performance_budget": {
     "applicable": true,
@@ -73,7 +81,8 @@
   },
   "required_checks": [
     "adaptive engineering-kernel",
-    "security-gate audit"
+    "security-gate audit",
+    "cmdr-dev secret-scan"
   ],
   "definition_of_ready": [
     "dependencies are VERIFIED",
@@ -89,10 +98,10 @@
   ],
   "complexity": {
     "primary_components": 1,
-    "estimated_files_changed": 7,
-    "estimated_net_loc": 390,
+    "estimated_files_changed": 11,
+    "estimated_net_loc": 500,
     "production_files": 3,
-    "net_production_loc": 320,
+    "net_production_loc": 360,
     "bounded_contexts": 1,
     "independent_migrations": 0,
     "distinct_security_models": 1,

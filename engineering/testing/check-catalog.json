@@ -481,6 +481,25 @@
         "CHK-CATALOG"
       ],
       "evidence_kind": "audit-report"
+    },
+    {
+      "id": "CHK-SECRETS",
+      "title": "Deterministic secret scan",
+      "executor_key": "secret-scan",
+      "risk_domains": [
+        "security",
+        "code-quality"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": true,
+      "trigger_paths": [
+        "**"
+      ],
+      "prerequisites": [
+        "CHK-UNIT"
+      ],
+      "evidence_kind": "finding-report"
     }
   ]
 }

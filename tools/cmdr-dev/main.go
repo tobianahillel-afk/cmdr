@@ -115,6 +115,7 @@ func main() {
 	changesFileFlag := fs.String("changes-file", "", "newline-delimited repository-relative changed paths")
 	baseCommitFlag := fs.String("base-commit", "", "full Git base commit id")
 	headCommitFlag := fs.String("head-commit", "", "full Git head commit id")
+	fullScanFlag := fs.Bool("full-scan", false, "scan all Git-tracked repository files")
 	if err := fs.Parse(os.Args[2:]); err != nil {
 		fail(err)
 	}
@@ -323,6 +324,15 @@ func main() {
 			fail(err)
 		}
 		printValue(summary, *jsonFlag)
+	case "secret-scan":
+		if err := validateState(root, state, graph); err != nil {
+			fail(err)
+		}
+		summary, err := runSecretScan(root, *changesFileFlag, *fullScanFlag)
+		printValue(summary, *jsonFlag)
+		if err != nil {
+			fail(err)
+		}
 	case "git-changes":
 		if err := validateState(root, state, graph); err != nil {
 			fail(err)
@@ -733,6 +743,13 @@ func printValue(v any, asJSON bool) {
 		fmt.Printf("by stage: %v\n", x.ByStage)
 		fmt.Printf("blocking: %d\n", x.Blocking)
 		fmt.Printf("conditional blocking: %d\n", x.Conditional)
+	case SecretScanSummary:
+		fmt.Printf("mode: %s\n", x.Mode)
+		fmt.Printf("candidate paths: %d\n", x.CandidatePaths)
+		fmt.Printf("scanned files: %d\n", x.ScannedFiles)
+		fmt.Printf("allowlisted: %d\n", x.Allowlisted)
+		fmt.Printf("findings: %d\n", x.FindingCount)
+		fmt.Printf("by rule: %v\n", x.ByRule)
 	case GitChangesSummary:
 		fmt.Printf("base commit: %s\n", x.BaseCommit)
 		fmt.Printf("head commit: %s\n", x.HeadCommit)
@@ -751,7 +768,7 @@ func printValue(v any, asJSON bool) {
 }
 
 func usage(w io.Writer) {
-	fmt.Fprintln(w, "usage: cmdr-dev <doctor|status|next|spec-index|spec-baseline|coverage-graph|obligations|coverage-audit|validate-manifests|complexity-audit|context|architecture-audit|dependency-audit|boundary-edge-audit|check-catalog-audit|impact|validation-plan|security-gate-audit|git-changes|validation-run> [--root PATH] [--json] [--check] [--output PATH]")
+	fmt.Fprintln(w, "usage: cmdr-dev <doctor|status|next|spec-index|spec-baseline|coverage-graph|obligations|coverage-audit|validate-manifests|complexity-audit|context|architecture-audit|dependency-audit|boundary-edge-audit|check-catalog-audit|impact|validation-plan|security-gate-audit|secret-scan|git-changes|validation-run> [--root PATH] [--json] [--check] [--output PATH]")
 }
 
 func fail(err error) {

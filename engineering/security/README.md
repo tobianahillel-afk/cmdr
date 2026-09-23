@@ -42,3 +42,8 @@ This prevents future security-tool integration from silently sending production/
 ## Current status
 
 E4-SEC-001A defines and validates the gate contracts only. It does **not** claim that secrets scanning, SAST, SCA, SBOM, DAST, fuzzing, tenant isolation or authorization testing are already implemented. Later E4 sublots activate gates only after executable evidence exists.
+
+
+## Deterministic secret scanner
+
+E4-SEC-002A introduces a local source scanner with redacted SHA-256 finding evidence and a path/fingerprint-scoped allowlist. It runs from the adaptive PR/push validation plan and can also perform a full Git-tracked scan. The security gate remains `specified` until push and pull-request evidence for the implementation commit is green.

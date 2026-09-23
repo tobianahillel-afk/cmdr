@@ -90,7 +90,9 @@ var knownSecurityEvidenceKinds = map[string]bool{
 	"provenance":     true,
 }
 
-var knownSecurityImplementationKeys = map[string]bool{}
+var knownSecurityImplementationKeys = map[string]bool{
+	"builtin-secret-scan-v1": true,
+}
 
 func loadSecurityGateRegistry(root string) (SecurityGateRegistry, error) {
 	var registry SecurityGateRegistry
