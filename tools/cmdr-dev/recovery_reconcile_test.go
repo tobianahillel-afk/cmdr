@@ -10,7 +10,7 @@ import (
 func TestReconcileEmptyCheckpointStartsCleanly(t *testing.T) {
 	root := initReconcileGit(t)
 	head := testGitOutput(t, root, "rev-parse", "HEAD")
-	result, err := reconcileRecovery(root, ResumeCheckpoint{Status:"empty",WorkUnit:"E7-REC-001C"}, WorkLeaseRegistry{}, head, nil, mustLeaseTime(t,"2026-09-23T12:00:00Z"))
+	result, err := reconcileRecovery(root, ResumeCheckpoint{Status: "empty", WorkUnit: "E7-REC-001C"}, WorkLeaseRegistry{}, head, nil, mustLeaseTime(t, "2026-09-23T12:00:00Z"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -23,11 +23,11 @@ func TestValidationPassedWithoutCIRequiresRevalidation(t *testing.T) {
 	root := initReconcileGit(t)
 	head := testGitOutput(t, root, "rev-parse", "HEAD")
 	cp, claims := reconcileCheckpointAndClaim(head, "validation-passed")
-	result, err := reconcileRecovery(root, cp, claims, head, nil, mustLeaseTime(t,"2026-09-23T12:00:00Z"))
+	result, err := reconcileRecovery(root, cp, claims, head, nil, mustLeaseTime(t, "2026-09-23T12:00:00Z"))
 	if err != nil {
 		t.Fatal(err)
 	}
-	if result.Outcome != "revalidate" || !containsString(result.Reasons,"validation-pass-has-no-ci-observation") {
+	if result.Outcome != "revalidate" || !containsString(result.Reasons, "validation-pass-has-no-ci-observation") {
 		t.Fatalf("missing CI was treated as success: %#v", result)
 	}
 }
@@ -36,8 +36,8 @@ func TestMatchingSuccessfulCIAllowsResume(t *testing.T) {
 	root := initReconcileGit(t)
 	head := testGitOutput(t, root, "rev-parse", "HEAD")
 	cp, claims := reconcileCheckpointAndClaim(head, "validation-passed")
-	ci := &CIObservation{HeadSHA:head,RunID:42,Event:"push",Conclusion:"success",ObservedAt:"2026-09-23T11:30:00Z"}
-	result, err := reconcileRecovery(root, cp, claims, head, ci, mustLeaseTime(t,"2026-09-23T12:00:00Z"))
+	ci := &CIObservation{HeadSHA: head, RunID: 42, Event: "push", Conclusion: "success", ObservedAt: "2026-09-23T11:30:00Z"}
+	result, err := reconcileRecovery(root, cp, claims, head, ci, mustLeaseTime(t, "2026-09-23T12:00:00Z"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -54,7 +54,7 @@ func TestRepositoryAdvanceForcesRevalidation(t *testing.T) {
 	runTestGit(t, root, "commit", "-m", "advance")
 	current := testGitOutput(t, root, "rev-parse", "HEAD")
 	cp, claims := reconcileCheckpointAndClaim(oldHead, "commit-observed")
-	result, err := reconcileRecovery(root, cp, claims, current, nil, mustLeaseTime(t,"2026-09-23T12:00:00Z"))
+	result, err := reconcileRecovery(root, cp, claims, current, nil, mustLeaseTime(t, "2026-09-23T12:00:00Z"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -77,7 +77,7 @@ func TestDivergedHeadFailsClosed(t *testing.T) {
 	runTestGit(t, root, "commit", "-m", "current")
 	current := testGitOutput(t, root, "rev-parse", "HEAD")
 	cp, claims := reconcileCheckpointAndClaim(other, "commit-observed")
-	result, err := reconcileRecovery(root, cp, claims, current, nil, mustLeaseTime(t,"2026-09-23T12:00:00Z"))
+	result, err := reconcileRecovery(root, cp, claims, current, nil, mustLeaseTime(t, "2026-09-23T12:00:00Z"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -91,7 +91,7 @@ func TestExpiredLeaseRequiresReacquisition(t *testing.T) {
 	head := testGitOutput(t, root, "rev-parse", "HEAD")
 	cp, claims := reconcileCheckpointAndClaim(head, "implementation-started")
 	claims.Claims[0].ExpiresAt = "2026-09-23T11:00:00Z"
-	result, err := reconcileRecovery(root, cp, claims, head, nil, mustLeaseTime(t,"2026-09-23T12:00:00Z"))
+	result, err := reconcileRecovery(root, cp, claims, head, nil, mustLeaseTime(t, "2026-09-23T12:00:00Z"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -101,14 +101,14 @@ func TestExpiredLeaseRequiresReacquisition(t *testing.T) {
 }
 
 func TestCIObservationMustBeCompleteAndCanonical(t *testing.T) {
-	if _, err := ciObservationFromFlags(strings.Repeat("a",40),"","","",""); err == nil {
+	if _, err := ciObservationFromFlags(strings.Repeat("a", 40), "", "", "", ""); err == nil {
 		t.Fatal("expected partial CI observation rejection")
 	}
-	ci, err := ciObservationFromFlags(strings.Repeat("a",40),"42","push","success","2026-09-23T11:30:00Z")
+	ci, err := ciObservationFromFlags(strings.Repeat("a", 40), "42", "push", "success", "2026-09-23T11:30:00Z")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err := validateCIObservation(*ci, mustLeaseTime(t,"2026-09-23T12:00:00Z")); err != nil {
+	if err := validateCIObservation(*ci, mustLeaseTime(t, "2026-09-23T12:00:00Z")); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -119,7 +119,7 @@ func initReconcileGit(t *testing.T) string {
 	runTestGit(t, root, "init")
 	runTestGit(t, root, "config", "user.name", "CMDR Test")
 	runTestGit(t, root, "config", "user.email", "cmdr-test@example.invalid")
-	if err := os.WriteFile(filepath.Join(root,"base.txt"),[]byte("base\n"),0o600); err != nil {
+	if err := os.WriteFile(filepath.Join(root, "base.txt"), []byte("base\n"), 0o600); err != nil {
 		t.Fatal(err)
 	}
 	runTestGit(t, root, "add", ".")
@@ -129,11 +129,11 @@ func initReconcileGit(t *testing.T) string {
 
 func reconcileCheckpointAndClaim(head, kind string) (ResumeCheckpoint, WorkLeaseRegistry) {
 	return ResumeCheckpoint{
-		Status:resumeStatusForEvent(kind),WorkUnit:"E7-REC-001C",Events:1,
-		LastSequence:1,LastEventID:"EVT-TEST0001",LastEventKind:kind,
-		AgentID:"AGENT-test",LeaseID:"LEASE-TEST0001",HeadSHA:head,
-	}, WorkLeaseRegistry{Claims:[]WorkLease{{
-		ID:"LEASE-TEST0001",WorkUnit:"E7-REC-001C",AgentID:"AGENT-test",BaseHeadSHA:head,
-		AcquiredAt:"2026-09-23T10:00:00Z",ExpiresAt:"2026-09-23T14:00:00Z",
-	}}}
+			Status: resumeStatusForEvent(kind), WorkUnit: "E7-REC-001C", Events: 1,
+			LastSequence: 1, LastEventID: "EVT-TEST0001", LastEventKind: kind,
+			AgentID: "AGENT-test", LeaseID: "LEASE-TEST0001", HeadSHA: head,
+		}, WorkLeaseRegistry{Claims: []WorkLease{{
+			ID: "LEASE-TEST0001", WorkUnit: "E7-REC-001C", AgentID: "AGENT-test", BaseHeadSHA: head,
+			AcquiredAt: "2026-09-23T10:00:00Z", ExpiresAt: "2026-09-23T14:00:00Z",
+		}}}
 }
