@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "work_unit": "E5-RES-001C",
+  "result": "VERIFIED",
+  "final_validated_head": "b67f4e8b73423622e964d20daabd130733730dcf",
+  "evidence": {
+    "push_run": 35858806949,
+    "pull_request_run": 35858814740,
+    "check": "CHK-DECISION-GATES",
+    "executor": "decision-gate-audit"
+  },
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E5-RES-001D"
+  ]
+}

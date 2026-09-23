@@ -467,7 +467,7 @@
       "id": "E5-RES-001C",
       "title": "Enforce benchmark prototype and adversarial decision gates",
       "type": "sublot",
-      "status": "READY",
+      "status": "VERIFIED",
       "depends_on": [
         "E5-RES-001B"
       ],
@@ -480,7 +480,7 @@
       "id": "E5-RES-001D",
       "title": "Enforce decision freshness revisit triggers and reusable evidence cache",
       "type": "sublot",
-      "status": "BLOCKED",
+      "status": "READY",
       "depends_on": [
         "E5-RES-001C"
       ],
