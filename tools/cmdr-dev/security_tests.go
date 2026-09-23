@@ -86,7 +86,7 @@ func runSecurityTestAudit(root, changesFile string) (SecurityTestAuditSummary, e
 	}
 	var changed []string
 	if strings.TrimSpace(changesFile) != "" {
-		changed, err = readChangedPaths(changesFile)
+		changed, err = readChangedPaths(root, changesFile)
 		if err != nil {
 			return SecurityTestAuditSummary{}, err
 		}
