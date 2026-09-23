@@ -369,7 +369,7 @@
       ],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": [
-        "E4-SEC-002B-PATH"
+        "E4-SEC-002B-OUTPUT"
       ]
     },
     {
@@ -386,8 +386,21 @@
       ]
     },
     {
-      "id": "E4-SEC-002B-PATH",
-      "title": "Harden repository path and symlink boundaries exposed by SAST",
+      "id": "E4-SEC-002B-ACTIVATE",
+      "title": "Finalize and activate Go SAST and SCA controls",
+      "type": "task",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E4-SEC-002B-READ"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E4-SEC-002C"
+      ]
+    },
+    {
+      "id": "E4-SEC-002B-OUTPUT",
+      "title": "Confine generated outputs and CI evidence to repository boundaries",
       "type": "task",
       "status": "READY",
       "depends_on": [
@@ -395,20 +408,20 @@
       ],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": [
-        "E4-SEC-002B-ACTIVATE"
+        "E4-SEC-002B-READ"
       ]
     },
     {
-      "id": "E4-SEC-002B-ACTIVATE",
-      "title": "Finalize and activate Go SAST and SCA controls",
+      "id": "E4-SEC-002B-READ",
+      "title": "Harden repository reads and reject symlink traversal",
       "type": "task",
       "status": "BLOCKED",
       "depends_on": [
-        "E4-SEC-002B-PATH"
+        "E4-SEC-002B-OUTPUT"
       ],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": [
-        "E4-SEC-002C"
+        "E4-SEC-002B-ACTIVATE"
       ]
     }
   ]

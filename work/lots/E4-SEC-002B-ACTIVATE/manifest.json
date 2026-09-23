@@ -40,7 +40,7 @@
   "type": "task",
   "goal": "Finalize reviewed SAST evidence/baseline behavior, execute reachability-aware govulncheck, and activate SEC-SAST-001 and SEC-SCA-001 only after green push and PR proof.",
   "depends_on": [
-    "E4-SEC-002B-PATH"
+    "E4-SEC-002B-READ"
   ],
   "allowed_paths": [
     "tools/cmdr-dev/**",

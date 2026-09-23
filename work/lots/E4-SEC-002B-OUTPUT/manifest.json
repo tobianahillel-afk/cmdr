@@ -35,10 +35,10 @@
     "dependencies are VERIFIED",
     "scope is one coherent security behavior"
   ],
-  "id": "E4-SEC-002B-PATH",
-  "title": "Harden repository path and symlink boundaries exposed by SAST",
+  "id": "E4-SEC-002B-OUTPUT",
+  "title": "Confine generated outputs and CI evidence to repository boundaries",
   "type": "task",
-  "goal": "Close actionable repository path traversal, arbitrary output path, and symlink-following findings revealed by the first Go SAST execution before any SAST baseline or gate activation.",
+  "goal": "Prevent caller-controlled generated outputs and adaptive CI evidence from escaping the repository root while preserving cross-platform deterministic behavior.",
   "depends_on": [
     "E4-SEC-002A"
   ],
@@ -57,9 +57,9 @@
     "existing path normalization helpers"
   ],
   "outputs": [
-    "repository-confined path resolution primitive",
-    "symlink-safe repository file handling for flagged security-sensitive paths",
-    "reviewed evidence separating fixed findings from justified analyzer false positives"
+    "repository-confined output path resolution",
+    "workspace-local adaptive change evidence with automatic cleanup",
+    "restricted 0750/0600 generated evidence permissions"
   ],
   "invariants": [
     "Product Spec remains read-only",
@@ -68,31 +68,32 @@
     "no SAST finding is suppressed before its sink is reviewed"
   ],
   "security_properties": [
-    "fail closed on path escape",
-    "fail closed on symlink traversal",
-    "preserve cross-platform Windows/macOS/Linux path semantics"
+    "fail closed on relative or absolute path escape",
+    "generated output parents cannot traverse repository symlinks",
+    "temporary CI evidence remains inside the checked-out workspace"
   ],
   "acceptance_tests": [
     "go test ./...",
-    "gosec no longer reports actionable path/symlink findings",
-    "adaptive engineering-kernel executes on push and PR"
+    "path tests reject relative and absolute escapes",
+    "adaptive engineering-kernel can create and consume workspace-local change evidence on push and PR"
   ],
   "required_checks": [
     "adaptive engineering-kernel",
-    "CHK-SAST-GO"
+    "CHK-UNIT",
+    "CHK-MANIFESTS"
   ],
   "definition_of_done": [
-    "G122 is eliminated by explicit symlink-safe handling",
-    "caller-controlled outputs are repository-confined",
-    "remaining high SAST findings are individually justified false positives or eliminated",
-    "task stays within engineering paths only"
+    "all CLI-controlled generated outputs used by engineering checks are repository-confined",
+    "workflow temporary change evidence is repository-confined and cleaned up",
+    "generated evidence uses restrictive permissions",
+    "Product Spec remains read-only"
   ],
   "complexity": {
     "primary_components": 2,
-    "estimated_files_changed": 13,
-    "estimated_net_loc": 520,
-    "production_files": 8,
-    "net_production_loc": 390,
+    "estimated_files_changed": 10,
+    "estimated_net_loc": 330,
+    "production_files": 7,
+    "net_production_loc": 240,
     "bounded_contexts": 1,
     "independent_migrations": 0,
     "distinct_security_models": 1,
