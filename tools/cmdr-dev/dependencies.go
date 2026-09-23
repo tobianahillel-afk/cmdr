@@ -470,5 +470,3 @@ func unsupportedManifestKind(name string) string {
 		return ""
 	}
 }
-
-
