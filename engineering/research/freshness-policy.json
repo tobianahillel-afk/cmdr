@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "default_policy": "deny-stale-accepted-decision",
+  "automatic_triggers": [
+    "date-expiry",
+    "decision-change",
+    "research-evidence-change",
+    "validation-evidence-change",
+    "repository-input-change",
+    "product-spec-baseline-change"
+  ],
+  "external_triggers": [
+    "upstream-version-change",
+    "security-advisory",
+    "threat-model-change",
+    "benchmark-regression",
+    "assumption-change",
+    "material-new-research"
+  ],
+  "tracked_input_kinds": [
+    "assumption",
+    "threat-model",
+    "benchmark-fixture",
+    "constraint",
+    "dependency-lock",
+    "architecture-contract",
+    "security-policy"
+  ],
+  "signal_states": ["clear", "fired"]
+}

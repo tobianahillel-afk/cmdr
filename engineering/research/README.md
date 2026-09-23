@@ -27,3 +27,8 @@ The policy caps packet/family/source/claim/limitation counts to keep agent resum
 ## Decision binding
 
 Once a Class B/C decision is accepted, every `evidence_ref` must resolve to a saturated packet owned by that same decision. Until then a packet may remain collecting or saturated while the decision is still researching.
+
+
+## Freshness and reuse
+
+`freshness-registry.json` binds accepted B/C decisions to cryptographic snapshots of their decision, research packets, validation evidence, Product Spec baseline and optional local assumption/threat/benchmark inputs. `decision-cache` derives the reusable index dynamically; it never trusts a hand-maintained cache entry.

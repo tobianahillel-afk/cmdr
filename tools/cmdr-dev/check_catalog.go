@@ -86,6 +86,7 @@ var knownExecutorKeys = map[string]bool{
 	"decision-registry-audit": true,
 	"research-packet-audit":   true,
 	"decision-gate-audit":     true,
+	"decision-freshness-audit": true,
 	"secret-scan":             true,
 	"gosec-go":                true,
 	"govulncheck-go":          true,

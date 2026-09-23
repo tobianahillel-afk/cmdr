@@ -686,6 +686,32 @@
         "CHK-RESEARCH"
       ],
       "evidence_kind": "audit-report"
+    },
+    {
+      "id": "CHK-DECISION-FRESHNESS",
+      "title": "Decision freshness and reusable evidence audit",
+      "executor_key": "decision-freshness-audit",
+      "risk_domains": [
+        "work-governance",
+        "architecture",
+        "security",
+        "repository-health"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": true,
+      "trigger_paths": [
+        "engineering/decisions/**",
+        "engineering/research/**",
+        "engineering/state/**",
+        "work/**",
+        "tools/cmdr-dev/decision_freshness.go",
+        "tools/cmdr-dev/decision_freshness_test.go"
+      ],
+      "prerequisites": [
+        "CHK-DECISION-GATES"
+      ],
+      "evidence_kind": "audit-report"
     }
   ]
 }

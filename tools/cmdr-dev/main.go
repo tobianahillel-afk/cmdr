@@ -113,6 +113,8 @@ func main() {
 	outputFlag := fs.String("output", "engineering/spec-index/inventory.json", "generated output path")
 	workUnitFlag := fs.String("work-unit", "", "work unit id; defaults to active work unit")
 	packetIDFlag := fs.String("packet-id", "", "research packet id")
+	decisionIDFlag := fs.String("decision-id", "", "engineering decision id")
+	asOfDateFlag := fs.String("as-of-date", "", "freshness evaluation date YYYY-MM-DD; defaults to current UTC date")
 	changesFileFlag := fs.String("changes-file", "", "newline-delimited repository-relative changed paths")
 	baseCommitFlag := fs.String("base-commit", "", "full Git base commit id")
 	headCommitFlag := fs.String("head-commit", "", "full Git head commit id")
@@ -372,6 +374,33 @@ func main() {
 			fail(err)
 		}
 		printValue(summary, *jsonFlag)
+	case "decision-freshness-audit":
+		if err := validateState(root, state, graph); err != nil {
+			fail(err)
+		}
+		summary, err := runDecisionFreshnessAudit(root, *asOfDateFlag, state, graph)
+		printValue(summary, *jsonFlag)
+		if err != nil {
+			fail(err)
+		}
+	case "decision-cache":
+		if err := validateState(root, state, graph); err != nil {
+			fail(err)
+		}
+		cache, err := runReusableEvidenceCache(root, *asOfDateFlag, state, graph)
+		if err != nil {
+			fail(err)
+		}
+		printValue(cache, *jsonFlag)
+	case "decision-freshness-snapshot":
+		if err := validateState(root, state, graph); err != nil {
+			fail(err)
+		}
+		snapshot, err := runDecisionFreshnessSnapshot(root, *decisionIDFlag, state, graph)
+		if err != nil {
+			fail(err)
+		}
+		printValue(snapshot, *jsonFlag)
 	case "research-context":
 		if err := validateState(root, state, graph); err != nil {
 			fail(err)
@@ -904,7 +933,7 @@ func printValue(v any, asJSON bool) {
 }
 
 func usage(w io.Writer) {
-	fmt.Fprintln(w, "usage: cmdr-dev <doctor|status|next|spec-index|spec-baseline|coverage-graph|obligations|coverage-audit|validate-manifests|complexity-audit|context|architecture-audit|dependency-audit|boundary-edge-audit|check-catalog-audit|impact|validation-plan|security-gate-audit|security-test-audit|deep-security-audit|decision-registry-audit|research-packet-audit|decision-gate-audit|research-context|secret-scan|sast-go|sca-go|sbom|git-changes|validation-run> [--root PATH] [--json] [--check] [--output PATH]")
+	fmt.Fprintln(w, "usage: cmdr-dev <doctor|status|next|spec-index|spec-baseline|coverage-graph|obligations|coverage-audit|validate-manifests|complexity-audit|context|architecture-audit|dependency-audit|boundary-edge-audit|check-catalog-audit|impact|validation-plan|security-gate-audit|security-test-audit|deep-security-audit|decision-registry-audit|research-packet-audit|decision-gate-audit|decision-freshness-audit|decision-cache|decision-freshness-snapshot|research-context|secret-scan|sast-go|sca-go|sbom|git-changes|validation-run> [--root PATH] [--json] [--check] [--output PATH]")
 }
 
 func fail(err error) {

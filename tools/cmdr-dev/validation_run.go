@@ -91,7 +91,7 @@ func validationExecutorMode(key string) (string, error) {
 	case "gofmt", "go-vet", "go-unit",
 		"spec-index", "spec-baseline", "coverage-graph", "obligations", "coverage-audit",
 		"validate-manifests", "architecture-audit", "dependency-audit", "boundary-edge-audit",
-		"complexity-audit", "context", "doctor", "next", "check-catalog-audit", "security-gate-audit", "security-test-audit", "deep-security-audit", "decision-registry-audit", "research-packet-audit", "decision-gate-audit", "secret-scan", "gosec-go", "govulncheck-go", "sbom":
+		"complexity-audit", "context", "doctor", "next", "check-catalog-audit", "security-gate-audit", "security-test-audit", "deep-security-audit", "decision-registry-audit", "research-packet-audit", "decision-gate-audit", "decision-freshness-audit", "secret-scan", "gosec-go", "govulncheck-go", "sbom":
 		return "execute", nil
 	default:
 		return "", fmt.Errorf("unsupported executor_key %q", key)
@@ -293,6 +293,13 @@ func executeValidationCheck(root, tempDir, changesFile, key string, state Curren
 		return fmt.Sprintf("validations=%d accepted=%d candidates=%d representative_benchmarks=%d prototypes=%d adversarial=%d",
 			summary.Validations, summary.AcceptedEvaluated, summary.Candidates,
 			summary.RepresentativeBenchmarks, summary.Prototypes, summary.AdversarialReviews), nil
+	case "decision-freshness-audit":
+		summary, err := runDecisionFreshnessAudit(root, "", state, graph)
+		if err != nil {
+			return "", err
+		}
+		return fmt.Sprintf("as_of=%s records=%d accepted=%d fresh=%d stale=%d reusable=%d",
+			summary.AsOf, summary.Records, summary.AcceptedEvaluated, summary.Fresh, summary.Stale, summary.Reusable), nil
 	case "secret-scan":
 		summary, err := runSecretScan(root, changesFile, false)
 		if err != nil {

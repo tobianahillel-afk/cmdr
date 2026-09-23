@@ -37,10 +37,12 @@
     "real repository and work-unit context"
   ],
   "outputs": [
-    "decision freshness policy",
+    "decision freshness policy and registry",
+    "evidence snapshot/digest evaluator",
     "revisit-trigger evaluator",
-    "reusable evidence cache index",
-    "staleness audit"
+    "generated reusable evidence cache index",
+    "decision freshness snapshot helper",
+    "adaptive CHK-DECISION-FRESHNESS gate"
   ],
   "invariants": [
     "Product Spec remains read-only",
@@ -59,7 +61,13 @@
     "cmdr-dev validate-manifests succeeds",
     "cmdr-dev architecture-audit succeeds",
     "cmdr-dev complexity-audit succeeds",
-    "adaptive engineering-kernel remains green"
+    "adaptive engineering-kernel remains green",
+    "unit tests invalidate expired accepted decisions",
+    "unit tests invalidate changed research/validation evidence",
+    "unit tests invalidate changed tracked repository inputs",
+    "unit tests invalidate fired external revisit signals",
+    "unit tests require Class C/performance-specific triggers",
+    "push and pull-request CI execute CHK-DECISION-FRESHNESS"
   ],
   "performance_budget": {
     "applicable": true,
@@ -85,7 +93,8 @@
   "required_checks": [
     "adaptive engineering-kernel",
     "cmdr-dev validate-manifests",
-    "cmdr-dev complexity-audit"
+    "cmdr-dev complexity-audit",
+    "cmdr-dev decision-freshness-audit"
   ],
   "definition_of_ready": [
     "dependencies are VERIFIED",
@@ -100,10 +109,10 @@
   ],
   "complexity": {
     "primary_components": 1,
-    "estimated_files_changed": 7,
-    "estimated_net_loc": 450,
-    "production_files": 2,
-    "net_production_loc": 330,
+    "estimated_files_changed": 10,
+    "estimated_net_loc": 700,
+    "production_files": 4,
+    "net_production_loc": 540,
     "bounded_contexts": 1,
     "independent_migrations": 0,
     "distinct_security_models": 1,
