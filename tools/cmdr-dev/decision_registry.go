@@ -14,21 +14,21 @@ const (
 )
 
 type DecisionClassPolicy struct {
-	ID                         string `json:"id"`
-	RecordRequired             bool   `json:"record_required"`
-	CurrentExternalResearch    string `json:"current_external_research"`
-	AlternativesRequired       bool   `json:"alternatives_required"`
-	BenchmarkRule              string `json:"benchmark_rule"`
-	AdversarialReviewRequired  bool   `json:"adversarial_review_required"`
+	ID                        string `json:"id"`
+	RecordRequired            bool   `json:"record_required"`
+	CurrentExternalResearch   string `json:"current_external_research"`
+	AlternativesRequired      bool   `json:"alternatives_required"`
+	BenchmarkRule             string `json:"benchmark_rule"`
+	AdversarialReviewRequired bool   `json:"adversarial_review_required"`
 }
 
 type DecisionPolicy struct {
-	SchemaVersion      int                   `json:"schema_version"`
-	DefaultPolicy      string                `json:"default_policy"`
-	Statuses           []string              `json:"statuses"`
-	ProductBoundaries  []string              `json:"product_boundaries"`
-	RiskTags           []string              `json:"risk_tags"`
-	Classes            []DecisionClassPolicy `json:"classes"`
+	SchemaVersion     int                   `json:"schema_version"`
+	DefaultPolicy     string                `json:"default_policy"`
+	Statuses          []string              `json:"statuses"`
+	ProductBoundaries []string              `json:"product_boundaries"`
+	RiskTags          []string              `json:"risk_tags"`
+	Classes           []DecisionClassPolicy `json:"classes"`
 }
 
 type EngineeringDecision struct {
@@ -59,13 +59,13 @@ type DecisionRegistry struct {
 }
 
 type DecisionRegistryAuditSummary struct {
-	Decisions       int            `json:"decisions"`
-	ByClass         map[string]int `json:"by_class"`
-	ByStatus        map[string]int `json:"by_status"`
-	BlockedProduct  int            `json:"blocked_product"`
-	Accepted        int            `json:"accepted"`
-	PerformanceSensitive int       `json:"performance_sensitive"`
-	Critical        int            `json:"critical"`
+	Decisions            int            `json:"decisions"`
+	ByClass              map[string]int `json:"by_class"`
+	ByStatus             map[string]int `json:"by_status"`
+	BlockedProduct       int            `json:"blocked_product"`
+	Accepted             int            `json:"accepted"`
+	PerformanceSensitive int            `json:"performance_sensitive"`
+	Critical             int            `json:"critical"`
 }
 
 var decisionIDPattern = regexp.MustCompile(`^ENG-DEC-[0-9]{4,}$`)
@@ -76,9 +76,9 @@ var knownDecisionStatuses = map[string]bool{
 	"blocked-product": true, "revisit-required": true, "superseded": true,
 }
 var knownProductDecisionBoundaries = map[string]bool{
-	"engineering-only": true,
-	"product-open-decision": true,
-	"product-behavior": true,
+	"engineering-only":           true,
+	"product-open-decision":      true,
+	"product-behavior":           true,
 	"product-security-invariant": true,
 }
 var knownDecisionRiskTags = map[string]bool{
@@ -88,10 +88,10 @@ var knownDecisionRiskTags = map[string]bool{
 	"durability": true, "reliability": true,
 }
 var knownCriticalFactors = map[string]bool{
-	"security-critical": true,
-	"architecture-critical": true,
-	"algorithm-critical": true,
-	"durability-critical": true,
+	"security-critical":      true,
+	"architecture-critical":  true,
+	"algorithm-critical":     true,
+	"durability-critical":    true,
 	"high-scale-concurrency": true,
 }
 
