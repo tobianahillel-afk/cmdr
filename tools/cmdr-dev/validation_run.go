@@ -331,6 +331,13 @@ func executeValidationCheck(root, tempDir, changesFile, key string, state Curren
 		}
 		return fmt.Sprintf("records=%d reusable=%d invalid=%d regressions=%d status=%s revisit_signals=%d",
 			summary.Records, summary.Reusable, summary.Invalid, summary.Regressions, summary.Status, len(summary.Signals)), nil
+	case "lease-audit":
+		summary, err := runWorkLeaseAudit(root, "", graph)
+		if err != nil {
+			return "", err
+		}
+		return fmt.Sprintf("claims=%d active=%d expired=%d released=%d",
+			summary.Claims, summary.Active, summary.Expired, summary.Released), nil
 	case "secret-scan":
 		summary, err := runSecretScan(root, changesFile, false)
 		if err != nil {

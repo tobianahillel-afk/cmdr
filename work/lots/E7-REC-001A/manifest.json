@@ -37,8 +37,9 @@
   ],
   "outputs": [
     "machine-readable lease policy",
-    "claim registry and validator",
-    "deterministic acquire/renew/release eligibility evaluator"
+    "Git-versioned claim registry and strict validator",
+    "deterministic acquire/renew/release eligibility evaluator",
+    "adaptive CHK-WORK-LEASES safety gate"
   ],
   "invariants": [
     "Product Spec remains read-only",
@@ -57,7 +58,11 @@
     "go test ./...",
     "cmdr-dev validate-manifests succeeds",
     "cmdr-dev complexity-audit succeeds",
-    "adaptive engineering-kernel remains green"
+    "adaptive engineering-kernel remains green",
+    "tests prove expired claims do not block acquisition",
+    "tests prove conflicting active claims fail closed",
+    "tests prove blocked/terminal work cannot be acquired",
+    "tests prove renew/release require the current active owner"
   ],
   "performance_budget": {
     "applicable": true,
@@ -81,7 +86,8 @@
   "required_checks": [
     "adaptive engineering-kernel",
     "cmdr-dev validate-manifests",
-    "cmdr-dev complexity-audit"
+    "cmdr-dev complexity-audit",
+    "cmdr-dev lease-audit"
   ],
   "definition_of_ready": [
     "dependencies are VERIFIED",
@@ -97,10 +103,10 @@
   ],
   "complexity": {
     "primary_components": 1,
-    "estimated_files_changed": 7,
-    "estimated_net_loc": 420,
+    "estimated_files_changed": 8,
+    "estimated_net_loc": 500,
     "production_files": 2,
-    "net_production_loc": 310,
+    "net_production_loc": 360,
     "bounded_contexts": 1,
     "independent_migrations": 0,
     "distinct_security_models": 1,

@@ -115,6 +115,12 @@ func main() {
 	packetIDFlag := fs.String("packet-id", "", "research packet id")
 	decisionIDFlag := fs.String("decision-id", "", "engineering decision id")
 	asOfDateFlag := fs.String("as-of-date", "", "freshness evaluation date YYYY-MM-DD; defaults to current UTC date")
+	asOfTimeFlag := fs.String("as-of-time", "", "lease evaluation time RFC3339 UTC; defaults to current UTC time")
+	leaseActionFlag := fs.String("lease-action", "", "lease action: acquire, renew, or release")
+	leaseIDFlag := fs.String("lease-id", "", "opaque work lease id")
+	agentIDFlag := fs.String("agent-id", "", "opaque non-secret agent id")
+	leaseBaseHeadFlag := fs.String("lease-base-head", "", "full Git commit id used as lease base")
+	leaseDurationFlag := fs.Int("lease-duration-minutes", 0, "lease duration; 0 uses policy default")
 	changesFileFlag := fs.String("changes-file", "", "newline-delimited repository-relative changed paths")
 	baseCommitFlag := fs.String("base-commit", "", "full Git base commit id")
 	headCommitFlag := fs.String("head-commit", "", "full Git head commit id")
@@ -421,6 +427,32 @@ func main() {
 		if err != nil {
 			fail(err)
 		}
+	case "lease-audit":
+		if err := validateState(root, state, graph); err != nil {
+			fail(err)
+		}
+		summary, err := runWorkLeaseAudit(root, *asOfTimeFlag, graph)
+		printValue(summary, *jsonFlag)
+		if err != nil {
+			fail(err)
+		}
+	case "lease-evaluate":
+		if err := validateState(root, state, graph); err != nil {
+			fail(err)
+		}
+		workUnit := *workUnitFlag
+		if workUnit == "" {
+			workUnit = state.Execution.ActiveWorkUnit
+		}
+		result, err := runWorkLeaseEvaluation(root, WorkLeaseActionRequest{
+			Action: *leaseActionFlag, LeaseID: *leaseIDFlag, AgentID: *agentIDFlag,
+			WorkUnit: workUnit, BaseHeadSHA: *leaseBaseHeadFlag,
+			AsOf: *asOfTimeFlag, DurationMinutes: *leaseDurationFlag,
+		}, graph)
+		if err != nil {
+			fail(err)
+		}
+		printValue(result, *jsonFlag)
 	case "decision-cache":
 		if err := validateState(root, state, graph); err != nil {
 			fail(err)
@@ -951,6 +983,13 @@ func printValue(v any, asJSON bool) {
 		fmt.Printf("regressions: %d\n", x.Regressions)
 		fmt.Printf("status: %s\n", x.Status)
 		fmt.Printf("revisit signals: %d\n", len(x.Signals))
+	case WorkLeaseAuditSummary:
+		fmt.Printf("as of: %s\n", x.AsOf)
+		fmt.Printf("claims: %d active=%d expired=%d released=%d\n", x.Claims, x.Active, x.Expired, x.Released)
+	case WorkLeaseEvaluation:
+		fmt.Printf("action: %s\n", x.Action)
+		fmt.Printf("allowed: %t\n", x.Allowed)
+		fmt.Printf("reasons: %v\n", x.Reasons)
 	case SecretScanSummary:
 		fmt.Printf("mode: %s\n", x.Mode)
 		fmt.Printf("candidate paths: %d\n", x.CandidatePaths)
@@ -996,7 +1035,7 @@ func printValue(v any, asJSON bool) {
 }
 
 func usage(w io.Writer) {
-	fmt.Fprintln(w, "usage: cmdr-dev <doctor|status|next|spec-index|spec-baseline|coverage-graph|obligations|coverage-audit|validate-manifests|complexity-audit|context|architecture-audit|dependency-audit|boundary-edge-audit|check-catalog-audit|impact|validation-plan|security-gate-audit|security-test-audit|deep-security-audit|decision-registry-audit|research-packet-audit|decision-gate-audit|decision-freshness-audit|performance-registry-audit|performance-benchmark-audit|deep-performance-audit|performance-cache-audit|decision-cache|decision-freshness-snapshot|research-context|secret-scan|sast-go|sca-go|sbom|git-changes|validation-run> [--root PATH] [--json] [--check] [--output PATH]")
+	fmt.Fprintln(w, "usage: cmdr-dev <doctor|status|next|spec-index|spec-baseline|coverage-graph|obligations|coverage-audit|validate-manifests|complexity-audit|context|architecture-audit|dependency-audit|boundary-edge-audit|check-catalog-audit|impact|validation-plan|security-gate-audit|security-test-audit|deep-security-audit|decision-registry-audit|research-packet-audit|decision-gate-audit|decision-freshness-audit|performance-registry-audit|performance-benchmark-audit|deep-performance-audit|performance-cache-audit|lease-audit|lease-evaluate|decision-cache|decision-freshness-snapshot|research-context|secret-scan|sast-go|sca-go|sbom|git-changes|validation-run> [--root PATH] [--json] [--check] [--output PATH]")
 }
 
 func fail(err error) {
