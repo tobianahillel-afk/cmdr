@@ -1,0 +1,106 @@
+{
+  "schema_version": 2,
+  "parent": "E4-SEC-002B",
+  "product_refs": {
+    "capabilities": [],
+    "requirements": [],
+    "screens": [],
+    "permissions": [],
+    "open_decisions": [],
+    "implementation_contracts": [],
+    "canonical_objects": []
+  },
+  "forbidden_paths": [
+    "cmdr-product-spec/**"
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "path validation and security analysis remain PR-suitable",
+    "metrics": [
+      "security path validation adds bounded local filesystem work only"
+    ]
+  },
+  "migration": {
+    "required": false,
+    "rationale": "engineering control-plane only",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert this task without claiming the dependent security gate active",
+    "verification": [
+      "adaptive engineering-kernel remains truthful"
+    ]
+  },
+  "definition_of_ready": [
+    "dependencies are VERIFIED",
+    "scope is one coherent security behavior"
+  ],
+  "id": "E4-SEC-002B2",
+  "title": "Finalize and activate Go SAST and SCA controls",
+  "type": "task",
+  "goal": "Finalize reviewed SAST evidence/baseline behavior, execute reachability-aware govulncheck, and activate SEC-SAST-001 and SEC-SCA-001 only after green push and PR proof.",
+  "depends_on": [
+    "E4-SEC-002B1"
+  ],
+  "allowed_paths": [
+    "tools/cmdr-dev/**",
+    "engineering/security/**",
+    "engineering/testing/**",
+    ".github/workflows/**",
+    "work/lots/E4-SEC-002B*/**",
+    "engineering/state/**",
+    "work/graph.json"
+  ],
+  "inputs": [
+    "verified path-boundary hardening",
+    "pinned gosec and govulncheck wrappers",
+    "security gate registry"
+  ],
+  "outputs": [
+    "reviewed fingerprint-scoped SAST baseline only for proven false positives if still required",
+    "green SAST and SCA evidence",
+    "active SEC-SAST-001 and SEC-SCA-001 gates for Go engineering code"
+  ],
+  "invariants": [
+    "Product Spec remains read-only",
+    "no raw source snippets are retained in SAST evidence",
+    "baseline entries are exact fingerprint scoped and justified",
+    "external tools remain development-only"
+  ],
+  "security_properties": [
+    "new or changed high-severity SAST findings fail closed",
+    "all reachable govulncheck vulnerabilities block",
+    "gate activation requires successful push and PR evidence"
+  ],
+  "acceptance_tests": [
+    "go test ./...",
+    "gosec wrapper passes with no unreviewed actionable findings",
+    "govulncheck wrapper passes with zero reachable known vulnerabilities",
+    "adaptive engineering-kernel succeeds in push and PR",
+    "security-gate audit reports truthful active implementations"
+  ],
+  "required_checks": [
+    "adaptive engineering-kernel",
+    "CHK-SAST-GO",
+    "CHK-SCA-GO",
+    "security-gate audit"
+  ],
+  "definition_of_done": [
+    "SAST false-positive exceptions, if any, are fingerprint-scoped and documented",
+    "SCA evidence identifies exact Go module/version/OSV identity",
+    "push and PR prove both controls",
+    "SEC-SAST-001 and SEC-SCA-001 are active only after proof",
+    "parent E4-SEC-002B is VERIFIED with this task"
+  ],
+  "complexity": {
+    "primary_components": 2,
+    "estimated_files_changed": 7,
+    "estimated_net_loc": 300,
+    "production_files": 3,
+    "net_production_loc": 210,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

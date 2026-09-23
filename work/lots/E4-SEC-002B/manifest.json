@@ -4,7 +4,7 @@
   "title": "Implement SAST and dependency vulnerability controls",
   "type": "sublot",
   "parent": "E4-SEC-001B",
-  "goal": "Add deterministic security static analysis plus dependency vulnerability evidence using built-in checks and/or pinned reviewed development tools, with severity policy and provenance.",
+  "goal": "Coordinate Go SAST and dependency vulnerability controls through explicit path-hardening and final activation child tasks.",
   "product_refs": {
     "capabilities": [],
     "requirements": [],
@@ -35,10 +35,9 @@
     "development tooling may be external only when reviewed/pinned and must not become product runtime dependencies"
   ],
   "outputs": [
-    "Go SAST wrapper with redacted stable finding evidence",
-    "Go reachability-aware SCA wrapper with exact ecosystem/module/version evidence",
-    "reviewed pinned development-tool provenance registry",
-    "adaptive CHK-SAST-GO and CHK-SCA-GO checks"
+    "verified E4-SEC-002B1 repository path/symlink hardening",
+    "verified E4-SEC-002B2 SAST/SCA activation",
+    "evidence-backed SEC-SAST-001 and SEC-SCA-001 controls"
   ],
   "invariants": [
     "Product Spec remains read-only",
@@ -89,11 +88,9 @@
     "implementation scope is one coherent security behavior"
   ],
   "definition_of_done": [
-    "SAST findings have stable rule IDs and severity",
-    "dependency vulnerabilities map to exact ecosystem/name/version identity",
-    "external development tools, if used, are version/SHA pinned and provenance documented",
-    "high/critical actionable findings block",
-    "SEC-SAST-001 and SEC-SCA-001 activate only for actually covered ecosystems"
+    "E4-SEC-002B1 is VERIFIED",
+    "E4-SEC-002B2 is VERIFIED",
+    "SEC-SAST-001 and SEC-SCA-001 are truthfully active for covered Go engineering code"
   ],
   "complexity": {
     "primary_components": 2,
@@ -104,6 +101,6 @@
     "bounded_contexts": 1,
     "independent_migrations": 0,
     "distinct_security_models": 1,
-    "separately_testable_behaviors": 1
+    "separately_testable_behaviors": 2
   }
 }

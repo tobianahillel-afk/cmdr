@@ -363,13 +363,13 @@
       "id": "E4-SEC-002B",
       "title": "Implement SAST and dependency vulnerability controls",
       "type": "sublot",
-      "status": "READY",
+      "status": "DECOMPOSED",
       "depends_on": [
         "E4-SEC-002A"
       ],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": [
-        "E4-SEC-002C"
+        "E4-SEC-002B1"
       ]
     },
     {
@@ -378,11 +378,37 @@
       "type": "sublot",
       "status": "BLOCKED",
       "depends_on": [
-        "E4-SEC-002B"
+        "E4-SEC-002B2"
       ],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": [
         "E4-SEC-001C"
+      ]
+    },
+    {
+      "id": "E4-SEC-002B1",
+      "title": "Harden repository path and symlink boundaries exposed by SAST",
+      "type": "task",
+      "status": "READY",
+      "depends_on": [
+        "E4-SEC-002A"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E4-SEC-002B2"
+      ]
+    },
+    {
+      "id": "E4-SEC-002B2",
+      "title": "Finalize and activate Go SAST and SCA controls",
+      "type": "task",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E4-SEC-002B1"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E4-SEC-002C"
       ]
     }
   ]
