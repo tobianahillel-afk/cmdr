@@ -39,12 +39,12 @@ type DecisionBenchmark struct {
 }
 
 type DecisionPrototype struct {
-	ID                     string   `json:"id"`
-	CandidateID            string   `json:"candidate_id"`
-	Question               string   `json:"question"`
-	RunAt                  string   `json:"run_at"`
-	ArtifactRef            string   `json:"artifact_ref"`
-	Outcome                string   `json:"outcome"`
+	ID                      string   `json:"id"`
+	CandidateID             string   `json:"candidate_id"`
+	Question                string   `json:"question"`
+	RunAt                   string   `json:"run_at"`
+	ArtifactRef             string   `json:"artifact_ref"`
+	Outcome                 string   `json:"outcome"`
 	UnresolvedUncertainties []string `json:"unresolved_uncertainties"`
 }
 
@@ -61,16 +61,16 @@ type AdversarialReview struct {
 }
 
 type DecisionValidation struct {
-	ID                         string              `json:"id"`
-	DecisionID                 string              `json:"decision_id"`
-	PreferredCandidateID       string              `json:"preferred_candidate_id"`
-	ExternalEvidenceSufficient bool                `json:"external_evidence_sufficient"`
-	CandidateTradeoffs         []CandidateTradeoff `json:"candidate_tradeoffs"`
-	Benchmarks                 []DecisionBenchmark `json:"benchmarks"`
-	Prototypes                 []DecisionPrototype `json:"prototypes"`
-	AdversarialReviews         []AdversarialReview `json:"adversarial_reviews"`
-	BlockingCounterEvidence    []string            `json:"blocking_counter_evidence"`
-	UnresolvedMaterialUncertainty []string         `json:"unresolved_material_uncertainty"`
+	ID                            string              `json:"id"`
+	DecisionID                    string              `json:"decision_id"`
+	PreferredCandidateID          string              `json:"preferred_candidate_id"`
+	ExternalEvidenceSufficient    bool                `json:"external_evidence_sufficient"`
+	CandidateTradeoffs            []CandidateTradeoff `json:"candidate_tradeoffs"`
+	Benchmarks                    []DecisionBenchmark `json:"benchmarks"`
+	Prototypes                    []DecisionPrototype `json:"prototypes"`
+	AdversarialReviews            []AdversarialReview `json:"adversarial_reviews"`
+	BlockingCounterEvidence       []string            `json:"blocking_counter_evidence"`
+	UnresolvedMaterialUncertainty []string            `json:"unresolved_material_uncertainty"`
 }
 
 type DecisionValidationRegistry struct {
@@ -80,12 +80,12 @@ type DecisionValidationRegistry struct {
 }
 
 type DecisionGateAuditSummary struct {
-	Validations          int `json:"validations"`
-	AcceptedEvaluated    int `json:"accepted_evaluated"`
-	Candidates           int `json:"candidates"`
+	Validations              int `json:"validations"`
+	AcceptedEvaluated        int `json:"accepted_evaluated"`
+	Candidates               int `json:"candidates"`
 	RepresentativeBenchmarks int `json:"representative_benchmarks"`
-	Prototypes           int `json:"prototypes"`
-	AdversarialReviews   int `json:"adversarial_reviews"`
+	Prototypes               int `json:"prototypes"`
+	AdversarialReviews       int `json:"adversarial_reviews"`
 }
 
 var decisionValidationIDPattern = regexp.MustCompile(`^DECVAL-[0-9]{4,}$`)
