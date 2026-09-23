@@ -91,7 +91,7 @@ func validationExecutorMode(key string) (string, error) {
 	case "gofmt", "go-vet", "go-unit",
 		"spec-index", "spec-baseline", "coverage-graph", "obligations", "coverage-audit",
 		"validate-manifests", "architecture-audit", "dependency-audit", "boundary-edge-audit",
-		"complexity-audit", "context", "doctor", "next", "check-catalog-audit", "security-gate-audit", "secret-scan", "gosec-go", "govulncheck-go":
+		"complexity-audit", "context", "doctor", "next", "check-catalog-audit", "security-gate-audit", "secret-scan", "gosec-go", "govulncheck-go", "sbom":
 		return "execute", nil
 	default:
 		return "", fmt.Errorf("unsupported executor_key %q", key)
@@ -276,6 +276,16 @@ func executeValidationCheck(root, tempDir, changesFile, key string, state Curren
 		return fmt.Sprintf("tool=%s version=%s modules=%d informational=%d actionable=%d db=%s",
 			summary.Tool, summary.Version, summary.Modules, summary.InformationalFindings,
 			summary.ActionableFindings, summary.Database), nil
+	case "sbom":
+		out := filepath.Join(tempDir, "cmdr.cdx.json")
+		summary, err := runSBOM(root, out)
+		if err != nil {
+			return "", err
+		}
+		return fmt.Sprintf("schema=cyclonedx-%s generator=%s/%s source=%s components=%d runtime=%d development=%d unsupported=%d digest=%s",
+			summary.SchemaVersion, summary.Generator, summary.GeneratorVersion, summary.SourceSHA,
+			summary.Components, summary.RuntimeComponents, summary.DevelopmentComponents,
+			summary.UnsupportedManifests, summary.DigestSHA256), nil
 	default:
 		return "", fmt.Errorf("unsupported executable key %q", key)
 	}

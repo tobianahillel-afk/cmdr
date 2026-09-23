@@ -351,6 +351,19 @@ func main() {
 		if err != nil {
 			fail(err)
 		}
+	case "sbom":
+		if err := validateState(root, state, graph); err != nil {
+			fail(err)
+		}
+		output := *outputFlag
+		if output == "engineering/spec-index/inventory.json" {
+			output = defaultSBOMOutputPath
+		}
+		summary, err := runSBOM(root, output)
+		printValue(summary, *jsonFlag)
+		if err != nil {
+			fail(err)
+		}
 	case "git-changes":
 		if err := validateState(root, state, graph); err != nil {
 			fail(err)
@@ -784,6 +797,14 @@ func printValue(v any, asJSON bool) {
 		fmt.Printf("modules: %d\n", x.Modules)
 		fmt.Printf("informational findings: %d\n", x.InformationalFindings)
 		fmt.Printf("actionable findings: %d\n", x.ActionableFindings)
+	case SBOMSummary:
+		fmt.Printf("schema: CycloneDX %s\n", x.SchemaVersion)
+		fmt.Printf("generator: %s %s\n", x.Generator, x.GeneratorVersion)
+		fmt.Printf("source SHA: %s\n", x.SourceSHA)
+		fmt.Printf("components: %d (runtime=%d development=%d)\n", x.Components, x.RuntimeComponents, x.DevelopmentComponents)
+		fmt.Printf("unsupported manifests: %d\n", x.UnsupportedManifests)
+		fmt.Printf("digest: %s\n", x.DigestSHA256)
+		fmt.Printf("output: %s\n", x.Output)
 	case GitChangesSummary:
 		fmt.Printf("base commit: %s\n", x.BaseCommit)
 		fmt.Printf("head commit: %s\n", x.HeadCommit)
@@ -802,7 +823,7 @@ func printValue(v any, asJSON bool) {
 }
 
 func usage(w io.Writer) {
-	fmt.Fprintln(w, "usage: cmdr-dev <doctor|status|next|spec-index|spec-baseline|coverage-graph|obligations|coverage-audit|validate-manifests|complexity-audit|context|architecture-audit|dependency-audit|boundary-edge-audit|check-catalog-audit|impact|validation-plan|security-gate-audit|secret-scan|sast-go|sca-go|git-changes|validation-run> [--root PATH] [--json] [--check] [--output PATH]")
+	fmt.Fprintln(w, "usage: cmdr-dev <doctor|status|next|spec-index|spec-baseline|coverage-graph|obligations|coverage-audit|validate-manifests|complexity-audit|context|architecture-audit|dependency-audit|boundary-edge-audit|check-catalog-audit|impact|validation-plan|security-gate-audit|secret-scan|sast-go|sca-go|sbom|git-changes|validation-run> [--root PATH] [--json] [--check] [--output PATH]")
 }
 
 func fail(err error) {

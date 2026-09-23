@@ -538,6 +538,31 @@
         "CHK-SECRETS"
       ],
       "evidence_kind": "finding-report"
+    },
+    {
+      "id": "CHK-SBOM",
+      "title": "Deterministic CycloneDX SBOM generation",
+      "executor_key": "sbom",
+      "risk_domains": [
+        "security",
+        "runtime-dependencies"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": false,
+      "trigger_paths": [
+        "tools/cmdr-dev/**",
+        "engineering/security/development-tools.json",
+        "engineering/architecture/**",
+        "**/go.mod",
+        "**/package.json",
+        "**/vcpkg.json"
+      ],
+      "prerequisites": [
+        "CHK-RUNTIME-DEPS",
+        "CHK-SCA-GO"
+      ],
+      "evidence_kind": "generated-artifact"
     }
   ]
 }

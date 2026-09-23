@@ -84,6 +84,7 @@ var knownExecutorKeys = map[string]bool{
 	"secret-scan":         true,
 	"gosec-go":            true,
 	"govulncheck-go":      true,
+	"sbom":                true,
 	"complexity-audit":    true,
 	"context":             true,
 	"doctor":              true,
