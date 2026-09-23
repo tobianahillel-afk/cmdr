@@ -12,10 +12,10 @@ import (
 )
 
 const (
-	cycloneDXSchemaURL     = "https://cyclonedx.org/schema/bom-1.7.schema.json"
-	cycloneDXSpecVersion   = "1.7"
-	sbomGeneratorVersion   = "sbom-v1"
-	defaultSBOMOutputPath  = "engineering/security/evidence/cmdr.cdx.json"
+	cycloneDXSchemaURL    = "https://cyclonedx.org/schema/bom-1.7.schema.json"
+	cycloneDXSpecVersion  = "1.7"
+	sbomGeneratorVersion  = "sbom-v1"
+	defaultSBOMOutputPath = "engineering/security/evidence/cmdr.cdx.json"
 )
 
 type CDXProperty struct {
@@ -310,9 +310,9 @@ func buildCycloneDXBOM(sourceSHA string, inputs []sbomInputComponent) (CycloneDX
 			Component: CDXComponent{
 				Type: "application", BOMRef: rootRef, Name: "cmdr", Version: sourceSHA,
 				Properties: sortedCDXProperties(map[string]string{
-					"cmdr:source:git-sha":  sourceSHA,
-					"cmdr:sbom:generator":  "cmdr-dev",
-					"cmdr:sbom:schema":     cycloneDXSpecVersion,
+					"cmdr:source:git-sha": sourceSHA,
+					"cmdr:sbom:generator": "cmdr-dev",
+					"cmdr:sbom:schema":    cycloneDXSpecVersion,
 				}),
 			},
 		},
@@ -329,10 +329,10 @@ func buildCycloneDXBOM(sourceSHA string, inputs []sbomInputComponent) (CycloneDX
 			runtimeCount++
 		}
 		properties := map[string]string{
-			"cmdr:dependency:scope":  input.Scope,
-			"cmdr:dependency:direct": fmt.Sprintf("%t", input.Direct),
+			"cmdr:dependency:scope":     input.Scope,
+			"cmdr:dependency:direct":    fmt.Sprintf("%t", input.Direct),
 			"cmdr:dependency:ecosystem": input.Ecosystem,
-			"cmdr:dependency:manifest": input.Manifest,
+			"cmdr:dependency:manifest":  input.Manifest,
 		}
 		if input.Commit != "" {
 			properties["cmdr:tool:commit"] = input.Commit
