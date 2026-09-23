@@ -9,7 +9,7 @@ func minimalCheckCatalog() CheckCatalog {
 		RiskDomains: []string{
 			"code-quality", "unit-correctness", "product-spec", "coverage-traceability",
 			"work-governance", "architecture", "runtime-dependencies", "security",
-			"agent-context", "repository-health", "unknown",
+			"agent-context", "repository-health", "performance", "unknown",
 		},
 		CostTiers: []string{"fast", "standard", "heavy"},
 		Checks: []ValidationCheck{
