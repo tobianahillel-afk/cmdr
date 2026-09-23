@@ -504,7 +504,7 @@
       "id": "E6-PERF-001A",
       "title": "Define performance targets budgets and benchmark registry",
       "type": "sublot",
-      "status": "READY",
+      "status": "VERIFIED",
       "depends_on": [
         "E5-RES-001D"
       ],
@@ -517,7 +517,7 @@
       "id": "E6-PERF-001B",
       "title": "Execute representative benchmarks and regression gates",
       "type": "sublot",
-      "status": "BLOCKED",
+      "status": "READY",
       "depends_on": [
         "E6-PERF-001A"
       ],

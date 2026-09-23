@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "work_unit": "E6-PERF-001A",
+  "result": "VERIFIED",
+  "final_validated_head": "fe55e617d6da2d0f0e277ea6481866de41cff698",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 35874527037,
+    "pull_request_run": 35874533885,
+    "check": "CHK-PERFORMANCE-REGISTRY",
+    "coverage": "not-applicable",
+    "environments": 1,
+    "targets": 0,
+    "runtime_boundaries": 0
+  },
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E6-PERF-001B"
+  ]
+}
