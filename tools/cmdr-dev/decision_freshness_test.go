@@ -4,6 +4,7 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+	"time"
 )
 
 func freshnessFixture(t *testing.T) (string, CurrentState, WorkGraph, DecisionRegistry, ResearchRegistry, DecisionValidationRegistry, DecisionFreshnessRecord) {
