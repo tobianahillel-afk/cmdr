@@ -85,16 +85,16 @@ type PerformanceBenchmarkResult struct {
 }
 
 type PerformanceBenchmarkAuditSummary struct {
-	Stage          string            `json:"stage"`
-	EnvironmentID  string            `json:"environment_id"`
-	SourceSHA      string            `json:"source_sha"`
-	Registered     int               `json:"registered_targets"`
-	Selected       int               `json:"selected_targets"`
-	Executed       int               `json:"executed_targets"`
-	Metrics        int               `json:"metrics_evaluated"`
-	Status         string            `json:"status"`
-	ByScope        map[string]int    `json:"by_scope"`
-	Results        []PerformanceBenchmarkResult `json:"results,omitempty"`
+	Stage         string                       `json:"stage"`
+	EnvironmentID string                       `json:"environment_id"`
+	SourceSHA     string                       `json:"source_sha"`
+	Registered    int                          `json:"registered_targets"`
+	Selected      int                          `json:"selected_targets"`
+	Executed      int                          `json:"executed_targets"`
+	Metrics       int                          `json:"metrics_evaluated"`
+	Status        string                       `json:"status"`
+	ByScope       map[string]int               `json:"by_scope"`
+	Results       []PerformanceBenchmarkResult `json:"results,omitempty"`
 }
 
 var knownBenchmarkHandlerKeys = map[string]bool{
@@ -309,7 +309,7 @@ func executePerformanceTarget(root, sourceSHA string, target PerformanceTarget, 
 	}
 	return PerformanceBenchmarkResult{
 		TargetID: target.ID, EnvironmentID: env.ID, SourceSHA: sourceSHA,
-		Toolchain: "go" + engineeringGoVersion,
+		Toolchain:    "go" + engineeringGoVersion,
 		TargetDigest: digestCanonical(target), EnvironmentDigest: digestCanonical(env),
 		WorkloadDigest: digestCanonical(workload), Samples: len(samples), Metrics: metrics,
 	}, nil
