@@ -35,7 +35,7 @@
     "dependencies are VERIFIED",
     "scope is one coherent security behavior"
   ],
-  "id": "E4-SEC-002B1",
+  "id": "E4-SEC-002B-PATH",
   "title": "Harden repository path and symlink boundaries exposed by SAST",
   "type": "task",
   "goal": "Close actionable repository path traversal, arbitrary output path, and symlink-following findings revealed by the first Go SAST execution before any SAST baseline or gate activation.",

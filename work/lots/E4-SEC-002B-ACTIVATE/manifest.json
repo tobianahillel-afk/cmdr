@@ -35,12 +35,12 @@
     "dependencies are VERIFIED",
     "scope is one coherent security behavior"
   ],
-  "id": "E4-SEC-002B2",
+  "id": "E4-SEC-002B-ACTIVATE",
   "title": "Finalize and activate Go SAST and SCA controls",
   "type": "task",
   "goal": "Finalize reviewed SAST evidence/baseline behavior, execute reachability-aware govulncheck, and activate SEC-SAST-001 and SEC-SCA-001 only after green push and PR proof.",
   "depends_on": [
-    "E4-SEC-002B1"
+    "E4-SEC-002B-PATH"
   ],
   "allowed_paths": [
     "tools/cmdr-dev/**",

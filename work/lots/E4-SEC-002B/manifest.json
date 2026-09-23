@@ -35,8 +35,8 @@
     "development tooling may be external only when reviewed/pinned and must not become product runtime dependencies"
   ],
   "outputs": [
-    "verified E4-SEC-002B1 repository path/symlink hardening",
-    "verified E4-SEC-002B2 SAST/SCA activation",
+    "verified E4-SEC-002B-PATH repository path/symlink hardening",
+    "verified E4-SEC-002B-ACTIVATE SAST/SCA activation",
     "evidence-backed SEC-SAST-001 and SEC-SCA-001 controls"
   ],
   "invariants": [
@@ -88,8 +88,8 @@
     "implementation scope is one coherent security behavior"
   ],
   "definition_of_done": [
-    "E4-SEC-002B1 is VERIFIED",
-    "E4-SEC-002B2 is VERIFIED",
+    "E4-SEC-002B-PATH is VERIFIED",
+    "E4-SEC-002B-ACTIVATE is VERIFIED",
     "SEC-SAST-001 and SEC-SCA-001 are truthfully active for covered Go engineering code"
   ],
   "complexity": {

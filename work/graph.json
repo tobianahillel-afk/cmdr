@@ -369,7 +369,7 @@
       ],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": [
-        "E4-SEC-002B1"
+        "E4-SEC-002B-PATH"
       ]
     },
     {
@@ -378,7 +378,7 @@
       "type": "sublot",
       "status": "BLOCKED",
       "depends_on": [
-        "E4-SEC-002B2"
+        "E4-SEC-002B-ACTIVATE"
       ],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": [
@@ -386,7 +386,7 @@
       ]
     },
     {
-      "id": "E4-SEC-002B1",
+      "id": "E4-SEC-002B-PATH",
       "title": "Harden repository path and symlink boundaries exposed by SAST",
       "type": "task",
       "status": "READY",
@@ -395,16 +395,16 @@
       ],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": [
-        "E4-SEC-002B2"
+        "E4-SEC-002B-ACTIVATE"
       ]
     },
     {
-      "id": "E4-SEC-002B2",
+      "id": "E4-SEC-002B-ACTIVATE",
       "title": "Finalize and activate Go SAST and SCA controls",
       "type": "task",
       "status": "BLOCKED",
       "depends_on": [
-        "E4-SEC-002B1"
+        "E4-SEC-002B-PATH"
       ],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": [
