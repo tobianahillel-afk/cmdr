@@ -17,12 +17,13 @@ type ExecutedCheck struct {
 }
 
 type ValidationExecutionSummary struct {
-	WorkUnit           string          `json:"work_unit"`
-	Tier               string          `json:"tier"`
-	SelectedChecks     int             `json:"selected_checks"`
-	ExecutedChecks     int             `json:"executed_checks"`
-	PreflightSatisfied int             `json:"preflight_satisfied"`
-	Checks             []ExecutedCheck `json:"checks"`
+	WorkUnit           string                `json:"work_unit"`
+	Tier               string                `json:"tier"`
+	SelectedChecks     int                   `json:"selected_checks"`
+	ExecutedChecks     int                   `json:"executed_checks"`
+	PreflightSatisfied int                   `json:"preflight_satisfied"`
+	Checks             []ExecutedCheck       `json:"checks"`
+	Metrics            *EngineMetricSnapshot `json:"metrics,omitempty"`
 }
 
 func runValidationExecution(root, workUnit, changesFile string, state CurrentState, graph WorkGraph) (ValidationExecutionSummary, error) {
@@ -81,12 +82,17 @@ func runValidationExecution(root, workUnit, changesFile string, state CurrentSta
 		return summary, fmt.Errorf("execution accounting mismatch: selected=%d executed=%d preflight=%d",
 			summary.SelectedChecks, summary.ExecutedChecks, summary.PreflightSatisfied)
 	}
+	metrics, err := compileEngineMetricSnapshot(root, tempDir, plan, summary, state, graph)
+	if err != nil {
+		return summary, fmt.Errorf("compile engine metric snapshot: %w", err)
+	}
+	summary.Metrics = &metrics
 	return summary, nil
 }
 
 func validationExecutorMode(key string) (string, error) {
 	switch key {
-	case "git-changes", "impact", "validation-plan", "validation-run":
+	case "git-changes", "impact", "validation-plan", "validation-run", "metrics-snapshot":
 		return "preflight", nil
 	case "gofmt", "go-vet", "go-unit",
 		"spec-index", "spec-baseline", "coverage-graph", "obligations", "coverage-audit",
@@ -108,6 +114,8 @@ func preflightEvidence(key string) string {
 		return "selected plan already computed and structurally validated"
 	case "validation-run":
 		return "current process is the adaptive validation executor"
+	case "metrics-snapshot":
+		return "current validation process compiles the metric snapshot after selected checks complete"
 	default:
 		return "preflight satisfied"
 	}

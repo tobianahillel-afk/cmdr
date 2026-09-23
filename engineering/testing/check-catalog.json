@@ -933,6 +933,32 @@
         "CHK-COORDINATION"
       ],
       "evidence_kind": "metrics-registry-audit"
+    },
+    {
+      "id": "CHK-METRICS-SNAPSHOT",
+      "title": "Engineering engine metric snapshot compilation",
+      "executor_key": "metrics-snapshot",
+      "risk_domains": [
+        "work-governance",
+        "repository-health",
+        "performance",
+        "security"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": true,
+      "trigger_paths": [
+        "engineering/metrics/**",
+        "engineering/state/**",
+        "work/**",
+        "tools/cmdr-dev/metrics_snapshot.go",
+        "tools/cmdr-dev/metrics_snapshot_test.go",
+        "tools/cmdr-dev/validation_run.go"
+      ],
+      "prerequisites": [
+        "CHK-METRICS-REGISTRY"
+      ],
+      "evidence_kind": "metric-snapshot"
     }
   ]
 }
