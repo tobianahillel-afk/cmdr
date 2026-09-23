@@ -36,7 +36,11 @@
     "canonical Product Spec remains read-only"
   ],
   "outputs": [
-    "machine-enforced engineering security controls"
+    "machine-readable runtime security ownership and negative-test policy",
+    "explicit not-applicable evidence before product runtime exists",
+    "fail-closed security-test audit for future product-runtime boundaries",
+    "80 percent global runtime coverage floor",
+    "90 percent changed security-critical coverage floor"
   ],
   "invariants": [
     "Product Spec remains read-only",
@@ -53,7 +57,12 @@
     "go test ./...",
     "cmdr-dev validate-manifests succeeds",
     "cmdr-dev architecture-audit succeeds",
-    "cmdr-dev validation-run succeeds for the selected plan"
+    "cmdr-dev validation-run succeeds for the selected plan",
+    "unit tests prove no-runtime state is not-applicable rather than passed",
+    "unit tests reject unregistered runtime boundaries",
+    "unit tests enforce active authorization and tenant gates when required",
+    "unit tests enforce 80/90 coverage floors and reject stale evidence",
+    "adaptive push and pull-request CI execute CHK-SECURITY-TESTS"
   ],
   "performance_budget": {
     "applicable": true,
@@ -76,7 +85,8 @@
   },
   "required_checks": [
     "adaptive engineering-kernel",
-    "independent full-kernel fallback when CI/security control-plane changes require it"
+    "independent full-kernel fallback when CI/security control-plane changes require it",
+    "cmdr-dev security-test-audit"
   ],
   "definition_of_ready": [
     "dependencies are VERIFIED",
@@ -91,8 +101,8 @@
   ],
   "complexity": {
     "primary_components": 2,
-    "estimated_files_changed": 8,
-    "estimated_net_loc": 500,
+    "estimated_files_changed": 10,
+    "estimated_net_loc": 540,
     "production_files": 3,
     "net_production_loc": 390,
     "bounded_contexts": 1,

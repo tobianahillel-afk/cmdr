@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "default_policy": "deny-unregistered-runtime-boundary",
+  "global_coverage_floor_percent": 80,
+  "changed_security_critical_coverage_floor_percent": 90,
+  "authorization_gate_id": "SEC-AUTH-NEG-001",
+  "tenant_isolation_gate_id": "SEC-TENANT-ISO-001",
+  "scopes": []
+}

@@ -563,6 +563,31 @@
         "CHK-SCA-GO"
       ],
       "evidence_kind": "generated-artifact"
+    },
+    {
+      "id": "CHK-SECURITY-TESTS",
+      "title": "Runtime security negative-test and coverage obligation audit",
+      "executor_key": "security-test-audit",
+      "risk_domains": [
+        "security",
+        "unit-correctness",
+        "coverage-traceability"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": true,
+      "trigger_paths": [
+        "engineering/security/**",
+        "engineering/testing/**",
+        "engineering/architecture/**",
+        "tools/cmdr-dev/**",
+        "**"
+      ],
+      "prerequisites": [
+        "CHK-SECURITY-GATES",
+        "CHK-ARCHITECTURE"
+      ],
+      "evidence_kind": "audit-report"
     }
   ]
 }

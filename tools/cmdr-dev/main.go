@@ -324,6 +324,15 @@ func main() {
 			fail(err)
 		}
 		printValue(summary, *jsonFlag)
+	case "security-test-audit":
+		if err := validateState(root, state, graph); err != nil {
+			fail(err)
+		}
+		summary, err := runSecurityTestAudit(root, *changesFileFlag)
+		if err != nil {
+			fail(err)
+		}
+		printValue(summary, *jsonFlag)
 	case "secret-scan":
 		if err := validateState(root, state, graph); err != nil {
 			fail(err)
@@ -778,6 +787,14 @@ func printValue(v any, asJSON bool) {
 		fmt.Printf("by stage: %v\n", x.ByStage)
 		fmt.Printf("blocking: %d\n", x.Blocking)
 		fmt.Printf("conditional blocking: %d\n", x.Conditional)
+	case SecurityTestAuditSummary:
+		fmt.Printf("runtime boundaries: %d\n", x.RuntimeBoundaries)
+		fmt.Printf("registered scopes: %d\n", x.RegisteredScopes)
+		fmt.Printf("authorization required: %d\n", x.AuthorizationRequired)
+		fmt.Printf("tenant isolation required: %d\n", x.TenantIsolationRequired)
+		fmt.Printf("coverage status: %s\n", x.CoverageStatus)
+		fmt.Printf("global coverage floor: %.2f\n", x.GlobalCoverageFloorPercent)
+		fmt.Printf("changed security-critical coverage floor: %.2f\n", x.ChangedCoverageFloorPercent)
 	case SecretScanSummary:
 		fmt.Printf("mode: %s\n", x.Mode)
 		fmt.Printf("candidate paths: %d\n", x.CandidatePaths)
@@ -823,7 +840,7 @@ func printValue(v any, asJSON bool) {
 }
 
 func usage(w io.Writer) {
-	fmt.Fprintln(w, "usage: cmdr-dev <doctor|status|next|spec-index|spec-baseline|coverage-graph|obligations|coverage-audit|validate-manifests|complexity-audit|context|architecture-audit|dependency-audit|boundary-edge-audit|check-catalog-audit|impact|validation-plan|security-gate-audit|secret-scan|sast-go|sca-go|sbom|git-changes|validation-run> [--root PATH] [--json] [--check] [--output PATH]")
+	fmt.Fprintln(w, "usage: cmdr-dev <doctor|status|next|spec-index|spec-baseline|coverage-graph|obligations|coverage-audit|validate-manifests|complexity-audit|context|architecture-audit|dependency-audit|boundary-edge-audit|check-catalog-audit|impact|validation-plan|security-gate-audit|security-test-audit|secret-scan|sast-go|sca-go|sbom|git-changes|validation-run> [--root PATH] [--json] [--check] [--output PATH]")
 }
 
 func fail(err error) {

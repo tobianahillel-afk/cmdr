@@ -91,7 +91,7 @@ func validationExecutorMode(key string) (string, error) {
 	case "gofmt", "go-vet", "go-unit",
 		"spec-index", "spec-baseline", "coverage-graph", "obligations", "coverage-audit",
 		"validate-manifests", "architecture-audit", "dependency-audit", "boundary-edge-audit",
-		"complexity-audit", "context", "doctor", "next", "check-catalog-audit", "security-gate-audit", "secret-scan", "gosec-go", "govulncheck-go", "sbom":
+		"complexity-audit", "context", "doctor", "next", "check-catalog-audit", "security-gate-audit", "security-test-audit", "secret-scan", "gosec-go", "govulncheck-go", "sbom":
 		return "execute", nil
 	default:
 		return "", fmt.Errorf("unsupported executor_key %q", key)
@@ -253,6 +253,15 @@ func executeValidationCheck(root, tempDir, changesFile, key string, state Curren
 			summary.ByReadiness["active"],
 			summary.ByReadiness["specified"],
 			summary.ByReadiness["deferred-runtime"]), nil
+	case "security-test-audit":
+		summary, err := runSecurityTestAudit(root, changesFile)
+		if err != nil {
+			return "", err
+		}
+		return fmt.Sprintf("runtime_boundaries=%d scopes=%d coverage_status=%s global_floor=%.0f changed_floor=%.0f auth_required=%d tenant_required=%d",
+			summary.RuntimeBoundaries, summary.RegisteredScopes, summary.CoverageStatus,
+			summary.GlobalCoverageFloorPercent, summary.ChangedCoverageFloorPercent,
+			summary.AuthorizationRequired, summary.TenantIsolationRequired), nil
 	case "secret-scan":
 		summary, err := runSecretScan(root, changesFile, false)
 		if err != nil {

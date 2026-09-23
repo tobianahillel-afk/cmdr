@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "status": "not-applicable",
+  "reason": "No product-runtime architecture boundary exists yet; runtime coverage and negative-test execution are not measurable.",
+  "source_commit": "",
+  "global_coverage_percent": null,
+  "scopes": []
+}
