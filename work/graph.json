@@ -326,7 +326,7 @@
       "id": "E4-SEC-001C",
       "title": "Enforce security-critical negative tests and coverage floors",
       "type": "sublot",
-      "status": "BLOCKED",
+      "status": "READY",
       "depends_on": [
         "E4-SEC-002C"
       ],
@@ -376,7 +376,7 @@
       "id": "E4-SEC-002C",
       "title": "Generate deterministic SBOM and supply-chain evidence",
       "type": "sublot",
-      "status": "READY",
+      "status": "VERIFIED",
       "depends_on": [
         "E4-SEC-002B-ACTIVATE"
       ],

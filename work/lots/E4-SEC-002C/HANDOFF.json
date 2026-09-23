@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "work_unit": "E4-SEC-002C",
+  "result": "VERIFIED",
+  "final_validated_head": "16b0992f490add2beff11d4416170517a7a4fb2a",
+  "pull_request": 36,
+  "evidence": {
+    "implementation_pr_run": 35850552860,
+    "activation_push_run": 35851088900,
+    "activation_pr_run": 35851093708,
+    "active_gate": "SEC-SBOM-001",
+    "schema": "CycloneDX 1.7",
+    "generator": "cmdr-dev/sbom-v1",
+    "current_components": 2,
+    "current_runtime_components": 0,
+    "current_development_components": 2,
+    "unsupported_manifests": 0
+  },
+  "rules": [
+    "SBOM output is deterministic and tied to exact Git source SHA",
+    "development components are explicitly CycloneDX excluded and CMDR development-scoped",
+    "unresolved versions and recognized unsupported ecosystems fail closed",
+    "composition is marked incomplete rather than claiming unresolved transitive closure",
+    "SEC-SUPPLY-001 remains specified until real releasable artifacts and signing/provenance exist"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E4-SEC-001C"
+  ]
+}
