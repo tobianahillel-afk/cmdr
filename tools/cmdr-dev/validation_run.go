@@ -91,7 +91,7 @@ func validationExecutorMode(key string) (string, error) {
 	case "gofmt", "go-vet", "go-unit",
 		"spec-index", "spec-baseline", "coverage-graph", "obligations", "coverage-audit",
 		"validate-manifests", "architecture-audit", "dependency-audit", "boundary-edge-audit",
-		"complexity-audit", "context", "doctor", "next", "check-catalog-audit", "security-gate-audit", "security-test-audit", "deep-security-audit", "decision-registry-audit", "research-packet-audit", "decision-gate-audit", "decision-freshness-audit", "performance-registry-audit", "performance-benchmark-audit", "deep-performance-audit", "performance-cache-audit", "secret-scan", "gosec-go", "govulncheck-go", "sbom":
+		"complexity-audit", "context", "doctor", "next", "check-catalog-audit", "security-gate-audit", "security-test-audit", "deep-security-audit", "decision-registry-audit", "research-packet-audit", "decision-gate-audit", "decision-freshness-audit", "performance-registry-audit", "performance-benchmark-audit", "deep-performance-audit", "performance-cache-audit", "lease-audit", "secret-scan", "gosec-go", "govulncheck-go", "sbom":
 		return "execute", nil
 	default:
 		return "", fmt.Errorf("unsupported executor_key %q", key)
