@@ -31,6 +31,12 @@ func testEfficiencyPolicy() EngineEfficiencyBudgetPolicy {
 	}
 }
 
+func budgetSafeValues() map[string]float64 {
+	values := safeOptimizerValues()
+	values["MET-MANDATORY-CHECKS"] = 43
+	return values
+}
+
 func baselineForSnapshot(snapshot EngineMetricSnapshot, plan ValidationPlan) EngineEfficiencyBaseline {
 	values, unavailable := snapshotMetricMaps(snapshot)
 	var metrics []EngineEfficiencyBaselineMetric
@@ -48,7 +54,7 @@ func baselineForSnapshot(snapshot EngineMetricSnapshot, plan ValidationPlan) Eng
 
 func TestEfficiencyBudgetWithholdsWithoutComparableBaseline(t *testing.T) {
 	registry := completeSnapshotRegistry()
-	snapshot := optimizerSnapshot(registry, strings.Repeat("b", 40), "2026-09-23T21:00:00Z", "standard", safeOptimizerValues(), nil)
+	snapshot := optimizerSnapshot(registry, strings.Repeat("b", 40), "2026-09-23T21:00:00Z", "standard", budgetSafeValues(), nil)
 	plan := ValidationPlan{WorkUnit: snapshot.WorkUnit, Tier: "standard", RiskDomains: []string{"performance", "security"}}
 	report, err := evaluateEngineEfficiencyBudget(registry, testEfficiencyPolicy(),
 		EngineEfficiencyBaselineRegistry{SchemaVersion: 1, BaselineKind: "engineering-engine-efficiency-baselines"},
@@ -64,7 +70,7 @@ func TestEfficiencyBudgetWithholdsWithoutComparableBaseline(t *testing.T) {
 
 func TestEfficiencyBudgetBlocksSafetyFloorWithoutBaseline(t *testing.T) {
 	registry := completeSnapshotRegistry()
-	values := safeOptimizerValues()
+	values := budgetSafeValues()
 	values["MET-SAFETY-GREEN"] = 0
 	snapshot := optimizerSnapshot(registry, strings.Repeat("c", 40), "2026-09-23T21:00:00Z", "standard", values, nil)
 	plan := ValidationPlan{WorkUnit: snapshot.WorkUnit, Tier: "standard", RiskDomains: []string{"security"}}
@@ -78,8 +84,8 @@ func TestEfficiencyBudgetBlocksSafetyFloorWithoutBaseline(t *testing.T) {
 
 func TestEfficiencyBudgetBlocksSameProfileRegression(t *testing.T) {
 	registry := completeSnapshotRegistry()
-	baseValues := safeOptimizerValues()
-	currentValues := safeOptimizerValues()
+	baseValues := budgetSafeValues()
+	currentValues := budgetSafeValues()
 	currentValues["MET-VALIDATION-SELECTED"] = baseValues["MET-VALIDATION-SELECTED"] + 1
 	currentValues["MET-VALIDATION-COST"] = baseValues["MET-VALIDATION-COST"] + 5
 	baselineSnapshot := optimizerSnapshot(registry, strings.Repeat("d", 40), "2026-09-23T20:00:00Z", "standard", baseValues, nil)
@@ -96,8 +102,8 @@ func TestEfficiencyBudgetBlocksSameProfileRegression(t *testing.T) {
 
 func TestEfficiencyBudgetContextGrowthIsAdvisory(t *testing.T) {
 	registry := completeSnapshotRegistry()
-	baseValues := safeOptimizerValues()
-	currentValues := safeOptimizerValues()
+	baseValues := budgetSafeValues()
+	currentValues := budgetSafeValues()
 	currentValues["MET-CONTEXT-SOURCES"]++
 	baselineSnapshot := optimizerSnapshot(registry, strings.Repeat("f", 40), "2026-09-23T20:00:00Z", "standard", baseValues, nil)
 	currentSnapshot := optimizerSnapshot(registry, strings.Repeat("1", 40), "2026-09-23T21:00:00Z", "standard", currentValues, nil)
@@ -113,8 +119,8 @@ func TestEfficiencyBudgetContextGrowthIsAdvisory(t *testing.T) {
 
 func TestEfficiencyBudgetMandatoryIncreaseMakesProfileIncomparable(t *testing.T) {
 	registry := completeSnapshotRegistry()
-	baseValues := safeOptimizerValues()
-	currentValues := safeOptimizerValues()
+	baseValues := budgetSafeValues()
+	currentValues := budgetSafeValues()
 	currentValues["MET-MANDATORY-CHECKS"] = baseValues["MET-MANDATORY-CHECKS"] + 1
 	baselineSnapshot := optimizerSnapshot(registry, strings.Repeat("2", 40), "2026-09-23T20:00:00Z", "standard", baseValues, nil)
 	currentSnapshot := optimizerSnapshot(registry, strings.Repeat("3", 40), "2026-09-23T21:00:00Z", "standard", currentValues, nil)
