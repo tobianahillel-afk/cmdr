@@ -363,22 +363,22 @@
       "id": "E4-SEC-002B",
       "title": "Implement SAST and dependency vulnerability controls",
       "type": "sublot",
-      "status": "DECOMPOSED",
+      "status": "VERIFIED",
       "depends_on": [
         "E4-SEC-002A"
       ],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": [
-        "E4-SEC-002B-OUTPUT"
+        "E4-SEC-002C"
       ]
     },
     {
       "id": "E4-SEC-002C",
       "title": "Generate deterministic SBOM and supply-chain evidence",
       "type": "sublot",
-      "status": "BLOCKED",
+      "status": "READY",
       "depends_on": [
-        "E4-SEC-002B-ACTIVATE"
+        "E4-SEC-002B"
       ],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": [
@@ -389,7 +389,7 @@
       "id": "E4-SEC-002B-ACTIVATE",
       "title": "Finalize and activate Go SAST and SCA controls",
       "type": "task",
-      "status": "READY",
+      "status": "VERIFIED",
       "depends_on": [
         "E4-SEC-002B-READ"
       ],
