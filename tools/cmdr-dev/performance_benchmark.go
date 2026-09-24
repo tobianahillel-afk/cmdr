@@ -99,7 +99,7 @@ type PerformanceBenchmarkAuditSummary struct {
 }
 
 var knownBenchmarkHandlerKeys = map[string]bool{
-	"builtin-cmdr-dev-metadata-audit-v1": true,
+	"builtin-cmdr-dev-metadata-audit-v1":  true,
 	"builtin-pilot-context-projection-v1": true,
 }
 
