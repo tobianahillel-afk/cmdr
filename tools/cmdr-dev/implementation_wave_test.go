@@ -4,21 +4,21 @@ import "testing"
 
 func waveRecord(id, state, canonical string) ImplementationReadinessRecord {
 	return ImplementationReadinessRecord{
-		Capability: id,
-		Name: id,
-		State: state,
+		Capability:     id,
+		Name:           id,
+		State:          state,
 		DeliveryStatus: "defined",
-		DeliveryMode: "planned",
-		RegisterPath: "register.md",
-		CanonicalFile: canonical,
+		DeliveryMode:   "planned",
+		RegisterPath:   "register.md",
+		CanonicalFile:  canonical,
 	}
 }
 
 func TestSelectImplementationWavePrefersImplementedFamily(t *testing.T) {
 	program := ImplementationReadinessProgram{
 		ProductSpecBaseline: "baseline",
-		SpecTreeDigest: "digest",
-		Status: "PASS",
+		SpecTreeDigest:      "digest",
+		Status:              "PASS",
 		Records: []ImplementationReadinessRecord{
 			waveRecord("CAP-CMD-001", "READY", "cmd.md"),
 			waveRecord("CAP-SET-004", "IMPLEMENTED", "context.md"),
@@ -42,8 +42,8 @@ func TestSelectImplementationWavePrefersImplementedFamily(t *testing.T) {
 func TestSelectImplementationWaveFallsBackToStableCapabilityOrder(t *testing.T) {
 	program := ImplementationReadinessProgram{
 		ProductSpecBaseline: "baseline",
-		SpecTreeDigest: "digest",
-		Status: "PASS",
+		SpecTreeDigest:      "digest",
+		Status:              "PASS",
 		Records: []ImplementationReadinessRecord{
 			waveRecord("CAP-SET-004", "IMPLEMENTED", "context.md"),
 			waveRecord("CAP-INV-010", "READY", "inv-10.md"),
@@ -62,8 +62,8 @@ func TestSelectImplementationWaveFallsBackToStableCapabilityOrder(t *testing.T) 
 func TestSelectImplementationWaveExcludesNonReadyStates(t *testing.T) {
 	program := ImplementationReadinessProgram{
 		ProductSpecBaseline: "baseline",
-		SpecTreeDigest: "digest",
-		Status: "PASS",
+		SpecTreeDigest:      "digest",
+		Status:              "PASS",
 		Records: []ImplementationReadinessRecord{
 			waveRecord("CAP-SET-004", "IMPLEMENTED", "context.md"),
 			waveRecord("CAP-SET-005", "BLOCKED", "blocked.md"),
@@ -83,8 +83,8 @@ func TestSelectImplementationWaveExcludesNonReadyStates(t *testing.T) {
 func TestSelectImplementationWaveRequiresCanonicalFile(t *testing.T) {
 	program := ImplementationReadinessProgram{
 		ProductSpecBaseline: "baseline",
-		SpecTreeDigest: "digest",
-		Status: "PASS",
+		SpecTreeDigest:      "digest",
+		Status:              "PASS",
 		Records: []ImplementationReadinessRecord{
 			waveRecord("CAP-SET-004", "IMPLEMENTED", "context.md"),
 			waveRecord("CAP-SET-005", "READY", ""),
