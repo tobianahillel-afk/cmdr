@@ -1,8 +1,9 @@
-// Command perf-probe executes bounded Event Search validation using a
-// synthetic, tenant-scoped envelope and reports aggregate local performance.
+// Command perf-probe executes bounded Event Search validation or Search Job
+// orchestration using synthetic tenant-scoped inputs and reports aggregate local performance.
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -19,15 +20,28 @@ import (
 
 const maxIterations = 10_000_000
 
-var validationSink eventsearch.Result
+var (
+	validationSink    eventsearch.Result
+	orchestrationSink eventsearch.SearchJob
+)
 
 type observation struct {
+	Operation            string  `json:"operation"`
 	Mode                 string  `json:"mode"`
 	Operations           int     `json:"operations"`
 	ElapsedNS            int64   `json:"elapsed_ns"`
 	NSPerOperation       float64 `json:"ns_per_operation"`
 	PeakHeapBytes        uint64  `json:"peak_heap_bytes"`
 	TotalAllocationBytes uint64  `json:"total_allocation_bytes"`
+}
+
+type completedBackend struct{}
+
+func (completedBackend) Execute(_ context.Context, req eventsearch.BackendRequest) (eventsearch.BackendResult, error) {
+	return eventsearch.BackendResult{
+		TenantRef:        req.TenantRef,
+		CompletedSources: append([]string(nil), req.Sources...),
+	}, nil
 }
 
 func main() {
@@ -39,8 +53,9 @@ func main() {
 func runCLI(args []string, out io.Writer) error {
 	fs := flag.NewFlagSet("perf-probe", flag.ContinueOnError)
 	fs.SetOutput(io.Discard)
-	iterations := fs.Int("iterations", 20_000, "validation operations to execute")
+	iterations := fs.Int("iterations", 20_000, "operations to execute")
 	mode := fs.String("mode", "latency", "probe mode: latency or resource")
+	operation := fs.String("operation", "validation", "operation: validation or orchestration")
 	memoryLimitMiB := fs.Int("memory-limit-mib", 0, "optional Go memory limit for resource mode")
 	if err := fs.Parse(args); err != nil {
 		return err
@@ -48,7 +63,7 @@ func runCLI(args []string, out io.Writer) error {
 	if fs.NArg() != 0 {
 		return fmt.Errorf("unexpected positional arguments")
 	}
-	result, err := runProbe(*iterations, *mode, *memoryLimitMiB)
+	result, err := runProbeOperation(*iterations, *mode, *memoryLimitMiB, *operation)
 	if err != nil {
 		return err
 	}
@@ -56,11 +71,18 @@ func runCLI(args []string, out io.Writer) error {
 }
 
 func runProbe(iterations int, mode string, memoryLimitMiB int) (observation, error) {
+	return runProbeOperation(iterations, mode, memoryLimitMiB, "validation")
+}
+
+func runProbeOperation(iterations int, mode string, memoryLimitMiB int, operation string) (observation, error) {
 	if iterations < 1 || iterations > maxIterations {
 		return observation{}, fmt.Errorf("iterations must be within 1..%d", maxIterations)
 	}
 	if mode != "latency" && mode != "resource" {
 		return observation{}, fmt.Errorf("mode must be latency or resource")
+	}
+	if operation != "validation" && operation != "orchestration" {
+		return observation{}, fmt.Errorf("operation must be validation or orchestration")
 	}
 	if mode == "latency" && memoryLimitMiB != 0 {
 		return observation{}, fmt.Errorf("latency mode does not accept memory-limit-mib")
@@ -97,6 +119,24 @@ func runProbe(iterations int, mode string, memoryLimitMiB int) (observation, err
 		return observation{}, fmt.Errorf("synthetic Event Search validation preflight failed")
 	}
 
+	var orchestrator *eventsearch.Orchestrator
+	var baseJob eventsearch.SearchJob
+	audit := eventsearch.AuditContext{
+		ActorRef:  "perf-probe",
+		Rationale: "deterministic Event Search orchestration benchmark",
+	}
+	if operation == "orchestration" {
+		var err error
+		orchestrator, err = eventsearch.NewOrchestrator(completedBackend{})
+		if err != nil {
+			return observation{}, fmt.Errorf("construct orchestration probe: %w", err)
+		}
+		baseJob, err = orchestrator.Create(input, audit)
+		if err != nil {
+			return observation{}, fmt.Errorf("create orchestration probe job: %w", err)
+		}
+	}
+
 	runtime.GC()
 	var before runtime.MemStats
 	runtime.ReadMemStats(&before)
@@ -123,9 +163,23 @@ func runProbe(iterations int, mode string, memoryLimitMiB int) (observation, err
 		}()
 	}
 
+	ctx := context.Background()
 	started := time.Now()
 	for i := 0; i < iterations; i++ {
-		validationSink = eventsearch.Validate(input)
+		switch operation {
+		case "validation":
+			validationSink = eventsearch.Validate(input)
+		case "orchestration":
+			var err error
+			orchestrationSink, err = orchestrator.Execute(ctx, baseJob, audit)
+			if err != nil {
+				if stop != nil {
+					close(stop)
+					sampler.Wait()
+				}
+				return observation{}, fmt.Errorf("orchestration iteration failed: %w", err)
+			}
+		}
 	}
 	elapsed := time.Since(started)
 
@@ -139,14 +193,23 @@ func runProbe(iterations int, mode string, memoryLimitMiB int) (observation, err
 	if after.HeapAlloc > peak.Load() {
 		peak.Store(after.HeapAlloc)
 	}
-	if !validationSink.Allowed {
-		return observation{}, fmt.Errorf("validation sink ended in unexpected state")
+	switch operation {
+	case "validation":
+		if !validationSink.Allowed {
+			return observation{}, fmt.Errorf("validation sink ended in unexpected state")
+		}
+	case "orchestration":
+		if orchestrationSink.State != eventsearch.JobCompleted ||
+			len(orchestrationSink.ResultRefs) != 0 || len(orchestrationSink.FailedSources) != 0 {
+			return observation{}, fmt.Errorf("orchestration sink ended in unexpected state")
+		}
 	}
 	if elapsed <= 0 {
 		return observation{}, fmt.Errorf("non-positive elapsed duration")
 	}
 
 	return observation{
+		Operation:            operation,
 		Mode:                 mode,
 		Operations:           iterations,
 		ElapsedNS:            elapsed.Nanoseconds(),

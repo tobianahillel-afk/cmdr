@@ -91,6 +91,7 @@ type PerformanceBenchmarkResult struct {
 }
 
 type pilotProjectionProbeObservation struct {
+	Operation            string  `json:"operation,omitempty"`
 	Mode                 string  `json:"mode"`
 	Operations           int     `json:"operations"`
 	ElapsedNS            int64   `json:"elapsed_ns"`
@@ -119,9 +120,10 @@ type PerformanceBenchmarkAuditSummary struct {
 }
 
 var knownBenchmarkHandlerKeys = map[string]bool{
-	"builtin-cmdr-dev-metadata-audit-v1":  true,
-	"builtin-pilot-context-projection-v1": true,
-	"builtin-event-search-validation-v1":  true,
+	"builtin-cmdr-dev-metadata-audit-v1":    true,
+	"builtin-pilot-context-projection-v1":   true,
+	"builtin-event-search-validation-v1":    true,
+	"builtin-event-search-orchestration-v1": true,
 }
 
 func runPerformanceBenchmarkAudit(root, stage, environmentID, changesFile string) (PerformanceBenchmarkAuditSummary, error) {
@@ -401,6 +403,20 @@ func prepareBenchmarkHandler(root string, workload BenchmarkWorkloadDefinition) 
 				Kind: "latency", Unit: "ns", Value: observation.NSPerOperation,
 			}}}, nil
 		}, cleanup, nil
+	case "builtin-event-search-orchestration-v1":
+		probe, cleanup, err := prepareEventSearchValidationProbe(root)
+		if err != nil {
+			return nil, func() {}, err
+		}
+		return func() (BenchmarkSample, error) {
+			observation, err := probe.runOperation(20_000, "orchestration", "latency", 0)
+			if err != nil {
+				return BenchmarkSample{}, err
+			}
+			return BenchmarkSample{Measurements: []BenchmarkMeasurement{{
+				Kind: "latency", Unit: "ns", Value: observation.NSPerOperation,
+			}}}, nil
+		}, cleanup, nil
 	default:
 		return nil, func() {}, fmt.Errorf("unsupported benchmark handler %s", workload.HandlerKey)
 	}
@@ -436,22 +452,36 @@ func prepareEventSearchValidationProbe(root string) (eventSearchValidationProbe,
 }
 
 func (probe eventSearchValidationProbe) run(iterations int) (pilotProjectionProbeObservation, error) {
+	return probe.runOperation(iterations, "validation", "latency", 0)
+}
+
+func (probe eventSearchValidationProbe) runOperation(iterations int, operation, mode string, memoryLimitMiB int) (pilotProjectionProbeObservation, error) {
 	if iterations < 1 || iterations > 10_000_000 {
-		return pilotProjectionProbeObservation{}, fmt.Errorf("Event Search validation iterations must be within 1..10000000")
+		return pilotProjectionProbeObservation{}, fmt.Errorf("Event Search iterations must be within 1..10000000")
 	}
-	output, err := runPerformanceProcess(probe.moduleRoot, probe.binaryPath,
-		"-iterations", strconv.Itoa(iterations), "-mode", "latency")
+	if operation != "validation" && operation != "orchestration" {
+		return pilotProjectionProbeObservation{}, fmt.Errorf("unknown Event Search probe operation %q", operation)
+	}
+	args := []string{
+		"-iterations", strconv.Itoa(iterations),
+		"-mode", mode,
+		"-operation", operation,
+	}
+	if mode == "resource" {
+		args = append(args, "-memory-limit-mib", strconv.Itoa(memoryLimitMiB))
+	}
+	output, err := runPerformanceProcess(probe.moduleRoot, probe.binaryPath, args...)
 	if err != nil {
 		return pilotProjectionProbeObservation{}, err
 	}
 	var observation pilotProjectionProbeObservation
 	if err := json.Unmarshal([]byte(output), &observation); err != nil {
-		return observation, fmt.Errorf("decode Event Search validation probe: %w", err)
+		return observation, fmt.Errorf("decode Event Search %s probe: %w", operation, err)
 	}
-	if observation.Mode != "latency" || observation.Operations != iterations ||
+	if observation.Operation != operation || observation.Mode != mode || observation.Operations != iterations ||
 		observation.ElapsedNS <= 0 || observation.NSPerOperation <= 0 ||
 		math.IsNaN(observation.NSPerOperation) || math.IsInf(observation.NSPerOperation, 0) {
-		return observation, fmt.Errorf("invalid Event Search validation observation")
+		return observation, fmt.Errorf("invalid Event Search %s observation", operation)
 	}
 	return observation, nil
 }

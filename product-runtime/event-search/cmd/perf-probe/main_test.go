@@ -32,6 +32,28 @@ func TestRunCLILatencyJSON(t *testing.T) {
 	}
 }
 
+func TestRunCLIOrchestrationJSON(t *testing.T) {
+	var out bytes.Buffer
+	if err := runCLI([]string{"-iterations", "1000", "-mode", "latency", "-operation", "orchestration"}, &out); err != nil {
+		t.Fatal(err)
+	}
+	var got observation
+	if err := json.Unmarshal(out.Bytes(), &got); err != nil {
+		t.Fatal(err)
+	}
+	if got.Operation != "orchestration" || got.Mode != "latency" || got.Operations != 1000 ||
+		got.ElapsedNS <= 0 || got.NSPerOperation <= 0 {
+		t.Fatalf("invalid orchestration observation: %#v", got)
+	}
+}
+
+func TestRunProbeRejectsUnknownOperation(t *testing.T) {
+	if _, err := runProbeOperation(1, "latency", 0, "unknown"); err == nil ||
+		!strings.Contains(err.Error(), "operation") {
+		t.Fatalf("expected invalid operation rejection, got %v", err)
+	}
+}
+
 func TestRunProbeResource(t *testing.T) {
 	got, err := runProbe(1000, "resource", 64)
 	if err != nil {

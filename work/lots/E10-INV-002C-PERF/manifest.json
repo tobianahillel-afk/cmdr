@@ -103,7 +103,8 @@
     "perf probe executes deterministic no-op-backend Search Job orchestration",
     "benchmark registry validates the dedicated orchestration workload",
     "deep-performance policy remains complete for every product-runtime performance target",
-    "PR performance benchmark observes orchestration p95 <= 1 ms"
+    "PR performance benchmark observes orchestration p95 <= 1 ms",
+    "real deep handlers execute both Event Search validation and orchestration probes"
   ],
   "performance_budget": {
     "applicable": true,
@@ -130,10 +131,10 @@
   ],
   "complexity": {
     "primary_components": 2,
-    "estimated_files_changed": 9,
-    "estimated_net_loc": 430,
-    "production_files": 3,
-    "net_production_loc": 250,
+    "estimated_files_changed": 11,
+    "estimated_net_loc": 520,
+    "production_files": 4,
+    "net_production_loc": 310,
     "bounded_contexts": 1,
     "independent_migrations": 0,
     "distinct_security_models": 0,

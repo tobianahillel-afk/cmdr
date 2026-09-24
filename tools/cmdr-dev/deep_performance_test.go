@@ -198,3 +198,41 @@ func TestPilotDeepPerformanceHandlerExecutesRealRuntime(t *testing.T) {
 		t.Fatalf("unexpected pilot deep performance observation: %#v", observation)
 	}
 }
+
+
+func TestEventSearchOrchestrationDeepHandlerExecutesRealRuntime(t *testing.T) {
+	root, err := filepath.Abs(filepath.Join("..", ".."))
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, tc := range []struct {
+		name       string
+		handlerKey string
+	}{
+		{name: "validation", handlerKey: "builtin-event-search-validation-v1"},
+		{name: "orchestration", handlerKey: "builtin-event-search-orchestration-v1"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			target := DeepPerformanceTarget{
+				ID:                  "PERF-DEEP-EVENT-SEARCH-TEST",
+				PerformanceTargetID: "PERF-TGT-EVENT-SEARCH-TEST",
+				Kind:                "resource",
+				HandlerKey:          tc.handlerKey,
+				Stages:              []string{"on-demand"},
+				TriggerPaths:        []string{"product-runtime/event-search/**"},
+				TimeoutSeconds:      30,
+				MemoryLimitMiB:      128,
+				Concurrency:         1,
+				Iterations:          1000,
+				Rationale:           "real Event Search deep-handler test",
+			}
+			got, err := runDeepPerformanceHandler(context.Background(), root, target)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if got.Operations != 1000 || got.PeakHeapBytes == 0 || got.TotalAllocationBytes == 0 {
+				t.Fatalf("unexpected deep observation: %#v", got)
+			}
+		})
+	}
+}

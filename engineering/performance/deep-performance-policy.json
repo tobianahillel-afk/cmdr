@@ -13,7 +13,7 @@
     "max_target_duration_seconds": 600,
     "max_target_memory_mib": 2048,
     "max_concurrency": 64,
-    "max_targets_per_run": 2
+    "max_targets_per_run": 3
   },
   "targets": [
     {
@@ -51,7 +51,25 @@
       "memory_limit_mib": 128,
       "concurrency": 1,
       "iterations": 10000,
-      "rationale": "Reserved on-demand resource validation for the Event Search validation core. The compiled handler fails closed while the runtime boundary is preimplementation and is activated only by the later runtime task."
+      "rationale": "Bounded on-demand resource validation of the implemented Event Search validation core using the same standard-library-only runtime probe as PR benchmarking."
+    },
+    {
+      "id": "PERF-DEEP-EVENT-SEARCH-ORCHESTRATION",
+      "performance_target_id": "PERF-TGT-EVENT-SEARCH-ORCHESTRATION",
+      "kind": "resource",
+      "handler_key": "builtin-event-search-orchestration-v1",
+      "stages": [
+        "on-demand"
+      ],
+      "trigger_paths": [
+        "product-runtime/event-search/**"
+      ],
+      "duration_seconds": 0,
+      "timeout_seconds": 30,
+      "memory_limit_mib": 128,
+      "concurrency": 1,
+      "iterations": 10000,
+      "rationale": "Bounded on-demand resource validation of backend-neutral Search Job orchestration. The probe uses a no-op local backend and measures orchestration/resource behavior without selecting or invoking a search provider."
     }
   ]
 }

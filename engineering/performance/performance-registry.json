@@ -69,6 +69,34 @@
         }
       ],
       "rationale": "The bounded Event Search validation runtime is executable. The 1 ms shared-CI ceiling applies only to deterministic in-process envelope validation, not backend search latency and not a production Search SLO."
+    },
+    {
+      "id": "PERF-TGT-EVENT-SEARCH-ORCHESTRATION",
+      "scope_kind": "product-runtime",
+      "boundary_id": "event-search-runtime",
+      "owner_path": "product-runtime/event-search/**",
+      "workload_key": "event-search-orchestration-v1",
+      "workload_description": "Deterministic in-process Search Job orchestration from queued through running to completed against a no-op backend that only acknowledges validated sources. Job creation, build/process startup and backend work are excluded from the reported per-operation latency.",
+      "environment_id": "PERF-ENV-GITHUB-UBUNTU-SHARED",
+      "stages": [
+        "pr",
+        "on-demand"
+      ],
+      "trigger_paths": [
+        "product-runtime/event-search/**"
+      ],
+      "metrics": [
+        {
+          "id": "orchestration-p95-latency",
+          "kind": "latency",
+          "unit": "ms",
+          "aggregation": "p95",
+          "comparator": "upper-bound",
+          "budget": 1,
+          "max_relative_regression_percent": 0
+        }
+      ],
+      "rationale": "The 1 ms shared-CI ceiling applies only to backend-neutral Search Job orchestration overhead. It is separate from Event Search validation latency, excludes backend execution, and is not a production search SLO."
     }
   ]
 }
