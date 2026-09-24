@@ -150,10 +150,10 @@ func TestPilotProjectionProbeExecutesRealRuntime(t *testing.T) {
 func TestEventSearchBenchmarkHandlerFailsClosedBeforeRuntime(t *testing.T) {
 	root := t.TempDir()
 	workload := BenchmarkWorkloadDefinition{
-		Key: "event-search-validation-v1",
-		HandlerKey: "builtin-event-search-validation-v1",
-		WarmupIterations: 1,
-		SampleCount: 1,
+		Key:                 "event-search-validation-v1",
+		HandlerKey:          "builtin-event-search-validation-v1",
+		WarmupIterations:    1,
+		SampleCount:         1,
 		MaxSampleDurationMS: 100,
 	}
 	_, cleanup, err := prepareBenchmarkHandler(root, workload)
