@@ -12,23 +12,9 @@ import (
 
 const capabilityDependencyRegisterPath = "cmdr-product-spec/00-governance/dependency-register.md"
 
-var readinessDependencyIDPattern = regexp.MustCompile(`^DEP-[A-Z0-9-]+package main
-
-import (
-	"fmt"
-	"io/fs"
-	"path/filepath"
-	"regexp"
-	"sort"
-	"strconv"
-	"strings"
-)
-
-const capabilityDependencyRegisterPath = "cmdr-product-spec/00-governance/dependency-register.md"
-
-)
-var capabilitySelectorTokenPattern = regexp.MustCompile(`CAP-[A-Z0-9]+-[0-9]{3}([.][.][0-9]{3}|(/[0-9]{3})*)?`)
-var openDecisionTokenPattern = regexp.MustCompile(`OPEN-[0-9]{3}`)
+var readinessDependencyIDPattern = regexp.MustCompile("^DEP-[A-Z0-9-]+$")
+var capabilitySelectorTokenPattern = regexp.MustCompile("CAP-[A-Z0-9]+-[0-9]{3}([.][.][0-9]{3}|(/[0-9]{3})*)?")
+var openDecisionTokenPattern = regexp.MustCompile("OPEN-[0-9]{3}")
 
 type CapabilityRegistryRecord struct {
 	ID             string   `json:"id"`
