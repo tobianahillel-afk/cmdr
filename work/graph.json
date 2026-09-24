@@ -819,7 +819,7 @@
       "id": "E10-SCALE-001",
       "title": "Compile the scaled product implementation program",
       "type": "epic",
-      "status": "DECOMPOSED",
+      "status": "VERIFIED",
       "depends_on": [
         "E9-PILOT-001D"
       ],
@@ -858,7 +858,7 @@
       "id": "E10-SCALE-001C",
       "title": "Materialize first bounded implementation wave",
       "type": "sublot",
-      "status": "READY",
+      "status": "VERIFIED",
       "depends_on": [
         "E10-SCALE-001B"
       ],
@@ -884,7 +884,7 @@
       "id": "E10-INV-002A",
       "title": "Compile Event Search executable contract and runtime boundary",
       "type": "task",
-      "status": "BLOCKED",
+      "status": "READY",
       "depends_on": [
         "E10-SCALE-001C"
       ],

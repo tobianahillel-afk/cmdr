@@ -52,5 +52,11 @@
     "E10-INV-002C",
     "E10-INV-002D"
   ],
-  "status": "MATERIALIZED_PENDING_CI"
+  "status": "VERIFIED_MATERIALIZED",
+  "validation": {
+    "final_validated_head": "c2652cbc975cdd8769621443d7691d0e8c7f6475",
+    "push_workflow_run": 36013275624,
+    "pull_request_workflow_run": 36013281582,
+    "result": "PASS"
+  }
 }
