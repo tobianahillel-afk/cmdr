@@ -26,7 +26,7 @@ This module does **not** define or select:
 - a storage engine;
 - a backend/provider;
 - persistence;
-- Search Job lifecycle transitions, cancellation or partial-result orchestration;
+- a final production search/index/storage/provider implementation;
 - Case-link mutation.
 
 Those concerns remain owned by later bounded tasks and unresolved product decisions.
@@ -34,3 +34,20 @@ Those concerns remain owned by later bounded tasks and unresolved product decisi
 ## Dependency and execution boundary
 
 The module uses the Go standard library only. It performs no network or filesystem I/O during validation. The local `cmd/perf-probe` uses synthetic references only and exists solely to produce deterministic CI performance evidence.
+
+
+## Search Job orchestration
+
+The bounded runtime now also provides a backend-neutral Search Job orchestrator:
+
+- canonical states: queued, running, completed, partial, failed, cancelled;
+- only queued/running cancellation is permitted;
+- terminal jobs never restart in place;
+- retry creates a new immutable Job ID and Run ID while preserving tenant, environment, time, source, correlation and query-version provenance;
+- backend results contain stable references only, never raw event content;
+- every requested source must be explicitly accounted for as completed or failed;
+- cross-tenant, unaccounted, duplicate or malformed backend results fail closed and do not populate protected result references;
+- partial completion preserves valid result references and exposes stable failed-source codes;
+- backend error text is never persisted in the Search Job audit trail.
+
+The backend remains a Go interface. No query dialect, search engine, storage engine, index or provider is selected by this implementation.
