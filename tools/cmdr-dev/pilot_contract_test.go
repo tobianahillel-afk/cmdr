@@ -16,11 +16,11 @@ func TestPilotDependencyFloorAllowsAdditionalCleanRuntimeBoundaries(t *testing.T
 func TestPilotDependencyFloorRejectsPilotDependency(t *testing.T) {
 	global := DependencyAuditSummary{RuntimeBoundaries: 2}
 	pilot := []RuntimeDependency{{
-		Boundary: pilotRuntimeBoundaryID,
+		Boundary:  pilotRuntimeBoundaryID,
 		Ecosystem: "go",
-		Name: "example.org/dependency",
-		Version: "v1.0.0",
-		Manifest: "product-runtime/context-envelope/go.mod",
+		Name:      "example.org/dependency",
+		Version:   "v1.0.0",
+		Manifest:  "product-runtime/context-envelope/go.mod",
 	}}
 	if err := validatePilotDependencyFloor(global, pilot, nil); err == nil {
 		t.Fatal("expected pilot-specific runtime dependency rejection")
