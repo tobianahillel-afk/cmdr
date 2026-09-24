@@ -74,7 +74,7 @@
   "parent": "E10-INV-002",
   "goal": "Implement Search Job lifecycle orchestration over a narrow backend interface, including cancellation, retry-as-new-run, partial source failures, provenance and stable result references, while keeping the final search engine unspecified.",
   "depends_on": [
-    "E10-INV-002B"
+    "E10-INV-002B-RUNTIME"
   ],
   "allowed_paths": [
     "engineering/implementation/event-search/**",
@@ -122,7 +122,7 @@
     "CHK-PERFORMANCE-BENCHMARK"
   ],
   "definition_of_ready": [
-    "E10-INV-002B is VERIFIED"
+    "E10-INV-002B-RUNTIME is VERIFIED"
   ],
   "definition_of_done": [
     "Search Job lifecycle matches canonical states",

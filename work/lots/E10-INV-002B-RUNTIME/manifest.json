@@ -1,5 +1,6 @@
 {
   "schema_version": 2,
+  "parent": "E10-INV-002B",
   "product_refs": {
     "capabilities": [
       "CAP-INV-002"
@@ -68,43 +69,49 @@
       "no implementation ledger claim is created before final bounded validation"
     ]
   },
-  "id": "E10-INV-002B",
-  "title": "Implement tenant-scoped query validation core",
+  "id": "E10-INV-002B-RUNTIME",
+  "title": "Implement tenant-scoped Event Search validation runtime",
   "type": "task",
-  "parent": "E10-INV-002",
-  "goal": "Coordinate the tenant-scoped Event Search validation core through a control-plane preparation child followed by a bounded runtime implementation child.",
+  "goal": "Materialize the standard-library-only Event Search query/scope validation module, consume the predeclared fixtures, transition the executable contract to implemented, and execute measured security/performance evidence without defining a final query dialect or backend.",
   "depends_on": [
-    "E10-INV-002A-CONTRACT"
+    "E10-INV-002B-CONTROLS"
   ],
   "allowed_paths": [
+    "product-runtime/event-search/**",
     "engineering/implementation/event-search/**",
+    "engineering/performance/**",
     "engineering/testing/**",
-    "work/lots/E10-INV-002*/**",
+    "work/lots/E10-INV-002B*/**",
     "engineering/state/**",
     "work/graph.json",
     "tools/cmdr-dev/**"
   ],
   "inputs": [
-    "verified Event Search executable contract",
-    "predeclared scope/permission fixtures",
+    "verified multi-runtime control adapters",
+    "EVENT-SEARCH-EXECUTABLE-CONTRACT-V1",
+    "predeclared Event Search fixtures",
     "zero-external-dependency runtime boundary"
   ],
   "outputs": [
-    "verified E10-INV-002B-CONTROLS multi-runtime security/performance adapters",
-    "verified E10-INV-002B-RUNTIME standard-library-only tenant/query validation runtime",
-    "measured security and performance evidence for the implemented Event Search validation boundary"
+    "standard-library-only Go Event Search validation module",
+    "typed backend-neutral validated query envelope",
+    "fixture-driven authorization/tenant/time/source/query validation tests",
+    "local validation performance probe",
+    "implemented runtime state in Event Search executable contract"
   ],
   "acceptance_tests": [
-    "Go tests consume predeclared fixtures",
-    "missing tenant, wildcard tenant, inverted/empty time range, empty source set and denied permission fail closed",
-    "valid query envelope preserves correlation ID and source/time scope",
+    "Go tests consume the predeclared B-owned fixtures",
+    "missing/wildcard/cross-tenant, denied permission, invalid time/source/query and Case-link requests fail closed",
+    "valid envelope preserves tenant/environment/time/source/correlation/query-version provenance",
+    "runtime security evidence proves authorization-negative and tenant-isolation tests",
+    "validation p95 <= 1 ms on the registered deterministic benchmark",
     "dependency audit reports zero external runtime dependencies"
   ],
   "performance_budget": {
     "applicable": true,
-    "rationale": "validation runs on every search execution",
+    "rationale": "validation executes on every Event Search request",
     "metrics": [
-      "validation p95 target <= 1 ms on deterministic fixture benchmark"
+      "validation p95 <= 1 ms on PERF-ENV-GITHUB-UBUNTU-SHARED for the deterministic in-process probe"
     ]
   },
   "required_checks": [
@@ -114,27 +121,28 @@
     "CHK-SAST-GO",
     "CHK-SCA-GO",
     "CHK-SECURITY-TESTS",
-    "CHK-PERFORMANCE-BENCHMARK"
+    "CHK-PERFORMANCE-BENCHMARK",
+    "CHK-EVENT-SEARCH-CONTRACT"
   ],
   "definition_of_ready": [
-    "E10-INV-002A-BOUNDARY is VERIFIED",
-    "E10-INV-002A-CONTRACT is VERIFIED"
+    "E10-INV-002B-CONTROLS is VERIFIED"
   ],
   "definition_of_done": [
-    "E10-INV-002B-CONTROLS is VERIFIED",
-    "E10-INV-002B-RUNTIME is VERIFIED",
-    "query validation runtime matches the executable contract without selecting an engine/dialect/storage/provider",
+    "runtime state is implemented and contract audit remains PASS",
+    "negative security cases execute against the runtime",
+    "performance target executes and passes",
+    "no engine/dialect/storage/provider assumption is introduced",
     "no external runtime dependency exists"
   ],
   "complexity": {
     "primary_components": 2,
-    "estimated_files_changed": 12,
-    "estimated_net_loc": 760,
+    "estimated_files_changed": 9,
+    "estimated_net_loc": 620,
     "production_files": 5,
     "net_production_loc": 430,
     "bounded_contexts": 1,
     "independent_migrations": 0,
     "distinct_security_models": 1,
-    "separately_testable_behaviors": 2
+    "separately_testable_behaviors": 1
   }
 }
