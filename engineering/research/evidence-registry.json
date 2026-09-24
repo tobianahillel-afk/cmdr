@@ -1,5 +1,406 @@
 {
   "schema_version": 1,
   "registry_kind": "engineering-research-evidence",
-  "packets": []
+  "packets": [
+    {
+      "id": "RES-PKT-0001",
+      "decision_id": "ENG-DEC-0001",
+      "status": "saturated",
+      "topic": "Event Search frontend runtime architecture",
+      "question": "Which frontend architecture family best satisfies CMDR's first-party runtime, security, accessibility, deep-link state, performance and supply-chain requirements for INV-EVS-001?",
+      "as_of": "2026-09-24",
+      "constraints": [
+        "No Product Spec mutation",
+        "No final query/index/storage/provider decision",
+        "No Case-link mutation while OPEN-013 is unresolved",
+        "CMDR-owned visual components; no third-party component kit",
+        "Minimize or eliminate third-party product-runtime JavaScript",
+        "Support currently used modern desktop browsers with graceful security fallback where a newer platform defense is unavailable",
+        "Preserve deterministic non-AI operation"
+      ],
+      "solution_families": [
+        {
+          "id": "FAMILY-NATIVE-WEB",
+          "name": "First-party browser Web Platform application",
+          "description": "Client-side first-party ES modules, native Custom Elements where component boundaries help, standard DOM APIs, URL/History state and fetch/AbortController; no third-party UI runtime.",
+          "disposition": "candidate",
+          "rationale": "Directly matches the deny-by-default runtime dependency constraint while retaining rich Event Search interactivity."
+        },
+        {
+          "id": "FAMILY-SERVER-PROGRESSIVE",
+          "name": "Go server-rendered HTML with first-party progressive enhancement",
+          "description": "Server-rendered semantic HTML for the shell and states, enhanced by small first-party ES modules/custom elements for search execution, incremental updates and local interactions.",
+          "disposition": "candidate",
+          "rationale": "Minimizes browser runtime and maximizes semantic HTML, but may increase server round-trips and split state ownership for a highly interactive search screen."
+        },
+        {
+          "id": "FAMILY-LIT",
+          "name": "Lit Web Components runtime",
+          "description": "Use Lit as a small third-party reactive Web Components runtime while keeping CMDR components and styling first-party.",
+          "disposition": "candidate",
+          "rationale": "Provides declarative templates and targeted updates with a small runtime, but creates a third-party product-runtime dependency."
+        },
+        {
+          "id": "FAMILY-SVELTE",
+          "name": "Svelte compiled component architecture",
+          "description": "Use Svelte's compiler-oriented component model to generate browser code with fine-grained reactivity.",
+          "disposition": "candidate",
+          "rationale": "Reduces manual reactive boilerplate and browser work, but introduces a third-party compiler/toolchain and generated framework coupling."
+        },
+        {
+          "id": "FAMILY-REACT",
+          "name": "React runtime architecture",
+          "description": "Use React and ReactDOM as the client rendering/state runtime, optionally with server rendering.",
+          "disposition": "candidate",
+          "rationale": "Mature rich-interaction model and ecosystem, but adds a substantial third-party runtime/supply-chain surface that conflicts with CMDR's first-party-runtime preference."
+        }
+      ],
+      "sources": [
+        {
+          "id": "SRC-001",
+          "kind": "official-doc",
+          "title": "Window.customElements",
+          "publisher": "MDN Web Docs",
+          "locator": "https://developer.mozilla.org/en-US/docs/Web/API/Window/customElements",
+          "published_or_updated_at": "2026-04-06",
+          "accessed_at": "2026-09-24"
+        },
+        {
+          "id": "SRC-002",
+          "kind": "official-doc",
+          "title": "JavaScript import statement and modules",
+          "publisher": "MDN Web Docs",
+          "locator": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import",
+          "published_or_updated_at": "2026-09-11",
+          "accessed_at": "2026-09-24"
+        },
+        {
+          "id": "SRC-003",
+          "kind": "official-doc",
+          "title": "HTML import maps",
+          "publisher": "MDN Web Docs",
+          "locator": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/script/type/importmap",
+          "published_or_updated_at": "2026-04-22",
+          "accessed_at": "2026-09-24"
+        },
+        {
+          "id": "SRC-004",
+          "kind": "official-doc",
+          "title": "CSP require-trusted-types-for",
+          "publisher": "MDN Web Docs",
+          "locator": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Security-Policy/require-trusted-types-for",
+          "published_or_updated_at": "2025-12-22",
+          "accessed_at": "2026-09-24"
+        },
+        {
+          "id": "SRC-005",
+          "kind": "official-doc",
+          "title": "AbortController",
+          "publisher": "MDN Web Docs",
+          "locator": "https://developer.mozilla.org/en-US/docs/Web/API/AbortController",
+          "published_or_updated_at": "2025-09-17",
+          "accessed_at": "2026-09-24"
+        },
+        {
+          "id": "SRC-006",
+          "kind": "official-doc",
+          "title": "URLSearchParams",
+          "publisher": "MDN Web Docs",
+          "locator": "https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams",
+          "published_or_updated_at": "2025-02-26",
+          "accessed_at": "2026-09-24"
+        },
+        {
+          "id": "SRC-007",
+          "kind": "official-doc",
+          "title": "History API",
+          "publisher": "MDN Web Docs",
+          "locator": "https://developer.mozilla.org/en-US/docs/Web/API/History_API",
+          "published_or_updated_at": "2024-07-26",
+          "accessed_at": "2026-09-24"
+        },
+        {
+          "id": "SRC-008",
+          "kind": "official-doc",
+          "title": "Using server-sent events",
+          "publisher": "MDN Web Docs",
+          "locator": "https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events",
+          "published_or_updated_at": "2026-09-03",
+          "accessed_at": "2026-09-24"
+        },
+        {
+          "id": "SRC-009",
+          "kind": "standard",
+          "title": "Custom Controls accessibility tutorial",
+          "publisher": "W3C Web Accessibility Initiative",
+          "locator": "https://www.w3.org/WAI/tutorials/forms/custom-controls/",
+          "published_or_updated_at": "2019-07-27",
+          "accessed_at": "2026-09-24"
+        },
+        {
+          "id": "SRC-010",
+          "kind": "official-doc",
+          "title": "Lit homepage and component architecture",
+          "publisher": "Lit Project",
+          "locator": "https://lit.dev/",
+          "published_or_updated_at": "2026-09-24",
+          "accessed_at": "2026-09-24"
+        },
+        {
+          "id": "SRC-011",
+          "kind": "official-doc",
+          "title": "Svelte framework overview",
+          "publisher": "Svelte",
+          "locator": "https://svelte.dev/",
+          "published_or_updated_at": "2026-09-24",
+          "accessed_at": "2026-09-24"
+        },
+        {
+          "id": "SRC-012",
+          "kind": "official-doc",
+          "title": "React 19",
+          "publisher": "React",
+          "locator": "https://react.dev/blog/2024/12/05/react-19",
+          "published_or_updated_at": "2024-12-05",
+          "accessed_at": "2026-09-24"
+        }
+      ],
+      "claims": [
+        {
+          "id": "CLAIM-001",
+          "statement": "The native browser primitives needed for a rich Event Search client are broadly established: ES modules, Custom Elements, History/URL state and AbortController do not require a third-party UI runtime.",
+          "criticality": "critical",
+          "status": "supported",
+          "source_refs": [
+            "SRC-001",
+            "SRC-002",
+            "SRC-005",
+            "SRC-006",
+            "SRC-007"
+          ],
+          "family_refs": [
+            "FAMILY-NATIVE-WEB",
+            "FAMILY-SERVER-PROGRESSIVE"
+          ],
+          "limitation_refs": [
+            "LIMIT-001",
+            "LIMIT-002"
+          ]
+        },
+        {
+          "id": "CLAIM-002",
+          "statement": "Trusted Types can reduce DOM-XSS sink exposure but only reached MDN Baseline 2026, so CMDR cannot treat Trusted Types support as its sole XSS defense for older still-used browsers.",
+          "criticality": "critical",
+          "status": "supported",
+          "source_refs": [
+            "SRC-004"
+          ],
+          "family_refs": [
+            "FAMILY-NATIVE-WEB",
+            "FAMILY-SERVER-PROGRESSIVE",
+            "FAMILY-LIT",
+            "FAMILY-SVELTE",
+            "FAMILY-REACT"
+          ],
+          "limitation_refs": [
+            "LIMIT-003"
+          ]
+        },
+        {
+          "id": "CLAIM-003",
+          "statement": "A first-party Web Platform implementation can have zero third-party UI runtime dependencies and therefore the smallest runtime supply-chain surface among the compared families.",
+          "criticality": "material",
+          "status": "supported",
+          "source_refs": [
+            "SRC-001",
+            "SRC-002",
+            "SRC-003"
+          ],
+          "family_refs": [
+            "FAMILY-NATIVE-WEB"
+          ],
+          "limitation_refs": [
+            "LIMIT-002"
+          ]
+        },
+        {
+          "id": "CLAIM-004",
+          "statement": "A server-first progressive architecture can build on semantic native HTML controls and add first-party JavaScript only where interaction requires it, improving graceful degradation and accessibility foundations.",
+          "criticality": "material",
+          "status": "supported",
+          "source_refs": [
+            "SRC-009",
+            "SRC-002"
+          ],
+          "family_refs": [
+            "FAMILY-SERVER-PROGRESSIVE"
+          ],
+          "limitation_refs": [
+            "LIMIT-004"
+          ]
+        },
+        {
+          "id": "CLAIM-005",
+          "statement": "Lit is a Web Components helper runtime advertised at about 5 KB minified and compressed and performs targeted dynamic-part updates, but it remains a third-party runtime dependency.",
+          "criticality": "material",
+          "status": "supported",
+          "source_refs": [
+            "SRC-010"
+          ],
+          "family_refs": [
+            "FAMILY-LIT"
+          ],
+          "limitation_refs": [
+            "LIMIT-005"
+          ]
+        },
+        {
+          "id": "CLAIM-006",
+          "statement": "Svelte uses a compiler-oriented UI model intended to do minimal work in the browser, reducing manual reactive boilerplate but adding a third-party compiler/toolchain and framework-generated coupling.",
+          "criticality": "material",
+          "status": "supported",
+          "source_refs": [
+            "SRC-011"
+          ],
+          "family_refs": [
+            "FAMILY-SVELTE"
+          ],
+          "limitation_refs": [
+            "LIMIT-006"
+          ]
+        },
+        {
+          "id": "CLAIM-007",
+          "statement": "React supplies a rich client and server rendering runtime with concurrent and streaming features, but requires framework runtime packages and introduces framework-specific rendering/hydration semantics.",
+          "criticality": "material",
+          "status": "supported",
+          "source_refs": [
+            "SRC-012"
+          ],
+          "family_refs": [
+            "FAMILY-REACT"
+          ],
+          "limitation_refs": [
+            "LIMIT-007"
+          ]
+        },
+        {
+          "id": "CLAIM-008",
+          "statement": "Event Search cancellation and deep-link state do not require a framework: AbortController can cancel fetch/stream consumption and History plus URLSearchParams can preserve URL-addressable state.",
+          "criticality": "critical",
+          "status": "supported",
+          "source_refs": [
+            "SRC-005",
+            "SRC-006",
+            "SRC-007"
+          ],
+          "family_refs": [
+            "FAMILY-NATIVE-WEB",
+            "FAMILY-SERVER-PROGRESSIVE"
+          ],
+          "limitation_refs": [
+            "LIMIT-008"
+          ]
+        },
+        {
+          "id": "CLAIM-009",
+          "statement": "One-way incremental server updates can be delivered with broadly available Server-Sent Events if a later transport decision needs them; choosing SSE is not part of the frontend architecture decision.",
+          "criticality": "supporting",
+          "status": "supported",
+          "source_refs": [
+            "SRC-008"
+          ],
+          "family_refs": [
+            "FAMILY-NATIVE-WEB",
+            "FAMILY-SERVER-PROGRESSIVE"
+          ],
+          "limitation_refs": []
+        }
+      ],
+      "limitations": [
+        {
+          "id": "LIMIT-001",
+          "statement": "Broad availability does not prove CMDR's exact enterprise browser matrix; that matrix still needs an explicit supported-version policy and CI compatibility tests.",
+          "source_refs": [
+            "SRC-001",
+            "SRC-002"
+          ]
+        },
+        {
+          "id": "LIMIT-002",
+          "statement": "Eliminating a framework runtime shifts more rendering, state-management, virtualization and component lifecycle engineering onto CMDR and therefore requires strong first-party conventions and tests.",
+          "source_refs": [
+            "SRC-001",
+            "SRC-002"
+          ]
+        },
+        {
+          "id": "LIMIT-003",
+          "statement": "Trusted Types is a recent Baseline 2026 defense and may be unavailable on older still-used clients; safe DOM APIs and CSP remain mandatory independent defenses.",
+          "source_refs": [
+            "SRC-004"
+          ]
+        },
+        {
+          "id": "LIMIT-004",
+          "statement": "A server-first approach can increase request/round-trip dependence and split state between server HTML and enhanced client behavior for a highly interactive search workspace.",
+          "source_refs": [
+            "SRC-002",
+            "SRC-007"
+          ]
+        },
+        {
+          "id": "LIMIT-005",
+          "statement": "Lit is small but non-zero third-party product-runtime code, which conflicts with the strongest form of CMDR's internal-runtime preference and adds dependency review/update obligations.",
+          "source_refs": [
+            "SRC-010"
+          ]
+        },
+        {
+          "id": "LIMIT-006",
+          "statement": "Svelte reduces browser work through compilation but still creates reliance on an external compiler/toolchain and framework-specific generated semantics that must be revalidated on upgrades.",
+          "source_refs": [
+            "SRC-011"
+          ]
+        },
+        {
+          "id": "LIMIT-007",
+          "statement": "React's feature set and ecosystem do not remove its third-party runtime/supply-chain cost, and SSR/hydration adds additional framework-specific failure modes such as hydration mismatches.",
+          "source_refs": [
+            "SRC-012"
+          ]
+        },
+        {
+          "id": "LIMIT-008",
+          "statement": "Native URL/history/cancellation primitives solve transport and navigation mechanics but do not by themselves provide a disciplined application state model, rendering scheduler or large-table virtualization.",
+          "source_refs": [
+            "SRC-005",
+            "SRC-006",
+            "SRC-007"
+          ]
+        },
+        {
+          "id": "LIMIT-009",
+          "statement": "Custom controls still require explicit semantic roles, names, state exposure and keyboard behavior; native or custom-element architecture does not make accessibility automatic.",
+          "source_refs": [
+            "SRC-009"
+          ]
+        }
+      ],
+      "saturation": {
+        "major_family_ids": [
+          "FAMILY-NATIVE-WEB",
+          "FAMILY-SERVER-PROGRESSIVE",
+          "FAMILY-LIT",
+          "FAMILY-SVELTE",
+          "FAMILY-REACT"
+        ],
+        "major_solution_families_covered": true,
+        "new_sources_materially_change_candidates": false,
+        "critical_limitations_known": true,
+        "unresolved_critical_claim_ids": []
+      },
+      "superseded_by": ""
+    }
+  ]
 }

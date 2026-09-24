@@ -1,5 +1,49 @@
 {
   "schema_version": 1,
   "registry_kind": "engineering-technical-decisions",
-  "decisions": []
+  "decisions": [
+    {
+      "id": "ENG-DEC-0001",
+      "decision_key": "event-search.frontend-runtime-architecture",
+      "title": "Event Search frontend runtime architecture",
+      "class": "C",
+      "status": "researching",
+      "owner": "CMDR Platform Architecture",
+      "question": "Which frontend runtime architecture should implement INV-EVS-001 while preserving backend-neutral Event Search behavior, CMDR-owned visual components, high security, high performance, accessibility, deep-link state, and minimal product-runtime supply-chain surface?",
+      "rationale": "Event Search UI is a high-impact security/performance architecture choice. No frontend runtime has been accepted, and implementing UI first would create an implicit irreversible product-runtime dependency choice.",
+      "product_boundary": "engineering-only",
+      "affected_work_units": [
+        "E10-INV-002E"
+      ],
+      "constraints": [
+        "Product Spec remains read-only and CAP-INV-002 remains backend-neutral",
+        "CMDR visual components and product behavior remain first-party",
+        "third-party product-runtime dependencies are deny-by-default",
+        "server-side authorization remains authoritative",
+        "INV-EVS-001 Loading Empty Partial Error Offline and Permission denied states must remain implementable",
+        "deep-link query scope filters and return context must survive refresh",
+        "keyboard accessibility and visible focus are mandatory",
+        "OPEN-013 remains unresolved and Case-link behavior is outside this decision",
+        "final query dialect index storage engine and search provider are outside this decision"
+      ],
+      "risk_tags": [
+        "dependency",
+        "performance",
+        "architecture",
+        "security",
+        "reliability"
+      ],
+      "performance_sensitive": true,
+      "critical_factors": [
+        "security-critical",
+        "architecture-critical"
+      ],
+      "evidence_refs": [
+        "RES-PKT-0001"
+      ],
+      "benchmark_refs": [],
+      "adversarial_refs": [],
+      "superseded_by": ""
+    }
+  ]
 }
