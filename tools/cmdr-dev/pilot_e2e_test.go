@@ -84,10 +84,10 @@ func validPilotClosureEvidence() (
 	handoff := PilotClosureHandoff{
 		SchemaVersion: 1, HandoffKind: "e9-bounded-pilot-closure",
 		Readiness: "BOUNDED_PILOT_VALIDATED_NOT_PRODUCTION_READY",
-		SliceID: scope.SliceID, Capability: scope.Capability,
+		SliceID:   scope.SliceID, Capability: scope.Capability,
 		CanonicalPilotPlanStatus: "draft", GlobalOpenDecisionsOutsidePilot: 17,
-		EvidenceSources: []string{pilotRuntimeProgressPath, pilotSecurityProgressPath, pilotPerformanceProgressPath},
-		Limitations: append([]string(nil), scope.ExcludedBehaviors...),
+		EvidenceSources:     []string{pilotRuntimeProgressPath, pilotSecurityProgressPath, pilotPerformanceProgressPath},
+		Limitations:         append([]string(nil), scope.ExcludedBehaviors...),
 		ScaleNextConditions: []string{"one", "two", "three"},
 	}
 	const head = "0123456789abcdef0123456789abcdef01234567"
