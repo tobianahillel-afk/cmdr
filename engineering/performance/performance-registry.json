@@ -48,9 +48,10 @@
       "boundary_id": "event-search-runtime",
       "owner_path": "product-runtime/event-search/**",
       "workload_key": "event-search-validation-v1",
-      "workload_description": "Deterministic in-process validation of one prevalidated Event Search tenant/time/source/permission envelope. Registered before implementation; execution remains on-demand and fail-closed until E10-INV-002B provides the runtime handler.",
+      "workload_description": "Deterministic in-process validation of one tenant/time/source/permission/provenance Event Search envelope. The standard-library-only runtime is executable; build and process-startup time are excluded from the reported per-operation latency.",
       "environment_id": "PERF-ENV-GITHUB-UBUNTU-SHARED",
       "stages": [
+        "pr",
         "on-demand"
       ],
       "trigger_paths": [
@@ -67,7 +68,7 @@
           "max_relative_regression_percent": 0
         }
       ],
-      "rationale": "Preimplementation performance ownership for CAP-INV-002 query validation. The 1 ms bound applies only to deterministic in-process validation, not backend search latency and not a production Search SLO."
+      "rationale": "The bounded Event Search validation runtime is executable. The 1 ms shared-CI ceiling applies only to deterministic in-process envelope validation, not backend search latency and not a production Search SLO."
     }
   ]
 }

@@ -194,7 +194,7 @@ func runEventSearchContractAudit(root string) (EventSearchContractAuditSummary, 
 	if !ok || boundary.Kind != "product-runtime" || !sameStringSet(boundary.Roots, []string{eventSearchRuntimeRoot}) {
 		return EventSearchContractAuditSummary{}, fmt.Errorf("Event Search runtime boundary is missing or inconsistent")
 	}
-	runtimeState, err := validateEventSearchPreimplementationLayout(root)
+	runtimeState, err := validateEventSearchRuntimeLayout(root, boundary, contract.RuntimeBoundary.ExpectedState)
 	if err != nil {
 		return EventSearchContractAuditSummary{}, err
 	}
@@ -230,7 +230,8 @@ func validateEventSearchContractCore(root string, manifest WorkManifestV2, contr
 		return fmt.Errorf("Event Search contract capability/screen mismatch")
 	}
 	if contract.RuntimeBoundary.ID != eventSearchRuntimeBoundaryID || contract.RuntimeBoundary.Root != eventSearchRuntimeRoot ||
-		contract.RuntimeBoundary.ExpectedState != "preimplementation" || len(contract.RuntimeBoundary.ExternalRuntimeDependencies) != 0 {
+		(contract.RuntimeBoundary.ExpectedState != "preimplementation" && contract.RuntimeBoundary.ExpectedState != "implemented") ||
+		len(contract.RuntimeBoundary.ExternalRuntimeDependencies) != 0 {
 		return fmt.Errorf("Event Search runtime-boundary contract is invalid")
 	}
 	if validateSources {
@@ -448,19 +449,21 @@ func evaluateEventSearchFixture(contract EventSearchExecutableContract, in Event
 	return out
 }
 
-func validateEventSearchPreimplementationLayout(root string) (string, error) {
+func validateEventSearchRuntimeLayout(root string, boundary ArchitectureBoundary, expected string) (string, error) {
 	scanRoot, err := runtimeScanRoot(root, eventSearchRuntimeRoot)
 	if err != nil {
 		return "", err
 	}
 	files := []string{}
+	hasGoMod := false
+	hasRuntimeGo := false
 	// #nosec G703 -- scanRoot is repository-confined by runtimeScanRoot; symlink entries are rejected.
 	err = filepath.WalkDir(scanRoot, func(path string, entry os.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
 		if entry.Type()&os.ModeSymlink != 0 {
-			return fmt.Errorf("Event Search preimplementation boundary contains symlink: %s", path)
+			return fmt.Errorf("Event Search runtime boundary contains symlink: %s", path)
 		}
 		if entry.IsDir() {
 			return nil
@@ -470,10 +473,16 @@ func validateEventSearchPreimplementationLayout(root string) (string, error) {
 			return err
 		}
 		rel = filepath.ToSlash(rel)
-		if rel != eventSearchRuntimeMarker && !strings.HasSuffix(rel, "/.gitkeep") {
-			return fmt.Errorf("Event Search contract phase contains unexpected runtime file %s", rel)
-		}
 		files = append(files, rel)
+		if rel == "product-runtime/event-search/go.mod" {
+			hasGoMod = true
+		}
+		if strings.HasSuffix(rel, ".go") && !strings.HasSuffix(rel, "_test.go") {
+			hasRuntimeGo = true
+		}
+		if expected == "preimplementation" && rel != eventSearchRuntimeMarker && !strings.HasSuffix(rel, "/.gitkeep") {
+			return fmt.Errorf("Event Search preimplementation boundary contains unexpected runtime file %s", rel)
+		}
 		return nil
 	})
 	if err != nil {
@@ -483,5 +492,15 @@ func validateEventSearchPreimplementationLayout(root string) (string, error) {
 	if !containsString(files, eventSearchRuntimeMarker) {
 		return "", fmt.Errorf("Event Search runtime marker is missing")
 	}
-	return "preimplementation", nil
+	actual, err := detectRuntimeBoundaryImplementationState(root, boundary)
+	if err != nil {
+		return "", err
+	}
+	if actual != expected {
+		return "", fmt.Errorf("Event Search runtime state mismatch: contract=%s actual=%s", expected, actual)
+	}
+	if expected == "implemented" && (!hasGoMod || !hasRuntimeGo) {
+		return "", fmt.Errorf("Event Search implemented runtime requires go.mod and executable Go source")
+	}
+	return actual, nil
 }

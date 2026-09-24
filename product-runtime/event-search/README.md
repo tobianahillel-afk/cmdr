@@ -1,7 +1,36 @@
 # Event Search runtime boundary
 
-Reserved by E10-INV-002A-BOUNDARY for the bounded CAP-INV-002 Event Search core.
+This directory contains the first bounded executable runtime for **CAP-INV-002 Event Search**.
 
-This directory is intentionally **preimplementation-only** in this task. It contains no executable product code, no query engine, no index, no storage provider, and no external runtime dependency.
+## Implemented in this slice
 
-The first executable runtime may be added only after the source-backed Event Search contract and negative fixtures are VERIFIED. Case-link mutation remains excluded while OPEN-013 is unresolved.
+The runtime validates only the backend-neutral execution envelope required before a later Search Job orchestration layer can run:
+
+- exactly one selected Tenant, with no wildcard or cross-tenant fallback;
+- required environment reference;
+- ordered RFC3339 time range;
+- one or more explicitly authorized sources;
+- explicit query presence/validity signal;
+- server-evaluated execution permissions;
+- opaque correlation and query-version provenance;
+- explicit refusal of Case-link mutation while OPEN-013 remains unresolved.
+
+Denied validation returns no populated execution envelope and never widens protected-data visibility.
+
+## Deliberately not implemented
+
+This module does **not** define or select:
+
+- a query language or dialect;
+- a search/index engine;
+- a storage engine;
+- a backend/provider;
+- persistence;
+- Search Job lifecycle transitions, cancellation or partial-result orchestration;
+- Case-link mutation.
+
+Those concerns remain owned by later bounded tasks and unresolved product decisions.
+
+## Dependency and execution boundary
+
+The module uses the Go standard library only. It performs no network or filesystem I/O during validation. The local `cmd/perf-probe` uses synthetic references only and exists solely to produce deterministic CI performance evidence.

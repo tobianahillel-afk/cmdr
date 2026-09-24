@@ -8,7 +8,7 @@
   "runtime_boundary": {
     "id": "event-search-runtime",
     "root": "product-runtime/event-search/**",
-    "expected_state": "preimplementation",
+    "expected_state": "implemented",
     "external_runtime_dependencies": []
   },
   "product_refs": {
