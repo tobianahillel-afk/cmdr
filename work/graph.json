@@ -884,13 +884,13 @@
       "id": "E10-INV-002A",
       "title": "Compile Event Search executable contract and runtime boundary",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "DECOMPOSED",
       "depends_on": [
         "E10-SCALE-001C"
       ],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": [
-        "E10-INV-002B"
+        "E10-INV-002A-BOUNDARY"
       ]
     },
     {
@@ -899,7 +899,7 @@
       "type": "task",
       "status": "READY",
       "depends_on": [
-        "E10-INV-002A"
+        "E10-INV-002A-CONTRACT"
       ],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": [

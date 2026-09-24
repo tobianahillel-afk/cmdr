@@ -74,7 +74,7 @@
   "parent": "E10-INV-002",
   "goal": "Implement the standard-library-only query/scope validation core that enforces explicit tenant, time range, source set, permission decision and stable correlation/provenance inputs without defining a final query dialect.",
   "depends_on": [
-    "E10-INV-002A"
+    "E10-INV-002A-CONTRACT"
   ],
   "allowed_paths": [
     "engineering/implementation/event-search/**",
@@ -118,7 +118,8 @@
     "CHK-PERFORMANCE-BENCHMARK"
   ],
   "definition_of_ready": [
-    "E10-INV-002A is VERIFIED",
+    "E10-INV-002A-BOUNDARY is VERIFIED",
+    "E10-INV-002A-CONTRACT is VERIFIED",
     "runtime boundary and fixtures are verified"
   ],
   "definition_of_done": [
