@@ -960,7 +960,7 @@
       "id": "E10-INV-002B-CONTROLS",
       "title": "Prepare multi-runtime security and performance adapters for Event Search",
       "type": "task",
-      "status": "READY",
+      "status": "VERIFIED",
       "depends_on": [
         "E10-INV-002A-CONTRACT"
       ],
@@ -973,7 +973,7 @@
       "id": "E10-INV-002B-RUNTIME",
       "title": "Implement tenant-scoped Event Search validation runtime",
       "type": "task",
-      "status": "BLOCKED",
+      "status": "READY",
       "depends_on": [
         "E10-INV-002B-CONTROLS"
       ],
