@@ -162,7 +162,6 @@ func TestSecurityScopeRejectsPathOutsideBoundary(t *testing.T) {
 	}
 }
 
-
 func TestSecurityTestAuditAcceptsReservedPreimplementationRuntime(t *testing.T) {
 	runtime := ArchitectureBoundary{ID: "api", Kind: "product-runtime", Roots: []string{"services/api/**"}}
 	scope := RuntimeSecurityScope{
@@ -197,7 +196,7 @@ func TestSecurityTestAuditRejectsPreimplementationClaimAfterRuntimeImplementatio
 	runtime := ArchitectureBoundary{ID: "api", Kind: "product-runtime", Roots: []string{"services/api/**"}}
 	scope := RuntimeSecurityScope{
 		BoundaryID: "api", Owner: "security-platform",
-		SecurityCriticalPaths: []string{"services/api/**"},
+		SecurityCriticalPaths:  []string{"services/api/**"},
 		AuthorizationRationale: "not required yet", TenantIsolationRationale: "not required yet",
 	}
 	evidence := RuntimeSecurityEvidence{
