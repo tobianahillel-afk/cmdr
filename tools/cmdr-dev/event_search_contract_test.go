@@ -68,7 +68,7 @@ func validEventSearchContractTestData() (WorkManifestV2, EventSearchExecutableCo
 	refs := ProductRefsV2{
 		Capabilities: []string{"CAP-INV-002"},
 		Requirements: []string{"REQ-PROD-005", "REQ-PROD-010", "REQ-PROD-011", "REQ-PROD-014", "REQ-PROD-045"},
-		Screens: []string{"INV-EVS-001"},
+		Screens:      []string{"INV-EVS-001"},
 		Permissions: []string{
 			"perm.investigate.search.execute", "perm.shared-capabilities.query.read",
 			"perm.shared-capabilities.query.manage", "perm.shared-capabilities.search-job.read",
@@ -95,7 +95,7 @@ func validEventSearchContractTestData() (WorkManifestV2, EventSearchExecutableCo
 		SchemaVersion: 1, ContractID: "EVENT-SEARCH-EXECUTABLE-CONTRACT-V1",
 		ContractKind: "backend-neutral-local-executable-contract", Capability: "CAP-INV-002", Screen: "INV-EVS-001",
 		RuntimeBoundary: EventSearchRuntimeBoundary{ID: eventSearchRuntimeBoundaryID, Root: eventSearchRuntimeRoot, ExpectedState: "preimplementation"},
-		ProductRefs: refs,
+		ProductRefs:     refs,
 		ScopePolicy: EventSearchScopePolicy{
 			TenantRequired: true, EnvironmentRequired: true, TimeRangeRequired: true, SourcesRequired: true,
 			WildcardTenantForbidden: true, CrossTenantForbidden: true, EmptySourcesForbidden: true,
@@ -106,16 +106,16 @@ func validEventSearchContractTestData() (WorkManifestV2, EventSearchExecutableCo
 				"perm.investigate.search.execute", "perm.shared-capabilities.query.read",
 				"perm.shared-capabilities.search-job.manage", "perm.shared-capabilities.telemetry-event.read",
 			},
-			InspectionPermission: "perm.shared-capabilities.search-job.read",
+			InspectionPermission:      "perm.shared-capabilities.search-job.read",
 			QueryManagementPermission: "perm.shared-capabilities.query.manage",
-			DenyMasksProtectedData: true, RawAccessIsSeparate: true,
+			DenyMasksProtectedData:    true, RawAccessIsSeparate: true,
 		},
 		QueryPolicy: EventSearchQueryPolicy{
 			QueryRequired: true, ValidationBeforeExecution: true,
 			DeterministicManualPathRequired: true, AIExecutionWithoutExplicitTriggerForbidden: true,
 		},
 		SearchJobPolicy: EventSearchJobPolicy{
-			States: []string{"queued", "running", "completed", "partial", "failed", "cancelled"},
+			States:         []string{"queued", "running", "completed", "partial", "failed", "cancelled"},
 			TerminalStates: []string{"completed", "partial", "failed", "cancelled"},
 			AllowedTransitions: []string{
 				"queued->running", "queued->cancelled", "running->completed",
@@ -130,9 +130,9 @@ func validEventSearchContractTestData() (WorkManifestV2, EventSearchExecutableCo
 			QueryVersionRequired: true, PeriodRequired: true, SourcesRequired: true,
 			RunIDRequired: true, ErrorsRecorded: true, SensitiveDataForbiddenInCorrelationID: true,
 		},
-		PerformanceBudget: EventSearchPerformanceBudget{ValidationP95MS: 1, OrchestrationP95MS: 1},
-		Exclusions: []string{"case-link-mutation:OPEN-013", "final-ui", "final-query-language", "final-index", "final-storage-engine", "final-provider"},
-		SemanticRules: []string{"1", "2", "3", "4", "5", "6", "7", "8"},
+		PerformanceBudget:  EventSearchPerformanceBudget{ValidationP95MS: 1, OrchestrationP95MS: 1},
+		Exclusions:         []string{"case-link-mutation:OPEN-013", "final-ui", "final-query-language", "final-index", "final-storage-engine", "final-provider"},
+		SemanticRules:      []string{"1", "2", "3", "4", "5", "6", "7", "8"},
 		SecurityInvariants: []string{"1", "2", "3", "4", "5", "6"},
 	}
 	fixtures := EventSearchFixtureSet{SchemaVersion: 1, ContractID: contract.ContractID}
