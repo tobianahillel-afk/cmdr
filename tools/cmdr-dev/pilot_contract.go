@@ -151,8 +151,12 @@ func runPilotContractAudit(root string) (PilotContractAuditSummary, error) {
 	if err != nil {
 		return PilotContractAuditSummary{}, err
 	}
-	if deps.RuntimeBoundaries != 1 || deps.RuntimeDependencies != 0 || deps.Unapproved != 0 || deps.UnsupportedManifests != 0 {
-		return PilotContractAuditSummary{}, fmt.Errorf("pilot runtime dependency floor violated: %#v", deps)
+	pilotDeps, pilotUnsupported, err := scanRuntimeBoundary(root, boundary.ID, pilotRuntimeRoot)
+	if err != nil {
+		return PilotContractAuditSummary{}, err
+	}
+	if err := validatePilotDependencyFloor(deps, pilotDeps, pilotUnsupported); err != nil {
+		return PilotContractAuditSummary{}, err
 	}
 
 	for _, manifestPath := range []string{
@@ -183,10 +187,20 @@ func runPilotContractAudit(root string) (PilotContractAuditSummary, error) {
 		RuntimeState:        runtimeState,
 		Fixtures:            len(fixtures.Cases),
 		NegativeFixtures:    negative,
-		RuntimeDependencies: deps.RuntimeDependencies,
+		RuntimeDependencies: len(pilotDeps),
 		RuntimeFiles:        runtimeFiles,
 		Status:              "PASS",
 	}, nil
+}
+
+func validatePilotDependencyFloor(global DependencyAuditSummary, pilotDeps []RuntimeDependency, pilotUnsupported []UnsupportedDependencyManifest) error {
+	if global.RuntimeBoundaries < 1 || global.Unapproved != 0 || global.UnsupportedManifests != 0 {
+		return fmt.Errorf("global runtime dependency policy is not clean: %#v", global)
+	}
+	if len(pilotDeps) != 0 || len(pilotUnsupported) != 0 {
+		return fmt.Errorf("pilot runtime dependency floor violated: dependencies=%v unsupported=%v", pilotDeps, pilotUnsupported)
+	}
+	return nil
 }
 
 func validatePilotExecutableContract(scope PilotScope, contract PilotExecutableContract, fixtures PilotFixtureSet) error {

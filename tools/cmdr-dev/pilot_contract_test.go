@@ -2,6 +2,31 @@ package main
 
 import "testing"
 
+func TestPilotDependencyFloorAllowsAdditionalCleanRuntimeBoundaries(t *testing.T) {
+	global := DependencyAuditSummary{
+		RuntimeBoundaries:   2,
+		RuntimeDependencies: 1,
+		Approved:            1,
+	}
+	if err := validatePilotDependencyFloor(global, nil, nil); err != nil {
+		t.Fatalf("additional clean runtime boundary must not invalidate pilot: %v", err)
+	}
+}
+
+func TestPilotDependencyFloorRejectsPilotDependency(t *testing.T) {
+	global := DependencyAuditSummary{RuntimeBoundaries: 2}
+	pilot := []RuntimeDependency{{
+		Boundary: pilotRuntimeBoundaryID,
+		Ecosystem: "go",
+		Name: "example.org/dependency",
+		Version: "v1.0.0",
+		Manifest: "product-runtime/context-envelope/go.mod",
+	}}
+	if err := validatePilotDependencyFloor(global, pilot, nil); err == nil {
+		t.Fatal("expected pilot-specific runtime dependency rejection")
+	}
+}
+
 func TestPilotExecutableContractRejectsCanonicalSchemaClaim(t *testing.T) {
 	scope, contract, fixtures := validPilotContractTestData()
 	contract.CanonicalSchemaClaim = true
