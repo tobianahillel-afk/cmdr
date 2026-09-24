@@ -13,11 +13,11 @@ import (
 )
 
 const (
-	pilotClosureHandoffPath   = "engineering/pilot/e2e-handoff.json"
-	pilotRuntimeProgressPath   = "work/lots/E9-PILOT-001C-RUNTIME/PROGRESS.json"
-	pilotSecurityProgressPath  = "work/lots/E9-PILOT-001C-SECURITY/PROGRESS.json"
+	pilotClosureHandoffPath      = "engineering/pilot/e2e-handoff.json"
+	pilotRuntimeProgressPath     = "work/lots/E9-PILOT-001C-RUNTIME/PROGRESS.json"
+	pilotSecurityProgressPath    = "work/lots/E9-PILOT-001C-SECURITY/PROGRESS.json"
 	pilotPerformanceProgressPath = "work/lots/E9-PILOT-001C-PERF/PROGRESS.json"
-	pilotClosureWorkUnit       = "E9-PILOT-001D"
+	pilotClosureWorkUnit         = "E9-PILOT-001D"
 )
 
 var pilotAdversarialTests = []string{
@@ -67,15 +67,15 @@ type PilotSecurityProgress struct {
 	FinalValidatedHead string `json:"final_validated_head"`
 	ProductSpecMutated bool   `json:"product_spec_mutated"`
 	Validation         struct {
-		Result                                 string  `json:"result"`
-		CoverageStatus                         string  `json:"coverage_status"`
-		GlobalCoveragePercent                  float64 `json:"global_coverage_percent"`
-		GlobalFloorPercent                     float64 `json:"global_floor_percent"`
-		ChangedFloorPercent                    float64 `json:"changed_floor_percent"`
-		PullRequestChangedSecurityCriticalScopes int   `json:"pull_request_changed_security_critical_scopes"`
-		AuthorizationNegative                  string  `json:"authorization_negative"`
-		TenantIsolationNegative                string  `json:"tenant_isolation_negative"`
-		DeepSecurity                           string  `json:"deep_security"`
+		Result                                   string  `json:"result"`
+		CoverageStatus                           string  `json:"coverage_status"`
+		GlobalCoveragePercent                    float64 `json:"global_coverage_percent"`
+		GlobalFloorPercent                       float64 `json:"global_floor_percent"`
+		ChangedFloorPercent                      float64 `json:"changed_floor_percent"`
+		PullRequestChangedSecurityCriticalScopes int     `json:"pull_request_changed_security_critical_scopes"`
+		AuthorizationNegative                    string  `json:"authorization_negative"`
+		TenantIsolationNegative                  string  `json:"tenant_isolation_negative"`
+		DeepSecurity                             string  `json:"deep_security"`
 	} `json:"validation"`
 	Gates struct {
 		AuthorizationNegative string `json:"SEC-AUTH-NEG-001"`
@@ -129,31 +129,31 @@ type PilotAdversarialTestSummary struct {
 }
 
 type PilotE2EAuditSummary struct {
-	SliceID                   string   `json:"slice_id"`
-	Capability                string   `json:"capability"`
-	ProductBaselineCommit     string   `json:"product_baseline_commit"`
-	ProductTreeDigest         string   `json:"product_tree_digest"`
-	Requirements              int      `json:"requirements"`
-	Permissions               int      `json:"permissions"`
-	ContractID                string   `json:"contract_id"`
-	ContractFixtures          int      `json:"contract_fixtures"`
-	NegativeFixtures          int      `json:"negative_fixtures"`
-	AdversarialTests          int      `json:"adversarial_tests"`
-	RuntimeCoveragePercent    float64  `json:"runtime_coverage_percent"`
-	AuthorizationNegative     string   `json:"authorization_negative"`
-	TenantIsolationNegative   string   `json:"tenant_isolation_negative"`
-	SASTFindings              int      `json:"sast_findings"`
-	SCAActionableFindings     int      `json:"sca_actionable_findings"`
-	PerformanceBudgetMS       float64  `json:"performance_budget_ms"`
-	WorstObservedP95MS        float64  `json:"worst_observed_p95_ms"`
-	RecoveryOutcome           string   `json:"recovery_outcome"`
-	RecoveryNextAction        string   `json:"recovery_next_action"`
-	GlobalOpenDecisions       int      `json:"global_open_decisions_outside_pilot"`
-	SelectedOpenDecisions     int      `json:"selected_open_decisions"`
-	ProductionReadinessClaim  bool     `json:"production_readiness_claim"`
-	Limitations               int      `json:"limitations"`
-	ScaleNextConditions       int      `json:"scale_next_conditions"`
-	Status                    string   `json:"status"`
+	SliceID                  string  `json:"slice_id"`
+	Capability               string  `json:"capability"`
+	ProductBaselineCommit    string  `json:"product_baseline_commit"`
+	ProductTreeDigest        string  `json:"product_tree_digest"`
+	Requirements             int     `json:"requirements"`
+	Permissions              int     `json:"permissions"`
+	ContractID               string  `json:"contract_id"`
+	ContractFixtures         int     `json:"contract_fixtures"`
+	NegativeFixtures         int     `json:"negative_fixtures"`
+	AdversarialTests         int     `json:"adversarial_tests"`
+	RuntimeCoveragePercent   float64 `json:"runtime_coverage_percent"`
+	AuthorizationNegative    string  `json:"authorization_negative"`
+	TenantIsolationNegative  string  `json:"tenant_isolation_negative"`
+	SASTFindings             int     `json:"sast_findings"`
+	SCAActionableFindings    int     `json:"sca_actionable_findings"`
+	PerformanceBudgetMS      float64 `json:"performance_budget_ms"`
+	WorstObservedP95MS       float64 `json:"worst_observed_p95_ms"`
+	RecoveryOutcome          string  `json:"recovery_outcome"`
+	RecoveryNextAction       string  `json:"recovery_next_action"`
+	GlobalOpenDecisions      int     `json:"global_open_decisions_outside_pilot"`
+	SelectedOpenDecisions    int     `json:"selected_open_decisions"`
+	ProductionReadinessClaim bool    `json:"production_readiness_claim"`
+	Limitations              int     `json:"limitations"`
+	ScaleNextConditions      int     `json:"scale_next_conditions"`
+	Status                   string  `json:"status"`
 }
 
 func runPilotE2EAudit(root string, state CurrentState, graph WorkGraph) (PilotE2EAuditSummary, error) {
