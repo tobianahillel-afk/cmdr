@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
@@ -98,6 +99,21 @@ func statRepoPath(root, candidate string) (os.FileInfo, error) {
 		return nil, err
 	}
 	return os.Stat(path) // #nosec G703 -- resolveRepoPath proves repository containment and rejects symlink traversal.
+}
+
+func walkRepoDir(root, candidate string, fn fs.WalkDirFunc) error {
+	path, err := resolveRepoPath(root, candidate, false)
+	if err != nil {
+		return err
+	}
+	info, err := os.Stat(path) // #nosec G703 -- path is repository-confined and symlink-free.
+	if err != nil {
+		return err
+	}
+	if !info.IsDir() {
+		return fmt.Errorf("repository path is not a directory: %s", candidate)
+	}
+	return filepath.WalkDir(path, fn) // #nosec G703 -- resolveRepoPath proves repository containment and rejects symlink traversal.
 }
 
 func writeRepoFile(root, candidate string, data []byte) (string, error) {

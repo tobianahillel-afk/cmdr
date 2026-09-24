@@ -56,3 +56,31 @@ func TestWriteAndReadRepoFileStayInsideRoot(t *testing.T) {
 		}
 	}
 }
+
+
+func TestWalkRepoDirRejectsEscapeAndTraversesConfinedDirectory(t *testing.T) {
+	root := t.TempDir()
+	if err := os.MkdirAll(filepath.Join(root, "nested"), 0o750); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(root, "nested", "file.txt"), []byte("ok\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	var seen []string
+	err := walkRepoDir(root, "nested", func(path string, entry os.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		seen = append(seen, entry.Name())
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(seen) < 2 {
+		t.Fatalf("expected directory and file traversal, got %#v", seen)
+	}
+	if err := walkRepoDir(root, "../outside", func(string, os.DirEntry, error) error { return nil }); err == nil {
+		t.Fatal("expected escaped walk root rejection")
+	}
+}

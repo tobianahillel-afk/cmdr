@@ -41,7 +41,9 @@
     "tools/cmdr-dev/security_tests_test.go",
     "work/lots/E9-PILOT-001B*/**",
     "engineering/state/**",
-    "work/graph.json"
+    "work/graph.json",
+    "tools/cmdr-dev/repo_paths.go",
+    "tools/cmdr-dev/repo_paths_test.go"
   ],
   "forbidden_paths": [
     "cmdr-product-spec/**"
@@ -109,10 +111,10 @@
   ],
   "complexity": {
     "primary_components": 2,
-    "estimated_files_changed": 9,
-    "estimated_net_loc": 430,
-    "production_files": 2,
-    "net_production_loc": 250,
+    "estimated_files_changed": 11,
+    "estimated_net_loc": 470,
+    "production_files": 3,
+    "net_production_loc": 285,
     "bounded_contexts": 1,
     "independent_migrations": 0,
     "distinct_security_models": 1,

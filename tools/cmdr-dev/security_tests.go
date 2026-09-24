@@ -355,10 +355,6 @@ func detectRuntimeBoundaryImplementationState(root string, boundary Architecture
 		if prefix == "" {
 			return "", fmt.Errorf("runtime boundary %s has non-concrete root %q", boundary.ID, pattern)
 		}
-		path, err := resolveRepoPath(root, prefix, false)
-		if err != nil {
-			return "", fmt.Errorf("runtime boundary %s root: %w", boundary.ID, err)
-		}
 		info, err := statRepoPath(root, prefix)
 		if err != nil {
 			return "", fmt.Errorf("runtime boundary %s root: %w", boundary.ID, err)
@@ -366,7 +362,7 @@ func detectRuntimeBoundaryImplementationState(root string, boundary Architecture
 		if !info.IsDir() {
 			return "", fmt.Errorf("runtime boundary %s root must resolve to a directory", boundary.ID)
 		}
-		err = filepath.WalkDir(path, func(current string, entry os.DirEntry, err error) error {
+		err = walkRepoDir(root, prefix, func(current string, entry os.DirEntry, err error) error {
 			if err != nil {
 				return err
 			}
