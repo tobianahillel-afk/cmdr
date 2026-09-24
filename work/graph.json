@@ -719,7 +719,7 @@
       "id": "E9-PILOT-001C",
       "title": "Implement the selected vertical slice",
       "type": "sublot",
-      "status": "VERIFIED",
+      "status": "DECOMPOSED",
       "depends_on": [
         "E9-PILOT-001B"
       ],
