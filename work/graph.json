@@ -756,7 +756,7 @@
       "id": "E9-PILOT-001B-PERF",
       "title": "Register pre-implementation performance budgets for pilot runtime boundary",
       "type": "task",
-      "status": "BLOCKED",
+      "status": "READY",
       "depends_on": [
         "E9-PILOT-001B-SECURITY"
       ],
@@ -767,7 +767,7 @@
       "id": "E9-PILOT-001B-SECURITY",
       "title": "Register pilot runtime security ownership and preimplementation state",
       "type": "task",
-      "status": "READY",
+      "status": "VERIFIED",
       "depends_on": [
         "E9-PILOT-001B-CONTRACT"
       ],
