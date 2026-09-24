@@ -15,6 +15,7 @@ const capabilityDependencyRegisterPath = "cmdr-product-spec/00-governance/depend
 var readinessDependencyIDPattern = regexp.MustCompile("^DEP-[A-Z0-9-]+$")
 var capabilitySelectorTokenPattern = regexp.MustCompile("CAP-[A-Z0-9]+-[0-9]{3}([.][.][0-9]{3}|(/[0-9]{3})*)?")
 var openDecisionTokenPattern = regexp.MustCompile("OPEN-[0-9]{3}")
+var shortOpenDecisionTokenPattern = regexp.MustCompile("\\b[0-9]{3}\\b")
 var capabilityDeliveryDefaultsPattern = regexp.MustCompile("(?i)delivery status\\s+[`*]?([a-z-]+)[`*]?\\s*,?\\s*delivery mode\\s+[`*]?([a-z-]+)[`*]?")
 
 type CapabilityRegistryRecord struct {
@@ -264,7 +265,7 @@ func parseCapabilityRegistryContent(source, content string) ([]CapabilityRegistr
 			DeliveryStatus: deliveryStatus,
 			DeliveryMode:   deliveryMode,
 			CanonicalFile:  strings.Trim(strings.TrimSpace(tableCell(cells, columns, "canonical file", "canonical path")), "`"),
-			OpenDecisions:  extractOpenDecisionIDs(tableCell(cells, columns, "open", "open decisions")),
+			OpenDecisions:  extractOpenDecisionIDsFromRegisterCell(tableCell(cells, columns, "open", "open decisions")),
 			SourcePath:     source,
 		}
 		if record.Name == "" {
@@ -599,6 +600,14 @@ func tableCell(cells []string, columns map[string]int, names ...string) string {
 
 func extractOpenDecisionIDs(value string) []string {
 	ids := openDecisionTokenPattern.FindAllString(value, -1)
+	return sortedUniqueStrings(ids)
+}
+
+func extractOpenDecisionIDsFromRegisterCell(value string) []string {
+	ids := append([]string(nil), openDecisionTokenPattern.FindAllString(value, -1)...)
+	for _, token := range shortOpenDecisionTokenPattern.FindAllString(value, -1) {
+		ids = append(ids, "OPEN-"+token)
+	}
 	return sortedUniqueStrings(ids)
 }
 

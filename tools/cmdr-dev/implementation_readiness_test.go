@@ -99,6 +99,44 @@ func TestParseCapabilityRegistryRejectsDocumentStatusAsDeliveryStatus(t *testing
 	}
 }
 
+func TestExtractOpenDecisionIDsFromRegisterCellSupportsEPT5Shorthand(t *testing.T) {
+	got := extractOpenDecisionIDsFromRegisterCell("007/008/013/015")
+	want := []string{"OPEN-007", "OPEN-008", "OPEN-013", "OPEN-015"}
+	if len(got) != len(want) {
+		t.Fatalf("unexpected OPEN refs: got %#v want %#v", got, want)
+	}
+	for i := range want {
+		if got[i] != want[i] {
+			t.Fatalf("unexpected OPEN refs: got %#v want %#v", got, want)
+		}
+	}
+}
+
+func TestParseCapabilityRegistryEPT5ShorthandOpenDecisions(t *testing.T) {
+	content := `# Endpoint EPT-5
+
+| ID | Capability | Primary role | OPEN | Delivery |
+|---|---|---|---|---|
+| CAP-EPT-065 | Governed Response Primitive Request | Response Operator | 007/008/013/015 | defined/planned |
+`
+	records, err := parseCapabilityRegistryContent("ept5.md", content)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(records) != 1 {
+		t.Fatalf("expected one record, got %#v", records)
+	}
+	want := []string{"OPEN-007", "OPEN-008", "OPEN-013", "OPEN-015"}
+	if len(records[0].OpenDecisions) != len(want) {
+		t.Fatalf("unexpected OPEN refs: %#v", records[0].OpenDecisions)
+	}
+	for i := range want {
+		if records[0].OpenDecisions[i] != want[i] {
+			t.Fatalf("unexpected OPEN refs: %#v", records[0].OpenDecisions)
+		}
+	}
+}
+
 func TestParseCapabilityRegistryUnderscoreDeliveryColumns(t *testing.T) {
 	content := `# Settings register
 
