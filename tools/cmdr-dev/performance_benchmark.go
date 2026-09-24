@@ -1,10 +1,12 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"math"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"runtime"
 	"sort"
@@ -406,11 +408,30 @@ func preparePilotProjectionProbe(root string) (pilotProjectionProbe, func(), err
 		binaryName += ".exe"
 	}
 	binaryPath := filepath.Join(tempDir, binaryName)
-	if _, err := runFixedProcess(moduleRoot, "go", "build", "-trimpath", "-o", binaryPath, "./cmd/perf-probe"); err != nil {
+	if _, err := runPerformanceProcess(moduleRoot, "go", "build", "-trimpath", "-o", binaryPath, "./cmd/perf-probe"); err != nil {
 		cleanup()
 		return pilotProjectionProbe{}, func() {}, fmt.Errorf("build pilot projection probe: %w", err)
 	}
 	return pilotProjectionProbe{moduleRoot: moduleRoot, binaryPath: binaryPath}, cleanup, nil
+}
+
+func runPerformanceProcess(dir, name string, args ...string) (string, error) {
+	cmd := exec.Command(name, args...) // #nosec G204,G702 -- callers use either the constant Go executable or a probe binary compiled under the validated repository root; no shell is used.
+	cmd.Dir = dir
+	var stdout, stderr bytes.Buffer
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+	if err := cmd.Run(); err != nil {
+		diagnostic := strings.TrimSpace(stderr.String())
+		if diagnostic == "" {
+			diagnostic = strings.TrimSpace(stdout.String())
+		}
+		if diagnostic == "" {
+			diagnostic = err.Error()
+		}
+		return "", fmt.Errorf("performance process failed: %s", diagnostic)
+	}
+	return strings.TrimSpace(stdout.String()), nil
 }
 
 func (probe pilotProjectionProbe) run(iterations int, mode string, memoryLimitMiB int) (pilotProjectionProbeObservation, error) {
@@ -421,7 +442,7 @@ func (probe pilotProjectionProbe) run(iterations int, mode string, memoryLimitMi
 	if mode == "resource" {
 		args = append(args, "-memory-limit-mib", strconv.Itoa(memoryLimitMiB))
 	}
-	output, err := runFixedProcess(probe.moduleRoot, probe.binaryPath, args...)
+	output, err := runPerformanceProcess(probe.moduleRoot, probe.binaryPath, args...)
 	if err != nil {
 		return pilotProjectionProbeObservation{}, err
 	}
