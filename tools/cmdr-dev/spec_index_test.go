@@ -179,4 +179,3 @@ source-of-truth: canonical
 		t.Fatalf("unexpected inline permissions: %v", doc.Permissions)
 	}
 }
-
