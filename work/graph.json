@@ -719,13 +719,13 @@
       "id": "E9-PILOT-001C",
       "title": "Implement the selected vertical slice",
       "type": "sublot",
-      "status": "VERIFIED",
+      "status": "DECOMPOSED",
       "depends_on": [
         "E9-PILOT-001B"
       ],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": [
-        "E9-PILOT-001D"
+        "E9-PILOT-001C-RUNTIME"
       ]
     },
     {
@@ -734,7 +734,9 @@
       "type": "sublot",
       "status": "READY",
       "depends_on": [
-        "E9-PILOT-001C"
+        "E9-PILOT-001C-RUNTIME",
+        "E9-PILOT-001C-SECURITY",
+        "E9-PILOT-001C-PERF"
       ],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": []

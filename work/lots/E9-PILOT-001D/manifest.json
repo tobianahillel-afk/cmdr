@@ -15,7 +15,9 @@
     "canonical_objects": []
   },
   "depends_on": [
-    "E9-PILOT-001C"
+    "E9-PILOT-001C-RUNTIME",
+    "E9-PILOT-001C-SECURITY",
+    "E9-PILOT-001C-PERF"
   ],
   "allowed_paths": [
     "engineering/pilot/**",
@@ -32,6 +34,9 @@
   ],
   "inputs": [
     "verified E0-E8 engineering foundation",
+    "verified E9-PILOT-001C-RUNTIME implementation",
+    "verified E9-PILOT-001C-SECURITY measured security evidence",
+    "verified E9-PILOT-001C-PERF measured performance evidence",
     "canonical Product Spec read-only baseline",
     "canonical MVP dependency roadmap and pilot plan"
   ],
@@ -82,7 +87,9 @@
     "CHK-METRICS-BUDGET"
   ],
   "definition_of_ready": [
-    "E8-MET-001D is VERIFIED",
+    "E9-PILOT-001C-RUNTIME is VERIFIED",
+    "E9-PILOT-001C-SECURITY is VERIFIED",
+    "E9-PILOT-001C-PERF is VERIFIED",
     "Product Spec baseline is unchanged"
   ],
   "definition_of_done": [

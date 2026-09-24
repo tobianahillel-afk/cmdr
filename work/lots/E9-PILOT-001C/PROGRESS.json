@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "work_unit": "E9-PILOT-001C",
-  "status": "VERIFIED",
+  "status": "DECOMPOSED",
   "final_validated_head": "55e7d473a1f767b1e7bca0b44ad06259fd23389e",
   "children": [
     {
@@ -29,5 +29,7 @@
   "product_spec_mutated": false,
   "next_unlocked": [
     "E9-PILOT-001D"
-  ]
+  ],
+  "children_verified": true,
+  "note": "Parent remains DECOMPOSED by complexity policy; completion is represented by its three VERIFIED child work units rather than by promoting the split-required parent to VERIFIED."
 }
