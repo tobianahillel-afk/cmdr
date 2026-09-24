@@ -71,17 +71,17 @@ type SecurityTestAuditSummary struct {
 }
 
 const (
-	pilotSecurityRuntimeRoot           = "product-runtime/context-envelope"
-	pilotSecurityModuleIdentity        = "github.com/tobianahillel-afk/cmdr/product-runtime/context-envelope"
-	pilotAuthorizationTestRegexp       = "^TestProjectMatchesPredeclaredContractFixtures$/^permission-denied-masks-protected-refs$"
-	pilotTenantTestRegexp              = "^TestProjectMatchesPredeclaredContractFixtures$/(^tenant-change-clears-inherited-environment$|^environment-tenant-mismatch-is-cleared$)"
-	eventSearchSecurityRuntimeRoot     = "product-runtime/event-search"
-	eventSearchSecurityModuleIdentity  = "github.com/tobianahillel-afk/cmdr/product-runtime/event-search"
-	eventSearchAuthorizationTestRegexp = "^TestValidateContractFixtures$/^permission-denied-masks-protected-data$"
-	eventSearchTenantTestRegexp        = "^TestValidateContractFixtures$/(^missing-tenant-is-rejected$|^wildcard-tenant-is-rejected$|^cross-tenant-is-rejected$)"
-	eventSearchFrontendSecurityRuntimeRoot = "product-runtime/event-search-frontend"
+	pilotSecurityRuntimeRoot                   = "product-runtime/context-envelope"
+	pilotSecurityModuleIdentity                = "github.com/tobianahillel-afk/cmdr/product-runtime/context-envelope"
+	pilotAuthorizationTestRegexp               = "^TestProjectMatchesPredeclaredContractFixtures$/^permission-denied-masks-protected-refs$"
+	pilotTenantTestRegexp                      = "^TestProjectMatchesPredeclaredContractFixtures$/(^tenant-change-clears-inherited-environment$|^environment-tenant-mismatch-is-cleared$)"
+	eventSearchSecurityRuntimeRoot             = "product-runtime/event-search"
+	eventSearchSecurityModuleIdentity          = "github.com/tobianahillel-afk/cmdr/product-runtime/event-search"
+	eventSearchAuthorizationTestRegexp         = "^TestValidateContractFixtures$/^permission-denied-masks-protected-data$"
+	eventSearchTenantTestRegexp                = "^TestValidateContractFixtures$/(^missing-tenant-is-rejected$|^wildcard-tenant-is-rejected$|^cross-tenant-is-rejected$)"
+	eventSearchFrontendSecurityRuntimeRoot     = "product-runtime/event-search-frontend"
 	eventSearchFrontendAuthorizationTestRegexp = "^authorization-state-cannot-be-deeplinked$"
-	eventSearchFrontendTenantTestRegexp = "^(tenant-mismatch-is-rejected|tenant-wildcard-is-rejected)$"
+	eventSearchFrontendTenantTestRegexp        = "^(tenant-mismatch-is-rejected|tenant-wildcard-is-rejected)$"
 )
 
 type runtimeSecurityAdapter struct {
