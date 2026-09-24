@@ -73,7 +73,7 @@
         "process-exit"
       ],
       "implementation_key": "gosec-go-v1",
-      "activation_condition": "active for tools/cmdr-dev Go engineering code: gosec v2.28.0 verified with 0 findings on push 35845737139 and pull_request 35845742512"
+      "activation_condition": "active for reviewed Go engineering and pilot runtime modules: gosec v2.28.0 scanned product-runtime/context-envelope and tools/cmdr-dev with 0 findings on push 35988025147 and pull_request 35988030696"
     },
     {
       "id": "SEC-SCA-001",
@@ -100,7 +100,7 @@
         "process-exit"
       ],
       "implementation_key": "govulncheck-go-v1",
-      "activation_condition": "active for tools/cmdr-dev Go engineering code: govulncheck v1.8.0 verified with 2 modules, 0 informational findings, and 0 reachable actionable vulnerabilities on push 35845737139 and pull_request 35845742512"
+      "activation_condition": "active for reviewed Go engineering and pilot runtime modules: govulncheck v1.8.0 reported 4 modules, 0 informational findings and 0 reachable actionable vulnerabilities on push 35988025147 and pull_request 35988030696"
     },
     {
       "id": "SEC-SBOM-001",
@@ -127,7 +127,7 @@
         "provenance"
       ],
       "implementation_key": "builtin-cyclonedx17-sbom-v1",
-      "activation_condition": "active for current source/development inventory: CycloneDX 1.7 cmdr-dev/sbom-v1 verified by pull_request run 35850552860 with 2 development components, 0 runtime components, 0 unsupported manifests, source-SHA binding and deterministic SHA-256 evidence"
+      "activation_condition": "active for current dependency inventory: CycloneDX 1.7 cmdr-dev/sbom-v1 verified by pull_request 35988030696 with 2 development dependency components, 0 product-runtime dependency components and 0 unsupported manifests; source-SHA and deterministic SHA-256 evidence enforced"
     },
     {
       "id": "SEC-IAC-001",
@@ -204,7 +204,7 @@
         "test-result"
       ],
       "implementation_key": "go-context-envelope-auth-negative-v1",
-      "activation_condition": "active for PILOT-CONTEXT-ENVELOPE-V1: CHK-SECURITY-TESTS runs the exact permission-denied contract fixture against the checked-out runtime and requires commit-bound measured evidence"
+      "activation_condition": "active for PILOT-CONTEXT-ENVELOPE-V1: exact permission-denied fixture and commit-bound measured runtime evidence verified on push 35988025147 and pull_request 35988030696; global coverage 95.24% and PR changed-security-critical floor >=90% passed"
     },
     {
       "id": "SEC-TENANT-ISO-001",
@@ -228,7 +228,7 @@
         "test-result"
       ],
       "implementation_key": "go-context-envelope-tenant-iso-v1",
-      "activation_condition": "active for PILOT-CONTEXT-ENVELOPE-V1: CHK-SECURITY-TESTS runs cross-tenant/environment-mismatch contract fixtures against the checked-out runtime and requires commit-bound measured evidence"
+      "activation_condition": "active for PILOT-CONTEXT-ENVELOPE-V1: cross-tenant and environment-tenant-mismatch fixtures plus commit-bound measured runtime evidence verified on push 35988025147 and pull_request 35988030696; global coverage 95.24% and PR changed-security-critical floor >=90% passed"
     },
     {
       "id": "SEC-FUZZ-001",
