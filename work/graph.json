@@ -706,13 +706,13 @@
       "id": "E9-PILOT-001B",
       "title": "Establish pilot runtime boundary and executable contracts",
       "type": "sublot",
-      "status": "READY",
+      "status": "DECOMPOSED",
       "depends_on": [
         "E9-PILOT-001A"
       ],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": [
-        "E9-PILOT-001C"
+        "E9-PILOT-001B-CONTRACT"
       ]
     },
     {
@@ -737,6 +737,30 @@
         "E9-PILOT-001C"
       ],
       "dependency_terminal_state": "VERIFIED",
+      "unlocks": []
+    },
+    {
+      "id": "E9-PILOT-001B-CONTRACT",
+      "title": "Establish pilot runtime boundary and executable contract fixtures",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E9-PILOT-001A"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E9-PILOT-001B-PERF"
+      ]
+    },
+    {
+      "id": "E9-PILOT-001B-PERF",
+      "title": "Register pre-implementation performance budgets for pilot runtime boundary",
+      "type": "task",
+      "status": "READY",
+      "depends_on": [
+        "E9-PILOT-001B-CONTRACT"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
       "unlocks": []
     }
   ]

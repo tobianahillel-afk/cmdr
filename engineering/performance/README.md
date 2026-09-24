@@ -4,9 +4,11 @@ This directory is the machine-readable performance control plane for CMDR engine
 
 ## Current runtime status
 
-The architecture registry currently contains **no** `product-runtime` boundary. The performance registry therefore reports runtime coverage as `not-applicable`; it does not claim that product performance has passed.
+The architecture registry now contains the bounded E9 pilot `product-runtime` boundary `pilot-context-envelope-runtime`.
 
-As soon as a `product-runtime` boundary exists, `performance-registry-audit` fails unless that boundary has at least one registered performance target.
+Its performance budget is registered **before implementation**, but its benchmark/deep handlers are intentionally non-executable until E9-PILOT-001C supplies the runtime. The target is therefore `on-demand` only during E9-B: registry/deep-policy coverage is real, while no pre-implementation runtime performance pass is fabricated.
+
+`performance-registry-audit` continues to fail for any product-runtime boundary that lacks a registered target.
 
 ## Measurement contract
 
@@ -33,7 +35,7 @@ The Product Spec remains read-only. Performance evidence is an engineering imple
 
 `deep-performance-audit` adds bounded profiling, load, soak and resource validation without making performance tooling a product-runtime dependency. Every deep target must reference an already registered performance target and a compiled handler key.
 
-The current repository still has no product-runtime boundary and therefore no deep target is fabricated: the real repository result is `not-applicable`.
+The E9 pilot has one pre-registered deep resource target tied to its performance target. During E9-B it is `on-demand` only and its handler deliberately returns “not executable until E9-C” if manually invoked. PR validation checks policy/coverage without fabricating runtime evidence.
 
 Global caps are machine-readable in `deep-performance-policy.json`: 600 seconds per target, 2048 MiB of Go runtime memory, concurrency 64 and at most two deep targets per run. The separate `performance-deep` workflow is bounded to 25 minutes and runs on nightly, release or explicit on-demand stages.
 

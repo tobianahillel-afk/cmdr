@@ -1,0 +1,119 @@
+{
+  "schema_version": 2,
+  "parent": "E9-PILOT-001B",
+  "product_refs": {
+    "capabilities": [
+      "CAP-SET-004"
+    ],
+    "requirements": [
+      "REQ-PROD-008",
+      "REQ-SEC-001",
+      "REQ-UX-006",
+      "REQ-UX-007",
+      "REQ-UX-009"
+    ],
+    "screens": [],
+    "permissions": [
+      "perm.platform-settings.environment.read",
+      "perm.platform-settings.tenant.read"
+    ],
+    "open_decisions": [],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/cross-product-context-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/environment.md",
+      "cmdr-product-spec/05-domain-model/objects/tenant.md"
+    ]
+  },
+  "forbidden_paths": [
+    "cmdr-product-spec/**"
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "the pilot runtime boundary requires a registered coarse absolute budget before code exists",
+    "metrics": [
+      "future in-process projection p95 <= 1 ms on shared CI; no preimplementation measurement claim"
+    ]
+  },
+  "migration": {
+    "required": false,
+    "rationale": "contract/control-plane work only",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert the E9-B child task without claiming E9-B verified",
+    "verification": [
+      "adaptive kernel returns to prior state"
+    ]
+  },
+  "definition_of_ready": [
+    "upstream dependency terminal state is satisfied",
+    "scope remains PILOT-CONTEXT-001/CAP-SET-004"
+  ],
+  "id": "E9-PILOT-001B-PERF",
+  "title": "Register pre-implementation performance budgets for pilot runtime boundary",
+  "type": "task",
+  "goal": "Complete the runtime-boundary invariant by registering a truthful future projection budget and deep target without executing or claiming product runtime performance before E9-C.",
+  "depends_on": [
+    "E9-PILOT-001B-CONTRACT"
+  ],
+  "allowed_paths": [
+    "engineering/performance/**",
+    "tools/cmdr-dev/performance_registry.go",
+    "tools/cmdr-dev/performance_benchmark.go",
+    "tools/cmdr-dev/deep_performance.go",
+    "work/lots/E9-PILOT-001B*/**",
+    "engineering/state/**",
+    "work/graph.json"
+  ],
+  "inputs": [
+    "implemented E9-PILOT-001B-CONTRACT boundary",
+    "E7 performance registry and deep-performance policy"
+  ],
+  "outputs": [
+    "one product-runtime performance target",
+    "one planned benchmark workload",
+    "one planned on-demand deep resource target",
+    "explicit non-executable-until-E9-C handler state"
+  ],
+  "invariants": [
+    "no fake measurement or baseline",
+    "PR must not execute nonexistent runtime workload",
+    "on-demand invocation before E9-C fails explicitly"
+  ],
+  "security_properties": [
+    "performance tooling remains engineering-only",
+    "no runtime dependency is introduced"
+  ],
+  "acceptance_tests": [
+    "performance-registry-audit reports complete runtime coverage",
+    "PR benchmark selects zero pilot targets while handler is unavailable",
+    "deep-performance PR validates policy without executing target",
+    "performance cache accepts target with no fabricated record"
+  ],
+  "required_checks": [
+    "CHK-PERFORMANCE-REGISTRY",
+    "CHK-PERFORMANCE-BENCHMARK",
+    "CHK-DEEP-PERFORMANCE",
+    "CHK-PERFORMANCE-CACHE"
+  ],
+  "definition_of_done": [
+    "runtime boundary has a registered target",
+    "deep target references it",
+    "no performance pass is claimed until E9-C implements handler",
+    "combined push and PR kernel become green"
+  ],
+  "complexity": {
+    "primary_components": 2,
+    "estimated_files_changed": 10,
+    "estimated_net_loc": 260,
+    "production_files": 3,
+    "net_production_loc": 70,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 0,
+    "separately_testable_behaviors": 1
+  }
+}

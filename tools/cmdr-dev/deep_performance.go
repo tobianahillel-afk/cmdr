@@ -105,6 +105,7 @@ var knownDeepPerformanceStages = map[string]bool{
 
 var knownDeepPerformanceHandlerKeys = map[string]bool{
 	"builtin-cmdr-dev-deep-metadata-v1": true,
+	"builtin-pilot-context-projection-v1": true,
 }
 
 func runDeepPerformanceAudit(root, stage, changesFile, requestedTarget string) (DeepPerformanceAuditSummary, error) {
@@ -400,6 +401,9 @@ func executeDeepPerformanceTargetWithHandler(
 }
 
 func runDeepPerformanceHandler(ctx context.Context, root string, target DeepPerformanceTarget) (DeepPerformanceObservation, error) {
+	if target.HandlerKey == "builtin-pilot-context-projection-v1" {
+		return DeepPerformanceObservation{}, fmt.Errorf("pilot context projection deep-performance handler is registered but not executable until E9-PILOT-001C")
+	}
 	if target.HandlerKey != "builtin-cmdr-dev-deep-metadata-v1" {
 		return DeepPerformanceObservation{}, fmt.Errorf("unsupported deep performance handler %s", target.HandlerKey)
 	}

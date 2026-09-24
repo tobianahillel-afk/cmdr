@@ -12,5 +12,34 @@
       "rationale": "shared CI is suitable for bounded smoke budgets but too noisy to claim tight relative performance superiority"
     }
   ],
-  "targets": []
+  "targets": [
+    {
+      "id": "PERF-TGT-PILOT-CONTEXT-PROJECTION",
+      "scope_kind": "product-runtime",
+      "boundary_id": "pilot-context-envelope-runtime",
+      "owner_path": "product-runtime/context-envelope/**",
+      "workload_key": "pilot-context-projection-v1",
+      "workload_description": "Deterministic in-process projection of one prevalidated tenant/environment context envelope; execution is intentionally deferred until E9-PILOT-001C implements the runtime.",
+      "environment_id": "PERF-ENV-GITHUB-UBUNTU-SHARED",
+      "stages": [
+        "on-demand"
+      ],
+      "trigger_paths": [
+        "product-runtime/context-envelope/**",
+        "engineering/pilot/**"
+      ],
+      "metrics": [
+        {
+          "id": "projection-p95-latency",
+          "kind": "latency",
+          "unit": "ms",
+          "aggregation": "p95",
+          "comparator": "upper-bound",
+          "budget": 1,
+          "max_relative_regression_percent": 0
+        }
+      ],
+      "rationale": "Register the runtime budget at boundary creation time without fabricating a measurement before implementation. A 1 ms shared-CI p95 ceiling is a deliberately coarse safety budget for a pure deterministic standard-library projection; E9-C must make the workload executable before enabling PR performance execution."
+    }
+  ]
 }

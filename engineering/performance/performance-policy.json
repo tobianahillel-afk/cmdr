@@ -65,6 +65,7 @@
     "on-demand"
   ],
   "workload_keys": [
-    "cmdr-dev-metadata-audit-v1"
+    "cmdr-dev-metadata-audit-v1",
+    "pilot-context-projection-v1"
   ]
 }

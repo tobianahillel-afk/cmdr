@@ -100,6 +100,7 @@ type PerformanceBenchmarkAuditSummary struct {
 
 var knownBenchmarkHandlerKeys = map[string]bool{
 	"builtin-cmdr-dev-metadata-audit-v1": true,
+	"builtin-pilot-context-projection-v1": true,
 }
 
 func runPerformanceBenchmarkAudit(root, stage, environmentID, changesFile string) (PerformanceBenchmarkAuditSummary, error) {
@@ -341,6 +342,8 @@ func runBenchmarkHandler(root string, workload BenchmarkWorkloadDefinition) (Ben
 		return BenchmarkSample{Measurements: []BenchmarkMeasurement{{
 			Kind: "latency", Unit: "ns", Value: float64(time.Since(started).Nanoseconds()),
 		}}}, nil
+	case "builtin-pilot-context-projection-v1":
+		return BenchmarkSample{}, fmt.Errorf("pilot context projection benchmark is registered but not executable until E9-PILOT-001C")
 	default:
 		return BenchmarkSample{}, fmt.Errorf("unsupported benchmark handler %s", workload.HandlerKey)
 	}
