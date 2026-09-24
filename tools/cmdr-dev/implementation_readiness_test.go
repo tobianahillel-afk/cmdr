@@ -58,6 +58,41 @@ func TestParseCapabilityRegistryCombinedDeliveryVariant(t *testing.T) {
 	}
 }
 
+func TestParseCapabilityRegistryStatusDeliveryVariant(t *testing.T) {
+	content := `# Cloud register
+
+| ID | Title | Primary role | Open decisions | Status | Delivery |
+|---|---|---|---|---|---|
+| CAP-INV-601 | Cloud Analysis Intake | Analyst | OPEN-008/OPEN-012 | defined | planned |
+| CAP-INV-699 | Future Cloud Capability | Analyst | OPEN-014 | proposed | planned |
+`
+	records, err := parseCapabilityRegistryContent("cloud.md", content)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(records) != 2 {
+		t.Fatalf("expected two records, got %#v", records)
+	}
+	if records[0].DeliveryStatus != "defined" || records[0].DeliveryMode != "planned" {
+		t.Fatalf("unexpected defined delivery mapping: %#v", records[0])
+	}
+	if records[1].DeliveryStatus != "proposed" || records[1].DeliveryMode != "planned" {
+		t.Fatalf("unexpected proposed delivery mapping: %#v", records[1])
+	}
+}
+
+func TestParseCapabilityRegistryRejectsDocumentStatusAsDeliveryStatus(t *testing.T) {
+	content := `# Ambiguous register
+
+| ID | Name | Status | Delivery |
+|---|---|---|---|
+| CAP-INV-601 | Cloud Analysis Intake | draft | planned |
+`
+	if _, err := parseCapabilityRegistryContent("ambiguous.md", content); err == nil {
+		t.Fatal("expected draft/planned schema ambiguity rejection")
+	}
+}
+
 func TestExpandCapabilitySelectorsSupportsExactRangeAndSlash(t *testing.T) {
 	known := map[string]CapabilityRegistryRecord{
 		"CAP-INV-001": readinessRecord("CAP-INV-001", "defined"),

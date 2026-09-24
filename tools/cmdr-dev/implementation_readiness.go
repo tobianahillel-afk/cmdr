@@ -218,13 +218,25 @@ func parseCapabilityRegistryContent(source, content string) ([]CapabilityRegistr
 		deliveryStatus := strings.ToLower(strings.TrimSpace(tableCell(cells, columns, "delivery status")))
 		deliveryMode := strings.ToLower(strings.TrimSpace(tableCell(cells, columns, "delivery mode")))
 		if deliveryStatus == "" {
-			combined := strings.ToLower(strings.TrimSpace(tableCell(cells, columns, "delivery")))
-			parts := strings.Split(combined, "/")
-			if len(parts) != 2 {
-				return nil, fmt.Errorf("%s capability %s has unsupported combined delivery value %q", source, id, combined)
+			delivery := strings.ToLower(strings.TrimSpace(tableCell(cells, columns, "delivery")))
+			parts := strings.Split(delivery, "/")
+			switch len(parts) {
+			case 2:
+				deliveryStatus = strings.TrimSpace(parts[0])
+				deliveryMode = strings.TrimSpace(parts[1])
+			case 1:
+				statusCell := strings.ToLower(strings.TrimSpace(tableCell(cells, columns, "status")))
+				if statusCell != "defined" && statusCell != "proposed" {
+					return nil, fmt.Errorf("%s capability %s has unsupported status/delivery values %q / %q", source, id, statusCell, delivery)
+				}
+				if delivery == "" {
+					return nil, fmt.Errorf("%s capability %s has no delivery mode", source, id)
+				}
+				deliveryStatus = statusCell
+				deliveryMode = delivery
+			default:
+				return nil, fmt.Errorf("%s capability %s has unsupported combined delivery value %q", source, id, delivery)
 			}
-			deliveryStatus = strings.TrimSpace(parts[0])
-			deliveryMode = strings.TrimSpace(parts[1])
 		}
 		if deliveryStatus != "defined" && deliveryStatus != "proposed" {
 			return nil, fmt.Errorf("%s capability %s has unsupported delivery status %q", source, id, deliveryStatus)
