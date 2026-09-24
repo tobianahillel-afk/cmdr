@@ -87,11 +87,11 @@ func TestResolveWaveCanonicalFileFallsBackToCanonicalInventoryID(t *testing.T) {
 		Documents: []SpecDocument{
 			{
 				Path: "cmdr-product-spec/11-endpoint-agent/capabilities/cap-ept-065-example.md",
-				ID: "CAP-EPT-065", Active: true, Canonical: true,
+				ID:   "CAP-EPT-065", Active: true, Canonical: true,
 			},
 			{
 				Path: "cmdr-product-spec/99-archive/cap-ept-065-old.md",
-				ID: "CAP-EPT-065", Active: false, Canonical: true,
+				ID:   "CAP-EPT-065", Active: false, Canonical: true,
 			},
 		},
 	}
