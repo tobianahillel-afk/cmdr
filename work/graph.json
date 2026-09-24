@@ -814,6 +814,56 @@
       ],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": []
+    },
+    {
+      "id": "E10-SCALE-001",
+      "title": "Compile the scaled product implementation program",
+      "type": "epic",
+      "status": "DECOMPOSED",
+      "depends_on": [
+        "E9-PILOT-001D"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-SCALE-001A"
+      ]
+    },
+    {
+      "id": "E10-SCALE-001A",
+      "title": "Establish evidence-backed runtime implementation ledger",
+      "type": "sublot",
+      "status": "READY",
+      "depends_on": [
+        "E9-PILOT-001D"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-SCALE-001B"
+      ]
+    },
+    {
+      "id": "E10-SCALE-001B",
+      "title": "Compile capability implementation readiness and blockers",
+      "type": "sublot",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E10-SCALE-001A"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-SCALE-001C"
+      ]
+    },
+    {
+      "id": "E10-SCALE-001C",
+      "title": "Materialize first bounded implementation wave",
+      "type": "sublot",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E10-SCALE-001B"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": []
     }
   ]
 }
