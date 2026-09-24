@@ -359,7 +359,7 @@ func detectRuntimeBoundaryImplementationState(root string, boundary Architecture
 		if err != nil {
 			return "", fmt.Errorf("runtime boundary %s root: %w", boundary.ID, err)
 		}
-		info, err := os.Stat(path) // #nosec G703 -- path is repository-confined and symlink-free.
+		info, err := statRepoPath(root, prefix)
 		if err != nil {
 			return "", fmt.Errorf("runtime boundary %s root: %w", boundary.ID, err)
 		}
