@@ -35,7 +35,7 @@ func TestImplementationLedgerRejectsDuplicateCapability(t *testing.T) {
 		RuntimeRoot:     "product-runtime/context-envelope/**",
 	}
 	ledger := ImplementationLedger{
-		SchemaVersion:       1, LedgerKind: "verified-runtime-implementation-evidence",
+		SchemaVersion: 1, LedgerKind: "verified-runtime-implementation-evidence",
 		ProductSpecBaseline: state.ProductSpec.BaselineCommit,
 		Entries:             []ImplementationLedgerEntry{entry, entry},
 	}
@@ -48,7 +48,7 @@ func TestImplementationLedgerRejectsPathEscape(t *testing.T) {
 	state := CurrentState{}
 	state.ProductSpec.BaselineCommit = "0123456789abcdef0123456789abcdef01234567"
 	ledger := ImplementationLedger{
-		SchemaVersion:       1, LedgerKind: "verified-runtime-implementation-evidence",
+		SchemaVersion: 1, LedgerKind: "verified-runtime-implementation-evidence",
 		ProductSpecBaseline: state.ProductSpec.BaselineCommit,
 		Entries: []ImplementationLedgerEntry{{
 			Capability: "CAP-SET-004", WorkUnit: "E9-PILOT-001C-RUNTIME",
@@ -67,7 +67,7 @@ func TestImplementationLedgerRejectsBaselineDrift(t *testing.T) {
 	state := CurrentState{}
 	state.ProductSpec.BaselineCommit = "0123456789abcdef0123456789abcdef01234567"
 	ledger := ImplementationLedger{
-		SchemaVersion:       1, LedgerKind: "verified-runtime-implementation-evidence",
+		SchemaVersion: 1, LedgerKind: "verified-runtime-implementation-evidence",
 		ProductSpecBaseline: "fedcba9876543210fedcba9876543210fedcba98",
 		Entries: []ImplementationLedgerEntry{{
 			Capability: "CAP-SET-004", WorkUnit: "E9-PILOT-001C-RUNTIME",
