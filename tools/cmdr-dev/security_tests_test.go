@@ -266,19 +266,28 @@ func TestParsePilotCoverageProfileRejectsForeignModule(t *testing.T) {
 	}
 }
 
-func TestRuntimeSecurityAdaptersAreExplicitForPilotAndEventSearch(t *testing.T) {
+func TestRuntimeSecurityAdaptersAreExplicitForKnownRuntimes(t *testing.T) {
 	adapters := runtimeSecurityAdapters()
 	for _, id := range []string{pilotRuntimeBoundaryID, eventSearchRuntimeBoundaryID} {
 		adapter, ok := adapters[id]
 		if !ok {
 			t.Fatalf("missing explicit runtime security adapter %s", id)
 		}
-		if adapter.RuntimeRoot == "" || adapter.ModuleIdentity == "" ||
+		if adapter.RuntimeKind != "go" || adapter.RuntimeRoot == "" || adapter.ModuleIdentity == "" ||
 			adapter.AuthorizationTestRegex == "" || adapter.TenantTestRegex == "" {
-			t.Fatalf("incomplete runtime security adapter %s: %#v", id, adapter)
+			t.Fatalf("incomplete Go runtime security adapter %s: %#v", id, adapter)
 		}
 	}
-	if len(adapters) != 2 {
+	frontend, ok := adapters["event-search-frontend-runtime"]
+	if !ok {
+		t.Fatal("missing explicit Event Search frontend runtime security adapter")
+	}
+	if frontend.RuntimeKind != "node" || frontend.RuntimeRoot != eventSearchFrontendSecurityRuntimeRoot ||
+		frontend.TestFile == "" || frontend.CoverageInclude == "" ||
+		frontend.AuthorizationTestRegex == "" || frontend.TenantTestRegex == "" {
+		t.Fatalf("incomplete frontend runtime security adapter: %#v", frontend)
+	}
+	if len(adapters) != 3 {
 		t.Fatalf("unexpected implicit runtime security adapters: %#v", adapters)
 	}
 }
