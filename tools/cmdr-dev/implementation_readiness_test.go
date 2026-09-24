@@ -63,8 +63,8 @@ func TestParseCapabilityRegistryStatusDeliveryVariant(t *testing.T) {
 
 | ID | Title | Primary role | Canonical path | Open decisions | Status | Delivery |
 |---|---|---|---|---|---|---|
-| CAP-INV-601 | Cloud Analysis Intake | Analyst | `cloud-intake.md` | OPEN-008/OPEN-012 | defined | planned |
-| CAP-INV-699 | Future Cloud Capability | Analyst | `future-cloud.md` | OPEN-014 | proposed | planned |
+| CAP-INV-601 | Cloud Analysis Intake | Analyst | cloud-intake.md | OPEN-008/OPEN-012 | defined | planned |
+| CAP-INV-699 | Future Cloud Capability | Analyst | future-cloud.md | OPEN-014 | proposed | planned |
 `
 	records, err := parseCapabilityRegistryContent("cloud.md", content)
 	if err != nil {
