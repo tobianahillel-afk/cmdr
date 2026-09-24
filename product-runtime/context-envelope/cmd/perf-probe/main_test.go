@@ -135,3 +135,17 @@ func TestMainSuccessPath(t *testing.T) {
 		t.Fatalf("unexpected main observation: %#v", got)
 	}
 }
+
+func TestRunCLIDefaults(t *testing.T) {
+	var out bytes.Buffer
+	if err := runCLI(nil, &out); err != nil {
+		t.Fatal(err)
+	}
+	var got observation
+	if err := json.Unmarshal(out.Bytes(), &got); err != nil {
+		t.Fatal(err)
+	}
+	if got.Mode != "latency" || got.Operations != 20_000 || got.NSPerOperation <= 0 {
+		t.Fatalf("unexpected default CLI observation: %#v", got)
+	}
+}
