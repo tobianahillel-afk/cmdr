@@ -241,7 +241,17 @@ func parseFrontMatter(content string) frontMatter {
 			continue
 		}
 		key := strings.TrimSpace(line[:idx])
-		value := cleanYAMLScalar(strings.TrimSpace(line[idx+1:]))
+		rawValue := strings.TrimSpace(line[idx+1:])
+		if values, ok, err := parseInlineYAMLList(rawValue); ok {
+			if err != nil {
+				currentList = ""
+				continue
+			}
+			out.lists[key] = append(out.lists[key], values...)
+			currentList = ""
+			continue
+		}
+		value := cleanYAMLScalar(rawValue)
 		if value == "" {
 			currentList = key
 			if _, ok := out.lists[key]; !ok {
@@ -253,6 +263,53 @@ func parseFrontMatter(content string) frontMatter {
 		out.scalar[key] = value
 	}
 	return out
+}
+
+func parseInlineYAMLList(value string) ([]string, bool, error) {
+	value = strings.TrimSpace(value)
+	if !strings.HasPrefix(value, "[") {
+		return nil, false, nil
+	}
+	if !strings.HasSuffix(value, "]") {
+		return nil, true, fmt.Errorf("unterminated inline YAML list")
+	}
+	body := strings.TrimSpace(value[1 : len(value)-1])
+	if body == "" {
+		return nil, true, nil
+	}
+	var values []string
+	var current strings.Builder
+	var quote rune
+	for _, r := range body {
+		switch {
+		case quote != 0:
+			if r == quote {
+				quote = 0
+			} else {
+				current.WriteRune(r)
+			}
+		case r == '\'' || r == '"':
+			quote = r
+		case r == ',':
+			item := cleanYAMLScalar(current.String())
+			if item == "" {
+				return nil, true, fmt.Errorf("empty item in inline YAML list")
+			}
+			values = append(values, item)
+			current.Reset()
+		default:
+			current.WriteRune(r)
+		}
+	}
+	if quote != 0 {
+		return nil, true, fmt.Errorf("unterminated quote in inline YAML list")
+	}
+	item := cleanYAMLScalar(current.String())
+	if item == "" {
+		return nil, true, fmt.Errorf("empty item in inline YAML list")
+	}
+	values = append(values, item)
+	return values, true, nil
 }
 
 func cleanYAMLScalar(v string) string {
