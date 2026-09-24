@@ -863,6 +863,71 @@
         "E10-SCALE-001B"
       ],
       "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-002"
+      ]
+    },
+    {
+      "id": "E10-INV-002",
+      "title": "Implement bounded Event Search core for CAP-INV-002",
+      "type": "epic",
+      "status": "DECOMPOSED",
+      "depends_on": [
+        "E10-SCALE-001C"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-002A"
+      ]
+    },
+    {
+      "id": "E10-INV-002A",
+      "title": "Compile Event Search executable contract and runtime boundary",
+      "type": "task",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E10-SCALE-001C"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-002B"
+      ]
+    },
+    {
+      "id": "E10-INV-002B",
+      "title": "Implement tenant-scoped query validation core",
+      "type": "task",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E10-INV-002A"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-002C"
+      ]
+    },
+    {
+      "id": "E10-INV-002C",
+      "title": "Implement Search Job lifecycle and partial-result orchestration",
+      "type": "task",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E10-INV-002B"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-002D"
+      ]
+    },
+    {
+      "id": "E10-INV-002D",
+      "title": "Run adversarial Event Search core validation and bounded handoff",
+      "type": "task",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E10-INV-002C"
+      ],
+      "dependency_terminal_state": "VERIFIED",
       "unlocks": []
     }
   ]

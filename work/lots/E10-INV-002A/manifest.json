@@ -1,0 +1,150 @@
+{
+  "schema_version": 2,
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-002"
+    ],
+    "requirements": [
+      "REQ-PROD-005",
+      "REQ-PROD-010",
+      "REQ-PROD-011",
+      "REQ-PROD-014",
+      "REQ-PROD-045"
+    ],
+    "screens": [
+      "INV-EVS-001"
+    ],
+    "permissions": [
+      "perm.investigate.search.execute",
+      "perm.shared-capabilities.query.read",
+      "perm.shared-capabilities.query.manage",
+      "perm.shared-capabilities.search-job.read",
+      "perm.shared-capabilities.search-job.manage",
+      "perm.shared-capabilities.telemetry-event.read"
+    ],
+    "open_decisions": [
+      "OPEN-013"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/search-query-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/background-job-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/audit-event-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/error-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/correlation-identifiers.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/query.md",
+      "cmdr-product-spec/05-domain-model/objects/search-job.md",
+      "cmdr-product-spec/05-domain-model/objects/telemetry-event.md"
+    ]
+  },
+  "forbidden_paths": [
+    "cmdr-product-spec/**"
+  ],
+  "invariants": [
+    "Product Spec remains read-only",
+    "Search remains single-selected-Tenant and has no silent tenant fallback",
+    "OPEN-013 remains unresolved; Case-link mutation is excluded from this bounded wave",
+    "no query language, index, storage engine or provider is selected by this wave",
+    "no external product-runtime dependency is introduced without an explicit reviewed decision"
+  ],
+  "security_properties": [
+    "server-side permission evaluation is mandatory before execution",
+    "tenant scope is mandatory and cross-tenant search is rejected",
+    "raw or protected event content is never widened by this runtime",
+    "all Search Job transitions and execution attempts remain attributable and auditable"
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "first bounded Event Search core is in-process and persistence-neutral",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert the current bounded Event Search task and keep downstream tasks blocked",
+    "verification": [
+      "Product Spec baseline remains unchanged",
+      "no implementation ledger claim is created before final bounded validation"
+    ]
+  },
+  "id": "E10-INV-002A",
+  "title": "Compile Event Search executable contract and runtime boundary",
+  "type": "task",
+  "parent": "E10-INV-002",
+  "goal": "Translate CAP-INV-002 into an executable backend-neutral contract, reserve a uniquely owned runtime boundary, define security/performance obligations and predeclare positive/negative fixtures before product code.",
+  "depends_on": [
+    "E10-SCALE-001C"
+  ],
+  "allowed_paths": [
+    "engineering/implementation/event-search/**",
+    "engineering/architecture/**",
+    "engineering/security/**",
+    "engineering/performance/**",
+    "engineering/testing/**",
+    "product-runtime/event-search/**",
+    "work/lots/E10-INV-002*/**",
+    "engineering/state/**",
+    "work/graph.json",
+    "tools/cmdr-dev/**",
+    ".github/workflows/**"
+  ],
+  "inputs": [
+    "CAP-INV-002 canonical capability file",
+    "INV-EVS-001 screen contract",
+    "Query/Search Job/Telemetry Event canonical objects",
+    "tenant/permission/audit/search/background-job implementation contracts"
+  ],
+  "outputs": [
+    "event-search bounded scope and executable contract",
+    "reserved product-runtime/event-search ownership boundary with no executable product code",
+    "positive/negative fixtures for tenant/time/source/permission/state/error behavior",
+    "performance target and security-test obligations before implementation"
+  ],
+  "acceptance_tests": [
+    "manifest and complexity audits pass",
+    "runtime boundary has unique ownership and zero external runtime dependencies",
+    "fixtures reject missing/wildcard/cross-tenant scope, denied execution, invalid time range and illegal state transitions",
+    "OPEN-013 Case-link behavior is explicitly absent from executable fixtures"
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "contract phase sets measurable budgets before code",
+    "metrics": [
+      "query validation target budget declared",
+      "Search Job state transition target budget declared",
+      "test-backend first-result budget declared without claiming production SLO"
+    ]
+  },
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-RUNTIME-DEPS",
+    "CHK-BOUNDARY-EDGES",
+    "CHK-SECURITY-TESTS",
+    "CHK-PERFORMANCE-REGISTRY"
+  ],
+  "definition_of_ready": [
+    "E10-SCALE-001C is VERIFIED",
+    "CAP-INV-002 canonical file resolves and is non-empty"
+  ],
+  "definition_of_done": [
+    "runtime boundary is reserved but contains no executable product code",
+    "executable contract is source-backed",
+    "negative fixtures exist before implementation",
+    "security and performance obligations are registered",
+    "no unresolved decision is silently defaulted"
+  ],
+  "complexity": {
+    "primary_components": 2,
+    "estimated_files_changed": 11,
+    "estimated_net_loc": 650,
+    "production_files": 4,
+    "net_production_loc": 360,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

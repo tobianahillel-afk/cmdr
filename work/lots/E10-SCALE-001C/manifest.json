@@ -23,7 +23,8 @@
     "engineering/testing/**",
     "engineering/state/**",
     "work/graph.json",
-    "work/lots/E10-SCALE-001*/**"
+    "work/lots/E10-SCALE-001*/**",
+    "work/lots/E10-INV-002*/**"
   ],
   "forbidden_paths": [
     "cmdr-product-spec/**"
@@ -36,7 +37,8 @@
   "outputs": [
     "deterministic reuse-first bounded wave selection",
     "source-backed selected READY capability and canonical Product Spec file",
-    "bounded child implementation manifests after selected capability contract review"
+    "engineering/implementation/waves/CAP-INV-002-core.json",
+    "bounded E10-INV-002 parent plus four child implementation manifests"
   ],
   "invariants": [
     "Product Spec remains read-only",
@@ -90,10 +92,11 @@
     "Product Spec baseline is unchanged"
   ],
   "definition_of_done": [
-    "first wave contains only source-backed READY capabilities",
-    "each implementation lot stays within complexity budgets or is decomposed",
+    "first wave contains only the source-backed READY capability CAP-INV-002",
+    "bounded core exclusions preserve OPEN-013 and neighboring capability ownership",
+    "each child implementation lot stays within complexity budgets",
     "contracts/security/performance gates are declared before runtime code",
-    "work graph has a deterministic next READY implementation unit",
+    "work graph contains E10-INV-002A as the deterministic next implementation unit after this lot is VERIFIED",
     "no Product Spec mutation occurs"
   ],
   "complexity": {

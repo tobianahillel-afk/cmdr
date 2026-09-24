@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "wave_id": "WAVE-CAP-INV-002-CORE-001",
+  "selection_policy": "reuse-first-v1",
+  "product_spec_baseline": "99c3826cdcbc79bad51631cf6462450f92e012eb",
+  "spec_tree_digest": "a5f45351eba180d0edb734f33ecbeaabb7eceb7143305e201e207e8ae5a60d27",
+  "readiness_snapshot": {
+    "total": 498,
+    "implemented": 1,
+    "ready": 20,
+    "blocked": 476,
+    "proposed": 1
+  },
+  "selected": {
+    "capability": "CAP-INV-002",
+    "name": "Event Search",
+    "canonical_file": "cmdr-product-spec/07-investigate/modules/signals-and-hunt/capabilities/event-search.md",
+    "screen": "INV-EVS-001"
+  },
+  "scope": {
+    "kind": "bounded-core",
+    "included": [
+      "single-selected-Tenant query scope",
+      "explicit time/source scope validation",
+      "server permission decision input",
+      "backend-neutral query envelope",
+      "Search Job lifecycle queued/running/partial/completed/failed/cancelled",
+      "partial source failure preservation",
+      "cancellation and retry-as-new-run",
+      "correlation and execution provenance"
+    ],
+    "excluded": [
+      "Case-link mutation because OPEN-013 remains open",
+      "Saved Search lifecycle owned by CAP-INV-006",
+      "query authoring assistance owned by CAP-INV-003",
+      "Event Inspection behavior owned by CAP-INV-004",
+      "result organization owned by CAP-INV-007",
+      "full provenance capability owned by CAP-INV-008 beyond minimal execution trace",
+      "final UI implementation",
+      "final query dialect, index, storage engine or provider",
+      "production Search SLO claim"
+    ]
+  },
+  "runtime_intent": {
+    "root": "product-runtime/event-search/**",
+    "external_runtime_dependencies": "deny-by-default",
+    "language": "Go standard library first unless a later reviewed decision proves otherwise"
+  },
+  "children": [
+    "E10-INV-002A",
+    "E10-INV-002B",
+    "E10-INV-002C",
+    "E10-INV-002D"
+  ],
+  "status": "MATERIALIZED_PENDING_CI"
+}

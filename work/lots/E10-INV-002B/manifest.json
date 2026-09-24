@@ -1,0 +1,142 @@
+{
+  "schema_version": 2,
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-002"
+    ],
+    "requirements": [
+      "REQ-PROD-005",
+      "REQ-PROD-010",
+      "REQ-PROD-011",
+      "REQ-PROD-014",
+      "REQ-PROD-045"
+    ],
+    "screens": [
+      "INV-EVS-001"
+    ],
+    "permissions": [
+      "perm.investigate.search.execute",
+      "perm.shared-capabilities.query.read",
+      "perm.shared-capabilities.query.manage",
+      "perm.shared-capabilities.search-job.read",
+      "perm.shared-capabilities.search-job.manage",
+      "perm.shared-capabilities.telemetry-event.read"
+    ],
+    "open_decisions": [
+      "OPEN-013"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/search-query-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/background-job-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/audit-event-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/error-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/correlation-identifiers.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/query.md",
+      "cmdr-product-spec/05-domain-model/objects/search-job.md",
+      "cmdr-product-spec/05-domain-model/objects/telemetry-event.md"
+    ]
+  },
+  "forbidden_paths": [
+    "cmdr-product-spec/**"
+  ],
+  "invariants": [
+    "Product Spec remains read-only",
+    "Search remains single-selected-Tenant and has no silent tenant fallback",
+    "OPEN-013 remains unresolved; Case-link mutation is excluded from this bounded wave",
+    "no query language, index, storage engine or provider is selected by this wave",
+    "no external product-runtime dependency is introduced without an explicit reviewed decision"
+  ],
+  "security_properties": [
+    "server-side permission evaluation is mandatory before execution",
+    "tenant scope is mandatory and cross-tenant search is rejected",
+    "raw or protected event content is never widened by this runtime",
+    "all Search Job transitions and execution attempts remain attributable and auditable"
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "first bounded Event Search core is in-process and persistence-neutral",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert the current bounded Event Search task and keep downstream tasks blocked",
+    "verification": [
+      "Product Spec baseline remains unchanged",
+      "no implementation ledger claim is created before final bounded validation"
+    ]
+  },
+  "id": "E10-INV-002B",
+  "title": "Implement tenant-scoped query validation core",
+  "type": "task",
+  "parent": "E10-INV-002",
+  "goal": "Implement the standard-library-only query/scope validation core that enforces explicit tenant, time range, source set, permission decision and stable correlation/provenance inputs without defining a final query dialect.",
+  "depends_on": [
+    "E10-INV-002A"
+  ],
+  "allowed_paths": [
+    "product-runtime/event-search/**",
+    "engineering/implementation/event-search/**",
+    "engineering/testing/**",
+    "work/lots/E10-INV-002*/**",
+    "engineering/state/**",
+    "work/graph.json",
+    "tools/cmdr-dev/**"
+  ],
+  "inputs": [
+    "verified Event Search executable contract",
+    "predeclared scope/permission fixtures",
+    "zero-external-dependency runtime boundary"
+  ],
+  "outputs": [
+    "Go Event Search scope/query validation package",
+    "typed backend-neutral query envelope",
+    "deterministic permission/tenant/time/source validation",
+    "fixture-driven unit and contract tests"
+  ],
+  "acceptance_tests": [
+    "Go tests consume predeclared fixtures",
+    "missing tenant, wildcard tenant, inverted/empty time range, empty source set and denied permission fail closed",
+    "valid query envelope preserves correlation ID and source/time scope",
+    "dependency audit reports zero external runtime dependencies"
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "validation runs on every search execution",
+    "metrics": [
+      "validation p95 target <= 1 ms on deterministic fixture benchmark"
+    ]
+  },
+  "required_checks": [
+    "CHK-RUNTIME-DEPS",
+    "CHK-BOUNDARY-EDGES",
+    "CHK-SECRETS",
+    "CHK-SAST-GO",
+    "CHK-SCA-GO",
+    "CHK-SECURITY-TESTS",
+    "CHK-PERFORMANCE-BENCHMARK"
+  ],
+  "definition_of_ready": [
+    "E10-INV-002A is VERIFIED",
+    "runtime boundary and fixtures are verified"
+  ],
+  "definition_of_done": [
+    "query validation core matches executable contract",
+    "no engine/dialect/storage assumption is introduced",
+    "negative tenant and permission cases are executable",
+    "no external runtime dependency exists"
+  ],
+  "complexity": {
+    "primary_components": 2,
+    "estimated_files_changed": 9,
+    "estimated_net_loc": 620,
+    "production_files": 5,
+    "net_production_loc": 430,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}
