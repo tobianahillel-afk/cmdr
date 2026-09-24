@@ -25,40 +25,40 @@ type PilotRuntimeIntent struct {
 }
 
 type PilotScope struct {
-	SchemaVersion          int                      `json:"schema_version"`
-	SliceID                string                   `json:"slice_id"`
-	Title                  string                   `json:"title"`
-	Capability             string                   `json:"capability"`
-	CapabilitySource       string                   `json:"capability_source"`
-	Requirements           []string                 `json:"requirements"`
-	Permissions            []string                 `json:"permissions"`
-	OpenDecisions          []string                 `json:"open_decisions"`
+	SchemaVersion           int                      `json:"schema_version"`
+	SliceID                 string                   `json:"slice_id"`
+	Title                   string                   `json:"title"`
+	Capability              string                   `json:"capability"`
+	CapabilitySource        string                   `json:"capability_source"`
+	Requirements            []string                 `json:"requirements"`
+	Permissions             []string                 `json:"permissions"`
+	OpenDecisions           []string                 `json:"open_decisions"`
 	ImplementationContracts []string                `json:"implementation_contracts"`
-	CanonicalObjects       []string                 `json:"canonical_objects"`
-	DependencySources      []string                 `json:"dependency_sources"`
-	MVPSource              string                   `json:"mvp_source"`
-	PilotPlanSource        string                   `json:"pilot_plan_source"`
+	CanonicalObjects        []string                 `json:"canonical_objects"`
+	DependencySources       []string                 `json:"dependency_sources"`
+	MVPSource               string                   `json:"mvp_source"`
+	PilotPlanSource         string                   `json:"pilot_plan_source"`
 	DependencyRoadmapSource string                  `json:"dependency_roadmap_source"`
-	ActionClasses          []string                 `json:"action_classes"`
-	IncludedBehaviors      []string                 `json:"included_behaviors"`
-	ExcludedBehaviors      []string                 `json:"excluded_behaviors"`
-	RuntimeIntent          PilotRuntimeIntent       `json:"runtime_intent"`
-	SelectionRationale     []string                 `json:"selection_rationale"`
-	RejectedCandidates     []PilotRejectedCandidate `json:"rejected_candidates"`
+	ActionClasses           []string                 `json:"action_classes"`
+	IncludedBehaviors       []string                 `json:"included_behaviors"`
+	ExcludedBehaviors       []string                 `json:"excluded_behaviors"`
+	RuntimeIntent           PilotRuntimeIntent       `json:"runtime_intent"`
+	SelectionRationale      []string                 `json:"selection_rationale"`
+	RejectedCandidates      []PilotRejectedCandidate `json:"rejected_candidates"`
 }
 
 type PilotScopeAuditSummary struct {
-	SliceID             string `json:"slice_id"`
-	Capability          string `json:"capability"`
-	Requirements        int    `json:"requirements"`
-	Permissions         int    `json:"permissions"`
-	OpenDecisions       int    `json:"open_decisions"`
-	Contracts           int    `json:"implementation_contracts"`
-	CanonicalObjects    int    `json:"canonical_objects"`
-	DependencySources   int    `json:"dependency_sources"`
-	RejectedCandidates  int    `json:"rejected_candidates"`
-	ProductGraphDigest  string `json:"product_graph_digest"`
-	Status              string `json:"status"`
+	SliceID            string `json:"slice_id"`
+	Capability         string `json:"capability"`
+	Requirements       int    `json:"requirements"`
+	Permissions        int    `json:"permissions"`
+	OpenDecisions      int    `json:"open_decisions"`
+	Contracts          int    `json:"implementation_contracts"`
+	CanonicalObjects   int    `json:"canonical_objects"`
+	DependencySources  int    `json:"dependency_sources"`
+	RejectedCandidates int    `json:"rejected_candidates"`
+	ProductGraphDigest string `json:"product_graph_digest"`
+	Status             string `json:"status"`
 }
 
 var pilotSliceIDPattern = regexp.MustCompile(`^PILOT-[A-Z0-9-]+$`)
@@ -268,4 +268,3 @@ func requireOwnedSourcePath(path, kind string, docs map[string]SpecDocument, gra
 	}
 	return fmt.Errorf("pilot source %s does not resolve as owned %s in product graph", path, kind)
 }
-
