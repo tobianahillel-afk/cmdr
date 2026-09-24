@@ -147,12 +147,13 @@ func generateMeasuredRuntimeSecurityEvidence(root, tempDir, changesFile string) 
 	if preimplementation > 0 {
 		status = "mixed"
 	}
+	globalCoverage := coverage.GlobalPercent
 	evidence := RuntimeSecurityEvidence{
 		SchemaVersion:         1,
 		Status:                status,
 		Reason:                "CI-generated measured runtime security evidence for the exact checked-out commit",
 		SourceCommit:          head,
-		GlobalCoveragePercent: ptrFloat(coverage.GlobalPercent),
+		GlobalCoveragePercent: &globalCoverage,
 	}
 	for _, scope := range policy.Scopes {
 		state, ok := states[scope.BoundaryID]
@@ -173,13 +174,15 @@ func generateMeasuredRuntimeSecurityEvidence(root, tempDir, changesFile string) 
 				if coverage.ChangedExecutableStmts > 0 {
 					percent = coverage.ChangedExecutablePercent
 				}
-				item.ChangedSecurityCriticalPercent = ptrFloat(percent)
+				item.ChangedSecurityCriticalPercent = &percent
 			}
 			if scope.AuthorizationRequired {
-				item.AuthorizationNegativePassed = ptrBool(true)
+				passed := true
+				item.AuthorizationNegativePassed = &passed
 			}
 			if scope.TenantIsolationRequired {
-				item.TenantIsolationNegativePassed = ptrBool(true)
+				passed := true
+				item.TenantIsolationNegativePassed = &passed
 			}
 		}
 		evidence.Scopes = append(evidence.Scopes, item)
