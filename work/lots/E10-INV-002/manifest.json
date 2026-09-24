@@ -71,7 +71,7 @@
   "id": "E10-INV-002",
   "title": "Implement bounded Event Search core for CAP-INV-002",
   "type": "epic",
-  "parent": "E10-SCALE-001C",
+  "parent": "",
   "goal": "Implement a backend-neutral, deterministic, tenant/time-scoped Event Search core for CAP-INV-002 without choosing the final query language, index, storage engine or unresolved Case-link governance.",
   "depends_on": [
     "E10-SCALE-001C"
