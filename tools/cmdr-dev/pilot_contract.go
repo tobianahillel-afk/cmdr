@@ -9,104 +9,104 @@ import (
 )
 
 const (
-	pilotContractPath = "engineering/pilot/context-envelope-contract.json"
-	pilotFixturesPath = "engineering/pilot/context-envelope-fixtures.json"
+	pilotContractPath      = "engineering/pilot/context-envelope-contract.json"
+	pilotFixturesPath      = "engineering/pilot/context-envelope-fixtures.json"
 	pilotRuntimeBoundaryID = "pilot-context-envelope-runtime"
-	pilotRuntimeRoot = "product-runtime/context-envelope/**"
-	pilotRuntimeMarker = "product-runtime/context-envelope/README.md"
+	pilotRuntimeRoot       = "product-runtime/context-envelope/**"
+	pilotRuntimeMarker     = "product-runtime/context-envelope/README.md"
 )
 
 type PilotContextRuntimeBoundary struct {
-	ID string `json:"id"`
-	Root string `json:"root"`
-	PackageIdentity string `json:"package_identity"`
+	ID                          string   `json:"id"`
+	Root                        string   `json:"root"`
+	PackageIdentity             string   `json:"package_identity"`
 	ExternalRuntimeDependencies []string `json:"external_runtime_dependencies"`
 }
 
 type PilotReferencePolicy struct {
-	Kind string `json:"kind"`
-	MinBytes int `json:"min_bytes"`
-	MaxBytes int `json:"max_bytes"`
-	WildcardForbidden bool `json:"wildcard_forbidden"`
-	WhitespaceForbidden bool `json:"whitespace_forbidden"`
-	ControlCharactersForbidden bool `json:"control_characters_forbidden"`
+	Kind                       string `json:"kind"`
+	MinBytes                   int    `json:"min_bytes"`
+	MaxBytes                   int    `json:"max_bytes"`
+	WildcardForbidden          bool   `json:"wildcard_forbidden"`
+	WhitespaceForbidden        bool   `json:"whitespace_forbidden"`
+	ControlCharactersForbidden bool   `json:"control_characters_forbidden"`
 }
 
 type PilotReturnOriginPolicy struct {
 	RelativeRouteOnly bool `json:"relative_route_only"`
-	MaxBytes int `json:"max_bytes"`
-	QueryForbidden bool `json:"query_forbidden"`
+	MaxBytes          int  `json:"max_bytes"`
+	QueryForbidden    bool `json:"query_forbidden"`
 	FragmentForbidden bool `json:"fragment_forbidden"`
-	SchemeForbidden bool `json:"scheme_forbidden"`
+	SchemeForbidden   bool `json:"scheme_forbidden"`
 }
 
 type PilotExecutableContract struct {
-	SchemaVersion int `json:"schema_version"`
-	ContractID string `json:"contract_id"`
-	ContractKind string `json:"contract_kind"`
-	CanonicalSchemaClaim bool `json:"canonical_schema_claim"`
-	SliceID string `json:"slice_id"`
-	Capability string `json:"capability"`
-	RuntimeBoundary PilotContextRuntimeBoundary `json:"runtime_boundary"`
-	ProductRefs ProductRefsV2 `json:"product_refs"`
-	ActionClasses []string `json:"action_classes"`
-	AuthorizationOutcomes []string `json:"authorization_outcomes"`
-	FunctionalStates []string `json:"functional_states"`
-	ErrorCodes []string `json:"error_codes"`
-	ReferencePolicy PilotReferencePolicy `json:"reference_policy"`
-	ReturnOriginPolicy PilotReturnOriginPolicy `json:"return_origin_policy"`
-	SemanticRules []string `json:"semantic_rules"`
-	SecurityInvariants []string `json:"security_invariants"`
+	SchemaVersion         int                         `json:"schema_version"`
+	ContractID            string                      `json:"contract_id"`
+	ContractKind          string                      `json:"contract_kind"`
+	CanonicalSchemaClaim  bool                        `json:"canonical_schema_claim"`
+	SliceID               string                      `json:"slice_id"`
+	Capability            string                      `json:"capability"`
+	RuntimeBoundary       PilotContextRuntimeBoundary `json:"runtime_boundary"`
+	ProductRefs           ProductRefsV2               `json:"product_refs"`
+	ActionClasses         []string                    `json:"action_classes"`
+	AuthorizationOutcomes []string                    `json:"authorization_outcomes"`
+	FunctionalStates      []string                    `json:"functional_states"`
+	ErrorCodes            []string                    `json:"error_codes"`
+	ReferencePolicy       PilotReferencePolicy        `json:"reference_policy"`
+	ReturnOriginPolicy    PilotReturnOriginPolicy     `json:"return_origin_policy"`
+	SemanticRules         []string                    `json:"semantic_rules"`
+	SecurityInvariants    []string                    `json:"security_invariants"`
 }
 
 type PilotFixtureInput struct {
-	SourceProduct string `json:"source_product"`
-	DestinationProduct string `json:"destination_product"`
-	SourceTenantRef string `json:"source_tenant_ref"`
-	DestinationTenantRef string `json:"destination_tenant_ref"`
-	EnvironmentRef string `json:"environment_ref"`
-	EnvironmentTenantRef string `json:"environment_tenant_ref"`
-	DestinationRequiresEnvironment bool `json:"destination_requires_environment"`
-	EnvironmentCompatible bool `json:"environment_compatible"`
-	DestinationAuthorization string `json:"destination_authorization"`
-	ContextFresh bool `json:"context_fresh"`
-	ReturnOrigin string `json:"return_origin"`
+	SourceProduct                  string `json:"source_product"`
+	DestinationProduct             string `json:"destination_product"`
+	SourceTenantRef                string `json:"source_tenant_ref"`
+	DestinationTenantRef           string `json:"destination_tenant_ref"`
+	EnvironmentRef                 string `json:"environment_ref"`
+	EnvironmentTenantRef           string `json:"environment_tenant_ref"`
+	DestinationRequiresEnvironment bool   `json:"destination_requires_environment"`
+	EnvironmentCompatible          bool   `json:"environment_compatible"`
+	DestinationAuthorization       string `json:"destination_authorization"`
+	ContextFresh                   bool   `json:"context_fresh"`
+	ReturnOrigin                   string `json:"return_origin"`
 }
 
 type PilotFixtureExpected struct {
-	State string `json:"state"`
-	TenantRef string `json:"tenant_ref"`
-	EnvironmentRef string `json:"environment_ref"`
-	ReturnOrigin string `json:"return_origin"`
-	EnvironmentChoiceRequired bool `json:"environment_choice_required"`
-	Cleared bool `json:"cleared"`
-	ClearedReason string `json:"cleared_reason"`
-	ProtectedRefsVisible bool `json:"protected_refs_visible"`
-	TraceMinimalOnly bool `json:"trace_minimal_only"`
-	Error string `json:"error"`
+	State                     string `json:"state"`
+	TenantRef                 string `json:"tenant_ref"`
+	EnvironmentRef            string `json:"environment_ref"`
+	ReturnOrigin              string `json:"return_origin"`
+	EnvironmentChoiceRequired bool   `json:"environment_choice_required"`
+	Cleared                   bool   `json:"cleared"`
+	ClearedReason             string `json:"cleared_reason"`
+	ProtectedRefsVisible      bool   `json:"protected_refs_visible"`
+	TraceMinimalOnly          bool   `json:"trace_minimal_only"`
+	Error                     string `json:"error"`
 }
 
 type PilotFixtureCase struct {
-	ID string `json:"id"`
-	Input PilotFixtureInput `json:"input"`
+	ID       string               `json:"id"`
+	Input    PilotFixtureInput    `json:"input"`
 	Expected PilotFixtureExpected `json:"expected"`
 }
 
 type PilotFixtureSet struct {
-	SchemaVersion int `json:"schema_version"`
-	ContractID string `json:"contract_id"`
-	Cases []PilotFixtureCase `json:"cases"`
+	SchemaVersion int                `json:"schema_version"`
+	ContractID    string             `json:"contract_id"`
+	Cases         []PilotFixtureCase `json:"cases"`
 }
 
 type PilotContractAuditSummary struct {
-	ContractID string `json:"contract_id"`
-	SliceID string `json:"slice_id"`
-	RuntimeBoundary string `json:"runtime_boundary"`
-	Fixtures int `json:"fixtures"`
-	NegativeFixtures int `json:"negative_fixtures"`
-	RuntimeDependencies int `json:"runtime_dependencies"`
-	RuntimeFiles int `json:"runtime_files"`
-	Status string `json:"status"`
+	ContractID          string `json:"contract_id"`
+	SliceID             string `json:"slice_id"`
+	RuntimeBoundary     string `json:"runtime_boundary"`
+	Fixtures            int    `json:"fixtures"`
+	NegativeFixtures    int    `json:"negative_fixtures"`
+	RuntimeDependencies int    `json:"runtime_dependencies"`
+	RuntimeFiles        int    `json:"runtime_files"`
+	Status              string `json:"status"`
 }
 
 func runPilotContractAudit(root string) (PilotContractAuditSummary, error) {
@@ -176,14 +176,14 @@ func runPilotContractAudit(root string) (PilotContractAuditSummary, error) {
 		}
 	}
 	return PilotContractAuditSummary{
-		ContractID: contract.ContractID,
-		SliceID: contract.SliceID,
-		RuntimeBoundary: boundary.ID,
-		Fixtures: len(fixtures.Cases),
-		NegativeFixtures: negative,
+		ContractID:          contract.ContractID,
+		SliceID:             contract.SliceID,
+		RuntimeBoundary:     boundary.ID,
+		Fixtures:            len(fixtures.Cases),
+		NegativeFixtures:    negative,
 		RuntimeDependencies: deps.RuntimeDependencies,
-		RuntimeFiles: runtimeFiles,
-		Status: "PASS",
+		RuntimeFiles:        runtimeFiles,
+		Status:              "PASS",
 	}, nil
 }
 
@@ -242,12 +242,12 @@ func validatePilotFixtures(contract PilotExecutableContract, fixtures PilotFixtu
 	required := map[string]bool{
 		"preserve-authorized-compatible-environment": false,
 		"tenant-change-clears-inherited-environment": false,
-		"environment-tenant-mismatch-is-cleared": false,
-		"permission-denied-masks-protected-refs": false,
-		"expired-context-masks-inherited-refs": false,
-		"missing-source-tenant-blocks": false,
-		"wildcard-tenant-is-rejected": false,
-		"unsafe-return-origin-query-is-rejected": false,
+		"environment-tenant-mismatch-is-cleared":     false,
+		"permission-denied-masks-protected-refs":     false,
+		"expired-context-masks-inherited-refs":       false,
+		"missing-source-tenant-blocks":               false,
+		"wildcard-tenant-is-rejected":                false,
+		"unsafe-return-origin-query-is-rejected":     false,
 	}
 	states := stringSet(contract.FunctionalStates)
 	errors := stringSet(contract.ErrorCodes)
@@ -354,12 +354,12 @@ func validatePilotManifestAgainstContract(manifest WorkManifestV2, scope PilotSc
 
 func pilotProductRefs(scope PilotScope) ProductRefsV2 {
 	return ProductRefsV2{
-		Capabilities: []string{scope.Capability},
-		Requirements: append([]string(nil), scope.Requirements...),
-		Permissions: append([]string(nil), scope.Permissions...),
-		OpenDecisions: append([]string(nil), scope.OpenDecisions...),
+		Capabilities:            []string{scope.Capability},
+		Requirements:            append([]string(nil), scope.Requirements...),
+		Permissions:             append([]string(nil), scope.Permissions...),
+		OpenDecisions:           append([]string(nil), scope.OpenDecisions...),
 		ImplementationContracts: append([]string(nil), scope.ImplementationContracts...),
-		CanonicalObjects: append([]string(nil), scope.CanonicalObjects...),
+		CanonicalObjects:        append([]string(nil), scope.CanonicalObjects...),
 	}
 }
 
