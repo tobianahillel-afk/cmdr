@@ -34,7 +34,10 @@
     "verified E9 bounded pilot implementation evidence"
   ],
   "outputs": [
-    "machine-readable implementation-program evidence"
+    "deterministic machine-readable readiness record for every active capability",
+    "source-backed OPEN and explicit dependency blockers",
+    "implemented/proposed/blocked/ready state accounting",
+    "unscoped blocking dependency evidence without invented capability attribution"
   ],
   "invariants": [
     "Product Spec remains read-only",
@@ -51,7 +54,11 @@
     "go test ./...",
     "cmdr-dev validate-manifests succeeds",
     "cmdr-dev complexity-audit succeeds",
-    "adaptive engineering-kernel remains green"
+    "adaptive engineering-kernel remains green",
+    "unit tests prove capability register parsing and CAP exact/range/slash dependency selector expansion",
+    "unit tests prove IMPLEMENTED, PROPOSED, BLOCKED and READY precedence",
+    "unit tests prove active dependencies do not block while open/partial before-implementation dependencies do",
+    "CHK-IMPLEMENTATION-READINESS covers exactly the known active capability denominator"
   ],
   "performance_budget": {
     "applicable": true,
@@ -76,7 +83,8 @@
     "adaptive engineering-kernel",
     "cmdr-dev validate-manifests",
     "cmdr-dev complexity-audit",
-    "CHK-METRICS-BUDGET"
+    "CHK-METRICS-BUDGET",
+    "CHK-IMPLEMENTATION-READINESS"
   ],
   "definition_of_ready": [
     "E9-PILOT-001D is VERIFIED",
@@ -92,8 +100,8 @@
   ],
   "complexity": {
     "primary_components": 1,
-    "estimated_files_changed": 9,
-    "estimated_net_loc": 720,
+    "estimated_files_changed": 8,
+    "estimated_net_loc": 690,
     "production_files": 3,
     "net_production_loc": 500,
     "bounded_contexts": 1,

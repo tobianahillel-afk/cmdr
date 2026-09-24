@@ -1135,6 +1135,34 @@
         "CHK-RUNTIME-DEPS"
       ],
       "evidence_kind": "implementation-ledger-audit"
+    },
+    {
+      "id": "CHK-IMPLEMENTATION-READINESS",
+      "title": "Capability implementation readiness and blocker compilation",
+      "executor_key": "implementation-readiness",
+      "risk_domains": [
+        "product-spec",
+        "coverage-traceability",
+        "architecture",
+        "runtime-dependencies",
+        "work-governance",
+        "repository-health"
+      ],
+      "cost_tier": "standard",
+      "mandatory": true,
+      "always_on_pr": false,
+      "trigger_paths": [
+        "cmdr-product-spec/**",
+        "engineering/implementation/**",
+        "work/lots/**",
+        "tools/cmdr-dev/implementation_readiness.go",
+        "tools/cmdr-dev/implementation_readiness_test.go"
+      ],
+      "prerequisites": [
+        "CHK-IMPLEMENTATION-LEDGER",
+        "CHK-OBLIGATIONS"
+      ],
+      "evidence_kind": "implementation-readiness"
     }
   ]
 }

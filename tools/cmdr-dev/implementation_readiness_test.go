@@ -1,0 +1,114 @@
+package main
+
+import "testing"
+
+func readinessRecord(id, delivery string, opens ...string) CapabilityRegistryRecord {
+	return CapabilityRegistryRecord{
+		ID: id, Name: id, Status: "draft", DeliveryStatus: delivery, DeliveryMode: "planned",
+		CanonicalFile: "capability.md", OpenDecisions: opens, SourcePath: "register.md",
+	}
+}
+
+func TestParseCapabilityRegistryContent(t *testing.T) {
+	content := `# Register
+
+| ID | Name | Owner | Status | Delivery status | Delivery mode | Canonical file | OPEN |
+|---|---|---|---|---|---|---|---|
+| CAP-SET-001 | Tenant | Owner | draft | defined | planned | \`a.md\` | OPEN-013 |
+| CAP-SET-004 | Context | Owner | draft | defined | planned | \`b.md\` | none |
+`
+	records, err := parseCapabilityRegistryContent("register.md", content)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(records) != 2 || records[0].ID != "CAP-SET-001" || len(records[0].OpenDecisions) != 1 {
+		t.Fatalf("unexpected capability records: %#v", records)
+	}
+	if records[1].CanonicalFile != "b.md" {
+		t.Fatalf("unexpected canonical file: %#v", records[1])
+	}
+}
+
+func TestExpandCapabilitySelectorsSupportsExactRangeAndSlash(t *testing.T) {
+	known := map[string]CapabilityRegistryRecord{
+		"CAP-INV-001": readinessRecord("CAP-INV-001", "defined"),
+		"CAP-INV-002": readinessRecord("CAP-INV-002", "defined"),
+		"CAP-INV-003": readinessRecord("CAP-INV-003", "defined"),
+		"CAP-INV-007": readinessRecord("CAP-INV-007", "defined"),
+	}
+	got := expandCapabilitySelectors("CAP-INV-001..003 plus CAP-INV-007/002", known)
+	want := []string{"CAP-INV-001", "CAP-INV-002", "CAP-INV-003", "CAP-INV-007"}
+	if len(got) != len(want) {
+		t.Fatalf("unexpected selector expansion: %#v", got)
+	}
+	for i := range want {
+		if got[i] != want[i] {
+			t.Fatalf("unexpected selector expansion: %#v", got)
+		}
+	}
+}
+
+func TestCompileImplementationReadinessStates(t *testing.T) {
+	records := map[string]CapabilityRegistryRecord{
+		"CAP-SET-001": readinessRecord("CAP-SET-001", "defined", "OPEN-013"),
+		"CAP-SET-002": readinessRecord("CAP-SET-002", "defined"),
+		"CAP-SET-004": readinessRecord("CAP-SET-004", "defined"),
+		"CAP-INV-002": readinessRecord("CAP-INV-002", "defined"),
+		"CAP-INV-106": readinessRecord("CAP-INV-106", "proposed", "OPEN-014"),
+	}
+	activeOpen := map[string][]string{
+		"OPEN-013": {"unresolved-decisions.md"},
+		"OPEN-014": {"unresolved-decisions.md"},
+	}
+	dependencies := []DependencyReadinessEvidence{{
+		ID: "DEP-X-001", Dependent: "CAP-SET-002", Status: "partial", Blocking: "before implementation",
+		AffectedCapabilities: []string{"CAP-SET-002"}, SourcePath: "dependency-register.md",
+	}}
+	implemented := map[string]string{"CAP-SET-004": "E9-PILOT-001C-RUNTIME"}
+	program, err := compileImplementationReadiness(records, activeOpen, dependencies, implemented, "baseline", "digest")
+	if err != nil {
+		t.Fatal(err)
+	}
+	states := map[string]string{}
+	for _, record := range program.Records {
+		states[record.Capability] = record.State
+	}
+	if states["CAP-SET-001"] != "BLOCKED" || states["CAP-SET-002"] != "BLOCKED" ||
+		states["CAP-SET-004"] != "IMPLEMENTED" || states["CAP-INV-002"] != "READY" ||
+		states["CAP-INV-106"] != "PROPOSED" {
+		t.Fatalf("unexpected readiness states: %#v", states)
+	}
+	if program.Summary.Total != 5 || program.Summary.Implemented != 1 || program.Summary.Ready != 1 ||
+		program.Summary.Blocked != 2 || program.Summary.Proposed != 1 {
+		t.Fatalf("unexpected readiness summary: %#v", program.Summary)
+	}
+}
+
+func TestCompileReadinessRejectsImplementedProposedCapability(t *testing.T) {
+	records := map[string]CapabilityRegistryRecord{
+		"CAP-INV-106": readinessRecord("CAP-INV-106", "proposed"),
+	}
+	_, err := compileImplementationReadiness(records, nil, nil, map[string]string{"CAP-INV-106": "WORK"}, "baseline", "digest")
+	if err == nil {
+		t.Fatal("expected proposed implementation claim rejection")
+	}
+}
+
+func TestDependencyBlockingPolicy(t *testing.T) {
+	cases := []struct {
+		status, blocking string
+		want             bool
+	}{
+		{"active", "yes", false},
+		{"partial", "yes where required", true},
+		{"open", "before implementation", true},
+		{"planned", "model blocking", true},
+		{"partial", "no essential AI dependency", false},
+	}
+	for _, tc := range cases {
+		got := dependencyBlocksImplementation(DependencyReadinessEvidence{Status: tc.status, Blocking: tc.blocking})
+		if got != tc.want {
+			t.Fatalf("status=%s blocking=%s: got %t want %t", tc.status, tc.blocking, got, tc.want)
+		}
+	}
+}
