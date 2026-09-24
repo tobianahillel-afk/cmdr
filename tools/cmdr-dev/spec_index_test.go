@@ -155,3 +155,28 @@ source-of-truth: canonical
 		t.Fatalf("unexpected permissions: %v", doc.Permissions)
 	}
 }
+
+func TestParseInlineCapabilityFrontMatterLists(t *testing.T) {
+	content := `---
+id: CAP-SET-004
+product: platform-settings
+module: tenants-and-environments
+requirement_ids: [REQ-PROD-008, REQ-UX-006, "REQ-SEC-001"]
+open_decisions: []
+permissions: [perm.platform-settings.tenant.read, perm.platform-settings.environment.read]
+source-of-truth: canonical
+---
+`
+	doc := parseSpecDocument("cmdr-product-spec/cap-inline.md", []byte(content))
+	if !reflect.DeepEqual(doc.Requirements, []string{"REQ-PROD-008", "REQ-SEC-001", "REQ-UX-006"}) {
+		t.Fatalf("unexpected inline requirements: %v", doc.Requirements)
+	}
+	if len(doc.OpenDecisions) != 0 {
+		t.Fatalf("unexpected inline open decisions: %v", doc.OpenDecisions)
+	}
+	wantPermissions := []string{"perm.platform-settings.environment.read", "perm.platform-settings.tenant.read"}
+	if !reflect.DeepEqual(doc.Permissions, wantPermissions) {
+		t.Fatalf("unexpected inline permissions: %v", doc.Permissions)
+	}
+}
+
