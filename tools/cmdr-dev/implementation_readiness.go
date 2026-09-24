@@ -58,25 +58,25 @@ type ImplementationReadinessRecord struct {
 }
 
 type ImplementationReadinessSummary struct {
-	Total                         int `json:"total"`
-	Implemented                   int `json:"implemented"`
-	Ready                         int `json:"ready"`
-	Blocked                       int `json:"blocked"`
-	Proposed                      int `json:"proposed"`
-	DecisionBlocked               int `json:"decision_blocked"`
-	DependencyBlocked             int `json:"dependency_blocked"`
-	UnscopedBlockingDependencies  int `json:"unscoped_blocking_dependencies"`
+	Total                        int `json:"total"`
+	Implemented                  int `json:"implemented"`
+	Ready                        int `json:"ready"`
+	Blocked                      int `json:"blocked"`
+	Proposed                     int `json:"proposed"`
+	DecisionBlocked              int `json:"decision_blocked"`
+	DependencyBlocked            int `json:"dependency_blocked"`
+	UnscopedBlockingDependencies int `json:"unscoped_blocking_dependencies"`
 }
 
 type ImplementationReadinessProgram struct {
-	SchemaVersion                 int                           `json:"schema_version"`
-	ProgramKind                   string                        `json:"program_kind"`
-	ProductSpecBaseline           string                        `json:"product_spec_baseline"`
-	SpecTreeDigest                string                        `json:"spec_tree_digest"`
-	Records                       []ImplementationReadinessRecord `json:"records"`
-	UnscopedBlockingDependencies  []DependencyReadinessEvidence `json:"unscoped_blocking_dependencies,omitempty"`
-	Summary                       ImplementationReadinessSummary `json:"summary"`
-	Status                        string                        `json:"status"`
+	SchemaVersion                int                             `json:"schema_version"`
+	ProgramKind                  string                          `json:"program_kind"`
+	ProductSpecBaseline          string                          `json:"product_spec_baseline"`
+	SpecTreeDigest               string                          `json:"spec_tree_digest"`
+	Records                      []ImplementationReadinessRecord `json:"records"`
+	UnscopedBlockingDependencies []DependencyReadinessEvidence   `json:"unscoped_blocking_dependencies,omitempty"`
+	Summary                      ImplementationReadinessSummary  `json:"summary"`
+	Status                       string                          `json:"status"`
 }
 
 func runImplementationReadiness(root string, state CurrentState, graph WorkGraph) (ImplementationReadinessProgram, error) {
