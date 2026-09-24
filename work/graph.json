@@ -719,20 +719,20 @@
       "id": "E9-PILOT-001C",
       "title": "Implement the selected vertical slice",
       "type": "sublot",
-      "status": "DECOMPOSED",
+      "status": "VERIFIED",
       "depends_on": [
         "E9-PILOT-001B"
       ],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": [
-        "E9-PILOT-001C-RUNTIME"
+        "E9-PILOT-001D"
       ]
     },
     {
       "id": "E9-PILOT-001D",
       "title": "Run adversarial end-to-end pilot validation and handoff",
       "type": "sublot",
-      "status": "BLOCKED",
+      "status": "READY",
       "depends_on": [
         "E9-PILOT-001C"
       ],
@@ -806,7 +806,7 @@
       "id": "E9-PILOT-001C-PERF",
       "title": "Activate pilot runtime performance workload and verify budget",
       "type": "task",
-      "status": "READY",
+      "status": "VERIFIED",
       "depends_on": [
         "E9-PILOT-001C-SECURITY"
       ],
