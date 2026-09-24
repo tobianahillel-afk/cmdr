@@ -388,10 +388,72 @@ func prepareBenchmarkHandler(root string, workload BenchmarkWorkloadDefinition) 
 			}}}, nil
 		}, cleanup, nil
 	case "builtin-event-search-validation-v1":
-		return nil, func() {}, fmt.Errorf("event-search validation benchmark is preimplementation; E10-INV-002B must provide the runtime handler before execution")
+		probe, cleanup, err := prepareEventSearchValidationProbe(root)
+		if err != nil {
+			return nil, func() {}, err
+		}
+		return func() (BenchmarkSample, error) {
+			observation, err := probe.run(20_000)
+			if err != nil {
+				return BenchmarkSample{}, err
+			}
+			return BenchmarkSample{Measurements: []BenchmarkMeasurement{{
+				Kind: "latency", Unit: "ns", Value: observation.NSPerOperation,
+			}}}, nil
+		}, cleanup, nil
 	default:
 		return nil, func() {}, fmt.Errorf("unsupported benchmark handler %s", workload.HandlerKey)
 	}
+}
+
+type eventSearchValidationProbe struct {
+	moduleRoot string
+	binaryPath string
+}
+
+func prepareEventSearchValidationProbe(root string) (eventSearchValidationProbe, func(), error) {
+	moduleRoot, err := resolveRepoPath(root, "product-runtime/event-search", false)
+	if err != nil {
+		return eventSearchValidationProbe{}, func() {}, fmt.Errorf("event-search validation runtime is not implemented: %w", err)
+	}
+	tempDir, err := os.MkdirTemp(root, ".cmdr-event-search-perf-")
+	if err != nil {
+		return eventSearchValidationProbe{}, func() {}, err
+	}
+	cleanup := func() {
+		_ = os.RemoveAll(tempDir) // #nosec G703 -- tempDir is created by os.MkdirTemp beneath the validated repository root.
+	}
+	binaryName := "event-search-perf"
+	if runtime.GOOS == "windows" {
+		binaryName += ".exe"
+	}
+	binaryPath := filepath.Join(tempDir, binaryName)
+	if _, err := runPerformanceProcess(moduleRoot, "go", "build", "-trimpath", "-o", binaryPath, "./cmd/perf-probe"); err != nil {
+		cleanup()
+		return eventSearchValidationProbe{}, func() {}, fmt.Errorf("build Event Search validation probe: %w", err)
+	}
+	return eventSearchValidationProbe{moduleRoot: moduleRoot, binaryPath: binaryPath}, cleanup, nil
+}
+
+func (probe eventSearchValidationProbe) run(iterations int) (pilotProjectionProbeObservation, error) {
+	if iterations < 1 || iterations > 10_000_000 {
+		return pilotProjectionProbeObservation{}, fmt.Errorf("Event Search validation iterations must be within 1..10000000")
+	}
+	output, err := runPerformanceProcess(probe.moduleRoot, probe.binaryPath,
+		"-iterations", strconv.Itoa(iterations), "-mode", "latency")
+	if err != nil {
+		return pilotProjectionProbeObservation{}, err
+	}
+	var observation pilotProjectionProbeObservation
+	if err := json.Unmarshal([]byte(output), &observation); err != nil {
+		return observation, fmt.Errorf("decode Event Search validation probe: %w", err)
+	}
+	if observation.Mode != "latency" || observation.Operations != iterations ||
+		observation.ElapsedNS <= 0 || observation.NSPerOperation <= 0 ||
+		math.IsNaN(observation.NSPerOperation) || math.IsInf(observation.NSPerOperation, 0) {
+		return observation, fmt.Errorf("invalid Event Search validation observation")
+	}
+	return observation, nil
 }
 
 func preparePilotProjectionProbe(root string) (pilotProjectionProbe, func(), error) {

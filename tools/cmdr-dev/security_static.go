@@ -167,6 +167,7 @@ func goSecurityModuleRoots(root string) ([]string, error) {
 	candidates := []string{
 		"tools/cmdr-dev",
 		"product-runtime/context-envelope",
+		"product-runtime/event-search",
 	}
 	var roots []string
 	for _, rel := range candidates {

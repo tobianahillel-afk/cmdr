@@ -146,3 +146,19 @@ func TestPilotProjectionProbeExecutesRealRuntime(t *testing.T) {
 		t.Fatalf("unexpected pilot projection observation: %#v", observation)
 	}
 }
+
+func TestEventSearchBenchmarkHandlerFailsClosedBeforeRuntime(t *testing.T) {
+	root := t.TempDir()
+	workload := BenchmarkWorkloadDefinition{
+		Key: "event-search-validation-v1",
+		HandlerKey: "builtin-event-search-validation-v1",
+		WarmupIterations: 1,
+		SampleCount: 1,
+		MaxSampleDurationMS: 100,
+	}
+	_, cleanup, err := prepareBenchmarkHandler(root, workload)
+	cleanup()
+	if err == nil {
+		t.Fatal("expected Event Search benchmark handler to fail closed before runtime materialization")
+	}
+}

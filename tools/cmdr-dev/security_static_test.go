@@ -100,6 +100,15 @@ func TestGoSecurityModuleRootsIncludeRuntimeOnlyAfterGoMod(t *testing.T) {
 		t.Fatal(err)
 	}
 	if len(roots) != 2 {
-		t.Fatalf("expected engineering and runtime modules, got %d", len(roots))
+		t.Fatalf("expected engineering and pilot runtime modules, got %d", len(roots))
+	}
+
+	writeTestFile(t, root, "product-runtime/event-search/go.mod", "module example/event-search\n\ngo 1.26.8\n")
+	roots, err = goSecurityModuleRoots(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(roots) != 3 {
+		t.Fatalf("expected engineering and both reviewed runtime modules, got %d", len(roots))
 	}
 }

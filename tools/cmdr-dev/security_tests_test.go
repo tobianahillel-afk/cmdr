@@ -265,3 +265,37 @@ func TestParsePilotCoverageProfileRejectsForeignModule(t *testing.T) {
 		t.Fatal("expected foreign coverage source rejection")
 	}
 }
+
+func TestRuntimeSecurityAdaptersAreExplicitForPilotAndEventSearch(t *testing.T) {
+	adapters := runtimeSecurityAdapters()
+	for _, id := range []string{pilotRuntimeBoundaryID, eventSearchRuntimeBoundaryID} {
+		adapter, ok := adapters[id]
+		if !ok {
+			t.Fatalf("missing explicit runtime security adapter %s", id)
+		}
+		if adapter.RuntimeRoot == "" || adapter.ModuleIdentity == "" ||
+			adapter.AuthorizationTestRegex == "" || adapter.TenantTestRegex == "" {
+			t.Fatalf("incomplete runtime security adapter %s: %#v", id, adapter)
+		}
+	}
+	if len(adapters) != 2 {
+		t.Fatalf("unexpected implicit runtime security adapters: %#v", adapters)
+	}
+}
+
+func TestParseEventSearchCoverageProfileMeasuresExactModule(t *testing.T) {
+	adapter := runtimeSecurityAdapters()[eventSearchRuntimeBoundaryID]
+	profile := []byte("mode: atomic\n" +
+		eventSearchSecurityModuleIdentity + "/validator.go:10.1,12.2 2 1\n" +
+		eventSearchSecurityModuleIdentity + "/validator.go:14.1,18.2 3 0\n")
+	got, err := parseRuntimeCoverageProfile(profile, []string{"product-runtime/event-search/validator.go"}, adapter)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got.TotalStatements != 5 || got.CoveredStatements != 2 || got.GlobalPercent != 40 {
+		t.Fatalf("unexpected Event Search coverage: %#v", got)
+	}
+	if got.ChangedExecutableStmts != 5 || got.ChangedExecutablePercent != 40 {
+		t.Fatalf("unexpected changed Event Search coverage: %#v", got)
+	}
+}
