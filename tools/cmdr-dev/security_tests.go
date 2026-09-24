@@ -333,7 +333,6 @@ func evaluateSecurityTestPolicyWithImplementationStates(
 	return summary, nil
 }
 
-
 func detectRuntimeImplementationStates(root string, architecture ArchitectureRegistry) (map[string]string, error) {
 	states := map[string]string{}
 	for _, boundary := range architecture.Boundaries {
