@@ -40,3 +40,10 @@ The E9 pilot has one pre-registered deep resource target tied to its performance
 Global caps are machine-readable in `deep-performance-policy.json`: 600 seconds per target, 2048 MiB of Go runtime memory, concurrency 64 and at most two deep targets per run. The separate `performance-deep` workflow is bounded to 25 minutes and runs on nightly, release or explicit on-demand stages.
 
 PR validation remains lightweight: it validates policy and change sensitivity but does not execute deep workloads. Heavy execution happens only in the separate workflow. Profile output is engineering evidence under `engineering/testing/deep-performance-evidence` in the workflow workspace and is never linked into the CMDR product runtime.
+
+
+## E9 pilot runtime activation
+
+The pilot context-envelope runtime is now implemented. `pilot-context-projection-v1` is executable through a standard-library-only probe compiled inside the product-runtime module. The benchmark engine builds the probe once per target and reuses it for warmup and samples; reported latency is measured inside the probe around `Project(Input)`, excluding build and process-startup time.
+
+The shared GitHub CI target now allows `pr` and `on-demand` stages and evaluates only the absolute `p95 <= 1 ms` budget. Relative regression remains disabled on the shared runner. The deep resource handler uses the same real runtime probe with synthetic fixtures and the registered memory/iteration bounds.

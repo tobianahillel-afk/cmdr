@@ -1,10 +1,14 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"math"
+	"os"
 	"path/filepath"
+	"runtime"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -82,6 +86,20 @@ type PerformanceBenchmarkResult struct {
 	WorkloadDigest    string                  `json:"workload_digest"`
 	Samples           int                     `json:"samples"`
 	Metrics           []BenchmarkMetricResult `json:"metrics"`
+}
+
+type pilotProjectionProbeObservation struct {
+	Mode                 string  `json:"mode"`
+	Operations           int     `json:"operations"`
+	ElapsedNS            int64   `json:"elapsed_ns"`
+	NSPerOperation       float64 `json:"ns_per_operation"`
+	PeakHeapBytes        uint64  `json:"peak_heap_bytes"`
+	TotalAllocationBytes uint64  `json:"total_allocation_bytes"`
+}
+
+type pilotProjectionProbe struct {
+	moduleRoot string
+	binaryPath string
 }
 
 type PerformanceBenchmarkAuditSummary struct {
@@ -296,15 +314,21 @@ func loadBenchmarkBaselines(root string, registry PerformanceRegistry, policy Be
 }
 
 func executePerformanceTarget(root, sourceSHA string, target PerformanceTarget, env PerformanceEnvironment, workload BenchmarkWorkloadDefinition, baselines map[string]PerformanceBaseline) (PerformanceBenchmarkResult, error) {
+	handler, cleanup, err := prepareBenchmarkHandler(root, workload)
+	if err != nil {
+		return PerformanceBenchmarkResult{}, fmt.Errorf("performance target %s prepare workload: %w", target.ID, err)
+	}
+	defer cleanup()
+
 	for i := 0; i < workload.WarmupIterations; i++ {
-		if _, err := runBenchmarkHandler(root, workload); err != nil {
+		if _, err := handler(); err != nil {
 			return PerformanceBenchmarkResult{}, fmt.Errorf("performance target %s warmup %d: %w", target.ID, i+1, err)
 		}
 	}
 	samples := make([]BenchmarkSample, 0, workload.SampleCount)
 	for i := 0; i < workload.SampleCount; i++ {
 		started := time.Now()
-		sample, err := runBenchmarkHandler(root, workload)
+		sample, err := handler()
 		if err != nil {
 			return PerformanceBenchmarkResult{}, fmt.Errorf("performance target %s sample %d: %w", target.ID, i+1, err)
 		}
@@ -332,21 +356,85 @@ func executePerformanceTarget(root, sourceSHA string, target PerformanceTarget, 
 	}, nil
 }
 
-func runBenchmarkHandler(root string, workload BenchmarkWorkloadDefinition) (BenchmarkSample, error) {
+type benchmarkSampleHandler func() (BenchmarkSample, error)
+
+func prepareBenchmarkHandler(root string, workload BenchmarkWorkloadDefinition) (benchmarkSampleHandler, func(), error) {
 	switch workload.HandlerKey {
 	case "builtin-cmdr-dev-metadata-audit-v1":
-		started := time.Now()
-		if _, err := runPerformanceRegistryAudit(root); err != nil {
-			return BenchmarkSample{}, err
-		}
-		return BenchmarkSample{Measurements: []BenchmarkMeasurement{{
-			Kind: "latency", Unit: "ns", Value: float64(time.Since(started).Nanoseconds()),
-		}}}, nil
+		return func() (BenchmarkSample, error) {
+			started := time.Now()
+			if _, err := runPerformanceRegistryAudit(root); err != nil {
+				return BenchmarkSample{}, err
+			}
+			return BenchmarkSample{Measurements: []BenchmarkMeasurement{{
+				Kind: "latency", Unit: "ns", Value: float64(time.Since(started).Nanoseconds()),
+			}}}, nil
+		}, func() {}, nil
 	case "builtin-pilot-context-projection-v1":
-		return BenchmarkSample{}, fmt.Errorf("pilot context projection benchmark is registered but not executable until E9-PILOT-001C")
+		probe, cleanup, err := preparePilotProjectionProbe(root)
+		if err != nil {
+			return nil, func() {}, err
+		}
+		return func() (BenchmarkSample, error) {
+			observation, err := probe.run(20_000, "latency", 0)
+			if err != nil {
+				return BenchmarkSample{}, err
+			}
+			return BenchmarkSample{Measurements: []BenchmarkMeasurement{{
+				Kind: "latency", Unit: "ns", Value: observation.NSPerOperation,
+			}}}, nil
+		}, cleanup, nil
 	default:
-		return BenchmarkSample{}, fmt.Errorf("unsupported benchmark handler %s", workload.HandlerKey)
+		return nil, func() {}, fmt.Errorf("unsupported benchmark handler %s", workload.HandlerKey)
 	}
+}
+
+func preparePilotProjectionProbe(root string) (pilotProjectionProbe, func(), error) {
+	moduleRoot, err := resolveRepoPath(root, "product-runtime/context-envelope", false)
+	if err != nil {
+		return pilotProjectionProbe{}, func() {}, err
+	}
+	tempDir, err := os.MkdirTemp(root, ".cmdr-pilot-perf-")
+	if err != nil {
+		return pilotProjectionProbe{}, func() {}, err
+	}
+	cleanup := func() {
+		_ = os.RemoveAll(tempDir) // #nosec G703 -- tempDir is created by os.MkdirTemp beneath the validated repository root.
+	}
+	binaryName := "context-envelope-perf"
+	if runtime.GOOS == "windows" {
+		binaryName += ".exe"
+	}
+	binaryPath := filepath.Join(tempDir, binaryName)
+	if _, err := runFixedProcess(moduleRoot, "go", "build", "-trimpath", "-o", binaryPath, "./cmd/perf-probe"); err != nil {
+		cleanup()
+		return pilotProjectionProbe{}, func() {}, fmt.Errorf("build pilot projection probe: %w", err)
+	}
+	return pilotProjectionProbe{moduleRoot: moduleRoot, binaryPath: binaryPath}, cleanup, nil
+}
+
+func (probe pilotProjectionProbe) run(iterations int, mode string, memoryLimitMiB int) (pilotProjectionProbeObservation, error) {
+	if iterations < 1 || iterations > 10_000_000 {
+		return pilotProjectionProbeObservation{}, fmt.Errorf("pilot projection iterations must be within 1..10000000")
+	}
+	args := []string{"-iterations", strconv.Itoa(iterations), "-mode", mode}
+	if mode == "resource" {
+		args = append(args, "-memory-limit-mib", strconv.Itoa(memoryLimitMiB))
+	}
+	output, err := runFixedProcess(probe.moduleRoot, probe.binaryPath, args...)
+	if err != nil {
+		return pilotProjectionProbeObservation{}, err
+	}
+	var observation pilotProjectionProbeObservation
+	if err := json.Unmarshal([]byte(output), &observation); err != nil {
+		return observation, fmt.Errorf("decode pilot projection probe: %w", err)
+	}
+	if observation.Mode != mode || observation.Operations != iterations ||
+		observation.ElapsedNS <= 0 || observation.NSPerOperation <= 0 ||
+		math.IsNaN(observation.NSPerOperation) || math.IsInf(observation.NSPerOperation, 0) {
+		return observation, fmt.Errorf("invalid pilot projection observation")
+	}
+	return observation, nil
 }
 
 func evaluatePerformanceMetrics(target PerformanceTarget, env PerformanceEnvironment, samples []BenchmarkSample, baseline *PerformanceBaseline) ([]BenchmarkMetricResult, error) {

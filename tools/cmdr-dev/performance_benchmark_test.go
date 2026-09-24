@@ -1,6 +1,7 @@
 package main
 
 import (
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -124,5 +125,24 @@ func TestBenchmarkResultIdentityIsDigestBound(t *testing.T) {
 	if result.TargetDigest == "" || result.EnvironmentDigest == "" || result.WorkloadDigest == "" ||
 		result.SourceSHA == "" || result.Toolchain == "" {
 		t.Fatalf("incomplete result identity: %#v", result)
+	}
+}
+
+func TestPilotProjectionProbeExecutesRealRuntime(t *testing.T) {
+	root, err := filepath.Abs(filepath.Join("..", ".."))
+	if err != nil {
+		t.Fatal(err)
+	}
+	probe, cleanup, err := preparePilotProjectionProbe(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer cleanup()
+	observation, err := probe.run(1000, "latency", 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if observation.Operations != 1000 || observation.NSPerOperation <= 0 {
+		t.Fatalf("unexpected pilot projection observation: %#v", observation)
 	}
 }

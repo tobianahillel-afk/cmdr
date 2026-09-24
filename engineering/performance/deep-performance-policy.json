@@ -33,7 +33,7 @@
       "memory_limit_mib": 128,
       "concurrency": 1,
       "iterations": 10000,
-      "rationale": "Pre-register bounded resource validation with the runtime boundary. The compiled handler remains intentionally unavailable until E9-C implements the projection; PR only validates this policy and does not execute the on-demand target."
+      "rationale": "Bounded on-demand resource validation of the implemented pilot projection. The compiled handler builds a standard-library-only runtime probe once, executes the declared iteration count under the target memory limit, and records measured runtime evidence."
     }
   ]
 }

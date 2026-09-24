@@ -19,9 +19,10 @@
       "boundary_id": "pilot-context-envelope-runtime",
       "owner_path": "product-runtime/context-envelope/**",
       "workload_key": "pilot-context-projection-v1",
-      "workload_description": "Deterministic in-process projection of one prevalidated tenant/environment context envelope; execution is intentionally deferred until E9-PILOT-001C implements the runtime.",
+      "workload_description": "Deterministic in-process projection of one prevalidated tenant/environment context envelope, measured by a standard-library-only runtime probe that excludes build and process-startup time from the reported per-operation latency.",
       "environment_id": "PERF-ENV-GITHUB-UBUNTU-SHARED",
       "stages": [
+        "pr",
         "on-demand"
       ],
       "trigger_paths": [
@@ -39,7 +40,7 @@
           "max_relative_regression_percent": 0
         }
       ],
-      "rationale": "Register the runtime budget at boundary creation time without fabricating a measurement before implementation. A 1 ms shared-CI p95 ceiling is a deliberately coarse safety budget for a pure deterministic standard-library projection; E9-C must make the workload executable before enabling PR performance execution."
+      "rationale": "The runtime now exists and is verified, so the coarse shared-CI absolute p95 ceiling can execute on PRs that touch the pilot runtime while retaining on-demand execution. Shared CI still makes no relative-performance claim."
     }
   ]
 }

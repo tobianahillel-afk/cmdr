@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"path/filepath"
 	"strings"
 	"testing"
 	"time"
@@ -170,5 +171,30 @@ func TestDeepPerformanceProfileRequiresArtifact(t *testing.T) {
 	observation := DeepPerformanceObservation{DurationMS: 10, PeakHeapBytes: 1, Operations: 1}
 	if err := validateDeepPerformanceObservation(target, observation); err == nil {
 		t.Fatal("expected missing profile artifact rejection")
+	}
+}
+
+func TestPilotDeepPerformanceHandlerExecutesRealRuntime(t *testing.T) {
+	root, err := filepath.Abs(filepath.Join("..", ".."))
+	if err != nil {
+		t.Fatal(err)
+	}
+	target := DeepPerformanceTarget{
+		ID:                  "PERF-DEEP-PILOT-CONTEXT-PROJECTION",
+		PerformanceTargetID: "PERF-TGT-PILOT-CONTEXT-PROJECTION",
+		Kind:                "resource",
+		HandlerKey:          "builtin-pilot-context-projection-v1",
+		TimeoutSeconds:      30,
+		MemoryLimitMiB:      128,
+		Concurrency:         1,
+		Iterations:          1000,
+	}
+	observation, err := runDeepPerformanceHandler(context.Background(), root, target)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if observation.Operations != int64(target.Iterations) || observation.PeakHeapBytes == 0 ||
+		observation.ThroughputOpsPerSec <= 0 {
+		t.Fatalf("unexpected pilot deep performance observation: %#v", observation)
 	}
 }

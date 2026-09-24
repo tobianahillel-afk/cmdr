@@ -402,7 +402,31 @@ func executeDeepPerformanceTargetWithHandler(
 
 func runDeepPerformanceHandler(ctx context.Context, root string, target DeepPerformanceTarget) (DeepPerformanceObservation, error) {
 	if target.HandlerKey == "builtin-pilot-context-projection-v1" {
-		return DeepPerformanceObservation{}, fmt.Errorf("pilot context projection deep-performance handler is registered but not executable until E9-PILOT-001C")
+		if err := ctx.Err(); err != nil {
+			return DeepPerformanceObservation{}, err
+		}
+		probe, cleanup, err := preparePilotProjectionProbe(root)
+		if err != nil {
+			return DeepPerformanceObservation{}, err
+		}
+		defer cleanup()
+		observation, err := probe.run(target.Iterations, "resource", target.MemoryLimitMiB)
+		if err != nil {
+			return DeepPerformanceObservation{}, err
+		}
+		if err := ctx.Err(); err != nil {
+			return DeepPerformanceObservation{}, err
+		}
+		result := DeepPerformanceObservation{
+			DurationMS:           observation.ElapsedNS / int64(time.Millisecond),
+			PeakHeapBytes:        observation.PeakHeapBytes,
+			TotalAllocationBytes: observation.TotalAllocationBytes,
+			Operations:           int64(observation.Operations),
+		}
+		if observation.ElapsedNS > 0 {
+			result.ThroughputOpsPerSec = float64(observation.Operations) / (float64(observation.ElapsedNS) / float64(time.Second))
+		}
+		return result, nil
 	}
 	if target.HandlerKey != "builtin-cmdr-dev-deep-metadata-v1" {
 		return DeepPerformanceObservation{}, fmt.Errorf("unsupported deep performance handler %s", target.HandlerKey)
