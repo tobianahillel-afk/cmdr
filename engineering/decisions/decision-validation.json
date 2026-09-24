@@ -1,5 +1,179 @@
 {
   "schema_version": 1,
   "registry_kind": "engineering-decision-validation",
-  "validations": []
+  "validations": [
+    {
+      "id": "DECVAL-0001",
+      "decision_id": "ENG-DEC-0001",
+      "preferred_candidate_id": "CAND-NATIVE-WEB",
+      "external_evidence_sufficient": true,
+      "candidate_tradeoffs": [
+        {
+          "id": "CAND-NATIVE-WEB",
+          "name": "First-party native Web Platform client",
+          "family_ref": "FAMILY-NATIVE-WEB",
+          "strengths": [
+            "zero third-party UI runtime and smallest compared product-runtime supply-chain surface",
+            "direct use of URL/History, AbortController and standards-based DOM primitives preserves backend neutrality",
+            "representative CMDR benchmark shows very low incremental update cost for frequent Event Search state changes",
+            "CSP and Trusted Types can be layered without framework-specific escaping or hydration semantics"
+          ],
+          "weaknesses": [
+            "CMDR must own state discipline, rendering conventions, virtualization and component lifecycle engineering",
+            "accessibility remains an explicit engineering obligation rather than an automatic framework property"
+          ],
+          "evidence_refs": [
+            "RES-PKT-0001"
+          ]
+        },
+        {
+          "id": "CAND-SERVER-PROGRESSIVE",
+          "name": "Server-rendered semantic HTML with first-party progressive enhancement",
+          "family_ref": "FAMILY-SERVER-PROGRESSIVE",
+          "strengths": [
+            "semantic HTML and low client runtime provide a strong accessibility and graceful-degradation foundation",
+            "representative benchmark shows competitive initial fragment readiness"
+          ],
+          "weaknesses": [
+            "full-fragment replacement is materially more expensive than bounded incremental updates in the representative Event Search workload",
+            "highly interactive search state risks being split across server navigation and enhanced client state"
+          ],
+          "evidence_refs": [
+            "RES-PKT-0001"
+          ]
+        },
+        {
+          "id": "CAND-LIT",
+          "name": "Lit Web Components runtime",
+          "family_ref": "FAMILY-LIT",
+          "strengths": [
+            "declarative Web Components model with targeted updates and relatively small runtime",
+            "keeps browser standards visible at component boundaries"
+          ],
+          "weaknesses": [
+            "adds a third-party product-runtime dependency despite CMDR being able to implement the required primitives natively",
+            "adds ongoing dependency review, update and supply-chain obligations"
+          ],
+          "evidence_refs": [
+            "RES-PKT-0001"
+          ]
+        },
+        {
+          "id": "CAND-SVELTE",
+          "name": "Svelte compiled component architecture",
+          "family_ref": "FAMILY-SVELTE",
+          "strengths": [
+            "compiler-oriented reactivity can reduce manual rendering boilerplate",
+            "generated client code can perform fine-grained updates"
+          ],
+          "weaknesses": [
+            "adds a third-party compiler/toolchain and framework-generated semantics that require upgrade revalidation",
+            "framework coupling is unnecessary for the currently bounded Event Search requirements"
+          ],
+          "evidence_refs": [
+            "RES-PKT-0001"
+          ]
+        },
+        {
+          "id": "CAND-REACT",
+          "name": "React runtime architecture",
+          "family_ref": "FAMILY-REACT",
+          "strengths": [
+            "mature rich-interaction model and broad engineering ecosystem",
+            "supports client and server rendering patterns"
+          ],
+          "weaknesses": [
+            "largest compared third-party runtime and framework-specific rendering surface",
+            "hydration and framework-specific state semantics add failure modes that do not advance CMDR's backend-neutral contract"
+          ],
+          "evidence_refs": [
+            "RES-PKT-0001"
+          ]
+        }
+      ],
+      "benchmarks": [
+        {
+          "id": "BENCH-0001",
+          "run_at": "2026-09-24",
+          "workload": "Event Search synthetic DOM workload with 250 visible forensic-result rows, 30 initial-render samples per run, 160 state updates per run, 12 incrementally mutated rows per native update, and complete 250-row fragment replacement for the server-progressive alternative; seven repeated runs",
+          "environment": "Linux x86_64; Chrome/Chromium 144.0.7559.96 headless; V8 14.4.258.22; GPU disabled; local about:blank DevTools Protocol execution; no network and no third-party JavaScript runtime",
+          "dataset_scale": "250 rendered result rows; 160 update operations per run; seven independent measurement runs after warm-up",
+          "representative": true,
+          "compared_candidate_ids": [
+            "CAND-NATIVE-WEB",
+            "CAND-SERVER-PROGRESSIVE"
+          ],
+          "results": [
+            {
+              "candidate_id": "CAND-NATIVE-WEB",
+              "metric": "initial_render_p95_across_run_median",
+              "unit": "ms",
+              "value": 12.5
+            },
+            {
+              "candidate_id": "CAND-NATIVE-WEB",
+              "metric": "state_update_p95_across_run_median",
+              "unit": "ms",
+              "value": 0.7000000000116415
+            },
+            {
+              "candidate_id": "CAND-NATIVE-WEB",
+              "metric": "third_party_ui_runtime",
+              "unit": "bytes",
+              "value": 0
+            },
+            {
+              "candidate_id": "CAND-SERVER-PROGRESSIVE",
+              "metric": "initial_render_p95_across_run_median",
+              "unit": "ms",
+              "value": 9.5
+            },
+            {
+              "candidate_id": "CAND-SERVER-PROGRESSIVE",
+              "metric": "state_update_p95_across_run_median",
+              "unit": "ms",
+              "value": 9.799999999988358
+            },
+            {
+              "candidate_id": "CAND-SERVER-PROGRESSIVE",
+              "metric": "third_party_ui_runtime",
+              "unit": "bytes",
+              "value": 0
+            }
+          ],
+          "artifact_ref": "engineering/performance/event-search/frontend-runtime-benchmark-results.json"
+        }
+      ],
+      "prototypes": [],
+      "adversarial_reviews": [
+        {
+          "id": "ADV-0001",
+          "run_at": "2026-09-24",
+          "target_candidate_id": "CAND-NATIVE-WEB",
+          "hypothesis": "A first-party native Web architecture will fail CMDR's Event Search requirements because framework-free state/rendering increases security, accessibility, deep-link consistency and performance risk beyond the benefits of eliminating a UI runtime dependency.",
+          "falsification_attempts": [
+            "compare initial-render and repeated state-update costs against the server-progressive first-party alternative under a representative 250-row Event Search workload",
+            "challenge the architecture against DOM-XSS sinks and require safe DOM APIs plus CSP, with Trusted Types treated only as defense in depth",
+            "challenge deep-link determinism by requiring URL/History state for query, scope, filters and return context rather than hidden framework state",
+            "challenge accessibility by requiring native semantic controls by default and explicit keyboard/focus semantics for any custom element",
+            "challenge failure-state completeness against Loading, Empty, Partial, Error, Offline and Permission denied states from INV-EVS-001",
+            "challenge backend neutrality by forbidding final query dialect, index, storage, transport-provider and OPEN-013 Case-link assumptions from the frontend architecture",
+            "challenge maintainability and supply-chain assumptions against Lit, Svelte and React evidence rather than assuming zero-runtime is automatically simpler"
+          ],
+          "counter_evidence": [
+            "server-progressive rendering had a lower median p95 initial-fragment cost in the representative benchmark",
+            "native Web requires CMDR to own more state/rendering/virtualization conventions and tests",
+            "Lit and Svelte can reduce declarative-reactivity boilerplate even though they add dependency/toolchain surface"
+          ],
+          "blocking_findings": [],
+          "outcome": "survived",
+          "evidence_refs": [
+            "RES-PKT-0001"
+          ]
+        }
+      ],
+      "blocking_counter_evidence": [],
+      "unresolved_material_uncertainty": []
+    }
+  ]
 }
