@@ -48,9 +48,7 @@
     "Search remains single-selected-Tenant and has no silent tenant fallback",
     "OPEN-013 remains unresolved; Case-link mutation is excluded from this bounded wave",
     "no query language, index, storage engine or provider is selected by this wave",
-    "no external product-runtime dependency is introduced without an explicit reviewed decision",
-    "this task extends only the existing event-search-runtime boundary; no new runtime boundary is created",
-    "orchestration performance evidence is registered separately from validation performance evidence"
+    "no external product-runtime dependency is introduced without an explicit reviewed decision"
   ],
   "security_properties": [
     "server-side permission evaluation is mandatory before execution",
@@ -70,82 +68,75 @@
       "no implementation ledger claim is created before final bounded validation"
     ]
   },
-  "id": "E10-INV-002C",
-  "title": "Implement Search Job lifecycle and partial-result orchestration",
+  "id": "E10-INV-002C-PERF",
+  "title": "Prove bounded Search Job orchestration performance",
   "type": "task",
-  "parent": "E10-INV-002",
-  "goal": "Coordinate the verified Search Job lifecycle runtime and its separate bounded orchestration-performance proof without selecting a final search engine, index, storage engine or provider.",
+  "parent": "E10-INV-002C",
+  "goal": "Register and execute a dedicated Event Search orchestration benchmark that proves p95 <= 1 ms for backend-neutral queued-to-running-to-completed orchestration, excluding backend execution time and without weakening deep-performance coverage.",
   "depends_on": [
-    "E10-INV-002B-RUNTIME"
+    "E10-INV-002C-RUNTIME"
   ],
   "allowed_paths": [
-    "product-runtime/event-search/**",
-    "engineering/implementation/event-search/**",
+    "product-runtime/event-search/cmd/perf-probe/**",
     "engineering/performance/**",
     "engineering/testing/**",
+    "tools/cmdr-dev/performance_*.go",
+    "tools/cmdr-dev/deep_performance.go",
+    "tools/cmdr-dev/deep_performance_test.go",
     "work/lots/E10-INV-002*/**",
     "engineering/state/**",
-    "work/graph.json",
-    "tools/cmdr-dev/**"
+    "work/graph.json"
   ],
   "inputs": [
-    "verified query validation core",
-    "Search Job object states",
-    "background-job/search-query/audit contracts",
-    "predeclared partial-result fixtures",
-    "existing verified event-search-runtime boundary under product-runtime/event-search/**",
-    "verified performance control plane for product-runtime targets"
+    "verified Search Job runtime",
+    "verified performance registry and benchmark engine",
+    "verified deep-performance policy requiring product-runtime target coverage",
+    "contract orchestration_p95_ms = 1"
   ],
   "outputs": [
-    "verified E10-INV-002C-RUNTIME Search Job lifecycle and partial-result orchestration",
-    "verified E10-INV-002C-PERF orchestration p95 performance evidence",
-    "backend-neutral bounded Search Job implementation ready for adversarial handoff"
+    "dedicated Event Search orchestration performance target",
+    "compiled orchestration benchmark handler",
+    "deep-performance target preserving product-runtime performance coverage",
+    "CI evidence for orchestration p95 <= 1 ms"
   ],
   "acceptance_tests": [
-    "illegal state transitions fail closed",
-    "one failed source yields partial state while valid results remain",
-    "cancel produces cancelled state without fabricating completion",
-    "retry creates a new run preserving query/version/scope provenance",
-    "cross-tenant backend results are rejected"
+    "perf probe executes deterministic no-op-backend Search Job orchestration",
+    "benchmark registry validates the dedicated orchestration workload",
+    "deep-performance policy remains complete for every product-runtime performance target",
+    "PR performance benchmark observes orchestration p95 <= 1 ms"
   ],
   "performance_budget": {
     "applicable": true,
-    "rationale": "orchestration must add negligible overhead independent of eventual engine",
+    "rationale": "this child exists solely to prove the contract-owned orchestration overhead budget",
     "metrics": [
-      "orchestration overhead p95 target <= 1 ms excluding backend execution",
-      "bounded memory for deterministic fixture results"
+      "orchestration p95 <= 1 ms on PERF-ENV-GITHUB-UBUNTU-SHARED, excluding build/process startup and backend work"
     ]
   },
   "required_checks": [
-    "CHK-RUNTIME-DEPS",
-    "CHK-BOUNDARY-EDGES",
-    "CHK-SECRETS",
-    "CHK-SAST-GO",
-    "CHK-SCA-GO",
-    "CHK-SECURITY-TESTS",
-    "CHK-PERFORMANCE-BENCHMARK"
+    "CHK-PERFORMANCE-REGISTRY",
+    "CHK-PERFORMANCE-BENCHMARK",
+    "CHK-DEEP-PERFORMANCE",
+    "CHK-SECURITY-TESTS"
   ],
   "definition_of_ready": [
-    "E10-INV-002B-RUNTIME is VERIFIED"
+    "E10-INV-002C-RUNTIME is VERIFIED"
   ],
   "definition_of_done": [
-    "E10-INV-002C-RUNTIME is VERIFIED",
-    "E10-INV-002C-PERF is VERIFIED",
-    "Search Job lifecycle matches canonical states",
-    "partial failure and cancellation semantics are executable",
-    "provenance is preserved",
-    "orchestration p95 is measured separately and remains <= 1 ms excluding backend execution",
-    "backend remains an interface and no provider/index is selected"
+    "orchestration has a distinct registered workload and target",
+    "benchmark executes the real Search Job runtime against a no-op backend",
+    "p95 <= 1 ms passes on PR shared-CI evidence",
+    "deep-performance target coverage remains complete",
+    "no production search SLO is claimed"
   ],
   "complexity": {
     "primary_components": 2,
-    "estimated_files_changed": 0,
-    "estimated_net_loc": 0,
-    "production_files": 0,
-    "net_production_loc": 0,
+    "estimated_files_changed": 9,
+    "estimated_net_loc": 430,
+    "production_files": 3,
+    "net_production_loc": 250,
     "bounded_contexts": 1,
     "independent_migrations": 0,
-    "distinct_security_models": 1,
-    "separately_testable_behaviors": 2
+    "distinct_security_models": 0,
+    "separately_testable_behaviors": 1
   }
 }

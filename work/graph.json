@@ -910,13 +910,13 @@
       "id": "E10-INV-002C",
       "title": "Implement Search Job lifecycle and partial-result orchestration",
       "type": "task",
-      "status": "READY",
+      "status": "DECOMPOSED",
       "depends_on": [
         "E10-INV-002B-RUNTIME"
       ],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": [
-        "E10-INV-002D"
+        "E10-INV-002C-RUNTIME"
       ]
     },
     {
@@ -981,6 +981,30 @@
       "unlocks": [
         "E10-INV-002C"
       ]
+    },
+    {
+      "id": "E10-INV-002C-RUNTIME",
+      "title": "Implement Search Job lifecycle and partial-result runtime",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-INV-002B-RUNTIME"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-002C-PERF"
+      ]
+    },
+    {
+      "id": "E10-INV-002C-PERF",
+      "title": "Prove bounded Search Job orchestration performance",
+      "type": "task",
+      "status": "READY",
+      "depends_on": [
+        "E10-INV-002C-RUNTIME"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": []
     }
   ]
 }
