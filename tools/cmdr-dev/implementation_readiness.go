@@ -15,6 +15,7 @@ const capabilityDependencyRegisterPath = "cmdr-product-spec/00-governance/depend
 var readinessDependencyIDPattern = regexp.MustCompile("^DEP-[A-Z0-9-]+$")
 var capabilitySelectorTokenPattern = regexp.MustCompile("CAP-[A-Z0-9]+-[0-9]{3}([.][.][0-9]{3}|(/[0-9]{3})*)?")
 var openDecisionTokenPattern = regexp.MustCompile("OPEN-[0-9]{3}")
+var capabilityDeliveryDefaultsPattern = regexp.MustCompile("(?i)delivery status\\s+[`*]?([a-z-]+)[`*]?\\s*,?\\s*delivery mode\\s+[`*]?([a-z-]+)[`*]?")
 
 type CapabilityRegistryRecord struct {
 	ID             string   `json:"id"`
@@ -186,6 +187,10 @@ func loadCapabilityRegistryRecords(root, specRel string) (map[string]CapabilityR
 }
 
 func parseCapabilityRegistryContent(source, content string) ([]CapabilityRegistryRecord, error) {
+	defaultDeliveryStatus, defaultDeliveryMode, err := parseCapabilityDeliveryDefaults(content)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", source, err)
+	}
 	var columns map[string]int
 	var records []CapabilityRegistryRecord
 	started := false
@@ -203,8 +208,10 @@ func parseCapabilityRegistryContent(source, content string) ([]CapabilityRegistr
 		if columns == nil {
 			candidate := tableColumnMap(cells)
 			hasID := tableColumn(candidate, "id", "capability id") >= 0
+			hasName := tableColumn(candidate, "name", "capability", "title") >= 0
 			hasDelivery := tableColumn(candidate, "delivery status") >= 0 || tableColumn(candidate, "delivery") >= 0
-			if hasID && hasDelivery {
+			hasDefaults := defaultDeliveryStatus != "" && defaultDeliveryMode != ""
+			if hasID && hasName && (hasDelivery || hasDefaults) {
 				columns = candidate
 				started = true
 			}
@@ -219,23 +226,28 @@ func parseCapabilityRegistryContent(source, content string) ([]CapabilityRegistr
 		deliveryMode := strings.ToLower(strings.TrimSpace(tableCell(cells, columns, "delivery mode")))
 		if deliveryStatus == "" {
 			delivery := strings.ToLower(strings.TrimSpace(tableCell(cells, columns, "delivery")))
-			parts := strings.Split(delivery, "/")
-			switch len(parts) {
-			case 2:
-				deliveryStatus = strings.TrimSpace(parts[0])
-				deliveryMode = strings.TrimSpace(parts[1])
-			case 1:
-				statusCell := strings.ToLower(strings.TrimSpace(tableCell(cells, columns, "status")))
-				if statusCell != "defined" && statusCell != "proposed" {
-					return nil, fmt.Errorf("%s capability %s has unsupported status/delivery values %q / %q", source, id, statusCell, delivery)
+			if delivery == "" && defaultDeliveryStatus != "" && defaultDeliveryMode != "" {
+				deliveryStatus = defaultDeliveryStatus
+				deliveryMode = defaultDeliveryMode
+			} else {
+				parts := strings.Split(delivery, "/")
+				switch len(parts) {
+				case 2:
+					deliveryStatus = strings.TrimSpace(parts[0])
+					deliveryMode = strings.TrimSpace(parts[1])
+				case 1:
+					statusCell := strings.ToLower(strings.TrimSpace(tableCell(cells, columns, "status")))
+					if statusCell != "defined" && statusCell != "proposed" {
+						return nil, fmt.Errorf("%s capability %s has unsupported status/delivery values %q / %q", source, id, statusCell, delivery)
+					}
+					if delivery == "" {
+						return nil, fmt.Errorf("%s capability %s has no delivery mode", source, id)
+					}
+					deliveryStatus = statusCell
+					deliveryMode = delivery
+				default:
+					return nil, fmt.Errorf("%s capability %s has unsupported combined delivery value %q", source, id, delivery)
 				}
-				if delivery == "" {
-					return nil, fmt.Errorf("%s capability %s has no delivery mode", source, id)
-				}
-				deliveryStatus = statusCell
-				deliveryMode = delivery
-			default:
-				return nil, fmt.Errorf("%s capability %s has unsupported combined delivery value %q", source, id, delivery)
 			}
 		}
 		if deliveryStatus != "defined" && deliveryStatus != "proposed" {
@@ -264,6 +276,29 @@ func parseCapabilityRegistryContent(source, content string) ([]CapabilityRegistr
 		return nil, fmt.Errorf("%s contains no capability register table", source)
 	}
 	return records, nil
+}
+
+func parseCapabilityDeliveryDefaults(content string) (string, string, error) {
+	matches := capabilityDeliveryDefaultsPattern.FindAllStringSubmatch(content, -1)
+	if len(matches) == 0 {
+		return "", "", nil
+	}
+	status := strings.ToLower(strings.TrimSpace(matches[0][1]))
+	mode := strings.ToLower(strings.TrimSpace(matches[0][2]))
+	for _, match := range matches[1:] {
+		nextStatus := strings.ToLower(strings.TrimSpace(match[1]))
+		nextMode := strings.ToLower(strings.TrimSpace(match[2]))
+		if nextStatus != status || nextMode != mode {
+			return "", "", fmt.Errorf("conflicting file-level delivery defaults %s/%s and %s/%s", status, mode, nextStatus, nextMode)
+		}
+	}
+	if status != "defined" && status != "proposed" {
+		return "", "", fmt.Errorf("unsupported file-level delivery status %q", status)
+	}
+	if mode == "" {
+		return "", "", fmt.Errorf("file-level delivery mode is empty")
+	}
+	return status, mode, nil
 }
 
 func loadCapabilityDependencyEvidence(root string, known map[string]CapabilityRegistryRecord) ([]DependencyReadinessEvidence, error) {

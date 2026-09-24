@@ -99,6 +99,34 @@ func TestParseCapabilityRegistryRejectsDocumentStatusAsDeliveryStatus(t *testing
 	}
 }
 
+func TestParseCapabilityRegistryFileLevelDeliveryDefaults(t *testing.T) {
+	content := "# Register\n\nAll capabilities are documentary draft, delivery status `defined`, delivery mode `planned`.\n\n" +
+		"| ID | Capability | Primary role | Canonical file | OPEN |\n" +
+		"|---|---|---|---|---|\n" +
+		"| CAP-INV-519 | Intelligence Analysis Intake | Analyst | ti.md | OPEN-013/014 |\n"
+	records, err := parseCapabilityRegistryContent("threat-intel.md", content)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(records) != 1 {
+		t.Fatalf("expected one record, got %#v", records)
+	}
+	record := records[0]
+	if record.DeliveryStatus != "defined" || record.DeliveryMode != "planned" {
+		t.Fatalf("unexpected file-level delivery defaults: %#v", record)
+	}
+	if record.Name != "Intelligence Analysis Intake" || record.CanonicalFile != "ti.md" {
+		t.Fatalf("unexpected file-level record metadata: %#v", record)
+	}
+}
+
+func TestParseCapabilityRegistryWithoutDeliveryEvidenceFails(t *testing.T) {
+	content := "# Register\n\n| ID | Capability | OPEN |\n|---|---|---|\n| CAP-INV-519 | Intake | none |\n"
+	if _, err := parseCapabilityRegistryContent("missing-delivery.md", content); err == nil {
+		t.Fatal("expected missing delivery evidence rejection")
+	}
+}
+
 func TestExpandCapabilitySelectorsSupportsExactRangeAndSlash(t *testing.T) {
 	known := map[string]CapabilityRegistryRecord{
 		"CAP-INV-001": readinessRecord("CAP-INV-001", "defined"),
