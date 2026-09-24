@@ -845,7 +845,7 @@
       "id": "E10-SCALE-001B",
       "title": "Compile capability implementation readiness and blockers",
       "type": "sublot",
-      "status": "READY",
+      "status": "VERIFIED",
       "depends_on": [
         "E10-SCALE-001A"
       ],
@@ -858,7 +858,7 @@
       "id": "E10-SCALE-001C",
       "title": "Materialize first bounded implementation wave",
       "type": "sublot",
-      "status": "BLOCKED",
+      "status": "READY",
       "depends_on": [
         "E10-SCALE-001B"
       ],

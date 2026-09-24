@@ -24,3 +24,14 @@ Blocking dependencies that do not identify a CAP selector are preserved in `unsc
 The capability-register shard `OPEN` column is intersected with the canonical active OPEN decision set. Resolved OPEN references therefore do not remain blockers, while active OPEN references fail closed.
 
 The verified implementation ledger has precedence over READY: a ledger-backed capability is `IMPLEMENTED`, never scheduled again.
+
+
+## Capability-register schema compatibility
+
+The readiness compiler accepts only source-backed registry forms present in the canonical Product Spec:
+
+1. explicit `Delivery status` + `Delivery mode` columns;
+2. combined `Delivery` values such as `defined / planned`, or split `Status=defined|proposed` + `Delivery=<mode>`;
+3. capability tables without delivery columns only when the same file explicitly declares a consistent file-level `delivery status <...>, delivery mode <...>` default.
+
+Column names are normalized across spaces, underscores and hyphens. Canonical aliases such as `Capability ID`, `Title`, `Canonical path` and `Open decisions` are recognized. Missing, ambiguous or unsupported delivery evidence fails closed.
