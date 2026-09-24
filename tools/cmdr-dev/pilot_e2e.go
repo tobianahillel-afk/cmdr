@@ -383,7 +383,7 @@ func validateVerifiedPilotProgress(workUnit, status, head string, productSpecMut
 
 func runPilotAdversarialRuntimeTests(root string) (PilotAdversarialTestSummary, error) {
 	pattern := "^(" + strings.Join(pilotAdversarialTests, "|") + ")$"
-	cmd := exec.Command("go", "test", "-json", "-count=1", "-run", pattern, ".")
+	cmd := exec.Command("go", "test", "-json", "-count=1", "-run", pattern, ".") // #nosec G204 -- executable is fixed and pattern is built only from compile-time test names; no shell is used.
 	cmd.Dir = filepath.Join(root, "product-runtime", "context-envelope")
 	cmd.Env = append(os.Environ(), "GOTOOLCHAIN=local")
 	var stdout, stderr bytes.Buffer
