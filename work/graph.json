@@ -780,7 +780,7 @@
       "id": "E9-PILOT-001C-RUNTIME",
       "title": "Implement context-envelope runtime and contract fixtures",
       "type": "task",
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "depends_on": [
         "E9-PILOT-001B"
       ],
@@ -793,7 +793,7 @@
       "id": "E9-PILOT-001C-SECURITY",
       "title": "Activate measured runtime security evidence and negative gates",
       "type": "task",
-      "status": "READY",
+      "status": "VERIFIED",
       "depends_on": [
         "E9-PILOT-001C-RUNTIME"
       ],
@@ -806,7 +806,7 @@
       "id": "E9-PILOT-001C-PERF",
       "title": "Activate pilot runtime performance workload and verify budget",
       "type": "task",
-      "status": "BLOCKED",
+      "status": "READY",
       "depends_on": [
         "E9-PILOT-001C-SECURITY"
       ],
