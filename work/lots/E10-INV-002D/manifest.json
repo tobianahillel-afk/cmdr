@@ -74,7 +74,8 @@
   "parent": "E10-INV-002",
   "goal": "Validate the bounded Event Search core end-to-end against tenant isolation, permission denial, partial failure, cancellation, provenance, security, performance and recovery evidence and record residual capability limitations.",
   "depends_on": [
-    "E10-INV-002C"
+    "E10-INV-002C-RUNTIME",
+    "E10-INV-002C-PERF"
   ],
   "allowed_paths": [
     "engineering/implementation/event-search/**",
@@ -125,7 +126,8 @@
     "CHK-RECOVERY-JOURNAL"
   ],
   "definition_of_ready": [
-    "E10-INV-002C is VERIFIED"
+    "E10-INV-002C-RUNTIME is VERIFIED",
+    "E10-INV-002C-PERF is VERIFIED"
   ],
   "definition_of_done": [
     "bounded Event Search core has adversarial/security/performance evidence",

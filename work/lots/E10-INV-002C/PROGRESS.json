@@ -19,5 +19,8 @@
   "product_spec_mutated": false,
   "next_unlocked": [
     "E10-INV-002D"
-  ]
+  ],
+  "coordination_graph_status": "DECOMPOSED",
+  "aggregate_completion": "VERIFIED",
+  "note": "E10-INV-002C is a split-required coordination parent. Its child tasks are VERIFIED; downstream work depends on those verified children directly rather than promoting the coordination parent past DECOMPOSED."
 }

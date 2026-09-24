@@ -27,5 +27,8 @@
   "product_spec_mutated": false,
   "next_unlocked": [
     "E10-INV-002D"
-  ]
+  ],
+  "coordination_graph_status": "DECOMPOSED",
+  "aggregate_completion": "VERIFIED",
+  "note": "Parent completion is aggregate evidence only. E10-INV-002C remains DECOMPOSED in the work graph because its manifest contains two separately testable behaviors; downstream work depends on E10-INV-002C-RUNTIME and E10-INV-002C-PERF."
 }

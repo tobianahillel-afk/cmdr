@@ -910,7 +910,7 @@
       "id": "E10-INV-002C",
       "title": "Implement Search Job lifecycle and partial-result orchestration",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "DECOMPOSED",
       "depends_on": [
         "E10-INV-002B-RUNTIME"
       ],
@@ -925,7 +925,8 @@
       "type": "task",
       "status": "READY",
       "depends_on": [
-        "E10-INV-002C"
+        "E10-INV-002C-RUNTIME",
+        "E10-INV-002C-PERF"
       ],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": []
