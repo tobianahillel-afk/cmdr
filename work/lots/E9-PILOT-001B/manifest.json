@@ -6,18 +6,36 @@
   "parent": "E9-PILOT-001",
   "goal": "Translate the verified pilot scope into runtime ownership dependency edges executable contracts and test fixtures before implementation.",
   "product_refs": {
-    "capabilities": [],
-    "requirements": [],
+    "capabilities": [
+      "CAP-SET-004"
+    ],
+    "requirements": [
+      "REQ-PROD-008",
+      "REQ-SEC-001",
+      "REQ-UX-006",
+      "REQ-UX-007",
+      "REQ-UX-009"
+    ],
     "screens": [],
-    "permissions": [],
+    "permissions": [
+      "perm.platform-settings.environment.read",
+      "perm.platform-settings.tenant.read"
+    ],
     "open_decisions": [],
-    "implementation_contracts": [],
-    "canonical_objects": []
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/cross-product-context-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/environment.md",
+      "cmdr-product-spec/05-domain-model/objects/tenant.md"
+    ]
   },
   "depends_on": [
     "E9-PILOT-001A"
   ],
   "allowed_paths": [
+    "product-runtime/context-envelope/**",
     "engineering/pilot/**",
     "engineering/architecture/**",
     "engineering/testing/**",
@@ -36,7 +54,10 @@
     "canonical MVP dependency roadmap and pilot plan"
   ],
   "outputs": [
-    "traceable E9 pilot evidence"
+    "uniquely owned product-runtime/context-envelope boundary with no executable product code",
+    "pilot-local executable contract bound to PILOT-CONTEXT-001 and CAP-SET-004",
+    "positive and negative tenant/environment/permission fixtures defined before implementation",
+    "zero-external-runtime-dependency policy proven by dependency audit"
   ],
   "invariants": [
     "Product Spec remains read-only",
@@ -53,7 +74,11 @@
     "go test ./...",
     "cmdr-dev validate-manifests succeeds",
     "cmdr-dev complexity-audit succeeds",
-    "adaptive engineering-kernel remains green"
+    "adaptive engineering-kernel remains green",
+    "CHK-PILOT-CONTRACT succeeds",
+    "runtime dependency audit reports one runtime boundary and zero dependencies",
+    "boundary-edge audit reports no undeclared local dependency edge",
+    "fixtures cover permission denied, tenant change, environment mismatch, expiry, missing tenant, wildcard tenant and unsafe return-origin"
   ],
   "performance_budget": {
     "applicable": true,
@@ -79,7 +104,10 @@
     "adaptive engineering-kernel",
     "cmdr-dev validate-manifests",
     "cmdr-dev complexity-audit",
-    "CHK-METRICS-BUDGET"
+    "CHK-METRICS-BUDGET",
+    "CHK-PILOT-CONTRACT",
+    "CHK-RUNTIME-DEPS",
+    "CHK-BOUNDARY-EDGES"
   ],
   "definition_of_ready": [
     "E8-MET-001D is VERIFIED",
@@ -93,10 +121,10 @@
   ],
   "complexity": {
     "primary_components": 2,
-    "estimated_files_changed": 9,
-    "estimated_net_loc": 500,
+    "estimated_files_changed": 12,
+    "estimated_net_loc": 600,
     "production_files": 4,
-    "net_production_loc": 360,
+    "net_production_loc": 390,
     "bounded_contexts": 1,
     "independent_migrations": 0,
     "distinct_security_models": 1,

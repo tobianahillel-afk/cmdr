@@ -109,7 +109,7 @@ func validationExecutorMode(key string) (string, error) {
 	case "gofmt", "go-vet", "go-unit",
 		"spec-index", "spec-baseline", "coverage-graph", "obligations", "coverage-audit",
 		"validate-manifests", "architecture-audit", "dependency-audit", "boundary-edge-audit",
-		"complexity-audit", "context", "doctor", "next", "check-catalog-audit", "security-gate-audit", "security-test-audit", "deep-security-audit", "decision-registry-audit", "research-packet-audit", "decision-gate-audit", "decision-freshness-audit", "performance-registry-audit", "performance-benchmark-audit", "deep-performance-audit", "performance-cache-audit", "lease-audit", "recovery-journal-audit", "recovery-reconcile-audit", "coordination-audit", "metrics-registry-audit", "pilot-scope-audit", "secret-scan", "gosec-go", "govulncheck-go", "sbom":
+		"complexity-audit", "context", "doctor", "next", "check-catalog-audit", "security-gate-audit", "security-test-audit", "deep-security-audit", "decision-registry-audit", "research-packet-audit", "decision-gate-audit", "decision-freshness-audit", "performance-registry-audit", "performance-benchmark-audit", "deep-performance-audit", "performance-cache-audit", "lease-audit", "recovery-journal-audit", "recovery-reconcile-audit", "coordination-audit", "metrics-registry-audit", "pilot-scope-audit", "pilot-contract-audit", "secret-scan", "gosec-go", "govulncheck-go", "sbom":
 		return "execute", nil
 	default:
 		return "", fmt.Errorf("unsupported executor_key %q", key)
@@ -398,6 +398,14 @@ func executeValidationCheck(root, tempDir, changesFile, key string, state Curren
 		return fmt.Sprintf("slice=%s capability=%s requirements=%d permissions=%d open_decisions=%d contracts=%d objects=%d digest=%s",
 			summary.SliceID, summary.Capability, summary.Requirements, summary.Permissions,
 			summary.OpenDecisions, summary.Contracts, summary.CanonicalObjects, summary.ProductGraphDigest), nil
+	case "pilot-contract-audit":
+		summary, err := runPilotContractAudit(root)
+		if err != nil {
+			return "", err
+		}
+		return fmt.Sprintf("contract=%s slice=%s boundary=%s fixtures=%d negative=%d runtime_dependencies=%d runtime_files=%d",
+			summary.ContractID, summary.SliceID, summary.RuntimeBoundary, summary.Fixtures,
+			summary.NegativeFixtures, summary.RuntimeDependencies, summary.RuntimeFiles), nil
 	case "secret-scan":
 		summary, err := runSecretScan(root, changesFile, false)
 		if err != nil {

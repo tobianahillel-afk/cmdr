@@ -1038,6 +1038,36 @@
         "CHK-MANIFESTS"
       ],
       "evidence_kind": "audit-report"
+    },
+    {
+      "id": "CHK-PILOT-CONTRACT",
+      "title": "E9 pilot runtime boundary and executable contract audit",
+      "executor_key": "pilot-contract-audit",
+      "risk_domains": [
+        "architecture",
+        "runtime-dependencies",
+        "security",
+        "coverage-traceability",
+        "work-governance"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": false,
+      "trigger_paths": [
+        "engineering/pilot/**",
+        "engineering/architecture/**",
+        "product-runtime/context-envelope/**",
+        "work/lots/E9-PILOT-001*/**",
+        "tools/cmdr-dev/pilot_contract.go",
+        "tools/cmdr-dev/pilot_contract_test.go"
+      ],
+      "prerequisites": [
+        "CHK-PILOT-SCOPE",
+        "CHK-ARCHITECTURE",
+        "CHK-RUNTIME-DEPS",
+        "CHK-BOUNDARY-EDGES"
+      ],
+      "evidence_kind": "audit-report"
     }
   ]
 }

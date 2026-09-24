@@ -48,6 +48,15 @@
         "engineering-control-plane",
         "execution-control-plane"
       ]
+    },
+    {
+      "id": "pilot-context-envelope-runtime",
+      "kind": "product-runtime",
+      "roots": [
+        "product-runtime/context-envelope/**"
+      ],
+      "mutable_by_implementation": true,
+      "may_depend_on": []
     }
   ]
 }
