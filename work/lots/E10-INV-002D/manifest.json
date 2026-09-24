@@ -94,10 +94,10 @@
     "predeclared security/performance obligations"
   ],
   "outputs": [
-    "adversarial Event Search core evidence",
-    "measured security/performance evidence",
-    "bounded handoff with explicit residual behavior",
-    "implementation evidence that does not claim OPEN-013-dependent Case linking"
+    "adversarial Event Search core evidence tied to the current source SHA",
+    "verified reuse of measured validation/orchestration evidence only while the Event Search runtime is unchanged",
+    "bounded handoff with explicit UI, Saved Search, Case-link, engine/dialect and production-SLO residuals",
+    "implementation evidence that does not claim full CAP-INV-002 completion"
   ],
   "acceptance_tests": [
     "cross-tenant and permission-denied adversarial tests pass",
@@ -105,7 +105,10 @@
     "SAST/SCA/secret/runtime-dependency checks are clean",
     "registered performance budgets pass",
     "recovery/retry behavior preserves new-run identity and provenance",
-    "handoff names excluded UI, Saved Search, Case-link and final engine/dialect work"
+    "handoff names excluded UI, Saved Search, Case-link and final engine/dialect work",
+    "CHK-EVENT-SEARCH-E2E replays named tenant-isolation, partial-failure, cancellation, retry/provenance and fail-closed runtime tests",
+    "bounded closure rejects stale performance evidence if product-runtime/event-search changed after E10-INV-002C-PERF",
+    "bounded handoff keeps OPEN-013 explicit and production_readiness_claim=false"
   ],
   "performance_budget": {
     "applicable": true,
@@ -123,7 +126,8 @@
     "CHK-SCA-GO",
     "CHK-PERFORMANCE-BENCHMARK",
     "CHK-DEEP-PERFORMANCE",
-    "CHK-RECOVERY-JOURNAL"
+    "CHK-RECOVERY-JOURNAL",
+    "CHK-EVENT-SEARCH-E2E"
   ],
   "definition_of_ready": [
     "E10-INV-002C-RUNTIME is VERIFIED",

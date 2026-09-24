@@ -1224,6 +1224,42 @@
         "CHK-PERFORMANCE-REGISTRY"
       ],
       "evidence_kind": "audit-report"
+    },
+    {
+      "id": "CHK-EVENT-SEARCH-E2E",
+      "title": "CAP-INV-002 bounded Event Search adversarial closure audit",
+      "executor_key": "event-search-e2e-audit",
+      "risk_domains": [
+        "product-spec",
+        "coverage-traceability",
+        "security",
+        "performance",
+        "repository-health",
+        "work-governance",
+        "unit-correctness"
+      ],
+      "cost_tier": "standard",
+      "mandatory": true,
+      "always_on_pr": false,
+      "trigger_paths": [
+        "engineering/implementation/event-search/**",
+        "work/lots/E10-INV-002*/**",
+        "product-runtime/event-search/**",
+        "tools/cmdr-dev/event_search_e2e.go",
+        "tools/cmdr-dev/event_search_e2e_test.go"
+      ],
+      "prerequisites": [
+        "CHK-EVENT-SEARCH-CONTRACT",
+        "CHK-SECURITY-TESTS",
+        "CHK-SAST-GO",
+        "CHK-SCA-GO",
+        "CHK-PERFORMANCE-BENCHMARK",
+        "CHK-DEEP-PERFORMANCE",
+        "CHK-RECOVERY-JOURNAL",
+        "CHK-RECOVERY-RECONCILE",
+        "CHK-METRICS-BUDGET"
+      ],
+      "evidence_kind": "implementation-closure-audit"
     }
   ]
 }

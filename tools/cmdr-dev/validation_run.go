@@ -109,7 +109,7 @@ func validationExecutorMode(key string) (string, error) {
 	case "gofmt", "go-vet", "go-unit",
 		"spec-index", "spec-baseline", "coverage-graph", "obligations", "coverage-audit",
 		"validate-manifests", "architecture-audit", "dependency-audit", "boundary-edge-audit",
-		"complexity-audit", "context", "doctor", "next", "check-catalog-audit", "security-gate-audit", "security-test-audit", "deep-security-audit", "decision-registry-audit", "research-packet-audit", "decision-gate-audit", "decision-freshness-audit", "performance-registry-audit", "performance-benchmark-audit", "deep-performance-audit", "performance-cache-audit", "lease-audit", "recovery-journal-audit", "recovery-reconcile-audit", "coordination-audit", "metrics-registry-audit", "pilot-scope-audit", "pilot-contract-audit", "pilot-e2e-audit", "implementation-ledger-audit", "implementation-readiness", "implementation-wave", "event-search-contract-audit", "secret-scan", "gosec-go", "govulncheck-go", "sbom":
+		"complexity-audit", "context", "doctor", "next", "check-catalog-audit", "security-gate-audit", "security-test-audit", "deep-security-audit", "decision-registry-audit", "research-packet-audit", "decision-gate-audit", "decision-freshness-audit", "performance-registry-audit", "performance-benchmark-audit", "deep-performance-audit", "performance-cache-audit", "lease-audit", "recovery-journal-audit", "recovery-reconcile-audit", "coordination-audit", "metrics-registry-audit", "pilot-scope-audit", "pilot-contract-audit", "pilot-e2e-audit", "implementation-ledger-audit", "implementation-readiness", "implementation-wave", "event-search-contract-audit", "event-search-e2e-audit", "secret-scan", "gosec-go", "govulncheck-go", "sbom":
 		return "execute", nil
 	default:
 		return "", fmt.Errorf("unsupported executor_key %q", key)
@@ -457,6 +457,16 @@ func executeValidationCheck(root, tempDir, changesFile, key string, state Curren
 		return fmt.Sprintf("contract=%s capability=%s runtime=%s fixtures=%d negative=%d deps=%d status=%s",
 			summary.ContractID, summary.Capability, summary.RuntimeState, summary.Fixtures,
 			summary.NegativeFixtures, summary.RuntimeDependencies, summary.Status), nil
+	case "event-search-e2e-audit":
+		summary, err := runEventSearchE2EAudit(root, state, graph)
+		if err != nil {
+			return "", err
+		}
+		return fmt.Sprintf("capability=%s contract=%s adversarial=%d coverage=%.2f sast=%d sca=%d validation_p95=%.9f/%0.3f orchestration_p95=%.9f/%0.3f runtime_unchanged=%t recovery=%s limitations=%d production_claim=%t status=%s",
+			summary.Capability, summary.ContractID, summary.AdversarialTests, summary.RuntimeCoveragePercent,
+			summary.SASTFindings, summary.SCAActionableFindings, summary.ValidationP95MS, summary.ValidationBudgetMS,
+			summary.OrchestrationP95MS, summary.OrchestrationBudgetMS, summary.RuntimeUnchangedSincePerf,
+			summary.RecoveryOutcome, summary.Limitations, summary.ProductionReadinessClaim, summary.Status), nil
 	case "secret-scan":
 		summary, err := runSecretScan(root, changesFile, false)
 		if err != nil {
