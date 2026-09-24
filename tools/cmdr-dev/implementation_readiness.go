@@ -247,12 +247,12 @@ func parseCapabilityRegistryContent(source, content string) ([]CapabilityRegistr
 
 		record := CapabilityRegistryRecord{
 			ID:             id,
-			Name:           strings.TrimSpace(tableCell(cells, columns, "name", "capability")),
+			Name:           strings.TrimSpace(tableCell(cells, columns, "name", "capability", "title")),
 			Status:         strings.ToLower(strings.TrimSpace(tableCell(cells, columns, "status"))),
 			DeliveryStatus: deliveryStatus,
 			DeliveryMode:   deliveryMode,
-			CanonicalFile:  strings.Trim(strings.TrimSpace(tableCell(cells, columns, "canonical file")), "`"),
-			OpenDecisions:  extractOpenDecisionIDs(tableCell(cells, columns, "open")),
+			CanonicalFile:  strings.Trim(strings.TrimSpace(tableCell(cells, columns, "canonical file", "canonical path")), "`"),
+			OpenDecisions:  extractOpenDecisionIDs(tableCell(cells, columns, "open", "open decisions")),
 			SourcePath:     source,
 		}
 		if record.Name == "" {

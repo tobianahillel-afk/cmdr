@@ -61,10 +61,10 @@ func TestParseCapabilityRegistryCombinedDeliveryVariant(t *testing.T) {
 func TestParseCapabilityRegistryStatusDeliveryVariant(t *testing.T) {
 	content := `# Cloud register
 
-| ID | Title | Primary role | Open decisions | Status | Delivery |
-|---|---|---|---|---|---|
-| CAP-INV-601 | Cloud Analysis Intake | Analyst | OPEN-008/OPEN-012 | defined | planned |
-| CAP-INV-699 | Future Cloud Capability | Analyst | OPEN-014 | proposed | planned |
+| ID | Title | Primary role | Canonical path | Open decisions | Status | Delivery |
+|---|---|---|---|---|---|---|
+| CAP-INV-601 | Cloud Analysis Intake | Analyst | `cloud-intake.md` | OPEN-008/OPEN-012 | defined | planned |
+| CAP-INV-699 | Future Cloud Capability | Analyst | `future-cloud.md` | OPEN-014 | proposed | planned |
 `
 	records, err := parseCapabilityRegistryContent("cloud.md", content)
 	if err != nil {
@@ -72,6 +72,12 @@ func TestParseCapabilityRegistryStatusDeliveryVariant(t *testing.T) {
 	}
 	if len(records) != 2 {
 		t.Fatalf("expected two records, got %#v", records)
+	}
+	if records[0].Name != "Cloud Analysis Intake" || records[0].CanonicalFile != "cloud-intake.md" {
+		t.Fatalf("unexpected cloud identity metadata: %#v", records[0])
+	}
+	if len(records[0].OpenDecisions) != 2 || records[0].OpenDecisions[0] != "OPEN-008" || records[0].OpenDecisions[1] != "OPEN-012" {
+		t.Fatalf("unexpected cloud OPEN refs: %#v", records[0].OpenDecisions)
 	}
 	if records[0].DeliveryStatus != "defined" || records[0].DeliveryMode != "planned" {
 		t.Fatalf("unexpected defined delivery mapping: %#v", records[0])
