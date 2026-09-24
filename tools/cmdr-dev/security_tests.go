@@ -79,12 +79,18 @@ const (
 	eventSearchSecurityModuleIdentity  = "github.com/tobianahillel-afk/cmdr/product-runtime/event-search"
 	eventSearchAuthorizationTestRegexp = "^TestValidateContractFixtures$/^permission-denied-masks-protected-data$"
 	eventSearchTenantTestRegexp        = "^TestValidateContractFixtures$/(^missing-tenant-is-rejected$|^wildcard-tenant-is-rejected$|^cross-tenant-is-rejected$)"
+	eventSearchFrontendSecurityRuntimeRoot = "product-runtime/event-search-frontend"
+	eventSearchFrontendAuthorizationTestRegexp = "^authorization-state-cannot-be-deeplinked$"
+	eventSearchFrontendTenantTestRegexp = "^(tenant-mismatch-is-rejected|tenant-wildcard-is-rejected)$"
 )
 
 type runtimeSecurityAdapter struct {
 	BoundaryID             string
 	RuntimeRoot            string
+	RuntimeKind            string
 	ModuleIdentity         string
+	TestFile               string
+	CoverageInclude        string
 	AuthorizationTestRegex string
 	TenantTestRegex        string
 }
@@ -92,16 +98,23 @@ type runtimeSecurityAdapter struct {
 func runtimeSecurityAdapters() map[string]runtimeSecurityAdapter {
 	return map[string]runtimeSecurityAdapter{
 		pilotRuntimeBoundaryID: {
-			BoundaryID: pilotRuntimeBoundaryID, RuntimeRoot: pilotSecurityRuntimeRoot,
+			BoundaryID: pilotRuntimeBoundaryID, RuntimeRoot: pilotSecurityRuntimeRoot, RuntimeKind: "go",
 			ModuleIdentity:         pilotSecurityModuleIdentity,
 			AuthorizationTestRegex: pilotAuthorizationTestRegexp,
 			TenantTestRegex:        pilotTenantTestRegexp,
 		},
 		eventSearchRuntimeBoundaryID: {
-			BoundaryID: eventSearchRuntimeBoundaryID, RuntimeRoot: eventSearchSecurityRuntimeRoot,
+			BoundaryID: eventSearchRuntimeBoundaryID, RuntimeRoot: eventSearchSecurityRuntimeRoot, RuntimeKind: "go",
 			ModuleIdentity:         eventSearchSecurityModuleIdentity,
 			AuthorizationTestRegex: eventSearchAuthorizationTestRegexp,
 			TenantTestRegex:        eventSearchTenantTestRegexp,
+		},
+		"event-search-frontend-runtime": {
+			BoundaryID: "event-search-frontend-runtime", RuntimeRoot: eventSearchFrontendSecurityRuntimeRoot, RuntimeKind: "node",
+			TestFile:               "state.test.mjs",
+			CoverageInclude:        "state.mjs",
+			AuthorizationTestRegex: eventSearchFrontendAuthorizationTestRegexp,
+			TenantTestRegex:        eventSearchFrontendTenantTestRegexp,
 		},
 	}
 }
@@ -268,6 +281,12 @@ func generateMeasuredRuntimeSecurityEvidence(root, tempDir, changesFile string) 
 }
 
 func measureRuntimeCoverage(root, tempDir string, changedPaths []string, adapter runtimeSecurityAdapter) (RuntimeCoverageMeasurement, error) {
+	if adapter.RuntimeKind == "node" {
+		return measureNodeRuntimeCoverage(root, tempDir, changedPaths, adapter)
+	}
+	if adapter.RuntimeKind != "" && adapter.RuntimeKind != "go" {
+		return RuntimeCoverageMeasurement{}, fmt.Errorf("unsupported runtime security adapter kind %q", adapter.RuntimeKind)
+	}
 	moduleRoot, err := resolveRepoPath(root, adapter.RuntimeRoot, false)
 	if err != nil {
 		return RuntimeCoverageMeasurement{}, err
@@ -296,6 +315,12 @@ func measureRuntimeCoverage(root, tempDir string, changedPaths []string, adapter
 func runRuntimeNegativeTest(root string, adapter runtimeSecurityAdapter, pattern, label string) error {
 	if strings.TrimSpace(pattern) == "" {
 		return fmt.Errorf("%s has no %s negative-test pattern", adapter.BoundaryID, label)
+	}
+	if adapter.RuntimeKind == "node" {
+		return runNodeRuntimeNegativeTest(root, adapter, pattern, label)
+	}
+	if adapter.RuntimeKind != "" && adapter.RuntimeKind != "go" {
+		return fmt.Errorf("unsupported runtime security adapter kind %q", adapter.RuntimeKind)
 	}
 	moduleRoot, err := resolveRepoPath(root, adapter.RuntimeRoot, false)
 	if err != nil {

@@ -299,3 +299,46 @@ func TestParseEventSearchCoverageProfileMeasuresExactModule(t *testing.T) {
 		t.Fatalf("unexpected changed Event Search coverage: %#v", got)
 	}
 }
+
+func TestParseNodeLCOVMeasuresExactFrontendSource(t *testing.T) {
+	root := t.TempDir()
+	moduleRoot := filepath.Join(root, "product-runtime", "event-search-frontend")
+	if err := os.MkdirAll(moduleRoot, 0o750); err != nil {
+		t.Fatal(err)
+	}
+	lcov := []byte("TN:\nSF:state.mjs\nDA:1,1\nDA:2,1\nDA:3,0\nLF:3\nLH:2\nend_of_record\n")
+	adapter := runtimeSecurityAdapter{
+		BoundaryID: "event-search-frontend-runtime",
+		RuntimeRoot: "product-runtime/event-search-frontend",
+		RuntimeKind: "node",
+		CoverageInclude: "state.mjs",
+	}
+	measurement, err := parseNodeLCOV(root, moduleRoot, lcov, []string{"product-runtime/event-search-frontend/state.mjs"}, adapter)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if measurement.TotalStatements != 3 || measurement.CoveredStatements != 2 {
+		t.Fatalf("unexpected node coverage counts: %#v", measurement)
+	}
+	if measurement.GlobalPercent < 66.6 || measurement.ChangedExecutablePercent < 66.6 || measurement.ChangedExecutableStmts != 3 {
+		t.Fatalf("unexpected node coverage percentages: %#v", measurement)
+	}
+}
+
+func TestParseNodeLCOVRejectsCoverageOutsideExpectedSource(t *testing.T) {
+	root := t.TempDir()
+	moduleRoot := filepath.Join(root, "product-runtime", "event-search-frontend")
+	if err := os.MkdirAll(moduleRoot, 0o750); err != nil {
+		t.Fatal(err)
+	}
+	lcov := []byte("SF:other.mjs\nLF:1\nLH:1\nend_of_record\n")
+	adapter := runtimeSecurityAdapter{
+		BoundaryID: "event-search-frontend-runtime",
+		RuntimeRoot: "product-runtime/event-search-frontend",
+		RuntimeKind: "node",
+		CoverageInclude: "state.mjs",
+	}
+	if _, err := parseNodeLCOV(root, moduleRoot, lcov, nil, adapter); err == nil {
+		t.Fatal("expected unexpected Node coverage source rejection")
+	}
+}

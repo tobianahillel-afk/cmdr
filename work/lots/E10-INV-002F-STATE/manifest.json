@@ -54,7 +54,8 @@
     "work/lots/E10-INV-002F*/**",
     "engineering/state/**",
     "work/graph.json",
-    "tools/cmdr-dev/**"
+    "tools/cmdr-dev/**",
+    ".github/workflows/engineering-kernel.yml"
   ],
   "forbidden_paths": [
     "cmdr-product-spec/**"
@@ -65,10 +66,11 @@
     "INV-EVS-001 and frontend-state implementation contracts"
   ],
   "outputs": [
-    "state model",
-    "URL serializer/parser",
-    "refresh/reconstruction tests",
-    "transient-state separation"
+    "first-party immutable Event Search deep-link state core",
+    "deterministic URL serializer/parser",
+    "refresh and contextual tenant/environment reconstruction tests",
+    "explicit transient/security-state exclusion from deep links",
+    "Node runtime security adapter with LCOV coverage and negative tests"
   ],
   "invariants": [
     "Product Spec remains read-only",
@@ -86,7 +88,12 @@
   ],
   "acceptance_tests": [
     "adaptive engineering-kernel remains green",
-    "Product Spec baseline remains unchanged"
+    "Product Spec baseline remains unchanged",
+    "Node 24.21.0 built-in tests pass with at least 90% line coverage for state.mjs",
+    "deep-link serialization round-trips deterministically across refresh reconstruction",
+    "tenant wildcard and contextual tenant/environment mismatch fail closed",
+    "authorization and transient client state cannot be injected into URL state",
+    "runtime dependency audit reports zero third-party frontend dependencies"
   ],
   "performance_budget": {
     "applicable": true,
