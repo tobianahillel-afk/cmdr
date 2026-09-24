@@ -66,6 +66,7 @@
   ],
   "workload_keys": [
     "cmdr-dev-metadata-audit-v1",
-    "pilot-context-projection-v1"
+    "pilot-context-projection-v1",
+    "event-search-validation-v1"
   ]
 }

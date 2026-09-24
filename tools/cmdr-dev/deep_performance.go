@@ -106,6 +106,7 @@ var knownDeepPerformanceStages = map[string]bool{
 var knownDeepPerformanceHandlerKeys = map[string]bool{
 	"builtin-cmdr-dev-deep-metadata-v1":   true,
 	"builtin-pilot-context-projection-v1": true,
+	"builtin-event-search-validation-v1":  true,
 }
 
 func runDeepPerformanceAudit(root, stage, changesFile, requestedTarget string) (DeepPerformanceAuditSummary, error) {
@@ -427,6 +428,9 @@ func runDeepPerformanceHandler(ctx context.Context, root string, target DeepPerf
 			result.ThroughputOpsPerSec = float64(observation.Operations) / (float64(observation.ElapsedNS) / float64(time.Second))
 		}
 		return result, nil
+	}
+	if target.HandlerKey == "builtin-event-search-validation-v1" {
+		return DeepPerformanceObservation{}, fmt.Errorf("event-search deep performance target is preimplementation; E10-INV-002B must provide the runtime handler before execution")
 	}
 	if target.HandlerKey != "builtin-cmdr-dev-deep-metadata-v1" {
 		return DeepPerformanceObservation{}, fmt.Errorf("unsupported deep performance handler %s", target.HandlerKey)

@@ -884,13 +884,13 @@
       "id": "E10-INV-002A",
       "title": "Compile Event Search executable contract and runtime boundary",
       "type": "task",
-      "status": "READY",
+      "status": "DECOMPOSED",
       "depends_on": [
         "E10-SCALE-001C"
       ],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": [
-        "E10-INV-002B"
+        "E10-INV-002A-BOUNDARY"
       ]
     },
     {
@@ -926,6 +926,30 @@
       "status": "BLOCKED",
       "depends_on": [
         "E10-INV-002C"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": []
+    },
+    {
+      "id": "E10-INV-002A-BOUNDARY",
+      "title": "Register Event Search runtime ownership and preimplementation controls",
+      "type": "task",
+      "status": "READY",
+      "depends_on": [
+        "E10-SCALE-001C"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-002A-CONTRACT"
+      ]
+    },
+    {
+      "id": "E10-INV-002A-CONTRACT",
+      "title": "Compile Event Search executable contract and negative fixtures",
+      "type": "task",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E10-INV-002A-BOUNDARY"
       ],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": []

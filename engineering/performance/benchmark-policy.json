@@ -15,6 +15,13 @@
       "warmup_iterations": 2,
       "sample_count": 9,
       "max_sample_duration_ms": 100
+    },
+    {
+      "key": "event-search-validation-v1",
+      "handler_key": "builtin-event-search-validation-v1",
+      "warmup_iterations": 1,
+      "sample_count": 5,
+      "max_sample_duration_ms": 100
     }
   ]
 }

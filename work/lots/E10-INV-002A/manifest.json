@@ -72,7 +72,7 @@
   "title": "Compile Event Search executable contract and runtime boundary",
   "type": "task",
   "parent": "E10-INV-002",
-  "goal": "Translate CAP-INV-002 into an executable backend-neutral contract, reserve a uniquely owned runtime boundary, define security/performance obligations and predeclare positive/negative fixtures before product code.",
+  "goal": "Coordinate preimplementation runtime ownership and executable-contract compilation for CAP-INV-002 before any Event Search product code is added.",
   "depends_on": [
     "E10-SCALE-001C"
   ],
@@ -95,10 +95,9 @@
     "tenant/permission/audit/search/background-job implementation contracts"
   ],
   "outputs": [
-    "event-search bounded scope and executable contract",
-    "event-search runtime boundary registration plan; the boundary is created atomically with its security/performance ownership in this task, before runtime code",
-    "positive/negative fixtures for tenant/time/source/permission/state/error behavior",
-    "performance target and security-test obligations before implementation"
+    "verified E10-INV-002A-BOUNDARY runtime ownership/security/performance registration",
+    "verified E10-INV-002A-CONTRACT executable contract and negative fixtures",
+    "zero executable Event Search product code until both children are verified"
   ],
   "acceptance_tests": [
     "manifest and complexity audits pass",
@@ -129,11 +128,10 @@
     "CAP-INV-002 canonical file resolves and is non-empty"
   ],
   "definition_of_done": [
-    "event-search runtime boundary is registered atomically with explicit security/performance ownership and contains no executable product code",
-    "executable contract is source-backed",
-    "negative fixtures exist before implementation",
-    "security and performance obligations are registered",
-    "no unresolved decision is silently defaulted"
+    "E10-INV-002A-BOUNDARY is VERIFIED",
+    "E10-INV-002A-CONTRACT is VERIFIED",
+    "event-search runtime boundary is preimplementation-only",
+    "security/performance obligations and executable contract exist before E10-INV-002B runtime code"
   ],
   "complexity": {
     "primary_components": 2,
@@ -144,6 +142,6 @@
     "bounded_contexts": 1,
     "independent_migrations": 0,
     "distinct_security_models": 1,
-    "separately_testable_behaviors": 1
+    "separately_testable_behaviors": 2
   }
 }

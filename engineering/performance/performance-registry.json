@@ -41,6 +41,33 @@
         }
       ],
       "rationale": "The runtime now exists and is verified, so the coarse shared-CI absolute p95 ceiling can execute on PRs that touch the pilot runtime while retaining on-demand execution. Shared CI still makes no relative-performance claim."
+    },
+    {
+      "id": "PERF-TGT-EVENT-SEARCH-VALIDATION",
+      "scope_kind": "product-runtime",
+      "boundary_id": "event-search-runtime",
+      "owner_path": "product-runtime/event-search/**",
+      "workload_key": "event-search-validation-v1",
+      "workload_description": "Deterministic in-process validation of one prevalidated Event Search tenant/time/source/permission envelope. Registered before implementation; execution remains on-demand and fail-closed until E10-INV-002B provides the runtime handler.",
+      "environment_id": "PERF-ENV-GITHUB-UBUNTU-SHARED",
+      "stages": [
+        "on-demand"
+      ],
+      "trigger_paths": [
+        "product-runtime/event-search/**"
+      ],
+      "metrics": [
+        {
+          "id": "validation-p95-latency",
+          "kind": "latency",
+          "unit": "ms",
+          "aggregation": "p95",
+          "comparator": "upper-bound",
+          "budget": 1,
+          "max_relative_regression_percent": 0
+        }
+      ],
+      "rationale": "Preimplementation performance ownership for CAP-INV-002 query validation. The 1 ms bound applies only to deterministic in-process validation, not backend search latency and not a production Search SLO."
     }
   ]
 }

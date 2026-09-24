@@ -34,6 +34,24 @@
       "concurrency": 1,
       "iterations": 10000,
       "rationale": "Bounded on-demand resource validation of the implemented pilot projection. The compiled handler builds a standard-library-only runtime probe once, executes the declared iteration count under the target memory limit, and records measured runtime evidence."
+    },
+    {
+      "id": "PERF-DEEP-EVENT-SEARCH-VALIDATION",
+      "performance_target_id": "PERF-TGT-EVENT-SEARCH-VALIDATION",
+      "kind": "resource",
+      "handler_key": "builtin-event-search-validation-v1",
+      "stages": [
+        "on-demand"
+      ],
+      "trigger_paths": [
+        "product-runtime/event-search/**"
+      ],
+      "duration_seconds": 0,
+      "timeout_seconds": 30,
+      "memory_limit_mib": 128,
+      "concurrency": 1,
+      "iterations": 10000,
+      "rationale": "Reserved on-demand resource validation for the Event Search validation core. The compiled handler fails closed while the runtime boundary is preimplementation and is activated only by the later runtime task."
     }
   ]
 }
