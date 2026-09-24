@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "work_unit": "E9-PILOT-001D",
+  "result": "VERIFIED",
+  "foundation_result": "ENGINEERING_EXECUTION_FOUNDATION_VERIFIED",
+  "product_readiness": "NOT_CLAIMED",
+  "evidence_validated_head": "6135006e43f49a2bfb374b567e215ba1fa427280",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 35998084972,
+    "pull_request_run": 35998090686,
+    "check": "CHK-PILOT-E2E",
+    "adversarial_runtime_tests": 3,
+    "runtime_coverage_percent": 95.24,
+    "authorization_negative": "PASS",
+    "tenant_isolation_negative": "PASS",
+    "sast_findings": 0,
+    "sca_actionable_findings": 0,
+    "performance_budget_ms": 1,
+    "worst_observed_p95_ms": 0.00035315945,
+    "recovery": "resume/claim-or-start",
+    "selected_open_decisions": 0,
+    "global_open_decisions_outside_pilot": 17,
+    "limitations": 9,
+    "production_readiness_claim": false
+  },
+  "proven": [
+    "the engineering execution foundation can carry one bounded Product Spec slice from canonical scope through runtime implementation, security, performance, recovery and handoff evidence",
+    "the selected context-envelope runtime remains standard-library-only with zero approved external product-runtime dependencies",
+    "negative authorization and tenant-isolation controls are measured and active for the pilot boundary",
+    "the pilot projection workload remains below its declared absolute latency budget in shared CI",
+    "adaptive validation, SAST, SCA, SBOM, recovery and metrics floors remain operational at pilot closure"
+  ],
+  "not_proven": [
+    "CMDR as a whole is not production-ready",
+    "the 498 Product Spec capabilities are not all implemented",
+    "production deployment, high availability, disaster recovery and multi-region operation are not proven",
+    "cross-platform product-runtime compatibility beyond the measured CI environment is not proven",
+    "the 17 global Product Spec open decisions remain unresolved outside the selected pilot slice"
+  ],
+  "next_phase_guidance": [
+    "scale implementation from canonical Product Spec obligations in bounded lots rather than widening the pilot implicitly",
+    "reject or block any next slice whose dependency closure reaches an unresolved Product Spec decision",
+    "establish runtime ownership, executable contracts, security gates and performance budgets before implementing each new runtime boundary",
+    "preserve the no-unapproved-product-runtime-dependency policy and repeat measured end-to-end evidence for each new boundary"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": []
+}
