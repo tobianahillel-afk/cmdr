@@ -33,12 +33,12 @@ type PilotScope struct {
 	Requirements            []string                 `json:"requirements"`
 	Permissions             []string                 `json:"permissions"`
 	OpenDecisions           []string                 `json:"open_decisions"`
-	ImplementationContracts []string                `json:"implementation_contracts"`
+	ImplementationContracts []string                 `json:"implementation_contracts"`
 	CanonicalObjects        []string                 `json:"canonical_objects"`
 	DependencySources       []string                 `json:"dependency_sources"`
 	MVPSource               string                   `json:"mvp_source"`
 	PilotPlanSource         string                   `json:"pilot_plan_source"`
-	DependencyRoadmapSource string                  `json:"dependency_roadmap_source"`
+	DependencyRoadmapSource string                   `json:"dependency_roadmap_source"`
 	ActionClasses           []string                 `json:"action_classes"`
 	IncludedBehaviors       []string                 `json:"included_behaviors"`
 	ExcludedBehaviors       []string                 `json:"excluded_behaviors"`
