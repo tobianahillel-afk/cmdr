@@ -3,7 +3,9 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"io"
 	"math"
+	"os"
 	"strings"
 	"sync/atomic"
 	"testing"
@@ -98,5 +100,38 @@ func TestUpdatePeakPreservesHigherValueAndRaisesLowerValue(t *testing.T) {
 	updatePeak(&peak)
 	if got := peak.Load(); got == 0 {
 		t.Fatal("expected peak to be updated from current runtime heap")
+	}
+}
+
+func TestMainSuccessPath(t *testing.T) {
+	oldArgs := os.Args
+	oldStdout := os.Stdout
+	reader, writer, err := os.Pipe()
+	if err != nil {
+		t.Fatal(err)
+	}
+	os.Args = []string{"perf-probe", "-iterations", "100", "-mode", "latency"}
+	os.Stdout = writer
+	defer func() {
+		os.Args = oldArgs
+		os.Stdout = oldStdout
+		_ = reader.Close()
+		_ = writer.Close()
+	}()
+
+	main()
+	if err := writer.Close(); err != nil {
+		t.Fatal(err)
+	}
+	data, err := io.ReadAll(reader)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var got observation
+	if err := json.Unmarshal(data, &got); err != nil {
+		t.Fatal(err)
+	}
+	if got.Mode != "latency" || got.Operations != 100 || got.NSPerOperation <= 0 {
+		t.Fatalf("unexpected main observation: %#v", got)
 	}
 }
