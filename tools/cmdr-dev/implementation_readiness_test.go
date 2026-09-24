@@ -14,8 +14,8 @@ func TestParseCapabilityRegistryContent(t *testing.T) {
 
 | ID | Name | Owner | Status | Delivery status | Delivery mode | Canonical file | OPEN |
 |---|---|---|---|---|---|---|---|
-| CAP-SET-001 | Tenant | Owner | draft | defined | planned | \`a.md\` | OPEN-013 |
-| CAP-SET-004 | Context | Owner | draft | defined | planned | \`b.md\` | none |
+| CAP-SET-001 | Tenant | Owner | draft | defined | planned | a.md | OPEN-013 |
+| CAP-SET-004 | Context | Owner | draft | defined | planned | b.md | none |
 `
 	records, err := parseCapabilityRegistryContent("register.md", content)
 	if err != nil {
