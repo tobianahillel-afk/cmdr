@@ -1,13 +1,18 @@
-# Pilot context-envelope runtime boundary
+# Pilot context-envelope runtime
 
-This directory reserves the uniquely owned runtime boundary for `PILOT-CONTEXT-001` / `CAP-SET-004`.
+This directory implements the bounded runtime selected by `PILOT-CONTEXT-001` / `CAP-SET-004`.
 
-**E9-PILOT-001B contains no product implementation.** No executable source or dependency manifest belongs here until E9-PILOT-001C is unlocked. The executable pilot contract and fixtures live under `engineering/pilot/`.
+The executable contract and canonical pilot fixtures remain under `engineering/pilot/`. This package is a pilot-local implementation, not a claim that its Go API is a canonical public product schema.
 
-Runtime policy for the future implementation:
+Runtime constraints:
 
-- standard-library-only unless a Trusted Base exception is separately reviewed;
-- no external product-runtime dependency is currently approved;
-- no Product Spec file is copied into runtime;
-- authorization remains an explicit caller-supplied outcome;
-- this pilot-local contract is not a claim of a canonical public API schema.
+- standard-library-only Go module;
+- no external product-runtime dependencies;
+- no persistence or network I/O;
+- no authorization/RBAC/ABAC engine;
+- destination authorization is an explicit caller-supplied outcome;
+- no raw payload, token, credential, or secret field;
+- incompatible tenant/environment context is cleared rather than silently replaced;
+- denied/expired/source-missing states mask protected references.
+
+`Project(Input)` is deterministic and side-effect free. Security activation and measured coverage are handled separately by `E9-PILOT-001C-SECURITY`.
