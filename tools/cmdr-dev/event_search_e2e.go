@@ -13,12 +13,12 @@ import (
 )
 
 const (
-	eventSearchClosureHandoffPath   = "engineering/implementation/event-search/bounded-handoff.json"
-	eventSearchValidationProgress   = "work/lots/E10-INV-002B-RUNTIME/PROGRESS.json"
-	eventSearchRuntimeProgress      = "work/lots/E10-INV-002C-RUNTIME/PROGRESS.json"
-	eventSearchPerformanceProgress  = "work/lots/E10-INV-002C-PERF/PROGRESS.json"
-	eventSearchClosureWorkUnit      = "E10-INV-002D"
-	eventSearchRuntimeDirectory     = "product-runtime/event-search"
+	eventSearchClosureHandoffPath  = "engineering/implementation/event-search/bounded-handoff.json"
+	eventSearchValidationProgress  = "work/lots/E10-INV-002B-RUNTIME/PROGRESS.json"
+	eventSearchRuntimeProgress     = "work/lots/E10-INV-002C-RUNTIME/PROGRESS.json"
+	eventSearchPerformanceProgress = "work/lots/E10-INV-002C-PERF/PROGRESS.json"
+	eventSearchClosureWorkUnit     = "E10-INV-002D"
+	eventSearchRuntimeDirectory    = "product-runtime/event-search"
 )
 
 var eventSearchAdversarialTests = []string{
@@ -120,29 +120,29 @@ type EventSearchAdversarialSummary struct {
 }
 
 type EventSearchE2EAuditSummary struct {
-	Capability                  string  `json:"capability"`
-	Screen                      string  `json:"screen"`
-	ContractID                  string  `json:"contract_id"`
-	ContractFixtures            int     `json:"contract_fixtures"`
-	NegativeFixtures            int     `json:"negative_fixtures"`
-	AdversarialTests            int     `json:"adversarial_tests"`
-	RuntimeEvidenceHead         string  `json:"runtime_evidence_head"`
-	PerformanceEvidenceHead     string  `json:"performance_evidence_head"`
-	CurrentHead                 string  `json:"current_head"`
-	RuntimeUnchangedSincePerf   bool    `json:"runtime_unchanged_since_performance_evidence"`
-	RuntimeCoveragePercent      float64 `json:"runtime_coverage_percent"`
-	SASTFindings                int     `json:"sast_findings"`
-	SCAActionableFindings       int     `json:"sca_actionable_findings"`
-	ValidationP95MS            float64 `json:"validation_p95_ms"`
-	ValidationBudgetMS          float64 `json:"validation_budget_ms"`
-	OrchestrationP95MS         float64 `json:"orchestration_p95_ms"`
-	OrchestrationBudgetMS      float64 `json:"orchestration_budget_ms"`
-	RecoveryOutcome            string  `json:"recovery_outcome"`
-	RecoveryNextAction         string  `json:"recovery_next_action"`
-	BlockingOpenDecisions      int     `json:"blocking_open_decisions"`
-	ProductionReadinessClaim   bool    `json:"production_readiness_claim"`
-	Limitations                int     `json:"limitations"`
-	Status                     string  `json:"status"`
+	Capability                string  `json:"capability"`
+	Screen                    string  `json:"screen"`
+	ContractID                string  `json:"contract_id"`
+	ContractFixtures          int     `json:"contract_fixtures"`
+	NegativeFixtures          int     `json:"negative_fixtures"`
+	AdversarialTests          int     `json:"adversarial_tests"`
+	RuntimeEvidenceHead       string  `json:"runtime_evidence_head"`
+	PerformanceEvidenceHead   string  `json:"performance_evidence_head"`
+	CurrentHead               string  `json:"current_head"`
+	RuntimeUnchangedSincePerf bool    `json:"runtime_unchanged_since_performance_evidence"`
+	RuntimeCoveragePercent    float64 `json:"runtime_coverage_percent"`
+	SASTFindings              int     `json:"sast_findings"`
+	SCAActionableFindings     int     `json:"sca_actionable_findings"`
+	ValidationP95MS           float64 `json:"validation_p95_ms"`
+	ValidationBudgetMS        float64 `json:"validation_budget_ms"`
+	OrchestrationP95MS        float64 `json:"orchestration_p95_ms"`
+	OrchestrationBudgetMS     float64 `json:"orchestration_budget_ms"`
+	RecoveryOutcome           string  `json:"recovery_outcome"`
+	RecoveryNextAction        string  `json:"recovery_next_action"`
+	BlockingOpenDecisions     int     `json:"blocking_open_decisions"`
+	ProductionReadinessClaim  bool    `json:"production_readiness_claim"`
+	Limitations               int     `json:"limitations"`
+	Status                    string  `json:"status"`
 }
 
 func runEventSearchE2EAudit(root string, state CurrentState, graph WorkGraph) (EventSearchE2EAuditSummary, error) {
