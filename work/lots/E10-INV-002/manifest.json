@@ -82,7 +82,6 @@
     "engineering/security/**",
     "engineering/performance/**",
     "engineering/testing/**",
-    "product-runtime/event-search/**",
     "work/lots/E10-INV-002*/**",
     "engineering/state/**",
     "work/graph.json",

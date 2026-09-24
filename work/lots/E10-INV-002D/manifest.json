@@ -77,7 +77,6 @@
     "E10-INV-002C"
   ],
   "allowed_paths": [
-    "product-runtime/event-search/**",
     "engineering/implementation/event-search/**",
     "engineering/security/**",
     "engineering/performance/**",

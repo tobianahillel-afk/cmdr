@@ -82,7 +82,6 @@
     "engineering/security/**",
     "engineering/performance/**",
     "engineering/testing/**",
-    "product-runtime/event-search/**",
     "work/lots/E10-INV-002*/**",
     "engineering/state/**",
     "work/graph.json",
@@ -97,7 +96,7 @@
   ],
   "outputs": [
     "event-search bounded scope and executable contract",
-    "reserved product-runtime/event-search ownership boundary with no executable product code",
+    "event-search runtime boundary registration plan; the boundary is created atomically with its security/performance ownership in this task, before runtime code",
     "positive/negative fixtures for tenant/time/source/permission/state/error behavior",
     "performance target and security-test obligations before implementation"
   ],
@@ -130,7 +129,7 @@
     "CAP-INV-002 canonical file resolves and is non-empty"
   ],
   "definition_of_done": [
-    "runtime boundary is reserved but contains no executable product code",
+    "event-search runtime boundary is registered atomically with explicit security/performance ownership and contains no executable product code",
     "executable contract is source-backed",
     "negative fixtures exist before implementation",
     "security and performance obligations are registered",
