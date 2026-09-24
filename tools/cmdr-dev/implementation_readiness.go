@@ -201,33 +201,49 @@ func parseCapabilityRegistryContent(source, content string) ([]CapabilityRegistr
 		}
 		if columns == nil {
 			candidate := tableColumnMap(cells)
-			if tableColumn(candidate, "id", "capability id") >= 0 && tableColumn(candidate, "delivery status") >= 0 {
+			hasID := tableColumn(candidate, "id", "capability id") >= 0
+			hasDelivery := tableColumn(candidate, "delivery status") >= 0 || tableColumn(candidate, "delivery") >= 0
+			if hasID && hasDelivery {
 				columns = candidate
 				started = true
 			}
 			continue
 		}
-		id := tableCell(cells, columns, "id", "capability id")
-		id = strings.Trim(id, "`*")
+		id := strings.Trim(tableCell(cells, columns, "id", "capability id"), "`*")
 		if !capabilityIDPattern.MatchString(id) {
 			continue
 		}
+
 		deliveryStatus := strings.ToLower(strings.TrimSpace(tableCell(cells, columns, "delivery status")))
+		deliveryMode := strings.ToLower(strings.TrimSpace(tableCell(cells, columns, "delivery mode")))
+		if deliveryStatus == "" {
+			combined := strings.ToLower(strings.TrimSpace(tableCell(cells, columns, "delivery")))
+			parts := strings.Split(combined, "/")
+			if len(parts) != 2 {
+				return nil, fmt.Errorf("%s capability %s has unsupported combined delivery value %q", source, id, combined)
+			}
+			deliveryStatus = strings.TrimSpace(parts[0])
+			deliveryMode = strings.TrimSpace(parts[1])
+		}
 		if deliveryStatus != "defined" && deliveryStatus != "proposed" {
 			return nil, fmt.Errorf("%s capability %s has unsupported delivery status %q", source, id, deliveryStatus)
 		}
+		if deliveryMode == "" {
+			return nil, fmt.Errorf("%s capability %s has no delivery mode", source, id)
+		}
+
 		record := CapabilityRegistryRecord{
 			ID:             id,
-			Name:           strings.TrimSpace(tableCell(cells, columns, "name")),
+			Name:           strings.TrimSpace(tableCell(cells, columns, "name", "capability")),
 			Status:         strings.ToLower(strings.TrimSpace(tableCell(cells, columns, "status"))),
 			DeliveryStatus: deliveryStatus,
-			DeliveryMode:   strings.ToLower(strings.TrimSpace(tableCell(cells, columns, "delivery mode"))),
+			DeliveryMode:   deliveryMode,
 			CanonicalFile:  strings.Trim(strings.TrimSpace(tableCell(cells, columns, "canonical file")), "`"),
 			OpenDecisions:  extractOpenDecisionIDs(tableCell(cells, columns, "open")),
 			SourcePath:     source,
 		}
-		if record.Name == "" || record.Status == "" || record.DeliveryMode == "" {
-			return nil, fmt.Errorf("%s capability %s has incomplete registry metadata", source, id)
+		if record.Name == "" {
+			return nil, fmt.Errorf("%s capability %s has no name", source, id)
 		}
 		records = append(records, record)
 	}

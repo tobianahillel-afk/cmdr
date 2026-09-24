@@ -29,6 +29,35 @@ func TestParseCapabilityRegistryContent(t *testing.T) {
 	}
 }
 
+func TestParseCapabilityRegistryCombinedDeliveryVariant(t *testing.T) {
+	content := `# Endpoint register
+
+| ID | Capability | Primary role | Primary concepts | Key consumers | OPEN | Delivery |
+|---|---|---|---|---|---|---|
+| CAP-EPT-031 | Local Detection | Analyst | match | Investigate | OPEN-008, OPEN-017 | defined / planned |
+`
+	records, err := parseCapabilityRegistryContent("endpoint.md", content)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(records) != 1 {
+		t.Fatalf("expected one record, got %#v", records)
+	}
+	record := records[0]
+	if record.ID != "CAP-EPT-031" || record.Name != "Local Detection" {
+		t.Fatalf("unexpected identity: %#v", record)
+	}
+	if record.DeliveryStatus != "defined" || record.DeliveryMode != "planned" {
+		t.Fatalf("unexpected delivery fields: %#v", record)
+	}
+	if record.Status != "" || record.CanonicalFile != "" {
+		t.Fatalf("row-absent optional metadata must remain empty: %#v", record)
+	}
+	if len(record.OpenDecisions) != 2 || record.OpenDecisions[0] != "OPEN-008" || record.OpenDecisions[1] != "OPEN-017" {
+		t.Fatalf("unexpected OPEN refs: %#v", record.OpenDecisions)
+	}
+}
+
 func TestExpandCapabilitySelectorsSupportsExactRangeAndSlash(t *testing.T) {
 	known := map[string]CapabilityRegistryRecord{
 		"CAP-INV-001": readinessRecord("CAP-INV-001", "defined"),
