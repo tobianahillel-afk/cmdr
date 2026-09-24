@@ -91,17 +91,17 @@ func TestImplementationLedgerRejectsDuplicateWorkUnit(t *testing.T) {
 		Entries: []ImplementationLedgerEntry{
 			{
 				Capability: "CAP-SET-004", WorkUnit: "E9-PILOT-001C-RUNTIME",
-				ManifestPath: "work/lots/E9-PILOT-001C-RUNTIME/manifest.json",
-				HandoffPath: "work/lots/E9-PILOT-001C-RUNTIME/HANDOFF.json",
+				ManifestPath:    "work/lots/E9-PILOT-001C-RUNTIME/manifest.json",
+				HandoffPath:     "work/lots/E9-PILOT-001C-RUNTIME/HANDOFF.json",
 				RuntimeBoundary: "pilot-context-envelope-runtime",
-				RuntimeRoot: "product-runtime/context-envelope/**",
+				RuntimeRoot:     "product-runtime/context-envelope/**",
 			},
 			{
 				Capability: "CAP-SET-005", WorkUnit: "E9-PILOT-001C-RUNTIME",
-				ManifestPath: "work/lots/E9-PILOT-001C-RUNTIME/manifest.json",
-				HandoffPath: "work/lots/E9-PILOT-001C-RUNTIME/HANDOFF.json",
+				ManifestPath:    "work/lots/E9-PILOT-001C-RUNTIME/manifest.json",
+				HandoffPath:     "work/lots/E9-PILOT-001C-RUNTIME/HANDOFF.json",
 				RuntimeBoundary: "another-runtime",
-				RuntimeRoot: "product-runtime/another/**",
+				RuntimeRoot:     "product-runtime/another/**",
 			},
 		},
 	}
@@ -119,17 +119,17 @@ func TestImplementationLedgerRejectsDuplicateRuntimeBoundary(t *testing.T) {
 		Entries: []ImplementationLedgerEntry{
 			{
 				Capability: "CAP-SET-004", WorkUnit: "E9-PILOT-001C-RUNTIME",
-				ManifestPath: "work/lots/E9-PILOT-001C-RUNTIME/manifest.json",
-				HandoffPath: "work/lots/E9-PILOT-001C-RUNTIME/HANDOFF.json",
+				ManifestPath:    "work/lots/E9-PILOT-001C-RUNTIME/manifest.json",
+				HandoffPath:     "work/lots/E9-PILOT-001C-RUNTIME/HANDOFF.json",
 				RuntimeBoundary: "pilot-context-envelope-runtime",
-				RuntimeRoot: "product-runtime/context-envelope/**",
+				RuntimeRoot:     "product-runtime/context-envelope/**",
 			},
 			{
 				Capability: "CAP-SET-005", WorkUnit: "E9-PILOT-OTHER-RUNTIME",
-				ManifestPath: "work/lots/E9-PILOT-OTHER-RUNTIME/manifest.json",
-				HandoffPath: "work/lots/E9-PILOT-OTHER-RUNTIME/HANDOFF.json",
+				ManifestPath:    "work/lots/E9-PILOT-OTHER-RUNTIME/manifest.json",
+				HandoffPath:     "work/lots/E9-PILOT-OTHER-RUNTIME/HANDOFF.json",
 				RuntimeBoundary: "pilot-context-envelope-runtime",
-				RuntimeRoot: "product-runtime/context-envelope/**",
+				RuntimeRoot:     "product-runtime/context-envelope/**",
 			},
 		},
 	}
@@ -137,4 +137,3 @@ func TestImplementationLedgerRejectsDuplicateRuntimeBoundary(t *testing.T) {
 		t.Fatal("expected duplicate runtime boundary rejection")
 	}
 }
-
