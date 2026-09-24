@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-002D",
+  "status": "VERIFIED",
+  "final_validated_head": "41d3bfba7d80d1264ded55cfba95bc6db9bf3e77",
+  "validation": {
+    "push_workflow_run": 36057764845,
+    "pull_request_workflow_run": 36057772776,
+    "result": "PASS",
+    "selected_checks": 52,
+    "executed_checks": 45,
+    "preflight_satisfied": 7,
+    "event_search_e2e": "PASS",
+    "sast": "PASS",
+    "sca": "PASS",
+    "secrets": "PASS",
+    "runtime_dependencies": "PASS"
+  },
+  "bounded_core": {
+    "capability": "CAP-INV-002",
+    "contract_id": "EVENT-SEARCH-EXECUTABLE-CONTRACT-V1",
+    "adversarial_tests": 9,
+    "runtime_coverage_percent": 91.87,
+    "sast_findings": 0,
+    "sca_actionable_findings": 0,
+    "validation_p95_ms": 0.000433305,
+    "validation_budget_ms": 1,
+    "orchestration_p95_ms": 0.001716986,
+    "orchestration_budget_ms": 1,
+    "runtime_unchanged_since_performance_evidence": true,
+    "recovery_outcome": "resume",
+    "limitations": 7,
+    "production_readiness_claim": false
+  },
+  "residuals": [
+    "Event Search UI integration remains outside the bounded core",
+    "Saved Search behavior remains separately owned and unimplemented in this wave",
+    "Case-link mutation remains excluded while OPEN-013 is unresolved",
+    "final query language and dialect remain unselected",
+    "final search/index/storage/provider stack remains unselected",
+    "production search SLO remains unclaimed until a concrete backend and representative workload exist",
+    "stable result references are not a final persisted result-storage model"
+  ],
+  "product_spec_mutated": false,
+  "full_capability_completion_claim": false,
+  "next_unlocked": [
+    "E10-INV-002E"
+  ]
+}

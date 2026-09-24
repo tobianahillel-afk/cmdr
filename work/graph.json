@@ -923,13 +923,15 @@
       "id": "E10-INV-002D",
       "title": "Run adversarial Event Search core validation and bounded handoff",
       "type": "task",
-      "status": "READY",
+      "status": "VERIFIED",
       "depends_on": [
         "E10-INV-002C-RUNTIME",
         "E10-INV-002C-PERF"
       ],
       "dependency_terminal_state": "VERIFIED",
-      "unlocks": []
+      "unlocks": [
+        "E10-INV-002E"
+      ]
     },
     {
       "id": "E10-INV-002A-BOUNDARY",
@@ -1003,6 +1005,17 @@
       "status": "VERIFIED",
       "depends_on": [
         "E10-INV-002C-RUNTIME"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": []
+    },
+    {
+      "id": "E10-INV-002E",
+      "title": "Research and select Event Search frontend runtime architecture",
+      "type": "task",
+      "status": "READY",
+      "depends_on": [
+        "E10-INV-002D"
       ],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": []
