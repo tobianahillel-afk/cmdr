@@ -12,8 +12,23 @@ import (
 
 const capabilityDependencyRegisterPath = "cmdr-product-spec/00-governance/dependency-register.md"
 
-var readinessDependencyIDPattern = regexp.MustCompile(`^DEP-[A-Z0-9-]+$`)
+var readinessDependencyIDPattern = regexp.MustCompile(`^DEP-[A-Z0-9-]+package main
+
+import (
+	"fmt"
+	"io/fs"
+	"path/filepath"
+	"regexp"
+	"sort"
+	"strconv"
+	"strings"
+)
+
+const capabilityDependencyRegisterPath = "cmdr-product-spec/00-governance/dependency-register.md"
+
+)
 var capabilitySelectorTokenPattern = regexp.MustCompile(`CAP-[A-Z0-9]+-[0-9]{3}([.][.][0-9]{3}|(/[0-9]{3})*)?`)
+var openDecisionTokenPattern = regexp.MustCompile(`OPEN-[0-9]{3}`)
 
 type CapabilityRegistryRecord struct {
 	ID             string   `json:"id"`
@@ -545,7 +560,7 @@ func tableCell(cells []string, columns map[string]int, names ...string) string {
 }
 
 func extractOpenDecisionIDs(value string) []string {
-	ids := openDecisionIDPattern.FindAllString(value, -1)
+	ids := openDecisionTokenPattern.FindAllString(value, -1)
 	return sortedUniqueStrings(ids)
 }
 
