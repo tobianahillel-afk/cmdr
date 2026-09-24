@@ -26,13 +26,13 @@ type ImplementationLedger struct {
 }
 
 type RuntimeImplementationHandoff struct {
-	SchemaVersion      int    `json:"schema_version"`
-	WorkUnit           string `json:"work_unit"`
-	Result             string `json:"result"`
+	SchemaVersion        int    `json:"schema_version"`
+	WorkUnit             string `json:"work_unit"`
+	Result               string `json:"result"`
 	ImplementationCommit string `json:"implementation_commit"`
-	FinalValidatedHead string `json:"final_validated_head"`
-	PullRequest        int    `json:"pull_request"`
-	Evidence           struct {
+	FinalValidatedHead   string `json:"final_validated_head"`
+	PullRequest          int    `json:"pull_request"`
+	Evidence             struct {
 		PushRun               int     `json:"push_run"`
 		PullRequestRun        int     `json:"pull_request_run"`
 		Contract              string  `json:"contract"`
@@ -180,10 +180,10 @@ func runImplementationLedgerAudit(root string, state CurrentState, graph WorkGra
 			Capability: entry.Capability, WorkUnit: entry.WorkUnit,
 			RuntimeBoundary: entry.RuntimeBoundary, RuntimeRoot: entry.RuntimeRoot,
 			ImplementationCommit: handoff.ImplementationCommit,
-			FinalValidatedHead: handoff.FinalValidatedHead,
-			CoveragePercent: handoff.Evidence.GlobalCoveragePercent,
-			SASTFindings: handoff.Evidence.SASTFindings,
-			SCAActionable: handoff.Evidence.SCAActionableFindings,
+			FinalValidatedHead:   handoff.FinalValidatedHead,
+			CoveragePercent:      handoff.Evidence.GlobalCoveragePercent,
+			SASTFindings:         handoff.Evidence.SASTFindings,
+			SCAActionable:        handoff.Evidence.SCAActionableFindings,
 		})
 	}
 	sort.Slice(summary.Claims, func(i, j int) bool { return summary.Claims[i].Capability < summary.Claims[j].Capability })
