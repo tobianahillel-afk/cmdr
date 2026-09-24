@@ -4,7 +4,7 @@
   "title": "Implement the selected vertical slice",
   "type": "sublot",
   "parent": "E9-PILOT-001",
-  "goal": "Implement only the verified pilot contract inside its owned runtime boundary with no silent scope widening.",
+  "goal": "Coordinate runtime implementation, measured security activation, and real performance verification for the selected pilot slice without silent scope widening.",
   "product_refs": {
     "capabilities": [
       "CAP-SET-004"
@@ -54,9 +54,9 @@
     "owned pilot-context-envelope-runtime architecture boundary"
   ],
   "outputs": [
-    "standard-library-only context-envelope product runtime implementation",
-    "tests consuming the predeclared executable fixture set",
-    "traceable runtime evidence for CAP-SET-004"
+    "verified E9-PILOT-001C-RUNTIME implementation",
+    "verified E9-PILOT-001C-SECURITY measured security evidence",
+    "verified E9-PILOT-001C-PERF real performance evidence"
   ],
   "invariants": [
     "Product Spec remains read-only",
@@ -108,11 +108,10 @@
     "Product Spec baseline is unchanged"
   ],
   "definition_of_done": [
-    "implementation satisfies positive and negative contracts",
-    "no unapproved external product-runtime dependency is introduced",
-    "tenant and authority invariants are enforced where applicable",
-    "changed code meets test and security gates",
-    "implementation stays inside lot complexity budget"
+    "E9-PILOT-001C-RUNTIME is VERIFIED",
+    "E9-PILOT-001C-SECURITY is VERIFIED",
+    "E9-PILOT-001C-PERF is VERIFIED",
+    "pilot runtime is ready for E9-PILOT-001D adversarial handoff"
   ],
   "complexity": {
     "primary_components": 2,
@@ -123,6 +122,6 @@
     "bounded_contexts": 1,
     "independent_migrations": 0,
     "distinct_security_models": 1,
-    "separately_testable_behaviors": 1
+    "separately_testable_behaviors": 3
   }
 }

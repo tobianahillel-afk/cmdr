@@ -706,7 +706,7 @@
       "id": "E9-PILOT-001B",
       "title": "Establish pilot runtime boundary and executable contracts",
       "type": "sublot",
-      "status": "DECOMPOSED",
+      "status": "VERIFIED",
       "depends_on": [
         "E9-PILOT-001A"
       ],
@@ -719,13 +719,13 @@
       "id": "E9-PILOT-001C",
       "title": "Implement the selected vertical slice",
       "type": "sublot",
-      "status": "BLOCKED",
+      "status": "DECOMPOSED",
       "depends_on": [
         "E9-PILOT-001B"
       ],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": [
-        "E9-PILOT-001D"
+        "E9-PILOT-001C-RUNTIME"
       ]
     },
     {
@@ -743,7 +743,7 @@
       "id": "E9-PILOT-001B-CONTRACT",
       "title": "Establish pilot runtime boundary and executable contract fixtures",
       "type": "task",
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "depends_on": [
         "E9-PILOT-001A"
       ],
@@ -756,7 +756,7 @@
       "id": "E9-PILOT-001B-PERF",
       "title": "Register pre-implementation performance budgets for pilot runtime boundary",
       "type": "task",
-      "status": "READY",
+      "status": "VERIFIED",
       "depends_on": [
         "E9-PILOT-001B-SECURITY"
       ],
@@ -775,6 +775,43 @@
       "unlocks": [
         "E9-PILOT-001B-PERF"
       ]
+    },
+    {
+      "id": "E9-PILOT-001C-RUNTIME",
+      "title": "Implement context-envelope runtime and contract fixtures",
+      "type": "task",
+      "status": "READY",
+      "depends_on": [
+        "E9-PILOT-001B"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E9-PILOT-001C-SECURITY"
+      ]
+    },
+    {
+      "id": "E9-PILOT-001C-SECURITY",
+      "title": "Activate measured runtime security evidence and negative gates",
+      "type": "task",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E9-PILOT-001C-RUNTIME"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E9-PILOT-001C-PERF"
+      ]
+    },
+    {
+      "id": "E9-PILOT-001C-PERF",
+      "title": "Activate pilot runtime performance workload and verify budget",
+      "type": "task",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E9-PILOT-001C-SECURITY"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": []
     }
   ]
 }

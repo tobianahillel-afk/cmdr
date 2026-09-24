@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "work_unit": "E9-PILOT-001B-PERF",
+  "status": "VERIFIED",
+  "final_validated_head": "2db2f554ae79c799a5e5531fa65c5bae6b6cb04d",
+  "validation": {
+    "push_workflow_run": 35982557784,
+    "pull_request_workflow_run": 35982562866,
+    "result": "PASS"
+  },
+  "performance_observation": {
+    "environments": 1,
+    "targets": 1,
+    "metrics": 1,
+    "runtime_boundaries": 1,
+    "runtime_targeted": 1,
+    "coverage": "complete",
+    "pr_selected": 0,
+    "pr_executed": 0,
+    "deep_selected": 0,
+    "deep_executed": 0,
+    "cache_records": 0,
+    "measurement_claimed": false
+  },
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E9-PILOT-001C-RUNTIME"
+  ]
+}

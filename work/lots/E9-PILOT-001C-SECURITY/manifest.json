@@ -1,0 +1,126 @@
+{
+  "schema_version": 2,
+  "parent": "E9-PILOT-001C",
+  "product_refs": {
+    "capabilities": [
+      "CAP-SET-004"
+    ],
+    "requirements": [
+      "REQ-PROD-008",
+      "REQ-SEC-001",
+      "REQ-UX-006",
+      "REQ-UX-007",
+      "REQ-UX-009"
+    ],
+    "screens": [],
+    "permissions": [
+      "perm.platform-settings.environment.read",
+      "perm.platform-settings.tenant.read"
+    ],
+    "open_decisions": [],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/cross-product-context-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/environment.md",
+      "cmdr-product-spec/05-domain-model/objects/tenant.md"
+    ]
+  },
+  "forbidden_paths": [
+    "cmdr-product-spec/**"
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "bounded pure in-process pilot runtime with no persistence",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert the child task and keep later E9-C tasks blocked",
+    "verification": [
+      "Product Spec baseline remains unchanged",
+      "runtime boundary dependency audit remains valid"
+    ]
+  },
+  "definition_of_ready": [
+    "upstream dependency terminal state is satisfied",
+    "scope remains PILOT-CONTEXT-001/CAP-SET-004"
+  ],
+  "id": "E9-PILOT-001C-SECURITY",
+  "title": "Activate measured runtime security evidence and negative gates",
+  "type": "task",
+  "goal": "Turn the implemented pilot runtime from preimplementation to measured security state with commit-bound coverage evidence and executable authorization/tenant-isolation negative tests.",
+  "depends_on": [
+    "E9-PILOT-001C-RUNTIME"
+  ],
+  "allowed_paths": [
+    "product-runtime/context-envelope/**",
+    "engineering/security/**",
+    "engineering/testing/**",
+    "tools/cmdr-dev/security_tests.go",
+    "tools/cmdr-dev/security_tests_test.go",
+    "tools/cmdr-dev/security_gates.go",
+    "tools/cmdr-dev/security_gates_test.go",
+    "tools/cmdr-dev/validation_run.go",
+    "tools/cmdr-dev/check_catalog.go",
+    "engineering/testing/check-catalog.json",
+    ".github/workflows/**",
+    "work/lots/E9-PILOT-001C*/**",
+    "engineering/state/**",
+    "work/graph.json"
+  ],
+  "inputs": [
+    "implemented context-envelope runtime",
+    "registered auth/tenant security ownership",
+    "80/90 coverage floors"
+  ],
+  "outputs": [
+    "active authorization negative gate for pilot runtime",
+    "active tenant-isolation negative gate for pilot runtime",
+    "CI-generated commit-bound measured runtime security evidence"
+  ],
+  "invariants": [
+    "no static fake coverage file",
+    "measured evidence is derived in CI for exact checkout",
+    "negative tests use synthetic fixtures only"
+  ],
+  "security_properties": [
+    "authorization-denied paths expose no protected references",
+    "cross-tenant transitions cannot retain foreign environment",
+    "coverage floors fail closed"
+  ],
+  "acceptance_tests": [
+    "global runtime coverage >=80%",
+    "changed security-critical coverage >=90% when runtime changes",
+    "authorization negative tests pass",
+    "tenant isolation negative tests pass",
+    "push and PR security-test audit report measured"
+  ],
+  "performance_budget": {
+    "applicable": false,
+    "rationale": "security activation/control-plane work",
+    "metrics": []
+  },
+  "required_checks": [
+    "CHK-SECURITY-TESTS",
+    "CHK-SECURITY-GATES",
+    "CHK-DEEP-SECURITY"
+  ],
+  "definition_of_done": [
+    "runtime scope becomes measured",
+    "required negative gates are active",
+    "CI evidence is commit-bound and passes floors",
+    "E9-PILOT-001C-RUNTIME becomes VERIFIED"
+  ],
+  "complexity": {
+    "primary_components": 2,
+    "estimated_files_changed": 10,
+    "estimated_net_loc": 600,
+    "production_files": 4,
+    "net_production_loc": 390,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}
