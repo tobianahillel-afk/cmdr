@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"os"
 	"os/exec"
 	"path/filepath"
 	"sort"
@@ -36,6 +37,7 @@ type RuntimeSecurityPolicy struct {
 
 type RuntimeSecurityEvidenceScope struct {
 	BoundaryID                     string   `json:"boundary_id"`
+	ImplementationState            string   `json:"implementation_state"`
 	ChangedSecurityCritical        bool     `json:"changed_security_critical"`
 	ChangedSecurityCriticalPercent *float64 `json:"changed_security_critical_coverage_percent"`
 	AuthorizationNegativePassed    *bool    `json:"authorization_negative_passed"`
@@ -54,6 +56,8 @@ type RuntimeSecurityEvidence struct {
 type SecurityTestAuditSummary struct {
 	RuntimeBoundaries             int      `json:"runtime_boundaries"`
 	RegisteredScopes              int      `json:"registered_scopes"`
+	PreimplementationScopes       int      `json:"preimplementation_scopes"`
+	ImplementedScopes             int      `json:"implemented_scopes"`
 	AuthorizationRequired         int      `json:"authorization_required"`
 	TenantIsolationRequired       int      `json:"tenant_isolation_required"`
 	ChangedSecurityCriticalScopes int      `json:"changed_security_critical_scopes"`
@@ -95,7 +99,13 @@ func runSecurityTestAudit(root, changesFile string) (SecurityTestAuditSummary, e
 	if err != nil {
 		return SecurityTestAuditSummary{}, err
 	}
-	return evaluateSecurityTestPolicy(architecture, gates, policy, evidence, changed, head)
+	implementationStates, err := detectRuntimeImplementationStates(root, architecture)
+	if err != nil {
+		return SecurityTestAuditSummary{}, err
+	}
+	return evaluateSecurityTestPolicyWithImplementationStates(
+		architecture, gates, policy, evidence, changed, head, implementationStates,
+	)
 }
 
 func evaluateSecurityTestPolicy(
@@ -105,6 +115,26 @@ func evaluateSecurityTestPolicy(
 	evidence RuntimeSecurityEvidence,
 	changedPaths []string,
 	currentCommit string,
+) (SecurityTestAuditSummary, error) {
+	states := map[string]string{}
+	for _, boundary := range architecture.Boundaries {
+		if boundary.Kind == "product-runtime" {
+			states[boundary.ID] = "implemented"
+		}
+	}
+	return evaluateSecurityTestPolicyWithImplementationStates(
+		architecture, gates, policy, evidence, changedPaths, currentCommit, states,
+	)
+}
+
+func evaluateSecurityTestPolicyWithImplementationStates(
+	architecture ArchitectureRegistry,
+	gates SecurityGateRegistry,
+	policy RuntimeSecurityPolicy,
+	evidence RuntimeSecurityEvidence,
+	changedPaths []string,
+	currentCommit string,
+	implementationStates map[string]string,
 ) (SecurityTestAuditSummary, error) {
 	if err := validateRuntimeSecurityPolicy(policy); err != nil {
 		return SecurityTestAuditSummary{}, err
@@ -159,8 +189,8 @@ func evaluateSecurityTestPolicy(
 	}
 
 	if len(runtime) == 0 {
-		if len(policy.Scopes) != 0 {
-			return summary, fmt.Errorf("runtime security scopes exist while no product-runtime boundary exists")
+		if len(policy.Scopes) != 0 || len(implementationStates) != 0 {
+			return summary, fmt.Errorf("runtime security state exists while no product-runtime boundary exists")
 		}
 		if evidence.Status != "not-applicable" {
 			return summary, fmt.Errorf("runtime security evidence must be not-applicable while no product runtime exists")
@@ -173,23 +203,23 @@ func evaluateSecurityTestPolicy(
 		return summary, nil
 	}
 
-	if len(changedPaths) == 0 {
-		return summary, fmt.Errorf("runtime security audit requires changed-path evidence once product-runtime boundaries exist")
+	if len(implementationStates) != len(runtime) {
+		return summary, fmt.Errorf("runtime implementation-state count does not match product-runtime boundaries")
 	}
-	if evidence.Status != "measured" {
-		return summary, fmt.Errorf("runtime security evidence must be measured once product runtime exists")
+	for _, boundary := range runtime {
+		state, ok := implementationStates[boundary.ID]
+		if !ok {
+			return summary, fmt.Errorf("runtime boundary %s has no detected implementation state", boundary.ID)
+		}
+		switch state {
+		case "preimplementation":
+			summary.PreimplementationScopes++
+		case "implemented":
+			summary.ImplementedScopes++
+		default:
+			return summary, fmt.Errorf("runtime boundary %s has unknown implementation state %q", boundary.ID, state)
+		}
 	}
-	if !fullCommitIDPattern.MatchString(evidence.SourceCommit) || evidence.SourceCommit != currentCommit {
-		return summary, fmt.Errorf("runtime security evidence source_commit does not match checked-out commit")
-	}
-	if evidence.GlobalCoveragePercent == nil || !validCoveragePercent(*evidence.GlobalCoveragePercent) {
-		return summary, fmt.Errorf("runtime security evidence requires a valid global coverage percent")
-	}
-	if *evidence.GlobalCoveragePercent < policy.GlobalCoverageFloorPercent {
-		return summary, fmt.Errorf("global runtime coverage %.2f is below %.2f floor", *evidence.GlobalCoveragePercent, policy.GlobalCoverageFloorPercent)
-	}
-	summary.CoverageStatus = "measured"
-	summary.GlobalCoveragePercent = evidence.GlobalCoveragePercent
 
 	evidenceByBoundary := map[string]RuntimeSecurityEvidenceScope{}
 	for _, item := range evidence.Scopes {
@@ -204,6 +234,53 @@ func evaluateSecurityTestPolicy(
 	if len(evidenceByBoundary) != len(scopeByBoundary) {
 		return summary, fmt.Errorf("runtime security evidence scope count does not match registered runtime security scopes")
 	}
+	for _, boundary := range runtime {
+		item := evidenceByBoundary[boundary.ID]
+		state := implementationStates[boundary.ID]
+		if item.ImplementationState != state {
+			return summary, fmt.Errorf("scope %s implementation-state evidence mismatch: got %q want %q",
+				boundary.ID, item.ImplementationState, state)
+		}
+		if state == "preimplementation" {
+			if item.ChangedSecurityCritical || item.ChangedSecurityCriticalPercent != nil ||
+				item.AuthorizationNegativePassed != nil || item.TenantIsolationNegativePassed != nil {
+				return summary, fmt.Errorf("preimplementation scope %s must not claim runtime coverage or negative-test evidence", boundary.ID)
+			}
+		}
+	}
+
+	expectedStatus := "measured"
+	if summary.ImplementedScopes == 0 {
+		expectedStatus = "preimplementation"
+	} else if summary.PreimplementationScopes > 0 {
+		expectedStatus = "mixed"
+	}
+	if evidence.Status != expectedStatus {
+		return summary, fmt.Errorf("runtime security evidence status %q does not match detected state %q", evidence.Status, expectedStatus)
+	}
+	if expectedStatus == "preimplementation" {
+		if strings.TrimSpace(evidence.Reason) == "" || evidence.SourceCommit != "" || evidence.GlobalCoveragePercent != nil {
+			return summary, fmt.Errorf("preimplementation runtime evidence requires a reason and must not claim commit-bound coverage")
+		}
+		summary.CoverageStatus = "preimplementation"
+		summary.NotApplicableReason = evidence.Reason
+		return summary, nil
+	}
+
+	if len(changedPaths) == 0 {
+		return summary, fmt.Errorf("runtime security audit requires changed-path evidence once executable product runtime exists")
+	}
+	if !fullCommitIDPattern.MatchString(evidence.SourceCommit) || evidence.SourceCommit != currentCommit {
+		return summary, fmt.Errorf("runtime security evidence source_commit does not match checked-out commit")
+	}
+	if evidence.GlobalCoveragePercent == nil || !validCoveragePercent(*evidence.GlobalCoveragePercent) {
+		return summary, fmt.Errorf("runtime security evidence requires a valid global coverage percent")
+	}
+	if *evidence.GlobalCoveragePercent < policy.GlobalCoverageFloorPercent {
+		return summary, fmt.Errorf("global runtime coverage %.2f is below %.2f floor", *evidence.GlobalCoveragePercent, policy.GlobalCoverageFloorPercent)
+	}
+	summary.CoverageStatus = expectedStatus
+	summary.GlobalCoveragePercent = evidence.GlobalCoveragePercent
 
 	gateByID := map[string]SecurityGate{}
 	for _, gate := range gates.Gates {
@@ -212,6 +289,9 @@ func evaluateSecurityTestPolicy(
 	for _, boundary := range runtime {
 		scope := scopeByBoundary[boundary.ID]
 		item := evidenceByBoundary[boundary.ID]
+		if implementationStates[boundary.ID] == "preimplementation" {
+			continue
+		}
 		changed := scopeChanged(scope, changedPaths)
 		if item.ChangedSecurityCritical != changed {
 			return summary, fmt.Errorf("scope %s changed-security-critical evidence mismatch", scope.BoundaryID)
@@ -251,6 +331,70 @@ func evaluateSecurityTestPolicy(
 		}
 	}
 	return summary, nil
+}
+
+
+func detectRuntimeImplementationStates(root string, architecture ArchitectureRegistry) (map[string]string, error) {
+	states := map[string]string{}
+	for _, boundary := range architecture.Boundaries {
+		if boundary.Kind != "product-runtime" {
+			continue
+		}
+		state, err := detectRuntimeBoundaryImplementationState(root, boundary)
+		if err != nil {
+			return nil, err
+		}
+		states[boundary.ID] = state
+	}
+	return states, nil
+}
+
+func detectRuntimeBoundaryImplementationState(root string, boundary ArchitectureBoundary) (string, error) {
+	implemented := false
+	for _, pattern := range boundary.Roots {
+		prefix := strings.TrimSuffix(patternPrefix(pattern), "/")
+		if prefix == "" {
+			return "", fmt.Errorf("runtime boundary %s has non-concrete root %q", boundary.ID, pattern)
+		}
+		path, err := resolveRepoPath(root, prefix, false)
+		if err != nil {
+			return "", fmt.Errorf("runtime boundary %s root: %w", boundary.ID, err)
+		}
+		info, err := os.Stat(path) // #nosec G703 -- path is repository-confined and symlink-free.
+		if err != nil {
+			return "", fmt.Errorf("runtime boundary %s root: %w", boundary.ID, err)
+		}
+		if !info.IsDir() {
+			return "", fmt.Errorf("runtime boundary %s root must resolve to a directory", boundary.ID)
+		}
+		err = filepath.WalkDir(path, func(current string, entry os.DirEntry, err error) error {
+			if err != nil {
+				return err
+			}
+			if entry.Type()&os.ModeSymlink != 0 {
+				return fmt.Errorf("runtime boundary %s contains symlink %s", boundary.ID, current)
+			}
+			if entry.IsDir() {
+				return nil
+			}
+			name := strings.ToLower(entry.Name())
+			if name == "readme.md" || name == ".gitkeep" {
+				return nil
+			}
+			implemented = true
+			return filepath.SkipAll
+		})
+		if err != nil {
+			return "", err
+		}
+		if implemented {
+			break
+		}
+	}
+	if implemented {
+		return "implemented", nil
+	}
+	return "preimplementation", nil
 }
 
 func validateRuntimeSecurityPolicy(policy RuntimeSecurityPolicy) error {

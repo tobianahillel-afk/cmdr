@@ -57,7 +57,7 @@
   "type": "task",
   "goal": "Complete the runtime-boundary invariant by registering a truthful future projection budget and deep target without executing or claiming product runtime performance before E9-C.",
   "depends_on": [
-    "E9-PILOT-001B-CONTRACT"
+    "E9-PILOT-001B-SECURITY"
   ],
   "allowed_paths": [
     "engineering/performance/**",
@@ -69,7 +69,7 @@
     "work/graph.json"
   ],
   "inputs": [
-    "implemented E9-PILOT-001B-CONTRACT boundary",
+    "verified E9-PILOT-001B-SECURITY runtime reservation and security ownership",
     "E7 performance registry and deep-performance policy"
   ],
   "outputs": [

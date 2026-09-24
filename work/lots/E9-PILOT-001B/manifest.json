@@ -55,6 +55,7 @@
   ],
   "outputs": [
     "uniquely owned product-runtime/context-envelope boundary with no executable product code",
+    "explicit preimplementation runtime security ownership with no fabricated coverage",
     "pilot-local executable contract bound to PILOT-CONTEXT-001 and CAP-SET-004",
     "positive and negative tenant/environment/permission fixtures defined before implementation",
     "zero-external-runtime-dependency policy proven by dependency audit"
@@ -107,7 +108,8 @@
     "CHK-METRICS-BUDGET",
     "CHK-PILOT-CONTRACT",
     "CHK-RUNTIME-DEPS",
-    "CHK-BOUNDARY-EDGES"
+    "CHK-BOUNDARY-EDGES",
+    "CHK-SECURITY-TESTS"
   ],
   "definition_of_ready": [
     "E8-MET-001D is VERIFIED",
@@ -115,6 +117,7 @@
   ],
   "definition_of_done": [
     "pilot runtime root is uniquely owned",
+    "reserved runtime boundary has explicit security ownership before performance/runtime implementation",
     "runtime dependency policy is explicit",
     "selected Product Spec contracts are executable test fixtures without changing Product Spec",
     "negative tenant and permission cases are defined before implementation"

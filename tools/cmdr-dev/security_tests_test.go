@@ -1,6 +1,10 @@
 package main
 
-import "testing"
+import (
+	"os"
+	"path/filepath"
+	"testing"
+)
 
 func securityTestArchitecture(runtime ...ArchitectureBoundary) ArchitectureRegistry {
 	boundaries := []ArchitectureBoundary{{
@@ -77,7 +81,7 @@ func TestSecurityTestAuditEnforcesCoverageAndNegativeTests(t *testing.T) {
 	evidence := RuntimeSecurityEvidence{
 		SchemaVersion: 1, Status: "measured", SourceCommit: commit, GlobalCoveragePercent: ptrFloat(82),
 		Scopes: []RuntimeSecurityEvidenceScope{{
-			BoundaryID: "api", ChangedSecurityCritical: true,
+			BoundaryID: "api", ImplementationState: "implemented", ChangedSecurityCritical: true,
 			ChangedSecurityCriticalPercent: ptrFloat(91),
 			AuthorizationNegativePassed:    ptrBool(true), TenantIsolationNegativePassed: ptrBool(true),
 		}},
@@ -106,12 +110,12 @@ func TestSecurityTestAuditRejectsCoverageBelowFloors(t *testing.T) {
 	for _, tc := range []RuntimeSecurityEvidence{
 		{
 			SchemaVersion: 1, Status: "measured", SourceCommit: commit, GlobalCoveragePercent: ptrFloat(79.99),
-			Scopes: []RuntimeSecurityEvidenceScope{{BoundaryID: "api", ChangedSecurityCritical: false}},
+			Scopes: []RuntimeSecurityEvidenceScope{{BoundaryID: "api", ImplementationState: "implemented", ChangedSecurityCritical: false}},
 		},
 		{
 			SchemaVersion: 1, Status: "measured", SourceCommit: commit, GlobalCoveragePercent: ptrFloat(80),
 			Scopes: []RuntimeSecurityEvidenceScope{{
-				BoundaryID: "api", ChangedSecurityCritical: true, ChangedSecurityCriticalPercent: ptrFloat(89.99),
+				BoundaryID: "api", ImplementationState: "implemented", ChangedSecurityCritical: true, ChangedSecurityCriticalPercent: ptrFloat(89.99),
 			}},
 		},
 	} {
@@ -135,7 +139,7 @@ func TestSecurityTestAuditRejectsStaleEvidence(t *testing.T) {
 		SchemaVersion: 1, Status: "measured",
 		SourceCommit:          "0123456789abcdef0123456789abcdef01234567",
 		GlobalCoveragePercent: ptrFloat(90),
-		Scopes:                []RuntimeSecurityEvidenceScope{{BoundaryID: "api", ChangedSecurityCritical: true, ChangedSecurityCriticalPercent: ptrFloat(95)}},
+		Scopes:                []RuntimeSecurityEvidenceScope{{BoundaryID: "api", ImplementationState: "implemented", ChangedSecurityCritical: true, ChangedSecurityCriticalPercent: ptrFloat(95)}},
 	}
 	if _, err := evaluateSecurityTestPolicy(
 		securityTestArchitecture(runtime), securityTestGates(false, false),
@@ -155,5 +159,86 @@ func TestSecurityScopeRejectsPathOutsideBoundary(t *testing.T) {
 	}
 	if err := validateRuntimeSecurityScope(scope, boundary); err == nil {
 		t.Fatal("expected out-of-bound security path rejection")
+	}
+}
+
+
+func TestSecurityTestAuditAcceptsReservedPreimplementationRuntime(t *testing.T) {
+	runtime := ArchitectureBoundary{ID: "api", Kind: "product-runtime", Roots: []string{"services/api/**"}}
+	scope := RuntimeSecurityScope{
+		BoundaryID: "api", Owner: "E9-PILOT-001C",
+		SecurityCriticalPaths: []string{"services/api/**"},
+		AuthorizationRequired: true, AuthorizationRationale: "authorization is required before executable runtime",
+		TenantIsolationRequired: true, TenantIsolationRationale: "tenant isolation is required before executable runtime",
+	}
+	evidence := RuntimeSecurityEvidence{
+		SchemaVersion: 1, Status: "preimplementation",
+		Reason: "runtime boundary is reserved but contains no executable source",
+		Scopes: []RuntimeSecurityEvidenceScope{{
+			BoundaryID: "api", ImplementationState: "preimplementation",
+		}},
+	}
+	summary, err := evaluateSecurityTestPolicyWithImplementationStates(
+		securityTestArchitecture(runtime), securityTestGates(false, false),
+		baseRuntimePolicy(scope), evidence, []string{"services/api/README.md"},
+		"0123456789abcdef0123456789abcdef01234567",
+		map[string]string{"api": "preimplementation"},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if summary.CoverageStatus != "preimplementation" || summary.PreimplementationScopes != 1 ||
+		summary.ImplementedScopes != 0 || summary.AuthorizationRequired != 1 || summary.TenantIsolationRequired != 1 {
+		t.Fatalf("unexpected preimplementation summary: %#v", summary)
+	}
+}
+
+func TestSecurityTestAuditRejectsPreimplementationClaimAfterRuntimeImplementation(t *testing.T) {
+	runtime := ArchitectureBoundary{ID: "api", Kind: "product-runtime", Roots: []string{"services/api/**"}}
+	scope := RuntimeSecurityScope{
+		BoundaryID: "api", Owner: "security-platform",
+		SecurityCriticalPaths: []string{"services/api/**"},
+		AuthorizationRationale: "not required yet", TenantIsolationRationale: "not required yet",
+	}
+	evidence := RuntimeSecurityEvidence{
+		SchemaVersion: 1, Status: "preimplementation", Reason: "stale reservation",
+		Scopes: []RuntimeSecurityEvidenceScope{{BoundaryID: "api", ImplementationState: "preimplementation"}},
+	}
+	if _, err := evaluateSecurityTestPolicyWithImplementationStates(
+		securityTestArchitecture(runtime), securityTestGates(false, false),
+		baseRuntimePolicy(scope), evidence, []string{"services/api/runtime.go"},
+		"0123456789abcdef0123456789abcdef01234567",
+		map[string]string{"api": "implemented"},
+	); err == nil {
+		t.Fatal("expected stale preimplementation evidence rejection")
+	}
+}
+
+func TestDetectRuntimeBoundaryImplementationState(t *testing.T) {
+	root := t.TempDir()
+	runtimeRoot := filepath.Join(root, "services", "api")
+	if err := os.MkdirAll(runtimeRoot, 0o750); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(runtimeRoot, "README.md"), []byte("reserved\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	boundary := ArchitectureBoundary{ID: "api", Kind: "product-runtime", Roots: []string{"services/api/**"}}
+	state, err := detectRuntimeBoundaryImplementationState(root, boundary)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if state != "preimplementation" {
+		t.Fatalf("expected preimplementation, got %s", state)
+	}
+	if err := os.WriteFile(filepath.Join(runtimeRoot, "runtime.go"), []byte("package api\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	state, err = detectRuntimeBoundaryImplementationState(root, boundary)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if state != "implemented" {
+		t.Fatalf("expected implemented, got %s", state)
 	}
 }

@@ -749,19 +749,32 @@
       ],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": [
-        "E9-PILOT-001B-PERF"
+        "E9-PILOT-001B-SECURITY"
       ]
     },
     {
       "id": "E9-PILOT-001B-PERF",
       "title": "Register pre-implementation performance budgets for pilot runtime boundary",
       "type": "task",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E9-PILOT-001B-SECURITY"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": []
+    },
+    {
+      "id": "E9-PILOT-001B-SECURITY",
+      "title": "Register pilot runtime security ownership and preimplementation state",
+      "type": "task",
       "status": "READY",
       "depends_on": [
         "E9-PILOT-001B-CONTRACT"
       ],
       "dependency_terminal_state": "IMPLEMENTED",
-      "unlocks": []
+      "unlocks": [
+        "E9-PILOT-001B-PERF"
+      ]
     }
   ]
 }

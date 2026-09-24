@@ -1,8 +1,17 @@
 {
   "schema_version": 1,
-  "status": "not-applicable",
-  "reason": "No product-runtime architecture boundary exists yet; runtime coverage and negative-test execution are not measurable.",
+  "status": "preimplementation",
+  "reason": "The pilot product-runtime boundary is reserved and contains only README.md; executable runtime, coverage and negative-test evidence do not exist until E9-PILOT-001C.",
   "source_commit": "",
   "global_coverage_percent": null,
-  "scopes": []
+  "scopes": [
+    {
+      "boundary_id": "pilot-context-envelope-runtime",
+      "implementation_state": "preimplementation",
+      "changed_security_critical": false,
+      "changed_security_critical_coverage_percent": null,
+      "authorization_negative_passed": null,
+      "tenant_isolation_negative_passed": null
+    }
+  ]
 }

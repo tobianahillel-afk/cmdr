@@ -5,5 +5,17 @@
   "changed_security_critical_coverage_floor_percent": 90,
   "authorization_gate_id": "SEC-AUTH-NEG-001",
   "tenant_isolation_gate_id": "SEC-TENANT-ISO-001",
-  "scopes": []
+  "scopes": [
+    {
+      "boundary_id": "pilot-context-envelope-runtime",
+      "owner": "E9-PILOT-001C",
+      "security_critical_paths": [
+        "product-runtime/context-envelope/**"
+      ],
+      "authorization_required": true,
+      "authorization_rationale": "The pilot contract carries an explicit destination authorization outcome and permission-denied state; executable runtime must prove authorization-negative behavior before acceptance.",
+      "tenant_isolation_required": true,
+      "tenant_isolation_rationale": "The pilot projects tenant/environment references across context transitions; executable runtime must prove cross-tenant isolation and reference clearing before acceptance."
+    }
+  ]
 }

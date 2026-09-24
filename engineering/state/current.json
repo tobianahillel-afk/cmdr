@@ -17,8 +17,8 @@
     "phase_title": "End-to-end implementation pilot"
   },
   "execution": {
-    "active_work_unit": "E9-PILOT-001B-PERF",
-    "preferred_next_unit": "E9-PILOT-001B-PERF",
+    "active_work_unit": "E9-PILOT-001B-SECURITY",
+    "preferred_next_unit": "E9-PILOT-001B-SECURITY",
     "selection_rule": "first READY unit whose dependencies satisfy their required terminal state"
   },
   "reconciliation": {

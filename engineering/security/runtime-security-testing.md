@@ -1,38 +1,41 @@
 # Runtime security test obligations and coverage floors
 
-This control is deliberately strict without pretending that CMDR runtime code already exists.
+This control is strict about runtime security without fabricating evidence before executable product code exists.
 
-## Current state
+## Runtime states
 
-The architecture registry currently contains **zero** `product-runtime` boundaries. Therefore runtime authorization tests, tenant-isolation tests and runtime coverage are reported as **not applicable**, not passed.
+Runtime security is derived from the architecture registry **and the checked-out filesystem**.
 
-`runtime-security-evidence.json` records that state explicitly. It is rejected as soon as a product-runtime boundary exists.
+- `not-applicable`: there are no `product-runtime` boundaries.
+- `preimplementation`: a runtime boundary is reserved but every owned root contains only `README.md` / `.gitkeep` markers.
+- `measured`: every registered runtime boundary contains executable/package content.
+- `mixed`: implemented and preimplementation runtime boundaries coexist.
 
-## Runtime activation contract
+Every product-runtime boundary requires an explicit security ownership scope in `runtime-security-policy.json`, including owner, security-critical paths, authorization requirement/rationale and tenant-isolation requirement/rationale.
 
-Every future `product-runtime` boundary must have exactly one entry in `runtime-security-policy.json` with:
+## Preimplementation safety
 
-- boundary ID;
-- non-empty owner;
-- one or more security-critical path patterns contained by that boundary;
-- an explicit authorization-required boolean and rationale;
-- an explicit tenant-isolation-required boolean and rationale.
+A preimplementation scope may declare future authorization and tenant-isolation obligations, but it may **not** claim coverage percentages, authorization-negative PASS or tenant-isolation PASS. Its evidence state must match the filesystem-derived `preimplementation` state.
 
-The default is fail closed: a runtime boundary without a registered security scope is invalid.
+The moment any non-marker file appears under a product-runtime root, the scope becomes `implemented`; stale preimplementation evidence fails closed automatically.
 
-If authorization is required, `SEC-AUTH-NEG-001` must already be active and runtime evidence must show its negative tests passed. The same applies to tenant isolation through `SEC-TENANT-ISO-001`.
+This permits architecture/performance budgets to be registered before code while preventing false runtime PASS claims.
 
-## Coverage floors
+## Implemented runtime activation contract
 
-When product runtime exists, evidence is `measured` and must be generated for the exact checked-out Git commit.
+For every implemented runtime scope:
 
-- global runtime coverage: **at least 80%**;
-- if any security-critical path in a scope changed: changed security-critical coverage for that scope: **at least 90%**.
+- real changed-path evidence is required;
+- evidence is bound to the exact checked-out Git commit;
+- global runtime coverage must be at least **80%**;
+- changed security-critical coverage must be at least **90%** when a security-critical path changes;
+- if authorization is required, `SEC-AUTH-NEG-001` must be active and negative tests must pass;
+- if tenant isolation is required, `SEC-TENANT-ISO-001` must be active and negative tests must pass.
 
-The audit receives the real normalized Git change set from the adaptive validation engine. A measured evidence file whose `source_commit` differs from `git rev-parse HEAD` is rejected as stale.
-
-Before runtime exists, absence of measurable runtime coverage is an explicit `not-applicable` state. It is never represented as 100%, PASS, or zero coverage.
+For mixed repositories, the global measured coverage applies to implemented runtime code only; preimplementation scopes still cannot claim runtime test evidence.
 
 ## Evidence lifecycle
 
-The committed evidence file is currently the documentary N/A marker. Once runtime tests exist, the runtime test harness must generate/replace this file in the CI workspace before `security-test-audit` executes. That later harness is not invented by this lot because there is no executable product runtime yet.
+The committed pilot evidence is currently a truthful `preimplementation` marker because `product-runtime/context-envelope/` contains only `README.md`.
+
+E9-PILOT-001C must replace/generate measured evidence in the CI workspace as soon as executable runtime content is introduced. It must also activate and satisfy the required authorization and tenant-isolation negative-test gates before the runtime can pass validation.
