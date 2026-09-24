@@ -81,3 +81,60 @@ func TestImplementationLedgerRejectsBaselineDrift(t *testing.T) {
 		t.Fatal("expected baseline drift rejection")
 	}
 }
+
+func TestImplementationLedgerRejectsDuplicateWorkUnit(t *testing.T) {
+	state := CurrentState{}
+	state.ProductSpec.BaselineCommit = "0123456789abcdef0123456789abcdef01234567"
+	ledger := ImplementationLedger{
+		SchemaVersion: 1, LedgerKind: "verified-runtime-implementation-evidence",
+		ProductSpecBaseline: state.ProductSpec.BaselineCommit,
+		Entries: []ImplementationLedgerEntry{
+			{
+				Capability: "CAP-SET-004", WorkUnit: "E9-PILOT-001C-RUNTIME",
+				ManifestPath: "work/lots/E9-PILOT-001C-RUNTIME/manifest.json",
+				HandoffPath: "work/lots/E9-PILOT-001C-RUNTIME/HANDOFF.json",
+				RuntimeBoundary: "pilot-context-envelope-runtime",
+				RuntimeRoot: "product-runtime/context-envelope/**",
+			},
+			{
+				Capability: "CAP-SET-005", WorkUnit: "E9-PILOT-001C-RUNTIME",
+				ManifestPath: "work/lots/E9-PILOT-001C-RUNTIME/manifest.json",
+				HandoffPath: "work/lots/E9-PILOT-001C-RUNTIME/HANDOFF.json",
+				RuntimeBoundary: "another-runtime",
+				RuntimeRoot: "product-runtime/another/**",
+			},
+		},
+	}
+	if err := validateImplementationLedgerShape(ledger, state); err == nil {
+		t.Fatal("expected duplicate work unit rejection")
+	}
+}
+
+func TestImplementationLedgerRejectsDuplicateRuntimeBoundary(t *testing.T) {
+	state := CurrentState{}
+	state.ProductSpec.BaselineCommit = "0123456789abcdef0123456789abcdef01234567"
+	ledger := ImplementationLedger{
+		SchemaVersion: 1, LedgerKind: "verified-runtime-implementation-evidence",
+		ProductSpecBaseline: state.ProductSpec.BaselineCommit,
+		Entries: []ImplementationLedgerEntry{
+			{
+				Capability: "CAP-SET-004", WorkUnit: "E9-PILOT-001C-RUNTIME",
+				ManifestPath: "work/lots/E9-PILOT-001C-RUNTIME/manifest.json",
+				HandoffPath: "work/lots/E9-PILOT-001C-RUNTIME/HANDOFF.json",
+				RuntimeBoundary: "pilot-context-envelope-runtime",
+				RuntimeRoot: "product-runtime/context-envelope/**",
+			},
+			{
+				Capability: "CAP-SET-005", WorkUnit: "E9-PILOT-OTHER-RUNTIME",
+				ManifestPath: "work/lots/E9-PILOT-OTHER-RUNTIME/manifest.json",
+				HandoffPath: "work/lots/E9-PILOT-OTHER-RUNTIME/HANDOFF.json",
+				RuntimeBoundary: "pilot-context-envelope-runtime",
+				RuntimeRoot: "product-runtime/context-envelope/**",
+			},
+		},
+	}
+	if err := validateImplementationLedgerShape(ledger, state); err == nil {
+		t.Fatal("expected duplicate runtime boundary rejection")
+	}
+}
+
