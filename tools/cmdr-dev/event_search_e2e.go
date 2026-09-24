@@ -200,17 +200,17 @@ func runEventSearchE2EAudit(root string, state CurrentState, graph WorkGraph) (E
 	return EventSearchE2EAuditSummary{
 		Capability: "CAP-INV-002", Screen: "INV-EVS-001",
 		ContractID: contract.ContractID, ContractFixtures: contract.Fixtures, NegativeFixtures: contract.NegativeFixtures,
-		AdversarialTests: adversarial.Count,
+		AdversarialTests:    adversarial.Count,
 		RuntimeEvidenceHead: runtime.FinalValidatedHead, PerformanceEvidenceHead: performance.FinalValidatedHead,
 		CurrentHead: currentHead, RuntimeUnchangedSincePerf: true,
 		RuntimeCoveragePercent: validation.Security.GlobalRuntimeCoveragePercent,
-		SASTFindings: validation.Security.SASTFindings, SCAActionableFindings: validation.Security.SCAActionableFindings,
+		SASTFindings:           validation.Security.SASTFindings, SCAActionableFindings: validation.Security.SCAActionableFindings,
 		ValidationP95MS: performance.Performance.ValidationP95MS, ValidationBudgetMS: 1,
 		OrchestrationP95MS: performance.Performance.ObservedMS, OrchestrationBudgetMS: performance.Performance.BudgetMS,
 		RecoveryOutcome: recovery.Outcome, RecoveryNextAction: recovery.NextAction,
-		BlockingOpenDecisions: len(handoff.BlockingOpenDecisions),
+		BlockingOpenDecisions:    len(handoff.BlockingOpenDecisions),
 		ProductionReadinessClaim: handoff.ProductionReadinessClaim,
-		Limitations: len(handoff.Limitations), Status: "PASS",
+		Limitations:              len(handoff.Limitations), Status: "PASS",
 	}, nil
 }
 
