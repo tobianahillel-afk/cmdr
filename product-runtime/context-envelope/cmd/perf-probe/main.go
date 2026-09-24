@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"io"
 	"os"
 	"runtime"
 	"runtime/debug"
@@ -30,25 +31,45 @@ type observation struct {
 }
 
 func main() {
-	iterations := flag.Int("iterations", 20_000, "projection operations to execute")
-	mode := flag.String("mode", "latency", "probe mode: latency or resource")
-	memoryLimitMiB := flag.Int("memory-limit-mib", 0, "optional Go memory limit for resource mode")
-	flag.Parse()
+	if err := runCLI(os.Args[1:], os.Stdout); err != nil {
+		exitf("%v", err)
+	}
+}
 
-	if *iterations < 1 || *iterations > maxIterations {
-		exitf("iterations must be within 1..%d", maxIterations)
+func runCLI(args []string, out io.Writer) error {
+	fs := flag.NewFlagSet("perf-probe", flag.ContinueOnError)
+	fs.SetOutput(io.Discard)
+	iterations := fs.Int("iterations", 20_000, "projection operations to execute")
+	mode := fs.String("mode", "latency", "probe mode: latency or resource")
+	memoryLimitMiB := fs.Int("memory-limit-mib", 0, "optional Go memory limit for resource mode")
+	if err := fs.Parse(args); err != nil {
+		return err
 	}
-	if *mode != "latency" && *mode != "resource" {
-		exitf("mode must be latency or resource")
+	if fs.NArg() != 0 {
+		return fmt.Errorf("unexpected positional arguments")
 	}
-	if *mode == "latency" && *memoryLimitMiB != 0 {
-		exitf("latency mode does not accept memory-limit-mib")
+	result, err := runProbe(*iterations, *mode, *memoryLimitMiB)
+	if err != nil {
+		return err
 	}
-	if *mode == "resource" {
-		if *memoryLimitMiB < 64 || *memoryLimitMiB > 8192 {
-			exitf("resource memory-limit-mib must be within 64..8192")
+	return json.NewEncoder(out).Encode(result)
+}
+
+func runProbe(iterations int, mode string, memoryLimitMiB int) (observation, error) {
+	if iterations < 1 || iterations > maxIterations {
+		return observation{}, fmt.Errorf("iterations must be within 1..%d", maxIterations)
+	}
+	if mode != "latency" && mode != "resource" {
+		return observation{}, fmt.Errorf("mode must be latency or resource")
+	}
+	if mode == "latency" && memoryLimitMiB != 0 {
+		return observation{}, fmt.Errorf("latency mode does not accept memory-limit-mib")
+	}
+	if mode == "resource" {
+		if memoryLimitMiB < 64 || memoryLimitMiB > 8192 {
+			return observation{}, fmt.Errorf("resource memory-limit-mib must be within 64..8192")
 		}
-		old := debug.SetMemoryLimit(int64(*memoryLimitMiB) * 1024 * 1024)
+		old := debug.SetMemoryLimit(int64(memoryLimitMiB) * 1024 * 1024)
 		defer debug.SetMemoryLimit(old)
 	}
 
@@ -67,7 +88,7 @@ func main() {
 	}
 	if got := contextenvelope.Project(input); got.State != contextenvelope.StateContextValid ||
 		got.TenantRef != "tenant-a" || got.EnvironmentRef != "env-a" || !got.ProtectedRefsVisible {
-		exitf("synthetic projection preflight failed")
+		return observation{}, fmt.Errorf("synthetic projection preflight failed")
 	}
 
 	runtime.GC()
@@ -78,7 +99,7 @@ func main() {
 
 	var stop chan struct{}
 	var sampler sync.WaitGroup
-	if *mode == "resource" {
+	if mode == "resource" {
 		stop = make(chan struct{})
 		sampler.Add(1)
 		go func() {
@@ -97,7 +118,7 @@ func main() {
 	}
 
 	started := time.Now()
-	for i := 0; i < *iterations; i++ {
+	for i := 0; i < iterations; i++ {
 		projectionSink = contextenvelope.Project(input)
 	}
 	elapsed := time.Since(started)
@@ -113,24 +134,20 @@ func main() {
 		peak.Store(after.HeapAlloc)
 	}
 	if projectionSink.State != contextenvelope.StateContextValid {
-		exitf("projection sink ended in unexpected state")
+		return observation{}, fmt.Errorf("projection sink ended in unexpected state")
 	}
 	if elapsed <= 0 {
-		exitf("non-positive elapsed duration")
+		return observation{}, fmt.Errorf("non-positive elapsed duration")
 	}
 
-	result := observation{
-		Mode:                 *mode,
-		Operations:           *iterations,
+	return observation{
+		Mode:                 mode,
+		Operations:           iterations,
 		ElapsedNS:            elapsed.Nanoseconds(),
-		NSPerOperation:       float64(elapsed.Nanoseconds()) / float64(*iterations),
+		NSPerOperation:       float64(elapsed.Nanoseconds()) / float64(iterations),
 		PeakHeapBytes:        peak.Load(),
 		TotalAllocationBytes: after.TotalAlloc - before.TotalAlloc,
-	}
-	enc := json.NewEncoder(os.Stdout)
-	if err := enc.Encode(result); err != nil {
-		exitf("encode observation: %v", err)
-	}
+	}, nil
 }
 
 func updatePeak(peak *atomic.Uint64) {
