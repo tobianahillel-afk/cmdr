@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-002A-CONTRACT",
+  "result": "VERIFIED",
+  "final_validated_head": "32a3cea495c3256b73c40fcd3ac1a6fefe2c63ee",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 36036370262,
+    "pull_request_run": 36036374407,
+    "contract": "EVENT-SEARCH-EXECUTABLE-CONTRACT-V1",
+    "fixtures": 14,
+    "negative_fixtures": 11,
+    "runtime_dependencies": 0
+  },
+  "rules": [
+    "Event Search executable contract is backend-neutral and does not select a final query language, index, storage engine or provider",
+    "single-selected-Tenant scope is mandatory and wildcard/cross-tenant execution fails closed",
+    "server-side permission evaluation is mandatory and denied execution exposes no protected data",
+    "terminal Search Job states cannot restart in place; relaunch requires a new job",
+    "OPEN-013 Case-link mutation remains excluded",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-002B"
+  ]
+}
