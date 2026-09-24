@@ -99,6 +99,29 @@ func TestParseCapabilityRegistryRejectsDocumentStatusAsDeliveryStatus(t *testing
 	}
 }
 
+func TestParseCapabilityRegistryUnderscoreDeliveryColumns(t *testing.T) {
+	content := `# Settings register
+
+| Capability ID | Name | Status | delivery_status | delivery_mode | Canonical file | OPEN |
+|---|---|---|---|---|---|---|
+| CAP-SET-005 | Principal Administrative Lifecycle | draft | defined | planned | settings.md | OPEN-013 |
+`
+	records, err := parseCapabilityRegistryContent("settings.md", content)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(records) != 1 {
+		t.Fatalf("expected one record, got %#v", records)
+	}
+	record := records[0]
+	if record.DeliveryStatus != "defined" || record.DeliveryMode != "planned" || record.Status != "draft" {
+		t.Fatalf("unexpected settings delivery mapping: %#v", record)
+	}
+	if record.ID != "CAP-SET-005" || record.CanonicalFile != "settings.md" {
+		t.Fatalf("unexpected settings identity metadata: %#v", record)
+	}
+}
+
 func TestParseCapabilityRegistryFileLevelDeliveryDefaults(t *testing.T) {
 	content := "# Register\n\nAll capabilities are documentary draft, delivery status `defined`, delivery mode `planned`.\n\n" +
 		"| ID | Capability | Primary role | Canonical file | OPEN |\n" +

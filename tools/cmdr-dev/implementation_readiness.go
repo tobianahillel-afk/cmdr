@@ -569,19 +569,24 @@ func markdownSeparatorRow(cells []string) bool {
 func tableColumnMap(cells []string) map[string]int {
 	out := map[string]int{}
 	for i, cell := range cells {
-		key := strings.ToLower(strings.Trim(strings.TrimSpace(cell), "`*"))
-		out[key] = i
+		out[normalizeTableColumnName(cell)] = i
 	}
 	return out
 }
 
 func tableColumn(columns map[string]int, names ...string) int {
 	for _, name := range names {
-		if index, ok := columns[strings.ToLower(name)]; ok {
+		if index, ok := columns[normalizeTableColumnName(name)]; ok {
 			return index
 		}
 	}
 	return -1
+}
+
+func normalizeTableColumnName(value string) string {
+	value = strings.ToLower(strings.Trim(strings.TrimSpace(value), "`*"))
+	value = strings.NewReplacer("_", " ", "-", " ").Replace(value)
+	return strings.Join(strings.Fields(value), " ")
 }
 
 func tableCell(cells []string, columns map[string]int, names ...string) string {
