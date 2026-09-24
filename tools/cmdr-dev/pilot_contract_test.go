@@ -103,3 +103,37 @@ func validPilotContractTestData() (PilotScope, PilotExecutableContract, PilotFix
 	fixtures.Cases = append(fixtures.Cases, required...)
 	return scope, contract, fixtures
 }
+
+func TestPilotRuntimeLayoutAcceptsPreimplementationAndImplementation(t *testing.T) {
+	root := t.TempDir()
+	writeTestFile(t, root, pilotRuntimeMarker, "# marker\n")
+
+	files, state, err := validatePilotRuntimeLayout(root, "example/context-envelope")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if files != 1 || state != "preimplementation" {
+		t.Fatalf("unexpected marker-only state: files=%d state=%s", files, state)
+	}
+
+	writeTestFile(t, root, "product-runtime/context-envelope/go.mod", "module example/context-envelope\n\ngo 1.26.8\n")
+	writeTestFile(t, root, "product-runtime/context-envelope/envelope.go", "package contextenvelope\n")
+
+	files, state, err = validatePilotRuntimeLayout(root, "example/context-envelope")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if files != 3 || state != "implemented" {
+		t.Fatalf("unexpected implemented state: files=%d state=%s", files, state)
+	}
+}
+
+func TestPilotRuntimeLayoutRejectsModuleIdentityMismatch(t *testing.T) {
+	root := t.TempDir()
+	writeTestFile(t, root, pilotRuntimeMarker, "# marker\n")
+	writeTestFile(t, root, "product-runtime/context-envelope/go.mod", "module wrong/module\n\ngo 1.26.8\n")
+	writeTestFile(t, root, "product-runtime/context-envelope/envelope.go", "package contextenvelope\n")
+	if _, _, err := validatePilotRuntimeLayout(root, "example/context-envelope"); err == nil {
+		t.Fatal("expected runtime module identity mismatch")
+	}
+}

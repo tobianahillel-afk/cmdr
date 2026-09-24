@@ -81,3 +81,25 @@ func TestParseGovulncheckFailsClosedWithoutExactVersion(t *testing.T) {
 		t.Fatal("expected missing exact version rejection")
 	}
 }
+
+func TestGoSecurityModuleRootsIncludeRuntimeOnlyAfterGoMod(t *testing.T) {
+	root := t.TempDir()
+	writeTestFile(t, root, "tools/cmdr-dev/go.mod", "module example/tools\n\ngo 1.26.8\n")
+
+	roots, err := goSecurityModuleRoots(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(roots) != 1 {
+		t.Fatalf("expected only engineering module before runtime implementation, got %d", len(roots))
+	}
+
+	writeTestFile(t, root, "product-runtime/context-envelope/go.mod", "module example/runtime\n\ngo 1.26.8\n")
+	roots, err = goSecurityModuleRoots(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(roots) != 2 {
+		t.Fatalf("expected engineering and runtime modules, got %d", len(roots))
+	}
+}

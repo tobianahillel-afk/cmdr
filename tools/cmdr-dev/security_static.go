@@ -163,11 +163,70 @@ func loadDevelopmentTools(root string) (DevelopmentToolRegistry, error) {
 	return registry, nil
 }
 
+func goSecurityModuleRoots(root string) ([]string, error) {
+	candidates := []string{
+		"tools/cmdr-dev",
+		"product-runtime/context-envelope",
+	}
+	var roots []string
+	for _, rel := range candidates {
+		_, err := statRepoPath(root, filepath.ToSlash(filepath.Join(rel, "go.mod")))
+		if err != nil {
+			if errors.Is(err, os.ErrNotExist) {
+				continue
+			}
+			return nil, err
+		}
+		path, err := resolveRepoPath(root, rel, false)
+		if err != nil {
+			return nil, err
+		}
+		roots = append(roots, path)
+	}
+	if len(roots) == 0 {
+		return nil, fmt.Errorf("no reviewed Go security scan roots found")
+	}
+	sort.Strings(roots)
+	return roots, nil
+}
+
 func runGoSAST(root string) (SASTSummary, error) {
 	if _, err := loadDevelopmentTools(root); err != nil {
 		return SASTSummary{}, err
 	}
-	moduleRoot := filepath.Join(root, "tools", "cmdr-dev")
+	roots, err := goSecurityModuleRoots(root)
+	if err != nil {
+		return SASTSummary{}, err
+	}
+	combined := SASTSummary{Tool: "gosec", Version: gosecVersion, BySeverity: map[string]int{}}
+	var labels []string
+	for _, moduleRoot := range roots {
+		summary, scanErr := runGoSASTModule(root, moduleRoot)
+		labels = append(labels, summary.ScanRoot)
+		combined.FindingCount += summary.FindingCount
+		combined.Findings = append(combined.Findings, summary.Findings...)
+		for severity, count := range summary.BySeverity {
+			combined.BySeverity[severity] += count
+		}
+		if scanErr != nil {
+			combined.ScanRoot = strings.Join(labels, ",")
+			return combined, scanErr
+		}
+	}
+	combined.ScanRoot = strings.Join(labels, ",")
+	sort.Slice(combined.Findings, func(i, j int) bool {
+		if combined.Findings[i].Path != combined.Findings[j].Path {
+			return combined.Findings[i].Path < combined.Findings[j].Path
+		}
+		if combined.Findings[i].Line != combined.Findings[j].Line {
+			return combined.Findings[i].Line < combined.Findings[j].Line
+		}
+		return combined.Findings[i].RuleID < combined.Findings[j].RuleID
+	})
+	return combined, nil
+}
+
+func runGoSASTModule(root, moduleRoot string) (SASTSummary, error) {
 	tmp, err := os.MkdirTemp("", "cmdr-gosec-")
 	if err != nil {
 		return SASTSummary{}, err
@@ -213,10 +272,14 @@ func parseGosecReport(root, moduleRoot string, data []byte) (SASTSummary, error)
 	if errorCount > 0 {
 		return SASTSummary{}, fmt.Errorf("gosec reported %d processing error(s); details withheld from CI evidence", errorCount)
 	}
+	relRoot, err := filepath.Rel(root, moduleRoot)
+	if err != nil {
+		return SASTSummary{}, err
+	}
 	summary := SASTSummary{
 		Tool:       "gosec",
 		Version:    gosecVersion,
-		ScanRoot:   "tools/cmdr-dev",
+		ScanRoot:   filepath.ToSlash(relRoot),
 		BySeverity: map[string]int{},
 	}
 	for _, issue := range report.Issues {
@@ -270,8 +333,42 @@ func runGoSCA(root string) (SCASummary, error) {
 	if _, err := loadDevelopmentTools(root); err != nil {
 		return SCASummary{}, err
 	}
-	moduleRoot := filepath.Join(root, "tools", "cmdr-dev")
+	roots, err := goSecurityModuleRoots(root)
+	if err != nil {
+		return SCASummary{}, err
+	}
+	combined := SCASummary{Tool: "govulncheck", Version: govulncheckVersion}
+	for _, moduleRoot := range roots {
+		summary, scanErr := runGoSCAModule(moduleRoot)
+		combined.Modules += summary.Modules
+		combined.InformationalFindings += summary.InformationalFindings
+		combined.ActionableFindings += summary.ActionableFindings
+		combined.Findings = append(combined.Findings, summary.Findings...)
+		if summary.Database != "" {
+			combined.Database = summary.Database
+		}
+		if summary.GoVersion != "" {
+			combined.GoVersion = summary.GoVersion
+		}
+		if scanErr != nil {
+			return combined, scanErr
+		}
+	}
+	sort.Slice(combined.Findings, func(i, j int) bool {
+		if combined.Findings[i].OSV != combined.Findings[j].OSV {
+			return combined.Findings[i].OSV < combined.Findings[j].OSV
+		}
+		if combined.Findings[i].Module != combined.Findings[j].Module {
+			return combined.Findings[i].Module < combined.Findings[j].Module
+		}
+		return combined.Findings[i].Package < combined.Findings[j].Package
+	})
+	return combined, nil
+}
+
+func runGoSCAModule(moduleRoot string) (SCASummary, error) {
 	spec := govulncheckModule + "@" + govulncheckVersion
+	// #nosec G204 -- executable and pinned module spec are fixed constants; no shell is used.
 	cmd := exec.Command("go", "run", spec, "-json", "./...")
 	cmd.Dir = moduleRoot
 	cmd.Env = append(os.Environ(), "GOTOOLCHAIN=local")

@@ -58,7 +58,11 @@
     "engineering/pilot/**",
     "work/lots/E9-PILOT-001C*/**",
     "engineering/state/**",
-    "work/graph.json"
+    "work/graph.json",
+    "tools/cmdr-dev/pilot_contract.go",
+    "tools/cmdr-dev/pilot_contract_test.go",
+    "tools/cmdr-dev/security_static.go",
+    "tools/cmdr-dev/security_static_test.go"
   ],
   "inputs": [
     "verified pilot executable contract",
@@ -68,7 +72,9 @@
   "outputs": [
     "Go context-envelope runtime package",
     "fixture-driven unit/contract tests",
-    "no external runtime dependency"
+    "no external runtime dependency",
+    "lifecycle-aware pilot contract audit",
+    "multi-module Go SAST/SCA coverage including runtime when implemented"
   ],
   "invariants": [
     "Product Spec remains read-only",
@@ -86,7 +92,9 @@
     "package tests consume the predeclared fixture semantics",
     "go test for runtime package passes",
     "dependency audit reports zero external runtime dependencies",
-    "boundary-edge audit reports no undeclared local edge"
+    "boundary-edge audit reports no undeclared local edge",
+    "pilot contract audit passes both marker-only and implemented runtime layouts",
+    "Go security scanners discover the runtime module only after its go.mod appears"
   ],
   "performance_budget": {
     "applicable": true,
@@ -111,10 +119,10 @@
   ],
   "complexity": {
     "primary_components": 2,
-    "estimated_files_changed": 6,
-    "estimated_net_loc": 430,
-    "production_files": 3,
-    "net_production_loc": 300,
+    "estimated_files_changed": 10,
+    "estimated_net_loc": 680,
+    "production_files": 5,
+    "net_production_loc": 470,
     "bounded_contexts": 1,
     "independent_migrations": 0,
     "distinct_security_models": 1,

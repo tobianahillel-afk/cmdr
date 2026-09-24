@@ -102,6 +102,7 @@ type PilotContractAuditSummary struct {
 	ContractID          string `json:"contract_id"`
 	SliceID             string `json:"slice_id"`
 	RuntimeBoundary     string `json:"runtime_boundary"`
+	RuntimeState        string `json:"runtime_state"`
 	Fixtures            int    `json:"fixtures"`
 	NegativeFixtures    int    `json:"negative_fixtures"`
 	RuntimeDependencies int    `json:"runtime_dependencies"`
@@ -142,7 +143,7 @@ func runPilotContractAudit(root string) (PilotContractAuditSummary, error) {
 		return PilotContractAuditSummary{}, fmt.Errorf("pilot runtime boundary is not isolated as required")
 	}
 
-	runtimeFiles, err := validatePilotRuntimeMarkerOnly(root)
+	runtimeFiles, runtimeState, err := validatePilotRuntimeLayout(root, contract.RuntimeBoundary.PackageIdentity)
 	if err != nil {
 		return PilotContractAuditSummary{}, err
 	}
@@ -179,6 +180,7 @@ func runPilotContractAudit(root string) (PilotContractAuditSummary, error) {
 		ContractID:          contract.ContractID,
 		SliceID:             contract.SliceID,
 		RuntimeBoundary:     boundary.ID,
+		RuntimeState:        runtimeState,
 		Fixtures:            len(fixtures.Cases),
 		NegativeFixtures:    negative,
 		RuntimeDependencies: deps.RuntimeDependencies,
@@ -298,11 +300,13 @@ func validatePilotFixtures(contract PilotExecutableContract, fixtures PilotFixtu
 	return nil
 }
 
-func validatePilotRuntimeMarkerOnly(root string) (int, error) {
+func validatePilotRuntimeLayout(root, packageIdentity string) (int, string, error) {
 	scanRoot, err := runtimeScanRoot(root, pilotRuntimeRoot)
 	if err != nil {
-		return 0, err
+		return 0, "", err
 	}
+	files := map[string]bool{}
+	hasRuntimeSource := false
 	count := 0
 	// #nosec G703 -- scanRoot is repository-confined by runtimeScanRoot; symlink entries are rejected.
 	err = filepath.WalkDir(scanRoot, func(path string, entry os.DirEntry, err error) error {
@@ -320,19 +324,48 @@ func validatePilotRuntimeMarkerOnly(root string) (int, error) {
 			return err
 		}
 		rel = filepath.ToSlash(rel)
-		if rel != pilotRuntimeMarker {
-			return fmt.Errorf("E9-B runtime boundary contains product implementation before E9-C: %s", rel)
-		}
+		files[rel] = true
 		count++
+		if strings.HasSuffix(rel, ".go") && !strings.HasSuffix(rel, "_test.go") {
+			hasRuntimeSource = true
+		}
 		return nil
 	})
 	if err != nil {
-		return count, err
+		return count, "", err
 	}
-	if count != 1 {
-		return count, fmt.Errorf("pilot runtime boundary must contain only its README marker, found %d files", count)
+	if !files[pilotRuntimeMarker] {
+		return count, "", fmt.Errorf("pilot runtime README marker is missing")
 	}
-	return count, nil
+	if count == 1 {
+		return count, "preimplementation", nil
+	}
+
+	goMod := "product-runtime/context-envelope/go.mod"
+	if !files[goMod] {
+		return count, "", fmt.Errorf("implemented pilot runtime is missing go.mod")
+	}
+	if !hasRuntimeSource {
+		return count, "", fmt.Errorf("implemented pilot runtime has no non-test Go source")
+	}
+	data, err := readRepoFile(root, goMod)
+	if err != nil {
+		return count, "", err
+	}
+	moduleIdentity := ""
+	for _, line := range strings.Split(string(data), "\n") {
+		fields := strings.Fields(line)
+		if len(fields) == 2 && fields[0] == "module" {
+			if moduleIdentity != "" {
+				return count, "", fmt.Errorf("pilot runtime go.mod declares module more than once")
+			}
+			moduleIdentity = fields[1]
+		}
+	}
+	if moduleIdentity != packageIdentity {
+		return count, "", fmt.Errorf("pilot runtime module identity mismatch: expected %s, got %s", packageIdentity, moduleIdentity)
+	}
+	return count, "implemented", nil
 }
 
 func validatePilotManifestAgainstContract(manifest WorkManifestV2, scope PilotScope) error {
