@@ -49,7 +49,8 @@
     "OPEN-013 remains unresolved; Case-link mutation is excluded from this bounded wave",
     "no query language, index, storage engine or provider is selected by this wave",
     "no external product-runtime dependency is introduced without an explicit reviewed decision",
-    "this task extends only the existing event-search-runtime boundary; no new runtime boundary is created"
+    "this task extends only the existing event-search-runtime boundary; no new runtime boundary is created",
+    "orchestration performance evidence is registered separately from validation performance evidence"
   ],
   "security_properties": [
     "server-side permission evaluation is mandatory before execution",
@@ -80,6 +81,7 @@
   "allowed_paths": [
     "product-runtime/event-search/**",
     "engineering/implementation/event-search/**",
+    "engineering/performance/**",
     "engineering/testing/**",
     "work/lots/E10-INV-002*/**",
     "engineering/state/**",
@@ -91,7 +93,8 @@
     "Search Job object states",
     "background-job/search-query/audit contracts",
     "predeclared partial-result fixtures",
-    "existing verified event-search-runtime boundary under product-runtime/event-search/**"
+    "existing verified event-search-runtime boundary under product-runtime/event-search/**",
+    "verified performance control plane for product-runtime targets"
   ],
   "outputs": [
     "Search Job state machine",
