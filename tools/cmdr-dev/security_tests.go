@@ -71,14 +71,14 @@ type SecurityTestAuditSummary struct {
 }
 
 const (
-	pilotSecurityRuntimeRoot        = "product-runtime/context-envelope"
-	pilotSecurityModuleIdentity     = "github.com/tobianahillel-afk/cmdr/product-runtime/context-envelope"
-	pilotAuthorizationTestRegexp    = "^TestProjectMatchesPredeclaredContractFixtures$/^permission-denied-masks-protected-refs$"
-	pilotTenantTestRegexp           = "^TestProjectMatchesPredeclaredContractFixtures$/(^tenant-change-clears-inherited-environment$|^environment-tenant-mismatch-is-cleared$)"
-	eventSearchSecurityRuntimeRoot   = "product-runtime/event-search"
-	eventSearchSecurityModuleIdentity = "github.com/tobianahillel-afk/cmdr/product-runtime/event-search"
+	pilotSecurityRuntimeRoot           = "product-runtime/context-envelope"
+	pilotSecurityModuleIdentity        = "github.com/tobianahillel-afk/cmdr/product-runtime/context-envelope"
+	pilotAuthorizationTestRegexp       = "^TestProjectMatchesPredeclaredContractFixtures$/^permission-denied-masks-protected-refs$"
+	pilotTenantTestRegexp              = "^TestProjectMatchesPredeclaredContractFixtures$/(^tenant-change-clears-inherited-environment$|^environment-tenant-mismatch-is-cleared$)"
+	eventSearchSecurityRuntimeRoot     = "product-runtime/event-search"
+	eventSearchSecurityModuleIdentity  = "github.com/tobianahillel-afk/cmdr/product-runtime/event-search"
 	eventSearchAuthorizationTestRegexp = "^TestValidateContractFixtures$/^permission-denied-masks-protected-data$"
-	eventSearchTenantTestRegexp = "^TestValidateContractFixtures$/(^missing-tenant-is-rejected$|^wildcard-tenant-is-rejected$|^cross-tenant-is-rejected$)"
+	eventSearchTenantTestRegexp        = "^TestValidateContractFixtures$/(^missing-tenant-is-rejected$|^wildcard-tenant-is-rejected$|^cross-tenant-is-rejected$)"
 )
 
 type runtimeSecurityAdapter struct {
@@ -93,15 +93,15 @@ func runtimeSecurityAdapters() map[string]runtimeSecurityAdapter {
 	return map[string]runtimeSecurityAdapter{
 		pilotRuntimeBoundaryID: {
 			BoundaryID: pilotRuntimeBoundaryID, RuntimeRoot: pilotSecurityRuntimeRoot,
-			ModuleIdentity: pilotSecurityModuleIdentity,
+			ModuleIdentity:         pilotSecurityModuleIdentity,
 			AuthorizationTestRegex: pilotAuthorizationTestRegexp,
-			TenantTestRegex: pilotTenantTestRegexp,
+			TenantTestRegex:        pilotTenantTestRegexp,
 		},
 		eventSearchRuntimeBoundaryID: {
 			BoundaryID: eventSearchRuntimeBoundaryID, RuntimeRoot: eventSearchSecurityRuntimeRoot,
-			ModuleIdentity: eventSearchSecurityModuleIdentity,
+			ModuleIdentity:         eventSearchSecurityModuleIdentity,
 			AuthorizationTestRegex: eventSearchAuthorizationTestRegexp,
-			TenantTestRegex: eventSearchTenantTestRegexp,
+			TenantTestRegex:        eventSearchTenantTestRegexp,
 		},
 	}
 }
@@ -217,10 +217,10 @@ func generateMeasuredRuntimeSecurityEvidence(root, tempDir, changesFile string) 
 		status = "mixed"
 	}
 	evidence := RuntimeSecurityEvidence{
-		SchemaVersion: 1,
-		Status: status,
-		Reason: "CI-generated measured runtime security evidence for the exact checked-out commit",
-		SourceCommit: head,
+		SchemaVersion:         1,
+		Status:                status,
+		Reason:                "CI-generated measured runtime security evidence for the exact checked-out commit",
+		SourceCommit:          head,
 		GlobalCoveragePercent: &globalCoverage,
 	}
 	for _, scope := range policy.Scopes {
@@ -229,7 +229,7 @@ func generateMeasuredRuntimeSecurityEvidence(root, tempDir, changesFile string) 
 			return RuntimeSecurityEvidence{}, false, fmt.Errorf("security scope %s has no runtime implementation state", scope.BoundaryID)
 		}
 		item := RuntimeSecurityEvidenceScope{
-			BoundaryID: scope.BoundaryID,
+			BoundaryID:          scope.BoundaryID,
 			ImplementationState: state,
 		}
 		if state == "implemented" {
@@ -361,8 +361,8 @@ func parseRuntimeCoverageProfile(data []byte, changedPaths []string, adapter run
 		return RuntimeCoverageMeasurement{}, fmt.Errorf("%s runtime coverage profile contains no executable statements", adapter.BoundaryID)
 	}
 	measurement := RuntimeCoverageMeasurement{
-		GlobalPercent: 100 * float64(covered) / float64(total),
-		TotalStatements: total,
+		GlobalPercent:     100 * float64(covered) / float64(total),
+		TotalStatements:   total,
 		CoveredStatements: covered,
 	}
 	if changedTotal > 0 {
