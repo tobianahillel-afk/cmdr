@@ -216,7 +216,7 @@ func runEventSearchContractAudit(root string) (EventSearchContractAuditSummary, 
 		ContractID: contract.ContractID, Capability: contract.Capability,
 		RuntimeBoundary: boundary.ID, RuntimeState: runtimeState,
 		Fixtures: len(fixtures.Cases), NegativeFixtures: negative,
-		PositiveFixtures: len(fixtures.Cases) - negative,
+		PositiveFixtures:    len(fixtures.Cases) - negative,
 		RuntimeDependencies: len(deps), Status: "PASS",
 	}, nil
 }
@@ -337,16 +337,16 @@ func validateEventSearchSourceAnchors(root string) error {
 
 func validateEventSearchFixtures(contract EventSearchExecutableContract, fixtures EventSearchFixtureSet) error {
 	required := map[string]bool{
-		"valid-execution-envelope": false,
-		"partial-preserves-valid-results": false,
-		"missing-tenant-is-rejected": false,
-		"wildcard-tenant-is-rejected": false,
-		"cross-tenant-is-rejected": false,
-		"permission-denied-masks-protected-data": false,
-		"invalid-time-range-is-rejected": false,
-		"empty-sources-are-rejected": false,
+		"valid-execution-envelope":                false,
+		"partial-preserves-valid-results":         false,
+		"missing-tenant-is-rejected":              false,
+		"wildcard-tenant-is-rejected":             false,
+		"cross-tenant-is-rejected":                false,
+		"permission-denied-masks-protected-data":  false,
+		"invalid-time-range-is-rejected":          false,
+		"empty-sources-are-rejected":              false,
 		"illegal-terminal-transition-is-rejected": false,
-		"case-link-remains-excluded": false,
+		"case-link-remains-excluded":              false,
 	}
 	if len(fixtures.Cases) < len(required) {
 		return fmt.Errorf("Event Search fixture set is too small: %d", len(fixtures.Cases))
