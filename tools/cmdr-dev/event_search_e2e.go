@@ -332,11 +332,11 @@ func validateEventSearchRuntimeUnchanged(root, evidenceHead, currentHead string)
 	if err != nil {
 		return fmt.Errorf("current source head: %w", err)
 	}
-	ancestor := exec.Command("git", "-C", root, "merge-base", "--is-ancestor", evidenceHead, currentHead) // #nosec G204 -- executable is fixed and both commit arguments are validated full hex IDs.
+	ancestor := exec.Command("git", "-C", root, "merge-base", "--is-ancestor", evidenceHead, currentHead) // #nosec G204,G702 -- executable is fixed and both commit arguments are validated full hex IDs.
 	if err := ancestor.Run(); err != nil {
 		return fmt.Errorf("Event Search performance evidence head is not an ancestor of current source")
 	}
-	diff := exec.Command("git", "-C", root, "diff", "--quiet", evidenceHead, currentHead, "--", eventSearchRuntimeDirectory) // #nosec G204 -- executable/path are fixed and commit arguments are validated full hex IDs.
+	diff := exec.Command("git", "-C", root, "diff", "--quiet", evidenceHead, currentHead, "--", eventSearchRuntimeDirectory) // #nosec G204,G702 -- executable/path are fixed and commit arguments are validated full hex IDs.
 	if err := diff.Run(); err != nil {
 		if exitErr, ok := err.(*exec.ExitError); ok && exitErr.ExitCode() == 1 {
 			return fmt.Errorf("Event Search runtime changed after measured performance evidence; fresh performance proof is required")
