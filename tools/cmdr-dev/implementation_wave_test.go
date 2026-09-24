@@ -80,18 +80,60 @@ func TestSelectImplementationWaveExcludesNonReadyStates(t *testing.T) {
 	}
 }
 
-func TestSelectImplementationWaveRequiresCanonicalFile(t *testing.T) {
-	program := ImplementationReadinessProgram{
-		ProductSpecBaseline: "baseline",
-		SpecTreeDigest:      "digest",
-		Status:              "PASS",
-		Records: []ImplementationReadinessRecord{
-			waveRecord("CAP-SET-004", "IMPLEMENTED", "context.md"),
-			waveRecord("CAP-SET-005", "READY", ""),
+func TestResolveWaveCanonicalFileFallsBackToCanonicalInventoryID(t *testing.T) {
+	selection := ImplementationWaveSelection{Capability: "CAP-EPT-065"}
+	inventory := SpecInventory{
+		SpecRoot: "cmdr-product-spec",
+		Documents: []SpecDocument{
+			{
+				Path: "cmdr-product-spec/11-endpoint-agent/capabilities/cap-ept-065-example.md",
+				ID: "CAP-EPT-065", Active: true, Canonical: true,
+			},
+			{
+				Path: "cmdr-product-spec/99-archive/cap-ept-065-old.md",
+				ID: "CAP-EPT-065", Active: false, Canonical: true,
+			},
 		},
 	}
-	if _, err := selectImplementationWave(program); err == nil {
-		t.Fatal("expected missing canonical-file rejection")
+	got, err := resolveWaveCanonicalFile(selection, inventory)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got != "11-endpoint-agent/capabilities/cap-ept-065-example.md" {
+		t.Fatalf("unexpected canonical fallback %q", got)
+	}
+}
+
+func TestResolveWaveCanonicalFileFailsOnAmbiguousOrMissingCanonicalDocument(t *testing.T) {
+	for name, docs := range map[string][]SpecDocument{
+		"missing": nil,
+		"ambiguous": {
+			{Path: "cmdr-product-spec/a.md", ID: "CAP-EPT-065", Active: true, Canonical: true},
+			{Path: "cmdr-product-spec/b.md", ID: "CAP-EPT-065", Active: true, Canonical: true},
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			_, err := resolveWaveCanonicalFile(
+				ImplementationWaveSelection{Capability: "CAP-EPT-065"},
+				SpecInventory{SpecRoot: "cmdr-product-spec", Documents: docs},
+			)
+			if err == nil {
+				t.Fatal("expected canonical resolution failure")
+			}
+		})
+	}
+}
+
+func TestResolveWaveCanonicalFilePreservesExplicitRegisterPath(t *testing.T) {
+	got, err := resolveWaveCanonicalFile(
+		ImplementationWaveSelection{Capability: "CAP-SET-005", CanonicalFile: "10-platform-settings/capabilities/cap-set-005.md"},
+		SpecInventory{SpecRoot: "cmdr-product-spec"},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got != "10-platform-settings/capabilities/cap-set-005.md" {
+		t.Fatalf("unexpected explicit canonical path %q", got)
 	}
 }
 

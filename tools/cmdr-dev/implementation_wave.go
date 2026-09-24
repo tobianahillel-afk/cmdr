@@ -38,6 +38,18 @@ func runImplementationWave(root string, state CurrentState, graph WorkGraph) (Im
 	if selection.ProductSpecBaseline != state.ProductSpec.BaselineCommit {
 		return selection, fmt.Errorf("implementation wave Product Spec baseline mismatch")
 	}
+	inventory, err := buildSpecInventory(root, state.ProductSpec.CanonicalPath)
+	if err != nil {
+		return selection, err
+	}
+	if inventory.TreeDigest != selection.SpecTreeDigest {
+		return selection, fmt.Errorf("implementation wave Product Spec digest changed during selection")
+	}
+	canonicalFile, err := resolveWaveCanonicalFile(selection, inventory)
+	if err != nil {
+		return selection, err
+	}
+	selection.CanonicalFile = canonicalFile
 	canonicalRel, err := normalizeCanonicalCapabilityPath(state.ProductSpec.CanonicalPath, selection.CanonicalFile)
 	if err != nil {
 		return selection, fmt.Errorf("selected capability %s canonical file: %w", selection.Capability, err)
@@ -103,9 +115,6 @@ func selectImplementationWave(program ImplementationReadinessProgram) (Implement
 	if implementedFamilies[family] {
 		selection.PreferredFamily = family
 	}
-	if strings.TrimSpace(selected.CanonicalFile) == "" {
-		return selection, fmt.Errorf("selected READY capability %s has no canonical file", selected.Capability)
-	}
 	selection.Capability = selected.Capability
 	selection.Name = selected.Name
 	selection.RegisterPath = selected.RegisterPath
@@ -113,6 +122,32 @@ func selectImplementationWave(program ImplementationReadinessProgram) (Implement
 	selection.DeliveryStatus = selected.DeliveryStatus
 	selection.DeliveryMode = selected.DeliveryMode
 	return selection, nil
+}
+
+func resolveWaveCanonicalFile(selection ImplementationWaveSelection, inventory SpecInventory) (string, error) {
+	if strings.TrimSpace(selection.CanonicalFile) != "" {
+		return selection.CanonicalFile, nil
+	}
+	var matches []string
+	for _, doc := range inventory.Documents {
+		if doc.ID == selection.Capability && doc.Active && doc.Canonical {
+			path := filepath.ToSlash(doc.Path)
+			prefix := strings.TrimSuffix(filepath.ToSlash(inventory.SpecRoot), "/") + "/"
+			if !strings.HasPrefix(path, prefix) {
+				return "", fmt.Errorf("canonical document %s for %s is outside Product Spec root", path, selection.Capability)
+			}
+			matches = append(matches, strings.TrimPrefix(path, prefix))
+		}
+	}
+	sort.Strings(matches)
+	switch len(matches) {
+	case 0:
+		return "", fmt.Errorf("selected READY capability %s has no canonical file in its register and no active canonical Product Spec document", selection.Capability)
+	case 1:
+		return matches[0], nil
+	default:
+		return "", fmt.Errorf("selected READY capability %s resolves to multiple active canonical Product Spec documents: %v", selection.Capability, matches)
+	}
 }
 
 func capabilityFamily(id string) (string, error) {
