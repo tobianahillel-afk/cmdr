@@ -57,7 +57,6 @@ func TestWriteAndReadRepoFileStayInsideRoot(t *testing.T) {
 	}
 }
 
-
 func TestWalkRepoDirRejectsEscapeAndTraversesConfinedDirectory(t *testing.T) {
 	root := t.TempDir()
 	if err := os.MkdirAll(filepath.Join(root, "nested"), 0o750); err != nil {
