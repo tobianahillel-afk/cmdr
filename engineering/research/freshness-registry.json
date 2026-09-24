@@ -1,5 +1,97 @@
 {
   "schema_version": 1,
   "registry_kind": "engineering-decision-freshness",
-  "records": []
+  "records": [
+    {
+      "id": "FRESH-0001",
+      "decision_id": "ENG-DEC-0001",
+      "reviewed_at": "2026-09-24",
+      "fresh_until": "2026-12-23",
+      "freshness_rationale": "Class C frontend architecture is accepted against current browser-platform evidence and a representative CMDR benchmark, but the Web platform, security guidance and compared framework/toolchain landscape evolve quickly enough to require a quarterly review or immediate event-driven revalidation.",
+      "snapshot": {
+        "product_spec_baseline": "99c3826cdcbc79bad51631cf6462450f92e012eb",
+        "decision": {
+          "id": "ENG-DEC-0001",
+          "sha256": "d05eb8c4fdffab6fc7a228a3aa1cbecc8d6de52f5186217d6e47b7c82df1d5fd"
+        },
+        "research_packets": [
+          {
+            "id": "RES-PKT-0001",
+            "sha256": "f47c5fbb4195816577c67ae55c63463af69b09d39e2beb1d947abfb787dd4cbf"
+          }
+        ],
+        "validation": {
+          "id": "DECVAL-0001",
+          "sha256": "06eba1187e598012a977dbe07503c5cae44a917c83cd1bb19616580ccc3056b8"
+        },
+        "tracked_inputs": [
+          {
+            "kind": "benchmark-fixture",
+            "path": "engineering/performance/event-search/frontend-runtime-benchmark.js",
+            "sha256": "4700117270fe9042396241748fd31091b7bfd184855990994e2132265d46f7c0"
+          }
+        ]
+      },
+      "revisit_triggers": [
+        "date-expiry",
+        "decision-change",
+        "research-evidence-change",
+        "validation-evidence-change",
+        "repository-input-change",
+        "product-spec-baseline-change",
+        "upstream-version-change",
+        "security-advisory",
+        "threat-model-change",
+        "benchmark-regression",
+        "material-new-research"
+      ],
+      "signals": [
+        {
+          "kind": "upstream-version-change",
+          "state": "clear",
+          "observed_at": "2026-09-24",
+          "evidence_refs": [
+            "RES-PKT-0001"
+          ],
+          "detail": "No selected third-party UI runtime exists; current Web Platform and compared-framework evidence does not invalidate the selected first-party architecture. Revisit on material browser-platform or compared-runtime version change."
+        },
+        {
+          "kind": "security-advisory",
+          "state": "clear",
+          "observed_at": "2026-09-24",
+          "evidence_refs": [
+            "RES-PKT-0001"
+          ],
+          "detail": "No reviewed current security evidence invalidates the first-party Web Platform architecture; CSP and safe DOM APIs remain mandatory and Trusted Types remains defense in depth."
+        },
+        {
+          "kind": "threat-model-change",
+          "state": "clear",
+          "observed_at": "2026-09-24",
+          "evidence_refs": [
+            "ADV-0001"
+          ],
+          "detail": "The Class C adversarial review found no blocking threat-model issue when authorization remains server-side and unsafe DOM sinks are excluded."
+        },
+        {
+          "kind": "benchmark-regression",
+          "state": "clear",
+          "observed_at": "2026-09-24",
+          "evidence_refs": [
+            "BENCH-0001"
+          ],
+          "detail": "BENCH-0001 shows the selected candidate within the measured workload has low repeated-update cost; any material regression or fixture change requires revalidation."
+        },
+        {
+          "kind": "material-new-research",
+          "state": "clear",
+          "observed_at": "2026-09-24",
+          "evidence_refs": [
+            "RES-PKT-0001"
+          ],
+          "detail": "The saturated research packet reports no unresolved critical claim and no additional source family that materially changes the candidate set as of the review date."
+        }
+      ]
+    }
+  ]
 }

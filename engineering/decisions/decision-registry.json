@@ -7,7 +7,7 @@
       "decision_key": "event-search.frontend-runtime-architecture",
       "title": "Event Search frontend runtime architecture",
       "class": "C",
-      "status": "researching",
+      "status": "accepted",
       "owner": "CMDR Platform Architecture",
       "question": "Which frontend runtime architecture should implement INV-EVS-001 while preserving backend-neutral Event Search behavior, CMDR-owned visual components, high security, high performance, accessibility, deep-link state, and minimal product-runtime supply-chain surface?",
       "rationale": "Event Search UI is a high-impact security/performance architecture choice. No frontend runtime has been accepted, and implementing UI first would create an implicit irreversible product-runtime dependency choice.",
@@ -41,8 +41,12 @@
       "evidence_refs": [
         "RES-PKT-0001"
       ],
-      "benchmark_refs": [],
-      "adversarial_refs": [],
+      "benchmark_refs": [
+        "BENCH-0001"
+      ],
+      "adversarial_refs": [
+        "ADV-0001"
+      ],
       "superseded_by": ""
     }
   ]
