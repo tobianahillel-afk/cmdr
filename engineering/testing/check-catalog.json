@@ -1191,6 +1191,39 @@
         "CHK-MANIFESTS"
       ],
       "evidence_kind": "implementation-wave-selection"
+    },
+    {
+      "id": "CHK-EVENT-SEARCH-CONTRACT",
+      "title": "CAP-INV-002 Event Search executable contract and negative-fixture audit",
+      "executor_key": "event-search-contract-audit",
+      "risk_domains": [
+        "product-spec",
+        "coverage-traceability",
+        "security",
+        "performance",
+        "work-governance"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": false,
+      "trigger_paths": [
+        "engineering/implementation/event-search/**",
+        "work/lots/E10-INV-002A*/**",
+        "tools/cmdr-dev/event_search_contract.go",
+        "tools/cmdr-dev/event_search_contract_test.go",
+        "cmdr-product-spec/07-investigate/modules/signals-and-hunt/capabilities/event-search.md",
+        "cmdr-product-spec/07-investigate/modules/event-search/screens/event-search.md",
+        "cmdr-product-spec/05-domain-model/objects/query.md",
+        "cmdr-product-spec/05-domain-model/objects/search-job.md",
+        "cmdr-product-spec/05-domain-model/objects/telemetry-event.md",
+        "cmdr-product-spec/17-implementation-contracts/**"
+      ],
+      "prerequisites": [
+        "CHK-MANIFESTS",
+        "CHK-SECURITY-TESTS",
+        "CHK-PERFORMANCE-REGISTRY"
+      ],
+      "evidence_kind": "audit-report"
     }
   ]
 }

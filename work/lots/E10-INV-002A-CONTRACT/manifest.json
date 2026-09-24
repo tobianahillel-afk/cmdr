@@ -112,7 +112,8 @@
     "CHK-MANIFESTS",
     "CHK-COMPLEXITY",
     "CHK-SECURITY-TESTS",
-    "CHK-PERFORMANCE-REGISTRY"
+    "CHK-PERFORMANCE-REGISTRY",
+    "CHK-EVENT-SEARCH-CONTRACT"
   ],
   "definition_of_ready": [
     "E10-INV-002A-BOUNDARY is VERIFIED"
@@ -126,9 +127,9 @@
   "complexity": {
     "primary_components": 2,
     "estimated_files_changed": 9,
-    "estimated_net_loc": 600,
+    "estimated_net_loc": 650,
     "production_files": 4,
-    "net_production_loc": 390,
+    "net_production_loc": 430,
     "bounded_contexts": 1,
     "independent_migrations": 0,
     "distinct_security_models": 1,
