@@ -129,6 +129,94 @@ func gitCommitExists(root, commit string) bool {
 	return cmd.Run() == nil
 }
 
+func ensureGitAncestor(root, ancestor, descendant string) error {
+	ancestor, err := validateFullCommitID(ancestor)
+	if err != nil {
+		return fmt.Errorf("ancestor commit: %w", err)
+	}
+	descendant, err = validateFullCommitID(descendant)
+	if err != nil {
+		return fmt.Errorf("descendant commit: %w", err)
+	}
+	if err := ensureGitCommit(root, ancestor); err != nil {
+		return fmt.Errorf("load ancestor commit: %w", err)
+	}
+	if err := ensureGitCommit(root, descendant); err != nil {
+		return fmt.Errorf("load descendant commit: %w", err)
+	}
+	ok, err := gitIsAncestor(root, ancestor, descendant)
+	if err != nil {
+		return err
+	}
+	if ok {
+		return nil
+	}
+	shallow, err := gitRepositoryIsShallow(root)
+	if err != nil {
+		return err
+	}
+	if !shallow {
+		return fmt.Errorf("%s is not an ancestor of %s", ancestor, descendant)
+	}
+	for _, depth := range []int{32, 128, 512, 2048} {
+		if err := fetchGitCommitHistory(root, descendant, depth); err != nil {
+			return fmt.Errorf("hydrate descendant history to depth %d: %w", depth, err)
+		}
+		ok, err := gitIsAncestor(root, ancestor, descendant)
+		if err != nil {
+			return err
+		}
+		if ok {
+			return nil
+		}
+	}
+	return fmt.Errorf("unable to establish ancestry after bounded shallow-history hydration: ancestor=%s descendant=%s", ancestor, descendant)
+}
+
+func gitIsAncestor(root, ancestor, descendant string) (bool, error) {
+	cmd := exec.Command("git", "-C", root, "merge-base", "--is-ancestor", ancestor, descendant) // #nosec G204,G702 -- executable/flags are fixed and both commits are validated full hex IDs by the caller.
+	if err := cmd.Run(); err != nil {
+		if exitErr, ok := err.(*exec.ExitError); ok && exitErr.ExitCode() == 1 {
+			return false, nil
+		}
+		return false, fmt.Errorf("check Git ancestry: %w", err)
+	}
+	return true, nil
+}
+
+func gitRepositoryIsShallow(root string) (bool, error) {
+	cmd := exec.Command("git", "-C", root, "rev-parse", "--is-shallow-repository") // #nosec G204 -- executable and arguments are fixed.
+	out, err := cmd.Output()
+	if err != nil {
+		return false, fmt.Errorf("detect shallow Git repository: %w", err)
+	}
+	switch strings.TrimSpace(string(out)) {
+	case "true":
+		return true, nil
+	case "false":
+		return false, nil
+	default:
+		return false, fmt.Errorf("unexpected Git shallow-repository response %q", strings.TrimSpace(string(out)))
+	}
+}
+
+func fetchGitCommitHistory(root, commit string, depth int) error {
+	commit, err := validateFullCommitID(commit)
+	if err != nil {
+		return err
+	}
+	if depth < 2 {
+		return fmt.Errorf("invalid history depth %d", depth)
+	}
+	fetch := exec.Command("git", "-C", root, "fetch", "--no-tags", fmt.Sprintf("--depth=%d", depth), "origin", commit) // #nosec G204,G702 -- executable/flags/remote are fixed; commit is full-hex validated and depth is an integer selected by compiled code.
+	var stderr bytes.Buffer
+	fetch.Stderr = &stderr
+	if err := fetch.Run(); err != nil {
+		return fmt.Errorf("exact history fetch failed: %s", strings.TrimSpace(stderr.String()))
+	}
+	return nil
+}
+
 func parseNULPaths(raw []byte) ([]string, error) {
 	parts := bytes.Split(raw, []byte{0})
 	var values []string

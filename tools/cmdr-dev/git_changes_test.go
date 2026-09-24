@@ -1,9 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"testing"
 )
 
@@ -120,4 +122,67 @@ func bytesTrimSpace(value []byte) []byte {
 		end--
 	}
 	return value[start:end]
+}
+
+func TestEnsureGitAncestorHydratesShallowClone(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("file:// shallow-clone fixture is validated on POSIX CI")
+	}
+	if _, err := exec.LookPath("git"); err != nil {
+		t.Skip("git not installed")
+	}
+	source := t.TempDir()
+	runTestGit(t, source, "init")
+	runTestGit(t, source, "config", "user.name", "CMDR Test")
+	runTestGit(t, source, "config", "user.email", "cmdr-test@example.invalid")
+	for i := 0; i < 12; i++ {
+		writeTestFile(t, source, "history.txt", fmt.Sprintf("commit-%02d\n", i))
+		runTestGit(t, source, "add", ".")
+		runTestGit(t, source, "commit", "-m", fmt.Sprintf("commit-%02d", i))
+	}
+	descendant := testGitOutput(t, source, "rev-parse", "HEAD")
+	ancestor := testGitOutput(t, source, "rev-parse", "HEAD~7")
+
+	parent := t.TempDir()
+	clone := filepath.Join(parent, "clone")
+	cmd := exec.Command("git", "clone", "--depth=1", "file://"+filepath.ToSlash(source), clone)
+	if out, err := cmd.CombinedOutput(); err != nil {
+		t.Fatalf("shallow clone failed: %v\n%s", err, out)
+	}
+	if gitCommitExists(clone, ancestor) {
+		t.Fatal("fixture unexpectedly contains ancestor before hydration")
+	}
+	if err := ensureGitAncestor(clone, ancestor, descendant); err != nil {
+		t.Fatal(err)
+	}
+	ok, err := gitIsAncestor(clone, ancestor, descendant)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !ok {
+		t.Fatal("ancestor relation was not established after bounded hydration")
+	}
+}
+
+func TestEnsureGitAncestorRejectsUnrelatedHistory(t *testing.T) {
+	if _, err := exec.LookPath("git"); err != nil {
+		t.Skip("git not installed")
+	}
+	root := t.TempDir()
+	runTestGit(t, root, "init")
+	runTestGit(t, root, "config", "user.name", "CMDR Test")
+	runTestGit(t, root, "config", "user.email", "cmdr-test@example.invalid")
+	writeTestFile(t, root, "a.txt", "a\n")
+	runTestGit(t, root, "add", ".")
+	runTestGit(t, root, "commit", "-m", "base")
+	first := testGitOutput(t, root, "rev-parse", "HEAD")
+	runTestGit(t, root, "checkout", "--orphan", "other")
+	runTestGit(t, root, "rm", "-rf", ".")
+	writeTestFile(t, root, "b.txt", "b\n")
+	runTestGit(t, root, "add", ".")
+	runTestGit(t, root, "commit", "-m", "other")
+	second := testGitOutput(t, root, "rev-parse", "HEAD")
+	if err := ensureGitAncestor(root, first, second); err == nil {
+		t.Fatal("expected unrelated histories to fail ancestry validation")
+	}
 }
