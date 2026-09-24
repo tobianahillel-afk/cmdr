@@ -934,7 +934,7 @@
       "id": "E10-INV-002A-BOUNDARY",
       "title": "Register Event Search runtime ownership and preimplementation controls",
       "type": "task",
-      "status": "READY",
+      "status": "VERIFIED",
       "depends_on": [
         "E10-SCALE-001C"
       ],
@@ -947,7 +947,7 @@
       "id": "E10-INV-002A-CONTRACT",
       "title": "Compile Event Search executable contract and negative fixtures",
       "type": "task",
-      "status": "BLOCKED",
+      "status": "READY",
       "depends_on": [
         "E10-INV-002A-BOUNDARY"
       ],
