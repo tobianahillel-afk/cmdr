@@ -693,7 +693,7 @@
       "id": "E9-PILOT-001A",
       "title": "Select and compile a traceable bounded pilot slice",
       "type": "sublot",
-      "status": "READY",
+      "status": "VERIFIED",
       "depends_on": [
         "E8-MET-001D"
       ],
@@ -706,7 +706,7 @@
       "id": "E9-PILOT-001B",
       "title": "Establish pilot runtime boundary and executable contracts",
       "type": "sublot",
-      "status": "BLOCKED",
+      "status": "READY",
       "depends_on": [
         "E9-PILOT-001A"
       ],
