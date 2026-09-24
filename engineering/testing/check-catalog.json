@@ -1163,6 +1163,34 @@
         "CHK-OBLIGATIONS"
       ],
       "evidence_kind": "implementation-readiness"
+    },
+    {
+      "id": "CHK-IMPLEMENTATION-WAVE",
+      "title": "Deterministic bounded implementation wave selection",
+      "executor_key": "implementation-wave",
+      "risk_domains": [
+        "product-spec",
+        "coverage-traceability",
+        "architecture",
+        "runtime-dependencies",
+        "work-governance",
+        "repository-health"
+      ],
+      "cost_tier": "standard",
+      "mandatory": true,
+      "always_on_pr": false,
+      "trigger_paths": [
+        "cmdr-product-spec/**",
+        "engineering/implementation/**",
+        "work/lots/E10-SCALE-001C/**",
+        "tools/cmdr-dev/implementation_wave.go",
+        "tools/cmdr-dev/implementation_wave_test.go"
+      ],
+      "prerequisites": [
+        "CHK-IMPLEMENTATION-READINESS",
+        "CHK-MANIFESTS"
+      ],
+      "evidence_kind": "implementation-wave-selection"
     }
   ]
 }

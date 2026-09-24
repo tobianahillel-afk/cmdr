@@ -34,7 +34,9 @@
     "verified E9 bounded pilot implementation evidence"
   ],
   "outputs": [
-    "machine-readable implementation-program evidence"
+    "deterministic reuse-first bounded wave selection",
+    "source-backed selected READY capability and canonical Product Spec file",
+    "bounded child implementation manifests after selected capability contract review"
   ],
   "invariants": [
     "Product Spec remains read-only",
@@ -51,7 +53,10 @@
     "go test ./...",
     "cmdr-dev validate-manifests succeeds",
     "cmdr-dev complexity-audit succeeds",
-    "adaptive engineering-kernel remains green"
+    "adaptive engineering-kernel remains green",
+    "unit tests prove reuse-first family preference and stable fallback ordering",
+    "unit tests prove IMPLEMENTED/BLOCKED/PROPOSED capabilities cannot enter the selected READY wave",
+    "CHK-IMPLEMENTATION-WAVE resolves the selected canonical Product Spec file"
   ],
   "performance_budget": {
     "applicable": true,
@@ -76,7 +81,8 @@
     "adaptive engineering-kernel",
     "cmdr-dev validate-manifests",
     "cmdr-dev complexity-audit",
-    "CHK-METRICS-BUDGET"
+    "CHK-METRICS-BUDGET",
+    "CHK-IMPLEMENTATION-WAVE"
   ],
   "definition_of_ready": [
     "E9-PILOT-001D is VERIFIED",

@@ -105,6 +105,7 @@ var knownExecutorKeys = map[string]bool{
 	"pilot-e2e-audit":             true,
 	"implementation-ledger-audit": true,
 	"implementation-readiness":    true,
+	"implementation-wave":         true,
 	"secret-scan":                 true,
 	"gosec-go":                    true,
 	"govulncheck-go":              true,

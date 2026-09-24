@@ -109,7 +109,7 @@ func validationExecutorMode(key string) (string, error) {
 	case "gofmt", "go-vet", "go-unit",
 		"spec-index", "spec-baseline", "coverage-graph", "obligations", "coverage-audit",
 		"validate-manifests", "architecture-audit", "dependency-audit", "boundary-edge-audit",
-		"complexity-audit", "context", "doctor", "next", "check-catalog-audit", "security-gate-audit", "security-test-audit", "deep-security-audit", "decision-registry-audit", "research-packet-audit", "decision-gate-audit", "decision-freshness-audit", "performance-registry-audit", "performance-benchmark-audit", "deep-performance-audit", "performance-cache-audit", "lease-audit", "recovery-journal-audit", "recovery-reconcile-audit", "coordination-audit", "metrics-registry-audit", "pilot-scope-audit", "pilot-contract-audit", "pilot-e2e-audit", "implementation-ledger-audit", "implementation-readiness", "secret-scan", "gosec-go", "govulncheck-go", "sbom":
+		"complexity-audit", "context", "doctor", "next", "check-catalog-audit", "security-gate-audit", "security-test-audit", "deep-security-audit", "decision-registry-audit", "research-packet-audit", "decision-gate-audit", "decision-freshness-audit", "performance-registry-audit", "performance-benchmark-audit", "deep-performance-audit", "performance-cache-audit", "lease-audit", "recovery-journal-audit", "recovery-reconcile-audit", "coordination-audit", "metrics-registry-audit", "pilot-scope-audit", "pilot-contract-audit", "pilot-e2e-audit", "implementation-ledger-audit", "implementation-readiness", "implementation-wave", "secret-scan", "gosec-go", "govulncheck-go", "sbom":
 		return "execute", nil
 	default:
 		return "", fmt.Errorf("unsupported executor_key %q", key)
@@ -441,6 +441,14 @@ func executeValidationCheck(root, tempDir, changesFile, key string, state Curren
 			program.Summary.Total, program.Summary.Implemented, program.Summary.Ready, program.Summary.Blocked,
 			program.Summary.Proposed, program.Summary.DecisionBlocked, program.Summary.DependencyBlocked,
 			program.Summary.UnscopedBlockingDependencies, program.SpecTreeDigest, program.Status), nil
+	case "implementation-wave":
+		selection, err := runImplementationWave(root, state, graph)
+		if err != nil {
+			return "", err
+		}
+		return fmt.Sprintf("policy=%s ready=%d preferred_family=%s capability=%s canonical=%s digest=%s status=%s",
+			selection.SelectionPolicy, selection.ReadyCandidates, selection.PreferredFamily,
+			selection.Capability, selection.CanonicalFile, selection.SpecTreeDigest, selection.Status), nil
 	case "secret-scan":
 		summary, err := runSecretScan(root, changesFile, false)
 		if err != nil {
