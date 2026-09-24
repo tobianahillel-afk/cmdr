@@ -34,7 +34,9 @@
     "verified E9 bounded pilot implementation evidence"
   ],
   "outputs": [
-    "machine-readable implementation-program evidence"
+    "evidence-backed runtime implementation ledger",
+    "strict implementation ledger auditor",
+    "verified initial CAP-SET-004 implementation claim derived from E9 runtime evidence"
   ],
   "invariants": [
     "Product Spec remains read-only",
@@ -51,7 +53,11 @@
     "go test ./...",
     "cmdr-dev validate-manifests succeeds",
     "cmdr-dev complexity-audit succeeds",
-    "adaptive engineering-kernel remains green"
+    "adaptive engineering-kernel remains green",
+    "cmdr-dev implementation-ledger-audit succeeds",
+    "duplicate capability/work/boundary claims fail",
+    "path escapes and Product Spec baseline drift fail",
+    "ledger claim requires active capability obligation, VERIFIED work unit, matching manifest/handoff and product-runtime boundary"
   ],
   "performance_budget": {
     "applicable": true,

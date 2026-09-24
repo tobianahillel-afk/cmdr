@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "ledger_kind": "verified-runtime-implementation-evidence",
+  "product_spec_baseline": "99c3826cdcbc79bad51631cf6462450f92e012eb",
+  "entries": [
+    {
+      "capability": "CAP-SET-004",
+      "work_unit": "E9-PILOT-001C-RUNTIME",
+      "manifest_path": "work/lots/E9-PILOT-001C-RUNTIME/manifest.json",
+      "handoff_path": "work/lots/E9-PILOT-001C-RUNTIME/HANDOFF.json",
+      "runtime_boundary": "pilot-context-envelope-runtime",
+      "runtime_root": "product-runtime/context-envelope/**"
+    }
+  ]
+}

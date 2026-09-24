@@ -1104,6 +1104,37 @@
         "CHK-METRICS-BUDGET"
       ],
       "evidence_kind": "pilot-closure-audit"
+    },
+    {
+      "id": "CHK-IMPLEMENTATION-LEDGER",
+      "title": "Evidence-backed runtime implementation ledger audit",
+      "executor_key": "implementation-ledger-audit",
+      "risk_domains": [
+        "product-spec",
+        "coverage-traceability",
+        "architecture",
+        "runtime-dependencies",
+        "security",
+        "work-governance",
+        "repository-health"
+      ],
+      "cost_tier": "standard",
+      "mandatory": true,
+      "always_on_pr": false,
+      "trigger_paths": [
+        "engineering/implementation/**",
+        "engineering/architecture/**",
+        "product-runtime/**",
+        "work/lots/**",
+        "tools/cmdr-dev/implementation_ledger.go",
+        "tools/cmdr-dev/implementation_ledger_test.go"
+      ],
+      "prerequisites": [
+        "CHK-OBLIGATIONS",
+        "CHK-ARCHITECTURE",
+        "CHK-RUNTIME-DEPS"
+      ],
+      "evidence_kind": "implementation-ledger-audit"
     }
   ]
 }

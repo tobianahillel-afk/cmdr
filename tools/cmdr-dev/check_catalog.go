@@ -103,6 +103,7 @@ var knownExecutorKeys = map[string]bool{
 	"pilot-scope-audit":           true,
 	"pilot-contract-audit":        true,
 	"pilot-e2e-audit":             true,
+	"implementation-ledger-audit": true,
 	"secret-scan":                 true,
 	"gosec-go":                    true,
 	"govulncheck-go":              true,
