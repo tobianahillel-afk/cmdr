@@ -1070,6 +1070,40 @@
         "CHK-BOUNDARY-EDGES"
       ],
       "evidence_kind": "audit-report"
+    },
+    {
+      "id": "CHK-PILOT-E2E",
+      "title": "E9 adversarial end-to-end pilot closure audit",
+      "executor_key": "pilot-e2e-audit",
+      "risk_domains": [
+        "product-spec",
+        "coverage-traceability",
+        "security",
+        "performance",
+        "repository-health",
+        "work-governance",
+        "unit-correctness"
+      ],
+      "cost_tier": "standard",
+      "mandatory": true,
+      "always_on_pr": false,
+      "trigger_paths": [
+        "engineering/pilot/**",
+        "work/lots/E9-PILOT-001*/**",
+        "product-runtime/context-envelope/**",
+        "tools/cmdr-dev/pilot_e2e.go",
+        "tools/cmdr-dev/pilot_e2e_test.go"
+      ],
+      "prerequisites": [
+        "CHK-PILOT-CONTRACT",
+        "CHK-SECURITY-TESTS",
+        "CHK-DEEP-SECURITY",
+        "CHK-PERFORMANCE-BENCHMARK",
+        "CHK-DEEP-PERFORMANCE",
+        "CHK-RECOVERY-RECONCILE",
+        "CHK-METRICS-BUDGET"
+      ],
+      "evidence_kind": "pilot-closure-audit"
     }
   ]
 }

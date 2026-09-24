@@ -613,6 +613,15 @@ func main() {
 		if err != nil {
 			fail(err)
 		}
+	case "pilot-e2e-audit":
+		if err := validateState(root, state, graph); err != nil {
+			fail(err)
+		}
+		summary, err := runPilotE2EAudit(root, state, graph)
+		printValue(summary, *jsonFlag)
+		if err != nil {
+			fail(err)
+		}
 	case "git-changes":
 		if err := validateState(root, state, graph); err != nil {
 			fail(err)
@@ -1157,6 +1166,18 @@ func printValue(v any, asJSON bool) {
 		fmt.Printf("runtime dependencies: %d\n", x.RuntimeDependencies)
 		fmt.Printf("runtime files: %d\n", x.RuntimeFiles)
 		fmt.Printf("status: %s\n", x.Status)
+	case PilotE2EAuditSummary:
+		fmt.Printf("pilot slice: %s\n", x.SliceID)
+		fmt.Printf("capability: %s\n", x.Capability)
+		fmt.Printf("contract: %s\n", x.ContractID)
+		fmt.Printf("adversarial tests: %d\n", x.AdversarialTests)
+		fmt.Printf("coverage: %.2f%%\n", x.RuntimeCoveragePercent)
+		fmt.Printf("security: auth=%s tenant=%s sast=%d sca=%d\n", x.AuthorizationNegative, x.TenantIsolationNegative, x.SASTFindings, x.SCAActionableFindings)
+		fmt.Printf("performance: p95=%.9fms budget=%.3fms\n", x.WorstObservedP95MS, x.PerformanceBudgetMS)
+		fmt.Printf("recovery: %s / %s\n", x.RecoveryOutcome, x.RecoveryNextAction)
+		fmt.Printf("production readiness claim: %t\n", x.ProductionReadinessClaim)
+		fmt.Printf("limitations: %d\n", x.Limitations)
+		fmt.Printf("status: %s\n", x.Status)
 	case PilotScopeAuditSummary:
 		fmt.Printf("pilot slice: %s\n", x.SliceID)
 		fmt.Printf("capability: %s\n", x.Capability)
@@ -1185,7 +1206,7 @@ func printValue(v any, asJSON bool) {
 }
 
 func usage(w io.Writer) {
-	fmt.Fprintln(w, "usage: cmdr-dev <doctor|status|next|spec-index|spec-baseline|coverage-graph|obligations|coverage-audit|validate-manifests|complexity-audit|context|architecture-audit|dependency-audit|boundary-edge-audit|check-catalog-audit|impact|validation-plan|security-gate-audit|security-test-audit|deep-security-audit|decision-registry-audit|research-packet-audit|decision-gate-audit|decision-freshness-audit|performance-registry-audit|performance-benchmark-audit|deep-performance-audit|performance-cache-audit|lease-audit|lease-evaluate|recovery-journal-audit|resume-checkpoint|recovery-reconcile|recovery-reconcile-audit|coordination-audit|coordination-handoff|metrics-registry-audit|decision-cache|decision-freshness-snapshot|research-context|secret-scan|sast-go|sca-go|sbom|pilot-scope-audit|pilot-contract-audit|git-changes|validation-run> [--root PATH] [--json] [--check] [--output PATH]")
+	fmt.Fprintln(w, "usage: cmdr-dev <doctor|status|next|spec-index|spec-baseline|coverage-graph|obligations|coverage-audit|validate-manifests|complexity-audit|context|architecture-audit|dependency-audit|boundary-edge-audit|check-catalog-audit|impact|validation-plan|security-gate-audit|security-test-audit|deep-security-audit|decision-registry-audit|research-packet-audit|decision-gate-audit|decision-freshness-audit|performance-registry-audit|performance-benchmark-audit|deep-performance-audit|performance-cache-audit|lease-audit|lease-evaluate|recovery-journal-audit|resume-checkpoint|recovery-reconcile|recovery-reconcile-audit|coordination-audit|coordination-handoff|metrics-registry-audit|decision-cache|decision-freshness-snapshot|research-context|secret-scan|sast-go|sca-go|sbom|pilot-scope-audit|pilot-contract-audit|pilot-e2e-audit|git-changes|validation-run> [--root PATH] [--json] [--check] [--output PATH]")
 }
 
 func fail(err error) {
