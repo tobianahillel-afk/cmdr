@@ -104,9 +104,9 @@ var knownDeepPerformanceStages = map[string]bool{
 }
 
 var knownDeepPerformanceHandlerKeys = map[string]bool{
-	"builtin-cmdr-dev-deep-metadata-v1":    true,
-	"builtin-pilot-context-projection-v1":  true,
-	"builtin-event-search-validation-v1":   true,
+	"builtin-cmdr-dev-deep-metadata-v1":     true,
+	"builtin-pilot-context-projection-v1":   true,
+	"builtin-event-search-validation-v1":    true,
 	"builtin-event-search-orchestration-v1": true,
 }
 
