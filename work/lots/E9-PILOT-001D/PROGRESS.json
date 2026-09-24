@@ -31,7 +31,7 @@
   "closure_state": {
     "engineering_foundation": "VERIFIED",
     "e9_pilot_epic": "VERIFIED",
-    "vertical_slice_parent": "VERIFIED",
+    "vertical_slice_parent": "DECOMPOSED_WITH_VERIFIED_CHILDREN",
     "active_checkpoint": "E9-PILOT-001D",
     "executable_ready_units": 0
   },
