@@ -199,7 +199,6 @@ func TestPilotDeepPerformanceHandlerExecutesRealRuntime(t *testing.T) {
 	}
 }
 
-
 func TestEventSearchOrchestrationDeepHandlerExecutesRealRuntime(t *testing.T) {
 	root, err := filepath.Abs(filepath.Join("..", ".."))
 	if err != nil {
