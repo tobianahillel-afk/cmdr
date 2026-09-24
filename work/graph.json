@@ -1013,9 +1013,100 @@
       "id": "E10-INV-002E",
       "title": "Research and select Event Search frontend runtime architecture",
       "type": "task",
-      "status": "READY",
+      "status": "VERIFIED",
       "depends_on": [
         "E10-INV-002D"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-002F"
+      ]
+    },
+    {
+      "id": "E10-INV-002F",
+      "title": "Implement bounded Event Search frontend runtime",
+      "type": "epic",
+      "status": "DECOMPOSED",
+      "depends_on": [
+        "E10-INV-002E"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-002F-BOUNDARY"
+      ]
+    },
+    {
+      "id": "E10-INV-002F-BOUNDARY",
+      "title": "Register Event Search frontend runtime ownership and controls",
+      "type": "task",
+      "status": "READY",
+      "depends_on": [
+        "E10-INV-002E"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-002F-STATE"
+      ]
+    },
+    {
+      "id": "E10-INV-002F-STATE",
+      "title": "Implement Event Search frontend state and deep-link core",
+      "type": "task",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E10-INV-002F-BOUNDARY"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-002F-SHELL"
+      ]
+    },
+    {
+      "id": "E10-INV-002F-SHELL",
+      "title": "Implement accessible Event Search shell and mandatory UI states",
+      "type": "task",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E10-INV-002F-STATE"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-002F-RESULTS"
+      ]
+    },
+    {
+      "id": "E10-INV-002F-RESULTS",
+      "title": "Implement bounded incremental Event Search result rendering",
+      "type": "task",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E10-INV-002F-SHELL"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-002F-INTEGRATION"
+      ]
+    },
+    {
+      "id": "E10-INV-002F-INTEGRATION",
+      "title": "Integrate Event Search frontend with backend-neutral transport contract",
+      "type": "task",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E10-INV-002F-RESULTS"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-002F-E2E"
+      ]
+    },
+    {
+      "id": "E10-INV-002F-E2E",
+      "title": "Validate Event Search frontend security accessibility deep links and performance",
+      "type": "task",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E10-INV-002F-INTEGRATION"
       ],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": []

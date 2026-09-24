@@ -1,0 +1,140 @@
+{
+  "schema_version": 2,
+  "id": "E10-INV-002F-RESULTS",
+  "title": "Implement bounded incremental Event Search result rendering",
+  "type": "task",
+  "parent": "E10-INV-002F",
+  "goal": "Implement safe bounded incremental result rendering with position preservation and a first-party windowing boundary suitable for large result sets.",
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-002"
+    ],
+    "requirements": [
+      "REQ-PROD-005",
+      "REQ-PROD-010",
+      "REQ-PROD-011",
+      "REQ-PROD-014",
+      "REQ-PROD-045"
+    ],
+    "screens": [
+      "INV-EVS-001"
+    ],
+    "permissions": [
+      "perm.investigate.search.execute",
+      "perm.investigate.evidence.collect",
+      "perm.investigate.evidence.export"
+    ],
+    "open_decisions": [
+      "OPEN-013"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/frontend-state-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/search-query-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/audit-event-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/correlation-identifiers.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/query.md",
+      "cmdr-product-spec/05-domain-model/objects/search-job.md",
+      "cmdr-product-spec/05-domain-model/objects/telemetry-event.md"
+    ]
+  },
+  "depends_on": [
+    "E10-INV-002F-SHELL"
+  ],
+  "allowed_paths": [
+    "product-runtime/event-search-frontend/**",
+    "engineering/architecture/**",
+    "engineering/security/**",
+    "engineering/performance/**",
+    "engineering/implementation/event-search/**",
+    "engineering/testing/**",
+    "work/lots/E10-INV-002F*/**",
+    "engineering/state/**",
+    "work/graph.json",
+    "tools/cmdr-dev/**"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**"
+  ],
+  "inputs": [
+    "VERIFIED bounded Event Search backend-neutral core",
+    "accepted ENG-DEC-0001 first-party frontend architecture",
+    "INV-EVS-001 and frontend-state implementation contracts"
+  ],
+  "outputs": [
+    "safe result renderer",
+    "incremental update scheduler",
+    "position preservation",
+    "first-party windowing core"
+  ],
+  "invariants": [
+    "Product Spec remains read-only",
+    "OPEN-013 remains unresolved and Case-link mutation is not implemented",
+    "no final query dialect index storage engine provider or persisted result model is selected",
+    "server-side authorization remains authoritative",
+    "no third-party UI framework/runtime becomes a product-runtime dependency",
+    "CMDR-owned visual and interaction behavior remains first-party"
+  ],
+  "security_properties": [
+    "untrusted event/query content never reaches unsafe string-to-DOM sinks",
+    "tenant and permission state are never trusted as client-side security boundaries",
+    "CSP-compatible implementation is mandatory and Trusted Types is defense in depth",
+    "runtime dependency policy remains deny-by-default"
+  ],
+  "acceptance_tests": [
+    "adaptive engineering-kernel remains green",
+    "Product Spec baseline remains unchanged"
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "Event Search frontend is performance-sensitive and must preserve responsive state updates",
+    "metrics": [
+      "frontend work stays within registered bounded performance ownership",
+      "no production Search SLO is claimed by frontend-only benchmarks"
+    ]
+  },
+  "migration": {
+    "required": false,
+    "rationale": "frontend runtime implementation has no persistent data migration in this wave",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert this bounded frontend work unit without altering the verified Event Search core",
+    "verification": [
+      "bounded backend core remains VERIFIED",
+      "Product Spec baseline remains unchanged"
+    ]
+  },
+  "required_checks": [
+    "adaptive engineering-kernel",
+    "CHK-ARCHITECTURE",
+    "CHK-RUNTIME-DEPS",
+    "CHK-SECURITY-TESTS",
+    "CHK-PERFORMANCE-REGISTRY",
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY"
+  ],
+  "definition_of_ready": [
+    "declared dependencies are VERIFIED",
+    "ENG-DEC-0001 is accepted and fresh"
+  ],
+  "definition_of_done": [
+    "untrusted data uses text-safe DOM APIs",
+    "updates do not replace the full result fragment",
+    "position survives non-destructive state changes"
+  ],
+  "complexity": {
+    "primary_components": 2,
+    "estimated_files_changed": 9,
+    "estimated_net_loc": 690,
+    "production_files": 5,
+    "net_production_loc": 500,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

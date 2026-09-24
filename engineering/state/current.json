@@ -17,8 +17,8 @@
     "phase_title": "Scaled product implementation program bootstrap"
   },
   "execution": {
-    "active_work_unit": "E10-INV-002E",
-    "preferred_next_unit": "E10-INV-002E",
+    "active_work_unit": "E10-INV-002F-BOUNDARY",
+    "preferred_next_unit": "E10-INV-002F-BOUNDARY",
     "selection_rule": "first READY unit whose dependencies satisfy their required terminal state"
   },
   "reconciliation": {
