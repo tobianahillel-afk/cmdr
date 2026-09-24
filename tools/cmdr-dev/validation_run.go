@@ -344,9 +344,7 @@ func executeValidationCheck(root, tempDir, changesFile, key string, state Curren
 		if err != nil {
 			return "", err
 		}
-		return fmt.Sprintf("stage=%s environment=%s registered=%d selected=%d executed=%d metrics=%d status=%s source=%s",
-			summary.Stage, summary.EnvironmentID, summary.Registered, summary.Selected,
-			summary.Executed, summary.Metrics, summary.Status, summary.SourceSHA), nil
+		return formatPerformanceBenchmarkEvidence(summary), nil
 	case "deep-performance-audit":
 		summary, err := runDeepPerformanceAudit(root, "pr", changesFile, "")
 		if err != nil {

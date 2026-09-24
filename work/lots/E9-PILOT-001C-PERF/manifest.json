@@ -60,6 +60,7 @@
     "tools/cmdr-dev/performance_benchmark_test.go",
     "tools/cmdr-dev/deep_performance.go",
     "tools/cmdr-dev/deep_performance_test.go",
+    "tools/cmdr-dev/validation_run.go",
     ".github/workflows/**",
     "work/lots/E9-PILOT-001C*/**",
     "engineering/state/**",
@@ -72,7 +73,8 @@
   "outputs": [
     "executable pilot-context-projection-v1 handler",
     "real benchmark evidence",
-    "budget verdict for p95 <=1ms"
+    "budget verdict for p95 <=1ms",
+    "CI evidence including observed performance metric and absolute budget verdict"
   ],
   "invariants": [
     "shared CI uses absolute budget only",
@@ -110,10 +112,10 @@
   ],
   "complexity": {
     "primary_components": 2,
-    "estimated_files_changed": 8,
+    "estimated_files_changed": 10,
     "estimated_net_loc": 420,
-    "production_files": 3,
-    "net_production_loc": 250,
+    "production_files": 4,
+    "net_production_loc": 280,
     "bounded_contexts": 1,
     "independent_migrations": 0,
     "distinct_security_models": 0,

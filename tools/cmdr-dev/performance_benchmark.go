@@ -636,6 +636,21 @@ func selectPerformanceTargets(targets []PerformanceTarget, stage, environmentID 
 	return selected
 }
 
+func formatPerformanceBenchmarkEvidence(summary PerformanceBenchmarkAuditSummary) string {
+	var b strings.Builder
+	fmt.Fprintf(&b, "stage=%s environment=%s registered=%d selected=%d executed=%d metrics=%d status=%s source=%s",
+		summary.Stage, summary.EnvironmentID, summary.Registered, summary.Selected,
+		summary.Executed, summary.Metrics, summary.Status, summary.SourceSHA)
+	for _, result := range summary.Results {
+		for _, metric := range result.Metrics {
+			fmt.Fprintf(&b, " target=%s metric=%s observed=%.9g%s budget=%.9g%s absolute_pass=%t relative_pass=%t",
+				result.TargetID, metric.ID, metric.Observed, metric.Unit, metric.Budget, metric.Unit,
+				metric.AbsolutePass, metric.RelativePass)
+		}
+	}
+	return b.String()
+}
+
 func performanceEnvironmentByID(registry PerformanceRegistry, id string) (PerformanceEnvironment, bool) {
 	for _, env := range registry.Environments {
 		if env.ID == id {
