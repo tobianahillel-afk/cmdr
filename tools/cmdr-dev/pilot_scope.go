@@ -270,18 +270,3 @@ func requireOwnedSourcePath(path, kind string, docs map[string]SpecDocument, gra
 	return fmt.Errorf("pilot source %s does not resolve as owned %s in product graph", path, kind)
 }
 
-func sameStringSet(a, b []string) bool {
-	if len(a) != len(b) {
-		return false
-	}
-	aa := append([]string(nil), a...)
-	bb := append([]string(nil), b...)
-	sort.Strings(aa)
-	sort.Strings(bb)
-	for i := range aa {
-		if aa[i] != bb[i] {
-			return false
-		}
-	}
-	return true
-}
