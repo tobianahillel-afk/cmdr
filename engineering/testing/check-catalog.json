@@ -1011,6 +1011,33 @@
         "CHK-METRICS-OPTIMIZER"
       ],
       "evidence_kind": "efficiency-budget-report"
+    },
+    {
+      "id": "CHK-PILOT-SCOPE",
+      "title": "Bounded E9 pilot Product Spec traceability audit",
+      "executor_key": "pilot-scope-audit",
+      "risk_domains": [
+        "product-spec",
+        "coverage-traceability",
+        "work-governance",
+        "security"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": false,
+      "trigger_paths": [
+        "engineering/pilot/**",
+        "work/lots/E9-PILOT-001*/**",
+        "tools/cmdr-dev/pilot_scope.go",
+        "tools/cmdr-dev/pilot_scope_test.go",
+        "cmdr-product-spec/**",
+        "product-runtime/**"
+      ],
+      "prerequisites": [
+        "CHK-COVERAGE-GRAPH",
+        "CHK-MANIFESTS"
+      ],
+      "evidence_kind": "audit-report"
     }
   ]
 }
