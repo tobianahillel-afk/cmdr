@@ -185,7 +185,7 @@ func gitIsAncestor(root, ancestor, descendant string) (bool, error) {
 }
 
 func gitRepositoryIsShallow(root string) (bool, error) {
-	cmd := exec.Command("git", "-C", root, "rev-parse", "--is-shallow-repository") // #nosec G204 -- executable and arguments are fixed.
+	cmd := exec.Command("git", "-C", root, "rev-parse", "--is-shallow-repository") // #nosec G204,G702 -- executable/arguments are fixed and root is the resolved repository root; no shell is used.
 	out, err := cmd.Output()
 	if err != nil {
 		return false, fmt.Errorf("detect shallow Git repository: %w", err)
