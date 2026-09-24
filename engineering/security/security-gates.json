@@ -186,7 +186,7 @@
       "id": "SEC-AUTH-NEG-001",
       "title": "Authorization negative testing",
       "control_family": "authorization-negative",
-      "readiness": "deferred-runtime",
+      "readiness": "active",
       "stages": [
         "pr",
         "release"
@@ -203,14 +203,14 @@
       "evidence_kinds": [
         "test-result"
       ],
-      "implementation_key": "",
-      "activation_condition": "requires implemented authorization boundaries and executable negative-test targets"
+      "implementation_key": "go-context-envelope-auth-negative-v1",
+      "activation_condition": "active for PILOT-CONTEXT-ENVELOPE-V1: CHK-SECURITY-TESTS runs the exact permission-denied contract fixture against the checked-out runtime and requires commit-bound measured evidence"
     },
     {
       "id": "SEC-TENANT-ISO-001",
       "title": "Tenant isolation negative testing",
       "control_family": "tenant-isolation",
-      "readiness": "deferred-runtime",
+      "readiness": "active",
       "stages": [
         "pr",
         "release"
@@ -227,8 +227,8 @@
       "evidence_kinds": [
         "test-result"
       ],
-      "implementation_key": "",
-      "activation_condition": "requires implemented tenant-scoped runtime boundaries and synthetic multi-tenant fixtures"
+      "implementation_key": "go-context-envelope-tenant-iso-v1",
+      "activation_condition": "active for PILOT-CONTEXT-ENVELOPE-V1: CHK-SECURITY-TESTS runs cross-tenant/environment-mismatch contract fixtures against the checked-out runtime and requires commit-bound measured evidence"
     },
     {
       "id": "SEC-FUZZ-001",

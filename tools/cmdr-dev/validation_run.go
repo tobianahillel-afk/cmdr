@@ -285,10 +285,14 @@ func executeValidationCheck(root, tempDir, changesFile, key string, state Curren
 		if err != nil {
 			return "", err
 		}
-		return fmt.Sprintf("runtime_boundaries=%d scopes=%d coverage_status=%s global_floor=%.0f changed_floor=%.0f auth_required=%d tenant_required=%d",
-			summary.RuntimeBoundaries, summary.RegisteredScopes, summary.CoverageStatus,
+		globalCoverage := "n/a"
+		if summary.GlobalCoveragePercent != nil {
+			globalCoverage = fmt.Sprintf("%.2f", *summary.GlobalCoveragePercent)
+		}
+		return fmt.Sprintf("runtime_boundaries=%d scopes=%d coverage_status=%s global_coverage=%s global_floor=%.0f changed_floor=%.0f changed_scopes=%d auth_required=%d tenant_required=%d",
+			summary.RuntimeBoundaries, summary.RegisteredScopes, summary.CoverageStatus, globalCoverage,
 			summary.GlobalCoverageFloorPercent, summary.ChangedCoverageFloorPercent,
-			summary.AuthorizationRequired, summary.TenantIsolationRequired), nil
+			summary.ChangedSecurityCriticalScopes, summary.AuthorizationRequired, summary.TenantIsolationRequired), nil
 	case "deep-security-audit":
 		summary, err := runDeepSecurityAudit(root, "pr", changesFile, "")
 		if err != nil {
