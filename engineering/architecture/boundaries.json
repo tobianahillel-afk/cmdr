@@ -66,6 +66,15 @@
       ],
       "mutable_by_implementation": true,
       "may_depend_on": []
+    },
+    {
+      "id": "event-search-frontend-runtime",
+      "kind": "product-runtime",
+      "roots": [
+        "product-runtime/event-search-frontend/**"
+      ],
+      "mutable_by_implementation": true,
+      "may_depend_on": []
     }
   ]
 }

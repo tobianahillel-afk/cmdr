@@ -27,6 +27,17 @@
       "authorization_rationale": "CAP-INV-002 requires server-side search execution permission checks; the boundary must prove permission-denied behavior before runtime acceptance.",
       "tenant_isolation_required": true,
       "tenant_isolation_rationale": "CAP-INV-002 Search is single-selected-Tenant with no silent fallback; the boundary must prove missing, wildcard and cross-tenant scopes fail closed."
+    },
+    {
+      "boundary_id": "event-search-frontend-runtime",
+      "owner": "E10-INV-002F",
+      "security_critical_paths": [
+        "product-runtime/event-search-frontend/**"
+      ],
+      "authorization_required": true,
+      "authorization_rationale": "INV-EVS-001 can render protected search/event state but server authorization remains authoritative; frontend runtime must prove permission-denied rendering never exposes protected content before acceptance.",
+      "tenant_isolation_required": true,
+      "tenant_isolation_rationale": "Event Search deep-link and visible context carry tenant/environment scope; frontend runtime must prove malformed or cross-tenant client state cannot silently widen the selected tenant context."
     }
   ]
 }

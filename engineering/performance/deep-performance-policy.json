@@ -70,6 +70,24 @@
       "concurrency": 1,
       "iterations": 10000,
       "rationale": "Bounded on-demand resource validation of backend-neutral Search Job orchestration. The probe uses a no-op local backend and measures orchestration/resource behavior without selecting or invoking a search provider."
+    },
+    {
+      "id": "PERF-DEEP-EVENT-SEARCH-FRONTEND-STATE",
+      "performance_target_id": "PERF-TGT-EVENT-SEARCH-FRONTEND-STATE",
+      "kind": "resource",
+      "handler_key": "builtin-event-search-frontend-state-v1",
+      "stages": [
+        "on-demand"
+      ],
+      "trigger_paths": [
+        "product-runtime/event-search-frontend/**"
+      ],
+      "duration_seconds": 0,
+      "timeout_seconds": 30,
+      "memory_limit_mib": 128,
+      "concurrency": 1,
+      "iterations": 10000,
+      "rationale": "Pre-registered on-demand frontend state resource validation. The handler deliberately fails closed until executable first-party frontend code and its browser-backed probe are implemented."
     }
   ]
 }

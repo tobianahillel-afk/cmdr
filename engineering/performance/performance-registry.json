@@ -97,6 +97,34 @@
         }
       ],
       "rationale": "The 1 ms shared-CI ceiling applies only to backend-neutral Search Job orchestration overhead. It is separate from Event Search validation latency, excludes backend execution, and is not a production search SLO."
+    },
+    {
+      "id": "PERF-TGT-EVENT-SEARCH-FRONTEND-STATE",
+      "scope_kind": "product-runtime",
+      "boundary_id": "event-search-frontend-runtime",
+      "owner_path": "product-runtime/event-search-frontend/**",
+      "workload_key": "event-search-frontend-state-update-v1",
+      "workload_description": "First-party Event Search frontend local state/deep-link transition and bounded UI update overhead. The target excludes backend search execution, network transport and process/browser startup and is non-executable while the frontend boundary contains only a preimplementation marker.",
+      "environment_id": "PERF-ENV-GITHUB-UBUNTU-SHARED",
+      "stages": [
+        "on-demand"
+      ],
+      "trigger_paths": [
+        "product-runtime/event-search-frontend/**",
+        "engineering/implementation/event-search/**"
+      ],
+      "metrics": [
+        {
+          "id": "frontend-state-update-p95-latency",
+          "kind": "latency",
+          "unit": "ms",
+          "aggregation": "p95",
+          "comparator": "upper-bound",
+          "budget": 16,
+          "max_relative_regression_percent": 0
+        }
+      ],
+      "rationale": "A 16 ms coarse upper bound reserves one 60 Hz frame for local Event Search state/render overhead. It is an engineering UI budget only, not a backend/network Search SLO, and remains on-demand until executable frontend code and a browser-backed handler exist."
     }
   ]
 }

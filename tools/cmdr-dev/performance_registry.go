@@ -127,7 +127,8 @@ var knownPerformanceWorkloadKeys = map[string]bool{
 	"cmdr-dev-metadata-audit-v1":    true,
 	"pilot-context-projection-v1":   true,
 	"event-search-validation-v1":    true,
-	"event-search-orchestration-v1": true,
+	"event-search-orchestration-v1":  true,
+	"event-search-frontend-state-update-v1": true,
 }
 
 func runPerformanceRegistryAudit(root string) (PerformanceRegistryAuditSummary, error) {

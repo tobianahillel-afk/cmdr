@@ -108,6 +108,7 @@ var knownDeepPerformanceHandlerKeys = map[string]bool{
 	"builtin-pilot-context-projection-v1":   true,
 	"builtin-event-search-validation-v1":    true,
 	"builtin-event-search-orchestration-v1": true,
+	"builtin-event-search-frontend-state-v1": true,
 }
 
 func runDeepPerformanceAudit(root, stage, changesFile, requestedTarget string) (DeepPerformanceAuditSummary, error) {
@@ -403,6 +404,9 @@ func executeDeepPerformanceTargetWithHandler(
 }
 
 func runDeepPerformanceHandler(ctx context.Context, root string, target DeepPerformanceTarget) (DeepPerformanceObservation, error) {
+	if target.HandlerKey == "builtin-event-search-frontend-state-v1" {
+		return DeepPerformanceObservation{}, fmt.Errorf("Event Search frontend deep performance target is preimplementation; executable browser-backed handler is required before measurement")
+	}
 	if target.HandlerKey == "builtin-pilot-context-projection-v1" {
 		if err := ctx.Err(); err != nil {
 			return DeepPerformanceObservation{}, err

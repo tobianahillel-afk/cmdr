@@ -124,6 +124,7 @@ var knownBenchmarkHandlerKeys = map[string]bool{
 	"builtin-pilot-context-projection-v1":   true,
 	"builtin-event-search-validation-v1":    true,
 	"builtin-event-search-orchestration-v1": true,
+	"builtin-event-search-frontend-state-v1": true,
 }
 
 func runPerformanceBenchmarkAudit(root, stage, environmentID, changesFile string) (PerformanceBenchmarkAuditSummary, error) {
@@ -417,6 +418,10 @@ func prepareBenchmarkHandler(root string, workload BenchmarkWorkloadDefinition) 
 				Kind: "latency", Unit: "ns", Value: observation.NSPerOperation,
 			}}}, nil
 		}, cleanup, nil
+	case "builtin-event-search-frontend-state-v1":
+		return func() (BenchmarkSample, error) {
+			return BenchmarkSample{}, fmt.Errorf("Event Search frontend performance target is preimplementation; executable browser-backed handler is required before measurement")
+		}, func() {}, nil
 	default:
 		return nil, func() {}, fmt.Errorf("unsupported benchmark handler %s", workload.HandlerKey)
 	}
