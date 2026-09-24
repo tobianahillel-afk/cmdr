@@ -332,6 +332,9 @@ func validateEventSearchRuntimeUnchanged(root, evidenceHead, currentHead string)
 	if err != nil {
 		return fmt.Errorf("current source head: %w", err)
 	}
+	if err := ensureGitCommit(root, evidenceHead); err != nil {
+		return fmt.Errorf("load Event Search performance evidence commit: %w", err)
+	}
 	ancestor := exec.Command("git", "-C", root, "merge-base", "--is-ancestor", evidenceHead, currentHead) // #nosec G204,G702 -- executable is fixed and both commit arguments are validated full hex IDs.
 	if err := ancestor.Run(); err != nil {
 		return fmt.Errorf("Event Search performance evidence head is not an ancestor of current source")
