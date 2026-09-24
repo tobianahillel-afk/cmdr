@@ -77,7 +77,10 @@
   "outputs": [
     "active authorization negative gate for pilot runtime",
     "active tenant-isolation negative gate for pilot runtime",
-    "CI-generated commit-bound measured runtime security evidence"
+    "CI-generated commit-bound measured runtime security evidence",
+    "ephemeral exact-commit runtime security evidence generator",
+    "real Go statement coverage measurement for the pilot runtime",
+    "targeted contract-fixture authorization and tenant-isolation negative test execution"
   ],
   "invariants": [
     "no static fake coverage file",
@@ -94,7 +97,10 @@
     "changed security-critical coverage >=90% when runtime changes",
     "authorization negative tests pass",
     "tenant isolation negative tests pass",
-    "push and PR security-test audit report measured"
+    "push and PR security-test audit report measured",
+    "coverage parser rejects sources outside the pilot runtime module",
+    "CI overwrites runtime-security-evidence.json only in the ephemeral checkout before auditing",
+    "product-runtime-only commits trigger engineering-kernel"
   ],
   "performance_budget": {
     "applicable": false,
@@ -115,9 +121,9 @@
   "complexity": {
     "primary_components": 2,
     "estimated_files_changed": 10,
-    "estimated_net_loc": 600,
+    "estimated_net_loc": 760,
     "production_files": 4,
-    "net_production_loc": 390,
+    "net_production_loc": 520,
     "bounded_contexts": 1,
     "independent_migrations": 0,
     "distinct_security_models": 1,

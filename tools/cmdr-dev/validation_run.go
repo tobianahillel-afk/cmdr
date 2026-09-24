@@ -278,6 +278,9 @@ func executeValidationCheck(root, tempDir, changesFile, key string, state Curren
 			summary.ByReadiness["specified"],
 			summary.ByReadiness["deferred-runtime"]), nil
 	case "security-test-audit":
+		if _, _, err := generateMeasuredRuntimeSecurityEvidence(root, tempDir, changesFile); err != nil {
+			return "", fmt.Errorf("generate runtime security evidence: %w", err)
+		}
 		summary, err := runSecurityTestAudit(root, changesFile)
 		if err != nil {
 			return "", err

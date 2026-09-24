@@ -94,7 +94,9 @@ var knownSecurityImplementationKeys = map[string]bool{
 	"builtin-secret-scan-v1":      true,
 	"gosec-go-v1":                 true,
 	"govulncheck-go-v1":           true,
-	"builtin-cyclonedx17-sbom-v1": true,
+	"builtin-cyclonedx17-sbom-v1":          true,
+	"go-context-envelope-auth-negative-v1": true,
+	"go-context-envelope-tenant-iso-v1":    true,
 }
 
 func loadSecurityGateRegistry(root string) (SecurityGateRegistry, error) {

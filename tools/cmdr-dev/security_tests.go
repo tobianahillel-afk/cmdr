@@ -2,11 +2,13 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 )
 
@@ -66,6 +68,230 @@ type SecurityTestAuditSummary struct {
 	GlobalCoverageFloorPercent    float64  `json:"global_coverage_floor_percent"`
 	ChangedCoverageFloorPercent   float64  `json:"changed_security_critical_coverage_floor_percent"`
 	NotApplicableReason           string   `json:"not_applicable_reason,omitempty"`
+}
+
+const (
+	pilotSecurityRuntimeRoot     = "product-runtime/context-envelope"
+	pilotSecurityModuleIdentity  = "github.com/tobianahillel-afk/cmdr/product-runtime/context-envelope"
+	pilotAuthorizationTestRegexp = "^TestProjectMatchesPredeclaredContractFixtures$/^permission-denied-masks-protected-refs$"
+	pilotTenantTestRegexp        = "^TestProjectMatchesPredeclaredContractFixtures$/(^tenant-change-clears-inherited-environment$|^environment-tenant-mismatch-is-cleared$)"
+)
+
+type RuntimeCoverageMeasurement struct {
+	GlobalPercent            float64
+	ChangedExecutablePercent float64
+	ChangedExecutableStmts   int
+}
+
+func generateMeasuredRuntimeSecurityEvidence(root, tempDir, changesFile string) (RuntimeSecurityEvidence, bool, error) {
+	var architecture ArchitectureRegistry
+	if err := decodeStrict(root, filepath.Join(root, filepath.FromSlash(architectureRegistryPath)), &architecture); err != nil {
+		return RuntimeSecurityEvidence{}, false, err
+	}
+	if err := validateArchitectureRegistry(architecture); err != nil {
+		return RuntimeSecurityEvidence{}, false, err
+	}
+	var policy RuntimeSecurityPolicy
+	if err := decodeStrict(root, filepath.Join(root, filepath.FromSlash(runtimeSecurityPolicyPath)), &policy); err != nil {
+		return RuntimeSecurityEvidence{}, false, err
+	}
+	if err := validateRuntimeSecurityPolicy(policy); err != nil {
+		return RuntimeSecurityEvidence{}, false, err
+	}
+	if strings.TrimSpace(changesFile) == "" {
+		return RuntimeSecurityEvidence{}, false, fmt.Errorf("measured runtime security evidence requires changed-path evidence")
+	}
+	changed, err := readChangedPaths(root, changesFile)
+	if err != nil {
+		return RuntimeSecurityEvidence{}, false, err
+	}
+	states, err := detectRuntimeImplementationStates(root, architecture)
+	if err != nil {
+		return RuntimeSecurityEvidence{}, false, err
+	}
+	implemented := 0
+	preimplementation := 0
+	for _, state := range states {
+		switch state {
+		case "implemented":
+			implemented++
+		case "preimplementation":
+			preimplementation++
+		default:
+			return RuntimeSecurityEvidence{}, false, fmt.Errorf("unknown runtime implementation state %q", state)
+		}
+	}
+	if implemented == 0 {
+		return RuntimeSecurityEvidence{}, false, nil
+	}
+	if implemented != 1 || states[pilotRuntimeBoundaryID] != "implemented" {
+		return RuntimeSecurityEvidence{}, false, fmt.Errorf("measured evidence generator only supports the bounded %s pilot runtime", pilotRuntimeBoundaryID)
+	}
+
+	coverage, err := measurePilotRuntimeCoverage(root, tempDir, changed)
+	if err != nil {
+		return RuntimeSecurityEvidence{}, false, err
+	}
+	if err := runPilotRuntimeNegativeTest(root, pilotAuthorizationTestRegexp, "authorization"); err != nil {
+		return RuntimeSecurityEvidence{}, false, err
+	}
+	if err := runPilotRuntimeNegativeTest(root, pilotTenantTestRegexp, "tenant isolation"); err != nil {
+		return RuntimeSecurityEvidence{}, false, err
+	}
+
+	head, err := currentRepositoryCommit(root)
+	if err != nil {
+		return RuntimeSecurityEvidence{}, false, err
+	}
+	status := "measured"
+	if preimplementation > 0 {
+		status = "mixed"
+	}
+	evidence := RuntimeSecurityEvidence{
+		SchemaVersion:         1,
+		Status:                status,
+		Reason:                "CI-generated measured runtime security evidence for the exact checked-out commit",
+		SourceCommit:          head,
+		GlobalCoveragePercent: ptrFloat(coverage.GlobalPercent),
+	}
+	for _, scope := range policy.Scopes {
+		state, ok := states[scope.BoundaryID]
+		if !ok {
+			return RuntimeSecurityEvidence{}, false, fmt.Errorf("security scope %s has no runtime implementation state", scope.BoundaryID)
+		}
+		item := RuntimeSecurityEvidenceScope{
+			BoundaryID:          scope.BoundaryID,
+			ImplementationState: state,
+		}
+		if state == "implemented" {
+			if scope.BoundaryID != pilotRuntimeBoundaryID {
+				return RuntimeSecurityEvidence{}, false, fmt.Errorf("implemented runtime %s has no measured evidence adapter", scope.BoundaryID)
+			}
+			item.ChangedSecurityCritical = scopeChanged(scope, changed)
+			if item.ChangedSecurityCritical {
+				percent := coverage.GlobalPercent
+				if coverage.ChangedExecutableStmts > 0 {
+					percent = coverage.ChangedExecutablePercent
+				}
+				item.ChangedSecurityCriticalPercent = ptrFloat(percent)
+			}
+			if scope.AuthorizationRequired {
+				item.AuthorizationNegativePassed = ptrBool(true)
+			}
+			if scope.TenantIsolationRequired {
+				item.TenantIsolationNegativePassed = ptrBool(true)
+			}
+		}
+		evidence.Scopes = append(evidence.Scopes, item)
+	}
+	data, err := json.MarshalIndent(evidence, "", "  ")
+	if err != nil {
+		return RuntimeSecurityEvidence{}, false, err
+	}
+	data = append(data, '\n')
+	if _, err := writeRepoFile(root, runtimeSecurityEvidencePath, data); err != nil {
+		return RuntimeSecurityEvidence{}, false, fmt.Errorf("write measured runtime security evidence: %w", err)
+	}
+	return evidence, true, nil
+}
+
+func measurePilotRuntimeCoverage(root, tempDir string, changedPaths []string) (RuntimeCoverageMeasurement, error) {
+	moduleRoot, err := resolveRepoPath(root, pilotSecurityRuntimeRoot, false)
+	if err != nil {
+		return RuntimeCoverageMeasurement{}, err
+	}
+	coverPath, err := resolveRepoPath(root, filepath.Join(tempDir, "pilot-runtime.coverprofile"), true)
+	if err != nil {
+		return RuntimeCoverageMeasurement{}, err
+	}
+	// #nosec G204,G702 -- executable/flags are fixed; coverPath is repository-confined and no shell is used.
+	cmd := exec.Command("go", "test", "-count=1", "-covermode=atomic", "-coverprofile="+coverPath, "./...")
+	cmd.Dir = moduleRoot
+	var stdout, stderr bytes.Buffer
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+	if err := cmd.Run(); err != nil {
+		return RuntimeCoverageMeasurement{}, fmt.Errorf("pilot runtime coverage test failed: %w", err)
+	}
+	data, err := readRepoFile(root, coverPath)
+	if err != nil {
+		return RuntimeCoverageMeasurement{}, err
+	}
+	return parsePilotCoverageProfile(data, changedPaths)
+}
+
+func runPilotRuntimeNegativeTest(root, pattern, label string) error {
+	moduleRoot, err := resolveRepoPath(root, pilotSecurityRuntimeRoot, false)
+	if err != nil {
+		return err
+	}
+	// #nosec G204,G702 -- executable and test patterns are compiled constants; no shell is used.
+	cmd := exec.Command("go", "test", "-count=1", "-run", pattern, "./...")
+	cmd.Dir = moduleRoot
+	var stderr bytes.Buffer
+	cmd.Stderr = &stderr
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("pilot %s negative test failed: %w", label, err)
+	}
+	return nil
+}
+
+func parsePilotCoverageProfile(data []byte, changedPaths []string) (RuntimeCoverageMeasurement, error) {
+	lines := strings.Split(strings.TrimSpace(string(data)), "\n")
+	if len(lines) < 2 || !strings.HasPrefix(lines[0], "mode: ") {
+		return RuntimeCoverageMeasurement{}, fmt.Errorf("invalid Go coverage profile header")
+	}
+	changed := map[string]bool{}
+	for _, path := range changedPaths {
+		changed[filepath.ToSlash(path)] = true
+	}
+	var total, covered, changedTotal, changedCovered int
+	prefix := pilotSecurityModuleIdentity + "/"
+	for _, line := range lines[1:] {
+		fields := strings.Fields(line)
+		if len(fields) != 3 {
+			return RuntimeCoverageMeasurement{}, fmt.Errorf("invalid Go coverage profile record")
+		}
+		sep := strings.LastIndex(fields[0], ":")
+		if sep < 1 {
+			return RuntimeCoverageMeasurement{}, fmt.Errorf("coverage record has no source coordinate")
+		}
+		profilePath := fields[0][:sep]
+		if !strings.HasPrefix(profilePath, prefix) {
+			return RuntimeCoverageMeasurement{}, fmt.Errorf("coverage source %q is outside pilot runtime module", profilePath)
+		}
+		rel := strings.TrimPrefix(profilePath, prefix)
+		repoPath := filepath.ToSlash(filepath.Join(pilotSecurityRuntimeRoot, filepath.FromSlash(rel)))
+		statements, err := strconv.Atoi(fields[1])
+		if err != nil || statements < 0 {
+			return RuntimeCoverageMeasurement{}, fmt.Errorf("invalid coverage statement count %q", fields[1])
+		}
+		count, err := strconv.ParseInt(fields[2], 10, 64)
+		if err != nil || count < 0 {
+			return RuntimeCoverageMeasurement{}, fmt.Errorf("invalid coverage execution count %q", fields[2])
+		}
+		total += statements
+		if count > 0 {
+			covered += statements
+		}
+		if changed[repoPath] {
+			changedTotal += statements
+			if count > 0 {
+				changedCovered += statements
+			}
+		}
+	}
+	if total == 0 {
+		return RuntimeCoverageMeasurement{}, fmt.Errorf("pilot runtime coverage profile contains no executable statements")
+	}
+	measurement := RuntimeCoverageMeasurement{
+		GlobalPercent: 100 * float64(covered) / float64(total),
+	}
+	if changedTotal > 0 {
+		measurement.ChangedExecutableStmts = changedTotal
+		measurement.ChangedExecutablePercent = 100 * float64(changedCovered) / float64(changedTotal)
+	}
+	return measurement, nil
 }
 
 func runSecurityTestAudit(root, changesFile string) (SecurityTestAuditSummary, error) {

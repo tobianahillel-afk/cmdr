@@ -514,7 +514,8 @@
       "mandatory": true,
       "always_on_pr": false,
       "trigger_paths": [
-        "tools/cmdr-dev/**"
+        "tools/cmdr-dev/**",
+        "product-runtime/context-envelope/**"
       ],
       "prerequisites": [
         "CHK-SECRETS"
@@ -533,7 +534,8 @@
       "mandatory": true,
       "always_on_pr": false,
       "trigger_paths": [
-        "tools/cmdr-dev/**"
+        "tools/cmdr-dev/**",
+        "product-runtime/context-envelope/**"
       ],
       "prerequisites": [
         "CHK-SECRETS"

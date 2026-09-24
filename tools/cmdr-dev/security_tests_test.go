@@ -241,3 +241,27 @@ func TestDetectRuntimeBoundaryImplementationState(t *testing.T) {
 		t.Fatalf("expected implemented, got %s", state)
 	}
 }
+
+func TestParsePilotCoverageProfileMeasuresGlobalAndChangedStatements(t *testing.T) {
+	profile := []byte("mode: atomic\n" +
+		pilotSecurityModuleIdentity + "/envelope.go:10.1,12.2 2 1\n" +
+		pilotSecurityModuleIdentity + "/envelope.go:14.1,18.2 3 0\n" +
+		pilotSecurityModuleIdentity + "/other.go:1.1,2.2 1 1\n")
+	got, err := parsePilotCoverageProfile(profile, []string{"product-runtime/context-envelope/envelope.go"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got.GlobalPercent != 50 {
+		t.Fatalf("global coverage: got %.2f want 50", got.GlobalPercent)
+	}
+	if got.ChangedExecutableStmts != 5 || got.ChangedExecutablePercent != 40 {
+		t.Fatalf("changed coverage mismatch: %#v", got)
+	}
+}
+
+func TestParsePilotCoverageProfileRejectsForeignModule(t *testing.T) {
+	profile := []byte("mode: atomic\nexample.invalid/other/file.go:1.1,2.2 1 1\n")
+	if _, err := parsePilotCoverageProfile(profile, nil); err == nil {
+		t.Fatal("expected foreign coverage source rejection")
+	}
+}
