@@ -45,5 +45,13 @@
     "preserve the no-unapproved-product-runtime-dependency policy and repeat measured end-to-end evidence for each new boundary"
   ],
   "product_spec_mutated": false,
-  "next_unlocked": []
+  "next_unlocked": [],
+  "final_validated_head": "b07f67d156b584f38cd5df650ddad6cb4ca14b62",
+  "closure_validation": {
+    "push_run": 35998790175,
+    "pull_request_run": 35998794997,
+    "result": "PASS",
+    "foundation_status": "VERIFIED",
+    "terminal_ready_units": 0
+  }
 }
