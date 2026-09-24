@@ -910,7 +910,7 @@
       "id": "E10-INV-002C",
       "title": "Implement Search Job lifecycle and partial-result orchestration",
       "type": "task",
-      "status": "DECOMPOSED",
+      "status": "VERIFIED",
       "depends_on": [
         "E10-INV-002B-RUNTIME"
       ],
@@ -923,7 +923,7 @@
       "id": "E10-INV-002D",
       "title": "Run adversarial Event Search core validation and bounded handoff",
       "type": "task",
-      "status": "BLOCKED",
+      "status": "READY",
       "depends_on": [
         "E10-INV-002C"
       ],
@@ -999,7 +999,7 @@
       "id": "E10-INV-002C-PERF",
       "title": "Prove bounded Search Job orchestration performance",
       "type": "task",
-      "status": "READY",
+      "status": "VERIFIED",
       "depends_on": [
         "E10-INV-002C-RUNTIME"
       ],
