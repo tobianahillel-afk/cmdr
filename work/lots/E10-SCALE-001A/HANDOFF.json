@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-SCALE-001A",
+  "result": "VERIFIED",
+  "final_validated_head": "0fc613e8a8df77450c86329e6932e90731aa7d8d",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 36003807756,
+    "pull_request_run": 36003812747,
+    "ledger_entries": 1,
+    "verified_claims": 1,
+    "capability": "CAP-SET-004",
+    "work_unit": "E9-PILOT-001C-RUNTIME",
+    "runtime_boundary": "pilot-context-envelope-runtime",
+    "runtime_root": "product-runtime/context-envelope/**",
+    "product_spec_baseline": "99c3826cdcbc79bad51631cf6462450f92e012eb",
+    "spec_tree_digest": "a5f45351eba180d0edb734f33ecbeaabb7eceb7143305e201e207e8ae5a60d27",
+    "sast_findings": 0,
+    "sca_actionable_findings": 0
+  },
+  "rules": [
+    "documentary Product Spec PASS never implies runtime implementation",
+    "implemented capability claims require an active capability obligation",
+    "implemented capability claims require VERIFIED work-unit, matching manifest/handoff and product-runtime boundary evidence",
+    "duplicate capability, work-unit or runtime-boundary claims fail closed",
+    "ledger baseline must equal the canonical Product Spec baseline"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-SCALE-001B"
+  ]
+}

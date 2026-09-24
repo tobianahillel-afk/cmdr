@@ -832,7 +832,7 @@
       "id": "E10-SCALE-001A",
       "title": "Establish evidence-backed runtime implementation ledger",
       "type": "sublot",
-      "status": "READY",
+      "status": "VERIFIED",
       "depends_on": [
         "E9-PILOT-001D"
       ],
@@ -845,7 +845,7 @@
       "id": "E10-SCALE-001B",
       "title": "Compile capability implementation readiness and blockers",
       "type": "sublot",
-      "status": "BLOCKED",
+      "status": "READY",
       "depends_on": [
         "E10-SCALE-001A"
       ],
