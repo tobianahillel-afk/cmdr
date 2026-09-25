@@ -80,7 +80,7 @@ const (
 	eventSearchAuthorizationTestRegexp         = "^TestValidateContractFixtures$/^permission-denied-masks-protected-data$"
 	eventSearchTenantTestRegexp                = "^TestValidateContractFixtures$/(^missing-tenant-is-rejected$|^wildcard-tenant-is-rejected$|^cross-tenant-is-rejected$)"
 	eventSearchFrontendSecurityRuntimeRoot     = "product-runtime/event-search-frontend"
-	eventSearchFrontendAuthorizationTestRegexp = "^authorization-state-cannot-be-deeplinked$"
+	eventSearchFrontendAuthorizationTestRegexp = "^(authorization-state-cannot-be-deeplinked|permission-denied-reveals-no-protected-content)$"
 	eventSearchFrontendTenantTestRegexp        = "^(tenant-mismatch-is-rejected|tenant-wildcard-is-rejected)$"
 )
 
@@ -89,8 +89,8 @@ type runtimeSecurityAdapter struct {
 	RuntimeRoot            string
 	RuntimeKind            string
 	ModuleIdentity         string
-	TestFile               string
-	CoverageInclude        string
+	TestFiles              []string
+	CoverageIncludes       []string
 	AuthorizationTestRegex string
 	TenantTestRegex        string
 }
@@ -111,8 +111,8 @@ func runtimeSecurityAdapters() map[string]runtimeSecurityAdapter {
 		},
 		"event-search-frontend-runtime": {
 			BoundaryID: "event-search-frontend-runtime", RuntimeRoot: eventSearchFrontendSecurityRuntimeRoot, RuntimeKind: "node",
-			TestFile:               "state.test.mjs",
-			CoverageInclude:        "state.mjs",
+			TestFiles:              []string{"state.test.mjs", "shell.test.mjs"},
+			CoverageIncludes:       []string{"state.mjs", "shell.mjs"},
 			AuthorizationTestRegex: eventSearchFrontendAuthorizationTestRegexp,
 			TenantTestRegex:        eventSearchFrontendTenantTestRegexp,
 		},

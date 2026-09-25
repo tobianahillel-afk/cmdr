@@ -14,7 +14,7 @@ func measureNodeRuntimeCoverage(root, tempDir string, changedPaths []string, ada
 	if err != nil {
 		return RuntimeCoverageMeasurement{}, err
 	}
-	if strings.TrimSpace(adapter.TestFile) == "" || strings.TrimSpace(adapter.CoverageInclude) == "" {
+	if len(adapter.TestFiles) == 0 || len(adapter.CoverageIncludes) == 0 {
 		return RuntimeCoverageMeasurement{}, fmt.Errorf("%s node adapter is incomplete", adapter.BoundaryID)
 	}
 	lcovName := strings.ReplaceAll(adapter.BoundaryID, "/", "-") + ".lcov"
@@ -22,19 +22,23 @@ func measureNodeRuntimeCoverage(root, tempDir string, changedPaths []string, ada
 	if err != nil {
 		return RuntimeCoverageMeasurement{}, err
 	}
-	// #nosec G204,G702 -- executable and flags are fixed; adapter values are compiled constants and no shell is used.
-	cmd := exec.Command(
-		"node",
-		"--test",
-		"--experimental-test-coverage",
-		"--test-coverage-include="+adapter.CoverageInclude,
+	args := []string{"--test", "--experimental-test-coverage"}
+	for _, include := range adapter.CoverageIncludes {
+		if strings.TrimSpace(include) == "" {
+			return RuntimeCoverageMeasurement{}, fmt.Errorf("%s node coverage include is empty", adapter.BoundaryID)
+		}
+		args = append(args, "--test-coverage-include="+include)
+	}
+	args = append(args,
 		"--test-coverage-lines=90",
 		"--test-reporter=spec",
 		"--test-reporter=lcov",
 		"--test-reporter-destination=stdout",
 		"--test-reporter-destination="+lcovPath,
-		adapter.TestFile,
 	)
+	args = append(args, adapter.TestFiles...)
+	// #nosec G204,G702 -- executable and flags are fixed; adapter values are compiled constants and no shell is used.
+	cmd := exec.Command("node", args...)
 	cmd.Dir = moduleRoot
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout = &stdout
@@ -54,11 +58,13 @@ func runNodeRuntimeNegativeTest(root string, adapter runtimeSecurityAdapter, pat
 	if err != nil {
 		return err
 	}
-	if strings.TrimSpace(adapter.TestFile) == "" {
-		return fmt.Errorf("%s node adapter has no test file", adapter.BoundaryID)
+	if len(adapter.TestFiles) == 0 {
+		return fmt.Errorf("%s node adapter has no test files", adapter.BoundaryID)
 	}
-	// #nosec G204,G702 -- executable and flags are fixed; regex/test file are compiled constants and no shell is used.
-	cmd := exec.Command("node", "--test", "--test-name-pattern="+pattern, adapter.TestFile)
+	args := []string{"--test", "--test-name-pattern=" + pattern}
+	args = append(args, adapter.TestFiles...)
+	// #nosec G204,G702 -- executable and flags are fixed; regex/test files are compiled constants and no shell is used.
+	cmd := exec.Command("node", args...)
 	cmd.Dir = moduleRoot
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout = &stdout
@@ -74,7 +80,11 @@ func parseNodeLCOV(root, moduleRoot string, data []byte, changedPaths []string, 
 	for _, path := range changedPaths {
 		changed[filepath.ToSlash(path)] = true
 	}
-	expected := filepath.ToSlash(filepath.Join(adapter.RuntimeRoot, filepath.FromSlash(adapter.CoverageInclude)))
+	expected := map[string]bool{}
+	for _, include := range adapter.CoverageIncludes {
+		expected[filepath.ToSlash(filepath.Join(adapter.RuntimeRoot, filepath.FromSlash(include)))] = true
+	}
+	seen := map[string]bool{}
 	var current string
 	var lf, lh int
 	var total, covered, changedTotal, changedCovered int
@@ -89,9 +99,10 @@ func parseNodeLCOV(root, moduleRoot string, data []byte, changedPaths []string, 
 		if err != nil {
 			return err
 		}
-		if repoPath != expected {
-			return fmt.Errorf("node coverage source %s is outside expected source %s", repoPath, expected)
+		if !expected[repoPath] {
+			return fmt.Errorf("node coverage source %s is outside expected sources", repoPath)
 		}
+		seen[repoPath] = true
 		total += lf
 		covered += lh
 		if changed[repoPath] {
@@ -134,6 +145,11 @@ func parseNodeLCOV(root, moduleRoot string, data []byte, changedPaths []string, 
 	}
 	if total == 0 {
 		return RuntimeCoverageMeasurement{}, fmt.Errorf("%s node LCOV contains no executable lines", adapter.BoundaryID)
+	}
+	for source := range expected {
+		if !seen[source] {
+			return RuntimeCoverageMeasurement{}, fmt.Errorf("node coverage omitted expected source %s", source)
+		}
 	}
 	result := RuntimeCoverageMeasurement{
 		GlobalPercent:     100 * float64(covered) / float64(total),
