@@ -19,6 +19,7 @@ const (
 	benchmarkPolicyPath   = "engineering/performance/benchmark-policy.json"
 	benchmarkBaselinePath = "engineering/performance/benchmark-baselines.json"
 	defaultCIEnvironment  = "PERF-ENV-GITHUB-UBUNTU-SHARED"
+	engineeringNodeVersion = "24.21.0"
 )
 
 type BenchmarkWorkloadDefinition struct {
@@ -302,8 +303,9 @@ func loadBenchmarkBaselines(root string, registry PerformanceRegistry, policy Be
 		if _, err := validateFullCommitID(baseline.SourceSHA); err != nil {
 			return nil, fmt.Errorf("performance baseline %s source_sha: %w", baseline.ID, err)
 		}
-		if baseline.Toolchain != "go"+engineeringGoVersion {
-			return nil, fmt.Errorf("performance baseline %s uses stale toolchain %s", baseline.ID, baseline.Toolchain)
+		expectedToolchain := benchmarkToolchain(workload)
+		if baseline.Toolchain != expectedToolchain {
+			return nil, fmt.Errorf("performance baseline %s uses stale toolchain %s; expected %s", baseline.ID, baseline.Toolchain, expectedToolchain)
 		}
 		if baseline.TargetDigest != digestCanonical(target) ||
 			baseline.EnvironmentDigest != digestCanonical(env) ||
@@ -356,7 +358,7 @@ func executePerformanceTarget(root, sourceSHA string, target PerformanceTarget, 
 	}
 	return PerformanceBenchmarkResult{
 		TargetID: target.ID, EnvironmentID: env.ID, SourceSHA: sourceSHA,
-		Toolchain:    "go" + engineeringGoVersion,
+		Toolchain:    benchmarkToolchain(workload),
 		TargetDigest: digestCanonical(target), EnvironmentDigest: digestCanonical(env),
 		WorkloadDigest: digestCanonical(workload), Samples: len(samples), Metrics: metrics,
 	}, nil
@@ -419,12 +421,81 @@ func prepareBenchmarkHandler(root string, workload BenchmarkWorkloadDefinition) 
 			}}}, nil
 		}, cleanup, nil
 	case "builtin-event-search-frontend-state-v1":
+		probe, cleanup, err := prepareEventSearchFrontendProbe(root)
+		if err != nil {
+			return nil, func() {}, err
+		}
 		return func() (BenchmarkSample, error) {
-			return BenchmarkSample{}, fmt.Errorf("Event Search frontend performance target is preimplementation; executable browser-backed handler is required before measurement")
-		}, func() {}, nil
+			observation, err := probe.run(2_000, "latency", 0)
+			if err != nil {
+				return BenchmarkSample{}, err
+			}
+			return BenchmarkSample{Measurements: []BenchmarkMeasurement{{
+				Kind: "latency", Unit: "ns", Value: observation.NSPerOperation,
+			}}}, nil
+		}, cleanup, nil
 	default:
 		return nil, func() {}, fmt.Errorf("unsupported benchmark handler %s", workload.HandlerKey)
 	}
+}
+
+func benchmarkToolchain(workload BenchmarkWorkloadDefinition) string {
+	if workload.HandlerKey == "builtin-event-search-frontend-state-v1" {
+		return "node" + engineeringNodeVersion
+	}
+	return "go" + engineeringGoVersion
+}
+
+type eventSearchFrontendProbe struct {
+	moduleRoot string
+	scriptPath string
+}
+
+func prepareEventSearchFrontendProbe(root string) (eventSearchFrontendProbe, func(), error) {
+	moduleRoot, err := resolveRepoPath(root, "product-runtime/event-search-frontend", false)
+	if err != nil {
+		return eventSearchFrontendProbe{}, func() {}, fmt.Errorf("event-search frontend runtime is not implemented: %w", err)
+	}
+	scriptPath, err := resolveRepoPath(root, "engineering/performance/event-search/frontend-runtime-probe.mjs", false)
+	if err != nil {
+		return eventSearchFrontendProbe{}, func() {}, fmt.Errorf("event-search frontend performance probe is unavailable: %w", err)
+	}
+	version, err := runPerformanceProcess(moduleRoot, "node", "--version")
+	if err != nil {
+		return eventSearchFrontendProbe{}, func() {}, err
+	}
+	if strings.TrimSpace(version) != "v"+engineeringNodeVersion {
+		return eventSearchFrontendProbe{}, func() {}, fmt.Errorf("event-search frontend benchmark requires node v%s, got %s", engineeringNodeVersion, version)
+	}
+	return eventSearchFrontendProbe{moduleRoot: moduleRoot, scriptPath: scriptPath}, func() {}, nil
+}
+
+func (probe eventSearchFrontendProbe) run(iterations int, mode string, memoryLimitMiB int) (pilotProjectionProbeObservation, error) {
+	if iterations < 1 || iterations > 1_000_000 {
+		return pilotProjectionProbeObservation{}, fmt.Errorf("Event Search frontend iterations must be within 1..1000000")
+	}
+	if mode != "latency" && mode != "resource" {
+		return pilotProjectionProbeObservation{}, fmt.Errorf("unknown Event Search frontend probe mode %q", mode)
+	}
+	args := []string{probe.scriptPath, "--iterations", strconv.Itoa(iterations), "--mode", mode}
+	if mode == "resource" && memoryLimitMiB > 0 {
+		args = append([]string{"--max-old-space-size=" + strconv.Itoa(memoryLimitMiB)}, args...)
+	}
+	output, err := runPerformanceProcess(probe.moduleRoot, "node", args...)
+	if err != nil {
+		return pilotProjectionProbeObservation{}, err
+	}
+	var observation pilotProjectionProbeObservation
+	if err := json.Unmarshal([]byte(output), &observation); err != nil {
+		return observation, fmt.Errorf("decode Event Search frontend probe: %w", err)
+	}
+	if observation.Operation != "frontend-state-update" || observation.Mode != mode ||
+		observation.Operations != iterations || observation.ElapsedNS <= 0 ||
+		observation.NSPerOperation <= 0 || math.IsNaN(observation.NSPerOperation) ||
+		math.IsInf(observation.NSPerOperation, 0) {
+		return observation, fmt.Errorf("invalid Event Search frontend observation")
+	}
+	return observation, nil
 }
 
 type eventSearchValidationProbe struct {

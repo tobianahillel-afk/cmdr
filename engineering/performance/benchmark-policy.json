@@ -35,7 +35,7 @@
       "handler_key": "builtin-event-search-frontend-state-v1",
       "warmup_iterations": 1,
       "sample_count": 5,
-      "max_sample_duration_ms": 100
+      "max_sample_duration_ms": 1000
     }
   ]
 }

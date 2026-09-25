@@ -104,9 +104,10 @@
       "boundary_id": "event-search-frontend-runtime",
       "owner_path": "product-runtime/event-search-frontend/**",
       "workload_key": "event-search-frontend-state-update-v1",
-      "workload_description": "First-party Event Search frontend local state/deep-link transition and bounded UI update overhead. The target excludes backend search execution, network transport and process/browser startup and is non-executable while the frontend boundary contains only a preimplementation marker.",
+      "workload_description": "First-party Event Search frontend local deep-link normalization and bounded incremental result-render update overhead measured by the real ES-module runtime under Node 24.21.0. The probe excludes Node process startup, backend search execution, network transport and browser paint/layout.",
       "environment_id": "PERF-ENV-GITHUB-UBUNTU-SHARED",
       "stages": [
+        "pr",
         "on-demand"
       ],
       "trigger_paths": [
@@ -124,7 +125,7 @@
           "max_relative_regression_percent": 0
         }
       ],
-      "rationale": "A 16 ms coarse upper bound reserves one 60 Hz frame for local Event Search state/render overhead. It is an engineering UI budget only, not a backend/network Search SLO, and remains on-demand until executable frontend code and a browser-backed handler exist."
+      "rationale": "A 16 ms coarse upper bound reserves one 60 Hz frame for local Event Search state/render overhead. The implemented first-party runtime can now execute this deterministic PR/on-demand probe. The measurement excludes backend/network/browser paint and is not a production Search SLO."
     }
   ]
 }

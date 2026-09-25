@@ -65,10 +65,11 @@
     "INV-EVS-001 and frontend-state implementation contracts"
   ],
   "outputs": [
-    "E2E adversarial evidence",
-    "accessibility evidence",
-    "deep-link refresh evidence",
-    "representative frontend interaction benchmark"
+    "integrated adversarial frontend E2E tests",
+    "accessibility and mandatory-state evidence",
+    "deep-link refresh/cancellation/permission-denial evidence",
+    "executable first-party Node frontend performance probe",
+    "PR-enforced 16 ms p95 local frontend update budget"
   ],
   "invariants": [
     "Product Spec remains read-only",
@@ -86,7 +87,13 @@
   ],
   "acceptance_tests": [
     "adaptive engineering-kernel remains green",
-    "Product Spec baseline remains unchanged"
+    "Product Spec baseline remains unchanged",
+    "node E2E test traverses deep-link -> transport controller -> semantic shell -> bounded result renderer",
+    "hostile result content remains text-only and never creates executable DOM",
+    "permission denial clears prior result projections and masks query content",
+    "cancellation prevents stale result publication",
+    "offline state remains semantic and non-executable",
+    "PERF-TGT-EVENT-SEARCH-FRONTEND-STATE executes in PR and remains <= 16 ms p95"
   ],
   "performance_budget": {
     "applicable": true,
@@ -115,7 +122,8 @@
     "CHK-SECURITY-TESTS",
     "CHK-PERFORMANCE-REGISTRY",
     "CHK-MANIFESTS",
-    "CHK-COMPLEXITY"
+    "CHK-COMPLEXITY",
+    "CHK-PERFORMANCE-BENCHMARK"
   ],
   "definition_of_ready": [
     "declared dependencies are VERIFIED",
