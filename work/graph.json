@@ -1078,7 +1078,7 @@
       "id": "E10-INV-002F-RESULTS",
       "title": "Implement bounded incremental Event Search result rendering",
       "type": "task",
-      "status": "READY",
+      "status": "VERIFIED",
       "depends_on": [
         "E10-INV-002F-SHELL"
       ],
@@ -1091,7 +1091,7 @@
       "id": "E10-INV-002F-INTEGRATION",
       "title": "Integrate Event Search frontend with backend-neutral transport contract",
       "type": "task",
-      "status": "BLOCKED",
+      "status": "READY",
       "depends_on": [
         "E10-INV-002F-RESULTS"
       ],
