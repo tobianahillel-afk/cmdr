@@ -342,9 +342,9 @@ func TestParseNodeLCOVMeasuresMultipleExplicitFrontendSources(t *testing.T) {
 	}
 	lcov := []byte("SF:state.mjs\nLF:2\nLH:2\nend_of_record\nSF:shell.mjs\nLF:3\nLH:3\nend_of_record\n")
 	adapter := runtimeSecurityAdapter{
-		BoundaryID: "event-search-frontend-runtime",
-		RuntimeRoot: "product-runtime/event-search-frontend",
-		RuntimeKind: "node",
+		BoundaryID:       "event-search-frontend-runtime",
+		RuntimeRoot:      "product-runtime/event-search-frontend",
+		RuntimeKind:      "node",
 		CoverageIncludes: []string{"state.mjs", "shell.mjs"},
 	}
 	measurement, err := parseNodeLCOV(
