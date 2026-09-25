@@ -46,7 +46,8 @@
     "Case-link, Artifact proposal and Evidence-candidate mutations are excluded from this bounded wave",
     "no parser engine, entity-resolution engine, storage engine, provider or final query dialect is selected",
     "raw/rendered access is supplied by explicit server-side access decisions; this wave does not invent a new permission namespace",
-    "no dedicated Event Inspector Screen ID or final detailed UI is invented by this wave"
+    "no dedicated Event Inspector Screen ID or final detailed UI is invented by this wave",
+    "product runtime path mutation remains deferred until E10-INV-004A-BOUNDARY has registered unique architecture ownership"
   ],
   "security_properties": [
     "perm.shared-capabilities.telemetry-event.read is required before any Event projection is returned",
@@ -81,7 +82,6 @@
     "engineering/security/**",
     "engineering/performance/**",
     "engineering/testing/**",
-    "product-runtime/event-inspection/**",
     "work/lots/E10-INV-004*/**",
     "engineering/state/**",
     "work/graph.json",
