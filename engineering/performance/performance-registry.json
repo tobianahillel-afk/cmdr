@@ -112,7 +112,10 @@
       ],
       "trigger_paths": [
         "product-runtime/event-search-frontend/**",
-        "engineering/implementation/event-search/**"
+        "engineering/implementation/event-search/**",
+        "engineering/performance/event-search/frontend-runtime-probe.mjs",
+        "engineering/performance/benchmark-policy.json",
+        "engineering/performance/performance-registry.json"
       ],
       "metrics": [
         {
