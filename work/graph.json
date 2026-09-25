@@ -1162,6 +1162,82 @@
       ],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": []
+    },
+    {
+      "id": "E10-INV-004",
+      "title": "Implement bounded Event Inspection and Pivot core for CAP-INV-004",
+      "type": "epic",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E10-SCALE-002B"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-004A-BOUNDARY"
+      ]
+    },
+    {
+      "id": "E10-INV-004A-BOUNDARY",
+      "title": "Register Event Inspection runtime boundary and preimplementation controls",
+      "type": "task",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E10-SCALE-002B"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-004A-CONTRACT"
+      ]
+    },
+    {
+      "id": "E10-INV-004A-CONTRACT",
+      "title": "Compile Event Inspection executable read-only contract",
+      "type": "task",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E10-INV-004A-BOUNDARY"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-004B-RUNTIME"
+      ]
+    },
+    {
+      "id": "E10-INV-004B-RUNTIME",
+      "title": "Implement immutable permission-gated Event inspection projection",
+      "type": "task",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E10-INV-004A-CONTRACT"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-004C-PIVOT"
+      ]
+    },
+    {
+      "id": "E10-INV-004C-PIVOT",
+      "title": "Implement deterministic Event pivot draft and return context",
+      "type": "task",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E10-INV-004B-RUNTIME"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-004D-CLOSURE"
+      ]
+    },
+    {
+      "id": "E10-INV-004D-CLOSURE",
+      "title": "Validate Event Inspection adversarial security and bounded performance",
+      "type": "task",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E10-INV-004C-PIVOT"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": []
     }
   ]
 }

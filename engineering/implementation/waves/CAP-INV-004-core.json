@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "wave_id": "WAVE-CAP-INV-004-CORE-001",
+  "selection_policy": "reuse-first-v1",
+  "product_spec_baseline": "99c3826cdcbc79bad51631cf6462450f92e012eb",
+  "spec_tree_digest": "a5f45351eba180d0edb734f33ecbeaabb7eceb7143305e201e207e8ae5a60d27",
+  "readiness_snapshot": {
+    "total": 498,
+    "implemented": 2,
+    "ready": 19,
+    "blocked": 476,
+    "proposed": 1
+  },
+  "selected": {
+    "capability": "CAP-INV-004",
+    "name": "Event Inspection and Pivot",
+    "canonical_file": "cmdr-product-spec/07-investigate/modules/signals-and-hunt/capabilities/event-inspection-and-pivot.md",
+    "screen": null
+  },
+  "scope": {
+    "kind": "bounded-read-only-core",
+    "included": [
+      "single-Tenant immutable Telemetry Event inspection projection",
+      "explicit server access decisions for Event/read/raw/rendered variants",
+      "raw/rendered separation with denied-raw non-leakage",
+      "source, parser, timestamps and missing-field visibility",
+      "derived enrichment producer/version/freshness distinction",
+      "source-unavailable/tombstone/partial/restricted states",
+      "dialect-neutral pivot draft with field/value/time/origin/return context"
+    ],
+    "excluded": [
+      "Case annotation/link mutation while OPEN-013 remains open",
+      "Artifact proposal and Evidence-candidate mutation while OPEN-013/OPEN-014 remain open",
+      "Artifact versus direct-reference retention semantics while OPEN-014 remains open",
+      "parser engine or parser execution",
+      "Entity Resolution engine",
+      "final query language/dialect",
+      "search/index/storage/provider selection",
+      "automatic Evidence/Finding creation",
+      "dedicated Event Inspector Screen ID or final detailed frontend because none is canonical",
+      "production retrieval/search SLO claim"
+    ]
+  },
+  "runtime_intent": {
+    "root": "product-runtime/event-inspection/**",
+    "external_runtime_dependencies": "deny-by-default",
+    "language": "Go standard library first unless a later reviewed decision proves otherwise"
+  },
+  "children": [
+    "E10-INV-004A-BOUNDARY",
+    "E10-INV-004A-CONTRACT",
+    "E10-INV-004B-RUNTIME",
+    "E10-INV-004C-PIVOT",
+    "E10-INV-004D-CLOSURE"
+  ],
+  "status": "MATERIALIZED_PENDING_VALIDATION"
+}
