@@ -1026,7 +1026,7 @@
       "id": "E10-INV-002F",
       "title": "Implement bounded Event Search frontend runtime",
       "type": "epic",
-      "status": "DECOMPOSED",
+      "status": "VERIFIED",
       "depends_on": [
         "E10-INV-002E"
       ],
@@ -1104,9 +1104,22 @@
       "id": "E10-INV-002F-E2E",
       "title": "Validate Event Search frontend security accessibility deep links and performance",
       "type": "task",
-      "status": "READY",
+      "status": "VERIFIED",
       "depends_on": [
         "E10-INV-002F-INTEGRATION"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-002G"
+      ]
+    },
+    {
+      "id": "E10-INV-002G",
+      "title": "Compile verified Event Search runtime claim for implementation ledger",
+      "type": "task",
+      "status": "READY",
+      "depends_on": [
+        "E10-INV-002F-E2E"
       ],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": []
