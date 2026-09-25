@@ -67,11 +67,7 @@ function projection(ref, source = "edr") {
 
 test("execution-request-carries-scope-query-and-provenance-but-never-client-authorization", () => {
   const value = createExecutionRequest(
-    {
-      ...deepLink(),
-      authorization: ["admin"],
-      inFlightRequestId: "hidden",
-    },
+    deepLink(),
     execution(),
     { tenantId: "tenant-a", environmentId: "prod-eu" },
   );
@@ -89,6 +85,11 @@ test("execution-request-carries-scope-query-and-provenance-but-never-client-auth
   assert.equal("permissions" in value, false);
   assert.equal("authorizedTenants" in value, false);
   assert.equal("authorization" in value, false);
+  assert.throws(() => createExecutionRequest(
+    { ...deepLink(), authorization: ["admin"] },
+    execution(),
+    { tenantId: "tenant-a", environmentId: "prod-eu" },
+  ));
 });
 
 test("transport-tenant-mismatch-fails-closed", () => {
