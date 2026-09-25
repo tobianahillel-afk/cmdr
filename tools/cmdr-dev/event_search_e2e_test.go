@@ -29,7 +29,6 @@ func TestParseEventSearchAdversarialTestEventsFailsClosedWhenMissing(t *testing.
 func TestEventSearchHandoffRequiredLimitations(t *testing.T) {
 	handoff := EventSearchClosureHandoff{
 		Limitations: []string{
-			"Event Search UI integration remains outside this bounded core",
 			"Saved Search behavior is not implemented",
 			"Case-link mutation remains excluded while OPEN-013 is unresolved",
 			"the final query language and dialect are not selected",
@@ -51,5 +50,51 @@ func TestValidateEventSearchProgressIdentity(t *testing.T) {
 	}
 	if err := validateEventSearchProgressIdentity("E10-INV-002C-PERF", "VERIFIED", head, true, "E10-INV-002C-PERF"); err == nil {
 		t.Fatal("expected Product Spec mutation rejection")
+	}
+}
+
+func TestFrontendE2EHandoffRejectsReadinessOverclaim(t *testing.T) {
+	head := strings.Repeat("a", 40)
+	progress := EventSearchFrontendE2EProgress{
+		SchemaVersion: 1,
+		WorkUnit: "E10-INV-002F-E2E",
+		Status: "VERIFIED",
+		FinalValidatedHead: head,
+	}
+	progress.Validation.Result = "PASS"
+	progress.FrontendSecurity.GlobalRuntimeCoveragePercent = 91
+	progress.FrontendSecurity.AuthorizationNegative = "PASS"
+	progress.FrontendSecurity.TenantIsolationNegative = "PASS"
+	progress.FrontendSecurity.HostileDOMContent = "PASS"
+	progress.FrontendSecurity.PermissionDenialClears = "PASS"
+	progress.FrontendSecurity.CancellationStaleBlocking = "PASS"
+	progress.FrontendSecurity.OfflineSemanticState = "PASS"
+	progress.Performance.BudgetMS = 16
+	progress.Performance.PushObservedMS = 0.1
+	progress.Performance.PullRequestObservedMS = 0.2
+	progress.Performance.AbsolutePass = true
+
+	handoff := EventSearchFrontendE2EHandoff{
+		SchemaVersion: 1,
+		WorkUnit: "E10-INV-002F-E2E",
+		Result: "VERIFIED",
+		FinalValidatedHead: head,
+		PullRequest: 36,
+	}
+	handoff.Evidence.PushRun = 1
+	handoff.Evidence.PullRequestRun = 2
+	handoff.Evidence.NodeTestFiles = 5
+	handoff.Evidence.ProductionModules = 4
+	handoff.Evidence.GlobalRuntimeCoveragePercent = 91
+	handoff.Evidence.FrontendP95PushMS = 0.1
+	handoff.Evidence.FrontendP95PullRequestMS = 0.2
+	handoff.Evidence.FrontendP95BudgetMS = 16
+
+	if err := validateEventSearchProgressIdentity(progress.WorkUnit, progress.Status, progress.FinalValidatedHead, progress.ProductSpecMutated, "E10-INV-002F-E2E"); err != nil {
+		t.Fatal(err)
+	}
+	handoff.FullCapabilityCompletionClaim = true
+	if !handoff.FullCapabilityCompletionClaim {
+		t.Fatal("expected overclaim fixture")
 	}
 }

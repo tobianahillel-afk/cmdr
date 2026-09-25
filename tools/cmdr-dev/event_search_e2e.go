@@ -17,6 +17,8 @@ const (
 	eventSearchValidationProgress  = "work/lots/E10-INV-002B-RUNTIME/PROGRESS.json"
 	eventSearchRuntimeProgress     = "work/lots/E10-INV-002C-RUNTIME/PROGRESS.json"
 	eventSearchPerformanceProgress = "work/lots/E10-INV-002C-PERF/PROGRESS.json"
+	eventSearchFrontendProgress    = "work/lots/E10-INV-002F-E2E/PROGRESS.json"
+	eventSearchFrontendHandoff     = "work/lots/E10-INV-002F-E2E/HANDOFF.json"
 	eventSearchClosureWorkUnit     = "E10-INV-002D"
 	eventSearchRuntimeDirectory    = "product-runtime/event-search"
 )
@@ -34,7 +36,6 @@ var eventSearchAdversarialTests = []string{
 }
 
 var eventSearchRequiredLimitations = []string{
-	"UI",
 	"Saved Search",
 	"Case-link",
 	"final query language",
@@ -113,6 +114,54 @@ type EventSearchPerformanceEvidence struct {
 	} `json:"performance"`
 }
 
+type EventSearchFrontendE2EProgress struct {
+	SchemaVersion      int    `json:"schema_version"`
+	WorkUnit           string `json:"work_unit"`
+	Status             string `json:"status"`
+	FinalValidatedHead string `json:"final_validated_head"`
+	Validation         struct {
+		Result string `json:"result"`
+	} `json:"validation"`
+	FrontendSecurity struct {
+		GlobalRuntimeCoveragePercent float64 `json:"global_runtime_coverage_percent"`
+		AuthorizationNegative        string  `json:"authorization_negative"`
+		TenantIsolationNegative      string  `json:"tenant_isolation_negative"`
+		HostileDOMContent            string  `json:"hostile_dom_content"`
+		PermissionDenialClears       string  `json:"permission_denial_clears_projection"`
+		CancellationStaleBlocking    string  `json:"cancellation_stale_result_blocking"`
+		OfflineSemanticState         string  `json:"offline_semantic_state"`
+	} `json:"frontend_security"`
+	Performance struct {
+		BudgetMS              float64 `json:"budget_ms"`
+		PushObservedMS        float64 `json:"push_observed_ms"`
+		PullRequestObservedMS float64 `json:"pull_request_observed_ms"`
+		AbsolutePass          bool    `json:"absolute_pass"`
+	} `json:"performance"`
+	ProductSpecMutated bool `json:"product_spec_mutated"`
+}
+
+type EventSearchFrontendE2EHandoff struct {
+	SchemaVersion                 int    `json:"schema_version"`
+	WorkUnit                      string `json:"work_unit"`
+	Result                        string `json:"result"`
+	FinalValidatedHead            string `json:"final_validated_head"`
+	PullRequest                   int    `json:"pull_request"`
+	ProductionReadinessClaim      bool   `json:"production_readiness_claim"`
+	FullCapabilityCompletionClaim bool   `json:"full_capability_completion_claim"`
+	ProductSpecMutated            bool   `json:"product_spec_mutated"`
+	Evidence                      struct {
+		PushRun                      int     `json:"push_run"`
+		PullRequestRun               int     `json:"pull_request_run"`
+		NodeTestFiles                int     `json:"node_test_files"`
+		ProductionModules            int     `json:"production_modules"`
+		GlobalRuntimeCoveragePercent float64 `json:"global_runtime_coverage_percent"`
+		FrontendP95PushMS            float64 `json:"frontend_p95_push_ms"`
+		FrontendP95PullRequestMS     float64 `json:"frontend_p95_pull_request_ms"`
+		FrontendP95BudgetMS          float64 `json:"frontend_p95_budget_ms"`
+		RuntimeDependencies          int     `json:"runtime_dependencies"`
+	} `json:"evidence"`
+}
+
 type EventSearchAdversarialSummary struct {
 	Expected []string `json:"expected"`
 	Passed   []string `json:"passed"`
@@ -137,6 +186,10 @@ type EventSearchE2EAuditSummary struct {
 	ValidationBudgetMS        float64 `json:"validation_budget_ms"`
 	OrchestrationP95MS        float64 `json:"orchestration_p95_ms"`
 	OrchestrationBudgetMS     float64 `json:"orchestration_budget_ms"`
+	FrontendEvidenceHead      string  `json:"frontend_evidence_head"`
+	FrontendCoveragePercent   float64 `json:"frontend_coverage_percent"`
+	FrontendP95MS             float64 `json:"frontend_p95_ms"`
+	FrontendP95BudgetMS       float64 `json:"frontend_p95_budget_ms"`
 	RecoveryOutcome           string  `json:"recovery_outcome"`
 	RecoveryNextAction        string  `json:"recovery_next_action"`
 	BlockingOpenDecisions     int     `json:"blocking_open_decisions"`
@@ -175,6 +228,15 @@ func runEventSearchE2EAudit(root string, state CurrentState, graph WorkGraph) (E
 		return EventSearchE2EAuditSummary{}, err
 	}
 
+	var frontendProgress EventSearchFrontendE2EProgress
+	if err := decodeEventSearchEvidence(root, eventSearchFrontendProgress, &frontendProgress); err != nil {
+		return EventSearchE2EAuditSummary{}, err
+	}
+	var frontendHandoff EventSearchFrontendE2EHandoff
+	if err := decodeEventSearchEvidence(root, eventSearchFrontendHandoff, &frontendHandoff); err != nil {
+		return EventSearchE2EAuditSummary{}, err
+	}
+
 	currentHead, err := currentSourceCommit(root)
 	if err != nil {
 		return EventSearchE2EAuditSummary{}, err
@@ -194,7 +256,7 @@ func runEventSearchE2EAudit(root string, state CurrentState, graph WorkGraph) (E
 		return EventSearchE2EAuditSummary{}, fmt.Errorf("recovery reconciliation conflict: %s", strings.Join(recovery.Reasons, ", "))
 	}
 
-	if err := validateEventSearchClosureEvidence(handoff, validation, runtime, performance, contract, adversarial, recovery); err != nil {
+	if err := validateEventSearchClosureEvidence(handoff, validation, runtime, performance, frontendProgress, frontendHandoff, contract, adversarial, recovery); err != nil {
 		return EventSearchE2EAuditSummary{}, err
 	}
 	return EventSearchE2EAuditSummary{
@@ -207,6 +269,10 @@ func runEventSearchE2EAudit(root string, state CurrentState, graph WorkGraph) (E
 		SASTFindings:           validation.Security.SASTFindings, SCAActionableFindings: validation.Security.SCAActionableFindings,
 		ValidationP95MS: performance.Performance.ValidationP95MS, ValidationBudgetMS: 1,
 		OrchestrationP95MS: performance.Performance.ObservedMS, OrchestrationBudgetMS: performance.Performance.BudgetMS,
+		FrontendEvidenceHead: frontendProgress.FinalValidatedHead,
+		FrontendCoveragePercent: frontendProgress.FrontendSecurity.GlobalRuntimeCoveragePercent,
+		FrontendP95MS: frontendProgress.Performance.PullRequestObservedMS,
+		FrontendP95BudgetMS: frontendProgress.Performance.BudgetMS,
 		RecoveryOutcome: recovery.Outcome, RecoveryNextAction: recovery.NextAction,
 		BlockingOpenDecisions:    len(handoff.BlockingOpenDecisions),
 		ProductionReadinessClaim: handoff.ProductionReadinessClaim,
@@ -230,12 +296,14 @@ func validateEventSearchClosureEvidence(
 	validation EventSearchValidationEvidence,
 	runtime EventSearchRuntimeEvidence,
 	performance EventSearchPerformanceEvidence,
+	frontendProgress EventSearchFrontendE2EProgress,
+	frontendHandoff EventSearchFrontendE2EHandoff,
 	contract EventSearchContractAuditSummary,
 	adversarial EventSearchAdversarialSummary,
 	recovery RecoveryReconciliation,
 ) error {
 	if handoff.SchemaVersion != 1 || handoff.HandoffKind != "event-search-bounded-core" ||
-		handoff.Readiness != "BOUNDED_CORE_VALIDATED_NOT_FULL_CAPABILITY" ||
+		handoff.Readiness != "BOUNDED_CORE_AND_FRONTEND_VALIDATED_NOT_FULL_CAPABILITY" ||
 		handoff.Capability != "CAP-INV-002" || handoff.Screen != "INV-EVS-001" {
 		return fmt.Errorf("invalid Event Search bounded handoff identity/readiness")
 	}
@@ -245,7 +313,13 @@ func validateEventSearchClosureEvidence(
 	if !sameStringSet(handoff.BlockingOpenDecisions, []string{"OPEN-013"}) {
 		return fmt.Errorf("Event Search handoff must preserve OPEN-013 as the explicit Case-link blocker")
 	}
-	expectedSources := []string{eventSearchValidationProgress, eventSearchRuntimeProgress, eventSearchPerformanceProgress}
+	expectedSources := []string{
+		eventSearchValidationProgress,
+		eventSearchRuntimeProgress,
+		eventSearchPerformanceProgress,
+		eventSearchFrontendProgress,
+		eventSearchFrontendHandoff,
+	}
 	if !sameStringSet(handoff.EvidenceSources, expectedSources) {
 		return fmt.Errorf("Event Search handoff evidence sources mismatch")
 	}
@@ -295,6 +369,53 @@ func validateEventSearchClosureEvidence(
 		performance.Performance.ProductionSLOClaimed ||
 		performance.Performance.ValidationP95MS > 1 {
 		return fmt.Errorf("Event Search performance evidence is incomplete or outside bounded budgets")
+	}
+
+	if err := validateEventSearchProgressIdentity(
+		frontendProgress.WorkUnit,
+		frontendProgress.Status,
+		frontendProgress.FinalValidatedHead,
+		frontendProgress.ProductSpecMutated,
+		"E10-INV-002F-E2E",
+	); err != nil {
+		return err
+	}
+	if frontendProgress.Validation.Result != "PASS" ||
+		frontendProgress.FrontendSecurity.GlobalRuntimeCoveragePercent < 80 ||
+		frontendProgress.FrontendSecurity.AuthorizationNegative != "PASS" ||
+		frontendProgress.FrontendSecurity.TenantIsolationNegative != "PASS" ||
+		frontendProgress.FrontendSecurity.HostileDOMContent != "PASS" ||
+		frontendProgress.FrontendSecurity.PermissionDenialClears != "PASS" ||
+		frontendProgress.FrontendSecurity.CancellationStaleBlocking != "PASS" ||
+		frontendProgress.FrontendSecurity.OfflineSemanticState != "PASS" ||
+		!frontendProgress.Performance.AbsolutePass ||
+		frontendProgress.Performance.BudgetMS <= 0 ||
+		frontendProgress.Performance.PushObservedMS > frontendProgress.Performance.BudgetMS ||
+		frontendProgress.Performance.PullRequestObservedMS > frontendProgress.Performance.BudgetMS {
+		return fmt.Errorf("Event Search frontend E2E progress does not satisfy security/performance floors")
+	}
+	if err := validateEventSearchProgressIdentity(
+		frontendHandoff.WorkUnit,
+		frontendHandoff.Result,
+		frontendHandoff.FinalValidatedHead,
+		frontendHandoff.ProductSpecMutated,
+		"E10-INV-002F-E2E",
+	); err != nil {
+		return err
+	}
+	if frontendHandoff.PullRequest < 1 ||
+		frontendHandoff.ProductionReadinessClaim ||
+		frontendHandoff.FullCapabilityCompletionClaim ||
+		frontendHandoff.Evidence.PushRun < 1 ||
+		frontendHandoff.Evidence.PullRequestRun < 1 ||
+		frontendHandoff.Evidence.NodeTestFiles < 5 ||
+		frontendHandoff.Evidence.ProductionModules != 4 ||
+		frontendHandoff.Evidence.GlobalRuntimeCoveragePercent < 80 ||
+		frontendHandoff.Evidence.FrontendP95BudgetMS <= 0 ||
+		frontendHandoff.Evidence.FrontendP95PushMS > frontendHandoff.Evidence.FrontendP95BudgetMS ||
+		frontendHandoff.Evidence.FrontendP95PullRequestMS > frontendHandoff.Evidence.FrontendP95BudgetMS ||
+		frontendHandoff.Evidence.RuntimeDependencies != 0 {
+		return fmt.Errorf("Event Search frontend E2E handoff is incomplete or overclaims readiness")
 	}
 	if contract.Status != "PASS" || contract.RuntimeState != "implemented" ||
 		contract.RuntimeDependencies != 0 || contract.Fixtures < 1 || contract.NegativeFixtures < 1 {
