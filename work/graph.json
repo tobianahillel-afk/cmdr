@@ -871,7 +871,7 @@
       "id": "E10-INV-002",
       "title": "Implement bounded Event Search core for CAP-INV-002",
       "type": "epic",
-      "status": "DECOMPOSED",
+      "status": "VERIFIED",
       "depends_on": [
         "E10-SCALE-001C"
       ],
@@ -1117,9 +1117,48 @@
       "id": "E10-INV-002G",
       "title": "Compile verified Event Search runtime claim for implementation ledger",
       "type": "task",
-      "status": "READY",
+      "status": "VERIFIED",
       "depends_on": [
         "E10-INV-002F-E2E"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-SCALE-002A"
+      ]
+    },
+    {
+      "id": "E10-SCALE-002",
+      "title": "Advance verified implementation ledger and select the next bounded capability wave",
+      "type": "epic",
+      "status": "DECOMPOSED",
+      "depends_on": [
+        "E10-INV-002G"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-SCALE-002A"
+      ]
+    },
+    {
+      "id": "E10-SCALE-002A",
+      "title": "Register CAP-INV-002 runtime claim and recompile implementation readiness",
+      "type": "task",
+      "status": "READY",
+      "depends_on": [
+        "E10-INV-002G"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-SCALE-002B"
+      ]
+    },
+    {
+      "id": "E10-SCALE-002B",
+      "title": "Select and materialize the next reuse-first capability wave",
+      "type": "task",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E10-SCALE-002A"
       ],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": []

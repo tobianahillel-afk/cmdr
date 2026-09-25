@@ -1,0 +1,110 @@
+{
+  "schema_version": 2,
+  "id": "E10-SCALE-002B",
+  "title": "Select and materialize the next reuse-first capability wave",
+  "type": "task",
+  "parent": "E10-SCALE-002",
+  "goal": "Apply reuse-first-v1 to the freshly recompiled readiness program, verify the selected canonical capability contract, and materialize one bounded next implementation wave without choosing unresolved technical details.",
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-002"
+    ],
+    "requirements": [],
+    "screens": [],
+    "permissions": [],
+    "open_decisions": [
+      "OPEN-013"
+    ],
+    "implementation_contracts": [],
+    "canonical_objects": []
+  },
+  "depends_on": [
+    "E10-SCALE-002A"
+  ],
+  "allowed_paths": [
+    "engineering/implementation/**",
+    "engineering/state/**",
+    "work/graph.json",
+    "work/lots/E10-SCALE-002B/**",
+    "tools/cmdr-dev/**"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/**"
+  ],
+  "inputs": [
+    "VERIFIED E10-INV-002G runtime implementation claim",
+    "canonical read-only Product Spec baseline",
+    "implementation ledger and readiness compiler",
+    "reuse-first-v1 wave-selection policy"
+  ],
+  "outputs": [
+    "fresh reuse-first-v1 selection",
+    "next bounded capability wave manifest and child decomposition",
+    "explicit exclusions for unresolved decisions"
+  ],
+  "invariants": [
+    "Product Spec remains read-only",
+    "product runtime code is not changed by scaling-control tasks",
+    "ledger IMPLEMENTED means verified runtime evidence and does not claim full capability completion",
+    "blocked/proposed capabilities cannot enter an implementation wave",
+    "OPEN-013 remains unresolved unless canonical Product Spec evidence changes"
+  ],
+  "security_properties": [
+    "ledger claims must satisfy implementation-ledger evidence floors",
+    "readiness is recomputed from canonical Product Spec and verified ledger rather than manual state",
+    "next wave is selected only from READY capabilities"
+  ],
+  "acceptance_tests": [
+    "adaptive engineering-kernel remains green",
+    "implementation-ledger-audit passes",
+    "implementation-readiness passes",
+    "implementation-wave selection remains source-backed"
+  ],
+  "performance_budget": {
+    "applicable": false,
+    "rationale": "control-plane metadata task only",
+    "metrics": []
+  },
+  "migration": {
+    "required": false,
+    "rationale": "engineering control-plane metadata only",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert the scaling-control commit without modifying verified product runtimes",
+    "verification": [
+      "Event Search runtime remains unchanged",
+      "Product Spec baseline remains unchanged"
+    ]
+  },
+  "required_checks": [
+    "adaptive engineering-kernel",
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-IMPLEMENTATION-LEDGER",
+    "CHK-IMPLEMENTATION-READINESS",
+    "CHK-IMPLEMENTATION-WAVE"
+  ],
+  "definition_of_ready": [
+    "declared dependency is VERIFIED"
+  ],
+  "definition_of_done": [
+    "selection is exactly READY and source-backed",
+    "reuse-first-v1 preference is preserved",
+    "canonical capability file resolves inside Product Spec",
+    "one bounded implementation wave is materialized with realistic child sizing",
+    "a next READY implementation task exists"
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 7,
+    "estimated_net_loc": 480,
+    "production_files": 0,
+    "net_production_loc": 0,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}
