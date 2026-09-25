@@ -1052,7 +1052,7 @@
       "id": "E10-INV-002F-STATE",
       "title": "Implement Event Search frontend state and deep-link core",
       "type": "task",
-      "status": "READY",
+      "status": "VERIFIED",
       "depends_on": [
         "E10-INV-002F-BOUNDARY"
       ],
@@ -1065,7 +1065,7 @@
       "id": "E10-INV-002F-SHELL",
       "title": "Implement accessible Event Search shell and mandatory UI states",
       "type": "task",
-      "status": "BLOCKED",
+      "status": "READY",
       "depends_on": [
         "E10-INV-002F-STATE"
       ],
