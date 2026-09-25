@@ -27,24 +27,24 @@ type EventInspectionRuntimeBoundary struct {
 }
 
 type EventInspectionScopePolicy struct {
-	TenantRequired                    bool `json:"tenant_required"`
-	EnvironmentRequired               bool `json:"environment_required"`
-	EventRefRequired                  bool `json:"event_ref_required"`
-	WildcardTenantForbidden           bool `json:"wildcard_tenant_forbidden"`
-	CrossTenantForbidden              bool `json:"cross_tenant_forbidden"`
+	TenantRequired                     bool `json:"tenant_required"`
+	EnvironmentRequired                bool `json:"environment_required"`
+	EventRefRequired                   bool `json:"event_ref_required"`
+	WildcardTenantForbidden            bool `json:"wildcard_tenant_forbidden"`
+	CrossTenantForbidden               bool `json:"cross_tenant_forbidden"`
 	EventTenantMustMatchSelectedTenant bool `json:"event_tenant_must_match_selected_tenant"`
 }
 
 type EventInspectionPermissionPolicy struct {
-	ServerEvaluationRequired                 bool     `json:"server_evaluation_required"`
-	ClientTrustForbidden                     bool     `json:"client_trust_forbidden"`
-	RequiredProjectionPermissions            []string `json:"required_projection_permissions"`
-	RawAccessDecisionRequired                bool     `json:"raw_access_decision_required"`
-	RenderedAccessDecisionRequired           bool     `json:"rendered_access_decision_required"`
-	RawDenialMasksRawPayload                 bool     `json:"raw_denial_masks_raw_payload"`
-	RawDenialMasksRawDerivedSensitiveValues  bool     `json:"raw_denial_masks_raw_derived_sensitive_values"`
-	RenderedMayRemainWhenRawDenied           bool     `json:"rendered_may_remain_when_raw_denied"`
-	NoNewPermissionNamespace                 bool     `json:"no_new_permission_namespace"`
+	ServerEvaluationRequired                bool     `json:"server_evaluation_required"`
+	ClientTrustForbidden                    bool     `json:"client_trust_forbidden"`
+	RequiredProjectionPermissions           []string `json:"required_projection_permissions"`
+	RawAccessDecisionRequired               bool     `json:"raw_access_decision_required"`
+	RenderedAccessDecisionRequired          bool     `json:"rendered_access_decision_required"`
+	RawDenialMasksRawPayload                bool     `json:"raw_denial_masks_raw_payload"`
+	RawDenialMasksRawDerivedSensitiveValues bool     `json:"raw_denial_masks_raw_derived_sensitive_values"`
+	RenderedMayRemainWhenRawDenied          bool     `json:"rendered_may_remain_when_raw_denied"`
+	NoNewPermissionNamespace                bool     `json:"no_new_permission_namespace"`
 }
 
 type EventInspectionProjectionPolicy struct {
@@ -62,11 +62,11 @@ type EventInspectionProjectionPolicy struct {
 }
 
 type EventInspectionEnrichmentPolicy struct {
-	ProducerRequired             bool `json:"producer_required"`
-	VersionRequired              bool `json:"version_required"`
-	FreshnessRequired            bool `json:"freshness_required"`
-	MayNotMasqueradeAsSource     bool `json:"may_not_masquerade_as_source"`
-	AbsentEnrichmentNotInferred  bool `json:"absent_enrichment_not_inferred"`
+	ProducerRequired            bool `json:"producer_required"`
+	VersionRequired             bool `json:"version_required"`
+	FreshnessRequired           bool `json:"freshness_required"`
+	MayNotMasqueradeAsSource    bool `json:"may_not_masquerade_as_source"`
+	AbsentEnrichmentNotInferred bool `json:"absent_enrichment_not_inferred"`
 }
 
 type EventInspectionPivotPolicy struct {
@@ -78,66 +78,66 @@ type EventInspectionPivotPolicy struct {
 }
 
 type EventInspectionMutationPolicy struct {
-	SourceEventMutationForbidden          bool `json:"source_event_mutation_forbidden"`
-	CaseLinkMutationExecutable            bool `json:"case_link_mutation_executable"`
-	ArtifactProposalMutationExecutable    bool `json:"artifact_proposal_mutation_executable"`
-	EvidenceCandidateMutationExecutable   bool `json:"evidence_candidate_mutation_executable"`
-	AutomaticEvidenceCreationForbidden    bool `json:"automatic_evidence_creation_forbidden"`
-	AutomaticFindingCreationForbidden     bool `json:"automatic_finding_creation_forbidden"`
+	SourceEventMutationForbidden        bool `json:"source_event_mutation_forbidden"`
+	CaseLinkMutationExecutable          bool `json:"case_link_mutation_executable"`
+	ArtifactProposalMutationExecutable  bool `json:"artifact_proposal_mutation_executable"`
+	EvidenceCandidateMutationExecutable bool `json:"evidence_candidate_mutation_executable"`
+	AutomaticEvidenceCreationForbidden  bool `json:"automatic_evidence_creation_forbidden"`
+	AutomaticFindingCreationForbidden   bool `json:"automatic_finding_creation_forbidden"`
 }
 
 type EventInspectionTechnologyPolicy struct {
-	ParserEngineSelected          bool `json:"parser_engine_selected"`
+	ParserEngineSelected           bool `json:"parser_engine_selected"`
 	EntityResolutionEngineSelected bool `json:"entity_resolution_engine_selected"`
-	StorageEngineSelected         bool `json:"storage_engine_selected"`
-	ProviderSelected              bool `json:"provider_selected"`
-	FinalQueryDialectSelected     bool `json:"final_query_dialect_selected"`
+	StorageEngineSelected          bool `json:"storage_engine_selected"`
+	ProviderSelected               bool `json:"provider_selected"`
+	FinalQueryDialectSelected      bool `json:"final_query_dialect_selected"`
 }
 
 type EventInspectionExecutableContract struct {
-	SchemaVersion        int                              `json:"schema_version"`
-	ContractID           string                           `json:"contract_id"`
-	ContractKind         string                           `json:"contract_kind"`
-	CanonicalSchemaClaim bool                             `json:"canonical_schema_claim"`
-	Capability           string                           `json:"capability"`
-	RuntimeBoundary      EventInspectionRuntimeBoundary   `json:"runtime_boundary"`
-	ProductRefs          ProductRefsV2                    `json:"product_refs"`
-	ScopePolicy          EventInspectionScopePolicy       `json:"scope_policy"`
-	PermissionPolicy     EventInspectionPermissionPolicy  `json:"permission_policy"`
-	ProjectionPolicy     EventInspectionProjectionPolicy  `json:"projection_policy"`
-	EnrichmentPolicy     EventInspectionEnrichmentPolicy  `json:"enrichment_policy"`
-	PivotPolicy          EventInspectionPivotPolicy       `json:"pivot_policy"`
-	MutationPolicy       EventInspectionMutationPolicy    `json:"mutation_policy"`
-	TechnologyPolicy     EventInspectionTechnologyPolicy  `json:"technology_policy"`
-	Exclusions           []string                         `json:"exclusions"`
-	SemanticRules        []string                         `json:"semantic_rules"`
-	SecurityInvariants   []string                         `json:"security_invariants"`
+	SchemaVersion        int                             `json:"schema_version"`
+	ContractID           string                          `json:"contract_id"`
+	ContractKind         string                          `json:"contract_kind"`
+	CanonicalSchemaClaim bool                            `json:"canonical_schema_claim"`
+	Capability           string                          `json:"capability"`
+	RuntimeBoundary      EventInspectionRuntimeBoundary  `json:"runtime_boundary"`
+	ProductRefs          ProductRefsV2                   `json:"product_refs"`
+	ScopePolicy          EventInspectionScopePolicy      `json:"scope_policy"`
+	PermissionPolicy     EventInspectionPermissionPolicy `json:"permission_policy"`
+	ProjectionPolicy     EventInspectionProjectionPolicy `json:"projection_policy"`
+	EnrichmentPolicy     EventInspectionEnrichmentPolicy `json:"enrichment_policy"`
+	PivotPolicy          EventInspectionPivotPolicy      `json:"pivot_policy"`
+	MutationPolicy       EventInspectionMutationPolicy   `json:"mutation_policy"`
+	TechnologyPolicy     EventInspectionTechnologyPolicy `json:"technology_policy"`
+	Exclusions           []string                        `json:"exclusions"`
+	SemanticRules        []string                        `json:"semantic_rules"`
+	SecurityInvariants   []string                        `json:"security_invariants"`
 }
 
 type EventInspectionFixtureInput struct {
-	TenantRef                     string   `json:"tenant_ref"`
-	AuthorizedTenants             []string `json:"authorized_tenants"`
-	EnvironmentRef                string   `json:"environment_ref"`
-	EventRef                      string   `json:"event_ref"`
-	EventTenantRef                string   `json:"event_tenant_ref"`
-	Permissions                   []string `json:"permissions"`
-	RawAccessDecision             string   `json:"raw_access_decision"`
-	RenderedAccessDecision        string   `json:"rendered_access_decision"`
-	RawPayloadPresent             bool     `json:"raw_payload_present"`
-	RawDerivedSensitivePresent    bool     `json:"raw_derived_sensitive_present"`
-	RenderedPayloadPresent        bool     `json:"rendered_payload_present"`
-	EnrichmentsPresent            bool     `json:"enrichments_present"`
-	EnrichmentProducer            string   `json:"enrichment_producer"`
-	EnrichmentVersion             string   `json:"enrichment_version"`
-	EnrichmentFreshness           string   `json:"enrichment_freshness"`
-	EnrichmentPresentedAsSource   bool     `json:"enrichment_presented_as_source"`
-	PivotRequested                bool     `json:"pivot_requested"`
-	PivotField                    string   `json:"pivot_field"`
-	PivotValuePresent             bool     `json:"pivot_value_present"`
-	PivotTimeStart                string   `json:"pivot_time_start"`
-	PivotTimeEnd                  string   `json:"pivot_time_end"`
-	ReturnOrigin                  string   `json:"return_origin"`
-	MutationRequested             string   `json:"mutation_requested"`
+	TenantRef                   string   `json:"tenant_ref"`
+	AuthorizedTenants           []string `json:"authorized_tenants"`
+	EnvironmentRef              string   `json:"environment_ref"`
+	EventRef                    string   `json:"event_ref"`
+	EventTenantRef              string   `json:"event_tenant_ref"`
+	Permissions                 []string `json:"permissions"`
+	RawAccessDecision           string   `json:"raw_access_decision"`
+	RenderedAccessDecision      string   `json:"rendered_access_decision"`
+	RawPayloadPresent           bool     `json:"raw_payload_present"`
+	RawDerivedSensitivePresent  bool     `json:"raw_derived_sensitive_present"`
+	RenderedPayloadPresent      bool     `json:"rendered_payload_present"`
+	EnrichmentsPresent          bool     `json:"enrichments_present"`
+	EnrichmentProducer          string   `json:"enrichment_producer"`
+	EnrichmentVersion           string   `json:"enrichment_version"`
+	EnrichmentFreshness         string   `json:"enrichment_freshness"`
+	EnrichmentPresentedAsSource bool     `json:"enrichment_presented_as_source"`
+	PivotRequested              bool     `json:"pivot_requested"`
+	PivotField                  string   `json:"pivot_field"`
+	PivotValuePresent           bool     `json:"pivot_value_present"`
+	PivotTimeStart              string   `json:"pivot_time_start"`
+	PivotTimeEnd                string   `json:"pivot_time_end"`
+	ReturnOrigin                string   `json:"return_origin"`
+	MutationRequested           string   `json:"mutation_requested"`
 }
 
 type EventInspectionFixtureExpected struct {
@@ -355,23 +355,23 @@ func validateEventInspectionSourceAnchors(root string) error {
 
 func validateEventInspectionFixtures(contract EventInspectionExecutableContract, fixtures EventInspectionFixtureSet) error {
 	required := map[string]bool{
-		"valid-raw-and-rendered-projection": false,
-		"raw-denied-rendered-remains-visible": false,
-		"enrichment-provenance-remains-derived": false,
-		"valid-dialect-neutral-pivot": false,
-		"missing-tenant-is-rejected": false,
-		"wildcard-tenant-is-rejected": false,
-		"cross-tenant-is-rejected": false,
-		"event-tenant-mismatch-is-rejected": false,
-		"missing-event-reference-is-rejected": false,
-		"permission-denied-masks-projection": false,
-		"both-projections-denied-is-rejected": false,
-		"enrichment-missing-provenance-is-rejected": false,
+		"valid-raw-and-rendered-projection":             false,
+		"raw-denied-rendered-remains-visible":           false,
+		"enrichment-provenance-remains-derived":         false,
+		"valid-dialect-neutral-pivot":                   false,
+		"missing-tenant-is-rejected":                    false,
+		"wildcard-tenant-is-rejected":                   false,
+		"cross-tenant-is-rejected":                      false,
+		"event-tenant-mismatch-is-rejected":             false,
+		"missing-event-reference-is-rejected":           false,
+		"permission-denied-masks-projection":            false,
+		"both-projections-denied-is-rejected":           false,
+		"enrichment-missing-provenance-is-rejected":     false,
 		"enrichment-masquerading-as-source-is-rejected": false,
-		"invalid-pivot-context-is-rejected": false,
-		"case-link-mutation-remains-excluded": false,
-		"artifact-proposal-mutation-remains-excluded": false,
-		"evidence-candidate-mutation-remains-excluded": false,
+		"invalid-pivot-context-is-rejected":             false,
+		"case-link-mutation-remains-excluded":           false,
+		"artifact-proposal-mutation-remains-excluded":   false,
+		"evidence-candidate-mutation-remains-excluded":  false,
 	}
 	if len(fixtures.Cases) < len(required) {
 		return fmt.Errorf("Event Inspection fixture set is too small: %d", len(fixtures.Cases))

@@ -14,7 +14,7 @@ func validEventInspectionInput() EventInspectionFixtureInput {
 	return EventInspectionFixtureInput{
 		TenantRef: "tenant-a", AuthorizedTenants: []string{"tenant-a"},
 		EnvironmentRef: "env-prod", EventRef: "evt-001", EventTenantRef: "tenant-a",
-		Permissions: []string{"perm.shared-capabilities.telemetry-event.read"},
+		Permissions:       []string{"perm.shared-capabilities.telemetry-event.read"},
 		RawAccessDecision: "allow", RenderedAccessDecision: "allow",
 		RawPayloadPresent: true, RenderedPayloadPresent: true,
 	}
