@@ -283,7 +283,7 @@ func TestRuntimeSecurityAdaptersAreExplicitForKnownRuntimes(t *testing.T) {
 		t.Fatal("missing explicit Event Search frontend runtime security adapter")
 	}
 	if frontend.RuntimeKind != "node" || frontend.RuntimeRoot != eventSearchFrontendSecurityRuntimeRoot ||
-		len(frontend.TestFiles) != 3 || len(frontend.CoverageIncludes) != 3 ||
+		len(frontend.TestFiles) != 4 || len(frontend.CoverageIncludes) != 4 ||
 		frontend.AuthorizationTestRegex == "" || frontend.TenantTestRegex == "" {
 		t.Fatalf("incomplete frontend runtime security adapter: %#v", frontend)
 	}

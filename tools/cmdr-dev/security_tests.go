@@ -80,8 +80,8 @@ const (
 	eventSearchAuthorizationTestRegexp         = "^TestValidateContractFixtures$/^permission-denied-masks-protected-data$"
 	eventSearchTenantTestRegexp                = "^TestValidateContractFixtures$/(^missing-tenant-is-rejected$|^wildcard-tenant-is-rejected$|^cross-tenant-is-rejected$)"
 	eventSearchFrontendSecurityRuntimeRoot     = "product-runtime/event-search-frontend"
-	eventSearchFrontendAuthorizationTestRegexp = "^(authorization-state-cannot-be-deeplinked|permission-denied-reveals-no-protected-content)$"
-	eventSearchFrontendTenantTestRegexp        = "^(tenant-mismatch-is-rejected|tenant-wildcard-is-rejected)$"
+	eventSearchFrontendAuthorizationTestRegexp = "^(authorization-state-cannot-be-deeplinked|permission-denied-reveals-no-protected-content|permission-denied-outcome-clears-results-and-exposes-no-protected-projection)$"
+	eventSearchFrontendTenantTestRegexp        = "^(tenant-mismatch-is-rejected|tenant-wildcard-is-rejected|transport-tenant-mismatch-fails-closed)$"
 )
 
 type runtimeSecurityAdapter struct {
@@ -111,8 +111,8 @@ func runtimeSecurityAdapters() map[string]runtimeSecurityAdapter {
 		},
 		"event-search-frontend-runtime": {
 			BoundaryID: "event-search-frontend-runtime", RuntimeRoot: eventSearchFrontendSecurityRuntimeRoot, RuntimeKind: "node",
-			TestFiles:              []string{"state.test.mjs", "shell.test.mjs", "results.test.mjs"},
-			CoverageIncludes:       []string{"state.mjs", "shell.mjs", "results.mjs"},
+			TestFiles:              []string{"state.test.mjs", "shell.test.mjs", "results.test.mjs", "integration.test.mjs"},
+			CoverageIncludes:       []string{"state.mjs", "shell.mjs", "results.mjs", "integration.mjs"},
 			AuthorizationTestRegex: eventSearchFrontendAuthorizationTestRegexp,
 			TenantTestRegex:        eventSearchFrontendTenantTestRegexp,
 		},
