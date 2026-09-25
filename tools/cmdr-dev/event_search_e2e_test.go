@@ -56,9 +56,9 @@ func TestValidateEventSearchProgressIdentity(t *testing.T) {
 func TestFrontendE2EHandoffRejectsReadinessOverclaim(t *testing.T) {
 	head := strings.Repeat("a", 40)
 	progress := EventSearchFrontendE2EProgress{
-		SchemaVersion: 1,
-		WorkUnit: "E10-INV-002F-E2E",
-		Status: "VERIFIED",
+		SchemaVersion:      1,
+		WorkUnit:           "E10-INV-002F-E2E",
+		Status:             "VERIFIED",
 		FinalValidatedHead: head,
 	}
 	progress.Validation.Result = "PASS"
@@ -75,11 +75,11 @@ func TestFrontendE2EHandoffRejectsReadinessOverclaim(t *testing.T) {
 	progress.Performance.AbsolutePass = true
 
 	handoff := EventSearchFrontendE2EHandoff{
-		SchemaVersion: 1,
-		WorkUnit: "E10-INV-002F-E2E",
-		Result: "VERIFIED",
+		SchemaVersion:      1,
+		WorkUnit:           "E10-INV-002F-E2E",
+		Result:             "VERIFIED",
 		FinalValidatedHead: head,
-		PullRequest: 36,
+		PullRequest:        36,
 	}
 	handoff.Evidence.PushRun = 1
 	handoff.Evidence.PullRequestRun = 2
