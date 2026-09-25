@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "handoff_kind": "e9-end-to-end-pilot-readiness",
+  "status": "READY_FOR_E9_PILOT_SCOPE_SELECTION",
+  "engineering_head": "de735057a0215cfec8b9e7d36afc71ac70a03d44",
+  "product_spec_baseline": "99c3826cdcbc79bad51631cf6462450f92e012eb",
+  "canonical_pilot_plan": "cmdr-product-spec/18-roadmap-and-releases/pilot-plan.md",
+  "canonical_pilot_plan_status": "draft",
+  "ready_foundation": [
+    "product obligation and coverage graph",
+    "bounded work decomposition and deterministic context",
+    "architecture and dependency enforcement",
+    "risk-adaptive validation",
+    "security gates and supply-chain evidence",
+    "research and decision governance",
+    "performance gates",
+    "recovery and multi-agent coordination",
+    "metrics and advisory optimization"
+  ],
+  "remaining_before_pilot": [
+    "select one bounded pilot slice from canonical Product Spec obligations and contracts",
+    "prove the selected slice has no unresolved blocking decision or dependency",
+    "establish an explicit product-runtime boundary before product code is written",
+    "keep the draft Product Spec pilot calendar/owner/milestone questions explicit rather than silently deciding them"
+  ],
+  "pilot_constraints": [
+    "Product Spec remains the source of truth and read-only to implementation agents",
+    "pilot work must be decomposed before product code is written",
+    "security and correctness floors cannot be traded for throughput",
+    "pilot telemetry must follow the canonical pilot plan and must not leak product data"
+  ],
+  "e8d_baseline_evidence": {
+    "push_run": 35930072585,
+    "pull_request_run": 35930077289,
+    "mandatory_floor": 44,
+    "standard_profile_key": "75cadb139029a0737cdcb760106cc99ca2f8d1255212dce9a33cf9d4e75d0873",
+    "strict_profile_key": "b4831c98e1c4af90cf6ae37852c7ccfc872f60c00da2a8e762db29f75876e669",
+    "status": "recorded-awaiting-enforcement-proof",
+    "standard_metadata_profile": {
+      "workflow_run_id": 35930351513,
+      "profile_key": "1c4283e132b2d17f618a2234d5bc46f56a442542b50dd55e77f6fcb8e89ac9bd",
+      "mandatory_floor": 44,
+      "selected_checks": 34,
+      "executed_checks": 27,
+      "cost_units": 34,
+      "status": "recorded-awaiting-matched-proof"
+    },
+    "strict_profile": {
+      "workflow_run_id": 35930355436,
+      "profile_key": "b4831c98e1c4af90cf6ae37852c7ccfc872f60c00da2a8e762db29f75876e669",
+      "mandatory_floor": 44,
+      "selected_checks": 44,
+      "executed_checks": 37,
+      "cost_units": 72,
+      "status": "matched-pass"
+    }
+  },
+  "e8d_final_proof": {
+    "push_run": 35930584995,
+    "pull_request_run": 35930590389,
+    "mandatory_floor": 44,
+    "standard": {
+      "profile_key": "1c4283e132b2d17f618a2234d5bc46f56a442542b50dd55e77f6fcb8e89ac9bd",
+      "baseline_id": "BASE-E8D-STANDARD-METADATA-FLOOR44-20260923",
+      "baseline_status": "matched",
+      "safety_status": "pass",
+      "efficiency_status": "pass",
+      "selected_checks": 34,
+      "executed_checks": 27,
+      "cost_units": 34,
+      "budget_digest": "c09a21f0d3a278bf013c5ccf0a1f57137c831821ee24ecd50a6fd60366eae808"
+    },
+    "strict": {
+      "profile_key": "b4831c98e1c4af90cf6ae37852c7ccfc872f60c00da2a8e762db29f75876e669",
+      "baseline_id": "BASE-E8D-STRICT-FLOOR44-20260923",
+      "baseline_status": "matched",
+      "safety_status": "pass",
+      "efficiency_status": "pass",
+      "selected_checks": 44,
+      "executed_checks": 37,
+      "cost_units": 72,
+      "budget_digest": "e5c8b6730d3f0c24ffb57c4830eefcb4d9e3a10a92c1490513894439e9ab148c"
+    }
+  }
+}

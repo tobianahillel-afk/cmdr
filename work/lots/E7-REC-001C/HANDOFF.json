@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "work_unit": "E7-REC-001C",
+  "result": "VERIFIED",
+  "final_validated_head": "33fcd58f6316a4412724aa3a2f0fc4cbb651814d",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 35910364892,
+    "pull_request_run": 35910370690,
+    "check": "CHK-RECOVERY-RECONCILE",
+    "outcome": "resume",
+    "next_action": "claim-or-start"
+  },
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E7-REC-001D"
+  ]
+}

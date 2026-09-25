@@ -1,0 +1,144 @@
+{
+  "schema_version": 2,
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-004"
+    ],
+    "requirements": [
+      "REQ-PROD-002",
+      "REQ-PROD-005",
+      "REQ-PROD-008",
+      "REQ-PROD-014",
+      "REQ-PROD-045"
+    ],
+    "screens": [],
+    "permissions": [
+      "perm.shared-capabilities.telemetry-event.read"
+    ],
+    "open_decisions": [
+      "OPEN-013",
+      "OPEN-014"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/audit-event-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/error-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/correlation-identifiers.md",
+      "cmdr-product-spec/17-implementation-contracts/search-query-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/telemetry-event.md",
+      "cmdr-product-spec/05-domain-model/objects/parser.md",
+      "cmdr-product-spec/05-domain-model/objects/data-source.md",
+      "cmdr-product-spec/05-domain-model/objects/entity.md",
+      "cmdr-product-spec/05-domain-model/objects/query.md"
+    ]
+  },
+  "forbidden_paths": [
+    "cmdr-product-spec/**"
+  ],
+  "invariants": [
+    "Product Spec remains read-only",
+    "Telemetry Event is immutable and remains owned by Shared Capabilities",
+    "tenant scope is mandatory and no wildcard/default tenant fallback is allowed",
+    "OPEN-013 and OPEN-014 remain unresolved",
+    "Case-link, Artifact proposal and Evidence-candidate mutations are excluded from this bounded wave",
+    "no parser engine, entity-resolution engine, storage engine, provider or final query dialect is selected",
+    "raw/rendered access is supplied by explicit server-side access decisions; this wave does not invent a new permission namespace",
+    "no dedicated Event Inspector Screen ID or final detailed UI is invented by this wave"
+  ],
+  "security_properties": [
+    "perm.shared-capabilities.telemetry-event.read is required before any Event projection is returned",
+    "raw denial never leaks raw payload, raw-derived sensitive values or inferred raw content",
+    "rendered access may remain available when raw access is denied",
+    "source fields, derived enrichments and parser metadata remain explicitly distinguished",
+    "all projection and pivot outputs preserve tenant, environment, event identity, provenance and correlation"
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "first bounded Event Inspection core is in-process and persistence-neutral",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert the current bounded task and keep downstream tasks blocked",
+    "verification": [
+      "Product Spec baseline remains unchanged",
+      "no ledger claim is created before bounded closure"
+    ]
+  },
+  "id": "E10-INV-004D-CLOSURE",
+  "title": "Validate Event Inspection adversarial security and bounded performance",
+  "type": "task",
+  "parent": "E10-INV-004",
+  "goal": "Prove the bounded Event Inspection runtime against tenant/permission/raw-leak/provenance/pivot adversarial cases and executable local performance budgets before any implementation-ledger claim.",
+  "depends_on": [
+    "E10-INV-004C-PIVOT"
+  ],
+  "allowed_paths": [
+    "engineering/implementation/event-inspection/**",
+    "engineering/performance/**",
+    "engineering/security/**",
+    "engineering/testing/**",
+    "work/lots/E10-INV-004*/**",
+    "engineering/state/**",
+    "work/graph.json",
+    "tools/cmdr-dev/**"
+  ],
+  "inputs": [
+    "verified projection and pivot runtimes",
+    "security-test registry",
+    "performance targets and probes",
+    "OPEN-013/014 exclusion rules"
+  ],
+  "outputs": [
+    "adversarial closure evidence",
+    "measured local projection/pivot performance evidence",
+    "bounded handoff that explicitly refuses production/full-capability claims"
+  ],
+  "acceptance_tests": [
+    "cross-tenant projection attempts fail without leaking references",
+    "raw denial proves zero raw-content leakage",
+    "stale/derived enrichment provenance remains explicit",
+    "malformed parser/source metadata fails safely",
+    "restricted pivot values fail closed",
+    "measured local budgets pass",
+    "Product Spec baseline remains unchanged"
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "closure executes the local engineering budgets registered before runtime",
+    "metrics": [
+      "inspection projection p95 absolute engineering budget passes",
+      "pivot-draft p95 absolute engineering budget passes"
+    ]
+  },
+  "required_checks": [
+    "CHK-SECURITY-TESTS",
+    "CHK-PERFORMANCE-BENCHMARK",
+    "CHK-SECRETS",
+    "CHK-SAST-GO",
+    "CHK-SCA-GO",
+    "CHK-SBOM"
+  ],
+  "definition_of_ready": [
+    "E10-INV-004C-PIVOT is VERIFIED"
+  ],
+  "definition_of_done": [
+    "security/performance evidence is PASS",
+    "no class-2 mutation exists",
+    "OPEN-013/014 remain explicit exclusions",
+    "handoff is suitable for later ledger-claim compilation without claiming production readiness"
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 6,
+    "estimated_net_loc": 500,
+    "production_files": 0,
+    "net_production_loc": 0,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

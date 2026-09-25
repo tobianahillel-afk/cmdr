@@ -1,0 +1,143 @@
+{
+  "schema_version": 2,
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-002"
+    ],
+    "requirements": [
+      "REQ-PROD-005",
+      "REQ-PROD-010",
+      "REQ-PROD-011",
+      "REQ-PROD-014",
+      "REQ-PROD-045"
+    ],
+    "screens": [
+      "INV-EVS-001"
+    ],
+    "permissions": [
+      "perm.investigate.search.execute",
+      "perm.shared-capabilities.query.read",
+      "perm.shared-capabilities.query.manage",
+      "perm.shared-capabilities.search-job.read",
+      "perm.shared-capabilities.search-job.manage",
+      "perm.shared-capabilities.telemetry-event.read"
+    ],
+    "open_decisions": [
+      "OPEN-013"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/search-query-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/background-job-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/audit-event-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/error-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/correlation-identifiers.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/query.md",
+      "cmdr-product-spec/05-domain-model/objects/search-job.md",
+      "cmdr-product-spec/05-domain-model/objects/telemetry-event.md"
+    ]
+  },
+  "forbidden_paths": [
+    "cmdr-product-spec/**"
+  ],
+  "invariants": [
+    "Product Spec remains read-only",
+    "Search remains single-selected-Tenant and has no silent tenant fallback",
+    "OPEN-013 remains unresolved; Case-link mutation is excluded from this bounded wave",
+    "no query language, index, storage engine or provider is selected by this wave",
+    "no external product-runtime dependency is introduced without an explicit reviewed decision"
+  ],
+  "security_properties": [
+    "server-side permission evaluation is mandatory before execution",
+    "tenant scope is mandatory and cross-tenant search is rejected",
+    "raw or protected event content is never widened by this runtime",
+    "all Search Job transitions and execution attempts remain attributable and auditable"
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "first bounded Event Search core is in-process and persistence-neutral",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert the current bounded Event Search task and keep downstream tasks blocked",
+    "verification": [
+      "Product Spec baseline remains unchanged",
+      "no implementation ledger claim is created before final bounded validation"
+    ]
+  },
+  "id": "E10-INV-002C-PERF",
+  "title": "Prove bounded Search Job orchestration performance",
+  "type": "task",
+  "parent": "E10-INV-002C",
+  "goal": "Register and execute a dedicated Event Search orchestration benchmark that proves p95 <= 1 ms for backend-neutral queued-to-running-to-completed orchestration, excluding backend execution time and without weakening deep-performance coverage.",
+  "depends_on": [
+    "E10-INV-002C-RUNTIME"
+  ],
+  "allowed_paths": [
+    "product-runtime/event-search/cmd/perf-probe/**",
+    "engineering/performance/**",
+    "engineering/testing/**",
+    "tools/cmdr-dev/performance_*.go",
+    "tools/cmdr-dev/deep_performance.go",
+    "tools/cmdr-dev/deep_performance_test.go",
+    "work/lots/E10-INV-002*/**",
+    "engineering/state/**",
+    "work/graph.json"
+  ],
+  "inputs": [
+    "verified Search Job runtime",
+    "verified performance registry and benchmark engine",
+    "verified deep-performance policy requiring product-runtime target coverage",
+    "contract orchestration_p95_ms = 1"
+  ],
+  "outputs": [
+    "dedicated Event Search orchestration performance target",
+    "compiled orchestration benchmark handler",
+    "deep-performance target preserving product-runtime performance coverage",
+    "CI evidence for orchestration p95 <= 1 ms"
+  ],
+  "acceptance_tests": [
+    "perf probe executes deterministic no-op-backend Search Job orchestration",
+    "benchmark registry validates the dedicated orchestration workload",
+    "deep-performance policy remains complete for every product-runtime performance target",
+    "PR performance benchmark observes orchestration p95 <= 1 ms",
+    "real deep handlers execute both Event Search validation and orchestration probes"
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "this child exists solely to prove the contract-owned orchestration overhead budget",
+    "metrics": [
+      "orchestration p95 <= 1 ms on PERF-ENV-GITHUB-UBUNTU-SHARED, excluding build/process startup and backend work"
+    ]
+  },
+  "required_checks": [
+    "CHK-PERFORMANCE-REGISTRY",
+    "CHK-PERFORMANCE-BENCHMARK",
+    "CHK-DEEP-PERFORMANCE",
+    "CHK-SECURITY-TESTS"
+  ],
+  "definition_of_ready": [
+    "E10-INV-002C-RUNTIME is VERIFIED"
+  ],
+  "definition_of_done": [
+    "orchestration has a distinct registered workload and target",
+    "benchmark executes the real Search Job runtime against a no-op backend",
+    "p95 <= 1 ms passes on PR shared-CI evidence",
+    "deep-performance target coverage remains complete",
+    "no production search SLO is claimed"
+  ],
+  "complexity": {
+    "primary_components": 2,
+    "estimated_files_changed": 11,
+    "estimated_net_loc": 520,
+    "production_files": 4,
+    "net_production_loc": 310,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 0,
+    "separately_testable_behaviors": 1
+  }
+}

@@ -1,0 +1,333 @@
+{
+  "schema_version": 1,
+  "default_policy": "deny-unregistered-security-control",
+  "readiness_states": [
+    "specified",
+    "active",
+    "deferred-runtime"
+  ],
+  "execution_stages": [
+    "pr",
+    "nightly",
+    "release",
+    "on-demand"
+  ],
+  "data_policies": [
+    "source-local-only",
+    "artifact-local-only",
+    "synthetic-runtime-only"
+  ],
+  "evidence_kinds": [
+    "process-exit",
+    "finding-report",
+    "sbom",
+    "test-result",
+    "fuzz-report",
+    "dast-report",
+    "provenance"
+  ],
+  "gates": [
+    {
+      "id": "SEC-SECRETS-001",
+      "title": "Secret detection",
+      "control_family": "secrets",
+      "readiness": "active",
+      "stages": [
+        "pr"
+      ],
+      "blocking_policy": "blocking",
+      "risk_domains": [
+        "security",
+        "code-quality"
+      ],
+      "trigger_paths": [
+        "**"
+      ],
+      "data_policy": "source-local-only",
+      "evidence_kinds": [
+        "finding-report",
+        "process-exit"
+      ],
+      "implementation_key": "builtin-secret-scan-v1",
+      "activation_condition": "active: builtin deterministic scanner verified on push 35832984027 and pull_request 35832989117 with redacted zero-finding evidence"
+    },
+    {
+      "id": "SEC-SAST-001",
+      "title": "Static application security analysis",
+      "control_family": "sast",
+      "readiness": "active",
+      "stages": [
+        "pr"
+      ],
+      "blocking_policy": "conditional-blocking",
+      "risk_domains": [
+        "security",
+        "code-quality"
+      ],
+      "trigger_paths": [
+        "**"
+      ],
+      "data_policy": "source-local-only",
+      "evidence_kinds": [
+        "finding-report",
+        "process-exit"
+      ],
+      "implementation_key": "gosec-go-v1",
+      "activation_condition": "active for reviewed Go engineering and pilot runtime modules: gosec v2.28.0 scanned product-runtime/context-envelope and tools/cmdr-dev with 0 findings on push 35988025147 and pull_request 35988030696"
+    },
+    {
+      "id": "SEC-SCA-001",
+      "title": "Software composition analysis",
+      "control_family": "sca",
+      "readiness": "active",
+      "stages": [
+        "pr",
+        "release"
+      ],
+      "blocking_policy": "blocking",
+      "risk_domains": [
+        "security",
+        "runtime-dependencies"
+      ],
+      "trigger_paths": [
+        "**/go.mod",
+        "**/package.json",
+        "**/vcpkg.json"
+      ],
+      "data_policy": "source-local-only",
+      "evidence_kinds": [
+        "finding-report",
+        "process-exit"
+      ],
+      "implementation_key": "govulncheck-go-v1",
+      "activation_condition": "active for reviewed Go engineering and pilot runtime modules: govulncheck v1.8.0 reported 4 modules, 0 informational findings and 0 reachable actionable vulnerabilities on push 35988025147 and pull_request 35988030696"
+    },
+    {
+      "id": "SEC-SBOM-001",
+      "title": "Software bill of materials",
+      "control_family": "sbom",
+      "readiness": "active",
+      "stages": [
+        "release",
+        "on-demand"
+      ],
+      "blocking_policy": "blocking",
+      "risk_domains": [
+        "security",
+        "runtime-dependencies"
+      ],
+      "trigger_paths": [
+        "**/go.mod",
+        "**/package.json",
+        "**/vcpkg.json"
+      ],
+      "data_policy": "artifact-local-only",
+      "evidence_kinds": [
+        "sbom",
+        "provenance"
+      ],
+      "implementation_key": "builtin-cyclonedx17-sbom-v1",
+      "activation_condition": "active for current dependency inventory: CycloneDX 1.7 cmdr-dev/sbom-v1 verified by pull_request 35988030696 with 2 development dependency components, 0 product-runtime dependency components and 0 unsupported manifests; source-SHA and deterministic SHA-256 evidence enforced"
+    },
+    {
+      "id": "SEC-IAC-001",
+      "title": "Infrastructure-as-code security analysis",
+      "control_family": "iac",
+      "readiness": "specified",
+      "stages": [
+        "pr",
+        "release"
+      ],
+      "blocking_policy": "conditional-blocking",
+      "risk_domains": [
+        "security",
+        "architecture"
+      ],
+      "trigger_paths": [
+        "infra/**",
+        "deploy/**",
+        ".github/**"
+      ],
+      "data_policy": "source-local-only",
+      "evidence_kinds": [
+        "finding-report",
+        "process-exit"
+      ],
+      "implementation_key": "",
+      "activation_condition": "activate for registered IaC/deployment paths"
+    },
+    {
+      "id": "SEC-CONTAINER-001",
+      "title": "Container image security analysis",
+      "control_family": "container",
+      "readiness": "deferred-runtime",
+      "stages": [
+        "pr",
+        "release"
+      ],
+      "blocking_policy": "blocking",
+      "risk_domains": [
+        "security",
+        "runtime-dependencies"
+      ],
+      "trigger_paths": [
+        "**/Dockerfile",
+        "**/Containerfile"
+      ],
+      "data_policy": "artifact-local-only",
+      "evidence_kinds": [
+        "finding-report",
+        "provenance"
+      ],
+      "implementation_key": "",
+      "activation_condition": "requires a concrete CMDR container build artifact"
+    },
+    {
+      "id": "SEC-AUTH-NEG-001",
+      "title": "Authorization negative testing",
+      "control_family": "authorization-negative",
+      "readiness": "active",
+      "stages": [
+        "pr",
+        "release"
+      ],
+      "blocking_policy": "blocking",
+      "risk_domains": [
+        "security",
+        "unit-correctness"
+      ],
+      "trigger_paths": [
+        "**"
+      ],
+      "data_policy": "synthetic-runtime-only",
+      "evidence_kinds": [
+        "test-result"
+      ],
+      "implementation_key": "go-context-envelope-auth-negative-v1",
+      "activation_condition": "active for PILOT-CONTEXT-ENVELOPE-V1: exact permission-denied fixture and commit-bound measured runtime evidence verified on push 35988025147 and pull_request 35988030696; global coverage 95.24% and PR changed-security-critical floor >=90% passed"
+    },
+    {
+      "id": "SEC-TENANT-ISO-001",
+      "title": "Tenant isolation negative testing",
+      "control_family": "tenant-isolation",
+      "readiness": "active",
+      "stages": [
+        "pr",
+        "release"
+      ],
+      "blocking_policy": "blocking",
+      "risk_domains": [
+        "security",
+        "unit-correctness"
+      ],
+      "trigger_paths": [
+        "**"
+      ],
+      "data_policy": "synthetic-runtime-only",
+      "evidence_kinds": [
+        "test-result"
+      ],
+      "implementation_key": "go-context-envelope-tenant-iso-v1",
+      "activation_condition": "active for PILOT-CONTEXT-ENVELOPE-V1: cross-tenant and environment-tenant-mismatch fixtures plus commit-bound measured runtime evidence verified on push 35988025147 and pull_request 35988030696; global coverage 95.24% and PR changed-security-critical floor >=90% passed"
+    },
+    {
+      "id": "SEC-FUZZ-001",
+      "title": "Parser and protocol fuzzing",
+      "control_family": "fuzz",
+      "readiness": "deferred-runtime",
+      "stages": [
+        "pr",
+        "nightly",
+        "on-demand"
+      ],
+      "blocking_policy": "conditional-blocking",
+      "risk_domains": [
+        "security",
+        "unit-correctness"
+      ],
+      "trigger_paths": [
+        "**"
+      ],
+      "data_policy": "synthetic-runtime-only",
+      "evidence_kinds": [
+        "fuzz-report"
+      ],
+      "implementation_key": "",
+      "activation_condition": "requires concrete parser/protocol fuzz targets"
+    },
+    {
+      "id": "SEC-DAST-001",
+      "title": "Dynamic application security testing",
+      "control_family": "dast",
+      "readiness": "deferred-runtime",
+      "stages": [
+        "pr",
+        "nightly",
+        "release",
+        "on-demand"
+      ],
+      "blocking_policy": "conditional-blocking",
+      "risk_domains": [
+        "security"
+      ],
+      "trigger_paths": [
+        "**"
+      ],
+      "data_policy": "synthetic-runtime-only",
+      "evidence_kinds": [
+        "dast-report"
+      ],
+      "implementation_key": "",
+      "activation_condition": "requires an isolated runnable web/API target with synthetic data"
+    },
+    {
+      "id": "SEC-RACE-001",
+      "title": "Race, concurrency and sanitizer security testing",
+      "control_family": "race-concurrency",
+      "readiness": "deferred-runtime",
+      "stages": [
+        "pr",
+        "nightly",
+        "release",
+        "on-demand"
+      ],
+      "blocking_policy": "conditional-blocking",
+      "risk_domains": [
+        "security",
+        "unit-correctness"
+      ],
+      "trigger_paths": [
+        "**"
+      ],
+      "data_policy": "synthetic-runtime-only",
+      "evidence_kinds": [
+        "test-result"
+      ],
+      "implementation_key": "",
+      "activation_condition": "requires concrete concurrent/native runtime targets and language-specific race or sanitizer tooling"
+    },
+    {
+      "id": "SEC-SUPPLY-001",
+      "title": "Build provenance and artifact integrity",
+      "control_family": "supply-chain",
+      "readiness": "specified",
+      "stages": [
+        "release"
+      ],
+      "blocking_policy": "blocking",
+      "risk_domains": [
+        "security",
+        "runtime-dependencies"
+      ],
+      "trigger_paths": [
+        "**"
+      ],
+      "data_policy": "artifact-local-only",
+      "evidence_kinds": [
+        "provenance"
+      ],
+      "implementation_key": "",
+      "activation_condition": "activate when releasable CMDR artifacts exist"
+    }
+  ]
+}

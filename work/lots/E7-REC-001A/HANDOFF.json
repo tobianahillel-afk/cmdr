@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "work_unit": "E7-REC-001A",
+  "result": "VERIFIED",
+  "final_validated_head": "13f3872019e020d133431dc0499e4e3c9271a43e",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 35908613887,
+    "pull_request_run": 35908620945,
+    "check": "CHK-WORK-LEASES",
+    "claims": 0
+  },
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E7-REC-001B"
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "work_unit": "E3-IMPACT-002B",
+  "status": "VERIFIED",
+  "final_validated_head": "d37dbdceb24cec288df46918f635fc402fbadec0",
+  "validation": {
+    "parity_push_run": 35798358793,
+    "parity_pull_request_run": 35798364603,
+    "adaptive_rollout_push_run": 35798577865,
+    "independent_full_fallback_run": 35798578139,
+    "result": "PASS",
+    "adaptive_executor": "PASS",
+    "parity_against_full_kernel": "PASS",
+    "rollout_strict_validation": "PASS",
+    "static_fallback": "PASS"
+  },
+  "parity_observation": {
+    "head": "8205a798070aaf3aabf3ca4cce724a5b1356a093",
+    "selected_checks": 21,
+    "executed_checks": 17,
+    "preflight_satisfied": 4,
+    "push": "PASS",
+    "pull_request": "PASS",
+    "legacy_full_kernel_after_adaptive": "PASS"
+  },
+  "rollout_observation": {
+    "head": "d37dbdceb24cec288df46918f635fc402fbadec0",
+    "changed_paths": 5,
+    "tier": "strict",
+    "high_risk": true,
+    "selected_checks": 21,
+    "executed_checks": 17,
+    "preflight_satisfied": 4,
+    "cost_units": 41,
+    "adaptive_push": "PASS",
+    "independent_static_full_kernel": "PASS"
+  },
+  "github_observation": {
+    "pull_request": 36,
+    "note": "GitHub PR read model remained pinned to head 8205a798... while the branch ref advanced through rollout commits; PR parity was therefore proven before rollout, while rollout itself was independently proven by strict adaptive push plus static full-kernel fallback."
+  },
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E4-SEC-001A"
+  ]
+}

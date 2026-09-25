@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "handoff_kind": "event-search-bounded-core",
+  "readiness": "BOUNDED_CORE_AND_FRONTEND_VALIDATED_NOT_FULL_CAPABILITY",
+  "capability": "CAP-INV-002",
+  "screen": "INV-EVS-001",
+  "production_readiness_claim": false,
+  "blocking_open_decisions": [
+    "OPEN-013"
+  ],
+  "evidence_sources": [
+    "work/lots/E10-INV-002B-RUNTIME/PROGRESS.json",
+    "work/lots/E10-INV-002C-RUNTIME/PROGRESS.json",
+    "work/lots/E10-INV-002C-PERF/PROGRESS.json",
+    "work/lots/E10-INV-002F-E2E/PROGRESS.json",
+    "work/lots/E10-INV-002F-E2E/HANDOFF.json"
+  ],
+  "limitations": [
+    "Saved Search lifecycle is not implemented here and remains owned by CAP-INV-006",
+    "Case-link mutation remains excluded while OPEN-013 is unresolved",
+    "the final query language and dialect are not selected",
+    "the final search/index/storage/provider stack is not selected",
+    "no production search SLO is claimed",
+    "stable result references are not a final persisted result-storage model"
+  ],
+  "next_conditions": [
+    "resolve OPEN-013 before implementing Case-link mutation",
+    "select any final query language, index, storage engine or provider only through a separate evidence-backed technical decision",
+    "implement Saved Search behavior under CAP-INV-006 rather than widening CAP-INV-002",
+    "preserve tenant isolation, server-side permission evaluation, audit attribution and zero silent cross-tenant fallback",
+    "establish production search SLOs only after a concrete production backend and representative workload exist"
+  ]
+}

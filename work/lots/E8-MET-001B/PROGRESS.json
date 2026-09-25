@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "work_unit": "E8-MET-001B",
+  "status": "VERIFIED",
+  "final_validated_head": "a0e79303ed35d15b36a21618c77f4016936dcb2f",
+  "validation": {
+    "push_workflow_run": 35919929654,
+    "pull_request_workflow_run": 35919929580,
+    "result": "PASS",
+    "metric_snapshot": "PASS",
+    "unit_tests": "PASS",
+    "sast": "PASS",
+    "sca": "PASS"
+  },
+  "snapshot_observation": {
+    "registered_metrics": 10,
+    "observed_metrics": 9,
+    "unavailable_metrics": 1,
+    "unavailable": [
+      {
+        "metric_id": "MET-CACHE-REUSE-RATE",
+        "reason": "performance-cache:not-applicable"
+      }
+    ],
+    "push": {
+      "tier": "standard",
+      "selected_checks": 42,
+      "executed_checks": 37,
+      "preflight_satisfied": 5,
+      "cost_units": 70,
+      "safety_green": 1,
+      "context_sources": 97,
+      "context_dependency_units": 31,
+      "recovery_revalidate": 0,
+      "coordination_conflicts": 0,
+      "digest": "468333202b1ad09408b7f354d4cdeeb9e38ab9d12ae518bbf790f2001f1adb28"
+    },
+    "pull_request": {
+      "tier": "strict",
+      "selected_checks": 42,
+      "executed_checks": 37,
+      "preflight_satisfied": 5,
+      "cost_units": 70,
+      "safety_green": 1,
+      "recovery_revalidate": 0,
+      "coordination_conflicts": 0,
+      "digest": "a9fa9e4d7828de90e043f25a42712965915119fdc91317299fb8de67aa1653d2"
+    }
+  },
+  "invariants": [
+    "every registered metric is observed or explicitly unavailable",
+    "empty cache is not guessed as zero or full reuse",
+    "safety-green is derived from mandatory execution accounting",
+    "snapshot generation occurs after selected checks and fails the validation run on error",
+    "no external telemetry is introduced"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E8-MET-001C"
+  ]
+}

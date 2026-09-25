@@ -1,0 +1,314 @@
+{
+  "schema_version": 1,
+  "contract_id": "PILOT-CONTEXT-ENVELOPE-V1",
+  "cases": [
+    {
+      "id": "preserve-authorized-compatible-environment",
+      "input": {
+        "source_product": "platform-settings",
+        "destination_product": "command",
+        "source_tenant_ref": "tenant-a",
+        "destination_tenant_ref": "tenant-a",
+        "environment_ref": "env-prod-a",
+        "environment_tenant_ref": "tenant-a",
+        "destination_requires_environment": true,
+        "environment_compatible": true,
+        "destination_authorization": "allow",
+        "context_fresh": true,
+        "return_origin": "/settings/tenants"
+      },
+      "expected": {
+        "state": "context-valid",
+        "tenant_ref": "tenant-a",
+        "environment_ref": "env-prod-a",
+        "return_origin": "/settings/tenants",
+        "environment_choice_required": false,
+        "cleared": false,
+        "cleared_reason": "",
+        "protected_refs_visible": true,
+        "trace_minimal_only": false,
+        "error": ""
+      }
+    },
+    {
+      "id": "tenant-only-optional-environment",
+      "input": {
+        "source_product": "platform-settings",
+        "destination_product": "govern",
+        "source_tenant_ref": "tenant-a",
+        "destination_tenant_ref": "tenant-a",
+        "environment_ref": "",
+        "environment_tenant_ref": "",
+        "destination_requires_environment": false,
+        "environment_compatible": false,
+        "destination_authorization": "allow",
+        "context_fresh": true,
+        "return_origin": "/settings/tenants"
+      },
+      "expected": {
+        "state": "context-valid",
+        "tenant_ref": "tenant-a",
+        "environment_ref": "",
+        "return_origin": "/settings/tenants",
+        "environment_choice_required": false,
+        "cleared": false,
+        "cleared_reason": "",
+        "protected_refs_visible": true,
+        "trace_minimal_only": false,
+        "error": ""
+      }
+    },
+    {
+      "id": "missing-required-environment-needs-choice",
+      "input": {
+        "source_product": "platform-settings",
+        "destination_product": "endpoint",
+        "source_tenant_ref": "tenant-a",
+        "destination_tenant_ref": "tenant-a",
+        "environment_ref": "",
+        "environment_tenant_ref": "",
+        "destination_requires_environment": true,
+        "environment_compatible": false,
+        "destination_authorization": "allow",
+        "context_fresh": true,
+        "return_origin": "/settings/tenants"
+      },
+      "expected": {
+        "state": "context-incompatible",
+        "tenant_ref": "tenant-a",
+        "environment_ref": "",
+        "return_origin": "/settings/tenants",
+        "environment_choice_required": true,
+        "cleared": false,
+        "cleared_reason": "environment-required",
+        "protected_refs_visible": true,
+        "trace_minimal_only": false,
+        "error": ""
+      }
+    },
+    {
+      "id": "incompatible-environment-is-cleared",
+      "input": {
+        "source_product": "platform-settings",
+        "destination_product": "investigate",
+        "source_tenant_ref": "tenant-a",
+        "destination_tenant_ref": "tenant-a",
+        "environment_ref": "env-prod-a",
+        "environment_tenant_ref": "tenant-a",
+        "destination_requires_environment": true,
+        "environment_compatible": false,
+        "destination_authorization": "allow",
+        "context_fresh": true,
+        "return_origin": "/settings/tenants"
+      },
+      "expected": {
+        "state": "context-incompatible",
+        "tenant_ref": "tenant-a",
+        "environment_ref": "",
+        "return_origin": "/settings/tenants",
+        "environment_choice_required": true,
+        "cleared": true,
+        "cleared_reason": "environment-incompatible",
+        "protected_refs_visible": true,
+        "trace_minimal_only": false,
+        "error": ""
+      }
+    },
+    {
+      "id": "tenant-change-clears-inherited-environment",
+      "input": {
+        "source_product": "command",
+        "destination_product": "studio",
+        "source_tenant_ref": "tenant-a",
+        "destination_tenant_ref": "tenant-b",
+        "environment_ref": "env-prod-a",
+        "environment_tenant_ref": "tenant-a",
+        "destination_requires_environment": false,
+        "environment_compatible": false,
+        "destination_authorization": "allow",
+        "context_fresh": true,
+        "return_origin": "/command/incidents"
+      },
+      "expected": {
+        "state": "context-incompatible",
+        "tenant_ref": "tenant-b",
+        "environment_ref": "",
+        "return_origin": "/command/incidents",
+        "environment_choice_required": false,
+        "cleared": true,
+        "cleared_reason": "tenant-changed",
+        "protected_refs_visible": true,
+        "trace_minimal_only": false,
+        "error": ""
+      }
+    },
+    {
+      "id": "environment-tenant-mismatch-is-cleared",
+      "input": {
+        "source_product": "platform-settings",
+        "destination_product": "command",
+        "source_tenant_ref": "tenant-a",
+        "destination_tenant_ref": "tenant-a",
+        "environment_ref": "env-b",
+        "environment_tenant_ref": "tenant-b",
+        "destination_requires_environment": false,
+        "environment_compatible": true,
+        "destination_authorization": "allow",
+        "context_fresh": true,
+        "return_origin": "/settings/environments"
+      },
+      "expected": {
+        "state": "context-incompatible",
+        "tenant_ref": "tenant-a",
+        "environment_ref": "",
+        "return_origin": "/settings/environments",
+        "environment_choice_required": false,
+        "cleared": true,
+        "cleared_reason": "environment-tenant-mismatch",
+        "protected_refs_visible": true,
+        "trace_minimal_only": false,
+        "error": ""
+      }
+    },
+    {
+      "id": "permission-denied-masks-protected-refs",
+      "input": {
+        "source_product": "platform-settings",
+        "destination_product": "command",
+        "source_tenant_ref": "tenant-a",
+        "destination_tenant_ref": "tenant-a",
+        "environment_ref": "env-prod-a",
+        "environment_tenant_ref": "tenant-a",
+        "destination_requires_environment": true,
+        "environment_compatible": true,
+        "destination_authorization": "deny",
+        "context_fresh": true,
+        "return_origin": "/settings/tenants"
+      },
+      "expected": {
+        "state": "permission-denied",
+        "tenant_ref": "",
+        "environment_ref": "",
+        "return_origin": "/settings/tenants",
+        "environment_choice_required": false,
+        "cleared": true,
+        "cleared_reason": "permission-denied",
+        "protected_refs_visible": false,
+        "trace_minimal_only": true,
+        "error": ""
+      }
+    },
+    {
+      "id": "expired-context-masks-inherited-refs",
+      "input": {
+        "source_product": "command",
+        "destination_product": "govern",
+        "source_tenant_ref": "tenant-a",
+        "destination_tenant_ref": "tenant-a",
+        "environment_ref": "env-prod-a",
+        "environment_tenant_ref": "tenant-a",
+        "destination_requires_environment": false,
+        "environment_compatible": true,
+        "destination_authorization": "allow",
+        "context_fresh": false,
+        "return_origin": "/command/incidents"
+      },
+      "expected": {
+        "state": "expired",
+        "tenant_ref": "",
+        "environment_ref": "",
+        "return_origin": "/command/incidents",
+        "environment_choice_required": false,
+        "cleared": true,
+        "cleared_reason": "expired",
+        "protected_refs_visible": false,
+        "trace_minimal_only": true,
+        "error": ""
+      }
+    },
+    {
+      "id": "missing-source-tenant-blocks",
+      "input": {
+        "source_product": "platform-settings",
+        "destination_product": "command",
+        "source_tenant_ref": "",
+        "destination_tenant_ref": "",
+        "environment_ref": "",
+        "environment_tenant_ref": "",
+        "destination_requires_environment": false,
+        "environment_compatible": false,
+        "destination_authorization": "allow",
+        "context_fresh": true,
+        "return_origin": "/settings/tenants"
+      },
+      "expected": {
+        "state": "source-missing",
+        "tenant_ref": "",
+        "environment_ref": "",
+        "return_origin": "/settings/tenants",
+        "environment_choice_required": false,
+        "cleared": true,
+        "cleared_reason": "source-missing",
+        "protected_refs_visible": false,
+        "trace_minimal_only": true,
+        "error": ""
+      }
+    },
+    {
+      "id": "wildcard-tenant-is-rejected",
+      "input": {
+        "source_product": "platform-settings",
+        "destination_product": "command",
+        "source_tenant_ref": "*",
+        "destination_tenant_ref": "*",
+        "environment_ref": "",
+        "environment_tenant_ref": "",
+        "destination_requires_environment": false,
+        "environment_compatible": false,
+        "destination_authorization": "allow",
+        "context_fresh": true,
+        "return_origin": "/settings/tenants"
+      },
+      "expected": {
+        "state": "",
+        "tenant_ref": "",
+        "environment_ref": "",
+        "return_origin": "",
+        "environment_choice_required": false,
+        "cleared": false,
+        "cleared_reason": "",
+        "protected_refs_visible": false,
+        "trace_minimal_only": true,
+        "error": "invalid-tenant-ref"
+      }
+    },
+    {
+      "id": "unsafe-return-origin-query-is-rejected",
+      "input": {
+        "source_product": "platform-settings",
+        "destination_product": "command",
+        "source_tenant_ref": "tenant-a",
+        "destination_tenant_ref": "tenant-a",
+        "environment_ref": "",
+        "environment_tenant_ref": "",
+        "destination_requires_environment": false,
+        "environment_compatible": false,
+        "destination_authorization": "allow",
+        "context_fresh": true,
+        "return_origin": "/settings/tenants?token=synthetic"
+      },
+      "expected": {
+        "state": "",
+        "tenant_ref": "",
+        "environment_ref": "",
+        "return_origin": "",
+        "environment_choice_required": false,
+        "cleared": false,
+        "cleared_reason": "",
+        "protected_refs_visible": false,
+        "trace_minimal_only": true,
+        "error": "unsafe-return-origin"
+      }
+    }
+  ]
+}

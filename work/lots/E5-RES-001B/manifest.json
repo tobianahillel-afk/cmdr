@@ -1,0 +1,118 @@
+{
+  "schema_version": 2,
+  "id": "E5-RES-001B",
+  "title": "Compile source-backed research evidence packets",
+  "type": "sublot",
+  "parent": "E5-RES-001",
+  "goal": "Represent current research as source-backed packets with dated claims, solution-family coverage, constraints, alternatives, evidence provenance, limitations, and explicit saturation criteria.",
+  "product_refs": {
+    "capabilities": [],
+    "requirements": [],
+    "screens": [],
+    "permissions": [],
+    "open_decisions": [],
+    "implementation_contracts": [],
+    "canonical_objects": []
+  },
+  "depends_on": [
+    "E5-RES-001A"
+  ],
+  "allowed_paths": [
+    "tools/cmdr-dev/**",
+    "engineering/governance/**",
+    "engineering/research/**",
+    "engineering/decisions/**",
+    "engineering/testing/**",
+    "work/lots/E5-RES-001*/**",
+    "engineering/state/**",
+    "work/graph.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**"
+  ],
+  "inputs": [
+    "verified E4 security engine",
+    "engineering/governance/autonomous-decision-policy.md",
+    "canonical Product Spec remains read-only",
+    "real repository and work-unit context"
+  ],
+  "outputs": [
+    "research evidence policy and bounded packet registry",
+    "source and claim provenance model",
+    "machine-checkable evidence saturation audit",
+    "bounded research-context compiler",
+    "adaptive CHK-RESEARCH gate"
+  ],
+  "invariants": [
+    "Product Spec remains read-only",
+    "engineering decisions never silently resolve product-owned OPEN decisions",
+    "claims of best fastest safest or most advanced require dated evidence or representative measurement",
+    "research effort is proportional to decision class and stops at evidence saturation",
+    "reusable evidence is invalidated when assumptions version constraints or revisit triggers change"
+  ],
+  "security_properties": [
+    "unknown decision class or missing mandatory evidence fails closed",
+    "critical security architecture algorithm and durability decisions require adversarial review",
+    "external research evidence is treated as untrusted input and never executable configuration"
+  ],
+  "acceptance_tests": [
+    "go test ./...",
+    "cmdr-dev validate-manifests succeeds",
+    "cmdr-dev architecture-audit succeeds",
+    "cmdr-dev complexity-audit succeeds",
+    "adaptive engineering-kernel remains green",
+    "unit tests prove saturated packets cover every declared major solution family",
+    "unit tests prove critical claims require authoritative sources and explicit limitations",
+    "unit tests prove accepted B/C decision evidence_refs resolve to saturated packets for the same decision",
+    "push and pull-request CI execute CHK-RESEARCH"
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "research must improve decision quality without becoming a repeated bottleneck",
+    "metrics": [
+      "Class A decisions require no research packet",
+      "accepted reusable evidence avoids duplicate research until a revisit trigger fires",
+      "research stops at explicit saturation rather than arbitrary source-count inflation"
+    ]
+  },
+  "migration": {
+    "required": false,
+    "rationale": "engineering control-plane only",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert the E5 lot while retaining verified E0-E4 controls",
+    "verification": [
+      "engineering-kernel remains green",
+      "no accepted product contract changed"
+    ]
+  },
+  "required_checks": [
+    "adaptive engineering-kernel",
+    "cmdr-dev validate-manifests",
+    "cmdr-dev complexity-audit",
+    "cmdr-dev research-packet-audit"
+  ],
+  "definition_of_ready": [
+    "dependencies are VERIFIED",
+    "decision-engine scope is bounded",
+    "Product Spec is read-only"
+  ],
+  "definition_of_done": [
+    "Class B/C packets identify solution families before products",
+    "critical claims carry dated source provenance and limitations",
+    "performance/security claims distinguish external evidence from CMDR measurements",
+    "evidence saturation is machine-checkable and missing critical families/claims fail closed"
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 9,
+    "estimated_net_loc": 620,
+    "production_files": 4,
+    "net_production_loc": 470,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

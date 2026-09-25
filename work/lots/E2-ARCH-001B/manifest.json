@@ -1,0 +1,105 @@
+{
+  "schema_version": 2,
+  "id": "E2-ARCH-001B",
+  "title": "Enforce third-party product runtime dependency policy",
+  "type": "sublot",
+  "parent": "E2-ARCH-001",
+  "goal": "Detect declared product-runtime dependencies across supported package manifests and reject any third-party runtime dependency absent from the Trusted Base allowlist.",
+  "product_refs": {
+    "capabilities": [],
+    "requirements": [],
+    "screens": [],
+    "permissions": [],
+    "open_decisions": [],
+    "implementation_contracts": [],
+    "canonical_objects": []
+  },
+  "depends_on": [
+    "E2-ARCH-001A"
+  ],
+  "allowed_paths": [
+    "tools/cmdr-dev/**",
+    "engineering/architecture/**",
+    "engineering/dependencies/**",
+    "engineering/security/**",
+    "work/lots/E2-ARCH-001*/**",
+    ".github/workflows/engineering-kernel.yml",
+    "engineering/state/**",
+    "work/graph.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**"
+  ],
+  "inputs": [
+    "architecture boundary registry",
+    "dependency policy",
+    "Trusted Base allowlist"
+  ],
+  "outputs": [
+    "runtime dependency inventory",
+    "Trusted Base gate",
+    "transitive-review hooks",
+    "fail-closed unsupported-runtime-manifest detector",
+    "exact-version Trusted Base gate"
+  ],
+  "invariants": [
+    "canonical Product Spec remains read-only",
+    "architecture enforcement is deny-by-default"
+  ],
+  "security_properties": [
+    "unregistered product runtime paths cannot become implementation scope",
+    "third-party runtime dependencies require explicit Trusted Base authorization"
+  ],
+  "acceptance_tests": [
+    "go test ./...",
+    "cmdr-dev validate-manifests succeeds",
+    "cmdr-dev complexity-audit succeeds",
+    "cmdr-dev dependency-audit succeeds with no registered product-runtime boundary",
+    "unit tests prove dev/local dependency exclusion and exact Trusted Base version matching"
+  ],
+  "performance_budget": {
+    "applicable": false,
+    "rationale": "engineering control-plane validation; no product runtime performance claim",
+    "metrics": []
+  },
+  "migration": {
+    "required": false,
+    "rationale": "no product runtime persistent data migration",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert the architecture-engine commit",
+    "verification": [
+      "engineering-kernel returns to the previous verified behavior"
+    ]
+  },
+  "required_checks": [
+    "gofmt",
+    "go vet ./...",
+    "go test ./...",
+    "cmdr-dev validate-manifests",
+    "cmdr-dev complexity-audit",
+    "cmdr-dev dependency-audit"
+  ],
+  "definition_of_ready": [
+    "dependencies are VERIFIED",
+    "architecture scope is explicit"
+  ],
+  "definition_of_done": [
+    "runtime dependency scan is deterministic",
+    "development-only tooling is separated from runtime dependencies",
+    "unapproved runtime dependency blocks READY/implementation validation",
+    "empty Trusted Base means zero third-party product-runtime dependencies"
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 6,
+    "estimated_net_loc": 390,
+    "production_files": 2,
+    "net_production_loc": 320,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

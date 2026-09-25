@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "work_unit": "E9-PILOT-001B-SECURITY",
+  "result": "VERIFIED",
+  "final_validated_head": "1f0276c3e1cfe86b92337bf19f01d31b7eb4fad0",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 35982210781,
+    "pull_request_run": 35982214672,
+    "runtime_boundary": "pilot-context-envelope-runtime",
+    "security_owner": "E9-PILOT-001C",
+    "coverage_status": "preimplementation",
+    "authorization_required": true,
+    "tenant_isolation_required": true
+  },
+  "rules": [
+    "every product-runtime boundary requires explicit security ownership",
+    "preimplementation state is derived from checked-out runtime files, not trusted from JSON alone",
+    "preimplementation scopes cannot claim coverage or negative-test PASS",
+    "any non-marker runtime file invalidates preimplementation evidence and activates measured-runtime obligations"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E9-PILOT-001B-PERF"
+  ]
+}

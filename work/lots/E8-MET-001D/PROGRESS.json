@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "work_unit": "E8-MET-001D",
+  "status": "VERIFIED",
+  "final_validated_head": "de735057a0215cfec8b9e7d36afc71ac70a03d44",
+  "validation": {
+    "push_workflow_run": 35930584995,
+    "pull_request_workflow_run": 35930590389,
+    "result": "PASS",
+    "metrics_budget": "PASS",
+    "sast": "PASS",
+    "sca": "PASS"
+  },
+  "standard_profile": {
+    "baseline_status": "matched",
+    "safety_status": "pass",
+    "efficiency_status": "pass",
+    "selected_checks": 34,
+    "executed_checks": 27,
+    "cost_units": 34,
+    "mandatory_floor": 44
+  },
+  "strict_profile": {
+    "baseline_status": "matched",
+    "safety_status": "pass",
+    "efficiency_status": "pass",
+    "selected_checks": 44,
+    "executed_checks": 37,
+    "cost_units": 72,
+    "mandatory_floor": 44
+  },
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E9-PILOT-001A"
+  ]
+}

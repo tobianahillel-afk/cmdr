@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "state_kind": "execution-cache",
+  "product_spec": {
+    "canonical_path": "cmdr-product-spec",
+    "baseline_commit": "99c3826cdcbc79bad51631cf6462450f92e012eb",
+    "documentary_status": "PASS",
+    "runtime_implementation_claimed": false,
+    "known_capabilities": 498,
+    "known_requirements": 122,
+    "known_open_decisions": 17,
+    "known_active_screens": 56
+  },
+  "engineering_foundation": {
+    "status": "VERIFIED",
+    "phase": "E10",
+    "phase_title": "Scaled product implementation program bootstrap"
+  },
+  "execution": {
+    "active_work_unit": "E10-INV-004B-RUNTIME",
+    "preferred_next_unit": "E10-INV-004B-RUNTIME",
+    "selection_rule": "first READY unit whose dependencies satisfy their required terminal state"
+  },
+  "reconciliation": {
+    "required_on_resume": true,
+    "recorded_state_is_authoritative": false
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "default_policy": "deny-unregistered-path",
+  "boundaries": [
+    {
+      "id": "product-spec",
+      "kind": "product-documentation",
+      "roots": [
+        "cmdr-product-spec/**"
+      ],
+      "mutable_by_implementation": false,
+      "may_depend_on": []
+    },
+    {
+      "id": "engineering-control-plane",
+      "kind": "engineering",
+      "roots": [
+        "tools/cmdr-dev/**",
+        "engineering/**",
+        "AGENTS.md",
+        "AI_START_HERE.md"
+      ],
+      "mutable_by_implementation": true,
+      "may_depend_on": [
+        "product-spec"
+      ]
+    },
+    {
+      "id": "execution-control-plane",
+      "kind": "execution",
+      "roots": [
+        "work/**"
+      ],
+      "mutable_by_implementation": true,
+      "may_depend_on": [
+        "engineering-control-plane",
+        "product-spec"
+      ]
+    },
+    {
+      "id": "ci-control-plane",
+      "kind": "ci",
+      "roots": [
+        ".github/**"
+      ],
+      "mutable_by_implementation": true,
+      "may_depend_on": [
+        "engineering-control-plane",
+        "execution-control-plane"
+      ]
+    },
+    {
+      "id": "pilot-context-envelope-runtime",
+      "kind": "product-runtime",
+      "roots": [
+        "product-runtime/context-envelope/**"
+      ],
+      "mutable_by_implementation": true,
+      "may_depend_on": []
+    },
+    {
+      "id": "event-search-runtime",
+      "kind": "product-runtime",
+      "roots": [
+        "product-runtime/event-search/**"
+      ],
+      "mutable_by_implementation": true,
+      "may_depend_on": []
+    },
+    {
+      "id": "event-search-frontend-runtime",
+      "kind": "product-runtime",
+      "roots": [
+        "product-runtime/event-search-frontend/**"
+      ],
+      "mutable_by_implementation": true,
+      "may_depend_on": []
+    },
+    {
+      "id": "event-inspection-runtime",
+      "kind": "product-runtime",
+      "roots": [
+        "product-runtime/event-inspection/**"
+      ],
+      "mutable_by_implementation": true,
+      "may_depend_on": []
+    }
+  ]
+}

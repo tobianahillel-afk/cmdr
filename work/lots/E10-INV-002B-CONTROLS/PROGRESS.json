@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-002B-CONTROLS",
+  "status": "VERIFIED",
+  "final_validated_head": "fcfe8a760b8fab9748b8fde10fce6e2246662440",
+  "validation": {
+    "push_workflow_run": 36038316396,
+    "pull_request_workflow_run": 36038320503,
+    "result": "PASS",
+    "security_tests": "PASS",
+    "sast": "PASS",
+    "sca": "PASS",
+    "performance_benchmark": "PASS"
+  },
+  "observations": {
+    "runtime_boundaries": 2,
+    "security_coverage_status": "mixed",
+    "global_runtime_coverage_percent": 90.35,
+    "event_search_state": "preimplementation",
+    "sast_findings": 0,
+    "sca_actionable": 0
+  },
+  "rules": [
+    "implemented runtimes require an explicit compiled measured-evidence adapter",
+    "Event Search adapter is registered before executable code exists",
+    "SAST/SCA discovery includes Event Search only after its go.mod exists",
+    "Event Search performance handler fails closed while runtime is absent"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-002B-RUNTIME"
+  ]
+}

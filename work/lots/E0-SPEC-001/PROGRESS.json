@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "work_unit": "E0-SPEC-001",
+  "status": "VERIFIED",
+  "implementation_commits": [
+    "57be611ee2400ce4fc407c86acc3123bb4c8ee22",
+    "cdd79d57633cfe8d4fa3dcc2acd680ea2cddf8da",
+    "11be66572e66da3bfc145b9b4126b484f23a5484",
+    "e836ae97da6daea7d742257e44edec49ea23f8e1",
+    "aeaefb5f0d1cc51d18820044673c4805d4cdc574",
+    "d0cbc034004de23f35d27a06c99da3f4c441eea6"
+  ],
+  "validation": {
+    "push_workflow_run": 35778792707,
+    "pull_request_workflow_run": 35778794970,
+    "result": "PASS",
+    "gofmt": "PASS",
+    "go_vet": "PASS",
+    "unit_tests": "PASS",
+    "canonical_corpus_compile": "PASS",
+    "compact_baseline_freshness": "PASS",
+    "doctor": "PASS",
+    "next_resolution": "PASS"
+  },
+  "corpus_observation": {
+    "markdown_files": 1879,
+    "active_canonical_documents": 1428,
+    "tree_digest": "a5f45351eba180d0edb734f33ecbeaabb7eceb7143305e201e207e8ae5a60d27"
+  },
+  "cache_policy": {
+    "detailed_inventory": "generate-on-demand",
+    "committed_artifact": "engineering/spec-index/baseline.json",
+    "reason": "full scan remains cheap; avoid redundant large generated repository state"
+  },
+  "product_spec_mutated": false,
+  "next_unlocked": ["E0-COVERAGE-001A"]
+}

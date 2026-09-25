@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "work_unit": "E8-MET-001A",
+  "result": "VERIFIED",
+  "final_validated_head": "24025c95c9413ae161e70fdce8f86da1e1b1d6a5",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 35919199165,
+    "pull_request_run": 35919206520,
+    "check": "CHK-METRICS-REGISTRY",
+    "metrics": 10,
+    "optimizable": 6,
+    "non_optimizable": 4
+  },
+  "rules": [
+    "optimization eligibility is data-validated and limited to efficiency metrics",
+    "safety and quality floors remain measurable but non-optimizable",
+    "metric evidence is local engineering metadata and contains no raw source or secrets"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E8-MET-001B"
+  ]
+}

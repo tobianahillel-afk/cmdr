@@ -1,0 +1,1297 @@
+{
+  "schema_version": 1,
+  "default_policy": "deny-unknown-check",
+  "risk_domains": [
+    "code-quality",
+    "unit-correctness",
+    "product-spec",
+    "coverage-traceability",
+    "work-governance",
+    "architecture",
+    "runtime-dependencies",
+    "security",
+    "agent-context",
+    "repository-health",
+    "performance",
+    "unknown"
+  ],
+  "cost_tiers": [
+    "fast",
+    "standard",
+    "heavy"
+  ],
+  "checks": [
+    {
+      "id": "CHK-FORMAT",
+      "title": "Go formatting",
+      "executor_key": "gofmt",
+      "risk_domains": [
+        "code-quality"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": true,
+      "trigger_paths": [
+        "tools/cmdr-dev/**"
+      ],
+      "prerequisites": [],
+      "evidence_kind": "process-exit"
+    },
+    {
+      "id": "CHK-VET",
+      "title": "Go static vet",
+      "executor_key": "go-vet",
+      "risk_domains": [
+        "code-quality"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": true,
+      "trigger_paths": [
+        "tools/cmdr-dev/**"
+      ],
+      "prerequisites": [
+        "CHK-FORMAT"
+      ],
+      "evidence_kind": "process-exit"
+    },
+    {
+      "id": "CHK-UNIT",
+      "title": "Engineering kernel unit tests",
+      "executor_key": "go-unit",
+      "risk_domains": [
+        "unit-correctness",
+        "security"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": true,
+      "trigger_paths": [
+        "tools/cmdr-dev/**"
+      ],
+      "prerequisites": [
+        "CHK-VET"
+      ],
+      "evidence_kind": "test-result"
+    },
+    {
+      "id": "CHK-SPEC-INVENTORY",
+      "title": "Product Spec inventory compile",
+      "executor_key": "spec-index",
+      "risk_domains": [
+        "product-spec",
+        "coverage-traceability"
+      ],
+      "cost_tier": "standard",
+      "mandatory": true,
+      "always_on_pr": false,
+      "trigger_paths": [
+        "cmdr-product-spec/**",
+        "tools/cmdr-dev/**",
+        "engineering/coverage/**"
+      ],
+      "prerequisites": [
+        "CHK-UNIT"
+      ],
+      "evidence_kind": "generated-artifact"
+    },
+    {
+      "id": "CHK-SPEC-BASELINE",
+      "title": "Product Spec baseline verification",
+      "executor_key": "spec-baseline",
+      "risk_domains": [
+        "product-spec"
+      ],
+      "cost_tier": "standard",
+      "mandatory": true,
+      "always_on_pr": false,
+      "trigger_paths": [
+        "cmdr-product-spec/**",
+        "engineering/spec-index/**",
+        "tools/cmdr-dev/**"
+      ],
+      "prerequisites": [
+        "CHK-SPEC-INVENTORY"
+      ],
+      "evidence_kind": "invariant"
+    },
+    {
+      "id": "CHK-COVERAGE-GRAPH",
+      "title": "Product entity graph compile",
+      "executor_key": "coverage-graph",
+      "risk_domains": [
+        "coverage-traceability",
+        "product-spec"
+      ],
+      "cost_tier": "standard",
+      "mandatory": true,
+      "always_on_pr": false,
+      "trigger_paths": [
+        "cmdr-product-spec/**",
+        "engineering/coverage/**",
+        "tools/cmdr-dev/**"
+      ],
+      "prerequisites": [
+        "CHK-SPEC-BASELINE"
+      ],
+      "evidence_kind": "generated-artifact"
+    },
+    {
+      "id": "CHK-OBLIGATIONS",
+      "title": "Implementation obligation derivation",
+      "executor_key": "obligations",
+      "risk_domains": [
+        "coverage-traceability",
+        "product-spec"
+      ],
+      "cost_tier": "standard",
+      "mandatory": true,
+      "always_on_pr": false,
+      "trigger_paths": [
+        "cmdr-product-spec/**",
+        "engineering/coverage/**",
+        "tools/cmdr-dev/**"
+      ],
+      "prerequisites": [
+        "CHK-COVERAGE-GRAPH"
+      ],
+      "evidence_kind": "generated-artifact"
+    },
+    {
+      "id": "CHK-COVERAGE-AUDIT",
+      "title": "Product coverage gap audit",
+      "executor_key": "coverage-audit",
+      "risk_domains": [
+        "coverage-traceability"
+      ],
+      "cost_tier": "standard",
+      "mandatory": true,
+      "always_on_pr": false,
+      "trigger_paths": [
+        "cmdr-product-spec/**",
+        "engineering/coverage/**",
+        "tools/cmdr-dev/**"
+      ],
+      "prerequisites": [
+        "CHK-OBLIGATIONS"
+      ],
+      "evidence_kind": "audit-report"
+    },
+    {
+      "id": "CHK-MANIFESTS",
+      "title": "Strict work manifest validation",
+      "executor_key": "validate-manifests",
+      "risk_domains": [
+        "work-governance",
+        "security"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": true,
+      "trigger_paths": [
+        "work/**",
+        "tools/cmdr-dev/**"
+      ],
+      "prerequisites": [
+        "CHK-UNIT"
+      ],
+      "evidence_kind": "invariant"
+    },
+    {
+      "id": "CHK-ARCHITECTURE",
+      "title": "Architecture path ownership audit",
+      "executor_key": "architecture-audit",
+      "risk_domains": [
+        "architecture",
+        "security"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": false,
+      "trigger_paths": [
+        "engineering/architecture/**",
+        "work/**",
+        "tools/cmdr-dev/**"
+      ],
+      "prerequisites": [
+        "CHK-MANIFESTS"
+      ],
+      "evidence_kind": "audit-report"
+    },
+    {
+      "id": "CHK-RUNTIME-DEPS",
+      "title": "Product runtime dependency audit",
+      "executor_key": "dependency-audit",
+      "risk_domains": [
+        "runtime-dependencies",
+        "security"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": false,
+      "trigger_paths": [
+        "engineering/security/**",
+        "engineering/dependencies/**",
+        "engineering/architecture/**",
+        "tools/cmdr-dev/**"
+      ],
+      "prerequisites": [
+        "CHK-ARCHITECTURE"
+      ],
+      "evidence_kind": "audit-report"
+    },
+    {
+      "id": "CHK-BOUNDARY-EDGES",
+      "title": "Cross-boundary dependency audit",
+      "executor_key": "boundary-edge-audit",
+      "risk_domains": [
+        "architecture",
+        "runtime-dependencies",
+        "security"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": false,
+      "trigger_paths": [
+        "engineering/architecture/**",
+        "tools/cmdr-dev/**"
+      ],
+      "prerequisites": [
+        "CHK-RUNTIME-DEPS"
+      ],
+      "evidence_kind": "audit-report"
+    },
+    {
+      "id": "CHK-COMPLEXITY",
+      "title": "Work-unit complexity audit",
+      "executor_key": "complexity-audit",
+      "risk_domains": [
+        "work-governance"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": true,
+      "trigger_paths": [
+        "work/**",
+        "engineering/work/**",
+        "tools/cmdr-dev/**"
+      ],
+      "prerequisites": [
+        "CHK-MANIFESTS"
+      ],
+      "evidence_kind": "audit-report"
+    },
+    {
+      "id": "CHK-CONTEXT",
+      "title": "Active agent context compilation",
+      "executor_key": "context",
+      "risk_domains": [
+        "agent-context",
+        "work-governance"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": false,
+      "trigger_paths": [
+        "AGENTS.md",
+        "AI_START_HERE.md",
+        "engineering/**",
+        "work/**",
+        "cmdr-product-spec/**",
+        "tools/cmdr-dev/**"
+      ],
+      "prerequisites": [
+        "CHK-COMPLEXITY",
+        "CHK-ARCHITECTURE"
+      ],
+      "evidence_kind": "generated-artifact"
+    },
+    {
+      "id": "CHK-DOCTOR",
+      "title": "Engineering repository doctor",
+      "executor_key": "doctor",
+      "risk_domains": [
+        "repository-health"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": true,
+      "trigger_paths": [
+        "AGENTS.md",
+        "AI_START_HERE.md",
+        "engineering/**",
+        "work/**",
+        "tools/cmdr-dev/**"
+      ],
+      "prerequisites": [
+        "CHK-MANIFESTS"
+      ],
+      "evidence_kind": "invariant"
+    },
+    {
+      "id": "CHK-NEXT",
+      "title": "Next work resolution",
+      "executor_key": "next",
+      "risk_domains": [
+        "work-governance",
+        "repository-health"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": true,
+      "trigger_paths": [
+        "engineering/state/**",
+        "work/**",
+        "tools/cmdr-dev/**"
+      ],
+      "prerequisites": [
+        "CHK-DOCTOR"
+      ],
+      "evidence_kind": "selection"
+    },
+    {
+      "id": "CHK-CATALOG",
+      "title": "Validation check catalog audit",
+      "executor_key": "check-catalog-audit",
+      "risk_domains": [
+        "work-governance",
+        "security"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": true,
+      "trigger_paths": [
+        "engineering/testing/check-catalog.json",
+        "engineering/testing/check-catalog.schema.json",
+        "tools/cmdr-dev/check_catalog.go",
+        "tools/cmdr-dev/check_catalog_test.go"
+      ],
+      "prerequisites": [
+        "CHK-UNIT"
+      ],
+      "evidence_kind": "invariant"
+    },
+    {
+      "id": "CHK-IMPACT",
+      "title": "Change impact analysis",
+      "executor_key": "impact",
+      "risk_domains": [
+        "work-governance",
+        "architecture",
+        "security"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": true,
+      "trigger_paths": [
+        "engineering/testing/**",
+        "engineering/architecture/**",
+        "engineering/security/**",
+        "work/**",
+        "tools/cmdr-dev/impact.go",
+        "tools/cmdr-dev/impact_test.go"
+      ],
+      "prerequisites": [
+        "CHK-CATALOG",
+        "CHK-ARCHITECTURE"
+      ],
+      "evidence_kind": "impact-report"
+    },
+    {
+      "id": "CHK-PLAN",
+      "title": "Risk-adaptive validation plan",
+      "executor_key": "validation-plan",
+      "risk_domains": [
+        "work-governance",
+        "security"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": true,
+      "trigger_paths": [
+        "engineering/testing/**",
+        "work/**",
+        "tools/cmdr-dev/validation_plan.go",
+        "tools/cmdr-dev/validation_plan_test.go"
+      ],
+      "prerequisites": [
+        "CHK-IMPACT"
+      ],
+      "evidence_kind": "selection"
+    },
+    {
+      "id": "CHK-CHANGESET",
+      "title": "Git change-set derivation",
+      "executor_key": "git-changes",
+      "risk_domains": [
+        "work-governance",
+        "repository-health",
+        "security"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": true,
+      "trigger_paths": [
+        ".github/workflows/**",
+        "tools/cmdr-dev/git_changes.go",
+        "tools/cmdr-dev/git_changes_test.go"
+      ],
+      "prerequisites": [],
+      "evidence_kind": "change-set"
+    },
+    {
+      "id": "CHK-ADAPTIVE-RUN",
+      "title": "Adaptive validation executor",
+      "executor_key": "validation-run",
+      "risk_domains": [
+        "work-governance",
+        "security"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": true,
+      "trigger_paths": [
+        "engineering/testing/**",
+        "work/**",
+        "tools/cmdr-dev/validation_run.go",
+        "tools/cmdr-dev/validation_run_test.go",
+        ".github/workflows/**"
+      ],
+      "prerequisites": [
+        "CHK-PLAN"
+      ],
+      "evidence_kind": "execution-summary"
+    },
+    {
+      "id": "CHK-SECURITY-GATES",
+      "title": "Security gate registry audit",
+      "executor_key": "security-gate-audit",
+      "risk_domains": [
+        "security",
+        "work-governance"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": true,
+      "trigger_paths": [
+        "engineering/security/**",
+        "tools/cmdr-dev/security_gates.go",
+        "tools/cmdr-dev/security_gates_test.go"
+      ],
+      "prerequisites": [
+        "CHK-CATALOG"
+      ],
+      "evidence_kind": "audit-report"
+    },
+    {
+      "id": "CHK-SECRETS",
+      "title": "Deterministic secret scan",
+      "executor_key": "secret-scan",
+      "risk_domains": [
+        "security",
+        "code-quality"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": true,
+      "trigger_paths": [
+        "**"
+      ],
+      "prerequisites": [
+        "CHK-UNIT"
+      ],
+      "evidence_kind": "finding-report"
+    },
+    {
+      "id": "CHK-SAST-GO",
+      "title": "Go static application security analysis",
+      "executor_key": "gosec-go",
+      "risk_domains": [
+        "security",
+        "code-quality"
+      ],
+      "cost_tier": "standard",
+      "mandatory": true,
+      "always_on_pr": false,
+      "trigger_paths": [
+        "tools/cmdr-dev/**",
+        "product-runtime/context-envelope/**"
+      ],
+      "prerequisites": [
+        "CHK-SECRETS"
+      ],
+      "evidence_kind": "finding-report"
+    },
+    {
+      "id": "CHK-SCA-GO",
+      "title": "Go reachable dependency vulnerability analysis",
+      "executor_key": "govulncheck-go",
+      "risk_domains": [
+        "security",
+        "runtime-dependencies"
+      ],
+      "cost_tier": "standard",
+      "mandatory": true,
+      "always_on_pr": false,
+      "trigger_paths": [
+        "tools/cmdr-dev/**",
+        "product-runtime/context-envelope/**"
+      ],
+      "prerequisites": [
+        "CHK-SECRETS"
+      ],
+      "evidence_kind": "finding-report"
+    },
+    {
+      "id": "CHK-SBOM",
+      "title": "Deterministic CycloneDX SBOM generation",
+      "executor_key": "sbom",
+      "risk_domains": [
+        "security",
+        "runtime-dependencies"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": false,
+      "trigger_paths": [
+        "tools/cmdr-dev/**",
+        "engineering/security/development-tools.json",
+        "engineering/architecture/**",
+        "**/go.mod",
+        "**/package.json",
+        "**/vcpkg.json"
+      ],
+      "prerequisites": [
+        "CHK-RUNTIME-DEPS",
+        "CHK-SCA-GO"
+      ],
+      "evidence_kind": "generated-artifact"
+    },
+    {
+      "id": "CHK-SECURITY-TESTS",
+      "title": "Runtime security negative-test and coverage obligation audit",
+      "executor_key": "security-test-audit",
+      "risk_domains": [
+        "security",
+        "unit-correctness",
+        "coverage-traceability"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": true,
+      "trigger_paths": [
+        "engineering/security/**",
+        "engineering/testing/**",
+        "engineering/architecture/**",
+        "tools/cmdr-dev/**",
+        "**"
+      ],
+      "prerequisites": [
+        "CHK-SECURITY-GATES",
+        "CHK-ARCHITECTURE"
+      ],
+      "evidence_kind": "audit-report"
+    },
+    {
+      "id": "CHK-DEEP-SECURITY",
+      "title": "Risk-adaptive deep security schedule and evidence audit",
+      "executor_key": "deep-security-audit",
+      "risk_domains": [
+        "security",
+        "unit-correctness",
+        "work-governance"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": true,
+      "trigger_paths": [
+        "engineering/security/**",
+        "engineering/architecture/**",
+        ".github/workflows/**",
+        "tools/cmdr-dev/deep_security.go",
+        "tools/cmdr-dev/deep_security_test.go"
+      ],
+      "prerequisites": [
+        "CHK-SECURITY-TESTS",
+        "CHK-SECURITY-GATES"
+      ],
+      "evidence_kind": "audit-report"
+    },
+    {
+      "id": "CHK-DECISIONS",
+      "title": "Engineering decision registry audit",
+      "executor_key": "decision-registry-audit",
+      "risk_domains": [
+        "work-governance",
+        "architecture",
+        "security"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": true,
+      "trigger_paths": [
+        "engineering/decisions/**",
+        "engineering/governance/autonomous-decision-policy.md",
+        "work/**",
+        "tools/cmdr-dev/decision_registry.go",
+        "tools/cmdr-dev/decision_registry_test.go"
+      ],
+      "prerequisites": [
+        "CHK-MANIFESTS"
+      ],
+      "evidence_kind": "audit-report"
+    },
+    {
+      "id": "CHK-RESEARCH",
+      "title": "Research evidence packet audit",
+      "executor_key": "research-packet-audit",
+      "risk_domains": [
+        "work-governance",
+        "architecture",
+        "security"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": true,
+      "trigger_paths": [
+        "engineering/research/**",
+        "engineering/decisions/**",
+        "engineering/governance/autonomous-decision-policy.md",
+        "work/**",
+        "tools/cmdr-dev/research_registry.go",
+        "tools/cmdr-dev/research_registry_test.go"
+      ],
+      "prerequisites": [
+        "CHK-DECISIONS"
+      ],
+      "evidence_kind": "audit-report"
+    },
+    {
+      "id": "CHK-DECISION-GATES",
+      "title": "Benchmark prototype and adversarial decision gate",
+      "executor_key": "decision-gate-audit",
+      "risk_domains": [
+        "work-governance",
+        "architecture",
+        "security"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": true,
+      "trigger_paths": [
+        "engineering/decisions/**",
+        "engineering/research/**",
+        "work/**",
+        "tools/cmdr-dev/decision_validation.go",
+        "tools/cmdr-dev/decision_validation_test.go"
+      ],
+      "prerequisites": [
+        "CHK-RESEARCH"
+      ],
+      "evidence_kind": "audit-report"
+    },
+    {
+      "id": "CHK-DECISION-FRESHNESS",
+      "title": "Decision freshness and reusable evidence audit",
+      "executor_key": "decision-freshness-audit",
+      "risk_domains": [
+        "work-governance",
+        "architecture",
+        "security",
+        "repository-health"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": true,
+      "trigger_paths": [
+        "engineering/decisions/**",
+        "engineering/research/**",
+        "engineering/state/**",
+        "work/**",
+        "tools/cmdr-dev/decision_freshness.go",
+        "tools/cmdr-dev/decision_freshness_test.go"
+      ],
+      "prerequisites": [
+        "CHK-DECISION-GATES"
+      ],
+      "evidence_kind": "audit-report"
+    },
+    {
+      "id": "CHK-PERFORMANCE-REGISTRY",
+      "title": "Performance target and budget registry audit",
+      "executor_key": "performance-registry-audit",
+      "risk_domains": [
+        "performance",
+        "architecture",
+        "work-governance",
+        "repository-health"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": true,
+      "trigger_paths": [
+        "engineering/performance/**",
+        "engineering/architecture/**",
+        "work/**",
+        "tools/cmdr-dev/performance_registry.go",
+        "tools/cmdr-dev/performance_registry_test.go"
+      ],
+      "prerequisites": [
+        "CHK-ARCHITECTURE",
+        "CHK-MANIFESTS"
+      ],
+      "evidence_kind": "audit-report"
+    },
+    {
+      "id": "CHK-PERFORMANCE-BENCHMARK",
+      "title": "Representative performance benchmark and regression audit",
+      "executor_key": "performance-benchmark-audit",
+      "risk_domains": [
+        "performance",
+        "architecture",
+        "repository-health"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": true,
+      "trigger_paths": [
+        "engineering/performance/**",
+        "engineering/architecture/**",
+        "tools/cmdr-dev/performance_registry.go",
+        "tools/cmdr-dev/performance_benchmark.go",
+        "tools/cmdr-dev/performance_benchmark_test.go"
+      ],
+      "prerequisites": [
+        "CHK-PERFORMANCE-REGISTRY"
+      ],
+      "evidence_kind": "benchmark-report"
+    },
+    {
+      "id": "CHK-DEEP-PERFORMANCE",
+      "title": "Bounded deep performance scheduling and resource audit",
+      "executor_key": "deep-performance-audit",
+      "risk_domains": [
+        "performance",
+        "architecture",
+        "repository-health",
+        "work-governance"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": true,
+      "trigger_paths": [
+        "engineering/performance/**",
+        "engineering/architecture/**",
+        ".github/workflows/performance-deep.yml",
+        "tools/cmdr-dev/deep_performance.go",
+        "tools/cmdr-dev/deep_performance_test.go"
+      ],
+      "prerequisites": [
+        "CHK-PERFORMANCE-BENCHMARK"
+      ],
+      "evidence_kind": "audit-report"
+    },
+    {
+      "id": "CHK-PERFORMANCE-CACHE",
+      "title": "Performance evidence cache freshness and revisit audit",
+      "executor_key": "performance-cache-audit",
+      "risk_domains": [
+        "performance",
+        "repository-health",
+        "work-governance"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": true,
+      "trigger_paths": [
+        "engineering/performance/**",
+        "engineering/decisions/**",
+        "engineering/research/**",
+        "engineering/state/**",
+        "work/**",
+        "tools/cmdr-dev/performance_cache.go",
+        "tools/cmdr-dev/performance_cache_test.go",
+        "tools/cmdr-dev/performance_benchmark.go"
+      ],
+      "prerequisites": [
+        "CHK-DEEP-PERFORMANCE",
+        "CHK-DECISION-FRESHNESS"
+      ],
+      "evidence_kind": "audit-report"
+    },
+    {
+      "id": "CHK-WORK-LEASES",
+      "title": "Work lease and active claim audit",
+      "executor_key": "lease-audit",
+      "risk_domains": [
+        "work-governance",
+        "repository-health"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": true,
+      "trigger_paths": [
+        "engineering/recovery/**",
+        "work/**",
+        "tools/cmdr-dev/work_leases.go",
+        "tools/cmdr-dev/work_leases_test.go"
+      ],
+      "prerequisites": [
+        "CHK-MANIFESTS"
+      ],
+      "evidence_kind": "audit-report"
+    },
+    {
+      "id": "CHK-RECOVERY-JOURNAL",
+      "title": "Crash-safe recovery journal audit",
+      "executor_key": "recovery-journal-audit",
+      "risk_domains": [
+        "work-governance",
+        "repository-health"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": true,
+      "trigger_paths": [
+        "engineering/recovery/**",
+        "work/**",
+        "tools/cmdr-dev/recovery_journal.go",
+        "tools/cmdr-dev/recovery_journal_test.go"
+      ],
+      "prerequisites": [
+        "CHK-WORK-LEASES"
+      ],
+      "evidence_kind": "audit-report"
+    },
+    {
+      "id": "CHK-RECOVERY-RECONCILE",
+      "title": "Interrupted-work Git and CI reconciliation audit",
+      "executor_key": "recovery-reconcile-audit",
+      "risk_domains": [
+        "work-governance",
+        "repository-health"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": true,
+      "trigger_paths": [
+        "engineering/recovery/**",
+        "engineering/state/**",
+        "work/**",
+        "tools/cmdr-dev/recovery_reconcile.go",
+        "tools/cmdr-dev/recovery_reconcile_test.go"
+      ],
+      "prerequisites": [
+        "CHK-RECOVERY-JOURNAL"
+      ],
+      "evidence_kind": "reconciliation"
+    },
+    {
+      "id": "CHK-COORDINATION",
+      "title": "Multi-agent mutable-scope coordination audit",
+      "executor_key": "coordination-audit",
+      "risk_domains": [
+        "work-governance",
+        "repository-health",
+        "security"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": true,
+      "trigger_paths": [
+        "engineering/recovery/**",
+        "engineering/state/**",
+        "work/**",
+        "tools/cmdr-dev/work_leases.go",
+        "tools/cmdr-dev/coordination.go",
+        "tools/cmdr-dev/coordination_test.go"
+      ],
+      "prerequisites": [
+        "CHK-RECOVERY-RECONCILE"
+      ],
+      "evidence_kind": "coordination-report"
+    },
+    {
+      "id": "CHK-METRICS-REGISTRY",
+      "title": "Engineering engine metrics registry audit",
+      "executor_key": "metrics-registry-audit",
+      "risk_domains": [
+        "work-governance",
+        "repository-health",
+        "performance",
+        "security"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": true,
+      "trigger_paths": [
+        "engineering/metrics/**",
+        "engineering/state/**",
+        "work/**",
+        "tools/cmdr-dev/metrics_registry.go",
+        "tools/cmdr-dev/metrics_registry_test.go"
+      ],
+      "prerequisites": [
+        "CHK-COORDINATION"
+      ],
+      "evidence_kind": "metrics-registry-audit"
+    },
+    {
+      "id": "CHK-METRICS-SNAPSHOT",
+      "title": "Engineering engine metric snapshot compilation",
+      "executor_key": "metrics-snapshot",
+      "risk_domains": [
+        "work-governance",
+        "repository-health",
+        "performance",
+        "security"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": true,
+      "trigger_paths": [
+        "engineering/metrics/**",
+        "engineering/state/**",
+        "work/**",
+        "tools/cmdr-dev/metrics_snapshot.go",
+        "tools/cmdr-dev/metrics_snapshot_test.go",
+        "tools/cmdr-dev/validation_run.go"
+      ],
+      "prerequisites": [
+        "CHK-METRICS-REGISTRY"
+      ],
+      "evidence_kind": "metric-snapshot"
+    },
+    {
+      "id": "CHK-METRICS-OPTIMIZER",
+      "title": "Safety-constrained engine optimization recommendation derivation",
+      "executor_key": "metrics-optimizer",
+      "risk_domains": [
+        "work-governance",
+        "repository-health",
+        "performance",
+        "security"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": true,
+      "trigger_paths": [
+        "engineering/metrics/**",
+        "engineering/state/**",
+        "work/**",
+        "tools/cmdr-dev/metrics_optimizer.go",
+        "tools/cmdr-dev/metrics_optimizer_test.go",
+        "tools/cmdr-dev/validation_run.go"
+      ],
+      "prerequisites": [
+        "CHK-METRICS-SNAPSHOT"
+      ],
+      "evidence_kind": "optimization-report"
+    },
+    {
+      "id": "CHK-METRICS-BUDGET",
+      "title": "Engineering engine efficiency regression budget",
+      "executor_key": "metrics-budget",
+      "risk_domains": [
+        "work-governance",
+        "repository-health",
+        "performance",
+        "security"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": true,
+      "trigger_paths": [
+        "engineering/metrics/**",
+        "engineering/state/**",
+        "work/**",
+        "tools/cmdr-dev/metrics_budget.go",
+        "tools/cmdr-dev/metrics_budget_test.go",
+        "tools/cmdr-dev/validation_run.go"
+      ],
+      "prerequisites": [
+        "CHK-METRICS-OPTIMIZER"
+      ],
+      "evidence_kind": "efficiency-budget-report"
+    },
+    {
+      "id": "CHK-PILOT-SCOPE",
+      "title": "Bounded E9 pilot Product Spec traceability audit",
+      "executor_key": "pilot-scope-audit",
+      "risk_domains": [
+        "product-spec",
+        "coverage-traceability",
+        "work-governance",
+        "security"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": false,
+      "trigger_paths": [
+        "engineering/pilot/**",
+        "work/lots/E9-PILOT-001*/**",
+        "tools/cmdr-dev/pilot_scope.go",
+        "tools/cmdr-dev/pilot_scope_test.go",
+        "cmdr-product-spec/**",
+        "product-runtime/**"
+      ],
+      "prerequisites": [
+        "CHK-COVERAGE-GRAPH",
+        "CHK-MANIFESTS"
+      ],
+      "evidence_kind": "audit-report"
+    },
+    {
+      "id": "CHK-PILOT-CONTRACT",
+      "title": "E9 pilot runtime boundary and executable contract audit",
+      "executor_key": "pilot-contract-audit",
+      "risk_domains": [
+        "architecture",
+        "runtime-dependencies",
+        "security",
+        "coverage-traceability",
+        "work-governance"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": false,
+      "trigger_paths": [
+        "engineering/pilot/**",
+        "engineering/architecture/**",
+        "product-runtime/context-envelope/**",
+        "work/lots/E9-PILOT-001*/**",
+        "tools/cmdr-dev/pilot_contract.go",
+        "tools/cmdr-dev/pilot_contract_test.go"
+      ],
+      "prerequisites": [
+        "CHK-PILOT-SCOPE",
+        "CHK-ARCHITECTURE",
+        "CHK-RUNTIME-DEPS",
+        "CHK-BOUNDARY-EDGES"
+      ],
+      "evidence_kind": "audit-report"
+    },
+    {
+      "id": "CHK-PILOT-E2E",
+      "title": "E9 adversarial end-to-end pilot closure audit",
+      "executor_key": "pilot-e2e-audit",
+      "risk_domains": [
+        "product-spec",
+        "coverage-traceability",
+        "security",
+        "performance",
+        "repository-health",
+        "work-governance",
+        "unit-correctness"
+      ],
+      "cost_tier": "standard",
+      "mandatory": true,
+      "always_on_pr": false,
+      "trigger_paths": [
+        "engineering/pilot/**",
+        "work/lots/E9-PILOT-001*/**",
+        "product-runtime/context-envelope/**",
+        "tools/cmdr-dev/pilot_e2e.go",
+        "tools/cmdr-dev/pilot_e2e_test.go"
+      ],
+      "prerequisites": [
+        "CHK-PILOT-CONTRACT",
+        "CHK-SECURITY-TESTS",
+        "CHK-DEEP-SECURITY",
+        "CHK-PERFORMANCE-BENCHMARK",
+        "CHK-DEEP-PERFORMANCE",
+        "CHK-RECOVERY-RECONCILE",
+        "CHK-METRICS-BUDGET"
+      ],
+      "evidence_kind": "pilot-closure-audit"
+    },
+    {
+      "id": "CHK-IMPLEMENTATION-LEDGER",
+      "title": "Evidence-backed runtime implementation ledger audit",
+      "executor_key": "implementation-ledger-audit",
+      "risk_domains": [
+        "product-spec",
+        "coverage-traceability",
+        "architecture",
+        "runtime-dependencies",
+        "security",
+        "work-governance",
+        "repository-health"
+      ],
+      "cost_tier": "standard",
+      "mandatory": true,
+      "always_on_pr": false,
+      "trigger_paths": [
+        "engineering/implementation/**",
+        "engineering/architecture/**",
+        "product-runtime/**",
+        "work/lots/**",
+        "tools/cmdr-dev/implementation_ledger.go",
+        "tools/cmdr-dev/implementation_ledger_test.go"
+      ],
+      "prerequisites": [
+        "CHK-OBLIGATIONS",
+        "CHK-ARCHITECTURE",
+        "CHK-RUNTIME-DEPS"
+      ],
+      "evidence_kind": "implementation-ledger-audit"
+    },
+    {
+      "id": "CHK-IMPLEMENTATION-READINESS",
+      "title": "Capability implementation readiness and blocker compilation",
+      "executor_key": "implementation-readiness",
+      "risk_domains": [
+        "product-spec",
+        "coverage-traceability",
+        "architecture",
+        "runtime-dependencies",
+        "work-governance",
+        "repository-health"
+      ],
+      "cost_tier": "standard",
+      "mandatory": true,
+      "always_on_pr": false,
+      "trigger_paths": [
+        "cmdr-product-spec/**",
+        "engineering/implementation/**",
+        "work/lots/**",
+        "tools/cmdr-dev/implementation_readiness.go",
+        "tools/cmdr-dev/implementation_readiness_test.go"
+      ],
+      "prerequisites": [
+        "CHK-IMPLEMENTATION-LEDGER",
+        "CHK-OBLIGATIONS"
+      ],
+      "evidence_kind": "implementation-readiness"
+    },
+    {
+      "id": "CHK-IMPLEMENTATION-WAVE",
+      "title": "Deterministic bounded implementation wave selection",
+      "executor_key": "implementation-wave",
+      "risk_domains": [
+        "product-spec",
+        "coverage-traceability",
+        "architecture",
+        "runtime-dependencies",
+        "work-governance",
+        "repository-health"
+      ],
+      "cost_tier": "standard",
+      "mandatory": true,
+      "always_on_pr": false,
+      "trigger_paths": [
+        "cmdr-product-spec/**",
+        "engineering/implementation/**",
+        "work/lots/E10-SCALE-001C/**",
+        "tools/cmdr-dev/implementation_wave.go",
+        "tools/cmdr-dev/implementation_wave_test.go"
+      ],
+      "prerequisites": [
+        "CHK-IMPLEMENTATION-READINESS",
+        "CHK-MANIFESTS"
+      ],
+      "evidence_kind": "implementation-wave-selection"
+    },
+    {
+      "id": "CHK-EVENT-SEARCH-CONTRACT",
+      "title": "CAP-INV-002 Event Search executable contract and negative-fixture audit",
+      "executor_key": "event-search-contract-audit",
+      "risk_domains": [
+        "product-spec",
+        "coverage-traceability",
+        "security",
+        "performance",
+        "work-governance"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": false,
+      "trigger_paths": [
+        "engineering/implementation/event-search/**",
+        "work/lots/E10-INV-002A*/**",
+        "tools/cmdr-dev/event_search_contract.go",
+        "tools/cmdr-dev/event_search_contract_test.go",
+        "cmdr-product-spec/07-investigate/modules/signals-and-hunt/capabilities/event-search.md",
+        "cmdr-product-spec/07-investigate/modules/event-search/screens/event-search.md",
+        "cmdr-product-spec/05-domain-model/objects/query.md",
+        "cmdr-product-spec/05-domain-model/objects/search-job.md",
+        "cmdr-product-spec/05-domain-model/objects/telemetry-event.md",
+        "cmdr-product-spec/17-implementation-contracts/**"
+      ],
+      "prerequisites": [
+        "CHK-MANIFESTS",
+        "CHK-SECURITY-TESTS",
+        "CHK-PERFORMANCE-REGISTRY"
+      ],
+      "evidence_kind": "audit-report"
+    },
+    {
+      "id": "CHK-EVENT-SEARCH-E2E",
+      "title": "CAP-INV-002 bounded Event Search adversarial closure audit",
+      "executor_key": "event-search-e2e-audit",
+      "risk_domains": [
+        "product-spec",
+        "coverage-traceability",
+        "security",
+        "performance",
+        "repository-health",
+        "work-governance",
+        "unit-correctness"
+      ],
+      "cost_tier": "standard",
+      "mandatory": true,
+      "always_on_pr": false,
+      "trigger_paths": [
+        "engineering/implementation/event-search/**",
+        "work/lots/E10-INV-002*/**",
+        "product-runtime/event-search/**",
+        "tools/cmdr-dev/event_search_e2e.go",
+        "tools/cmdr-dev/event_search_e2e_test.go"
+      ],
+      "prerequisites": [
+        "CHK-EVENT-SEARCH-CONTRACT",
+        "CHK-SECURITY-TESTS",
+        "CHK-SAST-GO",
+        "CHK-SCA-GO",
+        "CHK-PERFORMANCE-BENCHMARK",
+        "CHK-DEEP-PERFORMANCE",
+        "CHK-RECOVERY-JOURNAL",
+        "CHK-RECOVERY-RECONCILE",
+        "CHK-METRICS-BUDGET"
+      ],
+      "evidence_kind": "implementation-closure-audit"
+    },
+    {
+      "id": "CHK-EVENT-INSPECTION-CONTRACT",
+      "title": "CAP-INV-004 Event Inspection read-only contract and negative-fixture audit",
+      "executor_key": "event-inspection-contract-audit",
+      "risk_domains": [
+        "product-spec",
+        "coverage-traceability",
+        "security",
+        "work-governance"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": false,
+      "trigger_paths": [
+        "engineering/implementation/event-inspection/**",
+        "work/lots/E10-INV-004A*/**",
+        "tools/cmdr-dev/event_inspection_contract.go",
+        "tools/cmdr-dev/event_inspection_contract_test.go",
+        "cmdr-product-spec/07-investigate/modules/signals-and-hunt/capabilities/event-inspection-and-pivot.md",
+        "cmdr-product-spec/05-domain-model/objects/telemetry-event.md",
+        "cmdr-product-spec/05-domain-model/objects/parser.md",
+        "cmdr-product-spec/05-domain-model/objects/data-source.md",
+        "cmdr-product-spec/05-domain-model/objects/entity.md",
+        "cmdr-product-spec/05-domain-model/objects/query.md",
+        "cmdr-product-spec/17-implementation-contracts/**"
+      ],
+      "prerequisites": [
+        "CHK-MANIFESTS",
+        "CHK-SECURITY-TESTS"
+      ],
+      "evidence_kind": "audit-report"
+    }
+  ]
+}

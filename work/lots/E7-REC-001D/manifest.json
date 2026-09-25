@@ -1,0 +1,115 @@
+{
+  "schema_version": 2,
+  "id": "E7-REC-001D",
+  "title": "Enforce multi-agent conflict detection and safe handoff",
+  "type": "sublot",
+  "parent": "E7-REC-001",
+  "goal": "Detect overlapping mutable scopes and ownership conflicts between active agents, then produce a deterministic safe handoff or stop condition.",
+  "product_refs": {
+    "capabilities": [],
+    "requirements": [],
+    "screens": [],
+    "permissions": [],
+    "open_decisions": [],
+    "implementation_contracts": [],
+    "canonical_objects": []
+  },
+  "depends_on": [
+    "E7-REC-001C"
+  ],
+  "allowed_paths": [
+    "tools/cmdr-dev/**",
+    "engineering/recovery/**",
+    "engineering/testing/**",
+    "work/lots/E7-REC-001*/**",
+    "engineering/state/**",
+    "work/graph.json",
+    ".github/workflows/**"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**"
+  ],
+  "inputs": [
+    "verified E0-E6 engineering foundation",
+    "canonical Product Spec remains read-only",
+    "Git repository and CI evidence",
+    "active work graph and strict manifests"
+  ],
+  "outputs": [
+    "scope-overlap detector over active lease manifest allowed_paths",
+    "deterministic conflict report",
+    "exact-head safe handoff artifact and release/reacquire protocol",
+    "explicit read-only lease mode for non-mutating concurrent agents"
+  ],
+  "invariants": [
+    "Product Spec remains read-only",
+    "Git and CI reality outrank cached coordination state",
+    "coordination metadata never authorizes product-runtime behavior",
+    "a stale agent cannot silently overwrite a valid newer claim",
+    "recovery avoids repeating expensive verified work when evidence is still valid"
+  ],
+  "security_properties": [
+    "lease and journal inputs are untrusted data and strictly validated",
+    "agent identity is opaque coordination metadata, not an authentication credential",
+    "conflicting ownership fails closed",
+    "recovery never force-pushes or rewrites Git history"
+  ],
+  "acceptance_tests": [
+    "go test ./...",
+    "cmdr-dev validate-manifests succeeds",
+    "cmdr-dev complexity-audit succeeds",
+    "adaptive engineering-kernel remains green",
+    "unit tests reject overlapping mutating scopes",
+    "unit tests allow overlap only when one lease is explicitly read-only",
+    "unit tests prove handoff identity/digest and post-release reacquisition requirement",
+    "cmdr-dev coordination-audit succeeds"
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "coordination must reduce recovery/context cost rather than dominate ordinary development",
+    "metrics": [
+      "coordination checks remain metadata-scale and PR-suitable"
+    ]
+  },
+  "migration": {
+    "required": false,
+    "rationale": "engineering control-plane only",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert the E7 unit while retaining verified E0-E6 controls",
+    "verification": [
+      "engineering-kernel remains green",
+      "no accepted product contract changed"
+    ]
+  },
+  "required_checks": [
+    "adaptive engineering-kernel",
+    "cmdr-dev validate-manifests",
+    "cmdr-dev complexity-audit",
+    "CHK-COORDINATION",
+    "cmdr-dev coordination-audit"
+  ],
+  "definition_of_ready": [
+    "dependencies are VERIFIED",
+    "scope is bounded",
+    "Product Spec is read-only"
+  ],
+  "definition_of_done": [
+    "overlapping allowed paths with concurrent active leases fail closed unless explicitly non-mutating",
+    "handoff references exact work unit and Git head",
+    "released claims cannot mutate without reacquisition",
+    "no hidden coordinator service is required"
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 9,
+    "estimated_net_loc": 520,
+    "production_files": 3,
+    "net_production_loc": 390,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

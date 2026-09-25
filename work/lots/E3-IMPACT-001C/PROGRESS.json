@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "work_unit": "E3-IMPACT-001C",
+  "status": "VERIFIED",
+  "final_validated_head": "4acac14e1e85a09e3ac53ad533c53fca2867a846",
+  "validation": {
+    "push_workflow_run": 35796162976,
+    "pull_request_workflow_run": 35796167323,
+    "result": "PASS",
+    "gofmt": "PASS",
+    "go_vet": "PASS",
+    "unit_tests": "PASS",
+    "check_catalog_audit": "PASS",
+    "impact_engine": "PASS",
+    "validation_plan": "PASS",
+    "architecture_audit": "PASS",
+    "dependency_audit": "PASS",
+    "boundary_edge_audit": "PASS",
+    "complexity_audit": "PASS",
+    "context_compilation": "PASS"
+  },
+  "catalog_observation": {
+    "checks": 19,
+    "mandatory": 19,
+    "always_on_pr": 10,
+    "fast": 14,
+    "standard": 5,
+    "prerequisite_edges": 20
+  },
+  "representative_plan": {
+    "tier": "standard",
+    "high_risk": false,
+    "risk_domains": ["agent-context","architecture","repository-health","security","work-governance"],
+    "selected_checks": 12,
+    "by_cost_tier": {"fast": 12},
+    "cost_units": 12
+  },
+  "context_observation": {
+    "sources": 48,
+    "dependency_units": 14,
+    "bundle_digest": "c65aa254c3bafafb86e7ee2d7134be622c500948e37e448f6bf875ded560a5ba"
+  },
+  "product_spec_mutated": false,
+  "next_unlocked": ["E3-IMPACT-002A"]
+}

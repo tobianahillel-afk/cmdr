@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-004A-BOUNDARY",
+  "result": "VERIFIED",
+  "final_validated_head": "1b583e79bf9297e05d0e0e86f4115e3fc20e8c0e",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 36139678837,
+    "pull_request_run": 36139685980,
+    "boundary": "event-inspection-runtime",
+    "security_scope": "event-inspection-runtime",
+    "performance_targets": [
+      "PERF-TGT-EVENT-INSPECTION-PROJECTION",
+      "PERF-TGT-EVENT-INSPECTION-PIVOT"
+    ],
+    "deep_performance_targets": [
+      "PERF-DEEP-EVENT-INSPECTION-PROJECTION",
+      "PERF-DEEP-EVENT-INSPECTION-PIVOT"
+    ]
+  },
+  "rules": [
+    "Event Inspection boundary is preimplementation-only and contains only README.md",
+    "external product-runtime dependencies are deny-by-default",
+    "authorization and tenant-isolation obligations are registered before executable code",
+    "raw-denied behavior must never leak raw or raw-derived sensitive content",
+    "performance and deep-performance targets are on-demand and fail closed before executable runtime exists",
+    "the 1 ms targets cover only future in-process projection/pivot overhead and are not retrieval/backend/production SLOs",
+    "OPEN-013 and OPEN-014 remain unresolved and their mutations remain excluded",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-004A-CONTRACT"
+  ]
+}

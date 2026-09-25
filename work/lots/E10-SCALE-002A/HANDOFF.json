@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-SCALE-002A",
+  "result": "VERIFIED",
+  "final_validated_head": "989216eeda78b1c957536b9b8c45d56f5fa33e8f",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 36133265542,
+    "pull_request_run": 36133268860,
+    "ledger_entries": 2,
+    "verified_claims": 2,
+    "readiness_total": 498,
+    "readiness_implemented": 2,
+    "readiness_ready": 19,
+    "readiness_blocked": 476,
+    "readiness_proposed": 1,
+    "selected_capability": "CAP-INV-004",
+    "selection_policy": "reuse-first-v1"
+  },
+  "rules": [
+    "CAP-INV-002 is classified IMPLEMENTED from verified runtime evidence without claiming full product-capability completion",
+    "Product Spec remains read-only",
+    "next selection is computed from fresh readiness rather than a hand-maintained backlog",
+    "only READY capabilities are eligible",
+    "reuse-first-v1 prefers the already implemented CAP-INV family and selects the lowest stable READY capability"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-SCALE-002B"
+  ]
+}

@@ -1,0 +1,102 @@
+{
+  "schema_version": 2,
+  "parent": "E4-SEC-002B",
+  "product_refs": {
+    "capabilities": [],
+    "requirements": [],
+    "screens": [],
+    "permissions": [],
+    "open_decisions": [],
+    "implementation_contracts": [],
+    "canonical_objects": []
+  },
+  "forbidden_paths": [
+    "cmdr-product-spec/**"
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "path validation and security analysis remain PR-suitable",
+    "metrics": [
+      "security path validation adds bounded local filesystem work only"
+    ]
+  },
+  "migration": {
+    "required": false,
+    "rationale": "engineering control-plane only",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert this task without claiming the dependent security gate active",
+    "verification": [
+      "adaptive engineering-kernel remains truthful"
+    ]
+  },
+  "definition_of_ready": [
+    "dependencies are VERIFIED",
+    "scope is one coherent security behavior"
+  ],
+  "id": "E4-SEC-002B-OUTPUT",
+  "title": "Confine generated outputs and CI evidence to repository boundaries",
+  "type": "task",
+  "goal": "Prevent caller-controlled generated outputs and adaptive CI evidence from escaping the repository root while preserving cross-platform deterministic behavior.",
+  "depends_on": [
+    "E4-SEC-002A"
+  ],
+  "allowed_paths": [
+    "tools/cmdr-dev/**",
+    "engineering/security/**",
+    "engineering/testing/**",
+    ".github/workflows/**",
+    "work/lots/E4-SEC-002B*/**",
+    "engineering/state/**",
+    "work/graph.json"
+  ],
+  "inputs": [
+    "redacted gosec finding evidence from push/PR",
+    "repository root and canonical path invariants",
+    "existing path normalization helpers"
+  ],
+  "outputs": [
+    "repository-confined output path resolution",
+    "workspace-local adaptive change evidence with automatic cleanup",
+    "restricted 0750/0600 generated evidence permissions"
+  ],
+  "invariants": [
+    "Product Spec remains read-only",
+    "caller-controlled output paths cannot escape repository root",
+    "repository reads do not follow symlinks across the trust boundary",
+    "no SAST finding is suppressed before its sink is reviewed"
+  ],
+  "security_properties": [
+    "fail closed on relative or absolute path escape",
+    "generated output parents cannot traverse repository symlinks",
+    "temporary CI evidence remains inside the checked-out workspace"
+  ],
+  "acceptance_tests": [
+    "go test ./...",
+    "path tests reject relative and absolute escapes",
+    "adaptive engineering-kernel can create and consume workspace-local change evidence on push and PR"
+  ],
+  "required_checks": [
+    "adaptive engineering-kernel",
+    "CHK-UNIT",
+    "CHK-MANIFESTS"
+  ],
+  "definition_of_done": [
+    "all CLI-controlled generated outputs used by engineering checks are repository-confined",
+    "workflow temporary change evidence is repository-confined and cleaned up",
+    "generated evidence uses restrictive permissions",
+    "Product Spec remains read-only"
+  ],
+  "complexity": {
+    "primary_components": 2,
+    "estimated_files_changed": 10,
+    "estimated_net_loc": 330,
+    "production_files": 7,
+    "net_production_loc": 240,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

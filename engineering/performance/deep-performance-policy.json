@@ -1,0 +1,131 @@
+{
+  "schema_version": 1,
+  "default_policy": "deny-unregistered-deep-performance-target",
+  "evidence_directory": "engineering/testing/deep-performance-evidence",
+  "control_plane_paths": [
+    "engineering/performance/**",
+    "engineering/architecture/**",
+    ".github/workflows/performance-deep.yml",
+    "tools/cmdr-dev/deep_performance.go",
+    "tools/cmdr-dev/deep_performance_test.go"
+  ],
+  "caps": {
+    "max_target_duration_seconds": 600,
+    "max_target_memory_mib": 2048,
+    "max_concurrency": 64,
+    "max_targets_per_run": 3
+  },
+  "targets": [
+    {
+      "id": "PERF-DEEP-PILOT-CONTEXT-PROJECTION",
+      "performance_target_id": "PERF-TGT-PILOT-CONTEXT-PROJECTION",
+      "kind": "resource",
+      "handler_key": "builtin-pilot-context-projection-v1",
+      "stages": [
+        "on-demand"
+      ],
+      "trigger_paths": [
+        "product-runtime/context-envelope/**",
+        "engineering/pilot/**"
+      ],
+      "duration_seconds": 0,
+      "timeout_seconds": 30,
+      "memory_limit_mib": 128,
+      "concurrency": 1,
+      "iterations": 10000,
+      "rationale": "Bounded on-demand resource validation of the implemented pilot projection. The compiled handler builds a standard-library-only runtime probe once, executes the declared iteration count under the target memory limit, and records measured runtime evidence."
+    },
+    {
+      "id": "PERF-DEEP-EVENT-SEARCH-VALIDATION",
+      "performance_target_id": "PERF-TGT-EVENT-SEARCH-VALIDATION",
+      "kind": "resource",
+      "handler_key": "builtin-event-search-validation-v1",
+      "stages": [
+        "on-demand"
+      ],
+      "trigger_paths": [
+        "product-runtime/event-search/**"
+      ],
+      "duration_seconds": 0,
+      "timeout_seconds": 30,
+      "memory_limit_mib": 128,
+      "concurrency": 1,
+      "iterations": 10000,
+      "rationale": "Bounded on-demand resource validation of the implemented Event Search validation core using the same standard-library-only runtime probe as PR benchmarking."
+    },
+    {
+      "id": "PERF-DEEP-EVENT-SEARCH-ORCHESTRATION",
+      "performance_target_id": "PERF-TGT-EVENT-SEARCH-ORCHESTRATION",
+      "kind": "resource",
+      "handler_key": "builtin-event-search-orchestration-v1",
+      "stages": [
+        "on-demand"
+      ],
+      "trigger_paths": [
+        "product-runtime/event-search/**"
+      ],
+      "duration_seconds": 0,
+      "timeout_seconds": 30,
+      "memory_limit_mib": 128,
+      "concurrency": 1,
+      "iterations": 10000,
+      "rationale": "Bounded on-demand resource validation of backend-neutral Search Job orchestration. The probe uses a no-op local backend and measures orchestration/resource behavior without selecting or invoking a search provider."
+    },
+    {
+      "id": "PERF-DEEP-EVENT-SEARCH-FRONTEND-STATE",
+      "performance_target_id": "PERF-TGT-EVENT-SEARCH-FRONTEND-STATE",
+      "kind": "resource",
+      "handler_key": "builtin-event-search-frontend-state-v1",
+      "stages": [
+        "on-demand"
+      ],
+      "trigger_paths": [
+        "product-runtime/event-search-frontend/**"
+      ],
+      "duration_seconds": 0,
+      "timeout_seconds": 30,
+      "memory_limit_mib": 128,
+      "concurrency": 1,
+      "iterations": 10000,
+      "rationale": "Pre-registered on-demand frontend state resource validation. The handler deliberately fails closed until executable first-party frontend code and its browser-backed probe are implemented."
+    },
+    {
+      "id": "PERF-DEEP-EVENT-INSPECTION-PROJECTION",
+      "performance_target_id": "PERF-TGT-EVENT-INSPECTION-PROJECTION",
+      "kind": "resource",
+      "handler_key": "builtin-event-inspection-preimplementation-v1",
+      "stages": [
+        "on-demand"
+      ],
+      "trigger_paths": [
+        "product-runtime/event-inspection/**",
+        "engineering/implementation/event-inspection/**"
+      ],
+      "duration_seconds": 0,
+      "timeout_seconds": 30,
+      "memory_limit_mib": 128,
+      "concurrency": 1,
+      "iterations": 10000,
+      "rationale": "Pre-registered on-demand resource validation for the future immutable Event inspection projection. The compiled handler fails closed while the boundary is preimplementation and cannot emit synthetic runtime evidence."
+    },
+    {
+      "id": "PERF-DEEP-EVENT-INSPECTION-PIVOT",
+      "performance_target_id": "PERF-TGT-EVENT-INSPECTION-PIVOT",
+      "kind": "resource",
+      "handler_key": "builtin-event-inspection-preimplementation-v1",
+      "stages": [
+        "on-demand"
+      ],
+      "trigger_paths": [
+        "product-runtime/event-inspection/**",
+        "engineering/implementation/event-inspection/**"
+      ],
+      "duration_seconds": 0,
+      "timeout_seconds": 30,
+      "memory_limit_mib": 128,
+      "concurrency": 1,
+      "iterations": 10000,
+      "rationale": "Pre-registered on-demand resource validation for the future dialect-neutral PivotDraft transformation. The compiled handler fails closed while the boundary is preimplementation and cannot emit synthetic runtime evidence."
+    }
+  ]
+}

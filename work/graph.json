@@ -1,0 +1,1243 @@
+{
+  "schema_version": 1,
+  "graph_kind": "cmrd-engineering-work-graph",
+  "nodes": [
+    {
+      "id": "E0-BOOTSTRAP-001",
+      "title": "Establish autonomous engineering foundation",
+      "type": "lot",
+      "status": "IMPLEMENTED",
+      "depends_on": [],
+      "unlocks": [
+        "E0-KERNEL-001"
+      ]
+    },
+    {
+      "id": "E0-KERNEL-001",
+      "title": "Implement minimal cmdr-dev kernel",
+      "type": "lot",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E0-BOOTSTRAP-001"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E0-SPEC-001"
+      ]
+    },
+    {
+      "id": "E0-SPEC-001",
+      "title": "Implement product-spec inventory compiler",
+      "type": "lot",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E0-KERNEL-001"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E0-COVERAGE-001A"
+      ]
+    },
+    {
+      "id": "E0-COVERAGE-001",
+      "title": "Build product obligation and coverage graph",
+      "type": "epic",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E0-SPEC-001"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E0-COVERAGE-001A"
+      ]
+    },
+    {
+      "id": "E0-COVERAGE-001A",
+      "title": "Build canonical product entity and reference graph",
+      "type": "sublot",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E0-SPEC-001"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E0-COVERAGE-001B"
+      ]
+    },
+    {
+      "id": "E0-COVERAGE-001B",
+      "title": "Derive implementation obligations from product graph",
+      "type": "sublot",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E0-COVERAGE-001A"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E0-COVERAGE-001C"
+      ]
+    },
+    {
+      "id": "E0-COVERAGE-001C",
+      "title": "Detect unmapped and inconsistent product coverage",
+      "type": "sublot",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E0-COVERAGE-001B"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E1-WORK-001A"
+      ]
+    },
+    {
+      "id": "E1-WORK-001",
+      "title": "Implement work decomposition engine",
+      "type": "epic",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E0-COVERAGE-001C"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E1-WORK-001A"
+      ]
+    },
+    {
+      "id": "E1-WORK-001A",
+      "title": "Define and validate implementation work manifests",
+      "type": "sublot",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E0-COVERAGE-001C"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E1-WORK-001B"
+      ]
+    },
+    {
+      "id": "E1-WORK-001B",
+      "title": "Enforce complexity budgets and mandatory split rules",
+      "type": "sublot",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E1-WORK-001A"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E1-WORK-001C"
+      ]
+    },
+    {
+      "id": "E1-WORK-001C",
+      "title": "Compile minimal deterministic agent context bundles",
+      "type": "sublot",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E1-WORK-001B"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E2-ARCH-001A"
+      ]
+    },
+    {
+      "id": "E2-ARCH-001",
+      "title": "Implement architecture and dependency enforcement",
+      "type": "epic",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E1-WORK-001C"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E2-ARCH-001A"
+      ]
+    },
+    {
+      "id": "E2-ARCH-001A",
+      "title": "Define architecture boundary and path ownership registry",
+      "type": "sublot",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E1-WORK-001C"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E2-ARCH-001B"
+      ]
+    },
+    {
+      "id": "E2-ARCH-001B",
+      "title": "Enforce third-party product runtime dependency policy",
+      "type": "sublot",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E2-ARCH-001A"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E2-ARCH-001C"
+      ]
+    },
+    {
+      "id": "E2-ARCH-001C",
+      "title": "Enforce cross-boundary dependency edges",
+      "type": "sublot",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E2-ARCH-001B"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E3-IMPACT-001A"
+      ]
+    },
+    {
+      "id": "E3-IMPACT-001",
+      "title": "Implement impact and test selection engine",
+      "type": "epic",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E2-ARCH-001C"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E3-IMPACT-001A"
+      ]
+    },
+    {
+      "id": "E3-IMPACT-001A",
+      "title": "Define validation check catalog and risk metadata",
+      "type": "sublot",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E2-ARCH-001C"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E3-IMPACT-001B"
+      ]
+    },
+    {
+      "id": "E3-IMPACT-001B",
+      "title": "Compute change impact and affected validation domains",
+      "type": "sublot",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E3-IMPACT-001A"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E3-IMPACT-001C"
+      ]
+    },
+    {
+      "id": "E3-IMPACT-001C",
+      "title": "Select deterministic risk-adaptive validation plan",
+      "type": "sublot",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E3-IMPACT-001B"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E3-IMPACT-002A"
+      ]
+    },
+    {
+      "id": "E3-IMPACT-002",
+      "title": "Integrate risk-adaptive validation with CI change evidence",
+      "type": "epic",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E3-IMPACT-001C"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E3-IMPACT-002A"
+      ]
+    },
+    {
+      "id": "E3-IMPACT-002A",
+      "title": "Derive real push and pull-request change sets in shadow mode",
+      "type": "sublot",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E3-IMPACT-001C"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E3-IMPACT-002B"
+      ]
+    },
+    {
+      "id": "E3-IMPACT-002B",
+      "title": "Execute selected validation plan and gate adaptive CI rollout",
+      "type": "sublot",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E3-IMPACT-002A"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": []
+    },
+    {
+      "id": "E4-SEC-001",
+      "title": "Implement security verification engine",
+      "type": "epic",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E3-IMPACT-002B"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E5-RES-001A"
+      ]
+    },
+    {
+      "id": "E4-SEC-001A",
+      "title": "Define security gate registry and evidence model",
+      "type": "sublot",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E3-IMPACT-002B"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E4-SEC-001B"
+      ]
+    },
+    {
+      "id": "E4-SEC-001B",
+      "title": "Implement source and supply-chain security controls",
+      "type": "lot",
+      "status": "DECOMPOSED",
+      "depends_on": [
+        "E4-SEC-001A"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E4-SEC-002A"
+      ]
+    },
+    {
+      "id": "E4-SEC-001C",
+      "title": "Enforce security-critical negative tests and coverage floors",
+      "type": "sublot",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E4-SEC-002C"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E4-SEC-001D"
+      ]
+    },
+    {
+      "id": "E4-SEC-001D",
+      "title": "Schedule fuzz, DAST, race and deep security validation",
+      "type": "sublot",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E4-SEC-001C"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": []
+    },
+    {
+      "id": "E4-SEC-002A",
+      "title": "Implement deterministic secret scanning",
+      "type": "sublot",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E4-SEC-001A"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E4-SEC-002B"
+      ]
+    },
+    {
+      "id": "E4-SEC-002B",
+      "title": "Implement SAST and dependency vulnerability controls",
+      "type": "sublot",
+      "status": "DECOMPOSED",
+      "depends_on": [
+        "E4-SEC-002A"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E4-SEC-002B-OUTPUT"
+      ]
+    },
+    {
+      "id": "E4-SEC-002C",
+      "title": "Generate deterministic SBOM and supply-chain evidence",
+      "type": "sublot",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E4-SEC-002B-ACTIVATE"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E4-SEC-001C"
+      ]
+    },
+    {
+      "id": "E4-SEC-002B-ACTIVATE",
+      "title": "Finalize and activate Go SAST and SCA controls",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E4-SEC-002B-READ"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E4-SEC-002C"
+      ]
+    },
+    {
+      "id": "E4-SEC-002B-OUTPUT",
+      "title": "Confine generated outputs and CI evidence to repository boundaries",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E4-SEC-002A"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E4-SEC-002B-READ"
+      ]
+    },
+    {
+      "id": "E4-SEC-002B-READ",
+      "title": "Harden repository reads and reject symlink traversal",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E4-SEC-002B-OUTPUT"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E4-SEC-002B-ACTIVATE"
+      ]
+    },
+    {
+      "id": "E5-RES-001",
+      "title": "Implement research and technical decision engine",
+      "type": "epic",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E4-SEC-001"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E5-RES-001A"
+      ]
+    },
+    {
+      "id": "E5-RES-001A",
+      "title": "Define canonical engineering decision and research registry",
+      "type": "sublot",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E4-SEC-001"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E5-RES-001B"
+      ]
+    },
+    {
+      "id": "E5-RES-001B",
+      "title": "Compile source-backed research evidence packets",
+      "type": "sublot",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E5-RES-001A"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E5-RES-001C"
+      ]
+    },
+    {
+      "id": "E5-RES-001C",
+      "title": "Enforce benchmark prototype and adversarial decision gates",
+      "type": "sublot",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E5-RES-001B"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E5-RES-001D"
+      ]
+    },
+    {
+      "id": "E5-RES-001D",
+      "title": "Enforce decision freshness revisit triggers and reusable evidence cache",
+      "type": "sublot",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E5-RES-001C"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": []
+    },
+    {
+      "id": "E6-PERF-001",
+      "title": "Implement performance engineering engine",
+      "type": "epic",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E5-RES-001D"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E6-PERF-001A"
+      ]
+    },
+    {
+      "id": "E6-PERF-001A",
+      "title": "Define performance targets budgets and benchmark registry",
+      "type": "sublot",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E5-RES-001D"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E6-PERF-001B"
+      ]
+    },
+    {
+      "id": "E6-PERF-001B",
+      "title": "Execute representative benchmarks and regression gates",
+      "type": "sublot",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E6-PERF-001A"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E6-PERF-001C"
+      ]
+    },
+    {
+      "id": "E6-PERF-001C",
+      "title": "Schedule profiling load soak and resource validation",
+      "type": "sublot",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E6-PERF-001B"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E6-PERF-001D"
+      ]
+    },
+    {
+      "id": "E6-PERF-001D",
+      "title": "Cache performance evidence and integrate adaptive revisit triggers",
+      "type": "sublot",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E6-PERF-001C"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": []
+    },
+    {
+      "id": "E7-REC-001",
+      "title": "Implement recovery and multi-agent coordination engine",
+      "type": "epic",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E6-PERF-001D"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E7-REC-001A"
+      ]
+    },
+    {
+      "id": "E7-REC-001A",
+      "title": "Define deterministic work leases and agent claims",
+      "type": "sublot",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E6-PERF-001D"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E7-REC-001B"
+      ]
+    },
+    {
+      "id": "E7-REC-001B",
+      "title": "Persist crash-safe execution journal and resume checkpoints",
+      "type": "sublot",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E7-REC-001A"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E7-REC-001C"
+      ]
+    },
+    {
+      "id": "E7-REC-001C",
+      "title": "Reconcile interrupted work against Git and CI reality",
+      "type": "sublot",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E7-REC-001B"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E7-REC-001D"
+      ]
+    },
+    {
+      "id": "E7-REC-001D",
+      "title": "Enforce multi-agent conflict detection and safe handoff",
+      "type": "sublot",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E7-REC-001C"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": []
+    },
+    {
+      "id": "E8-MET-001",
+      "title": "Implement engine metrics and optimization layer",
+      "type": "epic",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E7-REC-001D"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E8-MET-001A"
+      ]
+    },
+    {
+      "id": "E8-MET-001A",
+      "title": "Define deterministic engine metrics registry and evidence model",
+      "type": "sublot",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E7-REC-001D"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E8-MET-001B"
+      ]
+    },
+    {
+      "id": "E8-MET-001B",
+      "title": "Collect validation throughput context and cache efficiency metrics",
+      "type": "sublot",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E8-MET-001A"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E8-MET-001C"
+      ]
+    },
+    {
+      "id": "E8-MET-001C",
+      "title": "Derive safety-constrained optimization recommendations",
+      "type": "sublot",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E8-MET-001B"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E8-MET-001D"
+      ]
+    },
+    {
+      "id": "E8-MET-001D",
+      "title": "Enforce engine efficiency regression budgets and optimization handoff",
+      "type": "sublot",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E8-MET-001C"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": []
+    },
+    {
+      "id": "E9-PILOT-001",
+      "title": "Execute bounded end-to-end implementation pilot",
+      "type": "epic",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E8-MET-001D"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E9-PILOT-001A"
+      ]
+    },
+    {
+      "id": "E9-PILOT-001A",
+      "title": "Select and compile a traceable bounded pilot slice",
+      "type": "sublot",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E8-MET-001D"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E9-PILOT-001B"
+      ]
+    },
+    {
+      "id": "E9-PILOT-001B",
+      "title": "Establish pilot runtime boundary and executable contracts",
+      "type": "sublot",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E9-PILOT-001A"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E9-PILOT-001B-CONTRACT"
+      ]
+    },
+    {
+      "id": "E9-PILOT-001C",
+      "title": "Implement the selected vertical slice",
+      "type": "sublot",
+      "status": "DECOMPOSED",
+      "depends_on": [
+        "E9-PILOT-001B"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E9-PILOT-001C-RUNTIME"
+      ]
+    },
+    {
+      "id": "E9-PILOT-001D",
+      "title": "Run adversarial end-to-end pilot validation and handoff",
+      "type": "sublot",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E9-PILOT-001C-RUNTIME",
+        "E9-PILOT-001C-SECURITY",
+        "E9-PILOT-001C-PERF"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": []
+    },
+    {
+      "id": "E9-PILOT-001B-CONTRACT",
+      "title": "Establish pilot runtime boundary and executable contract fixtures",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E9-PILOT-001A"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E9-PILOT-001B-SECURITY"
+      ]
+    },
+    {
+      "id": "E9-PILOT-001B-PERF",
+      "title": "Register pre-implementation performance budgets for pilot runtime boundary",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E9-PILOT-001B-SECURITY"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": []
+    },
+    {
+      "id": "E9-PILOT-001B-SECURITY",
+      "title": "Register pilot runtime security ownership and preimplementation state",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E9-PILOT-001B-CONTRACT"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E9-PILOT-001B-PERF"
+      ]
+    },
+    {
+      "id": "E9-PILOT-001C-RUNTIME",
+      "title": "Implement context-envelope runtime and contract fixtures",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E9-PILOT-001B"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E9-PILOT-001C-SECURITY"
+      ]
+    },
+    {
+      "id": "E9-PILOT-001C-SECURITY",
+      "title": "Activate measured runtime security evidence and negative gates",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E9-PILOT-001C-RUNTIME"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E9-PILOT-001C-PERF"
+      ]
+    },
+    {
+      "id": "E9-PILOT-001C-PERF",
+      "title": "Activate pilot runtime performance workload and verify budget",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E9-PILOT-001C-SECURITY"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": []
+    },
+    {
+      "id": "E10-SCALE-001",
+      "title": "Compile the scaled product implementation program",
+      "type": "epic",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E9-PILOT-001D"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-SCALE-001A"
+      ]
+    },
+    {
+      "id": "E10-SCALE-001A",
+      "title": "Establish evidence-backed runtime implementation ledger",
+      "type": "sublot",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E9-PILOT-001D"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-SCALE-001B"
+      ]
+    },
+    {
+      "id": "E10-SCALE-001B",
+      "title": "Compile capability implementation readiness and blockers",
+      "type": "sublot",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-SCALE-001A"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-SCALE-001C"
+      ]
+    },
+    {
+      "id": "E10-SCALE-001C",
+      "title": "Materialize first bounded implementation wave",
+      "type": "sublot",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-SCALE-001B"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-002"
+      ]
+    },
+    {
+      "id": "E10-INV-002",
+      "title": "Implement bounded Event Search core for CAP-INV-002",
+      "type": "epic",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-SCALE-001C"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-002A"
+      ]
+    },
+    {
+      "id": "E10-INV-002A",
+      "title": "Compile Event Search executable contract and runtime boundary",
+      "type": "task",
+      "status": "DECOMPOSED",
+      "depends_on": [
+        "E10-SCALE-001C"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-002A-BOUNDARY"
+      ]
+    },
+    {
+      "id": "E10-INV-002B",
+      "title": "Implement tenant-scoped query validation core",
+      "type": "task",
+      "status": "DECOMPOSED",
+      "depends_on": [
+        "E10-INV-002A-CONTRACT"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-002B-CONTROLS"
+      ]
+    },
+    {
+      "id": "E10-INV-002C",
+      "title": "Implement Search Job lifecycle and partial-result orchestration",
+      "type": "task",
+      "status": "DECOMPOSED",
+      "depends_on": [
+        "E10-INV-002B-RUNTIME"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-002C-RUNTIME"
+      ]
+    },
+    {
+      "id": "E10-INV-002D",
+      "title": "Run adversarial Event Search core validation and bounded handoff",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-INV-002C-RUNTIME",
+        "E10-INV-002C-PERF"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-002E"
+      ]
+    },
+    {
+      "id": "E10-INV-002A-BOUNDARY",
+      "title": "Register Event Search runtime ownership and preimplementation controls",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-SCALE-001C"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-002A-CONTRACT"
+      ]
+    },
+    {
+      "id": "E10-INV-002A-CONTRACT",
+      "title": "Compile Event Search executable contract and negative fixtures",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-INV-002A-BOUNDARY"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-002B"
+      ]
+    },
+    {
+      "id": "E10-INV-002B-CONTROLS",
+      "title": "Prepare multi-runtime security and performance adapters for Event Search",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-INV-002A-CONTRACT"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-002B-RUNTIME"
+      ]
+    },
+    {
+      "id": "E10-INV-002B-RUNTIME",
+      "title": "Implement tenant-scoped Event Search validation runtime",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-INV-002B-CONTROLS"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-002C"
+      ]
+    },
+    {
+      "id": "E10-INV-002C-RUNTIME",
+      "title": "Implement Search Job lifecycle and partial-result runtime",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-INV-002B-RUNTIME"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-002C-PERF"
+      ]
+    },
+    {
+      "id": "E10-INV-002C-PERF",
+      "title": "Prove bounded Search Job orchestration performance",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-INV-002C-RUNTIME"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": []
+    },
+    {
+      "id": "E10-INV-002E",
+      "title": "Research and select Event Search frontend runtime architecture",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-INV-002D"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-002F"
+      ]
+    },
+    {
+      "id": "E10-INV-002F",
+      "title": "Implement bounded Event Search frontend runtime",
+      "type": "epic",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-INV-002E"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-002F-BOUNDARY"
+      ]
+    },
+    {
+      "id": "E10-INV-002F-BOUNDARY",
+      "title": "Register Event Search frontend runtime ownership and controls",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-INV-002E"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-002F-STATE"
+      ]
+    },
+    {
+      "id": "E10-INV-002F-STATE",
+      "title": "Implement Event Search frontend state and deep-link core",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-INV-002F-BOUNDARY"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-002F-SHELL"
+      ]
+    },
+    {
+      "id": "E10-INV-002F-SHELL",
+      "title": "Implement accessible Event Search shell and mandatory UI states",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-INV-002F-STATE"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-002F-RESULTS"
+      ]
+    },
+    {
+      "id": "E10-INV-002F-RESULTS",
+      "title": "Implement bounded incremental Event Search result rendering",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-INV-002F-SHELL"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-002F-INTEGRATION"
+      ]
+    },
+    {
+      "id": "E10-INV-002F-INTEGRATION",
+      "title": "Integrate Event Search frontend with backend-neutral transport contract",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-INV-002F-RESULTS"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-002F-E2E"
+      ]
+    },
+    {
+      "id": "E10-INV-002F-E2E",
+      "title": "Validate Event Search frontend security accessibility deep links and performance",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-INV-002F-INTEGRATION"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-002G"
+      ]
+    },
+    {
+      "id": "E10-INV-002G",
+      "title": "Compile verified Event Search runtime claim for implementation ledger",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-INV-002F-E2E"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-SCALE-002A"
+      ]
+    },
+    {
+      "id": "E10-SCALE-002",
+      "title": "Advance verified implementation ledger and select the next bounded capability wave",
+      "type": "epic",
+      "status": "DECOMPOSED",
+      "depends_on": [
+        "E10-INV-002G"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-SCALE-002A"
+      ]
+    },
+    {
+      "id": "E10-SCALE-002A",
+      "title": "Register CAP-INV-002 runtime claim and recompile implementation readiness",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-INV-002G"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-SCALE-002B"
+      ]
+    },
+    {
+      "id": "E10-SCALE-002B",
+      "title": "Select and materialize the next reuse-first capability wave",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-SCALE-002A"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": []
+    },
+    {
+      "id": "E10-INV-004",
+      "title": "Implement bounded Event Inspection and Pivot core for CAP-INV-004",
+      "type": "epic",
+      "status": "DECOMPOSED",
+      "depends_on": [
+        "E10-SCALE-002B"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-004A-BOUNDARY"
+      ]
+    },
+    {
+      "id": "E10-INV-004A-BOUNDARY",
+      "title": "Register Event Inspection runtime boundary and preimplementation controls",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-SCALE-002B"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-004A-CONTRACT"
+      ]
+    },
+    {
+      "id": "E10-INV-004A-CONTRACT",
+      "title": "Compile Event Inspection executable read-only contract",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-INV-004A-BOUNDARY"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-004B-RUNTIME"
+      ]
+    },
+    {
+      "id": "E10-INV-004B-RUNTIME",
+      "title": "Implement immutable permission-gated Event inspection projection",
+      "type": "task",
+      "status": "READY",
+      "depends_on": [
+        "E10-INV-004A-CONTRACT"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-004C-PIVOT"
+      ]
+    },
+    {
+      "id": "E10-INV-004C-PIVOT",
+      "title": "Implement deterministic Event pivot draft and return context",
+      "type": "task",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E10-INV-004B-RUNTIME"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-004D-CLOSURE"
+      ]
+    },
+    {
+      "id": "E10-INV-004D-CLOSURE",
+      "title": "Validate Event Inspection adversarial security and bounded performance",
+      "type": "task",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E10-INV-004C-PIVOT"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": []
+    }
+  ]
+}

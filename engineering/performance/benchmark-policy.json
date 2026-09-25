@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "policy_kind": "compiled-performance-workloads",
+  "workloads": [
+    {
+      "key": "cmdr-dev-metadata-audit-v1",
+      "handler_key": "builtin-cmdr-dev-metadata-audit-v1",
+      "warmup_iterations": 1,
+      "sample_count": 5,
+      "max_sample_duration_ms": 2000
+    },
+    {
+      "key": "pilot-context-projection-v1",
+      "handler_key": "builtin-pilot-context-projection-v1",
+      "warmup_iterations": 2,
+      "sample_count": 9,
+      "max_sample_duration_ms": 100
+    },
+    {
+      "key": "event-search-validation-v1",
+      "handler_key": "builtin-event-search-validation-v1",
+      "warmup_iterations": 1,
+      "sample_count": 5,
+      "max_sample_duration_ms": 100
+    },
+    {
+      "key": "event-search-orchestration-v1",
+      "handler_key": "builtin-event-search-orchestration-v1",
+      "warmup_iterations": 1,
+      "sample_count": 5,
+      "max_sample_duration_ms": 100
+    },
+    {
+      "key": "event-search-frontend-state-update-v1",
+      "handler_key": "builtin-event-search-frontend-state-v1",
+      "warmup_iterations": 1,
+      "sample_count": 5,
+      "max_sample_duration_ms": 1000
+    },
+    {
+      "key": "event-inspection-projection-v1",
+      "handler_key": "builtin-event-inspection-preimplementation-v1",
+      "warmup_iterations": 0,
+      "sample_count": 3,
+      "max_sample_duration_ms": 100
+    },
+    {
+      "key": "event-inspection-pivot-v1",
+      "handler_key": "builtin-event-inspection-preimplementation-v1",
+      "warmup_iterations": 0,
+      "sample_count": 3,
+      "max_sample_duration_ms": 100
+    }
+  ]
+}

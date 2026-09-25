@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-002C",
+  "status": "VERIFIED",
+  "final_validated_head": "e020da86445af74edbe5253ed16f14a4309a9c1d",
+  "children": {
+    "E10-INV-002C-RUNTIME": "VERIFIED",
+    "E10-INV-002C-PERF": "VERIFIED"
+  },
+  "evidence": {
+    "runtime_head": "81d4a1993af856cb599d33953d7b5e8e131271a1",
+    "runtime_push_run": 36046150008,
+    "runtime_pr_run": 36046157371,
+    "performance_push_run": 36048569283,
+    "performance_pr_run": 36048576343,
+    "orchestration_p95_ms": 0.0017169862,
+    "budget_ms": 1
+  },
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-002D"
+  ],
+  "coordination_graph_status": "DECOMPOSED",
+  "aggregate_completion": "VERIFIED",
+  "note": "E10-INV-002C is a split-required coordination parent. Its child tasks are VERIFIED; downstream work depends on those verified children directly rather than promoting the coordination parent past DECOMPOSED."
+}

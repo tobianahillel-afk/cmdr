@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "work_unit": "E4-SEC-002B",
+  "result": "VERIFIED",
+  "final_validated_head": "1cb0c05272bdccef4df264292f6345436e8402ba",
+  "summary": "Go SAST and reachability-aware SCA are enforced by the adaptive kernel with repository path hardening and no SAST baseline exceptions.",
+  "evidence_runs": [
+    35845737139,
+    35845742512,
+    35849028333,
+    35849033520
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E4-SEC-002C"
+  ]
+}

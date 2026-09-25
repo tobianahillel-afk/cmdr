@@ -1,0 +1,190 @@
+{
+  "schema_version": 1,
+  "registry_kind": "performance-targets",
+  "environments": [
+    {
+      "id": "PERF-ENV-GITHUB-UBUNTU-SHARED",
+      "kind": "shared-ci",
+      "os": "linux",
+      "arch": "amd64",
+      "runner_class": "github-hosted-ubuntu-latest",
+      "relative_regression_allowed": false,
+      "rationale": "shared CI is suitable for bounded smoke budgets but too noisy to claim tight relative performance superiority"
+    }
+  ],
+  "targets": [
+    {
+      "id": "PERF-TGT-PILOT-CONTEXT-PROJECTION",
+      "scope_kind": "product-runtime",
+      "boundary_id": "pilot-context-envelope-runtime",
+      "owner_path": "product-runtime/context-envelope/**",
+      "workload_key": "pilot-context-projection-v1",
+      "workload_description": "Deterministic in-process projection of one prevalidated tenant/environment context envelope, measured by a standard-library-only runtime probe that excludes build and process-startup time from the reported per-operation latency.",
+      "environment_id": "PERF-ENV-GITHUB-UBUNTU-SHARED",
+      "stages": [
+        "pr",
+        "on-demand"
+      ],
+      "trigger_paths": [
+        "product-runtime/context-envelope/**",
+        "engineering/pilot/**"
+      ],
+      "metrics": [
+        {
+          "id": "projection-p95-latency",
+          "kind": "latency",
+          "unit": "ms",
+          "aggregation": "p95",
+          "comparator": "upper-bound",
+          "budget": 1,
+          "max_relative_regression_percent": 0
+        }
+      ],
+      "rationale": "The runtime now exists and is verified, so the coarse shared-CI absolute p95 ceiling can execute on PRs that touch the pilot runtime while retaining on-demand execution. Shared CI still makes no relative-performance claim."
+    },
+    {
+      "id": "PERF-TGT-EVENT-SEARCH-VALIDATION",
+      "scope_kind": "product-runtime",
+      "boundary_id": "event-search-runtime",
+      "owner_path": "product-runtime/event-search/**",
+      "workload_key": "event-search-validation-v1",
+      "workload_description": "Deterministic in-process validation of one tenant/time/source/permission/provenance Event Search envelope. The standard-library-only runtime is executable; build and process-startup time are excluded from the reported per-operation latency.",
+      "environment_id": "PERF-ENV-GITHUB-UBUNTU-SHARED",
+      "stages": [
+        "pr",
+        "on-demand"
+      ],
+      "trigger_paths": [
+        "product-runtime/event-search/**"
+      ],
+      "metrics": [
+        {
+          "id": "validation-p95-latency",
+          "kind": "latency",
+          "unit": "ms",
+          "aggregation": "p95",
+          "comparator": "upper-bound",
+          "budget": 1,
+          "max_relative_regression_percent": 0
+        }
+      ],
+      "rationale": "The bounded Event Search validation runtime is executable. The 1 ms shared-CI ceiling applies only to deterministic in-process envelope validation, not backend search latency and not a production Search SLO."
+    },
+    {
+      "id": "PERF-TGT-EVENT-SEARCH-ORCHESTRATION",
+      "scope_kind": "product-runtime",
+      "boundary_id": "event-search-runtime",
+      "owner_path": "product-runtime/event-search/**",
+      "workload_key": "event-search-orchestration-v1",
+      "workload_description": "Deterministic in-process Search Job orchestration from queued through running to completed against a no-op backend that only acknowledges validated sources. Job creation, build/process startup and backend work are excluded from the reported per-operation latency.",
+      "environment_id": "PERF-ENV-GITHUB-UBUNTU-SHARED",
+      "stages": [
+        "pr",
+        "on-demand"
+      ],
+      "trigger_paths": [
+        "product-runtime/event-search/**"
+      ],
+      "metrics": [
+        {
+          "id": "orchestration-p95-latency",
+          "kind": "latency",
+          "unit": "ms",
+          "aggregation": "p95",
+          "comparator": "upper-bound",
+          "budget": 1,
+          "max_relative_regression_percent": 0
+        }
+      ],
+      "rationale": "The 1 ms shared-CI ceiling applies only to backend-neutral Search Job orchestration overhead. It is separate from Event Search validation latency, excludes backend execution, and is not a production search SLO."
+    },
+    {
+      "id": "PERF-TGT-EVENT-SEARCH-FRONTEND-STATE",
+      "scope_kind": "product-runtime",
+      "boundary_id": "event-search-frontend-runtime",
+      "owner_path": "product-runtime/event-search-frontend/**",
+      "workload_key": "event-search-frontend-state-update-v1",
+      "workload_description": "First-party Event Search frontend local deep-link normalization and bounded incremental result-render update overhead measured by the real ES-module runtime under Node 24.21.0. The probe excludes Node process startup, backend search execution, network transport and browser paint/layout.",
+      "environment_id": "PERF-ENV-GITHUB-UBUNTU-SHARED",
+      "stages": [
+        "pr",
+        "on-demand"
+      ],
+      "trigger_paths": [
+        "product-runtime/event-search-frontend/**",
+        "engineering/implementation/event-search/**",
+        "engineering/performance/event-search/frontend-runtime-probe.mjs",
+        "engineering/performance/benchmark-policy.json",
+        "engineering/performance/performance-registry.json"
+      ],
+      "metrics": [
+        {
+          "id": "frontend-state-update-p95-latency",
+          "kind": "latency",
+          "unit": "ms",
+          "aggregation": "p95",
+          "comparator": "upper-bound",
+          "budget": 16,
+          "max_relative_regression_percent": 0
+        }
+      ],
+      "rationale": "A 16 ms coarse upper bound reserves one 60 Hz frame for local Event Search state/render overhead. The implemented first-party runtime can now execute this deterministic PR/on-demand probe. The measurement excludes backend/network/browser paint and is not a production Search SLO."
+    },
+    {
+      "id": "PERF-TGT-EVENT-INSPECTION-PROJECTION",
+      "scope_kind": "product-runtime",
+      "boundary_id": "event-inspection-runtime",
+      "owner_path": "product-runtime/event-inspection/**",
+      "workload_key": "event-inspection-projection-v1",
+      "workload_description": "Future deterministic in-process construction of one permission-gated immutable Event inspection projection from already-resolved source, parser, field and enrichment inputs. Retrieval, parser execution, entity resolution, build and process-startup time are excluded.",
+      "environment_id": "PERF-ENV-GITHUB-UBUNTU-SHARED",
+      "stages": [
+        "on-demand"
+      ],
+      "trigger_paths": [
+        "product-runtime/event-inspection/**",
+        "engineering/implementation/event-inspection/**"
+      ],
+      "metrics": [
+        {
+          "id": "inspection-projection-p95-latency",
+          "kind": "latency",
+          "unit": "ms",
+          "aggregation": "p95",
+          "comparator": "upper-bound",
+          "budget": 1,
+          "max_relative_regression_percent": 0
+        }
+      ],
+      "rationale": "This is a preimplementation engineering ceiling for pure local projection overhead only. It is intentionally on-demand until executable runtime exists and is not a retrieval, parser, backend or production SLO."
+    },
+    {
+      "id": "PERF-TGT-EVENT-INSPECTION-PIVOT",
+      "scope_kind": "product-runtime",
+      "boundary_id": "event-inspection-runtime",
+      "owner_path": "product-runtime/event-inspection/**",
+      "workload_key": "event-inspection-pivot-v1",
+      "workload_description": "Future deterministic in-process creation of one dialect-neutral PivotDraft from an already-authorized inspected field/value/time/source/return context. Search execution, network/backend work, build and process-startup time are excluded.",
+      "environment_id": "PERF-ENV-GITHUB-UBUNTU-SHARED",
+      "stages": [
+        "on-demand"
+      ],
+      "trigger_paths": [
+        "product-runtime/event-inspection/**",
+        "engineering/implementation/event-inspection/**"
+      ],
+      "metrics": [
+        {
+          "id": "pivot-draft-p95-latency",
+          "kind": "latency",
+          "unit": "ms",
+          "aggregation": "p95",
+          "comparator": "upper-bound",
+          "budget": 1,
+          "max_relative_regression_percent": 0
+        }
+      ],
+      "rationale": "This is a preimplementation engineering ceiling for pure local pivot-draft preparation only. It is intentionally on-demand until executable runtime exists and is not a Search or production SLO."
+    }
+  ]
+}

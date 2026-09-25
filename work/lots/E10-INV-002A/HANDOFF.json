@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-002A",
+  "result": "VERIFIED",
+  "final_validated_head": "32a3cea495c3256b73c40fcd3ac1a6fefe2c63ee",
+  "pull_request": 36,
+  "evidence": {
+    "boundary_task": "E10-INV-002A-BOUNDARY",
+    "contract_task": "E10-INV-002A-CONTRACT",
+    "boundary_state": "preimplementation",
+    "contract": "EVENT-SEARCH-EXECUTABLE-CONTRACT-V1"
+  },
+  "rules": [
+    "runtime ownership, security obligations and performance target exist before executable Event Search code",
+    "executable contract and negative fixtures exist before runtime validation code",
+    "OPEN-013-dependent Case-link behavior remains excluded",
+    "no final backend technology has been selected"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-002B"
+  ]
+}
