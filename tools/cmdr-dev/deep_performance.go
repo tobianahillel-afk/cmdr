@@ -104,11 +104,12 @@ var knownDeepPerformanceStages = map[string]bool{
 }
 
 var knownDeepPerformanceHandlerKeys = map[string]bool{
-	"builtin-cmdr-dev-deep-metadata-v1":      true,
-	"builtin-pilot-context-projection-v1":    true,
-	"builtin-event-search-validation-v1":     true,
-	"builtin-event-search-orchestration-v1":  true,
-	"builtin-event-search-frontend-state-v1": true,
+	"builtin-cmdr-dev-deep-metadata-v1":          true,
+	"builtin-pilot-context-projection-v1":        true,
+	"builtin-event-search-validation-v1":         true,
+	"builtin-event-search-orchestration-v1":      true,
+	"builtin-event-search-frontend-state-v1":     true,
+	"builtin-event-inspection-preimplementation-v1": true,
 }
 
 func runDeepPerformanceAudit(root, stage, changesFile, requestedTarget string) (DeepPerformanceAuditSummary, error) {
@@ -404,6 +405,9 @@ func executeDeepPerformanceTargetWithHandler(
 }
 
 func runDeepPerformanceHandler(ctx context.Context, root string, target DeepPerformanceTarget) (DeepPerformanceObservation, error) {
+	if target.HandlerKey == "builtin-event-inspection-preimplementation-v1" {
+		return DeepPerformanceObservation{}, fmt.Errorf("event-inspection deep performance target is preimplementation; implement E10-INV-004B-RUNTIME before executable measurement")
+	}
 	if target.HandlerKey == "builtin-event-search-frontend-state-v1" {
 		return DeepPerformanceObservation{}, fmt.Errorf("Event Search frontend deep performance target is preimplementation; executable browser-backed handler is required before measurement")
 	}

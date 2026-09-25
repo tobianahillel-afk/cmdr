@@ -99,7 +99,8 @@
     "deny-by-default external runtime dependency rule",
     "preimplementation security ownership and negative-test obligations",
     "on-demand local inspection-projection and pivot-draft engineering budgets",
-    "fail-closed preimplementation benchmark handler"
+    "fail-closed preimplementation benchmark handler",
+    "on-demand deep-resource targets that fail closed while preimplementation"
   ],
   "acceptance_tests": [
     "runtime path has unique product-runtime ownership",
@@ -107,7 +108,8 @@
     "security registry recognizes the future runtime without claiming coverage or negative-test PASS",
     "performance registry covers the boundary with projection and pivot targets",
     "preimplementation benchmark execution fails closed until executable runtime exists",
-    "performance targets state local engineering ceilings rather than retrieval/backend/production SLOs"
+    "performance targets state local engineering ceilings rather than retrieval/backend/production SLOs",
+    "every Event Inspection runtime performance target has a matching on-demand deep-performance target"
   ],
   "performance_budget": {
     "applicable": false,
@@ -119,7 +121,8 @@
     "CHK-RUNTIME-DEPS",
     "CHK-BOUNDARY-EDGES",
     "CHK-SECURITY-TESTS",
-    "CHK-PERFORMANCE-REGISTRY"
+    "CHK-PERFORMANCE-REGISTRY",
+    "CHK-DEEP-PERFORMANCE"
   ],
   "definition_of_ready": [
     "E10-SCALE-002B is VERIFIED"

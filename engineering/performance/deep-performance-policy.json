@@ -88,6 +88,44 @@
       "concurrency": 1,
       "iterations": 10000,
       "rationale": "Pre-registered on-demand frontend state resource validation. The handler deliberately fails closed until executable first-party frontend code and its browser-backed probe are implemented."
+    },
+    {
+      "id": "PERF-DEEP-EVENT-INSPECTION-PROJECTION",
+      "performance_target_id": "PERF-TGT-EVENT-INSPECTION-PROJECTION",
+      "kind": "resource",
+      "handler_key": "builtin-event-inspection-preimplementation-v1",
+      "stages": [
+        "on-demand"
+      ],
+      "trigger_paths": [
+        "product-runtime/event-inspection/**",
+        "engineering/implementation/event-inspection/**"
+      ],
+      "duration_seconds": 0,
+      "timeout_seconds": 30,
+      "memory_limit_mib": 128,
+      "concurrency": 1,
+      "iterations": 10000,
+      "rationale": "Pre-registered on-demand resource validation for the future immutable Event inspection projection. The compiled handler fails closed while the boundary is preimplementation and cannot emit synthetic runtime evidence."
+    },
+    {
+      "id": "PERF-DEEP-EVENT-INSPECTION-PIVOT",
+      "performance_target_id": "PERF-TGT-EVENT-INSPECTION-PIVOT",
+      "kind": "resource",
+      "handler_key": "builtin-event-inspection-preimplementation-v1",
+      "stages": [
+        "on-demand"
+      ],
+      "trigger_paths": [
+        "product-runtime/event-inspection/**",
+        "engineering/implementation/event-inspection/**"
+      ],
+      "duration_seconds": 0,
+      "timeout_seconds": 30,
+      "memory_limit_mib": 128,
+      "concurrency": 1,
+      "iterations": 10000,
+      "rationale": "Pre-registered on-demand resource validation for the future dialect-neutral PivotDraft transformation. The compiled handler fails closed while the boundary is preimplementation and cannot emit synthetic runtime evidence."
     }
   ]
 }
