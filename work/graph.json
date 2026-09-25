@@ -1193,7 +1193,7 @@
       "id": "E10-INV-004A-CONTRACT",
       "title": "Compile Event Inspection executable read-only contract",
       "type": "task",
-      "status": "READY",
+      "status": "VERIFIED",
       "depends_on": [
         "E10-INV-004A-BOUNDARY"
       ],
@@ -1206,7 +1206,7 @@
       "id": "E10-INV-004B-RUNTIME",
       "title": "Implement immutable permission-gated Event inspection projection",
       "type": "task",
-      "status": "BLOCKED",
+      "status": "READY",
       "depends_on": [
         "E10-INV-004A-CONTRACT"
       ],
