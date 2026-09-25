@@ -111,6 +111,7 @@ export function normalizeTransportOutcome(input, request, options = {}) {
     throw invalid("unknown-job-state", `unknown Search Job state: ${job.state}`);
   }
   assertJobScopeMatchesRequest(job, request);
+  assertJobDataSourcesAreRequested(job, request.sources);
   if (retryOfRunId === undefined) {
     if (job.parentRunId !== undefined) {
       throw invalid("unexpected-parent-run", "initial execution must not claim a parent run");
@@ -131,6 +132,12 @@ export function normalizeTransportOutcome(input, request, options = {}) {
   let shellState = null;
   if (job.state === "partial") {
     const freshness = normalizeFreshness(input.freshness);
+    const requested = new Set(request.sources);
+    for (const item of freshness) {
+      if (!requested.has(item.source)) {
+        throw invalid("unexpected-freshness-source", "freshness names a source outside the request");
+      }
+    }
     shellState = normalizeShellState({
       kind: "partial",
       failedSources: job.failedSources.map((failure) => failure.source),
@@ -348,6 +355,20 @@ function assertJobScopeMatchesRequest(job, request) {
     !sameStringArray(job.sources, request.sources)
   ) {
     throw invalid("job-scope-mismatch", "server Search Job scope/provenance does not match request");
+  }
+}
+
+function assertJobDataSourcesAreRequested(job, requestedSources) {
+  const requested = new Set(requestedSources);
+  for (const item of job.resultRefs) {
+    if (!requested.has(item.source)) {
+      throw invalid("unexpected-result-source", "server result ref names a source outside the request");
+    }
+  }
+  for (const item of job.failedSources) {
+    if (!requested.has(item.source)) {
+      throw invalid("unexpected-failed-source", "server failure names a source outside the request");
+    }
   }
 }
 
