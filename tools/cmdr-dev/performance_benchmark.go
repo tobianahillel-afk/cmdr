@@ -16,9 +16,9 @@ import (
 )
 
 const (
-	benchmarkPolicyPath   = "engineering/performance/benchmark-policy.json"
-	benchmarkBaselinePath = "engineering/performance/benchmark-baselines.json"
-	defaultCIEnvironment  = "PERF-ENV-GITHUB-UBUNTU-SHARED"
+	benchmarkPolicyPath    = "engineering/performance/benchmark-policy.json"
+	benchmarkBaselinePath  = "engineering/performance/benchmark-baselines.json"
+	defaultCIEnvironment   = "PERF-ENV-GITHUB-UBUNTU-SHARED"
 	engineeringNodeVersion = "24.21.0"
 )
 
