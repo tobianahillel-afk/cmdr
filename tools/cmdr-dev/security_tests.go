@@ -111,8 +111,8 @@ func runtimeSecurityAdapters() map[string]runtimeSecurityAdapter {
 		},
 		"event-search-frontend-runtime": {
 			BoundaryID: "event-search-frontend-runtime", RuntimeRoot: eventSearchFrontendSecurityRuntimeRoot, RuntimeKind: "node",
-			TestFiles:              []string{"state.test.mjs", "shell.test.mjs"},
-			CoverageIncludes:       []string{"state.mjs", "shell.mjs"},
+			TestFiles:              []string{"state.test.mjs", "shell.test.mjs", "results.test.mjs"},
+			CoverageIncludes:       []string{"state.mjs", "shell.mjs", "results.mjs"},
 			AuthorizationTestRegex: eventSearchFrontendAuthorizationTestRegexp,
 			TenantTestRegex:        eventSearchFrontendTenantTestRegexp,
 		},

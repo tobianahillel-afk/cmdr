@@ -6,6 +6,6 @@
     "node": "24.21.0"
   },
   "scripts": {
-    "test": "node --test state.test.mjs shell.test.mjs"
+    "test": "node --test state.test.mjs shell.test.mjs results.test.mjs"
   }
 }
