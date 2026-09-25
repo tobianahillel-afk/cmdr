@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-002F-SHELL",
+  "status": "VERIFIED",
+  "final_validated_head": "08749ed48b0907d2ea6ae7e9dfbec8f8a34d3f1e",
+  "implementation": {
+    "initial_commit": "9f502470d62b681df6754014c781585d7e8da362",
+    "final_format_commit": "08749ed48b0907d2ea6ae7e9dfbec8f8a34d3f1e",
+    "files": [
+      "product-runtime/event-search-frontend/shell.mjs",
+      "product-runtime/event-search-frontend/shell.test.mjs"
+    ]
+  },
+  "validation": {
+    "push_workflow_run": 36122626427,
+    "pull_request_workflow_run": 36122632037,
+    "result": "PASS",
+    "plan_tier": "strict",
+    "selected_checks": 52,
+    "executed_checks": 45,
+    "preflight_satisfied": 7,
+    "runtime_dependencies": 0,
+    "architecture_audit": "PASS",
+    "manifest_validation": "PASS",
+    "complexity_audit": "PASS",
+    "security_test_audit": "PASS",
+    "global_runtime_coverage_percent": 91.85,
+    "global_coverage_floor_percent": 80,
+    "changed_security_critical_floor_percent": 90,
+    "pull_request_changed_scopes": 3,
+    "authorization_required_scopes": 3,
+    "tenant_isolation_required_scopes": 3
+  },
+  "shell_evidence": [
+    "six mandatory states normalize and render deterministically",
+    "native semantic form, label, textarea and buttons are used",
+    "no innerHTML, outerHTML, insertAdjacentHTML, network transport or third-party import is present",
+    "offline and permission-denied disable execution",
+    "permission-denied blanks query content and reveals no protected query text",
+    "partial state exposes failed sources, freshness and decision consequence",
+    "error state preserves correlation identifier and bounded retry action",
+    "focus target is explicit and programmatically focusable without forced focus",
+    "Node security adapter covers state.mjs and shell.mjs with 90% line floor",
+    "authorization negative-test set includes permission-denied content masking"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-002F-RESULTS"
+  ]
+}

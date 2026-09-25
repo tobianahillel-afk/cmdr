@@ -2,11 +2,11 @@
 
 This directory is reserved for the first-party browser runtime of `CAP-INV-002 / INV-EVS-001`.
 
-Current state: **bounded state/deep-link core implemented; DOM shell not implemented yet**.
+Current state: **bounded state/deep-link core and accessible semantic shell implemented and verified; result rendering and transport integration are not implemented yet**.
 
 The accepted engineering architecture is `ENG-DEC-0001`: first-party Web Platform ES modules, native semantic HTML by default, bounded incremental DOM updates, URL/History deep-link state and no third-party UI framework/runtime by default.
 
-The boundary-registration lot is complete. The current executable surface is restricted to first-party state normalization/deep-link serialization plus its tests. No DOM rendering, network transport, Saved Search behavior or Case-link mutation is implemented yet.
+The boundary-registration, state and shell lots are complete. The executable frontend surface now includes first-party state normalization/deep-link serialization plus a semantic DOM shell for Loading, Empty, Partial, Error, Offline and Permission-denied states. No result renderer, network transport, Saved Search behavior or Case-link mutation is implemented yet.
 
 Explicitly unresolved/out of scope here:
 - Case-link mutation while `OPEN-013` remains open;

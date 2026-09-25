@@ -1065,7 +1065,7 @@
       "id": "E10-INV-002F-SHELL",
       "title": "Implement accessible Event Search shell and mandatory UI states",
       "type": "task",
-      "status": "READY",
+      "status": "VERIFIED",
       "depends_on": [
         "E10-INV-002F-STATE"
       ],
@@ -1078,7 +1078,7 @@
       "id": "E10-INV-002F-RESULTS",
       "title": "Implement bounded incremental Event Search result rendering",
       "type": "task",
-      "status": "BLOCKED",
+      "status": "READY",
       "depends_on": [
         "E10-INV-002F-SHELL"
       ],
