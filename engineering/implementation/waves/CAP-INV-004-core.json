@@ -53,5 +53,11 @@
     "E10-INV-004C-PIVOT",
     "E10-INV-004D-CLOSURE"
   ],
-  "status": "MATERIALIZED_PENDING_VALIDATION"
+  "status": "VERIFIED_MATERIALIZED",
+  "validation": {
+    "final_validated_head": "e09151716914965870b9267cce7d3ddf167bf361",
+    "push_workflow_run": 36134142435,
+    "pull_request_workflow_run": 36134146264,
+    "result": "PASS"
+  }
 }

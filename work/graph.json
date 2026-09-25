@@ -1156,7 +1156,7 @@
       "id": "E10-SCALE-002B",
       "title": "Select and materialize the next reuse-first capability wave",
       "type": "task",
-      "status": "READY",
+      "status": "VERIFIED",
       "depends_on": [
         "E10-SCALE-002A"
       ],
@@ -1167,7 +1167,7 @@
       "id": "E10-INV-004",
       "title": "Implement bounded Event Inspection and Pivot core for CAP-INV-004",
       "type": "epic",
-      "status": "BLOCKED",
+      "status": "DECOMPOSED",
       "depends_on": [
         "E10-SCALE-002B"
       ],
@@ -1180,7 +1180,7 @@
       "id": "E10-INV-004A-BOUNDARY",
       "title": "Register Event Inspection runtime boundary and preimplementation controls",
       "type": "task",
-      "status": "BLOCKED",
+      "status": "READY",
       "depends_on": [
         "E10-SCALE-002B"
       ],
