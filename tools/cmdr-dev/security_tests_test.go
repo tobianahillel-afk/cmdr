@@ -317,9 +317,9 @@ func TestParseNodeLCOVMeasuresExactFrontendSource(t *testing.T) {
 	}
 	lcov := []byte("TN:\nSF:state.mjs\nDA:1,1\nDA:2,1\nDA:3,0\nLF:3\nLH:2\nend_of_record\n")
 	adapter := runtimeSecurityAdapter{
-		BoundaryID:      "event-search-frontend-runtime",
-		RuntimeRoot:     "product-runtime/event-search-frontend",
-		RuntimeKind:     "node",
+		BoundaryID:       "event-search-frontend-runtime",
+		RuntimeRoot:      "product-runtime/event-search-frontend",
+		RuntimeKind:      "node",
 		CoverageIncludes: []string{"state.mjs"},
 	}
 	measurement, err := parseNodeLCOV(root, moduleRoot, lcov, []string{"product-runtime/event-search-frontend/state.mjs"}, adapter)
@@ -373,9 +373,9 @@ func TestParseNodeLCOVRejectsCoverageOutsideExpectedSource(t *testing.T) {
 	}
 	lcov := []byte("SF:other.mjs\nLF:1\nLH:1\nend_of_record\n")
 	adapter := runtimeSecurityAdapter{
-		BoundaryID:      "event-search-frontend-runtime",
-		RuntimeRoot:     "product-runtime/event-search-frontend",
-		RuntimeKind:     "node",
+		BoundaryID:       "event-search-frontend-runtime",
+		RuntimeRoot:      "product-runtime/event-search-frontend",
+		RuntimeKind:      "node",
 		CoverageIncludes: []string{"state.mjs"},
 	}
 	if _, err := parseNodeLCOV(root, moduleRoot, lcov, nil, adapter); err == nil {
