@@ -4,6 +4,50 @@ import {
   createResultWindow,
 } from "../../../product-runtime/event-search-frontend/results.mjs";
 
+class FakeDocument {
+  createElement(tag) {
+    return new FakeElement(tag);
+  }
+}
+
+class FakeElement {
+  constructor(tag) {
+    this.tagName = String(tag).toLowerCase();
+    this.attributes = Object.create(null);
+    this.children = [];
+    this.parent = undefined;
+    this.textContent = "";
+    this.scrollTop = 0;
+  }
+
+  set innerHTML(_) {
+    throw new Error("unsafe innerHTML sink used");
+  }
+
+  setAttribute(name, value) {
+    this.attributes[name] = String(value);
+  }
+
+  append(...nodes) {
+    for (const node of nodes) {
+      if (node.parent !== undefined) {
+        const index = node.parent.children.indexOf(node);
+        if (index >= 0) node.parent.children.splice(index, 1);
+      }
+      node.parent = this;
+      this.children.push(node);
+    }
+  }
+
+  remove() {
+    if (this.parent === undefined) return;
+    const index = this.parent.children.indexOf(this);
+    if (index >= 0) this.parent.children.splice(index, 1);
+    this.parent = undefined;
+  }
+}
+
+
 const args = parseArgs(process.argv.slice(2));
 const iterations = boundedInteger(args.iterations ?? "2000", 1, 1_000_000);
 const mode = args.mode ?? "latency";
@@ -95,47 +139,4 @@ function boundedInteger(value, min, max) {
     throw new Error(`integer must be within ${min}..${max}`);
   }
   return parsed;
-}
-
-class FakeDocument {
-  createElement(tag) {
-    return new FakeElement(tag);
-  }
-}
-
-class FakeElement {
-  constructor(tag) {
-    this.tagName = String(tag).toLowerCase();
-    this.attributes = Object.create(null);
-    this.children = [];
-    this.parent = undefined;
-    this.textContent = "";
-    this.scrollTop = 0;
-  }
-
-  set innerHTML(_) {
-    throw new Error("unsafe innerHTML sink used");
-  }
-
-  setAttribute(name, value) {
-    this.attributes[name] = String(value);
-  }
-
-  append(...nodes) {
-    for (const node of nodes) {
-      if (node.parent !== undefined) {
-        const index = node.parent.children.indexOf(node);
-        if (index >= 0) node.parent.children.splice(index, 1);
-      }
-      node.parent = this;
-      this.children.push(node);
-    }
-  }
-
-  remove() {
-    if (this.parent === undefined) return;
-    const index = this.parent.children.indexOf(this);
-    if (index >= 0) this.parent.children.splice(index, 1);
-    this.parent = undefined;
-  }
 }
