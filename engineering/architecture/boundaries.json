@@ -75,6 +75,15 @@
       ],
       "mutable_by_implementation": true,
       "may_depend_on": []
+    },
+    {
+      "id": "event-inspection-runtime",
+      "kind": "product-runtime",
+      "roots": [
+        "product-runtime/event-inspection/**"
+      ],
+      "mutable_by_implementation": true,
+      "may_depend_on": []
     }
   ]
 }

@@ -129,6 +129,62 @@
         }
       ],
       "rationale": "A 16 ms coarse upper bound reserves one 60 Hz frame for local Event Search state/render overhead. The implemented first-party runtime can now execute this deterministic PR/on-demand probe. The measurement excludes backend/network/browser paint and is not a production Search SLO."
+    },
+    {
+      "id": "PERF-TGT-EVENT-INSPECTION-PROJECTION",
+      "scope_kind": "product-runtime",
+      "boundary_id": "event-inspection-runtime",
+      "owner_path": "product-runtime/event-inspection/**",
+      "workload_key": "event-inspection-projection-v1",
+      "workload_description": "Future deterministic in-process construction of one permission-gated immutable Event inspection projection from already-resolved source, parser, field and enrichment inputs. Retrieval, parser execution, entity resolution, build and process-startup time are excluded.",
+      "environment_id": "PERF-ENV-GITHUB-UBUNTU-SHARED",
+      "stages": [
+        "on-demand"
+      ],
+      "trigger_paths": [
+        "product-runtime/event-inspection/**",
+        "engineering/implementation/event-inspection/**"
+      ],
+      "metrics": [
+        {
+          "id": "inspection-projection-p95-latency",
+          "kind": "latency",
+          "unit": "ms",
+          "aggregation": "p95",
+          "comparator": "upper-bound",
+          "budget": 1,
+          "max_relative_regression_percent": 0
+        }
+      ],
+      "rationale": "This is a preimplementation engineering ceiling for pure local projection overhead only. It is intentionally on-demand until executable runtime exists and is not a retrieval, parser, backend or production SLO."
+    },
+    {
+      "id": "PERF-TGT-EVENT-INSPECTION-PIVOT",
+      "scope_kind": "product-runtime",
+      "boundary_id": "event-inspection-runtime",
+      "owner_path": "product-runtime/event-inspection/**",
+      "workload_key": "event-inspection-pivot-v1",
+      "workload_description": "Future deterministic in-process creation of one dialect-neutral PivotDraft from an already-authorized inspected field/value/time/source/return context. Search execution, network/backend work, build and process-startup time are excluded.",
+      "environment_id": "PERF-ENV-GITHUB-UBUNTU-SHARED",
+      "stages": [
+        "on-demand"
+      ],
+      "trigger_paths": [
+        "product-runtime/event-inspection/**",
+        "engineering/implementation/event-inspection/**"
+      ],
+      "metrics": [
+        {
+          "id": "pivot-draft-p95-latency",
+          "kind": "latency",
+          "unit": "ms",
+          "aggregation": "p95",
+          "comparator": "upper-bound",
+          "budget": 1,
+          "max_relative_regression_percent": 0
+        }
+      ],
+      "rationale": "This is a preimplementation engineering ceiling for pure local pivot-draft preparation only. It is intentionally on-demand until executable runtime exists and is not a Search or production SLO."
     }
   ]
 }

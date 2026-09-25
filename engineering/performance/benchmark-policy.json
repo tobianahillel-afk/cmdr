@@ -36,6 +36,20 @@
       "warmup_iterations": 1,
       "sample_count": 5,
       "max_sample_duration_ms": 1000
+    },
+    {
+      "key": "event-inspection-projection-v1",
+      "handler_key": "builtin-event-inspection-preimplementation-v1",
+      "warmup_iterations": 0,
+      "sample_count": 3,
+      "max_sample_duration_ms": 100
+    },
+    {
+      "key": "event-inspection-pivot-v1",
+      "handler_key": "builtin-event-inspection-preimplementation-v1",
+      "warmup_iterations": 0,
+      "sample_count": 3,
+      "max_sample_duration_ms": 100
     }
   ]
 }

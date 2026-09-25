@@ -129,6 +129,8 @@ var knownPerformanceWorkloadKeys = map[string]bool{
 	"event-search-validation-v1":            true,
 	"event-search-orchestration-v1":         true,
 	"event-search-frontend-state-update-v1": true,
+	"event-inspection-projection-v1":        true,
+	"event-inspection-pivot-v1":             true,
 }
 
 func runPerformanceRegistryAudit(root string) (PerformanceRegistryAuditSummary, error) {

@@ -77,6 +77,7 @@
   ],
   "allowed_paths": [
     "engineering/implementation/event-inspection/**",
+    "product-runtime/event-inspection/**",
     "engineering/architecture/**",
     "engineering/security/**",
     "engineering/performance/**",
@@ -96,14 +97,17 @@
   "outputs": [
     "event-inspection-runtime preimplementation boundary",
     "deny-by-default external runtime dependency rule",
-    "preimplementation security adapter/coverage obligation",
-    "bounded local projection/pivot performance targets"
+    "preimplementation security ownership and negative-test obligations",
+    "on-demand local inspection-projection and pivot-draft engineering budgets",
+    "fail-closed preimplementation benchmark handler"
   ],
   "acceptance_tests": [
     "runtime path has unique product-runtime ownership",
-    "zero executable product files are added in this task",
-    "security registry recognizes the future runtime without claiming coverage",
-    "performance targets state engineering budgets rather than production SLOs"
+    "README.md is the only product-runtime file added in this task",
+    "security registry recognizes the future runtime without claiming coverage or negative-test PASS",
+    "performance registry covers the boundary with projection and pivot targets",
+    "preimplementation benchmark execution fails closed until executable runtime exists",
+    "performance targets state local engineering ceilings rather than retrieval/backend/production SLOs"
   ],
   "performance_budget": {
     "applicable": false,
@@ -127,8 +131,8 @@
   ],
   "complexity": {
     "primary_components": 2,
-    "estimated_files_changed": 8,
-    "estimated_net_loc": 420,
+    "estimated_files_changed": 10,
+    "estimated_net_loc": 520,
     "production_files": 0,
     "net_production_loc": 0,
     "bounded_contexts": 1,

@@ -121,11 +121,12 @@ type PerformanceBenchmarkAuditSummary struct {
 }
 
 var knownBenchmarkHandlerKeys = map[string]bool{
-	"builtin-cmdr-dev-metadata-audit-v1":     true,
-	"builtin-pilot-context-projection-v1":    true,
-	"builtin-event-search-validation-v1":     true,
-	"builtin-event-search-orchestration-v1":  true,
-	"builtin-event-search-frontend-state-v1": true,
+	"builtin-cmdr-dev-metadata-audit-v1":          true,
+	"builtin-pilot-context-projection-v1":         true,
+	"builtin-event-search-validation-v1":          true,
+	"builtin-event-search-orchestration-v1":       true,
+	"builtin-event-search-frontend-state-v1":      true,
+	"builtin-event-inspection-preimplementation-v1": true,
 }
 
 func runPerformanceBenchmarkAudit(root, stage, environmentID, changesFile string) (PerformanceBenchmarkAuditSummary, error) {
@@ -434,6 +435,8 @@ func prepareBenchmarkHandler(root string, workload BenchmarkWorkloadDefinition) 
 				Kind: "latency", Unit: "ns", Value: observation.NSPerOperation,
 			}}}, nil
 		}, cleanup, nil
+	case "builtin-event-inspection-preimplementation-v1":
+		return nil, func() {}, fmt.Errorf("event-inspection benchmark is blocked while event-inspection-runtime is preimplementation; implement E10-INV-004B-RUNTIME before executable measurement")
 	default:
 		return nil, func() {}, fmt.Errorf("unsupported benchmark handler %s", workload.HandlerKey)
 	}

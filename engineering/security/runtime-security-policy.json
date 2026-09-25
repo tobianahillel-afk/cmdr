@@ -38,6 +38,17 @@
       "authorization_rationale": "INV-EVS-001 can render protected search/event state but server authorization remains authoritative; frontend runtime must prove permission-denied rendering never exposes protected content before acceptance.",
       "tenant_isolation_required": true,
       "tenant_isolation_rationale": "Event Search deep-link and visible context carry tenant/environment scope; frontend runtime must prove malformed or cross-tenant client state cannot silently widen the selected tenant context."
+    },
+    {
+      "boundary_id": "event-inspection-runtime",
+      "owner": "E10-INV-004",
+      "security_critical_paths": [
+        "product-runtime/event-inspection/**"
+      ],
+      "authorization_required": true,
+      "authorization_rationale": "CAP-INV-004 exposes permission-gated Telemetry Event projections with distinct raw/rendered outcomes; executable runtime must prove denied access returns no protected projection and raw-denied paths leak no raw or raw-derived sensitive content.",
+      "tenant_isolation_required": true,
+      "tenant_isolation_rationale": "CAP-INV-004 inspection and pivot context preserve tenant/environment/event identity; executable runtime must prove missing, wildcard and cross-tenant source or pivot context fails closed with no reference widening."
     }
   ]
 }
