@@ -1091,7 +1091,7 @@
       "id": "E10-INV-002F-INTEGRATION",
       "title": "Integrate Event Search frontend with backend-neutral transport contract",
       "type": "task",
-      "status": "READY",
+      "status": "VERIFIED",
       "depends_on": [
         "E10-INV-002F-RESULTS"
       ],
@@ -1104,7 +1104,7 @@
       "id": "E10-INV-002F-E2E",
       "title": "Validate Event Search frontend security accessibility deep links and performance",
       "type": "task",
-      "status": "BLOCKED",
+      "status": "READY",
       "depends_on": [
         "E10-INV-002F-INTEGRATION"
       ],
