@@ -1,0 +1,837 @@
+{
+  "schema_version": 1,
+  "contract_id": "EVENT-INSPECTION-READONLY-CONTRACT-V1",
+  "cases": [
+    {
+      "id": "valid-raw-and-rendered-projection",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "event_ref": "evt-001",
+        "event_tenant_ref": "tenant-a",
+        "permissions": [
+          "perm.shared-capabilities.telemetry-event.read"
+        ],
+        "raw_access_decision": "allow",
+        "rendered_access_decision": "allow",
+        "raw_payload_present": true,
+        "raw_derived_sensitive_present": false,
+        "rendered_payload_present": true,
+        "enrichments_present": false,
+        "enrichment_producer": "",
+        "enrichment_version": "",
+        "enrichment_freshness": "",
+        "enrichment_presented_as_source": false,
+        "pivot_requested": false,
+        "pivot_field": "",
+        "pivot_value_present": false,
+        "pivot_time_start": "",
+        "pivot_time_end": "",
+        "return_origin": "",
+        "mutation_requested": ""
+      },
+      "expected": {
+        "allowed": true,
+        "error_code": "",
+        "raw_visible": true,
+        "rendered_visible": true,
+        "raw_derived_sensitive_visible": false,
+        "source_fields_distinguished": true,
+        "missing_fields_visible": true,
+        "enrichments_distinguished": true,
+        "parser_status_visible": true,
+        "provenance_visible": true,
+        "pivot_draft_created": false,
+        "pivot_dialect_selected": false,
+        "return_context_preserved": false,
+        "mutation_executed": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "raw-denied-rendered-remains-visible",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "event_ref": "evt-001",
+        "event_tenant_ref": "tenant-a",
+        "permissions": [
+          "perm.shared-capabilities.telemetry-event.read"
+        ],
+        "raw_access_decision": "deny",
+        "rendered_access_decision": "allow",
+        "raw_payload_present": true,
+        "raw_derived_sensitive_present": true,
+        "rendered_payload_present": true,
+        "enrichments_present": false,
+        "enrichment_producer": "",
+        "enrichment_version": "",
+        "enrichment_freshness": "",
+        "enrichment_presented_as_source": false,
+        "pivot_requested": false,
+        "pivot_field": "",
+        "pivot_value_present": false,
+        "pivot_time_start": "",
+        "pivot_time_end": "",
+        "return_origin": "",
+        "mutation_requested": ""
+      },
+      "expected": {
+        "allowed": true,
+        "error_code": "",
+        "raw_visible": false,
+        "rendered_visible": true,
+        "raw_derived_sensitive_visible": false,
+        "source_fields_distinguished": true,
+        "missing_fields_visible": true,
+        "enrichments_distinguished": true,
+        "parser_status_visible": true,
+        "provenance_visible": true,
+        "pivot_draft_created": false,
+        "pivot_dialect_selected": false,
+        "return_context_preserved": false,
+        "mutation_executed": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "enrichment-provenance-remains-derived",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "event_ref": "evt-001",
+        "event_tenant_ref": "tenant-a",
+        "permissions": [
+          "perm.shared-capabilities.telemetry-event.read"
+        ],
+        "raw_access_decision": "allow",
+        "rendered_access_decision": "allow",
+        "raw_payload_present": true,
+        "raw_derived_sensitive_present": false,
+        "rendered_payload_present": true,
+        "enrichments_present": true,
+        "enrichment_producer": "enrichment-engine",
+        "enrichment_version": "v3",
+        "enrichment_freshness": "fresh",
+        "enrichment_presented_as_source": false,
+        "pivot_requested": false,
+        "pivot_field": "",
+        "pivot_value_present": false,
+        "pivot_time_start": "",
+        "pivot_time_end": "",
+        "return_origin": "",
+        "mutation_requested": ""
+      },
+      "expected": {
+        "allowed": true,
+        "error_code": "",
+        "raw_visible": true,
+        "rendered_visible": true,
+        "raw_derived_sensitive_visible": false,
+        "source_fields_distinguished": true,
+        "missing_fields_visible": true,
+        "enrichments_distinguished": true,
+        "parser_status_visible": true,
+        "provenance_visible": true,
+        "pivot_draft_created": false,
+        "pivot_dialect_selected": false,
+        "return_context_preserved": false,
+        "mutation_executed": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "valid-dialect-neutral-pivot",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "event_ref": "evt-001",
+        "event_tenant_ref": "tenant-a",
+        "permissions": [
+          "perm.shared-capabilities.telemetry-event.read"
+        ],
+        "raw_access_decision": "allow",
+        "rendered_access_decision": "allow",
+        "raw_payload_present": true,
+        "raw_derived_sensitive_present": false,
+        "rendered_payload_present": true,
+        "enrichments_present": false,
+        "enrichment_producer": "",
+        "enrichment_version": "",
+        "enrichment_freshness": "",
+        "enrichment_presented_as_source": false,
+        "pivot_requested": true,
+        "pivot_field": "source.ip",
+        "pivot_value_present": true,
+        "pivot_time_start": "2026-09-25T10:00:00Z",
+        "pivot_time_end": "2026-09-25T11:00:00Z",
+        "return_origin": "event-search:run-001:row-17",
+        "mutation_requested": ""
+      },
+      "expected": {
+        "allowed": true,
+        "error_code": "",
+        "raw_visible": true,
+        "rendered_visible": true,
+        "raw_derived_sensitive_visible": false,
+        "source_fields_distinguished": true,
+        "missing_fields_visible": true,
+        "enrichments_distinguished": true,
+        "parser_status_visible": true,
+        "provenance_visible": true,
+        "pivot_draft_created": true,
+        "pivot_dialect_selected": false,
+        "return_context_preserved": true,
+        "mutation_executed": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "missing-tenant-is-rejected",
+      "input": {
+        "tenant_ref": "",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "event_ref": "evt-001",
+        "event_tenant_ref": "tenant-a",
+        "permissions": [
+          "perm.shared-capabilities.telemetry-event.read"
+        ],
+        "raw_access_decision": "allow",
+        "rendered_access_decision": "allow",
+        "raw_payload_present": true,
+        "raw_derived_sensitive_present": false,
+        "rendered_payload_present": true,
+        "enrichments_present": false,
+        "enrichment_producer": "",
+        "enrichment_version": "",
+        "enrichment_freshness": "",
+        "enrichment_presented_as_source": false,
+        "pivot_requested": false,
+        "pivot_field": "",
+        "pivot_value_present": false,
+        "pivot_time_start": "",
+        "pivot_time_end": "",
+        "return_origin": "",
+        "mutation_requested": ""
+      },
+      "expected": {
+        "allowed": false,
+        "error_code": "missing-tenant",
+        "raw_visible": false,
+        "rendered_visible": false,
+        "raw_derived_sensitive_visible": false,
+        "source_fields_distinguished": false,
+        "missing_fields_visible": false,
+        "enrichments_distinguished": false,
+        "parser_status_visible": false,
+        "provenance_visible": false,
+        "pivot_draft_created": false,
+        "pivot_dialect_selected": false,
+        "return_context_preserved": false,
+        "mutation_executed": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "wildcard-tenant-is-rejected",
+      "input": {
+        "tenant_ref": "*",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "event_ref": "evt-001",
+        "event_tenant_ref": "tenant-a",
+        "permissions": [
+          "perm.shared-capabilities.telemetry-event.read"
+        ],
+        "raw_access_decision": "allow",
+        "rendered_access_decision": "allow",
+        "raw_payload_present": true,
+        "raw_derived_sensitive_present": false,
+        "rendered_payload_present": true,
+        "enrichments_present": false,
+        "enrichment_producer": "",
+        "enrichment_version": "",
+        "enrichment_freshness": "",
+        "enrichment_presented_as_source": false,
+        "pivot_requested": false,
+        "pivot_field": "",
+        "pivot_value_present": false,
+        "pivot_time_start": "",
+        "pivot_time_end": "",
+        "return_origin": "",
+        "mutation_requested": ""
+      },
+      "expected": {
+        "allowed": false,
+        "error_code": "wildcard-tenant",
+        "raw_visible": false,
+        "rendered_visible": false,
+        "raw_derived_sensitive_visible": false,
+        "source_fields_distinguished": false,
+        "missing_fields_visible": false,
+        "enrichments_distinguished": false,
+        "parser_status_visible": false,
+        "provenance_visible": false,
+        "pivot_draft_created": false,
+        "pivot_dialect_selected": false,
+        "return_context_preserved": false,
+        "mutation_executed": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "cross-tenant-is-rejected",
+      "input": {
+        "tenant_ref": "tenant-b",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "event_ref": "evt-001",
+        "event_tenant_ref": "tenant-a",
+        "permissions": [
+          "perm.shared-capabilities.telemetry-event.read"
+        ],
+        "raw_access_decision": "allow",
+        "rendered_access_decision": "allow",
+        "raw_payload_present": true,
+        "raw_derived_sensitive_present": false,
+        "rendered_payload_present": true,
+        "enrichments_present": false,
+        "enrichment_producer": "",
+        "enrichment_version": "",
+        "enrichment_freshness": "",
+        "enrichment_presented_as_source": false,
+        "pivot_requested": false,
+        "pivot_field": "",
+        "pivot_value_present": false,
+        "pivot_time_start": "",
+        "pivot_time_end": "",
+        "return_origin": "",
+        "mutation_requested": ""
+      },
+      "expected": {
+        "allowed": false,
+        "error_code": "cross-tenant",
+        "raw_visible": false,
+        "rendered_visible": false,
+        "raw_derived_sensitive_visible": false,
+        "source_fields_distinguished": false,
+        "missing_fields_visible": false,
+        "enrichments_distinguished": false,
+        "parser_status_visible": false,
+        "provenance_visible": false,
+        "pivot_draft_created": false,
+        "pivot_dialect_selected": false,
+        "return_context_preserved": false,
+        "mutation_executed": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "event-tenant-mismatch-is-rejected",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "event_ref": "evt-001",
+        "event_tenant_ref": "tenant-b",
+        "permissions": [
+          "perm.shared-capabilities.telemetry-event.read"
+        ],
+        "raw_access_decision": "allow",
+        "rendered_access_decision": "allow",
+        "raw_payload_present": true,
+        "raw_derived_sensitive_present": false,
+        "rendered_payload_present": true,
+        "enrichments_present": false,
+        "enrichment_producer": "",
+        "enrichment_version": "",
+        "enrichment_freshness": "",
+        "enrichment_presented_as_source": false,
+        "pivot_requested": false,
+        "pivot_field": "",
+        "pivot_value_present": false,
+        "pivot_time_start": "",
+        "pivot_time_end": "",
+        "return_origin": "",
+        "mutation_requested": ""
+      },
+      "expected": {
+        "allowed": false,
+        "error_code": "event-tenant-mismatch",
+        "raw_visible": false,
+        "rendered_visible": false,
+        "raw_derived_sensitive_visible": false,
+        "source_fields_distinguished": false,
+        "missing_fields_visible": false,
+        "enrichments_distinguished": false,
+        "parser_status_visible": false,
+        "provenance_visible": false,
+        "pivot_draft_created": false,
+        "pivot_dialect_selected": false,
+        "return_context_preserved": false,
+        "mutation_executed": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "missing-event-reference-is-rejected",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "event_ref": "",
+        "event_tenant_ref": "tenant-a",
+        "permissions": [
+          "perm.shared-capabilities.telemetry-event.read"
+        ],
+        "raw_access_decision": "allow",
+        "rendered_access_decision": "allow",
+        "raw_payload_present": true,
+        "raw_derived_sensitive_present": false,
+        "rendered_payload_present": true,
+        "enrichments_present": false,
+        "enrichment_producer": "",
+        "enrichment_version": "",
+        "enrichment_freshness": "",
+        "enrichment_presented_as_source": false,
+        "pivot_requested": false,
+        "pivot_field": "",
+        "pivot_value_present": false,
+        "pivot_time_start": "",
+        "pivot_time_end": "",
+        "return_origin": "",
+        "mutation_requested": ""
+      },
+      "expected": {
+        "allowed": false,
+        "error_code": "missing-event-ref",
+        "raw_visible": false,
+        "rendered_visible": false,
+        "raw_derived_sensitive_visible": false,
+        "source_fields_distinguished": false,
+        "missing_fields_visible": false,
+        "enrichments_distinguished": false,
+        "parser_status_visible": false,
+        "provenance_visible": false,
+        "pivot_draft_created": false,
+        "pivot_dialect_selected": false,
+        "return_context_preserved": false,
+        "mutation_executed": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "permission-denied-masks-projection",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "event_ref": "evt-001",
+        "event_tenant_ref": "tenant-a",
+        "permissions": [],
+        "raw_access_decision": "allow",
+        "rendered_access_decision": "allow",
+        "raw_payload_present": true,
+        "raw_derived_sensitive_present": false,
+        "rendered_payload_present": true,
+        "enrichments_present": false,
+        "enrichment_producer": "",
+        "enrichment_version": "",
+        "enrichment_freshness": "",
+        "enrichment_presented_as_source": false,
+        "pivot_requested": false,
+        "pivot_field": "",
+        "pivot_value_present": false,
+        "pivot_time_start": "",
+        "pivot_time_end": "",
+        "return_origin": "",
+        "mutation_requested": ""
+      },
+      "expected": {
+        "allowed": false,
+        "error_code": "permission-denied",
+        "raw_visible": false,
+        "rendered_visible": false,
+        "raw_derived_sensitive_visible": false,
+        "source_fields_distinguished": false,
+        "missing_fields_visible": false,
+        "enrichments_distinguished": false,
+        "parser_status_visible": false,
+        "provenance_visible": false,
+        "pivot_draft_created": false,
+        "pivot_dialect_selected": false,
+        "return_context_preserved": false,
+        "mutation_executed": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "both-projections-denied-is-rejected",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "event_ref": "evt-001",
+        "event_tenant_ref": "tenant-a",
+        "permissions": [
+          "perm.shared-capabilities.telemetry-event.read"
+        ],
+        "raw_access_decision": "deny",
+        "rendered_access_decision": "deny",
+        "raw_payload_present": true,
+        "raw_derived_sensitive_present": false,
+        "rendered_payload_present": true,
+        "enrichments_present": false,
+        "enrichment_producer": "",
+        "enrichment_version": "",
+        "enrichment_freshness": "",
+        "enrichment_presented_as_source": false,
+        "pivot_requested": false,
+        "pivot_field": "",
+        "pivot_value_present": false,
+        "pivot_time_start": "",
+        "pivot_time_end": "",
+        "return_origin": "",
+        "mutation_requested": ""
+      },
+      "expected": {
+        "allowed": false,
+        "error_code": "projection-denied",
+        "raw_visible": false,
+        "rendered_visible": false,
+        "raw_derived_sensitive_visible": false,
+        "source_fields_distinguished": false,
+        "missing_fields_visible": false,
+        "enrichments_distinguished": false,
+        "parser_status_visible": false,
+        "provenance_visible": false,
+        "pivot_draft_created": false,
+        "pivot_dialect_selected": false,
+        "return_context_preserved": false,
+        "mutation_executed": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "enrichment-missing-provenance-is-rejected",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "event_ref": "evt-001",
+        "event_tenant_ref": "tenant-a",
+        "permissions": [
+          "perm.shared-capabilities.telemetry-event.read"
+        ],
+        "raw_access_decision": "allow",
+        "rendered_access_decision": "allow",
+        "raw_payload_present": true,
+        "raw_derived_sensitive_present": false,
+        "rendered_payload_present": true,
+        "enrichments_present": true,
+        "enrichment_producer": "",
+        "enrichment_version": "v3",
+        "enrichment_freshness": "fresh",
+        "enrichment_presented_as_source": false,
+        "pivot_requested": false,
+        "pivot_field": "",
+        "pivot_value_present": false,
+        "pivot_time_start": "",
+        "pivot_time_end": "",
+        "return_origin": "",
+        "mutation_requested": ""
+      },
+      "expected": {
+        "allowed": false,
+        "error_code": "invalid-enrichment-provenance",
+        "raw_visible": false,
+        "rendered_visible": false,
+        "raw_derived_sensitive_visible": false,
+        "source_fields_distinguished": false,
+        "missing_fields_visible": false,
+        "enrichments_distinguished": false,
+        "parser_status_visible": false,
+        "provenance_visible": false,
+        "pivot_draft_created": false,
+        "pivot_dialect_selected": false,
+        "return_context_preserved": false,
+        "mutation_executed": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "enrichment-masquerading-as-source-is-rejected",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "event_ref": "evt-001",
+        "event_tenant_ref": "tenant-a",
+        "permissions": [
+          "perm.shared-capabilities.telemetry-event.read"
+        ],
+        "raw_access_decision": "allow",
+        "rendered_access_decision": "allow",
+        "raw_payload_present": true,
+        "raw_derived_sensitive_present": false,
+        "rendered_payload_present": true,
+        "enrichments_present": true,
+        "enrichment_producer": "enrichment-engine",
+        "enrichment_version": "v3",
+        "enrichment_freshness": "fresh",
+        "enrichment_presented_as_source": true,
+        "pivot_requested": false,
+        "pivot_field": "",
+        "pivot_value_present": false,
+        "pivot_time_start": "",
+        "pivot_time_end": "",
+        "return_origin": "",
+        "mutation_requested": ""
+      },
+      "expected": {
+        "allowed": false,
+        "error_code": "derived-as-source",
+        "raw_visible": false,
+        "rendered_visible": false,
+        "raw_derived_sensitive_visible": false,
+        "source_fields_distinguished": false,
+        "missing_fields_visible": false,
+        "enrichments_distinguished": false,
+        "parser_status_visible": false,
+        "provenance_visible": false,
+        "pivot_draft_created": false,
+        "pivot_dialect_selected": false,
+        "return_context_preserved": false,
+        "mutation_executed": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "invalid-pivot-context-is-rejected",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "event_ref": "evt-001",
+        "event_tenant_ref": "tenant-a",
+        "permissions": [
+          "perm.shared-capabilities.telemetry-event.read"
+        ],
+        "raw_access_decision": "allow",
+        "rendered_access_decision": "allow",
+        "raw_payload_present": true,
+        "raw_derived_sensitive_present": false,
+        "rendered_payload_present": true,
+        "enrichments_present": false,
+        "enrichment_producer": "",
+        "enrichment_version": "",
+        "enrichment_freshness": "",
+        "enrichment_presented_as_source": false,
+        "pivot_requested": true,
+        "pivot_field": "source.ip",
+        "pivot_value_present": true,
+        "pivot_time_start": "2026-09-25T11:00:00Z",
+        "pivot_time_end": "2026-09-25T10:00:00Z",
+        "return_origin": "event-search:run-001",
+        "mutation_requested": ""
+      },
+      "expected": {
+        "allowed": false,
+        "error_code": "invalid-pivot-context",
+        "raw_visible": false,
+        "rendered_visible": false,
+        "raw_derived_sensitive_visible": false,
+        "source_fields_distinguished": false,
+        "missing_fields_visible": false,
+        "enrichments_distinguished": false,
+        "parser_status_visible": false,
+        "provenance_visible": false,
+        "pivot_draft_created": false,
+        "pivot_dialect_selected": false,
+        "return_context_preserved": false,
+        "mutation_executed": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "case-link-mutation-remains-excluded",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "event_ref": "evt-001",
+        "event_tenant_ref": "tenant-a",
+        "permissions": [
+          "perm.shared-capabilities.telemetry-event.read"
+        ],
+        "raw_access_decision": "allow",
+        "rendered_access_decision": "allow",
+        "raw_payload_present": true,
+        "raw_derived_sensitive_present": false,
+        "rendered_payload_present": true,
+        "enrichments_present": false,
+        "enrichment_producer": "",
+        "enrichment_version": "",
+        "enrichment_freshness": "",
+        "enrichment_presented_as_source": false,
+        "pivot_requested": false,
+        "pivot_field": "",
+        "pivot_value_present": false,
+        "pivot_time_start": "",
+        "pivot_time_end": "",
+        "return_origin": "",
+        "mutation_requested": "case-link"
+      },
+      "expected": {
+        "allowed": false,
+        "error_code": "mutation-excluded",
+        "raw_visible": false,
+        "rendered_visible": false,
+        "raw_derived_sensitive_visible": false,
+        "source_fields_distinguished": false,
+        "missing_fields_visible": false,
+        "enrichments_distinguished": false,
+        "parser_status_visible": false,
+        "provenance_visible": false,
+        "pivot_draft_created": false,
+        "pivot_dialect_selected": false,
+        "return_context_preserved": false,
+        "mutation_executed": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "artifact-proposal-mutation-remains-excluded",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "event_ref": "evt-001",
+        "event_tenant_ref": "tenant-a",
+        "permissions": [
+          "perm.shared-capabilities.telemetry-event.read"
+        ],
+        "raw_access_decision": "allow",
+        "rendered_access_decision": "allow",
+        "raw_payload_present": true,
+        "raw_derived_sensitive_present": false,
+        "rendered_payload_present": true,
+        "enrichments_present": false,
+        "enrichment_producer": "",
+        "enrichment_version": "",
+        "enrichment_freshness": "",
+        "enrichment_presented_as_source": false,
+        "pivot_requested": false,
+        "pivot_field": "",
+        "pivot_value_present": false,
+        "pivot_time_start": "",
+        "pivot_time_end": "",
+        "return_origin": "",
+        "mutation_requested": "artifact-proposal"
+      },
+      "expected": {
+        "allowed": false,
+        "error_code": "mutation-excluded",
+        "raw_visible": false,
+        "rendered_visible": false,
+        "raw_derived_sensitive_visible": false,
+        "source_fields_distinguished": false,
+        "missing_fields_visible": false,
+        "enrichments_distinguished": false,
+        "parser_status_visible": false,
+        "provenance_visible": false,
+        "pivot_draft_created": false,
+        "pivot_dialect_selected": false,
+        "return_context_preserved": false,
+        "mutation_executed": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "evidence-candidate-mutation-remains-excluded",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "event_ref": "evt-001",
+        "event_tenant_ref": "tenant-a",
+        "permissions": [
+          "perm.shared-capabilities.telemetry-event.read"
+        ],
+        "raw_access_decision": "allow",
+        "rendered_access_decision": "allow",
+        "raw_payload_present": true,
+        "raw_derived_sensitive_present": false,
+        "rendered_payload_present": true,
+        "enrichments_present": false,
+        "enrichment_producer": "",
+        "enrichment_version": "",
+        "enrichment_freshness": "",
+        "enrichment_presented_as_source": false,
+        "pivot_requested": false,
+        "pivot_field": "",
+        "pivot_value_present": false,
+        "pivot_time_start": "",
+        "pivot_time_end": "",
+        "return_origin": "",
+        "mutation_requested": "evidence-candidate"
+      },
+      "expected": {
+        "allowed": false,
+        "error_code": "mutation-excluded",
+        "raw_visible": false,
+        "rendered_visible": false,
+        "raw_derived_sensitive_visible": false,
+        "source_fields_distinguished": false,
+        "missing_fields_visible": false,
+        "enrichments_distinguished": false,
+        "parser_status_visible": false,
+        "provenance_visible": false,
+        "pivot_draft_created": false,
+        "pivot_dialect_selected": false,
+        "return_context_preserved": false,
+        "mutation_executed": false,
+        "audit_required": true
+      }
+    }
+  ]
+}

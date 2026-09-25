@@ -90,17 +90,17 @@
   ],
   "outputs": [
     "EVENT-INSPECTION-READONLY-CONTRACT-V1",
-    "positive and negative fixtures",
-    "explicit raw/rendered access-decision envelope",
-    "explicit mutation-exclusion assertions"
+    "17 deterministic positive/negative fixtures",
+    "explicit raw/rendered server-side access-decision envelope",
+    "machine-audited read-only mutation exclusions and dialect-neutral pivot contract"
   ],
   "acceptance_tests": [
-    "fixtures reject missing tenant/event identity and cross-tenant projections",
-    "raw-denied fixtures contain no raw value or raw-derived secret",
-    "rendered may remain present when raw is denied",
-    "enrichments identify producer/version/freshness and never masquerade as source fields",
-    "Case/Artifact/Evidence mutation requests are absent/rejected",
-    "pivot output is a dialect-neutral draft context"
+    "fixtures reject missing/wildcard/cross-tenant scope, event-tenant mismatch, missing Event identity and denied event-read permission",
+    "raw-denied fixture keeps rendered visible while raw and raw-derived sensitive visibility remain false",
+    "enrichments require producer/version/freshness and never masquerade as source fields",
+    "Case-link, Artifact proposal and Evidence-candidate mutations are explicitly rejected",
+    "pivot output remains a dialect-neutral draft preserving tenant/environment/Event/field/value/time/source/return origin",
+    "contract audit resolves Product Spec references and confirms zero runtime dependencies"
   ],
   "performance_budget": {
     "applicable": false,
@@ -111,7 +111,8 @@
     "CHK-MANIFESTS",
     "CHK-COMPLEXITY",
     "CHK-ARCHITECTURE",
-    "CHK-SECURITY-TESTS"
+    "CHK-SECURITY-TESTS",
+    "CHK-EVENT-INSPECTION-CONTRACT"
   ],
   "definition_of_ready": [
     "E10-INV-004A-BOUNDARY is VERIFIED"
@@ -123,8 +124,8 @@
   ],
   "complexity": {
     "primary_components": 1,
-    "estimated_files_changed": 7,
-    "estimated_net_loc": 500,
+    "estimated_files_changed": 9,
+    "estimated_net_loc": 650,
     "production_files": 0,
     "net_production_loc": 0,
     "bounded_contexts": 1,

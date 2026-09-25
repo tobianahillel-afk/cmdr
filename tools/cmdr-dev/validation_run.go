@@ -109,7 +109,7 @@ func validationExecutorMode(key string) (string, error) {
 	case "gofmt", "go-vet", "go-unit",
 		"spec-index", "spec-baseline", "coverage-graph", "obligations", "coverage-audit",
 		"validate-manifests", "architecture-audit", "dependency-audit", "boundary-edge-audit",
-		"complexity-audit", "context", "doctor", "next", "check-catalog-audit", "security-gate-audit", "security-test-audit", "deep-security-audit", "decision-registry-audit", "research-packet-audit", "decision-gate-audit", "decision-freshness-audit", "performance-registry-audit", "performance-benchmark-audit", "deep-performance-audit", "performance-cache-audit", "lease-audit", "recovery-journal-audit", "recovery-reconcile-audit", "coordination-audit", "metrics-registry-audit", "pilot-scope-audit", "pilot-contract-audit", "pilot-e2e-audit", "implementation-ledger-audit", "implementation-readiness", "implementation-wave", "event-search-contract-audit", "event-search-e2e-audit", "secret-scan", "gosec-go", "govulncheck-go", "sbom":
+		"complexity-audit", "context", "doctor", "next", "check-catalog-audit", "security-gate-audit", "security-test-audit", "deep-security-audit", "decision-registry-audit", "research-packet-audit", "decision-gate-audit", "decision-freshness-audit", "performance-registry-audit", "performance-benchmark-audit", "deep-performance-audit", "performance-cache-audit", "lease-audit", "recovery-journal-audit", "recovery-reconcile-audit", "coordination-audit", "metrics-registry-audit", "pilot-scope-audit", "pilot-contract-audit", "pilot-e2e-audit", "implementation-ledger-audit", "implementation-readiness", "implementation-wave", "event-search-contract-audit", "event-inspection-contract-audit", "event-search-e2e-audit", "secret-scan", "gosec-go", "govulncheck-go", "sbom":
 		return "execute", nil
 	default:
 		return "", fmt.Errorf("unsupported executor_key %q", key)
@@ -457,6 +457,14 @@ func executeValidationCheck(root, tempDir, changesFile, key string, state Curren
 		return fmt.Sprintf("contract=%s capability=%s runtime=%s fixtures=%d negative=%d deps=%d status=%s",
 			summary.ContractID, summary.Capability, summary.RuntimeState, summary.Fixtures,
 			summary.NegativeFixtures, summary.RuntimeDependencies, summary.Status), nil
+	case "event-inspection-contract-audit":
+		summary, err := runEventInspectionContractAudit(root)
+		if err != nil {
+			return "", err
+		}
+		return fmt.Sprintf("contract=%s capability=%s runtime=%s fixtures=%d positive=%d negative=%d deps=%d status=%s",
+			summary.ContractID, summary.Capability, summary.RuntimeState, summary.Fixtures,
+			summary.PositiveFixtures, summary.NegativeFixtures, summary.RuntimeDependencies, summary.Status), nil
 	case "event-search-e2e-audit":
 		summary, err := runEventSearchE2EAudit(root, state, graph)
 		if err != nil {

@@ -1,0 +1,153 @@
+{
+  "schema_version": 1,
+  "contract_id": "EVENT-INSPECTION-READONLY-CONTRACT-V1",
+  "contract_kind": "provider-neutral-readonly-local-executable-contract",
+  "canonical_schema_claim": false,
+  "capability": "CAP-INV-004",
+  "runtime_boundary": {
+    "id": "event-inspection-runtime",
+    "root": "product-runtime/event-inspection/**",
+    "expected_state": "preimplementation",
+    "external_runtime_dependencies": []
+  },
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-004"
+    ],
+    "requirements": [
+      "REQ-PROD-002",
+      "REQ-PROD-005",
+      "REQ-PROD-008",
+      "REQ-PROD-014",
+      "REQ-PROD-045"
+    ],
+    "screens": [],
+    "permissions": [
+      "perm.shared-capabilities.telemetry-event.read"
+    ],
+    "open_decisions": [
+      "OPEN-013",
+      "OPEN-014"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/audit-event-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/error-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/correlation-identifiers.md",
+      "cmdr-product-spec/17-implementation-contracts/search-query-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/telemetry-event.md",
+      "cmdr-product-spec/05-domain-model/objects/parser.md",
+      "cmdr-product-spec/05-domain-model/objects/data-source.md",
+      "cmdr-product-spec/05-domain-model/objects/entity.md",
+      "cmdr-product-spec/05-domain-model/objects/query.md"
+    ]
+  },
+  "scope_policy": {
+    "tenant_required": true,
+    "environment_required": true,
+    "event_ref_required": true,
+    "wildcard_tenant_forbidden": true,
+    "cross_tenant_forbidden": true,
+    "event_tenant_must_match_selected_tenant": true
+  },
+  "permission_policy": {
+    "server_evaluation_required": true,
+    "client_trust_forbidden": true,
+    "required_projection_permissions": [
+      "perm.shared-capabilities.telemetry-event.read"
+    ],
+    "raw_access_decision_required": true,
+    "rendered_access_decision_required": true,
+    "raw_denial_masks_raw_payload": true,
+    "raw_denial_masks_raw_derived_sensitive_values": true,
+    "rendered_may_remain_when_raw_denied": true,
+    "no_new_permission_namespace": true
+  },
+  "projection_policy": {
+    "telemetry_event_immutable": true,
+    "source_fields_distinguished": true,
+    "normalized_fields_distinguished": true,
+    "enrichments_distinguished": true,
+    "parser_status_visible": true,
+    "missing_fields_visible": true,
+    "provenance_visible": true,
+    "source_unavailable_state_visible": true,
+    "tombstone_state_visible": true,
+    "partial_state_visible": true,
+    "restricted_state_visible": true
+  },
+  "enrichment_policy": {
+    "producer_required": true,
+    "version_required": true,
+    "freshness_required": true,
+    "may_not_masquerade_as_source": true,
+    "absent_enrichment_not_inferred": true
+  },
+  "pivot_policy": {
+    "draft_only": true,
+    "dialect_neutral": true,
+    "final_query_dialect_selected": false,
+    "final_provider_selected": false,
+    "preserves_context": [
+      "tenant",
+      "environment",
+      "event_ref",
+      "field",
+      "value",
+      "time_range",
+      "source",
+      "return_origin"
+    ]
+  },
+  "mutation_policy": {
+    "source_event_mutation_forbidden": true,
+    "case_link_mutation_executable": false,
+    "artifact_proposal_mutation_executable": false,
+    "evidence_candidate_mutation_executable": false,
+    "automatic_evidence_creation_forbidden": true,
+    "automatic_finding_creation_forbidden": true
+  },
+  "technology_policy": {
+    "parser_engine_selected": false,
+    "entity_resolution_engine_selected": false,
+    "storage_engine_selected": false,
+    "provider_selected": false,
+    "final_query_dialect_selected": false
+  },
+  "exclusions": [
+    "case-link-mutation:OPEN-013",
+    "artifact-proposal-mutation:OPEN-013+OPEN-014",
+    "evidence-candidate-mutation:OPEN-013+OPEN-014",
+    "final-event-inspector-ui",
+    "parser-engine",
+    "entity-resolution-engine",
+    "storage-engine",
+    "provider",
+    "final-query-dialect"
+  ],
+  "semantic_rules": [
+    "Event inspection requires an explicit selected Tenant, environment and resolvable Event reference",
+    "Telemetry Event remains immutable and owned by Shared Capabilities",
+    "event read authorization is evaluated server-side before any projection is returned",
+    "raw and rendered access decisions are explicit and independent",
+    "raw denial cannot expose raw payload or raw-derived sensitive values while rendered may remain visible",
+    "source normalized parser enrichment missing-field and provenance states remain distinguishable",
+    "derived enrichments require producer version freshness and may never masquerade as source fields",
+    "PivotDraft preserves tenant environment Event field value time source and return origin without selecting a final dialect",
+    "Case-link Artifact proposal and Evidence-candidate mutations remain outside this executable contract",
+    "no parser entity-resolution storage provider or final query technology is selected"
+  ],
+  "security_invariants": [
+    "single-selected-Tenant only",
+    "no wildcard tenant fallback",
+    "no cross-tenant Event projection",
+    "no client authorization trust",
+    "no protected Event projection without telemetry-event.read",
+    "no raw or raw-derived sensitive disclosure when raw is denied",
+    "no derived-as-source presentation",
+    "no executable class-2 mutation while OPEN-013/OPEN-014 remain unresolved"
+  ]
+}

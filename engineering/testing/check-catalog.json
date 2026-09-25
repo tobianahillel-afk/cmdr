@@ -1260,6 +1260,38 @@
         "CHK-METRICS-BUDGET"
       ],
       "evidence_kind": "implementation-closure-audit"
+    },
+    {
+      "id": "CHK-EVENT-INSPECTION-CONTRACT",
+      "title": "CAP-INV-004 Event Inspection read-only contract and negative-fixture audit",
+      "executor_key": "event-inspection-contract-audit",
+      "risk_domains": [
+        "product-spec",
+        "coverage-traceability",
+        "security",
+        "work-governance"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": false,
+      "trigger_paths": [
+        "engineering/implementation/event-inspection/**",
+        "work/lots/E10-INV-004A*/**",
+        "tools/cmdr-dev/event_inspection_contract.go",
+        "tools/cmdr-dev/event_inspection_contract_test.go",
+        "cmdr-product-spec/07-investigate/modules/signals-and-hunt/capabilities/event-inspection-and-pivot.md",
+        "cmdr-product-spec/05-domain-model/objects/telemetry-event.md",
+        "cmdr-product-spec/05-domain-model/objects/parser.md",
+        "cmdr-product-spec/05-domain-model/objects/data-source.md",
+        "cmdr-product-spec/05-domain-model/objects/entity.md",
+        "cmdr-product-spec/05-domain-model/objects/query.md",
+        "cmdr-product-spec/17-implementation-contracts/**"
+      ],
+      "prerequisites": [
+        "CHK-MANIFESTS",
+        "CHK-SECURITY-TESTS"
+      ],
+      "evidence_kind": "audit-report"
     }
   ]
 }
