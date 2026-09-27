@@ -108,7 +108,8 @@
     "runtime security-critical coverage target >=90%",
     "predeclared B-owned Event Inspection fixtures execute against the runtime",
     "projection deep-copy tests prove no caller/source aliasing",
-    "source-unavailable/tombstone/partial/restricted states do not synthesize payloads"
+    "source-unavailable/tombstone/partial/restricted states do not synthesize payloads",
+    "SAST/SCA module discovery follows every explicit Go runtime security adapter and excludes unregistered runtimes"
   ],
   "performance_budget": {
     "applicable": true,
@@ -138,7 +139,7 @@
   ],
   "complexity": {
     "primary_components": 1,
-    "estimated_files_changed": 9,
+    "estimated_files_changed": 12,
     "estimated_net_loc": 720,
     "production_files": 2,
     "net_production_loc": 330,

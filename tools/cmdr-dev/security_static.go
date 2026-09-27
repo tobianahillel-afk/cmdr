@@ -164,11 +164,18 @@ func loadDevelopmentTools(root string) (DevelopmentToolRegistry, error) {
 }
 
 func goSecurityModuleRoots(root string) ([]string, error) {
-	candidates := []string{
-		"tools/cmdr-dev",
-		"product-runtime/context-envelope",
-		"product-runtime/event-search",
+	candidateSet := map[string]bool{"tools/cmdr-dev": true}
+	for _, adapter := range runtimeSecurityAdapters() {
+		if adapter.RuntimeKind == "go" && strings.TrimSpace(adapter.RuntimeRoot) != "" {
+			candidateSet[filepath.ToSlash(adapter.RuntimeRoot)] = true
+		}
 	}
+	candidates := make([]string, 0, len(candidateSet))
+	for rel := range candidateSet {
+		candidates = append(candidates, rel)
+	}
+	sort.Strings(candidates)
+
 	var roots []string
 	for _, rel := range candidates {
 		_, err := statRepoPath(root, filepath.ToSlash(filepath.Join(rel, "go.mod")))

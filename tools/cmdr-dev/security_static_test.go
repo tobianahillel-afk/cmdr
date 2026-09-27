@@ -82,7 +82,7 @@ func TestParseGovulncheckFailsClosedWithoutExactVersion(t *testing.T) {
 	}
 }
 
-func TestGoSecurityModuleRootsIncludeRuntimeOnlyAfterGoMod(t *testing.T) {
+func TestGoSecurityModuleRootsFollowReviewedGoRuntimeAdapters(t *testing.T) {
 	root := t.TempDir()
 	writeTestFile(t, root, "tools/cmdr-dev/go.mod", "module example/tools\n\ngo 1.26.8\n")
 
@@ -94,21 +94,30 @@ func TestGoSecurityModuleRootsIncludeRuntimeOnlyAfterGoMod(t *testing.T) {
 		t.Fatalf("expected only engineering module before runtime implementation, got %d", len(roots))
 	}
 
-	writeTestFile(t, root, "product-runtime/context-envelope/go.mod", "module example/runtime\n\ngo 1.26.8\n")
-	roots, err = goSecurityModuleRoots(root)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(roots) != 2 {
-		t.Fatalf("expected engineering and pilot runtime modules, got %d", len(roots))
+	for _, module := range []struct {
+		path string
+		want int
+	}{
+		{"product-runtime/context-envelope/go.mod", 2},
+		{"product-runtime/event-search/go.mod", 3},
+		{"product-runtime/event-inspection/go.mod", 4},
+	} {
+		writeTestFile(t, root, module.path, "module example/runtime\n\ngo 1.26.8\n")
+		roots, err = goSecurityModuleRoots(root)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if len(roots) != module.want {
+			t.Fatalf("after %s expected %d reviewed modules, got %d: %v", module.path, module.want, len(roots), roots)
+		}
 	}
 
-	writeTestFile(t, root, "product-runtime/event-search/go.mod", "module example/event-search\n\ngo 1.26.8\n")
+	writeTestFile(t, root, "product-runtime/unregistered/go.mod", "module example/unregistered\n\ngo 1.26.8\n")
 	roots, err = goSecurityModuleRoots(root)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(roots) != 3 {
-		t.Fatalf("expected engineering and both reviewed runtime modules, got %d", len(roots))
+	if len(roots) != 4 {
+		t.Fatalf("unregistered runtime must not silently enter reviewed SAST/SCA scope: %v", roots)
 	}
 }
