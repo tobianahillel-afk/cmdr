@@ -47,7 +47,7 @@
     "no parser engine, entity-resolution engine, storage engine, provider or final query dialect is selected",
     "raw/rendered access is supplied by explicit server-side access decisions; this wave does not invent a new permission namespace",
     "no dedicated Event Inspector Screen ID or final detailed UI is invented by this wave",
-    "product runtime path mutation remains deferred until E10-INV-004A-BOUNDARY has registered unique architecture ownership"
+    "product runtime mutation is confined to the registered event-inspection-runtime boundary"
   ],
   "security_properties": [
     "perm.shared-capabilities.telemetry-event.read is required before any Event projection is returned",
@@ -77,6 +77,7 @@
     "E10-INV-004B-RUNTIME"
   ],
   "allowed_paths": [
+    "product-runtime/event-inspection/**",
     "engineering/implementation/event-inspection/**",
     "engineering/testing/**",
     "work/lots/E10-INV-004*/**",
@@ -91,16 +92,22 @@
     "authorized field/value selection"
   ],
   "outputs": [
-    "dialect-neutral PivotDraft",
-    "stable return-origin context",
-    "classification-aware copy/pivot preparation without clipboard/search side effects"
+    "dialect-neutral deterministic PivotDraft",
+    "field-origin provenance for source/normalized/raw-derived/enrichment values",
+    "stable normalized time range and return-origin context",
+    "classification gate requiring explicitly authorized projected values",
+    "zero Event Search execution and zero final query-dialect/provider selection"
   ],
   "acceptance_tests": [
     "pivot preserves tenant/environment/event/time/source and correlation",
     "unauthorized/restricted field values cannot enter a pivot draft",
     "no query language string is invented",
     "no Event Search execution occurs",
-    "return origin is sufficient to restore inspected Event context"
+    "return origin is sufficient to restore inspected Event context",
+    "predeclared valid/invalid pivot fixtures execute against the runtime",
+    "pivot value must exactly match an authorized visible projected field",
+    "restricted values fail before projection lookup",
+    "identical input produces byte-equivalent semantic draft state"
   ],
   "performance_budget": {
     "applicable": true,
@@ -116,7 +123,8 @@
     "CHK-SECRETS",
     "CHK-SAST-GO",
     "CHK-SCA-GO",
-    "CHK-SECURITY-TESTS"
+    "CHK-SECURITY-TESTS",
+    "CHK-EVENT-INSPECTION-CONTRACT"
   ],
   "definition_of_ready": [
     "E10-INV-004B-RUNTIME is VERIFIED"
@@ -128,10 +136,10 @@
   ],
   "complexity": {
     "primary_components": 1,
-    "estimated_files_changed": 4,
-    "estimated_net_loc": 450,
+    "estimated_files_changed": 5,
+    "estimated_net_loc": 430,
     "production_files": 1,
-    "net_production_loc": 300,
+    "net_production_loc": 150,
     "bounded_contexts": 1,
     "independent_migrations": 0,
     "distinct_security_models": 1,

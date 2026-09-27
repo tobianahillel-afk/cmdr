@@ -20,6 +20,8 @@ const (
 	ErrorDerivedAsSource             ErrorCode = "derived-as-source"
 	ErrorInvalidCorrelationID        ErrorCode = "invalid-correlation-id"
 	ErrorInvalidEventState           ErrorCode = "invalid-event-state"
+	ErrorInvalidPivotContext         ErrorCode = "invalid-pivot-context"
+	ErrorRestrictedPivotValue        ErrorCode = "restricted-pivot-value"
 )
 
 const PermissionTelemetryRead = "perm.shared-capabilities.telemetry-event.read"
@@ -118,4 +120,52 @@ type Result struct {
 	ErrorCode     ErrorCode
 	AuditRequired bool
 	Projection    *Projection
+}
+
+
+const PivotTargetCapability = "CAP-INV-002"
+
+type PivotSelection struct {
+	Field           string
+	Value           string
+	ValuePresent    bool
+	ValueAuthorized bool
+	TimeStart       string
+	TimeEnd         string
+	ReturnOrigin    string
+}
+
+type PivotTimeRange struct {
+	Start string
+	End   string
+}
+
+type PivotReturnContext struct {
+	TenantRef     string
+	EnvironmentRef string
+	EventRef      string
+	CorrelationID string
+	Origin        string
+}
+
+type PivotDraft struct {
+	TargetCapability string
+	TenantRef        string
+	EnvironmentRef   string
+	EventRef         string
+	CorrelationID    string
+	Field            string
+	Value            string
+	FieldOrigin      string
+	SourceRef        string
+	DataSourceRef    string
+	TimeRange        PivotTimeRange
+	ReturnContext    PivotReturnContext
+}
+
+type PivotResult struct {
+	Allowed       bool
+	ErrorCode     ErrorCode
+	AuditRequired bool
+	Draft         *PivotDraft
 }

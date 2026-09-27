@@ -19,7 +19,7 @@ Implemented in E10-INV-004B-RUNTIME:
 
 ## Deferred to later bounded tasks
 
-E10-INV-004C-PIVOT owns dialect-neutral PivotDraft creation and return-context handling. This runtime does not select or implement a final query dialect or provider.
+E10-INV-004C-PIVOT adds deterministic dialect-neutral PivotDraft creation and return-context handling. Pivot preparation validates that the authorized field/value is actually present in the visible projection, preserves source provenance and normalizes the time window without executing Event Search. This runtime does not select or implement a final query dialect or provider.
 
 ## Explicit exclusions
 
