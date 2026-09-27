@@ -1292,6 +1292,39 @@
         "CHK-SECURITY-TESTS"
       ],
       "evidence_kind": "audit-report"
+    },
+    {
+      "id": "CHK-EVENT-INSPECTION-E2E",
+      "title": "Bounded Event Inspection adversarial security and performance closure",
+      "executor_key": "event-inspection-e2e-audit",
+      "risk_domains": [
+        "security",
+        "performance",
+        "unit-correctness",
+        "coverage-traceability",
+        "work-governance"
+      ],
+      "cost_tier": "standard",
+      "mandatory": true,
+      "always_on_pr": false,
+      "trigger_paths": [
+        "product-runtime/event-inspection/**",
+        "engineering/implementation/event-inspection/**",
+        "engineering/performance/**",
+        "work/lots/E10-INV-004*/**",
+        "tools/cmdr-dev/event_inspection_e2e.go",
+        "tools/cmdr-dev/event_inspection_e2e_test.go",
+        "tools/cmdr-dev/event_inspection_performance.go"
+      ],
+      "prerequisites": [
+        "CHK-EVENT-INSPECTION-CONTRACT",
+        "CHK-SECURITY-TESTS",
+        "CHK-SAST-GO",
+        "CHK-SCA-GO",
+        "CHK-PERFORMANCE-BENCHMARK",
+        "CHK-SBOM"
+      ],
+      "evidence_kind": "e2e-closure-report"
     }
   ]
 }

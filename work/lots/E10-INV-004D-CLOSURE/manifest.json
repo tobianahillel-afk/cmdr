@@ -94,7 +94,8 @@
   "outputs": [
     "adversarial closure evidence",
     "measured local projection/pivot performance evidence",
-    "bounded handoff that explicitly refuses production/full-capability claims"
+    "bounded handoff that explicitly refuses production/full-capability claims",
+    "catalogued CHK-EVENT-INSPECTION-E2E closure gate"
   ],
   "acceptance_tests": [
     "cross-tenant projection attempts fail without leaking references",
@@ -103,7 +104,10 @@
     "malformed parser/source metadata fails safely",
     "restricted pivot values fail closed",
     "measured local budgets pass",
-    "Product Spec baseline remains unchanged"
+    "Product Spec baseline remains unchanged",
+    "thirteen named adversarial projection/pivot tests must pass as a complete set",
+    "verified runtime and pivot evidence must remain ancestral and product-runtime/event-inspection must be unchanged since pivot verification",
+    "bounded handoff must preserve OPEN-013/014 and reject production/full-capability/class-2/provider/dialect/UI overclaims"
   ],
   "performance_budget": {
     "applicable": true,
@@ -119,7 +123,8 @@
     "CHK-SECRETS",
     "CHK-SAST-GO",
     "CHK-SCA-GO",
-    "CHK-SBOM"
+    "CHK-SBOM",
+    "CHK-EVENT-INSPECTION-E2E"
   ],
   "definition_of_ready": [
     "E10-INV-004C-PIVOT is VERIFIED"
@@ -132,8 +137,8 @@
   ],
   "complexity": {
     "primary_components": 1,
-    "estimated_files_changed": 6,
-    "estimated_net_loc": 500,
+    "estimated_files_changed": 7,
+    "estimated_net_loc": 520,
     "production_files": 0,
     "net_production_loc": 0,
     "bounded_contexts": 1,
