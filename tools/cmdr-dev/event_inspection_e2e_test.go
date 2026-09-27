@@ -7,12 +7,12 @@ import (
 
 func validEventInspectionHandoff() EventInspectionClosureHandoff {
 	return EventInspectionClosureHandoff{
-		SchemaVersion: 1,
-		HandoffKind: "event-inspection-bounded-core",
-		Readiness: "BOUNDED_EVENT_INSPECTION_VALIDATED_NOT_FULL_CAPABILITY",
-		Capability: "CAP-INV-004",
+		SchemaVersion:         1,
+		HandoffKind:           "event-inspection-bounded-core",
+		Readiness:             "BOUNDED_EVENT_INSPECTION_VALIDATED_NOT_FULL_CAPABILITY",
+		Capability:            "CAP-INV-004",
 		BlockingOpenDecisions: []string{"OPEN-013", "OPEN-014"},
-		EvidenceSources: []string{eventInspectionRuntimeProgressPath, eventInspectionPivotProgressPath},
+		EvidenceSources:       []string{eventInspectionRuntimeProgressPath, eventInspectionPivotProgressPath},
 		Limitations: []string{
 			"Case-link mutation remains excluded while OPEN-013 is unresolved.",
 			"Artifact proposal and Evidence-candidate mutations remain excluded while OPEN-013 and OPEN-014 are unresolved.",
@@ -67,7 +67,7 @@ func TestParseEventInspectionAdversarialEventsFailsClosedWhenMissing(t *testing.
 func TestEventInspectionPerformanceMetric(t *testing.T) {
 	summary := PerformanceBenchmarkAuditSummary{Status: "pass", Results: []PerformanceBenchmarkResult{{
 		TargetID: "target",
-		Metrics: []BenchmarkMetricResult{{ID:"metric", Observed:0.5, Budget:1, AbsolutePass:true, RelativePass:true}},
+		Metrics:  []BenchmarkMetricResult{{ID: "metric", Observed: 0.5, Budget: 1, AbsolutePass: true, RelativePass: true}},
 	}}}
 	observed, budget, err := eventInspectionPerformanceMetric(summary, "target", "metric")
 	if err != nil {
