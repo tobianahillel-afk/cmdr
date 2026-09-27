@@ -54,11 +54,11 @@ type EventInspectionRuntimeProgress struct {
 	RuntimeEvidence    struct {
 		Contract                             string  `json:"contract"`
 		RuntimeState                         string  `json:"runtime_state"`
-		Fixtures                            int     `json:"fixtures"`
-		PositiveFixtures                    int     `json:"positive_fixtures"`
-		NegativeFixtures                    int     `json:"negative_fixtures"`
-		ExternalRuntimeDependencies         int     `json:"external_runtime_dependencies"`
-		CrossBoundaryEdges                  int     `json:"cross_boundary_edges"`
+		Fixtures                             int     `json:"fixtures"`
+		PositiveFixtures                     int     `json:"positive_fixtures"`
+		NegativeFixtures                     int     `json:"negative_fixtures"`
+		ExternalRuntimeDependencies          int     `json:"external_runtime_dependencies"`
+		CrossBoundaryEdges                   int     `json:"cross_boundary_edges"`
 		GlobalRuntimeSecurityCoveragePercent float64 `json:"global_runtime_security_coverage_percent"`
 		GlobalCoverageFloorPercent           float64 `json:"global_coverage_floor_percent"`
 		ChangedSecurityCriticalFloorPercent  float64 `json:"changed_security_critical_floor_percent"`
@@ -76,15 +76,15 @@ type EventInspectionPivotProgress struct {
 	Status             string `json:"status"`
 	FinalValidatedHead string `json:"final_validated_head"`
 	RuntimeEvidence    struct {
-		Contract                                  string  `json:"contract"`
+		Contract                                 string  `json:"contract"`
 		Fixtures                                 int     `json:"fixtures"`
 		PositiveFixtures                         int     `json:"positive_fixtures"`
 		NegativeFixtures                         int     `json:"negative_fixtures"`
 		ExternalRuntimeDependencies              int     `json:"external_runtime_dependencies"`
 		GlobalRuntimeSecurityCoveragePushPercent float64 `json:"global_runtime_security_coverage_push_percent"`
 		GlobalRuntimeSecurityCoveragePRPercent   float64 `json:"global_runtime_security_coverage_pr_percent"`
-		GlobalCoverageFloorPercent                float64 `json:"global_coverage_floor_percent"`
-		ChangedSecurityCriticalFloorPercent       float64 `json:"changed_security_critical_floor_percent"`
+		GlobalCoverageFloorPercent               float64 `json:"global_coverage_floor_percent"`
+		ChangedSecurityCriticalFloorPercent      float64 `json:"changed_security_critical_floor_percent"`
 	} `json:"runtime_evidence"`
 	StaticSecurity struct {
 		Findings           int `json:"findings"`
@@ -212,9 +212,9 @@ func runEventInspectionE2EAudit(root, changesFile string, state CurrentState) (E
 	return EventInspectionE2EAuditSummary{
 		Capability: "CAP-INV-004", ContractID: contract.ContractID,
 		AdversarialTests: adversarial.Count, RuntimeCoveragePercent: coverage,
-		SASTFindings: runtime.StaticSecurity.Findings + pivot.StaticSecurity.Findings,
+		SASTFindings:          runtime.StaticSecurity.Findings + pivot.StaticSecurity.Findings,
 		SCAActionableFindings: runtime.StaticSecurity.ActionableFindings + pivot.StaticSecurity.ActionableFindings,
-		ProjectionP95MS: projectionObserved, ProjectionBudgetMS: projectionBudget,
+		ProjectionP95MS:       projectionObserved, ProjectionBudgetMS: projectionBudget,
 		PivotP95MS: pivotObserved, PivotBudgetMS: pivotBudget,
 		RuntimeUnchangedSincePivot: true, BlockingOpenDecisions: len(handoff.BlockingOpenDecisions),
 		Limitations: len(handoff.Limitations), ProductionReadinessClaim: handoff.ProductionReadinessClaim,
