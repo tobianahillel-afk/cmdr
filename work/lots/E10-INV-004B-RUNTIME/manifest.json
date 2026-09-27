@@ -47,7 +47,7 @@
     "no parser engine, entity-resolution engine, storage engine, provider or final query dialect is selected",
     "raw/rendered access is supplied by explicit server-side access decisions; this wave does not invent a new permission namespace",
     "no dedicated Event Inspector Screen ID or final detailed UI is invented by this wave",
-    "product runtime path mutation remains deferred until E10-INV-004A-BOUNDARY has registered unique architecture ownership"
+    "product runtime mutation is confined to the registered event-inspection-runtime boundary"
   ],
   "security_properties": [
     "perm.shared-capabilities.telemetry-event.read is required before any Event projection is returned",
@@ -77,6 +77,7 @@
     "E10-INV-004A-CONTRACT"
   ],
   "allowed_paths": [
+    "product-runtime/event-inspection/**",
     "engineering/implementation/event-inspection/**",
     "engineering/security/**",
     "engineering/testing/**",
@@ -91,11 +92,12 @@
     "explicit server access decisions"
   ],
   "outputs": [
-    "immutable inspection projection",
-    "raw/rendered variant gating",
-    "source/parser/missing-field projection",
-    "derived enrichment provenance and stale markers",
-    "stable tombstone/source-unavailable semantics"
+    "standard-library-only immutable Event inspection projection",
+    "raw/rendered variant gating with zero raw leakage on denial",
+    "source/parser/missing-field projection with deep-copy isolation",
+    "derived enrichment provenance, freshness and stale markers",
+    "stable source-unavailable/tombstone/partial/restricted semantics",
+    "implemented EVENT-INSPECTION-READONLY-CONTRACT-V1 runtime state"
   ],
   "acceptance_tests": [
     "event read denial returns no projection",
@@ -103,7 +105,10 @@
     "cross-tenant source evidence is rejected",
     "raw and rendered are never synthesized from one another",
     "derived enrichments remain labeled and source provenance is stable",
-    "runtime security-critical coverage target >=90%"
+    "runtime security-critical coverage target >=90%",
+    "predeclared B-owned Event Inspection fixtures execute against the runtime",
+    "projection deep-copy tests prove no caller/source aliasing",
+    "source-unavailable/tombstone/partial/restricted states do not synthesize payloads"
   ],
   "performance_budget": {
     "applicable": true,
@@ -119,7 +124,8 @@
     "CHK-SECRETS",
     "CHK-SAST-GO",
     "CHK-SCA-GO",
-    "CHK-SECURITY-TESTS"
+    "CHK-SECURITY-TESTS",
+    "CHK-EVENT-INSPECTION-CONTRACT"
   ],
   "definition_of_ready": [
     "E10-INV-004A-CONTRACT is VERIFIED"
@@ -132,10 +138,10 @@
   ],
   "complexity": {
     "primary_components": 1,
-    "estimated_files_changed": 5,
-    "estimated_net_loc": 650,
+    "estimated_files_changed": 9,
+    "estimated_net_loc": 720,
     "production_files": 2,
-    "net_production_loc": 460,
+    "net_production_loc": 330,
     "bounded_contexts": 1,
     "independent_migrations": 0,
     "distinct_security_models": 1,

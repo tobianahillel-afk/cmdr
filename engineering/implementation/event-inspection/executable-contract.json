@@ -7,7 +7,7 @@
   "runtime_boundary": {
     "id": "event-inspection-runtime",
     "root": "product-runtime/event-inspection/**",
-    "expected_state": "preimplementation",
+    "expected_state": "implemented",
     "external_runtime_dependencies": []
   },
   "product_refs": {

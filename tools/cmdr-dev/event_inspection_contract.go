@@ -335,7 +335,7 @@ func validateEventInspectionSourceAnchors(root string) error {
 			"OPEN-014", "Case annotation/link", "Pivot draft",
 		}},
 		{eventInspectionRuntimeMarker, []string{
-			"Preimplementation only", "zero raw leakage when raw is denied", "OPEN-013", "OPEN-014",
+			"Event Inspection runtime boundary", "zero raw leakage when raw is denied", "OPEN-013", "OPEN-014",
 		}},
 	}
 	for _, source := range sources {
