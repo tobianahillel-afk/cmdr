@@ -268,7 +268,7 @@ func TestParsePilotCoverageProfileRejectsForeignModule(t *testing.T) {
 
 func TestRuntimeSecurityAdaptersAreExplicitForKnownRuntimes(t *testing.T) {
 	adapters := runtimeSecurityAdapters()
-	for _, id := range []string{pilotRuntimeBoundaryID, eventSearchRuntimeBoundaryID} {
+	for _, id := range []string{pilotRuntimeBoundaryID, eventSearchRuntimeBoundaryID, eventInspectionRuntimeBoundaryID} {
 		adapter, ok := adapters[id]
 		if !ok {
 			t.Fatalf("missing explicit runtime security adapter %s", id)
@@ -288,7 +288,7 @@ func TestRuntimeSecurityAdaptersAreExplicitForKnownRuntimes(t *testing.T) {
 		!containsString(frontend.TestFiles, "e2e.test.mjs") {
 		t.Fatalf("incomplete frontend runtime security adapter: %#v", frontend)
 	}
-	if len(adapters) != 3 {
+	if len(adapters) != 4 {
 		t.Fatalf("unexpected implicit runtime security adapters: %#v", adapters)
 	}
 }
