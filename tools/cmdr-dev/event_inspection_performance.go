@@ -95,11 +95,11 @@ import (
 )
 
 type observation struct {
-	Operation      string  \`json:"operation"\`
-	Mode           string  \`json:"mode"\`
-	Operations     int     \`json:"operations"\`
-	ElapsedNS      int64   \`json:"elapsed_ns"\`
-	NSPerOperation float64 \`json:"ns_per_operation"\`
+	Operation      string
+	Mode           string
+	Operations     int
+	ElapsedNS      int64
+	NSPerOperation float64
 }
 
 var projectionSink eventinspection.Result
