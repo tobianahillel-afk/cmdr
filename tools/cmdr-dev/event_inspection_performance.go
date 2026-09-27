@@ -94,14 +94,6 @@ import (
 	eventinspection "github.com/tobianahillel-afk/cmdr/product-runtime/event-inspection"
 )
 
-type observation struct {
-	Operation      string
-	Mode           string
-	Operations     int
-	ElapsedNS      int64
-	NSPerOperation float64
-}
-
 var projectionSink eventinspection.Result
 var pivotSink eventinspection.PivotResult
 
@@ -169,10 +161,12 @@ func main() {
 	if elapsed <= 0 {
 		fatal("non-positive elapsed duration")
 	}
-	result := observation{
-		Operation:*operation, Mode:"latency", Operations:*iterations,
-		ElapsedNS:elapsed.Nanoseconds(),
-		NSPerOperation:float64(elapsed.Nanoseconds())/float64(*iterations),
+	result := map[string]any{
+		"operation": *operation,
+		"mode": "latency",
+		"operations": *iterations,
+		"elapsed_ns": elapsed.Nanoseconds(),
+		"ns_per_operation": float64(elapsed.Nanoseconds()) / float64(*iterations),
 	}
 	if err := json.NewEncoder(os.Stdout).Encode(result); err != nil {
 		fatal(err.Error())
