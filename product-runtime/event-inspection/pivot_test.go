@@ -186,3 +186,97 @@ func assertPivotContext(t *testing.T, draft *PivotDraft, projection *Projection,
 		t.Fatalf("pivot return context not preserved: %#v", draft)
 	}
 }
+
+
+func TestPreparePivotRejectsMalformedContextBranches(t *testing.T) {
+	baseSelection := PivotSelection{
+		Field: "source.ip", Value: "192.0.2.10", ValuePresent: true, ValueAuthorized: true,
+		TimeStart: "2026-09-25T10:00:00Z", TimeEnd: "2026-09-25T11:00:00Z",
+		ReturnOrigin: "event-search:run-001:row-17",
+	}
+	tests := []struct {
+		name string
+		editProjection func(*Projection)
+		editSelection func(*PivotSelection)
+		code ErrorCode
+	}{
+		{name: "nil projection", editProjection: func(*Projection) {}, editSelection: func(*PivotSelection) {}, code: ErrorInvalidPivotContext},
+		{name: "wildcard projection tenant", editProjection: func(p *Projection) { p.TenantRef = "*" }, code: ErrorInvalidPivotContext},
+		{name: "missing source", editProjection: func(p *Projection) { p.Source.SourceRef = "" }, code: ErrorInvalidPivotContext},
+		{name: "missing value marker", editSelection: func(s *PivotSelection) { s.ValuePresent = false }, code: ErrorInvalidPivotContext},
+		{name: "invalid field", editSelection: func(s *PivotSelection) { s.Field = "source ip" }, code: ErrorInvalidPivotContext},
+		{name: "invalid return origin", editSelection: func(s *PivotSelection) { s.ReturnOrigin = "event search" }, code: ErrorInvalidPivotContext},
+		{name: "invalid start time", editSelection: func(s *PivotSelection) { s.TimeStart = "not-time" }, code: ErrorInvalidPivotContext},
+		{name: "invalid end time", editSelection: func(s *PivotSelection) { s.TimeEnd = "not-time" }, code: ErrorInvalidPivotContext},
+		{name: "nul value", editSelection: func(s *PivotSelection) { s.Value = "bad\x00value" }, code: ErrorInvalidPivotContext},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			var projection *Projection
+			if tt.name != "nil projection" {
+				projection = mustProject(t)
+				if tt.editProjection != nil {
+					tt.editProjection(projection)
+				}
+			}
+			selection := baseSelection
+			if tt.editSelection != nil {
+				tt.editSelection(&selection)
+			}
+			got := PreparePivot(projection, selection)
+			if got.Allowed || got.ErrorCode != tt.code || got.Draft != nil || !got.AuditRequired {
+				t.Fatalf("unexpected fail-closed result: %#v", got)
+			}
+		})
+	}
+}
+
+func TestPreparePivotTracksNormalizedAndRawDerivedOrigins(t *testing.T) {
+	tests := []struct {
+		name string
+		build func() *Projection
+		field string
+		value string
+		wantOrigin string
+	}{
+		{
+			name: "normalized",
+			build: func() *Projection {
+				p := mustProject(t)
+				delete(p.SourceFields, "source.ip")
+				p.NormalizedFields["network.client.ip"] = "192.0.2.20"
+				return p
+			},
+			field: "network.client.ip", value: "192.0.2.20", wantOrigin: "normalized",
+		},
+		{
+			name: "raw-derived-sensitive",
+			build: func() *Projection {
+				p := mustProject(t)
+				p.RawDerivedSensitive = map[string]string{"credential.user": "alice"}
+				return p
+			},
+			field: "credential.user", value: "alice", wantOrigin: "raw-derived-sensitive",
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			got := PreparePivot(tt.build(), PivotSelection{
+				Field: tt.field, Value: tt.value, ValuePresent: true, ValueAuthorized: true,
+				TimeStart: "2026-09-25T10:00:00Z", TimeEnd: "2026-09-25T11:00:00Z",
+				ReturnOrigin: "event-search:run-001:row-17",
+			})
+			if !got.Allowed || got.Draft == nil || got.Draft.FieldOrigin != tt.wantOrigin {
+				t.Fatalf("origin mismatch: %#v", got)
+			}
+		})
+	}
+}
+
+func TestValidPivotValueRejectsOversizedValue(t *testing.T) {
+	if validPivotValue(strings.Repeat("x", 64*1024+1)) {
+		t.Fatal("oversized pivot value unexpectedly accepted")
+	}
+}
