@@ -125,8 +125,9 @@ var knownBenchmarkHandlerKeys = map[string]bool{
 	"builtin-pilot-context-projection-v1":           true,
 	"builtin-event-search-validation-v1":            true,
 	"builtin-event-search-orchestration-v1":         true,
-	"builtin-event-search-frontend-state-v1":        true,
-	"builtin-event-inspection-preimplementation-v1": true,
+	"builtin-event-search-frontend-state-v1":    true,
+	"builtin-event-inspection-projection-v1":    true,
+	"builtin-event-inspection-pivot-v1":         true,
 }
 
 func runPerformanceBenchmarkAudit(root, stage, environmentID, changesFile string) (PerformanceBenchmarkAuditSummary, error) {
@@ -435,8 +436,34 @@ func prepareBenchmarkHandler(root string, workload BenchmarkWorkloadDefinition) 
 				Kind: "latency", Unit: "ns", Value: observation.NSPerOperation,
 			}}}, nil
 		}, cleanup, nil
-	case "builtin-event-inspection-preimplementation-v1":
-		return nil, func() {}, fmt.Errorf("event-inspection benchmark is blocked while event-inspection-runtime is preimplementation; implement E10-INV-004B-RUNTIME before executable measurement")
+	case "builtin-event-inspection-projection-v1":
+		probe, cleanup, err := prepareEventInspectionProbe(root)
+		if err != nil {
+			return nil, func() {}, err
+		}
+		return func() (BenchmarkSample, error) {
+			observation, err := probe.run(20_000, "projection")
+			if err != nil {
+				return BenchmarkSample{}, err
+			}
+			return BenchmarkSample{Measurements: []BenchmarkMeasurement{{
+				Kind: "latency", Unit: "ns", Value: observation.NSPerOperation,
+			}}}, nil
+		}, cleanup, nil
+	case "builtin-event-inspection-pivot-v1":
+		probe, cleanup, err := prepareEventInspectionProbe(root)
+		if err != nil {
+			return nil, func() {}, err
+		}
+		return func() (BenchmarkSample, error) {
+			observation, err := probe.run(20_000, "pivot")
+			if err != nil {
+				return BenchmarkSample{}, err
+			}
+			return BenchmarkSample{Measurements: []BenchmarkMeasurement{{
+				Kind: "latency", Unit: "ns", Value: observation.NSPerOperation,
+			}}}, nil
+		}, cleanup, nil
 	default:
 		return nil, func() {}, fmt.Errorf("unsupported benchmark handler %s", workload.HandlerKey)
 	}

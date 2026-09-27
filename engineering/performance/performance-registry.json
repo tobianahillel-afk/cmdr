@@ -136,14 +136,19 @@
       "boundary_id": "event-inspection-runtime",
       "owner_path": "product-runtime/event-inspection/**",
       "workload_key": "event-inspection-projection-v1",
-      "workload_description": "Future deterministic in-process construction of one permission-gated immutable Event inspection projection from already-resolved source, parser, field and enrichment inputs. Retrieval, parser execution, entity resolution, build and process-startup time are excluded.",
+      "workload_description": "Deterministic in-process construction of one permission-gated immutable Event inspection projection from already-resolved source, parser, field and enrichment inputs. Retrieval, parser execution, entity resolution, build and process-startup time are excluded.",
       "environment_id": "PERF-ENV-GITHUB-UBUNTU-SHARED",
       "stages": [
+        "pr",
         "on-demand"
       ],
       "trigger_paths": [
         "product-runtime/event-inspection/**",
-        "engineering/implementation/event-inspection/**"
+        "engineering/implementation/event-inspection/**",
+        "engineering/performance/benchmark-policy.json",
+        "engineering/performance/performance-registry.json",
+        "tools/cmdr-dev/event_inspection_performance.go",
+        "tools/cmdr-dev/performance_benchmark.go"
       ],
       "metrics": [
         {
@@ -156,7 +161,7 @@
           "max_relative_regression_percent": 0
         }
       ],
-      "rationale": "This is a preimplementation engineering ceiling for pure local projection overhead only. It is intentionally on-demand until executable runtime exists and is not a retrieval, parser, backend or production SLO."
+      "rationale": "The bounded Event Inspection projection runtime is executable. The 1 ms shared-CI ceiling applies only to deterministic local projection overhead; retrieval, parsing, provider work and production SLOs remain outside this target."
     },
     {
       "id": "PERF-TGT-EVENT-INSPECTION-PIVOT",
@@ -164,14 +169,19 @@
       "boundary_id": "event-inspection-runtime",
       "owner_path": "product-runtime/event-inspection/**",
       "workload_key": "event-inspection-pivot-v1",
-      "workload_description": "Future deterministic in-process creation of one dialect-neutral PivotDraft from an already-authorized inspected field/value/time/source/return context. Search execution, network/backend work, build and process-startup time are excluded.",
+      "workload_description": "Deterministic in-process creation of one dialect-neutral PivotDraft from an already-authorized inspected field/value/time/source/return context. Search execution, network/backend work, build and process-startup time are excluded.",
       "environment_id": "PERF-ENV-GITHUB-UBUNTU-SHARED",
       "stages": [
+        "pr",
         "on-demand"
       ],
       "trigger_paths": [
         "product-runtime/event-inspection/**",
-        "engineering/implementation/event-inspection/**"
+        "engineering/implementation/event-inspection/**",
+        "engineering/performance/benchmark-policy.json",
+        "engineering/performance/performance-registry.json",
+        "tools/cmdr-dev/event_inspection_performance.go",
+        "tools/cmdr-dev/performance_benchmark.go"
       ],
       "metrics": [
         {
@@ -184,7 +194,7 @@
           "max_relative_regression_percent": 0
         }
       ],
-      "rationale": "This is a preimplementation engineering ceiling for pure local pivot-draft preparation only. It is intentionally on-demand until executable runtime exists and is not a Search or production SLO."
+      "rationale": "The bounded dialect-neutral PivotDraft runtime is executable. The 1 ms shared-CI ceiling applies only to local draft preparation; Event Search execution, providers and production SLOs remain outside this target."
     }
   ]
 }

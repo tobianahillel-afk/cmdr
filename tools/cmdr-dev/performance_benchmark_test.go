@@ -162,3 +162,24 @@ func TestEventSearchBenchmarkHandlerFailsClosedBeforeRuntime(t *testing.T) {
 		t.Fatal("expected Event Search benchmark handler to fail closed before runtime materialization")
 	}
 }
+
+func TestEventInspectionProbeExecutesRealRuntime(t *testing.T) {
+	root, err := filepath.Abs(filepath.Join("..", ".."))
+	if err != nil {
+		t.Fatal(err)
+	}
+	probe, cleanup, err := prepareEventInspectionProbe(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer cleanup()
+	for _, operation := range []string{"projection", "pivot"} {
+		observation, err := probe.run(1000, operation)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if observation.Operation != operation || observation.Operations != 1000 || observation.NSPerOperation <= 0 {
+			t.Fatalf("unexpected Event Inspection %s observation: %#v", operation, observation)
+		}
+	}
+}
