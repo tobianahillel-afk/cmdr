@@ -1219,7 +1219,7 @@
       "id": "E10-INV-004C-PIVOT",
       "title": "Implement deterministic Event pivot draft and return context",
       "type": "task",
-      "status": "READY",
+      "status": "VERIFIED",
       "depends_on": [
         "E10-INV-004B-RUNTIME"
       ],
@@ -1232,7 +1232,7 @@
       "id": "E10-INV-004D-CLOSURE",
       "title": "Validate Event Inspection adversarial security and bounded performance",
       "type": "task",
-      "status": "BLOCKED",
+      "status": "READY",
       "depends_on": [
         "E10-INV-004C-PIVOT"
       ],
