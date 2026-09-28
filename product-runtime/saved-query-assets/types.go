@@ -27,6 +27,11 @@ const (
 	ErrorInvalidSourceState          ErrorCode = "invalid-source-state"
 	ErrorInvalidField                ErrorCode = "invalid-field"
 	ErrorInvalidFieldState           ErrorCode = "invalid-field-state"
+	ErrorHandoffProjectionUnavailable ErrorCode = "handoff-projection-unavailable"
+	ErrorHandoffIneligible             ErrorCode = "handoff-ineligible"
+	ErrorHandoffScopeMismatch          ErrorCode = "handoff-scope-mismatch"
+	ErrorHandoffUnknownParameter       ErrorCode = "handoff-unknown-parameter"
+	ErrorHandoffDuplicateParameter     ErrorCode = "handoff-duplicate-parameter"
 )
 
 type AssetKind string
@@ -147,4 +152,50 @@ type Result struct {
 	SearchJobExecuted   bool
 	AuditRequired       bool
 	Projection          *Projection
+}
+
+type ParameterValue struct {
+	Name        string
+	OpaqueValue []byte
+}
+
+type HandoffSourceContext struct {
+	ID             string
+	RequiredFields []string
+}
+
+type ReturnContextToken struct {
+	AssetID   string
+	AssetKind AssetKind
+}
+
+type HandoffInput struct {
+	TenantRef       string
+	EnvironmentRef  string
+	ParameterValues []ParameterValue
+}
+
+type ExecutionHandoffDraft struct {
+	TenantRef                      string
+	EnvironmentRef                 string
+	QueryRef                       string
+	QueryTenantRef                 string
+	QueryVersion                   string
+	ParameterNames                 []string
+	ParameterValues                []ParameterValue
+	Sources                        []HandoffSourceContext
+	ReturnContext                  ReturnContextToken
+	SourceReevaluationRequired     bool
+	PermissionReevaluationRequired bool
+	OriginalAssetImmutable         bool
+}
+
+type HandoffResult struct {
+	Allowed            bool
+	ErrorCode          ErrorCode
+	AuditRequired      bool
+	SourceAssetMutated bool
+	SearchJobCreated   bool
+	SearchJobExecuted  bool
+	Draft              *ExecutionHandoffDraft
 }

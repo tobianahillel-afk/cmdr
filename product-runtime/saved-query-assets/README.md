@@ -22,6 +22,19 @@ Missing or removed prerequisites are reported as incompatible. Stale validation/
 
 The module uses the Go standard library only and performs no network, filesystem, persistence or query-execution work.
 
+## Event Search execution handoff draft
+
+The runtime can construct one immutable backend-neutral handoff draft from a compatible projection. The handoff:
+
+- preserves Tenant, environment, Shared Query reference and exact Query version;
+- preserves declared parameter names and byte-for-byte caller-provided opaque parameter values without interpreting a type or query dialect;
+- copies source identifiers and required field names as context only;
+- marks source and permission re-evaluation as mandatory for Event Search;
+- carries a structured return-context token with the original asset ID/kind only;
+- never mutates the source asset or transfers ownership;
+- contains no Search Job identity/state and never creates or executes a Search Job;
+- has no direct runtime dependency on Event Search.
+
 ## Explicit exclusions
 
 This runtime does **not** implement or select:
@@ -31,7 +44,6 @@ This runtime does **not** implement or select:
 - Saved View mutation or conceptual merging with Saved Search / Query Asset;
 - Detection Rule creation, conversion or deployment;
 - Search Job creation or execution;
-- Event Search execution handoff construction (reserved for E10-INV-006C-HANDOFF);
 - cross-tenant copy;
 - storage/version-store/provider/retention;
 - collaboration backend, approval or revalidation policy;

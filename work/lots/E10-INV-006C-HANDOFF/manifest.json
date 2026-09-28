@@ -38,6 +38,7 @@
     "E10-INV-006B-RUNTIME"
   ],
   "allowed_paths": [
+    "product-runtime/saved-query-assets/**",
     "engineering/implementation/saved-query-assets/**",
     "engineering/security/**",
     "engineering/testing/**",
@@ -86,7 +87,11 @@
     "original asset projection and Query reference remain unchanged",
     "no Search Job ID/state is minted",
     "handoff records that source/permissions must be re-evaluated by Event Search",
-    "no direct product-runtime dependency on event-search-runtime is required"
+    "no direct product-runtime dependency on event-search-runtime is required",
+    "parameter values are copied byte-for-byte without type/dialect interpretation",
+    "unknown or duplicate parameter bindings fail closed without mutating the source projection",
+    "handoff source context contains source/field prerequisites but never reuses previous access as authorization",
+    "return context carries only the source asset identity required for navigation"
   ],
   "performance_budget": {
     "applicable": true,
