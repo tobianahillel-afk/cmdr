@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-SCALE-004A",
+  "result": "VERIFIED",
+  "final_validated_head": "89bc2484420b4d90d557403c7bd38e477c76596a",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 36457830155,
+    "pull_request_run": 36457837572,
+    "ledger_entries": 4,
+    "verified_claims": 4,
+    "readiness_total": 498,
+    "readiness_implemented": 4,
+    "readiness_ready": 17,
+    "readiness_blocked": 476,
+    "readiness_proposed": 1,
+    "selected_capability": "CAP-INV-006",
+    "selection_policy": "reuse-first-v1"
+  },
+  "rules": [
+    "CAP-INV-005 is classified IMPLEMENTED from verified bounded Hunt Management runtime evidence without claiming full product-capability completion",
+    "Product Spec remains read-only",
+    "next selection is computed from fresh readiness rather than a hand-maintained backlog",
+    "only READY capabilities are eligible",
+    "reuse-first-v1 prefers the already implemented CAP-INV family and selects CAP-INV-006 from current canonical readiness"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-SCALE-004B"
+  ]
+}
