@@ -7,12 +7,12 @@ import (
 
 func validHuntManagementHandoff() HuntManagementClosureHandoff {
 	return HuntManagementClosureHandoff{
-		SchemaVersion: 1,
-		HandoffKind: "hunt-management-bounded-core",
-		Readiness: "BOUNDED_HUNT_MANAGEMENT_VALIDATED_NOT_FULL_CAPABILITY",
-		Capability: "CAP-INV-005",
+		SchemaVersion:         1,
+		HandoffKind:           "hunt-management-bounded-core",
+		Readiness:             "BOUNDED_HUNT_MANAGEMENT_VALIDATED_NOT_FULL_CAPABILITY",
+		Capability:            "CAP-INV-005",
 		BlockingOpenDecisions: []string{"OPEN-013"},
-		EvidenceSources: []string{huntManagementRuntimeProgressPath},
+		EvidenceSources:       []string{huntManagementRuntimeProgressPath},
 		Limitations: []string{
 			"Hunt lifecycle and all class-2 Hunt mutations remain excluded while OPEN-013 is unresolved.",
 			"Case promotion and Case-link mutation remain excluded.",
@@ -77,7 +77,7 @@ func TestParseHuntManagementAdversarialEventsFailsClosedWhenMissing(t *testing.T
 func TestHuntManagementPerformanceMetric(t *testing.T) {
 	summary := PerformanceBenchmarkAuditSummary{Status: "pass", Results: []PerformanceBenchmarkResult{{
 		TargetID: "target",
-		Metrics: []BenchmarkMetricResult{{ID: "metric", Observed: 0.5, Budget: 1, AbsolutePass: true, RelativePass: true}},
+		Metrics:  []BenchmarkMetricResult{{ID: "metric", Observed: 0.5, Budget: 1, AbsolutePass: true, RelativePass: true}},
 	}}}
 	observed, budget, err := huntManagementPerformanceMetric(summary, "target", "metric")
 	if err != nil {
@@ -94,9 +94,9 @@ func TestHuntManagementPerformanceMetric(t *testing.T) {
 
 func TestValidateHuntManagementRuntimeProgress(t *testing.T) {
 	progress := HuntManagementRuntimeProgress{
-		SchemaVersion: 1,
-		WorkUnit: "E10-INV-005B-RUNTIME",
-		Status: "VERIFIED",
+		SchemaVersion:      1,
+		WorkUnit:           "E10-INV-005B-RUNTIME",
+		Status:             "VERIFIED",
 		FinalValidatedHead: "65df48f8466367438fbf3bbb933025869317fa88",
 	}
 	progress.Validation.Result = "PASS"
