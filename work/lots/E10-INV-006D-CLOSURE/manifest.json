@@ -86,7 +86,11 @@
     "execution handoff never creates or executes Search Job",
     "measured local projection and handoff budgets pass",
     "Product Spec baseline remains unchanged",
-    "runtime remains unchanged from verified runtime evidence through closure"
+    "runtime remains unchanged from verified runtime evidence through closure",
+    "dedicated Saved Query Assets E2E closure audit passes",
+    "projection and handoff performance handlers are executable rather than preimplementation placeholders",
+    "runtime unchanged check compares against verified E10-INV-006C-HANDOFF head",
+    "bounded closure handoff preserves OPEN-013 and refuses production/full-capability claims"
   ],
   "performance_budget": {
     "applicable": true,
@@ -115,7 +119,8 @@
     "CHK-SECRETS",
     "CHK-SAST-GO",
     "CHK-SCA-GO",
-    "CHK-SBOM"
+    "CHK-SBOM",
+    "CHK-SAVED-QUERY-ASSETS-E2E"
   ],
   "definition_of_ready": [
     "E10-INV-006C-HANDOFF is VERIFIED"

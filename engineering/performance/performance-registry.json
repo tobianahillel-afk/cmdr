@@ -235,14 +235,19 @@
       "boundary_id": "saved-query-assets-runtime",
       "owner_path": "product-runtime/saved-query-assets/**",
       "workload_key": "saved-query-assets-projection-v1",
-      "workload_description": "Future deterministic in-process validation and immutable projection of one already-resolved caller-owned Saved Search / Query Asset snapshot, including tenant/access scope, stable Query/version identity, parameters, source/field prerequisites, author and validation metadata. Retrieval, persistence, query execution, providers, build and process-startup time are excluded.",
+      "workload_description": "Deterministic in-process validation and immutable projection of one already-resolved caller-owned Saved Search / Query Asset snapshot, including tenant/access scope, stable Query/version identity, parameters, source/field prerequisites, author and validation metadata. Retrieval, persistence, query execution, providers, build and process-startup time are excluded.",
       "environment_id": "PERF-ENV-GITHUB-UBUNTU-SHARED",
       "stages": [
+        "pr",
         "on-demand"
       ],
       "trigger_paths": [
         "product-runtime/saved-query-assets/**",
-        "engineering/implementation/saved-query-assets/**"
+        "engineering/implementation/saved-query-assets/**",
+        "engineering/performance/benchmark-policy.json",
+        "engineering/performance/performance-registry.json",
+        "tools/cmdr-dev/saved_query_assets_performance.go",
+        "tools/cmdr-dev/performance_benchmark.go"
       ],
       "metrics": [
         {
@@ -255,7 +260,7 @@
           "max_relative_regression_percent": 0
         }
       ],
-      "rationale": "This is a preimplementation local engineering ceiling for pure compatibility validation/projection overhead only. It is on-demand until executable runtime exists and is not a storage, Event Search backend or production Saved Search SLO."
+      "rationale": "The bounded Saved Query Asset projection runtime is executable. The 1 ms shared-CI ceiling applies only to deterministic local compatibility projection overhead; retrieval, persistence, provider work and production Saved Search/Event Search SLOs remain outside this target."
     },
     {
       "id": "PERF-TGT-SAVED-QUERY-ASSETS-HANDOFF",
@@ -263,14 +268,19 @@
       "boundary_id": "saved-query-assets-runtime",
       "owner_path": "product-runtime/saved-query-assets/**",
       "workload_key": "saved-query-assets-handoff-v1",
-      "workload_description": "Future deterministic in-process construction of one immutable backend-neutral Event Search execution handoff from a validated Query Asset projection while preserving tenant, Query/version, parameter and source context. Search Job creation/execution, retrieval, persistence, providers, build and process-startup time are excluded.",
+      "workload_description": "Deterministic in-process construction of one immutable backend-neutral Event Search execution handoff from a validated Query Asset projection while preserving tenant, Query/version, opaque parameter values and source context. Search Job creation/execution, retrieval, persistence, providers, build and process-startup time are excluded.",
       "environment_id": "PERF-ENV-GITHUB-UBUNTU-SHARED",
       "stages": [
+        "pr",
         "on-demand"
       ],
       "trigger_paths": [
         "product-runtime/saved-query-assets/**",
-        "engineering/implementation/saved-query-assets/**"
+        "engineering/implementation/saved-query-assets/**",
+        "engineering/performance/benchmark-policy.json",
+        "engineering/performance/performance-registry.json",
+        "tools/cmdr-dev/saved_query_assets_performance.go",
+        "tools/cmdr-dev/performance_benchmark.go"
       ],
       "metrics": [
         {
@@ -283,7 +293,7 @@
           "max_relative_regression_percent": 0
         }
       ],
-      "rationale": "This is a preimplementation local engineering ceiling for pure handoff construction overhead only. It is on-demand until executable handoff code exists and makes no Event Search execution or production latency claim."
+      "rationale": "The bounded Saved Query Asset handoff runtime is executable. The 1 ms shared-CI ceiling applies only to local immutable handoff construction; Event Search execution, Search Job work, providers and production SLOs remain outside this target."
     }
   ]
 }

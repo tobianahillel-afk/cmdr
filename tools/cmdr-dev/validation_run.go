@@ -109,7 +109,7 @@ func validationExecutorMode(key string) (string, error) {
 	case "gofmt", "go-vet", "go-unit",
 		"spec-index", "spec-baseline", "coverage-graph", "obligations", "coverage-audit",
 		"validate-manifests", "architecture-audit", "dependency-audit", "boundary-edge-audit",
-		"complexity-audit", "context", "doctor", "next", "check-catalog-audit", "security-gate-audit", "security-test-audit", "deep-security-audit", "decision-registry-audit", "research-packet-audit", "decision-gate-audit", "decision-freshness-audit", "performance-registry-audit", "performance-benchmark-audit", "deep-performance-audit", "performance-cache-audit", "lease-audit", "recovery-journal-audit", "recovery-reconcile-audit", "coordination-audit", "metrics-registry-audit", "pilot-scope-audit", "pilot-contract-audit", "pilot-e2e-audit", "implementation-ledger-audit", "implementation-readiness", "implementation-wave", "event-search-contract-audit", "event-inspection-contract-audit", "hunt-management-contract-audit", "saved-query-assets-contract-audit", "hunt-management-e2e-audit", "event-search-e2e-audit", "event-inspection-e2e-audit", "secret-scan", "gosec-go", "govulncheck-go", "sbom":
+		"complexity-audit", "context", "doctor", "next", "check-catalog-audit", "security-gate-audit", "security-test-audit", "deep-security-audit", "decision-registry-audit", "research-packet-audit", "decision-gate-audit", "decision-freshness-audit", "performance-registry-audit", "performance-benchmark-audit", "deep-performance-audit", "performance-cache-audit", "lease-audit", "recovery-journal-audit", "recovery-reconcile-audit", "coordination-audit", "metrics-registry-audit", "pilot-scope-audit", "pilot-contract-audit", "pilot-e2e-audit", "implementation-ledger-audit", "implementation-readiness", "implementation-wave", "event-search-contract-audit", "event-inspection-contract-audit", "hunt-management-contract-audit", "saved-query-assets-contract-audit", "saved-query-assets-e2e-audit", "hunt-management-e2e-audit", "event-search-e2e-audit", "event-inspection-e2e-audit", "secret-scan", "gosec-go", "govulncheck-go", "sbom":
 		return "execute", nil
 	default:
 		return "", fmt.Errorf("unsupported executor_key %q", key)
@@ -512,6 +512,18 @@ func executeValidationCheck(root, tempDir, changesFile, key string, state Curren
 			summary.Capability, summary.ContractID, summary.AdversarialTests, summary.RuntimeCoveragePercent,
 			summary.SASTFindings, summary.SCAActionableFindings,
 			summary.ProjectionP95MS, summary.ProjectionBudgetMS,
+			summary.RuntimeUnchangedSinceVerification, summary.BlockingOpenDecisions, summary.Limitations,
+			summary.ProductionReadinessClaim, summary.FullCapabilityClaim, summary.Status), nil
+	case "saved-query-assets-e2e-audit":
+		summary, err := runSavedQueryAssetsE2EAudit(root, changesFile, state)
+		if err != nil {
+			return "", err
+		}
+		return fmt.Sprintf("capability=%s contract=%s adversarial=%d coverage=%.2f sast=%d sca=%d projection_p95=%.9f/%0.3f handoff_p95=%.9f/%0.3f runtime_unchanged=%t blockers=%d limitations=%d production_claim=%t full_claim=%t status=%s",
+			summary.Capability, summary.ContractID, summary.AdversarialTests, summary.RuntimeCoveragePercent,
+			summary.SASTFindings, summary.SCAActionableFindings,
+			summary.ProjectionP95MS, summary.ProjectionBudgetMS,
+			summary.HandoffP95MS, summary.HandoffBudgetMS,
 			summary.RuntimeUnchangedSinceVerification, summary.BlockingOpenDecisions, summary.Limitations,
 			summary.ProductionReadinessClaim, summary.FullCapabilityClaim, summary.Status), nil
 	case "secret-scan":

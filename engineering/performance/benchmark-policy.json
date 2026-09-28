@@ -60,16 +60,16 @@
     },
     {
       "key": "saved-query-assets-projection-v1",
-      "handler_key": "builtin-saved-query-assets-projection-preimplementation-v1",
-      "warmup_iterations": 0,
-      "sample_count": 3,
+      "handler_key": "builtin-saved-query-assets-projection-v1",
+      "warmup_iterations": 1,
+      "sample_count": 5,
       "max_sample_duration_ms": 100
     },
     {
       "key": "saved-query-assets-handoff-v1",
-      "handler_key": "builtin-saved-query-assets-handoff-preimplementation-v1",
-      "warmup_iterations": 0,
-      "sample_count": 3,
+      "handler_key": "builtin-saved-query-assets-handoff-v1",
+      "warmup_iterations": 1,
+      "sample_count": 5,
       "max_sample_duration_ms": 100
     }
   ]
