@@ -58,19 +58,19 @@ type HuntManagementRuntimeProgress struct {
 		BoundaryEdgeAudit      string `json:"boundary_edge_audit"`
 	} `json:"validation"`
 	RuntimeObservation struct {
-		Contract                   string  `json:"contract"`
-		RuntimeState               string  `json:"runtime_state"`
-		Fixtures                   int     `json:"fixtures"`
-		Positive                   int     `json:"positive"`
-		Negative                   int     `json:"negative"`
-		RuntimeDependencies        int     `json:"runtime_dependencies"`
-		RuntimeBoundaries          int     `json:"runtime_boundaries"`
-		SecurityScopes             int     `json:"security_scopes"`
-		GlobalRuntimeCoverage      float64 `json:"global_runtime_coverage_percent"`
-		GlobalCoverageFloor        float64 `json:"global_coverage_floor_percent"`
-		ChangedSecurityFloor       float64 `json:"changed_security_floor_percent"`
-		SASTFindings               int     `json:"sast_findings"`
-		SCAActionableFindings      int     `json:"sca_actionable_findings"`
+		Contract              string  `json:"contract"`
+		RuntimeState          string  `json:"runtime_state"`
+		Fixtures              int     `json:"fixtures"`
+		Positive              int     `json:"positive"`
+		Negative              int     `json:"negative"`
+		RuntimeDependencies   int     `json:"runtime_dependencies"`
+		RuntimeBoundaries     int     `json:"runtime_boundaries"`
+		SecurityScopes        int     `json:"security_scopes"`
+		GlobalRuntimeCoverage float64 `json:"global_runtime_coverage_percent"`
+		GlobalCoverageFloor   float64 `json:"global_coverage_floor_percent"`
+		ChangedSecurityFloor  float64 `json:"changed_security_floor_percent"`
+		SASTFindings          int     `json:"sast_findings"`
+		SCAActionableFindings int     `json:"sca_actionable_findings"`
 	} `json:"runtime_observation"`
 	Invariants         []string `json:"invariants"`
 	ProductSpecMutated bool     `json:"product_spec_mutated"`
@@ -104,20 +104,20 @@ type HuntManagementAdversarialSummary struct {
 }
 
 type HuntManagementE2EAuditSummary struct {
-	Capability                       string  `json:"capability"`
-	ContractID                       string  `json:"contract_id"`
-	AdversarialTests                 int     `json:"adversarial_tests"`
-	RuntimeCoveragePercent           float64 `json:"runtime_coverage_percent"`
-	SASTFindings                     int     `json:"sast_findings"`
-	SCAActionableFindings            int     `json:"sca_actionable_findings"`
-	ProjectionP95MS                  float64 `json:"projection_p95_ms"`
-	ProjectionBudgetMS               float64 `json:"projection_budget_ms"`
+	Capability                        string  `json:"capability"`
+	ContractID                        string  `json:"contract_id"`
+	AdversarialTests                  int     `json:"adversarial_tests"`
+	RuntimeCoveragePercent            float64 `json:"runtime_coverage_percent"`
+	SASTFindings                      int     `json:"sast_findings"`
+	SCAActionableFindings             int     `json:"sca_actionable_findings"`
+	ProjectionP95MS                   float64 `json:"projection_p95_ms"`
+	ProjectionBudgetMS                float64 `json:"projection_budget_ms"`
 	RuntimeUnchangedSinceVerification bool    `json:"runtime_unchanged_since_verification"`
-	BlockingOpenDecisions            int     `json:"blocking_open_decisions"`
-	Limitations                      int     `json:"limitations"`
-	ProductionReadinessClaim         bool    `json:"production_readiness_claim"`
-	FullCapabilityClaim              bool    `json:"full_capability_claim"`
-	Status                           string  `json:"status"`
+	BlockingOpenDecisions             int     `json:"blocking_open_decisions"`
+	Limitations                       int     `json:"limitations"`
+	ProductionReadinessClaim          bool    `json:"production_readiness_claim"`
+	FullCapabilityClaim               bool    `json:"full_capability_claim"`
+	Status                            string  `json:"status"`
 }
 
 func runHuntManagementE2EAudit(root, _ string, state CurrentState) (HuntManagementE2EAuditSummary, error) {
@@ -177,20 +177,20 @@ func runHuntManagementE2EAudit(root, _ string, state CurrentState) (HuntManageme
 		return HuntManagementE2EAuditSummary{}, fmt.Errorf("Hunt Management adversarial evidence is incomplete")
 	}
 	return HuntManagementE2EAuditSummary{
-		Capability: "CAP-INV-005",
-		ContractID: contract.ContractID,
-		AdversarialTests: adversarial.Count,
-		RuntimeCoveragePercent: runtime.RuntimeObservation.GlobalRuntimeCoverage,
-		SASTFindings: runtime.RuntimeObservation.SASTFindings,
-		SCAActionableFindings: runtime.RuntimeObservation.SCAActionableFindings,
-		ProjectionP95MS: observed,
-		ProjectionBudgetMS: budget,
+		Capability:                        "CAP-INV-005",
+		ContractID:                        contract.ContractID,
+		AdversarialTests:                  adversarial.Count,
+		RuntimeCoveragePercent:            runtime.RuntimeObservation.GlobalRuntimeCoverage,
+		SASTFindings:                      runtime.RuntimeObservation.SASTFindings,
+		SCAActionableFindings:             runtime.RuntimeObservation.SCAActionableFindings,
+		ProjectionP95MS:                   observed,
+		ProjectionBudgetMS:                budget,
 		RuntimeUnchangedSinceVerification: true,
-		BlockingOpenDecisions: len(handoff.BlockingOpenDecisions),
-		Limitations: len(handoff.Limitations),
-		ProductionReadinessClaim: handoff.ProductionReadinessClaim,
-		FullCapabilityClaim: handoff.FullCapabilityCompletionClaim,
-		Status: "PASS",
+		BlockingOpenDecisions:             len(handoff.BlockingOpenDecisions),
+		Limitations:                       len(handoff.Limitations),
+		ProductionReadinessClaim:          handoff.ProductionReadinessClaim,
+		FullCapabilityClaim:               handoff.FullCapabilityCompletionClaim,
+		Status:                            "PASS",
 	}, nil
 }
 
