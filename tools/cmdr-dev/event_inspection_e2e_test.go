@@ -1,6 +1,8 @@
 package main
 
 import (
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -79,5 +81,58 @@ func TestEventInspectionPerformanceMetric(t *testing.T) {
 	summary.Results[0].Metrics[0].AbsolutePass = false
 	if _, _, err := eventInspectionPerformanceMetric(summary, "target", "metric"); err == nil {
 		t.Fatal("expected failed performance metric rejection")
+	}
+}
+
+func TestEventInspectionProgressDecodersAcceptVerifiedEvidenceShape(t *testing.T) {
+	root := t.TempDir()
+	runtimePath := filepath.Join(root, filepath.FromSlash(eventInspectionRuntimeProgressPath))
+	pivotPath := filepath.Join(root, filepath.FromSlash(eventInspectionPivotProgressPath))
+	if err := os.MkdirAll(filepath.Dir(runtimePath), 0o750); err != nil {
+		t.Fatal(err)
+	}
+	runtimeJSON := `{
+		"schema_version":1,
+		"work_unit":"E10-INV-004B-RUNTIME",
+		"status":"VERIFIED",
+		"final_validated_head":"5f6300b7a20d04b52c7c14b23fc31f90c55e9827",
+		"validation":{"implementation_commit":"dfa2fe9786b375fc625dbf0a86f0913bf8569a54","adapter_test_fix_commit":"4edec0917b418ac569f60fef0c0638aeed521bee","security_scope_fix_commit":"5f6300b7a20d04b52c7c14b23fc31f90c55e9827","push_workflow_run":1,"pull_request_workflow_run":2,"result":"PASS"},
+		"runtime_evidence":{"contract":"EVENT-INSPECTION-READONLY-CONTRACT-V1","runtime_state":"implemented","fixtures":17,"positive_fixtures":4,"negative_fixtures":13,"external_runtime_dependencies":0,"cross_boundary_edges":0,"global_runtime_security_coverage_percent":91.47,"global_coverage_floor_percent":80,"changed_security_critical_floor_percent":90,"pr_changed_security_scopes":4,"authorization_required_scopes":4,"tenant_isolation_required_scopes":4},
+		"static_security":{"gosec_version":"v2.28.0","scan_roots":["product-runtime/event-inspection"],"findings":0,"govulncheck_version":"v1.8.0","analyzed_modules":8,"informational_findings":0,"actionable_findings":0},
+		"invariants":["bounded"],
+		"product_spec_mutated":false,
+		"next_unlocked":["E10-INV-004C-PIVOT"]
+	}`
+	pivotJSON := `{
+		"schema_version":1,
+		"work_unit":"E10-INV-004C-PIVOT",
+		"status":"VERIFIED",
+		"final_validated_head":"ca95fd13ddf20d2a8937b2ed06929e5de6b4c40c",
+		"validation":{"implementation_commit":"13d75b415f1b4f46942766f713f4d9cae0315a80","branch_coverage_fix_commit":"ca95fd13ddf20d2a8937b2ed06929e5de6b4c40c","push_workflow_run":3,"pull_request_workflow_run":4,"result":"PASS"},
+		"runtime_evidence":{"contract":"EVENT-INSPECTION-READONLY-CONTRACT-V1","fixtures":17,"positive_fixtures":4,"negative_fixtures":13,"external_runtime_dependencies":0,"global_runtime_security_coverage_push_percent":91.61,"global_runtime_security_coverage_pr_percent":91.66,"global_coverage_floor_percent":80,"changed_security_critical_floor_percent":90},
+		"static_security":{"gosec_version":"v2.28.0","findings":0,"govulncheck_version":"v1.8.0","analyzed_modules":8,"actionable_findings":0},
+		"invariants":["bounded"],
+		"product_spec_mutated":false,
+		"next_unlocked":["E10-INV-004D-CLOSURE"]
+	}`
+	if err := os.WriteFile(runtimePath, []byte(runtimeJSON), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.MkdirAll(filepath.Dir(pivotPath), 0o750); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(pivotPath, []byte(pivotJSON), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	var runtime EventInspectionRuntimeProgress
+	if err := decodeStrict(root, eventInspectionRuntimeProgressPath, &runtime); err != nil {
+		t.Fatal(err)
+	}
+	var pivot EventInspectionPivotProgress
+	if err := decodeStrict(root, eventInspectionPivotProgressPath, &pivot); err != nil {
+		t.Fatal(err)
+	}
+	if runtime.Validation.Result != "PASS" || pivot.Validation.Result != "PASS" {
+		t.Fatalf("unexpected validation evidence: runtime=%#v pivot=%#v", runtime.Validation, pivot.Validation)
 	}
 }

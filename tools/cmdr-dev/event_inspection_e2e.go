@@ -46,11 +46,32 @@ var eventInspectionRequiredLimitations = []string{
 	"production",
 }
 
+type EventInspectionProgressValidation struct {
+	ImplementationCommit      string `json:"implementation_commit"`
+	AdapterTestFixCommit      string `json:"adapter_test_fix_commit,omitempty"`
+	SecurityScopeFixCommit    string `json:"security_scope_fix_commit,omitempty"`
+	BranchCoverageFixCommit   string `json:"branch_coverage_fix_commit,omitempty"`
+	PushWorkflowRun           int64  `json:"push_workflow_run"`
+	PullRequestWorkflowRun    int64  `json:"pull_request_workflow_run"`
+	Result                    string `json:"result"`
+}
+
+type EventInspectionStaticSecurityProgress struct {
+	GosecVersion          string   `json:"gosec_version"`
+	ScanRoots             []string `json:"scan_roots,omitempty"`
+	Findings              int      `json:"findings"`
+	GovulncheckVersion    string   `json:"govulncheck_version"`
+	AnalyzedModules       int      `json:"analyzed_modules"`
+	InformationalFindings int      `json:"informational_findings,omitempty"`
+	ActionableFindings    int      `json:"actionable_findings"`
+}
+
 type EventInspectionRuntimeProgress struct {
-	SchemaVersion      int    `json:"schema_version"`
-	WorkUnit           string `json:"work_unit"`
-	Status             string `json:"status"`
-	FinalValidatedHead string `json:"final_validated_head"`
+	SchemaVersion      int                               `json:"schema_version"`
+	WorkUnit           string                            `json:"work_unit"`
+	Status             string                            `json:"status"`
+	FinalValidatedHead string                            `json:"final_validated_head"`
+	Validation         EventInspectionProgressValidation `json:"validation"`
 	RuntimeEvidence    struct {
 		Contract                             string  `json:"contract"`
 		RuntimeState                         string  `json:"runtime_state"`
@@ -62,19 +83,22 @@ type EventInspectionRuntimeProgress struct {
 		GlobalRuntimeSecurityCoveragePercent float64 `json:"global_runtime_security_coverage_percent"`
 		GlobalCoverageFloorPercent           float64 `json:"global_coverage_floor_percent"`
 		ChangedSecurityCriticalFloorPercent  float64 `json:"changed_security_critical_floor_percent"`
+		PRChangedSecurityScopes              int     `json:"pr_changed_security_scopes"`
+		AuthorizationRequiredScopes          int     `json:"authorization_required_scopes"`
+		TenantIsolationRequiredScopes        int     `json:"tenant_isolation_required_scopes"`
 	} `json:"runtime_evidence"`
-	StaticSecurity struct {
-		Findings           int `json:"findings"`
-		ActionableFindings int `json:"actionable_findings"`
-	} `json:"static_security"`
-	ProductSpecMutated bool `json:"product_spec_mutated"`
+	StaticSecurity     EventInspectionStaticSecurityProgress `json:"static_security"`
+	Invariants         []string                              `json:"invariants"`
+	ProductSpecMutated bool                                  `json:"product_spec_mutated"`
+	NextUnlocked       []string                              `json:"next_unlocked"`
 }
 
 type EventInspectionPivotProgress struct {
-	SchemaVersion      int    `json:"schema_version"`
-	WorkUnit           string `json:"work_unit"`
-	Status             string `json:"status"`
-	FinalValidatedHead string `json:"final_validated_head"`
+	SchemaVersion      int                               `json:"schema_version"`
+	WorkUnit           string                            `json:"work_unit"`
+	Status             string                            `json:"status"`
+	FinalValidatedHead string                            `json:"final_validated_head"`
+	Validation         EventInspectionProgressValidation `json:"validation"`
 	RuntimeEvidence    struct {
 		Contract                                 string  `json:"contract"`
 		Fixtures                                 int     `json:"fixtures"`
@@ -86,11 +110,10 @@ type EventInspectionPivotProgress struct {
 		GlobalCoverageFloorPercent               float64 `json:"global_coverage_floor_percent"`
 		ChangedSecurityCriticalFloorPercent      float64 `json:"changed_security_critical_floor_percent"`
 	} `json:"runtime_evidence"`
-	StaticSecurity struct {
-		Findings           int `json:"findings"`
-		ActionableFindings int `json:"actionable_findings"`
-	} `json:"static_security"`
-	ProductSpecMutated bool `json:"product_spec_mutated"`
+	StaticSecurity     EventInspectionStaticSecurityProgress `json:"static_security"`
+	Invariants         []string                              `json:"invariants"`
+	ProductSpecMutated bool                                  `json:"product_spec_mutated"`
+	NextUnlocked       []string                              `json:"next_unlocked"`
 }
 
 type EventInspectionClosureHandoff struct {
