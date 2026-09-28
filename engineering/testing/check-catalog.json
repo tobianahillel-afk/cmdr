@@ -1359,6 +1359,35 @@
       "evidence_kind": "audit-report"
     },
     {
+      "id": "CHK-SAVED-QUERY-ASSETS-CONTRACT",
+      "title": "CAP-INV-006 Saved Query Asset read-only compatibility contract and negative-fixture audit",
+      "executor_key": "saved-query-assets-contract-audit",
+      "risk_domains": [
+        "product-spec",
+        "coverage-traceability",
+        "security",
+        "work-governance"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": false,
+      "trigger_paths": [
+        "engineering/implementation/saved-query-assets/**",
+        "work/lots/E10-INV-006A*/**",
+        "tools/cmdr-dev/saved_query_assets_contract.go",
+        "tools/cmdr-dev/saved_query_assets_contract_test.go",
+        "cmdr-product-spec/07-investigate/modules/signals-and-hunt/capabilities/saved-searches-and-query-assets.md",
+        "cmdr-product-spec/05-domain-model/objects/query.md",
+        "cmdr-product-spec/05-domain-model/objects/search-job.md",
+        "cmdr-product-spec/17-implementation-contracts/**"
+      ],
+      "prerequisites": [
+        "CHK-MANIFESTS",
+        "CHK-SECURITY-TESTS"
+      ],
+      "evidence_kind": "audit-report"
+    },
+    {
       "id": "CHK-HUNT-MANAGEMENT-E2E",
       "title": "Bounded Hunt Management adversarial security and performance closure",
       "executor_key": "hunt-management-e2e-audit",

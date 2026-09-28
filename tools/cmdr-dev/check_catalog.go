@@ -109,6 +109,7 @@ var knownExecutorKeys = map[string]bool{
 	"event-search-contract-audit":     true,
 	"event-inspection-contract-audit": true,
 	"hunt-management-contract-audit":  true,
+	"saved-query-assets-contract-audit": true,
 	"hunt-management-e2e-audit":       true,
 	"event-search-e2e-audit":          true,
 	"event-inspection-e2e-audit":      true,
