@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "wave_id": "WAVE-CAP-INV-006-CORE-001",
+  "selection_policy": "reuse-first-v1",
+  "product_spec_baseline": "99c3826cdcbc79bad51631cf6462450f92e012eb",
+  "spec_tree_digest": "a5f45351eba180d0edb734f33ecbeaabb7eceb7143305e201e207e8ae5a60d27",
+  "readiness_snapshot": {
+    "total": 498,
+    "implemented": 4,
+    "ready": 17,
+    "blocked": 476,
+    "proposed": 1
+  },
+  "selected": {
+    "capability": "CAP-INV-006",
+    "name": "Saved Searches and Query Assets",
+    "canonical_file": "cmdr-product-spec/07-investigate/modules/signals-and-hunt/capabilities/saved-searches-and-query-assets.md",
+    "screen": null
+  },
+  "scope": {
+    "kind": "bounded-readonly-query-asset-compatibility-and-execution-handoff-core",
+    "included": [
+      "caller-owned Saved Search / Query Asset snapshot validation",
+      "immutable projection of Query stable reference/version, parameters, sources/fields, author and validation metadata",
+      "deterministic source/field compatibility and stale/partial diagnostics",
+      "tenant/access fail-closed visibility checks",
+      "read-only projection of existing lineage/deprecation metadata",
+      "backend-neutral immutable execution handoff draft to Event Search preserving original Query/version"
+    ],
+    "excluded": [
+      "Saved Search or Query Asset create/save/share/duplicate/deprecate/archive mutation while OPEN-013 remains open",
+      "Shared Query mutation or ownership transfer",
+      "Saved View mutation or conceptual merge",
+      "Detection Rule creation/conversion/deployment",
+      "Search Job creation/execution inside this runtime",
+      "cross-tenant copy",
+      "storage/version-store/provider/retention selection",
+      "collaboration backend or approval/revalidation policy selection",
+      "final query dialect",
+      "dedicated final CAP-INV-006 UI",
+      "production SLO or full-capability completion claim"
+    ]
+  },
+  "runtime_intent": {
+    "root": "product-runtime/saved-query-assets/**",
+    "external_runtime_dependencies": "deny-by-default",
+    "language": "Go standard library first unless a later reviewed decision proves otherwise",
+    "ownership_note": "runtime validates/projects caller-owned Investigate Saved Search / Query Asset state and builds a neutral Event Search handoff; it does not own Shared Query or Search Job"
+  },
+  "children": [
+    "E10-INV-006A-BOUNDARY",
+    "E10-INV-006A-CONTRACT",
+    "E10-INV-006B-RUNTIME",
+    "E10-INV-006C-HANDOFF",
+    "E10-INV-006D-CLOSURE",
+    "E10-INV-006E"
+  ],
+  "status": "MATERIALIZED_PENDING_VERIFICATION",
+  "validation": {
+    "result": "PENDING"
+  }
+}

@@ -1,0 +1,140 @@
+{
+  "schema_version": 2,
+  "id": "E10-INV-006D-CLOSURE",
+  "title": "Validate Saved Query Asset adversarial security and bounded performance",
+  "type": "task",
+  "parent": "E10-INV-006",
+  "goal": "Prove the bounded CAP-INV-006 runtime against tenant/access/version/source-field/immutability/handoff adversarial cases and executable local performance budgets before any implementation-ledger claim.",
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-006",
+      "CAP-INV-002",
+      "CAP-INV-005"
+    ],
+    "requirements": [
+      "REQ-PROD-014",
+      "REQ-PROD-020"
+    ],
+    "screens": [],
+    "permissions": [],
+    "open_decisions": [
+      "OPEN-013"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/audit-event-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/error-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/correlation-identifiers.md",
+      "cmdr-product-spec/17-implementation-contracts/object-reference-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/search-query-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/query.md",
+      "cmdr-product-spec/05-domain-model/objects/search-job.md"
+    ]
+  },
+  "depends_on": [
+    "E10-INV-006C-HANDOFF"
+  ],
+  "allowed_paths": [
+    "engineering/implementation/saved-query-assets/**",
+    "engineering/security/**",
+    "engineering/performance/**",
+    "engineering/testing/**",
+    "work/lots/E10-INV-006*/**",
+    "engineering/state/**",
+    "work/graph.json",
+    "tools/cmdr-dev/**"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**"
+  ],
+  "inputs": [
+    "CAP-INV-006 canonical Saved Searches and Query Assets contract",
+    "canonical Shared Query and Search Job contracts",
+    "tenant/permission/audit/error/correlation/object-reference/search-query contracts",
+    "OPEN-013 class-2 mutation constraint"
+  ],
+  "outputs": [
+    "adversarial closure evidence",
+    "measured local projection and handoff performance evidence",
+    "bounded handoff explicitly refusing mutation/production/full-capability claims"
+  ],
+  "invariants": [
+    "Product Spec remains read-only",
+    "no canonical Saved Search or Query Asset object is invented by this bounded wave",
+    "Query remains owned by Shared Capabilities and is referenced by stable versioned identity",
+    "Search Job remains owned by Shared Capabilities",
+    "Saved View remains Shared-owned and is never merged with a Saved Search or Query Asset",
+    "Detection Rule creation/deployment/conversion remains outside this capability",
+    "OPEN-013 remains unresolved and save/share/duplicate/deprecate plus every other class-2 asset mutation is excluded",
+    "tenant scope is mandatory and cross-tenant copy is excluded",
+    "no provider, storage engine, retention policy, collaboration backend, final query dialect or final UI is selected"
+  ],
+  "security_properties": [
+    "caller-provided tenant and access decisions fail closed",
+    "inaccessible Query or source/field prerequisites cannot be projected as usable",
+    "compatibility diagnostics are deterministic and never synthesize missing source/field facts",
+    "execution handoff preserves original Query/version and cannot mutate the source asset",
+    "no Search Job is created or executed by the bounded runtime"
+  ],
+  "acceptance_tests": [
+    "cross-tenant and access-denied Query references fail without leakage",
+    "projection and handoff immutability/deep-copy tests pass",
+    "missing/stale/removed source-field conditions remain explicit",
+    "execution handoff never creates or executes Search Job",
+    "measured local projection and handoff budgets pass",
+    "Product Spec baseline remains unchanged",
+    "runtime remains unchanged from verified runtime evidence through closure"
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "closure executes the local engineering budgets registered before runtime",
+    "metrics": [
+      "query-asset projection p95 absolute engineering budget passes",
+      "handoff construction p95 absolute engineering budget passes"
+    ]
+  },
+  "migration": {
+    "required": false,
+    "rationale": "bounded core remains persistence-neutral and performs no class-2 mutation",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert the current bounded task and keep downstream CAP-INV-006 tasks blocked",
+    "verification": [
+      "Product Spec baseline remains unchanged",
+      "no ledger claim is created before bounded closure",
+      "no Shared canonical object is mutated"
+    ]
+  },
+  "required_checks": [
+    "CHK-SECURITY-TESTS",
+    "CHK-PERFORMANCE-BENCHMARK",
+    "CHK-SECRETS",
+    "CHK-SAST-GO",
+    "CHK-SCA-GO",
+    "CHK-SBOM"
+  ],
+  "definition_of_ready": [
+    "E10-INV-006C-HANDOFF is VERIFIED"
+  ],
+  "definition_of_done": [
+    "cross-tenant and access-denied Query references fail without leakage",
+    "projection and handoff immutability/deep-copy tests pass",
+    "missing/stale/removed source-field conditions remain explicit",
+    "execution handoff never creates or executes Search Job"
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 12,
+    "estimated_net_loc": 720,
+    "production_files": 0,
+    "net_production_loc": 0,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

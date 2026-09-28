@@ -1402,6 +1402,97 @@
         "E10-SCALE-004A"
       ],
       "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-006"
+      ]
+    },
+    {
+      "id": "E10-INV-006",
+      "title": "Implement bounded Saved Search and Query Asset read-only core for CAP-INV-006",
+      "type": "epic",
+      "status": "DECOMPOSED",
+      "depends_on": [
+        "E10-SCALE-004B"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-006A-BOUNDARY"
+      ]
+    },
+    {
+      "id": "E10-INV-006A-BOUNDARY",
+      "title": "Register Saved Query Asset runtime boundary and preimplementation controls",
+      "type": "task",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E10-SCALE-004B"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-006A-CONTRACT"
+      ]
+    },
+    {
+      "id": "E10-INV-006A-CONTRACT",
+      "title": "Compile Saved Query Asset read-only compatibility contract",
+      "type": "task",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E10-INV-006A-BOUNDARY"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-006B-RUNTIME"
+      ]
+    },
+    {
+      "id": "E10-INV-006B-RUNTIME",
+      "title": "Implement immutable Saved Query Asset compatibility projection runtime",
+      "type": "task",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E10-INV-006A-CONTRACT"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-006C-HANDOFF"
+      ]
+    },
+    {
+      "id": "E10-INV-006C-HANDOFF",
+      "title": "Implement deterministic Event Search execution handoff draft",
+      "type": "task",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E10-INV-006B-RUNTIME"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-006D-CLOSURE"
+      ]
+    },
+    {
+      "id": "E10-INV-006D-CLOSURE",
+      "title": "Validate Saved Query Asset adversarial security and bounded performance",
+      "type": "task",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E10-INV-006C-HANDOFF"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-006E"
+      ]
+    },
+    {
+      "id": "E10-INV-006E",
+      "title": "Compile verified Saved Query Asset runtime claim for implementation ledger",
+      "type": "task",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E10-INV-006D-CLOSURE"
+      ],
+      "dependency_terminal_state": "VERIFIED",
       "unlocks": []
     }
   ]
