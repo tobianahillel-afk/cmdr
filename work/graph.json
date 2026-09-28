@@ -1293,7 +1293,7 @@
       "id": "E10-INV-005",
       "title": "Implement bounded Hunt Management read-only core for CAP-INV-005",
       "type": "epic",
-      "status": "DECOMPOSED",
+      "status": "VERIFIED",
       "depends_on": [
         "E10-SCALE-003B"
       ],
@@ -1358,9 +1358,35 @@
       "id": "E10-INV-005D",
       "title": "Compile verified Hunt Management runtime claim for implementation ledger",
       "type": "task",
-      "status": "READY",
+      "status": "VERIFIED",
       "depends_on": [
         "E10-INV-005C-CLOSURE"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-SCALE-004A"
+      ]
+    },
+    {
+      "id": "E10-SCALE-004",
+      "title": "Advance verified implementation ledger after Hunt Management and select the next bounded capability wave",
+      "type": "epic",
+      "status": "DECOMPOSED",
+      "depends_on": [
+        "E10-INV-005D"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-SCALE-004A"
+      ]
+    },
+    {
+      "id": "E10-SCALE-004A",
+      "title": "Register CAP-INV-005 runtime claim and recompile implementation readiness",
+      "type": "task",
+      "status": "READY",
+      "depends_on": [
+        "E10-INV-005D"
       ],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": []
