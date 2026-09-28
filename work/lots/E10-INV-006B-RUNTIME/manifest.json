@@ -38,7 +38,6 @@
     "E10-INV-006A-CONTRACT"
   ],
   "allowed_paths": [
-    "product-runtime/saved-query-assets/**",
     "engineering/implementation/saved-query-assets/**",
     "engineering/security/**",
     "engineering/testing/**",
@@ -72,7 +71,8 @@
     "Detection Rule creation/deployment/conversion remains outside this capability",
     "OPEN-013 remains unresolved and save/share/duplicate/deprecate plus every other class-2 asset mutation is excluded",
     "tenant scope is mandatory and cross-tenant copy is excluded",
-    "no provider, storage engine, retention policy, collaboration backend, final query dialect or final UI is selected"
+    "no provider, storage engine, retention policy, collaboration backend, final query dialect or final UI is selected",
+    "product-runtime/saved-query-assets access remains unavailable until E10-INV-006A-BOUNDARY registers and verifies unique runtime ownership"
   ],
   "security_properties": [
     "caller-provided tenant and access decisions fail closed",
