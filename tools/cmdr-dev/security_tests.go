@@ -87,6 +87,10 @@ const (
 	huntManagementSecurityModuleIdentity       = "github.com/tobianahillel-afk/cmdr/product-runtime/hunt-management"
 	huntManagementAuthorizationTestRegexp      = "^TestProjectMatchesPredeclaredContractFixtures$/^denied-reference-is-rejected$"
 	huntManagementTenantTestRegexp             = "^TestProjectMatchesPredeclaredContractFixtures$/(^missing-tenant-is-rejected$|^wildcard-tenant-is-rejected$|^cross-tenant-workspace-is-rejected$|^cross-tenant-reference-is-rejected$)"
+	savedQueryAssetsSecurityRuntimeRoot         = "product-runtime/saved-query-assets"
+	savedQueryAssetsSecurityModuleIdentity      = "github.com/tobianahillel-afk/cmdr/product-runtime/saved-query-assets"
+	savedQueryAssetsAuthorizationTestRegexp     = "^TestProjectMatchesPredeclaredContractFixtures$/(^asset-access-denied-is-rejected$|^query-access-denied-is-rejected$)"
+	savedQueryAssetsTenantTestRegexp            = "^TestProjectMatchesPredeclaredContractFixtures$/(^missing-tenant-is-rejected$|^wildcard-tenant-is-rejected$|^cross-tenant-asset-is-rejected$|^cross-tenant-query-is-rejected$|^cross-tenant-source-is-rejected$)"
 	eventSearchFrontendSecurityRuntimeRoot     = "product-runtime/event-search-frontend"
 	eventSearchFrontendAuthorizationTestRegexp = "^(authorization-state-cannot-be-deeplinked|permission-denied-reveals-no-protected-content|permission-denied-outcome-clears-results-and-exposes-no-protected-projection)$"
 	eventSearchFrontendTenantTestRegexp        = "^(tenant-mismatch-is-rejected|tenant-wildcard-is-rejected|transport-tenant-mismatch-fails-closed)$"
@@ -128,6 +132,12 @@ func runtimeSecurityAdapters() map[string]runtimeSecurityAdapter {
 			ModuleIdentity:         huntManagementSecurityModuleIdentity,
 			AuthorizationTestRegex: huntManagementAuthorizationTestRegexp,
 			TenantTestRegex:        huntManagementTenantTestRegexp,
+		},
+		savedQueryAssetsRuntimeBoundaryID: {
+			BoundaryID: savedQueryAssetsRuntimeBoundaryID, RuntimeRoot: savedQueryAssetsSecurityRuntimeRoot, RuntimeKind: "go",
+			ModuleIdentity:         savedQueryAssetsSecurityModuleIdentity,
+			AuthorizationTestRegex: savedQueryAssetsAuthorizationTestRegexp,
+			TenantTestRegex:        savedQueryAssetsTenantTestRegexp,
 		},
 		"event-search-frontend-runtime": {
 			BoundaryID: "event-search-frontend-runtime", RuntimeRoot: eventSearchFrontendSecurityRuntimeRoot, RuntimeKind: "node",

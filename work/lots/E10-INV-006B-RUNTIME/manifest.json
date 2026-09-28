@@ -38,6 +38,7 @@
     "E10-INV-006A-CONTRACT"
   ],
   "allowed_paths": [
+    "product-runtime/saved-query-assets/**",
     "engineering/implementation/saved-query-assets/**",
     "engineering/security/**",
     "engineering/testing/**",
@@ -87,7 +88,11 @@
     "removed/missing source or field is incompatible with named diagnostics",
     "Query/version/author/validation provenance remains exact",
     "runtime performs no class-2 mutation and creates no Search Job",
-    "security-critical runtime coverage target is at least 90 percent"
+    "security-critical runtime coverage target is at least 90 percent",
+    "all 18 predeclared contract fixtures execute against the runtime",
+    "authorization-negative asset/query denial fixtures pass as measured security adapters",
+    "tenant-isolation missing/wildcard/cross-tenant asset/query/source fixtures pass",
+    "runtime Go coverage is measured by CHK-SECURITY-TESTS"
   ],
   "performance_budget": {
     "applicable": true,

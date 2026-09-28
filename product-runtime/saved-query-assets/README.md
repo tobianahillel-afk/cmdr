@@ -1,36 +1,42 @@
 # Saved Query Assets runtime boundary
 
-This directory is reserved for the first bounded executable runtime of **CAP-INV-006 Saved Searches and Query Assets**.
+This directory contains the first bounded executable read-only runtime of **CAP-INV-006 Saved Searches and Query Assets**.
 
-## Current state
+## Implemented scope
 
-**Preimplementation only.** This README is the sole file intentionally present in the runtime boundary at this stage. It carries no executable product behavior and must not be treated as runtime coverage, authorization-negative evidence, tenant-isolation evidence, performance proof, persistence, a canonical Saved Search schema, or a Search Job implementation.
+The runtime validates and immutably projects one caller-owned Saved Search / Query Asset snapshot only:
 
-## Bounded future scope
+- one explicit authorized Tenant and environment;
+- stable asset identity and kind (`saved-search` or `query-asset`);
+- fail-closed asset and Shared Query access decisions;
+- the original Shared Query reference, tenant and exact Query version;
+- copied parameter names;
+- copied source and field prerequisites with their caller-resolved state;
+- copied author and validation state;
+- existing lineage, deprecation reason and replacement-asset references when supplied;
+- deterministic sorted compatibility diagnostics;
+- handoff eligibility only when all prerequisites are compatible;
+- deep-copy isolation from caller-owned slices and nested source/field data.
 
-Later verified tasks may implement only the read-only compatibility and handoff core already materialized in `WAVE-CAP-INV-006-CORE-001`:
+Missing or removed prerequisites are reported as incompatible. Stale validation/source/field facts remain visible and make the asset ineligible for execution handoff. Missing facts are never synthesized.
 
-- validation of one caller-owned, explicitly tenant-scoped Saved Search / Query Asset snapshot;
-- immutable projection of the stable Shared Query reference and exact Query version;
-- copied parameters/variables, source and field prerequisites, author, validation and existing lineage/deprecation metadata;
-- deterministic compatibility, stale, partial and unavailable-prerequisite diagnostics without synthesizing missing facts;
-- fail-closed access decisions and cross-tenant rejection;
-- construction of an immutable backend-neutral Event Search handoff draft that preserves the original Query/version and requires Event Search to re-evaluate source and permission context.
+The module uses the Go standard library only and performs no network, filesystem, persistence or query-execution work.
 
 ## Explicit exclusions
 
-This boundary does not select or implement:
+This runtime does **not** implement or select:
 
-- Saved Search or Query Asset create/save/share/duplicate/deprecate/archive mutation while OPEN-013 remains unresolved;
+- Saved Search / Query Asset create, save, update, share, duplicate, deprecate or archive mutation while OPEN-013 remains unresolved;
 - Shared Query mutation or ownership transfer;
-- Saved View mutation or conceptual merging with a Saved Search;
+- Saved View mutation or conceptual merging with Saved Search / Query Asset;
 - Detection Rule creation, conversion or deployment;
-- Search Job creation or execution inside this runtime;
+- Search Job creation or execution;
+- Event Search execution handoff construction (reserved for E10-INV-006C-HANDOFF);
 - cross-tenant copy;
-- storage/version-store/provider/retention implementation;
+- storage/version-store/provider/retention;
 - collaboration backend, approval or revalidation policy;
 - a final query dialect;
 - a dedicated final CAP-INV-006 UI;
-- a production Saved Search/Event Search SLO or full-capability completion claim.
+- production Saved Search/Event Search SLOs or full-capability completion.
 
-External product-runtime dependencies remain deny-by-default. The initial implementation direction is Go standard library first unless a later evidence-backed technical decision proves otherwise.
+External product-runtime dependencies remain deny-by-default.
