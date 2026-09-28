@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-004D-CLOSURE",
+  "status": "VERIFIED",
+  "final_validated_head": "93ee2016ade0b219ae93b779d6a6279c09593be7",
+  "validation": {
+    "push_workflow_run": 36397254887,
+    "pull_request_workflow_run": 36397262586,
+    "result": "PASS",
+    "selected_checks": 54,
+    "executed_checks": 47,
+    "preflight_satisfied": 7,
+    "event_inspection_e2e": "PASS",
+    "sast": "PASS",
+    "sca": "PASS",
+    "sbom": "PASS",
+    "product_spec_baseline": "UNCHANGED"
+  },
+  "bounded_core": {
+    "capability": "CAP-INV-004",
+    "contract_id": "EVENT-INSPECTION-READONLY-CONTRACT-V1",
+    "adversarial_tests": 13,
+    "runtime_coverage_percent": 91.47,
+    "sast_findings": 0,
+    "sca_actionable_findings": 0,
+    "projection_p95_ms": 0.000664297,
+    "projection_budget_ms": 1,
+    "pivot_p95_ms": 0.000604184,
+    "pivot_budget_ms": 1,
+    "runtime_unchanged_since_pivot": true,
+    "blocking_open_decisions": [
+      "OPEN-013",
+      "OPEN-014"
+    ],
+    "limitations": 7,
+    "production_readiness_claim": false,
+    "full_capability_completion_claim": false
+  },
+  "residuals": [
+    "Case-link mutation remains excluded while OPEN-013 is unresolved",
+    "Artifact proposal and Evidence-candidate mutations remain excluded while OPEN-013 and OPEN-014 are unresolved",
+    "parser engine and entity-resolution engine remain unselected",
+    "storage engine and provider remain unselected",
+    "final query dialect remains unselected",
+    "dedicated final Event Inspector UI remains unclaimed",
+    "production readiness and production Event Inspection SLO remain unclaimed"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-004E"
+  ]
+}
