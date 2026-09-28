@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-006A-CONTRACT",
+  "result": "VERIFIED",
+  "final_validated_head": "0e3804417af8c994a588eab19aa9ca8d8c0cc180",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 36471491750,
+    "pull_request_run": 36471497659,
+    "contract": "QUERY-ASSET-READONLY-CONTRACT-V1",
+    "fixtures": 18,
+    "positive": 5,
+    "negative": 13,
+    "incompatible": 2,
+    "stale": 1,
+    "runtime_dependencies": 0
+  },
+  "rules": [
+    "runtime remains provider-neutral and read-only",
+    "caller-owned Saved Search/Query Asset snapshots are validated/projected but never persisted",
+    "Query identity requires stable reference plus exact immutable version",
+    "missing/removed source or field facts become explicit incompatibility diagnostics",
+    "stale prerequisites stay visible and disable execution handoff eligibility",
+    "OPEN-013 keeps save/share/duplicate/deprecate and all class-2 mutation outside scope"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-006B-RUNTIME"
+  ]
+}

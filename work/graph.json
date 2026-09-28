@@ -1436,7 +1436,7 @@
       "id": "E10-INV-006A-CONTRACT",
       "title": "Compile Saved Query Asset read-only compatibility contract",
       "type": "task",
-      "status": "READY",
+      "status": "VERIFIED",
       "depends_on": [
         "E10-INV-006A-BOUNDARY"
       ],
@@ -1449,7 +1449,7 @@
       "id": "E10-INV-006B-RUNTIME",
       "title": "Implement immutable Saved Query Asset compatibility projection runtime",
       "type": "task",
-      "status": "BLOCKED",
+      "status": "READY",
       "depends_on": [
         "E10-INV-006A-CONTRACT"
       ],
