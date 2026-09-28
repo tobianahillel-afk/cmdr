@@ -113,9 +113,9 @@ var knownDeepPerformanceHandlerKeys = map[string]bool{
 	"builtin-hunt-management-preimplementation-v1":               true,
 	"builtin-saved-query-assets-projection-preimplementation-v1": true,
 	"builtin-saved-query-assets-handoff-preimplementation-v1":    true,
-	"builtin-case-queue-projection-preimplementation-v1":          true,
-	"builtin-case-queue-saved-view-preimplementation-v1":          true,
-	"builtin-case-queue-handoff-preimplementation-v1":             true,
+	"builtin-case-queue-projection-preimplementation-v1":         true,
+	"builtin-case-queue-saved-view-preimplementation-v1":         true,
+	"builtin-case-queue-handoff-preimplementation-v1":            true,
 }
 
 func runDeepPerformanceAudit(root, stage, changesFile, requestedTarget string) (DeepPerformanceAuditSummary, error) {
