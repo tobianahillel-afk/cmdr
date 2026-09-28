@@ -1,0 +1,104 @@
+{
+  "schema_version": 2,
+  "id": "E10-SCALE-004",
+  "title": "Advance verified implementation ledger after Hunt Management and select the next bounded capability wave",
+  "type": "epic",
+  "parent": "",
+  "goal": "Register the verified CAP-INV-005 runtime claim, recompile readiness from canonical Product Spec plus verified ledger evidence, then select exactly one next reuse-first bounded capability wave.",
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-005"
+    ],
+    "requirements": [],
+    "screens": [],
+    "permissions": [],
+    "open_decisions": [
+      "OPEN-013"
+    ],
+    "implementation_contracts": [],
+    "canonical_objects": []
+  },
+  "depends_on": [
+    "E10-INV-005D"
+  ],
+  "allowed_paths": [
+    "engineering/implementation/**",
+    "engineering/state/**",
+    "work/graph.json",
+    "work/lots/E10-SCALE-004*/**",
+    "tools/cmdr-dev/**"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/**"
+  ],
+  "inputs": [
+    "VERIFIED E10-INV-005D runtime implementation claim",
+    "canonical read-only Product Spec baseline",
+    "implementation ledger/readiness/wave compilers"
+  ],
+  "outputs": [
+    "verified CAP-INV-005 ledger entry",
+    "fresh implementation readiness program",
+    "one source-backed next bounded implementation wave"
+  ],
+  "invariants": [
+    "Product Spec remains read-only",
+    "product runtime code is not changed by scaling-control tasks",
+    "ledger IMPLEMENTED means verified runtime evidence, not full capability completion",
+    "OPEN-013 remains unresolved unless canonical Product Spec evidence changes"
+  ],
+  "security_properties": [
+    "ledger claims must satisfy implementation-ledger evidence floors",
+    "readiness is recomputed rather than manually edited",
+    "next wave must be selected only from READY capabilities"
+  ],
+  "acceptance_tests": [
+    "adaptive engineering-kernel remains green",
+    "implementation-ledger-audit passes",
+    "implementation-readiness passes",
+    "implementation-wave remains source-backed"
+  ],
+  "performance_budget": {
+    "applicable": false,
+    "rationale": "control-plane metadata epic only",
+    "metrics": []
+  },
+  "migration": {
+    "required": false,
+    "rationale": "engineering control-plane metadata only",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert scaling-control metadata without modifying verified product runtimes",
+    "verification": [
+      "Hunt Management runtime remains unchanged",
+      "Product Spec baseline remains unchanged"
+    ]
+  },
+  "required_checks": [
+    "adaptive engineering-kernel",
+    "CHK-IMPLEMENTATION-LEDGER",
+    "CHK-IMPLEMENTATION-READINESS",
+    "CHK-IMPLEMENTATION-WAVE"
+  ],
+  "definition_of_ready": [
+    "E10-INV-005D is VERIFIED"
+  ],
+  "definition_of_done": [
+    "CAP-INV-005 is registered as verified runtime evidence",
+    "readiness is recomputed",
+    "one next bounded READY capability wave is materialized"
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 10,
+    "estimated_net_loc": 650,
+    "production_files": 0,
+    "net_production_loc": 0,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 2
+  }
+}
