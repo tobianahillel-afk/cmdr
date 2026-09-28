@@ -3,11 +3,11 @@
   "work_unit": "E10-INV-004E",
   "result": "VERIFIED",
   "implementation_commit": "dfa2fe9786b375fc625dbf0a86f0913bf8569a54",
-  "final_validated_head": "93ee2016ade0b219ae93b779d6a6279c09593be7",
+  "final_validated_head": "8fdacfc820ff0f248632c0e55980d2c01c459725",
   "pull_request": 36,
   "evidence": {
-    "push_run": 36397254887,
-    "pull_request_run": 36397262586,
+    "push_run": 36398109510,
+    "pull_request_run": 36398116406,
     "contract": "EVENT-INSPECTION-READONLY-CONTRACT-V1",
     "fixtures": 17,
     "negative_fixtures": 13,
@@ -28,5 +28,7 @@
     "runtime remained unchanged from verified pivot evidence through bounded closure"
   ],
   "product_spec_mutated": false,
-  "next_unlocked": []
+  "next_unlocked": [
+    "E10-SCALE-003A"
+  ]
 }

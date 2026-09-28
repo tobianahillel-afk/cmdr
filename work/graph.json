@@ -1167,7 +1167,7 @@
       "id": "E10-INV-004",
       "title": "Implement bounded Event Inspection and Pivot core for CAP-INV-004",
       "type": "epic",
-      "status": "DECOMPOSED",
+      "status": "VERIFIED",
       "depends_on": [
         "E10-SCALE-002B"
       ],
@@ -1245,9 +1245,33 @@
       "id": "E10-INV-004E",
       "title": "Compile verified Event Inspection runtime claim for implementation ledger",
       "type": "task",
-      "status": "READY",
+      "status": "VERIFIED",
       "depends_on": [
         "E10-INV-004D-CLOSURE"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": []
+    },
+    {
+      "id": "E10-SCALE-003",
+      "title": "Advance verified implementation ledger after Event Inspection and select the next bounded capability wave",
+      "type": "epic",
+      "status": "DECOMPOSED",
+      "depends_on": [
+        "E10-INV-004E"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-SCALE-003A"
+      ]
+    },
+    {
+      "id": "E10-SCALE-003A",
+      "title": "Register CAP-INV-004 runtime claim and recompile implementation readiness",
+      "type": "task",
+      "status": "READY",
+      "depends_on": [
+        "E10-INV-004E"
       ],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": []
