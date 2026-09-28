@@ -30,5 +30,7 @@
     "runtime remained unchanged from verified E10-INV-006C-HANDOFF evidence through bounded closure"
   ],
   "product_spec_mutated": false,
-  "next_unlocked": []
+  "next_unlocked": [
+    "E10-SCALE-005A"
+  ]
 }

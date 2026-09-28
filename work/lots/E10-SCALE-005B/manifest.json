@@ -1,0 +1,110 @@
+{
+  "schema_version": 2,
+  "id": "E10-SCALE-005B",
+  "title": "Select and materialize the next reuse-first capability wave",
+  "type": "task",
+  "parent": "E10-SCALE-005",
+  "goal": "Validate the fresh reuse-first-v1 recommendation after CAP-INV-006 ledger registration and materialize exactly one next bounded implementation wave without mutating existing verified product runtimes.",
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-006"
+    ],
+    "requirements": [],
+    "screens": [],
+    "permissions": [],
+    "open_decisions": [
+      "OPEN-013"
+    ],
+    "implementation_contracts": [],
+    "canonical_objects": []
+  },
+  "depends_on": [
+    "E10-SCALE-005A"
+  ],
+  "allowed_paths": [
+    "engineering/implementation/**",
+    "engineering/state/**",
+    "work/graph.json",
+    "work/lots/E10-SCALE-005B/**",
+    "work/lots/E10-INV-*/**",
+    "tools/cmdr-dev/**"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/**"
+  ],
+  "inputs": [
+    "VERIFIED E10-SCALE-005A readiness and wave-selection evidence",
+    "canonical Product Spec capability graph",
+    "reuse-first-v1 policy"
+  ],
+  "outputs": [
+    "fresh source-backed next capability selection",
+    "one bounded implementation-wave manifest",
+    "realistically sized child decomposition",
+    "one READY first implementation task"
+  ],
+  "invariants": [
+    "Product Spec remains read-only",
+    "verified product runtime code is not changed by scaling-control tasks",
+    "selection follows compiled READY evidence rather than manual preference",
+    "OPEN decisions remain authoritative"
+  ],
+  "security_properties": [
+    "selected capability path must resolve inside the read-only Product Spec",
+    "wave decomposition must preserve deny-by-default security requirements",
+    "tasks exceeding complexity budgets must be split"
+  ],
+  "acceptance_tests": [
+    "adaptive engineering-kernel remains green",
+    "implementation-wave selects exactly one READY capability",
+    "generated child manifests pass strict-v2 and complexity validation",
+    "one first child is READY and later children are dependency-gated"
+  ],
+  "performance_budget": {
+    "applicable": false,
+    "rationale": "control-plane decomposition only; runtime budgets are compiled in the selected capability child work",
+    "metrics": []
+  },
+  "migration": {
+    "required": false,
+    "rationale": "no product runtime or persistent data is changed",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert wave materialization without changing verified runtimes or ledger entries",
+    "verification": [
+      "CAP-INV-006 remains ledger-backed",
+      "Product Spec baseline remains unchanged"
+    ]
+  },
+  "required_checks": [
+    "adaptive engineering-kernel",
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-IMPLEMENTATION-LEDGER",
+    "CHK-IMPLEMENTATION-READINESS",
+    "CHK-IMPLEMENTATION-WAVE"
+  ],
+  "definition_of_ready": [
+    "E10-SCALE-005A is VERIFIED",
+    "fresh wave compiler selects one READY capability"
+  ],
+  "definition_of_done": [
+    "selection is READY and source-backed",
+    "one bounded wave is materialized",
+    "child lots stay within complexity budgets",
+    "one next READY implementation task exists"
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 10,
+    "estimated_net_loc": 680,
+    "production_files": 0,
+    "net_production_loc": 0,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

@@ -1410,7 +1410,7 @@
       "id": "E10-INV-006",
       "title": "Implement bounded Saved Search and Query Asset read-only core for CAP-INV-006",
       "type": "epic",
-      "status": "DECOMPOSED",
+      "status": "VERIFIED",
       "depends_on": [
         "E10-SCALE-004B"
       ],
@@ -1488,9 +1488,48 @@
       "id": "E10-INV-006E",
       "title": "Compile verified Saved Query Asset runtime claim for implementation ledger",
       "type": "task",
-      "status": "READY",
+      "status": "VERIFIED",
       "depends_on": [
         "E10-INV-006D-CLOSURE"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-SCALE-005A"
+      ]
+    },
+    {
+      "id": "E10-SCALE-005",
+      "title": "Advance verified implementation ledger after Saved Query Assets and select the next bounded capability wave",
+      "type": "epic",
+      "status": "DECOMPOSED",
+      "depends_on": [
+        "E10-INV-006E"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-SCALE-005A"
+      ]
+    },
+    {
+      "id": "E10-SCALE-005A",
+      "title": "Register CAP-INV-006 runtime claim and recompile implementation readiness",
+      "type": "task",
+      "status": "READY",
+      "depends_on": [
+        "E10-INV-006E"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-SCALE-005B"
+      ]
+    },
+    {
+      "id": "E10-SCALE-005B",
+      "title": "Select and materialize the next reuse-first capability wave",
+      "type": "task",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E10-SCALE-005A"
       ],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": []
