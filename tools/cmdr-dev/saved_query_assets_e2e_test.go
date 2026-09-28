@@ -101,7 +101,17 @@ func TestValidateSavedQueryAssetsRuntimeProgress(t *testing.T) {
 		Status:             "VERIFIED",
 		FinalValidatedHead: "f262c1a8ff0d1ecc1ebe5f15c15dad25809f3334",
 	}
+	progress.Validation.PushWorkflowRun = 36488064659
+	progress.Validation.PullRequestWorkflowRun = 36488071274
 	progress.Validation.Result = "PASS"
+	progress.Validation.SavedQueryAssets = "PASS"
+	progress.Validation.SecurityTests = "PASS"
+	progress.Validation.SAST = "PASS"
+	progress.Validation.SCA = "PASS"
+	progress.Validation.PerformanceRegistry = "PASS"
+	progress.Validation.Architecture = "PASS"
+	progress.Validation.RuntimeDependencies = "PASS"
+	progress.Validation.BoundaryEdges = "PASS"
 	progress.RuntimeObservation.Contract = "QUERY-ASSET-READONLY-CONTRACT-V1"
 	progress.RuntimeObservation.RuntimeState = "implemented"
 	progress.RuntimeObservation.Fixtures = 18
@@ -111,6 +121,15 @@ func TestValidateSavedQueryAssetsRuntimeProgress(t *testing.T) {
 	progress.RuntimeObservation.Stale = 1
 	progress.RuntimeObservation.PushGlobalCoveragePercent = 92.06
 	progress.RuntimeObservation.PullRequestCoveragePercent = 92.10
+	progress.SecurityObservation.RuntimeBoundaries = 6
+	progress.SecurityObservation.RegisteredScopes = 6
+	progress.SecurityObservation.AuthorizationRequired = 6
+	progress.SecurityObservation.TenantIsolationRequired = 6
+	progress.SecurityObservation.CoverageFloorPercent = 80
+	progress.SecurityObservation.ChangedSecurityFloorPercent = 90
+	progress.SecurityObservation.PullRequestChangedScopes = 6
+	progress.Invariants = []string{"1", "2", "3", "4", "5", "6", "7", "8"}
+	progress.NextUnlocked = []string{"E10-INV-006C-HANDOFF"}
 	if err := validateSavedQueryAssetsRuntimeProgress(progress); err != nil {
 		t.Fatal(err)
 	}
@@ -127,7 +146,18 @@ func TestValidateSavedQueryAssetsHandoffProgress(t *testing.T) {
 		Status:             "VERIFIED",
 		FinalValidatedHead: "8af494e31839cce5ef65c55c09ea043642ec27d2",
 	}
+	progress.Validation.PushWorkflowRun = 36488802670
+	progress.Validation.PullRequestWorkflowRun = 36488807591
 	progress.Validation.Result = "PASS"
+	progress.Validation.SavedQueryAssets = "PASS"
+	progress.Validation.SecurityTests = "PASS"
+	progress.Validation.SAST = "PASS"
+	progress.Validation.SCA = "PASS"
+	progress.Validation.RuntimeDependencies = "PASS"
+	progress.Validation.BoundaryEdges = "PASS"
+	progress.Validation.PerformanceRegistry = "PASS"
+	progress.Invariants = []string{"1", "2", "3", "4", "5", "6", "7", "8", "9"}
+	progress.NextUnlocked = []string{"E10-INV-006D-CLOSURE"}
 	h := &progress.HandoffObservation
 	h.Immutable = true
 	h.ExactQueryVersionPreserved = true

@@ -60,6 +60,8 @@ type SavedQueryAssetsRuntimeProgress struct {
 		SecurityTests          string `json:"security_tests"`
 		SAST                   string `json:"sast"`
 		SCA                    string `json:"sca"`
+		PerformanceRegistry    string `json:"performance_registry"`
+		Architecture           string `json:"architecture"`
 		RuntimeDependencies    string `json:"runtime_dependencies"`
 		BoundaryEdges          string `json:"boundary_edges"`
 	} `json:"validation"`
@@ -77,7 +79,18 @@ type SavedQueryAssetsRuntimeProgress struct {
 		SASTFindings               int     `json:"sast_findings"`
 		SCAActionableFindings      int     `json:"sca_actionable_findings"`
 	} `json:"runtime_observation"`
-	ProductSpecMutated bool `json:"product_spec_mutated"`
+	SecurityObservation struct {
+		RuntimeBoundaries             int     `json:"runtime_boundaries"`
+		RegisteredScopes              int     `json:"registered_scopes"`
+		AuthorizationRequired         int     `json:"authorization_required"`
+		TenantIsolationRequired       int     `json:"tenant_isolation_required"`
+		CoverageFloorPercent          float64 `json:"coverage_floor_percent"`
+		ChangedSecurityFloorPercent   float64 `json:"changed_security_critical_floor_percent"`
+		PullRequestChangedScopes      int     `json:"pull_request_changed_scopes"`
+	} `json:"security_observation"`
+	Invariants         []string `json:"invariants"`
+	ProductSpecMutated bool     `json:"product_spec_mutated"`
+	NextUnlocked       []string `json:"next_unlocked"`
 }
 
 type SavedQueryAssetsHandoffProgress struct {
@@ -89,6 +102,13 @@ type SavedQueryAssetsHandoffProgress struct {
 		PushWorkflowRun        int64  `json:"push_workflow_run"`
 		PullRequestWorkflowRun int64  `json:"pull_request_workflow_run"`
 		Result                 string `json:"result"`
+		SavedQueryAssets       string `json:"saved_query_assets_contract"`
+		SecurityTests          string `json:"security_tests"`
+		SAST                   string `json:"sast"`
+		SCA                    string `json:"sca"`
+		RuntimeDependencies    string `json:"runtime_dependencies"`
+		BoundaryEdges          string `json:"boundary_edges"`
+		PerformanceRegistry    string `json:"performance_registry"`
 	} `json:"validation"`
 	HandoffObservation struct {
 		Immutable                          bool    `json:"immutable"`
@@ -106,7 +126,9 @@ type SavedQueryAssetsHandoffProgress struct {
 		SASTFindings                       int     `json:"sast_findings"`
 		SCAActionableFindings              int     `json:"sca_actionable_findings"`
 	} `json:"handoff_observation"`
-	ProductSpecMutated bool `json:"product_spec_mutated"`
+	Invariants         []string `json:"invariants"`
+	ProductSpecMutated bool     `json:"product_spec_mutated"`
+	NextUnlocked       []string `json:"next_unlocked"`
 }
 
 type SavedQueryAssetsClosureHandoff struct {
@@ -260,6 +282,13 @@ func validateSavedQueryAssetsRuntimeProgress(progress SavedQueryAssetsRuntimePro
 	if err != nil || normalized != progress.FinalValidatedHead {
 		return fmt.Errorf("Saved Query Assets runtime progress has invalid final validated head")
 	}
+	if progress.Validation.PushWorkflowRun <= 0 || progress.Validation.PullRequestWorkflowRun <= 0 ||
+		progress.Validation.SavedQueryAssets != "PASS" || progress.Validation.SecurityTests != "PASS" ||
+		progress.Validation.SAST != "PASS" || progress.Validation.SCA != "PASS" ||
+		progress.Validation.PerformanceRegistry != "PASS" || progress.Validation.Architecture != "PASS" ||
+		progress.Validation.RuntimeDependencies != "PASS" || progress.Validation.BoundaryEdges != "PASS" {
+		return fmt.Errorf("Saved Query Assets runtime validation evidence is incomplete")
+	}
 	if progress.RuntimeObservation.Contract != "QUERY-ASSET-READONLY-CONTRACT-V1" ||
 		progress.RuntimeObservation.RuntimeState != "implemented" ||
 		progress.RuntimeObservation.Fixtures != 18 || progress.RuntimeObservation.Positive != 5 ||
@@ -269,6 +298,16 @@ func validateSavedQueryAssetsRuntimeProgress(progress SavedQueryAssetsRuntimePro
 		progress.RuntimeObservation.PullRequestCoveragePercent < 90 ||
 		progress.RuntimeObservation.SASTFindings != 0 || progress.RuntimeObservation.SCAActionableFindings != 0 {
 		return fmt.Errorf("Saved Query Assets runtime progress does not satisfy bounded security evidence")
+	}
+	s := progress.SecurityObservation
+	if s.RuntimeBoundaries != 6 || s.RegisteredScopes != 6 || s.AuthorizationRequired != 6 ||
+		s.TenantIsolationRequired != 6 || s.CoverageFloorPercent != 80 ||
+		s.ChangedSecurityFloorPercent != 90 || s.PullRequestChangedScopes != 6 {
+		return fmt.Errorf("Saved Query Assets runtime security observation is incomplete")
+	}
+	if len(progress.Invariants) < 8 ||
+		!sameStringSet(progress.NextUnlocked, []string{"E10-INV-006C-HANDOFF"}) {
+		return fmt.Errorf("Saved Query Assets runtime progress handoff metadata is incomplete")
 	}
 	return nil
 }
@@ -282,6 +321,13 @@ func validateSavedQueryAssetsHandoffProgress(progress SavedQueryAssetsHandoffPro
 	if err != nil || normalized != progress.FinalValidatedHead {
 		return fmt.Errorf("Saved Query Assets handoff progress has invalid final validated head")
 	}
+	if progress.Validation.PushWorkflowRun <= 0 || progress.Validation.PullRequestWorkflowRun <= 0 ||
+		progress.Validation.SavedQueryAssets != "PASS" || progress.Validation.SecurityTests != "PASS" ||
+		progress.Validation.SAST != "PASS" || progress.Validation.SCA != "PASS" ||
+		progress.Validation.RuntimeDependencies != "PASS" || progress.Validation.BoundaryEdges != "PASS" ||
+		progress.Validation.PerformanceRegistry != "PASS" {
+		return fmt.Errorf("Saved Query Assets handoff validation evidence is incomplete")
+	}
 	h := progress.HandoffObservation
 	if !h.Immutable || !h.ExactQueryVersionPreserved || !h.OpaqueParameterValuesPreserved ||
 		!h.SourceContextCopied || !h.SourceReevaluationRequired || !h.PermissionReevaluationRequired ||
@@ -289,6 +335,10 @@ func validateSavedQueryAssetsHandoffProgress(progress SavedQueryAssetsHandoffPro
 		h.DirectEventSearchRuntimeDependency || h.PushGlobalCoveragePercent < 90 ||
 		h.PullRequestCoveragePercent < 90 || h.SASTFindings != 0 || h.SCAActionableFindings != 0 {
 		return fmt.Errorf("Saved Query Assets handoff progress does not satisfy bounded evidence")
+	}
+	if len(progress.Invariants) < 9 ||
+		!sameStringSet(progress.NextUnlocked, []string{"E10-INV-006D-CLOSURE"}) {
+		return fmt.Errorf("Saved Query Assets handoff progress metadata is incomplete")
 	}
 	return nil
 }
