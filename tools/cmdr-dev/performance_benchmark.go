@@ -129,6 +129,8 @@ var knownBenchmarkHandlerKeys = map[string]bool{
 	"builtin-event-inspection-projection-v1": true,
 	"builtin-event-inspection-pivot-v1":      true,
 	"builtin-hunt-management-projection-v1":  true,
+	"builtin-saved-query-assets-projection-preimplementation-v1": true,
+	"builtin-saved-query-assets-handoff-preimplementation-v1":    true,
 }
 
 func runPerformanceBenchmarkAudit(root, stage, environmentID, changesFile string) (PerformanceBenchmarkAuditSummary, error) {
@@ -441,6 +443,10 @@ type benchmarkSampleHandler func() (BenchmarkSample, error)
 
 func prepareBenchmarkHandler(root string, workload BenchmarkWorkloadDefinition) (benchmarkSampleHandler, func(), error) {
 	switch workload.HandlerKey {
+	case "builtin-saved-query-assets-projection-preimplementation-v1":
+		return nil, func() {}, fmt.Errorf("saved-query-assets projection benchmark is blocked while saved-query-assets-runtime is preimplementation; implement E10-INV-006B-RUNTIME before executable measurement")
+	case "builtin-saved-query-assets-handoff-preimplementation-v1":
+		return nil, func() {}, fmt.Errorf("saved-query-assets handoff benchmark is blocked while execution handoff is preimplementation; implement E10-INV-006C-HANDOFF before executable measurement")
 	case "builtin-cmdr-dev-metadata-audit-v1":
 		return func() (BenchmarkSample, error) {
 			started := time.Now()

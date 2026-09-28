@@ -145,6 +145,44 @@
       "concurrency": 1,
       "iterations": 10000,
       "rationale": "Pre-registered on-demand resource validation for the future immutable Hunt workspace projection. The compiled handler fails closed while hunt-management-runtime is preimplementation and cannot emit synthetic runtime evidence."
+    },
+    {
+      "id": "PERF-DEEP-SAVED-QUERY-ASSETS-PROJECTION",
+      "performance_target_id": "PERF-TGT-SAVED-QUERY-ASSETS-PROJECTION",
+      "kind": "resource",
+      "handler_key": "builtin-saved-query-assets-projection-preimplementation-v1",
+      "stages": [
+        "on-demand"
+      ],
+      "trigger_paths": [
+        "product-runtime/saved-query-assets/**",
+        "engineering/implementation/saved-query-assets/**"
+      ],
+      "duration_seconds": 0,
+      "timeout_seconds": 30,
+      "memory_limit_mib": 128,
+      "concurrency": 1,
+      "iterations": 10000,
+      "rationale": "Pre-registered on-demand resource validation for the future immutable Saved Query Asset compatibility projection. The compiled handler fails closed while saved-query-assets-runtime projection is preimplementation and cannot emit synthetic runtime evidence."
+    },
+    {
+      "id": "PERF-DEEP-SAVED-QUERY-ASSETS-HANDOFF",
+      "performance_target_id": "PERF-TGT-SAVED-QUERY-ASSETS-HANDOFF",
+      "kind": "resource",
+      "handler_key": "builtin-saved-query-assets-handoff-preimplementation-v1",
+      "stages": [
+        "on-demand"
+      ],
+      "trigger_paths": [
+        "product-runtime/saved-query-assets/**",
+        "engineering/implementation/saved-query-assets/**"
+      ],
+      "duration_seconds": 0,
+      "timeout_seconds": 30,
+      "memory_limit_mib": 128,
+      "concurrency": 1,
+      "iterations": 10000,
+      "rationale": "Pre-registered on-demand resource validation for the future immutable Event Search handoff draft. The compiled handler fails closed while saved-query-assets-runtime handoff is preimplementation and cannot emit synthetic runtime evidence."
     }
   ]
 }

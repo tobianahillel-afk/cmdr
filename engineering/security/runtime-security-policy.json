@@ -60,6 +60,17 @@
       "authorization_rationale": "CAP-INV-005 projects caller-owned Hunt workspace context containing references to Query, Search Job, Hypothesis, Case and Incident objects. The bounded runtime must prove denied caller-provided access decisions fail closed and never expose denied reference identity or projected content.",
       "tenant_isolation_required": true,
       "tenant_isolation_rationale": "CAP-INV-005 workspace state is single-tenant/environment and every referenced object is tenant-scoped. The runtime must prove missing, wildcard and cross-tenant workspace/reference context fails closed with no reference widening."
+    },
+    {
+      "boundary_id": "saved-query-assets-runtime",
+      "owner": "E10-INV-006",
+      "security_critical_paths": [
+        "product-runtime/saved-query-assets/**"
+      ],
+      "authorization_required": true,
+      "authorization_rationale": "CAP-INV-006 projects caller-owned Saved Search / Query Asset state containing a stable Shared Query/version reference, parameters, source/field prerequisites, author/validation metadata and lineage/deprecation metadata. The bounded runtime must prove denied caller-provided access decisions fail closed and never expose denied Query identity or projected asset content.",
+      "tenant_isolation_required": true,
+      "tenant_isolation_rationale": "CAP-INV-006 assets and their Query/source context are tenant-scoped and cross-tenant copy is explicitly excluded. The runtime must prove missing, wildcard, asset/query tenant mismatch and cross-tenant handoff context fail closed with no scope widening."
     }
   ]
 }
