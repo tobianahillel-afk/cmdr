@@ -12,6 +12,14 @@
       "runtime_root": "product-runtime/event-search/**"
     },
     {
+      "capability": "CAP-INV-004",
+      "work_unit": "E10-INV-004E",
+      "manifest_path": "work/lots/E10-INV-004E/manifest.json",
+      "handoff_path": "work/lots/E10-INV-004E/HANDOFF.json",
+      "runtime_boundary": "event-inspection-runtime",
+      "runtime_root": "product-runtime/event-inspection/**"
+    },
+    {
       "capability": "CAP-SET-004",
       "work_unit": "E9-PILOT-001C-RUNTIME",
       "manifest_path": "work/lots/E9-PILOT-001C-RUNTIME/manifest.json",
