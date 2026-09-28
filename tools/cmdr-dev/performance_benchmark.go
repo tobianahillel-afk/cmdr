@@ -121,12 +121,12 @@ type PerformanceBenchmarkAuditSummary struct {
 }
 
 var knownBenchmarkHandlerKeys = map[string]bool{
-	"builtin-cmdr-dev-metadata-audit-v1":           true,
-	"builtin-pilot-context-projection-v1":          true,
-	"builtin-event-search-validation-v1":           true,
-	"builtin-event-search-orchestration-v1":        true,
-	"builtin-event-search-frontend-state-v1":       true,
-	"builtin-event-inspection-projection-v1":       true,
+	"builtin-cmdr-dev-metadata-audit-v1":     true,
+	"builtin-pilot-context-projection-v1":    true,
+	"builtin-event-search-validation-v1":     true,
+	"builtin-event-search-orchestration-v1":  true,
+	"builtin-event-search-frontend-state-v1": true,
+	"builtin-event-inspection-projection-v1": true,
 	"builtin-event-inspection-pivot-v1":      true,
 	"builtin-hunt-management-projection-v1":  true,
 }
