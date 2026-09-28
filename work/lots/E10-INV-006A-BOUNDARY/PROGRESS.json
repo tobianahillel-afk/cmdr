@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-006A-BOUNDARY",
+  "status": "VERIFIED",
+  "final_validated_head": "28f0cd096623e4a9aba408f8be864ab511cfc578",
+  "validation": {
+    "push_workflow_run": 36469814250,
+    "pull_request_workflow_run": 36469820682,
+    "result": "PASS",
+    "architecture_audit": "PASS",
+    "runtime_dependency_audit": "PASS",
+    "boundary_edge_audit": "PASS",
+    "security_test_audit": "PASS",
+    "performance_registry_audit": "PASS",
+    "deep_performance_policy": "PASS"
+  },
+  "evidence": {
+    "architecture_boundaries": 10,
+    "runtime_boundaries": 6,
+    "runtime_dependencies": 0,
+    "cross_boundary_edges": 0,
+    "security_scopes": 6,
+    "performance_targets": 9,
+    "deep_performance_targets": 9,
+    "saved_query_asset_performance_targets": [
+      "PERF-TGT-SAVED-QUERY-ASSETS-PROJECTION",
+      "PERF-TGT-SAVED-QUERY-ASSETS-HANDOFF"
+    ],
+    "preimplementation_runtime_files": [
+      "product-runtime/saved-query-assets/README.md"
+    ]
+  },
+  "invariants": [
+    "saved-query-assets-runtime is uniquely owned",
+    "external runtime dependencies remain deny-by-default",
+    "security authorization/tenant obligations are registered without claiming runtime PASS",
+    "projection and handoff performance/deep-performance obligations are registered on-demand and fail closed while preimplementation",
+    "README.md is the only file in product-runtime/saved-query-assets",
+    "OPEN-013 remains unresolved and class-2 asset mutation is excluded",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-006A-CONTRACT"
+  ]
+}
