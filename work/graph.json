@@ -1282,7 +1282,7 @@
       "id": "E10-SCALE-003B",
       "title": "Select and materialize the next reuse-first capability wave",
       "type": "task",
-      "status": "READY",
+      "status": "VERIFIED",
       "depends_on": [
         "E10-SCALE-003A"
       ],
@@ -1306,7 +1306,7 @@
       "id": "E10-INV-005A-BOUNDARY",
       "title": "Register Hunt Management runtime boundary and preimplementation controls",
       "type": "task",
-      "status": "BLOCKED",
+      "status": "READY",
       "depends_on": [
         "E10-SCALE-003B"
       ],
