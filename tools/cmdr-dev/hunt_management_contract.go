@@ -306,7 +306,7 @@ func validateHuntManagementSourceAnchors(root string) error {
 		}},
 		{huntManagementRuntimeMarker, []string{
 			"Hunt Management runtime boundary",
-			"Preimplementation only",
+			"Implemented scope",
 			"OPEN-013",
 		}},
 	}
