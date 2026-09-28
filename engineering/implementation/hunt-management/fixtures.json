@@ -1,0 +1,553 @@
+{
+  "schema_version": 1,
+  "contract_id": "HUNT-WORKSPACE-READONLY-CONTRACT-V1",
+  "cases": [
+    {
+      "id": "valid-minimal-workspace",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "question": "Investigate anomalous authentication activity",
+        "scope": "identity/authentication",
+        "time_start": "2026-09-28T08:00:00Z",
+        "time_end": "2026-09-28T10:00:00Z",
+        "owner_ref": "user-hunter-1",
+        "contributor_refs": [
+          "user-analyst-2"
+        ],
+        "references": [],
+        "mutation_requested": ""
+      },
+      "expected": {
+        "allowed": true,
+        "error_code": "",
+        "projected_references": 0,
+        "limitations": [],
+        "immutable_projection": true,
+        "deep_copy_isolated": true,
+        "mutation_executed": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "valid-referenced-workspace",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "question": "Investigate anomalous authentication activity",
+        "scope": "identity/authentication",
+        "time_start": "2026-09-28T08:00:00Z",
+        "time_end": "2026-09-28T10:00:00Z",
+        "owner_ref": "user-hunter-1",
+        "contributor_refs": [
+          "user-analyst-2"
+        ],
+        "references": [
+          {
+            "kind": "query",
+            "id": "qry-1",
+            "tenant_ref": "tenant-a",
+            "access_decision": "allow",
+            "query_ref": "",
+            "state": "available"
+          },
+          {
+            "kind": "search-job",
+            "id": "job-1",
+            "tenant_ref": "tenant-a",
+            "access_decision": "allow",
+            "query_ref": "qry-1",
+            "state": "available"
+          },
+          {
+            "kind": "hypothesis",
+            "id": "hyp-1",
+            "tenant_ref": "tenant-a",
+            "access_decision": "allow",
+            "query_ref": "",
+            "state": "available"
+          },
+          {
+            "kind": "case",
+            "id": "case-1",
+            "tenant_ref": "tenant-a",
+            "access_decision": "allow",
+            "query_ref": "",
+            "state": "available"
+          },
+          {
+            "kind": "incident",
+            "id": "inc-1",
+            "tenant_ref": "tenant-a",
+            "access_decision": "allow",
+            "query_ref": "",
+            "state": "available"
+          }
+        ],
+        "mutation_requested": ""
+      },
+      "expected": {
+        "allowed": true,
+        "error_code": "",
+        "projected_references": 5,
+        "limitations": [],
+        "immutable_projection": true,
+        "deep_copy_isolated": true,
+        "mutation_executed": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "stale-partial-unavailable-become-limitations",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "question": "Investigate anomalous authentication activity",
+        "scope": "identity/authentication",
+        "time_start": "2026-09-28T08:00:00Z",
+        "time_end": "2026-09-28T10:00:00Z",
+        "owner_ref": "user-hunter-1",
+        "contributor_refs": [
+          "user-analyst-2"
+        ],
+        "references": [
+          {
+            "kind": "query",
+            "id": "qry-1",
+            "tenant_ref": "tenant-a",
+            "access_decision": "allow",
+            "query_ref": "",
+            "state": "stale"
+          },
+          {
+            "kind": "search-job",
+            "id": "job-1",
+            "tenant_ref": "tenant-a",
+            "access_decision": "allow",
+            "query_ref": "qry-1",
+            "state": "partial"
+          },
+          {
+            "kind": "case",
+            "id": "case-1",
+            "tenant_ref": "tenant-a",
+            "access_decision": "allow",
+            "query_ref": "",
+            "state": "unavailable"
+          }
+        ],
+        "mutation_requested": ""
+      },
+      "expected": {
+        "allowed": true,
+        "error_code": "",
+        "projected_references": 3,
+        "limitations": [
+          "case:case-1:unavailable",
+          "query:qry-1:stale",
+          "search-job:job-1:partial"
+        ],
+        "immutable_projection": true,
+        "deep_copy_isolated": true,
+        "mutation_executed": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "missing-tenant-is-rejected",
+      "input": {
+        "tenant_ref": "",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "question": "Investigate anomalous authentication activity",
+        "scope": "identity/authentication",
+        "time_start": "2026-09-28T08:00:00Z",
+        "time_end": "2026-09-28T10:00:00Z",
+        "owner_ref": "user-hunter-1",
+        "contributor_refs": [
+          "user-analyst-2"
+        ],
+        "references": [],
+        "mutation_requested": ""
+      },
+      "expected": {
+        "allowed": false,
+        "error_code": "missing-tenant",
+        "projected_references": 0,
+        "limitations": [],
+        "immutable_projection": false,
+        "deep_copy_isolated": false,
+        "mutation_executed": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "wildcard-tenant-is-rejected",
+      "input": {
+        "tenant_ref": "*",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "question": "Investigate anomalous authentication activity",
+        "scope": "identity/authentication",
+        "time_start": "2026-09-28T08:00:00Z",
+        "time_end": "2026-09-28T10:00:00Z",
+        "owner_ref": "user-hunter-1",
+        "contributor_refs": [
+          "user-analyst-2"
+        ],
+        "references": [],
+        "mutation_requested": ""
+      },
+      "expected": {
+        "allowed": false,
+        "error_code": "wildcard-tenant",
+        "projected_references": 0,
+        "limitations": [],
+        "immutable_projection": false,
+        "deep_copy_isolated": false,
+        "mutation_executed": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "cross-tenant-workspace-is-rejected",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-b"
+        ],
+        "environment_ref": "env-prod",
+        "question": "Investigate anomalous authentication activity",
+        "scope": "identity/authentication",
+        "time_start": "2026-09-28T08:00:00Z",
+        "time_end": "2026-09-28T10:00:00Z",
+        "owner_ref": "user-hunter-1",
+        "contributor_refs": [
+          "user-analyst-2"
+        ],
+        "references": [],
+        "mutation_requested": ""
+      },
+      "expected": {
+        "allowed": false,
+        "error_code": "cross-tenant",
+        "projected_references": 0,
+        "limitations": [],
+        "immutable_projection": false,
+        "deep_copy_isolated": false,
+        "mutation_executed": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "missing-environment-is-rejected",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "",
+        "question": "Investigate anomalous authentication activity",
+        "scope": "identity/authentication",
+        "time_start": "2026-09-28T08:00:00Z",
+        "time_end": "2026-09-28T10:00:00Z",
+        "owner_ref": "user-hunter-1",
+        "contributor_refs": [
+          "user-analyst-2"
+        ],
+        "references": [],
+        "mutation_requested": ""
+      },
+      "expected": {
+        "allowed": false,
+        "error_code": "missing-environment",
+        "projected_references": 0,
+        "limitations": [],
+        "immutable_projection": false,
+        "deep_copy_isolated": false,
+        "mutation_executed": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "missing-question-is-rejected",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "question": "",
+        "scope": "identity/authentication",
+        "time_start": "2026-09-28T08:00:00Z",
+        "time_end": "2026-09-28T10:00:00Z",
+        "owner_ref": "user-hunter-1",
+        "contributor_refs": [
+          "user-analyst-2"
+        ],
+        "references": [],
+        "mutation_requested": ""
+      },
+      "expected": {
+        "allowed": false,
+        "error_code": "missing-question",
+        "projected_references": 0,
+        "limitations": [],
+        "immutable_projection": false,
+        "deep_copy_isolated": false,
+        "mutation_executed": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "missing-scope-is-rejected",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "question": "Investigate anomalous authentication activity",
+        "scope": "",
+        "time_start": "2026-09-28T08:00:00Z",
+        "time_end": "2026-09-28T10:00:00Z",
+        "owner_ref": "user-hunter-1",
+        "contributor_refs": [
+          "user-analyst-2"
+        ],
+        "references": [],
+        "mutation_requested": ""
+      },
+      "expected": {
+        "allowed": false,
+        "error_code": "missing-scope",
+        "projected_references": 0,
+        "limitations": [],
+        "immutable_projection": false,
+        "deep_copy_isolated": false,
+        "mutation_executed": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "invalid-period-is-rejected",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "question": "Investigate anomalous authentication activity",
+        "scope": "identity/authentication",
+        "time_start": "2026-09-28T08:00:00Z",
+        "time_end": "2026-09-28T07:00:00Z",
+        "owner_ref": "user-hunter-1",
+        "contributor_refs": [
+          "user-analyst-2"
+        ],
+        "references": [],
+        "mutation_requested": ""
+      },
+      "expected": {
+        "allowed": false,
+        "error_code": "invalid-time-range",
+        "projected_references": 0,
+        "limitations": [],
+        "immutable_projection": false,
+        "deep_copy_isolated": false,
+        "mutation_executed": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "missing-owner-is-rejected",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "question": "Investigate anomalous authentication activity",
+        "scope": "identity/authentication",
+        "time_start": "2026-09-28T08:00:00Z",
+        "time_end": "2026-09-28T10:00:00Z",
+        "owner_ref": "",
+        "contributor_refs": [
+          "user-analyst-2"
+        ],
+        "references": [],
+        "mutation_requested": ""
+      },
+      "expected": {
+        "allowed": false,
+        "error_code": "missing-owner",
+        "projected_references": 0,
+        "limitations": [],
+        "immutable_projection": false,
+        "deep_copy_isolated": false,
+        "mutation_executed": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "cross-tenant-reference-is-rejected",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "question": "Investigate anomalous authentication activity",
+        "scope": "identity/authentication",
+        "time_start": "2026-09-28T08:00:00Z",
+        "time_end": "2026-09-28T10:00:00Z",
+        "owner_ref": "user-hunter-1",
+        "contributor_refs": [
+          "user-analyst-2"
+        ],
+        "references": [
+          {
+            "kind": "query",
+            "id": "qry-x",
+            "tenant_ref": "tenant-b",
+            "access_decision": "allow",
+            "query_ref": "",
+            "state": "available"
+          }
+        ],
+        "mutation_requested": ""
+      },
+      "expected": {
+        "allowed": false,
+        "error_code": "cross-tenant-reference",
+        "projected_references": 0,
+        "limitations": [],
+        "immutable_projection": false,
+        "deep_copy_isolated": false,
+        "mutation_executed": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "denied-reference-is-rejected",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "question": "Investigate anomalous authentication activity",
+        "scope": "identity/authentication",
+        "time_start": "2026-09-28T08:00:00Z",
+        "time_end": "2026-09-28T10:00:00Z",
+        "owner_ref": "user-hunter-1",
+        "contributor_refs": [
+          "user-analyst-2"
+        ],
+        "references": [
+          {
+            "kind": "query",
+            "id": "qry-x",
+            "tenant_ref": "tenant-a",
+            "access_decision": "deny",
+            "query_ref": "",
+            "state": "available"
+          }
+        ],
+        "mutation_requested": ""
+      },
+      "expected": {
+        "allowed": false,
+        "error_code": "reference-access-denied",
+        "projected_references": 0,
+        "limitations": [],
+        "immutable_projection": false,
+        "deep_copy_isolated": false,
+        "mutation_executed": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "search-job-without-visible-query-is-rejected",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "question": "Investigate anomalous authentication activity",
+        "scope": "identity/authentication",
+        "time_start": "2026-09-28T08:00:00Z",
+        "time_end": "2026-09-28T10:00:00Z",
+        "owner_ref": "user-hunter-1",
+        "contributor_refs": [
+          "user-analyst-2"
+        ],
+        "references": [
+          {
+            "kind": "search-job",
+            "id": "job-1",
+            "tenant_ref": "tenant-a",
+            "access_decision": "allow",
+            "query_ref": "qry-missing",
+            "state": "available"
+          }
+        ],
+        "mutation_requested": ""
+      },
+      "expected": {
+        "allowed": false,
+        "error_code": "search-job-query-not-visible",
+        "projected_references": 0,
+        "limitations": [],
+        "immutable_projection": false,
+        "deep_copy_isolated": false,
+        "mutation_executed": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "class-2-mutation-is-rejected",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "question": "Investigate anomalous authentication activity",
+        "scope": "identity/authentication",
+        "time_start": "2026-09-28T08:00:00Z",
+        "time_end": "2026-09-28T10:00:00Z",
+        "owner_ref": "user-hunter-1",
+        "contributor_refs": [
+          "user-analyst-2"
+        ],
+        "references": [],
+        "mutation_requested": "promote-case"
+      },
+      "expected": {
+        "allowed": false,
+        "error_code": "mutation-open-decision",
+        "projected_references": 0,
+        "limitations": [],
+        "immutable_projection": false,
+        "deep_copy_isolated": false,
+        "mutation_executed": false,
+        "audit_required": true
+      }
+    }
+  ]
+}

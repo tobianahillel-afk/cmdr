@@ -108,6 +108,7 @@ var knownExecutorKeys = map[string]bool{
 	"implementation-wave":             true,
 	"event-search-contract-audit":     true,
 	"event-inspection-contract-audit": true,
+	"hunt-management-contract-audit":  true,
 	"event-search-e2e-audit":          true,
 	"event-inspection-e2e-audit":      true,
 	"secret-scan":                     true,

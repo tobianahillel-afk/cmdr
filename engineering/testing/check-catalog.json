@@ -1325,6 +1325,38 @@
         "CHK-SBOM"
       ],
       "evidence_kind": "e2e-closure-report"
+    },
+    {
+      "id": "CHK-HUNT-MANAGEMENT-CONTRACT",
+      "title": "CAP-INV-005 Hunt Management read-only contract and negative-fixture audit",
+      "executor_key": "hunt-management-contract-audit",
+      "risk_domains": [
+        "product-spec",
+        "coverage-traceability",
+        "security",
+        "work-governance"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": false,
+      "trigger_paths": [
+        "engineering/implementation/hunt-management/**",
+        "work/lots/E10-INV-005A*/**",
+        "tools/cmdr-dev/hunt_management_contract.go",
+        "tools/cmdr-dev/hunt_management_contract_test.go",
+        "cmdr-product-spec/07-investigate/modules/signals-and-hunt/capabilities/hunt-management.md",
+        "cmdr-product-spec/05-domain-model/objects/query.md",
+        "cmdr-product-spec/05-domain-model/objects/search-job.md",
+        "cmdr-product-spec/05-domain-model/objects/hypothesis.md",
+        "cmdr-product-spec/05-domain-model/objects/case.md",
+        "cmdr-product-spec/05-domain-model/objects/incident.md",
+        "cmdr-product-spec/17-implementation-contracts/**"
+      ],
+      "prerequisites": [
+        "CHK-MANIFESTS",
+        "CHK-SECURITY-TESTS"
+      ],
+      "evidence_kind": "audit-report"
     }
   ]
 }
