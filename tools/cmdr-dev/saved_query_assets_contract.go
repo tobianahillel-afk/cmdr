@@ -279,7 +279,7 @@ func validateSavedQueryAssetsContractCore(root string, manifest WorkManifestV2, 
 		return fmt.Errorf("Saved Query Assets Product Spec references do not match active work manifest")
 	}
 	if validateSources {
-		if err := validateSavedQueryAssetsSourceAnchors(root); err != nil {
+		if err := validateSavedQueryAssetsSourceAnchors(root, contract.RuntimeBoundary.ExpectedState); err != nil {
 			return err
 		}
 	}
@@ -344,7 +344,16 @@ func validateSavedQueryAssetsContractCore(root string, manifest WorkManifestV2, 
 	return validateSavedQueryAssetsFixtures(contract, fixtures)
 }
 
-func validateSavedQueryAssetsSourceAnchors(root string) error {
+func validateSavedQueryAssetsSourceAnchors(root, expectedState string) error {
+	runtimeStateAnchor := ""
+	switch expectedState {
+	case "preimplementation":
+		runtimeStateAnchor = "Preimplementation only"
+	case "implemented":
+		runtimeStateAnchor = "Implemented scope"
+	default:
+		return fmt.Errorf("unsupported Saved Query Assets runtime state %q", expectedState)
+	}
 	sources := []struct {
 		path    string
 		anchors []string
@@ -359,9 +368,9 @@ func validateSavedQueryAssetsSourceAnchors(root string) error {
 		}},
 		{savedQueryAssetsRuntimeMarker, []string{
 			"Saved Query Assets runtime boundary",
-			"Preimplementation only",
+			runtimeStateAnchor,
 			"OPEN-013",
-			"Search Job creation or execution inside this runtime",
+			"Search Job creation or execution",
 		}},
 	}
 	for _, source := range sources {
