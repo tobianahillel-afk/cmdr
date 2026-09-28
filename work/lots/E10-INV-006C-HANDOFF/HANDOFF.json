@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-006C-HANDOFF",
+  "result": "VERIFIED",
+  "final_validated_head": "8af494e31839cce5ef65c55c09ea043642ec27d2",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 36488802670,
+    "pull_request_run": 36488807591,
+    "global_coverage_percent": 92.03,
+    "sast_findings": 0,
+    "sca_actionable_findings": 0,
+    "runtime_dependencies": 0,
+    "cross_boundary_edges": 0
+  },
+  "rules": [
+    "handoff remains a pure backend-neutral local transformation",
+    "source/permission decisions must be re-evaluated by Event Search",
+    "parameter values are opaque transported bytes, not a new query/value type system",
+    "Search Job remains Shared-owned and is neither created nor executed here",
+    "OPEN-013 continues to exclude class-2 asset mutation"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-006D-CLOSURE"
+  ]
+}
