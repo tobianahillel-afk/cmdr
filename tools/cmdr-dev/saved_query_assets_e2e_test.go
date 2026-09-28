@@ -7,12 +7,12 @@ import (
 
 func validSavedQueryAssetsClosureHandoff() SavedQueryAssetsClosureHandoff {
 	return SavedQueryAssetsClosureHandoff{
-		SchemaVersion: 1,
-		HandoffKind: "saved-query-assets-bounded-core",
-		Readiness: "BOUNDED_SAVED_QUERY_ASSETS_VALIDATED_NOT_FULL_CAPABILITY",
-		Capability: "CAP-INV-006",
+		SchemaVersion:         1,
+		HandoffKind:           "saved-query-assets-bounded-core",
+		Readiness:             "BOUNDED_SAVED_QUERY_ASSETS_VALIDATED_NOT_FULL_CAPABILITY",
+		Capability:            "CAP-INV-006",
 		BlockingOpenDecisions: []string{"OPEN-013"},
-		EvidenceSources: []string{savedQueryAssetsRuntimeProgressPath, savedQueryAssetsHandoffProgressPath},
+		EvidenceSources:       []string{savedQueryAssetsRuntimeProgressPath, savedQueryAssetsHandoffProgressPath},
 		Limitations: []string{
 			"All class-2 mutation remains excluded while OPEN-013 is unresolved.",
 			"No canonical Saved Search or Query Asset persistence schema is selected.",
@@ -79,7 +79,7 @@ func TestParseSavedQueryAssetsAdversarialEventsFailsClosedWhenMissing(t *testing
 func TestSavedQueryAssetsPerformanceMetric(t *testing.T) {
 	summary := PerformanceBenchmarkAuditSummary{Status: "pass", Results: []PerformanceBenchmarkResult{{
 		TargetID: "target",
-		Metrics: []BenchmarkMetricResult{{ID: "metric", Observed: 0.5, Budget: 1, AbsolutePass: true, RelativePass: true}},
+		Metrics:  []BenchmarkMetricResult{{ID: "metric", Observed: 0.5, Budget: 1, AbsolutePass: true, RelativePass: true}},
 	}}}
 	observed, budget, err := savedQueryAssetsPerformanceMetric(summary, "target", "metric")
 	if err != nil {
@@ -96,9 +96,9 @@ func TestSavedQueryAssetsPerformanceMetric(t *testing.T) {
 
 func TestValidateSavedQueryAssetsRuntimeProgress(t *testing.T) {
 	progress := SavedQueryAssetsRuntimeProgress{
-		SchemaVersion: 1,
-		WorkUnit: "E10-INV-006B-RUNTIME",
-		Status: "VERIFIED",
+		SchemaVersion:      1,
+		WorkUnit:           "E10-INV-006B-RUNTIME",
+		Status:             "VERIFIED",
 		FinalValidatedHead: "f262c1a8ff0d1ecc1ebe5f15c15dad25809f3334",
 	}
 	progress.Validation.Result = "PASS"
@@ -122,9 +122,9 @@ func TestValidateSavedQueryAssetsRuntimeProgress(t *testing.T) {
 
 func TestValidateSavedQueryAssetsHandoffProgress(t *testing.T) {
 	progress := SavedQueryAssetsHandoffProgress{
-		SchemaVersion: 1,
-		WorkUnit: "E10-INV-006C-HANDOFF",
-		Status: "VERIFIED",
+		SchemaVersion:      1,
+		WorkUnit:           "E10-INV-006C-HANDOFF",
+		Status:             "VERIFIED",
 		FinalValidatedHead: "8af494e31839cce5ef65c55c09ea043642ec27d2",
 	}
 	progress.Validation.Result = "PASS"

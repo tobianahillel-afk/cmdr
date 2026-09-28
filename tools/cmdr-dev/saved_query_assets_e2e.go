@@ -91,20 +91,20 @@ type SavedQueryAssetsHandoffProgress struct {
 		Result                 string `json:"result"`
 	} `json:"validation"`
 	HandoffObservation struct {
-		Immutable                         bool    `json:"immutable"`
-		ExactQueryVersionPreserved        bool    `json:"exact_query_version_preserved"`
-		OpaqueParameterValuesPreserved    bool    `json:"opaque_parameter_values_preserved"`
-		SourceContextCopied               bool    `json:"source_context_copied"`
-		SourceReevaluationRequired        bool    `json:"source_reevaluation_required"`
-		PermissionReevaluationRequired    bool    `json:"permission_reevaluation_required"`
-		ReturnContextAssetIdentityOnly    bool    `json:"return_context_asset_identity_only"`
-		SearchJobCreated                  bool    `json:"search_job_created"`
-		SearchJobExecuted                 bool    `json:"search_job_executed"`
-		DirectEventSearchRuntimeDependency bool   `json:"direct_event_search_runtime_dependency"`
-		PushGlobalCoveragePercent         float64 `json:"push_global_coverage_percent"`
-		PullRequestCoveragePercent        float64 `json:"pull_request_global_coverage_percent"`
-		SASTFindings                      int     `json:"sast_findings"`
-		SCAActionableFindings             int     `json:"sca_actionable_findings"`
+		Immutable                          bool    `json:"immutable"`
+		ExactQueryVersionPreserved         bool    `json:"exact_query_version_preserved"`
+		OpaqueParameterValuesPreserved     bool    `json:"opaque_parameter_values_preserved"`
+		SourceContextCopied                bool    `json:"source_context_copied"`
+		SourceReevaluationRequired         bool    `json:"source_reevaluation_required"`
+		PermissionReevaluationRequired     bool    `json:"permission_reevaluation_required"`
+		ReturnContextAssetIdentityOnly     bool    `json:"return_context_asset_identity_only"`
+		SearchJobCreated                   bool    `json:"search_job_created"`
+		SearchJobExecuted                  bool    `json:"search_job_executed"`
+		DirectEventSearchRuntimeDependency bool    `json:"direct_event_search_runtime_dependency"`
+		PushGlobalCoveragePercent          float64 `json:"push_global_coverage_percent"`
+		PullRequestCoveragePercent         float64 `json:"pull_request_global_coverage_percent"`
+		SASTFindings                       int     `json:"sast_findings"`
+		SCAActionableFindings              int     `json:"sca_actionable_findings"`
 	} `json:"handoff_observation"`
 	ProductSpecMutated bool `json:"product_spec_mutated"`
 }
@@ -238,16 +238,16 @@ func runSavedQueryAssetsE2EAudit(root, _ string, state CurrentState) (SavedQuery
 	return SavedQueryAssetsE2EAuditSummary{
 		Capability: "CAP-INV-006", ContractID: contract.ContractID,
 		AdversarialTests: adversarial.Count, RuntimeCoveragePercent: coverage,
-		SASTFindings: runtime.RuntimeObservation.SASTFindings + handoffProgress.HandoffObservation.SASTFindings,
+		SASTFindings:          runtime.RuntimeObservation.SASTFindings + handoffProgress.HandoffObservation.SASTFindings,
 		SCAActionableFindings: runtime.RuntimeObservation.SCAActionableFindings + handoffProgress.HandoffObservation.SCAActionableFindings,
-		ProjectionP95MS: projectionObserved, ProjectionBudgetMS: projectionBudget,
+		ProjectionP95MS:       projectionObserved, ProjectionBudgetMS: projectionBudget,
 		HandoffP95MS: handoffObserved, HandoffBudgetMS: handoffBudget,
 		RuntimeUnchangedSinceVerification: true,
-		BlockingOpenDecisions: len(closure.BlockingOpenDecisions),
-		Limitations: len(closure.Limitations),
-		ProductionReadinessClaim: closure.ProductionReadinessClaim,
-		FullCapabilityClaim: closure.FullCapabilityCompletionClaim,
-		Status: "PASS",
+		BlockingOpenDecisions:             len(closure.BlockingOpenDecisions),
+		Limitations:                       len(closure.Limitations),
+		ProductionReadinessClaim:          closure.ProductionReadinessClaim,
+		FullCapabilityClaim:               closure.FullCapabilityCompletionClaim,
+		Status:                            "PASS",
 	}, nil
 }
 
