@@ -1475,7 +1475,7 @@
       "id": "E10-INV-006D-CLOSURE",
       "title": "Validate Saved Query Asset adversarial security and bounded performance",
       "type": "task",
-      "status": "READY",
+      "status": "VERIFIED",
       "depends_on": [
         "E10-INV-006C-HANDOFF"
       ],
@@ -1488,7 +1488,7 @@
       "id": "E10-INV-006E",
       "title": "Compile verified Saved Query Asset runtime claim for implementation ledger",
       "type": "task",
-      "status": "BLOCKED",
+      "status": "READY",
       "depends_on": [
         "E10-INV-006D-CLOSURE"
       ],
