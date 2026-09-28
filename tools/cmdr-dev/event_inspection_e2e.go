@@ -47,13 +47,13 @@ var eventInspectionRequiredLimitations = []string{
 }
 
 type EventInspectionProgressValidation struct {
-	ImplementationCommit      string `json:"implementation_commit"`
-	AdapterTestFixCommit      string `json:"adapter_test_fix_commit,omitempty"`
-	SecurityScopeFixCommit    string `json:"security_scope_fix_commit,omitempty"`
-	BranchCoverageFixCommit   string `json:"branch_coverage_fix_commit,omitempty"`
-	PushWorkflowRun           int64  `json:"push_workflow_run"`
-	PullRequestWorkflowRun    int64  `json:"pull_request_workflow_run"`
-	Result                    string `json:"result"`
+	ImplementationCommit    string `json:"implementation_commit"`
+	AdapterTestFixCommit    string `json:"adapter_test_fix_commit,omitempty"`
+	SecurityScopeFixCommit  string `json:"security_scope_fix_commit,omitempty"`
+	BranchCoverageFixCommit string `json:"branch_coverage_fix_commit,omitempty"`
+	PushWorkflowRun         int64  `json:"push_workflow_run"`
+	PullRequestWorkflowRun  int64  `json:"pull_request_workflow_run"`
+	Result                  string `json:"result"`
 }
 
 type EventInspectionStaticSecurityProgress struct {
