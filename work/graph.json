@@ -1553,7 +1553,7 @@
       "id": "E10-INV-101A-BOUNDARY",
       "title": "Register Case Queue runtime boundary and preimplementation controls",
       "type": "task",
-      "status": "READY",
+      "status": "VERIFIED",
       "depends_on": [
         "E10-SCALE-005B"
       ],
@@ -1566,7 +1566,7 @@
       "id": "E10-INV-101A-CONTRACT",
       "title": "Compile Case Queue read-only projection contract",
       "type": "task",
-      "status": "BLOCKED",
+      "status": "READY",
       "depends_on": [
         "E10-INV-101A-BOUNDARY"
       ],

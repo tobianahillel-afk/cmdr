@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-101A-BOUNDARY",
+  "status": "VERIFIED",
+  "final_validated_head": "64e8365059629e98ae7f576bacc13804705e5379",
+  "validation": {
+    "push_workflow_run": 36498692051,
+    "pull_request_workflow_run": 36498697608,
+    "result": "PASS",
+    "architecture_audit": "PASS",
+    "runtime_dependency_audit": "PASS",
+    "boundary_edge_audit": "PASS",
+    "security_test_audit": "PASS",
+    "performance_registry_audit": "PASS",
+    "deep_performance_policy": "PASS"
+  },
+  "evidence": {
+    "architecture_boundaries": 11,
+    "runtime_boundaries": 7,
+    "runtime_dependencies": 0,
+    "cross_boundary_edges": 0,
+    "security_scopes": 7,
+    "performance_targets": 12,
+    "deep_performance_targets": 12,
+    "case_queue_performance_targets": [
+      "PERF-TGT-CASE-QUEUE-PROJECTION",
+      "PERF-TGT-CASE-QUEUE-SAVED-VIEW",
+      "PERF-TGT-CASE-QUEUE-HANDOFF"
+    ],
+    "preimplementation_runtime_files": [
+      "product-runtime/case-queue/README.md"
+    ]
+  },
+  "invariants": [
+    "case-queue-runtime is uniquely owned",
+    "external runtime dependencies remain deny-by-default",
+    "authorization and tenant-isolation obligations are registered without claiming executable runtime PASS",
+    "projection, Saved View and handoff performance/deep-performance obligations are on-demand and fail closed while preimplementation",
+    "README.md is the only file in product-runtime/case-queue",
+    "Case remains Investigate-owned; Incident remains Command-owned; Saved View remains Shared-owned",
+    "OPEN-013 lifecycle/assignment mutation remains excluded",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-101A-CONTRACT"
+  ]
+}
