@@ -1514,7 +1514,7 @@
       "id": "E10-SCALE-005A",
       "title": "Register CAP-INV-006 runtime claim and recompile implementation readiness",
       "type": "task",
-      "status": "READY",
+      "status": "VERIFIED",
       "depends_on": [
         "E10-INV-006E"
       ],
@@ -1527,7 +1527,7 @@
       "id": "E10-SCALE-005B",
       "title": "Select and materialize the next reuse-first capability wave",
       "type": "task",
-      "status": "BLOCKED",
+      "status": "READY",
       "depends_on": [
         "E10-SCALE-005A"
       ],
