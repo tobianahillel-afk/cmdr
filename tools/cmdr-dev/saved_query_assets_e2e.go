@@ -241,7 +241,7 @@ func runSavedQueryAssetsE2EAudit(root, _ string, state CurrentState) (SavedQuery
 		SASTFindings:          runtime.RuntimeObservation.SASTFindings + handoffProgress.HandoffObservation.SASTFindings,
 		SCAActionableFindings: runtime.RuntimeObservation.SCAActionableFindings + handoffProgress.HandoffObservation.SCAActionableFindings,
 		ProjectionP95MS:       projectionObserved, ProjectionBudgetMS: projectionBudget,
-		HandoffP95MS:          handoffObserved, HandoffBudgetMS: handoffBudget,
+		HandoffP95MS: handoffObserved, HandoffBudgetMS: handoffBudget,
 		RuntimeUnchangedSinceVerification: true,
 		BlockingOpenDecisions:             len(closure.BlockingOpenDecisions),
 		Limitations:                       len(closure.Limitations),
