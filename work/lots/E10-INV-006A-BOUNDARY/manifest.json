@@ -47,8 +47,7 @@
     "engineering/state/**",
     "work/graph.json",
     "tools/cmdr-dev/**",
-    ".github/workflows/**",
-    "product-runtime/saved-query-assets/**"
+    ".github/workflows/**"
   ],
   "forbidden_paths": [
     "cmdr-product-spec/**"
@@ -75,7 +74,7 @@
     "OPEN-013 remains unresolved and save/share/duplicate/deprecate plus every other class-2 asset mutation is excluded",
     "tenant scope is mandatory and cross-tenant copy is excluded",
     "no provider, storage engine, retention policy, collaboration backend, final query dialect or final UI is selected",
-    "product-runtime/saved-query-assets is uniquely registered by this task and contains README.md only; no executable product behavior is added"
+    "product-runtime/saved-query-assets remains unclaimed until this task atomically registers the architecture boundary; executable product behavior remains absent"
   ],
   "security_properties": [
     "caller-provided tenant and access decisions fail closed",
@@ -85,7 +84,7 @@
     "no Search Job is created or executed by the bounded runtime"
   ],
   "acceptance_tests": [
-    "runtime path has unique product-runtime ownership",
+    "the task atomically registers unique product-runtime ownership before adding README.md or granting downstream runtime path access",
     "README.md is the only product-runtime file added in this task",
     "security registry recognizes the future runtime without claiming authorization-negative or tenant-isolation PASS",
     "performance registry covers local projection/handoff with a fail-closed preimplementation handler"
