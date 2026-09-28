@@ -64,18 +64,18 @@ type SavedQueryAssetsRuntimeProgress struct {
 		BoundaryEdges          string `json:"boundary_edges"`
 	} `json:"validation"`
 	RuntimeObservation struct {
-		Contract                     string  `json:"contract"`
-		RuntimeState                 string  `json:"runtime_state"`
-		Fixtures                     int     `json:"fixtures"`
-		Positive                     int     `json:"positive"`
-		Negative                     int     `json:"negative"`
-		Incompatible                 int     `json:"incompatible"`
-		Stale                        int     `json:"stale"`
-		RuntimeDependencies          int     `json:"runtime_dependencies"`
-		PushGlobalCoveragePercent    float64 `json:"push_global_coverage_percent"`
-		PullRequestCoveragePercent   float64 `json:"pull_request_global_coverage_percent"`
-		SASTFindings                 int     `json:"sast_findings"`
-		SCAActionableFindings        int     `json:"sca_actionable_findings"`
+		Contract                   string  `json:"contract"`
+		RuntimeState               string  `json:"runtime_state"`
+		Fixtures                   int     `json:"fixtures"`
+		Positive                   int     `json:"positive"`
+		Negative                   int     `json:"negative"`
+		Incompatible               int     `json:"incompatible"`
+		Stale                      int     `json:"stale"`
+		RuntimeDependencies        int     `json:"runtime_dependencies"`
+		PushGlobalCoveragePercent  float64 `json:"push_global_coverage_percent"`
+		PullRequestCoveragePercent float64 `json:"pull_request_global_coverage_percent"`
+		SASTFindings               int     `json:"sast_findings"`
+		SCAActionableFindings      int     `json:"sca_actionable_findings"`
 	} `json:"runtime_observation"`
 	ProductSpecMutated bool `json:"product_spec_mutated"`
 }
@@ -241,7 +241,7 @@ func runSavedQueryAssetsE2EAudit(root, _ string, state CurrentState) (SavedQuery
 		SASTFindings:          runtime.RuntimeObservation.SASTFindings + handoffProgress.HandoffObservation.SASTFindings,
 		SCAActionableFindings: runtime.RuntimeObservation.SCAActionableFindings + handoffProgress.HandoffObservation.SCAActionableFindings,
 		ProjectionP95MS:       projectionObserved, ProjectionBudgetMS: projectionBudget,
-		HandoffP95MS: handoffObserved, HandoffBudgetMS: handoffBudget,
+		HandoffP95MS:          handoffObserved, HandoffBudgetMS: handoffBudget,
 		RuntimeUnchangedSinceVerification: true,
 		BlockingOpenDecisions:             len(closure.BlockingOpenDecisions),
 		Limitations:                       len(closure.Limitations),
