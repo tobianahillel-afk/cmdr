@@ -2,23 +2,25 @@
   "schema_version": 1,
   "work_unit": "E10-INV-005B-RUNTIME",
   "result": "VERIFIED",
-  "final_validated_head": "9f49cc00b5e440ffbbdc786d70eb3d7b73c20fd5",
+  "final_validated_head": "65df48f8466367438fbf3bbb933025869317fa88",
   "pull_request": 36,
   "evidence": {
     "push_run": 36416181945,
     "pull_request_run": 36416188857,
     "contract": "HUNT-WORKSPACE-READONLY-CONTRACT-V1",
-    "runtime_state": "implemented",
+    "runtime": "implemented",
+    "fixtures": 15,
     "runtime_dependencies": 0,
-    "runtime_security_coverage_percent": 91.84,
+    "global_runtime_coverage_percent": 91.84,
     "sast_findings": 0,
-    "sca_actionable": 0
+    "sca_actionable_findings": 0
   },
   "rules": [
-    "C-CLOSURE may validate and measure the existing read-only runtime but must not introduce Hunt persistence/state-machine/query execution",
-    "OPEN-013 mutation exclusions remain unchanged",
-    "performance claims remain bounded to local projection overhead",
-    "full CAP-INV-005 completion must not be claimed by this bounded wave"
+    "caller-owned Hunt workspace context only; no persistence",
+    "canonical ownership labels are preserved without ownership transfer",
+    "Search Job visibility requires a projected Query",
+    "stale/partial/unavailable source state becomes explicit limitations",
+    "no class-2 mutation or query execution"
   ],
   "product_spec_mutated": false,
   "next_unlocked": [
