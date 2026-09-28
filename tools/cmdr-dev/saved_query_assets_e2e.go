@@ -80,13 +80,13 @@ type SavedQueryAssetsRuntimeProgress struct {
 		SCAActionableFindings      int     `json:"sca_actionable_findings"`
 	} `json:"runtime_observation"`
 	SecurityObservation struct {
-		RuntimeBoundaries             int     `json:"runtime_boundaries"`
-		RegisteredScopes              int     `json:"registered_scopes"`
-		AuthorizationRequired         int     `json:"authorization_required"`
-		TenantIsolationRequired       int     `json:"tenant_isolation_required"`
-		CoverageFloorPercent          float64 `json:"coverage_floor_percent"`
-		ChangedSecurityFloorPercent   float64 `json:"changed_security_critical_floor_percent"`
-		PullRequestChangedScopes      int     `json:"pull_request_changed_scopes"`
+		RuntimeBoundaries           int     `json:"runtime_boundaries"`
+		RegisteredScopes            int     `json:"registered_scopes"`
+		AuthorizationRequired       int     `json:"authorization_required"`
+		TenantIsolationRequired     int     `json:"tenant_isolation_required"`
+		CoverageFloorPercent        float64 `json:"coverage_floor_percent"`
+		ChangedSecurityFloorPercent float64 `json:"changed_security_critical_floor_percent"`
+		PullRequestChangedScopes    int     `json:"pull_request_changed_scopes"`
 	} `json:"security_observation"`
 	Invariants         []string `json:"invariants"`
 	ProductSpecMutated bool     `json:"product_spec_mutated"`
