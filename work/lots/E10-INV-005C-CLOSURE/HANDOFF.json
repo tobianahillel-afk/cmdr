@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-005C-CLOSURE",
+  "result": "VERIFIED",
+  "final_validated_head": "7e6b5546f5c1a6e01f05c1a2cc2ea624f8fc20f8",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 36435666182,
+    "pull_request_run": 36435675187,
+    "capability": "CAP-INV-005",
+    "contract": "HUNT-WORKSPACE-READONLY-CONTRACT-V1",
+    "adversarial_tests": 5,
+    "runtime_coverage_percent": 91.84,
+    "projection_p95_ms_worst_observed": 0.000575079,
+    "projection_budget_ms": 1,
+    "sast_findings": 0,
+    "sca_actionable_findings": 0,
+    "runtime_dependencies": 0,
+    "runtime_unchanged": true
+  },
+  "limitations": [
+    "Hunt lifecycle and all class-2 Hunt mutations remain excluded while OPEN-013 is unresolved",
+    "Case promotion and Case-link mutation remain excluded",
+    "Hypothesis creation/linking/status mutation remain excluded",
+    "Query and Saved Search mutation remain excluded",
+    "Search Job execution remains excluded",
+    "storage/provider/retention remain unselected",
+    "collaboration backend remains unselected",
+    "final query dialect remains unselected",
+    "dedicated final Hunt UI remains unclaimed",
+    "production Hunt SLO remains unclaimed",
+    "full capability completion remains unclaimed"
+  ],
+  "production_readiness_claim": false,
+  "full_capability_completion_claim": false,
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-005D"
+  ]
+}

@@ -1345,9 +1345,22 @@
       "id": "E10-INV-005C-CLOSURE",
       "title": "Validate Hunt workspace adversarial security and bounded performance",
       "type": "task",
-      "status": "READY",
+      "status": "VERIFIED",
       "depends_on": [
         "E10-INV-005B-RUNTIME"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-005D"
+      ]
+    },
+    {
+      "id": "E10-INV-005D",
+      "title": "Compile verified Hunt Management runtime claim for implementation ledger",
+      "type": "task",
+      "status": "READY",
+      "depends_on": [
+        "E10-INV-005C-CLOSURE"
       ],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": []
