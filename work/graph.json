@@ -1269,9 +1269,22 @@
       "id": "E10-SCALE-003A",
       "title": "Register CAP-INV-004 runtime claim and recompile implementation readiness",
       "type": "task",
-      "status": "READY",
+      "status": "VERIFIED",
       "depends_on": [
         "E10-INV-004E"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-SCALE-003B"
+      ]
+    },
+    {
+      "id": "E10-SCALE-003B",
+      "title": "Select and materialize the next reuse-first capability wave",
+      "type": "task",
+      "status": "READY",
+      "depends_on": [
+        "E10-SCALE-003A"
       ],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": []
