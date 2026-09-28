@@ -40,7 +40,6 @@
     "E10-INV-005A-CONTRACT"
   ],
   "allowed_paths": [
-    "product-runtime/hunt-management/**",
     "engineering/implementation/hunt-management/**",
     "engineering/security/**",
     "engineering/testing/**",

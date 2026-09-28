@@ -49,8 +49,7 @@
     "engineering/state/**",
     "work/graph.json",
     "tools/cmdr-dev/**",
-    ".github/workflows/**",
-    "product-runtime/hunt-management/**"
+    ".github/workflows/**"
   ],
   "forbidden_paths": [
     "cmdr-product-spec/**"
