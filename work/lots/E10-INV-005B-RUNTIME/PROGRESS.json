@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-005B-RUNTIME",
+  "status": "VERIFIED",
+  "final_validated_head": "9f49cc00b5e440ffbbdc786d70eb3d7b73c20fd5",
+  "validation": {
+    "push_workflow_run": 36416181945,
+    "pull_request_workflow_run": 36416188857,
+    "result": "PASS",
+    "contract_audit": "PASS",
+    "runtime_security": "PASS",
+    "sast": "PASS",
+    "sca": "PASS",
+    "runtime_dependencies": "PASS"
+  },
+  "evidence": {
+    "contract_id": "HUNT-WORKSPACE-READONLY-CONTRACT-V1",
+    "runtime_state": "implemented",
+    "fixtures": 15,
+    "positive_fixtures": 3,
+    "negative_fixtures": 12,
+    "runtime_dependencies": 0,
+    "global_runtime_security_coverage_percent": 91.84,
+    "global_coverage_floor_percent": 80,
+    "changed_security_critical_coverage_floor_percent": 90,
+    "authorization_required_scopes": 5,
+    "tenant_isolation_required_scopes": 5,
+    "gosec_findings": 0,
+    "govulncheck_actionable_findings": 0
+  },
+  "invariants": [
+    "runtime is standard-library-only with zero external runtime dependencies",
+    "denied and cross-tenant references return no projection",
+    "all OPEN-013 class-2 mutations remain fail-closed",
+    "caller-owned slices and projected references are deep-copy isolated",
+    "Query/Search Job/Hypothesis/Case/Incident ownership boundaries remain explicit",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-005C-CLOSURE"
+  ]
+}

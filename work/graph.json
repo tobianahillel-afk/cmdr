@@ -1332,7 +1332,7 @@
       "id": "E10-INV-005B-RUNTIME",
       "title": "Implement immutable Hunt workspace validation and projection runtime",
       "type": "task",
-      "status": "READY",
+      "status": "VERIFIED",
       "depends_on": [
         "E10-INV-005A-CONTRACT"
       ],
@@ -1345,7 +1345,7 @@
       "id": "E10-INV-005C-CLOSURE",
       "title": "Validate Hunt workspace adversarial security and bounded performance",
       "type": "task",
-      "status": "BLOCKED",
+      "status": "READY",
       "depends_on": [
         "E10-INV-005B-RUNTIME"
       ],
