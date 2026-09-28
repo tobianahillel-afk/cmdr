@@ -1,0 +1,147 @@
+{
+  "schema_version": 2,
+  "id": "E10-INV-005B-RUNTIME",
+  "title": "Implement immutable Hunt workspace validation and projection runtime",
+  "type": "task",
+  "parent": "E10-INV-005",
+  "goal": "Implement a Go standard-library-only immutable projection of caller-owned Hunt workspace context with tenant/access/provenance checks and explicit completeness/limitation diagnostics.",
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-005"
+    ],
+    "requirements": [
+      "REQ-PROD-014",
+      "REQ-PROD-020"
+    ],
+    "screens": [],
+    "permissions": [],
+    "open_decisions": [
+      "OPEN-013"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/audit-event-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/error-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/correlation-identifiers.md",
+      "cmdr-product-spec/17-implementation-contracts/object-reference-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/cross-product-context-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/search-query-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/query.md",
+      "cmdr-product-spec/05-domain-model/objects/search-job.md",
+      "cmdr-product-spec/05-domain-model/objects/hypothesis.md",
+      "cmdr-product-spec/05-domain-model/objects/case.md",
+      "cmdr-product-spec/05-domain-model/objects/incident.md"
+    ]
+  },
+  "depends_on": [
+    "E10-INV-005A-CONTRACT"
+  ],
+  "allowed_paths": [
+    "product-runtime/hunt-management/**",
+    "engineering/implementation/hunt-management/**",
+    "engineering/security/**",
+    "engineering/testing/**",
+    "work/lots/E10-INV-005*/**",
+    "engineering/state/**",
+    "work/graph.json",
+    "tools/cmdr-dev/**"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**"
+  ],
+  "inputs": [
+    "CAP-INV-005 canonical Hunt Management contract",
+    "canonical Query/Search Job/Hypothesis/Case/Incident object contracts",
+    "tenant/permission/audit/error/correlation/object-reference/context/search contracts",
+    "OPEN-013 mutation constraint"
+  ],
+  "outputs": [
+    "standard-library-only immutable workspace projection",
+    "deep-copy-isolated question/scope/time/owner/contributor context",
+    "tenant-safe typed references to Query/Search Job/Hypothesis/Case/Incident",
+    "deterministic completeness and limitation diagnostics",
+    "implemented HUNT-WORKSPACE-READONLY-CONTRACT-V1 runtime state"
+  ],
+  "invariants": [
+    "Product Spec remains read-only",
+    "no canonical Hunt object or final Hunt state machine is invented",
+    "the bounded runtime validates and projects caller-owned Hunt workspace state; it does not persist or mutate a Hunt",
+    "OPEN-013 remains unresolved and every class-2 Hunt/Case/Hypothesis/Query mutation is excluded",
+    "Query and Search Job remain owned by Shared Capabilities",
+    "Hypothesis and Case remain owned by their canonical Investigate capabilities",
+    "Incident remains owned by Command",
+    "tenant and environment scope are mandatory and no wildcard/default tenant fallback is allowed",
+    "CAP-INV-003, CAP-INV-006, CAP-INV-008 and CAP-INV-103 runtimes are not assumed to exist",
+    "no provider, storage engine, final query dialect, collaboration backend, retention policy or final Hunt UI is selected",
+    "product runtime path mutation remains deferred until E10-INV-005A-BOUNDARY registers unique ownership"
+  ],
+  "security_properties": [
+    "all object references are tenant-scoped and caller-provided access decisions fail closed",
+    "denied or cross-tenant Query/Search Job/Hypothesis/Case/Incident references cannot appear in a returned projection",
+    "workspace projection is immutable and deep-copy isolated from caller input",
+    "no query execution, Case promotion, Hypothesis creation/status mutation or contributor mutation occurs",
+    "question/scope/time/owner/contributor provenance and correlation remain explicit",
+    "partial or stale inputs are represented as limitations rather than synthesized facts"
+  ],
+  "acceptance_tests": [
+    "caller/source input cannot be mutated or aliased by the projection",
+    "cross-tenant or denied references fail closed",
+    "missing required draft activation context yields diagnostics without inventing transitions",
+    "referenced objects retain owner/type/version/provenance identity",
+    "runtime executes no query and performs no class-2 mutation",
+    "security-critical runtime coverage target is at least 90 percent"
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "workspace projection is a pure local transformation independent of persistence/providers",
+    "metrics": [
+      "bounded local workspace-projection p95 target declared by A-BOUNDARY",
+      "no production Hunt workflow SLO claim"
+    ]
+  },
+  "migration": {
+    "required": false,
+    "rationale": "bounded Hunt core is in-process, persistence-neutral and does not create a canonical Hunt object",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert the current bounded task and keep downstream Hunt tasks blocked",
+    "verification": [
+      "Product Spec baseline remains unchanged",
+      "no ledger claim is created before bounded closure",
+      "no external canonical object is mutated"
+    ]
+  },
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-RUNTIME-DEPS",
+    "CHK-BOUNDARY-EDGES",
+    "CHK-SECURITY-TESTS",
+    "CHK-PERFORMANCE-REGISTRY"
+  ],
+  "definition_of_ready": [
+    "E10-INV-005A-CONTRACT is VERIFIED"
+  ],
+  "definition_of_done": [
+    "caller/source input cannot be mutated or aliased by the projection",
+    "cross-tenant or denied references fail closed",
+    "missing required draft activation context yields diagnostics without inventing transitions",
+    "referenced objects retain owner/type/version/provenance identity"
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 11,
+    "estimated_net_loc": 700,
+    "production_files": 2,
+    "net_production_loc": 340,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

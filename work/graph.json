@@ -1288,6 +1288,69 @@
       ],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": []
+    },
+    {
+      "id": "E10-INV-005",
+      "title": "Implement bounded Hunt Management read-only core for CAP-INV-005",
+      "type": "epic",
+      "status": "DECOMPOSED",
+      "depends_on": [
+        "E10-SCALE-003B"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-005A-BOUNDARY"
+      ]
+    },
+    {
+      "id": "E10-INV-005A-BOUNDARY",
+      "title": "Register Hunt Management runtime boundary and preimplementation controls",
+      "type": "task",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E10-SCALE-003B"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-005A-CONTRACT"
+      ]
+    },
+    {
+      "id": "E10-INV-005A-CONTRACT",
+      "title": "Compile Hunt Management read-only workspace contract",
+      "type": "task",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E10-INV-005A-BOUNDARY"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-005B-RUNTIME"
+      ]
+    },
+    {
+      "id": "E10-INV-005B-RUNTIME",
+      "title": "Implement immutable Hunt workspace validation and projection runtime",
+      "type": "task",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E10-INV-005A-CONTRACT"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-005C-CLOSURE"
+      ]
+    },
+    {
+      "id": "E10-INV-005C-CLOSURE",
+      "title": "Validate Hunt workspace adversarial security and bounded performance",
+      "type": "task",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E10-INV-005B-RUNTIME"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": []
     }
   ]
 }
