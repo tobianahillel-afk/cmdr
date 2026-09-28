@@ -110,6 +110,7 @@ var knownDeepPerformanceHandlerKeys = map[string]bool{
 	"builtin-event-search-orchestration-v1":         true,
 	"builtin-event-search-frontend-state-v1":        true,
 	"builtin-event-inspection-preimplementation-v1": true,
+	"builtin-hunt-management-preimplementation-v1":  true,
 }
 
 func runDeepPerformanceAudit(root, stage, changesFile, requestedTarget string) (DeepPerformanceAuditSummary, error) {
@@ -405,6 +406,9 @@ func executeDeepPerformanceTargetWithHandler(
 }
 
 func runDeepPerformanceHandler(ctx context.Context, root string, target DeepPerformanceTarget) (DeepPerformanceObservation, error) {
+	if target.HandlerKey == "builtin-hunt-management-preimplementation-v1" {
+		return DeepPerformanceObservation{}, fmt.Errorf("hunt-management deep performance target is preimplementation; implement E10-INV-005B-RUNTIME before executable measurement")
+	}
 	if target.HandlerKey == "builtin-event-inspection-preimplementation-v1" {
 		return DeepPerformanceObservation{}, fmt.Errorf("event-inspection deep performance target is preimplementation; implement E10-INV-004B-RUNTIME before executable measurement")
 	}

@@ -71,6 +71,7 @@
     "event-search-orchestration-v1",
     "event-search-frontend-state-update-v1",
     "event-inspection-projection-v1",
-    "event-inspection-pivot-v1"
+    "event-inspection-pivot-v1",
+    "hunt-management-projection-v1"
   ]
 }

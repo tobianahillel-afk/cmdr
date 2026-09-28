@@ -49,6 +49,17 @@
       "authorization_rationale": "CAP-INV-004 exposes permission-gated Telemetry Event projections with distinct raw/rendered outcomes; executable runtime must prove denied access returns no protected projection and raw-denied paths leak no raw or raw-derived sensitive content.",
       "tenant_isolation_required": true,
       "tenant_isolation_rationale": "CAP-INV-004 inspection and pivot context preserve tenant/environment/event identity; executable runtime must prove missing, wildcard and cross-tenant source or pivot context fails closed with no reference widening."
+    },
+    {
+      "boundary_id": "hunt-management-runtime",
+      "owner": "E10-INV-005",
+      "security_critical_paths": [
+        "product-runtime/hunt-management/**"
+      ],
+      "authorization_required": true,
+      "authorization_rationale": "CAP-INV-005 projects caller-owned Hunt workspace context containing references to Query, Search Job, Hypothesis, Case and Incident objects. The bounded runtime must prove denied caller-provided access decisions fail closed and never expose denied reference identity or projected content.",
+      "tenant_isolation_required": true,
+      "tenant_isolation_rationale": "CAP-INV-005 workspace state is single-tenant/environment and every referenced object is tenant-scoped. The runtime must prove missing, wildcard and cross-tenant workspace/reference context fails closed with no reference widening."
     }
   ]
 }

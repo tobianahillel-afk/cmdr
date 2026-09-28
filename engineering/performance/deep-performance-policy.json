@@ -126,6 +126,25 @@
       "concurrency": 1,
       "iterations": 10000,
       "rationale": "Pre-registered on-demand resource validation for the future dialect-neutral PivotDraft transformation. The compiled handler fails closed while the boundary is preimplementation and cannot emit synthetic runtime evidence."
+    },
+    {
+      "id": "PERF-DEEP-HUNT-MANAGEMENT-PROJECTION",
+      "performance_target_id": "PERF-TGT-HUNT-MANAGEMENT-PROJECTION",
+      "kind": "resource",
+      "handler_key": "builtin-hunt-management-preimplementation-v1",
+      "stages": [
+        "on-demand"
+      ],
+      "trigger_paths": [
+        "product-runtime/hunt-management/**",
+        "engineering/implementation/hunt-management/**"
+      ],
+      "duration_seconds": 0,
+      "timeout_seconds": 30,
+      "memory_limit_mib": 128,
+      "concurrency": 1,
+      "iterations": 10000,
+      "rationale": "Pre-registered on-demand resource validation for the future immutable Hunt workspace projection. The compiled handler fails closed while hunt-management-runtime is preimplementation and cannot emit synthetic runtime evidence."
     }
   ]
 }

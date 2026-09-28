@@ -84,6 +84,15 @@
       ],
       "mutable_by_implementation": true,
       "may_depend_on": []
+    },
+    {
+      "id": "hunt-management-runtime",
+      "kind": "product-runtime",
+      "roots": [
+        "product-runtime/hunt-management/**"
+      ],
+      "mutable_by_implementation": true,
+      "may_depend_on": []
     }
   ]
 }

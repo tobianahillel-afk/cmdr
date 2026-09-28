@@ -50,6 +50,13 @@
       "warmup_iterations": 1,
       "sample_count": 5,
       "max_sample_duration_ms": 100
+    },
+    {
+      "key": "hunt-management-projection-v1",
+      "handler_key": "builtin-hunt-management-preimplementation-v1",
+      "warmup_iterations": 0,
+      "sample_count": 3,
+      "max_sample_duration_ms": 100
     }
   ]
 }

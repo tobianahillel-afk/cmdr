@@ -128,6 +128,7 @@ var knownBenchmarkHandlerKeys = map[string]bool{
 	"builtin-event-search-frontend-state-v1": true,
 	"builtin-event-inspection-projection-v1": true,
 	"builtin-event-inspection-pivot-v1":      true,
+	"builtin-hunt-management-preimplementation-v1": true,
 }
 
 func runPerformanceBenchmarkAudit(root, stage, environmentID, changesFile string) (PerformanceBenchmarkAuditSummary, error) {
@@ -450,6 +451,8 @@ func prepareBenchmarkHandler(root string, workload BenchmarkWorkloadDefinition) 
 				Kind: "latency", Unit: "ns", Value: float64(time.Since(started).Nanoseconds()),
 			}}}, nil
 		}, func() {}, nil
+	case "builtin-hunt-management-preimplementation-v1":
+		return nil, func() {}, fmt.Errorf("hunt-management benchmark is blocked while hunt-management-runtime is preimplementation; implement E10-INV-005B-RUNTIME before executable measurement")
 	case "builtin-pilot-context-projection-v1":
 		probe, cleanup, err := preparePilotProjectionProbe(root)
 		if err != nil {

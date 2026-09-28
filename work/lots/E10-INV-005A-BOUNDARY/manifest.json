@@ -49,7 +49,8 @@
     "engineering/state/**",
     "work/graph.json",
     "tools/cmdr-dev/**",
-    ".github/workflows/**"
+    ".github/workflows/**",
+    "product-runtime/hunt-management/**"
   ],
   "forbidden_paths": [
     "cmdr-product-spec/**"
@@ -77,7 +78,7 @@
     "tenant and environment scope are mandatory and no wildcard/default tenant fallback is allowed",
     "CAP-INV-003, CAP-INV-006, CAP-INV-008 and CAP-INV-103 runtimes are not assumed to exist",
     "no provider, storage engine, final query dialect, collaboration backend, retention policy or final Hunt UI is selected",
-    "product runtime path mutation remains deferred until E10-INV-005A-BOUNDARY registers unique ownership"
+    "product-runtime/hunt-management is uniquely registered by this task and contains README.md only; no executable Hunt product behavior is added"
   ],
   "security_properties": [
     "all object references are tenant-scoped and caller-provided access decisions fail closed",
@@ -90,9 +91,10 @@
   "acceptance_tests": [
     "runtime path has unique product-runtime ownership",
     "README.md is the only product-runtime file added in this task",
-    "security registry recognizes the future runtime without claiming test PASS",
-    "performance registry covers the boundary with a local projection target",
-    "preimplementation benchmark fails closed until executable runtime exists"
+    "security registry recognizes the future runtime without claiming authorization-negative or tenant-isolation PASS",
+    "performance registry covers the boundary with one on-demand local workspace-projection target",
+    "deep-performance registry covers that target with a fail-closed preimplementation handler",
+    "preimplementation benchmark/deep-performance execution fails closed until executable runtime exists"
   ],
   "performance_budget": {
     "applicable": false,
@@ -119,21 +121,23 @@
     "CHK-RUNTIME-DEPS",
     "CHK-BOUNDARY-EDGES",
     "CHK-SECURITY-TESTS",
-    "CHK-PERFORMANCE-REGISTRY"
+    "CHK-PERFORMANCE-REGISTRY",
+    "CHK-DEEP-PERFORMANCE"
   ],
   "definition_of_ready": [
     "E10-SCALE-003B is VERIFIED"
   ],
   "definition_of_done": [
-    "runtime path has unique product-runtime ownership",
-    "README.md is the only product-runtime file added in this task",
-    "security registry recognizes the future runtime without claiming test PASS",
-    "performance registry covers the boundary with a local projection target"
+    "hunt-management runtime boundary is registered",
+    "runtime dependency policy is deny-by-default",
+    "security obligations exist before product code",
+    "performance and deep-performance obligations exist before product code",
+    "README.md is the only product-runtime file added"
   ],
   "complexity": {
     "primary_components": 2,
-    "estimated_files_changed": 10,
-    "estimated_net_loc": 520,
+    "estimated_files_changed": 11,
+    "estimated_net_loc": 620,
     "production_files": 0,
     "net_production_loc": 0,
     "bounded_contexts": 1,
