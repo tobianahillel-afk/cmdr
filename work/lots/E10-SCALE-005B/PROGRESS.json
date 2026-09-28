@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-SCALE-005B",
+  "status": "VERIFIED",
+  "final_validated_head": "833f3f71c80e94fbe4276877faf48d6600ed2ac5",
+  "validation": {
+    "push_workflow_run": 36497890474,
+    "pull_request_workflow_run": 36497894745,
+    "result": "PASS",
+    "implementation_ledger": "PASS",
+    "implementation_readiness": "PASS",
+    "implementation_wave": "PASS",
+    "architecture_audit": "PASS",
+    "complexity_audit": "PASS"
+  },
+  "selection": {
+    "policy": "reuse-first-v1",
+    "readiness_snapshot": {
+      "total": 498,
+      "implemented": 5,
+      "ready": 16,
+      "blocked": 476,
+      "proposed": 1
+    },
+    "preferred_family": "CAP-INV",
+    "capability": "CAP-INV-101",
+    "name": "Case Queue",
+    "canonical_file": "07-investigate/modules/cases-and-evidence/capabilities/case-queue.md",
+    "product_spec_baseline": "99c3826cdcbc79bad51631cf6462450f92e012eb",
+    "spec_tree_digest": "a5f45351eba180d0edb734f33ecbeaabb7eceb7143305e201e207e8ae5a60d27"
+  },
+  "wave": {
+    "id": "WAVE-CAP-INV-101-CORE-001",
+    "status": "VERIFIED_MATERIALIZED",
+    "children": [
+      "E10-INV-101A-BOUNDARY",
+      "E10-INV-101A-CONTRACT",
+      "E10-INV-101B-RUNTIME",
+      "E10-INV-101C-VIEW",
+      "E10-INV-101D-HANDOFF",
+      "E10-INV-101E-CLOSURE",
+      "E10-INV-101F"
+    ],
+    "next_ready": "E10-INV-101A-BOUNDARY"
+  },
+  "sequencing": {
+    "runtime_root": "product-runtime/case-queue/**",
+    "runtime_path_claim": "deferred until E10-INV-101A-BOUNDARY atomically registers unique architecture ownership",
+    "product_runtime_mutated": false
+  },
+  "exclusions": [
+    "Case create/update/assignment/status/lifecycle mutations delegated to CAP-INV-102 and governed by OPEN-013",
+    "Export Job creation or export backend selection",
+    "Saved View create/update/share/archive/manage mutation",
+    "Task/Decision/Response Run ownership or Command Work Queue behavior",
+    "canonical Case schema or final Case state-machine changes",
+    "final queue columns or final dedicated CAP-INV-101 UI",
+    "storage/provider/retention/collaboration backend selection",
+    "production queue SLO or full-capability completion claim"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-101A-BOUNDARY"
+  ]
+}
