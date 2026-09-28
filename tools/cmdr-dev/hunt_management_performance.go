@@ -115,7 +115,7 @@ func main() {
 				ID: "qry-perf-001",
 				TenantRef: "tenant-a",
 				AccessDecision: huntmanagement.AccessAllow,
-				State: huntmanagement.StateAvailable,
+				State: huntmanagement.ReferenceAvailable,
 			},
 			{
 				Kind: huntmanagement.ReferenceSearchJob,
@@ -123,18 +123,17 @@ func main() {
 				TenantRef: "tenant-a",
 				AccessDecision: huntmanagement.AccessAllow,
 				QueryRef: "qry-perf-001",
-				State: huntmanagement.StateAvailable,
+				State: huntmanagement.ReferenceAvailable,
 			},
 			{
 				Kind: huntmanagement.ReferenceCase,
 				ID: "case-perf-001",
 				TenantRef: "tenant-a",
 				AccessDecision: huntmanagement.AccessAllow,
-				State: huntmanagement.StatePartial,
+				State: huntmanagement.ReferencePartial,
 			},
 		},
 		CorrelationID: "corr-hunt-perf-001",
-		WorkspaceProvenance: "caller-owned-draft",
 	}
 	preflight := huntmanagement.Project(input)
 	if !preflight.Allowed || preflight.Projection == nil {
