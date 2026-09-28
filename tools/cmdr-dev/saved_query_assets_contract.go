@@ -55,25 +55,25 @@ type QueryAssetQueryPolicy struct {
 }
 
 type QueryAssetCompatibilityPolicy struct {
-	SourcePrerequisitesRequired         bool `json:"source_prerequisites_required"`
-	SourceTenantMustMatchAsset          bool `json:"source_tenant_must_match_asset"`
-	MissingSourceIncompatible           bool `json:"missing_source_incompatible"`
-	MissingOrRemovedFieldIncompatible   bool `json:"missing_or_removed_field_incompatible"`
-	StalePrerequisiteVisible            bool `json:"stale_prerequisite_visible"`
-	StaleValidationVisible              bool `json:"stale_validation_visible"`
-	DeterministicSortedDiagnostics      bool `json:"deterministic_sorted_diagnostics"`
-	SynthesisOfMissingFactsForbidden    bool `json:"synthesis_of_missing_facts_forbidden"`
+	SourcePrerequisitesRequired       bool `json:"source_prerequisites_required"`
+	SourceTenantMustMatchAsset        bool `json:"source_tenant_must_match_asset"`
+	MissingSourceIncompatible         bool `json:"missing_source_incompatible"`
+	MissingOrRemovedFieldIncompatible bool `json:"missing_or_removed_field_incompatible"`
+	StalePrerequisiteVisible          bool `json:"stale_prerequisite_visible"`
+	StaleValidationVisible            bool `json:"stale_validation_visible"`
+	DeterministicSortedDiagnostics    bool `json:"deterministic_sorted_diagnostics"`
+	SynthesisOfMissingFactsForbidden  bool `json:"synthesis_of_missing_facts_forbidden"`
 }
 
 type QueryAssetProjectionPolicy struct {
-	Immutable                        bool `json:"immutable"`
-	DeepCopyIsolation                bool `json:"deep_copy_isolation"`
-	QueryIdentityVisible             bool `json:"query_identity_visible"`
-	ParameterMetadataVisible         bool `json:"parameter_metadata_visible"`
-	SourceFieldPrerequisitesVisible  bool `json:"source_field_prerequisites_visible"`
+	Immutable                         bool `json:"immutable"`
+	DeepCopyIsolation                 bool `json:"deep_copy_isolation"`
+	QueryIdentityVisible              bool `json:"query_identity_visible"`
+	ParameterMetadataVisible          bool `json:"parameter_metadata_visible"`
+	SourceFieldPrerequisitesVisible   bool `json:"source_field_prerequisites_visible"`
 	AuthorValidationProvenanceVisible bool `json:"author_validation_provenance_visible"`
-	CompatibilityVisible             bool `json:"compatibility_visible"`
-	HandoffOnlyWhenCompatible        bool `json:"handoff_only_when_compatible"`
+	CompatibilityVisible              bool `json:"compatibility_visible"`
+	HandoffOnlyWhenCompatible         bool `json:"handoff_only_when_compatible"`
 }
 
 type QueryAssetMutationPolicy struct {
@@ -91,15 +91,15 @@ type QueryAssetMutationPolicy struct {
 }
 
 type QueryAssetTechnologyPolicy struct {
-	StorageEngineSelected         bool `json:"storage_engine_selected"`
-	VersionStoreSelected          bool `json:"version_store_selected"`
-	ProviderSelected              bool `json:"provider_selected"`
-	RetentionPolicySelected       bool `json:"retention_policy_selected"`
-	CollaborationBackendSelected  bool `json:"collaboration_backend_selected"`
-	ApprovalPolicySelected        bool `json:"approval_policy_selected"`
-	RevalidationPolicySelected    bool `json:"revalidation_policy_selected"`
-	FinalQueryDialectSelected     bool `json:"final_query_dialect_selected"`
-	FinalUISelected               bool `json:"final_ui_selected"`
+	StorageEngineSelected        bool `json:"storage_engine_selected"`
+	VersionStoreSelected         bool `json:"version_store_selected"`
+	ProviderSelected             bool `json:"provider_selected"`
+	RetentionPolicySelected      bool `json:"retention_policy_selected"`
+	CollaborationBackendSelected bool `json:"collaboration_backend_selected"`
+	ApprovalPolicySelected       bool `json:"approval_policy_selected"`
+	RevalidationPolicySelected   bool `json:"revalidation_policy_selected"`
+	FinalQueryDialectSelected    bool `json:"final_query_dialect_selected"`
+	FinalUISelected              bool `json:"final_ui_selected"`
 }
 
 type QueryAssetExecutableContract struct {
@@ -381,24 +381,24 @@ func validateSavedQueryAssetsSourceAnchors(root string) error {
 
 func validateSavedQueryAssetsFixtures(contract QueryAssetExecutableContract, fixtures QueryAssetFixtureSet) error {
 	required := map[string]bool{
-		"valid-compatible-saved-search": false,
-		"valid-compatible-query-asset": false,
-		"stale-prerequisites-are-visible": false,
-		"missing-source-is-incompatible": false,
-		"removed-field-is-incompatible": false,
-		"missing-tenant-is-rejected": false,
-		"wildcard-tenant-is-rejected": false,
-		"cross-tenant-asset-is-rejected": false,
-		"missing-environment-is-rejected": false,
-		"asset-access-denied-is-rejected": false,
-		"missing-query-ref-is-rejected": false,
+		"valid-compatible-saved-search":     false,
+		"valid-compatible-query-asset":      false,
+		"stale-prerequisites-are-visible":   false,
+		"missing-source-is-incompatible":    false,
+		"removed-field-is-incompatible":     false,
+		"missing-tenant-is-rejected":        false,
+		"wildcard-tenant-is-rejected":       false,
+		"cross-tenant-asset-is-rejected":    false,
+		"missing-environment-is-rejected":   false,
+		"asset-access-denied-is-rejected":   false,
+		"missing-query-ref-is-rejected":     false,
 		"missing-query-version-is-rejected": false,
-		"query-access-denied-is-rejected": false,
-		"cross-tenant-query-is-rejected": false,
-		"cross-tenant-source-is-rejected": false,
-		"missing-author-is-rejected": false,
-		"class-2-mutation-is-rejected": false,
-		"search-job-execution-is-rejected": false,
+		"query-access-denied-is-rejected":   false,
+		"cross-tenant-query-is-rejected":    false,
+		"cross-tenant-source-is-rejected":   false,
+		"missing-author-is-rejected":        false,
+		"class-2-mutation-is-rejected":      false,
+		"search-job-execution-is-rejected":  false,
 	}
 	if len(fixtures.Cases) < len(required) {
 		return fmt.Errorf("Saved Query Assets fixture set is too small: %d", len(fixtures.Cases))
