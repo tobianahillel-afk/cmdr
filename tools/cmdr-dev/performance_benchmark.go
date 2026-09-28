@@ -127,8 +127,8 @@ var knownBenchmarkHandlerKeys = map[string]bool{
 	"builtin-event-search-orchestration-v1":        true,
 	"builtin-event-search-frontend-state-v1":       true,
 	"builtin-event-inspection-projection-v1":       true,
-	"builtin-event-inspection-pivot-v1":            true,
-	"builtin-hunt-management-preimplementation-v1": true,
+	"builtin-event-inspection-pivot-v1":      true,
+	"builtin-hunt-management-projection-v1":  true,
 }
 
 func runPerformanceBenchmarkAudit(root, stage, environmentID, changesFile string) (PerformanceBenchmarkAuditSummary, error) {
@@ -530,6 +530,20 @@ func prepareBenchmarkHandler(root string, workload BenchmarkWorkloadDefinition) 
 		}
 		return func() (BenchmarkSample, error) {
 			observation, err := probe.run(20_000, "pivot")
+			if err != nil {
+				return BenchmarkSample{}, err
+			}
+			return BenchmarkSample{Measurements: []BenchmarkMeasurement{{
+				Kind: "latency", Unit: "ns", Value: observation.NSPerOperation,
+			}}}, nil
+		}, cleanup, nil
+	case "builtin-hunt-management-projection-v1":
+		probe, cleanup, err := prepareHuntManagementProbe(root)
+		if err != nil {
+			return nil, func() {}, err
+		}
+		return func() (BenchmarkSample, error) {
+			observation, err := probe.run(20_000)
 			if err != nil {
 				return BenchmarkSample{}, err
 			}

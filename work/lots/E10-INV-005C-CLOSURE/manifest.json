@@ -75,7 +75,7 @@
     "tenant and environment scope are mandatory and no wildcard/default tenant fallback is allowed",
     "CAP-INV-003, CAP-INV-006, CAP-INV-008 and CAP-INV-103 runtimes are not assumed to exist",
     "no provider, storage engine, final query dialect, collaboration backend, retention policy or final Hunt UI is selected",
-    "product runtime path mutation remains deferred until E10-INV-005A-BOUNDARY registers unique ownership"
+    "product-runtime/hunt-management remains unchanged after VERIFIED E10-INV-005B-RUNTIME evidence during closure"
   ],
   "security_properties": [
     "all object references are tenant-scoped and caller-provided access decisions fail closed",
@@ -91,7 +91,10 @@
     "partial/stale/missing-reference limitations remain explicit",
     "measured local projection budget passes",
     "Product Spec baseline remains unchanged",
-    "bounded handoff preserves OPEN-013 and rejects canonical-Hunt/mutation/provider/storage/UI overclaims"
+    "bounded handoff preserves OPEN-013 and rejects canonical-Hunt/mutation/provider/storage/UI overclaims",
+    "five named Hunt adversarial runtime test groups must pass as a complete set",
+    "VERIFIED B-RUNTIME evidence must be ancestral and product-runtime/hunt-management must remain unchanged since verification",
+    "bounded handoff must preserve OPEN-013 and reject production/full-capability/class-2/provider/storage/retention/collaboration/dialect/UI overclaims"
   ],
   "performance_budget": {
     "applicable": true,
@@ -114,27 +117,28 @@
     ]
   },
   "required_checks": [
-    "CHK-MANIFESTS",
-    "CHK-COMPLEXITY",
-    "CHK-ARCHITECTURE",
-    "CHK-RUNTIME-DEPS",
-    "CHK-BOUNDARY-EDGES",
     "CHK-SECURITY-TESTS",
-    "CHK-PERFORMANCE-REGISTRY"
+    "CHK-PERFORMANCE-BENCHMARK",
+    "CHK-SECRETS",
+    "CHK-SAST-GO",
+    "CHK-SCA-GO",
+    "CHK-SBOM",
+    "CHK-HUNT-MANAGEMENT-E2E"
   ],
   "definition_of_ready": [
     "E10-INV-005B-RUNTIME is VERIFIED"
   ],
   "definition_of_done": [
-    "cross-tenant and access-denied references fail without leaking object references",
-    "projection immutability/deep-copy tests pass",
-    "partial/stale/missing-reference limitations remain explicit",
-    "measured local projection budget passes"
+    "security/performance evidence is PASS",
+    "five named adversarial Hunt runtime test groups pass as a complete set",
+    "workspace projection p95 absolute engineering budget passes",
+    "OPEN-013 remains an explicit mutation blocker",
+    "handoff rejects production/full-capability/class-2/provider/storage/retention/collaboration/dialect/UI overclaims"
   ],
   "complexity": {
     "primary_components": 1,
-    "estimated_files_changed": 7,
-    "estimated_net_loc": 520,
+    "estimated_files_changed": 12,
+    "estimated_net_loc": 700,
     "production_files": 0,
     "net_production_loc": 0,
     "bounded_contexts": 1,

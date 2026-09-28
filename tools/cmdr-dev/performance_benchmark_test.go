@@ -184,6 +184,25 @@ func TestEventInspectionProbeExecutesRealRuntime(t *testing.T) {
 	}
 }
 
+func TestHuntManagementProbeExecutesRealRuntime(t *testing.T) {
+	root, err := filepath.Abs(filepath.Join("..", ".."))
+	if err != nil {
+		t.Fatal(err)
+	}
+	probe, cleanup, err := prepareHuntManagementProbe(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer cleanup()
+	observation, err := probe.run(1000)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if observation.Operation != "projection" || observation.Operations != 1000 || observation.NSPerOperation <= 0 {
+		t.Fatalf("unexpected Hunt Management observation: %#v", observation)
+	}
+}
+
 func TestSelectPerformanceTargetsByID(t *testing.T) {
 	targets := []PerformanceTarget{
 		{ID: "A", EnvironmentID: "env", Stages: []string{"pr"}},

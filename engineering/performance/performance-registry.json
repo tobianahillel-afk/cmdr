@@ -202,14 +202,19 @@
       "boundary_id": "hunt-management-runtime",
       "owner_path": "product-runtime/hunt-management/**",
       "workload_key": "hunt-management-projection-v1",
-      "workload_description": "Future deterministic in-process validation and immutable projection of one already-resolved caller-owned Hunt workspace envelope, including tenant/environment scope, question, period, owner/contributors and typed accessible object references. Retrieval, persistence, query execution, provider work, build and process-startup time are excluded.",
+      "workload_description": "Deterministic in-process validation and immutable projection of one already-resolved caller-owned Hunt workspace envelope, including tenant/environment scope, question, period, owner/contributors and typed accessible object references. Retrieval, persistence, query execution, provider work, build and process-startup time are excluded.",
       "environment_id": "PERF-ENV-GITHUB-UBUNTU-SHARED",
       "stages": [
+        "pr",
         "on-demand"
       ],
       "trigger_paths": [
         "product-runtime/hunt-management/**",
-        "engineering/implementation/hunt-management/**"
+        "engineering/implementation/hunt-management/**",
+        "engineering/performance/benchmark-policy.json",
+        "engineering/performance/performance-registry.json",
+        "tools/cmdr-dev/hunt_management_performance.go",
+        "tools/cmdr-dev/performance_benchmark.go"
       ],
       "metrics": [
         {
@@ -222,7 +227,7 @@
           "max_relative_regression_percent": 0
         }
       ],
-      "rationale": "This is a preimplementation local engineering ceiling for pure workspace validation/projection overhead only. It is on-demand until executable runtime exists and is not a Hunt workflow, retrieval, storage or production SLO."
+      "rationale": "The bounded Hunt Management projection runtime is executable. The 1 ms shared-CI ceiling applies only to deterministic local workspace validation/projection overhead; retrieval, persistence, query execution, providers and production Hunt SLOs remain outside this target."
     }
   ]
 }
