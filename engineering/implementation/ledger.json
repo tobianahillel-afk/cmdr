@@ -28,6 +28,14 @@
       "runtime_root": "product-runtime/hunt-management/**"
     },
     {
+      "capability": "CAP-INV-006",
+      "work_unit": "E10-INV-006E",
+      "manifest_path": "work/lots/E10-INV-006E/manifest.json",
+      "handoff_path": "work/lots/E10-INV-006E/HANDOFF.json",
+      "runtime_boundary": "saved-query-assets-runtime",
+      "runtime_root": "product-runtime/saved-query-assets/**"
+    },
+    {
       "capability": "CAP-SET-004",
       "work_unit": "E9-PILOT-001C-RUNTIME",
       "manifest_path": "work/lots/E9-PILOT-001C-RUNTIME/manifest.json",
