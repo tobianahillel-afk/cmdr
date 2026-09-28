@@ -42,7 +42,8 @@
     "root": "product-runtime/case-queue/**",
     "external_runtime_dependencies": "deny-by-default",
     "language": "Go standard library first unless a later reviewed decision proves otherwise",
-    "ownership_note": "runtime projects caller-owned Investigate Case state, optional foreign-owned context and Shared Saved View configuration; it owns no lifecycle mutation, Incident, Saved View, Task, Decision or Response Run"
+    "ownership_note": "runtime projects caller-owned Investigate Case state, optional foreign-owned context and Shared Saved View configuration; it owns no lifecycle mutation, Incident, Saved View, Task, Decision or Response Run",
+    "path_claim": "deferred until E10-INV-101A-BOUNDARY atomically registers unique architecture ownership"
   },
   "children": [
     "E10-INV-101A-BOUNDARY",

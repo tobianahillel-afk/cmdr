@@ -46,7 +46,8 @@
     "Saved View remains Shared-owned and is never mutated by this bounded runtime",
     "Case Queue remains distinct from Command Work Queue and owns no Task, Decision or Response Run",
     "OPEN-013 assignment/lifecycle mutations remain unresolved and excluded",
-    "final columns, final Case state machine, persistence/provider, export backend and final UI remain out of scope"
+    "final columns, final Case state machine, persistence/provider, export backend and final UI remain out of scope",
+    "product-runtime/case-queue access remains unavailable until E10-INV-101A-BOUNDARY atomically registers unique architecture ownership"
   ],
   "security_properties": [
     "tenant scope and Case read access fail closed",
@@ -83,7 +84,6 @@
     "engineering/state/**",
     "work/graph.json",
     "tools/cmdr-dev/**",
-    "product-runtime/case-queue/**",
     ".github/workflows/**"
   ],
   "inputs": [

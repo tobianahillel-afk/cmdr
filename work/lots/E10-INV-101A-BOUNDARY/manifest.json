@@ -46,7 +46,8 @@
     "Saved View remains Shared-owned and is never mutated by this bounded runtime",
     "Case Queue remains distinct from Command Work Queue and owns no Task, Decision or Response Run",
     "OPEN-013 assignment/lifecycle mutations remain unresolved and excluded",
-    "final columns, final Case state machine, persistence/provider, export backend and final UI remain out of scope"
+    "final columns, final Case state machine, persistence/provider, export backend and final UI remain out of scope",
+    "product-runtime/case-queue access remains unavailable until E10-INV-101A-BOUNDARY atomically registers unique architecture ownership"
   ],
   "security_properties": [
     "tenant scope and Case read access fail closed",
@@ -84,8 +85,7 @@
     "work/graph.json",
     "tools/cmdr-dev/**",
     "engineering/architecture/**",
-    ".github/workflows/**",
-    "product-runtime/case-queue/**"
+    ".github/workflows/**"
   ],
   "inputs": [
     "CAP-INV-101 canonical Case Queue contract",
@@ -94,10 +94,10 @@
     "CAP-INV-102 mutation boundary"
   ],
   "outputs": [
-    "case-queue-runtime preimplementation boundary",
+    "case-queue runtime-boundary registration plan",
     "deny-by-default external runtime dependency rule",
     "preimplementation security/negative-test obligations",
-    "local queue-projection engineering budget with fail-closed probe"
+    "local queue-projection engineering budget with fail-closed preimplementation probe"
   ],
   "acceptance_tests": [
     "runtime boundary has unique architecture ownership",
@@ -127,11 +127,11 @@
     "E10-SCALE-005B is VERIFIED"
   ],
   "definition_of_done": [
-    "case-queue runtime boundary is registered",
+    "case-queue runtime boundary is registered atomically with its first runtime path claim",
     "dependency policy is deny-by-default",
     "security obligations exist before product code",
     "performance obligations exist before product code",
-    "README.md is the only product-runtime file added"
+    "README.md is the only product-runtime file added by the future boundary-registration commit"
   ],
   "complexity": {
     "primary_components": 2,
