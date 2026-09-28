@@ -55,8 +55,11 @@
     "E10-INV-006D-CLOSURE",
     "E10-INV-006E"
   ],
-  "status": "MATERIALIZED_PENDING_VERIFICATION",
+  "status": "VERIFIED_MATERIALIZED",
   "validation": {
-    "result": "PENDING"
+    "final_validated_head": "0ee0694dffd2f1bcdc7227eb028fbeb2611e5c29",
+    "push_workflow_run": 36459730613,
+    "pull_request_workflow_run": 36459738919,
+    "result": "PASS"
   }
 }

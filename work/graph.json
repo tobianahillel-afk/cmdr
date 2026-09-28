@@ -1397,7 +1397,7 @@
       "id": "E10-SCALE-004B",
       "title": "Select and materialize CAP-INV-006 bounded reuse-first capability wave",
       "type": "task",
-      "status": "READY",
+      "status": "VERIFIED",
       "depends_on": [
         "E10-SCALE-004A"
       ],
@@ -1423,7 +1423,7 @@
       "id": "E10-INV-006A-BOUNDARY",
       "title": "Register Saved Query Asset runtime boundary and preimplementation controls",
       "type": "task",
-      "status": "BLOCKED",
+      "status": "READY",
       "depends_on": [
         "E10-SCALE-004B"
       ],
