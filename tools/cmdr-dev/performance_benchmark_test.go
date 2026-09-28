@@ -183,3 +183,36 @@ func TestEventInspectionProbeExecutesRealRuntime(t *testing.T) {
 		}
 	}
 }
+
+func TestSelectPerformanceTargetsByID(t *testing.T) {
+	targets := []PerformanceTarget{
+		{ID: "A", EnvironmentID: "env", Stages: []string{"pr"}},
+		{ID: "B", EnvironmentID: "env", Stages: []string{"pr", "on-demand"}},
+		{ID: "C", EnvironmentID: "other", Stages: []string{"pr"}},
+	}
+	selected, err := selectPerformanceTargetsByID(targets, "pr", "env", []string{"B", "A"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(selected) != 2 || selected[0].ID != "A" || selected[1].ID != "B" {
+		t.Fatalf("unexpected explicit target selection: %#v", selected)
+	}
+	for _, tc := range []struct {
+		name string
+		ids  []string
+	}{
+		{name: "empty", ids: nil},
+		{name: "unknown", ids: []string{"missing"}},
+		{name: "duplicate", ids: []string{"A", "A"}},
+		{name: "wrong environment", ids: []string{"C"}},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			if _, err := selectPerformanceTargetsByID(targets, "pr", "env", tc.ids); err == nil {
+				t.Fatal("expected explicit selection rejection")
+			}
+		})
+	}
+	if _, err := selectPerformanceTargetsByID(targets, "release", "env", []string{"A"}); err == nil {
+		t.Fatal("expected stage mismatch rejection")
+	}
+}

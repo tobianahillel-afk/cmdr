@@ -158,7 +158,7 @@ type EventInspectionE2EAuditSummary struct {
 	Status                     string  `json:"status"`
 }
 
-func runEventInspectionE2EAudit(root, changesFile string, state CurrentState) (EventInspectionE2EAuditSummary, error) {
+func runEventInspectionE2EAudit(root, _ string, state CurrentState) (EventInspectionE2EAuditSummary, error) {
 	if _, err := runSpecBaseline(root, state.ProductSpec.CanonicalPath, state.ProductSpec.BaselineCommit, "engineering/spec-index/baseline.json", true); err != nil {
 		return EventInspectionE2EAuditSummary{}, fmt.Errorf("Event Inspection Product Spec baseline: %w", err)
 	}
@@ -198,7 +198,10 @@ func runEventInspectionE2EAudit(root, changesFile string, state CurrentState) (E
 		return EventInspectionE2EAuditSummary{}, err
 	}
 
-	performance, err := runPerformanceBenchmarkAudit(root, "pr", defaultCIEnvironment, changesFile)
+	performance, err := runPerformanceBenchmarkTargets(root, "pr", defaultCIEnvironment, []string{
+		"PERF-TGT-EVENT-INSPECTION-PROJECTION",
+		"PERF-TGT-EVENT-INSPECTION-PIVOT",
+	})
 	if err != nil {
 		return EventInspectionE2EAuditSummary{}, err
 	}

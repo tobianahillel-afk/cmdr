@@ -162,31 +162,70 @@ func runPerformanceBenchmarkAudit(root, stage, environmentID, changesFile string
 		}
 	}
 
+	selected := selectPerformanceTargets(registry.Targets, stage, environmentID, changed)
+	return executePerformanceBenchmarkSelection(root, stage, environmentID, registry, env, benchmarkPolicy, baselines, selected)
+}
+
+func runPerformanceBenchmarkTargets(root, stage, environmentID string, targetIDs []string) (PerformanceBenchmarkAuditSummary, error) {
+	policy, registry, architecture, err := loadValidatedPerformanceConfiguration(root)
+	if err != nil {
+		return PerformanceBenchmarkAuditSummary{}, err
+	}
+	if _, err := validatePerformanceRegistry(policy, registry, architecture); err != nil {
+		return PerformanceBenchmarkAuditSummary{}, err
+	}
+	benchmarkPolicy, err := loadBenchmarkPolicy(root)
+	if err != nil {
+		return PerformanceBenchmarkAuditSummary{}, err
+	}
+	baselines, err := loadBenchmarkBaselines(root, registry, benchmarkPolicy)
+	if err != nil {
+		return PerformanceBenchmarkAuditSummary{}, err
+	}
+	if !knownPerformanceStages[stage] {
+		return PerformanceBenchmarkAuditSummary{}, fmt.Errorf("unknown performance benchmark stage %q", stage)
+	}
+	env, ok := performanceEnvironmentByID(registry, environmentID)
+	if !ok {
+		return PerformanceBenchmarkAuditSummary{}, fmt.Errorf("unknown performance environment %s", environmentID)
+	}
+	selected, err := selectPerformanceTargetsByID(registry.Targets, stage, environmentID, targetIDs)
+	if err != nil {
+		return PerformanceBenchmarkAuditSummary{}, err
+	}
+	return executePerformanceBenchmarkSelection(root, stage, environmentID, registry, env, benchmarkPolicy, baselines, selected)
+}
+
+func executePerformanceBenchmarkSelection(
+	root, stage, environmentID string,
+	registry PerformanceRegistry,
+	env PerformanceEnvironment,
+	benchmarkPolicy BenchmarkPolicy,
+	baselines map[string]PerformanceBaseline,
+	selected []PerformanceTarget,
+) (PerformanceBenchmarkAuditSummary, error) {
 	sourceSHA, err := currentSourceCommit(root)
 	if err != nil {
 		return PerformanceBenchmarkAuditSummary{}, err
 	}
 	summary := PerformanceBenchmarkAuditSummary{
 		Stage: stage, EnvironmentID: environmentID, SourceSHA: sourceSHA,
-		Registered: len(registry.Targets), ByScope: map[string]int{},
+		Registered: len(registry.Targets), Selected: len(selected), ByScope: map[string]int{},
 	}
 	if len(registry.Targets) == 0 {
 		summary.Status = "not-applicable"
 		return summary, nil
 	}
-
-	workloads := benchmarkWorkloadIndex(benchmarkPolicy)
-	selected := selectPerformanceTargets(registry.Targets, stage, environmentID, changed)
-	summary.Selected = len(selected)
 	if len(selected) == 0 {
 		summary.Status = "not-selected"
 		return summary, nil
 	}
+
+	workloads := benchmarkWorkloadIndex(benchmarkPolicy)
 	cachedResults, _, err := reusablePerformanceResults(root)
 	if err != nil {
 		return summary, err
 	}
-
 	for _, target := range selected {
 		sourceDigest, err := performanceTargetSourceDigest(root, target)
 		if err != nil {
@@ -214,6 +253,37 @@ func runPerformanceBenchmarkAudit(root, stage, environmentID, changesFile string
 	}
 	summary.Status = "pass"
 	return summary, nil
+}
+
+func selectPerformanceTargetsByID(targets []PerformanceTarget, stage, environmentID string, targetIDs []string) ([]PerformanceTarget, error) {
+	if len(targetIDs) == 0 {
+		return nil, fmt.Errorf("explicit performance target selection requires at least one target id")
+	}
+	index := map[string]PerformanceTarget{}
+	for _, target := range targets {
+		index[target.ID] = target
+	}
+	seen := map[string]bool{}
+	selected := make([]PerformanceTarget, 0, len(targetIDs))
+	for _, id := range targetIDs {
+		if seen[id] {
+			return nil, fmt.Errorf("duplicate explicit performance target %s", id)
+		}
+		seen[id] = true
+		target, ok := index[id]
+		if !ok {
+			return nil, fmt.Errorf("unknown explicit performance target %s", id)
+		}
+		if target.EnvironmentID != environmentID {
+			return nil, fmt.Errorf("performance target %s is not registered for environment %s", id, environmentID)
+		}
+		if !containsString(target.Stages, stage) {
+			return nil, fmt.Errorf("performance target %s is not registered for stage %s", id, stage)
+		}
+		selected = append(selected, target)
+	}
+	sort.Slice(selected, func(i, j int) bool { return selected[i].ID < selected[j].ID })
+	return selected, nil
 }
 
 func loadValidatedPerformanceConfiguration(root string) (PerformancePolicy, PerformanceRegistry, ArchitectureRegistry, error) {
