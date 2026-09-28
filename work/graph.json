@@ -1532,6 +1532,110 @@
         "E10-SCALE-005A"
       ],
       "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-101"
+      ]
+    },
+    {
+      "id": "E10-INV-101",
+      "title": "Implement bounded read-only Case Queue core for CAP-INV-101",
+      "type": "epic",
+      "status": "DECOMPOSED",
+      "depends_on": [
+        "E10-SCALE-005B"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-101A-BOUNDARY"
+      ]
+    },
+    {
+      "id": "E10-INV-101A-BOUNDARY",
+      "title": "Register Case Queue runtime boundary and preimplementation controls",
+      "type": "task",
+      "status": "READY",
+      "depends_on": [
+        "E10-SCALE-005B"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-101A-CONTRACT"
+      ]
+    },
+    {
+      "id": "E10-INV-101A-CONTRACT",
+      "title": "Compile Case Queue read-only projection contract",
+      "type": "task",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E10-INV-101A-BOUNDARY"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-101B-RUNTIME"
+      ]
+    },
+    {
+      "id": "E10-INV-101B-RUNTIME",
+      "title": "Implement immutable Case Queue projection runtime",
+      "type": "task",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E10-INV-101A-CONTRACT"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-101C-VIEW"
+      ]
+    },
+    {
+      "id": "E10-INV-101C-VIEW",
+      "title": "Implement permission-safe Saved View application",
+      "type": "task",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E10-INV-101B-RUNTIME"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-101D-HANDOFF"
+      ]
+    },
+    {
+      "id": "E10-INV-101D-HANDOFF",
+      "title": "Implement deterministic Case Workspace handoff and return context",
+      "type": "task",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E10-INV-101C-VIEW"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-101E-CLOSURE"
+      ]
+    },
+    {
+      "id": "E10-INV-101E-CLOSURE",
+      "title": "Close bounded Case Queue runtime evidence",
+      "type": "task",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E10-INV-101D-HANDOFF"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-101F"
+      ]
+    },
+    {
+      "id": "E10-INV-101F",
+      "title": "Compile verified Case Queue runtime claim for implementation ledger",
+      "type": "task",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E10-INV-101E-CLOSURE"
+      ],
+      "dependency_terminal_state": "VERIFIED",
       "unlocks": []
     }
   ]

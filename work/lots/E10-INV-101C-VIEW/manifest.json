@@ -1,0 +1,142 @@
+{
+  "schema_version": 2,
+  "parent": "E10-INV-101",
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-101",
+      "CAP-INV-102"
+    ],
+    "requirements": [
+      "REQ-PROD-014",
+      "REQ-PROD-020"
+    ],
+    "screens": [
+      "INV-CAS-001"
+    ],
+    "permissions": [],
+    "open_decisions": [
+      "OPEN-013"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/error-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/correlation-identifiers.md",
+      "cmdr-product-spec/17-implementation-contracts/object-reference-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/pagination-filtering-sorting.md",
+      "cmdr-product-spec/17-implementation-contracts/saved-view-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/frontend-state-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/cross-product-context-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/screen-routing-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/case.md",
+      "cmdr-product-spec/05-domain-model/objects/incident.md",
+      "cmdr-product-spec/05-domain-model/objects/finding.md",
+      "cmdr-product-spec/05-domain-model/objects/saved-view.md"
+    ]
+  },
+  "forbidden_paths": [
+    "cmdr-product-spec/**"
+  ],
+  "invariants": [
+    "Product Spec remains read-only",
+    "Case remains the Investigate-owned canonical object and is never redefined",
+    "Incident remains Command-owned and is projected only as optional context",
+    "Saved View remains Shared-owned and is never mutated by this bounded runtime",
+    "Case Queue remains distinct from Command Work Queue and owns no Task, Decision or Response Run",
+    "OPEN-013 assignment/lifecycle mutations remain unresolved and excluded",
+    "final columns, final Case state machine, persistence/provider, export backend and final UI remain out of scope"
+  ],
+  "security_properties": [
+    "tenant scope and Case read access fail closed",
+    "cross-tenant object projections are rejected",
+    "Saved View fields and filters are permission-re-evaluated before projection",
+    "partial/stale diagnostics never synthesize or leak inaccessible data"
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "bounded Case Queue core is provider-neutral, persistence-neutral and introduces no canonical data migration",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert the current bounded task and keep downstream CAP-INV-101 tasks blocked",
+    "verification": [
+      "Product Spec baseline remains unchanged",
+      "no ledger claim is created before bounded closure",
+      "no canonical object mutation occurred"
+    ]
+  },
+  "id": "E10-INV-101C-VIEW",
+  "title": "Implement permission-safe Saved View application",
+  "type": "task",
+  "goal": "Apply caller-owned Shared Saved View snapshots to the bounded Case Queue without mutating Shared state, leaking forbidden fields or silently preserving inaccessible filters/columns.",
+  "depends_on": [
+    "E10-INV-101B-RUNTIME"
+  ],
+  "allowed_paths": [
+    "engineering/implementation/case-queue/**",
+    "engineering/security/**",
+    "engineering/performance/**",
+    "engineering/testing/**",
+    "work/lots/E10-INV-101*/**",
+    "engineering/state/**",
+    "work/graph.json",
+    "tools/cmdr-dev/**",
+    "product-runtime/case-queue/**"
+  ],
+  "inputs": [
+    "verified Case Queue projection runtime",
+    "Shared Saved View canonical contract",
+    "Saved View permission/version snapshot",
+    "caller field/filter visibility envelope"
+  ],
+  "outputs": [
+    "immutable Saved View application adapter",
+    "permission-re-evaluated filter/sort/column projection",
+    "deterministic default-view fallback for unavailable/inaccessible views",
+    "view-dirty diagnostics without persistence"
+  ],
+  "acceptance_tests": [
+    "Saved View tenant and version are validated",
+    "forbidden fields/filters never enter projected output",
+    "Shared Saved View state is never mutated",
+    "inaccessible Saved View falls back explicitly without leaking hidden configuration"
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "Saved View application is a bounded local transformation",
+    "metrics": [
+      "Saved View application p95 engineering target declared by A-BOUNDARY"
+    ]
+  },
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-RUNTIME-DEPS",
+    "CHK-BOUNDARY-EDGES",
+    "CHK-SECURITY-TESTS",
+    "CHK-PERFORMANCE-REGISTRY"
+  ],
+  "definition_of_ready": [
+    "E10-INV-101B-RUNTIME is VERIFIED"
+  ],
+  "definition_of_done": [
+    "Saved View with forbidden field yields no leak",
+    "cross-tenant or denied Saved View is rejected/falls back explicitly",
+    "input Saved View remains immutable",
+    "no save/share/archive/manage behavior exists"
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 8,
+    "estimated_net_loc": 620,
+    "production_files": 2,
+    "net_production_loc": 260,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

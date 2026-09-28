@@ -1,0 +1,146 @@
+{
+  "schema_version": 2,
+  "parent": "E10-INV-101",
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-101",
+      "CAP-INV-102"
+    ],
+    "requirements": [
+      "REQ-PROD-014",
+      "REQ-PROD-020"
+    ],
+    "screens": [
+      "INV-CAS-001"
+    ],
+    "permissions": [],
+    "open_decisions": [
+      "OPEN-013"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/error-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/correlation-identifiers.md",
+      "cmdr-product-spec/17-implementation-contracts/object-reference-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/pagination-filtering-sorting.md",
+      "cmdr-product-spec/17-implementation-contracts/saved-view-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/frontend-state-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/cross-product-context-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/screen-routing-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/case.md",
+      "cmdr-product-spec/05-domain-model/objects/incident.md",
+      "cmdr-product-spec/05-domain-model/objects/finding.md",
+      "cmdr-product-spec/05-domain-model/objects/saved-view.md"
+    ]
+  },
+  "forbidden_paths": [
+    "cmdr-product-spec/**"
+  ],
+  "invariants": [
+    "Product Spec remains read-only",
+    "Case remains the Investigate-owned canonical object and is never redefined",
+    "Incident remains Command-owned and is projected only as optional context",
+    "Saved View remains Shared-owned and is never mutated by this bounded runtime",
+    "Case Queue remains distinct from Command Work Queue and owns no Task, Decision or Response Run",
+    "OPEN-013 assignment/lifecycle mutations remain unresolved and excluded",
+    "final columns, final Case state machine, persistence/provider, export backend and final UI remain out of scope"
+  ],
+  "security_properties": [
+    "tenant scope and Case read access fail closed",
+    "cross-tenant object projections are rejected",
+    "Saved View fields and filters are permission-re-evaluated before projection",
+    "partial/stale diagnostics never synthesize or leak inaccessible data"
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "bounded Case Queue core is provider-neutral, persistence-neutral and introduces no canonical data migration",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert the current bounded task and keep downstream CAP-INV-101 tasks blocked",
+    "verification": [
+      "Product Spec baseline remains unchanged",
+      "no ledger claim is created before bounded closure",
+      "no canonical object mutation occurred"
+    ]
+  },
+  "id": "E10-INV-101E-CLOSURE",
+  "title": "Close bounded Case Queue runtime evidence",
+  "type": "task",
+  "goal": "Compile immutable runtime ancestry, full fixture/security/performance evidence and residual exclusions proving the bounded CAP-INV-101 runtime without claiming complete Case Queue delivery.",
+  "depends_on": [
+    "E10-INV-101D-HANDOFF"
+  ],
+  "allowed_paths": [
+    "engineering/implementation/case-queue/**",
+    "engineering/security/**",
+    "engineering/performance/**",
+    "engineering/testing/**",
+    "work/lots/E10-INV-101*/**",
+    "engineering/state/**",
+    "work/graph.json",
+    "tools/cmdr-dev/**",
+    "product-runtime/case-queue/**",
+    ".github/workflows/**"
+  ],
+  "inputs": [
+    "verified boundary/contract/runtime/Saved View/handoff tasks",
+    "security and performance registries",
+    "green push/PR evidence"
+  ],
+  "outputs": [
+    "bounded Case Queue closure evidence",
+    "measured runtime coverage/security evidence",
+    "bounded performance evidence",
+    "explicit residual capability exclusions"
+  ],
+  "acceptance_tests": [
+    "adaptive engineering-kernel remains green",
+    "all contract and negative fixtures execute against runtime",
+    "security-critical runtime coverage target is at least 90 percent",
+    "declared local performance budgets are measured",
+    "Product Spec baseline remains unchanged"
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "closure measures the previously declared local projection/view/handoff budgets",
+    "metrics": [
+      "runtime benchmark registry evidence",
+      "deep-performance smoke evidence without production SLO claim"
+    ]
+  },
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-RUNTIME-DEPS",
+    "CHK-BOUNDARY-EDGES",
+    "CHK-SECURITY-TESTS",
+    "CHK-PERFORMANCE-REGISTRY",
+    "CHK-PERFORMANCE-BENCHMARK",
+    "CHK-DEEP-PERFORMANCE"
+  ],
+  "definition_of_ready": [
+    "E10-INV-101D-HANDOFF is VERIFIED"
+  ],
+  "definition_of_done": [
+    "bounded runtime ancestry is immutable and complete",
+    "zero blocking SAST/actionable SCA findings apply",
+    "security and performance evidence is source-backed",
+    "residual assignment/lifecycle/export/UI/provider decisions remain explicit"
+  ],
+  "complexity": {
+    "primary_components": 2,
+    "estimated_files_changed": 10,
+    "estimated_net_loc": 650,
+    "production_files": 1,
+    "net_production_loc": 120,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}
