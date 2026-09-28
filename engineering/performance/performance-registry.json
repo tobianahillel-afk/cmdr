@@ -294,6 +294,96 @@
         }
       ],
       "rationale": "The bounded Saved Query Asset handoff runtime is executable. The 1 ms shared-CI ceiling applies only to local immutable handoff construction; Event Search execution, Search Job work, providers and production SLOs remain outside this target."
+    },
+    {
+      "id": "PERF-TGT-CASE-QUEUE-PROJECTION",
+      "scope_kind": "product-runtime",
+      "boundary_id": "case-queue-runtime",
+      "owner_path": "product-runtime/case-queue/**",
+      "workload_key": "case-queue-projection-v1",
+      "workload_description": "Future deterministic in-process validation and immutable projection of one already-resolved caller-owned Case Queue input, including tenant/access scope, Case identity/status/owner context, optional Incident/Finding context and explicit freshness/partial diagnostics. Retrieval, persistence, backend search, providers, build and process-startup time are excluded.",
+      "environment_id": "PERF-ENV-GITHUB-UBUNTU-SHARED",
+      "stages": [
+        "on-demand"
+      ],
+      "trigger_paths": [
+        "product-runtime/case-queue/**",
+        "engineering/implementation/case-queue/**",
+        "engineering/performance/benchmark-policy.json",
+        "engineering/performance/performance-registry.json"
+      ],
+      "metrics": [
+        {
+          "id": "case-queue-projection-p95-latency",
+          "kind": "latency",
+          "unit": "ms",
+          "aggregation": "p95",
+          "comparator": "upper-bound",
+          "budget": 1,
+          "max_relative_regression_percent": 0
+        }
+      ],
+      "rationale": "Preimplementation engineering ceiling for pure local Case Queue validation/projection only. It remains on-demand until executable runtime exists and is not a storage, backend search or production queue SLO."
+    },
+    {
+      "id": "PERF-TGT-CASE-QUEUE-SAVED-VIEW",
+      "scope_kind": "product-runtime",
+      "boundary_id": "case-queue-runtime",
+      "owner_path": "product-runtime/case-queue/**",
+      "workload_key": "case-queue-saved-view-v1",
+      "workload_description": "Future deterministic in-process application of one already-resolved Shared Saved View snapshot to an immutable Case Queue projection with permission-re-evaluated filters, sort and field visibility. Saved View persistence/share/manage operations, provider work, build and process-startup time are excluded.",
+      "environment_id": "PERF-ENV-GITHUB-UBUNTU-SHARED",
+      "stages": [
+        "on-demand"
+      ],
+      "trigger_paths": [
+        "product-runtime/case-queue/**",
+        "engineering/implementation/case-queue/**",
+        "engineering/performance/benchmark-policy.json",
+        "engineering/performance/performance-registry.json"
+      ],
+      "metrics": [
+        {
+          "id": "case-queue-saved-view-p95-latency",
+          "kind": "latency",
+          "unit": "ms",
+          "aggregation": "p95",
+          "comparator": "upper-bound",
+          "budget": 1,
+          "max_relative_regression_percent": 0
+        }
+      ],
+      "rationale": "Preimplementation engineering ceiling for pure local Saved View application only. It makes no Shared Saved View persistence or production UI SLO claim."
+    },
+    {
+      "id": "PERF-TGT-CASE-QUEUE-HANDOFF",
+      "scope_kind": "product-runtime",
+      "boundary_id": "case-queue-runtime",
+      "owner_path": "product-runtime/case-queue/**",
+      "workload_key": "case-queue-handoff-v1",
+      "workload_description": "Future deterministic in-process construction of one immutable Case Workspace transition/return-context envelope from an accessible selected Case and already-validated queue state. Navigation transport, backend retrieval, Case mutation, browser paint/layout, build and process-startup time are excluded.",
+      "environment_id": "PERF-ENV-GITHUB-UBUNTU-SHARED",
+      "stages": [
+        "on-demand"
+      ],
+      "trigger_paths": [
+        "product-runtime/case-queue/**",
+        "engineering/implementation/case-queue/**",
+        "engineering/performance/benchmark-policy.json",
+        "engineering/performance/performance-registry.json"
+      ],
+      "metrics": [
+        {
+          "id": "case-queue-handoff-p95-latency",
+          "kind": "latency",
+          "unit": "ms",
+          "aggregation": "p95",
+          "comparator": "upper-bound",
+          "budget": 1,
+          "max_relative_regression_percent": 0
+        }
+      ],
+      "rationale": "Preimplementation engineering ceiling for pure local handoff/return-context construction only. It is not a production navigation or Case Workspace SLO."
     }
   ]
 }

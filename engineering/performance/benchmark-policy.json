@@ -71,6 +71,27 @@
       "warmup_iterations": 1,
       "sample_count": 5,
       "max_sample_duration_ms": 100
+    },
+    {
+      "key": "case-queue-projection-v1",
+      "handler_key": "builtin-case-queue-projection-preimplementation-v1",
+      "warmup_iterations": 0,
+      "sample_count": 3,
+      "max_sample_duration_ms": 100
+    },
+    {
+      "key": "case-queue-saved-view-v1",
+      "handler_key": "builtin-case-queue-saved-view-preimplementation-v1",
+      "warmup_iterations": 0,
+      "sample_count": 3,
+      "max_sample_duration_ms": 100
+    },
+    {
+      "key": "case-queue-handoff-v1",
+      "handler_key": "builtin-case-queue-handoff-preimplementation-v1",
+      "warmup_iterations": 0,
+      "sample_count": 3,
+      "max_sample_duration_ms": 100
     }
   ]
 }

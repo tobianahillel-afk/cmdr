@@ -74,6 +74,9 @@
     "event-inspection-pivot-v1",
     "hunt-management-projection-v1",
     "saved-query-assets-projection-v1",
-    "saved-query-assets-handoff-v1"
+    "saved-query-assets-handoff-v1",
+    "case-queue-projection-v1",
+    "case-queue-saved-view-v1",
+    "case-queue-handoff-v1"
   ]
 }

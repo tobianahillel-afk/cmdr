@@ -85,7 +85,8 @@
     "work/graph.json",
     "tools/cmdr-dev/**",
     "engineering/architecture/**",
-    ".github/workflows/**"
+    ".github/workflows/**",
+    "product-runtime/case-queue/**"
   ],
   "inputs": [
     "CAP-INV-101 canonical Case Queue contract",

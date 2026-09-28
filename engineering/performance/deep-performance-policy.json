@@ -183,6 +183,63 @@
       "concurrency": 1,
       "iterations": 10000,
       "rationale": "Pre-registered on-demand resource validation for the future immutable Event Search handoff draft. The compiled handler fails closed while saved-query-assets-runtime handoff is preimplementation and cannot emit synthetic runtime evidence."
+    },
+    {
+      "id": "PERF-DEEP-CASE-QUEUE-PROJECTION",
+      "performance_target_id": "PERF-TGT-CASE-QUEUE-PROJECTION",
+      "kind": "resource",
+      "handler_key": "builtin-case-queue-projection-preimplementation-v1",
+      "stages": [
+        "on-demand"
+      ],
+      "trigger_paths": [
+        "product-runtime/case-queue/**",
+        "engineering/implementation/case-queue/**"
+      ],
+      "duration_seconds": 0,
+      "timeout_seconds": 30,
+      "memory_limit_mib": 128,
+      "concurrency": 1,
+      "iterations": 10000,
+      "rationale": "Pre-registered on-demand resource validation for the future immutable Case Queue projection. The compiled handler fails closed while case-queue-runtime projection is preimplementation and cannot emit synthetic runtime evidence."
+    },
+    {
+      "id": "PERF-DEEP-CASE-QUEUE-SAVED-VIEW",
+      "performance_target_id": "PERF-TGT-CASE-QUEUE-SAVED-VIEW",
+      "kind": "resource",
+      "handler_key": "builtin-case-queue-saved-view-preimplementation-v1",
+      "stages": [
+        "on-demand"
+      ],
+      "trigger_paths": [
+        "product-runtime/case-queue/**",
+        "engineering/implementation/case-queue/**"
+      ],
+      "duration_seconds": 0,
+      "timeout_seconds": 30,
+      "memory_limit_mib": 128,
+      "concurrency": 1,
+      "iterations": 10000,
+      "rationale": "Pre-registered on-demand resource validation for the future permission-safe Saved View adapter. The compiled handler fails closed while E10-INV-101C-VIEW is preimplementation."
+    },
+    {
+      "id": "PERF-DEEP-CASE-QUEUE-HANDOFF",
+      "performance_target_id": "PERF-TGT-CASE-QUEUE-HANDOFF",
+      "kind": "resource",
+      "handler_key": "builtin-case-queue-handoff-preimplementation-v1",
+      "stages": [
+        "on-demand"
+      ],
+      "trigger_paths": [
+        "product-runtime/case-queue/**",
+        "engineering/implementation/case-queue/**"
+      ],
+      "duration_seconds": 0,
+      "timeout_seconds": 30,
+      "memory_limit_mib": 128,
+      "concurrency": 1,
+      "iterations": 10000,
+      "rationale": "Pre-registered on-demand resource validation for the future immutable Case Workspace handoff. The compiled handler fails closed while E10-INV-101D-HANDOFF is preimplementation."
     }
   ]
 }

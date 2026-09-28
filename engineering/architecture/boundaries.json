@@ -102,6 +102,15 @@
       ],
       "mutable_by_implementation": true,
       "may_depend_on": []
+    },
+    {
+      "id": "case-queue-runtime",
+      "kind": "product-runtime",
+      "roots": [
+        "product-runtime/case-queue/**"
+      ],
+      "mutable_by_implementation": true,
+      "may_depend_on": []
     }
   ]
 }

@@ -129,8 +129,11 @@ var knownBenchmarkHandlerKeys = map[string]bool{
 	"builtin-event-inspection-projection-v1":   true,
 	"builtin-event-inspection-pivot-v1":        true,
 	"builtin-hunt-management-projection-v1":    true,
-	"builtin-saved-query-assets-projection-v1": true,
-	"builtin-saved-query-assets-handoff-v1":    true,
+	"builtin-saved-query-assets-projection-v1":          true,
+	"builtin-saved-query-assets-handoff-v1":             true,
+	"builtin-case-queue-projection-preimplementation-v1": true,
+	"builtin-case-queue-saved-view-preimplementation-v1": true,
+	"builtin-case-queue-handoff-preimplementation-v1":    true,
 }
 
 func runPerformanceBenchmarkAudit(root, stage, environmentID, changesFile string) (PerformanceBenchmarkAuditSummary, error) {
@@ -443,6 +446,12 @@ type benchmarkSampleHandler func() (BenchmarkSample, error)
 
 func prepareBenchmarkHandler(root string, workload BenchmarkWorkloadDefinition) (benchmarkSampleHandler, func(), error) {
 	switch workload.HandlerKey {
+	case "builtin-case-queue-projection-preimplementation-v1":
+		return nil, func() {}, fmt.Errorf("case-queue projection benchmark is blocked while case-queue-runtime is preimplementation; implement E10-INV-101B-RUNTIME before executable measurement")
+	case "builtin-case-queue-saved-view-preimplementation-v1":
+		return nil, func() {}, fmt.Errorf("case-queue Saved View benchmark is blocked while the adapter is preimplementation; implement E10-INV-101C-VIEW before executable measurement")
+	case "builtin-case-queue-handoff-preimplementation-v1":
+		return nil, func() {}, fmt.Errorf("case-queue handoff benchmark is blocked while the handoff is preimplementation; implement E10-INV-101D-HANDOFF before executable measurement")
 	case "builtin-cmdr-dev-metadata-audit-v1":
 		return func() (BenchmarkSample, error) {
 			started := time.Now()

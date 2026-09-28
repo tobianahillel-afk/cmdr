@@ -113,6 +113,9 @@ var knownDeepPerformanceHandlerKeys = map[string]bool{
 	"builtin-hunt-management-preimplementation-v1":               true,
 	"builtin-saved-query-assets-projection-preimplementation-v1": true,
 	"builtin-saved-query-assets-handoff-preimplementation-v1":    true,
+	"builtin-case-queue-projection-preimplementation-v1":          true,
+	"builtin-case-queue-saved-view-preimplementation-v1":          true,
+	"builtin-case-queue-handoff-preimplementation-v1":             true,
 }
 
 func runDeepPerformanceAudit(root, stage, changesFile, requestedTarget string) (DeepPerformanceAuditSummary, error) {
@@ -408,6 +411,15 @@ func executeDeepPerformanceTargetWithHandler(
 }
 
 func runDeepPerformanceHandler(ctx context.Context, root string, target DeepPerformanceTarget) (DeepPerformanceObservation, error) {
+	if target.HandlerKey == "builtin-case-queue-projection-preimplementation-v1" {
+		return DeepPerformanceObservation{}, fmt.Errorf("case-queue projection deep performance target is preimplementation; implement E10-INV-101B-RUNTIME before executable measurement")
+	}
+	if target.HandlerKey == "builtin-case-queue-saved-view-preimplementation-v1" {
+		return DeepPerformanceObservation{}, fmt.Errorf("case-queue Saved View deep performance target is preimplementation; implement E10-INV-101C-VIEW before executable measurement")
+	}
+	if target.HandlerKey == "builtin-case-queue-handoff-preimplementation-v1" {
+		return DeepPerformanceObservation{}, fmt.Errorf("case-queue handoff deep performance target is preimplementation; implement E10-INV-101D-HANDOFF before executable measurement")
+	}
 	if target.HandlerKey == "builtin-saved-query-assets-projection-preimplementation-v1" {
 		return DeepPerformanceObservation{}, fmt.Errorf("saved-query-assets projection deep performance target is preimplementation; implement E10-INV-006B-RUNTIME before executable measurement")
 	}
