@@ -1449,7 +1449,7 @@
       "id": "E10-INV-006B-RUNTIME",
       "title": "Implement immutable Saved Query Asset compatibility projection runtime",
       "type": "task",
-      "status": "READY",
+      "status": "VERIFIED",
       "depends_on": [
         "E10-INV-006A-CONTRACT"
       ],
@@ -1462,7 +1462,7 @@
       "id": "E10-INV-006C-HANDOFF",
       "title": "Implement deterministic Event Search execution handoff draft",
       "type": "task",
-      "status": "BLOCKED",
+      "status": "READY",
       "depends_on": [
         "E10-INV-006B-RUNTIME"
       ],

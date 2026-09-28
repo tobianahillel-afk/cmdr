@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-006B-RUNTIME",
+  "status": "VERIFIED",
+  "final_validated_head": "f262c1a8ff0d1ecc1ebe5f15c15dad25809f3334",
+  "validation": {
+    "push_workflow_run": 36488064659,
+    "pull_request_workflow_run": 36488071274,
+    "result": "PASS",
+    "saved_query_assets_contract": "PASS",
+    "security_tests": "PASS",
+    "sast": "PASS",
+    "sca": "PASS",
+    "performance_registry": "PASS",
+    "architecture": "PASS",
+    "runtime_dependencies": "PASS",
+    "boundary_edges": "PASS"
+  },
+  "runtime_observation": {
+    "contract": "QUERY-ASSET-READONLY-CONTRACT-V1",
+    "runtime_state": "implemented",
+    "fixtures": 18,
+    "positive": 5,
+    "negative": 13,
+    "incompatible": 2,
+    "stale": 1,
+    "runtime_dependencies": 0,
+    "push_global_coverage_percent": 92.06,
+    "pull_request_global_coverage_percent": 92.1,
+    "sast_findings": 0,
+    "sca_actionable_findings": 0
+  },
+  "security_observation": {
+    "runtime_boundaries": 6,
+    "registered_scopes": 6,
+    "authorization_required": 6,
+    "tenant_isolation_required": 6,
+    "coverage_floor_percent": 80,
+    "changed_security_critical_floor_percent": 90,
+    "pull_request_changed_scopes": 6
+  },
+  "invariants": [
+    "projection is immutable and deep-copy isolated",
+    "asset and Query access decisions fail closed",
+    "tenant, Query and source cross-tenant references fail closed",
+    "missing/removed source or field facts are diagnosed rather than synthesized",
+    "stale/incompatible state disables handoff eligibility",
+    "class-2 mutation and Search Job creation/execution remain absent",
+    "product runtime has zero external runtime dependencies",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-006C-HANDOFF"
+  ]
+}
