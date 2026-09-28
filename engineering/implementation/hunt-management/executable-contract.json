@@ -7,7 +7,7 @@
   "runtime_boundary": {
     "id": "hunt-management-runtime",
     "root": "product-runtime/hunt-management/**",
-    "expected_state": "preimplementation",
+    "expected_state": "implemented",
     "external_runtime_dependencies": []
   },
   "product_refs": {

@@ -40,6 +40,7 @@
     "E10-INV-005A-CONTRACT"
   ],
   "allowed_paths": [
+    "product-runtime/hunt-management/**",
     "engineering/implementation/hunt-management/**",
     "engineering/security/**",
     "engineering/testing/**",
@@ -62,7 +63,8 @@
     "deep-copy-isolated question/scope/time/owner/contributor context",
     "tenant-safe typed references to Query/Search Job/Hypothesis/Case/Incident",
     "deterministic completeness and limitation diagnostics",
-    "implemented HUNT-WORKSPACE-READONLY-CONTRACT-V1 runtime state"
+    "implemented HUNT-WORKSPACE-READONLY-CONTRACT-V1 runtime state",
+    "measured authorization-negative and tenant-isolation adapter for hunt-management-runtime"
   ],
   "invariants": [
     "Product Spec remains read-only",
@@ -75,7 +77,7 @@
     "tenant and environment scope are mandatory and no wildcard/default tenant fallback is allowed",
     "CAP-INV-003, CAP-INV-006, CAP-INV-008 and CAP-INV-103 runtimes are not assumed to exist",
     "no provider, storage engine, final query dialect, collaboration backend, retention policy or final Hunt UI is selected",
-    "product runtime path mutation remains deferred until E10-INV-005A-BOUNDARY registers unique ownership"
+    "product-runtime/hunt-management/** is uniquely owned by the VERIFIED E10-INV-005A-BOUNDARY registration"
   ],
   "security_properties": [
     "all object references are tenant-scoped and caller-provided access decisions fail closed",
@@ -91,7 +93,11 @@
     "missing required draft activation context yields diagnostics without inventing transitions",
     "referenced objects retain owner/type/version/provenance identity",
     "runtime executes no query and performs no class-2 mutation",
-    "security-critical runtime coverage target is at least 90 percent"
+    "security-critical runtime coverage target is at least 90 percent",
+    "all 15 predeclared contract fixtures execute against the runtime",
+    "authorization-negative fixture denied-reference-is-rejected passes as a measured security adapter",
+    "tenant-isolation fixtures for missing wildcard cross-tenant workspace and cross-tenant reference pass",
+    "runtime Go coverage is measured by CHK-SECURITY-TESTS"
   ],
   "performance_budget": {
     "applicable": true,
@@ -134,10 +140,10 @@
   ],
   "complexity": {
     "primary_components": 1,
-    "estimated_files_changed": 11,
-    "estimated_net_loc": 700,
+    "estimated_files_changed": 9,
+    "estimated_net_loc": 650,
     "production_files": 2,
-    "net_production_loc": 340,
+    "net_production_loc": 240,
     "bounded_contexts": 1,
     "independent_migrations": 0,
     "distinct_security_models": 1,

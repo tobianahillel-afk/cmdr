@@ -1,36 +1,27 @@
 # Hunt Management runtime boundary
 
-This directory is reserved for the first bounded executable runtime of **CAP-INV-005 Hunt Management**.
+This directory contains the bounded executable read-only runtime of **CAP-INV-005 Hunt Management**.
 
-## Current state
+## Implemented scope
 
-**Preimplementation only.** This README is the sole file intentionally present in the runtime boundary at this stage. It carries no executable product behavior and must not be treated as runtime coverage, authorization-negative evidence, tenant-isolation evidence, performance proof, persistence, or a canonical Hunt domain object.
+The runtime validates and immutably projects caller-owned Hunt workspace context only:
 
-## Bounded future scope
+- one explicit authorized Tenant and environment;
+- explicit question, scope, ordered RFC3339 period and owner;
+- copied contributor references;
+- typed tenant-scoped accessible references to Query, Search Job, Hypothesis, Case and Incident;
+- canonical ownership labels without ownership transfer;
+- copied version/provenance metadata when supplied by the caller;
+- deterministic stale/partial/unavailable limitations;
+- Search Job visibility constrained to a projected Query;
+- deep-copy isolation from caller-owned slices and references.
 
-Later verified tasks may implement only the read-only workspace core already materialized in `WAVE-CAP-INV-005-CORE-001`:
-
-- validation of one caller-owned tenant/environment Hunt workspace envelope;
-- immutable projection of question, scope, period, owner and contributors;
-- provenance-preserving references to accessible Query and Search Job records;
-- references to accessible Hypothesis, Case and Incident context without ownership transfer;
-- deterministic completeness diagnostics;
-- explicit stale, partial and unavailable-reference limitations.
+All rejection paths return no projection. The module uses the Go standard library only and performs no network, filesystem, persistence or query-execution work.
 
 ## Explicit exclusions
 
-This boundary does not select or implement:
+This runtime does **not** create a canonical Hunt object or final Hunt state machine. While OPEN-013 remains unresolved it performs no Hunt create/update/activate/pause/close/archive transition, contributor mutation, Case promotion/link mutation, Hypothesis mutation, Query/Saved Search mutation, or Search Job execution.
 
-- a canonical Hunt object/schema or final Hunt state machine;
-- Hunt create/update/activate/pause/close/archive mutation while OPEN-013 remains open;
-- Case promotion/create/link mutation;
-- Hypothesis create/link/status mutation;
-- Query mutation, Saved Search/Query Asset mutation or Search Job execution;
-- CAP-INV-003, CAP-INV-006, CAP-INV-008 or CAP-INV-103 runtime assumptions;
-- collaboration/presence backend selection;
-- storage/provider/retention implementation;
-- a final query dialect;
-- a dedicated final Hunt UI;
-- a production Hunt workflow SLO or full-capability completion claim.
+It also selects no storage engine, provider, retention policy, collaboration backend, final query dialect or final Hunt UI.
 
-External product-runtime dependencies remain deny-by-default. The initial implementation direction is Go standard library first unless a later evidence-backed technical decision proves otherwise.
+External product-runtime dependencies remain deny-by-default.

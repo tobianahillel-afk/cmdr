@@ -83,6 +83,10 @@ const (
 	eventInspectionSecurityModuleIdentity      = "github.com/tobianahillel-afk/cmdr/product-runtime/event-inspection"
 	eventInspectionAuthorizationTestRegexp     = "^TestProjectMatchesPredeclaredContractFixtures$/^permission-denied-masks-projection$"
 	eventInspectionTenantTestRegexp            = "^TestProjectMatchesPredeclaredContractFixtures$/(^missing-tenant-is-rejected$|^wildcard-tenant-is-rejected$|^cross-tenant-is-rejected$|^event-tenant-mismatch-is-rejected$)"
+	huntManagementSecurityRuntimeRoot           = "product-runtime/hunt-management"
+	huntManagementSecurityModuleIdentity        = "github.com/tobianahillel-afk/cmdr/product-runtime/hunt-management"
+	huntManagementAuthorizationTestRegexp       = "^TestProjectMatchesPredeclaredContractFixtures$/^denied-reference-is-rejected$"
+	huntManagementTenantTestRegexp              = "^TestProjectMatchesPredeclaredContractFixtures$/(^missing-tenant-is-rejected$|^wildcard-tenant-is-rejected$|^cross-tenant-workspace-is-rejected$|^cross-tenant-reference-is-rejected$)"
 	eventSearchFrontendSecurityRuntimeRoot     = "product-runtime/event-search-frontend"
 	eventSearchFrontendAuthorizationTestRegexp = "^(authorization-state-cannot-be-deeplinked|permission-denied-reveals-no-protected-content|permission-denied-outcome-clears-results-and-exposes-no-protected-projection)$"
 	eventSearchFrontendTenantTestRegexp        = "^(tenant-mismatch-is-rejected|tenant-wildcard-is-rejected|transport-tenant-mismatch-fails-closed)$"
@@ -118,6 +122,12 @@ func runtimeSecurityAdapters() map[string]runtimeSecurityAdapter {
 			ModuleIdentity:         eventInspectionSecurityModuleIdentity,
 			AuthorizationTestRegex: eventInspectionAuthorizationTestRegexp,
 			TenantTestRegex:        eventInspectionTenantTestRegexp,
+		},
+		huntManagementRuntimeBoundaryID: {
+			BoundaryID: huntManagementRuntimeBoundaryID, RuntimeRoot: huntManagementSecurityRuntimeRoot, RuntimeKind: "go",
+			ModuleIdentity:         huntManagementSecurityModuleIdentity,
+			AuthorizationTestRegex: huntManagementAuthorizationTestRegexp,
+			TenantTestRegex:        huntManagementTenantTestRegexp,
 		},
 		"event-search-frontend-runtime": {
 			BoundaryID: "event-search-frontend-runtime", RuntimeRoot: eventSearchFrontendSecurityRuntimeRoot, RuntimeKind: "node",
