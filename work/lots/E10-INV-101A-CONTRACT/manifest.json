@@ -114,7 +114,8 @@
     "CHK-RUNTIME-DEPS",
     "CHK-BOUNDARY-EDGES",
     "CHK-SECURITY-TESTS",
-    "CHK-PERFORMANCE-REGISTRY"
+    "CHK-PERFORMANCE-REGISTRY",
+    "CHK-CASE-QUEUE-CONTRACT"
   ],
   "definition_of_ready": [
     "E10-INV-101A-BOUNDARY is VERIFIED"
@@ -127,8 +128,8 @@
   ],
   "complexity": {
     "primary_components": 1,
-    "estimated_files_changed": 8,
-    "estimated_net_loc": 610,
+    "estimated_files_changed": 9,
+    "estimated_net_loc": 760,
     "production_files": 0,
     "net_production_loc": 0,
     "bounded_contexts": 1,

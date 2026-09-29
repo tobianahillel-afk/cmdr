@@ -1452,6 +1452,40 @@
         "CHK-SBOM"
       ],
       "evidence_kind": "e2e-closure-report"
+    },
+    {
+      "id": "CHK-CASE-QUEUE-CONTRACT",
+      "title": "CAP-INV-101 Case Queue read-only projection contract and negative-fixture audit",
+      "executor_key": "case-queue-contract-audit",
+      "risk_domains": [
+        "product-spec",
+        "coverage-traceability",
+        "security",
+        "work-governance"
+      ],
+      "cost_tier": "fast",
+      "mandatory": true,
+      "always_on_pr": false,
+      "trigger_paths": [
+        "engineering/implementation/case-queue/**",
+        "work/lots/E10-INV-101A*/**",
+        "tools/cmdr-dev/case_queue_contract.go",
+        "tools/cmdr-dev/case_queue_contract_test.go",
+        "cmdr-product-spec/07-investigate/modules/cases-and-evidence/capabilities/case-queue.md",
+        "cmdr-product-spec/07-investigate/modules/cases-and-evidence/capabilities/case-lifecycle-and-coordination.md",
+        "cmdr-product-spec/07-investigate/modules/case-workspace/screens/case-workspace.md",
+        "cmdr-product-spec/05-domain-model/objects/case.md",
+        "cmdr-product-spec/05-domain-model/objects/incident.md",
+        "cmdr-product-spec/05-domain-model/objects/finding.md",
+        "cmdr-product-spec/05-domain-model/objects/saved-view.md",
+        "cmdr-product-spec/17-implementation-contracts/**"
+      ],
+      "prerequisites": [
+        "CHK-MANIFESTS",
+        "CHK-SECURITY-TESTS",
+        "CHK-PERFORMANCE-REGISTRY"
+      ],
+      "evidence_kind": "audit-report"
     }
   ]
 }

@@ -658,6 +658,15 @@ func main() {
 		if err != nil {
 			fail(err)
 		}
+	case "case-queue-contract-audit":
+		if err := validateState(root, state, graph); err != nil {
+			fail(err)
+		}
+		summary, err := runCaseQueueContractAudit(root)
+		printValue(summary, *jsonFlag)
+		if err != nil {
+			fail(err)
+		}
 	case "implementation-ledger-audit":
 		if err := validateState(root, state, graph); err != nil {
 			fail(err)
@@ -1258,6 +1267,15 @@ func printValue(v any, asJSON bool) {
 			x.Fixtures, x.PositiveFixtures, x.NegativeFixtures, x.IncompatibleCases, x.StaleCases)
 		fmt.Printf("runtime dependencies: %d\n", x.RuntimeDependencies)
 		fmt.Printf("status: %s\n", x.Status)
+	case CaseQueueContractAuditSummary:
+		fmt.Printf("Case Queue contract: %s\n", x.ContractID)
+		fmt.Printf("capability: %s\n", x.Capability)
+		fmt.Printf("runtime boundary: %s (%s)\n", x.RuntimeBoundary, x.RuntimeState)
+		fmt.Printf("fixtures: %d (positive=%d negative=%d partial=%d stale=%d permission-filtered=%d view-dirty=%d)\n",
+			x.Fixtures, x.PositiveFixtures, x.NegativeFixtures, x.PartialFixtures, x.StaleFixtures,
+			x.PermissionFilteredFixtures, x.ViewDirtyFixtures)
+		fmt.Printf("runtime dependencies: %d\n", x.RuntimeDependencies)
+		fmt.Printf("status: %s\n", x.Status)
 	case PilotE2EAuditSummary:
 		fmt.Printf("pilot slice: %s\n", x.SliceID)
 		fmt.Printf("capability: %s\n", x.Capability)
@@ -1324,7 +1342,7 @@ func printValue(v any, asJSON bool) {
 }
 
 func usage(w io.Writer) {
-	fmt.Fprintln(w, "usage: cmdr-dev <doctor|status|next|spec-index|spec-baseline|coverage-graph|obligations|coverage-audit|validate-manifests|complexity-audit|context|architecture-audit|dependency-audit|boundary-edge-audit|check-catalog-audit|impact|validation-plan|security-gate-audit|security-test-audit|deep-security-audit|decision-registry-audit|research-packet-audit|decision-gate-audit|decision-freshness-audit|performance-registry-audit|performance-benchmark-audit|deep-performance-audit|performance-cache-audit|lease-audit|lease-evaluate|recovery-journal-audit|resume-checkpoint|recovery-reconcile|recovery-reconcile-audit|coordination-audit|coordination-handoff|metrics-registry-audit|decision-cache|decision-freshness-snapshot|research-context|secret-scan|sast-go|sca-go|sbom|pilot-scope-audit|pilot-contract-audit|pilot-e2e-audit|implementation-ledger-audit|implementation-readiness|implementation-wave|event-search-contract-audit|event-inspection-contract-audit|hunt-management-contract-audit|saved-query-assets-contract-audit|git-changes|validation-run> [--root PATH] [--json] [--check] [--output PATH]")
+	fmt.Fprintln(w, "usage: cmdr-dev <doctor|status|next|spec-index|spec-baseline|coverage-graph|obligations|coverage-audit|validate-manifests|complexity-audit|context|architecture-audit|dependency-audit|boundary-edge-audit|check-catalog-audit|impact|validation-plan|security-gate-audit|security-test-audit|deep-security-audit|decision-registry-audit|research-packet-audit|decision-gate-audit|decision-freshness-audit|performance-registry-audit|performance-benchmark-audit|deep-performance-audit|performance-cache-audit|lease-audit|lease-evaluate|recovery-journal-audit|resume-checkpoint|recovery-reconcile|recovery-reconcile-audit|coordination-audit|coordination-handoff|metrics-registry-audit|decision-cache|decision-freshness-snapshot|research-context|secret-scan|sast-go|sca-go|sbom|pilot-scope-audit|pilot-contract-audit|pilot-e2e-audit|implementation-ledger-audit|implementation-readiness|implementation-wave|event-search-contract-audit|event-inspection-contract-audit|hunt-management-contract-audit|saved-query-assets-contract-audit|case-queue-contract-audit|git-changes|validation-run> [--root PATH] [--json] [--check] [--output PATH]")
 }
 
 func fail(err error) {

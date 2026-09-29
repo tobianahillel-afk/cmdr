@@ -1,0 +1,204 @@
+{
+  "schema_version": 1,
+  "contract_id": "CASE-QUEUE-READONLY-CONTRACT-V1",
+  "contract_kind": "provider-neutral-readonly-local-executable-contract",
+  "canonical_schema_claim": false,
+  "capability": "CAP-INV-101",
+  "runtime_boundary": {
+    "id": "case-queue-runtime",
+    "root": "product-runtime/case-queue/**",
+    "expected_state": "preimplementation",
+    "external_runtime_dependencies": []
+  },
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-101",
+      "CAP-INV-102"
+    ],
+    "requirements": [
+      "REQ-PROD-014",
+      "REQ-PROD-020"
+    ],
+    "screens": [
+      "INV-CAS-001"
+    ],
+    "permissions": [],
+    "open_decisions": [
+      "OPEN-013"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/error-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/correlation-identifiers.md",
+      "cmdr-product-spec/17-implementation-contracts/object-reference-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/pagination-filtering-sorting.md",
+      "cmdr-product-spec/17-implementation-contracts/saved-view-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/frontend-state-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/cross-product-context-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/screen-routing-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/case.md",
+      "cmdr-product-spec/05-domain-model/objects/incident.md",
+      "cmdr-product-spec/05-domain-model/objects/finding.md",
+      "cmdr-product-spec/05-domain-model/objects/saved-view.md"
+    ]
+  },
+  "scope_policy": {
+    "tenant_required": true,
+    "environment_required": true,
+    "wildcard_tenant_forbidden": true,
+    "cross_tenant_forbidden": true,
+    "case_access_decision_required": true
+  },
+  "search_policy": {
+    "allowed_fields": [
+      "id",
+      "human_id",
+      "title",
+      "owner",
+      "next_action"
+    ],
+    "case_insensitive": true,
+    "trim_space": true,
+    "inaccessible_data_forbidden": true
+  },
+  "filter_policy": {
+    "allowed_fields": [
+      "status",
+      "owner",
+      "incident_priority",
+      "finding_status",
+      "freshness"
+    ],
+    "unknown_filter_rejected": true,
+    "empty_value_rejected": true,
+    "case_insensitive_exact_match": true
+  },
+  "sort_policy": {
+    "allowed_keys": [
+      "updated_at",
+      "human_id",
+      "title",
+      "owner",
+      "status"
+    ],
+    "default_sort": [
+      {
+        "field": "updated_at",
+        "direction": "desc"
+      },
+      {
+        "field": "human_id",
+        "direction": "asc"
+      },
+      {
+        "field": "id",
+        "direction": "asc"
+      }
+    ],
+    "stable_tie_breakers": [
+      "human_id",
+      "id"
+    ],
+    "unknown_sort_rejected": true
+  },
+  "saved_view_policy": {
+    "shared_owned": true,
+    "optional": true,
+    "stable_identifier_required": true,
+    "version_required": true,
+    "tenant_scoped": true,
+    "caller_access_decision_required": true,
+    "field_permission_reevaluation_required": true,
+    "filter_permission_reevaluation_required": true,
+    "sort_permission_reevaluation_required": true,
+    "denied_elements_omitted": true,
+    "mutation_forbidden": true
+  },
+  "freshness_policy": {
+    "named_states": [
+      "available",
+      "empty",
+      "partial",
+      "stale",
+      "permission-filtered",
+      "view-dirty"
+    ],
+    "missing_projection_named": true,
+    "stale_projection_named": true,
+    "unavailable_projection_named": true,
+    "deterministic_sorted_diagnostics": true,
+    "synthesis_of_missing_facts_forbidden": true
+  },
+  "projection_policy": {
+    "immutable": true,
+    "deep_copy_isolation": true,
+    "case_is_only_owned_work_item": true,
+    "incident_context_optional": true,
+    "finding_context_optional": true,
+    "activity_context_optional": true,
+    "task_decision_response_run_aggregation": false,
+    "final_columns_claimed": false,
+    "final_case_state_machine_claimed": false
+  },
+  "mutation_policy": {
+    "case_create_executable": false,
+    "case_update_executable": false,
+    "assignment_executable": false,
+    "status_transition_executable": false,
+    "lifecycle_executable": false,
+    "saved_view_mutation_executable": false,
+    "export_job_creation_executable": false,
+    "task_creation_executable": false,
+    "decision_creation_executable": false,
+    "response_run_creation_executable": false
+  },
+  "technology_policy": {
+    "storage_engine_selected": false,
+    "provider_selected": false,
+    "retention_policy_selected": false,
+    "collaboration_backend_selected": false,
+    "export_backend_selected": false,
+    "final_columns_selected": false,
+    "final_case_state_machine_selected": false,
+    "final_ui_selected": false
+  },
+  "exclusions": [
+    "case-create-update-assignment-lifecycle:CAP-INV-102:OPEN-013",
+    "saved-view-create-update-share-archive-manage",
+    "export-job-creation-or-export-backend",
+    "task-decision-response-run-ownership-or-aggregation",
+    "command-work-queue-behavior",
+    "canonical-case-schema-change",
+    "final-case-state-machine",
+    "final-queue-columns",
+    "storage-provider-retention",
+    "collaboration-backend",
+    "final-cap-inv-101-ui"
+  ],
+  "semantic_rules": [
+    "The bounded queue projects caller-owned Case snapshots and never redefines the canonical Case schema",
+    "Case is the only work item owned by this queue and remains Investigate-owned",
+    "Incident remains Command-owned optional context and never transfers ownership or permission",
+    "Finding remains Investigate-owned optional context and is projected only when caller access permits",
+    "Saved View remains Shared-owned and every field filter and sort element is permission-re-evaluated before application",
+    "denied Case records are omitted without exposing their identity and make permission-filtered state visible",
+    "search filter and stable sort operate only on accessible bounded projections",
+    "partial stale and unavailable optional projections are named diagnostics and never synthesized",
+    "return and workspace handoff behavior is deferred to E10-INV-101D-HANDOFF",
+    "OPEN-013 keeps assignment status and lifecycle mutation outside this contract"
+  ],
+  "security_invariants": [
+    "single-selected-Tenant only",
+    "no wildcard tenant fallback",
+    "no cross-tenant Case Incident Finding or Saved View projection",
+    "caller-provided Case and Saved View access decisions fail closed",
+    "denied Case identity and content are never emitted in projection or diagnostics",
+    "denied Saved View elements are omitted before filter sort or field projection",
+    "projection is immutable and deep-copy isolated from caller input",
+    "missing optional context is diagnosed rather than synthesized",
+    "no Case lifecycle Saved View export Task Decision or Response Run mutation occurs"
+  ]
+}
