@@ -76,6 +76,7 @@
     "E10-INV-101B-RUNTIME"
   ],
   "allowed_paths": [
+    "product-runtime/case-queue/**",
     "engineering/implementation/case-queue/**",
     "engineering/security/**",
     "engineering/performance/**",
@@ -92,16 +93,19 @@
     "caller field/filter visibility envelope"
   ],
   "outputs": [
-    "immutable Saved View application adapter",
-    "permission-re-evaluated filter/sort/column projection",
-    "deterministic default-view fallback for unavailable/inaccessible views",
-    "view-dirty diagnostics without persistence"
+    "immutable Saved View application adapter inside case-queue-runtime",
+    "permission-re-evaluated field/filter/sort snapshot",
+    "generic deterministic default-view fallback for missing or denied views",
+    "view-dirty and permission-filtered diagnostics without persistence"
   ],
   "acceptance_tests": [
-    "Saved View tenant and version are validated",
-    "forbidden fields/filters never enter projected output",
+    "Saved View tenant, immutable ID and version are validated",
+    "denied fields/filters/sort are omitted before projection and never leak",
+    "caller-owned Saved View slices are deep-copy isolated",
+    "missing or access-denied Saved View falls back to deterministic default view with generic diagnostics",
+    "cross-tenant Saved View remains fail-closed rather than falling back",
     "Shared Saved View state is never mutated",
-    "inaccessible Saved View falls back explicitly without leaking hidden configuration"
+    "existing strict 24-fixture Case Queue contract remains green"
   ],
   "performance_budget": {
     "applicable": true,
@@ -117,7 +121,11 @@
     "CHK-RUNTIME-DEPS",
     "CHK-BOUNDARY-EDGES",
     "CHK-SECURITY-TESTS",
-    "CHK-PERFORMANCE-REGISTRY"
+    "CHK-PERFORMANCE-REGISTRY",
+    "CHK-CASE-QUEUE-CONTRACT",
+    "CHK-SECRETS",
+    "CHK-SAST-GO",
+    "CHK-SCA-GO"
   ],
   "definition_of_ready": [
     "E10-INV-101B-RUNTIME is VERIFIED"
@@ -130,10 +138,10 @@
   ],
   "complexity": {
     "primary_components": 1,
-    "estimated_files_changed": 8,
-    "estimated_net_loc": 620,
-    "production_files": 2,
-    "net_production_loc": 260,
+    "estimated_files_changed": 4,
+    "estimated_net_loc": 430,
+    "production_files": 1,
+    "net_production_loc": 180,
     "bounded_contexts": 1,
     "independent_migrations": 0,
     "distinct_security_models": 1,

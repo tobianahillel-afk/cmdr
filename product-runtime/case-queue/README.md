@@ -17,7 +17,7 @@ It implements the bounded semantics already compiled in `CASE-QUEUE-READONLY-CON
 - contract-level application of caller-owned Saved View snapshots with per-element permission re-evaluation and no Shared mutation;
 - explicit `available`, `empty`, `partial`, `stale`, `permission-filtered` and `view-dirty` states.
 
-The dedicated Saved View task `E10-INV-101C-VIEW` remains required to finalize the isolated adapter/fallback behavior; this runtime does not claim Shared Saved View persistence or management.
+The Saved View adapter applies caller-owned Shared snapshots immutably, omits permission-denied elements, uses a generic deterministic default-view fallback for missing or access-denied views, and rejects cross-tenant views. It does not claim Shared Saved View persistence, sharing, archival or management.
 
 ## Explicit exclusions
 
