@@ -1579,7 +1579,7 @@
       "id": "E10-INV-101B-RUNTIME",
       "title": "Implement immutable Case Queue projection runtime",
       "type": "task",
-      "status": "READY",
+      "status": "VERIFIED",
       "depends_on": [
         "E10-INV-101A-CONTRACT"
       ],
@@ -1592,7 +1592,7 @@
       "id": "E10-INV-101C-VIEW",
       "title": "Implement permission-safe Saved View application",
       "type": "task",
-      "status": "BLOCKED",
+      "status": "READY",
       "depends_on": [
         "E10-INV-101B-RUNTIME"
       ],
