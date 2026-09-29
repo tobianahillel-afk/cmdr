@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "work_unit": "E9-PILOT-001D",
+  "status": "VERIFIED",
+  "evidence_validated_head": "6135006e43f49a2bfb374b567e215ba1fa427280",
+  "validation": {
+    "push_workflow_run": 35998084972,
+    "pull_request_workflow_run": 35998090686,
+    "result": "PASS",
+    "check": "CHK-PILOT-E2E",
+    "slice_id": "PILOT-CONTEXT-001",
+    "capability": "CAP-SET-004",
+    "contract": "PILOT-CONTEXT-ENVELOPE-V1",
+    "contract_fixtures": 11,
+    "negative_fixtures": 9,
+    "adversarial_runtime_tests": 3,
+    "runtime_coverage_percent": 95.24,
+    "authorization_negative": "PASS",
+    "tenant_isolation_negative": "PASS",
+    "sast_findings": 0,
+    "sca_actionable_findings": 0,
+    "performance_budget_ms": 1,
+    "worst_observed_p95_ms": 0.00035315945,
+    "recovery_outcome": "resume",
+    "recovery_next_action": "claim-or-start",
+    "selected_open_decisions": 0,
+    "global_open_decisions_outside_pilot": 17,
+    "production_readiness_claim": false,
+    "limitations": 9
+  },
+  "closure_state": {
+    "engineering_foundation": "VERIFIED",
+    "e9_pilot_epic": "VERIFIED",
+    "vertical_slice_parent": "DECOMPOSED_WITH_VERIFIED_CHILDREN",
+    "active_checkpoint": "E9-PILOT-001D",
+    "executable_ready_units": 0
+  },
+  "product_spec_mutated": false,
+  "next_unlocked": [],
+  "final_validated_head": "b07f67d156b584f38cd5df650ddad6cb4ca14b62",
+  "closure_validation": {
+    "push_workflow_run": 35998790175,
+    "pull_request_workflow_run": 35998794997,
+    "result": "PASS",
+    "terminal_graph": true,
+    "executable_ready_units": 0,
+    "terminal_next_semantics": "PASS: next=none is valid only while engineering_foundation.status=VERIFIED",
+    "complexity_parent_semantics": "PASS: E9-PILOT-001C remains DECOMPOSED with three VERIFIED child units"
+  }
+}

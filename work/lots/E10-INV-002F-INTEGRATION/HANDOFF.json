@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-002F-INTEGRATION",
+  "result": "VERIFIED",
+  "final_validated_head": "fa4212a26ba1e7cb5b142e6cb74185a00bc96e07",
+  "evidence": {
+    "push_run": 36124224000,
+    "pull_request_run": 36124228584,
+    "implementation_commit": "1207eb33e4cefe2709c6888377d8374e23de673b",
+    "hardening_commit": "1a9310a73e829f1932143613f777e82334c5055d",
+    "final_commit": "fa4212a26ba1e7cb5b142e6cb74185a00bc96e07",
+    "runtime": "product-runtime/event-search-frontend",
+    "transport_contract": "backend-neutral first-party adapter"
+  },
+  "invariants": [
+    "frontend does not select a search provider, index, storage engine or final transport",
+    "server-side permission denial remains authoritative",
+    "tenant/source scope widening fails closed",
+    "retry creates new job/run identity",
+    "OPEN-013 remains unresolved and no Case-link mutation exists",
+    "no third-party UI/runtime dependency was introduced"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-002F-E2E"
+  ]
+}

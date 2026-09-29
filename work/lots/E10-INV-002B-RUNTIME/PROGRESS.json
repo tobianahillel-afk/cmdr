@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-002B-RUNTIME",
+  "status": "VERIFIED",
+  "final_validated_head": "4611ad2f94045e96688545b885e6f1cd901ba8f1",
+  "validation": {
+    "push_workflow_run": 36039494332,
+    "pull_request_workflow_run": 36039500082,
+    "result": "PASS",
+    "runtime_dependencies": "PASS",
+    "boundary_edges": "PASS",
+    "security_tests": "PASS",
+    "sast": "PASS",
+    "sca": "PASS",
+    "sbom": "PASS",
+    "performance_benchmark": "PASS",
+    "event_search_contract": "PASS"
+  },
+  "runtime": {
+    "boundary": "event-search-runtime",
+    "state": "implemented",
+    "module": "github.com/tobianahillel-afk/cmdr/product-runtime/event-search",
+    "external_runtime_dependencies": 0,
+    "cross_boundary_edges": 0,
+    "contract": "EVENT-SEARCH-EXECUTABLE-CONTRACT-V1",
+    "fixtures": 14,
+    "negative_fixtures": 11
+  },
+  "security": {
+    "coverage_status": "measured",
+    "global_runtime_coverage_percent": 91.87,
+    "runtime_boundaries": 2,
+    "authorization_required_scopes": 2,
+    "tenant_isolation_required_scopes": 2,
+    "sast_findings": 0,
+    "sca_actionable_findings": 0,
+    "third_party_runtime_components": 0
+  },
+  "performance": {
+    "target": "PERF-TGT-EVENT-SEARCH-VALIDATION",
+    "metric": "validation-p95-latency",
+    "observed_ms": 0.0001982749,
+    "budget_ms": 1,
+    "absolute_pass": true
+  },
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-002C"
+  ]
+}

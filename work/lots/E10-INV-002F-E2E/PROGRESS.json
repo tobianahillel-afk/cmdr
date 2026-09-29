@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-002F-E2E",
+  "status": "VERIFIED",
+  "final_validated_head": "841277d1e47c2917e5888e284b01a6ae25cae983",
+  "validation": {
+    "push_workflow_run": 36131014034,
+    "pull_request_workflow_run": 36131020370,
+    "result": "PASS",
+    "adaptive_kernel": "PASS",
+    "security_tests": "PASS",
+    "performance_benchmark": "PASS",
+    "product_spec_baseline": "UNCHANGED"
+  },
+  "frontend_security": {
+    "adapter_boundary": "event-search-frontend-runtime",
+    "test_files": [
+      "state.test.mjs",
+      "shell.test.mjs",
+      "results.test.mjs",
+      "integration.test.mjs",
+      "e2e.test.mjs"
+    ],
+    "production_coverage_includes": [
+      "state.mjs",
+      "shell.mjs",
+      "results.mjs",
+      "integration.mjs"
+    ],
+    "global_runtime_coverage_percent": 91.19,
+    "authorization_negative": "PASS",
+    "tenant_isolation_negative": "PASS",
+    "hostile_dom_content": "PASS",
+    "permission_denial_clears_projection": "PASS",
+    "cancellation_stale_result_blocking": "PASS",
+    "offline_semantic_state": "PASS"
+  },
+  "performance": {
+    "target": "PERF-TGT-EVENT-SEARCH-FRONTEND-STATE",
+    "metric": "frontend-state-update-p95-latency",
+    "budget_ms": 16,
+    "push_observed_ms": 0.0525784425,
+    "pull_request_observed_ms": 0.0830992435,
+    "absolute_pass": true
+  },
+  "residual_exclusions": [
+    "OPEN-013 Case-link mutation",
+    "Saved Search lifecycle CAP-INV-006",
+    "final query dialect/index/storage/provider",
+    "production Search SLO",
+    "final persisted result-storage model"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-002G"
+  ]
+}

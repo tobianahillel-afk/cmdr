@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "work_unit": "E5-RES-001B",
+  "status": "VERIFIED",
+  "final_validated_head": "b05582c95c9f54329e246b833975a32defe2be33",
+  "validation": {
+    "push_workflow_run": 35857940287,
+    "pull_request_workflow_run": 35857946142,
+    "result": "PASS",
+    "research_packet_audit": "PASS",
+    "adaptive_kernel": "PASS"
+  },
+  "registry_observation": {
+    "packets": 0,
+    "saturated": 0,
+    "collecting": 0,
+    "superseded": 0,
+    "sources": 0,
+    "claims": 0,
+    "critical": 0,
+    "unresolved_critical": 0
+  },
+  "invariants": [
+    "saturation is evidence-condition based rather than source-count based",
+    "critical claims require authoritative/primary evidence and explicit limitations",
+    "accepted Class B/C evidence references must resolve to own saturated packets",
+    "research context is bounded by explicit maxima",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E5-RES-001C"
+  ]
+}

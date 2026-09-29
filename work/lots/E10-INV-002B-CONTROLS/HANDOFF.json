@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-002B-CONTROLS",
+  "result": "VERIFIED",
+  "final_validated_head": "fcfe8a760b8fab9748b8fde10fce6e2246662440",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 36038316396,
+    "pull_request_run": 36038320503,
+    "security_status": "mixed",
+    "global_coverage_percent": 90.35,
+    "sast_findings": 0,
+    "sca_actionable": 0
+  },
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-002B-RUNTIME"
+  ]
+}

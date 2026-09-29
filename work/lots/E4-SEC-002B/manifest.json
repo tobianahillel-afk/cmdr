@@ -1,0 +1,108 @@
+{
+  "schema_version": 2,
+  "id": "E4-SEC-002B",
+  "title": "Implement SAST and dependency vulnerability controls",
+  "type": "sublot",
+  "parent": "E4-SEC-001B",
+  "goal": "Coordinate Go SAST and dependency vulnerability controls through explicit path-hardening and final activation child tasks.",
+  "product_refs": {
+    "capabilities": [],
+    "requirements": [],
+    "screens": [],
+    "permissions": [],
+    "open_decisions": [],
+    "implementation_contracts": [],
+    "canonical_objects": []
+  },
+  "depends_on": [
+    "E4-SEC-002A"
+  ],
+  "allowed_paths": [
+    "tools/cmdr-dev/**",
+    "engineering/security/**",
+    "engineering/testing/**",
+    ".github/workflows/**",
+    "work/lots/E4-SEC-001B*/**",
+    "engineering/state/**",
+    "work/graph.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**"
+  ],
+  "inputs": [
+    "verified security gate registry",
+    "adaptive validation engine",
+    "development tooling may be external only when reviewed/pinned and must not become product runtime dependencies"
+  ],
+  "outputs": [
+    "verified E4-SEC-002B-OUTPUT repository-confined generated outputs",
+    "verified E4-SEC-002B-READ symlink-safe repository reads",
+    "verified E4-SEC-002B-ACTIVATE SAST/SCA activation",
+    "evidence-backed SEC-SAST-001 and SEC-SCA-001 controls"
+  ],
+  "invariants": [
+    "Product Spec remains read-only",
+    "security findings never expose secret material in CI logs",
+    "tooling does not silently become a product runtime dependency",
+    "a gate is activated only in the same change that proves its implementation"
+  ],
+  "security_properties": [
+    "fail closed on ambiguous security evidence",
+    "no production/customer data leaves the repository/build boundary",
+    "tool identity/version/provenance is explicit when external tooling is used"
+  ],
+  "acceptance_tests": [
+    "go test ./...",
+    "adaptive engineering-kernel succeeds in push and PR",
+    "security-gate audit succeeds with truthful readiness",
+    "synthetic gosec parser tests prove code/details are not retained",
+    "synthetic govulncheck stream tests prove reachable-only blocking and exact module/version identity",
+    "development tool registry versions match compiled exact module@version constants",
+    "real push and pull-request adaptive CI execute pinned gosec and govulncheck"
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "fast source security controls must remain PR-suitable",
+    "metrics": [
+      "fast gate execution remains bounded and change-aware"
+    ]
+  },
+  "migration": {
+    "required": false,
+    "rationale": "engineering security control-plane only",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert the sublot and return its security gate to specified without claiming active enforcement",
+    "verification": [
+      "security-gate audit and adaptive kernel remain green"
+    ]
+  },
+  "required_checks": [
+    "adaptive engineering-kernel",
+    "security-gate audit",
+    "cmdr-dev sast-go",
+    "cmdr-dev sca-go"
+  ],
+  "definition_of_ready": [
+    "dependencies are VERIFIED",
+    "implementation scope is one coherent security behavior"
+  ],
+  "definition_of_done": [
+    "E4-SEC-002B-OUTPUT is VERIFIED",
+    "E4-SEC-002B-READ is VERIFIED",
+    "E4-SEC-002B-ACTIVATE is VERIFIED",
+    "SEC-SAST-001 and SEC-SCA-001 are truthfully active for covered Go engineering code"
+  ],
+  "complexity": {
+    "primary_components": 2,
+    "estimated_files_changed": 10,
+    "estimated_net_loc": 610,
+    "production_files": 3,
+    "net_production_loc": 430,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 3
+  }
+}

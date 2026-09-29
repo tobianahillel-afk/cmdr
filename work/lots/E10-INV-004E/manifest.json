@@ -1,0 +1,134 @@
+{
+  "schema_version": 2,
+  "id": "E10-INV-004E",
+  "title": "Compile verified Event Inspection runtime claim for implementation ledger",
+  "type": "task",
+  "parent": "E10-INV-004",
+  "goal": "Compile one source-backed runtime implementation claim for CAP-INV-004 from the verified Event Inspection closure evidence, while preserving OPEN-013/OPEN-014 exclusions and avoiding any full-capability or production-readiness claim.",
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-004"
+    ],
+    "requirements": [
+      "REQ-PROD-002",
+      "REQ-PROD-005",
+      "REQ-PROD-008",
+      "REQ-PROD-014",
+      "REQ-PROD-045"
+    ],
+    "screens": [],
+    "permissions": [
+      "perm.shared-capabilities.telemetry-event.read"
+    ],
+    "open_decisions": [
+      "OPEN-013",
+      "OPEN-014"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/audit-event-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/error-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/correlation-identifiers.md",
+      "cmdr-product-spec/17-implementation-contracts/search-query-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/telemetry-event.md",
+      "cmdr-product-spec/05-domain-model/objects/parser.md",
+      "cmdr-product-spec/05-domain-model/objects/data-source.md",
+      "cmdr-product-spec/05-domain-model/objects/entity.md",
+      "cmdr-product-spec/05-domain-model/objects/query.md"
+    ]
+  },
+  "depends_on": [
+    "E10-INV-004D-CLOSURE"
+  ],
+  "allowed_paths": [
+    "engineering/implementation/event-inspection/**",
+    "work/lots/E10-INV-004E/**",
+    "engineering/state/**",
+    "work/graph.json",
+    "tools/cmdr-dev/**"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "engineering/implementation/ledger.json"
+  ],
+  "inputs": [
+    "VERIFIED E10-INV-004D-CLOSURE adversarial/performance evidence",
+    "event-inspection-runtime architecture boundary",
+    "VERIFIED E10-INV-004B-RUNTIME and E10-INV-004C-PIVOT evidence",
+    "read-only Product Spec baseline"
+  ],
+  "outputs": [
+    "ledger-compatible runtime implementation evidence handoff",
+    "explicit distinction between verified bounded runtime implementation and full capability completion",
+    "machine-checkable OPEN-013/OPEN-014 and provider/dialect/UI residual exclusions"
+  ],
+  "invariants": [
+    "Product Spec remains read-only",
+    "implementation ledger is not mutated in this evidence-compilation task",
+    "OPEN-013 and OPEN-014 remain unresolved",
+    "no full capability completion or production readiness claim is made",
+    "no parser engine entity-resolution engine storage provider final query dialect or dedicated final UI is selected"
+  ],
+  "security_properties": [
+    "claim requires zero runtime dependencies",
+    "claim requires zero cross-boundary dependency violations",
+    "claim requires at least 80 percent measured runtime coverage",
+    "claim requires zero blocking SAST findings and zero actionable SCA findings",
+    "claim requires immutable runtime ancestry from verified pivot through closure"
+  ],
+  "acceptance_tests": [
+    "adaptive engineering-kernel remains green",
+    "compiled handoff satisfies RuntimeImplementationHandoff evidence floors",
+    "bounded exclusions and OPEN-013/OPEN-014 remain explicit",
+    "Product Spec baseline remains unchanged"
+  ],
+  "performance_budget": {
+    "applicable": false,
+    "rationale": "this task compiles already-measured closure evidence only and introduces no runtime behavior",
+    "metrics": []
+  },
+  "migration": {
+    "required": false,
+    "rationale": "evidence-only task",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert the claim compilation without touching verified Event Inspection runtime",
+    "verification": [
+      "E10-INV-004D-CLOSURE remains VERIFIED",
+      "event-inspection runtime remains unchanged",
+      "Product Spec baseline remains unchanged"
+    ]
+  },
+  "required_checks": [
+    "adaptive engineering-kernel",
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-SECURITY-TESTS",
+    "CHK-PERFORMANCE-REGISTRY",
+    "CHK-EVENT-INSPECTION-E2E"
+  ],
+  "definition_of_ready": [
+    "E10-INV-004D-CLOSURE is VERIFIED"
+  ],
+  "definition_of_done": [
+    "one ledger-compatible handoff exists under E10-INV-004E",
+    "handoff is backed by exact green push and PR closure evidence",
+    "runtime implementation claim remains bounded and does not claim full capability completion",
+    "next scaling cycle can update the global implementation ledger from this claim"
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 5,
+    "estimated_net_loc": 280,
+    "production_files": 0,
+    "net_production_loc": 0,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

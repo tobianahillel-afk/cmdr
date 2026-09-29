@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-006C-HANDOFF",
+  "status": "VERIFIED",
+  "final_validated_head": "8af494e31839cce5ef65c55c09ea043642ec27d2",
+  "validation": {
+    "push_workflow_run": 36488802670,
+    "pull_request_workflow_run": 36488807591,
+    "result": "PASS",
+    "saved_query_assets_contract": "PASS",
+    "security_tests": "PASS",
+    "sast": "PASS",
+    "sca": "PASS",
+    "runtime_dependencies": "PASS",
+    "boundary_edges": "PASS",
+    "performance_registry": "PASS"
+  },
+  "handoff_observation": {
+    "immutable": true,
+    "exact_query_version_preserved": true,
+    "opaque_parameter_values_preserved": true,
+    "source_context_copied": true,
+    "source_reevaluation_required": true,
+    "permission_reevaluation_required": true,
+    "return_context_asset_identity_only": true,
+    "search_job_created": false,
+    "search_job_executed": false,
+    "direct_event_search_runtime_dependency": false,
+    "push_global_coverage_percent": 92.03,
+    "pull_request_global_coverage_percent": 92.03,
+    "sast_findings": 0,
+    "sca_actionable_findings": 0
+  },
+  "invariants": [
+    "handoff is only produced from compatible handoff-eligible projections",
+    "tenant and environment must exactly match validated projection scope",
+    "Query reference and exact Query version are preserved",
+    "caller parameter values are copied opaquely without query-dialect interpretation",
+    "source identifiers/required fields are context only and require Event Search re-evaluation",
+    "return context carries source asset identity without ownership transfer",
+    "no Search Job identity/state is minted",
+    "no direct product-runtime dependency on Event Search exists",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-006D-CLOSURE"
+  ]
+}

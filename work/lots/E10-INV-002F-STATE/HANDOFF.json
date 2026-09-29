@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-002F-STATE",
+  "result": "VERIFIED",
+  "final_validated_head": "a06d579fded72a72d907c8db9bf9317fdc77c9e0",
+  "pull_request": 36,
+  "evidence": {
+    "implementation_commit": "2aed4b82f2d55177ef15f9f633c3c97eb4ea664a",
+    "final_adapter_commit": "a06d579fded72a72d907c8db9bf9317fdc77c9e0",
+    "push_run": 36074352460,
+    "pull_request_run": 36074355377,
+    "runtime_dependencies": 0,
+    "node_version": "24.21.0",
+    "state_source": "product-runtime/event-search-frontend/state.mjs",
+    "state_tests": "product-runtime/event-search-frontend/state.test.mjs"
+  },
+  "rules": [
+    "deep-link state is immutable and deterministic",
+    "tenant/environment context may narrow or reject but never silently widen",
+    "authorization, in-flight, focus and window bookkeeping are excluded from URL state",
+    "server-side authorization remains authoritative",
+    "no third-party frontend runtime dependency is introduced",
+    "OPEN-013 remains unresolved and Case-link mutation is not implemented",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-002F-SHELL"
+  ]
+}

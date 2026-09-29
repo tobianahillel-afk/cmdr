@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "id": "E0-BOOTSTRAP-001",
+  "title": "Establish autonomous engineering foundation",
+  "parent": "E0",
+  "goal": "Create the minimum normative and machine-readable foundation from which autonomous engineering can resume deterministically.",
+  "product_scope": {
+    "changes_product_behavior": false,
+    "canonical_product_spec_is_read_only": true
+  },
+  "depends_on": [],
+  "outputs": [
+    "AGENTS.md",
+    "AI_START_HERE.md",
+    "engineering/README.md",
+    "engineering/governance/source-authority.md",
+    "engineering/governance/autonomous-decision-policy.md",
+    "engineering/governance/dependency-policy.md",
+    "engineering/security/trusted-base.json",
+    "engineering/state/current.json",
+    "work/graph.json"
+  ],
+  "definition_of_done": [
+    "canonical product authority is explicit",
+    "continue-development protocol is explicit",
+    "third-party product functionality is deny-by-default",
+    "execution state and initial work graph are machine-readable",
+    "next implementation lot is bounded by a manifest"
+  ]
+}

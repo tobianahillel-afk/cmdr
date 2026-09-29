@@ -1,0 +1,185 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cmdr.local/schema/security-gates-v1.schema.json",
+  "title": "CMDR engineering security gate registry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "default_policy",
+    "readiness_states",
+    "execution_stages",
+    "data_policies",
+    "evidence_kinds",
+    "gates"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "default_policy": {
+      "const": "deny-unregistered-security-control"
+    },
+    "readiness_states": {
+      "type": "array",
+      "minItems": 3,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "specified",
+          "active",
+          "deferred-runtime"
+        ]
+      }
+    },
+    "execution_stages": {
+      "type": "array",
+      "minItems": 4,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "pr",
+          "nightly",
+          "release",
+          "on-demand"
+        ]
+      }
+    },
+    "data_policies": {
+      "type": "array",
+      "minItems": 3,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "source-local-only",
+          "artifact-local-only",
+          "synthetic-runtime-only"
+        ]
+      }
+    },
+    "evidence_kinds": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "gates": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "title",
+          "control_family",
+          "readiness",
+          "stages",
+          "blocking_policy",
+          "risk_domains",
+          "trigger_paths",
+          "data_policy",
+          "evidence_kinds",
+          "implementation_key",
+          "activation_condition"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^SEC-[A-Z0-9-]+$"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1
+          },
+          "control_family": {
+            "enum": [
+              "secrets",
+              "sast",
+              "sca",
+              "sbom",
+              "iac",
+              "container",
+              "authorization-negative",
+              "tenant-isolation",
+              "fuzz",
+              "dast",
+              "race-concurrency",
+              "supply-chain"
+            ]
+          },
+          "readiness": {
+            "enum": [
+              "specified",
+              "active",
+              "deferred-runtime"
+            ]
+          },
+          "stages": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "enum": [
+                "pr",
+                "nightly",
+                "release",
+                "on-demand"
+              ]
+            }
+          },
+          "blocking_policy": {
+            "enum": [
+              "blocking",
+              "conditional-blocking"
+            ]
+          },
+          "risk_domains": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "trigger_paths": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "data_policy": {
+            "enum": [
+              "source-local-only",
+              "artifact-local-only",
+              "synthetic-runtime-only"
+            ]
+          },
+          "evidence_kinds": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "implementation_key": {
+            "type": "string"
+          },
+          "activation_condition": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  }
+}

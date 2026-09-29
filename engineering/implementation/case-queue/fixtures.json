@@ -1,0 +1,1980 @@
+{
+  "schema_version": 1,
+  "contract_id": "CASE-QUEUE-READONLY-CONTRACT-V1",
+  "cases": [
+    {
+      "id": "available-stable-default-order",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "search_query": "",
+        "filters": [],
+        "sort": [],
+        "view_dirty": false,
+        "saved_view": null,
+        "cases": [
+          {
+            "id": "case-a",
+            "tenant_ref": "tenant-a",
+            "human_id": "CASE-001",
+            "title": "Malware Alpha",
+            "status": "investigating",
+            "owner": "alice",
+            "next_action": "Review endpoint",
+            "updated_at": "2026-09-29T10:00:00Z",
+            "access_decision": "allow",
+            "freshness": "available",
+            "incident": {
+              "id": "inc-a",
+              "tenant_ref": "tenant-a",
+              "access_decision": "allow",
+              "state": "available",
+              "priority": "P1",
+              "impact": "high",
+              "owner": "commander",
+              "updated_at": "2026-09-29T09:55:00Z"
+            },
+            "findings": [
+              {
+                "id": "finding-a",
+                "tenant_ref": "tenant-a",
+                "case_id": "case-a",
+                "access_decision": "allow",
+                "state": "available",
+                "status": "confirmed",
+                "updated_at": "2026-09-29T09:50:00Z"
+              }
+            ],
+            "activity_state": "available"
+          },
+          {
+            "id": "case-b",
+            "tenant_ref": "tenant-a",
+            "human_id": "CASE-002",
+            "title": "Malware Beta",
+            "status": "review",
+            "owner": "alice",
+            "next_action": "Peer review",
+            "updated_at": "2026-09-29T11:00:00Z",
+            "access_decision": "allow",
+            "freshness": "available",
+            "incident": {
+              "id": "inc-b",
+              "tenant_ref": "tenant-a",
+              "access_decision": "allow",
+              "state": "available",
+              "priority": "P2",
+              "impact": "medium",
+              "owner": "commander",
+              "updated_at": "2026-09-29T10:55:00Z"
+            },
+            "findings": [
+              {
+                "id": "finding-b",
+                "tenant_ref": "tenant-a",
+                "case_id": "case-b",
+                "access_decision": "allow",
+                "state": "available",
+                "status": "draft",
+                "updated_at": "2026-09-29T10:50:00Z"
+              }
+            ],
+            "activity_state": "available"
+          },
+          {
+            "id": "case-c",
+            "tenant_ref": "tenant-a",
+            "human_id": "CASE-003",
+            "title": "Phishing Gamma",
+            "status": "triage",
+            "owner": "bob",
+            "next_action": "",
+            "updated_at": "2026-09-29T09:00:00Z",
+            "access_decision": "allow",
+            "freshness": "available",
+            "incident": null,
+            "findings": [],
+            "activity_state": "available"
+          }
+        ],
+        "mutation_requested": "",
+        "export_requested": false,
+        "work_queue_aggregation_requested": false
+      },
+      "expected": {
+        "allowed": true,
+        "error_code": "",
+        "states": [
+          "available"
+        ],
+        "diagnostics": [],
+        "projected_case_ids": [
+          "case-b",
+          "case-a",
+          "case-c"
+        ],
+        "projected_count": 3,
+        "permission_filtered_cases": 0,
+        "permission_filtered_elements": 0,
+        "applied_saved_view_fields": [],
+        "applied_sort": [
+          "updated_at:desc",
+          "human_id:asc",
+          "id:asc"
+        ],
+        "immutable_projection": true,
+        "deep_copy_isolated": true,
+        "mutation_executed": false,
+        "export_job_created": false,
+        "work_queue_aggregated": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "empty-queue-is-explicit",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "search_query": "",
+        "filters": [],
+        "sort": [],
+        "view_dirty": false,
+        "saved_view": null,
+        "cases": [],
+        "mutation_requested": "",
+        "export_requested": false,
+        "work_queue_aggregation_requested": false
+      },
+      "expected": {
+        "allowed": true,
+        "error_code": "",
+        "states": [
+          "empty"
+        ],
+        "diagnostics": [],
+        "projected_case_ids": [],
+        "projected_count": 0,
+        "permission_filtered_cases": 0,
+        "permission_filtered_elements": 0,
+        "applied_saved_view_fields": [],
+        "applied_sort": [
+          "updated_at:desc",
+          "human_id:asc",
+          "id:asc"
+        ],
+        "immutable_projection": true,
+        "deep_copy_isolated": true,
+        "mutation_executed": false,
+        "export_job_created": false,
+        "work_queue_aggregated": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "partial-incident-context-is-visible",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "search_query": "",
+        "filters": [],
+        "sort": [],
+        "view_dirty": false,
+        "saved_view": null,
+        "cases": [
+          {
+            "id": "case-a",
+            "tenant_ref": "tenant-a",
+            "human_id": "CASE-001",
+            "title": "Malware Alpha",
+            "status": "investigating",
+            "owner": "alice",
+            "next_action": "Review endpoint",
+            "updated_at": "2026-09-29T10:00:00Z",
+            "access_decision": "allow",
+            "freshness": "available",
+            "incident": {
+              "id": "inc-a",
+              "tenant_ref": "tenant-a",
+              "access_decision": "allow",
+              "state": "unavailable",
+              "priority": "",
+              "impact": "",
+              "owner": "",
+              "updated_at": "2026-09-29T09:55:00Z"
+            },
+            "findings": [
+              {
+                "id": "finding-a",
+                "tenant_ref": "tenant-a",
+                "case_id": "case-a",
+                "access_decision": "allow",
+                "state": "available",
+                "status": "confirmed",
+                "updated_at": "2026-09-29T09:50:00Z"
+              }
+            ],
+            "activity_state": "available"
+          }
+        ],
+        "mutation_requested": "",
+        "export_requested": false,
+        "work_queue_aggregation_requested": false
+      },
+      "expected": {
+        "allowed": true,
+        "error_code": "",
+        "states": [
+          "available",
+          "partial"
+        ],
+        "diagnostics": [
+          "incident-context:case-a:unavailable"
+        ],
+        "projected_case_ids": [
+          "case-a"
+        ],
+        "projected_count": 1,
+        "permission_filtered_cases": 0,
+        "permission_filtered_elements": 0,
+        "applied_saved_view_fields": [],
+        "applied_sort": [
+          "updated_at:desc",
+          "human_id:asc",
+          "id:asc"
+        ],
+        "immutable_projection": true,
+        "deep_copy_isolated": true,
+        "mutation_executed": false,
+        "export_job_created": false,
+        "work_queue_aggregated": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "stale-context-is-visible",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "search_query": "",
+        "filters": [],
+        "sort": [],
+        "view_dirty": false,
+        "saved_view": null,
+        "cases": [
+          {
+            "id": "case-a",
+            "tenant_ref": "tenant-a",
+            "human_id": "CASE-001",
+            "title": "Malware Alpha",
+            "status": "investigating",
+            "owner": "alice",
+            "next_action": "Review endpoint",
+            "updated_at": "2026-09-29T10:00:00Z",
+            "access_decision": "allow",
+            "freshness": "stale",
+            "incident": {
+              "id": "inc-a",
+              "tenant_ref": "tenant-a",
+              "access_decision": "allow",
+              "state": "available",
+              "priority": "P1",
+              "impact": "high",
+              "owner": "commander",
+              "updated_at": "2026-09-29T09:55:00Z"
+            },
+            "findings": [
+              {
+                "id": "finding-a",
+                "tenant_ref": "tenant-a",
+                "case_id": "case-a",
+                "access_decision": "allow",
+                "state": "stale",
+                "status": "confirmed",
+                "updated_at": "2026-09-29T09:50:00Z"
+              }
+            ],
+            "activity_state": "stale"
+          }
+        ],
+        "mutation_requested": "",
+        "export_requested": false,
+        "work_queue_aggregation_requested": false
+      },
+      "expected": {
+        "allowed": true,
+        "error_code": "",
+        "states": [
+          "available",
+          "stale"
+        ],
+        "diagnostics": [
+          "activity:case-a:stale",
+          "case:case-a:stale",
+          "finding-context:case-a:stale"
+        ],
+        "projected_case_ids": [
+          "case-a"
+        ],
+        "projected_count": 1,
+        "permission_filtered_cases": 0,
+        "permission_filtered_elements": 0,
+        "applied_saved_view_fields": [],
+        "applied_sort": [
+          "updated_at:desc",
+          "human_id:asc",
+          "id:asc"
+        ],
+        "immutable_projection": true,
+        "deep_copy_isolated": true,
+        "mutation_executed": false,
+        "export_job_created": false,
+        "work_queue_aggregated": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "permission-filtered-case-is-hidden",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "search_query": "",
+        "filters": [],
+        "sort": [],
+        "view_dirty": false,
+        "saved_view": null,
+        "cases": [
+          {
+            "id": "case-a",
+            "tenant_ref": "tenant-a",
+            "human_id": "CASE-001",
+            "title": "Malware Alpha",
+            "status": "investigating",
+            "owner": "alice",
+            "next_action": "Review endpoint",
+            "updated_at": "2026-09-29T10:00:00Z",
+            "access_decision": "allow",
+            "freshness": "available",
+            "incident": {
+              "id": "inc-a",
+              "tenant_ref": "tenant-a",
+              "access_decision": "allow",
+              "state": "available",
+              "priority": "P1",
+              "impact": "high",
+              "owner": "commander",
+              "updated_at": "2026-09-29T09:55:00Z"
+            },
+            "findings": [
+              {
+                "id": "finding-a",
+                "tenant_ref": "tenant-a",
+                "case_id": "case-a",
+                "access_decision": "allow",
+                "state": "available",
+                "status": "confirmed",
+                "updated_at": "2026-09-29T09:50:00Z"
+              }
+            ],
+            "activity_state": "available"
+          },
+          {
+            "id": "case-denied",
+            "tenant_ref": "tenant-a",
+            "human_id": "CASE-004",
+            "title": "Hidden Case",
+            "status": "triage",
+            "owner": "bob",
+            "next_action": "",
+            "updated_at": "2026-09-29T09:00:00Z",
+            "access_decision": "deny",
+            "freshness": "available",
+            "incident": null,
+            "findings": [],
+            "activity_state": "available"
+          }
+        ],
+        "mutation_requested": "",
+        "export_requested": false,
+        "work_queue_aggregation_requested": false
+      },
+      "expected": {
+        "allowed": true,
+        "error_code": "",
+        "states": [
+          "available",
+          "permission-filtered"
+        ],
+        "diagnostics": [
+          "case:permission-filtered"
+        ],
+        "projected_case_ids": [
+          "case-a"
+        ],
+        "projected_count": 1,
+        "permission_filtered_cases": 1,
+        "permission_filtered_elements": 0,
+        "applied_saved_view_fields": [],
+        "applied_sort": [
+          "updated_at:desc",
+          "human_id:asc",
+          "id:asc"
+        ],
+        "immutable_projection": true,
+        "deep_copy_isolated": true,
+        "mutation_executed": false,
+        "export_job_created": false,
+        "work_queue_aggregated": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "saved-view-denied-elements-are-omitted",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "search_query": "",
+        "filters": [],
+        "sort": [],
+        "view_dirty": false,
+        "saved_view": {
+          "id": "view-1",
+          "tenant_ref": "tenant-a",
+          "version": "v3",
+          "access_decision": "allow",
+          "fields": [
+            {
+              "name": "title",
+              "access_decision": "allow"
+            },
+            {
+              "name": "sensitive-column",
+              "access_decision": "deny"
+            }
+          ],
+          "filters": [
+            {
+              "field": "owner",
+              "values": [
+                "alice"
+              ],
+              "access_decision": "allow"
+            },
+            {
+              "field": "status",
+              "values": [
+                "closed"
+              ],
+              "access_decision": "deny"
+            }
+          ],
+          "sort": [
+            {
+              "field": "updated_at",
+              "direction": "desc",
+              "access_decision": "allow"
+            }
+          ]
+        },
+        "cases": [
+          {
+            "id": "case-a",
+            "tenant_ref": "tenant-a",
+            "human_id": "CASE-001",
+            "title": "Malware Alpha",
+            "status": "investigating",
+            "owner": "alice",
+            "next_action": "Review endpoint",
+            "updated_at": "2026-09-29T10:00:00Z",
+            "access_decision": "allow",
+            "freshness": "available",
+            "incident": {
+              "id": "inc-a",
+              "tenant_ref": "tenant-a",
+              "access_decision": "allow",
+              "state": "available",
+              "priority": "P1",
+              "impact": "high",
+              "owner": "commander",
+              "updated_at": "2026-09-29T09:55:00Z"
+            },
+            "findings": [
+              {
+                "id": "finding-a",
+                "tenant_ref": "tenant-a",
+                "case_id": "case-a",
+                "access_decision": "allow",
+                "state": "available",
+                "status": "confirmed",
+                "updated_at": "2026-09-29T09:50:00Z"
+              }
+            ],
+            "activity_state": "available"
+          }
+        ],
+        "mutation_requested": "",
+        "export_requested": false,
+        "work_queue_aggregation_requested": false
+      },
+      "expected": {
+        "allowed": true,
+        "error_code": "",
+        "states": [
+          "available",
+          "permission-filtered"
+        ],
+        "diagnostics": [
+          "saved-view:permission-filtered"
+        ],
+        "projected_case_ids": [
+          "case-a"
+        ],
+        "projected_count": 1,
+        "permission_filtered_cases": 0,
+        "permission_filtered_elements": 2,
+        "applied_saved_view_fields": [
+          "title"
+        ],
+        "applied_sort": [
+          "updated_at:desc",
+          "human_id:asc",
+          "id:asc"
+        ],
+        "immutable_projection": true,
+        "deep_copy_isolated": true,
+        "mutation_executed": false,
+        "export_job_created": false,
+        "work_queue_aggregated": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "view-dirty-state-is-visible",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "search_query": "",
+        "filters": [],
+        "sort": [],
+        "view_dirty": true,
+        "saved_view": null,
+        "cases": [
+          {
+            "id": "case-a",
+            "tenant_ref": "tenant-a",
+            "human_id": "CASE-001",
+            "title": "Malware Alpha",
+            "status": "investigating",
+            "owner": "alice",
+            "next_action": "Review endpoint",
+            "updated_at": "2026-09-29T10:00:00Z",
+            "access_decision": "allow",
+            "freshness": "available",
+            "incident": {
+              "id": "inc-a",
+              "tenant_ref": "tenant-a",
+              "access_decision": "allow",
+              "state": "available",
+              "priority": "P1",
+              "impact": "high",
+              "owner": "commander",
+              "updated_at": "2026-09-29T09:55:00Z"
+            },
+            "findings": [
+              {
+                "id": "finding-a",
+                "tenant_ref": "tenant-a",
+                "case_id": "case-a",
+                "access_decision": "allow",
+                "state": "available",
+                "status": "confirmed",
+                "updated_at": "2026-09-29T09:50:00Z"
+              }
+            ],
+            "activity_state": "available"
+          }
+        ],
+        "mutation_requested": "",
+        "export_requested": false,
+        "work_queue_aggregation_requested": false
+      },
+      "expected": {
+        "allowed": true,
+        "error_code": "",
+        "states": [
+          "available",
+          "view-dirty"
+        ],
+        "diagnostics": [],
+        "projected_case_ids": [
+          "case-a"
+        ],
+        "projected_count": 1,
+        "permission_filtered_cases": 0,
+        "permission_filtered_elements": 0,
+        "applied_saved_view_fields": [],
+        "applied_sort": [
+          "updated_at:desc",
+          "human_id:asc",
+          "id:asc"
+        ],
+        "immutable_projection": true,
+        "deep_copy_isolated": true,
+        "mutation_executed": false,
+        "export_job_created": false,
+        "work_queue_aggregated": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "search-filter-sort-is-deterministic",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "search_query": " malware ",
+        "filters": [
+          {
+            "field": "owner",
+            "values": [
+              "ALICE"
+            ]
+          }
+        ],
+        "sort": [
+          {
+            "field": "title",
+            "direction": "asc"
+          }
+        ],
+        "view_dirty": false,
+        "saved_view": null,
+        "cases": [
+          {
+            "id": "case-a",
+            "tenant_ref": "tenant-a",
+            "human_id": "CASE-001",
+            "title": "Malware Alpha",
+            "status": "investigating",
+            "owner": "alice",
+            "next_action": "Review endpoint",
+            "updated_at": "2026-09-29T10:00:00Z",
+            "access_decision": "allow",
+            "freshness": "available",
+            "incident": {
+              "id": "inc-a",
+              "tenant_ref": "tenant-a",
+              "access_decision": "allow",
+              "state": "available",
+              "priority": "P1",
+              "impact": "high",
+              "owner": "commander",
+              "updated_at": "2026-09-29T09:55:00Z"
+            },
+            "findings": [
+              {
+                "id": "finding-a",
+                "tenant_ref": "tenant-a",
+                "case_id": "case-a",
+                "access_decision": "allow",
+                "state": "available",
+                "status": "confirmed",
+                "updated_at": "2026-09-29T09:50:00Z"
+              }
+            ],
+            "activity_state": "available"
+          },
+          {
+            "id": "case-b",
+            "tenant_ref": "tenant-a",
+            "human_id": "CASE-002",
+            "title": "Malware Beta",
+            "status": "review",
+            "owner": "alice",
+            "next_action": "Peer review",
+            "updated_at": "2026-09-29T11:00:00Z",
+            "access_decision": "allow",
+            "freshness": "available",
+            "incident": {
+              "id": "inc-b",
+              "tenant_ref": "tenant-a",
+              "access_decision": "allow",
+              "state": "available",
+              "priority": "P2",
+              "impact": "medium",
+              "owner": "commander",
+              "updated_at": "2026-09-29T10:55:00Z"
+            },
+            "findings": [
+              {
+                "id": "finding-b",
+                "tenant_ref": "tenant-a",
+                "case_id": "case-b",
+                "access_decision": "allow",
+                "state": "available",
+                "status": "draft",
+                "updated_at": "2026-09-29T10:50:00Z"
+              }
+            ],
+            "activity_state": "available"
+          },
+          {
+            "id": "case-c",
+            "tenant_ref": "tenant-a",
+            "human_id": "CASE-003",
+            "title": "Phishing Gamma",
+            "status": "triage",
+            "owner": "bob",
+            "next_action": "",
+            "updated_at": "2026-09-29T09:00:00Z",
+            "access_decision": "allow",
+            "freshness": "available",
+            "incident": null,
+            "findings": [],
+            "activity_state": "available"
+          }
+        ],
+        "mutation_requested": "",
+        "export_requested": false,
+        "work_queue_aggregation_requested": false
+      },
+      "expected": {
+        "allowed": true,
+        "error_code": "",
+        "states": [
+          "available"
+        ],
+        "diagnostics": [],
+        "projected_case_ids": [
+          "case-a",
+          "case-b"
+        ],
+        "projected_count": 2,
+        "permission_filtered_cases": 0,
+        "permission_filtered_elements": 0,
+        "applied_saved_view_fields": [],
+        "applied_sort": [
+          "title:asc",
+          "human_id:asc",
+          "id:asc"
+        ],
+        "immutable_projection": true,
+        "deep_copy_isolated": true,
+        "mutation_executed": false,
+        "export_job_created": false,
+        "work_queue_aggregated": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "missing-tenant-is-rejected",
+      "input": {
+        "tenant_ref": "",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "search_query": "",
+        "filters": [],
+        "sort": [],
+        "view_dirty": false,
+        "saved_view": null,
+        "cases": [
+          {
+            "id": "case-a",
+            "tenant_ref": "tenant-a",
+            "human_id": "CASE-001",
+            "title": "Malware Alpha",
+            "status": "investigating",
+            "owner": "alice",
+            "next_action": "Review endpoint",
+            "updated_at": "2026-09-29T10:00:00Z",
+            "access_decision": "allow",
+            "freshness": "available",
+            "incident": {
+              "id": "inc-a",
+              "tenant_ref": "tenant-a",
+              "access_decision": "allow",
+              "state": "available",
+              "priority": "P1",
+              "impact": "high",
+              "owner": "commander",
+              "updated_at": "2026-09-29T09:55:00Z"
+            },
+            "findings": [
+              {
+                "id": "finding-a",
+                "tenant_ref": "tenant-a",
+                "case_id": "case-a",
+                "access_decision": "allow",
+                "state": "available",
+                "status": "confirmed",
+                "updated_at": "2026-09-29T09:50:00Z"
+              }
+            ],
+            "activity_state": "available"
+          }
+        ],
+        "mutation_requested": "",
+        "export_requested": false,
+        "work_queue_aggregation_requested": false
+      },
+      "expected": {
+        "allowed": false,
+        "error_code": "missing-tenant",
+        "states": [],
+        "diagnostics": [],
+        "projected_case_ids": [],
+        "projected_count": 0,
+        "permission_filtered_cases": 0,
+        "permission_filtered_elements": 0,
+        "applied_saved_view_fields": [],
+        "applied_sort": [],
+        "immutable_projection": false,
+        "deep_copy_isolated": false,
+        "mutation_executed": false,
+        "export_job_created": false,
+        "work_queue_aggregated": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "wildcard-tenant-is-rejected",
+      "input": {
+        "tenant_ref": "*",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "search_query": "",
+        "filters": [],
+        "sort": [],
+        "view_dirty": false,
+        "saved_view": null,
+        "cases": [
+          {
+            "id": "case-a",
+            "tenant_ref": "tenant-a",
+            "human_id": "CASE-001",
+            "title": "Malware Alpha",
+            "status": "investigating",
+            "owner": "alice",
+            "next_action": "Review endpoint",
+            "updated_at": "2026-09-29T10:00:00Z",
+            "access_decision": "allow",
+            "freshness": "available",
+            "incident": {
+              "id": "inc-a",
+              "tenant_ref": "tenant-a",
+              "access_decision": "allow",
+              "state": "available",
+              "priority": "P1",
+              "impact": "high",
+              "owner": "commander",
+              "updated_at": "2026-09-29T09:55:00Z"
+            },
+            "findings": [
+              {
+                "id": "finding-a",
+                "tenant_ref": "tenant-a",
+                "case_id": "case-a",
+                "access_decision": "allow",
+                "state": "available",
+                "status": "confirmed",
+                "updated_at": "2026-09-29T09:50:00Z"
+              }
+            ],
+            "activity_state": "available"
+          }
+        ],
+        "mutation_requested": "",
+        "export_requested": false,
+        "work_queue_aggregation_requested": false
+      },
+      "expected": {
+        "allowed": false,
+        "error_code": "wildcard-tenant",
+        "states": [],
+        "diagnostics": [],
+        "projected_case_ids": [],
+        "projected_count": 0,
+        "permission_filtered_cases": 0,
+        "permission_filtered_elements": 0,
+        "applied_saved_view_fields": [],
+        "applied_sort": [],
+        "immutable_projection": false,
+        "deep_copy_isolated": false,
+        "mutation_executed": false,
+        "export_job_created": false,
+        "work_queue_aggregated": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "missing-environment-is-rejected",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "",
+        "search_query": "",
+        "filters": [],
+        "sort": [],
+        "view_dirty": false,
+        "saved_view": null,
+        "cases": [
+          {
+            "id": "case-a",
+            "tenant_ref": "tenant-a",
+            "human_id": "CASE-001",
+            "title": "Malware Alpha",
+            "status": "investigating",
+            "owner": "alice",
+            "next_action": "Review endpoint",
+            "updated_at": "2026-09-29T10:00:00Z",
+            "access_decision": "allow",
+            "freshness": "available",
+            "incident": {
+              "id": "inc-a",
+              "tenant_ref": "tenant-a",
+              "access_decision": "allow",
+              "state": "available",
+              "priority": "P1",
+              "impact": "high",
+              "owner": "commander",
+              "updated_at": "2026-09-29T09:55:00Z"
+            },
+            "findings": [
+              {
+                "id": "finding-a",
+                "tenant_ref": "tenant-a",
+                "case_id": "case-a",
+                "access_decision": "allow",
+                "state": "available",
+                "status": "confirmed",
+                "updated_at": "2026-09-29T09:50:00Z"
+              }
+            ],
+            "activity_state": "available"
+          }
+        ],
+        "mutation_requested": "",
+        "export_requested": false,
+        "work_queue_aggregation_requested": false
+      },
+      "expected": {
+        "allowed": false,
+        "error_code": "missing-environment",
+        "states": [],
+        "diagnostics": [],
+        "projected_case_ids": [],
+        "projected_count": 0,
+        "permission_filtered_cases": 0,
+        "permission_filtered_elements": 0,
+        "applied_saved_view_fields": [],
+        "applied_sort": [],
+        "immutable_projection": false,
+        "deep_copy_isolated": false,
+        "mutation_executed": false,
+        "export_job_created": false,
+        "work_queue_aggregated": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "cross-tenant-case-is-rejected",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "search_query": "",
+        "filters": [],
+        "sort": [],
+        "view_dirty": false,
+        "saved_view": null,
+        "cases": [
+          {
+            "id": "case-a",
+            "tenant_ref": "tenant-b",
+            "human_id": "CASE-001",
+            "title": "Malware Alpha",
+            "status": "investigating",
+            "owner": "alice",
+            "next_action": "Review endpoint",
+            "updated_at": "2026-09-29T10:00:00Z",
+            "access_decision": "allow",
+            "freshness": "available",
+            "incident": {
+              "id": "inc-a",
+              "tenant_ref": "tenant-a",
+              "access_decision": "allow",
+              "state": "available",
+              "priority": "P1",
+              "impact": "high",
+              "owner": "commander",
+              "updated_at": "2026-09-29T09:55:00Z"
+            },
+            "findings": [
+              {
+                "id": "finding-a",
+                "tenant_ref": "tenant-a",
+                "case_id": "case-a",
+                "access_decision": "allow",
+                "state": "available",
+                "status": "confirmed",
+                "updated_at": "2026-09-29T09:50:00Z"
+              }
+            ],
+            "activity_state": "available"
+          }
+        ],
+        "mutation_requested": "",
+        "export_requested": false,
+        "work_queue_aggregation_requested": false
+      },
+      "expected": {
+        "allowed": false,
+        "error_code": "cross-tenant-case",
+        "states": [],
+        "diagnostics": [],
+        "projected_case_ids": [],
+        "projected_count": 0,
+        "permission_filtered_cases": 0,
+        "permission_filtered_elements": 0,
+        "applied_saved_view_fields": [],
+        "applied_sort": [],
+        "immutable_projection": false,
+        "deep_copy_isolated": false,
+        "mutation_executed": false,
+        "export_job_created": false,
+        "work_queue_aggregated": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "missing-case-id-is-rejected",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "search_query": "",
+        "filters": [],
+        "sort": [],
+        "view_dirty": false,
+        "saved_view": null,
+        "cases": [
+          {
+            "id": "",
+            "tenant_ref": "tenant-a",
+            "human_id": "CASE-001",
+            "title": "Malware Alpha",
+            "status": "investigating",
+            "owner": "alice",
+            "next_action": "Review endpoint",
+            "updated_at": "2026-09-29T10:00:00Z",
+            "access_decision": "allow",
+            "freshness": "available",
+            "incident": {
+              "id": "inc-a",
+              "tenant_ref": "tenant-a",
+              "access_decision": "allow",
+              "state": "available",
+              "priority": "P1",
+              "impact": "high",
+              "owner": "commander",
+              "updated_at": "2026-09-29T09:55:00Z"
+            },
+            "findings": [
+              {
+                "id": "finding-a",
+                "tenant_ref": "tenant-a",
+                "case_id": "case-a",
+                "access_decision": "allow",
+                "state": "available",
+                "status": "confirmed",
+                "updated_at": "2026-09-29T09:50:00Z"
+              }
+            ],
+            "activity_state": "available"
+          }
+        ],
+        "mutation_requested": "",
+        "export_requested": false,
+        "work_queue_aggregation_requested": false
+      },
+      "expected": {
+        "allowed": false,
+        "error_code": "missing-case-id",
+        "states": [],
+        "diagnostics": [],
+        "projected_case_ids": [],
+        "projected_count": 0,
+        "permission_filtered_cases": 0,
+        "permission_filtered_elements": 0,
+        "applied_saved_view_fields": [],
+        "applied_sort": [],
+        "immutable_projection": false,
+        "deep_copy_isolated": false,
+        "mutation_executed": false,
+        "export_job_created": false,
+        "work_queue_aggregated": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "invalid-case-updated-at-is-rejected",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "search_query": "",
+        "filters": [],
+        "sort": [],
+        "view_dirty": false,
+        "saved_view": null,
+        "cases": [
+          {
+            "id": "case-a",
+            "tenant_ref": "tenant-a",
+            "human_id": "CASE-001",
+            "title": "Malware Alpha",
+            "status": "investigating",
+            "owner": "alice",
+            "next_action": "Review endpoint",
+            "updated_at": "not-a-time",
+            "access_decision": "allow",
+            "freshness": "available",
+            "incident": {
+              "id": "inc-a",
+              "tenant_ref": "tenant-a",
+              "access_decision": "allow",
+              "state": "available",
+              "priority": "P1",
+              "impact": "high",
+              "owner": "commander",
+              "updated_at": "2026-09-29T09:55:00Z"
+            },
+            "findings": [
+              {
+                "id": "finding-a",
+                "tenant_ref": "tenant-a",
+                "case_id": "case-a",
+                "access_decision": "allow",
+                "state": "available",
+                "status": "confirmed",
+                "updated_at": "2026-09-29T09:50:00Z"
+              }
+            ],
+            "activity_state": "available"
+          }
+        ],
+        "mutation_requested": "",
+        "export_requested": false,
+        "work_queue_aggregation_requested": false
+      },
+      "expected": {
+        "allowed": false,
+        "error_code": "invalid-case-updated-at",
+        "states": [],
+        "diagnostics": [],
+        "projected_case_ids": [],
+        "projected_count": 0,
+        "permission_filtered_cases": 0,
+        "permission_filtered_elements": 0,
+        "applied_saved_view_fields": [],
+        "applied_sort": [],
+        "immutable_projection": false,
+        "deep_copy_isolated": false,
+        "mutation_executed": false,
+        "export_job_created": false,
+        "work_queue_aggregated": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "unknown-filter-is-rejected",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "search_query": "",
+        "filters": [
+          {
+            "field": "secret_field",
+            "values": [
+              "x"
+            ]
+          }
+        ],
+        "sort": [],
+        "view_dirty": false,
+        "saved_view": null,
+        "cases": [
+          {
+            "id": "case-a",
+            "tenant_ref": "tenant-a",
+            "human_id": "CASE-001",
+            "title": "Malware Alpha",
+            "status": "investigating",
+            "owner": "alice",
+            "next_action": "Review endpoint",
+            "updated_at": "2026-09-29T10:00:00Z",
+            "access_decision": "allow",
+            "freshness": "available",
+            "incident": {
+              "id": "inc-a",
+              "tenant_ref": "tenant-a",
+              "access_decision": "allow",
+              "state": "available",
+              "priority": "P1",
+              "impact": "high",
+              "owner": "commander",
+              "updated_at": "2026-09-29T09:55:00Z"
+            },
+            "findings": [
+              {
+                "id": "finding-a",
+                "tenant_ref": "tenant-a",
+                "case_id": "case-a",
+                "access_decision": "allow",
+                "state": "available",
+                "status": "confirmed",
+                "updated_at": "2026-09-29T09:50:00Z"
+              }
+            ],
+            "activity_state": "available"
+          }
+        ],
+        "mutation_requested": "",
+        "export_requested": false,
+        "work_queue_aggregation_requested": false
+      },
+      "expected": {
+        "allowed": false,
+        "error_code": "invalid-filter-field",
+        "states": [],
+        "diagnostics": [],
+        "projected_case_ids": [],
+        "projected_count": 0,
+        "permission_filtered_cases": 0,
+        "permission_filtered_elements": 0,
+        "applied_saved_view_fields": [],
+        "applied_sort": [],
+        "immutable_projection": false,
+        "deep_copy_isolated": false,
+        "mutation_executed": false,
+        "export_job_created": false,
+        "work_queue_aggregated": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "invalid-sort-is-rejected",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "search_query": "",
+        "filters": [],
+        "sort": [
+          {
+            "field": "title",
+            "direction": "sideways"
+          }
+        ],
+        "view_dirty": false,
+        "saved_view": null,
+        "cases": [
+          {
+            "id": "case-a",
+            "tenant_ref": "tenant-a",
+            "human_id": "CASE-001",
+            "title": "Malware Alpha",
+            "status": "investigating",
+            "owner": "alice",
+            "next_action": "Review endpoint",
+            "updated_at": "2026-09-29T10:00:00Z",
+            "access_decision": "allow",
+            "freshness": "available",
+            "incident": {
+              "id": "inc-a",
+              "tenant_ref": "tenant-a",
+              "access_decision": "allow",
+              "state": "available",
+              "priority": "P1",
+              "impact": "high",
+              "owner": "commander",
+              "updated_at": "2026-09-29T09:55:00Z"
+            },
+            "findings": [
+              {
+                "id": "finding-a",
+                "tenant_ref": "tenant-a",
+                "case_id": "case-a",
+                "access_decision": "allow",
+                "state": "available",
+                "status": "confirmed",
+                "updated_at": "2026-09-29T09:50:00Z"
+              }
+            ],
+            "activity_state": "available"
+          }
+        ],
+        "mutation_requested": "",
+        "export_requested": false,
+        "work_queue_aggregation_requested": false
+      },
+      "expected": {
+        "allowed": false,
+        "error_code": "invalid-sort-direction",
+        "states": [],
+        "diagnostics": [],
+        "projected_case_ids": [],
+        "projected_count": 0,
+        "permission_filtered_cases": 0,
+        "permission_filtered_elements": 0,
+        "applied_saved_view_fields": [],
+        "applied_sort": [],
+        "immutable_projection": false,
+        "deep_copy_isolated": false,
+        "mutation_executed": false,
+        "export_job_created": false,
+        "work_queue_aggregated": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "saved-view-access-denied-is-rejected",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "search_query": "",
+        "filters": [],
+        "sort": [],
+        "view_dirty": false,
+        "saved_view": {
+          "id": "view-1",
+          "tenant_ref": "tenant-a",
+          "version": "v1",
+          "access_decision": "deny",
+          "fields": [],
+          "filters": [],
+          "sort": []
+        },
+        "cases": [
+          {
+            "id": "case-a",
+            "tenant_ref": "tenant-a",
+            "human_id": "CASE-001",
+            "title": "Malware Alpha",
+            "status": "investigating",
+            "owner": "alice",
+            "next_action": "Review endpoint",
+            "updated_at": "2026-09-29T10:00:00Z",
+            "access_decision": "allow",
+            "freshness": "available",
+            "incident": {
+              "id": "inc-a",
+              "tenant_ref": "tenant-a",
+              "access_decision": "allow",
+              "state": "available",
+              "priority": "P1",
+              "impact": "high",
+              "owner": "commander",
+              "updated_at": "2026-09-29T09:55:00Z"
+            },
+            "findings": [
+              {
+                "id": "finding-a",
+                "tenant_ref": "tenant-a",
+                "case_id": "case-a",
+                "access_decision": "allow",
+                "state": "available",
+                "status": "confirmed",
+                "updated_at": "2026-09-29T09:50:00Z"
+              }
+            ],
+            "activity_state": "available"
+          }
+        ],
+        "mutation_requested": "",
+        "export_requested": false,
+        "work_queue_aggregation_requested": false
+      },
+      "expected": {
+        "allowed": false,
+        "error_code": "saved-view-access-denied",
+        "states": [],
+        "diagnostics": [],
+        "projected_case_ids": [],
+        "projected_count": 0,
+        "permission_filtered_cases": 0,
+        "permission_filtered_elements": 0,
+        "applied_saved_view_fields": [],
+        "applied_sort": [],
+        "immutable_projection": false,
+        "deep_copy_isolated": false,
+        "mutation_executed": false,
+        "export_job_created": false,
+        "work_queue_aggregated": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "cross-tenant-saved-view-is-rejected",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "search_query": "",
+        "filters": [],
+        "sort": [],
+        "view_dirty": false,
+        "saved_view": {
+          "id": "view-1",
+          "tenant_ref": "tenant-b",
+          "version": "v1",
+          "access_decision": "allow",
+          "fields": [],
+          "filters": [],
+          "sort": []
+        },
+        "cases": [
+          {
+            "id": "case-a",
+            "tenant_ref": "tenant-a",
+            "human_id": "CASE-001",
+            "title": "Malware Alpha",
+            "status": "investigating",
+            "owner": "alice",
+            "next_action": "Review endpoint",
+            "updated_at": "2026-09-29T10:00:00Z",
+            "access_decision": "allow",
+            "freshness": "available",
+            "incident": {
+              "id": "inc-a",
+              "tenant_ref": "tenant-a",
+              "access_decision": "allow",
+              "state": "available",
+              "priority": "P1",
+              "impact": "high",
+              "owner": "commander",
+              "updated_at": "2026-09-29T09:55:00Z"
+            },
+            "findings": [
+              {
+                "id": "finding-a",
+                "tenant_ref": "tenant-a",
+                "case_id": "case-a",
+                "access_decision": "allow",
+                "state": "available",
+                "status": "confirmed",
+                "updated_at": "2026-09-29T09:50:00Z"
+              }
+            ],
+            "activity_state": "available"
+          }
+        ],
+        "mutation_requested": "",
+        "export_requested": false,
+        "work_queue_aggregation_requested": false
+      },
+      "expected": {
+        "allowed": false,
+        "error_code": "cross-tenant-saved-view",
+        "states": [],
+        "diagnostics": [],
+        "projected_case_ids": [],
+        "projected_count": 0,
+        "permission_filtered_cases": 0,
+        "permission_filtered_elements": 0,
+        "applied_saved_view_fields": [],
+        "applied_sort": [],
+        "immutable_projection": false,
+        "deep_copy_isolated": false,
+        "mutation_executed": false,
+        "export_job_created": false,
+        "work_queue_aggregated": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "missing-saved-view-version-is-rejected",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "search_query": "",
+        "filters": [],
+        "sort": [],
+        "view_dirty": false,
+        "saved_view": {
+          "id": "view-1",
+          "tenant_ref": "tenant-a",
+          "version": "",
+          "access_decision": "allow",
+          "fields": [],
+          "filters": [],
+          "sort": []
+        },
+        "cases": [
+          {
+            "id": "case-a",
+            "tenant_ref": "tenant-a",
+            "human_id": "CASE-001",
+            "title": "Malware Alpha",
+            "status": "investigating",
+            "owner": "alice",
+            "next_action": "Review endpoint",
+            "updated_at": "2026-09-29T10:00:00Z",
+            "access_decision": "allow",
+            "freshness": "available",
+            "incident": {
+              "id": "inc-a",
+              "tenant_ref": "tenant-a",
+              "access_decision": "allow",
+              "state": "available",
+              "priority": "P1",
+              "impact": "high",
+              "owner": "commander",
+              "updated_at": "2026-09-29T09:55:00Z"
+            },
+            "findings": [
+              {
+                "id": "finding-a",
+                "tenant_ref": "tenant-a",
+                "case_id": "case-a",
+                "access_decision": "allow",
+                "state": "available",
+                "status": "confirmed",
+                "updated_at": "2026-09-29T09:50:00Z"
+              }
+            ],
+            "activity_state": "available"
+          }
+        ],
+        "mutation_requested": "",
+        "export_requested": false,
+        "work_queue_aggregation_requested": false
+      },
+      "expected": {
+        "allowed": false,
+        "error_code": "missing-saved-view-version",
+        "states": [],
+        "diagnostics": [],
+        "projected_case_ids": [],
+        "projected_count": 0,
+        "permission_filtered_cases": 0,
+        "permission_filtered_elements": 0,
+        "applied_saved_view_fields": [],
+        "applied_sort": [],
+        "immutable_projection": false,
+        "deep_copy_isolated": false,
+        "mutation_executed": false,
+        "export_job_created": false,
+        "work_queue_aggregated": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "cross-tenant-incident-is-rejected",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "search_query": "",
+        "filters": [],
+        "sort": [],
+        "view_dirty": false,
+        "saved_view": null,
+        "cases": [
+          {
+            "id": "case-a",
+            "tenant_ref": "tenant-a",
+            "human_id": "CASE-001",
+            "title": "Malware Alpha",
+            "status": "investigating",
+            "owner": "alice",
+            "next_action": "Review endpoint",
+            "updated_at": "2026-09-29T10:00:00Z",
+            "access_decision": "allow",
+            "freshness": "available",
+            "incident": {
+              "id": "inc-a",
+              "tenant_ref": "tenant-b",
+              "access_decision": "allow",
+              "state": "available",
+              "priority": "P1",
+              "impact": "high",
+              "owner": "commander",
+              "updated_at": "2026-09-29T09:55:00Z"
+            },
+            "findings": [
+              {
+                "id": "finding-a",
+                "tenant_ref": "tenant-a",
+                "case_id": "case-a",
+                "access_decision": "allow",
+                "state": "available",
+                "status": "confirmed",
+                "updated_at": "2026-09-29T09:50:00Z"
+              }
+            ],
+            "activity_state": "available"
+          }
+        ],
+        "mutation_requested": "",
+        "export_requested": false,
+        "work_queue_aggregation_requested": false
+      },
+      "expected": {
+        "allowed": false,
+        "error_code": "cross-tenant-incident",
+        "states": [],
+        "diagnostics": [],
+        "projected_case_ids": [],
+        "projected_count": 0,
+        "permission_filtered_cases": 0,
+        "permission_filtered_elements": 0,
+        "applied_saved_view_fields": [],
+        "applied_sort": [],
+        "immutable_projection": false,
+        "deep_copy_isolated": false,
+        "mutation_executed": false,
+        "export_job_created": false,
+        "work_queue_aggregated": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "cross-tenant-finding-is-rejected",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "search_query": "",
+        "filters": [],
+        "sort": [],
+        "view_dirty": false,
+        "saved_view": null,
+        "cases": [
+          {
+            "id": "case-a",
+            "tenant_ref": "tenant-a",
+            "human_id": "CASE-001",
+            "title": "Malware Alpha",
+            "status": "investigating",
+            "owner": "alice",
+            "next_action": "Review endpoint",
+            "updated_at": "2026-09-29T10:00:00Z",
+            "access_decision": "allow",
+            "freshness": "available",
+            "incident": {
+              "id": "inc-a",
+              "tenant_ref": "tenant-a",
+              "access_decision": "allow",
+              "state": "available",
+              "priority": "P1",
+              "impact": "high",
+              "owner": "commander",
+              "updated_at": "2026-09-29T09:55:00Z"
+            },
+            "findings": [
+              {
+                "id": "finding-a",
+                "tenant_ref": "tenant-b",
+                "case_id": "case-a",
+                "access_decision": "allow",
+                "state": "available",
+                "status": "confirmed",
+                "updated_at": "2026-09-29T09:50:00Z"
+              }
+            ],
+            "activity_state": "available"
+          }
+        ],
+        "mutation_requested": "",
+        "export_requested": false,
+        "work_queue_aggregation_requested": false
+      },
+      "expected": {
+        "allowed": false,
+        "error_code": "cross-tenant-finding",
+        "states": [],
+        "diagnostics": [],
+        "projected_case_ids": [],
+        "projected_count": 0,
+        "permission_filtered_cases": 0,
+        "permission_filtered_elements": 0,
+        "applied_saved_view_fields": [],
+        "applied_sort": [],
+        "immutable_projection": false,
+        "deep_copy_isolated": false,
+        "mutation_executed": false,
+        "export_job_created": false,
+        "work_queue_aggregated": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "case-mutation-is-rejected",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "search_query": "",
+        "filters": [],
+        "sort": [],
+        "view_dirty": false,
+        "saved_view": null,
+        "cases": [
+          {
+            "id": "case-a",
+            "tenant_ref": "tenant-a",
+            "human_id": "CASE-001",
+            "title": "Malware Alpha",
+            "status": "investigating",
+            "owner": "alice",
+            "next_action": "Review endpoint",
+            "updated_at": "2026-09-29T10:00:00Z",
+            "access_decision": "allow",
+            "freshness": "available",
+            "incident": {
+              "id": "inc-a",
+              "tenant_ref": "tenant-a",
+              "access_decision": "allow",
+              "state": "available",
+              "priority": "P1",
+              "impact": "high",
+              "owner": "commander",
+              "updated_at": "2026-09-29T09:55:00Z"
+            },
+            "findings": [
+              {
+                "id": "finding-a",
+                "tenant_ref": "tenant-a",
+                "case_id": "case-a",
+                "access_decision": "allow",
+                "state": "available",
+                "status": "confirmed",
+                "updated_at": "2026-09-29T09:50:00Z"
+              }
+            ],
+            "activity_state": "available"
+          }
+        ],
+        "mutation_requested": "assign",
+        "export_requested": false,
+        "work_queue_aggregation_requested": false
+      },
+      "expected": {
+        "allowed": false,
+        "error_code": "mutation-open-decision",
+        "states": [],
+        "diagnostics": [],
+        "projected_case_ids": [],
+        "projected_count": 0,
+        "permission_filtered_cases": 0,
+        "permission_filtered_elements": 0,
+        "applied_saved_view_fields": [],
+        "applied_sort": [],
+        "immutable_projection": false,
+        "deep_copy_isolated": false,
+        "mutation_executed": false,
+        "export_job_created": false,
+        "work_queue_aggregated": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "export-request-is-rejected",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "search_query": "",
+        "filters": [],
+        "sort": [],
+        "view_dirty": false,
+        "saved_view": null,
+        "cases": [
+          {
+            "id": "case-a",
+            "tenant_ref": "tenant-a",
+            "human_id": "CASE-001",
+            "title": "Malware Alpha",
+            "status": "investigating",
+            "owner": "alice",
+            "next_action": "Review endpoint",
+            "updated_at": "2026-09-29T10:00:00Z",
+            "access_decision": "allow",
+            "freshness": "available",
+            "incident": {
+              "id": "inc-a",
+              "tenant_ref": "tenant-a",
+              "access_decision": "allow",
+              "state": "available",
+              "priority": "P1",
+              "impact": "high",
+              "owner": "commander",
+              "updated_at": "2026-09-29T09:55:00Z"
+            },
+            "findings": [
+              {
+                "id": "finding-a",
+                "tenant_ref": "tenant-a",
+                "case_id": "case-a",
+                "access_decision": "allow",
+                "state": "available",
+                "status": "confirmed",
+                "updated_at": "2026-09-29T09:50:00Z"
+              }
+            ],
+            "activity_state": "available"
+          }
+        ],
+        "mutation_requested": "",
+        "export_requested": true,
+        "work_queue_aggregation_requested": false
+      },
+      "expected": {
+        "allowed": false,
+        "error_code": "export-forbidden",
+        "states": [],
+        "diagnostics": [],
+        "projected_case_ids": [],
+        "projected_count": 0,
+        "permission_filtered_cases": 0,
+        "permission_filtered_elements": 0,
+        "applied_saved_view_fields": [],
+        "applied_sort": [],
+        "immutable_projection": false,
+        "deep_copy_isolated": false,
+        "mutation_executed": false,
+        "export_job_created": false,
+        "work_queue_aggregated": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "work-queue-aggregation-is-rejected",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "search_query": "",
+        "filters": [],
+        "sort": [],
+        "view_dirty": false,
+        "saved_view": null,
+        "cases": [
+          {
+            "id": "case-a",
+            "tenant_ref": "tenant-a",
+            "human_id": "CASE-001",
+            "title": "Malware Alpha",
+            "status": "investigating",
+            "owner": "alice",
+            "next_action": "Review endpoint",
+            "updated_at": "2026-09-29T10:00:00Z",
+            "access_decision": "allow",
+            "freshness": "available",
+            "incident": {
+              "id": "inc-a",
+              "tenant_ref": "tenant-a",
+              "access_decision": "allow",
+              "state": "available",
+              "priority": "P1",
+              "impact": "high",
+              "owner": "commander",
+              "updated_at": "2026-09-29T09:55:00Z"
+            },
+            "findings": [
+              {
+                "id": "finding-a",
+                "tenant_ref": "tenant-a",
+                "case_id": "case-a",
+                "access_decision": "allow",
+                "state": "available",
+                "status": "confirmed",
+                "updated_at": "2026-09-29T09:50:00Z"
+              }
+            ],
+            "activity_state": "available"
+          }
+        ],
+        "mutation_requested": "",
+        "export_requested": false,
+        "work_queue_aggregation_requested": true
+      },
+      "expected": {
+        "allowed": false,
+        "error_code": "work-queue-aggregation-forbidden",
+        "states": [],
+        "diagnostics": [],
+        "projected_case_ids": [],
+        "projected_count": 0,
+        "permission_filtered_cases": 0,
+        "permission_filtered_elements": 0,
+        "applied_saved_view_fields": [],
+        "applied_sort": [],
+        "immutable_projection": false,
+        "deep_copy_isolated": false,
+        "mutation_executed": false,
+        "export_job_created": false,
+        "work_queue_aggregated": false,
+        "audit_required": true
+      }
+    }
+  ]
+}

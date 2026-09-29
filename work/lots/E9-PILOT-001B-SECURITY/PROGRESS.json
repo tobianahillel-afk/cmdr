@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "work_unit": "E9-PILOT-001B-SECURITY",
+  "status": "VERIFIED",
+  "final_validated_head": "1f0276c3e1cfe86b92337bf19f01d31b7eb4fad0",
+  "validation": {
+    "push_workflow_run": 35982210781,
+    "pull_request_workflow_run": 35982214672,
+    "result": "PASS",
+    "security_test_audit": "PASS",
+    "sast": "PASS",
+    "sca": "PASS",
+    "adaptive_kernel": "PASS"
+  },
+  "runtime_security_observation": {
+    "runtime_boundaries": 1,
+    "registered_scopes": 1,
+    "coverage_status": "preimplementation",
+    "authorization_required": 1,
+    "tenant_isolation_required": 1,
+    "global_coverage_claimed": false,
+    "authorization_negative_pass_claimed": false,
+    "tenant_isolation_negative_pass_claimed": false
+  },
+  "gate_observation": {
+    "total": 12,
+    "active": 4,
+    "specified": 2,
+    "deferred_runtime": 6
+  },
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E9-PILOT-001B-PERF"
+  ]
+}

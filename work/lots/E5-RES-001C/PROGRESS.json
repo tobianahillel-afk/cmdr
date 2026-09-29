@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "work_unit": "E5-RES-001C",
+  "status": "VERIFIED",
+  "final_validated_head": "b67f4e8b73423622e964d20daabd130733730dcf",
+  "validation": {
+    "push_workflow_run": 35858806949,
+    "pull_request_workflow_run": 35858814740,
+    "result": "PASS",
+    "decision_gate_audit": "PASS",
+    "adaptive_kernel": "PASS"
+  },
+  "registry_observation": {
+    "validations": 0,
+    "accepted": 0,
+    "candidates": 0,
+    "representative_benchmarks": 0,
+    "prototypes": 0,
+    "adversarial": 0
+  },
+  "invariants": [
+    "accepted Class B/C decisions require at least two compared candidates",
+    "performance-sensitive acceptance requires representative CMDR benchmark evidence",
+    "insufficient external evidence requires a conclusive prototype",
+    "Class C acceptance requires clean adversarial falsification of the preferred candidate",
+    "blocking counter-evidence or unresolved material uncertainty prevents acceptance"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E5-RES-001D"
+  ]
+}

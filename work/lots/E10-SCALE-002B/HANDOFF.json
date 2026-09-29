@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-SCALE-002B",
+  "result": "VERIFIED",
+  "final_validated_head": "e09151716914965870b9267cce7d3ddf167bf361",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 36134142435,
+    "pull_request_run": 36134146264,
+    "implementation_ledger_entries": 2,
+    "readiness_ready": 19,
+    "selected_capability": "CAP-INV-004",
+    "selection_policy": "reuse-first-v1",
+    "wave": "WAVE-CAP-INV-004-CORE-001"
+  },
+  "rules": [
+    "only READY capabilities are eligible for wave selection",
+    "reuse-first-v1 prefers the already implemented CAP-INV family",
+    "CAP-INV-004 canonical file resolves inside the read-only Product Spec",
+    "OPEN-013 and OPEN-014 mutation semantics remain excluded from the bounded wave",
+    "no parser, entity-resolution, storage, provider or final query-dialect choice is invented",
+    "only E10-INV-004A-BOUNDARY is unlocked; downstream runtime work remains blocked by verified dependencies"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-004A-BOUNDARY"
+  ]
+}

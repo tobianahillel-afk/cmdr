@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "wave_id": "WAVE-CAP-INV-005-CORE-001",
+  "selection_policy": "reuse-first-v1",
+  "product_spec_baseline": "99c3826cdcbc79bad51631cf6462450f92e012eb",
+  "spec_tree_digest": "a5f45351eba180d0edb734f33ecbeaabb7eceb7143305e201e207e8ae5a60d27",
+  "readiness_snapshot": {
+    "total": 498,
+    "implemented": 3,
+    "ready": 18,
+    "blocked": 476,
+    "proposed": 1
+  },
+  "selected": {
+    "capability": "CAP-INV-005",
+    "name": "Hunt Management",
+    "canonical_file": "cmdr-product-spec/07-investigate/modules/signals-and-hunt/capabilities/hunt-management.md",
+    "screen": null
+  },
+  "scope": {
+    "kind": "bounded-read-only-workspace-core",
+    "included": [
+      "single-tenant/environment caller-owned Hunt workspace envelope validation",
+      "immutable projection of question, scope, period, owner and contributors",
+      "typed provenance-preserving references to accessible Query and Search Job records",
+      "typed references to accessible Hypothesis, Case and Incident context without ownership transfer",
+      "deterministic completeness and named limitation diagnostics",
+      "explicit stale/partial/unavailable reference semantics"
+    ],
+    "excluded": [
+      "canonical Hunt object/schema or final Hunt state machine",
+      "Hunt create/update/activate/pause/close/archive mutations while OPEN-013 remains open",
+      "Case promotion/create/link mutation while OPEN-013 remains open",
+      "Hypothesis create/link/status mutation while OPEN-013 remains open",
+      "Query draft mutation, Saved Search/Query Asset mutation or Search Job execution",
+      "CAP-INV-003/006/008/103 runtime assumptions",
+      "collaboration/presence backend selection",
+      "storage/provider/retention implementation",
+      "final query dialect",
+      "dedicated final Hunt UI",
+      "production Hunt workflow SLO or full-capability completion claim"
+    ]
+  },
+  "runtime_intent": {
+    "root": "product-runtime/hunt-management/**",
+    "external_runtime_dependencies": "deny-by-default",
+    "language": "Go standard library first unless a later reviewed decision proves otherwise",
+    "ownership_note": "runtime is a validation/projection mechanism for caller-owned workspace state and does not establish a canonical Hunt domain object"
+  },
+  "children": [
+    "E10-INV-005A-BOUNDARY",
+    "E10-INV-005A-CONTRACT",
+    "E10-INV-005B-RUNTIME",
+    "E10-INV-005C-CLOSURE"
+  ],
+  "status": "VERIFIED_MATERIALIZED",
+  "validation": {
+    "final_validated_head": "3c7d996a3094366b4d3eabb1c896baefa2f72ea5",
+    "push_workflow_run": 36401749702,
+    "pull_request_workflow_run": 36401756812,
+    "result": "PASS"
+  }
+}

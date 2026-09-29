@@ -1,0 +1,105 @@
+{
+  "schema_version": 2,
+  "id": "E6-PERF-001",
+  "title": "Implement performance engineering engine",
+  "type": "epic",
+  "parent": "",
+  "goal": "Turn performance requirements and engineering constraints into measured budgets, regression evidence, deep profiling triggers and reusable performance baselines.",
+  "product_refs": {
+    "capabilities": [],
+    "requirements": [],
+    "screens": [],
+    "permissions": [],
+    "open_decisions": [],
+    "implementation_contracts": [],
+    "canonical_objects": []
+  },
+  "depends_on": [
+    "E5-RES-001D"
+  ],
+  "allowed_paths": [
+    "tools/cmdr-dev/**",
+    "engineering/performance/**",
+    "engineering/testing/**",
+    ".github/workflows/**",
+    "work/lots/E6-PERF-001*/**",
+    "engineering/state/**",
+    "work/graph.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**"
+  ],
+  "inputs": [
+    "verified E0-E5 engineering foundation",
+    "canonical Product Spec remains read-only",
+    "architecture/runtime boundary registry",
+    "risk-adaptive validation engine"
+  ],
+  "outputs": [
+    "machine-readable performance evidence"
+  ],
+  "invariants": [
+    "Product Spec remains read-only",
+    "performance claims require representative measured evidence",
+    "no runtime target is fabricated when no product-runtime boundary exists",
+    "benchmark noise cannot silently relax an explicit budget",
+    "expensive performance work is triggered proportionally rather than on every trivial change"
+  ],
+  "security_properties": [
+    "benchmark inputs and result files are untrusted data, never executable configuration",
+    "performance tooling remains development-only unless separately approved",
+    "resource tests use explicit bounded time and memory limits"
+  ],
+  "acceptance_tests": [
+    "go test ./...",
+    "cmdr-dev validate-manifests succeeds",
+    "cmdr-dev architecture-audit succeeds",
+    "cmdr-dev complexity-audit succeeds",
+    "adaptive engineering-kernel remains green"
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "this layer governs performance measurement overhead as well as product targets",
+    "metrics": [
+      "routine PR checks remain bounded and risk-adaptive"
+    ]
+  },
+  "migration": {
+    "required": false,
+    "rationale": "engineering control-plane only",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert the E6 unit while retaining verified E0-E5 controls",
+    "verification": [
+      "engineering-kernel remains green",
+      "no accepted product contract changed"
+    ]
+  },
+  "required_checks": [
+    "adaptive engineering-kernel",
+    "cmdr-dev validate-manifests",
+    "cmdr-dev complexity-audit"
+  ],
+  "definition_of_ready": [
+    "dependencies are VERIFIED",
+    "scope is bounded",
+    "Product Spec is read-only"
+  ],
+  "definition_of_done": [
+    "E6-PERF-001A through E6-PERF-001D are VERIFIED",
+    "performance evidence is risk-adaptive and reusable",
+    "runtime performance gates activate only for real registered targets"
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 10,
+    "estimated_net_loc": 750,
+    "production_files": 0,
+    "net_production_loc": 0,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 4
+  }
+}

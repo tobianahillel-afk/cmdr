@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "slice_id": "PILOT-CONTEXT-001",
+  "title": "Cross-product tenant and environment context preservation",
+  "capability": "CAP-SET-004",
+  "capability_source": "cmdr-product-spec/10-platform-settings/capabilities/cap-set-004-cross-product-tenant-environment-context-preservation.md",
+  "requirements": [
+    "REQ-PROD-008",
+    "REQ-SEC-001",
+    "REQ-UX-006",
+    "REQ-UX-007",
+    "REQ-UX-009"
+  ],
+  "permissions": [
+    "perm.platform-settings.environment.read",
+    "perm.platform-settings.tenant.read"
+  ],
+  "open_decisions": [],
+  "implementation_contracts": [
+    "cmdr-product-spec/17-implementation-contracts/cross-product-context-contract.md",
+    "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md"
+  ],
+  "canonical_objects": [
+    "cmdr-product-spec/05-domain-model/objects/environment.md",
+    "cmdr-product-spec/05-domain-model/objects/tenant.md"
+  ],
+  "dependency_sources": [
+    "cmdr-product-spec/04-experience-architecture/context-preservation.md",
+    "cmdr-product-spec/14-security-permissions-and-trust/permission-model.md"
+  ],
+  "mvp_source": "cmdr-product-spec/18-roadmap-and-releases/mvp-scope.md",
+  "pilot_plan_source": "cmdr-product-spec/18-roadmap-and-releases/pilot-plan.md",
+  "dependency_roadmap_source": "cmdr-product-spec/18-roadmap-and-releases/dependency-roadmap.md",
+  "action_classes": [
+    "0",
+    "1"
+  ],
+  "included_behaviors": [
+    "preserve an authorized Tenant reference across a product transition",
+    "preserve an Environment reference only when it remains compatible with the destination",
+    "preserve a non-sensitive return-origin",
+    "require a fresh destination authorization outcome before protected context is exposed",
+    "clear incompatible context on Tenant change without silent fallback",
+    "never carry raw payloads or secrets in the context envelope"
+  ],
+  "excluded_behaviors": [
+    "Tenant or Environment administrative lifecycle mutation",
+    "RBAC or ABAC policy-engine implementation",
+    "Context Bar or Inspector UI rendering",
+    "persistence or distributed session storage",
+    "cross-tenant mutation",
+    "new permission IDs or Screen IDs"
+  ],
+  "runtime_intent": {
+    "component": "context-envelope",
+    "boundary_kind": "product-runtime",
+    "external_runtime_dependencies": [],
+    "authorization_model": "authorization outcome is an explicit caller-supplied input; the pilot does not invent a policy engine"
+  },
+  "selection_rationale": [
+    "MVP scope explicitly includes canonical objects and shell behavior",
+    "pilot plan explicitly includes Tenants/environments",
+    "CAP-SET-004 is defined/planned and has no open decision",
+    "the selected behavior is Class 0/1 only and creates no business mutation",
+    "the slice exercises Product Spec traceability, tenant isolation, permissions, negative tests and cross-product context without requiring the unresolved query backend, forensic engines, or OPEN-013 mutation policy"
+  ],
+  "rejected_candidates": [
+    {
+      "capability": "CAP-INV-101",
+      "reason": "Case Queue depends on CAP-INV-102 plus Search/Saved Views; its dependency closure is larger and reaches OPEN-013"
+    },
+    {
+      "capability": "CAP-INV-102",
+      "reason": "Case Lifecycle and Coordination explicitly depends on unresolved OPEN-013"
+    },
+    {
+      "capability": "CAP-INV-107",
+      "reason": "Evidence Creation and Management explicitly depends on unresolved OPEN-013 and OPEN-014"
+    }
+  ]
+}

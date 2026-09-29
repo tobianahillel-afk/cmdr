@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "work_unit": "E9-PILOT-001C",
+  "status": "DECOMPOSED",
+  "final_validated_head": "55e7d473a1f767b1e7bca0b44ad06259fd23389e",
+  "children": [
+    {
+      "id": "E9-PILOT-001C-RUNTIME",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "E9-PILOT-001C-SECURITY",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "E9-PILOT-001C-PERF",
+      "status": "VERIFIED"
+    }
+  ],
+  "completion_evidence": {
+    "runtime_contract_fixtures": 11,
+    "runtime_dependencies": 0,
+    "runtime_global_coverage_percent": 90.35,
+    "performance_budget_ms": 1,
+    "max_observed_p95_ms_across_final_push_pr": 0.00035315945,
+    "sast_findings": 0,
+    "sca_actionable_findings": 0
+  },
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E9-PILOT-001D"
+  ],
+  "children_verified": true,
+  "note": "Parent remains DECOMPOSED by complexity policy; completion is represented by its three VERIFIED child work units rather than by promoting the split-required parent to VERIFIED."
+}

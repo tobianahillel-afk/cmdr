@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "wave_id": "WAVE-CAP-INV-101-CORE-001",
+  "selection_policy": "reuse-first-v1",
+  "product_spec_baseline": "99c3826cdcbc79bad51631cf6462450f92e012eb",
+  "spec_tree_digest": "a5f45351eba180d0edb734f33ecbeaabb7eceb7143305e201e207e8ae5a60d27",
+  "readiness_snapshot": {
+    "total": 498,
+    "implemented": 5,
+    "ready": 16,
+    "blocked": 476,
+    "proposed": 1
+  },
+  "selected": {
+    "capability": "CAP-INV-101",
+    "name": "Case Queue",
+    "canonical_file": "cmdr-product-spec/07-investigate/modules/cases-and-evidence/capabilities/case-queue.md",
+    "screen": "INV-CAS-001"
+  },
+  "scope": {
+    "kind": "bounded-readonly-case-queue-projection-saved-view-and-handoff-core",
+    "included": [
+      "caller-owned accessible Case snapshot validation and immutable queue projection",
+      "deterministic local search/filter/sort over bounded Case rows",
+      "optional Incident and Finding context with explicit freshness/partial diagnostics",
+      "permission-re-evaluated Shared Saved View application without mutation",
+      "available/empty/partial/stale/permission-filtered/view-dirty runtime states",
+      "immutable Case Workspace handoff preserving safe view/filter/scroll/selection return context"
+    ],
+    "excluded": [
+      "Case create/update/assignment/status/lifecycle mutations delegated to CAP-INV-102 and governed by OPEN-013",
+      "Export Job creation or export backend selection",
+      "Saved View create/update/share/archive/manage mutation",
+      "Task/Decision/Response Run ownership or Work Queue behavior",
+      "canonical Case schema or final Case state-machine changes",
+      "final queue columns or final dedicated CAP-INV-101 UI",
+      "storage/provider/retention/collaboration backend selection",
+      "production queue SLO or full-capability completion claim"
+    ]
+  },
+  "runtime_intent": {
+    "root": "product-runtime/case-queue/**",
+    "external_runtime_dependencies": "deny-by-default",
+    "language": "Go standard library first unless a later reviewed decision proves otherwise",
+    "ownership_note": "runtime projects caller-owned Investigate Case state, optional foreign-owned context and Shared Saved View configuration; it owns no lifecycle mutation, Incident, Saved View, Task, Decision or Response Run",
+    "path_claim": "deferred until E10-INV-101A-BOUNDARY atomically registers unique architecture ownership"
+  },
+  "children": [
+    "E10-INV-101A-BOUNDARY",
+    "E10-INV-101A-CONTRACT",
+    "E10-INV-101B-RUNTIME",
+    "E10-INV-101C-VIEW",
+    "E10-INV-101D-HANDOFF",
+    "E10-INV-101E-CLOSURE",
+    "E10-INV-101F"
+  ],
+  "status": "VERIFIED_MATERIALIZED",
+  "validation": {
+    "final_validated_head": "833f3f71c80e94fbe4276877faf48d6600ed2ac5",
+    "push_workflow_run": 36497890474,
+    "pull_request_workflow_run": 36497894745,
+    "result": "PASS"
+  }
+}

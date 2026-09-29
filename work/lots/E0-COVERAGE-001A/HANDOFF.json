@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "work_unit": "E0-COVERAGE-001A",
+  "result": "VERIFIED",
+  "product_spec_baseline": "99c3826cdcbc79bad51631cf6462450f92e012eb",
+  "final_validated_head": "0bef3e6bf004e5e10e4e968881a35ec7d2e05da2",
+  "pull_request": 36,
+  "outputs": [
+    "cmdr-dev coverage-graph",
+    "typed product entity graph",
+    "source-backed reference edges",
+    "screen register reconciliation"
+  ],
+  "evidence": {
+    "push_run": 35780815775,
+    "pull_request_run": 35780822821,
+    "entities": 2315,
+    "edges": 14128,
+    "owned_capabilities": 498,
+    "registered_active_screens": 56
+  },
+  "important_modeling_rule": "Reference-only and historical identifiers remain represented for traceability but are never promoted to active registered product entities without canonical registry evidence.",
+  "product_spec_mutated": false,
+  "next_unlocked": ["E0-COVERAGE-001B"]
+}

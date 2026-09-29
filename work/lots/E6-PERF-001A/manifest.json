@@ -1,0 +1,112 @@
+{
+  "schema_version": 2,
+  "id": "E6-PERF-001A",
+  "title": "Define performance targets budgets and benchmark registry",
+  "type": "sublot",
+  "parent": "E6-PERF-001",
+  "goal": "Create the strict performance registry describing measurable targets, metric semantics, budgets, benchmark environments, change triggers and not-applicable behavior before any regression runner can make claims.",
+  "product_refs": {
+    "capabilities": [],
+    "requirements": [],
+    "screens": [],
+    "permissions": [],
+    "open_decisions": [],
+    "implementation_contracts": [],
+    "canonical_objects": []
+  },
+  "depends_on": [
+    "E5-RES-001D"
+  ],
+  "allowed_paths": [
+    "tools/cmdr-dev/**",
+    "engineering/performance/**",
+    "engineering/testing/**",
+    ".github/workflows/**",
+    "work/lots/E6-PERF-001*/**",
+    "engineering/state/**",
+    "work/graph.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**"
+  ],
+  "inputs": [
+    "verified E0-E5 engineering foundation",
+    "canonical Product Spec remains read-only",
+    "architecture/runtime boundary registry",
+    "risk-adaptive validation engine"
+  ],
+  "outputs": [
+    "strict performance policy",
+    "performance target/budget registry",
+    "benchmark environment registry",
+    "adaptive performance-registry audit"
+  ],
+  "invariants": [
+    "Product Spec remains read-only",
+    "performance claims require representative measured evidence",
+    "no runtime target is fabricated when no product-runtime boundary exists",
+    "benchmark noise cannot silently relax an explicit budget",
+    "expensive performance work is triggered proportionally rather than on every trivial change"
+  ],
+  "security_properties": [
+    "benchmark inputs and result files are untrusted data, never executable configuration",
+    "performance tooling remains development-only unless separately approved",
+    "resource tests use explicit bounded time and memory limits"
+  ],
+  "acceptance_tests": [
+    "go test ./...",
+    "cmdr-dev validate-manifests succeeds",
+    "cmdr-dev architecture-audit succeeds",
+    "cmdr-dev complexity-audit succeeds",
+    "adaptive engineering-kernel remains green",
+    "unit tests reject invalid units budgets owners and nonexistent runtime targets"
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "this layer governs performance measurement overhead as well as product targets",
+    "metrics": [
+      "registry audit target: sub-second on metadata-only repositories"
+    ]
+  },
+  "migration": {
+    "required": false,
+    "rationale": "engineering control-plane only",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert the E6 unit while retaining verified E0-E5 controls",
+    "verification": [
+      "engineering-kernel remains green",
+      "no accepted product contract changed"
+    ]
+  },
+  "required_checks": [
+    "adaptive engineering-kernel",
+    "cmdr-dev validate-manifests",
+    "cmdr-dev complexity-audit",
+    "cmdr-dev performance-registry-audit"
+  ],
+  "definition_of_ready": [
+    "dependencies are VERIFIED",
+    "scope is bounded",
+    "Product Spec is read-only"
+  ],
+  "definition_of_done": [
+    "metric units and aggregation semantics are closed enums",
+    "every registered target has owner path, workload, environment and budget",
+    "runtime targets must map to real product-runtime boundaries",
+    "no-runtime repositories report not-applicable rather than pass-by-assumption",
+    "adaptive CHK-PERFORMANCE-REGISTRY validates the registry"
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 10,
+    "estimated_net_loc": 560,
+    "production_files": 4,
+    "net_production_loc": 390,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

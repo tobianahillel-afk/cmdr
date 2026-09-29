@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-002A-BOUNDARY",
+  "status": "VERIFIED",
+  "final_validated_head": "7685898ac738f43943c5bb898e230201945945c6",
+  "validation": {
+    "push_workflow_run": 36014716041,
+    "pull_request_workflow_run": 36014724973,
+    "result": "PASS",
+    "architecture": "PASS",
+    "runtime_dependencies": "PASS",
+    "pilot_contract_multi_runtime": "PASS",
+    "performance_registry": "PASS",
+    "performance_benchmark_policy": "PASS",
+    "deep_performance_policy": "PASS",
+    "security_tests": "PASS",
+    "sast": "PASS",
+    "sca": "PASS",
+    "sbom": "PASS"
+  },
+  "runtime_boundary": {
+    "id": "event-search-runtime",
+    "root": "product-runtime/event-search/**",
+    "implementation_state": "preimplementation",
+    "executable_product_files": 0,
+    "external_runtime_dependencies": 0
+  },
+  "security_observation": {
+    "runtime_boundaries": 2,
+    "registered_scopes": 2,
+    "coverage_status": "mixed",
+    "global_coverage_percent": 90.35,
+    "authorization_required": 2,
+    "tenant_isolation_required": 2
+  },
+  "performance_observation": {
+    "registered_targets": 2,
+    "runtime_boundaries": 2,
+    "runtime_targeted": 2,
+    "event_search_target": "PERF-TGT-EVENT-SEARCH-VALIDATION",
+    "event_search_stage": "on-demand",
+    "event_search_executed": false
+  },
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-002A-CONTRACT"
+  ]
+}

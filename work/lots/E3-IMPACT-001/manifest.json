@@ -1,0 +1,98 @@
+{
+  "schema_version": 2,
+  "id": "E3-IMPACT-001",
+  "title": "Implement impact and test selection engine",
+  "type": "epic",
+  "parent": "",
+  "goal": "Map repository changes to the minimum safe deterministic validation set without repeatedly running irrelevant expensive checks.",
+  "product_refs": {
+    "capabilities": [],
+    "requirements": [],
+    "screens": [],
+    "permissions": [],
+    "open_decisions": [],
+    "implementation_contracts": [],
+    "canonical_objects": []
+  },
+  "depends_on": [
+    "E2-ARCH-001C"
+  ],
+  "allowed_paths": [
+    "tools/cmdr-dev/**",
+    "engineering/testing/**",
+    "work/lots/E3-IMPACT-001*/**",
+    ".github/workflows/engineering-kernel.yml",
+    "engineering/state/**",
+    "work/graph.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**"
+  ],
+  "inputs": [
+    "verified architecture/dependency engine",
+    "strict-v2 work manifests",
+    "repository change evidence"
+  ],
+  "outputs": [
+    "deterministic validation metadata"
+  ],
+  "invariants": [
+    "Product Spec remains read-only",
+    "validation selection is conservative when impact is uncertain",
+    "security-critical checks cannot be silently downgraded"
+  ],
+  "security_properties": [
+    "unknown validation domains fail closed",
+    "mandatory security gates cannot be omitted by a work unit"
+  ],
+  "acceptance_tests": [
+    "go test ./...",
+    "cmdr-dev validate-manifests succeeds",
+    "cmdr-dev architecture-audit succeeds",
+    "cmdr-dev complexity-audit succeeds"
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "impact selection must remain cheap enough for every PR",
+    "metrics": [
+      "selection control-plane target: sub-second on engineering-only metadata once repository change input is available"
+    ]
+  },
+  "migration": {
+    "required": false,
+    "rationale": "no product runtime persistent data migration",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert the impact-engine commit",
+    "verification": [
+      "engineering-kernel returns to the prior verified gate set"
+    ]
+  },
+  "required_checks": [
+    "gofmt",
+    "go vet ./...",
+    "go test ./...",
+    "cmdr-dev validate-manifests",
+    "cmdr-dev architecture-audit",
+    "cmdr-dev complexity-audit"
+  ],
+  "definition_of_ready": [
+    "dependencies are VERIFIED",
+    "validation scope is explicit"
+  ],
+  "definition_of_done": [
+    "all E3 impact sublots are VERIFIED"
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 9,
+    "estimated_net_loc": 700,
+    "production_files": 0,
+    "net_production_loc": 0,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

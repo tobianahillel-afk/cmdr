@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-004E",
+  "result": "VERIFIED",
+  "implementation_commit": "dfa2fe9786b375fc625dbf0a86f0913bf8569a54",
+  "final_validated_head": "8fdacfc820ff0f248632c0e55980d2c01c459725",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 36398109510,
+    "pull_request_run": 36398116406,
+    "contract": "EVENT-INSPECTION-READONLY-CONTRACT-V1",
+    "fixtures": 17,
+    "negative_fixtures": 13,
+    "runtime_files": 7,
+    "runtime_dependencies": 0,
+    "cross_boundary_edges": 0,
+    "global_coverage_percent": 91.47,
+    "sast_findings": 0,
+    "sca_actionable_findings": 0
+  },
+  "invariants": [
+    "CAP-INV-004 ledger claim represents verified bounded Event Inspection runtime implementation evidence, not full product-capability completion",
+    "Product Spec remains read-only",
+    "OPEN-013 and OPEN-014 remain unresolved and class-2 mutations remain excluded",
+    "parser/entity-resolution/storage/provider/final query dialect remain unselected",
+    "dedicated final Event Inspector UI and production Event Inspection SLO remain unclaimed",
+    "event-inspection-runtime has zero external runtime dependencies and zero unauthorized cross-boundary edges",
+    "runtime remained unchanged from verified pivot evidence through bounded closure"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-SCALE-003A"
+  ]
+}

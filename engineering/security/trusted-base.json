@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "default_policy": "deny-third-party-product-functionality",
+  "runtime_exceptions": [],
+  "notes": [
+    "The allowlist starts empty.",
+    "Cryptographic/TLS/platform exceptions require an explicit reviewed entry before use.",
+    "Development-only tools are governed separately and are not listed as product runtime dependencies."
+  ]
+}

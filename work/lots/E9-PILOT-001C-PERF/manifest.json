@@ -1,0 +1,124 @@
+{
+  "schema_version": 2,
+  "parent": "E9-PILOT-001C",
+  "product_refs": {
+    "capabilities": [
+      "CAP-SET-004"
+    ],
+    "requirements": [
+      "REQ-PROD-008",
+      "REQ-SEC-001",
+      "REQ-UX-006",
+      "REQ-UX-007",
+      "REQ-UX-009"
+    ],
+    "screens": [],
+    "permissions": [
+      "perm.platform-settings.environment.read",
+      "perm.platform-settings.tenant.read"
+    ],
+    "open_decisions": [],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/cross-product-context-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/environment.md",
+      "cmdr-product-spec/05-domain-model/objects/tenant.md"
+    ]
+  },
+  "forbidden_paths": [
+    "cmdr-product-spec/**"
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "bounded pure in-process pilot runtime with no persistence",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert the child task and keep later E9-C tasks blocked",
+    "verification": [
+      "Product Spec baseline remains unchanged",
+      "runtime boundary dependency audit remains valid"
+    ]
+  },
+  "definition_of_ready": [
+    "upstream dependency terminal state is satisfied",
+    "scope remains PILOT-CONTEXT-001/CAP-SET-004"
+  ],
+  "id": "E9-PILOT-001C-PERF",
+  "title": "Activate pilot runtime performance workload and verify budget",
+  "type": "task",
+  "goal": "Make pilot-context-projection-v1 executable against the real runtime and prove the registered absolute latency budget without fabricating relative claims on shared CI.",
+  "depends_on": [
+    "E9-PILOT-001C-SECURITY"
+  ],
+  "allowed_paths": [
+    "product-runtime/context-envelope/**",
+    "engineering/performance/**",
+    "tools/cmdr-dev/performance_benchmark.go",
+    "tools/cmdr-dev/performance_benchmark_test.go",
+    "tools/cmdr-dev/deep_performance.go",
+    "tools/cmdr-dev/deep_performance_test.go",
+    "tools/cmdr-dev/validation_run.go",
+    ".github/workflows/**",
+    "work/lots/E9-PILOT-001C*/**",
+    "engineering/state/**",
+    "work/graph.json"
+  ],
+  "inputs": [
+    "verified measured-security runtime",
+    "registered PERF-TGT-PILOT-CONTEXT-PROJECTION target"
+  ],
+  "outputs": [
+    "executable pilot-context-projection-v1 handler",
+    "real benchmark evidence",
+    "budget verdict for p95 <=1ms",
+    "CI evidence including observed performance metric and absolute budget verdict"
+  ],
+  "invariants": [
+    "shared CI uses absolute budget only",
+    "no historical baseline is fabricated",
+    "benchmark exercises real runtime code"
+  ],
+  "security_properties": [
+    "benchmark fixtures are synthetic",
+    "performance tooling remains development-only"
+  ],
+  "acceptance_tests": [
+    "pilot target executes when triggered",
+    "p95 projection latency satisfies registered <=1ms budget",
+    "deep/on-demand handler no longer reports unavailable",
+    "performance cache contains only measured evidence"
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "this task is the first real measurement of the registered pilot target",
+    "metrics": [
+      "PERF-TGT-PILOT-CONTEXT-PROJECTION projection-p95-latency <=1 ms"
+    ]
+  },
+  "required_checks": [
+    "CHK-PERFORMANCE-REGISTRY",
+    "CHK-PERFORMANCE-BENCHMARK",
+    "CHK-DEEP-PERFORMANCE",
+    "CHK-PERFORMANCE-CACHE"
+  ],
+  "definition_of_done": [
+    "registered pilot workload is executable",
+    "real runtime measurement satisfies absolute budget",
+    "no relative performance superiority is claimed",
+    "E9-PILOT-001C can be VERIFIED"
+  ],
+  "complexity": {
+    "primary_components": 2,
+    "estimated_files_changed": 10,
+    "estimated_net_loc": 420,
+    "production_files": 4,
+    "net_production_loc": 280,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 0,
+    "separately_testable_behaviors": 1
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "work_unit": "E7-REC-001D",
+  "status": "VERIFIED",
+  "final_validated_head": "80802237cc536c02af4da08420ee40f39f1531f9",
+  "validation": {
+    "push_workflow_run": 35918216166,
+    "pull_request_workflow_run": 35918221878,
+    "result": "PASS",
+    "coordination_audit": "PASS",
+    "unit_tests": "PASS",
+    "sast": "PASS",
+    "sca": "PASS"
+  },
+  "coordination_observation": {
+    "live_repository": {
+      "active_claims": 0,
+      "mutating_claims": 0,
+      "read_only_claims": 0,
+      "conflicts": 0,
+      "status": "clear"
+    },
+    "synthetic_tests": [
+      "overlapping mutating scopes fail closed",
+      "explicit read-only overlap is allowed",
+      "legacy blank lease mode defaults to mutating",
+      "handoff binds exact work unit lease agent and Git head",
+      "handoff requires release and receiver reacquisition before mutation",
+      "revalidation requirement survives handoff"
+    ],
+    "catalog_check": "CHK-COORDINATION",
+    "selected_checks_push": 40,
+    "executed_checks_push": 36,
+    "selected_checks_pull_request": 40,
+    "executed_checks_pull_request": 36
+  },
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E8-MET-001A"
+  ]
+}

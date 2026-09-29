@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "work_unit": "E9-PILOT-001A",
+  "result": "VERIFIED",
+  "final_validated_head": "5b3e5050f37282dfc3a48ee66d5301e02e8dedb5",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 35972367994,
+    "pull_request_run": 35972373479,
+    "check": "CHK-PILOT-SCOPE",
+    "slice_id": "PILOT-CONTEXT-001",
+    "capability": "CAP-SET-004",
+    "requirements": 5,
+    "permissions": 2,
+    "open_decisions": 0,
+    "contracts": 2,
+    "objects": 2,
+    "product_graph_digest": "a5f45351eba180d0edb734f33ecbeaabb7eceb7143305e201e207e8ae5a60d27"
+  },
+  "rules": [
+    "Product Spec remains read-only",
+    "the pilot is Class 0/1 only and introduces no administrative mutation",
+    "no unresolved OPEN decision is selected",
+    "runtime intent has zero external product-runtime dependencies",
+    "authorization is an explicit destination outcome; the pilot does not invent a policy engine"
+  ],
+  "next_unlocked": [
+    "E9-PILOT-001B"
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-SCALE-004A",
+  "status": "VERIFIED",
+  "final_validated_head": "89bc2484420b4d90d557403c7bd38e477c76596a",
+  "validation": {
+    "push_workflow_run": 36457830155,
+    "pull_request_workflow_run": 36457837572,
+    "result": "PASS",
+    "implementation_ledger": "PASS",
+    "implementation_readiness": "PASS",
+    "implementation_wave": "PASS"
+  },
+  "ledger": {
+    "entries": 4,
+    "verified_claims": 4,
+    "capabilities": 4,
+    "runtime_boundaries": 4,
+    "product_spec_baseline": "99c3826cdcbc79bad51631cf6462450f92e012eb",
+    "spec_tree_digest": "a5f45351eba180d0edb734f33ecbeaabb7eceb7143305e201e207e8ae5a60d27"
+  },
+  "readiness": {
+    "total": 498,
+    "implemented": 4,
+    "ready": 17,
+    "blocked": 476,
+    "proposed": 1,
+    "decision_blocked": 471,
+    "dependency_blocked": 107,
+    "unscoped_blockers": 23
+  },
+  "next_selection": {
+    "policy": "reuse-first-v1",
+    "preferred_family": "CAP-INV",
+    "capability": "CAP-INV-006",
+    "canonical_file": "07-investigate/modules/signals-and-hunt/capabilities/saved-searches-and-query-assets.md"
+  },
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-SCALE-004B"
+  ]
+}

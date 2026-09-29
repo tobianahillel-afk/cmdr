@@ -1,0 +1,157 @@
+{
+  "schema_version": 1,
+  "benchmark_id": "BENCH-0001",
+  "run_at": "2026-09-24",
+  "script_sha256": "53cae19d268941a29420ad91791e524e8061ab52e92fcdafd9ae31305a95bea0",
+  "environment": {
+    "os": "Linux x86_64",
+    "browser": "Chrome/Chromium 144.0.7559.96 headless",
+    "v8": "14.4.258.22",
+    "webkit_revision": "d7b80622cfab91c265741194e7942eefd2d21811",
+    "gpu": "disabled",
+    "network": "disabled/not used by benchmark",
+    "third_party_js_runtime": false
+  },
+  "workload": {
+    "rows": 250,
+    "initial_rounds_per_run": 30,
+    "updates_per_run": 160,
+    "repeated_runs": 7,
+    "mutated_rows_per_native_update": 12,
+    "server_fragment_rows_per_update": 250
+  },
+  "raw_runs": [
+    {
+      "native_web": {
+        "initial_p95_ms": 18,
+        "initial_mean_ms": 10.060000000001553,
+        "update_p95_ms": 0.5,
+        "update_mean_ms": 0.3150000000001455
+      },
+      "server_progressive": {
+        "initial_p95_ms": 8,
+        "initial_mean_ms": 6.449999999992239,
+        "update_p95_ms": 11.099999999976717,
+        "update_mean_ms": 7.05
+      }
+    },
+    {
+      "native_web": {
+        "initial_p95_ms": 10.900000000023283,
+        "initial_mean_ms": 7.52666666667404,
+        "update_p95_ms": 0.7000000000116415,
+        "update_mean_ms": 0.4668749999993452
+      },
+      "server_progressive": {
+        "initial_p95_ms": 13,
+        "initial_mean_ms": 7.086666666669771,
+        "update_p95_ms": 9.200000000011642,
+        "update_mean_ms": 6.964374999999563
+      }
+    },
+    {
+      "native_web": {
+        "initial_p95_ms": 12.5,
+        "initial_mean_ms": 7.500000000001941,
+        "update_p95_ms": 0.7000000000116415,
+        "update_mean_ms": 0.3881249999994907
+      },
+      "server_progressive": {
+        "initial_p95_ms": 7,
+        "initial_mean_ms": 5.983333333335273,
+        "update_p95_ms": 9.799999999988358,
+        "update_mean_ms": 6.908124999999927
+      }
+    },
+    {
+      "native_web": {
+        "initial_p95_ms": 9.600000000034925,
+        "initial_mean_ms": 7.359999999993791,
+        "update_p95_ms": 0.6000000000349246,
+        "update_mean_ms": 0.36812500000014553
+      },
+      "server_progressive": {
+        "initial_p95_ms": 12.200000000011642,
+        "initial_mean_ms": 6.283333333333333,
+        "update_p95_ms": 9.099999999976717,
+        "update_mean_ms": 6.7818750000013095
+      }
+    },
+    {
+      "native_web": {
+        "initial_p95_ms": 9.400000000023283,
+        "initial_mean_ms": 6.843333333342646,
+        "update_p95_ms": 0.5999999999767169,
+        "update_mean_ms": 0.3381250000002183
+      },
+      "server_progressive": {
+        "initial_p95_ms": 15.799999999988358,
+        "initial_mean_ms": 7.61333333333799,
+        "update_p95_ms": 9,
+        "update_mean_ms": 6.686249999999927
+      }
+    },
+    {
+      "native_web": {
+        "initial_p95_ms": 19.79999999998836,
+        "initial_mean_ms": 8.223333333335662,
+        "update_p95_ms": 0.9000000000232831,
+        "update_mean_ms": 0.478125
+      },
+      "server_progressive": {
+        "initial_p95_ms": 8.900000000023283,
+        "initial_mean_ms": 6.160000000001552,
+        "update_p95_ms": 10.899999999965075,
+        "update_mean_ms": 7.038125000000582
+      }
+    },
+    {
+      "native_web": {
+        "initial_p95_ms": 13.199999999953434,
+        "initial_mean_ms": 7.559999999991851,
+        "update_p95_ms": 1.7999999999883585,
+        "update_mean_ms": 0.5456249999999272
+      },
+      "server_progressive": {
+        "initial_p95_ms": 9.5,
+        "initial_mean_ms": 6.580000000004657,
+        "update_p95_ms": 11.600000000034925,
+        "update_mean_ms": 7.309375000000363
+      }
+    }
+  ],
+  "aggregate": {
+    "native_web": {
+      "initial_p95_ms": {
+        "median": 12.5,
+        "min": 9.400000000023283,
+        "max": 19.79999999998836
+      },
+      "update_p95_ms": {
+        "median": 0.7000000000116415,
+        "min": 0.5,
+        "max": 1.7999999999883585
+      },
+      "third_party_runtime_bytes": 0
+    },
+    "server_progressive": {
+      "initial_p95_ms": {
+        "median": 9.5,
+        "min": 7,
+        "max": 15.799999999988358
+      },
+      "update_p95_ms": {
+        "median": 9.799999999988358,
+        "min": 9,
+        "max": 11.600000000034925
+      },
+      "third_party_runtime_bytes": 0
+    }
+  },
+  "interpretation": [
+    "server-progressive has the lower median p95 initial-fragment cost in this synthetic local benchmark",
+    "native-web has about fourteen-times lower median p95 repeated state-update cost for the selected workload",
+    "the benchmark excludes network latency, backend execution, browser paint complexity beyond forced layout, and final list virtualization",
+    "results support architecture selection but are not a production Search SLO"
+  ]
+}

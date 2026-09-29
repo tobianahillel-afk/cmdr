@@ -1,0 +1,109 @@
+{
+  "schema_version": 2,
+  "id": "E10-SCALE-002A",
+  "title": "Register CAP-INV-002 runtime claim and recompile implementation readiness",
+  "type": "task",
+  "parent": "E10-SCALE-002",
+  "goal": "Add the verified E10-INV-002G runtime claim to the global implementation ledger and prove that the readiness compiler marks CAP-INV-002 IMPLEMENTED without changing the Product Spec.",
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-002"
+    ],
+    "requirements": [],
+    "screens": [],
+    "permissions": [],
+    "open_decisions": [
+      "OPEN-013"
+    ],
+    "implementation_contracts": [],
+    "canonical_objects": []
+  },
+  "depends_on": [
+    "E10-INV-002G"
+  ],
+  "allowed_paths": [
+    "engineering/implementation/**",
+    "engineering/state/**",
+    "work/graph.json",
+    "work/lots/E10-SCALE-002A/**",
+    "tools/cmdr-dev/**"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/**"
+  ],
+  "inputs": [
+    "VERIFIED E10-INV-002G runtime implementation claim",
+    "canonical read-only Product Spec baseline",
+    "implementation ledger and readiness compiler",
+    "reuse-first-v1 wave-selection policy"
+  ],
+  "outputs": [
+    "CAP-INV-002 ledger entry backed by E10-INV-002G",
+    "implementation-ledger PASS evidence",
+    "fresh readiness summary with CAP-INV-002 IMPLEMENTED"
+  ],
+  "invariants": [
+    "Product Spec remains read-only",
+    "product runtime code is not changed by scaling-control tasks",
+    "ledger IMPLEMENTED means verified runtime evidence and does not claim full capability completion",
+    "blocked/proposed capabilities cannot enter an implementation wave",
+    "OPEN-013 remains unresolved unless canonical Product Spec evidence changes"
+  ],
+  "security_properties": [
+    "ledger claims must satisfy implementation-ledger evidence floors",
+    "readiness is recomputed from canonical Product Spec and verified ledger rather than manual state",
+    "next wave is selected only from READY capabilities"
+  ],
+  "acceptance_tests": [
+    "adaptive engineering-kernel remains green",
+    "implementation-ledger-audit passes",
+    "implementation-readiness passes",
+    "implementation-wave selection remains source-backed"
+  ],
+  "performance_budget": {
+    "applicable": false,
+    "rationale": "control-plane metadata task only",
+    "metrics": []
+  },
+  "migration": {
+    "required": false,
+    "rationale": "engineering control-plane metadata only",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert the scaling-control commit without modifying verified product runtimes",
+    "verification": [
+      "Event Search runtime remains unchanged",
+      "Product Spec baseline remains unchanged"
+    ]
+  },
+  "required_checks": [
+    "adaptive engineering-kernel",
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-IMPLEMENTATION-LEDGER",
+    "CHK-IMPLEMENTATION-READINESS",
+    "CHK-IMPLEMENTATION-WAVE"
+  ],
+  "definition_of_ready": [
+    "declared dependency is VERIFIED"
+  ],
+  "definition_of_done": [
+    "ledger contains exactly one CAP-INV-002 claim",
+    "ledger audit validates the E10-INV-002G manifest/handoff and event-search-runtime boundary",
+    "readiness compiler marks CAP-INV-002 IMPLEMENTED",
+    "a fresh READY denominator is recorded for next-wave selection"
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 5,
+    "estimated_net_loc": 260,
+    "production_files": 0,
+    "net_production_loc": 0,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

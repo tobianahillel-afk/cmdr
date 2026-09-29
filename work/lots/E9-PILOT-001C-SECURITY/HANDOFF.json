@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "work_unit": "E9-PILOT-001C-SECURITY",
+  "result": "VERIFIED",
+  "final_validated_head": "172c29048c412b0f23079184f2020484d6d86db4",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 35988336675,
+    "pull_request_run": 35988341187,
+    "global_coverage_percent": 95.24,
+    "global_floor_percent": 80,
+    "changed_security_critical_floor_percent": 90,
+    "changed_floor_verified": true,
+    "authorization_negative_passed": true,
+    "tenant_isolation_negative_passed": true,
+    "sast_findings": 0,
+    "sca_actionable_findings": 0
+  },
+  "rules": [
+    "measured runtime evidence is generated ephemerally for the exact checked-out commit",
+    "committed evidence remains a non-authoritative preimplementation marker",
+    "product-runtime-only changes trigger engineering-kernel",
+    "negative gates execute predeclared synthetic contract fixtures",
+    "coverage floors fail closed before gate evidence is accepted"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E9-PILOT-001C-PERF"
+  ]
+}

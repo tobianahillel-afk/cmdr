@@ -1,0 +1,593 @@
+{
+  "schema_version": 1,
+  "contract_id": "EVENT-SEARCH-EXECUTABLE-CONTRACT-V1",
+  "cases": [
+    {
+      "id": "valid-execution-envelope",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "time_start": "2026-09-24T10:00:00Z",
+        "time_end": "2026-09-24T11:00:00Z",
+        "sources": [
+          "source-a"
+        ],
+        "authorized_sources": [
+          "source-a"
+        ],
+        "permissions": [
+          "perm.investigate.search.execute",
+          "perm.shared-capabilities.query.read",
+          "perm.shared-capabilities.search-job.manage",
+          "perm.shared-capabilities.telemetry-event.read"
+        ],
+        "query_present": true,
+        "query_valid": true,
+        "current_job_state": "",
+        "requested_job_state": "queued",
+        "relaunch": false,
+        "partial_failed_sources": [],
+        "case_link_requested": false
+      },
+      "expected": {
+        "allowed": true,
+        "error_code": "",
+        "next_job_state": "queued",
+        "protected_data_visible": true,
+        "valid_results_preserved": false,
+        "failed_sources_visible": false,
+        "new_job_required": false,
+        "audit_required": true,
+        "case_link_mutation_executed": false
+      }
+    },
+    {
+      "id": "partial-preserves-valid-results",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "time_start": "2026-09-24T10:00:00Z",
+        "time_end": "2026-09-24T11:00:00Z",
+        "sources": [
+          "source-a",
+          "source-b"
+        ],
+        "authorized_sources": [
+          "source-a",
+          "source-b"
+        ],
+        "permissions": [
+          "perm.investigate.search.execute",
+          "perm.shared-capabilities.query.read",
+          "perm.shared-capabilities.search-job.manage",
+          "perm.shared-capabilities.telemetry-event.read"
+        ],
+        "query_present": true,
+        "query_valid": true,
+        "current_job_state": "",
+        "requested_job_state": "queued",
+        "relaunch": false,
+        "partial_failed_sources": [
+          "source-b"
+        ],
+        "case_link_requested": false
+      },
+      "expected": {
+        "allowed": true,
+        "error_code": "",
+        "next_job_state": "partial",
+        "protected_data_visible": true,
+        "valid_results_preserved": true,
+        "failed_sources_visible": true,
+        "new_job_required": false,
+        "audit_required": true,
+        "case_link_mutation_executed": false
+      }
+    },
+    {
+      "id": "missing-tenant-is-rejected",
+      "input": {
+        "tenant_ref": "",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "time_start": "2026-09-24T10:00:00Z",
+        "time_end": "2026-09-24T11:00:00Z",
+        "sources": [
+          "source-a"
+        ],
+        "authorized_sources": [
+          "source-a"
+        ],
+        "permissions": [
+          "perm.investigate.search.execute",
+          "perm.shared-capabilities.query.read",
+          "perm.shared-capabilities.search-job.manage",
+          "perm.shared-capabilities.telemetry-event.read"
+        ],
+        "query_present": true,
+        "query_valid": true,
+        "current_job_state": "",
+        "requested_job_state": "queued",
+        "relaunch": false,
+        "partial_failed_sources": [],
+        "case_link_requested": false
+      },
+      "expected": {
+        "allowed": false,
+        "error_code": "missing-tenant",
+        "next_job_state": "",
+        "protected_data_visible": false,
+        "valid_results_preserved": false,
+        "failed_sources_visible": false,
+        "new_job_required": false,
+        "audit_required": true,
+        "case_link_mutation_executed": false
+      }
+    },
+    {
+      "id": "wildcard-tenant-is-rejected",
+      "input": {
+        "tenant_ref": "*",
+        "authorized_tenants": [
+          "*"
+        ],
+        "environment_ref": "env-prod",
+        "time_start": "2026-09-24T10:00:00Z",
+        "time_end": "2026-09-24T11:00:00Z",
+        "sources": [
+          "source-a"
+        ],
+        "authorized_sources": [
+          "source-a"
+        ],
+        "permissions": [
+          "perm.investigate.search.execute",
+          "perm.shared-capabilities.query.read",
+          "perm.shared-capabilities.search-job.manage",
+          "perm.shared-capabilities.telemetry-event.read"
+        ],
+        "query_present": true,
+        "query_valid": true,
+        "current_job_state": "",
+        "requested_job_state": "queued",
+        "relaunch": false,
+        "partial_failed_sources": [],
+        "case_link_requested": false
+      },
+      "expected": {
+        "allowed": false,
+        "error_code": "wildcard-tenant",
+        "next_job_state": "",
+        "protected_data_visible": false,
+        "valid_results_preserved": false,
+        "failed_sources_visible": false,
+        "new_job_required": false,
+        "audit_required": true,
+        "case_link_mutation_executed": false
+      }
+    },
+    {
+      "id": "cross-tenant-is-rejected",
+      "input": {
+        "tenant_ref": "tenant-b",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "time_start": "2026-09-24T10:00:00Z",
+        "time_end": "2026-09-24T11:00:00Z",
+        "sources": [
+          "source-a"
+        ],
+        "authorized_sources": [
+          "source-a"
+        ],
+        "permissions": [
+          "perm.investigate.search.execute",
+          "perm.shared-capabilities.query.read",
+          "perm.shared-capabilities.search-job.manage",
+          "perm.shared-capabilities.telemetry-event.read"
+        ],
+        "query_present": true,
+        "query_valid": true,
+        "current_job_state": "",
+        "requested_job_state": "queued",
+        "relaunch": false,
+        "partial_failed_sources": [],
+        "case_link_requested": false
+      },
+      "expected": {
+        "allowed": false,
+        "error_code": "cross-tenant",
+        "next_job_state": "",
+        "protected_data_visible": false,
+        "valid_results_preserved": false,
+        "failed_sources_visible": false,
+        "new_job_required": false,
+        "audit_required": true,
+        "case_link_mutation_executed": false
+      }
+    },
+    {
+      "id": "missing-environment-is-rejected",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "",
+        "time_start": "2026-09-24T10:00:00Z",
+        "time_end": "2026-09-24T11:00:00Z",
+        "sources": [
+          "source-a"
+        ],
+        "authorized_sources": [
+          "source-a"
+        ],
+        "permissions": [
+          "perm.investigate.search.execute",
+          "perm.shared-capabilities.query.read",
+          "perm.shared-capabilities.search-job.manage",
+          "perm.shared-capabilities.telemetry-event.read"
+        ],
+        "query_present": true,
+        "query_valid": true,
+        "current_job_state": "",
+        "requested_job_state": "queued",
+        "relaunch": false,
+        "partial_failed_sources": [],
+        "case_link_requested": false
+      },
+      "expected": {
+        "allowed": false,
+        "error_code": "missing-environment",
+        "next_job_state": "",
+        "protected_data_visible": false,
+        "valid_results_preserved": false,
+        "failed_sources_visible": false,
+        "new_job_required": false,
+        "audit_required": true,
+        "case_link_mutation_executed": false
+      }
+    },
+    {
+      "id": "permission-denied-masks-protected-data",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "time_start": "2026-09-24T10:00:00Z",
+        "time_end": "2026-09-24T11:00:00Z",
+        "sources": [
+          "source-a"
+        ],
+        "authorized_sources": [
+          "source-a"
+        ],
+        "permissions": [
+          "perm.shared-capabilities.query.read",
+          "perm.shared-capabilities.search-job.manage",
+          "perm.shared-capabilities.telemetry-event.read"
+        ],
+        "query_present": true,
+        "query_valid": true,
+        "current_job_state": "",
+        "requested_job_state": "queued",
+        "relaunch": false,
+        "partial_failed_sources": [],
+        "case_link_requested": false
+      },
+      "expected": {
+        "allowed": false,
+        "error_code": "permission-denied",
+        "next_job_state": "",
+        "protected_data_visible": false,
+        "valid_results_preserved": false,
+        "failed_sources_visible": false,
+        "new_job_required": false,
+        "audit_required": true,
+        "case_link_mutation_executed": false
+      }
+    },
+    {
+      "id": "invalid-time-range-is-rejected",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "time_start": "2026-09-24T12:00:00Z",
+        "time_end": "2026-09-24T11:00:00Z",
+        "sources": [
+          "source-a"
+        ],
+        "authorized_sources": [
+          "source-a"
+        ],
+        "permissions": [
+          "perm.investigate.search.execute",
+          "perm.shared-capabilities.query.read",
+          "perm.shared-capabilities.search-job.manage",
+          "perm.shared-capabilities.telemetry-event.read"
+        ],
+        "query_present": true,
+        "query_valid": true,
+        "current_job_state": "",
+        "requested_job_state": "queued",
+        "relaunch": false,
+        "partial_failed_sources": [],
+        "case_link_requested": false
+      },
+      "expected": {
+        "allowed": false,
+        "error_code": "invalid-time-range",
+        "next_job_state": "",
+        "protected_data_visible": false,
+        "valid_results_preserved": false,
+        "failed_sources_visible": false,
+        "new_job_required": false,
+        "audit_required": true,
+        "case_link_mutation_executed": false
+      }
+    },
+    {
+      "id": "empty-sources-are-rejected",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "time_start": "2026-09-24T10:00:00Z",
+        "time_end": "2026-09-24T11:00:00Z",
+        "sources": [],
+        "authorized_sources": [],
+        "permissions": [
+          "perm.investigate.search.execute",
+          "perm.shared-capabilities.query.read",
+          "perm.shared-capabilities.search-job.manage",
+          "perm.shared-capabilities.telemetry-event.read"
+        ],
+        "query_present": true,
+        "query_valid": true,
+        "current_job_state": "",
+        "requested_job_state": "queued",
+        "relaunch": false,
+        "partial_failed_sources": [],
+        "case_link_requested": false
+      },
+      "expected": {
+        "allowed": false,
+        "error_code": "empty-sources",
+        "next_job_state": "",
+        "protected_data_visible": false,
+        "valid_results_preserved": false,
+        "failed_sources_visible": false,
+        "new_job_required": false,
+        "audit_required": true,
+        "case_link_mutation_executed": false
+      }
+    },
+    {
+      "id": "unauthorized-source-is-rejected",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "time_start": "2026-09-24T10:00:00Z",
+        "time_end": "2026-09-24T11:00:00Z",
+        "sources": [
+          "source-b"
+        ],
+        "authorized_sources": [
+          "source-a"
+        ],
+        "permissions": [
+          "perm.investigate.search.execute",
+          "perm.shared-capabilities.query.read",
+          "perm.shared-capabilities.search-job.manage",
+          "perm.shared-capabilities.telemetry-event.read"
+        ],
+        "query_present": true,
+        "query_valid": true,
+        "current_job_state": "",
+        "requested_job_state": "queued",
+        "relaunch": false,
+        "partial_failed_sources": [],
+        "case_link_requested": false
+      },
+      "expected": {
+        "allowed": false,
+        "error_code": "unauthorized-source",
+        "next_job_state": "",
+        "protected_data_visible": false,
+        "valid_results_preserved": false,
+        "failed_sources_visible": false,
+        "new_job_required": false,
+        "audit_required": true,
+        "case_link_mutation_executed": false
+      }
+    },
+    {
+      "id": "invalid-query-is-rejected",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "time_start": "2026-09-24T10:00:00Z",
+        "time_end": "2026-09-24T11:00:00Z",
+        "sources": [
+          "source-a"
+        ],
+        "authorized_sources": [
+          "source-a"
+        ],
+        "permissions": [
+          "perm.investigate.search.execute",
+          "perm.shared-capabilities.query.read",
+          "perm.shared-capabilities.search-job.manage",
+          "perm.shared-capabilities.telemetry-event.read"
+        ],
+        "query_present": true,
+        "query_valid": false,
+        "current_job_state": "",
+        "requested_job_state": "queued",
+        "relaunch": false,
+        "partial_failed_sources": [],
+        "case_link_requested": false
+      },
+      "expected": {
+        "allowed": false,
+        "error_code": "invalid-query",
+        "next_job_state": "",
+        "protected_data_visible": false,
+        "valid_results_preserved": false,
+        "failed_sources_visible": false,
+        "new_job_required": false,
+        "audit_required": true,
+        "case_link_mutation_executed": false
+      }
+    },
+    {
+      "id": "illegal-terminal-transition-is-rejected",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "time_start": "2026-09-24T10:00:00Z",
+        "time_end": "2026-09-24T11:00:00Z",
+        "sources": [
+          "source-a"
+        ],
+        "authorized_sources": [
+          "source-a"
+        ],
+        "permissions": [
+          "perm.investigate.search.execute",
+          "perm.shared-capabilities.query.read",
+          "perm.shared-capabilities.search-job.manage",
+          "perm.shared-capabilities.telemetry-event.read"
+        ],
+        "query_present": true,
+        "query_valid": true,
+        "current_job_state": "completed",
+        "requested_job_state": "running",
+        "relaunch": false,
+        "partial_failed_sources": [],
+        "case_link_requested": false
+      },
+      "expected": {
+        "allowed": false,
+        "error_code": "illegal-transition",
+        "next_job_state": "",
+        "protected_data_visible": false,
+        "valid_results_preserved": false,
+        "failed_sources_visible": false,
+        "new_job_required": false,
+        "audit_required": true,
+        "case_link_mutation_executed": false
+      }
+    },
+    {
+      "id": "case-link-remains-excluded",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "time_start": "2026-09-24T10:00:00Z",
+        "time_end": "2026-09-24T11:00:00Z",
+        "sources": [
+          "source-a"
+        ],
+        "authorized_sources": [
+          "source-a"
+        ],
+        "permissions": [
+          "perm.investigate.search.execute",
+          "perm.shared-capabilities.query.read",
+          "perm.shared-capabilities.search-job.manage",
+          "perm.shared-capabilities.telemetry-event.read"
+        ],
+        "query_present": true,
+        "query_valid": true,
+        "current_job_state": "",
+        "requested_job_state": "queued",
+        "relaunch": false,
+        "partial_failed_sources": [],
+        "case_link_requested": true
+      },
+      "expected": {
+        "allowed": false,
+        "error_code": "case-link-open-decision",
+        "next_job_state": "",
+        "protected_data_visible": false,
+        "valid_results_preserved": false,
+        "failed_sources_visible": false,
+        "new_job_required": false,
+        "audit_required": true,
+        "case_link_mutation_executed": false
+      }
+    },
+    {
+      "id": "running-job-can-be-cancelled",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "time_start": "2026-09-24T10:00:00Z",
+        "time_end": "2026-09-24T11:00:00Z",
+        "sources": [
+          "source-a"
+        ],
+        "authorized_sources": [
+          "source-a"
+        ],
+        "permissions": [
+          "perm.investigate.search.execute",
+          "perm.shared-capabilities.query.read",
+          "perm.shared-capabilities.search-job.manage",
+          "perm.shared-capabilities.telemetry-event.read"
+        ],
+        "query_present": true,
+        "query_valid": true,
+        "current_job_state": "running",
+        "requested_job_state": "cancelled",
+        "relaunch": false,
+        "partial_failed_sources": [],
+        "case_link_requested": false
+      },
+      "expected": {
+        "allowed": true,
+        "error_code": "",
+        "next_job_state": "cancelled",
+        "protected_data_visible": true,
+        "valid_results_preserved": false,
+        "failed_sources_visible": false,
+        "new_job_required": false,
+        "audit_required": true,
+        "case_link_mutation_executed": false
+      }
+    }
+  ]
+}

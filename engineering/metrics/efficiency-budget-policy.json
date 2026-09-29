@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "policy_kind": "engineering-engine-efficiency-budgets",
+  "default_policy": "deny-unknown-metric",
+  "profile_match": [
+    "plan_tier",
+    "risk_domains",
+    "mandatory_floor"
+  ],
+  "mandatory_floor_provenance": {
+    "source_sha": "05b51dcbdafb2a3e9aba8d89ca11e5c8fdc99190",
+    "workflow_run_id": 35920870190,
+    "mandatory_floor": 43
+  },
+  "safety_floors": [
+    {
+      "metric_id": "MET-MANDATORY-CHECKS",
+      "comparator": "minimum",
+      "value": 43,
+      "rationale": "the verified E8-C mandatory check floor may increase but cannot be reduced for efficiency"
+    },
+    {
+      "metric_id": "MET-SAFETY-GREEN",
+      "comparator": "equal",
+      "value": 1,
+      "rationale": "every selected mandatory gate must remain green"
+    },
+    {
+      "metric_id": "MET-COORDINATION-CONFLICTS",
+      "comparator": "equal",
+      "value": 0,
+      "rationale": "conflicting mutable ownership is never an acceptable speed tradeoff"
+    },
+    {
+      "metric_id": "MET-RECOVERY-REVALIDATE",
+      "comparator": "equal",
+      "value": 0,
+      "rationale": "required recovery revalidation cannot be suppressed for throughput"
+    }
+  ],
+  "efficiency_budgets": [
+    {
+      "metric_id": "MET-VALIDATION-SELECTED",
+      "blocking": true,
+      "max_relative_regression_percent": 0,
+      "rationale": "the same deterministic validation profile must not select more checks without an explicit reviewed baseline change"
+    },
+    {
+      "metric_id": "MET-VALIDATION-EXECUTED",
+      "blocking": true,
+      "max_relative_regression_percent": 0,
+      "rationale": "the same deterministic validation profile must not execute more checks without an explicit reviewed baseline change"
+    },
+    {
+      "metric_id": "MET-VALIDATION-COST",
+      "blocking": true,
+      "max_relative_regression_percent": 0,
+      "rationale": "the same deterministic validation profile must not consume more relative cost units"
+    },
+    {
+      "metric_id": "MET-CACHE-REUSE-RATE",
+      "blocking": true,
+      "max_relative_regression_percent": 0,
+      "rationale": "when comparable cache evidence exists, reusable verified evidence must not regress"
+    },
+    {
+      "metric_id": "MET-CONTEXT-SOURCES",
+      "blocking": false,
+      "max_relative_regression_percent": 0,
+      "rationale": "context growth is visible but can be legitimate when required traceability sources are added"
+    },
+    {
+      "metric_id": "MET-CONTEXT-DEPENDENCIES",
+      "blocking": false,
+      "max_relative_regression_percent": 0,
+      "rationale": "dependency-context growth is reviewable but cannot override required source completeness"
+    }
+  ]
+}

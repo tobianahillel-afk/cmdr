@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "work_unit": "E7-REC-001A",
+  "status": "VERIFIED",
+  "final_validated_head": "13f3872019e020d133431dc0499e4e3c9271a43e",
+  "validation": {
+    "push_workflow_run": 35908613887,
+    "pull_request_workflow_run": 35908620945,
+    "result": "PASS",
+    "work_lease_audit": "PASS",
+    "unit_tests": "PASS",
+    "sast": "PASS",
+    "sca": "PASS"
+  },
+  "repository_observation": {
+    "claims": 0,
+    "active": 0,
+    "expired": 0,
+    "released": 0
+  },
+  "rules": [
+    "one work unit has at most one non-expired mutating lease",
+    "one agent has at most one non-expired mutating lease",
+    "expired claims never block acquisition",
+    "blocked or terminal work cannot be acquired",
+    "lease-evaluate is non-mutating; accepted proposals must be persisted by atomic Git update"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E7-REC-001B"
+  ]
+}

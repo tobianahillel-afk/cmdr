@@ -1,0 +1,149 @@
+{
+  "schema_version": 2,
+  "id": "E10-INV-002A-BOUNDARY",
+  "title": "Register Event Search runtime ownership and preimplementation controls",
+  "type": "task",
+  "parent": "E10-INV-002A",
+  "goal": "Atomically reserve the Event Search product-runtime boundary with explicit security and performance ownership while keeping the boundary preimplementation-only.",
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-002"
+    ],
+    "requirements": [
+      "REQ-PROD-005",
+      "REQ-PROD-010",
+      "REQ-PROD-011",
+      "REQ-PROD-014",
+      "REQ-PROD-045"
+    ],
+    "screens": [
+      "INV-EVS-001"
+    ],
+    "permissions": [
+      "perm.investigate.search.execute",
+      "perm.shared-capabilities.query.read",
+      "perm.shared-capabilities.query.manage",
+      "perm.shared-capabilities.search-job.read",
+      "perm.shared-capabilities.search-job.manage",
+      "perm.shared-capabilities.telemetry-event.read"
+    ],
+    "open_decisions": [
+      "OPEN-013"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/search-query-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/background-job-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/audit-event-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/error-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/correlation-identifiers.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/query.md",
+      "cmdr-product-spec/05-domain-model/objects/search-job.md",
+      "cmdr-product-spec/05-domain-model/objects/telemetry-event.md"
+    ]
+  },
+  "depends_on": [
+    "E10-SCALE-001C"
+  ],
+  "allowed_paths": [
+    "product-runtime/event-search/**",
+    "engineering/architecture/**",
+    "engineering/security/**",
+    "engineering/performance/**",
+    "work/lots/E10-INV-002A*/**",
+    "engineering/state/**",
+    "work/graph.json",
+    "tools/cmdr-dev/performance_registry.go",
+    "tools/cmdr-dev/performance_benchmark.go",
+    "tools/cmdr-dev/deep_performance.go"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**"
+  ],
+  "inputs": [
+    "verified first implementation wave",
+    "CAP-INV-002 scope and tenant/permission invariants",
+    "existing deny-by-default architecture security and performance registries"
+  ],
+  "outputs": [
+    "event-search-runtime product-runtime boundary",
+    "preimplementation runtime marker only; no executable product code",
+    "explicit runtime security scope for authorization and tenant isolation",
+    "Event Search validation performance target plus on-demand benchmark/deep-performance registration",
+    "fail-closed preimplementation performance handlers"
+  ],
+  "invariants": [
+    "Product Spec remains read-only",
+    "product-runtime/event-search contains only README.md or .gitkeep in this task",
+    "no query engine, dialect, index, storage provider or external runtime dependency is selected",
+    "performance target is validation-only and does not claim backend or production Search latency"
+  ],
+  "security_properties": [
+    "event-search runtime is deny-by-default until registered",
+    "authorization-negative and tenant-isolation testing are mandatory before implementation acceptance",
+    "preimplementation performance handlers fail closed if executed early"
+  ],
+  "acceptance_tests": [
+    "architecture audit reports uniquely owned event-search-runtime boundary",
+    "runtime dependency audit reports zero Event Search runtime dependencies",
+    "security-test audit recognizes event-search-runtime as preimplementation with explicit scope",
+    "performance registry reports every product-runtime boundary targeted",
+    "deep performance policy reports one deep target per product-runtime performance target",
+    "adaptive engineering-kernel remains green"
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "performance ownership is registered before runtime code without executing a fictitious benchmark",
+    "metrics": [
+      "PERF-TGT-EVENT-SEARCH-VALIDATION p95 budget <= 1 ms for future deterministic validation only",
+      "target stage remains on-demand until runtime implementation"
+    ]
+  },
+  "migration": {
+    "required": false,
+    "rationale": "preimplementation boundary and control-plane registries only",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert the boundary/registry reservation atomically and keep E10-INV-002A-CONTRACT blocked",
+    "verification": [
+      "no event-search product code exists",
+      "existing pilot runtime security/performance coverage remains valid"
+    ]
+  },
+  "required_checks": [
+    "CHK-ARCHITECTURE",
+    "CHK-RUNTIME-DEPS",
+    "CHK-BOUNDARY-EDGES",
+    "CHK-SECURITY-TESTS",
+    "CHK-PERFORMANCE-REGISTRY",
+    "CHK-DEEP-PERFORMANCE",
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY"
+  ],
+  "definition_of_ready": [
+    "E10-SCALE-001C is VERIFIED",
+    "E10-INV-002A is decomposed"
+  ],
+  "definition_of_done": [
+    "event-search-runtime is uniquely registered",
+    "runtime is detected as preimplementation",
+    "security/performance ownership is complete",
+    "performance handlers fail closed before runtime code",
+    "no Product Spec or executable product code is modified"
+  ],
+  "complexity": {
+    "primary_components": 2,
+    "estimated_files_changed": 12,
+    "estimated_net_loc": 520,
+    "production_files": 3,
+    "net_production_loc": 120,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-101C-VIEW",
+  "result": "VERIFIED",
+  "final_validated_head": "b379e68f6f90a246c424e98c52f1afcae64072f1",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 36605816593,
+    "pull_request_run": 36605823538,
+    "contract": "CASE-QUEUE-READONLY-CONTRACT-V1",
+    "global_runtime_security_coverage_percent": 92.52,
+    "sast_findings": 0,
+    "sca_actionable": 0
+  },
+  "rules": [
+    "D-HANDOFF may add reference-only cross-product context handoff but must not mutate Case or Incident",
+    "Saved View remains Shared-owned and read-only",
+    "OPEN-013 assignment/lifecycle mutation remains excluded",
+    "all direct contract fixtures and security adapters must remain green"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-101D-HANDOFF"
+  ]
+}

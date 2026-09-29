@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-002C-PERF",
+  "result": "VERIFIED",
+  "final_validated_head": "e020da86445af74edbe5253ed16f14a4309a9c1d",
+  "evidence": {
+    "push_run": 36048569283,
+    "pull_request_run": 36048576343,
+    "orchestration_p95_ms": 0.0017169862,
+    "orchestration_budget_ms": 1,
+    "validation_p95_ms": 0.0004333049
+  },
+  "rules": [
+    "orchestration benchmark is separate from validation benchmark",
+    "job creation, build/process startup and backend work are excluded from orchestration latency",
+    "benchmark executes the real Search Job runtime against a local no-op backend",
+    "no production search SLO is claimed",
+    "every product-runtime performance target retains deep-performance coverage"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-002D"
+  ]
+}

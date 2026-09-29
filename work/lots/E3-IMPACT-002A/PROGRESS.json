@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "work_unit": "E3-IMPACT-002A",
+  "status": "VERIFIED",
+  "final_validated_head": "9af75912ac14167e7d8ff96ee9a0d9a4a5c113a2",
+  "validation": {
+    "push_workflow_run": 35797967120,
+    "pull_request_workflow_run": 35797970347,
+    "result": "PASS",
+    "real_change_set_shadow": "PASS",
+    "gofmt": "PASS",
+    "go_vet": "PASS",
+    "unit_tests": "PASS",
+    "full_kernel_push": "PASS",
+    "full_kernel_pull_request": "PASS"
+  },
+  "push_observation": {
+    "base_commit": "8035aab37ced3ca5fec3bc6a926a0c6435045fbc",
+    "head_commit": "9af75912ac14167e7d8ff96ee9a0d9a4a5c113a2",
+    "changed_paths": 8,
+    "plan_tier": "strict",
+    "high_risk": true,
+    "selected_checks": 20,
+    "cost_units": 40
+  },
+  "pull_request_observation": {
+    "base_commit": "99c3826cdcbc79bad51631cf6462450f92e012eb",
+    "merge_commit": "10e6d6fa06214abac54b43bbe81df439fbd95f99",
+    "changed_paths": 115,
+    "plan_tier": "strict",
+    "high_risk": true,
+    "selected_checks": 20,
+    "cost_units": 40,
+    "note": "strict escalation is expected because the foundation PR changes CI/control-plane files and contains two repository-governance paths not yet covered by a check trigger"
+  },
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E3-IMPACT-002B"
+  ]
+}

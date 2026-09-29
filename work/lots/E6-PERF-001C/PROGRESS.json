@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "work_unit": "E6-PERF-001C",
+  "status": "VERIFIED",
+  "final_validated_head": "95e4e653f37b643294789ad689f94fd631649952",
+  "validation": {
+    "push_workflow_run": 35880049006,
+    "pull_request_workflow_run": 35880057306,
+    "result": "PASS",
+    "deep_performance_gate": "PASS",
+    "unit_tests": "PASS",
+    "sast": "PASS",
+    "sca": "PASS"
+  },
+  "repository_observation": {
+    "runtime_boundaries": 0,
+    "registered_targets": 0,
+    "selected_targets": 0,
+    "executed_targets": 0,
+    "status": "not-applicable"
+  },
+  "caps": {
+    "max_target_duration_seconds": 600,
+    "max_target_memory_mib": 2048,
+    "max_concurrency": 64,
+    "max_targets_per_run": 2,
+    "workflow_timeout_minutes": 25
+  },
+  "rules": [
+    "deep targets reference registered performance targets and compiled handler keys only",
+    "PR execution validates policy and change sensitivity without running heavy workloads",
+    "nightly release and on-demand heavy execution use a separate bounded workflow",
+    "timeout and memory cap violations fail closed",
+    "no product-runtime boundary means no fabricated deep performance target",
+    "profile artifacts remain engineering evidence and never become product-runtime dependencies"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E6-PERF-001D"
+  ]
+}

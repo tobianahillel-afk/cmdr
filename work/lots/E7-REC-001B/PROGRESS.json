@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "work_unit": "E7-REC-001B",
+  "status": "VERIFIED",
+  "final_validated_head": "bdc1c5eeb5e6744cf1c9aa8ebe0fdf51ea2eecbb",
+  "validation": {
+    "push_workflow_run": 35909309859,
+    "pull_request_workflow_run": 35909314629,
+    "result": "PASS",
+    "recovery_journal_audit": "PASS",
+    "work_lease_audit": "PASS",
+    "unit_tests": "PASS",
+    "sast": "PASS",
+    "sca": "PASS"
+  },
+  "repository_observation": {
+    "events": 0,
+    "work_units": 0,
+    "agents": 0,
+    "status": "empty",
+    "last_sequence": 0
+  },
+  "rules": [
+    "journal sequence is contiguous and hash-chained from a fixed root digest",
+    "events must bind an existing lease and occur inside its lease interval",
+    "event mutation, chain break or sequence gap fails closed",
+    "resume checkpoints are derived and bounded to five recent event ids",
+    "empty journal is explicit evidence, not a fabricated execution history"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E7-REC-001C"
+  ]
+}

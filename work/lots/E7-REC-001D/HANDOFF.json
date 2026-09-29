@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "work_unit": "E7-REC-001D",
+  "result": "VERIFIED",
+  "final_validated_head": "80802237cc536c02af4da08420ee40f39f1531f9",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 35918216166,
+    "pull_request_run": 35918221878,
+    "check": "CHK-COORDINATION",
+    "live_status": "clear",
+    "live_conflicts": 0,
+    "unit_conflict_cases": "PASS",
+    "exact_head_handoff_cases": "PASS"
+  },
+  "rules": [
+    "legacy or blank lease mode is mutating; only explicit read-only is non-mutating",
+    "overlapping active mutating manifest scopes fail closed",
+    "handoff is read-only evidence and never mutates claims automatically",
+    "handoff requires exact active lease/work-unit/agent binding and current Git HEAD",
+    "release then reacquire then reconcile is mandatory before receiver mutation",
+    "no hidden coordinator service or authentication system is introduced"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E8-MET-001A"
+  ]
+}

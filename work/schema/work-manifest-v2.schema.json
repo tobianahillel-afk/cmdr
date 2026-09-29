@@ -1,0 +1,203 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cmdr.local/schema/work-manifest-v2.schema.json",
+  "title": "CMDR Work Manifest v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "id",
+    "title",
+    "type",
+    "parent",
+    "goal",
+    "product_refs",
+    "depends_on",
+    "allowed_paths",
+    "forbidden_paths",
+    "inputs",
+    "outputs",
+    "invariants",
+    "security_properties",
+    "acceptance_tests",
+    "performance_budget",
+    "migration",
+    "rollback",
+    "required_checks",
+    "definition_of_ready",
+    "definition_of_done",
+    "complexity"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 2
+    },
+    "id": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "type": {
+      "enum": [
+        "epic",
+        "lot",
+        "sublot",
+        "task"
+      ]
+    },
+    "parent": {
+      "type": "string"
+    },
+    "goal": {
+      "type": "string",
+      "minLength": 1
+    },
+    "product_refs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "capabilities",
+        "requirements",
+        "screens",
+        "permissions",
+        "open_decisions",
+        "implementation_contracts",
+        "canonical_objects"
+      ],
+      "properties": {
+        "capabilities": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "requirements": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "screens": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "permissions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "open_decisions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "implementation_contracts": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "canonical_objects": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "depends_on": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "allowed_paths": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string"
+      }
+    },
+    "forbidden_paths": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string"
+      }
+    },
+    "inputs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string"
+      }
+    },
+    "outputs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string"
+      }
+    },
+    "invariants": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string"
+      }
+    },
+    "security_properties": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string"
+      }
+    },
+    "acceptance_tests": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string"
+      }
+    },
+    "performance_budget": {
+      "type": "object"
+    },
+    "migration": {
+      "type": "object"
+    },
+    "rollback": {
+      "type": "object"
+    },
+    "required_checks": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string"
+      }
+    },
+    "definition_of_ready": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string"
+      }
+    },
+    "definition_of_done": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string"
+      }
+    },
+    "complexity": {
+      "type": "object"
+    }
+  }
+}

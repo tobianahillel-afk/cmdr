@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-SCALE-001C",
+  "status": "VERIFIED",
+  "final_validated_head": "c2652cbc975cdd8769621443d7691d0e8c7f6475",
+  "validation": {
+    "push_workflow_run": 36013275624,
+    "pull_request_workflow_run": 36013281582,
+    "result": "PASS",
+    "manifests": "PASS",
+    "complexity": "PASS",
+    "architecture": "PASS",
+    "implementation_wave": "PASS",
+    "adaptive_kernel": "PASS"
+  },
+  "wave": {
+    "id": "WAVE-CAP-INV-002-CORE-001",
+    "selection_policy": "reuse-first-v1",
+    "ready_candidates": 20,
+    "capability": "CAP-INV-002",
+    "canonical_file": "cmdr-product-spec/07-investigate/modules/signals-and-hunt/capabilities/event-search.md",
+    "children": [
+      "E10-INV-002A",
+      "E10-INV-002B",
+      "E10-INV-002C",
+      "E10-INV-002D"
+    ],
+    "open_decision_exclusion": "OPEN-013 Case-link mutation remains excluded"
+  },
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-002A"
+  ]
+}

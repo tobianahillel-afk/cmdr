@@ -1,0 +1,120 @@
+{
+  "schema_version": 2,
+  "id": "E5-RES-001C",
+  "title": "Enforce benchmark prototype and adversarial decision gates",
+  "type": "sublot",
+  "parent": "E5-RES-001",
+  "goal": "Require representative CMDR benchmarks, prototypes when evidence is insufficient, and explicit falsification/adversarial review before accepting performance-critical or Class C choices.",
+  "product_refs": {
+    "capabilities": [],
+    "requirements": [],
+    "screens": [],
+    "permissions": [],
+    "open_decisions": [],
+    "implementation_contracts": [],
+    "canonical_objects": []
+  },
+  "depends_on": [
+    "E5-RES-001B"
+  ],
+  "allowed_paths": [
+    "tools/cmdr-dev/**",
+    "engineering/governance/**",
+    "engineering/research/**",
+    "engineering/decisions/**",
+    "engineering/testing/**",
+    "work/lots/E5-RES-001*/**",
+    "engineering/state/**",
+    "work/graph.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**"
+  ],
+  "inputs": [
+    "verified E4 security engine",
+    "engineering/governance/autonomous-decision-policy.md",
+    "canonical Product Spec remains read-only",
+    "real repository and work-unit context"
+  ],
+  "outputs": [
+    "strict decision validation registry",
+    "candidate trade-off evidence contract",
+    "representative CMDR benchmark contract",
+    "prototype trigger/evidence contract",
+    "adversarial falsification record",
+    "adaptive CHK-DECISION-GATES gate"
+  ],
+  "invariants": [
+    "Product Spec remains read-only",
+    "engineering decisions never silently resolve product-owned OPEN decisions",
+    "claims of best fastest safest or most advanced require dated evidence or representative measurement",
+    "research effort is proportional to decision class and stops at evidence saturation",
+    "reusable evidence is invalidated when assumptions version constraints or revisit triggers change"
+  ],
+  "security_properties": [
+    "unknown decision class or missing mandatory evidence fails closed",
+    "critical security architecture algorithm and durability decisions require adversarial review",
+    "external research evidence is treated as untrusted input and never executable configuration"
+  ],
+  "acceptance_tests": [
+    "go test ./...",
+    "cmdr-dev validate-manifests succeeds",
+    "cmdr-dev architecture-audit succeeds",
+    "cmdr-dev complexity-audit succeeds",
+    "adaptive engineering-kernel remains green",
+    "unit tests block accepted decisions with fewer than two compared candidates",
+    "unit tests require representative benchmark evidence for performance-sensitive acceptance",
+    "unit tests require conclusive prototype evidence when external evidence is insufficient",
+    "unit tests require clean survived adversarial falsification for Class C",
+    "push and pull-request CI execute CHK-DECISION-GATES"
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "research must improve decision quality without becoming a repeated bottleneck",
+    "metrics": [
+      "Class A decisions require no research packet",
+      "accepted reusable evidence avoids duplicate research until a revisit trigger fires",
+      "research stops at explicit saturation rather than arbitrary source-count inflation"
+    ]
+  },
+  "migration": {
+    "required": false,
+    "rationale": "engineering control-plane only",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert the E5 lot while retaining verified E0-E4 controls",
+    "verification": [
+      "engineering-kernel remains green",
+      "no accepted product contract changed"
+    ]
+  },
+  "required_checks": [
+    "adaptive engineering-kernel",
+    "cmdr-dev validate-manifests",
+    "cmdr-dev complexity-audit",
+    "cmdr-dev decision-gate-audit"
+  ],
+  "definition_of_ready": [
+    "dependencies are VERIFIED",
+    "decision-engine scope is bounded",
+    "Product Spec is read-only"
+  ],
+  "definition_of_done": [
+    "Class C acceptance requires current research and adversarial review",
+    "performance-critical acceptance requires representative benchmark evidence",
+    "prototype requirements are explicit when external evidence cannot resolve material uncertainty",
+    "preferred candidate cannot be accepted while blocking counter-evidence remains unresolved"
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 9,
+    "estimated_net_loc": 650,
+    "production_files": 4,
+    "net_production_loc": 500,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

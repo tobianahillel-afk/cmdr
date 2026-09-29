@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-002G",
+  "result": "VERIFIED",
+  "implementation_commit": "85fd15e49967d65994075089b81b6f6a662dba6e",
+  "final_validated_head": "d8e35a3222a471b1313303d7c9eceb5123e9e966",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 36132724120,
+    "pull_request_run": 36132727798,
+    "contract": "EVENT-SEARCH-EXECUTABLE-CONTRACT-V1",
+    "fixtures": 14,
+    "negative_fixtures": 11,
+    "runtime_files": 9,
+    "runtime_dependencies": 0,
+    "cross_boundary_edges": 0,
+    "global_coverage_percent": 91.87,
+    "sast_findings": 0,
+    "sca_actionable_findings": 0
+  },
+  "invariants": [
+    "CAP-INV-002 ledger claim represents verified bounded runtime implementation evidence, not full product-capability completion",
+    "Product Spec remains read-only",
+    "OPEN-013 remains unresolved and Case-link mutation remains excluded",
+    "final query dialect, search/index/storage/provider and production Search SLO remain unselected",
+    "event-search-runtime has zero external runtime dependencies and zero unauthorized cross-boundary edges",
+    "frontend E2E evidence is verified separately and does not widen the backend ledger root"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-SCALE-002A"
+  ]
+}

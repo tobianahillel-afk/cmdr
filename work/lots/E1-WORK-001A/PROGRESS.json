@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "work_unit": "E1-WORK-001A",
+  "status": "VERIFIED",
+  "final_validated_head": "4b6751ff84e0e5814b5d1c4ec5ef058b37b09b75",
+  "validation": {
+    "push_workflow_run": 35792280201,
+    "pull_request_workflow_run": 35792285962,
+    "result": "PASS",
+    "gofmt": "PASS",
+    "go_vet": "PASS",
+    "unit_tests": "PASS",
+    "manifest_validation": "PASS",
+    "doctor": "PASS",
+    "next_resolution": "PASS"
+  },
+  "manifest_observation": {
+    "total": 11,
+    "legacy_v1": 7,
+    "strict_v2": 4
+  },
+  "product_spec_mutated": false,
+  "next_unlocked": ["E1-WORK-001B"]
+}

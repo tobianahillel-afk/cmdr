@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "work_unit": "E9-PILOT-001C-RUNTIME",
+  "result": "VERIFIED",
+  "implementation_commit": "f322a086d65c13f1a2d92eda280795ee741fd54d",
+  "final_validated_head": "172c29048c412b0f23079184f2020484d6d86db4",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 35988336675,
+    "pull_request_run": 35988341187,
+    "contract": "PILOT-CONTEXT-ENVELOPE-V1",
+    "fixtures": 11,
+    "negative_fixtures": 9,
+    "runtime_files": 4,
+    "runtime_dependencies": 0,
+    "cross_boundary_edges": 0,
+    "global_coverage_percent": 95.24,
+    "sast_findings": 0,
+    "sca_actionable_findings": 0
+  },
+  "invariants": [
+    "standard-library-only product runtime",
+    "no persistence or network I/O",
+    "no embedded RBAC/ABAC engine",
+    "destination authorization remains caller-supplied",
+    "protected references are masked on denied, expired and source-missing paths"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E9-PILOT-001C-PERF"
+  ]
+}

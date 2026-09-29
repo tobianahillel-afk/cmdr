@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "default_policy": "deny-unsourced-material-claim",
+  "packet_statuses": ["collecting", "saturated", "superseded"],
+  "source_kinds": ["official-doc", "scientific-paper", "standard", "security-advisory", "source-code", "benchmark-report", "independent-analysis", "community-discussion"],
+  "claim_criticalities": ["supporting", "material", "critical"],
+  "claim_statuses": ["supported", "contested", "unresolved"],
+  "family_dispositions": ["candidate", "excluded"],
+  "limits": {
+    "max_packets": 256,
+    "max_families_per_packet": 16,
+    "max_sources_per_packet": 64,
+    "max_claims_per_packet": 96,
+    "max_limitations_per_packet": 32
+  }
+}

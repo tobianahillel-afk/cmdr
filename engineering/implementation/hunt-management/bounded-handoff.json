@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "handoff_kind": "hunt-management-bounded-core",
+  "readiness": "BOUNDED_HUNT_MANAGEMENT_VALIDATED_NOT_FULL_CAPABILITY",
+  "capability": "CAP-INV-005",
+  "production_readiness_claim": false,
+  "full_capability_completion_claim": false,
+  "class2_mutation_enabled": false,
+  "provider_selected": false,
+  "storage_engine_selected": false,
+  "retention_policy_selected": false,
+  "collaboration_backend_selected": false,
+  "final_query_dialect_selected": false,
+  "dedicated_final_ui_claim": false,
+  "blocking_open_decisions": [
+    "OPEN-013"
+  ],
+  "evidence_sources": [
+    "work/lots/E10-INV-005B-RUNTIME/PROGRESS.json"
+  ],
+  "limitations": [
+    "Hunt lifecycle and all class-2 Hunt mutations remain excluded while OPEN-013 is unresolved.",
+    "Case promotion and Case-link mutation remain excluded.",
+    "Hypothesis creation, linking and status mutation remain excluded.",
+    "Query and Saved Search mutation remain excluded.",
+    "Search Job execution remains excluded.",
+    "No storage engine, provider or retention policy is selected by this bounded wave.",
+    "No collaboration backend is selected by this bounded wave.",
+    "No final query dialect is selected by this bounded wave.",
+    "No dedicated final Hunt UI is claimed by this bounded core.",
+    "No production readiness or production Hunt SLO is claimed.",
+    "No full-capability completion is claimed."
+  ],
+  "next_conditions": [
+    "Resolve OPEN-013 before enabling Hunt lifecycle, Case, Hypothesis or contributor mutation.",
+    "Authorize any Query/Saved Search mutation or Search Job execution through the owning Shared Capabilities contracts.",
+    "Run a future decision gate before selecting storage, provider, retention or collaboration implementations.",
+    "Authorize any dedicated final Hunt UI through Product Spec rather than inventing a screen locally.",
+    "Compile any implementation-ledger claim only from VERIFIED bounded closure evidence."
+  ]
+}

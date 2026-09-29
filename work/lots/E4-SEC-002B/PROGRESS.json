@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "work_unit": "E4-SEC-002B",
+  "status": "VERIFIED",
+  "final_validated_head": "1cb0c05272bdccef4df264292f6345436e8402ba",
+  "children": {
+    "E4-SEC-002B-OUTPUT": "VERIFIED",
+    "E4-SEC-002B-READ": "VERIFIED",
+    "E4-SEC-002B-ACTIVATE": "VERIFIED"
+  },
+  "result": {
+    "go_toolchain": "1.26.8",
+    "sast": "gosec v2.28.0 / 0 findings",
+    "sca": "govulncheck v1.8.0 / 0 reachable actionable vulnerabilities",
+    "security_gates_active": [
+      "SEC-SAST-001",
+      "SEC-SCA-001"
+    ]
+  },
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E4-SEC-002C"
+  ]
+}

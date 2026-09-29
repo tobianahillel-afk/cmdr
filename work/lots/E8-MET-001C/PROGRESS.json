@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "work_unit": "E8-MET-001C",
+  "status": "VERIFIED",
+  "final_validated_head": "05b51dcbdafb2a3e9aba8d89ca11e5c8fdc99190",
+  "validation": {
+    "push_workflow_run": 35920870190,
+    "pull_request_workflow_run": 35920878285,
+    "result": "PASS",
+    "unit_tests": "PASS",
+    "sast": "PASS",
+    "sca": "PASS",
+    "optimizer_preflight": "PASS"
+  },
+  "push_observation": {
+    "snapshot_digest": "f83a605bc75fff874b7ea8dbbdbbafa29ae114da04c7dcc50e9230234c496758",
+    "optimization_digest": "5d9aca4a104671767a41946a5ad9b6a2f4bad31ecf43e44910051489b8f4d1c7",
+    "safety_status": "safe-no-baseline",
+    "recommendations": 0,
+    "withheld": 3,
+    "safety_green": true,
+    "coordination_conflict_free": true,
+    "recovery_revalidation_clear": true,
+    "mandatory_floor_known": true
+  },
+  "pull_request_observation": {
+    "snapshot_digest": "025f73b739676226c0276c00d052b26cdd31261f8f1d94795cbeef52f64e502c",
+    "optimization_digest": "519061e834bc576fe162471c3fcae32711c34cebe65b2cbcd30a10bdd226e985",
+    "safety_status": "safe-no-baseline",
+    "recommendations": 0,
+    "withheld": 3,
+    "safety_green": true,
+    "coordination_conflict_free": true,
+    "recovery_revalidation_clear": true,
+    "mandatory_floor_known": true
+  },
+  "safety_proof": {
+    "direct_plan_mutation_allowed": false,
+    "mandatory_mutation_allowed": false,
+    "prerequisite_mutation_allowed": false,
+    "product_spec_mutation_allowed": false
+  },
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E8-MET-001D"
+  ]
+}

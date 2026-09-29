@@ -1,0 +1,119 @@
+{
+  "schema_version": 2,
+  "parent": "E9-PILOT-001B",
+  "product_refs": {
+    "capabilities": [
+      "CAP-SET-004"
+    ],
+    "requirements": [
+      "REQ-PROD-008",
+      "REQ-SEC-001",
+      "REQ-UX-006",
+      "REQ-UX-007",
+      "REQ-UX-009"
+    ],
+    "screens": [],
+    "permissions": [
+      "perm.platform-settings.environment.read",
+      "perm.platform-settings.tenant.read"
+    ],
+    "open_decisions": [],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/cross-product-context-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/environment.md",
+      "cmdr-product-spec/05-domain-model/objects/tenant.md"
+    ]
+  },
+  "forbidden_paths": [
+    "cmdr-product-spec/**"
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "the pilot runtime boundary requires a registered coarse absolute budget before code exists",
+    "metrics": [
+      "future in-process projection p95 <= 1 ms on shared CI; no preimplementation measurement claim"
+    ]
+  },
+  "migration": {
+    "required": false,
+    "rationale": "contract/control-plane work only",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert the E9-B child task without claiming E9-B verified",
+    "verification": [
+      "adaptive kernel returns to prior state"
+    ]
+  },
+  "definition_of_ready": [
+    "upstream dependency terminal state is satisfied",
+    "scope remains PILOT-CONTEXT-001/CAP-SET-004"
+  ],
+  "id": "E9-PILOT-001B-CONTRACT",
+  "title": "Establish pilot runtime boundary and executable contract fixtures",
+  "type": "task",
+  "goal": "Reserve the uniquely owned context-envelope product-runtime boundary and compile pilot-local executable contract/negative fixtures before product code.",
+  "depends_on": [
+    "E9-PILOT-001A"
+  ],
+  "allowed_paths": [
+    "product-runtime/context-envelope/**",
+    "engineering/pilot/**",
+    "engineering/architecture/**",
+    "engineering/testing/**",
+    "tools/cmdr-dev/**",
+    "work/lots/E9-PILOT-001*/**",
+    "engineering/state/**",
+    "work/graph.json"
+  ],
+  "inputs": [
+    "verified E9-PILOT-001A scope",
+    "canonical Product Spec contracts and tenant/environment semantics"
+  ],
+  "outputs": [
+    "runtime boundary README marker only",
+    "pilot-local executable contract",
+    "positive and negative fixtures",
+    "CHK-PILOT-CONTRACT integration"
+  ],
+  "invariants": [
+    "no product implementation before E9-C",
+    "no external runtime dependency",
+    "canonical schema is not claimed",
+    "authorization remains caller-supplied"
+  ],
+  "security_properties": [
+    "permission-denied and expired states expose no protected references",
+    "tenant change cannot preserve inherited environment",
+    "wildcard tenant and unsafe return-origin are rejected"
+  ],
+  "acceptance_tests": [
+    "pilot contract unit tests",
+    "dependency audit sees one runtime boundary and zero dependencies",
+    "runtime boundary contains only README marker"
+  ],
+  "required_checks": [
+    "CHK-PILOT-SCOPE",
+    "CHK-PILOT-CONTRACT",
+    "CHK-RUNTIME-DEPS",
+    "CHK-BOUNDARY-EDGES"
+  ],
+  "definition_of_done": [
+    "contract and fixtures are implemented",
+    "performance sibling task completes the runtime-boundary invariant before verification"
+  ],
+  "complexity": {
+    "primary_components": 2,
+    "estimated_files_changed": 12,
+    "estimated_net_loc": 600,
+    "production_files": 4,
+    "net_production_loc": 390,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

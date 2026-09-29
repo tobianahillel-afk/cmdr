@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-101A-CONTRACT",
+  "result": "VERIFIED",
+  "final_validated_head": "fe955c3d1708725d96d73e57d65f8a5beccfc31a",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 36565559325,
+    "pull_request_run": 36565564781,
+    "contract": "CASE-QUEUE-READONLY-CONTRACT-V1",
+    "fixtures": 24,
+    "positive": 8,
+    "negative": 16,
+    "runtime_dependencies": 0
+  },
+  "rules": [
+    "Case remains Investigate-owned and is not redefined",
+    "Incident is optional Command-owned context",
+    "Saved View remains Shared-owned and mutation-free",
+    "search/filter/sort operates only on accessible projections",
+    "denied Case identity is never emitted",
+    "OPEN-013 assignment/status/lifecycle mutation remains excluded"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-101B-RUNTIME"
+  ]
+}

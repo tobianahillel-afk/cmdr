@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-005D",
+  "result": "VERIFIED",
+  "implementation_commit": "9ce7aabe06b859b2b54d4ce6b5a27f2531429531",
+  "final_validated_head": "7e6b5546f5c1a6e01f05c1a2cc2ea624f8fc20f8",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 36435666182,
+    "pull_request_run": 36435675187,
+    "contract": "HUNT-WORKSPACE-READONLY-CONTRACT-V1",
+    "fixtures": 15,
+    "negative_fixtures": 12,
+    "runtime_files": 5,
+    "runtime_dependencies": 0,
+    "cross_boundary_edges": 0,
+    "global_coverage_percent": 91.84,
+    "sast_findings": 0,
+    "sca_actionable_findings": 0
+  },
+  "invariants": [
+    "CAP-INV-005 ledger claim represents verified bounded Hunt Management runtime implementation evidence, not full product-capability completion",
+    "Product Spec remains read-only",
+    "OPEN-013 remains unresolved and all class-2 Hunt/Case/Hypothesis/Query mutations remain excluded",
+    "Search Job execution remains excluded",
+    "storage/provider/retention/collaboration/final query dialect remain unselected",
+    "dedicated final Hunt UI and production Hunt SLO remain unclaimed",
+    "hunt-management-runtime has zero external runtime dependencies and zero unauthorized cross-boundary edges",
+    "runtime remained unchanged from verified runtime evidence through bounded closure"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-SCALE-004A"
+  ]
+}

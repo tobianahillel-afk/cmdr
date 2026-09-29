@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "work_unit": "E1-WORK-001B",
+  "result": "VERIFIED",
+  "final_validated_head": "4c3523e801514df05eed09387154e8fe77e2ec81",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 35792661397,
+    "pull_request_run": 35792665920,
+    "evaluated_work_units": 3,
+    "split_required": 0,
+    "readiness_violations": 0
+  },
+  "policy": {
+    "soft_targets": {"primary_components":2,"material_files":8,"net_non_test_loc":400},
+    "hard_limits": {"material_files":12,"net_non_test_loc":800,"bounded_contexts":1,"independent_migrations":1,"distinct_security_models":1,"separately_testable_behaviors":1}
+  },
+  "product_spec_mutated": false,
+  "next_unlocked": ["E1-WORK-001C"]
+}

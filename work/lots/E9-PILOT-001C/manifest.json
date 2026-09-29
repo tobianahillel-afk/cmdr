@@ -1,0 +1,127 @@
+{
+  "schema_version": 2,
+  "id": "E9-PILOT-001C",
+  "title": "Implement the selected vertical slice",
+  "type": "sublot",
+  "parent": "E9-PILOT-001",
+  "goal": "Coordinate runtime implementation, measured security activation, and real performance verification for the selected pilot slice without silent scope widening.",
+  "product_refs": {
+    "capabilities": [
+      "CAP-SET-004"
+    ],
+    "requirements": [
+      "REQ-PROD-008",
+      "REQ-SEC-001",
+      "REQ-UX-006",
+      "REQ-UX-007",
+      "REQ-UX-009"
+    ],
+    "screens": [],
+    "permissions": [
+      "perm.platform-settings.environment.read",
+      "perm.platform-settings.tenant.read"
+    ],
+    "open_decisions": [],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/cross-product-context-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/environment.md",
+      "cmdr-product-spec/05-domain-model/objects/tenant.md"
+    ]
+  },
+  "depends_on": [
+    "E9-PILOT-001B"
+  ],
+  "allowed_paths": [
+    "product-runtime/context-envelope/**",
+    "engineering/pilot/**",
+    "engineering/architecture/**",
+    "engineering/testing/**",
+    "work/lots/E9-PILOT-001*/**",
+    "engineering/state/**",
+    "work/graph.json",
+    "tools/cmdr-dev/**",
+    ".github/workflows/**"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**"
+  ],
+  "inputs": [
+    "verified PILOT-CONTEXT-001 scope",
+    "verified PILOT-CONTEXT-ENVELOPE-V1 executable contract and fixtures",
+    "owned pilot-context-envelope-runtime architecture boundary"
+  ],
+  "outputs": [
+    "verified E9-PILOT-001C-RUNTIME implementation",
+    "verified E9-PILOT-001C-SECURITY measured security evidence",
+    "verified E9-PILOT-001C-PERF real performance evidence"
+  ],
+  "invariants": [
+    "Product Spec remains read-only",
+    "no unresolved blocking decision is silently defaulted",
+    "pilot scope remains bounded and decomposed",
+    "security and correctness floors remain mandatory"
+  ],
+  "security_properties": [
+    "tenant scope and authority contracts remain mandatory where applicable",
+    "external product-runtime dependencies remain denied unless explicitly approved",
+    "pilot cannot weaken existing validation gates"
+  ],
+  "acceptance_tests": [
+    "go test ./...",
+    "cmdr-dev validate-manifests succeeds",
+    "cmdr-dev complexity-audit succeeds",
+    "adaptive engineering-kernel remains green"
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "pilot must prove the engineering path without unbounded runtime or CI cost",
+    "metrics": [
+      "pilot lot stays inside complexity budgets",
+      "existing E8 efficiency floors remain green"
+    ]
+  },
+  "migration": {
+    "required": false,
+    "rationale": "scope and contract work precedes product persistence",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert the bounded E9 lot while retaining verified E0-E8 foundation",
+    "verification": [
+      "adaptive engineering-kernel remains green",
+      "Product Spec baseline remains unchanged"
+    ]
+  },
+  "required_checks": [
+    "adaptive engineering-kernel",
+    "cmdr-dev validate-manifests",
+    "cmdr-dev complexity-audit",
+    "CHK-METRICS-BUDGET",
+    "CHK-PILOT-SCOPE",
+    "CHK-PILOT-CONTRACT"
+  ],
+  "definition_of_ready": [
+    "E8-MET-001D is VERIFIED",
+    "Product Spec baseline is unchanged"
+  ],
+  "definition_of_done": [
+    "E9-PILOT-001C-RUNTIME is VERIFIED",
+    "E9-PILOT-001C-SECURITY is VERIFIED",
+    "E9-PILOT-001C-PERF is VERIFIED",
+    "pilot runtime is ready for E9-PILOT-001D adversarial handoff"
+  ],
+  "complexity": {
+    "primary_components": 2,
+    "estimated_files_changed": 10,
+    "estimated_net_loc": 600,
+    "production_files": 7,
+    "net_production_loc": 450,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 3
+  }
+}

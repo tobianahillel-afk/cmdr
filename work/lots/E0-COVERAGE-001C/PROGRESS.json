@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "work_unit": "E0-COVERAGE-001C",
+  "status": "VERIFIED",
+  "final_validated_head": "78f7d47fb94ec21be0430f673747c918392ace0f",
+  "validation": {
+    "push_workflow_run": 35785491455,
+    "pull_request_workflow_run": 35785496898,
+    "result": "PASS"
+  },
+  "coverage_audit": {
+    "total_gaps": 42,
+    "by_code": {
+      "active-requirement-unreferenced": 2,
+      "capability-reference-outside-register": 7,
+      "open-decision-reference-outside-active-register": 2,
+      "permission-reference-outside-register": 23,
+      "requirement-reference-outside-catalog": 8
+    }
+  },
+  "authority_sets": {
+    "capabilities": 498,
+    "requirements": 122,
+    "active_screens": 56,
+    "permissions": 186,
+    "active_open_decisions": 17
+  },
+  "product_spec_mutated": false,
+  "next_unlocked": ["E1-WORK-001A"]
+}

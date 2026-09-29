@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-SCALE-001B",
+  "status": "VERIFIED",
+  "final_validated_head": "6bbbc235f910d82f681acb4177d1db0d9e0978d9",
+  "validation": {
+    "push_workflow_run": 36007630473,
+    "pull_request_workflow_run": 36007637946,
+    "result": "PASS",
+    "implementation_ledger": "PASS",
+    "implementation_readiness": "PASS",
+    "manifests": "PASS",
+    "complexity": "PASS",
+    "sast": "PASS",
+    "sca": "PASS"
+  },
+  "readiness": {
+    "total": 498,
+    "implemented": 1,
+    "ready": 158,
+    "blocked": 338,
+    "proposed": 1,
+    "decision_blocked": 331,
+    "dependency_blocked": 107,
+    "unscoped_blocking_dependencies": 23,
+    "spec_tree_digest": "a5f45351eba180d0edb734f33ecbeaabb7eceb7143305e201e207e8ae5a60d27"
+  },
+  "implementation_ledger": {
+    "entries": 1,
+    "verified_claims": 1,
+    "capability": "CAP-SET-004",
+    "status": "PASS"
+  },
+  "invariants": [
+    "all 498 active capabilities receive exactly one readiness state",
+    "verified implementation ledger claims take precedence over READY",
+    "proposed capabilities are never silently scheduled",
+    "active OPEN and explicit unsatisfied CAP-scoped dependencies block fail-closed",
+    "unscoped blocking dependencies are preserved without invented capability attribution",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-SCALE-001C"
+  ]
+}

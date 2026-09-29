@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-SCALE-002B",
+  "status": "VERIFIED",
+  "final_validated_head": "e09151716914965870b9267cce7d3ddf167bf361",
+  "validation": {
+    "push_workflow_run": 36134142435,
+    "pull_request_workflow_run": 36134146264,
+    "result": "PASS",
+    "implementation_ledger": "PASS",
+    "implementation_readiness": "PASS",
+    "implementation_wave": "PASS"
+  },
+  "selection": {
+    "policy": "reuse-first-v1",
+    "ready_candidates": 19,
+    "preferred_family": "CAP-INV",
+    "capability": "CAP-INV-004",
+    "name": "Event Inspection and Pivot",
+    "canonical_file": "07-investigate/modules/signals-and-hunt/capabilities/event-inspection-and-pivot.md",
+    "product_spec_baseline": "99c3826cdcbc79bad51631cf6462450f92e012eb",
+    "spec_tree_digest": "a5f45351eba180d0edb734f33ecbeaabb7eceb7143305e201e207e8ae5a60d27"
+  },
+  "wave": {
+    "id": "WAVE-CAP-INV-004-CORE-001",
+    "status": "VERIFIED_MATERIALIZED",
+    "children": [
+      "E10-INV-004A-BOUNDARY",
+      "E10-INV-004A-CONTRACT",
+      "E10-INV-004B-RUNTIME",
+      "E10-INV-004C-PIVOT",
+      "E10-INV-004D-CLOSURE"
+    ],
+    "next_ready": "E10-INV-004A-BOUNDARY"
+  },
+  "exclusions": [
+    "Case annotation/link mutation while OPEN-013 remains open",
+    "Artifact proposal and Evidence-candidate mutation while OPEN-013/OPEN-014 remain open",
+    "Artifact versus direct-reference retention semantics while OPEN-014 remains open",
+    "parser engine or parser execution",
+    "Entity Resolution engine",
+    "final query language/dialect",
+    "search/index/storage/provider selection",
+    "automatic Evidence/Finding creation",
+    "dedicated Event Inspector Screen ID or final detailed frontend",
+    "production retrieval/search SLO claim"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-004A-BOUNDARY"
+  ]
+}

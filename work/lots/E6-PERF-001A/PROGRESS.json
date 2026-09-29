@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "work_unit": "E6-PERF-001A",
+  "status": "VERIFIED",
+  "final_validated_head": "fe55e617d6da2d0f0e277ea6481866de41cff698",
+  "validation": {
+    "push_workflow_run": 35874527037,
+    "pull_request_workflow_run": 35874533885,
+    "result": "PASS",
+    "performance_registry": "PASS",
+    "unit_tests": "PASS",
+    "sast": "PASS",
+    "sca": "PASS"
+  },
+  "registry_observation": {
+    "environments": 1,
+    "targets": 0,
+    "metrics": 0,
+    "runtime_boundaries": 0,
+    "runtime_targeted_boundaries": 0,
+    "runtime_coverage_status": "not-applicable"
+  },
+  "rules": [
+    "product-runtime boundaries require registered performance targets",
+    "target owner paths must be inside their architecture boundary",
+    "metric units aggregations comparators and workloads use closed enums",
+    "shared CI may not claim tight relative regression authority",
+    "absence of product-runtime is reported as not-applicable rather than performance pass"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E6-PERF-001B"
+  ]
+}

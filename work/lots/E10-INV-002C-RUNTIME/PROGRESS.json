@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-002C-RUNTIME",
+  "status": "VERIFIED",
+  "final_validated_head": "81d4a1993af856cb599d33953d7b5e8e131271a1",
+  "validation": {
+    "push_workflow_run": 36046150008,
+    "pull_request_workflow_run": 36046157371,
+    "result": "PASS",
+    "runtime_security_coverage_floor": "PASS",
+    "runtime_dependencies": "PASS",
+    "sast_sca": "PASS"
+  },
+  "runtime": {
+    "boundary": "event-search-runtime",
+    "external_runtime_dependencies": 0,
+    "lifecycle_states": [
+      "queued",
+      "running",
+      "completed",
+      "partial",
+      "failed",
+      "cancelled"
+    ],
+    "terminal_retry": "new job and run identity",
+    "backend_kind": "interface-only",
+    "provider_selected": false,
+    "index_selected": false,
+    "storage_selected": false
+  },
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-002C-PERF"
+  ]
+}

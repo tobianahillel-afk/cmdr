@@ -1,0 +1,131 @@
+{
+  "schema_version": 2,
+  "parent": "E9-PILOT-001C",
+  "product_refs": {
+    "capabilities": [
+      "CAP-SET-004"
+    ],
+    "requirements": [
+      "REQ-PROD-008",
+      "REQ-SEC-001",
+      "REQ-UX-006",
+      "REQ-UX-007",
+      "REQ-UX-009"
+    ],
+    "screens": [],
+    "permissions": [
+      "perm.platform-settings.environment.read",
+      "perm.platform-settings.tenant.read"
+    ],
+    "open_decisions": [],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/cross-product-context-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/environment.md",
+      "cmdr-product-spec/05-domain-model/objects/tenant.md"
+    ]
+  },
+  "forbidden_paths": [
+    "cmdr-product-spec/**"
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "bounded pure in-process pilot runtime with no persistence",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert the child task and keep later E9-C tasks blocked",
+    "verification": [
+      "Product Spec baseline remains unchanged",
+      "runtime boundary dependency audit remains valid"
+    ]
+  },
+  "definition_of_ready": [
+    "upstream dependency terminal state is satisfied",
+    "scope remains PILOT-CONTEXT-001/CAP-SET-004"
+  ],
+  "id": "E9-PILOT-001C-RUNTIME",
+  "title": "Implement context-envelope runtime and contract fixtures",
+  "type": "task",
+  "goal": "Implement only PILOT-CONTEXT-ENVELOPE-V1 as a standard-library-only Go package inside the reserved runtime boundary and prove the predeclared positive/negative fixtures.",
+  "depends_on": [
+    "E9-PILOT-001B"
+  ],
+  "allowed_paths": [
+    "product-runtime/context-envelope/**",
+    "engineering/pilot/**",
+    "work/lots/E9-PILOT-001C*/**",
+    "engineering/state/**",
+    "work/graph.json",
+    "tools/cmdr-dev/pilot_contract.go",
+    "tools/cmdr-dev/pilot_contract_test.go",
+    "tools/cmdr-dev/security_static.go",
+    "tools/cmdr-dev/security_static_test.go"
+  ],
+  "inputs": [
+    "verified pilot executable contract",
+    "11 predeclared fixtures including 9 negative cases",
+    "zero-external-runtime-dependency boundary"
+  ],
+  "outputs": [
+    "Go context-envelope runtime package",
+    "fixture-driven unit/contract tests",
+    "no external runtime dependency",
+    "lifecycle-aware pilot contract audit",
+    "multi-module Go SAST/SCA coverage including runtime when implemented"
+  ],
+  "invariants": [
+    "Product Spec remains read-only",
+    "no scope beyond context projection",
+    "authorization outcome remains explicit input",
+    "no persistence/network/secret transport"
+  ],
+  "security_properties": [
+    "deny masks protected references",
+    "tenant change clears inherited environment",
+    "wildcard/invalid references are rejected",
+    "unsafe return origin is rejected"
+  ],
+  "acceptance_tests": [
+    "package tests consume the predeclared fixture semantics",
+    "go test for runtime package passes",
+    "dependency audit reports zero external runtime dependencies",
+    "boundary-edge audit reports no undeclared local edge",
+    "pilot contract audit passes both marker-only and implemented runtime layouts",
+    "Go security scanners discover the runtime module only after its go.mod appears"
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "implementation must remain compatible with registered PERF-TGT-PILOT-CONTEXT-PROJECTION",
+    "metrics": [
+      "future projection p95 budget remains <= 1 ms; measurement is deferred to E9-PILOT-001C-PERF"
+    ]
+  },
+  "required_checks": [
+    "CHK-PILOT-CONTRACT",
+    "CHK-RUNTIME-DEPS",
+    "CHK-BOUNDARY-EDGES",
+    "CHK-SECRETS",
+    "CHK-SAST-GO",
+    "CHK-SCA-GO"
+  ],
+  "definition_of_done": [
+    "runtime implementation matches contract states/errors",
+    "positive and negative fixture semantics are executable",
+    "no external runtime dependency exists",
+    "task is IMPLEMENTED and hands security activation to E9-PILOT-001C-SECURITY"
+  ],
+  "complexity": {
+    "primary_components": 2,
+    "estimated_files_changed": 10,
+    "estimated_net_loc": 680,
+    "production_files": 5,
+    "net_production_loc": 470,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-002F-RESULTS",
+  "status": "VERIFIED",
+  "final_validated_head": "ea8038c0c025fb3c6bbe4e2d81606ba86bbf4e79",
+  "implementation": {
+    "commit": "ea8038c0c025fb3c6bbe4e2d81606ba86bbf4e79",
+    "files": [
+      "product-runtime/event-search-frontend/results.mjs",
+      "product-runtime/event-search-frontend/results.test.mjs"
+    ]
+  },
+  "validation": {
+    "push_workflow_run": 36123293340,
+    "pull_request_workflow_run": 36123297506,
+    "result": "PASS",
+    "runtime_dependencies": 0,
+    "global_runtime_coverage_percent": 92.21,
+    "global_coverage_floor_percent": 80,
+    "changed_security_critical_floor_percent": 90,
+    "pull_request_changed_scopes": 3,
+    "architecture_audit": "PASS",
+    "manifest_validation": "PASS",
+    "complexity_audit": "PASS",
+    "performance_registry": "PASS",
+    "security_test_audit": "PASS",
+    "secret_findings": 0,
+    "sast_findings": 0,
+    "sca_actionable_findings": 0
+  },
+  "result_renderer_evidence": [
+    "result projections are strict, immutable and backend-neutral",
+    "window size is bounded to 200 visible projections",
+    "stable anchor plus offset preserves relative position when earlier results arrive",
+    "renderer incrementally reconciles keyed rows instead of replacing the full fragment",
+    "existing row nodes and scrollTop survive non-destructive updates",
+    "untrusted summaries are rendered through textContent only",
+    "burst updates are coalesced by a first-party scheduler",
+    "no final virtualization geometry, storage, transport or persisted result model is selected"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-002F-INTEGRATION"
+  ]
+}

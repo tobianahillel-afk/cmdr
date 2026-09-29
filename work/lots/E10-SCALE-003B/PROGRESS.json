@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-SCALE-003B",
+  "status": "VERIFIED",
+  "final_validated_head": "3c7d996a3094366b4d3eabb1c896baefa2f72ea5",
+  "validation": {
+    "push_workflow_run": 36401749702,
+    "pull_request_workflow_run": 36401756812,
+    "result": "PASS",
+    "implementation_ledger": "PASS",
+    "implementation_readiness": "PASS",
+    "implementation_wave": "PASS",
+    "architecture_audit": "PASS"
+  },
+  "selection": {
+    "policy": "reuse-first-v1",
+    "readiness_snapshot": {
+      "total": 498,
+      "implemented": 3,
+      "ready": 18,
+      "blocked": 476,
+      "proposed": 1
+    },
+    "preferred_family": "CAP-INV",
+    "capability": "CAP-INV-005",
+    "name": "Hunt Management",
+    "canonical_file": "07-investigate/modules/signals-and-hunt/capabilities/hunt-management.md",
+    "product_spec_baseline": "99c3826cdcbc79bad51631cf6462450f92e012eb",
+    "spec_tree_digest": "a5f45351eba180d0edb734f33ecbeaabb7eceb7143305e201e207e8ae5a60d27"
+  },
+  "wave": {
+    "id": "WAVE-CAP-INV-005-CORE-001",
+    "status": "VERIFIED_MATERIALIZED",
+    "children": [
+      "E10-INV-005A-BOUNDARY",
+      "E10-INV-005A-CONTRACT",
+      "E10-INV-005B-RUNTIME",
+      "E10-INV-005C-CLOSURE"
+    ],
+    "next_ready": "E10-INV-005A-BOUNDARY"
+  },
+  "sequencing": {
+    "runtime_root": "product-runtime/hunt-management/**",
+    "runtime_path_claim": "deferred until E10-INV-005A-BOUNDARY registers unique architecture ownership",
+    "product_runtime_mutated": false
+  },
+  "exclusions": [
+    "canonical Hunt object/schema or final Hunt state machine",
+    "Hunt create/update/activate/pause/close/archive mutations while OPEN-013 remains open",
+    "Case promotion/create/link mutation while OPEN-013 remains open",
+    "Hypothesis create/link/status mutation while OPEN-013 remains open",
+    "Query draft mutation, Saved Search/Query Asset mutation or Search Job execution",
+    "CAP-INV-003/006/008/103 runtime assumptions",
+    "collaboration/presence backend selection",
+    "storage/provider/retention implementation",
+    "final query dialect",
+    "dedicated final Hunt UI",
+    "production Hunt workflow SLO or full-capability completion claim"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-005A-BOUNDARY"
+  ]
+}

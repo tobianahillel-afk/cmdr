@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "work_unit": "E4-SEC-001D",
+  "result": "VERIFIED",
+  "final_validated_head": "df2033057ac3fc83ca2436f87158d2cd4816c0bc",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 35854183264,
+    "pull_request_run": 35854187492,
+    "catalog_check": "CHK-DEEP-SECURITY",
+    "push_result": "stage=pr sensitive=false runtime_boundaries=0 targets=0 selected=0 deferred=0 evidence=0",
+    "pull_request_result": "stage=pr sensitive=true runtime_boundaries=0 targets=0 selected=0 deferred=3 evidence=0"
+  },
+  "rules": [
+    "PR deep validation triggers only for security-sensitive paths",
+    "nightly release and on-demand stages are explicit",
+    "no target means deferred rather than passed",
+    "registered target on inactive gate fails closed",
+    "release evidence is exact-artifact bound"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E5-RES-001A"
+  ]
+}

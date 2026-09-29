@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "work_unit": "E1-WORK-001C",
+  "result": "VERIFIED",
+  "final_validated_head": "7669035ccf743fb732480a217ebdd9dd296f14a1",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 35793350017,
+    "pull_request_run": 35793354312,
+    "sources": 30,
+    "dependency_units": 8,
+    "bundle_digest": "1c52a05707e413096876327e34a7a18f2ee7f1c3dc5caab08df8face935d0d46"
+  },
+  "rules": [
+    "context is compiled from a strict-v2 manifest and dependency closure",
+    "inactive product identifiers block compilation",
+    "canonical product sources outrank engineering and execution sources",
+    "bundles are deterministic and content-addressed",
+    "unrelated repository content is excluded by default"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": ["E2-ARCH-001A"]
+}

@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "work_unit": "E3-IMPACT-001C",
+  "result": "VERIFIED",
+  "final_validated_head": "4acac14e1e85a09e3ac53ad533c53fca2867a846",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 35796162976,
+    "pull_request_run": 35796167323,
+    "catalog_checks": 19,
+    "representative_selected_checks": 12,
+    "representative_cost_units": 12,
+    "representative_tier": "standard"
+  },
+  "rules": [
+    "PR safety-floor checks are always selected",
+    "directly triggered checks are added by changed path",
+    "manifest product/security scope adds matching validation domains",
+    "unknown or high-risk impact escalates to strict and all mandatory checks",
+    "prerequisites are recursively closed and topologically ordered",
+    "plans contain catalogued executor keys only, never arbitrary commands"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": ["E3-IMPACT-002A"]
+}

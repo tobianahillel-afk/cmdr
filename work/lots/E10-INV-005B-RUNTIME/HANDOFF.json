@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-005B-RUNTIME",
+  "result": "VERIFIED",
+  "final_validated_head": "65df48f8466367438fbf3bbb933025869317fa88",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 36416181945,
+    "pull_request_run": 36416188857,
+    "contract": "HUNT-WORKSPACE-READONLY-CONTRACT-V1",
+    "runtime": "implemented",
+    "fixtures": 15,
+    "runtime_dependencies": 0,
+    "global_runtime_coverage_percent": 91.84,
+    "sast_findings": 0,
+    "sca_actionable_findings": 0
+  },
+  "rules": [
+    "caller-owned Hunt workspace context only; no persistence",
+    "canonical ownership labels are preserved without ownership transfer",
+    "Search Job visibility requires a projected Query",
+    "stale/partial/unavailable source state becomes explicit limitations",
+    "no class-2 mutation or query execution"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-005C-CLOSURE"
+  ]
+}

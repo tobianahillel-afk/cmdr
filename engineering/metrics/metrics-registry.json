@@ -1,0 +1,165 @@
+{
+  "schema_version": 1,
+  "registry_kind": "engineering-engine-metrics",
+  "default_policy": "deny-unregistered-metric",
+  "categories": [
+    "validation",
+    "context",
+    "cache",
+    "recovery",
+    "quality"
+  ],
+  "units": [
+    "count",
+    "cost-unit",
+    "percent",
+    "boolean"
+  ],
+  "aggregations": [
+    "last",
+    "sum",
+    "max",
+    "ratio"
+  ],
+  "source_keys": [
+    "validation-plan",
+    "validation-execution",
+    "check-catalog",
+    "context-bundle",
+    "performance-cache",
+    "recovery-reconcile",
+    "coordination"
+  ],
+  "safety_classes": [
+    "safety-floor",
+    "quality-floor",
+    "efficiency"
+  ],
+  "directions": [
+    "lower-better",
+    "higher-better",
+    "invariant"
+  ],
+  "metrics": [
+    {
+      "id": "MET-VALIDATION-SELECTED",
+      "title": "Selected validation checks",
+      "category": "validation",
+      "unit": "count",
+      "aggregation": "last",
+      "source_key": "validation-plan",
+      "safety_class": "efficiency",
+      "optimization_eligible": true,
+      "direction": "lower-better",
+      "rationale": "reduce unnecessary selected checks while preserving prerequisite closure"
+    },
+    {
+      "id": "MET-VALIDATION-EXECUTED",
+      "title": "Executed validation checks",
+      "category": "validation",
+      "unit": "count",
+      "aggregation": "last",
+      "source_key": "validation-execution",
+      "safety_class": "efficiency",
+      "optimization_eligible": true,
+      "direction": "lower-better",
+      "rationale": "reduce executed checks only when safety selection remains equivalent"
+    },
+    {
+      "id": "MET-VALIDATION-COST",
+      "title": "Validation plan cost units",
+      "category": "validation",
+      "unit": "cost-unit",
+      "aggregation": "last",
+      "source_key": "validation-plan",
+      "safety_class": "efficiency",
+      "optimization_eligible": true,
+      "direction": "lower-better",
+      "rationale": "track relative selected validation work"
+    },
+    {
+      "id": "MET-MANDATORY-CHECKS",
+      "title": "Mandatory check floor",
+      "category": "quality",
+      "unit": "count",
+      "aggregation": "last",
+      "source_key": "check-catalog",
+      "safety_class": "safety-floor",
+      "optimization_eligible": false,
+      "direction": "invariant",
+      "rationale": "mandatory validation gates cannot be optimized away"
+    },
+    {
+      "id": "MET-SAFETY-GREEN",
+      "title": "Mandatory safety execution state",
+      "category": "quality",
+      "unit": "boolean",
+      "aggregation": "last",
+      "source_key": "validation-execution",
+      "safety_class": "safety-floor",
+      "optimization_eligible": false,
+      "direction": "invariant",
+      "rationale": "speed improvements are invalid when mandatory validation is not green"
+    },
+    {
+      "id": "MET-CONTEXT-SOURCES",
+      "title": "Agent context source count",
+      "category": "context",
+      "unit": "count",
+      "aggregation": "last",
+      "source_key": "context-bundle",
+      "safety_class": "efficiency",
+      "optimization_eligible": true,
+      "direction": "lower-better",
+      "rationale": "minimize context reconstruction and redundant source loading"
+    },
+    {
+      "id": "MET-CONTEXT-DEPENDENCIES",
+      "title": "Agent context dependency-unit count",
+      "category": "context",
+      "unit": "count",
+      "aggregation": "last",
+      "source_key": "context-bundle",
+      "safety_class": "efficiency",
+      "optimization_eligible": true,
+      "direction": "lower-better",
+      "rationale": "keep autonomous agent context bounded"
+    },
+    {
+      "id": "MET-CACHE-REUSE-RATE",
+      "title": "Reusable evidence cache rate",
+      "category": "cache",
+      "unit": "percent",
+      "aggregation": "ratio",
+      "source_key": "performance-cache",
+      "safety_class": "efficiency",
+      "optimization_eligible": true,
+      "direction": "higher-better",
+      "rationale": "maximize valid reuse of expensive verified evidence"
+    },
+    {
+      "id": "MET-RECOVERY-REVALIDATE",
+      "title": "Recovery revalidation requirement",
+      "category": "recovery",
+      "unit": "boolean",
+      "aggregation": "last",
+      "source_key": "recovery-reconcile",
+      "safety_class": "quality-floor",
+      "optimization_eligible": false,
+      "direction": "invariant",
+      "rationale": "revalidation requirements may not be suppressed for throughput"
+    },
+    {
+      "id": "MET-COORDINATION-CONFLICTS",
+      "title": "Active coordination conflicts",
+      "category": "recovery",
+      "unit": "count",
+      "aggregation": "last",
+      "source_key": "coordination",
+      "safety_class": "safety-floor",
+      "optimization_eligible": false,
+      "direction": "invariant",
+      "rationale": "conflicting mutable ownership must remain zero"
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "work_unit": "E1-WORK-001A",
+  "result": "VERIFIED",
+  "final_validated_head": "4b6751ff84e0e5814b5d1c4ec5ef058b37b09b75",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 35792280201,
+    "pull_request_run": 35792285962,
+    "manifests": 11,
+    "legacy_v1": 7,
+    "strict_v2": 4
+  },
+  "rules": [
+    "schema-v1 work manifests are legacy E0 only",
+    "all E1 and later work manifests must use strict schema v2",
+    "unknown fields are rejected",
+    "future work units require explicit paths, checks, rollback, acceptance, and complexity estimates"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": ["E1-WORK-001B"]
+}

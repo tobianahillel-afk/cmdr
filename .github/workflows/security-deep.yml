@@ -1,0 +1,65 @@
+name: security-deep
+
+on:
+  schedule:
+    - cron: "17 2 * * *"
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      stage:
+        description: "Deep security stage"
+        required: true
+        default: "on-demand"
+        type: choice
+        options:
+          - nightly
+          - on-demand
+          - release
+      requested_gate:
+        description: "Optional exact SEC-* gate for on-demand execution"
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: security-deep-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: false
+
+jobs:
+  policy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: tools/cmdr-dev/go.mod
+          cache: false
+
+      - name: Audit deep security schedule and evidence
+        working-directory: tools/cmdr-dev
+        shell: bash
+        env:
+          CMDR_INPUT_STAGE: ${{ inputs.stage }}
+          CMDR_REQUESTED_GATE: ${{ inputs.requested_gate }}
+        run: |
+          case "$GITHUB_EVENT_NAME" in
+            schedule) stage="nightly" ;;
+            release) stage="release" ;;
+            workflow_dispatch) stage="$CMDR_INPUT_STAGE" ;;
+            *) echo "unsupported event $GITHUB_EVENT_NAME" >&2; exit 2 ;;
+          esac
+          kernel="$GITHUB_WORKSPACE/.cmdr-dev-deep-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          trap 'rm -f "$kernel"' EXIT
+          go build -o "$kernel" .
+          args=(deep-security-audit --root ../.. --stage "$stage" --json)
+          if [[ -n "$CMDR_REQUESTED_GATE" ]]; then
+            args+=(--requested-gate "$CMDR_REQUESTED_GATE")
+          fi
+          "$kernel" "${args[@]}"

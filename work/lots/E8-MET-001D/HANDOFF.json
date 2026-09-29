@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "work_unit": "E8-MET-001D",
+  "result": "VERIFIED",
+  "final_validated_head": "de735057a0215cfec8b9e7d36afc71ac70a03d44",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 35930584995,
+    "pull_request_run": 35930590389,
+    "mandatory_floor": 44,
+    "standard_budget": "matched-pass",
+    "strict_budget": "matched-pass"
+  },
+  "rules": [
+    "safety and quality floors block independently of efficiency baseline availability",
+    "efficiency comparisons require exact tier/risk-domain/mandatory-floor profile identity",
+    "a higher mandatory floor creates a new profile instead of a performance regression",
+    "context growth is advisory while validation selection execution and cost regressions are blocking",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E9-PILOT-001A"
+  ]
+}

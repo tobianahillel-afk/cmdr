@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "work_unit": "E1-WORK-001B",
+  "status": "VERIFIED",
+  "final_validated_head": "4c3523e801514df05eed09387154e8fe77e2ec81",
+  "validation": {
+    "push_workflow_run": 35792661397,
+    "pull_request_workflow_run": 35792665920,
+    "result": "PASS",
+    "gofmt": "PASS",
+    "go_vet": "PASS",
+    "unit_tests": "PASS",
+    "manifest_validation": "PASS",
+    "complexity_audit": "PASS",
+    "doctor": "PASS",
+    "next_resolution": "PASS"
+  },
+  "complexity_observation": {
+    "evaluated": 3,
+    "within_budget": 1,
+    "with_warnings": 2,
+    "split_required": 0,
+    "readiness_violations": 0,
+    "warnings": {
+      "E1-WORK-001A": ["net LOC 500 exceed target 400"],
+      "E1-WORK-001C": ["net LOC 450 exceed target 400"]
+    }
+  },
+  "product_spec_mutated": false,
+  "next_unlocked": ["E1-WORK-001C"]
+}

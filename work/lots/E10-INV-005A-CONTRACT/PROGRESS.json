@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-005A-CONTRACT",
+  "status": "VERIFIED",
+  "final_validated_head": "5899ba1b92e2bf2f5ff60948c552986f4b674c5a",
+  "validation": {
+    "push_workflow_run": 36404520592,
+    "pull_request_workflow_run": 36404525561,
+    "result": "PASS",
+    "hunt_management_contract_audit": "PASS",
+    "manifest_validation": "PASS",
+    "complexity_audit": "PASS",
+    "architecture_audit": "PASS",
+    "runtime_dependency_audit": "PASS",
+    "boundary_edge_audit": "PASS",
+    "security_test_audit": "PASS",
+    "performance_registry_audit": "PASS"
+  },
+  "contract_observation": {
+    "contract_id": "HUNT-WORKSPACE-READONLY-CONTRACT-V1",
+    "capability": "CAP-INV-005",
+    "runtime_state": "preimplementation",
+    "fixtures": 15,
+    "positive": 3,
+    "negative": 12,
+    "runtime_dependencies": 0
+  },
+  "invariants": [
+    "no canonical Hunt object or final Hunt state machine is invented",
+    "OPEN-013 remains unresolved and all Hunt/Case/Hypothesis/Query mutation is excluded",
+    "tenant/environment/question/scope/time/owner are mandatory",
+    "denied and cross-tenant references fail closed",
+    "Search Job requires a visible Query reference",
+    "stale/partial/unavailable state becomes an explicit limitation",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-005B-RUNTIME"
+  ]
+}

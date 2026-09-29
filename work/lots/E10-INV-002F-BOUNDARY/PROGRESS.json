@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-002F-BOUNDARY",
+  "status": "VERIFIED",
+  "final_validated_head": "01c1dc9a57618771cb410eae3c9dd25f697d1546",
+  "validation": {
+    "push_workflow_run": 36064627523,
+    "pull_request_workflow_run": 36064632835,
+    "result": "PASS",
+    "architecture": "PASS",
+    "runtime_dependencies": "PASS",
+    "security_tests": "PASS",
+    "performance_registry": "PASS",
+    "deep_performance_policy": "PASS",
+    "manifests": "PASS",
+    "complexity": "PASS"
+  },
+  "runtime_boundary": {
+    "id": "event-search-frontend-runtime",
+    "root": "product-runtime/event-search-frontend/**",
+    "implementation_state": "preimplementation",
+    "executable_product_files": 0,
+    "marker_files": [
+      "product-runtime/event-search-frontend/README.md"
+    ],
+    "third_party_runtime_dependencies": 0
+  },
+  "security_observation": {
+    "registered_runtime_scopes": 3,
+    "frontend_scope": "event-search-frontend-runtime",
+    "authorization_required": true,
+    "tenant_isolation_required": true
+  },
+  "performance_observation": {
+    "registered_targets": 4,
+    "frontend_target": "PERF-TGT-EVENT-SEARCH-FRONTEND-STATE",
+    "frontend_stage": [
+      "on-demand"
+    ],
+    "frontend_budget_ms": 16,
+    "executable_measurement": false,
+    "deep_target": "PERF-DEEP-EVENT-SEARCH-FRONTEND-STATE",
+    "handlers_fail_closed_preimplementation": true
+  },
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-002F-STATE"
+  ]
+}

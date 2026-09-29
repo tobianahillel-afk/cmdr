@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-002A-BOUNDARY",
+  "result": "VERIFIED",
+  "final_validated_head": "7685898ac738f43943c5bb898e230201945945c6",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 36014716041,
+    "pull_request_run": 36014724973,
+    "boundary": "event-search-runtime",
+    "security_scope": "event-search-runtime",
+    "performance_target": "PERF-TGT-EVENT-SEARCH-VALIDATION"
+  },
+  "rules": [
+    "Event Search boundary is registered but remains preimplementation-only",
+    "README marker is the only product-runtime file introduced by this task",
+    "authorization and tenant-isolation obligations are registered before executable code",
+    "Event Search performance work is validation-only and on-demand; no backend or production Search SLO is claimed",
+    "preimplementation benchmark handlers fail closed if executed early",
+    "the existing pilot audit now validates its own dependency floor without assuming it is the only runtime boundary",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-002A-CONTRACT"
+  ]
+}

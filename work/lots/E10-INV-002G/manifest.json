@@ -1,0 +1,131 @@
+{
+  "schema_version": 2,
+  "id": "E10-INV-002G",
+  "title": "Compile verified Event Search runtime claim for implementation ledger",
+  "type": "task",
+  "parent": "E10-INV-002",
+  "goal": "Compile one source-backed runtime implementation claim for CAP-INV-002 from the verified backend core plus frontend E2E evidence, while preserving all explicit bounded exclusions and avoiding a full-product-completion claim.",
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-002"
+    ],
+    "requirements": [
+      "REQ-PROD-005",
+      "REQ-PROD-010",
+      "REQ-PROD-011",
+      "REQ-PROD-014",
+      "REQ-PROD-045"
+    ],
+    "screens": [
+      "INV-EVS-001"
+    ],
+    "permissions": [
+      "perm.investigate.search.execute",
+      "perm.investigate.evidence.collect",
+      "perm.investigate.evidence.export"
+    ],
+    "open_decisions": [
+      "OPEN-013"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/search-query-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/audit-event-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/frontend-state-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/query.md",
+      "cmdr-product-spec/05-domain-model/objects/search-job.md",
+      "cmdr-product-spec/05-domain-model/objects/telemetry-event.md"
+    ]
+  },
+  "depends_on": [
+    "E10-INV-002F-E2E"
+  ],
+  "allowed_paths": [
+    "engineering/implementation/event-search/**",
+    "work/lots/E10-INV-002G/**",
+    "engineering/state/**",
+    "work/graph.json",
+    "tools/cmdr-dev/**"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "engineering/implementation/ledger.json"
+  ],
+  "inputs": [
+    "VERIFIED E10-INV-002D backend bounded validation",
+    "VERIFIED E10-INV-002F-E2E frontend validation",
+    "event-search-runtime architecture boundary",
+    "read-only Product Spec baseline"
+  ],
+  "outputs": [
+    "ledger-compatible runtime implementation evidence handoff",
+    "explicit distinction between verified runtime implementation and full capability completion",
+    "machine-checkable residual exclusions"
+  ],
+  "invariants": [
+    "Product Spec remains read-only",
+    "implementation ledger is not mutated in this evidence-compilation task",
+    "OPEN-013 remains unresolved",
+    "no full capability completion or production readiness claim is made",
+    "no final query dialect index storage provider or persisted result model is selected"
+  ],
+  "security_properties": [
+    "claim requires zero runtime dependencies",
+    "claim requires zero cross-boundary dependency violations",
+    "claim requires >=80 percent measured runtime coverage",
+    "claim requires zero blocking SAST findings and zero actionable SCA findings"
+  ],
+  "acceptance_tests": [
+    "adaptive engineering-kernel remains green",
+    "compiled handoff satisfies RuntimeImplementationHandoff evidence floors",
+    "bounded exclusions remain explicit",
+    "Product Spec baseline remains unchanged"
+  ],
+  "performance_budget": {
+    "applicable": false,
+    "rationale": "this task compiles evidence only and introduces no runtime behavior",
+    "metrics": []
+  },
+  "migration": {
+    "required": false,
+    "rationale": "evidence-only task",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert the claim compilation without touching verified Event Search runtimes",
+    "verification": [
+      "E10-INV-002D remains VERIFIED",
+      "E10-INV-002F remains VERIFIED"
+    ]
+  },
+  "required_checks": [
+    "adaptive engineering-kernel",
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-SECURITY-TESTS",
+    "CHK-PERFORMANCE-REGISTRY"
+  ],
+  "definition_of_ready": [
+    "E10-INV-002F-E2E is VERIFIED"
+  ],
+  "definition_of_done": [
+    "one ledger-compatible handoff exists under E10-INV-002G",
+    "handoff is backed by exact push and PR run evidence",
+    "runtime implementation claim remains bounded and does not claim full capability completion",
+    "next scaling cycle can update the global implementation ledger from this claim"
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 5,
+    "estimated_net_loc": 260,
+    "production_files": 0,
+    "net_production_loc": 0,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

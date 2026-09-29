@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-SCALE-003B",
+  "result": "VERIFIED",
+  "final_validated_head": "3c7d996a3094366b4d3eabb1c896baefa2f72ea5",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 36401749702,
+    "pull_request_run": 36401756812,
+    "implementation_ledger_entries": 3,
+    "readiness_ready": 18,
+    "selected_capability": "CAP-INV-005",
+    "selection_policy": "reuse-first-v1",
+    "wave": "WAVE-CAP-INV-005-CORE-001"
+  },
+  "rules": [
+    "only READY capabilities are eligible for wave selection",
+    "reuse-first-v1 selected CAP-INV-005 from the already implemented CAP-INV family",
+    "CAP-INV-005 canonical Hunt Management file resolves inside the read-only Product Spec",
+    "OPEN-013 mutation semantics remain excluded from the bounded wave",
+    "no canonical Hunt object/state machine, provider, storage, retention, query dialect, collaboration backend or final Hunt UI is invented",
+    "product-runtime/hunt-management path claims remain deferred until E10-INV-005A-BOUNDARY registers unique architecture ownership",
+    "only E10-INV-005A-BOUNDARY is unlocked; downstream runtime work remains dependency-gated"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-005A-BOUNDARY"
+  ]
+}

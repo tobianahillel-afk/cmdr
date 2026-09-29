@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "work_unit": "E0-SPEC-001",
+  "result": "VERIFIED",
+  "product_spec_baseline": "99c3826cdcbc79bad51631cf6462450f92e012eb",
+  "final_validated_head": "d0cbc034004de23f35d27a06c99da3f4c441eea6",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 35778792707,
+    "pull_request_run": 35778794970,
+    "markdown_files": 1879,
+    "active_canonical_documents": 1428,
+    "tree_digest": "a5f45351eba180d0edb734f33ecbeaabb7eceb7143305e201e207e8ae5a60d27"
+  },
+  "outputs": [
+    "cmdr-dev spec-index",
+    "cmdr-dev spec-baseline",
+    "engineering/spec-index/baseline.json",
+    "engineering/spec-index/README.md"
+  ],
+  "properties": [
+    "deterministic detailed inventory",
+    "per-source SHA-256",
+    "canonical duplicate-id rejection",
+    "compact committed drift detector",
+    "zero third-party Go dependencies"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": ["E0-COVERAGE-001A"]
+}

@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "work_unit": "E4-SEC-001C",
+  "status": "VERIFIED",
+  "final_validated_head": "57f685693af8011754c46222e71a4cb9982065e8",
+  "validation": {
+    "push_workflow_run": 35853052409,
+    "pull_request_workflow_run": 35853053083,
+    "result": "PASS",
+    "adaptive_kernel": "PASS",
+    "security_test_audit": "PASS",
+    "unit_tests": "PASS",
+    "sast": "PASS",
+    "sca": "PASS",
+    "sbom": "PASS"
+  },
+  "runtime_security_observation": {
+    "runtime_boundaries": 0,
+    "registered_scopes": 0,
+    "coverage_status": "not-applicable",
+    "global_coverage_floor_percent": 80,
+    "changed_security_critical_coverage_floor_percent": 90,
+    "authorization_required": 0,
+    "tenant_isolation_required": 0
+  },
+  "guarantees": [
+    "every future product-runtime boundary must have explicit runtime security ownership metadata",
+    "runtime measured evidence must match the checked-out Git commit",
+    "global runtime coverage below 80 percent fails closed",
+    "changed security-critical coverage below 90 percent fails closed",
+    "authorization and tenant-isolation negative-test evidence is mandatory when a scope declares the corresponding requirement",
+    "absence of product runtime is represented as not-applicable rather than a false pass"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E4-SEC-001D"
+  ]
+}

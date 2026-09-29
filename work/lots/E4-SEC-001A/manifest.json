@@ -1,0 +1,108 @@
+{
+  "schema_version": 2,
+  "id": "E4-SEC-001A",
+  "title": "Define security gate registry and evidence model",
+  "type": "sublot",
+  "parent": "E4-SEC-001",
+  "goal": "Define a strict machine-readable catalog of security control families, stages, data-handling limits, risk triggers, required evidence and readiness so later security tooling cannot silently weaken or invent gates.",
+  "product_refs": {
+    "capabilities": [],
+    "requirements": [],
+    "screens": [],
+    "permissions": [],
+    "open_decisions": [],
+    "implementation_contracts": [],
+    "canonical_objects": []
+  },
+  "depends_on": [
+    "E3-IMPACT-002B"
+  ],
+  "allowed_paths": [
+    "tools/cmdr-dev/**",
+    "engineering/security/**",
+    "engineering/testing/**",
+    ".github/workflows/**",
+    "work/lots/E4-SEC-001*/**",
+    "engineering/state/**",
+    "work/graph.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**"
+  ],
+  "inputs": [
+    "verified adaptive validation engine",
+    "engineering dependency and architecture policy",
+    "empty-by-default Trusted Base",
+    "canonical Product Spec remains read-only"
+  ],
+  "outputs": [
+    "machine-enforced engineering security controls",
+    "deny-by-default security gate registry",
+    "closed security evidence/data-policy model",
+    "adaptive CHK-SECURITY-GATES"
+  ],
+  "invariants": [
+    "Product Spec remains read-only",
+    "security tooling cannot silently become a product runtime dependency",
+    "security controls fail closed when evidence is unavailable or ambiguous",
+    "heavy security checks are risk-adaptive rather than blindly repeated on every trivial change"
+  ],
+  "security_properties": [
+    "no production/customer data is sent to unreviewed external security tooling",
+    "security-critical changes cannot lower required gates or coverage floors",
+    "unknown tool or evidence identities are rejected"
+  ],
+  "acceptance_tests": [
+    "go test ./...",
+    "cmdr-dev validate-manifests succeeds",
+    "cmdr-dev architecture-audit succeeds",
+    "cmdr-dev validation-run succeeds for the selected plan",
+    "cmdr-dev security-gate-audit validates all canonical control families",
+    "unit tests reject missing families, false active claims, non-security gates and unknown evidence kinds"
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "security gates must preserve developer/agent throughput",
+    "metrics": [
+      "fast source-level security gates remain PR-suitable",
+      "heavy dynamic security controls are scheduled only by explicit risk triggers"
+    ]
+  },
+  "migration": {
+    "required": false,
+    "rationale": "engineering control-plane changes; no product persistent data",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert the security-engine lot while retaining the verified E3 adaptive/full-kernel fallback",
+    "verification": [
+      "engineering-kernel remains green"
+    ]
+  },
+  "required_checks": [
+    "adaptive engineering-kernel",
+    "independent full-kernel fallback when CI/security control-plane changes require it",
+    "cmdr-dev security-gate-audit"
+  ],
+  "definition_of_ready": [
+    "dependencies are VERIFIED",
+    "security scope is bounded and does not claim runtime product behavior"
+  ],
+  "definition_of_done": [
+    "security gate registry and JSON schema exist",
+    "gate IDs, control families, stages, data policies and evidence kinds are closed and validated",
+    "security gates distinguish active source-level controls from runtime-dependent/deep controls",
+    "security-gate audit is registered in adaptive validation"
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 8,
+    "estimated_net_loc": 430,
+    "production_files": 4,
+    "net_production_loc": 360,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}
