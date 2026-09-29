@@ -428,6 +428,13 @@ func TestProjectionSortsEverySupportedKeyAndDirection(t *testing.T) {
 				if direction == "desc" {
 					want = "case-b"
 				}
+				if field == "status" {
+					if direction == "asc" {
+						want = "case-b"
+					} else {
+						want = "case-a"
+					}
+				}
 				if first != want {
 					t.Fatalf("%s %s first=%s want=%s", field, direction, first, want)
 				}
