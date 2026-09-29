@@ -76,6 +76,7 @@
     "E10-INV-101A-CONTRACT"
   ],
   "allowed_paths": [
+    "product-runtime/case-queue/**",
     "engineering/implementation/case-queue/**",
     "engineering/security/**",
     "engineering/performance/**",
@@ -95,14 +96,19 @@
     "standard-library-only immutable Case Queue projection",
     "deep-copy isolated queue rows",
     "deterministic search/filter/sort results",
-    "explicit available/empty/partial/stale/permission-filtered diagnostics"
+    "explicit available/empty/partial/stale/permission-filtered/view-dirty diagnostics",
+    "implemented CASE-QUEUE-READONLY-CONTRACT-V1 runtime state",
+    "measured authorization-negative and tenant-isolation adapter for case-queue-runtime"
   ],
   "acceptance_tests": [
+    "all 24 predeclared contract fixtures execute against the runtime",
     "caller input cannot be mutated or aliased",
     "cross-tenant or denied Cases fail closed",
     "stable ordering is deterministic under equal keys",
     "missing Incident/Finding context is explicitly partial/unavailable rather than invented",
-    "runtime creates no Task/Decision/Run and performs no Case mutation"
+    "runtime creates no Task/Decision/Run and performs no Case mutation",
+    "authorization-negative and tenant-isolation adapters execute against case-queue-runtime",
+    "security-critical runtime coverage target is at least 90 percent"
   ],
   "performance_budget": {
     "applicable": true,
@@ -119,7 +125,11 @@
     "CHK-RUNTIME-DEPS",
     "CHK-BOUNDARY-EDGES",
     "CHK-SECURITY-TESTS",
-    "CHK-PERFORMANCE-REGISTRY"
+    "CHK-PERFORMANCE-REGISTRY",
+    "CHK-SECRETS",
+    "CHK-SAST-GO",
+    "CHK-SCA-GO",
+    "CHK-CASE-QUEUE-CONTRACT"
   ],
   "definition_of_ready": [
     "E10-INV-101A-CONTRACT is VERIFIED"

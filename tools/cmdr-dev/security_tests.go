@@ -91,6 +91,10 @@ const (
 	savedQueryAssetsSecurityModuleIdentity     = "github.com/tobianahillel-afk/cmdr/product-runtime/saved-query-assets"
 	savedQueryAssetsAuthorizationTestRegexp    = "^TestProjectMatchesPredeclaredContractFixtures$/(^asset-access-denied-is-rejected$|^query-access-denied-is-rejected$)"
 	savedQueryAssetsTenantTestRegexp           = "^TestProjectMatchesPredeclaredContractFixtures$/(^missing-tenant-is-rejected$|^wildcard-tenant-is-rejected$|^cross-tenant-asset-is-rejected$|^cross-tenant-query-is-rejected$|^cross-tenant-source-is-rejected$)"
+	caseQueueSecurityRuntimeRoot              = "product-runtime/case-queue"
+	caseQueueSecurityModuleIdentity           = "github.com/tobianahillel-afk/cmdr/product-runtime/case-queue"
+	caseQueueAuthorizationTestRegexp           = "^TestProjectMatchesPredeclaredContractFixtures$/^permission-filtered-case-is-hidden$"
+	caseQueueTenantTestRegexp                  = "^TestProjectMatchesPredeclaredContractFixtures$/(^missing-tenant-is-rejected$|^wildcard-tenant-is-rejected$|^cross-tenant-case-is-rejected$|^cross-tenant-incident-is-rejected$|^cross-tenant-finding-is-rejected$|^cross-tenant-saved-view-is-rejected$)"
 	eventSearchFrontendSecurityRuntimeRoot     = "product-runtime/event-search-frontend"
 	eventSearchFrontendAuthorizationTestRegexp = "^(authorization-state-cannot-be-deeplinked|permission-denied-reveals-no-protected-content|permission-denied-outcome-clears-results-and-exposes-no-protected-projection)$"
 	eventSearchFrontendTenantTestRegexp        = "^(tenant-mismatch-is-rejected|tenant-wildcard-is-rejected|transport-tenant-mismatch-fails-closed)$"
@@ -138,6 +142,12 @@ func runtimeSecurityAdapters() map[string]runtimeSecurityAdapter {
 			ModuleIdentity:         savedQueryAssetsSecurityModuleIdentity,
 			AuthorizationTestRegex: savedQueryAssetsAuthorizationTestRegexp,
 			TenantTestRegex:        savedQueryAssetsTenantTestRegexp,
+		},
+		caseQueueRuntimeBoundaryID: {
+			BoundaryID: caseQueueRuntimeBoundaryID, RuntimeRoot: caseQueueSecurityRuntimeRoot, RuntimeKind: "go",
+			ModuleIdentity:         caseQueueSecurityModuleIdentity,
+			AuthorizationTestRegex: caseQueueAuthorizationTestRegexp,
+			TenantTestRegex:        caseQueueTenantTestRegexp,
 		},
 		"event-search-frontend-runtime": {
 			BoundaryID: "event-search-frontend-runtime", RuntimeRoot: eventSearchFrontendSecurityRuntimeRoot, RuntimeKind: "node",

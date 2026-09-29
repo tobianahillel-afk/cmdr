@@ -1,26 +1,27 @@
 # Case Queue runtime boundary
 
-This directory is reserved for the first bounded executable runtime of **CAP-INV-101 Case Queue**.
+This directory contains the first bounded executable runtime of **CAP-INV-101 Case Queue**.
 
-## Current state
+## Implemented scope
 
-**Preimplementation only.** This README is the sole file intentionally present in the runtime boundary at this stage. It carries no executable product behavior and must not be treated as runtime coverage, authorization-negative evidence, tenant-isolation evidence, performance proof, persistence, a final Case Queue UI, or a Case lifecycle implementation.
+The runtime is a Go standard-library-only, provider-neutral, persistence-neutral, read-only projection over caller-owned Case snapshots.
 
-## Bounded future scope
+It implements the bounded semantics already compiled in `CASE-QUEUE-READONLY-CONTRACT-V1`:
 
-Later verified tasks may implement only the read-only queue core already materialized in `WAVE-CAP-INV-101-CORE-001`:
+- mandatory single-selected-Tenant and environment scope with no wildcard/default fallback;
+- fail-closed cross-tenant Case, Incident, Finding and Saved View inputs;
+- Case access filtering without leaking denied Case identity;
+- immutable, deep-copy-isolated queue rows;
+- deterministic local search, filters and stable sort;
+- optional Incident/Finding context with explicit partial/stale/unavailable diagnostics;
+- contract-level application of caller-owned Saved View snapshots with per-element permission re-evaluation and no Shared mutation;
+- explicit `available`, `empty`, `partial`, `stale`, `permission-filtered` and `view-dirty` states.
 
-- validation of caller-owned, explicitly tenant-scoped Case snapshots and access decisions;
-- immutable projection of accessible Case queue rows without redefining the canonical Case object;
-- deterministic local search, filter and stable sort over the bounded projection;
-- optional Incident and Finding context with explicit freshness, partial and unavailable diagnostics;
-- permission-re-evaluated application of a caller-owned Shared Saved View without mutating Shared state or exposing forbidden fields/filters;
-- deterministic available/empty/partial/stale/permission-filtered/view-dirty states;
-- immutable Case Workspace handoff and safe return-context restoration for view, filters, scroll and selection.
+The dedicated Saved View task `E10-INV-101C-VIEW` remains required to finalize the isolated adapter/fallback behavior; this runtime does not claim Shared Saved View persistence or management.
 
 ## Explicit exclusions
 
-This boundary does not select or implement:
+This runtime does not select or implement:
 
 - Case create/update/assignment/status/lifecycle mutation, which remains CAP-INV-102 territory and is governed by OPEN-013;
 - Export Job creation or export backend selection;
@@ -31,4 +32,4 @@ This boundary does not select or implement:
 - storage/provider/retention/collaboration backend selection;
 - a production Case Queue SLO or full-capability completion claim.
 
-Case remains Investigate-owned, Incident remains Command-owned and Saved View remains Shared-owned. External product-runtime dependencies remain deny-by-default. The initial implementation direction is Go standard library first unless a later evidence-backed technical decision proves otherwise.
+Case remains Investigate-owned, Incident remains Command-owned and Saved View remains Shared-owned. External product-runtime dependencies remain deny-by-default.
