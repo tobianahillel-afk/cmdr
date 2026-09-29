@@ -1056,6 +1056,7 @@ func validateCaseQueueRuntimeLayout(root string, boundary ArchitectureBoundary, 
 	files := []string{}
 	hasGoMod := false
 	hasRuntimeGo := false
+	// #nosec G703 -- scanRoot is repository-confined by runtimeScanRoot; symlink entries are rejected.
 	err = filepath.WalkDir(scanRoot, func(path string, entry os.DirEntry, err error) error {
 		if err != nil {
 			return err
