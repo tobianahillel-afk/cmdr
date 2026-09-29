@@ -10,15 +10,15 @@ import (
 )
 
 const (
-	caseQueueContractPath      = "engineering/implementation/case-queue/executable-contract.json"
-	caseQueueFixturesPath      = "engineering/implementation/case-queue/fixtures.json"
-	caseQueueManifestPath      = "work/lots/E10-INV-101A-CONTRACT/manifest.json"
-	caseQueueCapabilityPath    = "cmdr-product-spec/07-investigate/modules/cases-and-evidence/capabilities/case-queue.md"
+	caseQueueContractPath       = "engineering/implementation/case-queue/executable-contract.json"
+	caseQueueFixturesPath       = "engineering/implementation/case-queue/fixtures.json"
+	caseQueueManifestPath       = "work/lots/E10-INV-101A-CONTRACT/manifest.json"
+	caseQueueCapabilityPath     = "cmdr-product-spec/07-investigate/modules/cases-and-evidence/capabilities/case-queue.md"
 	caseLifecycleCapabilityPath = "cmdr-product-spec/07-investigate/modules/cases-and-evidence/capabilities/case-lifecycle-and-coordination.md"
-	caseQueueScreenPath        = "cmdr-product-spec/07-investigate/modules/case-workspace/screens/case-workspace.md"
-	caseQueueRuntimeBoundaryID = "case-queue-runtime"
-	caseQueueRuntimeRoot       = "product-runtime/case-queue/**"
-	caseQueueRuntimeMarker     = "product-runtime/case-queue/README.md"
+	caseQueueScreenPath         = "cmdr-product-spec/07-investigate/modules/case-workspace/screens/case-workspace.md"
+	caseQueueRuntimeBoundaryID  = "case-queue-runtime"
+	caseQueueRuntimeRoot        = "product-runtime/case-queue/**"
+	caseQueueRuntimeMarker      = "product-runtime/case-queue/README.md"
 )
 
 type CaseQueueRuntimeBoundary struct {
@@ -29,18 +29,18 @@ type CaseQueueRuntimeBoundary struct {
 }
 
 type CaseQueueScopePolicy struct {
-	TenantRequired              bool `json:"tenant_required"`
-	EnvironmentRequired         bool `json:"environment_required"`
-	WildcardTenantForbidden     bool `json:"wildcard_tenant_forbidden"`
-	CrossTenantForbidden        bool `json:"cross_tenant_forbidden"`
-	CaseAccessDecisionRequired  bool `json:"case_access_decision_required"`
+	TenantRequired             bool `json:"tenant_required"`
+	EnvironmentRequired        bool `json:"environment_required"`
+	WildcardTenantForbidden    bool `json:"wildcard_tenant_forbidden"`
+	CrossTenantForbidden       bool `json:"cross_tenant_forbidden"`
+	CaseAccessDecisionRequired bool `json:"case_access_decision_required"`
 }
 
 type CaseQueueSearchPolicy struct {
-	AllowedFields              []string `json:"allowed_fields"`
-	CaseInsensitive            bool     `json:"case_insensitive"`
-	TrimSpace                  bool     `json:"trim_space"`
-	InaccessibleDataForbidden  bool     `json:"inaccessible_data_forbidden"`
+	AllowedFields             []string `json:"allowed_fields"`
+	CaseInsensitive           bool     `json:"case_insensitive"`
+	TrimSpace                 bool     `json:"trim_space"`
+	InaccessibleDataForbidden bool     `json:"inaccessible_data_forbidden"`
 }
 
 type CaseQueueFilterPolicy struct {
@@ -56,57 +56,57 @@ type CaseQueueSortSpec struct {
 }
 
 type CaseQueueSortPolicy struct {
-	AllowedKeys          []string            `json:"allowed_keys"`
-	DefaultSort          []CaseQueueSortSpec `json:"default_sort"`
-	StableTieBreakers    []string            `json:"stable_tie_breakers"`
-	UnknownSortRejected  bool                `json:"unknown_sort_rejected"`
+	AllowedKeys         []string            `json:"allowed_keys"`
+	DefaultSort         []CaseQueueSortSpec `json:"default_sort"`
+	StableTieBreakers   []string            `json:"stable_tie_breakers"`
+	UnknownSortRejected bool                `json:"unknown_sort_rejected"`
 }
 
 type CaseQueueSavedViewPolicy struct {
-	SharedOwned                        bool `json:"shared_owned"`
-	Optional                           bool `json:"optional"`
-	StableIdentifierRequired           bool `json:"stable_identifier_required"`
-	VersionRequired                    bool `json:"version_required"`
-	TenantScoped                       bool `json:"tenant_scoped"`
-	CallerAccessDecisionRequired       bool `json:"caller_access_decision_required"`
-	FieldPermissionReevaluationRequired bool `json:"field_permission_reevaluation_required"`
+	SharedOwned                          bool `json:"shared_owned"`
+	Optional                             bool `json:"optional"`
+	StableIdentifierRequired             bool `json:"stable_identifier_required"`
+	VersionRequired                      bool `json:"version_required"`
+	TenantScoped                         bool `json:"tenant_scoped"`
+	CallerAccessDecisionRequired         bool `json:"caller_access_decision_required"`
+	FieldPermissionReevaluationRequired  bool `json:"field_permission_reevaluation_required"`
 	FilterPermissionReevaluationRequired bool `json:"filter_permission_reevaluation_required"`
-	SortPermissionReevaluationRequired bool `json:"sort_permission_reevaluation_required"`
-	DeniedElementsOmitted              bool `json:"denied_elements_omitted"`
-	MutationForbidden                  bool `json:"mutation_forbidden"`
+	SortPermissionReevaluationRequired   bool `json:"sort_permission_reevaluation_required"`
+	DeniedElementsOmitted                bool `json:"denied_elements_omitted"`
+	MutationForbidden                    bool `json:"mutation_forbidden"`
 }
 
 type CaseQueueFreshnessPolicy struct {
-	NamedStates                    []string `json:"named_states"`
-	MissingProjectionNamed         bool     `json:"missing_projection_named"`
-	StaleProjectionNamed           bool     `json:"stale_projection_named"`
-	UnavailableProjectionNamed     bool     `json:"unavailable_projection_named"`
-	DeterministicSortedDiagnostics bool     `json:"deterministic_sorted_diagnostics"`
-	SynthesisOfMissingFactsForbidden bool   `json:"synthesis_of_missing_facts_forbidden"`
+	NamedStates                      []string `json:"named_states"`
+	MissingProjectionNamed           bool     `json:"missing_projection_named"`
+	StaleProjectionNamed             bool     `json:"stale_projection_named"`
+	UnavailableProjectionNamed       bool     `json:"unavailable_projection_named"`
+	DeterministicSortedDiagnostics   bool     `json:"deterministic_sorted_diagnostics"`
+	SynthesisOfMissingFactsForbidden bool     `json:"synthesis_of_missing_facts_forbidden"`
 }
 
 type CaseQueueProjectionPolicy struct {
-	Immutable                        bool `json:"immutable"`
-	DeepCopyIsolation                bool `json:"deep_copy_isolation"`
-	CaseIsOnlyOwnedWorkItem          bool `json:"case_is_only_owned_work_item"`
-	IncidentContextOptional          bool `json:"incident_context_optional"`
-	FindingContextOptional           bool `json:"finding_context_optional"`
-	ActivityContextOptional          bool `json:"activity_context_optional"`
+	Immutable                          bool `json:"immutable"`
+	DeepCopyIsolation                  bool `json:"deep_copy_isolation"`
+	CaseIsOnlyOwnedWorkItem            bool `json:"case_is_only_owned_work_item"`
+	IncidentContextOptional            bool `json:"incident_context_optional"`
+	FindingContextOptional             bool `json:"finding_context_optional"`
+	ActivityContextOptional            bool `json:"activity_context_optional"`
 	TaskDecisionResponseRunAggregation bool `json:"task_decision_response_run_aggregation"`
-	FinalColumnsClaimed              bool `json:"final_columns_claimed"`
-	FinalCaseStateMachineClaimed     bool `json:"final_case_state_machine_claimed"`
+	FinalColumnsClaimed                bool `json:"final_columns_claimed"`
+	FinalCaseStateMachineClaimed       bool `json:"final_case_state_machine_claimed"`
 }
 
 type CaseQueueMutationPolicy struct {
-	CaseCreateExecutable       bool `json:"case_create_executable"`
-	CaseUpdateExecutable       bool `json:"case_update_executable"`
-	AssignmentExecutable       bool `json:"assignment_executable"`
-	StatusTransitionExecutable bool `json:"status_transition_executable"`
-	LifecycleExecutable        bool `json:"lifecycle_executable"`
-	SavedViewMutationExecutable bool `json:"saved_view_mutation_executable"`
-	ExportJobCreationExecutable bool `json:"export_job_creation_executable"`
-	TaskCreationExecutable     bool `json:"task_creation_executable"`
-	DecisionCreationExecutable bool `json:"decision_creation_executable"`
+	CaseCreateExecutable          bool `json:"case_create_executable"`
+	CaseUpdateExecutable          bool `json:"case_update_executable"`
+	AssignmentExecutable          bool `json:"assignment_executable"`
+	StatusTransitionExecutable    bool `json:"status_transition_executable"`
+	LifecycleExecutable           bool `json:"lifecycle_executable"`
+	SavedViewMutationExecutable   bool `json:"saved_view_mutation_executable"`
+	ExportJobCreationExecutable   bool `json:"export_job_creation_executable"`
+	TaskCreationExecutable        bool `json:"task_creation_executable"`
+	DecisionCreationExecutable    bool `json:"decision_creation_executable"`
 	ResponseRunCreationExecutable bool `json:"response_run_creation_executable"`
 }
 
@@ -213,18 +213,18 @@ type CaseQueueCaseInput struct {
 }
 
 type CaseQueueFixtureInput struct {
-	TenantRef                    string                   `json:"tenant_ref"`
-	AuthorizedTenants            []string                 `json:"authorized_tenants"`
-	EnvironmentRef               string                   `json:"environment_ref"`
-	SearchQuery                  string                   `json:"search_query"`
-	Filters                      []CaseQueueFilter        `json:"filters"`
-	Sort                         []CaseQueueSortSpec      `json:"sort"`
-	ViewDirty                    bool                     `json:"view_dirty"`
-	SavedView                    *CaseQueueSavedViewInput `json:"saved_view"`
-	Cases                        []CaseQueueCaseInput     `json:"cases"`
-	MutationRequested            string                   `json:"mutation_requested"`
-	ExportRequested              bool                     `json:"export_requested"`
-	WorkQueueAggregationRequested bool                    `json:"work_queue_aggregation_requested"`
+	TenantRef                     string                   `json:"tenant_ref"`
+	AuthorizedTenants             []string                 `json:"authorized_tenants"`
+	EnvironmentRef                string                   `json:"environment_ref"`
+	SearchQuery                   string                   `json:"search_query"`
+	Filters                       []CaseQueueFilter        `json:"filters"`
+	Sort                          []CaseQueueSortSpec      `json:"sort"`
+	ViewDirty                     bool                     `json:"view_dirty"`
+	SavedView                     *CaseQueueSavedViewInput `json:"saved_view"`
+	Cases                         []CaseQueueCaseInput     `json:"cases"`
+	MutationRequested             string                   `json:"mutation_requested"`
+	ExportRequested               bool                     `json:"export_requested"`
+	WorkQueueAggregationRequested bool                     `json:"work_queue_aggregation_requested"`
 }
 
 type CaseQueueFixtureExpected struct {
@@ -259,29 +259,29 @@ type CaseQueueFixtureSet struct {
 }
 
 type CaseQueueContractAuditSummary struct {
-	ContractID          string `json:"contract_id"`
-	Capability          string `json:"capability"`
-	RuntimeBoundary     string `json:"runtime_boundary"`
-	RuntimeState        string `json:"runtime_state"`
-	Fixtures            int    `json:"fixtures"`
-	PositiveFixtures    int    `json:"positive_fixtures"`
-	NegativeFixtures    int    `json:"negative_fixtures"`
-	PartialFixtures     int    `json:"partial_fixtures"`
-	StaleFixtures       int    `json:"stale_fixtures"`
-	PermissionFilteredFixtures int `json:"permission_filtered_fixtures"`
-	ViewDirtyFixtures   int    `json:"view_dirty_fixtures"`
-	RuntimeDependencies int    `json:"runtime_dependencies"`
-	Status              string `json:"status"`
+	ContractID                 string `json:"contract_id"`
+	Capability                 string `json:"capability"`
+	RuntimeBoundary            string `json:"runtime_boundary"`
+	RuntimeState               string `json:"runtime_state"`
+	Fixtures                   int    `json:"fixtures"`
+	PositiveFixtures           int    `json:"positive_fixtures"`
+	NegativeFixtures           int    `json:"negative_fixtures"`
+	PartialFixtures            int    `json:"partial_fixtures"`
+	StaleFixtures              int    `json:"stale_fixtures"`
+	PermissionFilteredFixtures int    `json:"permission_filtered_fixtures"`
+	ViewDirtyFixtures          int    `json:"view_dirty_fixtures"`
+	RuntimeDependencies        int    `json:"runtime_dependencies"`
+	Status                     string `json:"status"`
 }
 
 type caseQueueEvaluatedRow struct {
-	Case             CaseQueueCaseInput
-	IncidentPriority string
-	FindingStatuses  []string
-	Updated          time.Time
-	Partial          bool
-	Stale            bool
-	Diagnostics      []string
+	Case                       CaseQueueCaseInput
+	IncidentPriority           string
+	FindingStatuses            []string
+	Updated                    time.Time
+	Partial                    bool
+	Stale                      bool
+	Diagnostics                []string
 	PermissionFilteredElements int
 }
 
@@ -345,7 +345,7 @@ func runCaseQueueContractAudit(root string) (CaseQueueContractAuditSummary, erro
 	return CaseQueueContractAuditSummary{
 		ContractID: contract.ContractID, Capability: contract.Capability,
 		RuntimeBoundary: boundary.ID, RuntimeState: runtimeState,
-		Fixtures: len(fixtures.Cases), PositiveFixtures: len(fixtures.Cases)-negative,
+		Fixtures: len(fixtures.Cases), PositiveFixtures: len(fixtures.Cases) - negative,
 		NegativeFixtures: negative, PartialFixtures: partial, StaleFixtures: stale,
 		PermissionFilteredFixtures: permissionFiltered, ViewDirtyFixtures: viewDirty,
 		RuntimeDependencies: len(deps), Status: "PASS",
@@ -384,19 +384,19 @@ func validateCaseQueueContractCore(root string, manifest WorkManifestV2, contrac
 		!scope.CrossTenantForbidden || !scope.CaseAccessDecisionRequired {
 		return fmt.Errorf("Case Queue scope policy is incomplete or unsafe")
 	}
-	if !sameStringSet(contract.SearchPolicy.AllowedFields, []string{"id","human_id","title","owner","next_action"}) ||
+	if !sameStringSet(contract.SearchPolicy.AllowedFields, []string{"id", "human_id", "title", "owner", "next_action"}) ||
 		!contract.SearchPolicy.CaseInsensitive || !contract.SearchPolicy.TrimSpace || !contract.SearchPolicy.InaccessibleDataForbidden {
 		return fmt.Errorf("Case Queue search policy is incomplete or unsafe")
 	}
-	if !sameStringSet(contract.FilterPolicy.AllowedFields, []string{"status","owner","incident_priority","finding_status","freshness"}) ||
+	if !sameStringSet(contract.FilterPolicy.AllowedFields, []string{"status", "owner", "incident_priority", "finding_status", "freshness"}) ||
 		!contract.FilterPolicy.UnknownFilterRejected || !contract.FilterPolicy.EmptyValueRejected ||
 		!contract.FilterPolicy.CaseInsensitiveExactMatch {
 		return fmt.Errorf("Case Queue filter policy is incomplete or unsafe")
 	}
-	if !sameStringSet(contract.SortPolicy.AllowedKeys, []string{"updated_at","human_id","title","owner","status"}) ||
-		!sameStringSet(contract.SortPolicy.StableTieBreakers, []string{"human_id","id"}) ||
+	if !sameStringSet(contract.SortPolicy.AllowedKeys, []string{"updated_at", "human_id", "title", "owner", "status"}) ||
+		!sameStringSet(contract.SortPolicy.StableTieBreakers, []string{"human_id", "id"}) ||
 		!contract.SortPolicy.UnknownSortRejected ||
-		!caseQueueSortEqual(contract.SortPolicy.DefaultSort, []CaseQueueSortSpec{{Field:"updated_at",Direction:"desc"},{Field:"human_id",Direction:"asc"},{Field:"id",Direction:"asc"}}) {
+		!caseQueueSortEqual(contract.SortPolicy.DefaultSort, []CaseQueueSortSpec{{Field: "updated_at", Direction: "desc"}, {Field: "human_id", Direction: "asc"}, {Field: "id", Direction: "asc"}}) {
 		return fmt.Errorf("Case Queue sort policy is incomplete or nondeterministic")
 	}
 	view := contract.SavedViewPolicy
@@ -407,7 +407,7 @@ func validateCaseQueueContractCore(root string, manifest WorkManifestV2, contrac
 		return fmt.Errorf("Case Queue Saved View policy is incomplete or unsafe")
 	}
 	fresh := contract.FreshnessPolicy
-	if !sameStringSet(fresh.NamedStates, []string{"available","empty","partial","stale","permission-filtered","view-dirty"}) ||
+	if !sameStringSet(fresh.NamedStates, []string{"available", "empty", "partial", "stale", "permission-filtered", "view-dirty"}) ||
 		!fresh.MissingProjectionNamed || !fresh.StaleProjectionNamed || !fresh.UnavailableProjectionNamed ||
 		!fresh.DeterministicSortedDiagnostics || !fresh.SynthesisOfMissingFactsForbidden {
 		return fmt.Errorf("Case Queue freshness policy is incomplete")
@@ -468,7 +468,7 @@ func validateCaseQueueSourceAnchors(root, expectedState string) error {
 		return fmt.Errorf("unsupported Case Queue runtime state %q", expectedState)
 	}
 	sources := []struct {
-		path string
+		path    string
 		anchors []string
 	}{
 		{caseQueueCapabilityPath, []string{
@@ -502,30 +502,30 @@ func validateCaseQueueSourceAnchors(root, expectedState string) error {
 
 func validateCaseQueueFixtures(contract CaseQueueExecutableContract, fixtures CaseQueueFixtureSet) error {
 	required := map[string]bool{
-		"available-stable-default-order": false,
-		"empty-queue-is-explicit": false,
-		"partial-incident-context-is-visible": false,
-		"stale-context-is-visible": false,
-		"permission-filtered-case-is-hidden": false,
+		"available-stable-default-order":         false,
+		"empty-queue-is-explicit":                false,
+		"partial-incident-context-is-visible":    false,
+		"stale-context-is-visible":               false,
+		"permission-filtered-case-is-hidden":     false,
 		"saved-view-denied-elements-are-omitted": false,
-		"view-dirty-state-is-visible": false,
-		"search-filter-sort-is-deterministic": false,
-		"missing-tenant-is-rejected": false,
-		"wildcard-tenant-is-rejected": false,
-		"missing-environment-is-rejected": false,
-		"cross-tenant-case-is-rejected": false,
-		"missing-case-id-is-rejected": false,
-		"invalid-case-updated-at-is-rejected": false,
-		"unknown-filter-is-rejected": false,
-		"invalid-sort-is-rejected": false,
-		"saved-view-access-denied-is-rejected": false,
-		"cross-tenant-saved-view-is-rejected": false,
+		"view-dirty-state-is-visible":            false,
+		"search-filter-sort-is-deterministic":    false,
+		"missing-tenant-is-rejected":             false,
+		"wildcard-tenant-is-rejected":            false,
+		"missing-environment-is-rejected":        false,
+		"cross-tenant-case-is-rejected":          false,
+		"missing-case-id-is-rejected":            false,
+		"invalid-case-updated-at-is-rejected":    false,
+		"unknown-filter-is-rejected":             false,
+		"invalid-sort-is-rejected":               false,
+		"saved-view-access-denied-is-rejected":   false,
+		"cross-tenant-saved-view-is-rejected":    false,
 		"missing-saved-view-version-is-rejected": false,
-		"cross-tenant-incident-is-rejected": false,
-		"cross-tenant-finding-is-rejected": false,
-		"case-mutation-is-rejected": false,
-		"export-request-is-rejected": false,
-		"work-queue-aggregation-is-rejected": false,
+		"cross-tenant-incident-is-rejected":      false,
+		"cross-tenant-finding-is-rejected":       false,
+		"case-mutation-is-rejected":              false,
+		"export-request-is-rejected":             false,
+		"work-queue-aggregation-is-rejected":     false,
 	}
 	if len(fixtures.Cases) < len(required) {
 		return fmt.Errorf("Case Queue fixture set is too small: %d", len(fixtures.Cases))
@@ -643,7 +643,7 @@ func evaluateCaseQueueFixture(contract CaseQueueExecutableContract, in CaseQueue
 			if filter.AccessDecision != "allow" {
 				return reject("invalid-saved-view-element-access-decision")
 			}
-			validated, code := validateCaseQueueFilters(contract, []CaseQueueFilter{{Field:filter.Field, Values:filter.Values}})
+			validated, code := validateCaseQueueFilters(contract, []CaseQueueFilter{{Field: filter.Field, Values: filter.Values}})
 			if code != "" {
 				return reject(code)
 			}
@@ -658,7 +658,7 @@ func evaluateCaseQueueFixture(contract CaseQueueExecutableContract, in CaseQueue
 			if spec.AccessDecision != "allow" {
 				return reject("invalid-saved-view-element-access-decision")
 			}
-			validated, code := validateCaseQueueSort(contract, []CaseQueueSortSpec{{Field:spec.Field, Direction:spec.Direction}})
+			validated, code := validateCaseQueueSort(contract, []CaseQueueSortSpec{{Field: spec.Field, Direction: spec.Direction}})
 			if code != "" {
 				return reject(code)
 			}
@@ -709,7 +709,7 @@ func evaluateCaseQueueFixture(contract CaseQueueExecutableContract, in CaseQueue
 		if err != nil {
 			return reject("invalid-case-updated-at")
 		}
-		row := caseQueueEvaluatedRow{Case:item, Updated:updated, FindingStatuses:[]string{}, Diagnostics:[]string{}}
+		row := caseQueueEvaluatedRow{Case: item, Updated: updated, FindingStatuses: []string{}, Diagnostics: []string{}}
 		switch item.Freshness {
 		case "available":
 		case "partial":
@@ -838,11 +838,11 @@ func evaluateCaseQueueFixture(contract CaseQueueExecutableContract, in CaseQueue
 		projected = append(projected, row.Case.ID)
 	}
 	return CaseQueueFixtureExpected{
-		Allowed:true, States:sortedBoolKeys(states), Diagnostics:sortedBoolKeys(diagnostics),
-		ProjectedCaseIDs:projected, ProjectedCount:len(projected),
-		PermissionFilteredCases:permissionFilteredCases, PermissionFilteredElements:permissionFilteredElements,
-		AppliedSavedViewFields:appliedFields, AppliedSort:caseQueueSortStrings(effectiveSort),
-		ImmutableProjection:true, DeepCopyIsolated:true, AuditRequired:true,
+		Allowed: true, States: sortedBoolKeys(states), Diagnostics: sortedBoolKeys(diagnostics),
+		ProjectedCaseIDs: projected, ProjectedCount: len(projected),
+		PermissionFilteredCases: permissionFilteredCases, PermissionFilteredElements: permissionFilteredElements,
+		AppliedSavedViewFields: appliedFields, AppliedSort: caseQueueSortStrings(effectiveSort),
+		ImmutableProjection: true, DeepCopyIsolated: true, AuditRequired: true,
 	}
 }
 
@@ -855,7 +855,7 @@ func validateCaseQueueFilters(contract CaseQueueExecutableContract, filters []Ca
 		if len(filter.Values) == 0 {
 			return nil, "empty-filter-value"
 		}
-		copyFilter := CaseQueueFilter{Field:filter.Field, Values:make([]string,0,len(filter.Values))}
+		copyFilter := CaseQueueFilter{Field: filter.Field, Values: make([]string, 0, len(filter.Values))}
 		for _, value := range filter.Values {
 			value = strings.TrimSpace(value)
 			if value == "" {
@@ -895,7 +895,7 @@ func appendCaseQueueTieBreakers(specs []CaseQueueSortSpec, tie []string) []CaseQ
 	}
 	for _, field := range tie {
 		if !seen[field] {
-			out = append(out, CaseQueueSortSpec{Field:field, Direction:"asc"})
+			out = append(out, CaseQueueSortSpec{Field: field, Direction: "asc"})
 			seen[field] = true
 		}
 	}
@@ -906,7 +906,7 @@ func caseQueueMatchesSearch(row caseQueueEvaluatedRow, query string) bool {
 	if query == "" {
 		return true
 	}
-	values := []string{row.Case.ID,row.Case.HumanID,row.Case.Title,row.Case.Owner,row.Case.NextAction}
+	values := []string{row.Case.ID, row.Case.HumanID, row.Case.Title, row.Case.Owner, row.Case.NextAction}
 	for _, value := range values {
 		if strings.Contains(strings.ToLower(value), query) {
 			return true
@@ -952,9 +952,9 @@ func containsNormalized(values []string, value string) bool {
 	return false
 }
 
-func caseQueueRowLess(a,b caseQueueEvaluatedRow, specs []CaseQueueSortSpec) bool {
+func caseQueueRowLess(a, b caseQueueEvaluatedRow, specs []CaseQueueSortSpec) bool {
 	for _, spec := range specs {
-		cmp := caseQueueCompareField(a,b,spec.Field)
+		cmp := caseQueueCompareField(a, b, spec.Field)
 		if cmp == 0 {
 			continue
 		}
@@ -966,11 +966,15 @@ func caseQueueRowLess(a,b caseQueueEvaluatedRow, specs []CaseQueueSortSpec) bool
 	return false
 }
 
-func caseQueueCompareField(a,b caseQueueEvaluatedRow, field string) int {
+func caseQueueCompareField(a, b caseQueueEvaluatedRow, field string) int {
 	switch field {
 	case "updated_at":
-		if a.Updated.Before(b.Updated) { return -1 }
-		if a.Updated.After(b.Updated) { return 1 }
+		if a.Updated.Before(b.Updated) {
+			return -1
+		}
+		if a.Updated.After(b.Updated) {
+			return 1
+		}
 		return 0
 	case "id":
 		return strings.Compare(strings.ToLower(a.Case.ID), strings.ToLower(b.Case.ID))
@@ -988,87 +992,113 @@ func caseQueueCompareField(a,b caseQueueEvaluatedRow, field string) int {
 }
 
 func caseQueueSortStrings(specs []CaseQueueSortSpec) []string {
-	out := make([]string,0,len(specs))
+	out := make([]string, 0, len(specs))
 	for _, spec := range specs {
 		out = append(out, spec.Field+":"+spec.Direction)
 	}
 	return out
 }
 
-func caseQueueSortEqual(a,b []CaseQueueSortSpec) bool {
-	if len(a)!=len(b) { return false }
-	for i:=range a {
-		if a[i]!=b[i] { return false }
+func caseQueueSortEqual(a, b []CaseQueueSortSpec) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i := range a {
+		if a[i] != b[i] {
+			return false
+		}
 	}
 	return true
 }
 
-func caseQueueExpectedEqual(a,b CaseQueueFixtureExpected) bool {
-	return a.Allowed==b.Allowed && a.ErrorCode==b.ErrorCode &&
-		sameStringSet(a.States,b.States) && sameStringSet(a.Diagnostics,b.Diagnostics) &&
-		stringSlicesEqual(a.ProjectedCaseIDs,b.ProjectedCaseIDs) &&
-		a.ProjectedCount==b.ProjectedCount &&
-		a.PermissionFilteredCases==b.PermissionFilteredCases &&
-		a.PermissionFilteredElements==b.PermissionFilteredElements &&
-		stringSlicesEqual(a.AppliedSavedViewFields,b.AppliedSavedViewFields) &&
-		stringSlicesEqual(a.AppliedSort,b.AppliedSort) &&
-		a.ImmutableProjection==b.ImmutableProjection && a.DeepCopyIsolated==b.DeepCopyIsolated &&
-		a.MutationExecuted==b.MutationExecuted && a.ExportJobCreated==b.ExportJobCreated &&
-		a.WorkQueueAggregated==b.WorkQueueAggregated && a.AuditRequired==b.AuditRequired
+func caseQueueExpectedEqual(a, b CaseQueueFixtureExpected) bool {
+	return a.Allowed == b.Allowed && a.ErrorCode == b.ErrorCode &&
+		sameStringSet(a.States, b.States) && sameStringSet(a.Diagnostics, b.Diagnostics) &&
+		stringSlicesEqual(a.ProjectedCaseIDs, b.ProjectedCaseIDs) &&
+		a.ProjectedCount == b.ProjectedCount &&
+		a.PermissionFilteredCases == b.PermissionFilteredCases &&
+		a.PermissionFilteredElements == b.PermissionFilteredElements &&
+		stringSlicesEqual(a.AppliedSavedViewFields, b.AppliedSavedViewFields) &&
+		stringSlicesEqual(a.AppliedSort, b.AppliedSort) &&
+		a.ImmutableProjection == b.ImmutableProjection && a.DeepCopyIsolated == b.DeepCopyIsolated &&
+		a.MutationExecuted == b.MutationExecuted && a.ExportJobCreated == b.ExportJobCreated &&
+		a.WorkQueueAggregated == b.WorkQueueAggregated && a.AuditRequired == b.AuditRequired
 }
 
-func stringSlicesEqual(a,b []string) bool {
-	if len(a)!=len(b) { return false }
-	for i:=range a {
-		if a[i]!=b[i] { return false }
+func stringSlicesEqual(a, b []string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i := range a {
+		if a[i] != b[i] {
+			return false
+		}
 	}
 	return true
 }
 
 func sortedBoolKeys(values map[string]bool) []string {
-	out:=make([]string,0,len(values))
-	for value, present:=range values {
-		if present { out=append(out,value) }
+	out := make([]string, 0, len(values))
+	for value, present := range values {
+		if present {
+			out = append(out, value)
+		}
 	}
 	sort.Strings(out)
 	return out
 }
 
-func validateCaseQueueRuntimeLayout(root string, boundary ArchitectureBoundary, expected string) (string,error) {
+func validateCaseQueueRuntimeLayout(root string, boundary ArchitectureBoundary, expected string) (string, error) {
 	scanRoot, err := runtimeScanRoot(root, caseQueueRuntimeRoot)
-	if err != nil { return "",err }
-	files:=[]string{}
-	hasGoMod:=false
-	hasRuntimeGo:=false
+	if err != nil {
+		return "", err
+	}
+	files := []string{}
+	hasGoMod := false
+	hasRuntimeGo := false
 	err = filepath.WalkDir(scanRoot, func(path string, entry os.DirEntry, err error) error {
-		if err!=nil { return err }
-		if entry.Type()&os.ModeSymlink!=0 {
-			return fmt.Errorf("Case Queue runtime boundary contains symlink: %s",path)
+		if err != nil {
+			return err
 		}
-		if entry.IsDir() { return nil }
-		rel,err:=filepath.Rel(root,path)
-		if err!=nil { return err }
-		rel=filepath.ToSlash(rel)
-		files=append(files,rel)
-		if rel=="product-runtime/case-queue/go.mod" { hasGoMod=true }
-		if strings.HasSuffix(rel,".go") && !strings.HasSuffix(rel,"_test.go") { hasRuntimeGo=true }
-		if expected=="preimplementation" && rel!=caseQueueRuntimeMarker && !strings.HasSuffix(rel,"/.gitkeep") {
-			return fmt.Errorf("Case Queue preimplementation boundary contains unexpected runtime file %s",rel)
+		if entry.Type()&os.ModeSymlink != 0 {
+			return fmt.Errorf("Case Queue runtime boundary contains symlink: %s", path)
+		}
+		if entry.IsDir() {
+			return nil
+		}
+		rel, err := filepath.Rel(root, path)
+		if err != nil {
+			return err
+		}
+		rel = filepath.ToSlash(rel)
+		files = append(files, rel)
+		if rel == "product-runtime/case-queue/go.mod" {
+			hasGoMod = true
+		}
+		if strings.HasSuffix(rel, ".go") && !strings.HasSuffix(rel, "_test.go") {
+			hasRuntimeGo = true
+		}
+		if expected == "preimplementation" && rel != caseQueueRuntimeMarker && !strings.HasSuffix(rel, "/.gitkeep") {
+			return fmt.Errorf("Case Queue preimplementation boundary contains unexpected runtime file %s", rel)
 		}
 		return nil
 	})
-	if err!=nil { return "",err }
+	if err != nil {
+		return "", err
+	}
 	sort.Strings(files)
-	if !containsString(files,caseQueueRuntimeMarker) {
-		return "",fmt.Errorf("Case Queue runtime marker is missing")
+	if !containsString(files, caseQueueRuntimeMarker) {
+		return "", fmt.Errorf("Case Queue runtime marker is missing")
 	}
-	actual,err:=detectRuntimeBoundaryImplementationState(root,boundary)
-	if err!=nil { return "",err }
-	if actual!=expected {
-		return "",fmt.Errorf("Case Queue runtime state mismatch: contract=%s actual=%s",expected,actual)
+	actual, err := detectRuntimeBoundaryImplementationState(root, boundary)
+	if err != nil {
+		return "", err
 	}
-	if expected=="implemented" && (!hasGoMod || !hasRuntimeGo) {
-		return "",fmt.Errorf("Case Queue implemented runtime requires go.mod and executable Go source")
+	if actual != expected {
+		return "", fmt.Errorf("Case Queue runtime state mismatch: contract=%s actual=%s", expected, actual)
 	}
-	return actual,nil
+	if expected == "implemented" && (!hasGoMod || !hasRuntimeGo) {
+		return "", fmt.Errorf("Case Queue implemented runtime requires go.mod and executable Go source")
+	}
+	return actual, nil
 }
