@@ -33,12 +33,20 @@ jobs:
       - name: Validate bounded Case Queue runtime and probe
         shell: bash
         run: |
-          (cd product-runtime/case-queue && go test -race ./... && go vet ./...)
-          diff="$(gofmt -d product-runtime/case-queue/cmd/perf-probe/*.go)"
-          if [ -n "$diff" ]; then
-            printf '%s\n' "$diff"
+          echo "::group::Race tests"
+          (cd product-runtime/case-queue && go test -race ./...)
+          echo "::endgroup::"
+          echo "::group::Go vet"
+          (cd product-runtime/case-queue && go vet ./...)
+          echo "::endgroup::"
+          echo "::group::Go formatting"
+          gofmt -d product-runtime/case-queue/cmd/perf-probe/*.go
+          files="$(gofmt -l product-runtime/case-queue/cmd/perf-probe/*.go)"
+          if [ -n "$files" ]; then
+            echo "Unformatted probe files: $files" >&2
             exit 1
           fi
+          echo "::endgroup::"
       - name: Measure local latency and deep resources
         working-directory: tools/cmdr-dev
         shell: bash
