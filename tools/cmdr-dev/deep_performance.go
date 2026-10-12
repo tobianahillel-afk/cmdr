@@ -113,9 +113,9 @@ var knownDeepPerformanceHandlerKeys = map[string]bool{
 	"builtin-hunt-management-preimplementation-v1":               true,
 	"builtin-saved-query-assets-projection-preimplementation-v1": true,
 	"builtin-saved-query-assets-handoff-preimplementation-v1":    true,
-	"builtin-case-queue-projection-preimplementation-v1":         true,
-	"builtin-case-queue-saved-view-preimplementation-v1":         true,
-	"builtin-case-queue-handoff-preimplementation-v1":            true,
+	"builtin-case-queue-projection-v1":         true,
+	"builtin-case-queue-saved-view-v1":         true,
+	"builtin-case-queue-handoff-v1":            true,
 }
 
 func runDeepPerformanceAudit(root, stage, changesFile, requestedTarget string) (DeepPerformanceAuditSummary, error) {
@@ -411,14 +411,33 @@ func executeDeepPerformanceTargetWithHandler(
 }
 
 func runDeepPerformanceHandler(ctx context.Context, root string, target DeepPerformanceTarget) (DeepPerformanceObservation, error) {
-	if target.HandlerKey == "builtin-case-queue-projection-preimplementation-v1" {
-		return DeepPerformanceObservation{}, fmt.Errorf("case-queue projection deep performance target is preimplementation; implement E10-INV-101B-RUNTIME before executable measurement")
-	}
-	if target.HandlerKey == "builtin-case-queue-saved-view-preimplementation-v1" {
-		return DeepPerformanceObservation{}, fmt.Errorf("case-queue Saved View deep performance target is preimplementation; implement E10-INV-101C-VIEW before executable measurement")
-	}
-	if target.HandlerKey == "builtin-case-queue-handoff-preimplementation-v1" {
-		return DeepPerformanceObservation{}, fmt.Errorf("case-queue handoff deep performance target is preimplementation; implement E10-INV-101D-HANDOFF before executable measurement")
+	if strings.HasPrefix(target.HandlerKey, "builtin-case-queue-") && strings.HasSuffix(target.HandlerKey, "-v1") {
+		if err := ctx.Err(); err != nil {
+			return DeepPerformanceObservation{}, err
+		}
+		operation := strings.TrimSuffix(strings.TrimPrefix(target.HandlerKey, "builtin-case-queue-"), "-v1")
+		probe, cleanup, err := prepareCaseQueueProbe(root)
+		if err != nil {
+			return DeepPerformanceObservation{}, err
+		}
+		defer cleanup()
+		observation, err := probe.run(target.Iterations, operation, "resource", target.MemoryLimitMiB)
+		if err != nil {
+			return DeepPerformanceObservation{}, err
+		}
+		if err := ctx.Err(); err != nil {
+			return DeepPerformanceObservation{}, err
+		}
+		result := DeepPerformanceObservation{
+			DurationMS: observation.ElapsedNS / int64(time.Millisecond),
+			PeakHeapBytes: observation.PeakHeapBytes,
+			TotalAllocationBytes: observation.TotalAllocationBytes,
+			Operations: int64(observation.Operations),
+		}
+		if observation.ElapsedNS > 0 {
+			result.ThroughputOpsPerSec = float64(observation.Operations) / (float64(observation.ElapsedNS) / float64(time.Second))
+		}
+		return result, nil
 	}
 	if target.HandlerKey == "builtin-saved-query-assets-projection-preimplementation-v1" {
 		return DeepPerformanceObservation{}, fmt.Errorf("saved-query-assets projection deep performance target is preimplementation; implement E10-INV-006B-RUNTIME before executable measurement")

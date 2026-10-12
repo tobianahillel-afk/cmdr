@@ -84,7 +84,8 @@
     "engineering/state/**",
     "work/graph.json",
     "tools/cmdr-dev/**",
-    ".github/workflows/**"
+    ".github/workflows/**",
+    "product-runtime/case-queue/cmd/perf-probe/**"
   ],
   "inputs": [
     "verified boundary/contract/runtime/Saved View/handoff tasks",
@@ -121,7 +122,11 @@
     "CHK-SECURITY-TESTS",
     "CHK-PERFORMANCE-REGISTRY",
     "CHK-PERFORMANCE-BENCHMARK",
-    "CHK-DEEP-PERFORMANCE"
+    "CHK-DEEP-PERFORMANCE",
+    "CHK-CASE-QUEUE-CONTRACT",
+    "CHK-SAST-GO",
+    "CHK-SCA-GO",
+    "CHK-SECRETS"
   ],
   "definition_of_ready": [
     "E10-INV-101D-HANDOFF is VERIFIED"
