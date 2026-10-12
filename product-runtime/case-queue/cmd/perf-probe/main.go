@@ -174,9 +174,9 @@ func runProbe(iterations int, operation, mode string, memoryMiB int) (observatio
 	}
 	return observation{
 		Operation: operation, Mode: mode, Operations: iterations,
-		ElapsedNS: elapsed.Nanoseconds(),
-		NSPerOperation: float64(elapsed.Nanoseconds()) / float64(iterations),
-		PeakHeapBytes: peak.Load(),
+		ElapsedNS:            elapsed.Nanoseconds(),
+		NSPerOperation:       float64(elapsed.Nanoseconds()) / float64(iterations),
+		PeakHeapBytes:        peak.Load(),
 		TotalAllocationBytes: after.TotalAlloc - before.TotalAlloc,
 	}, nil
 }

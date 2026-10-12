@@ -7,10 +7,10 @@ import (
 
 func TestRejectInvalidProbeArguments(t *testing.T) {
 	cases := []struct {
-		count int
+		count     int
 		operation string
-		mode string
-		memory int
+		mode      string
+		memory    int
 	}{
 		{0, "projection", "latency", 0},
 		{maxIterations + 1, "projection", "latency", 0},
