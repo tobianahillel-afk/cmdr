@@ -99,3 +99,14 @@ func TestMainProducesValidOutput(t *testing.T) {
 	os.Stdout = devnull
 	main()
 }
+
+func TestResourceProbeSamplesHeapDuringRealWork(t *testing.T) {
+	got, err := runProbe(10000, "handoff", "resource", 128)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got.Operations != 10000 || got.ElapsedNS <= 0 ||
+		got.PeakHeapBytes == 0 || got.TotalAllocationBytes == 0 {
+		t.Fatalf("invalid deep resource observation: %+v", got)
+	}
+}
