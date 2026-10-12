@@ -113,9 +113,9 @@ var knownDeepPerformanceHandlerKeys = map[string]bool{
 	"builtin-hunt-management-preimplementation-v1":               true,
 	"builtin-saved-query-assets-projection-preimplementation-v1": true,
 	"builtin-saved-query-assets-handoff-preimplementation-v1":    true,
-	"builtin-case-queue-projection-v1":         true,
-	"builtin-case-queue-saved-view-v1":         true,
-	"builtin-case-queue-handoff-v1":            true,
+	"builtin-case-queue-projection-v1":                           true,
+	"builtin-case-queue-saved-view-v1":                           true,
+	"builtin-case-queue-handoff-v1":                              true,
 }
 
 func runDeepPerformanceAudit(root, stage, changesFile, requestedTarget string) (DeepPerformanceAuditSummary, error) {
@@ -429,10 +429,10 @@ func runDeepPerformanceHandler(ctx context.Context, root string, target DeepPerf
 			return DeepPerformanceObservation{}, err
 		}
 		result := DeepPerformanceObservation{
-			DurationMS: observation.ElapsedNS / int64(time.Millisecond),
-			PeakHeapBytes: observation.PeakHeapBytes,
+			DurationMS:           observation.ElapsedNS / int64(time.Millisecond),
+			PeakHeapBytes:        observation.PeakHeapBytes,
 			TotalAllocationBytes: observation.TotalAllocationBytes,
-			Operations: int64(observation.Operations),
+			Operations:           int64(observation.Operations),
 		}
 		if observation.ElapsedNS > 0 {
 			result.ThroughputOpsPerSec = float64(observation.Operations) / (float64(observation.ElapsedNS) / float64(time.Second))

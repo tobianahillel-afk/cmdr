@@ -34,9 +34,9 @@ jobs:
         shell: bash
         run: |
           (cd product-runtime/case-queue && go test -race ./... && go vet ./...)
-          diff="$(gofmt -d product-runtime/case-queue/cmd/perf-probe)"
+          diff="$(gofmt -d product-runtime/case-queue/cmd/perf-probe/*.go)"
           if [ -n "$diff" ]; then
-            printf '%s\\n' "$diff"
+            printf '%s\n' "$diff"
             exit 1
           fi
       - name: Measure local latency and deep resources
@@ -46,7 +46,7 @@ jobs:
           go build -o "$GITHUB_WORKSPACE/.cmdr-case-queue-closure" .
           binary="$GITHUB_WORKSPACE/.cmdr-case-queue-closure"
           trap 'rm -f "$binary"' EXIT
-          printf 'product-runtime/case-queue/handoff.go\\n' > "$GITHUB_WORKSPACE/.cmdr-case-queue-changes"
+          printf 'product-runtime/case-queue/handoff.go\n' > "$GITHUB_WORKSPACE/.cmdr-case-queue-changes"
           "$binary" performance-benchmark-audit --root ../.. --stage pr --changes-file "$GITHUB_WORKSPACE/.cmdr-case-queue-changes" --json
           for target in PERF-DEEP-CASE-QUEUE-PROJECTION PERF-DEEP-CASE-QUEUE-SAVED-VIEW PERF-DEEP-CASE-QUEUE-HANDOFF; do
             "$binary" deep-performance-audit --root ../.. --stage on-demand --requested-performance-target "$target" --json
