@@ -179,6 +179,20 @@ func TestCaseWorkspaceRestoreRejectsMalformedOrForgedTokens(t *testing.T) {
 		{"fake-tenant", func(e *returnEnvelope) { e.State.TenantRef = "tenant-other" }},
 		{"script-origin", func(e *returnEnvelope) { e.State.Origin = "javascript:alert(1)" }},
 		{"invalid-filter", func(e *returnEnvelope) { e.State.Filters = []Filter{{Field:"forbidden",Values:[]string{"x"}}} }},
+		{"invalid-sort", func(e *returnEnvelope) { e.State.Sort = []SortSpec{{Field:"forbidden",Direction:"desc"}} }},
+		{"invalid-filter-value", func(e *returnEnvelope) { e.State.Filters = []Filter{{Field:"status",Values:[]string{}}} }},
+		{"wrong-version", func(e *returnEnvelope) { e.Version = 2 }},
+		{"wrong-environment", func(e *returnEnvelope) { e.State.EnvironmentRef = "other" }},
+		{"missing-environment", func(e *returnEnvelope) { e.State.EnvironmentRef = "" }},
+		{"missing-tenant", func(e *returnEnvelope) { e.State.TenantRef = "" }},
+		{"wildcard-tenant", func(e *returnEnvelope) { e.State.TenantRef = "*" }},
+		{"missing-case", func(e *returnEnvelope) { e.State.SelectedCaseID = "" }},
+		{"negative-scroll", func(e *returnEnvelope) { e.State.ScrollOffset = -1 }},
+		{"oversized-scroll", func(e *returnEnvelope) { e.State.ScrollOffset = maxReturnScroll + 1 }},
+		{"oversized-query", func(e *returnEnvelope) { e.State.SearchQuery = strings.Repeat("x", 257) }},
+		{"control-query", func(e *returnEnvelope) { e.State.SearchQuery = string([]byte{0}) }},
+		{"wrong-view-reference", func(e *returnEnvelope) { e.State.SavedViewID = "view-other" }},
+		{"wrong-view-version", func(e *returnEnvelope) { e.State.SavedViewVersion = "v2" }},
 	} {
 		t.Run(attack.name,func(t *testing.T) {
 			copy := env
