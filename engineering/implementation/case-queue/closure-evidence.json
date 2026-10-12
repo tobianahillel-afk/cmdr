@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "kind": "bounded-case-queue-runtime-closure",
+  "capability": "CAP-INV-101",
+  "work_unit": "E10-INV-101E-CLOSURE",
+  "product_spec_baseline": "99c3826cdcbc79bad51631cf6462450f92e012eb",
+  "verified_runtime_head": "0a4c88eb6db8f5dc005cc22d3a0629b62a6c259c",
+  "run_evidence": {
+    "push": 38298854862,
+    "pull_request": 38298860764,
+    "measured_case_queue_closure": 38298854808
+  },
+  "runtime_contract": "CASE-QUEUE-READONLY-CONTRACT-V1",
+  "runtime_boundary": "case-queue-runtime",
+  "scopes": {
+    "provider_neutral": true,
+    "persistence_neutral": true,
+    "read_only": true,
+    "tenant_scoped": true,
+    "external_runtime_dependencies": 0
+  },
+  "quality": {
+    "case_queue_contract_fixtures": 24,
+    "go_race": "PASS",
+    "go_vet": "PASS",
+    "gofmt": "PASS",
+    "security_test_floor": 90,
+    "security_test_gate": "PASS",
+    "security_scans": "PASS",
+    "product_spec_changed": false
+  },
+  "measured_coverage_percent": {
+    "case_queue_runtime_package": 95.5,
+    "performance_probe_package": 94,
+    "combined_go_runtime": 95.3
+  },
+  "performance": {
+    "kind": "engineering-ci-local-absolute-smoke",
+    "shared_runner": true,
+    "relative_regression_claim": false,
+    "production_slo_claim": false,
+    "samples_per_target": 5,
+    "budget_p95_ms": 1,
+    "observed_p95_ms": {
+      "projection": 0.0010989712,
+      "saved_view": 0.001770084,
+      "handoff": 0.0032715779
+    },
+    "deep_resource": {
+      "iterations_each": 10000,
+      "memory_ceiling_mib": 128,
+      "projection": {
+        "duration_ms": 12,
+        "peak_heap_bytes": 3789680
+      },
+      "saved_view": {
+        "duration_ms": 19,
+        "peak_heap_bytes": 3809464
+      },
+      "handoff": {
+        "duration_ms": 43,
+        "peak_heap_bytes": 3832104
+      }
+    }
+  },
+  "exclusions": [
+    "CAP-INV-101 implementation is only the bounded, immutable, provider-neutral, read-only Case Queue runtime; full capability completion is not claimed.",
+    "OPEN-013 prevents Case create/update/assignment/status/lifecycle operations delegated to CAP-INV-102.",
+    "Saved View create/update/share/archive/manage remain Shared-owned and are excluded.",
+    "Export Job creation, export backend and report rendering are excluded.",
+    "Incident is Command-owned optional context; Task, Decision, Response Run and Command Work Queue remain excluded.",
+    "Final queue columns, final Case state machine, final dedicated UI, persistence/provider, collaboration, retention and production SLO remain unselected.",
+    "The return token is untrusted presentation state, not a signed, encrypted or authorization-bearing credential."
+  ],
+  "production_readiness_claim": false,
+  "full_capability_completion_claim": false,
+  "next": "E10-INV-101F"
+}
