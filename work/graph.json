@@ -1631,7 +1631,7 @@
       "id": "E10-INV-101F",
       "title": "Compile verified Case Queue runtime claim for implementation ledger",
       "type": "task",
-      "status": "READY",
+      "status": "VERIFIED",
       "depends_on": [
         "E10-INV-101E-CLOSURE"
       ],

@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
   "work_unit": "E10-INV-101F",
-  "result": "IMPLEMENTED",
+  "result": "VERIFIED",
   "implementation_commit": "d2e8623aee8b7045bf2bca72a98f05bfd3aadec8",
-  "final_validated_head": "0a4c88eb6db8f5dc005cc22d3a0629b62a6c259c",
+  "final_validated_head": "2dbf81c1666e3612e508f5fbb693fb54388604df",
   "pull_request": 36,
   "evidence": {
-    "push_run": 38298854862,
-    "pull_request_run": 38298860764,
+    "push_run": 38299597665,
+    "pull_request_run": 38299602967,
     "contract": "CASE-QUEUE-READONLY-CONTRACT-V1",
     "fixtures": 24,
     "negative_fixtures": 16,
@@ -27,7 +27,7 @@
     "Return token is not signed, encrypted, or authorization-bearing; it is untrusted transient presentation context.",
     "Third-party runtime dependencies and unauthorized cross-boundary edges remain zero.",
     "Canonical cmdr-product-spec remains immutable.",
-    "Handoff result must not be promoted to VERIFIED until its own exact-head CI passes."
+    "The exact-head GitHub push and pull-request CI ran successfully before VERIFIED promotion"
   ],
   "product_spec_mutated": false,
   "next_unlocked": []

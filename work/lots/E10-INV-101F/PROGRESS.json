@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-101F",
+  "status": "VERIFIED",
+  "final_validated_head": "2dbf81c1666e3612e508f5fbb693fb54388604df",
+  "validation": {
+    "push_workflow_run": 38299597665,
+    "pull_request_workflow_run": 38299602967,
+    "result": "PASS",
+    "implementation_ledger_audit": "PASS",
+    "adaptive_kernel": "PASS",
+    "product_spec_baseline": "UNCHANGED"
+  },
+  "claim": {
+    "capability": "CAP-INV-101",
+    "work_unit": "E10-INV-101F",
+    "runtime_boundary": "case-queue-runtime",
+    "runtime_root": "product-runtime/case-queue/**",
+    "implementation_commit": "d2e8623aee8b7045bf2bca72a98f05bfd3aadec8",
+    "contract": "CASE-QUEUE-READONLY-CONTRACT-V1",
+    "fixtures": 24,
+    "negative_fixtures": 16,
+    "runtime_files": 4,
+    "runtime_dependencies": 0,
+    "cross_boundary_edges": 0,
+    "global_coverage_percent": 95.3,
+    "sast_findings": 0,
+    "sca_actionable_findings": 0
+  },
+  "interpretation": {
+    "runtime_implementation_verified": true,
+    "production_readiness_claim": false,
+    "full_capability_completion_claim": false,
+    "global_ledger_entry_added": false,
+    "residual_open_decisions": [
+      "OPEN-013"
+    ],
+    "note": "Bounded runtime handoff is machine-checkable and validated; global implementation ledger modification requires a separately authorized future work unit."
+  },
+  "product_spec_mutated": false,
+  "next_unlocked": []
+}
