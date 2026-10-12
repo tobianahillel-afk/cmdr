@@ -38,5 +38,7 @@
     "note": "Bounded runtime handoff is machine-checkable and validated; global implementation ledger modification requires a separately authorized future work unit."
   },
   "product_spec_mutated": false,
-  "next_unlocked": []
+  "next_unlocked": [
+    "E10-SCALE-006A"
+  ]
 }

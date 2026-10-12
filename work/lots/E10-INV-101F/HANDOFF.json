@@ -30,5 +30,7 @@
     "The exact-head GitHub push and pull-request CI ran successfully before VERIFIED promotion"
   ],
   "product_spec_mutated": false,
-  "next_unlocked": []
+  "next_unlocked": [
+    "E10-SCALE-006A"
+  ]
 }

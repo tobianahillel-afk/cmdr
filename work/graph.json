@@ -1636,6 +1636,45 @@
         "E10-INV-101E-CLOSURE"
       ],
       "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-SCALE-006A"
+      ]
+    },
+    {
+      "id": "E10-SCALE-006",
+      "title": "Advance verified Case Queue ledger and select next bounded implementation wave",
+      "type": "epic",
+      "status": "DECOMPOSED",
+      "depends_on": [
+        "E10-INV-101F"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-SCALE-006A"
+      ]
+    },
+    {
+      "id": "E10-SCALE-006A",
+      "title": "Register CAP-INV-101 bounded runtime claim and refresh readiness",
+      "type": "task",
+      "status": "READY",
+      "depends_on": [
+        "E10-INV-101F"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-SCALE-006B"
+      ]
+    },
+    {
+      "id": "E10-SCALE-006B",
+      "title": "Choose next READY capability and materialize its bounded wave",
+      "type": "task",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E10-SCALE-006A"
+      ],
+      "dependency_terminal_state": "VERIFIED",
       "unlocks": []
     }
   ]

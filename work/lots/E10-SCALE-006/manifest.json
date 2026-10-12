@@ -1,0 +1,111 @@
+{
+  "schema_version": 2,
+  "id": "E10-SCALE-006",
+  "title": "Advance verified Case Queue ledger and select next bounded implementation wave",
+  "type": "epic",
+  "parent": "",
+  "goal": "Register the verified CAP-INV-101 Case Queue bounded runtime handoff in the global implementation ledger, recompute capability readiness, then select and materialize exactly one new source-backed reuse-first implementation wave.",
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-101"
+    ],
+    "requirements": [
+      "REQ-PROD-014",
+      "REQ-PROD-020"
+    ],
+    "screens": [
+      "INV-CAS-001"
+    ],
+    "permissions": [],
+    "open_decisions": [
+      "OPEN-013"
+    ],
+    "implementation_contracts": [],
+    "canonical_objects": []
+  },
+  "depends_on": [
+    "E10-INV-101F"
+  ],
+  "allowed_paths": [
+    "engineering/implementation/**",
+    "engineering/state/**",
+    "work/graph.json",
+    "work/lots/E10-SCALE-006*/**",
+    "work/lots/E10-INV-*/**",
+    "tools/cmdr-dev/**"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/**"
+  ],
+  "inputs": [
+    "VERIFIED E10-INV-101F Case Queue bounded runtime implementation claim",
+    "canonical read-only Product Spec baseline",
+    "current audited implementation ledger, readiness and reuse-first wave compiler"
+  ],
+  "outputs": [
+    "exactly one CAP-INV-101 ledger claim",
+    "recomputed implementation readiness",
+    "source-backed next bounded wave decomposition"
+  ],
+  "invariants": [
+    "Product Spec remains read-only",
+    "no product runtime modifications by scaling-control tasks",
+    "ledger IMPLEMENTED means verified bounded runtime only, never full capability",
+    "OPEN-013 prevents assignment/lifecycle mutations",
+    "selection uses fresh READY state and does not guess future runtime architecture"
+  ],
+  "security_properties": [
+    "ledger claims must satisfy implementation-ledger evidence floors",
+    "readiness is recomputed rather than manually edited",
+    "next wave must be selected only from READY capabilities"
+  ],
+  "acceptance_tests": [
+    "adaptive engineering-kernel remains green",
+    "implementation-ledger-audit passes",
+    "implementation-readiness passes",
+    "implementation-wave remains source-backed"
+  ],
+  "performance_budget": {
+    "applicable": false,
+    "rationale": "control-plane metadata epic only",
+    "metrics": []
+  },
+  "migration": {
+    "required": false,
+    "rationale": "engineering control-plane metadata only",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert scaling-control metadata without modifying verified product runtimes",
+    "verification": [
+      "Saved Query Assets runtime remains unchanged",
+      "Product Spec baseline remains unchanged"
+    ]
+  },
+  "required_checks": [
+    "adaptive engineering-kernel",
+    "CHK-IMPLEMENTATION-LEDGER",
+    "CHK-IMPLEMENTATION-READINESS",
+    "CHK-IMPLEMENTATION-WAVE"
+  ],
+  "definition_of_ready": [
+    "E10-INV-101F is VERIFIED"
+  ],
+  "definition_of_done": [
+    "CAP-INV-101 source-backed bounded implementation claim registered",
+    "readiness shows CAP-INV-101 IMPLEMENTED",
+    "next READY capability selected and decomposed with explicit scope gates"
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 10,
+    "estimated_net_loc": 650,
+    "production_files": 0,
+    "net_production_loc": 0,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 2
+  }
+}
