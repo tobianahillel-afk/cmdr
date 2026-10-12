@@ -33,3 +33,11 @@ This runtime does not select or implement:
 - a production Case Queue SLO or full-capability completion claim.
 
 Case remains Investigate-owned, Incident remains Command-owned and Saved View remains Shared-owned. External product-runtime dependencies remain deny-by-default.
+
+## Bounded Case Workspace handoff (E10-INV-101D-HANDOFF)
+
+`OpenCaseWorkspace` derives a deterministic, read-only transition to `INV-CAS-001` from the **already permission-filtered queue projection**. It refuses cases hidden by access control or active filters, cross-tenant inputs, stale selected cases, unsupported origins and unsafe scroll/search state.
+
+The return token carries only the tenant/environment, safe origin marker, selected Case reference, scroll position, caller search/filter/sort state and **accessible** Shared Saved View ID/version. Forbidden Saved View elements, foreign Incident data and Case snapshots are not serialized. `RestoreCaseQueue` validates the token structure and rechecks the *current* caller's tenant, environment, Saved View version/access and selected Case visibility before restoring state. Changed permissions or outdated Case data block restoration rather than reuse previous authority.
+
+**The base64 token is not signed, encrypted, persisted or an authorization credential.** It must be treated as untrusted, transient presentation state; any consumer must re-check authorization and avoid exposing the token in logs or durable/public URLs. The final routing/storage/UI transport is not selected here. No Case/Incident/Saved View mutation, assignment, export, Task, Decision or Response Run is introduced.
