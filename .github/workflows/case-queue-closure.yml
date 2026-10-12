@@ -36,6 +36,9 @@ jobs:
           echo "::group::Race tests"
           (cd product-runtime/case-queue && go test -race ./...)
           echo "::endgroup::"
+          echo "::group::Coverage details"
+          (cd product-runtime/case-queue && go test -covermode=atomic -coverprofile="$GITHUB_WORKSPACE/.case-queue.cover" ./... && go tool cover -func="$GITHUB_WORKSPACE/.case-queue.cover")
+          echo "::endgroup::"
           echo "::group::Go vet"
           (cd product-runtime/case-queue && go vet ./...)
           echo "::endgroup::"

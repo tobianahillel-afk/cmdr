@@ -82,6 +82,10 @@ func selectedInput(operation string) casequeue.Input {
 }
 
 func runProbe(iterations int, operation, mode string, memoryMiB int) (observation, error) {
+	return runProbeWithInput(iterations, operation, mode, memoryMiB, selectedInput(operation))
+}
+
+func runProbeWithInput(iterations int, operation, mode string, memoryMiB int, input casequeue.Input) (observation, error) {
 	if iterations < 1 || iterations > maxIterations {
 		return observation{}, fmt.Errorf("iterations outside 1..%d", maxIterations)
 	}
@@ -99,7 +103,6 @@ func runProbe(iterations int, operation, mode string, memoryMiB int) (observatio
 		previous := debug.SetMemoryLimit(int64(memoryMiB) * 1024 * 1024)
 		defer debug.SetMemoryLimit(previous)
 	}
-	input := selectedInput(operation)
 	execute := func() bool {
 		switch operation {
 		case "projection":

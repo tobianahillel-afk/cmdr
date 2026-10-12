@@ -1,7 +1,9 @@
 package main
 
 import (
+	"errors"
 	"io"
+	"os"
 	"testing"
 )
 
@@ -43,4 +45,57 @@ func TestMeasureActualRuntimeOperations(t *testing.T) {
 	if err := runCLI([]string{"-iterations", "2", "-operation", "handoff"}, io.Discard); err != nil {
 		t.Fatal(err)
 	}
+}
+
+type rejectingWriter struct{}
+
+func (rejectingWriter) Write([]byte) (int, error) {
+	return 0, errors.New("simulated output failure")
+}
+
+func TestCLIRefusesMalformedOrUndeliverableResults(t *testing.T) {
+	for _, args := range [][]string{
+		{"-iterations", "not-a-number"},
+		{"-iterations", "0"},
+		{"-mode", "invalid"},
+		{"-operation", "invalid"},
+		{"unexpected-positional-argument"},
+	} {
+		if err := runCLI(args, io.Discard); err == nil {
+			t.Fatalf("invalid command accepted: %v", args)
+		}
+	}
+	if err := runCLI([]string{"-iterations", "1"}, rejectingWriter{}); err == nil {
+		t.Fatal("output failure was ignored")
+	}
+}
+
+func TestSyntheticInputRefusesUnauthorizedOperations(t *testing.T) {
+	for _, operation := range []string{"projection", "saved-view", "handoff"} {
+		input := selectedInput(operation)
+		input.AuthorizedTenants = nil
+		if _, err := runProbeWithInput(1, operation, "latency", 0, input); err == nil {
+			t.Fatalf("%s: unauthorized synthetic fixture produced measurement", operation)
+		}
+	}
+	input := selectedInput("handoff")
+	input.Cases[0].Freshness = "stale"
+	if _, err := runProbeWithInput(1, "handoff", "latency", 0, input); err == nil {
+		t.Fatal("stale Case handoff was benchmarked as available")
+	}
+}
+
+func TestMainProducesValidOutput(t *testing.T) {
+	oldArgs, oldStdout := os.Args, os.Stdout
+	devnull, err := os.OpenFile(os.DevNull, os.O_WRONLY, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer devnull.Close()
+	defer func() {
+		os.Args, os.Stdout = oldArgs, oldStdout
+	}()
+	os.Args = []string{"case-queue-perf", "-iterations", "1", "-operation", "projection"}
+	os.Stdout = devnull
+	main()
 }
