@@ -76,6 +76,7 @@
     "E10-INV-101C-VIEW"
   ],
   "allowed_paths": [
+    "product-runtime/case-queue/**",
     "engineering/implementation/case-queue/**",
     "engineering/security/**",
     "engineering/performance/**",
@@ -117,7 +118,11 @@
     "CHK-RUNTIME-DEPS",
     "CHK-BOUNDARY-EDGES",
     "CHK-SECURITY-TESTS",
-    "CHK-PERFORMANCE-REGISTRY"
+    "CHK-PERFORMANCE-REGISTRY",
+    "CHK-CASE-QUEUE-CONTRACT",
+    "CHK-SECRETS",
+    "CHK-SAST-GO",
+    "CHK-SCA-GO"
   ],
   "definition_of_ready": [
     "E10-INV-101C-VIEW is VERIFIED"
