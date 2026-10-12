@@ -343,7 +343,7 @@ func measureRuntimeCoverage(root, tempDir string, changedPaths []string, adapter
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
 	if err := cmd.Run(); err != nil {
-		return RuntimeCoverageMeasurement{}, fmt.Errorf("%s runtime coverage test failed: %w", adapter.BoundaryID, err)
+		return RuntimeCoverageMeasurement{}, fmt.Errorf("%s runtime coverage test failed: %w; go test output: %s", adapter.BoundaryID, err, strings.TrimSpace(stdout.String()+"\n"+stderr.String()))
 	}
 	data, err := readRepoFile(root, coverPath)
 	if err != nil {
