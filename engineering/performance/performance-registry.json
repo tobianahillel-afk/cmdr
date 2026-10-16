@@ -387,6 +387,62 @@
         }
       ],
       "rationale": "Bounded executable engineering ceiling for pure local handoff/return-context construction only. It is not a production navigation or Case Workspace SLO."
+    },
+    {
+      "id": "PERF-TGT-INV-TIMELINE-PROJECTION",
+      "scope_kind": "product-runtime",
+      "boundary_id": "investigation-timeline-runtime",
+      "owner_path": "product-runtime/investigation-timeline/**",
+      "workload_key": "investigation-timeline-projection-v1",
+      "workload_description": "Read-only bounded authorized Timeline Entry ordering by canonical timestamp with explicit provenance, ambiguity and supersession; excludes source retrieval and storage.",
+      "environment_id": "PERF-ENV-GITHUB-UBUNTU-SHARED",
+      "stages": [
+        "on-demand"
+      ],
+      "trigger_paths": [
+        "product-runtime/investigation-timeline/**",
+        "engineering/implementation/investigation-timeline/**"
+      ],
+      "metrics": [
+        {
+          "id": "investigation-timeline-projection-p95-latency",
+          "kind": "latency",
+          "unit": "ms",
+          "aggregation": "p95",
+          "comparator": "upper-bound",
+          "budget": 5,
+          "max_relative_regression_percent": 0
+        }
+      ],
+      "rationale": "Preimplementation-only local engineering ceiling, not a result or production SLO; handler explicitly fails closed until a real representative runtime probe is implemented."
+    },
+    {
+      "id": "PERF-TGT-INV-TIMELINE-NAVIGATION",
+      "scope_kind": "product-runtime",
+      "boundary_id": "investigation-timeline-runtime",
+      "owner_path": "product-runtime/investigation-timeline/**",
+      "workload_key": "investigation-timeline-navigation-v1",
+      "workload_description": "Immutable authorized source pivot draft and Case return context without network transport, lookup or final UI.",
+      "environment_id": "PERF-ENV-GITHUB-UBUNTU-SHARED",
+      "stages": [
+        "on-demand"
+      ],
+      "trigger_paths": [
+        "product-runtime/investigation-timeline/**",
+        "engineering/implementation/investigation-timeline/**"
+      ],
+      "metrics": [
+        {
+          "id": "investigation-timeline-navigation-p95-latency",
+          "kind": "latency",
+          "unit": "ms",
+          "aggregation": "p95",
+          "comparator": "upper-bound",
+          "budget": 5,
+          "max_relative_regression_percent": 0
+        }
+      ],
+      "rationale": "Preimplementation-only local engineering ceiling, not a result or production SLO; handler explicitly fails closed until a real representative runtime probe is implemented."
     }
   ]
 }

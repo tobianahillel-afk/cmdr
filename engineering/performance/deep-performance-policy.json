@@ -240,6 +240,44 @@
       "concurrency": 1,
       "iterations": 10000,
       "rationale": "Executable on-demand resource measurement of bounded Case Queue behavior using the Go runtime probe and synthetic authorized input. No provider, final UI, or production SLO claim."
+    },
+    {
+      "id": "PERF-DEEP-INV-TIMELINE-PROJECTION",
+      "performance_target_id": "PERF-TGT-INV-TIMELINE-PROJECTION",
+      "kind": "resource",
+      "handler_key": "builtin-investigation-timeline-projection-preimplementation-v1",
+      "stages": [
+        "on-demand"
+      ],
+      "trigger_paths": [
+        "product-runtime/investigation-timeline/**",
+        "engineering/implementation/investigation-timeline/**"
+      ],
+      "duration_seconds": 0,
+      "timeout_seconds": 30,
+      "memory_limit_mib": 128,
+      "concurrency": 1,
+      "iterations": 10000,
+      "rationale": "Preimplementation on-demand resource gate; cannot pass or emit a measurement before a real tested synthetic Timeline workload exists."
+    },
+    {
+      "id": "PERF-DEEP-INV-TIMELINE-NAVIGATION",
+      "performance_target_id": "PERF-TGT-INV-TIMELINE-NAVIGATION",
+      "kind": "resource",
+      "handler_key": "builtin-investigation-timeline-navigation-preimplementation-v1",
+      "stages": [
+        "on-demand"
+      ],
+      "trigger_paths": [
+        "product-runtime/investigation-timeline/**",
+        "engineering/implementation/investigation-timeline/**"
+      ],
+      "duration_seconds": 0,
+      "timeout_seconds": 30,
+      "memory_limit_mib": 128,
+      "concurrency": 1,
+      "iterations": 10000,
+      "rationale": "Preimplementation on-demand resource gate; cannot pass or emit a measurement before a real tested synthetic Timeline workload exists."
     }
   ]
 }
