@@ -120,6 +120,46 @@
     parent.append(line);
   }
 
+  async function openSource(entryID, target, action) {
+    const selectedCase = caseID.value.trim();
+    const bearer = token.value;
+    const observedRevision = revision;
+    action.disabled = true;
+    target.textContent = "Vérification de l'accès à la source…";
+    try {
+      const url = new URL("/source-navigation", window.location.origin);
+      url.searchParams.set("case_id", selectedCase);
+      url.searchParams.set("entry_id", entryID);
+      const response = await fetch(url, {
+        method: "GET",
+        headers: { Authorization: "Bearer " + bearer },
+        cache: "no-store", credentials: "omit", redirect: "error",
+        mode: "same-origin"
+      });
+      if (!response.ok) throw new Error("source unavailable");
+      const result = await response.json();
+      if (observedRevision !== revision) return;
+      if (!result || result.status !== "ready" || !result.draft ||
+          typeof result.draft.owner_kind !== "string" ||
+          typeof result.draft.owner_object_id !== "string" ||
+          result.draft.return_context?.entry_id !== entryID ||
+          result.draft.return_context?.case_id !== selectedCase) {
+        throw new Error("invalid source reference");
+      }
+      // A destination DRAFT is not a URL or an authorization token.
+      // No attempt to open a source owner UI until its route is provided.
+      target.textContent = "Source autorisée : " +
+        result.draft.owner_kind + " / " + result.draft.owner_object_id +
+        " (destination à ouvrir dans le produit propriétaire).";
+    } catch {
+      if (observedRevision === revision) {
+        target.textContent = "Source indisponible ou accès refusé.";
+      }
+    } finally {
+      if (observedRevision === revision) action.disabled = false;
+    }
+  }
+
   function render(data) {
     if (!data || !Array.isArray(data.entries) || !data.page ||
         !Number.isSafeInteger(data.page.total_visible) ||
@@ -150,6 +190,13 @@
       addLine(item, "Provenance :", event.provenance ?? "—");
       addLine(item, "Version :", event.version ?? "—");
       if (event.supersedes) addLine(item, "Remplace :", event.supersedes);
+      const action = document.createElement("button");
+      action.type = "button";
+      action.textContent = "Vérifier et ouvrir la source";
+      const destination = document.createElement("p");
+      destination.setAttribute("role", "status");
+      action.addEventListener("click", () => openSource(event.id, destination, action));
+      item.append(action, destination);
       entries.append(item);
     }
     pageCount = data.entries.length;

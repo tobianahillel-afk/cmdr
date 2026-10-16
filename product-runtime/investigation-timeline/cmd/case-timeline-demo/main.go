@@ -78,6 +78,7 @@ func newDemoHandler(token, principal string) (http.Handler, error) {
 	mux := http.NewServeMux()
 	mux.Handle("/case-timeline", handlers.Timeline)
 	mux.Handle("/demo-cases", handlers.Cases)
+	mux.Handle("/source-navigation", handlers.Source)
 	installAnalystDemoRoutes(mux)
 	return mux, nil
 }

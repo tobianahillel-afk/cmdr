@@ -113,3 +113,54 @@ func TestHostInjectedInvestigationRejectsMissingOwnerServices(t *testing.T) {
 		})
 	}
 }
+
+func TestHostCaseDiscoveryTimelineToTypedSourceNavigation(t *testing.T) {
+	store, _ := workspaceFixture()
+	candidates := caseDiscoveryCatalogFunc(func(_ context.Context, _ Scope) ([]string, error) {
+		return []string{"case-one", "case-two"}, nil
+	})
+	h, err := NewCaseInvestigationHTTPHandlers(timelineHTTPSession{}, store,
+		candidates, store, store, store)
+	if err != nil {
+		t.Fatal(err)
+	}
+	mux := http.NewServeMux()
+	mux.Handle("/cases", h.Cases)
+	mux.Handle("/case-timeline", h.Timeline)
+	mux.Handle("/source-navigation", h.Source)
+	get := func(path string) *httptest.ResponseRecorder {
+		r := httptest.NewRequest(http.MethodGet, path, nil)
+		r.Header.Set("Authorization", "Bearer analyst-a")
+		w := httptest.NewRecorder()
+		mux.ServeHTTP(w, r)
+		return w
+	}
+	list := get("/cases")
+	if list.Code != http.StatusOK || !strings.Contains(list.Body.String(), "case-one") ||
+		strings.Contains(list.Body.String(), "case-two") {
+		t.Fatalf("host Case picker bypassed tenant permission: %s", list.Body.String())
+	}
+	page := get("/case-timeline?case_id=case-one&kind=observed&limit=1")
+	if page.Code != http.StatusOK || !strings.Contains(page.Body.String(), "entry-new") {
+		t.Fatalf("host authorized Timeline unavailable: %s", page.Body.String())
+	}
+	navigation := get("/source-navigation?case_id=case-one&entry_id=entry-new")
+	var result SourceNavigationResult
+	if navigation.Code != http.StatusOK || json.Unmarshal(navigation.Body.Bytes(), &result) != nil ||
+		result.Status != "ready" || result.Draft == nil ||
+		result.Draft.OwnerKind != "telemetry-event" || result.Draft.OwnerObjectID != "event-1" ||
+		result.Draft.Return.EntryID != "entry-new" {
+		t.Fatalf("Case-to-Timeline-to-source handoff failed: %d %s", navigation.Code, navigation.Body.String())
+	}
+	for _, path := range []string{
+		"/source-navigation?case_id=case-one&entry_id=entry-hidden",
+		"/source-navigation?case_id=case-two&entry_id=entry-other",
+	} {
+		response := get(path)
+		if response.Code != http.StatusNotFound ||
+			strings.Contains(response.Body.String(), "src-hidden") ||
+			strings.Contains(response.Body.String(), "evidence-secret") {
+			t.Fatalf("host source navigation leaked protected owner metadata: %s", response.Body.String())
+		}
+	}
+}
