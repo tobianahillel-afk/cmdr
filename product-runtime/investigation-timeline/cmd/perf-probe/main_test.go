@@ -157,3 +157,37 @@ func TestFullRowProjectionOracleRejectsInteriorCorruption(t *testing.T) {
 		})
 	}
 }
+
+func TestFullRowProjectionOracleRejectsInvalidStatusOrLength(t *testing.T) {
+	input := syntheticInput()
+	valid := timeline.Project(input)
+	if !validSyntheticProjection(input, valid) {
+		t.Fatal("valid projection rejected")
+	}
+	wrongStatus := valid
+	wrongStatus.Status = "filtered"
+	if validSyntheticProjection(input, wrongStatus) {
+		t.Fatal("oracle accepted non-allow status")
+	}
+	missingRow := valid
+	missingRow.Entries = valid.Entries[:len(valid.Entries)-1]
+	if validSyntheticProjection(input, missingRow) {
+		t.Fatal("oracle accepted truncated projection")
+	}
+	emptyRows := valid
+	emptyRows.Entries = nil
+	if validSyntheticProjection(input, emptyRows) {
+		t.Fatal("oracle accepted missing projection")
+	}
+	modified := valid
+	modified.Entries = append([]timeline.ProjectedEntry(nil), valid.Entries...)
+	modified.Entries[2500].Version = 2
+	if validSyntheticProjection(input, modified) {
+		t.Fatal("oracle accepted rewritten interior version")
+	}
+	modified.Entries[2500] = valid.Entries[2500]
+	modified.Entries[2500].Timezone = "unknown"
+	if validSyntheticProjection(input, modified) {
+		t.Fatal("oracle accepted altered interior timezone")
+	}
+}
