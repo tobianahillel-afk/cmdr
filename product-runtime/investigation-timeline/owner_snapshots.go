@@ -146,6 +146,9 @@ func projectFromOwnerSnapshots(
 	// before any source ACL check, so a malformed later source cannot lead
 	// to partial release of earlier source metadata to an ACL authority.
 	sourceRequests := make([]AccessRequest, len(out.Entries))
+	// Canonical IDs returned by owner resolvers are new selectors and must
+	// have their own cumulative bound before any typed source ACL I/O.
+	usedTypedIDs := len(scope.Tenant) + len(scope.Environment) + len(caseID)
 	for i := range out.Entries {
 		if decisions[i] != "allow" {
 			continue
@@ -167,9 +170,10 @@ func projectFromOwnerSnapshots(
 			return deny
 		}
 		permission, ok := canonicalSourceReadPermission(identity.Kind)
-		if !ok || len(identity.ObjectID) > MaxInputBytes {
+		if !ok || len(identity.ObjectID) > MaxInputBytes-usedTypedIDs {
 			return deny
 		}
+		usedTypedIDs += len(identity.ObjectID)
 		sourceRequests[i] = request(identity.Kind, identity.ObjectID, permission)
 	}
 	for i := range out.Entries {

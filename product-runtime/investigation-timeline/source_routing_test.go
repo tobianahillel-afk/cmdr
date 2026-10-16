@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -125,5 +126,32 @@ func TestTypedSourceRoutingIsNotCallerPermission(t *testing.T) {
 	}
 	if !reflect.DeepEqual(source.calls, []AccessRequest{{Tenant: "tenant-a", Environment: "prod", CaseID: "case-123", Resource: "source-reference", ObjectID: "owner:x", Permission: ""}}) {
 		t.Fatalf("unbound resolver context: %+v", source.calls)
+	}
+}
+
+func TestTypedSourceRoutingBoundsCumulativeCanonicalSelectors(t *testing.T) {
+	checker, owner, source := ownerSourceFixture("evidence")
+	y := owner.entries["x"]
+	y.ID = "y"
+	y.SourceRef = "owner:y"
+	owner.entries["y"] = y
+	checker.decisions["timeline-entry:y"] = "allow"
+
+	first := source.values["owner:x"]
+	first.ObjectID = strings.Repeat("a", MaxInputBytes/2)
+	source.values["owner:x"] = first
+	second := first
+	second.Reference = "owner:y"
+	second.ObjectID = strings.Repeat("b", MaxInputBytes/2)
+	source.values["owner:y"] = second
+
+	got := ProjectFromOwnerSnapshotsWithTypedSources(
+		context.Background(), allowedFixture().Scope, "case-123",
+		[]string{"x", "y"}, checker, owner, source,
+	)
+	if got.Status != "deny" || len(got.Entries) != 0 ||
+		len(source.calls) != 2 || len(checker.calls) != 3 {
+		t.Fatalf("oversized combined canonical IDs reached typed ACL: result=%+v checker=%d resolver=%d",
+			got, len(checker.calls), len(source.calls))
 	}
 }
