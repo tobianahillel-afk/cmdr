@@ -200,7 +200,7 @@ func TestDemoRealLoopbackListenerAndShutdown(t *testing.T) {
 			defer cancel()
 			log := &demoCapture{ready: make(chan struct{})}
 			done := make(chan error, 1)
-			go func() { done <- serveDemo(ctx, principal, log) }()
+			go func() { done <- runDemoCLI(ctx, []string{"-principal="+principal}, log) }()
 			select {
 			case <-log.ready:
 			case err := <-done:
@@ -273,5 +273,26 @@ func TestDemoRefusesCancelledStartupAndInvalidPrincipal(t *testing.T) {
 	}
 	if err := serveDemo(context.Background(), "unrecognized", &out); err == nil || out.Len() != 0 {
 		t.Fatalf("unknown principal was accepted: %v %s", err, out.String())
+	}
+}
+
+func TestDemoCLIRejectsUnsupportedOptions(t *testing.T) {
+	for _, args := range [][]string{
+		{"-unknown"},
+		{"-principal=analyst-a", "unexpected"},
+		{"-principal=admin"},
+	} {
+		var output bytes.Buffer
+		ctx, cancel := context.WithCancel(context.Background())
+		if err := runDemoCLI(ctx, args, &output); err == nil || output.Len() != 0 {
+			t.Fatalf("bad CLI parameters accepted: %v, output=%q", args, output.String())
+		}
+		cancel()
+	}
+	var output bytes.Buffer
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	if err := runDemoCLI(ctx, nil, &output); err != context.Canceled || output.Len() != 0 {
+		t.Fatalf("cancelled default CLI start accepted: %v", err)
 	}
 }

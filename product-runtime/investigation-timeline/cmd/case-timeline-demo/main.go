@@ -22,18 +22,27 @@ import (
 )
 
 func main() {
-	principal := flag.String("principal", "analyst-a", "synthetic analyst-a or analyst-b")
-	flag.Parse()
-	if flag.NArg() != 0 {
-		fmt.Fprintln(os.Stderr, "unexpected positional arguments")
-		os.Exit(2)
-	}
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
-	if err := serveDemo(ctx, *principal, os.Stdout); err != nil {
+	if err := runDemoCLI(ctx, os.Args[1:], os.Stdout); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
+}
+
+// CLI parsing is separate from process exit so real requests and rejected
+// arguments can be exercised in tests without a shell or subprocess runner.
+func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
+	flags := flag.NewFlagSet("case-timeline-demo", flag.ContinueOnError)
+	flags.SetOutput(io.Discard)
+	principal := flags.String("principal", "analyst-a", "synthetic analyst-a or analyst-b")
+	if err := flags.Parse(args); err != nil {
+		return err
+	}
+	if flags.NArg() != 0 {
+		return errors.New("unexpected positional arguments")
+	}
+	return serveDemo(ctx, *principal, output)
 }
 
 func randomBearer() (string, error) {
