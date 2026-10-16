@@ -1,6 +1,9 @@
 package investigationtimeline
 
-import "context"
+import (
+	"context"
+	"unicode/utf8"
+)
 
 // AccessRequest is a server-side authorization obligation. Resource and
 // permission are distinct so Case, Shared Timeline Entry and linked sources
@@ -48,7 +51,11 @@ func boundedSourceSelector(used *int, ref string) bool {
 func validTimelineEntryBeforeSourceLookup(entry Entry) bool {
 	return validKind(entry.Kind) && entry.Provenance != "" &&
 		entry.Version >= 1 && entry.ClockUncertaintyMS >= 0 &&
-		(entry.Supersedes == "" || entry.Supersedes != entry.ID)
+		(entry.Supersedes == "" || entry.Supersedes != entry.ID) &&
+		// The final Project stage must not be the first place to discover
+		// lossy UTF-8 forensic metadata. Reject before source-provider I/O.
+		utf8.ValidString(entry.SourceTime) && utf8.ValidString(entry.Timezone) &&
+		utf8.ValidString(entry.Provenance) && utf8.ValidString(entry.Supersedes)
 }
 
 // ProjectWithAccessChecker is the opt-in trusted integration boundary for
