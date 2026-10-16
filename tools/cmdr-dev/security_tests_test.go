@@ -1,6 +1,7 @@
 package main
 
 import (
+	"strings"
 	"os"
 	"path/filepath"
 	"testing"
@@ -381,5 +382,65 @@ func TestParseNodeLCOVRejectsCoverageOutsideExpectedSource(t *testing.T) {
 	}
 	if _, err := parseNodeLCOV(root, moduleRoot, lcov, nil, adapter); err == nil {
 		t.Fatal("expected unexpected Node coverage source rejection")
+	}
+}
+
+func TestVerifyGoNegativeTestSelectionRequiresActualCases(t *testing.T) {
+	const selector = "^TestSecurity$/(" +
+		"^case-denied$|^cross-tenant$)"
+	pass := func(name string) string {
+		return `{"Action":"pass","Test":"` + name + `"}` + "\n"
+	}
+	run := func(name string) string {
+		return `{"Action":"run","Test":"` + name + `"}` + "\n"
+	}
+	tests := []struct {
+		name string
+		output string
+		wantError bool
+	}{
+		{"all-selected", pass("TestSecurity")+pass("TestSecurity/case-denied")+pass("TestSecurity/cross-tenant"), false},
+		{"parent-only", pass("TestSecurity"), true},
+		{"no-tests", `{"Action":"pass","Package":"example.invalid/runtime"}`+"\n", true},
+		{"one-alternative-missing", pass("TestSecurity/case-denied"), true},
+		{"run-but-not-pass", run("TestSecurity/case-denied")+pass("TestSecurity/cross-tenant"), true},
+		{"skip-but-not-pass", `{"Action":"skip","Test":"TestSecurity/case-denied"}`+"\n"+pass("TestSecurity/cross-tenant"), true},
+		{"wrong-parent", pass("TestOther/case-denied")+pass("TestOther/cross-tenant"), true},
+		{"invalid-json", "not JSON", true},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			err := verifyGoNegativeTestSelection([]byte(tc.output), selector)
+			if (err != nil) != tc.wantError {
+				t.Fatalf("selector evidence accepted incorrectly: %v", err)
+			}
+		})
+	}
+	if err := verifyGoNegativeTestSelection([]byte(pass("TestSecurity")), "^TestSecurity$"); err != nil {
+		t.Fatalf("single top-level Go negative-test selection wrongly rejected: %v", err)
+	}
+	if err := verifyGoNegativeTestSelection([]byte(pass("TestSecurity")), "^TestSecurity$/^absent$"); err == nil {
+		t.Fatal("parent PASS forged a subtest PASS")
+	}
+	if err := verifyGoNegativeTestSelection([]byte(pass("TestSecurity/case-denied")), "^TestSecurity$/(^case-denied$|["); err == nil {
+		t.Fatal("malformed selector accepted")
+	}
+}
+
+func TestGoTimelineSecurityNegativeTestsExecuteAllDeclaredCases(t *testing.T) {
+	root, err := filepath.Abs(filepath.Join("..", ".."))
+	if err != nil {
+		t.Fatal(err)
+	}
+	adapter := runtimeSecurityAdapters()["investigation-timeline-runtime"]
+	if err := runRuntimeNegativeTest(root, adapter, adapter.AuthorizationTestRegex, "authorization"); err != nil {
+		t.Fatal(err)
+	}
+	if err := runRuntimeNegativeTest(root, adapter, adapter.TenantTestRegex, "tenant isolation"); err != nil {
+		t.Fatal(err)
+	}
+	missing := strings.Replace(adapter.AuthorizationTestRegex, "^case-denied$", "^nonexistent-case$", 1)
+	if err := runRuntimeNegativeTest(root, adapter, missing, "authorization"); err == nil {
+		t.Fatal("Go tool reported success without all required negative fixtures")
 	}
 }

@@ -4,9 +4,11 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -376,13 +378,87 @@ func runRuntimeNegativeTest(root string, adapter runtimeSecurityAdapter, pattern
 	if err != nil {
 		return err
 	}
-	// #nosec G204,G702 -- executable and test patterns are compiled constants from explicit runtime adapters; no shell is used.
-	cmd := exec.Command("go", "test", "-count=1", "-run", pattern, "./...")
+	// A zero-match -run still exits with status 0 in Go. Require a PASS
+	// event for every explicitly named negative case before claiming evidence.
+	// #nosec G204,G702 -- fixed Go executable; regex is compiled from explicit runtime adapters.
+	cmd := exec.Command("go", "test", "-json", "-count=1", "-run", pattern, "./...")
 	cmd.Dir = moduleRoot
-	var stderr bytes.Buffer
-	cmd.Stderr = &stderr
+	var stdout, stderr bytes.Buffer
+	cmd.Stdout, cmd.Stderr = &stdout, &stderr
 	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("%s %s negative test failed: %w", adapter.BoundaryID, label, err)
+		return fmt.Errorf("%s %s negative test failed: %w; %s", adapter.BoundaryID, label, err, strings.TrimSpace(stderr.String()))
+	}
+	if err := verifyGoNegativeTestSelection(stdout.Bytes(), pattern); err != nil {
+		return fmt.Errorf("%s %s negative test evidence invalid: %w", adapter.BoundaryID, label, err)
+	}
+	return nil
+}
+
+// verifyGoNegativeTestSelection prevents the common false-positive in which
+// go test -run returns PASS but zero selected subtests actually ran. Each
+// explicit alternative in the adapter pattern is a required negative case.
+// Go test -json emits per-test pass events, unlike the package-level PASS.
+func verifyGoNegativeTestSelection(output []byte, pattern string) error {
+	parts := strings.Split(pattern, "/")
+	if len(parts) < 1 || len(parts) > 2 {
+		return fmt.Errorf("unsupported Go negative-test selector %q", pattern)
+	}
+	root, err := regexp.Compile(parts[0])
+	if err != nil {
+		return fmt.Errorf("invalid Go negative-test root selector: %w", err)
+	}
+	leafSelectors := []string{parts[0]}
+	if len(parts) == 2 {
+		leaf := parts[1]
+		if strings.HasPrefix(leaf, "(") && strings.HasSuffix(leaf, ")") {
+			leaf = strings.TrimSuffix(strings.TrimPrefix(leaf, "("), ")")
+		}
+		leafSelectors = strings.Split(leaf, "|")
+	}
+	compiled := make([]*regexp.Regexp, len(leafSelectors))
+	for i, expression := range leafSelectors {
+		compiled[i], err = regexp.Compile(expression)
+		if err != nil {
+			return fmt.Errorf("invalid Go negative-test leaf selector %q: %w", expression, err)
+		}
+	}
+	observed := make([]bool, len(compiled))
+	decoder := json.NewDecoder(bytes.NewReader(output))
+	for {
+		var event struct {
+			Action string `json:"Action"`
+			Test   string `json:"Test"`
+		}
+		if err := decoder.Decode(&event); err != nil {
+			if err == io.EOF {
+				break
+			}
+			return fmt.Errorf("invalid Go test JSON event: %w", err)
+		}
+		if event.Action != "pass" || event.Test == "" {
+			continue
+		}
+		segments := strings.Split(event.Test, "/")
+		if !root.MatchString(segments[0]) {
+			continue
+		}
+		if len(parts) == 2 && len(segments) < 2 {
+			continue // parent PASS does not mean any child was selected
+		}
+		name := segments[0]
+		if len(parts) == 2 {
+			name = segments[1]
+		}
+		for i, expression := range compiled {
+			if expression.MatchString(name) {
+				observed[i] = true
+			}
+		}
+	}
+	for i, ok := range observed {
+		if !ok {
+			return fmt.Errorf("no passing Go negative test matched required selector %q", leafSelectors[i])
+		}
 	}
 	return nil
 }
