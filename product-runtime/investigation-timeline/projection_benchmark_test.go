@@ -19,7 +19,7 @@ func benchmarkTimelineInput(count int) Input {
 			ID: id, Kind: "observed", Tenant: input.Scope.Tenant,
 			SourcePermission: "allow", Timezone: "+00:00",
 			SourceTime: "2026-10-01T10:00:00Z",
-			SourceRef: "telemetry:" + id, Provenance: "synthetic:" + id,
+			SourceRef:  "telemetry:" + id, Provenance: "synthetic:" + id,
 			Version: 1,
 		}
 	}
