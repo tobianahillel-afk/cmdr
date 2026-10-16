@@ -46,6 +46,7 @@
   const compareCase = document.getElementById("compare-case");
   const compareButton = document.getElementById("compare");
   const comparison = document.getElementById("comparison");
+  const comparisonActions = document.getElementById("comparison-actions");
   let compareRevision = 0;
   let compareRequest = null;
   function clearComparison() {
@@ -54,6 +55,7 @@
     compareRequest = null;
     compareButton.disabled = false;
     comparison.textContent = "Aucune comparaison calculée.";
+    comparisonActions.replaceChildren();
   }
   const downloadReport = document.getElementById("download-report");
   let analysisRequest = null;
@@ -357,9 +359,37 @@
         common.length + (top ? " · " + top : "") +
         ". Présence commune d'une référence exacte, pas une preuve de causalité, " +
         "d'identité d'objet ou d'exhaustivité. Lectures non transactionnelles.";
+      // A correlation is a triage hint, NOT an authority. Pivot into the
+      // existing Case search; fetchPage performs a fresh server-side Case,
+      // Timeline Entry and source authorization before showing any result.
+      // Limit source references to the existing 96-character search field.
+      for (const group of common.slice(0, 5)) {
+        if (group.ref.length > 96) continue;
+        for (const targetCase of [selectedCase, otherCase]) {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.textContent = "Examiner dans " +
+            (targetCase === selectedCase ? "Case A" : "Case B") +
+            " : " + group.ref;
+          button.addEventListener("click", () => {
+            if (activeComparison !== compareRevision ||
+                activeSelection !== revision || controller.signal.aborted ||
+                token.value !== bearer || caseID.value.trim() !== selectedCase ||
+                compareCase.value.trim() !== otherCase) return;
+            caseID.value = targetCase;
+            search.value = group.ref;
+            // The input listener invalidates the aggregate, aborts old
+            // requests, clears owner previews and resets pagination.
+            caseID.dispatchEvent(new Event("input", { bubbles: true }));
+            fetchPage();
+          });
+          comparisonActions.append(button);
+        }
+      }
     } catch {
       if (activeComparison === compareRevision) {
         comparison.textContent = "Comparaison indisponible ou droits modifiés. Aucun résultat partiel.";
+        comparisonActions.replaceChildren();
       }
     } finally {
       if (activeComparison === compareRevision) {

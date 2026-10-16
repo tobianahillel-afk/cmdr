@@ -12,7 +12,7 @@ const ids = [
   "case-discovery-status", "from", "to", "entries", "summary", "message",
   "page", "previous", "next", "load", "source-detail", "source-status",
   "return-to-case", "copy-return-link", "analyze", "analysis", "analysis-actions", "download-report",
-  "compare-case", "compare", "comparison"
+  "compare-case", "compare", "comparison", "comparison-actions"
 ];
 function node() {
   return {
@@ -501,4 +501,101 @@ test("second Case cannot reuse same Case or absent bearer as a comparison", asyn
   await flush();
   assert.equal(env.requests.length, 0);
   assert.match(env.fields.comparison.textContent, /Choisissez deux Cases/);
+});
+
+test("cross-Case pivot reopens an authorized Case search instead of trusting correlation", async () => {
+  const env = boot(url => {
+    const selected = url.searchParams.get("case_id");
+    const at = Number(url.searchParams.get("offset"));
+    if (url.searchParams.get("limit") === "20") {
+      assert.equal(selected, "case-peer");
+      assert.equal(at, 0);
+      assert.equal(url.searchParams.get("q"), "shared-ref");
+      return {
+        ok: true,
+        async json() {
+          return { status: "allow", page: { offset: 0, limit: 20,
+            total_visible: 1, has_more: false }, entries: [
+            { id: "peer-event", kind: "observed",
+              source_time: "2026-10-01T10:00:00.000Z",
+              source_ref: "shared-ref", provenance: "authorized" }
+          ] };
+        }
+      };
+    }
+    if (selected === "case-disk") return page(at, 2, {
+      sourceFor: () => "shared-ref"
+    });
+    if (selected === "case-peer") return page(at, 1, {
+      sourceFor: () => "shared-ref"
+    });
+    throw Error("unexpected Case");
+  });
+  env.fields["compare-case"].value = "case-peer";
+  env.fields.compare.handlers.click();
+  for (let i = 0; i < 5; i++) await flush();
+  const buttons = env.fields["comparison-actions"].children;
+  assert.equal(buttons.length, 2);
+  assert.match(buttons[1].textContent, /Case B.*shared-ref/);
+  assert.equal(env.requests.length, 2);
+  buttons[1].handlers.click();
+  for (let i = 0; i < 3; i++) await flush();
+  assert.equal(env.fields["case-id"].value, "case-peer");
+  assert.equal(env.fields.search.value, "shared-ref");
+  assert.equal(env.requests.length, 3);
+  assert.equal(env.requests[2].url.pathname, "/case-timeline");
+  assert.equal(env.requests[2].options.headers.Authorization, "Bearer ephemeral-token");
+  assert.equal(env.requests[2].options.credentials, "omit");
+  assert.equal(env.requests[2].options.cache, "no-store");
+  assert.ok(!env.requests[2].url.href.includes("ephemeral-token"));
+  assert.equal(env.fields["comparison-actions"].children.length, 0);
+  assert.match(env.fields.summary.textContent, /1 entrée/);
+  // A stale DOM reference has no effect after its correlation was invalidated.
+  buttons[0].handlers.click();
+  await flush();
+  assert.equal(env.requests.length, 3);
+});
+
+test("cross-Case pivot cannot retain stale authority after revocation or selection change", async () => {
+  let allowPivot = true;
+  const env = boot(url => {
+    const id = url.searchParams.get("case_id");
+    if (url.searchParams.get("limit") === "20") {
+      return { ok: allowPivot, async json() {
+        if (!allowPivot) throw Error("denied Case must not decode");
+        return page(0, 1).json();
+      } };
+    }
+    return page(0, 1, { sourceFor: () => "shared-ref" });
+  });
+  env.fields["compare-case"].value = "case-peer";
+  env.fields.compare.handlers.click();
+  for (let i = 0; i < 4; i++) await flush();
+  const buttons = env.fields["comparison-actions"].children;
+  assert.equal(buttons.length, 2);
+  allowPivot = false;
+  buttons[1].handlers.click();
+  for (let i = 0; i < 3; i++) await flush();
+  assert.match(env.fields.message.textContent, /Accès refusé/);
+  assert.match(env.fields.summary.textContent, /Aucune donnée/);
+  assert.equal(env.fields["source-detail"].hidden, true);
+  const count = env.requests.length;
+  buttons[0].handlers.click();
+  assert.equal(env.requests.length, count);
+});
+
+test("no pivot is created for denied comparison or source reference above search bound", async () => {
+  const denied = boot(url => url.searchParams.get("case_id") === "case-peer"
+    ? { ok: false } : page(0, 1));
+  denied.fields["compare-case"].value = "case-peer";
+  denied.fields.compare.handlers.click();
+  for (let i = 0; i < 4; i++) await flush();
+  assert.equal(denied.fields["comparison-actions"].children.length, 0);
+  const tooLong = "R".repeat(97);
+  const env = boot(() => page(0, 1, { sourceFor: () => tooLong }));
+  env.fields["compare-case"].value = "case-peer";
+  env.fields.compare.handlers.click();
+  for (let i = 0; i < 4; i++) await flush();
+  assert.match(env.fields.comparison.textContent, /références communes : 1/);
+  assert.equal(env.fields["comparison-actions"].children.length, 0);
 });
