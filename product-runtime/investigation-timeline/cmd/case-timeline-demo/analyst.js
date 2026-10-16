@@ -40,6 +40,335 @@
   let restoreOffsetOnSubmit = false;
   let restoredRange = null;
 
+  const analyze = document.getElementById("analyze");
+  const analysis = document.getElementById("analysis");
+  const analysisActions = document.getElementById("analysis-actions");
+  const compareCase = document.getElementById("compare-case");
+  const compareButton = document.getElementById("compare");
+  const comparison = document.getElementById("comparison");
+  let compareRevision = 0;
+  let compareRequest = null;
+  function clearComparison() {
+    ++compareRevision;
+    if (compareRequest) compareRequest.abort();
+    compareRequest = null;
+    compareButton.disabled = false;
+    comparison.textContent = "Aucune comparaison calculée.";
+  }
+  const downloadReport = document.getElementById("download-report");
+  let analysisRequest = null;
+  let analysisRevision = 0;
+  let preparedReport = null;
+  // Match the disabled HTML default even in minimal embedded DOM hosts.
+  downloadReport.disabled = true;
+
+  function clearAnalysis() {
+    ++analysisRevision;
+    if (analysisRequest) analysisRequest.abort();
+    analysisRequest = null;
+    analyze.disabled = false;
+    preparedReport = null;
+    downloadReport.disabled = true;
+    analysis.textContent = "Aucune synthèse calculée.";
+    analysisActions.replaceChildren();
+  }
+
+  // Aggregate ONLY entries returned by the existing server-side Case/Entry/
+  // source-authorized endpoint. Each page is freshly authorized, so reject
+  // changing totals and never display a partial summary as definitive.
+  async function analyzeAuthorizedCase() {
+    const bearer = token.value;
+    const selectedCase = caseID.value.trim();
+    const selectedWindow = readWindow();
+    const selectedKind = kind.value;
+    const selectedSearch = search.value.trim();
+    clearAnalysis();
+    if (!bearer || !selectedCase || !selectedWindow) {
+      analysis.textContent = "Sélection incomplète pour la synthèse.";
+      return;
+    }
+    const currentRevision = analysisRevision;
+    const currentSelection = revision;
+    const controller = new AbortController();
+    analysisRequest = controller;
+    analyze.disabled = true;
+    analysis.textContent = "Analyse des pages autorisées en cours…";
+    const pageSize = 200;
+    const kinds = ["observed", "inferred", "user-action", "decision", "response"];
+    const counts = Object.fromEntries(kinds.map(value => [value, 0]));
+    const seen = new Set();
+    const bySource = new Map();
+    const certainTimes = [];
+    let expectedTotal = null;
+    let uncertain = 0;
+    try {
+      for (let offset = 0; offset === 0 || offset < expectedTotal; offset += pageSize) {
+        if (controller.signal.aborted) throw new Error("cancelled");
+        const url = new URL("/case-timeline", window.location.origin);
+        url.searchParams.set("case_id", selectedCase);
+        url.searchParams.set("limit", String(pageSize));
+        url.searchParams.set("offset", String(offset));
+        if (selectedKind) url.searchParams.set("kind", selectedKind);
+        if (selectedSearch) url.searchParams.set("q", selectedSearch);
+        if (selectedWindow.from) url.searchParams.set("from", selectedWindow.from);
+        if (selectedWindow.to) url.searchParams.set("to", selectedWindow.to);
+        const response = await fetch(url, {
+          method: "GET",
+          headers: { Authorization: "Bearer " + bearer },
+          cache: "no-store", credentials: "omit", redirect: "error",
+          mode: "same-origin", signal: controller.signal
+        });
+        if (!response.ok) throw new Error("Case unavailable");
+        const data = await response.json();
+        if (controller.signal.aborted || currentRevision !== analysisRevision ||
+            currentSelection !== revision) return;
+        if (!data || !data.page || !Array.isArray(data.entries) ||
+            !Number.isSafeInteger(data.page.total_visible) ||
+            data.page.total_visible < 0 || data.page.total_visible > 5000 ||
+            data.page.limit !== pageSize || data.page.offset !== offset ||
+            !["allow", "partial", "filtered", "uncertain", "empty"].includes(data.status) ||
+            (expectedTotal !== null && expectedTotal !== data.page.total_visible)) {
+          throw new Error("Inconsistent authorized pagination");
+        }
+        expectedTotal = data.page.total_visible;
+        const count = Math.min(pageSize, Math.max(0, expectedTotal - offset));
+        if (data.entries.length !== count ||
+            data.page.has_more !== (offset + count < expectedTotal)) {
+          throw new Error("Incomplete authorized page");
+        }
+        for (const entry of data.entries) {
+          if (!entry || typeof entry.id !== "string" || !entry.id ||
+              seen.has(entry.id) || !kinds.includes(entry.kind) ||
+              typeof entry.time_uncertain !== "boolean" ||
+              typeof entry.source_ref !== "string" || !entry.source_ref) {
+            throw new Error("Invalid authorized timeline entry");
+          }
+          seen.add(entry.id);
+          counts[entry.kind]++;
+          if (entry.time_uncertain) {
+            uncertain++;
+          } else {
+            // Trust the already authorized Entry, not the browser clock.
+            // Only unambiguous RFC3339 timestamps contribute to elapsed time.
+            if (typeof entry.source_time !== "string" ||
+                !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,9})?(?:Z|[+-]\d{2}:\d{2})$/.test(entry.source_time)) {
+              throw new Error("Invalid certain timestamp");
+            }
+            const millis = Date.parse(entry.source_time);
+            if (!Number.isFinite(millis)) throw new Error("Unparseable certain timestamp");
+            certainTimes.push(millis);
+          }
+          // Correlate only source references already released after the
+          // existing server-side Case, Timeline Entry and source ACL chain.
+          const source = bySource.get(entry.source_ref) ||
+            { ref: entry.source_ref, entryID: entry.id, count: 0, observed: 0, inferred: 0 };
+          source.count++;
+          if (entry.kind === "observed") source.observed++;
+          if (entry.kind === "inferred") source.inferred++;
+          bySource.set(entry.source_ref, source);
+        }
+      }
+      if (currentRevision !== analysisRevision || currentSelection !== revision) return;
+      const ranked = [...bySource.values()].sort((a, b) =>
+        b.count - a.count || (a.ref < b.ref ? -1 : a.ref > b.ref ? 1 : 0));
+      // The HTTP pages may contain same-time observations and inferred
+      // entries. Rank only certain instants, never infer missing activity.
+      certainTimes.sort((a, b) => a - b);
+      let largestGapMS = 0;
+      for (let i = 1; i < certainTimes.length; i++) {
+        largestGapMS = Math.max(largestGapMS, certainTimes[i] - certainTimes[i - 1]);
+      }
+      const chronology = certainTimes.length >= 2
+        ? " · Plage des horodatages certains (UTC) : " +
+          new Date(certainTimes[0]).toISOString() + " → " +
+          new Date(certainTimes[certainTimes.length - 1]).toISOString() +
+          " · Plus grand écart entre événements visibles certains : " +
+          (largestGapMS / 1000).toFixed(3) + " s"
+        : " · Écarts temporels non calculables (moins de deux horodatages certains)";
+      const topSources = ranked.slice(0, 3).map(source => {
+        // Cap visible labels; do not place owner identifiers in HTML or URLs.
+        const label = source.ref.length > 120 ?
+          source.ref.slice(0, 120) + "… (abrégée)" : source.ref;
+        return label + " : " + source.count + " événement(s), " +
+          source.observed + " observé(s), " + source.inferred + " inféré(s)";
+      });
+      analysis.textContent = expectedTotal + " événement(s) autorisé(s) · " +
+        kinds.map(value => value + " : " + counts[value]).join(" · ") +
+        " · horodatage incertain : " + uncertain + chronology +
+        ". Sources présentes : " + ranked.length +
+        (topSources.length ? " · Principales références : " +
+          topSources.join(" · ") : "") +
+        ". Regroupement par référence, pas une preuve de causalité. " +
+        "Un écart entre événements visibles ne démontre jamais l'absence d'activité " +
+        "(données masquées, non collectées ou horodatages incertains). " +
+        "Synthèse locale à l'instant de lecture ; les pages ne sont pas transactionnelles.";
+      // Only a bounded aggregate is prepared for explicit local download:
+      // no bearer, no hidden entries, no raw event rows, no URLs or owner preview.
+      // This is an unsigned, nontransactional demo summary, not a legal
+      // chain-of-custody attestation or production forensic export.
+      const report = {
+        schema_version: 1,
+        type: "cmdr-synthetic-authorized-case-summary",
+        case_id: selectedCase,
+        filters: {
+          kind: selectedKind, q: selectedSearch,
+          from: selectedWindow.from, to: selectedWindow.to
+        },
+        generated_at_utc: new Date().toISOString(),
+        count: expectedTotal,
+        event_kinds: counts,
+        uncertain_timestamps: uncertain,
+        certain_time_range_utc: certainTimes.length ? {
+          from: new Date(certainTimes[0]).toISOString(),
+          to: new Date(certainTimes[certainTimes.length - 1]).toISOString()
+        } : null,
+        largest_visible_certain_gap_ms: certainTimes.length >= 2 ? largestGapMS : null,
+        unique_sources: ranked.length,
+        top_sources: ranked.slice(0, 3).map(source => ({
+          source_ref: source.ref,
+          count: source.count,
+          observed: source.observed,
+          inferred: source.inferred
+        })),
+        limitations: [
+          "Local synthetic Case snapshot; not a production IAM or verified source feed",
+          "Only server-authorized entries visible at paginated read time",
+          "Pages are not transactionally isolated; hidden or uncollected events may exist",
+          "Unsigned aggregate without raw events, cryptographic custody proof or audit backend"
+        ]
+      };
+      preparedReport = { serialized: JSON.stringify(report, null, 2) + "\n",
+        revision: currentRevision, selection: currentSelection, caseID: selectedCase };
+      downloadReport.disabled = false;
+      // A representative authorized Entry is only a UI selector, never a
+      // source capability. Both existing routes independently reauthorize
+      // Case, Entry and typed source when the analyst clicks a source.
+      for (const source of ranked.slice(0, 3)) {
+        const label = source.ref.length > 120 ?
+          source.ref.slice(0, 120) + "… (abrégée)" : source.ref;
+        const button = document.createElement("button");
+        button.type = "button";
+        button.textContent = "Ouvrir une entrée de cette source : " + label;
+        button.addEventListener("click", () => {
+          if (currentRevision !== analysisRevision ||
+              currentSelection !== revision || controller.signal.aborted) return;
+          openSource(source.entryID);
+        });
+        analysisActions.append(button);
+      }
+    } catch {
+      if (currentRevision === analysisRevision) {
+        analysis.textContent = "Synthèse indisponible ou droits modifiés. Aucun total partiel conservé.";
+      }
+    } finally {
+      if (currentRevision === analysisRevision) {
+        analysisRequest = null;
+        analyze.disabled = false;
+      }
+    }
+  }
+
+  // Compare two fully reauthorized Case timelines, without an extra API,
+  // frontend trust decision, owner-source read or unscoped search index.
+  async function compareAuthorizedCases() {
+    const selectedCase = caseID.value.trim();
+    const otherCase = compareCase.value.trim();
+    const bearer = token.value;
+    const windowSelection = readWindow();
+    clearComparison();
+    if (!bearer || !selectedCase || !otherCase || selectedCase === otherCase ||
+        !windowSelection || otherCase.length > 1024) {
+      comparison.textContent = "Choisissez deux Cases différents et un jeton local.";
+      return;
+    }
+    const activeComparison = compareRevision;
+    const activeSelection = revision;
+    const controller = new AbortController();
+    compareRequest = controller;
+    compareButton.disabled = true;
+    comparison.textContent = "Comparaison des pages autorisées en cours…";
+    const pageSize = 200;
+    const allowedKinds = new Set(["observed", "inferred", "user-action", "decision", "response"]);
+    // Each fetch goes through the existing server-side Case/Timeline/source
+    // ACL chain. One inaccessible Case invalidates the ENTIRE comparison.
+    async function sourcesFor(id) {
+      const groups = new Map();
+      const seen = new Set();
+      let total = null;
+      for (let at = 0; at === 0 || at < total; at += pageSize) {
+        if (controller.signal.aborted) throw Error("comparison cancelled");
+        const url = new URL("/case-timeline", window.location.origin);
+        url.searchParams.set("case_id", id);
+        url.searchParams.set("limit", String(pageSize));
+        url.searchParams.set("offset", String(at));
+        if (kind.value) url.searchParams.set("kind", kind.value);
+        if (search.value.trim()) url.searchParams.set("q", search.value.trim());
+        if (windowSelection.from) url.searchParams.set("from", windowSelection.from);
+        if (windowSelection.to) url.searchParams.set("to", windowSelection.to);
+        const response = await fetch(url, {
+          method: "GET", headers: { Authorization: "Bearer " + bearer },
+          cache: "no-store", credentials: "omit", redirect: "error",
+          mode: "same-origin", signal: controller.signal
+        });
+        if (!response.ok) throw Error("Case unavailable");
+        const data = await response.json();
+        if (controller.signal.aborted || activeComparison !== compareRevision ||
+            activeSelection !== revision) throw Error("comparison invalidated");
+        if (!data || !data.page || !Array.isArray(data.entries) ||
+            !Number.isSafeInteger(data.page.total_visible) ||
+            data.page.total_visible < 0 || data.page.total_visible > 5000 ||
+            data.page.limit !== pageSize || data.page.offset !== at ||
+            !["allow", "filtered", "partial", "uncertain", "empty"].includes(data.status) ||
+            (total !== null && total !== data.page.total_visible)) {
+          throw Error("inconsistent authorized comparison page");
+        }
+        total = data.page.total_visible;
+        const expected = Math.min(pageSize, Math.max(0, total - at));
+        if (data.entries.length !== expected ||
+            data.page.has_more !== (at + expected < total)) {
+          throw Error("incomplete authorized comparison");
+        }
+        for (const entry of data.entries) {
+          if (!entry || typeof entry.id !== "string" || !entry.id ||
+              seen.has(entry.id) || !allowedKinds.has(entry.kind) ||
+              typeof entry.source_ref !== "string" || !entry.source_ref) {
+            throw Error("invalid authorized comparison entry");
+          }
+          seen.add(entry.id);
+          groups.set(entry.source_ref, (groups.get(entry.source_ref) || 0) + 1);
+        }
+      }
+      return { total, groups };
+    }
+    try {
+      const left = await sourcesFor(selectedCase);
+      const right = await sourcesFor(otherCase);
+      if (controller.signal.aborted || activeComparison !== compareRevision ||
+          activeSelection !== revision) return;
+      const common = [...left.groups].filter(([ref]) => right.groups.has(ref))
+        .map(([ref, count]) => ({ ref, left: count, right: right.groups.get(ref) }))
+        .sort((a, b) => Math.min(b.left, b.right) - Math.min(a.left, a.right) ||
+          (a.ref < b.ref ? -1 : a.ref > b.ref ? 1 : 0));
+      const top = common.slice(0, 5).map(group =>
+        (group.ref.length > 120 ? group.ref.slice(0, 120) + "… (abrégée)" : group.ref) +
+        " : " + group.left + " / " + group.right).join(" · ");
+      comparison.textContent = "Comparaison des événements autorisés : " +
+        left.total + " / " + right.total + " · références communes : " +
+        common.length + (top ? " · " + top : "") +
+        ". Présence commune d'une référence exacte, pas une preuve de causalité, " +
+        "d'identité d'objet ou d'exhaustivité. Lectures non transactionnelles.";
+    } catch {
+      if (activeComparison === compareRevision) {
+        comparison.textContent = "Comparaison indisponible ou droits modifiés. Aucun résultat partiel.";
+      }
+    } finally {
+      if (activeComparison === compareRevision) {
+        compareRequest = null;
+        compareButton.disabled = false;
+      }
+    }
+  }
+
   // A return URL carries only a presentation selection, never credentials or
   // authorization. It is not fetched until the analyst enters a fresh bearer.
   function localTimestamp(iso) {
@@ -341,6 +670,7 @@
   }
 
   async function fetchPage() {
+    clearAnalysis();
     const windowSelection = readWindow();
     if (!windowSelection) {
       clearResults("Intervalle non valide");
@@ -415,6 +745,30 @@
     clearSource();
     fetchPage(); // reauthorize the Case and Timeline; keep current filters and offset
   });
+  analyze.addEventListener("click", analyzeAuthorizedCase);
+  compareButton.addEventListener("click", compareAuthorizedCases);
+  compareCase.addEventListener("input", clearComparison);
+  downloadReport.addEventListener("click", () => {
+    const receipt = preparedReport;
+    if (!receipt || receipt.revision !== analysisRevision ||
+        receipt.selection !== revision || !token.value ||
+        caseID.value.trim() !== receipt.caseID) return;
+    let objectURL = null;
+    try {
+      const blob = new Blob([receipt.serialized], { type: "application/json" });
+      objectURL = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = objectURL;
+      link.download = "cmdr-local-case-summary.json";
+      link.click();
+      // Download starts asynchronously in browsers: do not revoke before it
+      // consumes the Blob URL. No remote endpoint or credential is involved.
+      setTimeout(() => URL.revokeObjectURL(objectURL), 1000);
+    } catch {
+      if (objectURL) URL.revokeObjectURL(objectURL);
+      analysis.textContent = "Export local indisponible. Relancez l’analyse si nécessaire.";
+    }
+  });
   discover.addEventListener("click", discoverCases);
   caseOptions.addEventListener("change", () => {
     if (!caseOptions.value) return;
@@ -450,6 +804,8 @@
         clearCaseChoices();
       }
       ++revision;
+      clearAnalysis();
+      clearComparison();
       clearSource();
       if (activeRequest) activeRequest.abort();
       activeRequest = null;

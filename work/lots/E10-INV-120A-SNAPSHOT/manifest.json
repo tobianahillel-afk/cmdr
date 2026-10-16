@@ -74,13 +74,15 @@
     "Optional bounded operator-local JSON snapshot loader",
     "End-to-end HTTP scenario from disk to Case discovery, Timeline and typed source ACLs",
     "Evidence and production-exclusion handoff",
-    "Secret scan recognizes deleted paths whose parent directory was removed in the same diff"
+    "Secret scan recognizes deleted paths whose parent directory was removed in the same diff",
+    "Authorized multi-page source-reference grouping in the analyst summary, no new data authority or network route"
   ],
   "acceptance_tests": [
     "Default demo behavior unchanged",
     "Authorized two-tenant snapshot produces real Case HTTP flow",
     "Denied/cross-tenant data inaccessible, missing/invalid file fails before listener",
-    "go test -race ./..., go vet and CI exact SHA"
+    "go test -race ./..., go vet and CI exact SHA",
+    "Multi-page source grouping and observed/inferred counts, cancellation, malformed authorized reference fail closed, text-only display"
   ],
   "performance_budget": {
     "applicable": false,

@@ -27,3 +27,8 @@ h2 { font-size: 1.3rem; }
 nav { display: flex; align-items: center; justify-content: center; gap: 1rem; padding: 1.5rem; }
 footer { border-top: 1px solid #304054; padding-top: 1rem; font-size: .83rem; margin-top: 2rem; }
 @media (max-width: 790px) { form { grid-template-columns: 1fr; } .section-title { display: block; } }
+
+#analysis { padding: 1rem; background: #152338; border: 1px solid #33445d; border-radius: 9px; line-height: 1.6; overflow-wrap: anywhere; }
+
+.analysis-actions { display: flex; flex-wrap: wrap; gap: .65rem; margin-bottom: 1rem; }
+.analysis-actions button { max-width: 100%; overflow-wrap: anywhere; text-align: left; }
