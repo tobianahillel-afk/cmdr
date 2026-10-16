@@ -194,6 +194,16 @@
           " · Plus grand écart entre événements visibles certains : " +
           (largestGapMS / 1000).toFixed(3) + " s"
         : " · Écarts temporels non calculables (moins de deux horodatages certains)";
+      // Triage only timestamps already released by the authorized pages.
+      // Five-minute UTC buckets expose busy visible windows, not attacks.
+      const fiveMinutes = 5 * 60 * 1000;
+      const windowCounts = new Map();
+      for (const millis of certainTimes) {
+        const start = Math.floor(millis / fiveMinutes) * fiveMinutes;
+        windowCounts.set(start, (windowCounts.get(start) || 0) + 1);
+      }
+      const activeWindows = [...windowCounts].map(([start, count]) => ({ start, count }))
+        .sort((a, b) => b.count - a.count || a.start - b.start).slice(0, 3);
       const topSources = ranked.slice(0, 3).map(source => {
         // Cap visible labels; do not place owner identifiers in HTML or URLs.
         const label = source.ref.length > 120 ?
@@ -204,6 +214,9 @@
       analysis.textContent = expectedTotal + " événement(s) autorisé(s) · " +
         kinds.map(value => value + " : " + counts[value]).join(" · ") +
         " · horodatage incertain : " + uncertain + chronology +
+        " · fenêtres de 5 minutes les plus chargées (UTC, événements certains visibles) : " +
+        (activeWindows.length ? activeWindows.map(item =>
+          new Date(item.start).toISOString() + " (" + item.count + ")").join(" · ") : "aucune") +
         ". Sources présentes : " + ranked.length +
         (topSources.length ? " · Principales références : " +
           topSources.join(" · ") : "") +
@@ -233,6 +246,11 @@
         } : null,
         largest_visible_certain_gap_ms: certainTimes.length >= 2 ? largestGapMS : null,
         unique_sources: ranked.length,
+        busiest_five_minute_windows_utc: activeWindows.map(item => ({
+          from: new Date(item.start).toISOString(),
+          to_exclusive: new Date(item.start + fiveMinutes).toISOString(),
+          visible_certain_events: item.count
+        })),
         top_sources: ranked.slice(0, 3).map(source => ({
           source_ref: source.ref,
           count: source.count,
@@ -249,6 +267,37 @@
       preparedReport = { serialized: JSON.stringify(report, null, 2) + "\n",
         revision: currentRevision, selection: currentSelection, caseID: selectedCase };
       downloadReport.disabled = false;
+      // A window pivot reuses the existing server-authorized Timeline route.
+      // Display local filter values while preserving exact UTC instants in
+      // restoredRange, including at daylight-saving folds.
+      const toLocalField = millis => {
+        const instant = new Date(millis);
+        const pad = n => String(n).padStart(2, "0");
+        return instant.getFullYear() + "-" + pad(instant.getMonth() + 1) +
+          "-" + pad(instant.getDate()) + "T" + pad(instant.getHours()) +
+          ":" + pad(instant.getMinutes()) + ":" + pad(instant.getSeconds());
+      };
+      for (const item of activeWindows) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.textContent = "Examiner la fenêtre de 5 min : " +
+          new Date(item.start).toISOString() + " · " + item.count + " événement(s)";
+        button.addEventListener("click", () => {
+          if (currentRevision !== analysisRevision ||
+              currentSelection !== revision || controller.signal.aborted ||
+              token.value !== bearer || caseID.value.trim() !== selectedCase) return;
+          fromInput.value = toLocalField(item.start);
+          toInput.value = toLocalField(item.start + fiveMinutes);
+          fromInput.dispatchEvent(new Event("input", { bubbles: true }));
+          restoredRange = {
+            from: new Date(item.start).toISOString(),
+            to: new Date(item.start + fiveMinutes).toISOString()
+          };
+          offset = 0;
+          fetchPage(); // always re-check Case/Timeline/source permissions
+        });
+        analysisActions.append(button);
+      }
       // A representative authorized Entry is only a UI selector, never a
       // source capability. Both existing routes independently reauthorize
       // Case, Entry and typed source when the analyst clicks a source.

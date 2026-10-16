@@ -1001,3 +1001,81 @@ test("oversized correlated entry identifiers remain text-only", async () => {
   assert.ok(list.children.every(item => item.children.length === 0));
   assert.equal(env.fields["comparison-actions"].children.length, 2);
 });
+
+test("authorized five-minute hot-window triage pivots through a fresh server query", async () => {
+  const env = boot(url => {
+    const response = page(Number(url.searchParams.get("offset")), 5);
+    const original = response.json;
+    response.json = async () => {
+      const data = await original();
+      const times = [
+        "2026-10-01T10:01:00Z", "2026-10-01T10:01:30Z",
+        "2026-10-01T10:04:45Z", "2026-10-01T10:06:00Z",
+        "unavailable"
+      ];
+      data.entries.forEach((entry, i) => {
+        entry.source_time = times[i];
+        entry.time_uncertain = i === 4;
+      });
+      return data;
+    };
+    return response;
+  });
+  env.fields.analyze.handlers.click();
+  await flush();
+  assert.match(env.fields.analysis.textContent, /fenêtres de 5 minutes les plus chargées/);
+  assert.match(env.fields.analysis.textContent, /2026-10-01T10:00:00.000Z \(3\)/);
+  assert.match(env.fields.analysis.textContent, /2026-10-01T10:05:00.000Z \(1\)/);
+  const buttons = env.fields["analysis-actions"].children;
+  assert.match(buttons[0].textContent, /Examiner la fenêtre/);
+  assert.match(buttons[0].textContent, /3 événement/);
+  buttons[0].handlers.click();
+  await flush();
+  assert.equal(env.requests.length, 2);
+  assert.equal(env.requests[1].url.pathname, "/case-timeline");
+  assert.equal(env.requests[1].url.searchParams.get("from"), "2026-10-01T10:00:00.000Z");
+  assert.equal(env.requests[1].url.searchParams.get("to"), "2026-10-01T10:05:00.000Z");
+  assert.equal(env.requests[1].url.searchParams.get("case_id"), "case-disk");
+  assert.equal(env.requests[1].options.headers.Authorization, "Bearer ephemeral-token");
+  assert.equal(env.requests[1].options.credentials, "omit");
+  assert.equal(env.requests[1].options.cache, "no-store");
+  assert.match(env.fields.analysis.textContent, /Aucune synthèse calculée/);
+});
+
+test("hot-window actions are invalidated when the analyst bearer changes", async () => {
+  const env = boot(url => page(Number(url.searchParams.get("offset")), 3));
+  env.fields.analyze.handlers.click();
+  await flush();
+  const action = env.fields["analysis-actions"].children[0];
+  assert.match(action.textContent, /Examiner la fenêtre/);
+  env.fields.token.value = "revoked-token";
+  env.fields.token.handlers.input();
+  assert.equal(env.fields["analysis-actions"].children.length, 0);
+  action.handlers.click();
+  await flush();
+  assert.equal(env.requests.length, 1);
+});
+
+test("uncertain-only timestamps do not create active-window pivots", async () => {
+  const env = boot(url => {
+    const response = page(Number(url.searchParams.get("offset")), 2);
+    const original = response.json;
+    response.json = async () => {
+      const data = await original();
+      data.entries.forEach(entry => {
+        entry.time_uncertain = true;
+        entry.source_time = "clock unavailable";
+      });
+      return data;
+    };
+    return response;
+  });
+  env.fields.analyze.handlers.click();
+  await flush();
+  assert.match(env.fields.analysis.textContent, /5 minutes.*aucune/);
+  assert.equal(env.fields["analysis-actions"].children.filter(button =>
+    button.textContent.startsWith("Examiner la fenêtre")).length, 0);
+  env.fields["download-report"].handlers.click();
+  const exported = JSON.parse(await env.downloads[0].blob.text());
+  assert.deepEqual(exported.busiest_five_minute_windows_utc, []);
+});
