@@ -256,3 +256,78 @@ func TestProjectTimestampOffsetMustMatchDeclaredTimezone(t *testing.T) {
 		t.Fatalf("matching offset must be known: %+v", got)
 	}
 }
+
+func TestProjectRejectsWhitespaceWrappedWildcards(t *testing.T) {
+	for _, value := range []string{" * ", "\t*\t", "\n*\n"} {
+		in := allowedFixture()
+		in.Scope.Tenant = value
+		if result := Project(in); result.Status != "deny" || len(result.Entries) != 0 {
+			t.Fatalf("wildcard tenant %q not rejected: %+v", value, result)
+		}
+		in = allowedFixture()
+		in.Scope.Environment = value
+		if result := Project(in); result.Status != "deny" || len(result.Entries) != 0 {
+			t.Fatalf("wildcard environment %q not rejected: %+v", value, result)
+		}
+	}
+}
+
+func TestHiddenEntryIdentifierCollisionCannotDenyVisibleProjection(t *testing.T) {
+	base := allowedFixture()
+	visible := base.Entries[0]
+	hidden := visible
+	hidden.SourcePermission = "deny"
+	hidden.SourceRef = "protected-source"
+	hidden.Provenance = "protected-provenance"
+	base.Entries = []Entry{visible, hidden}
+	result := Project(base)
+	if result.Status != "filtered" || len(result.Entries) != 1 || result.Entries[0].ID != visible.ID {
+		t.Fatalf("hidden collision changed authorized projection: %+v", result)
+	}
+	withoutCollision := allowedFixture()
+	hidden.ID = "different-protected-id"
+	withoutCollision.Entries = []Entry{visible, hidden}
+	other := Project(withoutCollision)
+	if !reflect.DeepEqual(result, other) {
+		t.Fatalf("hidden identifier influenced visible output: %+v vs %+v", result, other)
+	}
+	for _, tenant := range []string{"foreign-tenant"} {
+		otherHidden := visible
+		otherHidden.Tenant = tenant
+		withoutCollision.Entries = []Entry{visible, otherHidden}
+		got := Project(withoutCollision)
+		if got.Status != "filtered" || len(got.Entries) != 1 {
+			t.Fatalf("foreign duplicate denied authorized projection: %+v", got)
+		}
+	}
+	duplicateAuthorized := allowedFixture()
+	duplicateAuthorized.Entries = []Entry{visible, visible}
+	if result := Project(duplicateAuthorized); result.Status != "deny" {
+		t.Fatalf("authorized duplicate must be denied: %+v", result)
+	}
+}
+
+func TestSupersessionRequiresStrictVersionProgression(t *testing.T) {
+	base := allowedFixture()
+	before := base.Entries[0]
+	before.ID = "before"
+	after := base.Entries[0]
+	after.ID = "after"
+	after.Version = 2
+	after.Supersedes = before.ID
+	base.Entries = []Entry{after, before}
+	if result := Project(base); result.Status != "allow" || len(result.Entries) != 2 {
+		t.Fatalf("valid version progression rejected: %+v", result)
+	}
+	bad := base
+	bad.Entries = append([]Entry(nil), base.Entries...)
+	bad.Entries[0].Version = 1
+	if result := Project(bad); result.Status != "deny" || len(result.Entries) != 0 {
+		t.Fatalf("same version predecessor accepted: %+v", result)
+	}
+	bad.Entries[0].Version = 2
+	bad.Entries[1].Supersedes = after.ID
+	if result := Project(bad); result.Status != "deny" || len(result.Entries) != 0 {
+		t.Fatalf("cyclic supersession accepted: %+v", result)
+	}
+}

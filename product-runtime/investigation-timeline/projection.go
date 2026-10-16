@@ -80,10 +80,17 @@ func Project(input Input) Result {
 	for _, e := range input.Entries {
 		usedBytes += len(e.ID) + len(e.Kind) + len(e.Tenant) + len(e.SourcePermission) +
 			len(e.Timezone) + len(e.SourceTime) + len(e.SourceRef) + len(e.Provenance) + len(e.Supersedes)
-		if usedBytes > MaxInputBytes || e.ID == "" || seen[e.ID] {
+		if usedBytes > MaxInputBytes || e.ID == "" {
 			return deny
 		}
-		seen[e.ID] = true
+		// Denied/foreign/missing entries must not affect the uniqueness
+		// decision for a caller-authorized Timeline Entry.
+		if e.Tenant == s.Tenant && e.SourcePermission == "allow" {
+			if seen[e.ID] {
+				return deny
+			}
+			seen[e.ID] = true
+		}
 	}
 	rows := make([]sortableEntry, 0, len(input.Entries))
 	filtered, partial, uncertain := false, false, false
@@ -122,15 +129,25 @@ func Project(input Input) Result {
 		})
 	}
 	// A visible version must not disclose an inaccessible predecessor ID.
-	visible := make(map[string]bool, len(rows))
+	visibleVersions := make(map[string]int, len(rows))
 	for _, row := range rows {
-		visible[row.entry.ID] = true
+		visibleVersions[row.entry.ID] = row.entry.Version
 	}
 	for i := range rows {
 		previous := rows[i].entry.Supersedes
-		if previous != "" && !visible[previous] {
+		if previous == "" {
+			continue
+		}
+		version, exists := visibleVersions[previous]
+		if !exists {
 			rows[i].entry.Supersedes = ""
 			partial = true
+			continue
+		}
+		// Version links must be strictly descending. This also makes
+		// cycles impossible without an additional traversal/graph engine.
+		if version >= rows[i].entry.Version {
+			return deny
 		}
 	}
 	sort.SliceStable(rows, func(i, j int) bool {
@@ -160,7 +177,8 @@ func Project(input Input) Result {
 }
 
 func invalidScope(v string) bool {
-	return strings.TrimSpace(v) == "" || v == "*"
+	trimmed := strings.TrimSpace(v)
+	return trimmed == "" || trimmed == "*"
 }
 
 func validKind(kind string) bool {
