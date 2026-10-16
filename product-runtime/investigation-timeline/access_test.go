@@ -544,8 +544,8 @@ func TestLegacyTypedNilAuthoritiesFailClosed(t *testing.T) {
 	var typedChecker *stubAccessChecker
 	var typedContext *typedNilTimelineContext
 	cases := []struct {
-		name string
-		ctx context.Context
+		name    string
+		ctx     context.Context
 		checker AccessChecker
 	}{
 		{name: "typed-nil-checker", ctx: context.Background(), checker: typedChecker},

@@ -476,9 +476,9 @@ func TestOwnerTypedNilAuthoritiesFailClosedWithoutIO(t *testing.T) {
 	var nilResolver *ownedSnapshotResolver
 	var nilContext *typedNilTimelineContext
 	for _, tc := range []struct {
-		name string
-		ctx context.Context
-		checker AccessChecker
+		name     string
+		ctx      context.Context
+		checker  AccessChecker
 		resolver EntryResolver
 	}{
 		{"typed-nil-checker", context.Background(), nilChecker, &ownedSnapshotResolver{}},
