@@ -17,6 +17,27 @@ func ProjectFromOwnerSnapshots(
 	ctx context.Context, scope Scope, caseID string, ids []string,
 	checker AccessChecker, resolver EntryResolver,
 ) Result {
+	return projectFromOwnerSnapshots(ctx, scope, caseID, ids, checker, resolver, nil)
+}
+
+// ProjectFromOwnerSnapshotsWithTypedSources is an opt-in, owner-routed source
+// authorization boundary. The source resolver and checker must both be
+// authoritative, trusted server-side integrations; no production provider is
+// bundled. The legacy generic-source adapter above remains unchanged.
+func ProjectFromOwnerSnapshotsWithTypedSources(
+	ctx context.Context, scope Scope, caseID string, ids []string,
+	checker AccessChecker, resolver EntryResolver, sourceResolver SourceOwnerResolver,
+) Result {
+	if missingAuthority(sourceResolver) {
+		return Result{Status: "deny"}
+	}
+	return projectFromOwnerSnapshots(ctx, scope, caseID, ids, checker, resolver, sourceResolver)
+}
+
+func projectFromOwnerSnapshots(
+	ctx context.Context, scope Scope, caseID string, ids []string,
+	checker AccessChecker, resolver EntryResolver, sourceResolver SourceOwnerResolver,
+) Result {
 	deny := Result{Status: "deny"}
 	if missingAuthority(ctx) || missingAuthority(checker) || missingAuthority(resolver) ||
 		invalidScope(scope.Tenant) || invalidScope(scope.Environment) ||
@@ -121,11 +142,41 @@ func ProjectFromOwnerSnapshots(
 		entry.SourcePermission = "unknown"
 		out.Entries = append(out.Entries, entry)
 	}
+	// For strict typed integration, resolve ALL trusted source identities
+	// before any source ACL check, so a malformed later source cannot lead
+	// to partial release of earlier source metadata to an ACL authority.
+	sourceRequests := make([]AccessRequest, len(out.Entries))
 	for i := range out.Entries {
 		if decisions[i] != "allow" {
 			continue
 		}
-		sourceDecision, valid := check(request("source", out.Entries[i].SourceRef, sourceReadPermission))
+		if ctx.Err() != nil {
+			return deny
+		}
+		if sourceResolver == nil {
+			sourceRequests[i] = request("source", out.Entries[i].SourceRef, sourceReadPermission)
+			continue // transitional generic source authority
+		}
+		lookup := request("source-reference", out.Entries[i].SourceRef, "")
+		identity, err := sourceResolver.ResolveSource(ctx, lookup)
+		if err != nil || ctx.Err() != nil ||
+			identity.Reference != out.Entries[i].SourceRef ||
+			identity.CaseID != caseID || identity.Tenant != scope.Tenant ||
+			identity.Environment != scope.Environment ||
+			invalidScope(identity.ObjectID) {
+			return deny
+		}
+		permission, ok := canonicalSourceReadPermission(identity.Kind)
+		if !ok || len(identity.ObjectID) > MaxInputBytes {
+			return deny
+		}
+		sourceRequests[i] = request(identity.Kind, identity.ObjectID, permission)
+	}
+	for i := range out.Entries {
+		if decisions[i] != "allow" {
+			continue
+		}
+		sourceDecision, valid := check(sourceRequests[i])
 		if !valid {
 			return deny
 		}
