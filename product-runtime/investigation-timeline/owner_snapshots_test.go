@@ -253,7 +253,7 @@ func TestOwnerAggregatesTimelineIDsAndSourceRefsBeforeSourceAuthority(t *testing
 
 func TestOwnerMalformedAuthorizedEntryCannotReachSourceProvider(t *testing.T) {
 	for _, tc := range []struct {
-		name string
+		name   string
 		mutate func(*Entry)
 	}{
 		{"missing-provenance", func(e *Entry) { e.Provenance = "" }},
