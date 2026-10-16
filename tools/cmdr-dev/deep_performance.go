@@ -104,18 +104,20 @@ var knownDeepPerformanceStages = map[string]bool{
 }
 
 var knownDeepPerformanceHandlerKeys = map[string]bool{
-	"builtin-cmdr-dev-deep-metadata-v1":                          true,
-	"builtin-pilot-context-projection-v1":                        true,
-	"builtin-event-search-validation-v1":                         true,
-	"builtin-event-search-orchestration-v1":                      true,
-	"builtin-event-search-frontend-state-v1":                     true,
-	"builtin-event-inspection-preimplementation-v1":              true,
-	"builtin-hunt-management-preimplementation-v1":               true,
-	"builtin-saved-query-assets-projection-preimplementation-v1": true,
-	"builtin-saved-query-assets-handoff-preimplementation-v1":    true,
-	"builtin-case-queue-projection-v1":                           true,
-	"builtin-case-queue-saved-view-v1":                           true,
-	"builtin-case-queue-handoff-v1":                              true,
+	"builtin-cmdr-dev-deep-metadata-v1":                              true,
+	"builtin-pilot-context-projection-v1":                            true,
+	"builtin-event-search-validation-v1":                             true,
+	"builtin-event-search-orchestration-v1":                          true,
+	"builtin-event-search-frontend-state-v1":                         true,
+	"builtin-event-inspection-preimplementation-v1":                  true,
+	"builtin-hunt-management-preimplementation-v1":                   true,
+	"builtin-saved-query-assets-projection-preimplementation-v1":     true,
+	"builtin-saved-query-assets-handoff-preimplementation-v1":        true,
+	"builtin-case-queue-projection-v1":                               true,
+	"builtin-case-queue-saved-view-v1":                               true,
+	"builtin-case-queue-handoff-v1":                                  true,
+	"builtin-investigation-timeline-projection-preimplementation-v1": true,
+	"builtin-investigation-timeline-navigation-preimplementation-v1": true,
 }
 
 func runDeepPerformanceAudit(root, stage, changesFile, requestedTarget string) (DeepPerformanceAuditSummary, error) {
@@ -438,6 +440,10 @@ func runDeepPerformanceHandler(ctx context.Context, root string, target DeepPerf
 			result.ThroughputOpsPerSec = float64(observation.Operations) / (float64(observation.ElapsedNS) / float64(time.Second))
 		}
 		return result, nil
+	}
+	if target.HandlerKey == "builtin-investigation-timeline-projection-preimplementation-v1" ||
+		target.HandlerKey == "builtin-investigation-timeline-navigation-preimplementation-v1" {
+		return DeepPerformanceObservation{}, fmt.Errorf("Investigation Timeline deep benchmark remains preimplementation; a real runtime probe and fixtures are required")
 	}
 	if target.HandlerKey == "builtin-saved-query-assets-projection-preimplementation-v1" {
 		return DeepPerformanceObservation{}, fmt.Errorf("saved-query-assets projection deep performance target is preimplementation; implement E10-INV-006B-RUNTIME before executable measurement")

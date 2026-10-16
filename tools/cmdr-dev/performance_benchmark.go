@@ -121,19 +121,21 @@ type PerformanceBenchmarkAuditSummary struct {
 }
 
 var knownBenchmarkHandlerKeys = map[string]bool{
-	"builtin-cmdr-dev-metadata-audit-v1":       true,
-	"builtin-pilot-context-projection-v1":      true,
-	"builtin-event-search-validation-v1":       true,
-	"builtin-event-search-orchestration-v1":    true,
-	"builtin-event-search-frontend-state-v1":   true,
-	"builtin-event-inspection-projection-v1":   true,
-	"builtin-event-inspection-pivot-v1":        true,
-	"builtin-hunt-management-projection-v1":    true,
-	"builtin-saved-query-assets-projection-v1": true,
-	"builtin-saved-query-assets-handoff-v1":    true,
-	"builtin-case-queue-projection-v1":         true,
-	"builtin-case-queue-saved-view-v1":         true,
-	"builtin-case-queue-handoff-v1":            true,
+	"builtin-cmdr-dev-metadata-audit-v1":                             true,
+	"builtin-pilot-context-projection-v1":                            true,
+	"builtin-event-search-validation-v1":                             true,
+	"builtin-event-search-orchestration-v1":                          true,
+	"builtin-event-search-frontend-state-v1":                         true,
+	"builtin-event-inspection-projection-v1":                         true,
+	"builtin-event-inspection-pivot-v1":                              true,
+	"builtin-hunt-management-projection-v1":                          true,
+	"builtin-saved-query-assets-projection-v1":                       true,
+	"builtin-saved-query-assets-handoff-v1":                          true,
+	"builtin-case-queue-projection-v1":                               true,
+	"builtin-case-queue-saved-view-v1":                               true,
+	"builtin-case-queue-handoff-v1":                                  true,
+	"builtin-investigation-timeline-projection-preimplementation-v1": true,
+	"builtin-investigation-timeline-navigation-preimplementation-v1": true,
 }
 
 func runPerformanceBenchmarkAudit(root, stage, environmentID, changesFile string) (PerformanceBenchmarkAuditSummary, error) {
@@ -461,6 +463,9 @@ func prepareBenchmarkHandler(root string, workload BenchmarkWorkloadDefinition) 
 				Kind: "latency", Unit: "ns", Value: observation.NSPerOperation,
 			}}}, nil
 		}, cleanup, nil
+	case "builtin-investigation-timeline-projection-preimplementation-v1",
+		"builtin-investigation-timeline-navigation-preimplementation-v1":
+		return nil, func() {}, fmt.Errorf("Investigation Timeline benchmark remains preimplementation; a real runtime probe and fixtures are required")
 	case "builtin-cmdr-dev-metadata-audit-v1":
 		return func() (BenchmarkSample, error) {
 			started := time.Now()
