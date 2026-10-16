@@ -1,6 +1,8 @@
 package main
 
 import (
+	"context"
+	"errors"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -98,5 +100,70 @@ func TestDemoCaseCatalogueUsesFixtureReadersAndTenant(t *testing.T) {
 	handler.ServeHTTP(w, httptest.NewRequest(http.MethodGet, "/demo-cases", nil))
 	if w.Code != http.StatusOK || strings.Contains(w.Body.String(), "private-case") {
 		t.Fatalf("non-reader Case listed: %d %s", w.Code, w.Body.String())
+	}
+}
+
+func TestDemoCaseCatalogueRejectsCancelledBodyAndUnknownPrincipal(t *testing.T) {
+	handler, err := newDemoHandler(testBearer, "analyst-a")
+	if err != nil { t.Fatal(err) }
+	cancelled := httptest.NewRequest(http.MethodGet, "/demo-cases", nil)
+	cancelled.Header.Set("Authorization", "Bearer "+testBearer)
+	ctx, cancel := context.WithCancel(cancelled.Context())
+	cancel()
+	w := httptest.NewRecorder()
+	handler.ServeHTTP(w, cancelled.WithContext(ctx))
+	if w.Code != http.StatusServiceUnavailable || strings.Contains(w.Body.String(), "case-a") {
+		t.Fatalf("cancelled request disclosed a Case: %d %s", w.Code, w.Body.String())
+	}
+	body := httptest.NewRequest(http.MethodGet, "/demo-cases", strings.NewReader("ignored-body"))
+	body.Header.Set("Authorization", "Bearer "+testBearer)
+	w = httptest.NewRecorder()
+	handler.ServeHTTP(w, body)
+	if w.Code != http.StatusBadRequest || strings.Contains(w.Body.String(), "case-a") {
+		t.Fatalf("GET body was accepted: %d %s", w.Code, w.Body.String())
+	}
+	unknown := newDemoCaseListHandler(func(*http.Request) (string, error) {
+		return "unregistered-principal", nil
+	}, demoData())
+	w = httptest.NewRecorder()
+	unknown.ServeHTTP(w, httptest.NewRequest(http.MethodGet, "/demo-cases", nil))
+	if w.Code != http.StatusUnauthorized || strings.Contains(w.Body.String(), "case-a") {
+		t.Fatalf("unregistered principal listed a Case: %d %s", w.Code, w.Body.String())
+	}
+	bad := newDemoCaseListHandler(func(*http.Request) (string, error) {
+		return "analyst-a", errors.New("credential revoked")
+	}, demoData())
+	w = httptest.NewRecorder()
+	bad.ServeHTTP(w, httptest.NewRequest(http.MethodGet, "/demo-cases", nil))
+	if w.Code != http.StatusUnauthorized { t.Fatalf("revoked session accepted: %d", w.Code) }
+}
+
+func TestDemoCaseCatalogueEmptyAndSortedFixtureCases(t *testing.T) {
+	data := demoData()
+	for i := range data.Cases {
+		data.Cases[i].Readers = nil
+	}
+	read := func(data timeline.MemoryTimelineData) (int, []string) {
+		t.Helper()
+		h := newDemoCaseListHandler(func(*http.Request) (string, error) {
+			return "analyst-a", nil
+		}, data)
+		w := httptest.NewRecorder()
+		h.ServeHTTP(w, httptest.NewRequest(http.MethodGet, "/demo-cases", nil))
+		var result struct { Cases []string `json:"cases"` }
+		if err := json.Unmarshal(w.Body.Bytes(), &result); err != nil { t.Fatal(err) }
+		return w.Code, result.Cases
+	}
+	code, cases := read(data)
+	if code != http.StatusOK || cases == nil || len(cases) != 0 {
+		t.Fatalf("empty authorized catalogue not represented as []: %d %v", code, cases)
+	}
+	data.Cases = append(data.Cases,
+		timeline.MemoryTimelineCase{ID:"z-case",Tenant:"demo-tenant-a",Environment:"lab",Readers:[]string{"analyst-a"}},
+		timeline.MemoryTimelineCase{ID:"c-case",Tenant:"demo-tenant-a",Environment:"lab",Readers:[]string{"analyst-a"}},
+	)
+	code, cases = read(data)
+	if code != http.StatusOK || !reflect.DeepEqual(cases, []string{"c-case","z-case"}) {
+		t.Fatalf("catalogue result order or visibility: %d %v", code, cases)
 	}
 }
