@@ -1,5 +1,9 @@
 # Investigation Timeline — bounded read-only projection core
 
+## Case-to-Timeline integration (bounded functional increment)
+
+`OpenCaseTimeline` now exposes a read-only in-process service from an authorized Case selection to trusted catalog-discovered Timeline Entry IDs, first-party owner snapshots and typed source ACL checks. It reuses existing `ProjectFromOwnerSnapshotsWithTypedSources`; the server `CaseTimelineCatalog` and all other providers remain injected interfaces. Integration tests exercise a deterministic two-tenant in-memory owner fixture, **not a real deployed authenticated/persistent provider**. See `work/lots/E10-INV-110B-RUNTIME/CASE-WORKSPACE-INTEGRATION.md` for scope, acceptance evidence and outstanding gates.
+
 This module now contains an **initial first-party Go projection** for CAP-INV-110, not a complete Timeline Engine, source authorization service, backend provider or production-ready UI.
 
 `Project` accepts caller-resolved Case/Shared Timeline Entry snapshots, enforces explicit tenant/environment + Case and Timeline Entry permission outcomes, masks denied/cross-tenant sources, preserves observed/inferred kind, source references, provenance, version and supersession, and sorts known timestamps deterministically. Unknown or clock-uncertain time does not become an observed chronology. Inputs are not mutated. The caller MUST obtain authoritative server-side permission decisions separately; caller-provided permission flags are **not** proof of production authorization.
