@@ -60,12 +60,17 @@ func syntheticInput() timeline.Input {
 		},
 		Entries: make([]timeline.Entry, 5000),
 	}
+	base := time.Date(2026, time.October, 1, 10, 0, 0, 0, time.UTC)
 	for i := range input.Entries {
 		id := fmt.Sprintf("entry-%05d", i)
+		kind := "observed"
+		if i%2 != 0 {
+			kind = "inferred"
+		}
 		input.Entries[i] = timeline.Entry{
-			ID: id, Kind: "observed", Tenant: input.Scope.Tenant,
+			ID: id, Kind: kind, Tenant: input.Scope.Tenant,
 			SourcePermission: "allow", Timezone: "+00:00",
-			SourceTime: "2026-10-01T10:00:00Z",
+			SourceTime: base.Add(time.Duration(len(input.Entries)-1-i) * time.Second).Format(time.RFC3339),
 			SourceRef: "telemetry:" + id, Provenance: "synthetic:" + id,
 			Version: 1,
 		}
@@ -91,7 +96,11 @@ func measure(iterations int, mode string, memoryMiB int) (observation, error) {
 	input := syntheticInput()
 	execute := func() bool {
 		result := timeline.Project(input)
-		return result.Status == "allow" && len(result.Entries) == len(input.Entries)
+		return result.Status == "allow" && len(result.Entries) == len(input.Entries) &&
+			result.Entries[0].ID == "entry-04999" &&
+			result.Entries[0].Kind == "inferred" &&
+			result.Entries[len(result.Entries)-1].ID == "entry-00000" &&
+			result.Entries[len(result.Entries)-1].Kind == "observed"
 	}
 	if !execute() {
 		return observation{}, fmt.Errorf("Timeline synthetic preflight rejected")

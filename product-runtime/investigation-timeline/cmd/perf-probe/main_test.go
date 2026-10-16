@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"strings"
 	"testing"
+
+	timeline "github.com/tobianahillel-afk/cmdr/product-runtime/investigation-timeline"
 )
 
 func TestProbeRejectsInvalidParameters(t *testing.T) {
@@ -52,5 +54,25 @@ func TestProbeCLISafeOutput(t *testing.T) {
 	}
 	if err := runCLI([]string{"-mode=bad"}, &out); err == nil {
 		t.Fatal("unsupported CLI mode was accepted")
+	}
+}
+
+func TestSyntheticProbeRejectsTrivialOrderingOrClassification(t *testing.T) {
+	input := syntheticInput()
+	if len(input.Entries) != 5000 || input.Entries[0].Kind != "observed" ||
+		input.Entries[4999].Kind != "inferred" ||
+		input.Entries[0].SourceTime <= input.Entries[4999].SourceTime {
+		t.Fatal("benchmark must contain reverse-chronological mixed-kind inputs")
+	}
+	projected := timeline.Project(input)
+	if projected.Status != "allow" || len(projected.Entries) != len(input.Entries) {
+		t.Fatal("mixed benchmark fixture was rejected")
+	}
+	if projected.Entries[0].ID != "entry-04999" ||
+		projected.Entries[0].Kind != "inferred" ||
+		projected.Entries[len(projected.Entries)-1].ID != "entry-00000" ||
+		projected.Entries[len(projected.Entries)-1].Kind != "observed" {
+		t.Fatalf("benchmark oracle did not verify chronology and classification: first=%+v last=%+v",
+			projected.Entries[0], projected.Entries[len(projected.Entries)-1])
 	}
 }
