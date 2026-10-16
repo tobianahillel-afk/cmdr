@@ -1,14 +1,18 @@
 package main
 
 import (
+	"bytes"
+	"context"
 	"encoding/hex"
 	"encoding/json"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"sync"
 	"strings"
 	"testing"
+	"time"
 
 	timeline "github.com/tobianahillel-afk/cmdr/product-runtime/investigation-timeline"
 )
@@ -163,5 +167,111 @@ func TestDemoRejectsNonReadOperations(t *testing.T) {
 		if response.Code != http.StatusMethodNotAllowed {
 			t.Fatalf("%s unexpectedly accepted: %d", method, response.Code)
 		}
+	}
+}
+
+type demoCapture struct {
+	mu sync.Mutex
+	output bytes.Buffer
+	ready chan struct{}
+	once sync.Once
+}
+
+func (d *demoCapture) Write(data []byte) (int, error) {
+	d.mu.Lock()
+	defer d.mu.Unlock()
+	count, err := d.output.Write(data)
+	if strings.Contains(d.output.String(), "Ctrl-C exits.") {
+		d.once.Do(func() { close(d.ready) })
+	}
+	return count, err
+}
+
+func (d *demoCapture) String() string {
+	d.mu.Lock()
+	defer d.mu.Unlock()
+	return d.output.String()
+}
+
+func TestDemoRealLoopbackListenerAndShutdown(t *testing.T) {
+	for _, principal := range []string{"analyst-a", "analyst-b"} {
+		t.Run(principal, func(t *testing.T) {
+			ctx, cancel := context.WithCancel(context.Background())
+			defer cancel()
+			log := &demoCapture{ready: make(chan struct{})}
+			done := make(chan error, 1)
+			go func() { done <- serveDemo(ctx, principal, log) }()
+			select {
+			case <-log.ready:
+			case err := <-done:
+				t.Fatalf("demo exited before serving: %v", err)
+			case <-time.After(10 * time.Second):
+				t.Fatal("demo did not announce its endpoint")
+			}
+			var endpoint, token string
+			for _, line := range strings.Split(log.String(), "\n") {
+				if strings.HasPrefix(line, "URL: ") {
+					endpoint = strings.TrimPrefix(line, "URL: ")
+				}
+				if strings.HasPrefix(line, "Bearer token (this run only): ") {
+					token = strings.TrimPrefix(line, "Bearer token (this run only): ")
+				}
+			}
+			parsed, err := url.Parse(endpoint)
+			if err != nil || parsed.Hostname() != "127.0.0.1" || len(token) != 64 {
+				t.Fatalf("unsafe or invalid loopback endpoint: %q credential len=%d: %v", endpoint, len(token), err)
+			}
+			req, err := http.NewRequest(http.MethodGet, endpoint, nil)
+			if err != nil {
+				t.Fatal(err)
+			}
+			req.Header.Set("Authorization", "Bearer "+token)
+			client := &http.Client{Timeout: 2 * time.Second}
+			response, err := client.Do(req)
+			if err != nil {
+				t.Fatal(err)
+			}
+			body, err := io.ReadAll(io.LimitReader(response.Body, 1<<20))
+			response.Body.Close()
+			if err != nil || response.StatusCode != 200 {
+				t.Fatalf("real HTTP route failed: %d %s %v", response.StatusCode, body, err)
+			}
+			wantCase := "case-a"
+			if principal == "analyst-b" {
+				wantCase = "case-b"
+			}
+			if parsed.Query().Get("case_id") != wantCase || !strings.Contains(string(body), "entries") {
+				t.Fatalf("wrong case routing %q: %s", endpoint, body)
+			}
+			anonymous, err := http.Get(endpoint)
+			if err != nil {
+				t.Fatal(err)
+			}
+			anonymous.Body.Close()
+			if anonymous.StatusCode != http.StatusUnauthorized {
+				t.Fatalf("anonymous loopback access permitted: %d", anonymous.StatusCode)
+			}
+			cancel()
+			select {
+			case err := <-done:
+				if err != nil {
+					t.Fatalf("server shutdown failed: %v", err)
+				}
+			case <-time.After(5 * time.Second):
+				t.Fatal("loopback server did not stop after cancellation")
+			}
+		})
+	}
+}
+
+func TestDemoRefusesCancelledStartupAndInvalidPrincipal(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	var out bytes.Buffer
+	if err := serveDemo(ctx, "analyst-a", &out); err != context.Canceled || out.Len() != 0 {
+		t.Fatalf("cancelled startup exposed a token or listener: %v %s", err, out.String())
+	}
+	if err := serveDemo(context.Background(), "unrecognized", &out); err == nil || out.Len() != 0 {
+		t.Fatalf("unknown principal was accepted: %v %s", err, out.String())
 	}
 }

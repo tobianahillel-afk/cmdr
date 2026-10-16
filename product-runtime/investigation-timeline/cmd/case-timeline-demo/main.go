@@ -71,6 +71,9 @@ func newDemoHandler(token, principal string) (http.Handler, error) {
 }
 
 func serveDemo(ctx context.Context, principal string, output io.Writer) error {
+	if err := ctx.Err(); err != nil {
+		return err
+	}
 	if principal != "analyst-a" && principal != "analyst-b" {
 		return errors.New("select analyst-a or analyst-b")
 	}
