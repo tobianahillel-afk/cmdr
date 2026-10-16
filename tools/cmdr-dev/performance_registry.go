@@ -255,6 +255,9 @@ func validatePerformanceRegistry(policy PerformancePolicy, registry PerformanceR
 			return summary, fmt.Errorf("invalid or duplicate performance target id %q", target.ID)
 		}
 		targetIDs[target.ID] = true
+		if err := validateTimelinePerformanceTargetBinding(target); err != nil {
+			return summary, err
+		}
 		if !knownPerformanceScopeKinds[target.ScopeKind] {
 			return summary, fmt.Errorf("performance target %s uses unknown scope %s", target.ID, target.ScopeKind)
 		}

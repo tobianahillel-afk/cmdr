@@ -333,6 +333,9 @@ func loadBenchmarkPolicy(root string) (BenchmarkPolicy, error) {
 			return policy, fmt.Errorf("unknown or duplicate benchmark workload %q", workload.Key)
 		}
 		seen[workload.Key] = true
+		if err := validateTimelineBenchmarkWorkloadBinding(workload); err != nil {
+			return policy, err
+		}
 		if !knownBenchmarkHandlerKeys[workload.HandlerKey] {
 			return policy, fmt.Errorf("benchmark workload %s uses unknown handler %s", workload.Key, workload.HandlerKey)
 		}

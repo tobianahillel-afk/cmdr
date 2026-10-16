@@ -251,6 +251,9 @@ func validateDeepPerformancePolicy(policy DeepPerformancePolicy, registry Perfor
 		}
 		seen[target.ID] = true
 		performanceTarget, ok := performanceTargets[target.PerformanceTargetID]
+		if err := validateTimelineDeepPerformanceBinding(target); err != nil {
+			return err
+		}
 		if !ok {
 			return fmt.Errorf("deep performance target %s references unknown performance target %s", target.ID, target.PerformanceTargetID)
 		}
