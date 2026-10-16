@@ -36,7 +36,9 @@
     "product-runtime/investigation-timeline/cmd/case-timeline-demo/**",
     "work/lots/E10-INV-120A-SNAPSHOT/**",
     "engineering/state/current.json",
-    "work/graph.json"
+    "work/graph.json",
+    "tools/cmdr-dev/secret_scan.go",
+    "tools/cmdr-dev/secret_scan_test.go"
   ],
   "forbidden_paths": [
     "cmdr-product-spec/**",
@@ -71,7 +73,8 @@
   "outputs": [
     "Optional bounded operator-local JSON snapshot loader",
     "End-to-end HTTP scenario from disk to Case discovery, Timeline and typed source ACLs",
-    "Evidence and production-exclusion handoff"
+    "Evidence and production-exclusion handoff",
+    "Secret scan recognizes deleted paths whose parent directory was removed in the same diff"
   ],
   "acceptance_tests": [
     "Default demo behavior unchanged",

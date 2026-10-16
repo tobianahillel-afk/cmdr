@@ -84,14 +84,14 @@ func TestSecretScannerSkipsDeletedBinaryGeneratedAndSymlink(t *testing.T) {
 		t.Skipf("symlink unavailable: %v", err)
 	}
 	changes := filepath.Join(root, "changes.txt")
-	if err := os.WriteFile(changes, []byte("missing.txt\nbinary.bin\ngenerated.go\nlink.txt\n"), 0o600); err != nil {
+	if err := os.WriteFile(changes, []byte("missing.txt\nremoved-parent/deleted.txt\nbinary.bin\ngenerated.go\nlink.txt\n"), 0o600); err != nil {
 		t.Fatal(err)
 	}
 	summary, err := runSecretScan(root, changes, false)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if summary.SkippedDeleted != 1 || summary.SkippedBinary != 1 || summary.SkippedGenerated != 1 || summary.SkippedSymlink != 1 {
+	if summary.SkippedDeleted != 2 || summary.SkippedBinary != 1 || summary.SkippedGenerated != 1 || summary.SkippedSymlink != 1 {
 		t.Fatalf("unexpected skip accounting: %#v", summary)
 	}
 }

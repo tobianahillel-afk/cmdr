@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"crypto/sha256"
+	"errors"
 	"encoding/hex"
 	"fmt"
 	"os"
@@ -101,7 +102,10 @@ func runSecretScan(root, changesFile string, fullScan bool) (SecretScanSummary, 
 			continue
 		}
 		info, err := lstatRepoEntry(root, rel)
-		if os.IsNotExist(err) {
+		// A removed file may have an absent parent directory. The path
+		// resolver wraps that os.ErrNotExist: os.IsNotExist alone does not
+		// unwrap it, so use errors.Is while keeping other path errors fatal.
+		if errors.Is(err, os.ErrNotExist) {
 			summary.SkippedDeleted++
 			continue
 		}
