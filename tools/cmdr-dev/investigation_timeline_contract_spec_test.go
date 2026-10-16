@@ -41,7 +41,7 @@ func verifyTimelineFixtureSafety(id string, tenant, environment, casePermission,
 	if len(visibleIDs) != len(visibleKinds) {
 		return fmt.Errorf("%s: visible IDs/types mismatch", id)
 	}
-	if tenant == "" || tenant == "*" || environment == "" || casePermission != "allow" || timelinePermission != "allow" {
+	if strings.TrimSpace(tenant) == "" || strings.TrimSpace(tenant) == "*" || strings.TrimSpace(environment) == "" || strings.TrimSpace(environment) == "*" || casePermission != "allow" || timelinePermission != "allow" {
 		if outcome != "deny" || len(visibleIDs) != 0 {
 			return fmt.Errorf("%s: unsafe tenant/access expectation", id)
 		}
@@ -112,5 +112,26 @@ func TestTimelineFixtureOracleRejectsMaskedObjectDisclosure(t *testing.T) {
 	err := verifyTimelineFixtureSafety("adversarial", "tenant-a", "prod", "allow", "allow", []string{"secret"}, []string{"observed"}, []string{"tenant-b"}, []string{"deny"}, []string{"sensitive"}, []string{"secret"}, []string{"observed"}, "filtered")
 	if err == nil || !strings.Contains(err.Error(), "unsafe disclosure") {
 		t.Fatalf("expected rejected exfiltration oracle, got %v", err)
+	}
+}
+
+func TestTimelineFixtureOracleRejectsWildcardOrBlankScopeVariants(t *testing.T) {
+	for _, candidate := range []string{" * ", "\t*\t", "\n*\n", "  ", "\t"} {
+		for _, field := range []string{"tenant", "environment"} {
+			tenant, environment := "tenant-a", "prod"
+			if field == "tenant" {
+				tenant = candidate
+			} else {
+				environment = candidate
+			}
+			// An oracle expecting disclosure under invalid scope is itself
+			// invalid, even when fixture content is syntactically well formed.
+			err := verifyTimelineFixtureSafety("invalid-scope", tenant, environment, "allow", "allow",
+				[]string{"secret"}, []string{"observed"}, []string{"tenant-a"},
+				[]string{"allow"}, []string{"source"}, []string{"secret"}, []string{"observed"}, "allow")
+			if err == nil || !strings.Contains(err.Error(), "unsafe tenant/access expectation") {
+				t.Fatalf("oracle allowed invalid %s %q: %v", field, candidate, err)
+			}
+		}
 	}
 }
