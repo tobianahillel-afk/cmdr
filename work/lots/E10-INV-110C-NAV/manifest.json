@@ -42,7 +42,7 @@
     "No observed event is inferred or upgraded from inference; corrected/superseded prior entries remain traceable",
     "No write, new Timeline Entry schema, Case lifecycle, timeline correction, export backend, replay engine, vendor store, final UI or production SLO is invented",
     "OPEN-013 applies to class-2 analytic contribution/correction and remains unresolved",
-    "product-runtime/investigation-timeline/** remains unclaimed until E10-INV-110A-BOUNDARY registers architecture ownership and upgrades this manifest scope in a separately verified atomic step."
+    "product-runtime/investigation-timeline/** was registered by VERIFIED E10-INV-110A-BOUNDARY and the bounded B runtime was VERIFIED against exact CI SHA bbbc2c2823f85806b978c0eee69bc1a54401d102; C is limited to read-only source-navigation drafts and no ownership changes."
   ],
   "security_properties": [
     "require explicit tenant/environment and Case read authorization, deny on unknown scope",
