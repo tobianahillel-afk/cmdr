@@ -111,3 +111,19 @@ func TestAnalystViewerIsNotCrossOriginOrExecutableFixture(t *testing.T) {
 		t.Fatal("missing safe text rendering or credential discipline")
 	}
 }
+
+func TestAnalystViewerExposesBoundedTemporalNavigation(t *testing.T) {
+	html, err := analystAssets.ReadFile("analyst.html")
+	if err != nil { t.Fatal(err) }
+	js, err := analystAssets.ReadFile("analyst.js")
+	if err != nil { t.Fatal(err) }
+	for _, mark := range []string{`id="from"`, `id="to"`, `type="datetime-local"`} {
+		if !strings.Contains(string(html), mark) { t.Fatalf("time selector absent: %s", mark) }
+	}
+	for _, mark := range []string{"new Date(fromInput.value)", "new Date(toInput.value)",
+		"from.getTime() >= to.getTime()", "toISOString()", `url.searchParams.set("from"`,
+		`url.searchParams.set("to"`, "new AbortController()", "currentRevision !== revision",
+		`field.addEventListener("input"`} {
+		if !strings.Contains(string(js), mark) { t.Fatalf("missing temporal or stale-response behavior: %s", mark) }
+	}
+}

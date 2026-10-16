@@ -296,3 +296,69 @@ func TestDemoCLIRejectsUnsupportedOptions(t *testing.T) {
 		t.Fatalf("cancelled default CLI start accepted: %v", err)
 	}
 }
+
+func TestDemoAnalystTimeWindowAndKindEndToEnd(t *testing.T) {
+	handler, err := newDemoHandler(testBearer, "analyst-a")
+	if err != nil {
+		t.Fatal(err)
+	}
+	server := httptest.NewServer(handler)
+	defer server.Close()
+	cases := []struct {
+		name string
+		parameters url.Values
+		wantIDs []string
+		wantCode int
+	}{
+		{"before-upper-exclusive", url.Values{"from":{"2026-10-01T09:30:00Z"}, "to":{"2026-10-01T11:00:00Z"}}, []string{"event-old"}, 200},
+		{"after-lower-inclusive", url.Values{"from":{"2026-10-01T11:00:00Z"}, "to":{"2026-10-01T12:00:00Z"}}, []string{"event-new"}, 200},
+		{"normalized-zone", url.Values{"from":{"2026-10-01T12:00:00+01:00"}, "to":{"2026-10-01T13:00:00+01:00"}, "kind":{"observed"}}, []string{"event-new"}, 200},
+		{"kind-plus-time", url.Values{"from":{"2026-10-01T09:30:00Z"}, "to":{"2026-10-01T11:30:00Z"}, "kind":{"inferred"}}, []string{"event-old"}, 200},
+		{"empty-valid-window", url.Values{"from":{"2030-01-01T00:00:00Z"}}, nil, 200},
+		{"reversed-window", url.Values{"from":{"2026-10-01T12:00:00Z"}, "to":{"2026-10-01T10:00:00Z"}}, nil, 400},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			parameters := tc.parameters
+			parameters.Set("case_id", "case-a")
+			parameters.Set("limit", "20")
+			status, body := requestDemo(t, server, "/case-timeline?"+parameters.Encode(), testBearer)
+			if status != tc.wantCode {
+				t.Fatalf("time-window request HTTP %d want %d: %s", status, tc.wantCode, body)
+			}
+			if tc.wantCode != 200 {
+				if strings.Contains(body, "event-old") || strings.Contains(body, "event-new") {
+					t.Fatal("invalid time window disclosed timeline metadata")
+				}
+				return
+			}
+			var response struct{
+				Entries []timeline.ProjectedEntry `json:"entries"`
+				Page struct{ TotalVisible int `json:"total_visible"` } `json:"page"`
+			}
+			if err := json.Unmarshal([]byte(body), &response); err != nil {
+				t.Fatal(err)
+			}
+			if len(response.Entries) != len(tc.wantIDs) || response.Page.TotalVisible != len(tc.wantIDs) {
+				t.Fatalf("wrong authorized page: %+v", response)
+			}
+			for i, id := range tc.wantIDs {
+				if response.Entries[i].ID != id {
+					t.Fatalf("incorrect chronology after time filtering: %+v", response.Entries)
+				}
+			}
+			if strings.Contains(body, "demo-hidden-source") || strings.Contains(body, "demo-tenant-b") {
+				t.Fatal("time filter disclosed hidden or foreign source")
+			}
+		})
+	}
+	for _, tc := range []struct{caseID, bearer string; want int}{
+		{"case-a","",401}, {"case-b",testBearer,404},
+	}{
+		p := url.Values{"case_id":{tc.caseID},"from":{"2026-10-01T09:30:00Z"},"to":{"2026-10-01T12:00:00Z"}}
+		status, body := requestDemo(t, server, "/case-timeline?"+p.Encode(), tc.bearer)
+		if status != tc.want || strings.Contains(body, "event-new") || strings.Contains(body, "demo-incident-b") {
+			t.Fatalf("time selection bypassed authorization: status %d body %s", status, body)
+		}
+	}
+}

@@ -7,7 +7,7 @@ header { border-bottom: 1px solid #304054; padding-bottom: 1.5rem; margin-bottom
 h1 { font-size: clamp(2rem, 4vw, 3.2rem); letter-spacing: -.045em; margin: .3rem 0; }
 .intro, footer, #summary { color: #afbdcf; }
 .intro { max-width: 730px; line-height: 1.55; }
-form { background: #152338; border: 1px solid #33445d; border-radius: 15px; padding: 1.3rem; display: grid; grid-template-columns: 1.3fr 1fr 1fr auto; align-items: end; gap: .9rem; }
+form { background: #152338; border: 1px solid #33445d; border-radius: 15px; padding: 1.3rem; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: end; gap: .9rem; }
 .field { display: flex; flex-direction: column; gap: .4rem; min-width: 0; }
 label { font-size: .84rem; font-weight: 650; }
 input, select, button { font: inherit; min-height: 42px; border-radius: 8px; }

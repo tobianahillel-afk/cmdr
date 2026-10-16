@@ -8,6 +8,8 @@
   const token = document.getElementById("token");
   const caseID = document.getElementById("case-id");
   const kind = document.getElementById("kind");
+  const fromInput = document.getElementById("from");
+  const toInput = document.getElementById("to");
   const entries = document.getElementById("entries");
   const summary = document.getElementById("summary");
   const message = document.getElementById("message");
@@ -20,6 +22,30 @@
   let pageCount = 0;
   let more = false;
   let busy = false;
+  let activeRequest = null;
+  let revision = 0;
+
+  function readWindow() {
+    const from = fromInput.value ? new Date(fromInput.value) : null;
+    const to = toInput.value ? new Date(toInput.value) : null;
+    if ((from && !Number.isFinite(from.getTime())) ||
+        (to && !Number.isFinite(to.getTime())) ||
+        (from && to && from.getTime() >= to.getTime())) {
+      return null;
+    }
+    return { from: from ? from.toISOString() : "",
+             to: to ? to.toISOString() : "" };
+  }
+
+  function clearResults(description) {
+    entries.replaceChildren();
+    summary.textContent = description;
+    page.textContent = "—";
+    pageCount = 0;
+    more = false;
+    previous.disabled = true;
+    next.disabled = true;
+  }
 
   function addLine(parent, label, value) {
     const line = document.createElement("p");
@@ -71,13 +97,23 @@
   }
 
   async function fetchPage() {
-    if (busy) return;
+    const windowSelection = readWindow();
+    if (!windowSelection) {
+      clearResults("Intervalle non valide");
+      message.textContent = "La fin doit être strictement postérieure au début.";
+      return;
+    }
     const secret = token.value;
     const selectedCase = caseID.value.trim();
     if (!secret || !selectedCase) {
+      clearResults("Aucune donnée affichée");
       message.textContent = "Saisir le jeton temporaire et l’identifiant du Case.";
       return;
     }
+    const currentRevision = ++revision;
+    if (activeRequest) activeRequest.abort();
+    const controller = new AbortController();
+    activeRequest = controller;
     busy = true;
     load.disabled = true;
     next.disabled = true;
@@ -89,35 +125,38 @@
       url.searchParams.set("limit", String(limit));
       url.searchParams.set("offset", String(offset));
       if (kind.value) url.searchParams.set("kind", kind.value);
+      if (windowSelection.from) url.searchParams.set("from", windowSelection.from);
+      if (windowSelection.to) url.searchParams.set("to", windowSelection.to);
       const response = await fetch(url, {
         method: "GET",
         headers: { Authorization: "Bearer " + secret },
         cache: "no-store",
         credentials: "omit",
         redirect: "error",
-        mode: "same-origin"
+        mode: "same-origin",
+        signal: controller.signal
       });
       if (!response.ok) throw new Error("Case timeline unavailable");
       const data = await response.json();
+      if (currentRevision !== revision) return;
       render(data);
     } catch {
-      entries.replaceChildren();
-      summary.textContent = "Aucune donnée affichée";
-      page.textContent = "—";
-      pageCount = 0;
-      more = false;
+      if (currentRevision !== revision) return;
+      clearResults("Aucune donnée affichée");
       message.textContent = "Accès refusé ou requête indisponible. Vérifiez la sélection et le jeton.";
     } finally {
-      busy = false;
-      load.disabled = false;
-      previous.disabled = offset === 0 || pageCount === 0;
-      next.disabled = !more;
+      if (currentRevision === revision) {
+        busy = false;
+        activeRequest = null;
+        load.disabled = false;
+        previous.disabled = offset === 0 || pageCount === 0;
+        next.disabled = !more;
+      }
     }
   }
 
   form.addEventListener("submit", event => {
     event.preventDefault();
-    if (busy) return;
     offset = 0;
     fetchPage();
   });
@@ -131,16 +170,18 @@
     offset += limit;
     fetchPage();
   });
-  for (const field of [token, caseID, kind]) {
-    field.addEventListener("change", () => {
-      entries.replaceChildren();
-      summary.textContent = "Sélection modifiée. Rechargez la chronologie.";
-      page.textContent = "—";
+  // An old authorized reply must never overwrite the result of a changed
+  // Case, token, event kind or time window, even if abort races completion.
+  for (const field of [token, caseID, kind, fromInput, toInput]) {
+    field.addEventListener("input", () => {
+      ++revision;
+      if (activeRequest) activeRequest.abort();
+      activeRequest = null;
+      busy = false;
+      load.disabled = false;
       offset = 0;
-      pageCount = 0;
-      more = false;
-      next.disabled = true;
-      previous.disabled = true;
+      clearResults("Sélection modifiée. Rechargez la chronologie.");
+      message.textContent = "";
     });
   }
 })();

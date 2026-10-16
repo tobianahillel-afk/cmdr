@@ -35,6 +35,14 @@
           <option value="response">Réponse</option>
         </select>
       </div>
+      <div class="field">
+        <label for="from">Depuis (heure locale)</label>
+        <input id="from" type="datetime-local" step="1" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="to">Jusqu’à (heure locale, exclue)</label>
+        <input id="to" type="datetime-local" step="1" autocomplete="off">
+      </div>
       <button id="load" type="submit">Charger la chronologie</button>
     </form>
     <section aria-labelledby="results-title">
@@ -42,6 +50,7 @@
         <h2 id="results-title">Événements autorisés</h2>
         <p id="summary" aria-live="polite">Aucune recherche effectuée.</p>
       </div>
+      <p class="intro">Filtre temporel [début, fin) : la sélection locale est transmise en UTC. Les événements dont l’horodatage est incertain restent visibles et signalés comme tels.</p>
       <p id="message" role="status" aria-live="polite"></p>
       <ol id="entries"></ol>
       <nav aria-label="Pagination des événements">
