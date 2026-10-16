@@ -13,6 +13,7 @@ type CaseInvestigationHTTPHandlers struct {
 	Cases    http.Handler
 	Timeline http.Handler
 	Navigate http.Handler
+	Compare  http.Handler
 }
 
 // NewCaseInvestigationHTTPHandlers composes existing providers rather than
@@ -41,5 +42,9 @@ func NewCaseInvestigationHTTPHandlers(
 	if err != nil {
 		return CaseInvestigationHTTPHandlers{}, err
 	}
-	return CaseInvestigationHTTPHandlers{Cases: cases, Timeline: timeline, Navigate: navigation}, nil
+	comparison, err := NewCaseVersionComparisonHTTPHandler(sessions, checker, timelineCases, entries, sources)
+	if err != nil {
+		return CaseInvestigationHTTPHandlers{}, err
+	}
+	return CaseInvestigationHTTPHandlers{Cases: cases, Timeline: timeline, Navigate: navigation, Compare: comparison}, nil
 }

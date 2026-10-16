@@ -35,14 +35,29 @@ func main() {
 func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	flags := flag.NewFlagSet("case-timeline-demo", flag.ContinueOnError)
 	flags.SetOutput(io.Discard)
-	principal := flags.String("principal", "analyst-a", "synthetic analyst-a or analyst-b")
+	principal := flags.String("principal", "analyst-a", "local snapshot principal (synthetic by default)")
+	datasetPath := flags.String("dataset", "", "optional trusted local JSON Case/Timeline owner snapshot")
+	reloadDataset := flags.Bool("reload-dataset", false, "reread trusted local owner snapshot on every request; offline use only")
 	if err := flags.Parse(args); err != nil {
 		return err
 	}
 	if flags.NArg() != 0 {
 		return errors.New("unexpected positional arguments")
 	}
-	return serveDemo(ctx, *principal, output)
+	if *reloadDataset && *datasetPath == "" {
+		return errors.New("reload-dataset requires a trusted local dataset file")
+	}
+	if *datasetPath == "" {
+		return serveDemo(ctx, *principal, output)
+	}
+	data, err := loadDemoDataset(*datasetPath)
+	if err != nil {
+		return fmt.Errorf("load local owner snapshot: %w", err)
+	}
+	if *reloadDataset {
+		return serveDemoWithDataReload(ctx, *principal, output, data, *datasetPath)
+	}
+	return serveDemoWithData(ctx, *principal, output, data)
 }
 
 func randomBearer() (string, error) {
@@ -54,14 +69,22 @@ func randomBearer() (string, error) {
 }
 
 func newDemoHandler(token, principal string) (http.Handler, error) {
+	return newDemoHandlerWithData(token, principal, demoData())
+}
+
+func newDemoHandlerWithData(token, principal string, data timeline.MemoryTimelineData) (http.Handler, error) {
 	if len(token) != 64 {
 		return nil, errors.New("demo bearer must have 32 random bytes in hex")
 	}
 	if _, err := hex.DecodeString(token); err != nil {
 		return nil, errors.New("invalid demo bearer encoding")
 	}
-	if principal != "analyst-a" && principal != "analyst-b" {
-		return nil, errors.New("unknown synthetic principal")
+	known := false
+	for _, p := range data.Principals {
+		known = known || p.ID == principal
+	}
+	if !known {
+		return nil, errors.New("principal absent from local owner snapshot")
 	}
 	authenticate := func(r *http.Request) (string, error) {
 		expected := "Bearer " + token
@@ -70,7 +93,6 @@ func newDemoHandler(token, principal string) (http.Handler, error) {
 		}
 		return principal, nil
 	}
-	data := demoData()
 	handlers, err := timeline.NewMemoryCaseTimelineHTTPHandlers(authenticate, data)
 	if err != nil {
 		return nil, fmt.Errorf("assemble synthetic owner chain: %w", err)
@@ -79,25 +101,51 @@ func newDemoHandler(token, principal string) (http.Handler, error) {
 	mux.Handle("/case-timeline", handlers.Timeline)
 	mux.Handle("/case-source-navigation", handlers.Navigate)
 	mux.Handle("/demo-source-open", handlers.OpenSource)
+	mux.Handle("/case-version-comparison", handlers.Compare)
 	mux.Handle("/demo-cases", handlers.Cases)
 	installAnalystDemoRoutes(mux)
 	return mux, nil
 }
 
 func serveDemo(ctx context.Context, principal string, output io.Writer) error {
+	return serveDemoWithData(ctx, principal, output, demoData())
+}
+
+func serveDemoWithData(ctx context.Context, principal string, output io.Writer, data timeline.MemoryTimelineData) error {
+	return serveDemoWithDataReload(ctx, principal, output, data, "")
+}
+
+// Nonempty path enables opt-in live local snapshot revalidation.
+func serveDemoWithDataReload(ctx context.Context, principal string, output io.Writer, data timeline.MemoryTimelineData, path string) error {
 	if err := ctx.Err(); err != nil {
 		return err
 	}
-	if principal != "analyst-a" && principal != "analyst-b" {
-		return errors.New("select analyst-a or analyst-b")
+	// Resolve the first authorized Case from the same imported owner snapshot.
+	// The server constructor independently validates ACLs and tenant links.
+	var selected string
+	for _, c := range data.Cases {
+		for _, reader := range c.Readers {
+			if reader == principal && (selected == "" || c.ID < selected) {
+				selected = c.ID
+			}
+		}
+	}
+	if selected == "" {
+		return errors.New("principal has no selectable Case in local snapshot")
 	}
 	token, err := randomBearer()
 	if err != nil {
 		return err
 	}
-	handler, err := newDemoHandler(token, principal)
+	handler, err := newDemoHandlerWithData(token, principal, data)
 	if err != nil {
 		return err
+	}
+	if path != "" {
+		handler, err = newReloadingDemoHandler(token, principal, path)
+		if err != nil {
+			return err
+		}
 	}
 	// Never accept a listener address from HTTP, CLI or an environment flag.
 	// The fixture is accessible only on the local IPv4 loopback interface.
@@ -113,15 +161,12 @@ func serveDemo(ctx context.Context, principal string, output io.Writer) error {
 		IdleTimeout:       15 * time.Second,
 		MaxHeaderBytes:    8 << 10,
 	}
-	fmt.Fprintf(output, "CMDR synthetic Case Timeline demo; NOT a production service\n")
-	caseID := "case-a"
-	if principal == "analyst-b" {
-		caseID = "case-b"
-	}
+	fmt.Fprintf(output, "CMDR local Case Timeline viewer; NOT a production service\n")
+	caseID := selected
 	fmt.Fprintf(output, "URL: http://%s/case-timeline?case_id=%s&limit=2\n", listener.Addr(), caseID)
 	fmt.Fprintf(output, "Local analyst viewer: http://%s/analyst\n", listener.Addr())
 	fmt.Fprintf(output, "Bearer token (this run only): %s\n", token)
-	fmt.Fprintf(output, "Principal: %s; available synthetic Case: %s\n", principal, caseID)
+	fmt.Fprintf(output, "Principal: %s; initial authorized Case: %s\n", principal, caseID)
 	fmt.Fprintln(output, "Only authenticated loopback requests are accepted. Ctrl-C exits.")
 	ready := make(chan error, 1)
 	go func() {

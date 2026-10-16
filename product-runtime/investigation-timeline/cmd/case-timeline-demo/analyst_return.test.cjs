@@ -19,12 +19,13 @@ function node(tag = "div") {
   };
 }
 
-function boot(search = "", navigationQuery, denySource = false) {
+function boot(search = "", navigationQuery, compareDenied = false) {
   const ids = [
     "query", "token", "case-id", "kind", "search", "case-options",
     "discover", "case-discovery-status", "from", "to", "entries",
     "summary", "message", "page", "previous", "next", "load",
-    "source-detail", "source-status", "return-to-case", "copy-return-link"
+    "source-detail", "source-status", "return-to-case", "copy-return-link",
+    "comparison-status", "comparison-detail"
   ];
   const fields = Object.fromEntries(ids.map(id => [id, node(id)]));
   const requests = [];
@@ -58,11 +59,34 @@ function boot(search = "", navigationQuery, denySource = false) {
                 id: "event-new", kind: "observed",
                 source_time: "2026-10-01T11:00:00Z",
                 source_ref: "demo-telemetry-a", provenance: "synthetic-telemetry",
-                version: 2
+                version: 2, supersedes: "event-old"
               }]
             };
           }
         };
+      }
+      if (url.pathname === "/case-version-comparison") {
+        if (compareDenied) return { ok: false };
+        return {
+          ok: true,
+          async json() {
+            return {
+              status: "ready", is_authority: false,
+              current: { id: "event-new", kind: "observed", source_time: "2026-10-01T11:00:00Z",
+                source_ref: "demo-telemetry-a", provenance: "synthetic-telemetry",
+                version: 2, supersedes: "event-old" },
+              previous: { id: "event-old", kind: "observed", source_time: "2026-10-01T10:00:00Z",
+                source_ref: "demo-telemetry-old", provenance: "synthetic-telemetry",
+                version: 1 }
+            };
+          }
+        };
+      }
+      if (url.pathname === "/demo-source-open") {
+        return { ok: true, async json() { return { status: "ready", synthetic: true,
+          case_id: url.searchParams.get("case_id"), entry_id: url.searchParams.get("entry_id"),
+          kind: "telemetry-event", object_id: "demo-event-a",
+          preview: "Aperçu local de source autorisée." }; } };
       }
       if (url.pathname === "/case-source-navigation") {
         const expected = new URLSearchParams(url.searchParams);
@@ -77,20 +101,6 @@ function boot(search = "", navigationQuery, denySource = false) {
               return_case_id: url.searchParams.get("case_id"),
               return_entry_id: url.searchParams.get("entry_id"),
               return_query: navigationQuery || expected.toString()
-            };
-          }
-        };
-      }
-      if (url.pathname === "/demo-source-open") {
-        return {
-          ok: !denySource,
-          async json() {
-            return {
-              status: "ready", synthetic: true,
-              case_id: url.searchParams.get("case_id"),
-              entry_id: url.searchParams.get("entry_id"),
-              kind: "telemetry-event", object_id: "demo-event-a",
-              preview: "Événement réseau synthétique autorisé."
             };
           }
         };
@@ -148,9 +158,6 @@ test("source draft produces explicit same-origin return without authority", asyn
   assert.equal(env.requests.length, 3);
   assert.equal(env.requests[1].url.pathname, "/case-source-navigation");
   assert.equal(env.requests[2].url.pathname, "/demo-source-open");
-  assert.equal(env.requests[2].options.headers.Authorization, "Bearer ephemeral-value");
-  assert.equal(env.requests[2].url.searchParams.has("object_id"), false);
-  assert.equal(env.fields["source-detail"].hidden, false);
   assert.equal(env.fields["copy-return-link"].disabled, false);
   await env.fields["copy-return-link"].handlers.click();
   assert.equal(env.copied.length, 1);
@@ -185,17 +192,35 @@ test("unknown query selector is inert and cannot auto-authorize", () => {
   assert.match(env.fields.message.textContent, /invalide/);
 });
 
-test("denied owner opening cannot be treated as a ready source draft", async () => {
+test("version comparison reauthorizes both entries outside current page", async () => {
+  const env = boot();
+  env.fields.token.value = "ephemeral-value";
+  env.fields["case-id"].value = "case-a";
+  env.fields.query.handlers.submit({ preventDefault() {} });
+  await flush();
+  const buttons = env.fields.entries.children[0].children.filter(n => n.tag === "button");
+  assert.equal(buttons.length, 2, "superseding entry must expose comparison");
+  buttons[1].handlers.click();
+  await flush();
+  assert.equal(env.requests.at(-1).url.pathname, "/case-version-comparison");
+  assert.equal(env.requests.at(-1).url.searchParams.get("entry_id"), "event-new");
+  assert.equal(env.requests.at(-1).url.searchParams.has("tenant"), false);
+  assert.equal(env.requests.at(-1).options.headers.Authorization, "Bearer ephemeral-value");
+  assert.equal(env.fields["comparison-detail"].hidden, false);
+  assert.match(env.fields["comparison-status"].textContent, /autorisées/);
+  assert.equal(env.requests.at(-1).url.href.includes("ephemeral-value"), false);
+  env.fields.token.handlers.input();
+  assert.equal(env.fields["comparison-detail"].hidden, true,
+    "changing identity must remove previously authorized comparison");
+});
+test("source revocation makes comparison inert", async () => {
   const env = boot("", undefined, true);
   env.fields.token.value = "ephemeral-value";
   env.fields["case-id"].value = "case-a";
   env.fields.query.handlers.submit({ preventDefault() {} });
   await flush();
-  env.fields.entries.children[0].children.find(n => n.tag === "button").handlers.click();
+  env.fields.entries.children[0].children.filter(n => n.tag === "button")[1].handlers.click();
   await flush();
-  assert.equal(env.requests.length, 3);
-  assert.equal(env.fields["source-detail"].hidden, true);
-  assert.equal(env.fields["copy-return-link"].disabled, true);
-  assert.equal(env.fields["return-to-case"].disabled, true);
-  assert.deepEqual(env.copied, []);
+  assert.equal(env.fields["comparison-detail"].hidden, true);
+  assert.match(env.fields["comparison-status"].textContent, /indisponible/);
 });

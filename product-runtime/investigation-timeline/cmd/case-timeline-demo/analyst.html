@@ -66,6 +66,12 @@
       <p class="intro">La recherche porte uniquement sur les ID, références de source et provenances des événements déjà autorisés ; elle s’associe aux catégories et aux dates. Filtre temporel [début, fin) : la sélection locale est transmise en UTC. Les événements dont l’horodatage est incertain restent visibles et signalés comme tels.</p>
       <p id="message" role="status" aria-live="polite"></p>
       <ol id="entries"></ol>
+      <section aria-label="Comparaison des versions" class="version-comparison">
+        <h3>Comparaison de versions autorisées</h3>
+        <p id="comparison-status" role="status" aria-live="polite"></p>
+        <div id="comparison-detail" hidden></div>
+        <p class="intro">La comparaison consulte à nouveau le Case entier côté serveur ; une version masquée n'est jamais affichée. Elle ne constitue pas un export de preuve.</p>
+      </section>
       <section aria-label="Source propriétaire" class="source-navigation">
         <p id="source-status" role="status" aria-live="polite"></p>
         <div id="source-detail" hidden></div>

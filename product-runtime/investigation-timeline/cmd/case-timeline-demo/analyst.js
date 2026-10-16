@@ -25,6 +25,8 @@
   const sourceStatus = document.getElementById("source-status");
   const returnToCase = document.getElementById("return-to-case");
   const copyReturnLink = document.getElementById("copy-return-link");
+  const comparisonStatus = document.getElementById("comparison-status");
+  const comparisonDetail = document.getElementById("comparison-detail");
   const limit = 20;
   let offset = 0;
   let pageCount = 0;
@@ -39,6 +41,8 @@
   let returnLinkURL = null;
   let restoreOffsetOnSubmit = false;
   let restoredRange = null;
+  let comparisonRevision = 0;
+  let comparisonRequest = null;
 
   // A return URL carries only a presentation selection, never credentials or
   // authorization. It is not fetched until the analyst enters a fresh bearer.
@@ -162,7 +166,17 @@
              to: to ? to.toISOString() : "" };
   }
 
+  function clearComparison() {
+    ++comparisonRevision;
+    if (comparisonRequest) comparisonRequest.abort();
+    comparisonRequest = null;
+    comparisonDetail.replaceChildren();
+    comparisonDetail.hidden = true;
+    comparisonStatus.textContent = "";
+  }
+
   function clearSource() {
+    clearComparison();
     ++sourceRevision;
     returnLinkURL = null;
     copyReturnLink.disabled = true;
@@ -226,6 +240,13 @@
       open.textContent = "Vérifier la destination de la source";
       open.addEventListener("click", () => openSource(event.id));
       item.append(open);
+      if (event.supersedes) {
+        const compare = document.createElement("button");
+        compare.type = "button";
+        compare.textContent = "Comparer les versions autorisées";
+        compare.addEventListener("click", () => compareVersion(event.id));
+        item.append(compare);
+      }
       entries.append(item);
     }
     pageCount = data.entries.length;
@@ -237,8 +258,67 @@
     message.textContent = pageCount === 0 ? "Aucun événement visible pour cette sélection." : "";
   }
 
+  // Resolve both sides from the trusted backend, not the current page:
+  // filtering and pagination may hide an otherwise authorized predecessor.
+  async function compareVersion(entryID) {
+    clearComparison();
+    const currentRevision = comparisonRevision;
+    const selectedCase = caseID.value.trim();
+    const bearer = token.value;
+    if (!selectedCase || !bearer) {
+      comparisonStatus.textContent = "Saisissez un Case et le jeton temporaire.";
+      return;
+    }
+    const controller = new AbortController();
+    comparisonRequest = controller;
+    comparisonStatus.textContent = "Nouvelle vérification des deux versions…";
+    try {
+      const url = new URL("/case-version-comparison", window.location.origin);
+      url.searchParams.set("case_id", selectedCase);
+      url.searchParams.set("entry_id", entryID);
+      const response = await fetch(url, {
+        method: "GET", headers: { Authorization: "Bearer " + bearer },
+        credentials: "omit", cache: "no-store", redirect: "error",
+        mode: "same-origin", signal: controller.signal
+      });
+      if (!response.ok) throw new Error("Version comparison denied");
+      const data = await response.json();
+      if (currentRevision !== comparisonRevision) return;
+      const current = data && data.current;
+      const previous = data && data.previous;
+      if (data.status !== "ready" || data.is_authority !== false ||
+          !current || !previous || current.id !== entryID ||
+          !previous.id || current.supersedes !== previous.id ||
+          !Number.isSafeInteger(current.version) ||
+          !Number.isSafeInteger(previous.version) ||
+          previous.version >= current.version ||
+          !["observed", "inferred", "user-action", "decision", "response"].includes(current.kind) ||
+          !["observed", "inferred", "user-action", "decision", "response"].includes(previous.kind) ||
+          [current, previous].some(e => typeof e.source_time !== "string" ||
+            typeof e.provenance !== "string" || typeof e.source_ref !== "string")) {
+        throw new Error("Malformed version comparison");
+      }
+      comparisonDetail.replaceChildren();
+      addLine(comparisonDetail, "Versions :", previous.id + " (v" + previous.version +
+        ") → " + current.id + " (v" + current.version + ")");
+      addLine(comparisonDetail, "Nature :", previous.kind + " → " + current.kind);
+      addLine(comparisonDetail, "Horodatages :", previous.source_time + " → " + current.source_time);
+      addLine(comparisonDetail, "Références source :", previous.source_ref + " → " + current.source_ref);
+      addLine(comparisonDetail, "Provenances :", previous.provenance + " → " + current.provenance);
+      comparisonDetail.hidden = false;
+      comparisonStatus.textContent = "Deux versions autorisées comparées à cet instant ; lecture seule.";
+    } catch {
+      if (currentRevision !== comparisonRevision) return;
+      comparisonDetail.replaceChildren();
+      comparisonDetail.hidden = true;
+      comparisonStatus.textContent = "Comparaison indisponible ou autorisation révoquée.";
+    } finally {
+      if (currentRevision === comparisonRevision) comparisonRequest = null;
+    }
+  }
 
   async function openSource(entryID) {
+    clearComparison();
     const currentRevision = ++sourceRevision;
     if (sourceRequest) sourceRequest.abort();
     sourceDetail.hidden = true;

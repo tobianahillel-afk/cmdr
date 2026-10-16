@@ -63,6 +63,7 @@ type MemoryTimelineHTTPHandlers struct {
 	Cases      http.Handler
 	Navigate   http.Handler
 	OpenSource http.Handler // synthetic owner preview only; not a production source backend
+	Compare    http.Handler // independent read-only version comparison
 }
 
 func NewMemoryCaseTimelineHTTPHandler(authenticate func(*http.Request) (string, error), data MemoryTimelineData) (http.Handler, error) {
@@ -166,7 +167,7 @@ func NewMemoryCaseTimelineHTTPHandlers(authenticate func(*http.Request) (string,
 	}
 	return MemoryTimelineHTTPHandlers{
 		Timeline: combined.Timeline, Cases: combined.Cases,
-		Navigate: combined.Navigate, OpenSource: s.sourcePreviewHandler(),
+		Navigate: combined.Navigate, OpenSource: s.sourcePreviewHandler(), Compare: combined.Compare,
 	}, nil
 }
 
