@@ -8,6 +8,9 @@
   const token = document.getElementById("token");
   const caseID = document.getElementById("case-id");
   const kind = document.getElementById("kind");
+  const caseOptions = document.getElementById("case-options");
+  const discover = document.getElementById("discover");
+  const discoveryStatus = document.getElementById("case-discovery-status");
   const fromInput = document.getElementById("from");
   const toInput = document.getElementById("to");
   const entries = document.getElementById("entries");
@@ -24,6 +27,67 @@
   let busy = false;
   let activeRequest = null;
   let revision = 0;
+  let discoveryRevision = 0;
+  let activeDiscovery = null;
+
+  function clearCaseChoices() {
+    caseOptions.replaceChildren();
+    caseOptions.add(new Option("Aucun Case chargé", ""));
+    caseOptions.disabled = true;
+    discoveryStatus.textContent = "";
+  }
+
+  async function discoverCases() {
+    const bearer = token.value;
+    const currentRevision = ++discoveryRevision;
+    if (activeDiscovery) activeDiscovery.abort();
+    clearCaseChoices();
+    if (!bearer) {
+      discoveryStatus.textContent = "Saisissez d’abord le jeton temporaire.";
+      return;
+    }
+    const controller = new AbortController();
+    activeDiscovery = controller;
+    discover.disabled = true;
+    discoveryStatus.textContent = "Recherche des Cases autorisés…";
+    try {
+      const response = await fetch(new URL("/demo-cases", window.location.origin), {
+        method: "GET",
+        headers: { Authorization: "Bearer " + bearer },
+        cache: "no-store",
+        credentials: "omit",
+        redirect: "error",
+        mode: "same-origin",
+        signal: controller.signal
+      });
+      if (!response.ok) throw new Error("Case catalogue unavailable");
+      const result = await response.json();
+      if (currentRevision !== discoveryRevision) return;
+      if (!result || !Array.isArray(result.cases) || result.cases.length > 5000 ||
+          result.cases.some(id => typeof id !== "string" || !id ||
+            id.length > 1024)) {
+        throw new Error("Malformed Case catalogue");
+      }
+      for (const id of result.cases) {
+        // Option.textContent is inert even if an owner-supplied ID has markup.
+        const option = document.createElement("option");
+        option.value = id;
+        option.textContent = id;
+        caseOptions.add(option);
+      }
+      caseOptions.disabled = result.cases.length === 0;
+      discoveryStatus.textContent = result.cases.length + " Case(s) accessibles.";
+    } catch {
+      if (currentRevision !== discoveryRevision) return;
+      clearCaseChoices();
+      discoveryStatus.textContent = "Catalogue indisponible ou accès refusé.";
+    } finally {
+      if (currentRevision === discoveryRevision) {
+        activeDiscovery = null;
+        discover.disabled = false;
+      }
+    }
+  }
 
   function readWindow() {
     const from = fromInput.value ? new Date(fromInput.value) : null;
@@ -155,6 +219,13 @@
     }
   }
 
+  discover.addEventListener("click", discoverCases);
+  caseOptions.addEventListener("change", () => {
+    if (!caseOptions.value) return;
+    caseID.value = caseOptions.value;
+    caseID.dispatchEvent(new Event("input", { bubbles: true }));
+  });
+
   form.addEventListener("submit", event => {
     event.preventDefault();
     offset = 0;
@@ -174,6 +245,13 @@
   // Case, token, event kind or time window, even if abort races completion.
   for (const field of [token, caseID, kind, fromInput, toInput]) {
     field.addEventListener("input", () => {
+      if (field === token) {
+        ++discoveryRevision;
+        if (activeDiscovery) activeDiscovery.abort();
+        activeDiscovery = null;
+        discover.disabled = false;
+        clearCaseChoices();
+      }
       ++revision;
       if (activeRequest) activeRequest.abort();
       activeRequest = null;

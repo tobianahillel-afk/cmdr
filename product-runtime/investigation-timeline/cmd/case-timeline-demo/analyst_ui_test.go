@@ -127,3 +127,19 @@ func TestAnalystViewerExposesBoundedTemporalNavigation(t *testing.T) {
 		if !strings.Contains(string(js), mark) { t.Fatalf("missing temporal or stale-response behavior: %s", mark) }
 	}
 }
+
+func TestAnalystCaseDiscoveryUiUsesSafeAuthorizedFlow(t *testing.T) {
+	html, err := analystAssets.ReadFile("analyst.html")
+	if err != nil { t.Fatal(err) }
+	js, err := analystAssets.ReadFile("analyst.js")
+	if err != nil { t.Fatal(err) }
+	for _, marker := range []string{`id="discover"`, `id="case-options"`, `id="case-discovery-status"`} {
+		if !strings.Contains(string(html), marker) { t.Fatalf("missing case chooser: %s", marker) }
+	}
+	for _, marker := range []string{`new URL("/demo-cases"`, `headers: { Authorization: "Bearer " + bearer }`,
+		`credentials: "omit"`, `option.textContent = id`, `new AbortController()`,
+		`currentRevision !== discoveryRevision`, `if (field === token)`,
+		`caseID.dispatchEvent(new Event("input"`} {
+		if !strings.Contains(string(js), marker) { t.Fatalf("missing case discovery security behavior: %s", marker) }
+	}
+}

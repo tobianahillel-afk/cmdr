@@ -25,6 +25,14 @@
         <input id="case-id" type="text" autocomplete="off" maxlength="1024" placeholder="case-a" required>
       </div>
       <div class="field">
+        <label for="case-options">Mes Cases accessibles</label>
+        <button id="discover" type="button">Afficher mes Cases</button>
+        <select id="case-options" aria-label="Sélectionner un Case autorisé" disabled>
+          <option value="">Aucun Case chargé</option>
+        </select>
+        <span id="case-discovery-status" role="status" aria-live="polite"></span>
+      </div>
+      <div class="field">
         <label for="kind">Nature de l'événement</label>
         <select id="kind">
           <option value="">Toutes les catégories</option>
