@@ -95,6 +95,10 @@ const (
 	caseQueueSecurityModuleIdentity            = "github.com/tobianahillel-afk/cmdr/product-runtime/case-queue"
 	caseQueueAuthorizationTestRegexp           = "^TestProjectMatchesPredeclaredContractFixtures$/^permission-filtered-case-is-hidden$"
 	caseQueueTenantTestRegexp                  = "^TestProjectMatchesPredeclaredContractFixtures$/(^missing-tenant-is-rejected$|^wildcard-tenant-is-rejected$|^cross-tenant-case-is-rejected$|^cross-tenant-incident-is-rejected$|^cross-tenant-finding-is-rejected$|^cross-tenant-saved-view-is-rejected$)"
+	investigationTimelineSecurityRuntimeRoot = "product-runtime/investigation-timeline"
+	investigationTimelineSecurityModuleIdentity = "github.com/tobianahillel-afk/cmdr/product-runtime/investigation-timeline"
+	investigationTimelineAuthorizationTestRegexp = "^TestProjectMatchesContractFixtures$/(^case-denied$|^timeline-denied$|^unknown-case-access-denied$|^hidden-source-masked$)"
+	investigationTimelineTenantTestRegexp = "^TestProjectMatchesContractFixtures$/(^no-tenant-denied$|^wildcard-tenant-denied$|^no-environment-denied$|^cross-tenant-entry-masked$)"
 	eventSearchFrontendSecurityRuntimeRoot     = "product-runtime/event-search-frontend"
 	eventSearchFrontendAuthorizationTestRegexp = "^(authorization-state-cannot-be-deeplinked|permission-denied-reveals-no-protected-content|permission-denied-outcome-clears-results-and-exposes-no-protected-projection)$"
 	eventSearchFrontendTenantTestRegexp        = "^(tenant-mismatch-is-rejected|tenant-wildcard-is-rejected|transport-tenant-mismatch-fails-closed)$"
@@ -148,6 +152,12 @@ func runtimeSecurityAdapters() map[string]runtimeSecurityAdapter {
 			ModuleIdentity:         caseQueueSecurityModuleIdentity,
 			AuthorizationTestRegex: caseQueueAuthorizationTestRegexp,
 			TenantTestRegex:        caseQueueTenantTestRegexp,
+		},
+		"investigation-timeline-runtime": {
+			BoundaryID: "investigation-timeline-runtime", RuntimeRoot: investigationTimelineSecurityRuntimeRoot, RuntimeKind: "go",
+			ModuleIdentity: investigationTimelineSecurityModuleIdentity,
+			AuthorizationTestRegex: investigationTimelineAuthorizationTestRegexp,
+			TenantTestRegex: investigationTimelineTenantTestRegexp,
 		},
 		"event-search-frontend-runtime": {
 			BoundaryID: "event-search-frontend-runtime", RuntimeRoot: eventSearchFrontendSecurityRuntimeRoot, RuntimeKind: "node",
