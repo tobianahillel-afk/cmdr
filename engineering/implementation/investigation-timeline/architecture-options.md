@@ -19,3 +19,7 @@ Source-backed selection: the `implementation-wave` compiler on `a678f87b0dd82882
 - Before runtime, execute contract fixtures and negative cases for missing tenant, hidden object, duplicate timestamps, timezone ambiguity, clock drift, version conflicts, stale source and cross-tenant relations; measure deterministic in-process latency then, **not now**.
 
 The planning phase introduces **zero** third-party libraries or new product runtime and does not claim any measured advantage over external alternatives.
+
+## Runtime path claim deferred
+
+New root `product-runtime/investigation-timeline/**` is an **intent only**, not a currently owned directory. The strict architecture audit denies unknown paths even in future work manifests. Therefore B keeps that root out of every child `allowed_paths`. The future A-BOUNDARY task, once READY, must atomically register a unique product-runtime architecture boundary, the first README/preimplementation controls, and the narrow child-manifest runtime path claims before runtime code can be introduced. No implicit path authorization is granted here.

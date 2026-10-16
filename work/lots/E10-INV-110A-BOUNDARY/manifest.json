@@ -41,7 +41,8 @@
     "Timeline Entry and Timeline Engine remain Shared-owned; Case Investigate-owned; Govern and Command objects remain owner-controlled",
     "No observed event is inferred or upgraded from inference; corrected/superseded prior entries remain traceable",
     "No write, new Timeline Entry schema, Case lifecycle, timeline correction, export backend, replay engine, vendor store, final UI or production SLO is invented",
-    "OPEN-013 applies to class-2 analytic contribution/correction and remains unresolved"
+    "OPEN-013 applies to class-2 analytic contribution/correction and remains unresolved",
+    "Before architecture ownership is registered, unregistered product-runtime/investigation-timeline/** is NOT in any allowed_paths; the boundary lot must atomically add unique architecture ownership and activate runtime path claims with preimplementation marker in its own authorized commit."
   ],
   "security_properties": [
     "require explicit tenant/environment and Case read authorization, deny on unknown scope",
@@ -79,8 +80,7 @@
     "work/lots/E10-INV-110*/**",
     "tools/cmdr-dev/**",
     "engineering/architecture/**",
-    ".github/workflows/**",
-    "product-runtime/investigation-timeline/**"
+    ".github/workflows/**"
   ],
   "inputs": [
     "CAP-INV-110 Investigation Timeline canonical capability",
