@@ -61,14 +61,19 @@ func ProjectWithAccessChecker(ctx context.Context, in Input, caseID string, chec
 	// Foreign and malformed entries remain opaque; they are not selectors.
 	usedIDs := len(in.Scope.Tenant) + len(in.Scope.Environment) + len(caseID)
 	usedSourceSelectors := usedIDs
+	// A duplicate visible selector must be rejected BEFORE any external
+	// authority receives a request. Opaque/foreign/malformed entries must
+	// not influence this decision or reveal their own identifiers.
+	seenIDs := make(map[string]bool, len(in.Entries))
 	for _, entry := range in.Entries {
 		if entry.Tenant != in.Scope.Tenant ||
 			invalidScope(entry.ID) {
 			continue
 		}
-		if len(entry.ID) > MaxInputBytes-usedIDs {
+		if seenIDs[entry.ID] || len(entry.ID) > MaxInputBytes-usedIDs {
 			return deny
 		}
+		seenIDs[entry.ID] = true
 		usedIDs += len(entry.ID)
 	}
 	checked := func(resource, objectID, permission string) (string, bool) {

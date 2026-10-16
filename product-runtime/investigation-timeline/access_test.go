@@ -421,3 +421,39 @@ func TestLegacySuppressesInvisibleAuthoritySelectors(t *testing.T) {
 		}
 	}
 }
+
+func TestLegacyRejectsDuplicateVisibleSelectorsBeforeAnyAuthority(t *testing.T) {
+	base := allowedFixture()
+	base.Entries = append(base.Entries, base.Entries[0])
+	checker := allowedAccessChecker()
+	got := ProjectWithAccessChecker(context.Background(), base, "case-123", checker)
+	if got.Status != "deny" || len(got.Entries) != 0 || len(checker.calls) != 0 {
+		t.Fatalf("duplicate Timeline selector reached authority: %+v calls=%+v", got, checker.calls)
+	}
+}
+
+func TestLegacyOpaqueDuplicateCannotSuppressVisibleAuthorization(t *testing.T) {
+	for _, tc := range []struct {
+		name, tenant, id, wantStatus string
+	}{
+		{"foreign-same-ID", "foreign-tenant", "x", "filtered"},
+		{"foreign-oversized-ID", "foreign-tenant", "", "filtered"},
+		{"malformed-same-tenant", "tenant-a", " * ", "filtered"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			in := allowedFixture()
+			opaque := in.Entries[0]
+			opaque.Tenant = tc.tenant
+			opaque.ID = tc.id
+			if tc.name == "foreign-oversized-ID" {
+				opaque.ID = strings.Repeat("hidden", MaxInputBytes/6+1)
+			}
+			in.Entries = append(in.Entries, opaque)
+			checker := allowedAccessChecker()
+			got := ProjectWithAccessChecker(context.Background(), in, "case-123", checker)
+			if got.Status != tc.wantStatus || len(got.Entries) != 1 || got.Entries[0].ID != "x" || len(checker.calls) != 3 {
+				t.Fatalf("opaque source changed visible access: %+v calls=%+v", got, checker.calls)
+			}
+		})
+	}
+}
