@@ -17,9 +17,9 @@
     "phase_title": "Scaled product implementation program bootstrap"
   },
   "execution": {
-    "active_work_unit": null,
-    "preferred_next_unit": null,
-    "selection_rule": "select first READY graph node; if none, authorize a new bounded functional integration milestone based on CAP-INV-110 without violating ownership/OPEN-013"
+    "active_work_unit": "E10-INV-110E",
+    "preferred_next_unit": "E10-INV-110E",
+    "selection_rule": "first READY unit whose dependencies satisfy their required terminal state; when no READY exists create a separately scoped functional integration unit"
   },
   "reconciliation": {
     "required_on_resume": true,
