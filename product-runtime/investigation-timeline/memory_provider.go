@@ -151,15 +151,13 @@ func NewMemoryCaseTimelineHTTPHandlers(authenticate func(*http.Request) (string,
 			}
 		}
 	}
-	timeline, err := NewCaseTimelineHTTPHandler(s, s, s, s, s)
+	// The reference in-memory backend exercises the very same wiring used by
+	// any host-supplied Case/Timeline/source owner providers.
+	combined, err := NewCaseInvestigationHTTPHandlers(s, s, s, s, s, s)
 	if err != nil {
 		return MemoryTimelineHTTPHandlers{}, err
 	}
-	cases, err := NewCaseDiscoveryHTTPHandler(s, s, s)
-	if err != nil {
-		return MemoryTimelineHTTPHandlers{}, err
-	}
-	return MemoryTimelineHTTPHandlers{Timeline: timeline, Cases: cases}, nil
+	return MemoryTimelineHTTPHandlers{Timeline: combined.Timeline, Cases: combined.Cases}, nil
 }
 
 func (s *memoryTimelineProvider) validReaders(ids []string, tenant, environment string) bool {
