@@ -237,7 +237,7 @@ func TestDecodeTimelineProbeObservationRejectsForgedMetrics(t *testing.T) {
 		t.Fatalf("correct measurement rejected: %+v %v", got, err)
 	}
 	alter := []struct {
-		name string
+		name   string
 		change func(*pilotProjectionProbeObservation)
 	}{
 		{"wrong-operation", func(v *pilotProjectionProbeObservation) { v.Operation = "case-queue" }},
