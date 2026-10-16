@@ -128,3 +128,32 @@ func TestProbeMainSuccessPath(t *testing.T) {
 		t.Fatalf("main emitted invalid observation: %+v", result)
 	}
 }
+
+func TestFullRowProjectionOracleRejectsInteriorCorruption(t *testing.T) {
+	input := syntheticInput()
+	result := timeline.Project(input)
+	if !validSyntheticProjection(input, result) {
+		t.Fatal("valid 5000-row source rejected")
+	}
+	mutations := []struct {
+		name string
+		apply func(*timeline.ProjectedEntry)
+	}{
+		{"wrong-interior-ID", func(e *timeline.ProjectedEntry) { e.ID = "counterfeit" }},
+		{"wrong-observed-inferred", func(e *timeline.ProjectedEntry) { e.Kind = "observed" }},
+		{"rewritten-provenance", func(e *timeline.ProjectedEntry) { e.Provenance = "invented" }},
+		{"rewritten-source", func(e *timeline.ProjectedEntry) { e.SourceRef = "invented" }},
+		{"rewritten-timestamp", func(e *timeline.ProjectedEntry) { e.SourceTime = "2020-01-01T00:00:00Z" }},
+		{"silently-uncertain", func(e *timeline.ProjectedEntry) { e.TimeUncertain = true }},
+	}
+	for _, tc := range mutations {
+		t.Run(tc.name, func(t *testing.T) {
+			altered := result
+			altered.Entries = append([]timeline.ProjectedEntry(nil), result.Entries...)
+			tc.apply(&altered.Entries[2500])
+			if validSyntheticProjection(input, altered) {
+				t.Fatalf("full-row oracle accepted %s", tc.name)
+			}
+		})
+	}
+}

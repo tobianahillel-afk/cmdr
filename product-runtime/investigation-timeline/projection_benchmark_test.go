@@ -32,14 +32,30 @@ func benchmarkTimelineInput(count int) Input {
 	return input
 }
 
+// Full-row oracle is deliberately excluded from b.N timing.
+func benchmarkProjectionMatchesInput(input Input, result Result) bool {
+	if result.Status != "allow" || len(result.Entries) != len(input.Entries) {
+		return false
+	}
+	for i, got := range result.Entries {
+		want := input.Entries[len(input.Entries)-1-i]
+		if got.ID != want.ID || got.Kind != want.Kind ||
+			got.SourceRef != want.SourceRef || got.Provenance != want.Provenance ||
+			got.SourceTime != want.SourceTime || got.Timezone != want.Timezone ||
+			got.Version != want.Version || got.Supersedes != want.Supersedes ||
+			got.TimeUncertain {
+			return false
+		}
+	}
+	return true
+}
+
 func benchmarkProjectTimeline(b *testing.B, count int) {
 	input := benchmarkTimelineInput(count)
 	firstID := fmt.Sprintf("entry-%05d", count-1)
 	lastID := "entry-00000"
 	preflight := Project(input)
-	if preflight.Status != "allow" || len(preflight.Entries) != count ||
-		preflight.Entries[0].ID != firstID ||
-		preflight.Entries[count-1].ID != lastID {
+	if !benchmarkProjectionMatchesInput(input, preflight) {
 		b.Fatalf("benchmark fixture rejected: status=%s rows=%d", preflight.Status, len(preflight.Entries))
 	}
 	b.ReportAllocs()
@@ -52,6 +68,10 @@ func benchmarkProjectTimeline(b *testing.B, count int) {
 			b.Fatalf("benchmark lost output: status=%s rows=%d", result.Status, len(result.Entries))
 		}
 	}
+	b.StopTimer()
+	if !benchmarkProjectionMatchesInput(input, Project(input)) {
+		b.Fatal("full-row postflight failed")
+	}
 }
 
 func BenchmarkProject500Entries(b *testing.B) {
@@ -60,4 +80,25 @@ func BenchmarkProject500Entries(b *testing.B) {
 
 func BenchmarkProject5000Entries(b *testing.B) {
 	benchmarkProjectTimeline(b, 5000)
+}
+
+func TestBenchmarkFullRowOracleRejectsInteriorMutation(t *testing.T) {
+	input := benchmarkTimelineInput(5000)
+	result := Project(input)
+	if !benchmarkProjectionMatchesInput(input, result) {
+		t.Fatal("valid source rejected")
+	}
+	for _, change := range []func(*ProjectedEntry){
+		func(e *ProjectedEntry) { e.ID = "counterfeit" },
+		func(e *ProjectedEntry) { e.Kind = "observed" },
+		func(e *ProjectedEntry) { e.SourceTime = "2000-01-01T00:00:00Z" },
+		func(e *ProjectedEntry) { e.Provenance = "invented" },
+	} {
+		modified := result
+		modified.Entries = append([]ProjectedEntry(nil), result.Entries...)
+		change(&modified.Entries[2500])
+		if benchmarkProjectionMatchesInput(input, modified) {
+			t.Fatal("accepted corrupt interior row")
+		}
+	}
 }

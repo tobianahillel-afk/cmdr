@@ -78,6 +78,26 @@ func syntheticInput() timeline.Input {
 	return input
 }
 
+// validSyntheticProjection checks EVERY authorized synthetic row, not just the
+// endpoints. Run outside the timed loop so measured latency stays comparable
+// with the previous 5,000-entry projection-only workloads.
+func validSyntheticProjection(input timeline.Input, result timeline.Result) bool {
+	if result.Status != "allow" || len(result.Entries) != len(input.Entries) {
+		return false
+	}
+	for i, got := range result.Entries {
+		want := input.Entries[len(input.Entries)-1-i]
+		if got.ID != want.ID || got.Kind != want.Kind ||
+			got.SourceTime != want.SourceTime || got.SourceRef != want.SourceRef ||
+			got.Provenance != want.Provenance || got.Timezone != want.Timezone ||
+			got.Version != want.Version || got.Supersedes != want.Supersedes ||
+			got.TimeUncertain {
+			return false
+		}
+	}
+	return true
+}
+
 func measure(iterations int, mode string, memoryMiB int) (observation, error) {
 	if iterations < 1 || iterations > maxIterations {
 		return observation{}, fmt.Errorf("iterations outside 1..%d", maxIterations)
@@ -102,8 +122,8 @@ func measure(iterations int, mode string, memoryMiB int) (observation, error) {
 			result.Entries[len(result.Entries)-1].ID == "entry-00000" &&
 			result.Entries[len(result.Entries)-1].Kind == "observed"
 	}
-	if !execute() {
-		return observation{}, fmt.Errorf("Timeline synthetic preflight rejected")
+	if !validSyntheticProjection(input, timeline.Project(input)) {
+		return observation{}, fmt.Errorf("Timeline synthetic full-row preflight rejected")
 	}
 	runtime.GC()
 	var before, after runtime.MemStats
@@ -129,6 +149,11 @@ func measure(iterations int, mode string, memoryMiB int) (observation, error) {
 	}
 	if elapsed <= 0 {
 		return observation{}, fmt.Errorf("nonpositive elapsed time")
+	}
+	// Final full-row oracle is outside elapsed time and allocation samples.
+	// Fail closed if an interior row or classification is corrupted.
+	if !validSyntheticProjection(input, timeline.Project(input)) {
+		return observation{}, fmt.Errorf("Timeline synthetic full-row postflight rejected")
 	}
 	return observation{
 		Operation: "projection", Mode: mode, Operations: iterations,
