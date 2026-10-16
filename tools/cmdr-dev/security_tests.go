@@ -388,7 +388,7 @@ func runRuntimeNegativeTest(root string, adapter runtimeSecurityAdapter, pattern
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("%s %s negative test failed: %w; %s", adapter.BoundaryID, label, err, strings.TrimSpace(stderr.String()))
 	}
-	if err := verifyGoNegativeTestSelection(stdout.Bytes(), pattern); err != nil {
+	if err := verifyGoNegativeTestSelection(stdout.Bytes(), pattern, adapter.ModuleIdentity); err != nil {
 		return fmt.Errorf("%s %s negative test evidence invalid: %w", adapter.BoundaryID, label, err)
 	}
 	return nil
@@ -398,7 +398,10 @@ func runRuntimeNegativeTest(root string, adapter runtimeSecurityAdapter, pattern
 // go test -run returns PASS but zero selected subtests actually ran. Each
 // explicit alternative in the adapter pattern is a required negative case.
 // Go test -json emits per-test pass events, unlike the package-level PASS.
-func verifyGoNegativeTestSelection(output []byte, pattern string) error {
+func verifyGoNegativeTestSelection(output []byte, pattern, expectedPackage string) error {
+	if strings.TrimSpace(expectedPackage) == "" {
+		return fmt.Errorf("missing expected Go module identity for negative-test evidence")
+	}
 	parts := strings.Split(pattern, "/")
 	if len(parts) < 1 || len(parts) > 2 {
 		return fmt.Errorf("unsupported Go negative-test selector %q", pattern)
@@ -422,11 +425,10 @@ func verifyGoNegativeTestSelection(output []byte, pattern string) error {
 			return fmt.Errorf("invalid Go negative-test leaf selector %q: %w", expression, err)
 		}
 	}
-	// Require run+pass for all required cases within ONE Go package.
-	// Otherwise unrelated packages can supply disjoint PASS events and
-	// collectively forge proof of a single complete negative-test suite.
+	// A package in ./... may imitate the test names of this runtime. Evidence
+	// must come from the adapter's exact module identity, not any package.
 	const testRun, testPass = uint8(1), uint8(2)
-	packages := make(map[string]map[string]uint8)
+	observed := make(map[string]uint8)
 	decoder := json.NewDecoder(bytes.NewReader(output))
 	for {
 		var event struct {
@@ -440,7 +442,7 @@ func verifyGoNegativeTestSelection(output []byte, pattern string) error {
 			}
 			return fmt.Errorf("invalid Go test JSON event: %w", err)
 		}
-		if event.Package == "" || event.Test == "" ||
+		if event.Package != expectedPackage || event.Test == "" ||
 			(event.Action != "run" && event.Action != "pass") {
 			continue
 		}
@@ -461,39 +463,29 @@ func verifyGoNegativeTestSelection(output []byte, pattern string) error {
 				continue
 			}
 		}
-		if packages[event.Package] == nil {
-			packages[event.Package] = make(map[string]uint8)
-		}
 		if event.Action == "run" {
-			packages[event.Package][event.Test] |= testRun
-		} else if packages[event.Package][event.Test]&testRun != 0 {
-			packages[event.Package][event.Test] |= testPass
+			observed[event.Test] |= testRun
+		} else if observed[event.Test]&testRun != 0 {
+			observed[event.Test] |= testPass
 		}
 	}
-	for _, events := range packages {
-		complete := true
-		for _, expression := range compiled {
-			found := false
-			for testName, state := range events {
-				if state != testRun|testPass {
-					continue
-				}
-				segments := strings.Split(testName, "/")
-				if expression.MatchString(segments[len(segments)-1]) {
-					found = true
-					break
-				}
+	for _, expression := range compiled {
+		found := false
+		for testName, state := range observed {
+			if state != testRun|testPass {
+				continue
 			}
-			if !found {
-				complete = false
+			segments := strings.Split(testName, "/")
+			if expression.MatchString(segments[len(segments)-1]) {
+				found = true
 				break
 			}
 		}
-		if complete {
-			return nil
+		if !found {
+			return fmt.Errorf("no required negative test ran and passed in module %q for selector %q", expectedPackage, expression.String())
 		}
 	}
-	return fmt.Errorf("no single Go package ran and passed all required negative tests %q", pattern)
+	return nil
 }
 
 func parseRuntimeCoverageProfile(data []byte, changedPaths []string, adapter runtimeSecurityAdapter) (RuntimeCoverageMeasurement, error) {

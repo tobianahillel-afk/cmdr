@@ -402,6 +402,8 @@ func TestVerifyGoNegativeTestSelectionRequiresActualCases(t *testing.T) {
 		wantError bool
 	}{
 		{"all-selected", complete, false},
+		{"complete-but-in-wrong-package", event("run", "example.invalid/unrelated", "TestSecurity/case-denied") + event("pass", "example.invalid/unrelated", "TestSecurity/case-denied") + event("run", "example.invalid/unrelated", "TestSecurity/cross-tenant") + event("pass", "example.invalid/unrelated", "TestSecurity/cross-tenant"), true},
+		{"first-required-only-in-wrong-package", run("TestSecurity/cross-tenant") + pass("TestSecurity/cross-tenant") + event("run", "example.invalid/unrelated", "TestSecurity/case-denied") + event("pass", "example.invalid/unrelated", "TestSecurity/case-denied"), true},
 		{"parent-only", run("TestSecurity") + pass("TestSecurity"), true},
 		{"no-tests", `{"Action":"pass","Package":"example.invalid/runtime"}` + "\n", true},
 		{"one-alternative-missing", run("TestSecurity/case-denied") + pass("TestSecurity/case-denied"), true},
@@ -422,20 +424,23 @@ func TestVerifyGoNegativeTestSelectionRequiresActualCases(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			err := verifyGoNegativeTestSelection([]byte(tc.output), selector)
+			err := verifyGoNegativeTestSelection([]byte(tc.output), selector, pkg)
 			if (err != nil) != tc.wantError {
 				t.Fatalf("selector evidence accepted incorrectly: %v", err)
 			}
 		})
 	}
-	if err := verifyGoNegativeTestSelection([]byte(run("TestSecurity")+pass("TestSecurity")), "^TestSecurity$"); err != nil {
+	if err := verifyGoNegativeTestSelection([]byte(run("TestSecurity")+pass("TestSecurity")), "^TestSecurity$", pkg); err != nil {
 		t.Fatalf("single top-level Go negative-test selection wrongly rejected: %v", err)
 	}
-	if err := verifyGoNegativeTestSelection([]byte(pass("TestSecurity")), "^TestSecurity$/^absent$"); err == nil {
+	if err := verifyGoNegativeTestSelection([]byte(pass("TestSecurity")), "^TestSecurity$/^absent$", pkg); err == nil {
 		t.Fatal("parent PASS forged a subtest PASS")
 	}
-	if err := verifyGoNegativeTestSelection([]byte(pass("TestSecurity/case-denied")), "^TestSecurity$/(^case-denied$|["); err == nil {
+	if err := verifyGoNegativeTestSelection([]byte(pass("TestSecurity/case-denied")), "^TestSecurity$/(^case-denied$|[", pkg); err == nil {
 		t.Fatal("malformed selector accepted")
+	}
+	if err := verifyGoNegativeTestSelection([]byte(complete), selector, ""); err == nil {
+		t.Fatal("missing adapter module identity accepted")
 	}
 }
 
@@ -454,5 +459,20 @@ func TestGoTimelineSecurityNegativeTestsExecuteAllDeclaredCases(t *testing.T) {
 	missing := strings.Replace(adapter.AuthorizationTestRegex, "^case-denied$", "^nonexistent-case$", 1)
 	if err := runRuntimeNegativeTest(root, adapter, missing, "authorization"); err == nil {
 		t.Fatal("Go tool reported success without all required negative fixtures")
+	}
+}
+
+func TestGoTimelineSecurityNegativeTestsRequireModuleIdentity(t *testing.T) {
+	root, err := filepath.Abs(filepath.Join("..", ".."))
+	if err != nil {
+		t.Fatal(err)
+	}
+	adapter := runtimeSecurityAdapters()["investigation-timeline-runtime"]
+	if err := runRuntimeNegativeTest(root, adapter, adapter.AuthorizationTestRegex, "authorization"); err != nil {
+		t.Fatal(err)
+	}
+	adapter.ModuleIdentity = "github.com/tobianahillel-afk/cmdr/product-runtime/investigation-timeline/impostor"
+	if err := runRuntimeNegativeTest(root, adapter, adapter.AuthorizationTestRegex, "authorization"); err == nil {
+		t.Fatal("wrong runtime module was allowed to supply security-test evidence")
 	}
 }
