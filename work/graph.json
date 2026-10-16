@@ -1767,11 +1767,11 @@
       ],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": [
-        "E10-INV-120A-FILE-SNAPSHOT"
+        "E10-INV-120A-SNAPSHOT"
       ]
     },
     {
-      "id": "E10-INV-120A-FILE-SNAPSHOT",
+      "id": "E10-INV-120A-SNAPSHOT",
       "title": "Integrate an operator-provided durable Case snapshot into the authenticated loopback analyst journey",
       "type": "task",
       "status": "READY",

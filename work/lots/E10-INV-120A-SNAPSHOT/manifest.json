@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "id": "E10-INV-120A-FILE-SNAPSHOT",
+  "id": "E10-INV-120A-SNAPSHOT",
   "title": "Read-only local Case owner snapshot integration for analyst loopback journey",
   "type": "task",
   "goal": "Load a bounded operator-supplied local JSON Case/Timeline/source snapshot and use existing authenticated Case picker, Timeline, navigation and preview handlers without changing the product objects or pretending production IAM/persistence",
@@ -34,7 +34,7 @@
   },
   "allowed_paths": [
     "product-runtime/investigation-timeline/cmd/case-timeline-demo/**",
-    "work/lots/E10-INV-120A-FILE-SNAPSHOT/**",
+    "work/lots/E10-INV-120A-SNAPSHOT/**",
     "engineering/state/current.json",
     "work/graph.json"
   ],
