@@ -52,16 +52,21 @@ func (h *CaseTimelineHTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Reque
 		return
 	}
 	if r.URL == nil || r.Body != nil && r.Body != http.NoBody ||
-		len(r.TransferEncoding) != 0 || len(r.URL.RawQuery) > maxHTTPCaseIDBytes*3 {
+		len(r.TransferEncoding) != 0 || len(r.URL.RawQuery) > maxHTTPCaseIDBytes*3+256 {
 		writeCaseTimelineError(w, http.StatusBadRequest)
 		return
 	}
 	query, err := url.ParseQuery(r.URL.RawQuery)
-	if err != nil || len(query) != 1 || len(query["case_id"]) != 1 {
+	if err != nil || len(query["case_id"]) != 1 || len(query) > 4 {
 		writeCaseTimelineError(w, http.StatusBadRequest)
 		return
 	}
 	caseID := query.Get("case_id")
+	selection, valid := parseTimelineReadSelection(query)
+	if !valid {
+		writeCaseTimelineError(w, http.StatusBadRequest)
+		return
+	}
 	if invalidScope(caseID) || len(caseID) > maxHTTPCaseIDBytes ||
 		!utf8.ValidString(caseID) || strings.ContainsAny(caseID, "\x00\r\n") {
 		writeCaseTimelineError(w, http.StatusBadRequest)
@@ -86,6 +91,8 @@ func (h *CaseTimelineHTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Reque
 		writeCaseTimelineError(w, http.StatusNotFound)
 		return
 	}
+	// Apply view selection after the complete Case/Entry/source ACL chain.
+	result = selectAuthorizedTimeline(result, selection)
 	if r.Context().Err() != nil || ctx.Err() != nil {
 		writeCaseTimelineError(w, http.StatusServiceUnavailable)
 		return
