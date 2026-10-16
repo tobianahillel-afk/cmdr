@@ -57,3 +57,33 @@ jobs:
           set -euo pipefail
           # Go testing.B yields ns/op and allocs/op, not p95 or production SLOs.
           go test -run '^$' -bench '^BenchmarkProject(500|5000)Entries$' -benchmem -count=3 -benchtime=100x .
+
+  portability:
+    name: Timeline and subprocess tests (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 18
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - macos-latest
+          - windows-latest
+    steps:
+      - name: Checkout exact source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up existing Go toolchain
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: tools/cmdr-dev/go.mod
+          cache: false
+      - name: Compile, test and vet Timeline projection on this OS
+        working-directory: product-runtime/investigation-timeline
+        run: |
+          go test -count=1 ./...
+          go vet ./...
+      - name: Verify native Timeline subprocess deadlines, descendants and bounds
+        working-directory: tools/cmdr-dev
+        run: |
+          go test -count=1 -run "^(TestTimelineProcessEnforcesChildDeadline|TestTimelineProcessCancelAndSuccess|TestTimelineProcessCancellationKillsDescendants|TestTimelineProcessBoundsStdoutAndStderr|TestTimelineBoundedWriterDoesNotBlockOnOverflow|TestTimelineProbeContextCancel)$" .

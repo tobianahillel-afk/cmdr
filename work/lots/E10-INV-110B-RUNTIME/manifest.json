@@ -80,7 +80,8 @@
     "work/lots/E10-INV-110*/**",
     "tools/cmdr-dev/**",
     "product-runtime/investigation-timeline/**",
-    ".github/workflows/investigation-timeline-evidence.yml"
+    ".github/workflows/investigation-timeline-evidence.yml",
+    ".github/workflows/investigation-timeline-runtime.yml"
   ],
   "inputs": [
     "CAP-INV-110 Investigation Timeline canonical capability",
