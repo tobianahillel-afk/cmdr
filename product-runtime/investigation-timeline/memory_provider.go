@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"net/http"
+	"unicode/utf8"
 )
 
 // MemoryTimelineData is an immutable, process-local owner snapshot for a
@@ -29,6 +30,9 @@ type MemoryTimelineEntry struct {
 type MemoryTimelineSource struct {
 	Identity SourceOwnerIdentity
 	Readers  []string
+	// Preview belongs to the synthetic source owner, never the Timeline Entry.
+	// It is available only via a fresh, authenticated source-open operation.
+	Preview string
 }
 
 type memoryTimelinePrincipalKey struct{}
@@ -55,10 +59,11 @@ type memoryTimelineProvider struct {
 // MemoryTimelineHTTPHandlers shares ONE immutable owner snapshot for Case
 // discovery and Case -> Timeline reads, preventing a split demo authority.
 type MemoryTimelineHTTPHandlers struct {
-	Timeline http.Handler
-	Cases    http.Handler
-	Navigate http.Handler
-	Compare  http.Handler
+	Timeline   http.Handler
+	Cases      http.Handler
+	Navigate   http.Handler
+	OpenSource http.Handler // synthetic owner preview only; not a production source backend
+	Compare    http.Handler // independent read-only version comparison
 }
 
 func NewMemoryCaseTimelineHTTPHandler(authenticate func(*http.Request) (string, error), data MemoryTimelineData) (http.Handler, error) {
@@ -125,6 +130,7 @@ func NewMemoryCaseTimelineHTTPHandlers(authenticate func(*http.Request) (string,
 		_, validKind := canonicalSourceReadPermission(id.Kind)
 		if !ok || !validKind || invalidScope(id.Reference) || invalidScope(id.ObjectID) ||
 			id.Tenant != c.Tenant || id.Environment != c.Environment ||
+			len(src.Preview) > 2048 || !utf8.ValidString(src.Preview) ||
 			!s.validReaders(src.Readers, c.Tenant, c.Environment) {
 			return MemoryTimelineHTTPHandlers{}, errors.New("invalid source owner record")
 		}
@@ -159,7 +165,10 @@ func NewMemoryCaseTimelineHTTPHandlers(authenticate func(*http.Request) (string,
 	if err != nil {
 		return MemoryTimelineHTTPHandlers{}, err
 	}
-	return MemoryTimelineHTTPHandlers{Timeline: combined.Timeline, Cases: combined.Cases, Navigate: combined.Navigate, Compare: combined.Compare}, nil
+	return MemoryTimelineHTTPHandlers{
+		Timeline: combined.Timeline, Cases: combined.Cases,
+		Navigate: combined.Navigate, OpenSource: s.sourcePreviewHandler(), Compare: combined.Compare,
+	}, nil
 }
 
 func (s *memoryTimelineProvider) validReaders(ids []string, tenant, environment string) bool {

@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-110D-CLOSURE",
+  "result": "VERIFIED",
+  "final_validated_head": "06d1d47572b9fbea1325ad71309a895d960e1cbd",
+  "pull_request": 36,
+  "evidence": {
+    "engineering_push_run": 38963830261,
+    "engineering_pr_run": 38963841717,
+    "timeline_push_run": 38963830462,
+    "timeline_pr_run": 38963841785,
+    "measured_navigation_is_synthetic": true,
+    "full_case_http_journey_tested": true,
+    "real_provider_deployed": false,
+    "independent_l2_report_accessed": false
+  },
+  "next_unit": "E10-INV-110E",
+  "rules": [
+    "Compile evidence-only ledger-compatible handoff; do not register full production CAP-INV-110",
+    "Product Spec and OPEN-013 unchanged; Timeline Entry and Timeline Engine remain Shared-owned",
+    "Treat all CI measurements as synthetic in-process, not request-level p95 or release SLO",
+    "Do not merge PR #36, claim GitHub native approval or silently adopt L2 report that is not accessible",
+    "Next functional milestone requires real host identity/authorized Case/source providers and durable audit/persistence under separately authorized work"
+  ]
+}

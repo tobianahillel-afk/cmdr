@@ -82,6 +82,12 @@ function boot(search = "", navigationQuery, compareDenied = false) {
           }
         };
       }
+      if (url.pathname === "/demo-source-open") {
+        return { ok: true, async json() { return { status: "ready", synthetic: true,
+          case_id: url.searchParams.get("case_id"), entry_id: url.searchParams.get("entry_id"),
+          kind: "telemetry-event", object_id: "demo-event-a",
+          preview: "Aperçu local de source autorisée." }; } };
+      }
       if (url.pathname === "/case-source-navigation") {
         const expected = new URLSearchParams(url.searchParams);
         expected.delete("entry_id");
@@ -149,8 +155,9 @@ test("source draft produces explicit same-origin return without authority", asyn
   assert.ok(open, "each visible event needs a source action");
   open.handlers.click();
   await flush();
-  assert.equal(env.requests.length, 2);
+  assert.equal(env.requests.length, 3);
   assert.equal(env.requests[1].url.pathname, "/case-source-navigation");
+  assert.equal(env.requests[2].url.pathname, "/demo-source-open");
   assert.equal(env.fields["copy-return-link"].disabled, false);
   await env.fields["copy-return-link"].handlers.click();
   assert.equal(env.copied.length, 1);

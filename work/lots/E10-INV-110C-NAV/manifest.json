@@ -124,7 +124,7 @@
   ],
   "complexity": {
     "primary_components": 1,
-    "estimated_files_changed": 7,
+    "estimated_files_changed": 11,
     "estimated_net_loc": 380,
     "production_files": 1,
     "net_production_loc": 180,

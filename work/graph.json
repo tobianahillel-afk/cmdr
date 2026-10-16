@@ -1735,7 +1735,7 @@
       "id": "E10-INV-110C-NAV",
       "title": "Implement source-safe Timeline navigation and return-context drafts",
       "type": "task",
-      "status": "READY",
+      "status": "VERIFIED",
       "depends_on": [
         "E10-INV-110B-RUNTIME"
       ],
@@ -1748,7 +1748,7 @@
       "id": "E10-INV-110D-CLOSURE",
       "title": "Verify Timeline adversarial security, performance and bounded exclusions",
       "type": "task",
-      "status": "BLOCKED",
+      "status": "VERIFIED",
       "depends_on": [
         "E10-INV-110C-NAV"
       ],
@@ -1761,7 +1761,7 @@
       "id": "E10-INV-110E",
       "title": "Compile bounded Investigation Timeline ledger-compatible runtime handoff",
       "type": "task",
-      "status": "BLOCKED",
+      "status": "VERIFIED",
       "depends_on": [
         "E10-INV-110D-CLOSURE"
       ],

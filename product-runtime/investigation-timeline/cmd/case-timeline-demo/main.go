@@ -100,6 +100,7 @@ func newDemoHandlerWithData(token, principal string, data timeline.MemoryTimelin
 	mux := http.NewServeMux()
 	mux.Handle("/case-timeline", handlers.Timeline)
 	mux.Handle("/case-source-navigation", handlers.Navigate)
+	mux.Handle("/demo-source-open", handlers.OpenSource)
 	mux.Handle("/case-version-comparison", handlers.Compare)
 	mux.Handle("/demo-cases", handlers.Cases)
 	installAnalystDemoRoutes(mux)

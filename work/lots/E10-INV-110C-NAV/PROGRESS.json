@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-110C-NAV",
+  "status": "VERIFIED",
+  "final_validated_head": "0be7d800a01886df607e7919648e63c47dc9dca8",
+  "validation": {
+    "result": "PASS",
+    "engineering_push_run": 38962095431,
+    "engineering_pr_run": 38962101516,
+    "timeline_push_run": 38962095505,
+    "timeline_pr_run": 38962101673,
+    "go_tests": "Timeline Linux race/vet, Windows/macOS tests success",
+    "browser_tests": "5/5 Node analyst_return.test.cjs passing in existing Timeline runtime workflow"
+  },
+  "capability": {
+    "delivered": "read-only Case -> Timeline -> typed owner navigation draft -> independently reauthorized synthetic source preview -> safe return in local analyst demo",
+    "demo_source_open": "/demo-source-open?case_id&entry_id",
+    "reauthorization": "authenticated Case, Timeline Entry and typed canonical source checks at every opening",
+    "storage": "static in-memory copied owner fixture",
+    "production_deployed": false,
+    "real_persistent_data": false,
+    "external_iam": false,
+    "source_ingestion": false
+  },
+  "residuals": [
+    "OPEN-013 remains unresolved; no Shared Timeline Entry mutation, correction, export or replay",
+    "No production Case/TI/EDR connector, real identity provider, durable persistence, audit ingestion or end-to-end production SLO",
+    "Navigation returns a draft; only synthetic demo owner is opened, not a production source application",
+    "Independent L2 review scheduled on immutable 0be7d800 snapshot; report not accessible through native GitHub reviews or PR comments; no independent approval claimed",
+    "D-CLOSURE must validate bounded negative tests, navigation performance/resource evidence and deployment exclusions separately"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-110D-CLOSURE"
+  ]
+}
