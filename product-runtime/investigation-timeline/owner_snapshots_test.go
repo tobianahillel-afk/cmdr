@@ -228,3 +228,25 @@ func TestOwnerRejectsInvisibleSourceReferenceBeforeSourceProvider(t *testing.T) 
 		}
 	}
 }
+
+func TestOwnerAggregatesTimelineIDsAndSourceRefsBeforeSourceAuthority(t *testing.T) {
+	// Legacy and owner-resolved paths must share the same bounded byte
+	// budget across submitted Timeline Entry IDs and resolved source refs.
+	id := strings.Repeat("i", MaxInputBytes/2)
+	ref := strings.Repeat("s", MaxInputBytes/2)
+	checker, owner := ownerFixture()
+	entry := owner.entries["x"]
+	entry.ID = id
+	entry.SourceRef = ref
+	owner.entries = map[string]Entry{id: entry}
+	checker.decisions["timeline-entry:"+id] = "allow"
+	result := ProjectFromOwnerSnapshots(context.Background(), allowedFixture().Scope,
+		"case-123", []string{id}, checker, owner)
+	if result.Status != "deny" || len(result.Entries) != 0 ||
+		len(checker.calls) != 2 || len(owner.calls) != 1 ||
+		checker.calls[1].Resource != "timeline-entry" ||
+		owner.calls[0].ObjectID != id {
+		t.Fatalf("combined selectors reached source authority: %+v checker=%d owner=%d",
+			result, len(checker.calls), len(owner.calls))
+	}
+}

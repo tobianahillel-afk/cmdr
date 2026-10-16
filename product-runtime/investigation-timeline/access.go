@@ -76,6 +76,11 @@ func ProjectWithAccessChecker(ctx context.Context, in Input, caseID string, chec
 		seenIDs[entry.ID] = true
 		usedIDs += len(entry.ID)
 	}
+	// All visible Timeline Entry IDs were validated. Charge them to the
+	// same aggregate external-selector budget as linked source references.
+	// Otherwise individually legal ID and source budgets can exceed the
+	// total bound before a provider receives CheckAccess(source, ...).
+	usedSourceSelectors = usedIDs
 	checked := func(resource, objectID, permission string) (string, bool) {
 		if ctx.Err() != nil {
 			return "", false

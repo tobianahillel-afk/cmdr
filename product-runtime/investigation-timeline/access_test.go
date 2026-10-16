@@ -457,3 +457,22 @@ func TestLegacyOpaqueDuplicateCannotSuppressVisibleAuthorization(t *testing.T) {
 		})
 	}
 }
+
+func TestLegacyAggregatesTimelineIDsAndSourceRefsBeforeSourceAuthority(t *testing.T) {
+	// Each selector is individually below the 8 MiB limit. Together they
+	// breach it. The source-access authority must never receive the ref.
+	in := allowedFixture()
+	id := strings.Repeat("i", MaxInputBytes/2)
+	ref := strings.Repeat("s", MaxInputBytes/2)
+	in.Entries[0].ID = id
+	in.Entries[0].SourceRef = ref
+	checker := allowedAccessChecker()
+	checker.decisions["timeline-entry:"+id] = "allow"
+	result := ProjectWithAccessChecker(context.Background(), in, "case-123", checker)
+	if result.Status != "deny" || len(result.Entries) != 0 ||
+		len(checker.calls) != 2 ||
+		checker.calls[0].Resource != "case" ||
+		checker.calls[1].Resource != "timeline-entry" {
+		t.Fatalf("combined selectors bypassed source boundary: %+v calls=%+v", result, checker.calls)
+	}
+}

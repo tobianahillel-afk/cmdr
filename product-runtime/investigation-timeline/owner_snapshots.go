@@ -59,6 +59,9 @@ func ProjectFromOwnerSnapshots(
 		}
 		seen[id] = true
 	}
+	// Source selectors share the envelope with every validated requested ID;
+	// keeping a separate starting counter would miss the ID bytes above.
+	usedSourceSelectors = usedIDs
 	allowed, valid := check(request("case", caseID, caseReadPermission))
 	if !valid || allowed != "allow" {
 		return deny
