@@ -1,10 +1,14 @@
 {
   "schema_version": 1,
   "work_unit": "E10-INV-110E",
-  "status": "IN_REVIEW",
+  "status": "VERIFIED",
   "implementation_base_commit": "096b91a34de86b6cef1072c19b94ede4d5c07d10",
   "validation": {
-    "result": "PENDING_EXACT_HEAD_CI",
+    "result": "PASS",
+    "final_handoff_source_head": "0c04d29b8d42e93584c36e2a3032970807e20505",
+    "engineering_push_run": 38964719856,
+    "engineering_pr_run": 38964726733,
+    "timeline_pr_run": 38964726712,
     "source_D_head": "06d1d47572b9fbea1325ad71309a895d960e1cbd",
     "source_D_engineering_push_run": 38963830261,
     "source_D_engineering_pr_run": 38963841717,
@@ -22,5 +26,6 @@
     "owner_provider_type": "injected and static in-memory fixture"
   },
   "product_spec_mutated": false,
-  "next_unlocked": []
+  "next_unlocked": [],
+  "final_validated_head": "0c04d29b8d42e93584c36e2a3032970807e20505"
 }

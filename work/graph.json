@@ -1761,7 +1761,7 @@
       "id": "E10-INV-110E",
       "title": "Compile bounded Investigation Timeline ledger-compatible runtime handoff",
       "type": "task",
-      "status": "READY",
+      "status": "VERIFIED",
       "depends_on": [
         "E10-INV-110D-CLOSURE"
       ],

@@ -1,15 +1,22 @@
 {
   "schema_version": 1,
   "work_unit": "E10-INV-110E",
-  "result": "IN_REVIEW",
+  "result": "VERIFIED",
   "implementation_commit": "096b91a34de86b6cef1072c19b94ede4d5c07d10",
-  "final_validated_head": null,
+  "final_validated_head": "0c04d29b8d42e93584c36e2a3032970807e20505",
   "pull_request": 36,
   "evidence": {
     "bounded_handoff": "engineering/implementation/investigation-timeline/bounded-handoff.json",
     "source_D_validation": "work/lots/E10-INV-110D-CLOSURE/PROGRESS.json",
     "global_implementation_ledger_changed": false,
-    "independent_l2_report_accessed": false
+    "independent_l2_report_accessed": false,
+    "exact_head_handoff_engineering_push_run": 38964719856,
+    "exact_head_handoff_engineering_pr_run": 38964726733,
+    "exact_head_timeline_pr_run": 38964726712,
+    "real_iam_integration": false,
+    "durable_case_repository": false,
+    "production_audit_backend": false,
+    "functional_reference_http_only": true
   },
   "next_unit": null,
   "rules": [
