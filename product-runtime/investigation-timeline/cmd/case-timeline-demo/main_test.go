@@ -362,3 +362,45 @@ func TestDemoAnalystTimeWindowAndKindEndToEnd(t *testing.T) {
 		}
 	}
 }
+
+func TestDemoCaseSourceNavigationEndToEnd(t *testing.T) {
+	handler, err := newDemoHandler(testBearer, "analyst-a")
+	if err != nil { t.Fatal(err) }
+	server := httptest.NewServer(handler)
+	defer server.Close()
+	status, body := requestDemo(t, server,
+		"/case-source-navigation?case_id=case-a&entry_id=event-new&kind=observed&limit=20&offset=0", testBearer)
+	if status != http.StatusOK {
+		t.Fatalf("navigation route did not resolve: %d %s", status, body)
+	}
+	var result struct {
+		Status string `json:"status"`
+		Kind string `json:"kind"`
+		ObjectID string `json:"object_id"`
+		ReturnCaseID string `json:"return_case_id"`
+		ReturnEntryID string `json:"return_entry_id"`
+		ReturnQuery string `json:"return_query"`
+		ReturnIsAuthority bool `json:"return_is_authority"`
+	}
+	if err := json.Unmarshal([]byte(body), &result); err != nil { t.Fatal(err) }
+	if result.Status != "ready" || result.Kind != "telemetry-event" ||
+		result.ObjectID != "demo-event-a" || result.ReturnCaseID != "case-a" ||
+		result.ReturnEntryID != "event-new" || result.ReturnIsAuthority ||
+		result.ReturnQuery != "case_id=case-a&kind=observed&limit=20&offset=0" {
+		t.Fatalf("Case -> Timeline -> owner destination failed: %+v", result)
+	}
+	for _, tc := range []struct{path, token string; want int}{
+		{"/case-source-navigation?case_id=case-a&entry_id=event-new","",401},
+		{"/case-source-navigation?case_id=case-a&entry_id=restricted",testBearer,404},
+		{"/case-source-navigation?case_id=case-b&entry_id=event-b",testBearer,404},
+		{"/case-source-navigation?case_id=case-a&entry_id=event-b",testBearer,404},
+		{"/case-source-navigation?case_id=case-a&entry_id=event-new&object_id=demo-event-a",testBearer,400},
+		{"/case-source-navigation?case_id=case-a&entry_id=event-new&return_url=https://evil.invalid",testBearer,400},
+	} {
+		status, body := requestDemo(t, server, tc.path, tc.token)
+		if status != tc.want || strings.Contains(body, "demo-secret") ||
+			strings.Contains(body, "demo-event-a") {
+			t.Fatalf("denial leaked owner details: %d %s", status, body)
+		}
+	}
+}

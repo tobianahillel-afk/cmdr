@@ -21,6 +21,9 @@
   const previous = document.getElementById("previous");
   const next = document.getElementById("next");
   const load = document.getElementById("load");
+  const sourceDetail = document.getElementById("source-detail");
+  const sourceStatus = document.getElementById("source-status");
+  const returnToCase = document.getElementById("return-to-case");
   const limit = 20;
   let offset = 0;
   let pageCount = 0;
@@ -30,6 +33,8 @@
   let revision = 0;
   let discoveryRevision = 0;
   let activeDiscovery = null;
+  let sourceRevision = 0;
+  let sourceRequest = null;
 
   function clearCaseChoices() {
     caseOptions.replaceChildren();
@@ -102,6 +107,15 @@
              to: to ? to.toISOString() : "" };
   }
 
+  function clearSource() {
+    ++sourceRevision;
+    if (sourceRequest) sourceRequest.abort();
+    sourceRequest = null;
+    sourceDetail.hidden = true;
+    sourceStatus.textContent = "";
+    returnToCase.disabled = true;
+  }
+
   function clearResults(description) {
     entries.replaceChildren();
     summary.textContent = description;
@@ -150,6 +164,11 @@
       addLine(item, "Provenance :", event.provenance ?? "—");
       addLine(item, "Version :", event.version ?? "—");
       if (event.supersedes) addLine(item, "Remplace :", event.supersedes);
+      const open = document.createElement("button");
+      open.type = "button";
+      open.textContent = "Vérifier la destination de la source";
+      open.addEventListener("click", () => openSource(event.id));
+      item.append(open);
       entries.append(item);
     }
     pageCount = data.entries.length;
@@ -159,6 +178,67 @@
     page.textContent = total === 0 ? "0 / 0" :
       (offset + 1) + "–" + (offset + pageCount) + " / " + total;
     message.textContent = pageCount === 0 ? "Aucun événement visible pour cette sélection." : "";
+  }
+
+
+  async function openSource(entryID) {
+    const currentRevision = ++sourceRevision;
+    if (sourceRequest) sourceRequest.abort();
+    sourceDetail.hidden = true;
+    returnToCase.disabled = true;
+    const selectedCase = caseID.value.trim();
+    const bearer = token.value;
+    const windowSelection = readWindow();
+    if (!selectedCase || !bearer || !windowSelection) {
+      sourceStatus.textContent = "Sélection incomplète.";
+      return;
+    }
+    const controller = new AbortController();
+    sourceRequest = controller;
+    sourceStatus.textContent = "Nouvelle vérification des droits de destination…";
+    try {
+      const url = new URL("/case-source-navigation", window.location.origin);
+      url.searchParams.set("case_id", selectedCase);
+      url.searchParams.set("entry_id", entryID);
+      url.searchParams.set("limit", String(limit));
+      url.searchParams.set("offset", String(offset));
+      if (kind.value) url.searchParams.set("kind", kind.value);
+      if (search.value.trim()) url.searchParams.set("q", search.value.trim());
+      if (windowSelection.from) url.searchParams.set("from", windowSelection.from);
+      if (windowSelection.to) url.searchParams.set("to", windowSelection.to);
+      const response = await fetch(url, {
+        method: "GET",
+        headers: { Authorization: "Bearer " + bearer },
+        credentials: "omit",
+        cache: "no-store",
+        redirect: "error",
+        mode: "same-origin",
+        signal: controller.signal
+      });
+      if (!response.ok) throw new Error("Destination access denied");
+      const data = await response.json();
+      if (currentRevision !== sourceRevision) return;
+      if (!data || data.status !== "ready" || data.return_is_authority !== false ||
+          data.return_case_id !== selectedCase || data.return_entry_id !== entryID ||
+          !["evidence", "telemetry-event", "decision", "incident"].includes(data.kind) ||
+          typeof data.object_id !== "string" || data.object_id.length === 0 ||
+          data.object_id.length > 1024) {
+        throw new Error("Invalid destination draft");
+      }
+      sourceDetail.replaceChildren();
+      addLine(sourceDetail, "Objet source autorisé :", data.kind + " / " + data.object_id);
+      addLine(sourceDetail, "Entrée d’origine :", data.return_entry_id);
+      addLine(sourceDetail, "Navigation :", "brouillon ; l’application propriétaire doit contrôler l’accès à l’ouverture.");
+      sourceDetail.hidden = false;
+      returnToCase.disabled = false;
+      sourceStatus.textContent = "Destination vérifiée pour cette requête, sans lien externe.";
+    } catch {
+      if (currentRevision !== sourceRevision) return;
+      sourceDetail.hidden = true;
+      sourceStatus.textContent = "Objet source inaccessible ou autorisation révoquée.";
+    } finally {
+      if (currentRevision === sourceRevision) sourceRequest = null;
+    }
   }
 
   async function fetchPage() {
@@ -176,6 +256,7 @@
       return;
     }
     const currentRevision = ++revision;
+    clearSource();
     if (activeRequest) activeRequest.abort();
     const controller = new AbortController();
     activeRequest = controller;
@@ -221,6 +302,10 @@
     }
   }
 
+  returnToCase.addEventListener("click", () => {
+    clearSource();
+    fetchPage(); // reauthorize the Case and Timeline; keep current filters and offset
+  });
   discover.addEventListener("click", discoverCases);
   caseOptions.addEventListener("change", () => {
     if (!caseOptions.value) return;
@@ -255,6 +340,7 @@
         clearCaseChoices();
       }
       ++revision;
+      clearSource();
       if (activeRequest) activeRequest.abort();
       activeRequest = null;
       busy = false;

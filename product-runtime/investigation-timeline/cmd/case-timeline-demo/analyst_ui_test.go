@@ -143,3 +143,27 @@ func TestAnalystCaseDiscoveryUiUsesSafeAuthorizedFlow(t *testing.T) {
 		if !strings.Contains(string(js), marker) { t.Fatalf("missing case discovery security behavior: %s", marker) }
 	}
 }
+
+func TestAnalystViewerSourceNavigationIsServerAuthorized(t *testing.T) {
+	html, err := analystAssets.ReadFile("analyst.html")
+	if err != nil { t.Fatal(err) }
+	js, err := analystAssets.ReadFile("analyst.js")
+	if err != nil { t.Fatal(err) }
+	for _, marker := range []string{`id="source-detail"`, `id="source-status"`, `id="return-to-case"`} {
+		if !strings.Contains(string(html), marker) { t.Fatalf("source navigation UI missing %s", marker) }
+	}
+	for _, marker := range []string{
+		`new URL("/case-source-navigation"`, `url.searchParams.set("entry_id", entryID)`,
+		`headers: { Authorization: "Bearer " + bearer }`,
+		`data.return_is_authority !== false`,
+		`data.return_case_id !== selectedCase`,
+		`data.return_entry_id !== entryID`,
+		`sourceDetail.replaceChildren()`,
+		`returnToCase.addEventListener("click"`,
+		`clearSource();`,
+		`fetchPage(); // reauthorize the Case and Timeline`,
+		`currentRevision !== sourceRevision`,
+	} {
+		if !strings.Contains(string(js), marker) { t.Fatalf("safe source flow missing %s", marker) }
+	}
+}

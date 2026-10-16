@@ -3,6 +3,7 @@ package investigationtimeline
 import (
 	"context"
 	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -145,5 +146,70 @@ func TestCaseSourceNavigationHTTPFunctionalAndAdversarial(t *testing.T) {
 		if res.Code != tc.code || strings.Contains(res.Body.String(), "event-1") {
 			t.Fatalf("%q returned %d: %s", tc.uri, res.Code, res.Body.String())
 		}
+	}
+}
+
+func TestCaseNavigationRejectsMissingAuthoritiesAndCancelledRequest(t *testing.T) {
+	store, _ := workspaceFixture()
+	for _, services := range []struct {
+		sessions CaseTimelineSessionResolver
+		checker AccessChecker
+		catalog CaseTimelineCatalog
+		entries EntryResolver
+		sources SourceOwnerResolver
+	}{
+		{nil, store, store, store, store},
+		{timelineHTTPSession{}, nil, store, store, store},
+		{timelineHTTPSession{}, store, nil, store, store},
+		{timelineHTTPSession{}, store, store, nil, store},
+		{timelineHTTPSession{}, store, store, store, nil},
+	} {
+		if _, err := NewCaseSourceNavigationHTTPHandler(
+			services.sessions, services.checker, services.catalog,
+			services.entries, services.sources); err == nil {
+			t.Fatal("accepted missing source navigation authority")
+		}
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	got, ok := DraftCaseSourceNavigation(ctx, Scope{Tenant:"tenant-a",Environment:"prod"},
+		"case-one", "entry-new", store, store, store, store)
+	if ok || got.Status != "" || store.catalogCalls != 0 {
+		t.Fatalf("cancelled source navigation reached provider: %+v", got)
+	}
+}
+
+func TestCaseNavigationHTTPRejectsMalformedRequestsBeforeOwnerIO(t *testing.T) {
+	for _, tc := range []struct {
+		name string
+		method string
+		query string
+		body string
+		status int
+	}{
+		{"write-method", http.MethodPost, "case_id=case-one&entry_id=entry-new", "", 405},
+		{"body-on-get", http.MethodGet, "case_id=case-one&entry_id=entry-new", "payload", 400},
+		{"no-entry",http.MethodGet,"case_id=case-one","",400},
+		{"wildcard-entry",http.MethodGet,"case_id=case-one&entry_id=+%2A+","",400},
+		{"too-long-entry",http.MethodGet,"case_id=case-one&entry_id="+strings.Repeat("x",1025),"",400},
+		{"duplicate-kind",http.MethodGet,"case_id=case-one&entry_id=entry-new&kind=observed&kind=inferred","",400},
+		{"invalid-route",http.MethodGet,"case_id=case-one&entry_id=entry-new&redirect=https://evil.invalid","",400},
+		{"invalid-time",http.MethodGet,"case_id=case-one&entry_id=entry-new&from=garbage","",400},
+		{"invalid-escape",http.MethodGet,"case_id=case-one&entry_id=%GG","",400},
+	} {
+		t.Run(tc.name,func(t *testing.T){
+			store,_:=workspaceFixture()
+			h,err:=NewCaseSourceNavigationHTTPHandler(timelineHTTPSession{},store,store,store,store)
+			if err!=nil {t.Fatal(err)}
+			req:=httptest.NewRequest(tc.method,"/case-source-navigation?case_id=case-one",nil)
+			req.URL.RawQuery=tc.query
+			req.Header.Set("Authorization","Bearer analyst-a")
+			if tc.body!="" {req.Body=http.NoBody;req.Body=io.NopCloser(strings.NewReader(tc.body))}
+			w:=httptest.NewRecorder()
+			h.ServeHTTP(w,req)
+			if w.Code!=tc.status || store.catalogCalls!=0 {
+				t.Fatalf("invalid route reached owner: HTTP=%d calls=%d",w.Code,store.catalogCalls)
+			}
+		})
 	}
 }
