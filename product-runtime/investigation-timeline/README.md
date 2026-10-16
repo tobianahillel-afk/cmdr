@@ -1,5 +1,12 @@
 # Investigation Timeline — bounded read-only projection core
 
+## Read-only HTTP Case entry point (bounded integration)
+
+`NewCaseTimelineHTTPHandler` adapts `OpenCaseTimeline` to `net/http`. A server-provided `CaseTimelineSessionResolver` must authenticate each request and attach the authenticated principal to the returned request-derived context. The only accepted user selector is `case_id` on a bodyless GET; tenant, environment, Case, Timeline Entry and linked-source permissions are derived/checked server-side using the same Case/catalog/owner/typed-source chain. Results are non-cacheable JSON; authentication failures are generic 401, malformed selectors 400, and Case/owner denials all receive the same generic 404. No frontend-supplied access flags, cookies or `X-Tenant` headers become authority.
+
+The route is deliberately **not assigned to a public URL in this module**; the host API gateway owns routing, TLS, authentication middleware, audit, rate limiting and deployment. The injected in-memory two-tenant owner fixture in `case_http_test.go` exercises a request-to-owner-to-ACL-to-response chain, including denied/hidden sources, revocation and metadata confidentiality. These tests are NOT a deployed authenticated principal/owner repository, a real persistent Timeline catalog, an actual browser integration, a production endpoint, or evidence of production SLOs. See `work/lots/E10-INV-110B-RUNTIME/HTTP-CASE-INTEGRATION.md`.
+
+
 ## Case-to-Timeline integration (bounded functional increment)
 
 `OpenCaseTimeline` now exposes a read-only in-process service from an authorized Case selection to trusted catalog-discovered Timeline Entry IDs, first-party owner snapshots and typed source ACL checks. It reuses existing `ProjectFromOwnerSnapshotsWithTypedSources`; the server `CaseTimelineCatalog` and all other providers remain injected interfaces. Integration tests exercise a deterministic two-tenant in-memory owner fixture, **not a real deployed authenticated/persistent provider**. See `work/lots/E10-INV-110B-RUNTIME/CASE-WORKSPACE-INTEGRATION.md` for scope, acceptance evidence and outstanding gates.
