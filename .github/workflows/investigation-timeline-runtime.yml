@@ -40,7 +40,7 @@ jobs:
           (cd product-runtime/investigation-timeline && go test -count=1 -race ./...)
           (cd product-runtime/investigation-timeline && go test -count=1 -covermode=atomic -coverprofile="$GITHUB_WORKSPACE/.timeline-coverage" ./...)
           (cd product-runtime/investigation-timeline && go vet ./...)
-          go tool cover -func="$GITHUB_WORKSPACE/.timeline-coverage"
+          (cd product-runtime/investigation-timeline && go tool cover -func="$GITHUB_WORKSPACE/.timeline-coverage")
           echo "::group::Go formatting"
           gofmt -d product-runtime/investigation-timeline/*.go
           files="$(gofmt -l product-runtime/investigation-timeline/*.go)"
