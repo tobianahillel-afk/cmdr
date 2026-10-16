@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"math"
 	"os"
 	"os/exec"
@@ -130,15 +131,38 @@ func (probe timelineProbe) runContext(ctx context.Context, iterations int, mode 
 	if err != nil {
 		return pilotProjectionProbeObservation{}, err
 	}
+	return decodeTimelineProbeObservation([]byte(output), iterations, mode)
+}
+
+// decodeTimelineProbeObservation fails closed on mismatched measurement
+// identities or impossible arithmetic. No untrusted child JSON or JSON
+// decoder errors are reflected in CI logs.
+func decodeTimelineProbeObservation(data []byte, iterations int, mode string) (pilotProjectionProbeObservation, error) {
+	invalid := pilotProjectionProbeObservation{}
+	if iterations < 1 || (mode != "latency" && mode != "resource") {
+		return invalid, fmt.Errorf("invalid Timeline probe request identity")
+	}
+	decoder := json.NewDecoder(bytes.NewReader(data))
+	decoder.DisallowUnknownFields()
 	var observation pilotProjectionProbeObservation
-	if err := json.Unmarshal([]byte(strings.TrimSpace(output)), &observation); err != nil {
-		return observation, fmt.Errorf("decode Timeline probe: %w", err)
+	if decoder.Decode(&observation) != nil {
+		return invalid, fmt.Errorf("invalid Timeline probe JSON")
+	}
+	var trailing any
+	if decoder.Decode(&trailing) != io.EOF {
+		return invalid, fmt.Errorf("Timeline probe output must contain exactly one JSON object")
 	}
 	if observation.Operation != "projection" || observation.Mode != mode ||
 		observation.Operations != iterations || observation.ElapsedNS <= 0 ||
 		observation.NSPerOperation <= 0 || math.IsNaN(observation.NSPerOperation) ||
-		math.IsInf(observation.NSPerOperation, 0) {
-		return observation, fmt.Errorf("invalid Timeline probe observation")
+		math.IsInf(observation.NSPerOperation, 0) ||
+		observation.PeakHeapBytes == 0 || observation.TotalAllocationBytes == 0 {
+		return invalid, fmt.Errorf("invalid Timeline probe observation")
+	}
+	perOperation := float64(observation.ElapsedNS) / float64(iterations)
+	if math.Abs(observation.NSPerOperation-perOperation) >
+		math.Max(1e-6, perOperation*1e-9) {
+		return invalid, fmt.Errorf("inconsistent Timeline probe elapsed time and sample mean")
 	}
 	return observation, nil
 }

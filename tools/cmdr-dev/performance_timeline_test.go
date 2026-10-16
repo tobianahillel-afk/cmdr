@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"os"
 	"os/exec"
@@ -215,5 +216,84 @@ func TestTimelineSubprocessFailureRedactsChildStreams(t *testing.T) {
 	if strings.Contains(err.Error(), "SENSITIVE-TIMELINE-STDOUT-MARKER") ||
 		strings.Contains(err.Error(), "SENSITIVE-TIMELINE-STDERR-MARKER") {
 		t.Fatalf("Timeline child diagnostic leaked in error: %v", err)
+	}
+}
+
+func TestDecodeTimelineProbeObservationRejectsForgedMetrics(t *testing.T) {
+	valid := pilotProjectionProbeObservation{
+		Operation: "projection", Mode: "latency", Operations: 2,
+		ElapsedNS: 1000, NSPerOperation: 500,
+		PeakHeapBytes: 1024, TotalAllocationBytes: 4096,
+	}
+	encode := func(value pilotProjectionProbeObservation) []byte {
+		t.Helper()
+		data, err := json.Marshal(value)
+		if err != nil {
+			t.Fatal(err)
+		}
+		return data
+	}
+	if got, err := decodeTimelineProbeObservation(encode(valid), 2, "latency"); err != nil || got != valid {
+		t.Fatalf("correct measurement rejected: %+v %v", got, err)
+	}
+	alter := []struct {
+		name string
+		change func(*pilotProjectionProbeObservation)
+	}{
+		{"wrong-operation", func(v *pilotProjectionProbeObservation) { v.Operation = "case-queue" }},
+		{"wrong-mode", func(v *pilotProjectionProbeObservation) { v.Mode = "resource" }},
+		{"wrong-operations", func(v *pilotProjectionProbeObservation) { v.Operations = 1 }},
+		{"zero-elapsed", func(v *pilotProjectionProbeObservation) { v.ElapsedNS = 0 }},
+		{"fabricated-mean", func(v *pilotProjectionProbeObservation) { v.NSPerOperation = 1 }},
+		{"zero-mean", func(v *pilotProjectionProbeObservation) { v.NSPerOperation = 0 }},
+		{"zero-heap", func(v *pilotProjectionProbeObservation) { v.PeakHeapBytes = 0 }},
+		{"zero-allocations", func(v *pilotProjectionProbeObservation) { v.TotalAllocationBytes = 0 }},
+	}
+	for _, tc := range alter {
+		t.Run(tc.name, func(t *testing.T) {
+			changed := valid
+			tc.change(&changed)
+			if got, err := decodeTimelineProbeObservation(encode(changed), 2, "latency"); err == nil || got != (pilotProjectionProbeObservation{}) {
+				t.Fatalf("forged observation accepted: %+v %v", got, err)
+			}
+		})
+	}
+	for _, tc := range []struct {
+		name string
+		data string
+	}{
+		{"unknown-field", string(encode(valid)[:len(encode(valid))-1]) + `,"SENSITIVE-UNEXPECTED-KEY":true}`},
+		{"second-object", string(encode(valid)) + ` {"secret":"SENSITIVE-TRAILING-OBJECT"}`},
+		{"bad-json", `{"operation":"SENSITIVE-MALFORMED",`},
+		{"null", "null"},
+		{"missing-metrics", `{"operation":"projection","mode":"latency","operations":2,"elapsed_ns":1000,"ns_per_operation":500}`},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			got, err := decodeTimelineProbeObservation([]byte(tc.data), 2, "latency")
+			if err == nil || got != (pilotProjectionProbeObservation{}) {
+				t.Fatalf("malformed measurement accepted: %+v %v", got, err)
+			}
+			if strings.Contains(err.Error(), "SENSITIVE") {
+				t.Fatalf("untrusted child JSON leaked into validation error: %v", err)
+			}
+		})
+	}
+	if _, err := decodeTimelineProbeObservation(encode(valid), 0, "latency"); err == nil {
+		t.Fatal("invalid expected iteration count was accepted")
+	}
+}
+
+func TestDecodeTimelineProbeObservationAllowsResourceMode(t *testing.T) {
+	value := pilotProjectionProbeObservation{
+		Operation: "projection", Mode: "resource", Operations: 3,
+		ElapsedNS: 1000, NSPerOperation: float64(1000) / 3,
+		PeakHeapBytes: 1024, TotalAllocationBytes: 2048,
+	}
+	data, err := json.Marshal(value)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got, err := decodeTimelineProbeObservation(data, 3, "resource"); err != nil || got != value {
+		t.Fatalf("valid resource report rejected: %+v %v", got, err)
 	}
 }
