@@ -13,3 +13,11 @@ The existing first-party Go security adapter uses `go test -run` to evaluate aut
 - **Verification status:** publication of this note is not proof that CI passed. Record exact run IDs and findings after querying GitHub. L2 review must independently check that all alternatives actually execute at the immutable commit, not infer success from process exit code.
 
 Technical comparison: Go test's structured JSON events and existing adapter are sufficient for deterministic test-selection evidence. Adding a parallel test framework would increase dependencies and ambiguity without improving the guarantee.
+
+## Exact GitHub verification (2026-10-16)
+
+- Security implementation commit: `2f005c69f700c475aa3c3e10ea336d442a5a7e23`. At this SHA, Timeline push #38845113386 and PR #38845117782 were SUCCESS, but engineering-kernel push #38845113374 and PR #38845117774 **FAILED** solely at `CHK-FORMAT` (Go formatting), not runtime test evidence.
+- Go format correction: `39b7a32f47ed77d2844e6198a99801723abb6adf` (parent `2f005c69`), changed only `tools/cmdr-dev/security_tests_test.go`.
+- Verified *exact-SHA* success at `39b7a32f47ed77d2844e6198a99801723abb6adf`: engineering-kernel push run [38845210897](https://github.com/tobianahillel-afk/cmdr/actions/runs/38845210897) SUCCESS; engineering-kernel pull_request run [38845213926](https://github.com/tobianahillel-afk/cmdr/actions/runs/38845213926) SUCCESS; investigation-timeline-runtime pull_request run [38845214052](https://github.com/tobianahillel-afk/cmdr/actions/runs/38845214052) SUCCESS. No fourth Timeline push run was observed for this SHA; do not claim one.
+- Independent read-only L2 task scheduled on the **first code snapshot** `2f005c69`, diff `c65baf94..2f005c69`. Full report was not available when this document was written: `L2_EN_ATTENTE`. The subsequent format-only correction is separately visible in Git history, not an independently approved change.
+- These CI checks prove the current Go negative-test selection guard passed the GitHub validation suite, **not** end-to-end authorization by real Case/Shared/external source providers. Timeline navigation, `OPEN-013`, real p95 request latency and production SLO remain unresolved. Work graph stays READY.
