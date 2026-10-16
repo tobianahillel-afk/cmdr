@@ -36,13 +36,14 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	flags := flag.NewFlagSet("case-timeline-demo", flag.ContinueOnError)
 	flags.SetOutput(io.Discard)
 	principal := flags.String("principal", "analyst-a", "synthetic analyst-a or analyst-b")
+	snapshot := flags.String("snapshot", "", "absolute path to operator-owned read-only Case snapshot JSON (loopback demo only)")
 	if err := flags.Parse(args); err != nil {
 		return err
 	}
 	if flags.NArg() != 0 {
 		return errors.New("unexpected positional arguments")
 	}
-	return serveDemo(ctx, *principal, output)
+	return serveDemoWithSnapshot(ctx, *principal, *snapshot, output)
 }
 
 func randomBearer() (string, error) {
@@ -54,6 +55,10 @@ func randomBearer() (string, error) {
 }
 
 func newDemoHandler(token, principal string) (http.Handler, error) {
+	return newDemoHandlerWithData(token, principal, demoData())
+}
+
+func newDemoHandlerWithData(token, principal string, data timeline.MemoryTimelineData) (http.Handler, error) {
 	if len(token) != 64 {
 		return nil, errors.New("demo bearer must have 32 random bytes in hex")
 	}
@@ -70,7 +75,6 @@ func newDemoHandler(token, principal string) (http.Handler, error) {
 		}
 		return principal, nil
 	}
-	data := demoData()
 	handlers, err := timeline.NewMemoryCaseTimelineHTTPHandlers(authenticate, data)
 	if err != nil {
 		return nil, fmt.Errorf("assemble synthetic owner chain: %w", err)
@@ -85,17 +89,29 @@ func newDemoHandler(token, principal string) (http.Handler, error) {
 }
 
 func serveDemo(ctx context.Context, principal string, output io.Writer) error {
+	return serveDemoWithSnapshot(ctx, principal, "", output)
+}
+
+func serveDemoWithSnapshot(ctx context.Context, principal, snapshot string, output io.Writer) error {
 	if err := ctx.Err(); err != nil {
 		return err
 	}
 	if principal != "analyst-a" && principal != "analyst-b" {
 		return errors.New("select analyst-a or analyst-b")
 	}
+	data, err := loadDemoSnapshot(snapshot)
+	if err != nil {
+		return err
+	}
+	caseID, err := firstDemoAuthorizedCase(data, principal)
+	if err != nil {
+		return err
+	}
 	token, err := randomBearer()
 	if err != nil {
 		return err
 	}
-	handler, err := newDemoHandler(token, principal)
+	handler, err := newDemoHandlerWithData(token, principal, data)
 	if err != nil {
 		return err
 	}
@@ -114,10 +130,6 @@ func serveDemo(ctx context.Context, principal string, output io.Writer) error {
 		MaxHeaderBytes:    8 << 10,
 	}
 	fmt.Fprintf(output, "CMDR synthetic Case Timeline demo; NOT a production service\n")
-	caseID := "case-a"
-	if principal == "analyst-b" {
-		caseID = "case-b"
-	}
 	fmt.Fprintf(output, "URL: http://%s/case-timeline?case_id=%s&limit=2\n", listener.Addr(), caseID)
 	fmt.Fprintf(output, "Local analyst viewer: http://%s/analyst\n", listener.Addr())
 	fmt.Fprintf(output, "Bearer token (this run only): %s\n", token)
