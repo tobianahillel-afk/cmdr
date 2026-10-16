@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/subtle"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -62,6 +63,13 @@ func newReloadingDemoHandler(token, principal, path string) (http.Handler, error
 	}
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Cache-Control", "no-store")
+		w.Header().Set("X-Content-Type-Options", "nosniff")
+		// Reject anonymous callers BEFORE disk I/O or owner reconstruction.
+		// This offline viewer never accepts the file path from an HTTP request.
+		if subtle.ConstantTimeCompare([]byte(r.Header.Get("Authorization")), []byte("Bearer "+token)) != 1 {
+			http.Error(w, "request-unavailable", http.StatusUnauthorized)
+			return
+		}
 		current, err := loadDemoDataset(path)
 		if err == nil {
 			var handler http.Handler

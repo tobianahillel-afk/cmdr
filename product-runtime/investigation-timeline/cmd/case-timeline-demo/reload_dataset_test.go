@@ -77,6 +77,9 @@ func TestOfflineOwnerReloadRechecksLiveSourceAndCasePermissions(t *testing.T) {
 	}
 	check(nav, testBearer, http.StatusServiceUnavailable, "event-1")
 	check("/demo-cases", testBearer, http.StatusServiceUnavailable, "case-incident-42")
+	// Anonymous traffic cannot force parsing of a corrupted owner file,
+	// even while the authorized caller sees fail-closed unavailability.
+	check(nav, "", http.StatusUnauthorized, "event-1")
 	if err := os.Remove(path); err != nil {
 		t.Fatal(err)
 	}
