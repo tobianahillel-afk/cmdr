@@ -415,7 +415,7 @@ func TestProjectRejectsInvisibleVisibleIDsWithoutChargingHiddenEntries(t *testin
 }
 
 func TestProjectRejectsInvisibleAuthorizedSourceReferences(t *testing.T) {
-	for _, ref := range []string{"", " * ", "owner:x\\x00suffix", "owner:x\\nspoof", "owner:\\u200bsecret", "owner:\\u202ereversed"} {
+	for _, ref := range []string{"", " * ", "owner:x\x00suffix", "owner:x\nspoof", "owner:\u200bsecret", "owner:\u202ereversed"} {
 		in := allowedFixture()
 		in.Entries[0].SourceRef = ref
 		got := Project(in)
@@ -431,7 +431,7 @@ func TestProjectIgnoresMalformedOpaqueSourceReferences(t *testing.T) {
 		hidden := in.Entries[0]
 		hidden.ID = "unavailable"
 		hidden.SourcePermission = permission
-		hidden.SourceRef = "owner:\\u202ehidden\\x00"
+		hidden.SourceRef = "owner:\u202ehidden\x00"
 		in.Entries = append(in.Entries, hidden)
 		got := Project(in)
 		wantStatus := "filtered"
