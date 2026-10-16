@@ -128,5 +128,12 @@
     "independent_migrations": 0,
     "distinct_security_models": 1,
     "separately_testable_behaviors": 5
-  }
+  },
+  "outputs": [
+    "source-backed reusable CAP-INV-110 Investigation Timeline wave",
+    "six bounded child work units with explicit dependency gates",
+    "read-only tenant/permission-aware timeline projection and navigation plan",
+    "future exact-head security and performance evidence without full-capability or production SLO claims",
+    "ledger-compatible bounded handoff only after verified runtime closure"
+  ]
 }
