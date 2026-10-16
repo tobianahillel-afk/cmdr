@@ -87,6 +87,7 @@ func ProjectFromOwnerSnapshots(
 		entry, err := resolver.ResolveEntry(ctx, timelineRequest)
 		if err != nil || ctx.Err() != nil ||
 			entry.ID != id || entry.Tenant != scope.Tenant ||
+			!validTimelineEntryBeforeSourceLookup(entry) ||
 			!boundedSourceSelector(&usedSourceSelectors, entry.SourceRef) {
 			return deny
 		}

@@ -41,6 +41,16 @@ func boundedSourceSelector(used *int, ref string) bool {
 	return true
 }
 
+// validTimelineEntryBeforeSourceLookup validates the allowed snapshot's
+// structural invariants before sending a linked-source selector to an
+// external authority. Time parsing is intentionally NOT required here:
+// unknown source clocks are legitimate uncertain entries in Project.
+func validTimelineEntryBeforeSourceLookup(entry Entry) bool {
+	return validKind(entry.Kind) && entry.Provenance != "" &&
+		entry.Version >= 1 && entry.ClockUncertaintyMS >= 0 &&
+		(entry.Supersedes == "" || entry.Supersedes != entry.ID)
+}
+
 // ProjectWithAccessChecker is the opt-in trusted integration boundary for
 // read-only Timeline projections. It deliberately ignores ALL permission
 // decisions supplied by the Input; only checker-derived results are used.
@@ -132,6 +142,11 @@ func ProjectWithAccessChecker(ctx context.Context, in Input, caseID string, chec
 		}
 		entry.SourcePermission = timelineAccess
 		if timelineAccess == "allow" {
+			// Reject malformed permitted source data before contacting any
+			// external source provider. Hidden entries remain opaque.
+			if !validTimelineEntryBeforeSourceLookup(entry) {
+				return deny
+			}
 			// Source checks are independent. They MUST be resolved by their
 			// owner; this generic resource label does not grant any right.
 			if !boundedSourceSelector(&usedSourceSelectors, entry.SourceRef) {

@@ -250,3 +250,49 @@ func TestOwnerAggregatesTimelineIDsAndSourceRefsBeforeSourceAuthority(t *testing
 			result, len(checker.calls), len(owner.calls))
 	}
 }
+
+func TestOwnerMalformedAuthorizedEntryCannotReachSourceProvider(t *testing.T) {
+	for _, tc := range []struct {
+		name string
+		mutate func(*Entry)
+	}{
+		{"missing-provenance", func(e *Entry) { e.Provenance = "" }},
+		{"invalid-kind", func(e *Entry) { e.Kind = "unrecognized" }},
+		{"zero-version", func(e *Entry) { e.Version = 0 }},
+		{"negative-clock-uncertainty", func(e *Entry) { e.ClockUncertaintyMS = -1 }},
+		{"self-supersession", func(e *Entry) { e.Supersedes = e.ID }},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			checker, owner := ownerFixture()
+			entry := owner.entries["x"]
+			tc.mutate(&entry)
+			owner.entries["x"] = entry
+			got := ProjectFromOwnerSnapshots(
+				context.Background(), allowedFixture().Scope, "case-123",
+				[]string{"x"}, checker, owner,
+			)
+			if got.Status != "deny" || len(got.Entries) != 0 ||
+				len(owner.calls) != 1 || len(checker.calls) != 2 ||
+				checker.calls[0].Resource != "case" ||
+				checker.calls[1].Resource != "timeline-entry" {
+				t.Fatalf("invalid owner entry reached source authority: %+v checker=%+v owner=%+v",
+					got, checker.calls, owner.calls)
+			}
+		})
+	}
+}
+
+func TestOwnerUnknownClockStillChecksSourcePermission(t *testing.T) {
+	checker, owner := ownerFixture()
+	entry := owner.entries["x"]
+	entry.SourceTime = "unknown clock"
+	owner.entries["x"] = entry
+	got := ProjectFromOwnerSnapshots(
+		context.Background(), allowedFixture().Scope, "case-123", []string{"x"}, checker, owner,
+	)
+	if got.Status != "uncertain" || len(got.Entries) != 1 ||
+		len(checker.calls) != 3 || checker.calls[2].Resource != "source" {
+		t.Fatalf("legitimate uncertain timestamp incorrectly rejected: %+v checker=%+v",
+			got, checker.calls)
+	}
+}

@@ -476,3 +476,40 @@ func TestLegacyAggregatesTimelineIDsAndSourceRefsBeforeSourceAuthority(t *testin
 		t.Fatalf("combined selectors bypassed source boundary: %+v calls=%+v", result, checker.calls)
 	}
 }
+
+func TestLegacyMalformedAuthorizedEntryCannotReachSourceProvider(t *testing.T) {
+	for _, tc := range []struct {
+		name string
+		mutate func(*Entry)
+	}{
+		{"missing-provenance", func(e *Entry) { e.Provenance = "" }},
+		{"invalid-kind", func(e *Entry) { e.Kind = "unrecognized" }},
+		{"zero-version", func(e *Entry) { e.Version = 0 }},
+		{"negative-clock-uncertainty", func(e *Entry) { e.ClockUncertaintyMS = -1 }},
+		{"self-supersession", func(e *Entry) { e.Supersedes = e.ID }},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			in := allowedFixture()
+			tc.mutate(&in.Entries[0])
+			checker := allowedAccessChecker()
+			got := ProjectWithAccessChecker(context.Background(), in, "case-123", checker)
+			if got.Status != "deny" || len(got.Entries) != 0 ||
+				len(checker.calls) != 2 ||
+				checker.calls[0].Resource != "case" ||
+				checker.calls[1].Resource != "timeline-entry" {
+				t.Fatalf("invalid legacy entry reached source authority: %+v calls=%+v", got, checker.calls)
+			}
+		})
+	}
+}
+
+func TestLegacyUnknownClockStillChecksSourcePermission(t *testing.T) {
+	in := allowedFixture()
+	in.Entries[0].SourceTime = "unknown clock"
+	checker := allowedAccessChecker()
+	got := ProjectWithAccessChecker(context.Background(), in, "case-123", checker)
+	if got.Status != "uncertain" || len(got.Entries) != 1 ||
+		len(checker.calls) != 3 || checker.calls[2].Resource != "source" {
+		t.Fatalf("legitimate uncertain timestamp incorrectly rejected: %+v calls=%+v", got, checker.calls)
+	}
+}
