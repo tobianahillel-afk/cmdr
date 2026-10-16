@@ -555,3 +555,73 @@ func TestProjectScopeBudgetBoundaryDoesNotChargeOpaqueSources(t *testing.T) {
 		t.Fatalf("opaque source influenced envelope decision: %+v", got)
 	}
 }
+
+func TestProjectRejectsMalformedUTF8InVisibleForensicMetadata(t *testing.T) {
+	bad := string([]byte{0xff})
+	for _, tc := range []struct {
+		name string
+		mutate func(*Entry)
+	}{
+		{"source-time", func(e *Entry) { e.SourceTime = "2026-10-01T10:00:00" + bad }},
+		{"timezone", func(e *Entry) { e.Timezone = "+00:00" + bad }},
+		{"provenance", func(e *Entry) { e.Provenance = "telemetry:" + bad }},
+		{"supersedes", func(e *Entry) { e.Supersedes = "prior-" + bad }},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			in := allowedFixture()
+			tc.mutate(&in.Entries[0])
+			got := Project(in)
+			if got.Status != "deny" || len(got.Entries) != 0 {
+				t.Fatalf("malformed forensic bytes escaped: %+v", got)
+			}
+		})
+	}
+}
+
+func TestProjectMalformedOpaqueMetadataCannotAffectVisibleResult(t *testing.T) {
+	base := allowedFixture()
+	secret := base.Entries[0]
+	secret.ID = "opaque"
+	secret.SourceRef = "protected"
+	base.Entries = append(base.Entries, secret)
+	bad := string([]byte{0xff})
+	for _, permission := range []string{"deny", "unknown", "missing"} {
+		for _, mutate := range []func(*Entry){
+			func(e *Entry) { e.SourceTime = bad },
+			func(e *Entry) { e.Timezone = bad },
+			func(e *Entry) { e.Provenance = bad },
+			func(e *Entry) { e.Supersedes = bad },
+		} {
+			in := base
+			in.Entries = append([]Entry(nil), base.Entries...)
+			in.Entries[1].SourcePermission = permission
+			want := Project(in)
+			mutate(&in.Entries[1])
+			got := Project(in)
+			if !reflect.DeepEqual(got, want) || len(got.Entries) != 1 || got.Entries[0].ID != "x" {
+				t.Fatalf("hidden UTF-8 metadata influenced authorized projection: %+v want %+v", got, want)
+			}
+		}
+	}
+	foreign := base
+	foreign.Entries = append([]Entry(nil), base.Entries...)
+	foreign.Entries[1].Tenant = "tenant-b"
+	foreign.Entries[1].SourcePermission = "allow"
+	foreign.Entries[1].Provenance = bad
+	got := Project(foreign)
+	if got.Status != "filtered" || len(got.Entries) != 1 || got.Entries[0].ID != "x" {
+		t.Fatalf("foreign UTF-8 metadata affected projection: %+v", got)
+	}
+}
+
+func TestProjectPreservesValidUnicodeAndUnknownClockStrings(t *testing.T) {
+	in := allowedFixture()
+	in.Entries[0].Provenance = "référence:证据"
+	in.Entries[0].SourceTime = "unknown source clock"
+	in.Entries[0].Timezone = "unresolved"
+	got := Project(in)
+	if got.Status != "uncertain" || len(got.Entries) != 1 || got.Entries[0].Provenance != in.Entries[0].Provenance ||
+		got.Entries[0].SourceTime != in.Entries[0].SourceTime || got.Entries[0].Timezone != in.Entries[0].Timezone {
+		t.Fatalf("valid Unicode or unknown clock changed: %+v", got)
+	}
+}

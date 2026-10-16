@@ -115,6 +115,14 @@ func Project(input Input) Result {
 			e.ClockUncertaintyMS < 0 || (e.Supersedes != "" && e.Supersedes == e.ID) {
 			return deny
 		}
+		// Forensic metadata must never change silently on JSON encoding.
+		// encoding/json replaces malformed UTF-8 with U+FFFD; reject
+		// visible invalid bytes instead of silently rewriting timestamps,
+		// provenance or version references. Hidden entries stay opaque.
+		if !utf8.ValidString(e.SourceTime) || !utf8.ValidString(e.Timezone) ||
+			!utf8.ValidString(e.Provenance) || !utf8.ValidString(e.Supersedes) {
+			return deny
+		}
 		instant, err := time.Parse(time.RFC3339Nano, e.SourceTime)
 		// A numeric negative-zero offset says that the local offset is
 		// unknown; time.Parse normalizes it to zero and loses that signal.
