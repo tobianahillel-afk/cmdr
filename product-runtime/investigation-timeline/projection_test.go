@@ -559,7 +559,7 @@ func TestProjectScopeBudgetBoundaryDoesNotChargeOpaqueSources(t *testing.T) {
 func TestProjectRejectsMalformedUTF8InVisibleForensicMetadata(t *testing.T) {
 	bad := string([]byte{0xff})
 	for _, tc := range []struct {
-		name string
+		name   string
 		mutate func(*Entry)
 	}{
 		{"source-time", func(e *Entry) { e.SourceTime = "2026-10-01T10:00:00" + bad }},
