@@ -98,3 +98,34 @@ jobs:
             ${{ runner.temp }}/timeline-resource.json
           if-no-files-found: error
           retention-days: 30
+
+  platform-process:
+    name: Timeline process tree / ${{ matrix.os }}
+    # Run OS-specific cancellation code instead of assuming Linux coverage.
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest]
+    steps:
+      - name: Checkout immutable source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up pinned Go toolchain
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: tools/cmdr-dev/go.mod
+          cache: false
+      - name: Compile and exercise Timeline subprocess boundaries
+        shell: bash
+        working-directory: tools/cmdr-dev
+        run: |
+          set -euo pipefail
+          go build -trimpath -o "$RUNNER_TEMP/cmdr-dev-platform" .
+          go vet ./...
+          go test -count=1 -timeout=6m -v \
+            -run '^TestTimeline(Process|Subprocess|Output|Bounded|ProbeReal|ProbeContext)' .
+          echo "### Timeline subprocess platform smoke: $RUNNER_OS" >> "$GITHUB_STEP_SUMMARY"
+          echo "Exact source: $GITHUB_SHA; runner test only, no production SLA." >> "$GITHUB_STEP_SUMMARY"
