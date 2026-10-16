@@ -129,3 +129,35 @@ jobs:
             -run '^TestTimeline(Process|Subprocess|Output|Bounded|ProbeReal|ProbeContext)' .
           echo "### Timeline subprocess platform smoke: $RUNNER_OS" >> "$GITHUB_STEP_SUMMARY"
           echo "Exact source: $GITHUB_SHA; runner test only, no production SLA." >> "$GITHUB_STEP_SUMMARY"
+
+  fuzz:
+    name: Timeline bounded opaque-source fuzz / Linux
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout exact published source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up pinned Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: product-runtime/investigation-timeline/go.mod
+          cache: false
+      - name: Execute bounded Go-native fuzzing
+        shell: bash
+        working-directory: product-runtime/investigation-timeline
+        run: |
+          set -euo pipefail
+          # Normal go test only executes seeds. This runs Go's mutation engine,
+          # with no external fuzz SaaS or persistent corpus upload.
+          go test -run '^$' \
+            -fuzz '^FuzzProjectionOpaqueFieldsDoNotInterfere$' \
+            -fuzztime=25s -parallel=2 -timeout=3m .
+          {
+            echo "### Timeline bounded opaque-source fuzz campaign"
+            echo "Source SHA: `$GITHUB_SHA`"
+            echo "Duration budget: 25 seconds; Go fuzz engine with 2 workers."
+            echo "Synthetic non-authorized source fields only; not provider ACL testing."
+            echo "No retained fuzz corpus, no claim of exhaustive test coverage."
+          } >> "$GITHUB_STEP_SUMMARY"
