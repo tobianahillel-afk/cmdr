@@ -362,14 +362,14 @@ func TestOwnerDeniedLaterTimelineNeverResolvesDeniedEntry(t *testing.T) {
 
 func TestOwnerPrevalidatesAllSnapshotsBeforeSourceChecks(t *testing.T) {
 	for _, malformed := range []struct {
-		name string
+		name   string
 		mutate func(*Entry)
 	}{
 		{"wrong-id", func(e *Entry) { e.ID = "wrong" }},
 		{"missing-provenance", func(e *Entry) { e.Provenance = "" }},
 		{"invalid-kind", func(e *Entry) { e.Kind = "unrecognized" }},
 		{"bad-source-selector", func(e *Entry) { e.SourceRef = " * " }},
-		{"oversized-source-selector", func(e *Entry) { e.SourceRef = strings.Repeat("x", MaxInputBytes + 1) }},
+		{"oversized-source-selector", func(e *Entry) { e.SourceRef = strings.Repeat("x", MaxInputBytes+1) }},
 	} {
 		t.Run(malformed.name, func(t *testing.T) {
 			checker, owner := ownerFixture()
