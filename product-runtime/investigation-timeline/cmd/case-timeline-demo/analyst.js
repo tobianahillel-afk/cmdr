@@ -528,19 +528,39 @@
         " événement(s), horodatages incertains à la fin. " +
         "Ordre de triage uniquement, ni causalité ni preuve de conservation.";
       comparisonChronology.append(heading);
+      // Both group and event drill-downs reuse the server-authorized Case
+      // search path. Correlation never grants source-owner or Case access.
+      function reopenAuthorizedCase(targetCase, query) {
+        if (activeComparison !== compareRevision ||
+            activeSelection !== revision || controller.signal.aborted ||
+            token.value !== bearer || caseID.value.trim() !== selectedCase ||
+            compareCase.value.trim() !== otherCase ||
+            !query || query.length > 96) return;
+        caseID.value = targetCase;
+        search.value = query;
+        // Invalidate the comparison, clear stale previews and start a new
+        // authorized Case/Timeline/source request.
+        caseID.dispatchEvent(new Event("input", { bubbles: true }));
+        fetchPage();
+      }
       const list = document.createElement("ol");
       for (const row of merged.slice(0, 20)) {
         const item = document.createElement("li");
         item.textContent = "Case " + row.side + " · " + row.id + " · " +
           row.kind + " · " + row.ref + " · " +
           (row.uncertain ? "heure incertaine" : new Date(row.instant).toISOString());
+        if (row.id.length <= 96) {
+          const drillDown = document.createElement("button");
+          drillDown.type = "button";
+          drillDown.textContent = "Rechercher cet événement dans Case " + row.side;
+          drillDown.addEventListener("click", () =>
+            reopenAuthorizedCase(row.side === "A" ? selectedCase : otherCase, row.id));
+          item.append(drillDown);
+        }
         list.append(item); // textContent prevents operator-controlled HTML injection
       }
       comparisonChronology.append(list);
-      // A correlation is a triage hint, NOT an authority. Pivot into the
-      // existing Case search; fetchPage performs a fresh server-side Case,
-      // Timeline Entry and source authorization before showing any result.
-      // Limit source references to the existing 96-character search field.
+      // Source-reference pivots follow the same fresh authorization path.
       for (const group of common.slice(0, 5)) {
         if (group.ref.length > 96) continue;
         for (const targetCase of [selectedCase, otherCase]) {
@@ -549,18 +569,7 @@
           button.textContent = "Examiner dans " +
             (targetCase === selectedCase ? "Case A" : "Case B") +
             " : " + group.ref;
-          button.addEventListener("click", () => {
-            if (activeComparison !== compareRevision ||
-                activeSelection !== revision || controller.signal.aborted ||
-                token.value !== bearer || caseID.value.trim() !== selectedCase ||
-                compareCase.value.trim() !== otherCase) return;
-            caseID.value = targetCase;
-            search.value = group.ref;
-            // The input listener invalidates the aggregate, aborts old
-            // requests, clears owner previews and resets pagination.
-            caseID.dispatchEvent(new Event("input", { bubbles: true }));
-            fetchPage();
-          });
+          button.addEventListener("click", () => reopenAuthorizedCase(targetCase, group.ref));
           comparisonActions.append(button);
         }
       }

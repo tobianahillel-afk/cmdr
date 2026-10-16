@@ -897,3 +897,107 @@ test("cross-Case chronology never displays partial or stale results after denial
   assert.equal(env.fields["comparison-chronology"].children.length, 0);
   assert.equal(env.fields["download-comparison"].disabled, true);
 });
+
+test("correlated event drill-down reopens its Case under fresh server authority", async () => {
+  const env = boot(url => {
+    const target = url.searchParams.get("case_id");
+    if (url.searchParams.get("limit") === "20") {
+      assert.equal(target, "case-peer");
+      assert.equal(url.searchParams.get("q"), "event-0");
+      return { ok: true, async json() {
+        return {
+          status: "allow",
+          page: { offset: 0, limit: 20, total_visible: 1, has_more: false },
+          entries: [{
+            id: "event-0", kind: "observed", source_ref: "shared-ref",
+            source_time: "2026-10-01T10:00:00.000Z", provenance: "authorized"
+          }]
+        };
+      } };
+    }
+    return page(0, 2, { sourceFor: () => "shared-ref" });
+  });
+  env.fields["compare-case"].value = "case-peer";
+  env.fields.compare.handlers.click();
+  for (let i = 0; i < 5; i++) await flush();
+  const [, list] = env.fields["comparison-chronology"].children;
+  assert.equal(list.children.length, 4);
+  const row = list.children.find(item => /Case B.*event-0/.test(item.textContent));
+  assert.ok(row);
+  const button = row.children[0];
+  assert.match(button.textContent, /Rechercher cet événement dans Case B/);
+  const original = env.requests.length;
+  button.handlers.click();
+  for (let i = 0; i < 3; i++) await flush();
+  assert.equal(env.requests.length, original + 1);
+  assert.equal(env.fields["case-id"].value, "case-peer");
+  assert.equal(env.fields.search.value, "event-0");
+  const request = env.requests.at(-1);
+  assert.equal(request.url.pathname, "/case-timeline");
+  assert.equal(request.options.headers.Authorization, "Bearer ephemeral-token");
+  assert.equal(request.options.credentials, "omit");
+  assert.equal(request.options.cache, "no-store");
+  assert.ok(!request.url.href.includes("ephemeral-token"));
+  assert.equal(env.fields["comparison-chronology"].children.length, 0);
+  // A detached event button cannot reuse its old comparison authority.
+  button.handlers.click();
+  await flush();
+  assert.equal(env.requests.length, original + 1);
+});
+
+test("correlated event drill-down cannot bypass changed bearer or Case revocation", async () => {
+  let permitted = true;
+  const env = boot(url => {
+    if (url.searchParams.get("limit") === "20") {
+      return { ok: permitted, async json() {
+        if (!permitted) throw Error("revoked Case must not decode");
+        return page(0, 1).json();
+      } };
+    }
+    return page(0, 1, { sourceFor: () => "shared-ref" });
+  });
+  env.fields["compare-case"].value = "case-peer";
+  env.fields.compare.handlers.click();
+  for (let i = 0; i < 5; i++) await flush();
+  const [, list] = env.fields["comparison-chronology"].children;
+  const row = list.children.find(item => /Case B/.test(item.textContent));
+  assert.ok(row && row.children[0]);
+  const button = row.children[0];
+  permitted = false;
+  button.handlers.click();
+  for (let i = 0; i < 4; i++) await flush();
+  assert.match(env.fields.message.textContent, /Accès refusé/);
+  assert.equal(env.fields["source-detail"].hidden, true);
+  const total = env.requests.length;
+  button.handlers.click();
+  assert.equal(env.requests.length, total);
+
+  const stale = boot(() => page(0, 1, { sourceFor: () => "shared-ref" }));
+  stale.fields["compare-case"].value = "case-peer";
+  stale.fields.compare.handlers.click();
+  for (let i = 0; i < 5; i++) await flush();
+  const [, staleList] = stale.fields["comparison-chronology"].children;
+  const oldButton = staleList.children[0].children[0];
+  stale.fields.token.value = "new-bearer";
+  oldButton.handlers.click();
+  assert.equal(stale.requests.length, 2);
+});
+
+test("oversized correlated entry identifiers remain text-only", async () => {
+  const oversized = "E".repeat(97);
+  const env = boot(url => ({
+    ok: true,
+    async json() {
+      const result = await page(0, 1, { sourceFor: () => "shared-ref" }).json();
+      result.entries[0].id = oversized;
+      return result;
+    }
+  }));
+  env.fields["compare-case"].value = "case-peer";
+  env.fields.compare.handlers.click();
+  for (let i = 0; i < 5; i++) await flush();
+  const [, list] = env.fields["comparison-chronology"].children;
+  assert.equal(list.children.length, 2);
+  assert.ok(list.children.every(item => item.children.length === 0));
+  assert.equal(env.fields["comparison-actions"].children.length, 2);
+});
