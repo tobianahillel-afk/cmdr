@@ -11,7 +11,8 @@ const ids = [
   "query", "token", "case-id", "kind", "search", "case-options", "discover",
   "case-discovery-status", "from", "to", "entries", "summary", "message",
   "page", "previous", "next", "load", "source-detail", "source-status",
-  "return-to-case", "copy-return-link", "analyze", "analysis", "analysis-actions", "download-report"
+  "return-to-case", "copy-return-link", "analyze", "analysis", "analysis-actions", "download-report",
+  "compare-case", "compare", "comparison"
 ];
 function node() {
   return {
@@ -427,4 +428,77 @@ test("JSON export is disabled for incomplete, revoked or changed analysis", asyn
   assert.equal(bad.fields["download-report"].disabled, true);
   bad.fields["download-report"].handlers.click();
   assert.equal(bad.downloads.length, 0);
+});
+
+test("two authorized Cases yield exact shared-source counts across HTTP page boundaries", async () => {
+  const env = boot(url => {
+    const at = Number(url.searchParams.get("offset"));
+    const id = url.searchParams.get("case_id");
+    assert.equal(url.pathname, "/case-timeline");
+    if (id === "case-disk") return page(at, 205, {
+      sourceFor: n => n < 201 ? "shared-ref" : "only-left"
+    });
+    if (id === "case-peer") return page(at, 3, {
+      sourceFor: n => n < 2 ? "shared-ref" : "only-right"
+    });
+    throw Error("unexpected Case");
+  });
+  env.fields["compare-case"].value = "case-peer";
+  env.fields.compare.handlers.click();
+  for (let i = 0; i < 6; i++) await flush();
+  assert.deepEqual(env.requests.map(r => [r.url.searchParams.get("case_id"),r.url.searchParams.get("offset")]),
+    [["case-disk","0"],["case-disk","200"],["case-peer","0"]]);
+  assert.match(env.fields.comparison.textContent, /205 \/ 3/);
+  assert.match(env.fields.comparison.textContent, /références communes : 1/);
+  assert.match(env.fields.comparison.textContent, /shared-ref : 201 \/ 2/);
+  assert.doesNotMatch(env.fields.comparison.textContent, /only-left|only-right/);
+  assert.ok(env.requests.every(r => r.options.headers.Authorization === "Bearer ephemeral-token" &&
+    r.options.credentials === "omit" && r.options.cache === "no-store" &&
+    !r.url.href.includes("ephemeral-token")));
+});
+
+test("cross-tenant Case denial fails closed with no partial cross-Case correlation", async () => {
+  const env = boot(url => url.searchParams.get("case_id") === "case-peer"
+    ? { ok: false, async json() { throw Error("must not decode denied Case"); } }
+    : page(Number(url.searchParams.get("offset")), 2));
+  env.fields["compare-case"].value = "case-peer";
+  env.fields.compare.handlers.click();
+  for (let i = 0; i < 5; i++) await flush();
+  assert.equal(env.requests.length, 2);
+  assert.match(env.fields.comparison.textContent, /Aucun résultat partiel/);
+  assert.doesNotMatch(env.fields.comparison.textContent, /source-0/);
+});
+
+test("Case or token change invalidates an in-flight cross-Case comparison", async () => {
+  let release;
+  const pending = new Promise(resolve => { release = resolve; });
+  const env = boot(url => url.searchParams.get("case_id") === "case-peer"
+    ? pending : page(Number(url.searchParams.get("offset")), 1));
+  env.fields["compare-case"].value = "case-peer";
+  env.fields.compare.handlers.click();
+  await flush();
+  await flush();
+  assert.equal(env.requests.length, 2);
+  env.fields.token.value = "revoked-bearer";
+  env.fields.token.handlers.input();
+  release(page(0, 1));
+  await flush();
+  await flush();
+  assert.equal(env.requests[1].options.signal.aborted, true);
+  assert.match(env.fields.comparison.textContent, /Aucune comparaison calculée/);
+  assert.equal(env.fields.compare.disabled, false);
+});
+
+test("second Case cannot reuse same Case or absent bearer as a comparison", async () => {
+  const env = boot(() => { throw Error("HTTP must not be called"); });
+  env.fields["compare-case"].value = "case-disk";
+  env.fields.compare.handlers.click();
+  await flush();
+  assert.equal(env.requests.length, 0);
+  env.fields["compare-case"].value = "case-peer";
+  env.fields.token.value = "";
+  env.fields.compare.handlers.click();
+  await flush();
+  assert.equal(env.requests.length, 0);
+  assert.match(env.fields.comparison.textContent, /Choisissez deux Cases/);
 });

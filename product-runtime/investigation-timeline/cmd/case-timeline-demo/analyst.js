@@ -43,6 +43,18 @@
   const analyze = document.getElementById("analyze");
   const analysis = document.getElementById("analysis");
   const analysisActions = document.getElementById("analysis-actions");
+  const compareCase = document.getElementById("compare-case");
+  const compareButton = document.getElementById("compare");
+  const comparison = document.getElementById("comparison");
+  let compareRevision = 0;
+  let compareRequest = null;
+  function clearComparison() {
+    ++compareRevision;
+    if (compareRequest) compareRequest.abort();
+    compareRequest = null;
+    compareButton.disabled = false;
+    comparison.textContent = "Aucune comparaison calculée.";
+  }
   const downloadReport = document.getElementById("download-report");
   let analysisRequest = null;
   let analysisRevision = 0;
@@ -252,6 +264,107 @@
       if (currentRevision === analysisRevision) {
         analysisRequest = null;
         analyze.disabled = false;
+      }
+    }
+  }
+
+  // Compare two fully reauthorized Case timelines, without an extra API,
+  // frontend trust decision, owner-source read or unscoped search index.
+  async function compareAuthorizedCases() {
+    const selectedCase = caseID.value.trim();
+    const otherCase = compareCase.value.trim();
+    const bearer = token.value;
+    const windowSelection = readWindow();
+    clearComparison();
+    if (!bearer || !selectedCase || !otherCase || selectedCase === otherCase ||
+        !windowSelection || otherCase.length > 1024) {
+      comparison.textContent = "Choisissez deux Cases différents et un jeton local.";
+      return;
+    }
+    const activeComparison = compareRevision;
+    const activeSelection = revision;
+    const controller = new AbortController();
+    compareRequest = controller;
+    compareButton.disabled = true;
+    comparison.textContent = "Comparaison des pages autorisées en cours…";
+    const pageSize = 200;
+    const allowedKinds = new Set(["observed", "inferred", "user-action", "decision", "response"]);
+    // Each fetch goes through the existing server-side Case/Timeline/source
+    // ACL chain. One inaccessible Case invalidates the ENTIRE comparison.
+    async function sourcesFor(id) {
+      const groups = new Map();
+      const seen = new Set();
+      let total = null;
+      for (let at = 0; at === 0 || at < total; at += pageSize) {
+        if (controller.signal.aborted) throw Error("comparison cancelled");
+        const url = new URL("/case-timeline", window.location.origin);
+        url.searchParams.set("case_id", id);
+        url.searchParams.set("limit", String(pageSize));
+        url.searchParams.set("offset", String(at));
+        if (kind.value) url.searchParams.set("kind", kind.value);
+        if (search.value.trim()) url.searchParams.set("q", search.value.trim());
+        if (windowSelection.from) url.searchParams.set("from", windowSelection.from);
+        if (windowSelection.to) url.searchParams.set("to", windowSelection.to);
+        const response = await fetch(url, {
+          method: "GET", headers: { Authorization: "Bearer " + bearer },
+          cache: "no-store", credentials: "omit", redirect: "error",
+          mode: "same-origin", signal: controller.signal
+        });
+        if (!response.ok) throw Error("Case unavailable");
+        const data = await response.json();
+        if (controller.signal.aborted || activeComparison !== compareRevision ||
+            activeSelection !== revision) throw Error("comparison invalidated");
+        if (!data || !data.page || !Array.isArray(data.entries) ||
+            !Number.isSafeInteger(data.page.total_visible) ||
+            data.page.total_visible < 0 || data.page.total_visible > 5000 ||
+            data.page.limit !== pageSize || data.page.offset !== at ||
+            !["allow", "filtered", "partial", "uncertain", "empty"].includes(data.status) ||
+            (total !== null && total !== data.page.total_visible)) {
+          throw Error("inconsistent authorized comparison page");
+        }
+        total = data.page.total_visible;
+        const expected = Math.min(pageSize, Math.max(0, total - at));
+        if (data.entries.length !== expected ||
+            data.page.has_more !== (at + expected < total)) {
+          throw Error("incomplete authorized comparison");
+        }
+        for (const entry of data.entries) {
+          if (!entry || typeof entry.id !== "string" || !entry.id ||
+              seen.has(entry.id) || !allowedKinds.has(entry.kind) ||
+              typeof entry.source_ref !== "string" || !entry.source_ref) {
+            throw Error("invalid authorized comparison entry");
+          }
+          seen.add(entry.id);
+          groups.set(entry.source_ref, (groups.get(entry.source_ref) || 0) + 1);
+        }
+      }
+      return { total, groups };
+    }
+    try {
+      const left = await sourcesFor(selectedCase);
+      const right = await sourcesFor(otherCase);
+      if (controller.signal.aborted || activeComparison !== compareRevision ||
+          activeSelection !== revision) return;
+      const common = [...left.groups].filter(([ref]) => right.groups.has(ref))
+        .map(([ref, count]) => ({ ref, left: count, right: right.groups.get(ref) }))
+        .sort((a, b) => Math.min(b.left, b.right) - Math.min(a.left, a.right) ||
+          (a.ref < b.ref ? -1 : a.ref > b.ref ? 1 : 0));
+      const top = common.slice(0, 5).map(group =>
+        (group.ref.length > 120 ? group.ref.slice(0, 120) + "… (abrégée)" : group.ref) +
+        " : " + group.left + " / " + group.right).join(" · ");
+      comparison.textContent = "Comparaison des événements autorisés : " +
+        left.total + " / " + right.total + " · références communes : " +
+        common.length + (top ? " · " + top : "") +
+        ". Présence commune d'une référence exacte, pas une preuve de causalité, " +
+        "d'identité d'objet ou d'exhaustivité. Lectures non transactionnelles.";
+    } catch {
+      if (activeComparison === compareRevision) {
+        comparison.textContent = "Comparaison indisponible ou droits modifiés. Aucun résultat partiel.";
+      }
+    } finally {
+      if (activeComparison === compareRevision) {
+        compareRequest = null;
+        compareButton.disabled = false;
       }
     }
   }
@@ -633,6 +746,8 @@
     fetchPage(); // reauthorize the Case and Timeline; keep current filters and offset
   });
   analyze.addEventListener("click", analyzeAuthorizedCase);
+  compareButton.addEventListener("click", compareAuthorizedCases);
+  compareCase.addEventListener("input", clearComparison);
   downloadReport.addEventListener("click", () => {
     const receipt = preparedReport;
     if (!receipt || receipt.revision !== analysisRevision ||
@@ -690,6 +805,7 @@
       }
       ++revision;
       clearAnalysis();
+      clearComparison();
       clearSource();
       if (activeRequest) activeRequest.abort();
       activeRequest = null;

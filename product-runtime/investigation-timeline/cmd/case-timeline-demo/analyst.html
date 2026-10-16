@@ -70,6 +70,17 @@
       <p class="intro">Enregistrement volontaire sur votre appareil : seul le résumé des événements autorisés et les trois principales références de source sont inclus. Aucun jeton ni aperçu brut n’est exporté. Le fichier n’est ni signé ni une preuve de chaîne de conservation ; il peut devenir périmé si les droits ou données changent. Ne l’utilisez pas avec des données clients réelles.</p>
       <p class="intro">Chaque action ouvre une entrée représentative après une nouvelle vérification des droits Case, événement et source. Les groupes ne démontrent ni causalité ni exhaustivité des données.</p>
     </section>
+    <section aria-labelledby="compare-title">
+      <h2 id="compare-title">Comparer deux Cases autorisés</h2>
+      <div class="field">
+        <label for="compare-case">Deuxième Case à comparer</label>
+        <input id="compare-case" type="text" autocomplete="off" maxlength="1024"
+               placeholder="Autre identifiant de Case autorisé">
+      </div>
+      <button id="compare" type="button">Comparer les références de source visibles</button>
+      <p id="comparison" role="status" aria-live="polite">Aucune comparaison calculée.</p>
+      <p class="intro">Cette comparaison lit à nouveau les pages des deux Cases avec le jeton actuel et les mêmes filtres. Elle ne présente que les références identiques déjà autorisées par le serveur. Aucun résultat partiel n'est affiché en cas de refus, et aucune cooccurrence ne constitue une preuve de causalité. Démonstration locale synthétique sans index inter-Cases.</p>
+    </section>
     <section aria-labelledby="results-title">
       <div class="section-title">
         <h2 id="results-title">Événements autorisés</h2>
