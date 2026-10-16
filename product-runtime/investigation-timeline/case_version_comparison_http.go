@@ -12,10 +12,10 @@ import (
 // snapshots. It never resolves owner content or authorizes via browser fields.
 type CaseVersionComparisonHTTPHandler struct {
 	sessions CaseTimelineSessionResolver
-	checker AccessChecker
-	catalog CaseTimelineCatalog
-	entries EntryResolver
-	sources SourceOwnerResolver
+	checker  AccessChecker
+	catalog  CaseTimelineCatalog
+	entries  EntryResolver
+	sources  SourceOwnerResolver
 }
 
 func NewCaseVersionComparisonHTTPHandler(sessions CaseTimelineSessionResolver,
@@ -29,8 +29,8 @@ func NewCaseVersionComparisonHTTPHandler(sessions CaseTimelineSessionResolver,
 }
 
 type caseVersionComparison struct {
-	Status string `json:"status"`
-	Current ProjectedEntry `json:"current"`
+	Status   string         `json:"status"`
+	Current  ProjectedEntry `json:"current"`
 	Previous ProjectedEntry `json:"previous"`
 	// Neither row is a redirect, authorization, or a durable evidence export.
 	IsAuthority bool `json:"is_authority"`

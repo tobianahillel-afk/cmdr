@@ -13,7 +13,7 @@ type CaseInvestigationHTTPHandlers struct {
 	Cases    http.Handler
 	Timeline http.Handler
 	Navigate http.Handler
-	Compare http.Handler
+	Compare  http.Handler
 }
 
 // NewCaseInvestigationHTTPHandlers composes existing providers rather than

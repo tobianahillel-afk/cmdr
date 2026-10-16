@@ -7,3 +7,9 @@ Two versions are only disclosed if BOTH are visible in the same freshly authoriz
 Reuse-first: CMDR's first-party `OpenCaseTimeline`, `Project`, `CaseInvestigationHTTPHandlers` and Go standard-library `net/http` and `encoding/json`. No third-party indexing, DB, generic diff engine or new permission abstraction.
 
 Acceptance: a real HTTP test with operator-imported owner JSON validates the authorized v2 inferred → v1 observed pair, independent of a filtered Timeline page; anonymous/foreign/tampered cases are denied, and predecessor source revocation suppresses comparison. Product Spec remains unchanged and `OPEN-013` unresolved. No production IdP, historical owner persistence, transactionally consistent snapshot, or final source-owner screen is claimed. This is the reusable functional source-safe comparison primitive for the local analyst flow.
+
+## Analyst interface
+
+The existing local browser now provides **Comparer les versions autorisées** only for visible entries with a non-redacted `supersedes` reference. On activation it performs a new authenticated `GET /case-version-comparison` regardless of active page/filter, and renders the two version IDs, kinds, timestamps, source references and provenances using inert `textContent` nodes. Changing the bearer, Case, filters or page removes the comparison and aborts any pending request. No credentials go into URLs or persistent browser storage. Native `node:test` executes the browser logic in CI in addition to the real Go HTTP integration and cross-platform checks.
+
+Denied, revoked, anonymous, malformed, forged or cross-tenant comparisons return no owner metadata. The offline snapshot demo is still not a live SOAR/DFIR back end or an authoritative identity provider.
