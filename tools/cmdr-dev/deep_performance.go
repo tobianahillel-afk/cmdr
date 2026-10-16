@@ -448,12 +448,12 @@ func runDeepPerformanceHandler(ctx context.Context, root string, target DeepPerf
 		if err := ctx.Err(); err != nil {
 			return DeepPerformanceObservation{}, err
 		}
-		probe, cleanup, err := prepareTimelineProbe(root)
+		probe, cleanup, err := prepareTimelineProbeContext(ctx, root)
 		if err != nil {
 			return DeepPerformanceObservation{}, err
 		}
 		defer cleanup()
-		observation, err := probe.run(target.Iterations, "resource", target.MemoryLimitMiB)
+		observation, err := probe.runContext(ctx, target.Iterations, "resource", target.MemoryLimitMiB)
 		if err != nil {
 			return DeepPerformanceObservation{}, err
 		}

@@ -1,8 +1,13 @@
 package main
 
 import (
+	"context"
+	"errors"
+	"os"
 	"path/filepath"
+	"strings"
 	"testing"
+	"time"
 )
 
 func TestTimelineProbeRealExecutableMeasurement(t *testing.T) {
@@ -47,5 +52,49 @@ func TestTimelineExplicitBenchmarkSelectionIsBounded(t *testing.T) {
 	}
 	if _, err := selectPerformanceTargetsByID(targets, "on-demand", defaultCIEnvironment, []string{"PERF-TGT-INV-TIMELINE-PROJECTION", "PERF-TGT-INV-TIMELINE-PROJECTION"}); err == nil {
 		t.Fatal("duplicate target selection was accepted")
+	}
+}
+
+func TestTimelineSubprocessTimeoutHelper(t *testing.T) {
+	if os.Getenv("CMDR_TIMELINE_TIMEOUT_HELPER") == "sleep" {
+		time.Sleep(3 * time.Second)
+	}
+}
+
+func TestTimelineProcessEnforcesChildDeadline(t *testing.T) {
+	t.Setenv("CMDR_TIMELINE_TIMEOUT_HELPER", "sleep")
+	ctx, cancel := context.WithTimeout(context.Background(), 120*time.Millisecond)
+	defer cancel()
+	started := time.Now()
+	_, err := runTimelinePerformanceProcess(ctx, t.TempDir(), os.Args[0], "-test.run=^TestTimelineSubprocessTimeoutHelper$")
+	if !errors.Is(err, context.DeadlineExceeded) {
+		t.Fatalf("child deadline not enforced: %v", err)
+	}
+	if elapsed := time.Since(started); elapsed > 2*time.Second {
+		t.Fatalf("cancelled child remained running: %s", elapsed)
+	}
+}
+
+func TestTimelineProcessCancelAndSuccess(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	_, err := runTimelinePerformanceProcess(ctx, t.TempDir(), "go", "version")
+	if !errors.Is(err, context.Canceled) {
+		t.Fatalf("cancelled process was launched: %v", err)
+	}
+	ctx, done := context.WithTimeout(context.Background(), 10*time.Second)
+	defer done()
+	output, err := runTimelinePerformanceProcess(ctx, t.TempDir(), "go", "version")
+	if err != nil || !strings.HasPrefix(output, "go version") {
+		t.Fatalf("real subprocess failed: %q %v", output, err)
+	}
+}
+
+func TestTimelineProbeContextCancel(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	_, err := (timelineProbe{moduleRoot: t.TempDir(), binaryPath: "should-not-run"}).runContext(ctx, 1, "latency", 0)
+	if !errors.Is(err, context.Canceled) {
+		t.Fatalf("cancellation was not propagated: %v", err)
 	}
 }

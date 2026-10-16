@@ -1,14 +1,23 @@
 package main
 
 import (
+	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"math"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"runtime"
 	"strconv"
 	"strings"
+	"time"
+)
+
+const (
+	timelineBuildTimeout = 90 * time.Second
+	timelineProbeTimeout = 25 * time.Second
 )
 
 type timelineProbe struct {
@@ -16,7 +25,39 @@ type timelineProbe struct {
 	binaryPath string
 }
 
+// The ordinary performance runner has no process deadline. Timeline probes
+// are executed with a bounded child lifetime, including on deep-audit timeout.
+func runTimelinePerformanceProcess(ctx context.Context, dir, name string, args ...string) (string, error) {
+	if err := ctx.Err(); err != nil {
+		return "", fmt.Errorf("Timeline process cancelled: %w", err)
+	}
+	cmd := exec.CommandContext(ctx, name, args...) // #nosec G204,G702 -- constant Go tool or repo-compiled probe, no shell.
+	cmd.Dir = dir
+	var stdout, stderr bytes.Buffer
+	cmd.Stdout, cmd.Stderr = &stdout, &stderr
+	if err := cmd.Run(); err != nil {
+		if ctxErr := ctx.Err(); ctxErr != nil {
+			return "", fmt.Errorf("Timeline process timed out or cancelled: %w", ctxErr)
+		}
+		diagnostic := strings.TrimSpace(stderr.String())
+		if diagnostic == "" {
+			diagnostic = strings.TrimSpace(stdout.String())
+		}
+		if diagnostic == "" {
+			diagnostic = err.Error()
+		}
+		return "", fmt.Errorf("Timeline process failed: %s", diagnostic)
+	}
+	return strings.TrimSpace(stdout.String()), nil
+}
+
 func prepareTimelineProbe(root string) (timelineProbe, func(), error) {
+	ctx, cancel := context.WithTimeout(context.Background(), timelineBuildTimeout)
+	defer cancel()
+	return prepareTimelineProbeContext(ctx, root)
+}
+
+func prepareTimelineProbeContext(ctx context.Context, root string) (timelineProbe, func(), error) {
 	moduleRoot, err := resolveRepoPath(root, "product-runtime/investigation-timeline", false)
 	if err != nil {
 		return timelineProbe{}, func() {}, fmt.Errorf("Timeline runtime unavailable: %w", err)
@@ -33,7 +74,7 @@ func prepareTimelineProbe(root string) (timelineProbe, func(), error) {
 		binaryName += ".exe"
 	}
 	binaryPath := filepath.Join(tempDir, binaryName)
-	if _, err := runPerformanceProcess(moduleRoot, "go", "build", "-trimpath", "-o", binaryPath, "./cmd/perf-probe"); err != nil {
+	if _, err := runTimelinePerformanceProcess(ctx, moduleRoot, "go", "build", "-trimpath", "-o", binaryPath, "./cmd/perf-probe"); err != nil {
 		cleanup()
 		return timelineProbe{}, func() {}, fmt.Errorf("build Timeline probe: %w", err)
 	}
@@ -41,6 +82,10 @@ func prepareTimelineProbe(root string) (timelineProbe, func(), error) {
 }
 
 func (probe timelineProbe) run(iterations int, mode string, memoryMiB int) (pilotProjectionProbeObservation, error) {
+	return probe.runContext(context.Background(), iterations, mode, memoryMiB)
+}
+
+func (probe timelineProbe) runContext(ctx context.Context, iterations int, mode string, memoryMiB int) (pilotProjectionProbeObservation, error) {
 	if iterations < 1 || iterations > 100000 {
 		return pilotProjectionProbeObservation{}, fmt.Errorf("Timeline iterations outside 1..100000")
 	}
@@ -51,7 +96,9 @@ func (probe timelineProbe) run(iterations int, mode string, memoryMiB int) (pilo
 	if mode == "resource" {
 		args = append(args, "-memory-limit-mib", strconv.Itoa(memoryMiB))
 	}
-	output, err := runPerformanceProcess(probe.moduleRoot, probe.binaryPath, args...)
+	runCtx, cancel := context.WithTimeout(ctx, timelineProbeTimeout)
+	defer cancel()
+	output, err := runTimelinePerformanceProcess(runCtx, probe.moduleRoot, probe.binaryPath, args...)
 	if err != nil {
 		return pilotProjectionProbeObservation{}, err
 	}
