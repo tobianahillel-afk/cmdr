@@ -93,7 +93,7 @@ func TestMemoryTimelinePagesShowOnlyAuthorizedSourceCounts(t *testing.T) {
 	}
 	for _, tc := range []struct {
 		bearer string
-		total int
+		total  int
 		status string
 	}{
 		{"Bearer aa", 2, "filtered"},
@@ -133,20 +133,20 @@ func TestCaseTimelineHTTPRejectsInvalidPagingBeforeProviderIO(t *testing.T) {
 }
 
 func TestPageProjectionDoesNotModifyInput(t *testing.T) {
-	in := Result{Status:"partial", Entries: []ProjectedEntry{
-		{ID:"a",Kind:"observed"},{ID:"b",Kind:"inferred"},{ID:"c",Kind:"observed"},
+	in := Result{Status: "partial", Entries: []ProjectedEntry{
+		{ID: "a", Kind: "observed"}, {ID: "b", Kind: "inferred"}, {ID: "c", Kind: "observed"},
 	}}
 	copyEntries := append([]ProjectedEntry(nil), in.Entries...)
-	out := paginateAuthorizedTimeline(in, timelineReadSelection{paged:true,limit:2,offset:1})
+	out := paginateAuthorizedTimeline(in, timelineReadSelection{paged: true, limit: 2, offset: 1})
 	if out.Page.TotalVisible != 3 || out.Page.HasMore ||
 		len(out.Entries) != 2 || out.Entries[0].ID != "b" {
 		t.Fatalf("incorrect bounded page: %+v", out)
 	}
-	out.Entries[0].ID="mutated"
+	out.Entries[0].ID = "mutated"
 	if !reflect.DeepEqual(in.Entries, copyEntries) {
 		t.Fatal("page mutated authorized result")
 	}
-	selection, ok := parseTimelineReadSelection(url.Values{"case_id":{"case-one"},"limit":{"200"},"offset":{"5000"}})
+	selection, ok := parseTimelineReadSelection(url.Values{"case_id": {"case-one"}, "limit": {"200"}, "offset": {"5000"}})
 	if !ok || !selection.paged || selection.limit != 200 || selection.offset != 5000 {
 		t.Fatal("max-page policy incorrectly rejected")
 	}
