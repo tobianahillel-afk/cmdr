@@ -27,9 +27,9 @@ func TestSourceNavigationAuthorizedCaseToTypedDestination(t *testing.T) {
 		result := httpWorkspaceGet(handler,
 			"/source-navigation?case_id=case-one&entry_id="+tc.entry,
 			"Bearer analyst-a", map[string]string{
-				"X-Tenant-Ref": "tenant-b",
+				"X-Tenant-Ref":        "tenant-b",
 				"X-Source-Permission": "allow",
-				"X-Source-Object": "evidence-secret",
+				"X-Source-Object":     "evidence-secret",
 			})
 		if result.Code != http.StatusOK {
 			t.Fatalf("%s status=%d: %s", tc.entry, result.Code, result.Body.String())
@@ -55,7 +55,10 @@ func TestSourceNavigationAuthorizedCaseToTypedDestination(t *testing.T) {
 }
 
 func TestSourceNavigationMasksDeniedForeignAndUnknownEntries(t *testing.T) {
-	for _, tc := range []struct{ name, path, auth string; code int }{
+	for _, tc := range []struct {
+		name, path, auth string
+		code             int
+	}{
 		{"hidden-source", "/source-navigation?case_id=case-one&entry_id=entry-hidden", "Bearer analyst-a", 404},
 		{"other-tenant", "/source-navigation?case_id=case-two&entry_id=entry-other", "Bearer analyst-a", 404},
 		{"unknown-entry", "/source-navigation?case_id=case-one&entry_id=no-such-id", "Bearer analyst-a", 404},
