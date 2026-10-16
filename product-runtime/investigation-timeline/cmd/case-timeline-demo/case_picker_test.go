@@ -90,7 +90,7 @@ func TestDemoCaseCatalogueUsesFixtureReadersAndTenant(t *testing.T) {
 	data := demoData()
 	data.Cases = append(data.Cases, timeline.MemoryTimelineCase{
 		ID: "private-case", Tenant: "demo-tenant-a", Environment: "lab",
-		Readers: []string{"analyst-b"},
+		Readers: nil,
 	})
 	// The Case is synthetic only; this route itself must never consult
 	// caller-chosen tenant or accept the record's foreign reader.

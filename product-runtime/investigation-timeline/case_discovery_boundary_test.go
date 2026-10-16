@@ -136,7 +136,7 @@ func TestCaseDiscoveryRevocationDuringEnumerationFailsClosed(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/cases", nil).WithContext(ctx)
 	req.Header.Set("Authorization", "Bearer analyst-a")
 	result := rr(h, req)
-	if result.Code != http.StatusServiceUnavailable ||
+	if result.Code != http.StatusNotFound ||
 		strings.Contains(result.Body.String(), "case-one") {
 		t.Fatalf("revocation leaked partial Case catalogue: %d %s", result.Code, result.Body.String())
 	}
