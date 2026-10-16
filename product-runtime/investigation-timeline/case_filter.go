@@ -5,11 +5,14 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode"
+	"unicode/utf8"
 )
 
 // timelineReadSelection affects presentation only, never provider authority.
 type timelineReadSelection struct {
 	kind           string
+	query          string
 	from, to       time.Time
 	hasFrom, hasTo bool
 	paged          bool
@@ -43,6 +46,13 @@ func parseTimelineReadSelection(values url.Values) (timelineReadSelection, bool)
 				return timelineReadSelection{}, false
 			}
 			s.kind = entries[0]
+		case "q":
+			q := strings.TrimSpace(entries[0])
+			if q == "" || len(q) > 96 || !utf8.ValidString(q) ||
+				strings.IndexFunc(q, unicode.IsControl) >= 0 {
+				return timelineReadSelection{}, false
+			}
+			s.query = strings.ToLower(q)
 		case "from", "to":
 			v := entries[0]
 			if len(v) < 20 || len(v) > 35 || strings.HasSuffix(v, "-00:00") {
@@ -73,13 +83,20 @@ func parseTimelineReadSelection(values url.Values) (timelineReadSelection, bool)
 // Select an authorized Case Timeline within [from,to).
 // Unknown chronology remains visible and explicitly marked uncertain.
 func selectAuthorizedTimeline(in Result, s timelineReadSelection) Result {
-	if in.Status == "deny" || s.kind == "" && !s.hasFrom && !s.hasTo {
+	if in.Status == "deny" || s.kind == "" && s.query == "" && !s.hasFrom && !s.hasTo {
 		return in
 	}
 	out := Result{Status: in.Status, Entries: make([]ProjectedEntry, 0, len(in.Entries))}
 	unknown := false
 	for _, entry := range in.Entries {
 		if s.kind != "" && entry.Kind != s.kind {
+			continue
+		}
+		// Search ONLY fields already released by full owner/ACL projection.
+		// Never search canonical snapshots or masked owner metadata.
+		if s.query != "" && !strings.Contains(strings.ToLower(entry.ID), s.query) &&
+			!strings.Contains(strings.ToLower(entry.SourceRef), s.query) &&
+			!strings.Contains(strings.ToLower(entry.Provenance), s.query) {
 			continue
 		}
 		if s.hasFrom || s.hasTo {

@@ -8,6 +8,7 @@
   const token = document.getElementById("token");
   const caseID = document.getElementById("case-id");
   const kind = document.getElementById("kind");
+  const search = document.getElementById("search");
   const caseOptions = document.getElementById("case-options");
   const discover = document.getElementById("discover");
   const discoveryStatus = document.getElementById("case-discovery-status");
@@ -189,6 +190,7 @@
       url.searchParams.set("limit", String(limit));
       url.searchParams.set("offset", String(offset));
       if (kind.value) url.searchParams.set("kind", kind.value);
+      if (search.value.trim()) url.searchParams.set("q", search.value.trim());
       if (windowSelection.from) url.searchParams.set("from", windowSelection.from);
       if (windowSelection.to) url.searchParams.set("to", windowSelection.to);
       const response = await fetch(url, {
@@ -243,7 +245,7 @@
   });
   // An old authorized reply must never overwrite the result of a changed
   // Case, token, event kind or time window, even if abort races completion.
-  for (const field of [token, caseID, kind, fromInput, toInput]) {
+  for (const field of [token, caseID, kind, search, fromInput, toInput]) {
     field.addEventListener("input", () => {
       if (field === token) {
         ++discoveryRevision;

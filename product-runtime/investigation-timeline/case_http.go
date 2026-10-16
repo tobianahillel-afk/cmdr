@@ -52,12 +52,12 @@ func (h *CaseTimelineHTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Reque
 		return
 	}
 	if r.URL == nil || r.Body != nil && r.Body != http.NoBody ||
-		len(r.TransferEncoding) != 0 || len(r.URL.RawQuery) > maxHTTPCaseIDBytes*3+320 {
+		len(r.TransferEncoding) != 0 || len(r.URL.RawQuery) > maxHTTPCaseIDBytes*3+640 {
 		writeCaseTimelineError(w, http.StatusBadRequest)
 		return
 	}
 	query, err := url.ParseQuery(r.URL.RawQuery)
-	if err != nil || len(query["case_id"]) != 1 || len(query) > 6 {
+	if err != nil || len(query["case_id"]) != 1 || len(query) > 7 {
 		writeCaseTimelineError(w, http.StatusBadRequest)
 		return
 	}

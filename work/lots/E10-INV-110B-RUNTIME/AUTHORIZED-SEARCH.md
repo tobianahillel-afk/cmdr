@@ -1,0 +1,11 @@
+# E10-INV-110B — authorized analyst text investigation
+
+Functional increment: the existing bounded Case → owner catalog → Timeline Entry permissions → canonical typed-source permissions → immutable projection → HTTP → local analyst viewer now supports a bounded `q` term. It searches only ID, SourceRef and Provenance of entries **already visible after all server-side checks**, never owner records, denied metadata, or caller-provided access flags. The response count and paging reflect only matches among visible entries.
+
+Reused: existing `OpenCaseTimeline`, `selectAuthorizedTimeline`, `paginateAuthorizedTimeline`, `net/http`, `net/url`, `strings.ToLower`, and existing static viewer fetch/AbortController handling. Alternatives (new index, search engine, database/full-text tokenizer, navigation service, third-party SPA) are disproportionate for 5,000 already authorized entries and would introduce unapproved ownership, storage and access paths. Selected: simple O(n × field length) in-memory case-insensitive substring filtering after ACL.
+
+Boundary: `q` is optional, 1..96 bytes after trimming, valid UTF-8 and no control characters; duplicates/unknown selectors rejected before provider access. Combining with kind/from/to/limit/offset is supported. Search does not perform telemetry content indexing, linguistic normalization, case-insensitive exact Unicode folding, cross-Case correlation or remote provider search. Caller may not search inaccessible Case/Entry/source metadata. A search across a large deployment needs a separately authorized owner-side indexing and ACL design; no product spec changes or production SLA claimed.
+
+Verification: the new HTTP tests exercise real authorized owner pipeline call counts, source/provenance/ID matches, denied/foreign metadata non-disclosure, pagination, time/kind conjunction, bad inputs, and an authenticated synthetic viewer API integration. Frontend test checks the control and that its request follows existing cancellation-safe fetch. This is a **synthetic in-memory loopback demonstration**, not deployed persistent Case/Shared/source owner provider integration; `OPEN-013` unchanged.
+
+Status: code/test paths published on branch; record exact SHA + GitHub Actions verdict before marking verified. L2 is risk-based for this material functional/HTTP boundary change, and remains independent read-only.
