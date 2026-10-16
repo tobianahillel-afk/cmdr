@@ -192,3 +192,28 @@ func TestTimelineBoundedWriterDoesNotBlockOnOverflow(t *testing.T) {
 		t.Fatal("buffer grew beyond hard limit or exposed overflow")
 	}
 }
+
+func TestTimelineFailedProcessOutputIsNotReflectedInError(t *testing.T) {
+	if os.Getenv("CMDR_TIMELINE_FAILURE_HELPER") == "emit" {
+		_, _ = os.Stdout.WriteString("SENSITIVE-TIMELINE-STDOUT-MARKER")
+		_, _ = os.Stderr.WriteString("SENSITIVE-TIMELINE-STDERR-MARKER")
+		t.Fatal("expected child failure")
+	}
+}
+
+func TestTimelineSubprocessFailureRedactsChildStreams(t *testing.T) {
+	t.Setenv("CMDR_TIMELINE_FAILURE_HELPER", "emit")
+	ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
+	defer cancel()
+	out, err := runTimelinePerformanceProcess(
+		ctx, t.TempDir(), os.Args[0],
+		"-test.run=^TestTimelineFailedProcessOutputIsNotReflectedInError$",
+	)
+	if err == nil || out != "" || !strings.Contains(err.Error(), "output withheld") {
+		t.Fatalf("failed Timeline child did not fail closed: output=%q err=%v", out, err)
+	}
+	if strings.Contains(err.Error(), "SENSITIVE-TIMELINE-STDOUT-MARKER") ||
+		strings.Contains(err.Error(), "SENSITIVE-TIMELINE-STDERR-MARKER") {
+		t.Fatalf("Timeline child diagnostic leaked in error: %v", err)
+	}
+}

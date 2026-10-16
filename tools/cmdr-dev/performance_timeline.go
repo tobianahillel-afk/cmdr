@@ -71,14 +71,10 @@ func runTimelinePerformanceProcess(ctx context.Context, dir, name string, args .
 		return "", fmt.Errorf("Timeline process output exceeded %d bytes per stream", timelineMaxOutputBytes)
 	}
 	if runErr != nil {
-		diagnostic := strings.TrimSpace(stderr.String())
-		if diagnostic == "" {
-			diagnostic = strings.TrimSpace(stdout.String())
-		}
-		if diagnostic == "" {
-			diagnostic = runErr.Error()
-		}
-		return "", fmt.Errorf("Timeline process failed: %s", diagnostic)
+		// Child stdout/stderr may contain local paths, access tokens or
+		// sensitive source metadata. Keep the diagnostic in-memory only
+		// and propagate the bounded exit status, never the child text.
+		return "", fmt.Errorf("Timeline process failed (output withheld): %w", runErr)
 	}
 	return strings.TrimSpace(stdout.String()), nil
 }
