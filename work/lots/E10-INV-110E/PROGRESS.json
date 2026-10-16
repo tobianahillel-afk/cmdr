@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-110E",
+  "status": "IN_REVIEW",
+  "implementation_base_commit": "096b91a34de86b6cef1072c19b94ede4d5c07d10",
+  "validation": {
+    "result": "PENDING_EXACT_HEAD_CI",
+    "source_D_head": "06d1d47572b9fbea1325ad71309a895d960e1cbd",
+    "source_D_engineering_push_run": 38963830261,
+    "source_D_engineering_pr_run": 38963841717,
+    "source_D_timeline_push_run": 38963830462,
+    "source_D_timeline_pr_run": 38963841785
+  },
+  "claim": {
+    "capability": "CAP-INV-110",
+    "work_unit": "E10-INV-110E",
+    "runtime_boundary": "investigation-timeline-runtime",
+    "runtime_root": "product-runtime/investigation-timeline/**",
+    "full_capability_completion_claim": false,
+    "production_readiness_claim": false,
+    "global_ledger_entry_added": false,
+    "owner_provider_type": "injected and static in-memory fixture"
+  },
+  "product_spec_mutated": false,
+  "next_unlocked": []
+}

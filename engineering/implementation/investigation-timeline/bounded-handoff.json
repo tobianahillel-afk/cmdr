@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "handoff_kind": "investigation-timeline-bounded-core",
+  "readiness": "BOUNDED_INVESTIGATION_TIMELINE_VALIDATED_NOT_FULL_CAPABILITY",
+  "capability": "CAP-INV-110",
+  "runtime_boundary": "investigation-timeline-runtime",
+  "runtime_root": "product-runtime/investigation-timeline/**",
+  "production_readiness_claim": false,
+  "full_capability_completion_claim": false,
+  "implementation_status": "read-only integrated synthetic Go HTTP reference",
+  "authenticated_case_discovery": true,
+  "case_timeline_projection": true,
+  "source_owner_navigation_draft": true,
+  "source_preview_reauthorization": true,
+  "local_analyst_return_journey": true,
+  "synthetic_backend_only": true,
+  "real_iam_integration": false,
+  "durable_owner_repository_selected": false,
+  "real_source_ingestion_enabled": false,
+  "production_audit_backend_enabled": false,
+  "shared_timeline_entry_mutation_enabled": false,
+  "streaming_timeline_engine_selected": false,
+  "timeline_correction_enabled": false,
+  "export_or_replay_backend_selected": false,
+  "production_slo_proven": false,
+  "request_level_p95_measured": false,
+  "blocking_open_decisions": [
+    "OPEN-013"
+  ],
+  "evidence_sources": [
+    "work/lots/E10-INV-110B-RUNTIME/PROGRESS.json",
+    "work/lots/E10-INV-110C-NAV/PROGRESS.json",
+    "work/lots/E10-INV-110D-CLOSURE/PROGRESS.json",
+    "work/lots/E10-INV-110D-CLOSURE/VALIDATION-EVIDENCE.md",
+    "product-runtime/investigation-timeline/cmd/case-timeline-demo/analyst_journey_test.go"
+  ],
+  "limits": [
+    "Bounded 5000-entry/8MiB first-party in-process projection only; no persistence provider",
+    "Only a synthetic copied memory Case owner, typed-source ACL fixture and ephemeral demo bearer have been exercised",
+    "Navigation and source preview reauthorize on each request but are not a connected provider/integration into a deployed third-party data service",
+    "Anonymous/foreign tenant/source denied in synthetic HTTP acceptance suite; this is not equivalent to production IAM or transport security",
+    "Navigation benchmark records ns/op average for in-process synthetic owner chain, not request p95 or production SLO",
+    "Shared-owned Timeline Entry correction and class-2 analytic contribution remain blocked by OPEN-013",
+    "Global implementation ledger not modified by E10-INV-110E; further scaling work must authorize any registration"
+  ],
+  "next_conditions": [
+    "Keep the historical A-CONTRACT as a snapshot and use D exact-SHA CI/closure evidence for this bounded runtime claim",
+    "Preserve all owner and object ACL checks on the server and verify against a real production identity/provider contract before deployment",
+    "Do not merge into main or imply approval until branch protections and independent reviewer requirements are met",
+    "Real durable Case/Timeline/typed-source providers, host ingress, audit and retention require a separately authorized functional milestone",
+    "Do not rebrand synthetic batch-mean p95, navigation ns/op or Go heap samples as production SLO"
+  ]
+}
