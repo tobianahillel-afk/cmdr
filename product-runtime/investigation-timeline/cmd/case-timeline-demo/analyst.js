@@ -47,6 +47,7 @@
   const compareButton = document.getElementById("compare");
   const comparison = document.getElementById("comparison");
   const comparisonActions = document.getElementById("comparison-actions");
+  const comparisonChronology = document.getElementById("comparison-chronology");
   const downloadComparison = document.getElementById("download-comparison");
   let preparedComparison = null;
   downloadComparison.disabled = true;
@@ -61,6 +62,7 @@
     downloadComparison.disabled = true;
     comparison.textContent = "Aucune comparaison calculée.";
     comparisonActions.replaceChildren();
+    comparisonChronology.replaceChildren();
   }
   const downloadReport = document.getElementById("download-report");
   let analysisRequest = null;
@@ -301,6 +303,7 @@
     async function sourcesFor(id) {
       const groups = new Map();
       const timeRanges = new Map();
+      const visibleRows = [];
       const seen = new Set();
       const kinds = { observed: 0, inferred: 0 };
       let certainMin = null;
@@ -354,6 +357,7 @@
           // Timeline projection marks certain. Unknown time is never guessed.
           const range = timeRanges.get(entry.source_ref) ||
             { first: null, last: null, certain: 0, uncertain: 0 };
+          let instant = null;
           if (entry.time_uncertain) {
             range.uncertain++;
             uncertain++;
@@ -362,7 +366,7 @@
                 !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,9})?(?:Z|[+-]\d{2}:\d{2})$/.test(entry.source_time)) {
               throw Error("invalid certain comparison timestamp");
             }
-            const instant = Date.parse(entry.source_time);
+            instant = Date.parse(entry.source_time);
             if (!Number.isFinite(instant)) throw Error("invalid certain comparison instant");
             range.certain++;
             certainMin = certainMin === null ? instant : Math.min(certainMin, instant);
@@ -371,9 +375,15 @@
             range.last = range.last === null ? instant : Math.max(range.last, instant);
           }
           timeRanges.set(entry.source_ref, range);
+          // Retain only the already authorized response fields needed for
+          // a read-only, bounded chronology; never cache owner previews.
+          visibleRows.push({
+            id: entry.id, kind: entry.kind, ref: entry.source_ref,
+            instant, uncertain: entry.time_uncertain
+          });
         }
       }
-      return { total, groups, timeRanges, kinds, certainMin, certainMax, uncertain };
+      return { total, groups, timeRanges, kinds, certainMin, certainMax, uncertain, visibleRows };
     }
     try {
       const left = await sourcesFor(selectedCase);
@@ -500,6 +510,33 @@
         caseA: selectedCase, caseB: otherCase, bearer
       };
       downloadComparison.disabled = false;
+      // Correlate only common, bounded source references across BOTH fully
+      // authorized Case reads. No new query/ACL, source preview, or storage.
+      const shared = new Set(exportable.map(group => group.ref));
+      const merged = [
+        ...left.visibleRows.filter(row => shared.has(row.ref)).map(row => ({ ...row, side: "A" })),
+        ...right.visibleRows.filter(row => shared.has(row.ref)).map(row => ({ ...row, side: "B" }))
+      ].sort((a, b) => {
+        if (a.uncertain !== b.uncertain) return a.uncertain ? 1 : -1;
+        if (!a.uncertain && a.instant !== b.instant) return a.instant - b.instant;
+        return a.side < b.side ? -1 : a.side > b.side ? 1 :
+          a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
+      });
+      const heading = document.createElement("p");
+      heading.textContent = "Chronologie corrélée des références communes autorisées : " +
+        Math.min(merged.length, 20) + " / " + merged.length +
+        " événement(s), horodatages incertains à la fin. " +
+        "Ordre de triage uniquement, ni causalité ni preuve de conservation.";
+      comparisonChronology.append(heading);
+      const list = document.createElement("ol");
+      for (const row of merged.slice(0, 20)) {
+        const item = document.createElement("li");
+        item.textContent = "Case " + row.side + " · " + row.id + " · " +
+          row.kind + " · " + row.ref + " · " +
+          (row.uncertain ? "heure incertaine" : new Date(row.instant).toISOString());
+        list.append(item); // textContent prevents operator-controlled HTML injection
+      }
+      comparisonChronology.append(list);
       // A correlation is a triage hint, NOT an authority. Pivot into the
       // existing Case search; fetchPage performs a fresh server-side Case,
       // Timeline Entry and source authorization before showing any result.
@@ -531,6 +568,7 @@
       if (activeComparison === compareRevision) {
         comparison.textContent = "Comparaison indisponible ou droits modifiés. Aucun résultat partiel.";
         comparisonActions.replaceChildren();
+        comparisonChronology.replaceChildren();
       }
     } finally {
       if (activeComparison === compareRevision) {

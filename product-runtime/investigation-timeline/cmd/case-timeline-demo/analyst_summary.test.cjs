@@ -12,7 +12,7 @@ const ids = [
   "case-discovery-status", "from", "to", "entries", "summary", "message",
   "page", "previous", "next", "load", "source-detail", "source-status",
   "return-to-case", "copy-return-link", "analyze", "analysis", "analysis-actions", "download-report",
-  "compare-case", "compare", "comparison", "comparison-actions", "download-comparison"
+  "compare-case", "compare", "comparison", "comparison-actions", "comparison-chronology", "download-comparison"
 ];
 function node() {
   return {
@@ -852,4 +852,48 @@ test("malformed late certain timestamp discards entire cross-Case triage", async
   for (let i = 0; i < 5; i++) await flush();
   assert.match(env.fields.comparison.textContent, /Aucun résultat partiel/);
   assert.doesNotMatch(env.fields.comparison.textContent, /observés :|plage certaine Case 1/);
+});
+
+test("cross-Case chronology merges authorized entries by certain UTC time with uncertainty last", async () => {
+  const env = boot(url => {
+    const side = url.searchParams.get("case_id");
+    return page(Number(url.searchParams.get("offset")), 3, {
+      sourceFor: i => i === 2 ? "unshared-" + side : "shared-ref",
+      timeFor: i => new Date(Date.UTC(2026, 9, 1, 10, side === "case-peer" ? 2 - i : i)).toISOString(),
+      uncertainFor: i => side === "case-peer" && i === 1
+    });
+  });
+  env.fields["compare-case"].value = "case-peer";
+  env.fields.compare.handlers.click();
+  for (let i = 0; i < 6; i++) await flush();
+  const [heading, list] = env.fields["comparison-chronology"].children;
+  assert.match(heading.textContent, /4 \/ 4 événement/);
+  assert.equal(list.children.length, 4);
+  const labels = list.children.map(item => item.textContent);
+  assert.match(labels[0], /Case A.*event-0.*shared-ref.*10:00:00/);
+  assert.match(labels[1], /Case A.*event-1.*shared-ref.*10:00:01/);
+  assert.match(labels[2], /Case B.*event-0.*shared-ref.*10:00:02/);
+  assert.match(labels[3], /Case B.*event-1.*shared-ref.*heure incertaine/);
+  assert.ok(labels.every(label => !label.includes("unshared")));
+  assert.ok(env.requests.every(request => request.options.headers.Authorization === "Bearer ephemeral-token"));
+  assert.equal(env.fields["comparison-actions"].children.length, 2);
+});
+
+test("cross-Case chronology never displays partial or stale results after denial or edited bearer", async () => {
+  const denied = boot(url => url.searchParams.get("case_id") === "case-peer"
+    ? { ok: false } : page(0, 2, { sourceFor: () => "shared-ref" }));
+  denied.fields["compare-case"].value = "case-peer";
+  denied.fields.compare.handlers.click();
+  for (let i = 0; i < 5; i++) await flush();
+  assert.equal(denied.fields["comparison-chronology"].children.length, 0);
+  assert.equal(denied.fields["comparison-actions"].children.length, 0);
+  const env = boot(() => page(0, 1, { sourceFor: () => "shared-ref" }));
+  env.fields["compare-case"].value = "case-peer";
+  env.fields.compare.handlers.click();
+  for (let i = 0; i < 5; i++) await flush();
+  assert.equal(env.fields["comparison-chronology"].children.length, 2);
+  env.fields.token.value = "revoked";
+  env.fields.token.handlers.input();
+  assert.equal(env.fields["comparison-chronology"].children.length, 0);
+  assert.equal(env.fields["download-comparison"].disabled, true);
 });
