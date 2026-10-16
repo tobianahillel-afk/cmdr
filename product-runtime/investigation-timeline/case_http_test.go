@@ -82,7 +82,7 @@ func TestCaseTimelineHTTPAuthorizedCaseToSources(t *testing.T) {
 func TestCaseTimelineHTTPDenyWithoutCatalogEnumeration(t *testing.T) {
 	cases := []struct {
 		name, uri, auth string
-		want int
+		want            int
 	}{
 		{"anonymous", "/case-timeline?case_id=case-one", "", http.StatusUnauthorized},
 		{"invalid-session", "/case-timeline?case_id=case-one", "Bearer invalid", http.StatusUnauthorized},
@@ -164,5 +164,99 @@ func TestCaseTimelineHTTPRejectsMalformedEscape(t *testing.T) {
 	handler.ServeHTTP(response, req)
 	if response.Code != http.StatusBadRequest || store.catalogCalls != 0 {
 		t.Fatalf("malformed query accepted: %d", response.Code)
+	}
+}
+
+type invalidTimelineHTTPSession struct{ mode string }
+
+func (s invalidTimelineHTTPSession) ResolveCaseTimelineSession(r *http.Request) (context.Context, Scope, error) {
+	scope := Scope{Tenant: "tenant-a", Environment: "prod"}
+	switch s.mode {
+	case "empty-tenant":
+		scope.Tenant = ""
+	case "wildcard-tenant":
+		scope.Tenant = "*"
+	case "missing-environment":
+		scope.Environment = ""
+	case "nil-context":
+		return nil, scope, nil
+	case "cancelled-context":
+		ctx, cancel := context.WithCancel(r.Context())
+		cancel()
+		return ctx, scope, nil
+	}
+	return r.Context(), scope, nil
+}
+
+func TestCaseTimelineHTTPRejectsMalformedAuthenticatedSession(t *testing.T) {
+	for _, mode := range []string{"empty-tenant", "wildcard-tenant", "missing-environment", "nil-context", "cancelled-context"} {
+		t.Run(mode, func(t *testing.T) {
+			store, _ := workspaceFixture()
+			handler, err := NewCaseTimelineHTTPHandler(invalidTimelineHTTPSession{mode}, store, store, store, store)
+			if err != nil {
+				t.Fatal(err)
+			}
+			result := httpWorkspaceGet(handler, "/case-timeline?case_id=case-one", "Bearer analyst-a", nil)
+			if result.Code != http.StatusUnauthorized || store.catalogCalls != 0 || store.caseChecks != 0 {
+				t.Fatalf("invalid session reached owner: HTTP %d catalog=%d Case=%d", result.Code, store.catalogCalls, store.caseChecks)
+			}
+		})
+	}
+}
+
+func TestCaseTimelineHTTPHonorsCancelledIncomingRequest(t *testing.T) {
+	handler, store := httpWorkspaceFixture(t)
+	request := httptest.NewRequest(http.MethodGet, "/case-timeline?case_id=case-one", nil)
+	request.Header.Set("Authorization", "Bearer analyst-a")
+	ctx, cancel := context.WithCancel(request.Context())
+	cancel()
+	request = request.WithContext(ctx)
+	response := httptest.NewRecorder()
+	handler.ServeHTTP(response, request)
+	if response.Code != http.StatusServiceUnavailable || store.caseChecks != 0 || store.catalogCalls != 0 {
+		t.Fatalf("cancelled request accessed owner: HTTP %d catalog=%d", response.Code, store.catalogCalls)
+	}
+}
+
+func TestCaseTimelineHTTPRejectsInvalidSelectorsAtBoundary(t *testing.T) {
+	handler, store := httpWorkspaceFixture(t)
+	for _, raw := range []string{
+		"case_id=" + strings.Repeat("x", maxHTTPCaseIDBytes+1),
+		"case_id=%GG", "case_id=case-one;permission=allow", "case_id=bad%00id",
+		"case_id=case-one&case_id=case-two",
+	} {
+		request := httptest.NewRequest(http.MethodGet, "/case-timeline", nil)
+		request.URL.RawQuery = raw
+		request.Header.Set("Authorization", "Bearer analyst-a")
+		response := httptest.NewRecorder()
+		handler.ServeHTTP(response, request)
+		if response.Code != http.StatusBadRequest || store.catalogCalls != 0 {
+			t.Fatalf("invalid selector accepted: HTTP %d", response.Code)
+		}
+	}
+	request := httptest.NewRequest(http.MethodGet, "/case-timeline", nil)
+	request.URL = nil
+	response := httptest.NewRecorder()
+	handler.ServeHTTP(response, request)
+	if response.Code != http.StatusBadRequest {
+		t.Fatalf("nil URL accepted: HTTP %d", response.Code)
+	}
+}
+
+func TestCaseTimelineHTTPEmptyAuthorizedCase(t *testing.T) {
+	handler, store := httpWorkspaceFixture(t)
+	current := store.cases["case-one"]
+	current.ids = nil
+	store.cases["case-one"] = current
+	response := httpWorkspaceGet(handler, "/case-timeline?case_id=case-one", "Bearer analyst-a", nil)
+	if response.Code != http.StatusOK {
+		t.Fatalf("empty authorized Case: HTTP %d", response.Code)
+	}
+	var result Result
+	if err := json.Unmarshal(response.Body.Bytes(), &result); err != nil {
+		t.Fatal(err)
+	}
+	if result.Status != "empty" || len(result.Entries) != 0 || store.caseChecks != 2 || store.catalogCalls != 1 {
+		t.Fatalf("empty authorized Case not projected: %+v (checks=%d)", result, store.caseChecks)
 	}
 }
