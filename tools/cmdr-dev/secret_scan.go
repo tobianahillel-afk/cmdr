@@ -3,8 +3,8 @@ package main
 import (
 	"bytes"
 	"crypto/sha256"
-	"errors"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
