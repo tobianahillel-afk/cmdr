@@ -44,3 +44,17 @@ This is **an interactive, loopback-only synthetic product demonstration**, not t
 The loopback-only `/demo-cases` GET route exposes only IDs of Cases readable by the bearer-authenticated demo principal according to the same immutable synthetic principal/tenant/Case reader data used to build the Timeline owner handler. It rejects arbitrary selectors, write methods and missing credentials, returns no source or Timeline Entry metadata, and never trusts browser-supplied tenant identifiers. The analyst can discover a permitted Case in the UI before opening its timeline, retaining server-side Case/Timeline/source checks when reading events.
 
 This is deliberately a **fixture-only Case picker** owned by `cmd/case-timeline-demo`, not a general Case-catalog API, production Case search or production identity provider. In a deployment, a real host Case-owner catalogue would implement authenticated Case discovery using its own authorization model; the current module must not expose synthetic fixture data as real Cases. No persistence, schemas or ownership decisions were changed.
+
+## Offline Case snapshot import — functional local investigation
+
+The existing first-party Go Case/Timeline owner adapter can now read an **explicit local JSON owner snapshot** at startup, instead of requiring the hard-coded sample. This enables an analyst to open, discover, search, time-filter and page Cases and Timeline Entries from an existing offline file using the same Case + Timeline Entry + typed-source access checks and same-origin UI. No new database, generic importer, frontend flags, authorization middleware or dependencies were introduced.
+
+From `product-runtime/investigation-timeline`:
+
+```sh
+go run ./cmd/case-timeline-demo -principal=investigator-42 -dataset=cmd/case-timeline-demo/testdata/example-owners.json
+```
+
+Open the **loopback-only** `/analyst` address printed by the program and enter its one-run bearer token. The JSON uses the existing `MemoryTimelineData` shape: `Principals`, `Cases`, `Entries`, and `Sources` (see `testdata/example-owners.json`). The selected principal and permitted Case list now derive from the loaded local owner snapshot instead of fixed demo Case IDs. The file is limited to 16 MiB, decoded with unknown-field rejection and no trailing JSON payload, and passed through the existing owner/ACL constructor. It is read once; changing a file does not silently update authorization state.
+
+**Trust boundary:** the file and its ACL readers are supplied by a trusted local operator, not uploaded by a remote user. If that operator supplies untrustworthy ACL data, it has no independently trustworthy identity/permission authority. Protect any private source references, use only access-controlled local files, and do not commit real incident evidence or secrets. The session token is still intentionally printed to the launching terminal and should be used only on the analyst's machine. This is an offline reference integration, **not** a production Case repository, source ingestion, database-backed snapshot isolation, real SSO, durable audit, real-time revocation or production network service. Canonical CAP-INV-110 and OPEN-013 remain unchanged.
