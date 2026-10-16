@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"net/http/httptest"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -132,5 +133,59 @@ func TestSnapshotCLIRefusesMalformedOrUnauthorizedInput(t *testing.T) {
 	}
 	if err:=runDemoCLI(context.Background(),[]string{"-snapshot=/unavailable","unexpected"},&output);err==nil || output.Len()!=0 {
 		t.Fatalf("invalid CLI options accepted: %v",err)
+	}
+}
+
+func TestSnapshotLocalAuthorityRejectsInconsistentOwnerOrUnknownPrincipal(t *testing.T) {
+	for _, tc := range []struct {
+		name string
+		edit func(*timeline.MemoryTimelineData)
+		principal string
+	}{
+		{"no-such-reader",func(*timeline.MemoryTimelineData){},"unknown"},
+		{"reader-without-case",func(d *timeline.MemoryTimelineData){
+			d.Cases[0].Readers=nil
+		},"forensic-operator"},
+		{"source-owned-by-other-case",func(d *timeline.MemoryTimelineData){
+			d.Sources[0].Identity.CaseID="case-b"
+		},"forensic-operator"},
+		{"entry-foreign-tenant",func(d *timeline.MemoryTimelineData){
+			d.Entries[0].Value.Tenant="demo-tenant-b"
+		},"forensic-operator"},
+		{"case-reader-not-in-tenant",func(d *timeline.MemoryTimelineData){
+			d.Cases[0].Readers=[]string{"analyst-b"}
+		},"forensic-operator"},
+	} {
+		t.Run(tc.name,func(t *testing.T){
+			data:=snapshotForLocalInvestigator()
+			tc.edit(&data)
+			var output bytes.Buffer
+			ctx,cancel:=context.WithTimeout(context.Background(),2*time.Second)
+			defer cancel()
+			if err:=serveDemoWithData(ctx,tc.principal,&output,data);err==nil || output.Len()!=0 {
+				t.Fatalf("inconsistent offline owner data opened a listener: %v",err)
+			}
+		})
+	}
+}
+
+func TestSnapshotCannotTurnUntrustedSourceFlagIntoAuthority(t *testing.T) {
+	data:=snapshotForLocalInvestigator()
+	data.Entries[2].Value.SourcePermission="allow"
+	handler,err:=newDemoHandlerWithData(testBearer,"forensic-operator",data)
+	if err!=nil{t.Fatal(err)}
+	server:=httptest.NewServer(handler)
+	defer server.Close()
+	request,err:=http.NewRequest(http.MethodGet,server.URL+"/case-timeline?case_id=case-imported",nil)
+	if err!=nil{t.Fatal(err)}
+	request.Header.Set("Authorization","Bearer "+testBearer)
+	response,err:=server.Client().Do(request)
+	if err!=nil{t.Fatal(err)}
+	defer response.Body.Close()
+	body,err:=io.ReadAll(io.LimitReader(response.Body,1<<20))
+	if err!=nil{t.Fatal(err)}
+	if response.StatusCode!=http.StatusOK || !bytes.Contains(body,[]byte("event-old")) ||
+		bytes.Contains(body,[]byte("restricted")) || bytes.Contains(body,[]byte("demo-hidden-source")){
+		t.Fatalf("untrusted snapshot source claim bypassed owner policy: %d %s",response.StatusCode,body)
 	}
 }

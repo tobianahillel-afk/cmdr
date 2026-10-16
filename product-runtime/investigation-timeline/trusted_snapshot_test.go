@@ -66,3 +66,25 @@ func TestTrustedSnapshotRejectsUnsafeEnvelope(t *testing.T) {
 		})
 	}
 }
+
+func TestTrustedSnapshotEnforcesRecordCountBeforeOwnerConstruction(t *testing.T) {
+	for _, tc := range []struct{
+		name string
+		change func(*MemoryTimelineData)
+	}{
+		{"principals",func(d *MemoryTimelineData){d.Principals=make([]MemoryTimelinePrincipal,MaxEntries+1)}},
+		{"cases",func(d *MemoryTimelineData){d.Cases=make([]MemoryTimelineCase,MaxEntries+1)}},
+		{"entries",func(d *MemoryTimelineData){d.Entries=make([]MemoryTimelineEntry,MaxEntries+1)}},
+		{"sources",func(d *MemoryTimelineData){d.Sources=make([]MemoryTimelineSource,MaxEntries+1)}},
+	} {
+		t.Run(tc.name,func(t *testing.T){
+			data:=trustedSnapshotFixture()
+			tc.change(&data)
+			blob,err:=json.Marshal(data)
+			if err!=nil{t.Fatal(err)}
+			if len(blob)>MaxTrustedSnapshotBytes{t.Fatal("test fixture exceeded byte budget")}
+			_,err=DecodeTrustedMemoryTimelineJSON(bytes.NewReader(blob))
+			if err==nil{t.Fatal("unbounded owner table accepted")}
+		})
+	}
+}
