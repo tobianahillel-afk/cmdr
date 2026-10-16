@@ -414,7 +414,7 @@
           "max_relative_regression_percent": 0
         }
       ],
-      "rationale": "Preimplementation-only local engineering ceiling, not a result or production SLO; handler explicitly fails closed until a real representative runtime probe is implemented."
+      "rationale": "Executable on-demand local projection using five independent 200-operation samples on 5000 synthetic entries. p95 is across sample means, not per-request distribution; provisional 5ms engineering bound, no provider/network/UI or production SLO. Navigation remains preimplementation."
     },
     {
       "id": "PERF-TGT-INV-TIMELINE-NAVIGATION",

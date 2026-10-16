@@ -17,7 +17,7 @@ type timelineWorkloadBinding struct {
 // Bind workload identity to an actual compiled operation. A mere handler allowlist
 // does not prevent a Case Queue probe being substituted for a Timeline probe.
 var timelineWorkloadBindings = []timelineWorkloadBinding{
-	{"PERF-TGT-INV-TIMELINE-PROJECTION", "PERF-DEEP-INV-TIMELINE-PROJECTION", "investigation-timeline-projection-v1", "builtin-investigation-timeline-projection-preimplementation-v1"},
+	{"PERF-TGT-INV-TIMELINE-PROJECTION", "PERF-DEEP-INV-TIMELINE-PROJECTION", "investigation-timeline-projection-v1", "builtin-investigation-timeline-projection-v1"},
 	{"PERF-TGT-INV-TIMELINE-NAVIGATION", "PERF-DEEP-INV-TIMELINE-NAVIGATION", "investigation-timeline-navigation-v1", "builtin-investigation-timeline-navigation-preimplementation-v1"},
 }
 

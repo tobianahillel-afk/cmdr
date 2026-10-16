@@ -7,7 +7,7 @@ import (
 )
 
 func TestInvestigationTimelinePreimplementationMustNotEmitMeasurements(t *testing.T) {
-	for _, operation := range []string{"projection", "navigation"} {
+	for _, operation := range []string{"navigation"} {
 		key := "builtin-investigation-timeline-" + operation + "-preimplementation-v1"
 		if !knownBenchmarkHandlerKeys[key] || !knownDeepPerformanceHandlerKeys[key] {
 			t.Fatalf("missing explicit handler allowlist %s", key)

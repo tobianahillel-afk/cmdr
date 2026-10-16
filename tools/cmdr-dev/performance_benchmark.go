@@ -134,7 +134,7 @@ var knownBenchmarkHandlerKeys = map[string]bool{
 	"builtin-case-queue-projection-v1":                               true,
 	"builtin-case-queue-saved-view-v1":                               true,
 	"builtin-case-queue-handoff-v1":                                  true,
-	"builtin-investigation-timeline-projection-preimplementation-v1": true,
+	"builtin-investigation-timeline-projection-v1": true,
 	"builtin-investigation-timeline-navigation-preimplementation-v1": true,
 }
 
@@ -466,9 +466,22 @@ func prepareBenchmarkHandler(root string, workload BenchmarkWorkloadDefinition) 
 				Kind: "latency", Unit: "ns", Value: observation.NSPerOperation,
 			}}}, nil
 		}, cleanup, nil
-	case "builtin-investigation-timeline-projection-preimplementation-v1",
-		"builtin-investigation-timeline-navigation-preimplementation-v1":
-		return nil, func() {}, fmt.Errorf("Investigation Timeline benchmark remains preimplementation; a real runtime probe and fixtures are required")
+	case "builtin-investigation-timeline-projection-v1":
+		probe, cleanup, err := prepareTimelineProbe(root)
+		if err != nil {
+			return nil, func() {}, err
+		}
+		return func() (BenchmarkSample, error) {
+			observation, err := probe.run(200, "latency", 0)
+			if err != nil {
+				return BenchmarkSample{}, err
+			}
+			return BenchmarkSample{Measurements: []BenchmarkMeasurement{{
+				Kind: "latency", Unit: "ns", Value: observation.NSPerOperation,
+			}}}, nil
+		}, cleanup, nil
+	case "builtin-investigation-timeline-navigation-preimplementation-v1":
+		return nil, func() {}, fmt.Errorf("Investigation Timeline navigation benchmark remains preimplementation; navigation runtime is required")
 	case "builtin-cmdr-dev-metadata-audit-v1":
 		return func() (BenchmarkSample, error) {
 			started := time.Now()

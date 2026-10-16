@@ -95,7 +95,7 @@
     },
     {
       "key": "investigation-timeline-projection-v1",
-      "handler_key": "builtin-investigation-timeline-projection-preimplementation-v1",
+      "handler_key": "builtin-investigation-timeline-projection-v1",
       "warmup_iterations": 1,
       "sample_count": 5,
       "max_sample_duration_ms": 1000

@@ -116,7 +116,7 @@ var knownDeepPerformanceHandlerKeys = map[string]bool{
 	"builtin-case-queue-projection-v1":                               true,
 	"builtin-case-queue-saved-view-v1":                               true,
 	"builtin-case-queue-handoff-v1":                                  true,
-	"builtin-investigation-timeline-projection-preimplementation-v1": true,
+	"builtin-investigation-timeline-projection-v1": true,
 	"builtin-investigation-timeline-navigation-preimplementation-v1": true,
 }
 
@@ -444,9 +444,33 @@ func runDeepPerformanceHandler(ctx context.Context, root string, target DeepPerf
 		}
 		return result, nil
 	}
-	if target.HandlerKey == "builtin-investigation-timeline-projection-preimplementation-v1" ||
-		target.HandlerKey == "builtin-investigation-timeline-navigation-preimplementation-v1" {
-		return DeepPerformanceObservation{}, fmt.Errorf("Investigation Timeline deep benchmark remains preimplementation; a real runtime probe and fixtures are required")
+	if target.HandlerKey == "builtin-investigation-timeline-projection-v1" {
+		if err := ctx.Err(); err != nil {
+			return DeepPerformanceObservation{}, err
+		}
+		probe, cleanup, err := prepareTimelineProbe(root)
+		if err != nil {
+			return DeepPerformanceObservation{}, err
+		}
+		defer cleanup()
+		observation, err := probe.run(target.Iterations, "resource", target.MemoryLimitMiB)
+		if err != nil {
+			return DeepPerformanceObservation{}, err
+		}
+		if err := ctx.Err(); err != nil {
+			return DeepPerformanceObservation{}, err
+		}
+		result := DeepPerformanceObservation{
+			DurationMS:           observation.ElapsedNS / int64(time.Millisecond),
+			PeakHeapBytes:        observation.PeakHeapBytes,
+			TotalAllocationBytes: observation.TotalAllocationBytes,
+			Operations:           int64(observation.Operations),
+		}
+		result.ThroughputOpsPerSec = float64(observation.Operations) / (float64(observation.ElapsedNS) / float64(time.Second))
+		return result, nil
+	}
+	if target.HandlerKey == "builtin-investigation-timeline-navigation-preimplementation-v1" {
+		return DeepPerformanceObservation{}, fmt.Errorf("Investigation Timeline navigation deep benchmark remains preimplementation")
 	}
 	if target.HandlerKey == "builtin-saved-query-assets-projection-preimplementation-v1" {
 		return DeepPerformanceObservation{}, fmt.Errorf("saved-query-assets projection deep performance target is preimplementation; implement E10-INV-006B-RUNTIME before executable measurement")
