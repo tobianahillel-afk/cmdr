@@ -50,5 +50,11 @@
     "E10-INV-110D-CLOSURE",
     "E10-INV-110E"
   ],
-  "status": "MATERIALIZED_PENDING_VALIDATION"
+  "status": "VERIFIED_MATERIALIZED",
+  "validation": {
+    "final_validated_head": "6715a6a80ab294d2a544fe71c14ce614f3b0648f",
+    "push_workflow_run": 38834402675,
+    "pull_request_workflow_run": 38834408552,
+    "result": "PASS"
+  }
 }

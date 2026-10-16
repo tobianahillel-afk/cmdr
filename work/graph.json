@@ -1670,7 +1670,7 @@
       "id": "E10-SCALE-006B",
       "title": "Choose next READY capability and materialize its bounded wave",
       "type": "task",
-      "status": "READY",
+      "status": "VERIFIED",
       "depends_on": [
         "E10-SCALE-006A"
       ],
@@ -1696,7 +1696,7 @@
       "id": "E10-INV-110A-BOUNDARY",
       "title": "Register read-only Investigation Timeline boundary and performance/security obligations",
       "type": "task",
-      "status": "BLOCKED",
+      "status": "READY",
       "depends_on": [
         "E10-SCALE-006B"
       ],
