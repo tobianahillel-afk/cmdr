@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 	"unicode"
+	"unicode/utf8"
 )
 
 const (
@@ -194,12 +195,19 @@ func Project(input Input) Result {
 // Unicode format characters as well as empty/wildcard identifiers.
 // The actual ACL remains the responsibility of the trusted provider.
 func invalidScope(v string) bool {
+	if !utf8.ValidString(v) {
+		return true // malformed bytes can be replaced during JSON encoding
+	}
 	trimmed := strings.TrimSpace(v)
 	if trimmed == "" || trimmed == "*" {
 		return true
 	}
 	for _, r := range v {
-		if unicode.IsControl(r) || unicode.Is(unicode.Cf, r) {
+		if unicode.IsControl(r) || unicode.Is(unicode.Cf, r) ||
+			r == '\u034f' || // combining grapheme joiner
+			(r >= '\u180b' && r <= '\u180d') || // Mongolian variation selectors
+			(r >= '\ufe00' && r <= '\ufe0f') ||
+			(r >= '\U000e0100' && r <= '\U000e01ef') {
 			return true
 		}
 	}
