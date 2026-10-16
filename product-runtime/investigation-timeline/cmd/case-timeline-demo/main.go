@@ -13,6 +13,7 @@ import (
 	"io"
 	"net"
 	"net/http"
+	"net/url"
 	"os"
 	"os/signal"
 	"syscall"
@@ -35,7 +36,7 @@ func main() {
 func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	flags := flag.NewFlagSet("case-timeline-demo", flag.ContinueOnError)
 	flags.SetOutput(io.Discard)
-	principal := flags.String("principal", "analyst-a", "synthetic analyst-a or analyst-b")
+	principal := flags.String("principal", "analyst-a", "synthetic demo principal ID from selected snapshot (default analyst-a)")
 	snapshot := flags.String("snapshot", "", "absolute path to operator-owned read-only Case snapshot JSON (loopback demo only)")
 	if err := flags.Parse(args); err != nil {
 		return err
@@ -65,8 +66,11 @@ func newDemoHandlerWithData(token, principal string, data timeline.MemoryTimelin
 	if _, err := hex.DecodeString(token); err != nil {
 		return nil, errors.New("invalid demo bearer encoding")
 	}
-	if principal != "analyst-a" && principal != "analyst-b" {
-		return nil, errors.New("unknown synthetic principal")
+	// Offline operator snapshots may define different, scoped synthetic
+	// principals. The owner dataset, not a hard-coded UI username list,
+	// must prove Case membership before we expose a handler.
+	if _, err := firstDemoAuthorizedCase(data, principal); err != nil {
+		return nil, errors.New("principal has no readable Case in selected snapshot")
 	}
 	authenticate := func(r *http.Request) (string, error) {
 		expected := "Bearer " + token
@@ -96,8 +100,11 @@ func serveDemoWithSnapshot(ctx context.Context, principal, snapshot string, outp
 	if err := ctx.Err(); err != nil {
 		return err
 	}
-	if principal != "analyst-a" && principal != "analyst-b" {
-		return errors.New("select analyst-a or analyst-b")
+	// Preserve the embedded fixture's fixed principals. An explicit,
+	// host-selected local file may introduce other synthetic principals;
+	// firstDemoAuthorizedCase and the owner provider validate them below.
+	if snapshot == "" && principal != "analyst-a" && principal != "analyst-b" {
+		return errors.New("select analyst-a or analyst-b for the embedded demo")
 	}
 	data, err := loadDemoSnapshot(snapshot)
 	if err != nil {
@@ -130,7 +137,7 @@ func serveDemoWithSnapshot(ctx context.Context, principal, snapshot string, outp
 		MaxHeaderBytes:    8 << 10,
 	}
 	fmt.Fprintf(output, "CMDR synthetic Case Timeline demo; NOT a production service\n")
-	fmt.Fprintf(output, "URL: http://%s/case-timeline?case_id=%s&limit=2\n", listener.Addr(), caseID)
+	fmt.Fprintf(output, "URL: http://%s/case-timeline?case_id=%s&limit=2\n", listener.Addr(), url.QueryEscape(caseID))
 	fmt.Fprintf(output, "Local analyst viewer: http://%s/analyst\n", listener.Addr())
 	fmt.Fprintf(output, "Bearer token (this run only): %s\n", token)
 	fmt.Fprintf(output, "Principal: %s; available synthetic Case: %s\n", principal, caseID)

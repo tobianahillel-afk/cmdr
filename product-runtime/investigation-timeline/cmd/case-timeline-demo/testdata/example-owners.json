@@ -1,0 +1,137 @@
+{
+  "Principals": [
+    {
+      "ID": "investigator-42",
+      "Tenant": "local-tenant-a",
+      "Environment": "lab"
+    },
+    {
+      "ID": "investigator-99",
+      "Tenant": "local-tenant-b",
+      "Environment": "lab"
+    }
+  ],
+  "Cases": [
+    {
+      "ID": "case-incident-42",
+      "Tenant": "local-tenant-a",
+      "Environment": "lab",
+      "Readers": [
+        "investigator-42"
+      ],
+      "EntryIDs": [
+        "alert-1",
+        "alert-2"
+      ]
+    },
+    {
+      "ID": "case-private-99",
+      "Tenant": "local-tenant-b",
+      "Environment": "lab",
+      "Readers": [
+        "investigator-99"
+      ],
+      "EntryIDs": [
+        "alert-99"
+      ]
+    }
+  ],
+  "Entries": [
+    {
+      "CaseID": "case-incident-42",
+      "Value": {
+        "id": "alert-1",
+        "kind": "observed",
+        "tenant": "local-tenant-a",
+        "source_permission": "unknown",
+        "timezone": "+00:00",
+        "source_time": "2026-10-01T08:30:00Z",
+        "source_ref": "telemetry-1",
+        "provenance": "local-json-import",
+        "version": 1
+      },
+      "Readers": [
+        "investigator-42"
+      ]
+    },
+    {
+      "CaseID": "case-incident-42",
+      "Value": {
+        "id": "alert-2",
+        "kind": "inferred",
+        "tenant": "local-tenant-a",
+        "source_permission": "unknown",
+        "timezone": "+00:00",
+        "source_time": "2026-10-01T09:00:00Z",
+        "source_ref": "evidence-2",
+        "provenance": "local-json-import",
+        "version": 2,
+        "supersedes": "alert-1"
+      },
+      "Readers": [
+        "investigator-42"
+      ]
+    },
+    {
+      "CaseID": "case-private-99",
+      "Value": {
+        "id": "alert-99",
+        "kind": "observed",
+        "tenant": "local-tenant-b",
+        "source_permission": "unknown",
+        "timezone": "+00:00",
+        "source_time": "2026-10-01T07:00:00Z",
+        "source_ref": "incident-99",
+        "provenance": "local-json-import",
+        "version": 1
+      },
+      "Readers": [
+        "investigator-99"
+      ]
+    }
+  ],
+  "Sources": [
+    {
+      "Identity": {
+        "Reference": "telemetry-1",
+        "Kind": "telemetry-event",
+        "ObjectID": "event-1",
+        "Tenant": "local-tenant-a",
+        "Environment": "lab",
+        "CaseID": "case-incident-42"
+      },
+      "Readers": [
+        "investigator-42"
+      ],
+      "Preview": "Synthetic DNS observation: lab workstation queried example.invalid; no real telemetry."
+    },
+    {
+      "Identity": {
+        "Reference": "evidence-2",
+        "Kind": "evidence",
+        "ObjectID": "evidence-2",
+        "Tenant": "local-tenant-a",
+        "Environment": "lab",
+        "CaseID": "case-incident-42"
+      },
+      "Readers": [
+        "investigator-42"
+      ],
+      "Preview": "Synthetic evidence note: inference is not an observed fact."
+    },
+    {
+      "Identity": {
+        "Reference": "incident-99",
+        "Kind": "incident",
+        "ObjectID": "incident-99",
+        "Tenant": "local-tenant-b",
+        "Environment": "lab",
+        "CaseID": "case-private-99"
+      },
+      "Readers": [
+        "investigator-99"
+      ],
+      "Preview": "Synthetic tenant-B incident, restricted to investigator-99."
+    }
+  ]
+}
