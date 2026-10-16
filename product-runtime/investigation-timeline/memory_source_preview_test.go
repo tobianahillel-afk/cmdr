@@ -3,6 +3,7 @@ package investigationtimeline
 import (
 	"context"
 	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -141,7 +142,11 @@ func TestMemorySourcePreviewRejectsMalformedOrCancelledInput(t *testing.T) {
 		{"cancelled-request", "case_id=case-a&entry_id=entry-a", "", true, false, 503},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			r := httptest.NewRequest(http.MethodGet, "/demo-source-open?"+tc.query, strings.NewReader(tc.body))
+			var body io.Reader
+			if tc.body != "" {
+				body = strings.NewReader(tc.body)
+			}
+			r := httptest.NewRequest(http.MethodGet, "/demo-source-open?"+tc.query, body)
 			if tc.transfer {
 				r.TransferEncoding = []string{"chunked"}
 			}
