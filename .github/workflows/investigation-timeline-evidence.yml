@@ -1,0 +1,73 @@
+name: investigation-timeline-evidence
+
+on:
+  push:
+    branches:
+      - "engineering/autonomous-development-foundation"
+    paths:
+      - ".github/workflows/investigation-timeline-evidence.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: investigation-timeline-evidence-${{ github.ref }}-${{ github.sha }}
+  cancel-in-progress: false
+
+jobs:
+  evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - name: Checkout exact source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: tools/cmdr-dev/go.mod
+          cache: false
+      - name: Run exact Timeline projection latency and resource targets
+        shell: bash
+        run: |
+          set -euo pipefail
+          (cd tools/cmdr-dev && go build -trimpath -o "$RUNNER_TEMP/cmdr-dev-timeline" .)
+          "$RUNNER_TEMP/cmdr-dev-timeline" performance-benchmark-audit \
+            --root "$GITHUB_WORKSPACE" --stage on-demand \
+            --requested-performance-target PERF-TGT-INV-TIMELINE-PROJECTION --json \
+            | tee "$RUNNER_TEMP/timeline-latency.json"
+          "$RUNNER_TEMP/cmdr-dev-timeline" deep-performance-audit \
+            --root "$GITHUB_WORKSPACE" --stage on-demand \
+            --requested-performance-target PERF-DEEP-INV-TIMELINE-PROJECTION --json \
+            | tee "$RUNNER_TEMP/timeline-resource.json"
+          python3 - "$GITHUB_SHA" "$RUNNER_TEMP/timeline-latency.json" "$RUNNER_TEMP/timeline-resource.json" <<'PY'
+          import json
+          import sys
+          sha, latency_path, resource_path = sys.argv[1:]
+          for filename, target, selected_field, executed_field in (
+              (latency_path, "PERF-TGT-INV-TIMELINE-PROJECTION", "selected_targets", "executed_targets"),
+              (resource_path, "PERF-DEEP-INV-TIMELINE-PROJECTION", "selected_targets", "executed_targets"),
+          ):
+              with open(filename, encoding="utf-8") as file:
+                  result = json.load(file)
+              if (result.get("source_sha") != sha or result.get("stage") != "on-demand"
+                      or result.get("status") != "pass"
+                      or result.get(selected_field) != 1
+                      or result.get(executed_field) != 1
+                      or len(result.get("results", [])) != 1
+                      or result["results"][0].get("target_id") != target):
+                  raise SystemExit(f"Missing or misattributed measurement for {target}")
+              if target.startswith("PERF-TGT-") and result.get("reused_targets") != 0:
+                  raise SystemExit("Reused benchmark is not fresh exact-SHA evidence")
+              print(f"Verified synthetic {target} source {sha}")
+          PY
+          {
+            echo "### CMDR Timeline synthetic performance evidence"
+            echo "Source SHA: `$GITHUB_SHA`"
+            echo "Latency: target PERF-TGT-INV-TIMELINE-PROJECTION, on-demand, 5 x mean-of-200 operations"
+            echo "Resource: target PERF-DEEP-INV-TIMELINE-PROJECTION, sampled Go heap, 1000 operations"
+            echo "Not per-request p95, peak RSS, remote ACL-provider latency or a production SLO."
+            echo "Full machine-readable measurements are retained in the step logs."
+          } >> "$GITHUB_STEP_SUMMARY"

@@ -133,7 +133,7 @@ func main() {
 	fullScanFlag := fs.Bool("full-scan", false, "scan all Git-tracked repository files")
 	stageFlag := fs.String("stage", "pr", "execution stage: pr, nightly, release, or on-demand")
 	requestedGateFlag := fs.String("requested-gate", "", "optional exact deep security gate id for on-demand execution")
-	requestedPerformanceTargetFlag := fs.String("requested-performance-target", "", "optional exact PERF-DEEP-* target for on-demand execution")
+	requestedPerformanceTargetFlag := fs.String("requested-performance-target", "", "optional exact benchmark PERF-TGT-* or deep PERF-DEEP-* target; on-demand only")
 	performanceEnvironmentFlag := fs.String("performance-environment", defaultCIEnvironment, "performance benchmark environment id")
 	if err := fs.Parse(os.Args[2:]); err != nil {
 		fail(err)
@@ -410,7 +410,16 @@ func main() {
 		if err := validateState(root, state, graph); err != nil {
 			fail(err)
 		}
-		summary, err := runPerformanceBenchmarkAudit(root, *stageFlag, *performanceEnvironmentFlag, *changesFileFlag)
+		var summary PerformanceBenchmarkAuditSummary
+		var err error
+		if *requestedPerformanceTargetFlag != "" {
+			if *stageFlag != "on-demand" {
+				fail(fmt.Errorf("explicit benchmark target selection requires on-demand stage"))
+			}
+			summary, err = runPerformanceBenchmarkTargets(root, *stageFlag, *performanceEnvironmentFlag, []string{*requestedPerformanceTargetFlag})
+		} else {
+			summary, err = runPerformanceBenchmarkAudit(root, *stageFlag, *performanceEnvironmentFlag, *changesFileFlag)
+		}
 		printValue(summary, *jsonFlag)
 		if err != nil {
 			fail(err)
