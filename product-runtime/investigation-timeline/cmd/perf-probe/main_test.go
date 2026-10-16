@@ -3,6 +3,8 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"io"
+	"os"
 	"strings"
 	"testing"
 
@@ -74,5 +76,55 @@ func TestSyntheticProbeRejectsTrivialOrderingOrClassification(t *testing.T) {
 		projected.Entries[len(projected.Entries)-1].Kind != "observed" {
 		t.Fatalf("benchmark oracle did not verify chronology and classification: first=%+v last=%+v",
 			projected.Entries[0], projected.Entries[len(projected.Entries)-1])
+	}
+}
+
+type rejectingWriter struct{}
+
+func (rejectingWriter) Write([]byte) (int, error) {
+	return 0, io.ErrClosedPipe
+}
+
+func TestProbeCLIFailClosedErrorPaths(t *testing.T) {
+	for _, args := range [][]string{
+		{"-iterations=not-a-number"},
+		{"-unknown-option"},
+		{"unexpected-positional-argument"},
+	} {
+		var buf bytes.Buffer
+		if err := runCLI(args, &buf); err == nil {
+			t.Fatalf("invalid CLI accepted: %v", args)
+		}
+	}
+	if err := runCLI([]string{"-iterations=1"}, rejectingWriter{}); err == nil {
+		t.Fatal("CLI silently discarded JSON writer failure")
+	}
+}
+
+func TestProbeMainSuccessPath(t *testing.T) {
+	originalArgs := os.Args
+	originalStdout := os.Stdout
+	reader, writer, err := os.Pipe()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func() {
+		os.Args = originalArgs
+		os.Stdout = originalStdout
+		_ = reader.Close()
+		_ = writer.Close()
+	}()
+	os.Args = []string{"timeline-perf", "-iterations=1"}
+	os.Stdout = writer
+	main()
+	if err := writer.Close(); err != nil {
+		t.Fatal(err)
+	}
+	var result observation
+	if err := json.NewDecoder(reader).Decode(&result); err != nil {
+		t.Fatal(err)
+	}
+	if result.Operation != "projection" || result.Mode != "latency" || result.Operations != 1 {
+		t.Fatalf("main emitted invalid observation: %+v", result)
 	}
 }
