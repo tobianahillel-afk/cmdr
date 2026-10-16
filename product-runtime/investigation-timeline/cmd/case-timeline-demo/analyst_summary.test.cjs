@@ -871,8 +871,8 @@ test("cross-Case chronology merges authorized entries by certain UTC time with u
   assert.equal(list.children.length, 4);
   const labels = list.children.map(item => item.textContent);
   assert.match(labels[0], /Case A.*event-0.*shared-ref.*10:00:00/);
-  assert.match(labels[1], /Case A.*event-1.*shared-ref.*10:00:01/);
-  assert.match(labels[2], /Case B.*event-0.*shared-ref.*10:00:02/);
+  assert.match(labels[1], /Case A.*event-1.*shared-ref.*10:01:00/);
+  assert.match(labels[2], /Case B.*event-0.*shared-ref.*10:02:00/);
   assert.match(labels[3], /Case B.*event-1.*shared-ref.*heure incertaine/);
   assert.ok(labels.every(label => !label.includes("unshared")));
   assert.ok(env.requests.every(request => request.options.headers.Authorization === "Bearer ephemeral-token"));
