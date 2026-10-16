@@ -102,7 +102,15 @@ func Project(input Input) Result {
 			return deny
 		}
 		instant, err := time.Parse(time.RFC3339Nano, e.SourceTime)
-		known := err == nil && e.Timezone != "" && e.Timezone != "unknown" && e.ClockUncertaintyMS == 0
+		known := err == nil && e.ClockUncertaintyMS == 0
+		if known {
+			// A timezone label must agree with the source timestamp offset.
+			// Unknown or named zones are not silently interpreted as UTC.
+			declared, zoneErr := time.Parse("Z07:00", e.Timezone)
+			_, actualOffset := instant.Zone()
+			_, declaredOffset := declared.Zone()
+			known = zoneErr == nil && actualOffset == declaredOffset
+		}
 		if !known {
 			uncertain = true
 		}
@@ -112,6 +120,18 @@ func Project(input Input) Result {
 				Provenance: e.Provenance, Version: e.Version, Supersedes: e.Supersedes},
 			instant: instant, known: known,
 		})
+	}
+	// A visible version must not disclose an inaccessible predecessor ID.
+	visible := make(map[string]bool, len(rows))
+	for _, row := range rows {
+		visible[row.entry.ID] = true
+	}
+	for i := range rows {
+		previous := rows[i].entry.Supersedes
+		if previous != "" && !visible[previous] {
+			rows[i].entry.Supersedes = ""
+			partial = true
+		}
 	}
 	sort.SliceStable(rows, func(i, j int) bool {
 		if rows[i].known != rows[j].known {

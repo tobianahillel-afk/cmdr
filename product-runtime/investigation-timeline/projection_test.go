@@ -155,6 +155,7 @@ func TestProjectTimeOrderingAndUncertainty(t *testing.T) {
 	second := in.Entries[0]
 	second.ID = "a"
 	second.SourceTime = "2026-10-01T11:00:00+01:00"
+	second.Timezone = "+01:00"
 	third := in.Entries[0]
 	third.ID = "z"
 	third.SourceTime = "2026-10-01T09:00:00Z"
@@ -198,5 +199,60 @@ func TestProjectMissingAndSuperseded(t *testing.T) {
 	got := Project(in)
 	if len(got.Entries) != 2 || got.Entries[0].ID != "new" || got.Entries[1].ID != "old" || got.Entries[0].Supersedes != "old" {
 		t.Fatal("supersession or stable order not preserved")
+	}
+}
+
+// Source version references are sensitive: a permitted entry must not reveal
+// identifiers of denied, foreign or missing Timeline Entry predecessors.
+func TestProjectMasksInaccessibleSupersessionReferences(t *testing.T) {
+	for _, permission := range []string{"deny", "unknown", "missing"} {
+		t.Run(permission, func(t *testing.T) {
+			in := allowedFixture()
+			old := in.Entries[0]
+			old.ID = "hidden-version"
+			old.SourceRef = "hidden-source"
+			old.SourcePermission = permission
+			newer := in.Entries[0]
+			newer.ID = "public-version"
+			newer.Version = 2
+			newer.Supersedes = old.ID
+			in.Entries = []Entry{newer, old}
+			got := Project(in)
+			if got.Status != "partial" || len(got.Entries) != 1 || got.Entries[0].Supersedes != "" {
+				t.Fatalf("inaccessible predecessor not masked: %+v", got)
+			}
+			blob, err := json.Marshal(got)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if strings.Contains(string(blob), "hidden-version") || strings.Contains(string(blob), "hidden-source") {
+				t.Fatalf("protected predecessor identity disclosed: %s", blob)
+			}
+		})
+	}
+	in := allowedFixture()
+	in.Entries[0].Supersedes = "unresolved-predecessor"
+	got := Project(in)
+	if got.Status != "partial" || len(got.Entries) != 1 || got.Entries[0].Supersedes != "" {
+		t.Fatalf("unresolved predecessor leaked: %+v", got)
+	}
+}
+
+func TestProjectTimestampOffsetMustMatchDeclaredTimezone(t *testing.T) {
+	for _, zone := range []string{"+00:00", "UTC", "unknown", "+25:00"} {
+		in := allowedFixture()
+		in.Entries[0].SourceTime = "2026-10-01T11:00:00+01:00"
+		in.Entries[0].Timezone = zone
+		got := Project(in)
+		if got.Status != "uncertain" || len(got.Entries) != 1 || !got.Entries[0].TimeUncertain {
+			t.Fatalf("mismatched timezone %q treated as known: %+v", zone, got)
+		}
+	}
+	in := allowedFixture()
+	in.Entries[0].SourceTime = "2026-10-01T11:00:00+01:00"
+	in.Entries[0].Timezone = "+01:00"
+	got := Project(in)
+	if got.Status != "allow" || len(got.Entries) != 1 || got.Entries[0].TimeUncertain {
+		t.Fatalf("matching offset must be known: %+v", got)
 	}
 }
