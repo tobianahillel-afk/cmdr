@@ -34,6 +34,17 @@
       "EntryIDs": [
         "alert-99"
       ]
+    },
+    {
+      "ID": "case-incident-43",
+      "Tenant": "local-tenant-a",
+      "Environment": "lab",
+      "Readers": [
+        "investigator-42"
+      ],
+      "EntryIDs": [
+        "alert-3"
+      ]
     }
   ],
   "Entries": [
@@ -88,6 +99,23 @@
       "Readers": [
         "investigator-99"
       ]
+    },
+    {
+      "CaseID": "case-incident-43",
+      "Value": {
+        "id": "alert-3",
+        "kind": "observed",
+        "tenant": "local-tenant-a",
+        "source_permission": "unknown",
+        "timezone": "+00:00",
+        "source_time": "2026-10-01T10:00:00Z",
+        "source_ref": "telemetry-3",
+        "provenance": "local-json-import",
+        "version": 1
+      },
+      "Readers": [
+        "investigator-42"
+      ]
     }
   ],
   "Sources": [
@@ -132,6 +160,20 @@
         "investigator-99"
       ],
       "Preview": "Synthetic tenant-B incident, restricted to investigator-99."
+    },
+    {
+      "Identity": {
+        "Reference": "telemetry-3",
+        "Kind": "telemetry-event",
+        "ObjectID": "event-3",
+        "Tenant": "local-tenant-a",
+        "Environment": "lab",
+        "CaseID": "case-incident-43"
+      },
+      "Readers": [
+        "investigator-42"
+      ],
+      "Preview": "Synthetic malware triage observation: test process in isolated lab; no real endpoint data."
     }
   ]
 }

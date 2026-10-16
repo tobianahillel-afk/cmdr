@@ -52,7 +52,7 @@ func TestOperatorSnapshotActualLoopbackCaseToSourceJourney(t *testing.T) {
 	capture := &demoCapture{ready: make(chan struct{})}
 	done := make(chan error, 1)
 	go func() {
-		done <- runDemoCLI(ctx, []string{"-principal=investigator-42", "-snapshot=" + path, "-case=case-incident-42"}, capture)
+		done <- runDemoCLI(ctx, []string{"-principal=investigator-42", "-snapshot=" + path, "-case=case-incident-43"}, capture)
 	}()
 	select {
 	case <-capture.ready:
@@ -72,7 +72,7 @@ func TestOperatorSnapshotActualLoopbackCaseToSourceJourney(t *testing.T) {
 	}
 	u, err := url.Parse(endpoint)
 	if err != nil || u.Hostname() != "127.0.0.1" || len(bearer) != 64 ||
-		u.Query().Get("case_id") != "case-incident-42" {
+		u.Query().Get("case_id") != "case-incident-43" {
 		t.Fatalf("invalid authenticated operator endpoint %q: %v", endpoint, err)
 	}
 	client := &http.Client{Timeout: 2 * time.Second}
@@ -101,7 +101,10 @@ func TestOperatorSnapshotActualLoopbackCaseToSourceJourney(t *testing.T) {
 		code int
 		must, forbidden string
 	}{
-		{"/demo-cases", bearer, 200, "case-incident-42", "case-private-99"},
+		{"/demo-cases", bearer, 200, "case-incident-43", "case-private-99"},
+		{"/case-timeline?case_id=case-incident-43&limit=20", bearer, 200, "alert-3", "alert-99"},
+		{"/case-source-navigation?case_id=case-incident-43&entry_id=alert-3&limit=20&offset=0", bearer, 200, "event-3", "incident-99"},
+		{"/demo-source-open?case_id=case-incident-43&entry_id=alert-3", bearer, 200, "Synthetic malware triage observation", "Synthetic tenant-B incident"},
 		{"/case-timeline?case_id=case-incident-42&limit=20", bearer, 200, "alert-2", "alert-99"},
 		{"/case-source-navigation?case_id=case-incident-42&entry_id=alert-1&limit=20&offset=0", bearer, 200, "event-1", "incident-99"},
 		{"/demo-source-open?case_id=case-incident-42&entry_id=alert-1", bearer, 200, "Synthetic DNS observation", "Synthetic tenant-B incident"},

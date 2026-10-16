@@ -41,7 +41,7 @@ func TestOperatorSnapshotFailsClosedAtStartup(t *testing.T) {
 	}{
 		{name: "unknown-principal", principal: "not-a-member", path: originalPath},
 		{name: "absent-file", principal: "investigator-42", path: filepath.Join(t.TempDir(), "not-found.json")},
-		{name: "principal-without-case", principal: "investigator-42", mutate: func(d *timeline.MemoryTimelineData) { d.Cases[0].Readers = nil }},
+		{name: "principal-without-case", principal: "investigator-42", mutate: func(d *timeline.MemoryTimelineData) { for i := range d.Cases { if d.Cases[i].Tenant == "local-tenant-a" { d.Cases[i].Readers = nil } } }},
 		{name: "invalid-source-owner", principal: "investigator-42", mutate: func(d *timeline.MemoryTimelineData) { d.Sources[0].Readers = []string{"forged-principal"} }},
 		{name: "cross-tenant-case-record", principal: "investigator-42", mutate: func(d *timeline.MemoryTimelineData) { d.Cases[0].EntryIDs = append(d.Cases[0].EntryIDs, "alert-99") }},
 	} {
