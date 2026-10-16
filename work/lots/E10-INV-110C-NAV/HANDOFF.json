@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-110C-NAV",
+  "result": "VERIFIED",
+  "final_validated_head": "0be7d800a01886df607e7919648e63c47dc9dca8",
+  "pull_request": 36,
+  "evidence": {
+    "engineering_push_run": 38962095431,
+    "engineering_pr_run": 38962101516,
+    "timeline_push_run": 38962095505,
+    "timeline_pr_run": 38962101673,
+    "node_dom_tests": 5,
+    "owner_http_end_to_end": true,
+    "multi_platform_go_tests": true,
+    "production_integration": false,
+    "independent_l2_report_accessed": false
+  },
+  "next_unit": "E10-INV-110D-CLOSURE",
+  "rules": [
+    "Only use verified synthetic Case/source owner snapshot as demo; never rebrand as production IAM or datastore",
+    "Source authorization must be fresh at actual owner opening; untrusted return context conveys zero authority",
+    "Keep Shared-owned Timeline Entry and OPEN-013 unchanged",
+    "Do not relabel historic synthetic p95 batch means as production request-level p95",
+    "Independent L2 report pending, do not imply L2 APPROVE or native GitHub review"
+  ]
+}
