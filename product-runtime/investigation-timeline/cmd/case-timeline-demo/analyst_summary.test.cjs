@@ -599,3 +599,80 @@ test("no pivot is created for denied comparison or source reference above search
   assert.match(env.fields.comparison.textContent, /références communes : 1/);
   assert.equal(env.fields["comparison-actions"].children.length, 0);
 });
+
+test("shared-source temporal triage uses only authorized certain timestamps and normalizes offsets", async () => {
+  const env = boot(url => {
+    const at = Number(url.searchParams.get("offset"));
+    const id = url.searchParams.get("case_id");
+    const result = id === "case-disk"
+      ? page(at, 205, { sourceFor: n => n < 201 ? "shared-ref" : "left-only" })
+      : page(at, 2, { sourceFor: () => "shared-ref" });
+    const original = result.json;
+    result.json = async () => {
+      const body = await original();
+      if (id === "case-peer") {
+        body.entries[0].source_time = "2026-10-01T11:00:30+01:00";
+        body.entries[1].source_time = "2026-10-01T11:00:40+01:00";
+        body.entries[0].time_uncertain = false;
+        body.entries[1].time_uncertain = true;
+      }
+      return body;
+    };
+    return result;
+  });
+  env.fields["compare-case"].value = "case-peer";
+  env.fields.compare.handlers.click();
+  for (let i = 0; i < 7; i++) await flush();
+  assert.equal(env.requests.length, 3);
+  const content = env.fields.comparison.textContent;
+  assert.match(content, /shared-ref : 201 \/ 2/);
+  assert.match(content, /A : 2026-10-01T10:00:00\.000Z/);
+  assert.match(content, /B : 2026-10-01T10:00:30\.000Z/);
+  assert.match(content, /1 certain\(s\), 1 incertain\(s\)/);
+  assert.match(content, /écart des premiers instants certains : 30\.000 s/);
+  assert.doesNotMatch(content, /left-only/);
+  assert.ok(env.requests.every(r => r.options.headers.Authorization === "Bearer ephemeral-token"));
+});
+
+test("shared source without certain timestamps yields indeterminate temporal gap", async () => {
+  const env = boot(url => {
+    const id = url.searchParams.get("case_id");
+    const response = page(0, 1, { sourceFor: () => "shared-ref" });
+    const original = response.json;
+    response.json = async () => {
+      const body = await original();
+      if (id === "case-peer") {
+        body.entries[0].time_uncertain = true;
+        body.entries[0].source_time = "unknown";
+      }
+      return body;
+    };
+    return response;
+  });
+  env.fields["compare-case"].value = "case-peer";
+  env.fields.compare.handlers.click();
+  for (let i = 0; i < 5; i++) await flush();
+  assert.match(env.fields.comparison.textContent, /écart temporel indéterminé/);
+  assert.match(env.fields.comparison.textContent, /aucun horaire certain \(1 incertain\(s\)\)/);
+  assert.equal(env.fields["comparison-actions"].children.length, 2);
+});
+
+test("malformed certain source timestamp fails whole comparison without partial cross-Case disclosure", async () => {
+  const env = boot(url => {
+    const response = page(0, 1, { sourceFor: () => "shared-ref" });
+    const original = response.json;
+    response.json = async () => {
+      const body = await original();
+      if (url.searchParams.get("case_id") === "case-peer")
+        body.entries[0].source_time = "invalid-claimed-certain";
+      return body;
+    };
+    return response;
+  });
+  env.fields["compare-case"].value = "case-peer";
+  env.fields.compare.handlers.click();
+  for (let i = 0; i < 5; i++) await flush();
+  assert.match(env.fields.comparison.textContent, /Aucun résultat partiel/);
+  assert.doesNotMatch(env.fields.comparison.textContent, /shared-ref/);
+  assert.equal(env.fields["comparison-actions"].children.length, 0);
+});

@@ -295,6 +295,7 @@
     // ACL chain. One inaccessible Case invalidates the ENTIRE comparison.
     async function sourcesFor(id) {
       const groups = new Map();
+      const timeRanges = new Map();
       const seen = new Set();
       let total = null;
       for (let at = 0; at === 0 || at < total; at += pageSize) {
@@ -333,14 +334,33 @@
         for (const entry of data.entries) {
           if (!entry || typeof entry.id !== "string" || !entry.id ||
               seen.has(entry.id) || !allowedKinds.has(entry.kind) ||
-              typeof entry.source_ref !== "string" || !entry.source_ref) {
+              typeof entry.source_ref !== "string" || !entry.source_ref ||
+              typeof entry.time_uncertain !== "boolean") {
             throw Error("invalid authorized comparison entry");
           }
           seen.add(entry.id);
           groups.set(entry.source_ref, (groups.get(entry.source_ref) || 0) + 1);
+          // Derive a temporal envelope only from timestamps the authorized
+          // Timeline projection marks certain. Unknown time is never guessed.
+          const range = timeRanges.get(entry.source_ref) ||
+            { first: null, last: null, certain: 0, uncertain: 0 };
+          if (entry.time_uncertain) {
+            range.uncertain++;
+          } else {
+            if (typeof entry.source_time !== "string" ||
+                !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,9})?(?:Z|[+-]\d{2}:\d{2})$/.test(entry.source_time)) {
+              throw Error("invalid certain comparison timestamp");
+            }
+            const instant = Date.parse(entry.source_time);
+            if (!Number.isFinite(instant)) throw Error("invalid certain comparison instant");
+            range.certain++;
+            range.first = range.first === null ? instant : Math.min(range.first, instant);
+            range.last = range.last === null ? instant : Math.max(range.last, instant);
+          }
+          timeRanges.set(entry.source_ref, range);
         }
       }
-      return { total, groups };
+      return { total, groups, timeRanges };
     }
     try {
       const left = await sourcesFor(selectedCase);
@@ -348,16 +368,32 @@
       if (controller.signal.aborted || activeComparison !== compareRevision ||
           activeSelection !== revision) return;
       const common = [...left.groups].filter(([ref]) => right.groups.has(ref))
-        .map(([ref, count]) => ({ ref, left: count, right: right.groups.get(ref) }))
+        .map(([ref, count]) => ({
+          ref, left: count, right: right.groups.get(ref),
+          leftTime: left.timeRanges.get(ref), rightTime: right.timeRanges.get(ref)
+        }))
         .sort((a, b) => Math.min(b.left, b.right) - Math.min(a.left, a.right) ||
           (a.ref < b.ref ? -1 : a.ref > b.ref ? 1 : 0));
-      const top = common.slice(0, 5).map(group =>
-        (group.ref.length > 120 ? group.ref.slice(0, 120) + "… (abrégée)" : group.ref) +
-        " : " + group.left + " / " + group.right).join(" · ");
+      const rangeLabel = range => range.certain
+        ? new Date(range.first).toISOString() + " → " +
+          new Date(range.last).toISOString() + " (" + range.certain + " certain(s), " +
+          range.uncertain + " incertain(s))"
+        : "aucun horaire certain (" + range.uncertain + " incertain(s))";
+      const top = common.slice(0, 5).map(group => {
+        const temporalGap = group.leftTime.certain && group.rightTime.certain
+          ? " · écart des premiers instants certains : " +
+            (Math.abs(group.leftTime.first - group.rightTime.first) / 1000).toFixed(3) + " s"
+          : " · écart temporel indéterminé";
+        return (group.ref.length > 120 ? group.ref.slice(0, 120) + "… (abrégée)" : group.ref) +
+          " : " + group.left + " / " + group.right +
+          " · A : " + rangeLabel(group.leftTime) +
+          " · B : " + rangeLabel(group.rightTime) + temporalGap;
+      }).join(" · ");
       comparison.textContent = "Comparaison des événements autorisés : " +
         left.total + " / " + right.total + " · références communes : " +
         common.length + (top ? " · " + top : "") +
-        ". Présence commune d'une référence exacte, pas une preuve de causalité, " +
+        ". Les écarts reposent sur les seuls horodatages certains et visibles. " +
+        "Présence commune d'une référence exacte, pas une preuve de causalité, " +
         "d'identité d'objet ou d'exhaustivité. Lectures non transactionnelles.";
       // A correlation is a triage hint, NOT an authority. Pivot into the
       // existing Case search; fetchPage performs a fresh server-side Case,

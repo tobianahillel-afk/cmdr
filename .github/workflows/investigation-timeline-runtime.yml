@@ -71,7 +71,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          node --test product-runtime/investigation-timeline/cmd/case-timeline-demo/analyst_return.test.cjs
+          node --test product-runtime/investigation-timeline/cmd/case-timeline-demo/analyst_return.test.cjs product-runtime/investigation-timeline/cmd/case-timeline-demo/analyst_summary.test.cjs
 
       - name: Measure local synthetic Timeline projection
         working-directory: product-runtime/investigation-timeline
