@@ -32,3 +32,16 @@ Visibility-first validation: the 8 MiB string-data budget and duplicate/nonempty
 The HTTP behavior runs without a new database, external API or frontend trust flag. A full two-tenant, two-Case integration test covers successful Case navigation, observed and inferred entries, provenance and supersession, restricted evidence, shared/foreign tenant isolation, incorrect/missing authentication and invalid catalog/ownership construction. This intentionally does NOT add a persistence schema or change Shared-owned Timeline Entry contracts. See `work/lots/E10-INV-110B-RUNTIME/MEMORY-OWNER-INTEGRATION.md`.
 
 For a real deployment, the host must supply its identity verifier, actual Case/Shared/Evidence/Telemetry/Govern/Command repositories and provider-side transaction/revocation semantics. No remote provider, actual production Case repository, installed route, database migration, production SLO or final frontend is claimed.
+
+## Trusted local snapshot viewer (stacked functional integration)
+
+The existing `cmd/case-timeline-demo` can now serve a **trusted, administrator-supplied JSON snapshot** of `MemoryTimelineData` instead of hardcoded Case fixtures:
+
+```bash
+cd product-runtime/investigation-timeline
+go run ./cmd/case-timeline-demo -principal=forensic-operator -snapshot=/secure/path/case-snapshot.json
+```
+
+The local file is JSON produced from the existing exported `MemoryTimelineData` Go structure, with `Principals`, `Cases`, `Entries` and `Sources` records; use `encoding/json.Marshal(data)` in the owning host. The snapshot is capped at 8 MiB, read once at startup with strict unknown-field rejection and exactly one JSON value, and passed to the **existing** validated read-only memory owner provider. Invalid relationships or missing principal Case membership fail before the loopback listener starts. A random per-run bearer secret and `127.0.0.1`-only listener still protect the HTTP route. No external database, write API or remote service is introduced.
+
+**Trust boundary:** the file is a trusted input assembled by the host with independent knowledge of owners/readers. Its reader lists are **not a production authorization provider**, are static until restart and do not reflect revocation after startup. Do not load files supplied by an untrusted HTTP requester, publish tokens in logs, or expose the listener outside loopback. Use a dedicated upstream authenticator, owner repositories, durable audit, transactional ACL freshness and TLS gateway for a real deployment. No canonical Product Spec or persistence schema changes were made.
