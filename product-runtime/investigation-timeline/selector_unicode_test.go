@@ -23,46 +23,47 @@ func TestAuthorizationSelectorsRejectNonTextUnicode(t *testing.T) {
 			}
 			for _, target := range []string{"tenant", "environment", "case", "timeline-id", "linked-source"} {
 				t.Run(target, func(t *testing.T) {
-				in := allowedFixture()
-				caseID := "case-123"
-				switch target {
-				case "tenant":
-					in.Scope.Tenant = tc.value
-				case "environment":
-					in.Scope.Environment = tc.value
-				case "case":
-					caseID = tc.value
-				case "timeline-id":
-					in.Entries[0].ID = tc.value
-				case "linked-source":
-					in.Entries[0].SourceRef = tc.value
-				}
-				checker := allowedAccessChecker()
-				legacy := ProjectWithAccessChecker(context.Background(), in, caseID, checker)
-				if target == "tenant" || target == "environment" || target == "case" {
-					if legacy.Status != "deny" || len(checker.calls) != 0 {
-						t.Fatalf("malformed scope reached authority: %+v calls=%+v", legacy, checker.calls)
+					in := allowedFixture()
+					caseID := "case-123"
+					switch target {
+					case "tenant":
+						in.Scope.Tenant = tc.value
+					case "environment":
+						in.Scope.Environment = tc.value
+					case "case":
+						caseID = tc.value
+					case "timeline-id":
+						in.Entries[0].ID = tc.value
+					case "linked-source":
+						in.Entries[0].SourceRef = tc.value
 					}
-				} else if target == "timeline-id" {
-					if len(legacy.Entries) != 0 || len(checker.calls) != 1 {
-						t.Fatalf("malformed ID reached Timeline provider: %+v calls=%+v", legacy, checker.calls)
-					}
-				} else {
-					if legacy.Status != "deny" || len(checker.calls) != 2 {
-						t.Fatalf("malformed linked source reached owner provider: %+v calls=%+v", legacy, checker.calls)
-					}
-				}
-				if target != "case" {
-					projected := Project(in)
-					if target == "tenant" || target == "environment" || target == "timeline-id" || target == "linked-source" {
-						if projected.Status != "deny" || len(projected.Entries) != 0 {
-							t.Fatalf("invalid selector reached projection: %+v", projected)
+					checker := allowedAccessChecker()
+					legacy := ProjectWithAccessChecker(context.Background(), in, caseID, checker)
+					if target == "tenant" || target == "environment" || target == "case" {
+						if legacy.Status != "deny" || len(checker.calls) != 0 {
+							t.Fatalf("malformed scope reached authority: %+v calls=%+v", legacy, checker.calls)
+						}
+					} else if target == "timeline-id" {
+						if len(legacy.Entries) != 0 || len(checker.calls) != 1 {
+							t.Fatalf("malformed ID reached Timeline provider: %+v calls=%+v", legacy, checker.calls)
+						}
+					} else {
+						if legacy.Status != "deny" || len(checker.calls) != 2 {
+							t.Fatalf("malformed linked source reached owner provider: %+v calls=%+v", legacy, checker.calls)
 						}
 					}
-				}
+					if target != "case" {
+						projected := Project(in)
+						if target == "tenant" || target == "environment" || target == "timeline-id" || target == "linked-source" {
+							if projected.Status != "deny" || len(projected.Entries) != 0 {
+								t.Fatalf("invalid selector reached projection: %+v", projected)
+							}
+						}
+					}
 			})
 		}
 	})
+	}
 }
 
 func TestOwnerSelectorsFailBeforeUntrustedAuthority(t *testing.T) {
