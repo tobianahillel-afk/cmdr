@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -266,5 +267,40 @@ func TestAuthorizationCaseMembershipDenialCannotTriggerSourceLookup(t *testing.T
 	}
 	if checker.calls[1].CaseID != "case-123" || checker.calls[1].Resource != "timeline-entry" {
 		t.Fatalf("case membership request not passed to authority: %+v", checker.calls[1])
+	}
+}
+
+func TestAuthorizedProjectionBoundsSourceReferenceBeforeProvider(t *testing.T) {
+	in := allowedFixture()
+	in.Entries[0].SourceRef = strings.Repeat("untrusted:", MaxInputBytes/10+1)
+	checker := allowedAccessChecker()
+	got := ProjectWithAccessChecker(context.Background(), in, "case-123", checker)
+	if got.Status != "deny" || len(got.Entries) != 0 {
+		t.Fatalf("oversized source reference allowed: %+v", got)
+	}
+	if len(checker.calls) != 2 || checker.calls[0].Resource != "case" || checker.calls[1].Resource != "timeline-entry" {
+		t.Fatalf("oversized SourceRef reached source authority: %+v", checker.calls)
+	}
+}
+
+func TestAuthorizedProjectionBoundsEnvelopeBeforeAnyProvider(t *testing.T) {
+	for _, tc := range []string{"case", "tenant", "environment"} {
+		t.Run(tc, func(t *testing.T) {
+			in := allowedFixture()
+			caseID := "case-123"
+			switch tc {
+			case "case":
+				caseID = strings.Repeat("C", MaxInputBytes+1)
+			case "tenant":
+				in.Scope.Tenant = strings.Repeat("T", MaxInputBytes+1)
+			case "environment":
+				in.Scope.Environment = strings.Repeat("E", MaxInputBytes+1)
+			}
+			checker := allowedAccessChecker()
+			got := ProjectWithAccessChecker(context.Background(), in, caseID, checker)
+			if got.Status != "deny" || len(got.Entries) != 0 || len(checker.calls) != 0 {
+				t.Fatalf("unbounded envelope reached provider: %+v calls=%+v", got, checker.calls)
+			}
+		})
 	}
 }

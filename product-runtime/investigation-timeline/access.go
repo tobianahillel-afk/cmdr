@@ -41,6 +41,7 @@ func ProjectWithAccessChecker(ctx context.Context, in Input, caseID string, chec
 	if ctx == nil || checker == nil ||
 		invalidScope(in.Scope.Tenant) || invalidScope(in.Scope.Environment) ||
 		strings.TrimSpace(caseID) == "" || strings.TrimSpace(caseID) == "*" ||
+		len(in.Scope.Tenant)+len(in.Scope.Environment)+len(caseID) > MaxInputBytes ||
 		len(in.Entries) > MaxEntries {
 		return deny
 	}
@@ -97,7 +98,8 @@ func ProjectWithAccessChecker(ctx context.Context, in Input, caseID string, chec
 		if timelineAccess == "allow" {
 			// Source checks are independent. They MUST be resolved by their
 			// owner; this generic resource label does not grant any right.
-			if strings.TrimSpace(entry.SourceRef) == "" || strings.TrimSpace(entry.SourceRef) == "*" {
+			if len(entry.SourceRef) > MaxInputBytes ||
+				strings.TrimSpace(entry.SourceRef) == "" || strings.TrimSpace(entry.SourceRef) == "*" {
 				return deny
 			}
 			sourceAccess, valid := checked("source", entry.SourceRef, sourceReadPermission)
