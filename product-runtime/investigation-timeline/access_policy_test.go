@@ -8,8 +8,8 @@ import (
 )
 
 type scopedOwnerChecker struct {
-	calls []AccessRequest
-	decisions map[string]string
+	calls      []AccessRequest
+	decisions  map[string]string
 	failObject string
 }
 
@@ -51,11 +51,11 @@ func TestOwnerChecksAcrossMultipleIndependentTimelineSources(t *testing.T) {
 	foreign.Tenant = "foreign"
 	base.Entries = []Entry{allowed, unrelated, missing, foreign}
 	checker := &scopedOwnerChecker{decisions: map[string]string{
-		"timeline-entry:x": "allow",
-		"source:owner:x": "allow",
-		"timeline-entry:unrelated": "deny",
+		"timeline-entry:x":              "allow",
+		"source:owner:x":                "allow",
+		"timeline-entry:unrelated":      "deny",
 		"timeline-entry:missing-source": "allow",
-		"source:owner:missing": "missing",
+		"source:owner:missing":          "missing",
 	}}
 	result := ProjectWithAccessChecker(context.Background(), base, "case-123", checker)
 	if result.Status != "partial" || len(result.Entries) != 1 || result.Entries[0].ID != "x" {
@@ -78,8 +78,8 @@ func TestOwnerProviderFailureIsAtomicAfterEarlierAllowedEntries(t *testing.T) {
 	base := allowedFixture()
 	base.Entries = append(base.Entries, timelineEntryVariant(base.Entries[0], "second", "owner:second"))
 	checker := &scopedOwnerChecker{decisions: map[string]string{
-		"timeline-entry:x": "allow",
-		"source:owner:x": "allow",
+		"timeline-entry:x":      "allow",
+		"source:owner:x":        "allow",
 		"timeline-entry:second": "allow",
 	}, failObject: "source:owner:second"}
 	result := ProjectWithAccessChecker(context.Background(), base, "case-123", checker)
