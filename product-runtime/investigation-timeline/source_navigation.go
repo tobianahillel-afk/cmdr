@@ -39,11 +39,11 @@ func OpenCaseTimelineSourceNavigation(
 	entries EntryResolver, sources SourceOwnerResolver,
 ) SourceNavigationResult {
 	deny := SourceNavigationResult{Status: "deny"}
-	if missingAuthority(ctx) || missingAuthority(checker) || missingAuthority(catalog) ||
-		missingAuthority(entries) || missingAuthority(sources) ||
-		invalidScope(scope.Tenant) || invalidScope(scope.Environment) ||
-		!validNavigationSelector(caseID) || !validNavigationSelector(entryID) ||
-		ctx.Err() != nil {
+	// Reject untrusted selectors before any provider I/O. Reuse
+	// OpenCaseTimeline's existing scope, nil-provider and cancellation gates
+	// instead of duplicating that exact authority boundary here.
+	if missingAuthority(ctx) || !validNavigationSelector(caseID) ||
+		!validNavigationSelector(entryID) {
 		return deny
 	}
 	// A selected entry must have been authorized by the exact same Case
