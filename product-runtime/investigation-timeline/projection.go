@@ -160,7 +160,11 @@ func Project(input Input) Result {
 			return deny
 		}
 	}
-	sort.SliceStable(rows, func(i, j int) bool {
+	// Each visible ID is unique (enforced above) and is the final sort key.
+	// This makes the comparison a strict total order even when two entries
+	// have the same instant or unknown clocks. Stable sort is therefore
+	// unnecessary; reuse the simpler standard-library in-place sorter.
+	sort.Slice(rows, func(i, j int) bool {
 		if rows[i].known != rows[j].known {
 			return rows[i].known
 		}
