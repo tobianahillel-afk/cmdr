@@ -32,6 +32,18 @@ const (
 	sourceReadPermission   = "source-owner-read"
 )
 
+// boundedSourceSelector validates the aggregate bytes forwarded to the
+// external source-access authority. It runs only for Timeline Entries that
+// passed the independent Timeline Entry permission check. A denied/foreign
+// entry never contributes to this external selector budget.
+func boundedSourceSelector(used *int, ref string) bool {
+	if invalidScope(ref) || len(ref) > MaxInputBytes-*used {
+		return false
+	}
+	*used += len(ref)
+	return true
+}
+
 // ProjectWithAccessChecker is the opt-in trusted integration boundary for
 // read-only Timeline projections. It deliberately ignores ALL permission
 // decisions supplied by the Input; only checker-derived results are used.
@@ -51,6 +63,7 @@ func ProjectWithAccessChecker(ctx context.Context, in Input, caseID string, chec
 	// authorization provider merely because they will later fail Project.
 	// Foreign and malformed entries remain opaque; they are not selectors.
 	usedIDs := len(in.Scope.Tenant) + len(in.Scope.Environment) + len(caseID)
+	usedSourceSelectors := usedIDs
 	for _, entry := range in.Entries {
 		if entry.Tenant != in.Scope.Tenant ||
 			strings.TrimSpace(entry.ID) == "" || strings.TrimSpace(entry.ID) == "*" {
@@ -114,8 +127,7 @@ func ProjectWithAccessChecker(ctx context.Context, in Input, caseID string, chec
 		if timelineAccess == "allow" {
 			// Source checks are independent. They MUST be resolved by their
 			// owner; this generic resource label does not grant any right.
-			if len(entry.SourceRef) > MaxInputBytes ||
-				strings.TrimSpace(entry.SourceRef) == "" || strings.TrimSpace(entry.SourceRef) == "*" {
+			if !boundedSourceSelector(&usedSourceSelectors, entry.SourceRef) {
 				return deny
 			}
 			sourceAccess, valid := checked("source", entry.SourceRef, sourceReadPermission)

@@ -1,9 +1,6 @@
 package investigationtimeline
 
-import (
-	"context"
-	"strings"
-)
+import "context"
 
 // EntryResolver loads a canonical Timeline Entry from a trusted server-side
 // source of truth. It must bind the authenticated principal, requested Case,
@@ -51,6 +48,7 @@ func ProjectFromOwnerSnapshots(
 	// A malformed/duplicate later selector must not trigger earlier owner reads.
 	seen := make(map[string]bool, len(ids))
 	usedIDs := len(scope.Tenant) + len(scope.Environment) + len(caseID)
+	usedSourceSelectors := usedIDs
 	if usedIDs > MaxInputBytes {
 		return deny // bound scope and Case ID even if no entries were selected
 	}
@@ -86,9 +84,7 @@ func ProjectFromOwnerSnapshots(
 		entry, err := resolver.ResolveEntry(ctx, timelineRequest)
 		if err != nil || ctx.Err() != nil ||
 			entry.ID != id || entry.Tenant != scope.Tenant ||
-			len(entry.SourceRef) > MaxInputBytes || // do not forward unbounded owner data into authority calls
-			strings.TrimSpace(entry.SourceRef) == "" ||
-			strings.TrimSpace(entry.SourceRef) == "*" {
+			!boundedSourceSelector(&usedSourceSelectors, entry.SourceRef) {
 			return deny
 		}
 		sourceDecision, valid := check(request("source", entry.SourceRef, sourceReadPermission))

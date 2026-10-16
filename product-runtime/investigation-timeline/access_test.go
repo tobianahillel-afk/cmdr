@@ -348,3 +348,40 @@ func TestLegacyAccessCheckerIgnoresOpaqueEntrySizeDuringSelectorBudget(t *testin
 		t.Fatalf("foreign entry size interfered with accessible projection: result=%+v calls=%+v", got, checker.calls)
 	}
 }
+
+func TestLegacyAccessRejectsCumulativeSourceSelectorsBeforeSecondAuthorityCall(t *testing.T) {
+	in := allowedFixture()
+	second := in.Entries[0]
+	second.ID = "y"
+	firstRef := strings.Repeat("a", MaxInputBytes/2)
+	secondRef := strings.Repeat("b", MaxInputBytes/2)
+	in.Entries[0].SourceRef = firstRef
+	second.SourceRef = secondRef
+	in.Entries = append(in.Entries, second)
+	checker := allowedAccessChecker()
+	checker.decisions["source:"+firstRef] = "allow"
+	checker.decisions["timeline-entry:y"] = "allow"
+	got := ProjectWithAccessChecker(context.Background(), in, "case-123", checker)
+	if got.Status != "deny" || len(got.Entries) != 0 || len(checker.calls) != 4 {
+		t.Fatalf("cumulative source selectors reached authority or yielded entries: %+v calls=%d", got, len(checker.calls))
+	}
+	for _, call := range checker.calls {
+		if call.Resource == "source" && call.ObjectID == secondRef {
+			t.Fatal("second oversized cumulative source selector reached provider")
+		}
+	}
+}
+
+func TestLegacySourceSelectorBudgetIgnoresUnauthorizedTimelineEntries(t *testing.T) {
+	in := allowedFixture()
+	other := in.Entries[0]
+	other.ID = "denied-y"
+	other.SourceRef = strings.Repeat("protected", MaxInputBytes/9+1)
+	in.Entries = append(in.Entries, other)
+	checker := allowedAccessChecker()
+	checker.decisions["timeline-entry:denied-y"] = "deny"
+	got := ProjectWithAccessChecker(context.Background(), in, "case-123", checker)
+	if got.Status != "filtered" || len(got.Entries) != 1 || len(checker.calls) != 4 {
+		t.Fatalf("denied Timeline Entry affected visible source budget: %+v calls=%d", got, len(checker.calls))
+	}
+}

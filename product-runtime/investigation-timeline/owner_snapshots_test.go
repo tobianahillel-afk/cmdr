@@ -147,3 +147,39 @@ func TestOwnerSnapshotRejectsOversizedScopeBeforeProviderCalls(t *testing.T) {
 		})
 	}
 }
+
+func TestOwnerSnapshotBoundsCumulativeSourceSelectorsBeforeSecondLookup(t *testing.T) {
+	checker, owner := ownerFixture()
+	first := owner.entries["x"]
+	first.SourceRef = strings.Repeat("a", MaxInputBytes/2)
+	owner.entries["x"] = first
+	second := first
+	second.ID = "y"
+	second.SourceRef = strings.Repeat("b", MaxInputBytes/2)
+	owner.entries["y"] = second
+	checker.decisions["timeline-entry:y"] = "allow"
+	checker.decisions["source:"+first.SourceRef] = "allow"
+	got := ProjectFromOwnerSnapshots(context.Background(), allowedFixture().Scope, "case-123", []string{"x", "y"}, checker, owner)
+	if got.Status != "deny" || len(got.Entries) != 0 || len(checker.calls) != 4 || len(owner.calls) != 2 {
+		t.Fatalf("cumulative owner selectors reached source authority: %+v checker=%d resolver=%d", got, len(checker.calls), len(owner.calls))
+	}
+	for _, call := range checker.calls {
+		if call.Resource == "source" && call.ObjectID == second.SourceRef {
+			t.Fatal("second oversized cumulative owner source selector reached provider")
+		}
+	}
+}
+
+func TestOwnerSnapshotSourceSelectorBudgetDoesNotChargeDeniedTimelineID(t *testing.T) {
+	checker, owner := ownerFixture()
+	first := owner.entries["x"]
+	second := first
+	second.ID = "y"
+	second.SourceRef = strings.Repeat("secret", MaxInputBytes/6+1)
+	owner.entries["y"] = second
+	checker.decisions["timeline-entry:y"] = "deny"
+	got := ProjectFromOwnerSnapshots(context.Background(), allowedFixture().Scope, "case-123", []string{"x", "y"}, checker, owner)
+	if got.Status != "filtered" || len(got.Entries) != 1 || len(owner.calls) != 1 || len(checker.calls) != 4 {
+		t.Fatalf("denied Timeline Entry consumed source budget or was resolved: %+v resolver=%d checker=%d", got, len(owner.calls), len(checker.calls))
+	}
+}
