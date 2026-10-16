@@ -302,6 +302,10 @@
       const groups = new Map();
       const timeRanges = new Map();
       const seen = new Set();
+      const kinds = { observed: 0, inferred: 0 };
+      let certainMin = null;
+      let certainMax = null;
+      let uncertain = 0;
       let total = null;
       for (let at = 0; at === 0 || at < total; at += pageSize) {
         if (controller.signal.aborted) throw Error("comparison cancelled");
@@ -345,12 +349,14 @@
           }
           seen.add(entry.id);
           groups.set(entry.source_ref, (groups.get(entry.source_ref) || 0) + 1);
+          if (entry.kind === "observed" || entry.kind === "inferred") kinds[entry.kind]++;
           // Derive a temporal envelope only from timestamps the authorized
           // Timeline projection marks certain. Unknown time is never guessed.
           const range = timeRanges.get(entry.source_ref) ||
             { first: null, last: null, certain: 0, uncertain: 0 };
           if (entry.time_uncertain) {
             range.uncertain++;
+            uncertain++;
           } else {
             if (typeof entry.source_time !== "string" ||
                 !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,9})?(?:Z|[+-]\d{2}:\d{2})$/.test(entry.source_time)) {
@@ -359,13 +365,15 @@
             const instant = Date.parse(entry.source_time);
             if (!Number.isFinite(instant)) throw Error("invalid certain comparison instant");
             range.certain++;
+            certainMin = certainMin === null ? instant : Math.min(certainMin, instant);
+            certainMax = certainMax === null ? instant : Math.max(certainMax, instant);
             range.first = range.first === null ? instant : Math.min(range.first, instant);
             range.last = range.last === null ? instant : Math.max(range.last, instant);
           }
           timeRanges.set(entry.source_ref, range);
         }
       }
-      return { total, groups, timeRanges };
+      return { total, groups, timeRanges, kinds, certainMin, certainMax, uncertain };
     }
     try {
       const left = await sourcesFor(selectedCase);
@@ -420,9 +428,21 @@
           " · B : " + rangeLabel(group.rightTime) + temporalGap +
           " · " + temporalRelation(group).label;
       }).join(" · ");
+      const caseRange = value => value.certainMin === null ?
+        "aucune plage certaine" : new Date(value.certainMin).toISOString() +
+        " → " + new Date(value.certainMax).toISOString();
+      const envelopeOverlap = left.certainMin === null || right.certainMin === null
+        ? null : left.certainMin <= right.certainMax && right.certainMin <= left.certainMax;
       comparison.textContent = "Comparaison des événements autorisés : " +
-        left.total + " / " + right.total + " · références communes : " +
-        common.length + (top ? " · " + top : "") +
+        left.total + " / " + right.total +
+        " · observés : " + left.kinds.observed + " / " + right.kinds.observed +
+        " · inférés : " + left.kinds.inferred + " / " + right.kinds.inferred +
+        " · horodatages incertains : " + left.uncertain + " / " + right.uncertain +
+        " · plage certaine Case 1 (UTC) : " + caseRange(left) +
+        " · plage certaine Case 2 (UTC) : " + caseRange(right) +
+        " · chevauchement des plages certaines : " +
+        (envelopeOverlap === null ? "indéterminable" : envelopeOverlap ? "oui" : "non") +
+        " · références communes : " + common.length + (top ? " · " + top : "") +
         ". Les écarts reposent sur les seuls horodatages certains et visibles. " +
         "Présence commune d'une référence exacte, pas une preuve de causalité, " +
         "d'identité d'objet ou d'exhaustivité. Lectures non transactionnelles.";
@@ -446,6 +466,14 @@
           from: windowSelection.from, to: windowSelection.to
         },
         visible_event_counts: [left.total, right.total],
+        visible_observed_counts: [left.kinds.observed, right.kinds.observed],
+        visible_inferred_counts: [left.kinds.inferred, right.kinds.inferred],
+        uncertain_timestamp_counts: [left.uncertain, right.uncertain],
+        certain_case_envelopes_utc: [left, right].map(value => ({
+          first: value.certainMin === null ? null : new Date(value.certainMin).toISOString(),
+          last: value.certainMax === null ? null : new Date(value.certainMax).toISOString()
+        })),
+        certain_case_envelopes_overlap: envelopeOverlap,
         shared_source_references: common.length,
         exported_source_references: exportable.map(group => ({
           source_ref: group.ref,
@@ -462,6 +490,7 @@
           "Comparisons are nontransactional and may become stale after rights or data change",
           "Shared source reference is a triage indicator, not proof of causation or common object",
           "Temporal ordering compares certain visible envelopes only; uncertain events may change real ordering",
+          "Case-wide observed/inferred counts and envelopes include authorized events regardless of shared sources; ranges do not prove continuous activity",
           "Unsigned local aggregate; no raw events, forensic custody proof or complete export"
         ]
       };
