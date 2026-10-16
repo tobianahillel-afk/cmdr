@@ -47,6 +47,8 @@
   let analysisRequest = null;
   let analysisRevision = 0;
   let preparedReport = null;
+  // Match the disabled HTML default even in minimal embedded DOM hosts.
+  downloadReport.disabled = true;
 
   function clearAnalysis() {
     ++analysisRevision;
