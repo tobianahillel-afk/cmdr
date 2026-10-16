@@ -111,6 +111,15 @@
       ],
       "mutable_by_implementation": true,
       "may_depend_on": []
+    },
+    {
+      "id": "investigation-timeline-runtime",
+      "kind": "product-runtime",
+      "roots": [
+        "product-runtime/investigation-timeline/**"
+      ],
+      "mutable_by_implementation": true,
+      "may_depend_on": []
     }
   ]
 }
