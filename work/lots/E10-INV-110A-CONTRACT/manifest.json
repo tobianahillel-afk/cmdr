@@ -12,7 +12,14 @@
     "screens": [
       "INV-TIM-001"
     ],
-    "permissions": [],
+    "permissions": [
+      "perm.investigate.case.read",
+      "perm.shared-capabilities.timeline-entry.read",
+      "perm.investigate.evidence.read",
+      "perm.shared-capabilities.telemetry-event.read",
+      "perm.govern.decision.read",
+      "perm.command.incident.read"
+    ],
     "open_decisions": [
       "OPEN-013"
     ],

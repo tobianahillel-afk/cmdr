@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "id": "TIMELINE-READONLY-CONTRACT-V1",
+  "capability": "CAP-INV-110",
+  "canonical_schema_claim": false,
+  "product_spec_baseline": "99c3826cdcbc79bad51631cf6462450f92e012eb",
+  "runtime_boundary": "investigation-timeline-runtime",
+  "state": "preimplementation",
+  "scope": {
+    "mandatory_permissions": [
+      "perm.investigate.case.read",
+      "perm.shared-capabilities.timeline-entry.read"
+    ],
+    "conditional_source_permissions": {
+      "evidence": "perm.investigate.evidence.read",
+      "telemetry-event": "perm.shared-capabilities.telemetry-event.read",
+      "decision": "perm.govern.decision.read",
+      "incident": "perm.command.incident.read"
+    },
+    "tenant_required": true,
+    "environment_required": true,
+    "wildcard_forbidden": true,
+    "case_authorization_required": true,
+    "entry_authorization_required": true,
+    "source_authorization_rechecked": true,
+    "unknown_decision_fail_closed": true
+  },
+  "projection": {
+    "immutable": true,
+    "source_declared_kind_only": [
+      "observed",
+      "inferred",
+      "user-action",
+      "decision",
+      "response"
+    ],
+    "missing_timezone_named_uncertainty": true,
+    "missing_source_named_partial": true,
+    "stable_sort_keys": [
+      "source_time_utc",
+      "id"
+    ],
+    "time_order_when_unknown": "uncertain-no-inferred-chronology",
+    "superseded_versions_retained": true,
+    "source_provenance_required": true,
+    "denied_object_identifiers_masked": true,
+    "maximum_bounded_entries": 5000,
+    "maximum_aggregate_source_bytes": 8388608,
+    "external_source_content_copying": false
+  },
+  "excluded": [
+    "Timeline Entry creation/correction/supersession mutation while OPEN-013 is unresolved",
+    "Case lifecycle mutation",
+    "Shared Timeline Engine/persistence/indexer ownership",
+    "export engine/technical replay",
+    "storage provider/retention/final UI/production SLO",
+    "access permissions inferred from UI roles"
+  ],
+  "measurement": {
+    "runtime_probes_executable": false,
+    "benchmark_results_claimed": false,
+    "security_negative_runtime_tests_claimed": false
+  },
+  "source_refs": [
+    "cmdr-product-spec/07-investigate/modules/cases-and-evidence/capabilities/investigation-timeline.md",
+    "cmdr-product-spec/05-domain-model/objects/timeline-entry.md",
+    "cmdr-product-spec/00-governance/registers/permission-register.md"
+  ]
+}

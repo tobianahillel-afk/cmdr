@@ -1,0 +1,645 @@
+{
+  "schema_version": 1,
+  "contract_id": "TIMELINE-READONLY-CONTRACT-V1",
+  "status": "contract-fixtures-only-not-runtime-test-evidence",
+  "fixtures": [
+    {
+      "id": "observed-and-inferred-same-instant",
+      "input": {
+        "scope": {
+          "tenant": "tenant-a",
+          "environment": "prod",
+          "case_permission": "allow",
+          "timeline_permission": "allow"
+        },
+        "entries": [
+          {
+            "id": "obs",
+            "kind": "observed",
+            "tenant": "tenant-a",
+            "source_permission": "allow",
+            "timezone": "+00:00",
+            "source_time": "2026-10-01T10:00:00Z",
+            "source_ref": "owner:obs",
+            "provenance": "telemetry:obs",
+            "version": 1,
+            "supersedes": ""
+          },
+          {
+            "id": "inf",
+            "kind": "inferred",
+            "tenant": "tenant-a",
+            "source_permission": "allow",
+            "timezone": "+00:00",
+            "source_time": "2026-10-01T10:00:00Z",
+            "source_ref": "owner:inf",
+            "provenance": "telemetry:inf",
+            "version": 1,
+            "supersedes": ""
+          }
+        ]
+      },
+      "expected": {
+        "status": "allow",
+        "visible_ids": [
+          "inf",
+          "obs"
+        ],
+        "visible_kinds": [
+          "inferred",
+          "observed"
+        ]
+      }
+    },
+    {
+      "id": "stable-tie-ordering",
+      "input": {
+        "scope": {
+          "tenant": "tenant-a",
+          "environment": "prod",
+          "case_permission": "allow",
+          "timeline_permission": "allow"
+        },
+        "entries": [
+          {
+            "id": "zeta",
+            "kind": "observed",
+            "tenant": "tenant-a",
+            "source_permission": "allow",
+            "timezone": "+00:00",
+            "source_time": "2026-10-01T10:00:00Z",
+            "source_ref": "owner:zeta",
+            "provenance": "telemetry:zeta",
+            "version": 1,
+            "supersedes": ""
+          },
+          {
+            "id": "alpha",
+            "kind": "observed",
+            "tenant": "tenant-a",
+            "source_permission": "allow",
+            "timezone": "+00:00",
+            "source_time": "2026-10-01T10:00:00Z",
+            "source_ref": "owner:alpha",
+            "provenance": "telemetry:alpha",
+            "version": 1,
+            "supersedes": ""
+          }
+        ]
+      },
+      "expected": {
+        "status": "allow",
+        "visible_ids": [
+          "alpha",
+          "zeta"
+        ],
+        "visible_kinds": [
+          "observed",
+          "observed"
+        ]
+      }
+    },
+    {
+      "id": "no-tenant-denied",
+      "input": {
+        "scope": {
+          "tenant": "",
+          "environment": "prod",
+          "case_permission": "allow",
+          "timeline_permission": "allow"
+        },
+        "entries": [
+          {
+            "id": "obs",
+            "kind": "observed",
+            "tenant": "tenant-a",
+            "source_permission": "allow",
+            "timezone": "+00:00",
+            "source_time": "2026-10-01T10:00:00Z",
+            "source_ref": "owner:obs",
+            "provenance": "telemetry:obs",
+            "version": 1,
+            "supersedes": ""
+          }
+        ]
+      },
+      "expected": {
+        "status": "deny",
+        "visible_ids": [],
+        "visible_kinds": []
+      }
+    },
+    {
+      "id": "wildcard-tenant-denied",
+      "input": {
+        "scope": {
+          "tenant": "*",
+          "environment": "prod",
+          "case_permission": "allow",
+          "timeline_permission": "allow"
+        },
+        "entries": [
+          {
+            "id": "obs",
+            "kind": "observed",
+            "tenant": "tenant-a",
+            "source_permission": "allow",
+            "timezone": "+00:00",
+            "source_time": "2026-10-01T10:00:00Z",
+            "source_ref": "owner:obs",
+            "provenance": "telemetry:obs",
+            "version": 1,
+            "supersedes": ""
+          }
+        ]
+      },
+      "expected": {
+        "status": "deny",
+        "visible_ids": [],
+        "visible_kinds": []
+      }
+    },
+    {
+      "id": "no-environment-denied",
+      "input": {
+        "scope": {
+          "tenant": "tenant-a",
+          "environment": "",
+          "case_permission": "allow",
+          "timeline_permission": "allow"
+        },
+        "entries": [
+          {
+            "id": "obs",
+            "kind": "observed",
+            "tenant": "tenant-a",
+            "source_permission": "allow",
+            "timezone": "+00:00",
+            "source_time": "2026-10-01T10:00:00Z",
+            "source_ref": "owner:obs",
+            "provenance": "telemetry:obs",
+            "version": 1,
+            "supersedes": ""
+          }
+        ]
+      },
+      "expected": {
+        "status": "deny",
+        "visible_ids": [],
+        "visible_kinds": []
+      }
+    },
+    {
+      "id": "case-denied",
+      "input": {
+        "scope": {
+          "tenant": "tenant-a",
+          "environment": "prod",
+          "case_permission": "deny",
+          "timeline_permission": "allow"
+        },
+        "entries": [
+          {
+            "id": "obs",
+            "kind": "observed",
+            "tenant": "tenant-a",
+            "source_permission": "allow",
+            "timezone": "+00:00",
+            "source_time": "2026-10-01T10:00:00Z",
+            "source_ref": "owner:obs",
+            "provenance": "telemetry:obs",
+            "version": 1,
+            "supersedes": ""
+          }
+        ]
+      },
+      "expected": {
+        "status": "deny",
+        "visible_ids": [],
+        "visible_kinds": []
+      }
+    },
+    {
+      "id": "timeline-denied",
+      "input": {
+        "scope": {
+          "tenant": "tenant-a",
+          "environment": "prod",
+          "case_permission": "allow",
+          "timeline_permission": "deny"
+        },
+        "entries": [
+          {
+            "id": "obs",
+            "kind": "observed",
+            "tenant": "tenant-a",
+            "source_permission": "allow",
+            "timezone": "+00:00",
+            "source_time": "2026-10-01T10:00:00Z",
+            "source_ref": "owner:obs",
+            "provenance": "telemetry:obs",
+            "version": 1,
+            "supersedes": ""
+          }
+        ]
+      },
+      "expected": {
+        "status": "deny",
+        "visible_ids": [],
+        "visible_kinds": []
+      }
+    },
+    {
+      "id": "unknown-case-access-denied",
+      "input": {
+        "scope": {
+          "tenant": "tenant-a",
+          "environment": "prod",
+          "case_permission": "unknown",
+          "timeline_permission": "allow"
+        },
+        "entries": [
+          {
+            "id": "obs",
+            "kind": "observed",
+            "tenant": "tenant-a",
+            "source_permission": "allow",
+            "timezone": "+00:00",
+            "source_time": "2026-10-01T10:00:00Z",
+            "source_ref": "owner:obs",
+            "provenance": "telemetry:obs",
+            "version": 1,
+            "supersedes": ""
+          }
+        ]
+      },
+      "expected": {
+        "status": "deny",
+        "visible_ids": [],
+        "visible_kinds": []
+      }
+    },
+    {
+      "id": "hidden-source-masked",
+      "input": {
+        "scope": {
+          "tenant": "tenant-a",
+          "environment": "prod",
+          "case_permission": "allow",
+          "timeline_permission": "allow"
+        },
+        "entries": [
+          {
+            "id": "public",
+            "kind": "observed",
+            "tenant": "tenant-a",
+            "source_permission": "allow",
+            "timezone": "+00:00",
+            "source_time": "2026-10-01T10:00:00Z",
+            "source_ref": "owner:public",
+            "provenance": "telemetry:public",
+            "version": 1,
+            "supersedes": ""
+          },
+          {
+            "id": "hidden",
+            "kind": "observed",
+            "tenant": "tenant-a",
+            "source_permission": "deny",
+            "timezone": "+00:00",
+            "source_time": "2026-10-01T10:00:00Z",
+            "source_ref": "owner:hidden",
+            "provenance": "telemetry:hidden",
+            "version": 1,
+            "supersedes": ""
+          }
+        ]
+      },
+      "expected": {
+        "status": "filtered",
+        "visible_ids": [
+          "public"
+        ],
+        "visible_kinds": [
+          "observed"
+        ]
+      }
+    },
+    {
+      "id": "cross-tenant-entry-masked",
+      "input": {
+        "scope": {
+          "tenant": "tenant-a",
+          "environment": "prod",
+          "case_permission": "allow",
+          "timeline_permission": "allow"
+        },
+        "entries": [
+          {
+            "id": "public",
+            "kind": "observed",
+            "tenant": "tenant-a",
+            "source_permission": "allow",
+            "timezone": "+00:00",
+            "source_time": "2026-10-01T10:00:00Z",
+            "source_ref": "owner:public",
+            "provenance": "telemetry:public",
+            "version": 1,
+            "supersedes": ""
+          },
+          {
+            "id": "foreign",
+            "kind": "observed",
+            "tenant": "tenant-b",
+            "source_permission": "allow",
+            "timezone": "+00:00",
+            "source_time": "2026-10-01T10:00:00Z",
+            "source_ref": "owner:foreign",
+            "provenance": "telemetry:foreign",
+            "version": 1,
+            "supersedes": ""
+          }
+        ]
+      },
+      "expected": {
+        "status": "filtered",
+        "visible_ids": [
+          "public"
+        ],
+        "visible_kinds": [
+          "observed"
+        ]
+      }
+    },
+    {
+      "id": "missing-source-diagnostic",
+      "input": {
+        "scope": {
+          "tenant": "tenant-a",
+          "environment": "prod",
+          "case_permission": "allow",
+          "timeline_permission": "allow"
+        },
+        "entries": [
+          {
+            "id": "missing",
+            "kind": "observed",
+            "tenant": "tenant-a",
+            "source_permission": "missing",
+            "timezone": "+00:00",
+            "source_time": "2026-10-01T10:00:00Z",
+            "source_ref": "owner:missing",
+            "provenance": "telemetry:missing",
+            "version": 1,
+            "supersedes": ""
+          }
+        ]
+      },
+      "expected": {
+        "status": "partial",
+        "visible_ids": [],
+        "visible_kinds": []
+      }
+    },
+    {
+      "id": "timezone-unknown-no-assumed-utc",
+      "input": {
+        "scope": {
+          "tenant": "tenant-a",
+          "environment": "prod",
+          "case_permission": "allow",
+          "timeline_permission": "allow"
+        },
+        "entries": [
+          {
+            "id": "unknown",
+            "kind": "observed",
+            "tenant": "tenant-a",
+            "source_permission": "allow",
+            "timezone": "unknown",
+            "source_time": "2026-10-01T10:00:00Z",
+            "source_ref": "owner:unknown",
+            "provenance": "telemetry:unknown",
+            "version": 1,
+            "supersedes": ""
+          }
+        ]
+      },
+      "expected": {
+        "status": "uncertain",
+        "visible_ids": [
+          "unknown"
+        ],
+        "visible_kinds": [
+          "observed"
+        ]
+      }
+    },
+    {
+      "id": "clock-skew-marked",
+      "input": {
+        "scope": {
+          "tenant": "tenant-a",
+          "environment": "prod",
+          "case_permission": "allow",
+          "timeline_permission": "allow"
+        },
+        "entries": [
+          {
+            "id": "skew",
+            "kind": "observed",
+            "tenant": "tenant-a",
+            "source_permission": "allow",
+            "timezone": "+00:00",
+            "source_time": "2026-10-01T10:00:00Z",
+            "source_ref": "owner:skew",
+            "provenance": "telemetry:skew",
+            "version": 1,
+            "supersedes": "",
+            "clock_uncertainty_ms": 5000
+          }
+        ]
+      },
+      "expected": {
+        "status": "uncertain",
+        "visible_ids": [
+          "skew"
+        ],
+        "visible_kinds": [
+          "observed"
+        ]
+      }
+    },
+    {
+      "id": "superseded-prior-version-retained",
+      "input": {
+        "scope": {
+          "tenant": "tenant-a",
+          "environment": "prod",
+          "case_permission": "allow",
+          "timeline_permission": "allow"
+        },
+        "entries": [
+          {
+            "id": "old",
+            "kind": "observed",
+            "tenant": "tenant-a",
+            "source_permission": "allow",
+            "timezone": "+00:00",
+            "source_time": "2026-10-01T10:00:00Z",
+            "source_ref": "owner:old",
+            "provenance": "telemetry:old",
+            "version": 1,
+            "supersedes": ""
+          },
+          {
+            "id": "new",
+            "kind": "observed",
+            "tenant": "tenant-a",
+            "source_permission": "allow",
+            "timezone": "+00:00",
+            "source_time": "2026-10-01T10:00:00Z",
+            "source_ref": "owner:new",
+            "provenance": "telemetry:new",
+            "version": 2,
+            "supersedes": "old"
+          }
+        ]
+      },
+      "expected": {
+        "status": "allow",
+        "visible_ids": [
+          "new",
+          "old"
+        ],
+        "visible_kinds": [
+          "observed",
+          "observed"
+        ]
+      }
+    },
+    {
+      "id": "missing-provenance-denied",
+      "input": {
+        "scope": {
+          "tenant": "tenant-a",
+          "environment": "prod",
+          "case_permission": "allow",
+          "timeline_permission": "allow"
+        },
+        "entries": [
+          {
+            "id": "nosrc",
+            "kind": "observed",
+            "tenant": "tenant-a",
+            "source_permission": "allow",
+            "timezone": "+00:00",
+            "source_time": "2026-10-01T10:00:00Z",
+            "source_ref": "owner:nosrc",
+            "provenance": "",
+            "version": 1,
+            "supersedes": ""
+          }
+        ]
+      },
+      "expected": {
+        "status": "deny",
+        "visible_ids": [],
+        "visible_kinds": []
+      }
+    },
+    {
+      "id": "duplicate-entry-id-denied",
+      "input": {
+        "scope": {
+          "tenant": "tenant-a",
+          "environment": "prod",
+          "case_permission": "allow",
+          "timeline_permission": "allow"
+        },
+        "entries": [
+          {
+            "id": "dup",
+            "kind": "observed",
+            "tenant": "tenant-a",
+            "source_permission": "allow",
+            "timezone": "+00:00",
+            "source_time": "2026-10-01T10:00:00Z",
+            "source_ref": "owner:dup",
+            "provenance": "telemetry:dup",
+            "version": 1,
+            "supersedes": ""
+          },
+          {
+            "id": "dup",
+            "kind": "inferred",
+            "tenant": "tenant-a",
+            "source_permission": "allow",
+            "timezone": "+00:00",
+            "source_time": "2026-10-01T10:00:00Z",
+            "source_ref": "owner:dup",
+            "provenance": "telemetry:dup",
+            "version": 1,
+            "supersedes": ""
+          }
+        ]
+      },
+      "expected": {
+        "status": "deny",
+        "visible_ids": [],
+        "visible_kinds": []
+      }
+    },
+    {
+      "id": "inferred-not-promoted-to-observed",
+      "input": {
+        "scope": {
+          "tenant": "tenant-a",
+          "environment": "prod",
+          "case_permission": "allow",
+          "timeline_permission": "allow"
+        },
+        "entries": [
+          {
+            "id": "hypothesis",
+            "kind": "inferred",
+            "tenant": "tenant-a",
+            "source_permission": "allow",
+            "timezone": "+00:00",
+            "source_time": "2026-10-01T10:00:00Z",
+            "source_ref": "owner:hypothesis",
+            "provenance": "telemetry:hypothesis",
+            "version": 1,
+            "supersedes": ""
+          }
+        ]
+      },
+      "expected": {
+        "status": "allow",
+        "visible_ids": [
+          "hypothesis"
+        ],
+        "visible_kinds": [
+          "inferred"
+        ]
+      }
+    },
+    {
+      "id": "empty-timeline-is-empty",
+      "input": {
+        "scope": {
+          "tenant": "tenant-a",
+          "environment": "prod",
+          "case_permission": "allow",
+          "timeline_permission": "allow"
+        },
+        "entries": []
+      },
+      "expected": {
+        "status": "empty",
+        "visible_ids": [],
+        "visible_kinds": []
+      }
+    }
+  ]
+}
