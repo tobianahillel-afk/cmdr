@@ -362,7 +362,7 @@ func TestLegacyAccessRejectsCumulativeSourceSelectorsBeforeSecondAuthorityCall(t
 	checker.decisions["source:"+firstRef] = "allow"
 	checker.decisions["timeline-entry:y"] = "allow"
 	got := ProjectWithAccessChecker(context.Background(), in, "case-123", checker)
-	if got.Status != "deny" || len(got.Entries) != 0 || len(checker.calls) != 4 {
+	if got.Status != "deny" || len(got.Entries) != 0 || len(checker.calls) != 3 {
 		t.Fatalf("cumulative source selectors reached authority or yielded entries: %+v calls=%d", got, len(checker.calls))
 	}
 	for _, call := range checker.calls {

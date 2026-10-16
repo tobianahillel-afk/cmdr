@@ -127,45 +127,60 @@ func ProjectWithAccessChecker(ctx context.Context, in Input, caseID string, chec
 		},
 		Entries: make([]Entry, 0, len(in.Entries)),
 	}
-	for _, source := range in.Entries {
+	// Finish all Timeline Entry access decisions before contacting any linked
+	// source authority. A later provider failure must not leak earlier source
+	// selectors to that authority when the projection will be denied anyway.
+	decisions := make([]string, len(in.Entries))
+	for i, entry := range in.Entries {
 		if ctx.Err() != nil {
 			return deny
 		}
-		entry := source                 // never mutate the caller's backing array
-		entry.SourcePermission = "deny" // never trust caller-provided allow
-		if entry.Tenant != in.Scope.Tenant {
-			derived.Entries = append(derived.Entries, entry)
-			continue
+		if entry.Tenant != in.Scope.Tenant || invalidScope(entry.ID) {
+			continue // opaque entries are not selectors for this Case
 		}
-		// Missing entry IDs cannot be authorized against Shared ownership;
-		// keep them invisible rather than using a wildcard authorization.
-		if invalidScope(entry.ID) {
-			derived.Entries = append(derived.Entries, entry)
-			continue
-		}
-		timelineAccess, valid := checked("timeline-entry", entry.ID, timelineReadPermission)
+		decision, valid := checked("timeline-entry", entry.ID, timelineReadPermission)
 		if !valid {
 			return deny
 		}
-		entry.SourcePermission = timelineAccess
-		if timelineAccess == "allow" {
-			// Reject malformed permitted source data before contacting any
-			// external source provider. Hidden entries remain opaque.
-			if !validTimelineEntryBeforeSourceLookup(entry) {
+		decisions[i] = decision
+	}
+
+	// Validate ALL potentially visible snapshots and the cumulative source
+	// selector budget before making even one external source permission call.
+	// This reuses the owner-resolved adapter's three-pass trust ordering.
+	for i, source := range in.Entries {
+		if ctx.Err() != nil {
+			return deny
+		}
+		entry := source
+		entry.SourcePermission = "deny" // disregard caller-supplied allow
+		if entry.Tenant != in.Scope.Tenant || invalidScope(entry.ID) {
+			derived.Entries = append(derived.Entries, entry)
+			continue
+		}
+		entry.SourcePermission = decisions[i]
+		if decisions[i] == "allow" {
+			if !validTimelineEntryBeforeSourceLookup(entry) ||
+				!boundedSourceSelector(&usedSourceSelectors, entry.SourceRef) {
 				return deny
 			}
-			// Source checks are independent. They MUST be resolved by their
-			// owner; this generic resource label does not grant any right.
-			if !boundedSourceSelector(&usedSourceSelectors, entry.SourceRef) {
-				return deny
-			}
-			sourceAccess, valid := checked("source", entry.SourceRef, sourceReadPermission)
-			if !valid {
-				return deny
-			}
-			entry.SourcePermission = sourceAccess
+			entry.SourcePermission = "unknown"
 		}
 		derived.Entries = append(derived.Entries, entry)
+	}
+
+	for i := range derived.Entries {
+		if decisions[i] != "allow" {
+			continue
+		}
+		sourceAccess, valid := checked("source", derived.Entries[i].SourceRef, sourceReadPermission)
+		if !valid {
+			return deny
+		}
+		derived.Entries[i].SourcePermission = sourceAccess
+	}
+	if ctx.Err() != nil {
+		return deny
 	}
 	return Project(derived)
 }
