@@ -422,12 +422,17 @@ func verifyGoNegativeTestSelection(output []byte, pattern string) error {
 			return fmt.Errorf("invalid Go negative-test leaf selector %q: %w", expression, err)
 		}
 	}
-	observed := make([]bool, len(compiled))
+	// Require run+pass for all required cases within ONE Go package.
+	// Otherwise unrelated packages can supply disjoint PASS events and
+	// collectively forge proof of a single complete negative-test suite.
+	const testRun, testPass = uint8(1), uint8(2)
+	packages := make(map[string]map[string]uint8)
 	decoder := json.NewDecoder(bytes.NewReader(output))
 	for {
 		var event struct {
-			Action string `json:"Action"`
-			Test   string `json:"Test"`
+			Action  string `json:"Action"`
+			Package string `json:"Package"`
+			Test    string `json:"Test"`
 		}
 		if err := decoder.Decode(&event); err != nil {
 			if err == io.EOF {
@@ -435,32 +440,60 @@ func verifyGoNegativeTestSelection(output []byte, pattern string) error {
 			}
 			return fmt.Errorf("invalid Go test JSON event: %w", err)
 		}
-		if event.Action != "pass" || event.Test == "" {
+		if event.Package == "" || event.Test == "" ||
+			(event.Action != "run" && event.Action != "pass") {
 			continue
 		}
 		segments := strings.Split(event.Test, "/")
-		if !root.MatchString(segments[0]) {
-			continue
+		if len(segments) != len(parts) || !root.MatchString(segments[0]) {
+			continue // parent and deeper nested tests cannot substitute for a required case
 		}
-		if len(parts) == 2 && len(segments) < 2 {
-			continue // parent PASS does not mean any child was selected
-		}
-		name := segments[0]
+		name := segments[len(segments)-1]
 		if len(parts) == 2 {
-			name = segments[1]
-		}
-		for i, expression := range compiled {
-			if expression.MatchString(name) {
-				observed[i] = true
+			matched := false
+			for _, expression := range compiled {
+				if expression.MatchString(name) {
+					matched = true
+					break
+				}
+			}
+			if !matched {
+				continue
 			}
 		}
-	}
-	for i, ok := range observed {
-		if !ok {
-			return fmt.Errorf("no passing Go negative test matched required selector %q", leafSelectors[i])
+		if packages[event.Package] == nil {
+			packages[event.Package] = make(map[string]uint8)
+		}
+		if event.Action == "run" {
+			packages[event.Package][event.Test] |= testRun
+		} else if packages[event.Package][event.Test]&testRun != 0 {
+			packages[event.Package][event.Test] |= testPass
 		}
 	}
-	return nil
+	for _, events := range packages {
+		complete := true
+		for _, expression := range compiled {
+			found := false
+			for testName, state := range events {
+				if state != testRun|testPass {
+					continue
+				}
+				segments := strings.Split(testName, "/")
+				if expression.MatchString(segments[len(segments)-1]) {
+					found = true
+					break
+				}
+			}
+			if !found {
+				complete = false
+				break
+			}
+		}
+		if complete {
+			return nil
+		}
+	}
+	return fmt.Errorf("no single Go package ran and passed all required negative tests %q", pattern)
 }
 
 func parseRuntimeCoverageProfile(data []byte, changedPaths []string, adapter runtimeSecurityAdapter) (RuntimeCoverageMeasurement, error) {

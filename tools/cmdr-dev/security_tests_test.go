@@ -388,24 +388,36 @@ func TestParseNodeLCOVRejectsCoverageOutsideExpectedSource(t *testing.T) {
 func TestVerifyGoNegativeTestSelectionRequiresActualCases(t *testing.T) {
 	const selector = "^TestSecurity$/(" +
 		"^case-denied$|^cross-tenant$)"
-	pass := func(name string) string {
-		return `{"Action":"pass","Test":"` + name + `"}` + "\n"
+	event := func(action, pkg, name string) string {
+		return `{"Action":"` + action + `","Package":"` + pkg + `","Test":"` + name + `"}` + "\n"
 	}
-	run := func(name string) string {
-		return `{"Action":"run","Test":"` + name + `"}` + "\n"
-	}
+	const pkg = "example.invalid/runtime"
+	pass := func(name string) string { return event("pass", pkg, name) }
+	run := func(name string) string { return event("run", pkg, name) }
+	complete := run("TestSecurity/case-denied") + pass("TestSecurity/case-denied") +
+		run("TestSecurity/cross-tenant") + pass("TestSecurity/cross-tenant")
 	tests := []struct {
 		name      string
 		output    string
 		wantError bool
 	}{
-		{"all-selected", pass("TestSecurity") + pass("TestSecurity/case-denied") + pass("TestSecurity/cross-tenant"), false},
-		{"parent-only", pass("TestSecurity"), true},
+		{"all-selected", complete, false},
+		{"parent-only", run("TestSecurity") + pass("TestSecurity"), true},
 		{"no-tests", `{"Action":"pass","Package":"example.invalid/runtime"}` + "\n", true},
-		{"one-alternative-missing", pass("TestSecurity/case-denied"), true},
-		{"run-but-not-pass", run("TestSecurity/case-denied") + pass("TestSecurity/cross-tenant"), true},
-		{"skip-but-not-pass", `{"Action":"skip","Test":"TestSecurity/case-denied"}` + "\n" + pass("TestSecurity/cross-tenant"), true},
-		{"wrong-parent", pass("TestOther/case-denied") + pass("TestOther/cross-tenant"), true},
+		{"one-alternative-missing", run("TestSecurity/case-denied") + pass("TestSecurity/case-denied"), true},
+		{"pass-without-run", pass("TestSecurity/case-denied") + pass("TestSecurity/cross-tenant"), true},
+		{"run-but-not-pass", run("TestSecurity/case-denied") + run("TestSecurity/cross-tenant") + pass("TestSecurity/cross-tenant"), true},
+		{"skip-but-not-pass", event("skip", pkg, "TestSecurity/case-denied") + run("TestSecurity/cross-tenant") + pass("TestSecurity/cross-tenant"), true},
+		{"wrong-parent", run("TestOther/case-denied") + pass("TestOther/case-denied") + run("TestOther/cross-tenant") + pass("TestOther/cross-tenant"), true},
+		{"cross-package-split", run("TestSecurity/case-denied") + pass("TestSecurity/case-denied") +
+			event("run", "example.invalid/other", "TestSecurity/cross-tenant") +
+			event("pass", "example.invalid/other", "TestSecurity/cross-tenant"), true},
+		{"missing-package", event("run", "", "TestSecurity/case-denied") + event("pass", "", "TestSecurity/case-denied") +
+			run("TestSecurity/cross-tenant") + pass("TestSecurity/cross-tenant"), true},
+		{"deeper-nested-subtest", run("TestSecurity/case-denied/nested") + pass("TestSecurity/case-denied/nested") +
+			run("TestSecurity/cross-tenant") + pass("TestSecurity/cross-tenant"), true},
+		{"pass-precedes-run", pass("TestSecurity/case-denied") + run("TestSecurity/case-denied") +
+			run("TestSecurity/cross-tenant") + pass("TestSecurity/cross-tenant"), true},
 		{"invalid-json", "not JSON", true},
 	}
 	for _, tc := range tests {
@@ -416,7 +428,7 @@ func TestVerifyGoNegativeTestSelectionRequiresActualCases(t *testing.T) {
 			}
 		})
 	}
-	if err := verifyGoNegativeTestSelection([]byte(pass("TestSecurity")), "^TestSecurity$"); err != nil {
+	if err := verifyGoNegativeTestSelection([]byte(run("TestSecurity")+pass("TestSecurity")), "^TestSecurity$"); err != nil {
 		t.Fatalf("single top-level Go negative-test selection wrongly rejected: %v", err)
 	}
 	if err := verifyGoNegativeTestSelection([]byte(pass("TestSecurity")), "^TestSecurity$/^absent$"); err == nil {
