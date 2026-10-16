@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-110B-RUNTIME",
+  "status": "VERIFIED",
+  "final_validated_head": "bbbc2c2823f85806b978c0eee69bc1a54401d102",
+  "validation": {
+    "push_workflow_run": 38947654999,
+    "pull_request_workflow_run": 38947663898,
+    "timeline_push_run": 38947655039,
+    "timeline_pull_request_run": 38947664162,
+    "result": "PASS",
+    "tests": "GitHub Actions at the exact source SHA: all 4 runs completed success, including Go race/vet, projection/owner/HTTP integration and engineering kernel."
+  },
+  "scope": {
+    "contract_id": "TIMELINE-READONLY-CONTRACT-V1",
+    "delivery": "bounded read-only investigation timeline core and host-injected Case discovery -> Case -> Timeline HTTP API",
+    "module": "product-runtime/investigation-timeline",
+    "provider_kind": "injected authority and static test/demo fixture",
+    "production_deployed": false,
+    "real_iam_or_database_connected": false,
+    "shared_timeline_entry_mutation": false,
+    "open_013_closed": false,
+    "release_slo_proven": false
+  },
+  "invariants": [
+    "Case, Timeline Entry, typed source access checked via server-injected AccessChecker",
+    "read-only/no Shared Timeline Entry mutation",
+    "cross-tenant/denied owner metadata redacted",
+    "stable observed/inferred/provenance/supersession chronological projection",
+    "bounded synthetic performance evidence is not a production benchmark"
+  ],
+  "residuals": [
+    "No deployed identity/Case/source datastore, nor production audit/ingestion/UI",
+    "Historical contract state=preimplementation is frozen as A-CONTRACT snapshot: B completion evidence here supersedes only for runtime delivery; canonical spec untouched",
+    "L2 reports not available in native PR #36 reviews/comments; independent L2 approval is not claimed",
+    "C-NAV remains a separate source-safe navigation/return-context capability, not implemented by B"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-110C-NAV"
+  ]
+}
