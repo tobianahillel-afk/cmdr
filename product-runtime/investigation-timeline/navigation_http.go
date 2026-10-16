@@ -12,10 +12,10 @@ import (
 // destination draft, never an arbitrary URL or redirect.
 type CaseSourceNavigationHTTPHandler struct {
 	sessions CaseTimelineSessionResolver
-	checker AccessChecker
-	catalog CaseTimelineCatalog
-	entries EntryResolver
-	sources SourceOwnerResolver
+	checker  AccessChecker
+	catalog  CaseTimelineCatalog
+	entries  EntryResolver
+	sources  SourceOwnerResolver
 }
 
 func NewCaseSourceNavigationHTTPHandler(sessions CaseTimelineSessionResolver,
@@ -30,8 +30,8 @@ func NewCaseSourceNavigationHTTPHandler(sessions CaseTimelineSessionResolver,
 
 type navigationHTTPDraft struct {
 	SourceNavigationDraft
-	ReturnQuery string `json:"return_query"`
-	ReturnIsAuthority bool `json:"return_is_authority"`
+	ReturnQuery       string `json:"return_query"`
+	ReturnIsAuthority bool   `json:"return_is_authority"`
 }
 
 func (h *CaseSourceNavigationHTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -95,8 +95,8 @@ func (h *CaseSourceNavigationHTTPHandler) ServeHTTP(w http.ResponseWriter, r *ht
 	}
 	encoded, err := json.Marshal(navigationHTTPDraft{
 		SourceNavigationDraft: draft,
-		ReturnQuery: selection.Encode(),
-		ReturnIsAuthority: false,
+		ReturnQuery:           selection.Encode(),
+		ReturnIsAuthority:     false,
 	})
 	if err != nil {
 		writeCaseTimelineError(w, http.StatusServiceUnavailable)

@@ -5,13 +5,13 @@ import "context"
 // SourceNavigationDraft is a read-only routing draft, NOT a URL or permission
 // token. Hosts resolve and authorize the destination independently at open.
 type SourceNavigationDraft struct {
-	Status string `json:"status"`
-	Kind string `json:"kind"`
-	ObjectID string `json:"object_id"`
-	ReturnCaseID string `json:"return_case_id"`
+	Status        string `json:"status"`
+	Kind          string `json:"kind"`
+	ObjectID      string `json:"object_id"`
+	ReturnCaseID  string `json:"return_case_id"`
 	ReturnEntryID string `json:"return_entry_id"`
-	SourceTime string `json:"source_time"`
-	EntryVersion int `json:"entry_version"`
+	SourceTime    string `json:"source_time"`
+	EntryVersion  int    `json:"entry_version"`
 }
 
 // DraftCaseSourceNavigation reuses the full Case -> Timeline -> source owner
