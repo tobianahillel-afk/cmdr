@@ -220,48 +220,48 @@ func TestCaseNavigationHTTPRejectsMalformedRequestsBeforeOwnerIO(t *testing.T) {
 }
 
 func TestCaseNavigationRequiresBoundCanonicalOwnerIdentity(t *testing.T) {
-	for _, tc := range []struct{
-		name string
+	for _, tc := range []struct {
+		name   string
 		mutate func(*SourceOwnerIdentity)
 	}{
-		{"foreign-tenant", func(x *SourceOwnerIdentity){x.Tenant="tenant-b"}},
-		{"wrong-environment", func(x *SourceOwnerIdentity){x.Environment="test"}},
-		{"different-case", func(x *SourceOwnerIdentity){x.CaseID="case-two"}},
-		{"forged-source-reference", func(x *SourceOwnerIdentity){x.Reference="other"}},
-		{"unknown-owner-kind", func(x *SourceOwnerIdentity){x.Kind="unrecognized"}},
-		{"missing-object-id", func(x *SourceOwnerIdentity){x.ObjectID=""}},
+		{"foreign-tenant", func(x *SourceOwnerIdentity) { x.Tenant = "tenant-b" }},
+		{"wrong-environment", func(x *SourceOwnerIdentity) { x.Environment = "test" }},
+		{"different-case", func(x *SourceOwnerIdentity) { x.CaseID = "case-two" }},
+		{"forged-source-reference", func(x *SourceOwnerIdentity) { x.Reference = "other" }},
+		{"unknown-owner-kind", func(x *SourceOwnerIdentity) { x.Kind = "unrecognized" }},
+		{"missing-object-id", func(x *SourceOwnerIdentity) { x.ObjectID = "" }},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			store, ctx := workspaceFixture()
-			source:=store.sources["src-new"]
+			source := store.sources["src-new"]
 			tc.mutate(&source.identity)
-			store.sources["src-new"]=source
-			got, ok := DraftCaseSourceNavigation(ctx,Scope{Tenant:"tenant-a",Environment:"prod"},
-				"case-one","entry-new",store,store,store,store)
-			if ok || got.ObjectID!="" || got.Kind!="" {
-				t.Fatalf("foreign canonical source became navigable: %+v",got)
+			store.sources["src-new"] = source
+			got, ok := DraftCaseSourceNavigation(ctx, Scope{Tenant: "tenant-a", Environment: "prod"},
+				"case-one", "entry-new", store, store, store, store)
+			if ok || got.ObjectID != "" || got.Kind != "" {
+				t.Fatalf("foreign canonical source became navigable: %+v", got)
 			}
 		})
 	}
 }
 
 func TestCaseNavigationRejectsMalformedSelectionBeforeAnyOwnerLookup(t *testing.T) {
-	for _, tc := range []struct{
-		tenant,environment,caseID,entryID string
+	for _, tc := range []struct {
+		tenant, environment, caseID, entryID string
 	}{
-		{"tenant-a","prod","case-one",""},
-		{"tenant-a","prod","case-one","*"},
-		{"tenant-a","prod","case-one",strings.Repeat("x",1025)},
-		{"tenant-a","prod","","entry-new"},
-		{"tenant-a","prod","*","entry-new"},
-		{"","prod","case-one","entry-new"},
-		{"tenant-a","","case-one","entry-new"},
+		{"tenant-a", "prod", "case-one", ""},
+		{"tenant-a", "prod", "case-one", "*"},
+		{"tenant-a", "prod", "case-one", strings.Repeat("x", 1025)},
+		{"tenant-a", "prod", "", "entry-new"},
+		{"tenant-a", "prod", "*", "entry-new"},
+		{"", "prod", "case-one", "entry-new"},
+		{"tenant-a", "", "case-one", "entry-new"},
 	} {
-		store,ctx:=workspaceFixture()
-		got,ok:=DraftCaseSourceNavigation(ctx,Scope{Tenant:tc.tenant,Environment:tc.environment},
-			tc.caseID,tc.entryID,store,store,store,store)
-		if ok || got.ObjectID!="" || store.catalogCalls!=0 {
-			t.Fatalf("invalid navigation selector caused owner lookup: %+v calls=%d",got,store.catalogCalls)
+		store, ctx := workspaceFixture()
+		got, ok := DraftCaseSourceNavigation(ctx, Scope{Tenant: tc.tenant, Environment: tc.environment},
+			tc.caseID, tc.entryID, store, store, store, store)
+		if ok || got.ObjectID != "" || store.catalogCalls != 0 {
+			t.Fatalf("invalid navigation selector caused owner lookup: %+v calls=%d", got, store.catalogCalls)
 		}
 	}
 }
