@@ -62,10 +62,12 @@
       <div class="section-title">
         <h2 id="analysis-title">Synthèse d’investigation du Case</h2>
         <button id="analyze" type="button">Analyser les événements autorisés</button>
+        <button id="download-report" type="button" disabled>Enregistrer la synthèse JSON locale</button>
       </div>
       <p class="intro">Analyse uniquement les événements renvoyés par les pages autorisées du Case sélectionné. Les filtres actifs sont appliqués ; aucune donnée cachée n’entre dans les totaux. Jusqu’à 5 000 événements, sans stockage. La synthèse regroupe les références de sources les plus fréquentes, distingue les événements observés des inférences et calcule la plage temporelle certaine ainsi que le plus grand écart entre événements visibles. Ces écarts ne prouvent pas l'absence d'activité ; une source commune ne prouve pas une causalité.</p>
       <p id="analysis" role="status" aria-live="polite">Aucune synthèse calculée.</p>
       <div id="analysis-actions" class="analysis-actions" aria-label="Vérifier les sources corrélées"></div>
+      <p class="intro">Enregistrement volontaire sur votre appareil : seul le résumé des événements autorisés et les trois principales références de source sont inclus. Aucun jeton ni aperçu brut n’est exporté. Le fichier n’est ni signé ni une preuve de chaîne de conservation ; il peut devenir périmé si les droits ou données changent. Ne l’utilisez pas avec des données clients réelles.</p>
       <p class="intro">Chaque action ouvre une entrée représentative après une nouvelle vérification des droits Case, événement et source. Les groupes ne démontrent ni causalité ni exhaustivité des données.</p>
     </section>
     <section aria-labelledby="results-title">

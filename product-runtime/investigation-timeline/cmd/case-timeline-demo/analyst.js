@@ -43,14 +43,18 @@
   const analyze = document.getElementById("analyze");
   const analysis = document.getElementById("analysis");
   const analysisActions = document.getElementById("analysis-actions");
+  const downloadReport = document.getElementById("download-report");
   let analysisRequest = null;
   let analysisRevision = 0;
+  let preparedReport = null;
 
   function clearAnalysis() {
     ++analysisRevision;
     if (analysisRequest) analysisRequest.abort();
     analysisRequest = null;
     analyze.disabled = false;
+    preparedReport = null;
+    downloadReport.disabled = true;
     analysis.textContent = "Aucune synthèse calculée.";
     analysisActions.replaceChildren();
   }
@@ -62,6 +66,8 @@
     const bearer = token.value;
     const selectedCase = caseID.value.trim();
     const selectedWindow = readWindow();
+    const selectedKind = kind.value;
+    const selectedSearch = search.value.trim();
     clearAnalysis();
     if (!bearer || !selectedCase || !selectedWindow) {
       analysis.textContent = "Sélection incomplète pour la synthèse.";
@@ -88,8 +94,8 @@
         url.searchParams.set("case_id", selectedCase);
         url.searchParams.set("limit", String(pageSize));
         url.searchParams.set("offset", String(offset));
-        if (kind.value) url.searchParams.set("kind", kind.value);
-        if (search.value.trim()) url.searchParams.set("q", search.value.trim());
+        if (selectedKind) url.searchParams.set("kind", selectedKind);
+        if (selectedSearch) url.searchParams.set("q", selectedSearch);
         if (selectedWindow.from) url.searchParams.set("from", selectedWindow.from);
         if (selectedWindow.to) url.searchParams.set("to", selectedWindow.to);
         const response = await fetch(url, {
@@ -182,6 +188,44 @@
         "Un écart entre événements visibles ne démontre jamais l'absence d'activité " +
         "(données masquées, non collectées ou horodatages incertains). " +
         "Synthèse locale à l'instant de lecture ; les pages ne sont pas transactionnelles.";
+      // Only a bounded aggregate is prepared for explicit local download:
+      // no bearer, no hidden entries, no raw event rows, no URLs or owner preview.
+      // This is an unsigned, nontransactional demo summary, not a legal
+      // chain-of-custody attestation or production forensic export.
+      const report = {
+        schema_version: 1,
+        type: "cmdr-synthetic-authorized-case-summary",
+        case_id: selectedCase,
+        filters: {
+          kind: selectedKind, q: selectedSearch,
+          from: selectedWindow.from, to: selectedWindow.to
+        },
+        generated_at_utc: new Date().toISOString(),
+        count: expectedTotal,
+        event_kinds: counts,
+        uncertain_timestamps: uncertain,
+        certain_time_range_utc: certainTimes.length ? {
+          from: new Date(certainTimes[0]).toISOString(),
+          to: new Date(certainTimes[certainTimes.length - 1]).toISOString()
+        } : null,
+        largest_visible_certain_gap_ms: certainTimes.length >= 2 ? largestGapMS : null,
+        unique_sources: ranked.length,
+        top_sources: ranked.slice(0, 3).map(source => ({
+          source_ref: source.ref,
+          count: source.count,
+          observed: source.observed,
+          inferred: source.inferred
+        })),
+        limitations: [
+          "Local synthetic Case snapshot; not a production IAM or verified source feed",
+          "Only server-authorized entries visible at paginated read time",
+          "Pages are not transactionally isolated; hidden or uncollected events may exist",
+          "Unsigned aggregate without raw events, cryptographic custody proof or audit backend"
+        ]
+      };
+      preparedReport = { serialized: JSON.stringify(report, null, 2) + "\n",
+        revision: currentRevision, selection: currentSelection, caseID: selectedCase };
+      downloadReport.disabled = false;
       // A representative authorized Entry is only a UI selector, never a
       // source capability. Both existing routes independently reauthorize
       // Case, Entry and typed source when the analyst clicks a source.
@@ -587,6 +631,27 @@
     fetchPage(); // reauthorize the Case and Timeline; keep current filters and offset
   });
   analyze.addEventListener("click", analyzeAuthorizedCase);
+  downloadReport.addEventListener("click", () => {
+    const receipt = preparedReport;
+    if (!receipt || receipt.revision !== analysisRevision ||
+        receipt.selection !== revision || !token.value ||
+        caseID.value.trim() !== receipt.caseID) return;
+    let objectURL = null;
+    try {
+      const blob = new Blob([receipt.serialized], { type: "application/json" });
+      objectURL = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = objectURL;
+      link.download = "cmdr-local-case-summary.json";
+      link.click();
+      // Download starts asynchronously in browsers: do not revoke before it
+      // consumes the Blob URL. No remote endpoint or credential is involved.
+      setTimeout(() => URL.revokeObjectURL(objectURL), 1000);
+    } catch {
+      if (objectURL) URL.revokeObjectURL(objectURL);
+      analysis.textContent = "Export local indisponible. Relancez l’analyse si nécessaire.";
+    }
+  });
   discover.addEventListener("click", discoverCases);
   caseOptions.addEventListener("change", () => {
     if (!caseOptions.value) return;

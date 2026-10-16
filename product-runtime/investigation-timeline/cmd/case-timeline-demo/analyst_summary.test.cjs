@@ -11,7 +11,7 @@ const ids = [
   "query", "token", "case-id", "kind", "search", "case-options", "discover",
   "case-discovery-status", "from", "to", "entries", "summary", "message",
   "page", "previous", "next", "load", "source-detail", "source-status",
-  "return-to-case", "copy-return-link", "analyze", "analysis", "analysis-actions"
+  "return-to-case", "copy-return-link", "analyze", "analysis", "analysis-actions", "download-report"
 ];
 function node() {
   return {
@@ -27,17 +27,33 @@ function node() {
 function boot(fetchMock) {
   const fields = Object.fromEntries(ids.map(id => [id, node()]));
   const requests = [];
+  const downloads = [];
+  const LocalURL = class extends URL {};
+  LocalURL.createObjectURL = blob => {
+    downloads.push({ blob, clicked: false, revoked: false });
+    return "blob:http://127.0.0.1:8765/demo-" + downloads.length;
+  };
+  LocalURL.revokeObjectURL = () => {
+    if (downloads.length) downloads[downloads.length - 1].revoked = true;
+  };
   const ctx = {
     window: { location: { origin: "http://127.0.0.1:8765", search: "" } },
     document: {
       getElementById: id => fields[id],
-      createElement: () => node(),
+      createElement: tag => {
+        const element = node();
+        if (tag === "a") element.click = () => {
+          if (downloads.length) downloads[downloads.length - 1].clicked = true;
+        };
+        return element;
+      },
       createTextNode: text => ({ textContent: text })
     },
     navigator: { clipboard: { writeText: async () => {} } },
     Option: class { constructor(text, value) { this.text = text; this.value = value; } },
     Event: class { constructor(type) { this.type = type; } },
-    URL, URLSearchParams, AbortController,
+    URL: LocalURL, URLSearchParams, AbortController, Blob,
+    setTimeout: callback => callback(),
     fetch: async (address, options) => {
       const url = new URL(String(address));
       requests.push({ url, options });
@@ -47,7 +63,7 @@ function boot(fetchMock) {
   vm.runInNewContext(source, ctx);
   fields.token.value = "ephemeral-token";
   fields["case-id"].value = "case-disk";
-  return { fields, requests };
+  return { fields, requests, downloads };
 }
 const flush = () => new Promise(resolve => setImmediate(resolve));
 function page(offset, total, options = {}) {
@@ -344,4 +360,71 @@ test("source group action never exposes a denied destination or partial summary"
   env.fields["case-id"].value = "other-case";
   env.fields["case-id"].handlers.input();
   assert.equal(env.fields["analysis-actions"].children.length, 0);
+});
+
+
+test("explicit authorized JSON report is bounded to summary and contains no bearer or raw rows", async () => {
+  const env = boot(url => page(Number(url.searchParams.get("offset")), 205));
+  assert.equal(env.fields["download-report"].disabled, true);
+  env.fields.analyze.handlers.click();
+  await flush();
+  await flush();
+  assert.equal(env.fields["download-report"].disabled, false);
+  assert.equal(env.downloads.length, 0);
+  env.fields["download-report"].handlers.click();
+  assert.equal(env.downloads.length, 1);
+  assert.equal(env.downloads[0].clicked, true);
+  assert.equal(env.downloads[0].revoked, true);
+  const json = await env.downloads[0].blob.text();
+  const report = JSON.parse(json);
+  assert.equal(report.schema_version, 1);
+  assert.equal(report.type, "cmdr-synthetic-authorized-case-summary");
+  assert.equal(report.case_id, "case-disk");
+  assert.equal(report.count, 205);
+  assert.equal(report.event_kinds.observed, 103);
+  assert.equal(report.event_kinds.inferred, 102);
+  assert.equal(report.uncertain_timestamps, 1);
+  assert.equal(report.unique_sources, 3);
+  assert.equal(report.top_sources.length, 3);
+  assert.equal(report.largest_visible_certain_gap_ms, 2000);
+  assert.equal(report.top_sources[0].count, 69);
+  assert.equal(report.filters.q, "");
+  assert.ok(report.limitations.some(x => x.includes("not transactionally isolated")));
+  assert.equal(json.includes("ephemeral-token"), false);
+  assert.equal(json.includes("event-204"), false);
+  assert.equal(json.includes("Bearer"), false);
+  assert.equal(json.includes("http://127.0.0.1"), false);
+});
+
+test("JSON export is disabled for incomplete, revoked or changed analysis", async () => {
+  const env = boot(url => page(Number(url.searchParams.get("offset")), 201));
+  env.fields.analyze.handlers.click();
+  await flush();
+  await flush();
+  assert.equal(env.fields["download-report"].disabled, false);
+  env.fields.token.value = "revoked";
+  env.fields.token.handlers.input();
+  assert.equal(env.fields["download-report"].disabled, true);
+  env.fields["download-report"].handlers.click();
+  assert.equal(env.downloads.length, 0);
+  env.fields.analyze.handlers.click();
+  await flush();
+  await flush();
+  assert.equal(env.fields["download-report"].disabled, false);
+  env.fields["case-id"].value = "different-case";
+  env.fields["case-id"].handlers.input();
+  assert.equal(env.fields["download-report"].disabled, true);
+  env.fields["download-report"].handlers.click();
+  assert.equal(env.downloads.length, 0);
+
+  const bad = boot(url => {
+    const offset = Number(url.searchParams.get("offset"));
+    return page(offset, 201, offset === 200 ? {total: 200} : {});
+  });
+  bad.fields.analyze.handlers.click();
+  await flush();
+  await flush();
+  assert.equal(bad.fields["download-report"].disabled, true);
+  bad.fields["download-report"].handlers.click();
+  assert.equal(bad.downloads.length, 0);
 });
