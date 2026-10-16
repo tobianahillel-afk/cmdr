@@ -79,7 +79,8 @@
     "work/graph.json",
     "work/lots/E10-INV-110*/**",
     "tools/cmdr-dev/**",
-    ".github/workflows/**"
+    ".github/workflows/**",
+    "product-runtime/investigation-timeline/**"
   ],
   "inputs": [
     "CAP-INV-110 Investigation Timeline canonical capability",
