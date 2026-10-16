@@ -1657,7 +1657,7 @@
       "id": "E10-SCALE-006A",
       "title": "Register CAP-INV-101 bounded runtime claim and refresh readiness",
       "type": "task",
-      "status": "READY",
+      "status": "VERIFIED",
       "depends_on": [
         "E10-INV-101F"
       ],
@@ -1670,7 +1670,7 @@
       "id": "E10-SCALE-006B",
       "title": "Choose next READY capability and materialize its bounded wave",
       "type": "task",
-      "status": "BLOCKED",
+      "status": "READY",
       "depends_on": [
         "E10-SCALE-006A"
       ],
