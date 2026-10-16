@@ -73,7 +73,7 @@ func ProjectWithAccessChecker(ctx context.Context, in Input, caseID string, chec
 		if ctx.Err() != nil {
 			return deny
 		}
-		entry := source // never mutate the caller's backing array
+		entry := source                 // never mutate the caller's backing array
 		entry.SourcePermission = "deny" // never trust caller-provided allow
 		if entry.Tenant != in.Scope.Tenant {
 			derived.Entries = append(derived.Entries, entry)

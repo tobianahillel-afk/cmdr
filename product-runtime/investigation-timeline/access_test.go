@@ -33,9 +33,9 @@ func (s *stubAccessChecker) CheckAccess(_ context.Context, r AccessRequest) (str
 
 func allowedAccessChecker() *stubAccessChecker {
 	return &stubAccessChecker{decisions: map[string]string{
-		"case:case-123":       "allow",
-		"timeline-entry:x":   "allow",
-		"source:owner:x":      "allow",
+		"case:case-123":    "allow",
+		"timeline-entry:x": "allow",
+		"source:owner:x":   "allow",
 	}}
 }
 
