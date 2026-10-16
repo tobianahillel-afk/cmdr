@@ -35,14 +35,22 @@ func main() {
 func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	flags := flag.NewFlagSet("case-timeline-demo", flag.ContinueOnError)
 	flags.SetOutput(io.Discard)
-	principal := flags.String("principal", "analyst-a", "synthetic analyst-a or analyst-b")
+	principal := flags.String("principal", "analyst-a", "authenticated local dataset principal")
+	datasetPath := flags.String("dataset", "", "optional explicit local JSON Case/Timeline owner snapshot (read once)")
 	if err := flags.Parse(args); err != nil {
 		return err
 	}
 	if flags.NArg() != 0 {
 		return errors.New("unexpected positional arguments")
 	}
-	return serveDemo(ctx, *principal, output)
+	if *datasetPath == "" {
+		return serveDemo(ctx, *principal, output)
+	}
+	data, err := loadDemoDataset(*datasetPath)
+	if err != nil {
+		return fmt.Errorf("load local owner snapshot: %w", err)
+	}
+	return serveDemoWithData(ctx, *principal, output, data)
 }
 
 func randomBearer() (string, error) {
@@ -54,14 +62,22 @@ func randomBearer() (string, error) {
 }
 
 func newDemoHandler(token, principal string) (http.Handler, error) {
+	return newDemoHandlerWithData(token, principal, demoData())
+}
+
+func newDemoHandlerWithData(token, principal string, data timeline.MemoryTimelineData) (http.Handler, error) {
 	if len(token) != 64 {
 		return nil, errors.New("demo bearer must have 32 random bytes in hex")
 	}
 	if _, err := hex.DecodeString(token); err != nil {
 		return nil, errors.New("invalid demo bearer encoding")
 	}
-	if principal != "analyst-a" && principal != "analyst-b" {
-		return nil, errors.New("unknown synthetic principal")
+	known := false
+	for _, p := range data.Principals {
+		known = known || p.ID == principal
+	}
+	if !known {
+		return nil, errors.New("principal absent from local owner snapshot")
 	}
 	authenticate := func(r *http.Request) (string, error) {
 		expected := "Bearer " + token
@@ -70,7 +86,6 @@ func newDemoHandler(token, principal string) (http.Handler, error) {
 		}
 		return principal, nil
 	}
-	data := demoData()
 	caseTimeline, err := timeline.NewMemoryCaseTimelineHTTPHandler(authenticate, data)
 	if err != nil {
 		return nil, fmt.Errorf("assemble synthetic owner chain: %w", err)
@@ -83,17 +98,31 @@ func newDemoHandler(token, principal string) (http.Handler, error) {
 }
 
 func serveDemo(ctx context.Context, principal string, output io.Writer) error {
+	return serveDemoWithData(ctx, principal, output, demoData())
+}
+
+func serveDemoWithData(ctx context.Context, principal string, output io.Writer, data timeline.MemoryTimelineData) error {
 	if err := ctx.Err(); err != nil {
 		return err
 	}
-	if principal != "analyst-a" && principal != "analyst-b" {
-		return errors.New("select analyst-a or analyst-b")
+	// Resolve an authorized Case from the same trusted local data used by
+	// the Case/Timeline/source owners. Never infer identity from a query flag.
+	var selected string
+	for _, c := range data.Cases {
+		for _, reader := range c.Readers {
+			if reader == principal && (selected == "" || c.ID < selected) {
+				selected = c.ID
+			}
+		}
+	}
+	if selected == "" {
+		return errors.New("principal has no selectable Case in local snapshot")
 	}
 	token, err := randomBearer()
 	if err != nil {
 		return err
 	}
-	handler, err := newDemoHandler(token, principal)
+	handler, err := newDemoHandlerWithData(token, principal, data)
 	if err != nil {
 		return err
 	}
@@ -111,15 +140,12 @@ func serveDemo(ctx context.Context, principal string, output io.Writer) error {
 		IdleTimeout:       15 * time.Second,
 		MaxHeaderBytes:    8 << 10,
 	}
-	fmt.Fprintf(output, "CMDR synthetic Case Timeline demo; NOT a production service\n")
-	caseID := "case-a"
-	if principal == "analyst-b" {
-		caseID = "case-b"
-	}
+	fmt.Fprintf(output, "CMDR local Case Timeline viewer; NOT a production service\n")
+	caseID := selected
 	fmt.Fprintf(output, "URL: http://%s/case-timeline?case_id=%s&limit=2\n", listener.Addr(), caseID)
 	fmt.Fprintf(output, "Local analyst viewer: http://%s/analyst\n", listener.Addr())
 	fmt.Fprintf(output, "Bearer token (this run only): %s\n", token)
-	fmt.Fprintf(output, "Principal: %s; available synthetic Case: %s\n", principal, caseID)
+	fmt.Fprintf(output, "Principal: %s; initial authorized Case: %s\n", principal, caseID)
 	fmt.Fprintln(output, "Only authenticated loopback requests are accepted. Ctrl-C exits.")
 	ready := make(chan error, 1)
 	go func() {
