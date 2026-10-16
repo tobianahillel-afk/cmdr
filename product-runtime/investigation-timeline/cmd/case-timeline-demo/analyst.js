@@ -43,7 +43,7 @@
   // A return URL carries only a presentation selection, never credentials or
   // authorization. It is not fetched until the analyst enters a fresh bearer.
   function localTimestamp(iso) {
-    if (!/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$/.test(iso)) return null;
+    if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(iso)) return null;
     const date = new Date(iso);
     if (!Number.isFinite(date.getTime()) || date.toISOString() !== iso) return null;
     const pad = n => String(n).padStart(2, "0");
@@ -70,7 +70,7 @@
     if (!id || id.length > 1024 || id.trim() !== id || id === "*" ||
         !["", "observed", "inferred", "user-action", "decision", "response"].includes(selectedKind) ||
         query.length > 96 || query.trim() !== query ||
-        size !== String(limit) || !/^(0|[1-9]\\d*)$/.test(pageOffset) ||
+        size !== String(limit) || !/^(0|[1-9]\d*)$/.test(pageOffset) ||
         Number(pageOffset) > 5000 ||
         from === null || to === null ||
         (from && to && new Date(values.get("from")) >= new Date(values.get("to")))) {
