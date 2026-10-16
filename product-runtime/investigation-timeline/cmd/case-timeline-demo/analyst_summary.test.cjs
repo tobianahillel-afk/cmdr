@@ -67,6 +67,7 @@ function page(offset, total, options = {}) {
             id: "event-" + index,
             kind: index % 2 ? "inferred" : "observed",
             source_ref: options.sourceFor ? options.sourceFor(index) : "source-" + (index % 3),
+            source_time: new Date(Date.UTC(2026, 9, 1, 10, 0, index)).toISOString(),
             time_uncertain: index === 2
           };
         })
@@ -98,6 +99,9 @@ test("analyst summarizes authorized Case across two paged HTTP responses", async
   assert.match(env.fields.analysis.textContent, /observed : 103/);
   assert.match(env.fields.analysis.textContent, /inferred : 102/);
   assert.match(env.fields.analysis.textContent, /horodatage incertain : 1/);
+  assert.match(env.fields.analysis.textContent, /Plage des horodatages certains \(UTC\)/);
+  assert.match(env.fields.analysis.textContent, /Plus grand écart entre événements visibles certains : 2\.000 s/);
+  assert.match(env.fields.analysis.textContent, /ne démontre jamais l'absence d'activité/);
   assert.match(env.fields.analysis.textContent, /Sources présentes : 3/);
   assert.match(env.fields.analysis.textContent, /source-0 : 69 événement\(s\)/);
   assert.match(env.fields.analysis.textContent, /source-1 : 68 événement\(s\)/);
@@ -190,4 +194,70 @@ test("source grouping renders authorized owner labels as text and caps unusually
   assert.match(env.fields.analysis.textContent, /<img onerror=alert\(1\)>/);
   assert.match(env.fields.analysis.textContent, /abrégée/);
   assert.ok(env.fields.analysis.textContent.length < 1100);
+});
+
+test("time triage ignores uncertain instants and reports no gaps when only one is certain", async () => {
+  const env = boot(url => {
+    const response = page(Number(url.searchParams.get("offset")), 3);
+    const original = response.json;
+    response.json = async () => {
+      const data = await original();
+      data.entries[1].time_uncertain = true;
+      data.entries[2].time_uncertain = true;
+      data.entries[2].source_time = "source clock unavailable";
+      return data;
+    };
+    return response;
+  });
+  env.fields.analyze.handlers.click();
+  await flush();
+  assert.match(env.fields.analysis.textContent, /horodatage incertain : 2/);
+  assert.match(env.fields.analysis.textContent, /Écarts temporels non calculables/);
+  assert.doesNotMatch(env.fields.analysis.textContent, /Plus grand écart entre/);
+});
+
+test("malformed declared-certain timestamp never publishes a partial forensic analysis", async () => {
+  const env = boot(url => {
+    const response = page(Number(url.searchParams.get("offset")), 205);
+    const original = response.json;
+    response.json = async () => {
+      const data = await original();
+      if (Number(url.searchParams.get("offset")) === 200) {
+        data.entries[0].source_time = "not-a-timestamp";
+        data.entries[0].time_uncertain = false;
+      }
+      return data;
+    };
+    return response;
+  });
+  env.fields.analyze.handlers.click();
+  await flush();
+  await flush();
+  assert.equal(env.requests.length, 2);
+  assert.match(env.fields.analysis.textContent, /Aucun total partiel conservé/);
+  assert.doesNotMatch(env.fields.analysis.textContent, /Plage des horodatages/);
+});
+
+test("timestamp offsets are normalized for chronological gaps across page boundaries", async () => {
+  const env = boot(url => {
+    const response = page(Number(url.searchParams.get("offset")), 201);
+    const original = response.json;
+    response.json = async () => {
+      const data = await original();
+      for (const item of data.entries) {
+        const utc = new Date(item.source_time);
+        item.source_time = new Date(utc.getTime() + 3600000).toISOString().replace("Z", "+01:00");
+        item.time_uncertain = false;
+      }
+      return data;
+    };
+    return response;
+  });
+  env.fields.analyze.handlers.click();
+  await flush();
+  await flush();
+  assert.match(env.fields.analysis.textContent, /Plage des horodatages certains \(UTC\)/);
+  assert.match(env.fields.analysis.textContent, /2026-10-01T10:00:00\.000Z/);
+  assert.match(env.fields.analysis.textContent, /2026-10-01T10:03:20\.000Z/);
+  assert.match(env.fields.analysis.textContent, /Plus grand écart entre événements visibles certains : 1\.000 s/);
 });

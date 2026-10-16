@@ -76,6 +76,7 @@
     const counts = Object.fromEntries(kinds.map(value => [value, 0]));
     const seen = new Set();
     const bySource = new Map();
+    const certainTimes = [];
     let expectedTotal = null;
     let uncertain = 0;
     try {
@@ -122,7 +123,19 @@
           }
           seen.add(entry.id);
           counts[entry.kind]++;
-          if (entry.time_uncertain) uncertain++;
+          if (entry.time_uncertain) {
+            uncertain++;
+          } else {
+            // Trust the already authorized Entry, not the browser clock.
+            // Only unambiguous RFC3339 timestamps contribute to elapsed time.
+            if (typeof entry.source_time !== "string" ||
+                !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,9})?(?:Z|[+-]\d{2}:\d{2})$/.test(entry.source_time)) {
+              throw new Error("Invalid certain timestamp");
+            }
+            const millis = Date.parse(entry.source_time);
+            if (!Number.isFinite(millis)) throw new Error("Unparseable certain timestamp");
+            certainTimes.push(millis);
+          }
           // Correlate only source references already released after the
           // existing server-side Case, Timeline Entry and source ACL chain.
           const source = bySource.get(entry.source_ref) ||
@@ -136,6 +149,20 @@
       if (currentRevision !== analysisRevision || currentSelection !== revision) return;
       const ranked = [...bySource.values()].sort((a, b) =>
         b.count - a.count || (a.ref < b.ref ? -1 : a.ref > b.ref ? 1 : 0));
+      // The HTTP pages may contain same-time observations and inferred
+      // entries. Rank only certain instants, never infer missing activity.
+      certainTimes.sort((a, b) => a - b);
+      let largestGapMS = 0;
+      for (let i = 1; i < certainTimes.length; i++) {
+        largestGapMS = Math.max(largestGapMS, certainTimes[i] - certainTimes[i - 1]);
+      }
+      const chronology = certainTimes.length >= 2
+        ? " · Plage des horodatages certains (UTC) : " +
+          new Date(certainTimes[0]).toISOString() + " → " +
+          new Date(certainTimes[certainTimes.length - 1]).toISOString() +
+          " · Plus grand écart entre événements visibles certains : " +
+          (largestGapMS / 1000).toFixed(3) + " s"
+        : " · Écarts temporels non calculables (moins de deux horodatages certains)";
       const topSources = ranked.slice(0, 3).map(source => {
         // Cap visible labels; do not place owner identifiers in HTML or URLs.
         const label = source.ref.length > 120 ?
@@ -145,11 +172,13 @@
       });
       analysis.textContent = expectedTotal + " événement(s) autorisé(s) · " +
         kinds.map(value => value + " : " + counts[value]).join(" · ") +
-        " · horodatage incertain : " + uncertain +
+        " · horodatage incertain : " + uncertain + chronology +
         ". Sources présentes : " + ranked.length +
         (topSources.length ? " · Principales références : " +
           topSources.join(" · ") : "") +
         ". Regroupement par référence, pas une preuve de causalité. " +
+        "Un écart entre événements visibles ne démontre jamais l'absence d'activité " +
+        "(données masquées, non collectées ou horodatages incertains). " +
         "Synthèse locale à l'instant de lecture ; les pages ne sont pas transactionnelles.";
     } catch {
       if (currentRevision === analysisRevision) {
