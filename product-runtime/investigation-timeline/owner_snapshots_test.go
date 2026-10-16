@@ -185,27 +185,31 @@ func TestOwnerSnapshotSourceSelectorBudgetDoesNotChargeDeniedTimelineID(t *testi
 }
 
 func TestOwnerRejectsInvisibleSelectorsBeforeAnyAuthority(t *testing.T) {
-	for _, tc := range []struct{name,value string}{
+	for _, tc := range []struct{ name, value string }{
 		{"embedded-null", "x\x00hidden"},
 		{"embedded-linebreak", "x\nsecond"},
 		{"zero-width", "x\u200bhidden"},
 		{"bidi-override", "x\u202ehidden"},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			for _, position := range []string{"tenant","environment","case","id"} {
+			for _, position := range []string{"tenant", "environment", "case", "id"} {
 				checker, owner := ownerFixture()
 				scope := allowedFixture().Scope
 				caseID := "case-123"
 				ids := []string{"x"}
 				switch position {
-				case "tenant": scope.Tenant = tc.value
-				case "environment": scope.Environment = tc.value
-				case "case": caseID = tc.value
-				case "id": ids = []string{tc.value}
+				case "tenant":
+					scope.Tenant = tc.value
+				case "environment":
+					scope.Environment = tc.value
+				case "case":
+					caseID = tc.value
+				case "id":
+					ids = []string{tc.value}
 				}
-				got := ProjectFromOwnerSnapshots(context.Background(),scope,caseID,ids,checker,owner)
+				got := ProjectFromOwnerSnapshots(context.Background(), scope, caseID, ids, checker, owner)
 				if got.Status != "deny" || len(checker.calls) != 0 || len(owner.calls) != 0 {
-					t.Fatalf("%s reached provider for %q: %+v checker=%+v owner=%+v",position,tc.value,got,checker.calls,owner.calls)
+					t.Fatalf("%s reached provider for %q: %+v checker=%+v owner=%+v", position, tc.value, got, checker.calls, owner.calls)
 				}
 			}
 		})
@@ -213,14 +217,14 @@ func TestOwnerRejectsInvisibleSelectorsBeforeAnyAuthority(t *testing.T) {
 }
 
 func TestOwnerRejectsInvisibleSourceReferenceBeforeSourceProvider(t *testing.T) {
-	for _, sourceRef := range []string{"owner:x\x00hidden","owner:x\nspoof","owner:\u202eabcd","owner:\u200bsecret"} {
+	for _, sourceRef := range []string{"owner:x\x00hidden", "owner:x\nspoof", "owner:\u202eabcd", "owner:\u200bsecret"} {
 		checker, owner := ownerFixture()
 		entry := owner.entries["x"]
 		entry.SourceRef = sourceRef
 		owner.entries["x"] = entry
-		got := ProjectFromOwnerSnapshots(context.Background(),allowedFixture().Scope,"case-123",[]string{"x"},checker,owner)
+		got := ProjectFromOwnerSnapshots(context.Background(), allowedFixture().Scope, "case-123", []string{"x"}, checker, owner)
 		if got.Status != "deny" || len(checker.calls) != 2 || len(owner.calls) != 1 {
-			t.Fatalf("malformed source reached authority: %+v checker=%+v",got,checker.calls)
+			t.Fatalf("malformed source reached authority: %+v checker=%+v", got, checker.calls)
 		}
 	}
 }
