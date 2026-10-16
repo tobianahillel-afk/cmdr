@@ -1027,9 +1027,10 @@ test("authorized five-minute hot-window triage pivots through a fresh server que
   assert.match(env.fields.analysis.textContent, /2026-10-01T10:00:00.000Z \(3\)/);
   assert.match(env.fields.analysis.textContent, /2026-10-01T10:05:00.000Z \(1\)/);
   const buttons = env.fields["analysis-actions"].children;
-  assert.match(buttons[0].textContent, /Examiner la fenêtre/);
-  assert.match(buttons[0].textContent, /3 événement/);
-  buttons[0].handlers.click();
+  const pivot = buttons.find(button => button.textContent.includes("Examiner la fenêtre"));
+  assert.ok(pivot);
+  assert.match(pivot.textContent, /3 événement/);
+  pivot.handlers.click();
   await flush();
   assert.equal(env.requests.length, 2);
   assert.equal(env.requests[1].url.pathname, "/case-timeline");
@@ -1046,8 +1047,9 @@ test("hot-window actions are invalidated when the analyst bearer changes", async
   const env = boot(url => page(Number(url.searchParams.get("offset")), 3));
   env.fields.analyze.handlers.click();
   await flush();
-  const action = env.fields["analysis-actions"].children[0];
-  assert.match(action.textContent, /Examiner la fenêtre/);
+  const action = env.fields["analysis-actions"].children.find(button =>
+    button.textContent.startsWith("Examiner la fenêtre"));
+  assert.ok(action);
   env.fields.token.value = "revoked-token";
   env.fields.token.handlers.input();
   assert.equal(env.fields["analysis-actions"].children.length, 0);

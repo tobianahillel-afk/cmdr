@@ -267,6 +267,22 @@
       preparedReport = { serialized: JSON.stringify(report, null, 2) + "\n",
         revision: currentRevision, selection: currentSelection, caseID: selectedCase };
       downloadReport.disabled = false;
+      // A representative authorized Entry is only a UI selector, never a
+      // source capability. Both existing routes independently reauthorize
+      // Case, Entry and typed source when the analyst clicks a source.
+      for (const source of ranked.slice(0, 3)) {
+        const label = source.ref.length > 120 ?
+          source.ref.slice(0, 120) + "… (abrégée)" : source.ref;
+        const button = document.createElement("button");
+        button.type = "button";
+        button.textContent = "Ouvrir une entrée de cette source : " + label;
+        button.addEventListener("click", () => {
+          if (currentRevision !== analysisRevision ||
+              currentSelection !== revision || controller.signal.aborted) return;
+          openSource(source.entryID);
+        });
+        analysisActions.append(button);
+      }
       // A window pivot reuses the existing server-authorized Timeline route.
       // Display local filter values while preserving exact UTC instants in
       // restoredRange, including at daylight-saving folds.
@@ -295,22 +311,6 @@
           };
           offset = 0;
           fetchPage(); // always re-check Case/Timeline/source permissions
-        });
-        analysisActions.append(button);
-      }
-      // A representative authorized Entry is only a UI selector, never a
-      // source capability. Both existing routes independently reauthorize
-      // Case, Entry and typed source when the analyst clicks a source.
-      for (const source of ranked.slice(0, 3)) {
-        const label = source.ref.length > 120 ?
-          source.ref.slice(0, 120) + "… (abrégée)" : source.ref;
-        const button = document.createElement("button");
-        button.type = "button";
-        button.textContent = "Ouvrir une entrée de cette source : " + label;
-        button.addEventListener("click", () => {
-          if (currentRevision !== analysisRevision ||
-              currentSelection !== revision || controller.signal.aborted) return;
-          openSource(source.entryID);
         });
         analysisActions.append(button);
       }
