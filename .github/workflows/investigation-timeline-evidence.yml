@@ -34,6 +34,24 @@ jobs:
         run: |
           set -euo pipefail
           (cd tools/cmdr-dev && go build -trimpath -o "$RUNNER_TEMP/cmdr-dev-timeline" .)
+          # Refuse on-demand target selection in PR stage and unknown targets.
+          # Assert the actual diagnostic so an unrelated crash cannot pass.
+          if "$RUNNER_TEMP/cmdr-dev-timeline" performance-benchmark-audit \
+            --root "$GITHUB_WORKSPACE" --stage pr \
+            --requested-performance-target PERF-TGT-INV-TIMELINE-PROJECTION --json \
+            > "$RUNNER_TEMP/timeline-negative-pr.json" 2> "$RUNNER_TEMP/timeline-negative-pr.err"; then
+            echo "Invalid PR-stage explicit performance target unexpectedly accepted" >&2
+            exit 1
+          fi
+          grep -Fq "explicit benchmark target selection requires on-demand stage" "$RUNNER_TEMP/timeline-negative-pr.err"
+          if "$RUNNER_TEMP/cmdr-dev-timeline" performance-benchmark-audit \
+            --root "$GITHUB_WORKSPACE" --stage on-demand \
+            --requested-performance-target PERF-TGT-INV-TIMELINE-UNREGISTERED --json \
+            > "$RUNNER_TEMP/timeline-negative-unknown.json" 2> "$RUNNER_TEMP/timeline-negative-unknown.err"; then
+            echo "Unregistered explicit performance target unexpectedly accepted" >&2
+            exit 1
+          fi
+          grep -Fq "unknown explicit performance target PERF-TGT-INV-TIMELINE-UNREGISTERED" "$RUNNER_TEMP/timeline-negative-unknown.err"
           "$RUNNER_TEMP/cmdr-dev-timeline" performance-benchmark-audit \
             --root "$GITHUB_WORKSPACE" --stage on-demand \
             --requested-performance-target PERF-TGT-INV-TIMELINE-PROJECTION --json \
@@ -71,3 +89,12 @@ jobs:
             echo "Not per-request p95, peak RSS, remote ACL-provider latency or a production SLO."
             echo "Full machine-readable measurements are retained in the step logs."
           } >> "$GITHUB_STEP_SUMMARY"
+      - name: Archive verified exact-SHA synthetic observations
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: investigation-timeline-on-demand-${{ github.sha }}-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/timeline-latency.json
+            ${{ runner.temp }}/timeline-resource.json
+          if-no-files-found: error
+          retention-days: 30

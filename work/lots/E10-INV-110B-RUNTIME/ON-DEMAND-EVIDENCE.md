@@ -11,3 +11,9 @@ The workflow checks `source_sha`, `status=pass`, exact single target, executed c
 The registered `investigation-timeline-navigation` operation stays blocked and is not selected. All inputs remain **synthetic, caller-claimed authorized, single process and provider-free**. The latency registry p95 is across five batch-means (200 projections each), **not request-level p95**. Resource evidence reports periodically sampled Go heap, not RSS. No production SLO, backend/index selection, or ACL-provider verification is asserted; Open Decision `OPEN-013` remains open.
 
 Run URLs, measured values and observed outcomes must be appended **only after verifying exact GitHub Actions results**. The historical `go test -bench` results cannot be reused for the new reverse-chronological corpus.
+
+## Durable machine-readable evidence (new workflow version)
+
+The workflow uses the official GitHub `actions/upload-artifact` release **v7.0.2** pinned to verified tag commit `cf430e030ddbb5b0abf93d22962f4752f3646cd9`, with read-only repository permissions. After BOTH exact-SHA audits and strict Python identity assertions pass, it uploads `timeline-latency.json` and `timeline-resource.json` as a named artifact containing source SHA and GitHub run ID; retention is 30 days. Failed checks cannot produce a successful artifact. Older runs have only logs; never claim the new artifact exists for them.
+
+The GitHub job also proves fail-closed CLI integration by invoking an explicit benchmark in forbidden `pr` stage and an unregistered target in `on-demand`, requiring the expected rejection diagnostic in both cases. These are negative integration tests of the existing CMDR selection logic, not new authorization-provider tests. This workflow remains an optional exact-SHA synthetic engineering evidence generator; changing this workflow does not provide a production SLO or automatic independent L2 approval.
