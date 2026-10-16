@@ -75,6 +75,7 @@
     const kinds = ["observed", "inferred", "user-action", "decision", "response"];
     const counts = Object.fromEntries(kinds.map(value => [value, 0]));
     const seen = new Set();
+    const bySource = new Map();
     let expectedTotal = null;
     let uncertain = 0;
     try {
@@ -115,19 +116,41 @@
         for (const entry of data.entries) {
           if (!entry || typeof entry.id !== "string" || !entry.id ||
               seen.has(entry.id) || !kinds.includes(entry.kind) ||
-              typeof entry.time_uncertain !== "boolean") {
+              typeof entry.time_uncertain !== "boolean" ||
+              typeof entry.source_ref !== "string" || !entry.source_ref) {
             throw new Error("Invalid authorized timeline entry");
           }
           seen.add(entry.id);
           counts[entry.kind]++;
           if (entry.time_uncertain) uncertain++;
+          // Correlate only source references already released after the
+          // existing server-side Case, Timeline Entry and source ACL chain.
+          const source = bySource.get(entry.source_ref) ||
+            { ref: entry.source_ref, count: 0, observed: 0, inferred: 0 };
+          source.count++;
+          if (entry.kind === "observed") source.observed++;
+          if (entry.kind === "inferred") source.inferred++;
+          bySource.set(entry.source_ref, source);
         }
       }
       if (currentRevision !== analysisRevision || currentSelection !== revision) return;
+      const ranked = [...bySource.values()].sort((a, b) =>
+        b.count - a.count || (a.ref < b.ref ? -1 : a.ref > b.ref ? 1 : 0));
+      const topSources = ranked.slice(0, 3).map(source => {
+        // Cap visible labels; do not place owner identifiers in HTML or URLs.
+        const label = source.ref.length > 120 ?
+          source.ref.slice(0, 120) + "… (abrégée)" : source.ref;
+        return label + " : " + source.count + " événement(s), " +
+          source.observed + " observé(s), " + source.inferred + " inféré(s)";
+      });
       analysis.textContent = expectedTotal + " événement(s) autorisé(s) · " +
         kinds.map(value => value + " : " + counts[value]).join(" · ") +
         " · horodatage incertain : " + uncertain +
-        ". Synthèse locale à l'instant de lecture ; les pages ne sont pas transactionnelles.";
+        ". Sources présentes : " + ranked.length +
+        (topSources.length ? " · Principales références : " +
+          topSources.join(" · ") : "") +
+        ". Regroupement par référence, pas une preuve de causalité. " +
+        "Synthèse locale à l'instant de lecture ; les pages ne sont pas transactionnelles.";
     } catch {
       if (currentRevision === analysisRevision) {
         analysis.textContent = "Synthèse indisponible ou droits modifiés. Aucun total partiel conservé.";

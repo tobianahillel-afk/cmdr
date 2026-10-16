@@ -66,6 +66,7 @@ function page(offset, total, options = {}) {
           return {
             id: "event-" + index,
             kind: index % 2 ? "inferred" : "observed",
+            source_ref: options.sourceFor ? options.sourceFor(index) : "source-" + (index % 3),
             time_uncertain: index === 2
           };
         })
@@ -97,6 +98,11 @@ test("analyst summarizes authorized Case across two paged HTTP responses", async
   assert.match(env.fields.analysis.textContent, /observed : 103/);
   assert.match(env.fields.analysis.textContent, /inferred : 102/);
   assert.match(env.fields.analysis.textContent, /horodatage incertain : 1/);
+  assert.match(env.fields.analysis.textContent, /Sources présentes : 3/);
+  assert.match(env.fields.analysis.textContent, /source-0 : 69 événement\(s\)/);
+  assert.match(env.fields.analysis.textContent, /source-1 : 68 événement\(s\)/);
+  assert.match(env.fields.analysis.textContent, /source-2 : 68 événement\(s\)/);
+  assert.match(env.fields.analysis.textContent, /pas une preuve de causalité/);
   assert.equal(env.fields.analyze.disabled, false);
 });
 
@@ -145,4 +151,43 @@ test("missing bearer never generates an HTTP request", async () => {
   await flush();
   assert.equal(env.requests.length, 0);
   assert.match(env.fields.analysis.textContent, /Sélection incomplète/);
+});
+
+test("source grouping uses only the selected authorized pages, not denied data", async () => {
+  const denied = "DO-NOT-SHOW-CROSS-TENANT";
+  const env = boot(url => page(Number(url.searchParams.get("offset")), 203, {
+    sourceFor: index => index < 201 ? "owner-a" : "owner-b"
+  }));
+  env.fields.analyze.handlers.click();
+  await flush();
+  await flush();
+  assert.equal(env.requests.length, 2);
+  assert.match(env.fields.analysis.textContent, /Sources présentes : 2/);
+  assert.match(env.fields.analysis.textContent, /owner-a : 201 événement\(s\)/);
+  assert.match(env.fields.analysis.textContent, /owner-b : 2 événement\(s\)/);
+  assert.doesNotMatch(env.fields.analysis.textContent, new RegExp(denied));
+  assert.ok(env.requests.every(request => request.options.headers.Authorization === "Bearer ephemeral-token"));
+});
+
+test("a malformed source reference fails closed without partial correlation output", async () => {
+  const env = boot(url => page(Number(url.searchParams.get("offset")), 201, {
+    sourceFor: index => index === 200 ? "" : "owner-visible"
+  }));
+  env.fields.analyze.handlers.click();
+  await flush();
+  await flush();
+  assert.match(env.fields.analysis.textContent, /Aucun total partiel conservé/);
+  assert.doesNotMatch(env.fields.analysis.textContent, /owner-visible/);
+});
+
+test("source grouping renders authorized owner labels as text and caps unusually long labels", async () => {
+  const label = "<img onerror=alert(1)>" + "x".repeat(200);
+  const env = boot(url => page(Number(url.searchParams.get("offset")), 2, {
+    sourceFor: () => label
+  }));
+  env.fields.analyze.handlers.click();
+  await flush();
+  assert.match(env.fields.analysis.textContent, /<img onerror=alert\(1\)>/);
+  assert.match(env.fields.analysis.textContent, /abrégée/);
+  assert.ok(env.fields.analysis.textContent.length < 1100);
 });
