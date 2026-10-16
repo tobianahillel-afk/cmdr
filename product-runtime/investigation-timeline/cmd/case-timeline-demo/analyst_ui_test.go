@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -165,5 +166,57 @@ func TestAnalystViewerSourceNavigationIsServerAuthorized(t *testing.T) {
 		`currentRevision !== sourceRevision`,
 	} {
 		if !strings.Contains(string(js), marker) { t.Fatalf("safe source flow missing %s", marker) }
+	}
+}
+
+func TestAnalystReturnContextIsPresentationOnly(t *testing.T) {
+	handler, err := newDemoHandler(testBearer, "analyst-a")
+	if err != nil { t.Fatal(err) }
+	server := httptest.NewServer(handler)
+	defer server.Close()
+	req := "/case-source-navigation?case_id=case-a&entry_id=event-new&limit=20&offset=0&kind=observed"
+	status, data := requestDemo(t, server, req, testBearer)
+	if status != http.StatusOK { t.Fatalf("cannot navigate: %d %s", status, data) }
+	var draft struct {
+		ReturnQuery string `json:"return_query"`
+		ReturnIsAuthority bool `json:"return_is_authority"`
+	}
+	if err := json.Unmarshal([]byte(data), &draft); err != nil { t.Fatal(err) }
+	if draft.ReturnIsAuthority || draft.ReturnQuery == "" || strings.Contains(draft.ReturnQuery, "entry_id") ||
+		strings.Contains(draft.ReturnQuery, "Bearer") {
+		t.Fatalf("unsafe return context: %+v", draft)
+	}
+	status, data = requestDemo(t, server, "/analyst?" + draft.ReturnQuery, "")
+	if status != http.StatusOK || !strings.Contains(data, "Investigation Timeline") ||
+		strings.Contains(data, testBearer) { t.Fatalf("return UI not inert: %d %s", status, data) }
+	status, data = requestDemo(t, server, "/case-timeline?" + draft.ReturnQuery, "")
+	if status != http.StatusUnauthorized || strings.Contains(data, "event-new") {
+		t.Fatalf("return context borrowed permissions: %d %s", status, data)
+	}
+	status, data = requestDemo(t, server, "/case-timeline?" + draft.ReturnQuery, testBearer)
+	if status != http.StatusOK || !strings.Contains(data, "event-new") {
+		t.Fatalf("authenticated return failed: %d %s", status, data)
+	}
+}
+
+func TestAnalystReturnContextControlsNeverStoreBearer(t *testing.T) {
+	html, err := analystAssets.ReadFile("analyst.html")
+	if err != nil { t.Fatal(err) }
+	js, err := analystAssets.ReadFile("analyst.js")
+	if err != nil { t.Fatal(err) }
+	for _, marker := range []string{`id="copy-return-link"`, "Le lien contient les critères de recherche"} {
+		if !strings.Contains(string(html), marker) { t.Fatalf("missing explicit return control %q", marker) }
+	}
+	for _, marker := range []string{
+		"function restoreReturnSelection()", "const allowed = new Set(",
+		"restoreOffsetOnSubmit", "if (!returnLinkURL) return",
+		"navigator.clipboard.writeText(returnLinkURL)", "new URL(\"/analyst\", window.location.origin)",
+		"expected.delete(\"entry_id\")", "received.size !== expected.size",
+		"copyReturnLink.disabled = true", "restoreReturnSelection();",
+	} {
+		if !strings.Contains(string(js), marker) { t.Fatalf("unsafe or incomplete return selection: %q", marker) }
+	}
+	for _, prohibited := range []string{"localStorage", "sessionStorage", "document.cookie", "history.replaceState"} {
+		if strings.Contains(string(js), prohibited) { t.Fatalf("persistent authority state introduced: %s", prohibited) }
 	}
 }

@@ -24,6 +24,7 @@
   const sourceDetail = document.getElementById("source-detail");
   const sourceStatus = document.getElementById("source-status");
   const returnToCase = document.getElementById("return-to-case");
+  const copyReturnLink = document.getElementById("copy-return-link");
   const limit = 20;
   let offset = 0;
   let pageCount = 0;
@@ -35,6 +36,57 @@
   let activeDiscovery = null;
   let sourceRevision = 0;
   let sourceRequest = null;
+  let returnLinkURL = null;
+  let restoreOffsetOnSubmit = false;
+  let restoredRange = null;
+
+  // A return URL carries only a presentation selection, never credentials or
+  // authorization. It is not fetched until the analyst enters a fresh bearer.
+  function localTimestamp(iso) {
+    if (!/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$/.test(iso)) return null;
+    const date = new Date(iso);
+    if (!Number.isFinite(date.getTime()) || date.toISOString() !== iso) return null;
+    const pad = n => String(n).padStart(2, "0");
+    return date.getFullYear() + "-" + pad(date.getMonth() + 1) + "-" +
+      pad(date.getDate()) + "T" + pad(date.getHours()) + ":" +
+      pad(date.getMinutes()) + ":" + pad(date.getSeconds());
+  }
+
+  function restoreReturnSelection() {
+    const values = new URLSearchParams(window.location.search);
+    if (!values.size) return;
+    const allowed = new Set(["case_id", "kind", "q", "from", "to", "limit", "offset"]);
+    if ([...values.keys()].some(key => !allowed.has(key) || values.getAll(key).length !== 1)) {
+      message.textContent = "Contexte de retour invalide : aucune donnée n’a été chargée.";
+      return;
+    }
+    const id = values.get("case_id") || "";
+    const selectedKind = values.get("kind") || "";
+    const query = values.get("q") || "";
+    const size = values.get("limit");
+    const pageOffset = values.get("offset") || "0";
+    const from = values.has("from") ? localTimestamp(values.get("from")) : "";
+    const to = values.has("to") ? localTimestamp(values.get("to")) : "";
+    if (!id || id.length > 1024 || id.trim() !== id || id === "*" ||
+        !["", "observed", "inferred", "user-action", "decision", "response"].includes(selectedKind) ||
+        query.length > 96 || query.trim() !== query ||
+        size !== String(limit) || !/^(0|[1-9]\\d*)$/.test(pageOffset) ||
+        Number(pageOffset) > 5000 ||
+        from === null || to === null ||
+        (from && to && new Date(values.get("from")) >= new Date(values.get("to")))) {
+      message.textContent = "Contexte de retour invalide : aucune donnée n’a été chargée.";
+      return;
+    }
+    caseID.value = id;
+    kind.value = selectedKind;
+    search.value = query;
+    fromInput.value = from;
+    toInput.value = to;
+    offset = Number(pageOffset);
+    restoredRange = { from: values.get("from") || "", to: values.get("to") || "" };
+    restoreOffsetOnSubmit = true;
+    message.textContent = "Sélection de retour restaurée. Saisissez le jeton temporaire, puis chargez ; tous les accès seront revérifiés.";
+  }
 
   function clearCaseChoices() {
     caseOptions.replaceChildren();
@@ -96,6 +148,9 @@
   }
 
   function readWindow() {
+    // Preserve the exact RFC3339 timestamps on first return: local times
+    // during a daylight-saving fold are ambiguous if round-tripped by Date.
+    if (restoredRange) return restoredRange;
     const from = fromInput.value ? new Date(fromInput.value) : null;
     const to = toInput.value ? new Date(toInput.value) : null;
     if ((from && !Number.isFinite(from.getTime())) ||
@@ -109,6 +164,8 @@
 
   function clearSource() {
     ++sourceRevision;
+    returnLinkURL = null;
+    copyReturnLink.disabled = true;
     if (sourceRequest) sourceRequest.abort();
     sourceRequest = null;
     sourceDetail.hidden = true;
@@ -225,6 +282,21 @@
           data.object_id.length > 1024) {
         throw new Error("Invalid destination draft");
       }
+      // The server's return_query is untrusted presentation data, not a
+      // permission, redirect or arbitrary destination. Bind it to exactly
+      // the request selection we just sent, excluding the entry selector.
+      const expected = new URLSearchParams(url.searchParams);
+      expected.delete("entry_id");
+      const received = new URLSearchParams(data.return_query);
+      if (received.size !== expected.size ||
+          [...received].some(([key, value]) =>
+            expected.getAll(key).length !== 1 || expected.get(key) !== value)) {
+        throw new Error("Return selection differs from authorized request");
+      }
+      const localReturn = new URL("/analyst", window.location.origin);
+      localReturn.search = expected.toString();
+      returnLinkURL = localReturn.href;
+      copyReturnLink.disabled = false;
       sourceDetail.replaceChildren();
       addLine(sourceDetail, "Objet source autorisé :", data.kind + " / " + data.object_id);
       addLine(sourceDetail, "Entrée d’origine :", data.return_entry_id);
@@ -235,6 +307,8 @@
     } catch {
       if (currentRevision !== sourceRevision) return;
       sourceDetail.hidden = true;
+      returnLinkURL = null;
+      copyReturnLink.disabled = true;
       sourceStatus.textContent = "Objet source inaccessible ou autorisation révoquée.";
     } finally {
       if (currentRevision === sourceRevision) sourceRequest = null;
@@ -302,6 +376,16 @@
     }
   }
 
+  copyReturnLink.addEventListener("click", async () => {
+    if (!returnLinkURL) return;
+    try {
+      await navigator.clipboard.writeText(returnLinkURL);
+      sourceStatus.textContent = "Lien local de retour copié : il contient la sélection du Case, jamais le jeton. Les droits seront revérifiés.";
+    } catch {
+      sourceStatus.textContent = "Copie indisponible : utilisez le bouton de retour sans quitter la page.";
+    }
+  });
+
   returnToCase.addEventListener("click", () => {
     clearSource();
     fetchPage(); // reauthorize the Case and Timeline; keep current filters and offset
@@ -315,7 +399,8 @@
 
   form.addEventListener("submit", event => {
     event.preventDefault();
-    offset = 0;
+    if (!restoreOffsetOnSubmit) offset = 0;
+    restoreOffsetOnSubmit = false;
     fetchPage();
   });
   previous.addEventListener("click", () => {
@@ -345,9 +430,16 @@
       activeRequest = null;
       busy = false;
       load.disabled = false;
-      offset = 0;
+      // Entering a fresh bearer must NOT discard a restored page/time
+      // selection; edits to Case and filter controls explicitly do.
+      if (field !== token) {
+        offset = 0;
+        restoreOffsetOnSubmit = false;
+        restoredRange = null;
+      }
       clearResults("Sélection modifiée. Rechargez la chronologie.");
       message.textContent = "";
     });
   }
+  restoreReturnSelection();
 })();
