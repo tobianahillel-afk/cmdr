@@ -71,37 +71,37 @@ type SecurityTestAuditSummary struct {
 }
 
 const (
-	pilotSecurityRuntimeRoot                   = "product-runtime/context-envelope"
-	pilotSecurityModuleIdentity                = "github.com/tobianahillel-afk/cmdr/product-runtime/context-envelope"
-	pilotAuthorizationTestRegexp               = "^TestProjectMatchesPredeclaredContractFixtures$/^permission-denied-masks-protected-refs$"
-	pilotTenantTestRegexp                      = "^TestProjectMatchesPredeclaredContractFixtures$/(^tenant-change-clears-inherited-environment$|^environment-tenant-mismatch-is-cleared$)"
-	eventSearchSecurityRuntimeRoot             = "product-runtime/event-search"
-	eventSearchSecurityModuleIdentity          = "github.com/tobianahillel-afk/cmdr/product-runtime/event-search"
-	eventSearchAuthorizationTestRegexp         = "^TestValidateContractFixtures$/^permission-denied-masks-protected-data$"
-	eventSearchTenantTestRegexp                = "^TestValidateContractFixtures$/(^missing-tenant-is-rejected$|^wildcard-tenant-is-rejected$|^cross-tenant-is-rejected$)"
-	eventInspectionSecurityRuntimeRoot         = "product-runtime/event-inspection"
-	eventInspectionSecurityModuleIdentity      = "github.com/tobianahillel-afk/cmdr/product-runtime/event-inspection"
-	eventInspectionAuthorizationTestRegexp     = "^TestProjectMatchesPredeclaredContractFixtures$/^permission-denied-masks-projection$"
-	eventInspectionTenantTestRegexp            = "^TestProjectMatchesPredeclaredContractFixtures$/(^missing-tenant-is-rejected$|^wildcard-tenant-is-rejected$|^cross-tenant-is-rejected$|^event-tenant-mismatch-is-rejected$)"
-	huntManagementSecurityRuntimeRoot          = "product-runtime/hunt-management"
-	huntManagementSecurityModuleIdentity       = "github.com/tobianahillel-afk/cmdr/product-runtime/hunt-management"
-	huntManagementAuthorizationTestRegexp      = "^TestProjectMatchesPredeclaredContractFixtures$/^denied-reference-is-rejected$"
-	huntManagementTenantTestRegexp             = "^TestProjectMatchesPredeclaredContractFixtures$/(^missing-tenant-is-rejected$|^wildcard-tenant-is-rejected$|^cross-tenant-workspace-is-rejected$|^cross-tenant-reference-is-rejected$)"
-	savedQueryAssetsSecurityRuntimeRoot        = "product-runtime/saved-query-assets"
-	savedQueryAssetsSecurityModuleIdentity     = "github.com/tobianahillel-afk/cmdr/product-runtime/saved-query-assets"
-	savedQueryAssetsAuthorizationTestRegexp    = "^TestProjectMatchesPredeclaredContractFixtures$/(^asset-access-denied-is-rejected$|^query-access-denied-is-rejected$)"
-	savedQueryAssetsTenantTestRegexp           = "^TestProjectMatchesPredeclaredContractFixtures$/(^missing-tenant-is-rejected$|^wildcard-tenant-is-rejected$|^cross-tenant-asset-is-rejected$|^cross-tenant-query-is-rejected$|^cross-tenant-source-is-rejected$)"
-	caseQueueSecurityRuntimeRoot               = "product-runtime/case-queue"
-	caseQueueSecurityModuleIdentity            = "github.com/tobianahillel-afk/cmdr/product-runtime/case-queue"
-	caseQueueAuthorizationTestRegexp           = "^TestProjectMatchesPredeclaredContractFixtures$/^permission-filtered-case-is-hidden$"
-	caseQueueTenantTestRegexp                  = "^TestProjectMatchesPredeclaredContractFixtures$/(^missing-tenant-is-rejected$|^wildcard-tenant-is-rejected$|^cross-tenant-case-is-rejected$|^cross-tenant-incident-is-rejected$|^cross-tenant-finding-is-rejected$|^cross-tenant-saved-view-is-rejected$)"
-	investigationTimelineSecurityRuntimeRoot = "product-runtime/investigation-timeline"
-	investigationTimelineSecurityModuleIdentity = "github.com/tobianahillel-afk/cmdr/product-runtime/investigation-timeline"
+	pilotSecurityRuntimeRoot                     = "product-runtime/context-envelope"
+	pilotSecurityModuleIdentity                  = "github.com/tobianahillel-afk/cmdr/product-runtime/context-envelope"
+	pilotAuthorizationTestRegexp                 = "^TestProjectMatchesPredeclaredContractFixtures$/^permission-denied-masks-protected-refs$"
+	pilotTenantTestRegexp                        = "^TestProjectMatchesPredeclaredContractFixtures$/(^tenant-change-clears-inherited-environment$|^environment-tenant-mismatch-is-cleared$)"
+	eventSearchSecurityRuntimeRoot               = "product-runtime/event-search"
+	eventSearchSecurityModuleIdentity            = "github.com/tobianahillel-afk/cmdr/product-runtime/event-search"
+	eventSearchAuthorizationTestRegexp           = "^TestValidateContractFixtures$/^permission-denied-masks-protected-data$"
+	eventSearchTenantTestRegexp                  = "^TestValidateContractFixtures$/(^missing-tenant-is-rejected$|^wildcard-tenant-is-rejected$|^cross-tenant-is-rejected$)"
+	eventInspectionSecurityRuntimeRoot           = "product-runtime/event-inspection"
+	eventInspectionSecurityModuleIdentity        = "github.com/tobianahillel-afk/cmdr/product-runtime/event-inspection"
+	eventInspectionAuthorizationTestRegexp       = "^TestProjectMatchesPredeclaredContractFixtures$/^permission-denied-masks-projection$"
+	eventInspectionTenantTestRegexp              = "^TestProjectMatchesPredeclaredContractFixtures$/(^missing-tenant-is-rejected$|^wildcard-tenant-is-rejected$|^cross-tenant-is-rejected$|^event-tenant-mismatch-is-rejected$)"
+	huntManagementSecurityRuntimeRoot            = "product-runtime/hunt-management"
+	huntManagementSecurityModuleIdentity         = "github.com/tobianahillel-afk/cmdr/product-runtime/hunt-management"
+	huntManagementAuthorizationTestRegexp        = "^TestProjectMatchesPredeclaredContractFixtures$/^denied-reference-is-rejected$"
+	huntManagementTenantTestRegexp               = "^TestProjectMatchesPredeclaredContractFixtures$/(^missing-tenant-is-rejected$|^wildcard-tenant-is-rejected$|^cross-tenant-workspace-is-rejected$|^cross-tenant-reference-is-rejected$)"
+	savedQueryAssetsSecurityRuntimeRoot          = "product-runtime/saved-query-assets"
+	savedQueryAssetsSecurityModuleIdentity       = "github.com/tobianahillel-afk/cmdr/product-runtime/saved-query-assets"
+	savedQueryAssetsAuthorizationTestRegexp      = "^TestProjectMatchesPredeclaredContractFixtures$/(^asset-access-denied-is-rejected$|^query-access-denied-is-rejected$)"
+	savedQueryAssetsTenantTestRegexp             = "^TestProjectMatchesPredeclaredContractFixtures$/(^missing-tenant-is-rejected$|^wildcard-tenant-is-rejected$|^cross-tenant-asset-is-rejected$|^cross-tenant-query-is-rejected$|^cross-tenant-source-is-rejected$)"
+	caseQueueSecurityRuntimeRoot                 = "product-runtime/case-queue"
+	caseQueueSecurityModuleIdentity              = "github.com/tobianahillel-afk/cmdr/product-runtime/case-queue"
+	caseQueueAuthorizationTestRegexp             = "^TestProjectMatchesPredeclaredContractFixtures$/^permission-filtered-case-is-hidden$"
+	caseQueueTenantTestRegexp                    = "^TestProjectMatchesPredeclaredContractFixtures$/(^missing-tenant-is-rejected$|^wildcard-tenant-is-rejected$|^cross-tenant-case-is-rejected$|^cross-tenant-incident-is-rejected$|^cross-tenant-finding-is-rejected$|^cross-tenant-saved-view-is-rejected$)"
+	investigationTimelineSecurityRuntimeRoot     = "product-runtime/investigation-timeline"
+	investigationTimelineSecurityModuleIdentity  = "github.com/tobianahillel-afk/cmdr/product-runtime/investigation-timeline"
 	investigationTimelineAuthorizationTestRegexp = "^TestProjectMatchesContractFixtures$/(^case-denied$|^timeline-denied$|^unknown-case-access-denied$|^hidden-source-masked$)"
-	investigationTimelineTenantTestRegexp = "^TestProjectMatchesContractFixtures$/(^no-tenant-denied$|^wildcard-tenant-denied$|^no-environment-denied$|^cross-tenant-entry-masked$)"
-	eventSearchFrontendSecurityRuntimeRoot     = "product-runtime/event-search-frontend"
-	eventSearchFrontendAuthorizationTestRegexp = "^(authorization-state-cannot-be-deeplinked|permission-denied-reveals-no-protected-content|permission-denied-outcome-clears-results-and-exposes-no-protected-projection)$"
-	eventSearchFrontendTenantTestRegexp        = "^(tenant-mismatch-is-rejected|tenant-wildcard-is-rejected|transport-tenant-mismatch-fails-closed)$"
+	investigationTimelineTenantTestRegexp        = "^TestProjectMatchesContractFixtures$/(^no-tenant-denied$|^wildcard-tenant-denied$|^no-environment-denied$|^cross-tenant-entry-masked$)"
+	eventSearchFrontendSecurityRuntimeRoot       = "product-runtime/event-search-frontend"
+	eventSearchFrontendAuthorizationTestRegexp   = "^(authorization-state-cannot-be-deeplinked|permission-denied-reveals-no-protected-content|permission-denied-outcome-clears-results-and-exposes-no-protected-projection)$"
+	eventSearchFrontendTenantTestRegexp          = "^(tenant-mismatch-is-rejected|tenant-wildcard-is-rejected|transport-tenant-mismatch-fails-closed)$"
 )
 
 type runtimeSecurityAdapter struct {
@@ -155,9 +155,9 @@ func runtimeSecurityAdapters() map[string]runtimeSecurityAdapter {
 		},
 		"investigation-timeline-runtime": {
 			BoundaryID: "investigation-timeline-runtime", RuntimeRoot: investigationTimelineSecurityRuntimeRoot, RuntimeKind: "go",
-			ModuleIdentity: investigationTimelineSecurityModuleIdentity,
+			ModuleIdentity:         investigationTimelineSecurityModuleIdentity,
 			AuthorizationTestRegex: investigationTimelineAuthorizationTestRegexp,
-			TenantTestRegex: investigationTimelineTenantTestRegexp,
+			TenantTestRegex:        investigationTimelineTenantTestRegexp,
 		},
 		"event-search-frontend-runtime": {
 			BoundaryID: "event-search-frontend-runtime", RuntimeRoot: eventSearchFrontendSecurityRuntimeRoot, RuntimeKind: "node",
