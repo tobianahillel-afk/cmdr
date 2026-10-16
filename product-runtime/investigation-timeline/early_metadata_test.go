@@ -9,7 +9,7 @@ import (
 func TestMalformedVisibleForensicMetadataStopsBeforeSourceAuthority(t *testing.T) {
 	bad := string([]byte{0xff})
 	cases := []struct {
-		name string
+		name   string
 		mutate func(*Entry)
 	}{
 		{"source-time", func(e *Entry) { e.SourceTime += bad }},
@@ -55,7 +55,7 @@ func TestMalformedVisibleForensicMetadataStopsBeforeSourceAuthority(t *testing.T
 func TestOpaqueMalformedMetadataRemainsUninspectedBeforeSourceLookup(t *testing.T) {
 	bad := string([]byte{0xff})
 	for _, decision := range []struct {
-		value string
+		value  string
 		status string
 	}{{"deny", "filtered"}, {"unknown", "filtered"}, {"missing", "partial"}} {
 		t.Run(decision.value, func(t *testing.T) {
