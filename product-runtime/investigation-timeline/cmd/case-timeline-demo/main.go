@@ -76,6 +76,7 @@ func newDemoHandler(token, principal string) (http.Handler, error) {
 	}
 	mux := http.NewServeMux()
 	mux.Handle("/case-timeline", caseTimeline)
+	installAnalystDemoRoutes(mux)
 	return mux, nil
 }
 
@@ -114,6 +115,7 @@ func serveDemo(ctx context.Context, principal string, output io.Writer) error {
 		caseID = "case-b"
 	}
 	fmt.Fprintf(output, "URL: http://%s/case-timeline?case_id=%s&limit=2\n", listener.Addr(), caseID)
+	fmt.Fprintf(output, "Local analyst viewer: http://%s/analyst\n", listener.Addr())
 	fmt.Fprintf(output, "Bearer token (this run only): %s\n", token)
 	fmt.Fprintf(output, "Principal: %s; available synthetic Case: %s\n", principal, caseID)
 	fmt.Fprintln(output, "Only authenticated loopback requests are accepted. Ctrl-C exits.")

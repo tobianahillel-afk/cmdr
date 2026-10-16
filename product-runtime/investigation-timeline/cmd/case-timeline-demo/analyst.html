@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <title>CMDR — Investigation Timeline (démonstration locale)</title>
+  <link rel="stylesheet" href="/analyst.css">
+  <script src="/analyst.js" defer></script>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="eyebrow">CMDR / LABORATOIRE LOCAL</p>
+      <h1>Investigation Timeline</h1>
+      <p class="intro">Consultez la chronologie d’un Case autorisé. Démonstration synthétique uniquement — aucune donnée de production, aucun stockage du jeton.</p>
+    </header>
+    <form id="query">
+      <div class="field">
+        <label for="token">Jeton temporaire du terminal</label>
+        <input id="token" type="password" autocomplete="off" spellcheck="false" required>
+      </div>
+      <div class="field">
+        <label for="case-id">Identifiant du Case</label>
+        <input id="case-id" type="text" autocomplete="off" maxlength="1024" placeholder="case-a" required>
+      </div>
+      <div class="field">
+        <label for="kind">Nature de l'événement</label>
+        <select id="kind">
+          <option value="">Toutes les catégories</option>
+          <option value="observed">Observé</option>
+          <option value="inferred">Inféré</option>
+          <option value="user-action">Action utilisateur</option>
+          <option value="decision">Décision</option>
+          <option value="response">Réponse</option>
+        </select>
+      </div>
+      <button id="load" type="submit">Charger la chronologie</button>
+    </form>
+    <section aria-labelledby="results-title">
+      <div class="section-title">
+        <h2 id="results-title">Événements autorisés</h2>
+        <p id="summary" aria-live="polite">Aucune recherche effectuée.</p>
+      </div>
+      <p id="message" role="status" aria-live="polite"></p>
+      <ol id="entries"></ol>
+      <nav aria-label="Pagination des événements">
+        <button id="previous" type="button" disabled>Précédent</button>
+        <span id="page">—</span>
+        <button id="next" type="button" disabled>Suivant</button>
+      </nav>
+    </section>
+    <footer>Accès limité à 127.0.0.1 · authentification par jeton éphémère · contrôles d’accès évalués côté serveur à chaque page.</footer>
+  </main>
+</body>
+</html>
