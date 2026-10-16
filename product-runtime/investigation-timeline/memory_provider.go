@@ -50,10 +50,10 @@ func NewMemoryCaseTimelineHTTPHandler(authenticate func(*http.Request) (string, 
 	}
 	s := &memoryTimelineProvider{
 		authenticate: authenticate,
-		principals: make(map[string]MemoryTimelinePrincipal, len(data.Principals)),
-		cases: make(map[string]MemoryTimelineCase, len(data.Cases)),
-		entries: make(map[string]MemoryTimelineEntry, len(data.Entries)),
-		sources: make(map[string]MemoryTimelineSource, len(data.Sources)),
+		principals:   make(map[string]MemoryTimelinePrincipal, len(data.Principals)),
+		cases:        make(map[string]MemoryTimelineCase, len(data.Cases)),
+		entries:      make(map[string]MemoryTimelineEntry, len(data.Entries)),
+		sources:      make(map[string]MemoryTimelineSource, len(data.Sources)),
 	}
 	for _, principal := range data.Principals {
 		if invalidScope(principal.ID) || invalidScope(principal.Tenant) || invalidScope(principal.Environment) {
