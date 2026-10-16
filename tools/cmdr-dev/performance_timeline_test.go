@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -96,5 +97,54 @@ func TestTimelineProbeContextCancel(t *testing.T) {
 	_, err := (timelineProbe{moduleRoot: t.TempDir(), binaryPath: "should-not-run"}).runContext(ctx, 1, "latency", 0)
 	if !errors.Is(err, context.Canceled) {
 		t.Fatalf("cancellation was not propagated: %v", err)
+	}
+}
+
+func TestTimelineSubprocessDescendantHelper(t *testing.T) {
+	role := os.Getenv("CMDR_TIMELINE_TREE_HELPER")
+	if role == "" {
+		return
+	}
+	if role == "grandchild" {
+		if err := os.WriteFile(os.Getenv("CMDR_TIMELINE_TREE_STARTED"), []byte("started"), 0o600); err != nil {
+			t.Fatal(err)
+		}
+		time.Sleep(1500 * time.Millisecond)
+		_ = os.WriteFile(os.Getenv("CMDR_TIMELINE_TREE_FINISHED"), []byte("escaped"), 0o600)
+		return
+	}
+	if role != "parent" {
+		t.Fatal("invalid helper role")
+	}
+	cmd := exec.Command(os.Args[0], "-test.run=^TestTimelineSubprocessDescendantHelper$")
+	cmd.Env = append(os.Environ(), "CMDR_TIMELINE_TREE_HELPER=grandchild")
+	cmd.Stdout, cmd.Stderr = os.Stdout, os.Stderr
+	if err := cmd.Run(); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestTimelineProcessCancellationKillsDescendants(t *testing.T) {
+	if os.Getenv("CMDR_TIMELINE_TREE_HELPER") != "" {
+		t.Skip("helper mode")
+	}
+	root := t.TempDir()
+	started := filepath.Join(root, "started")
+	finished := filepath.Join(root, "finished")
+	t.Setenv("CMDR_TIMELINE_TREE_HELPER", "parent")
+	t.Setenv("CMDR_TIMELINE_TREE_STARTED", started)
+	t.Setenv("CMDR_TIMELINE_TREE_FINISHED", finished)
+	ctx, cancel := context.WithTimeout(context.Background(), 350*time.Millisecond)
+	defer cancel()
+	_, err := runTimelinePerformanceProcess(ctx, root, os.Args[0], "-test.run=^TestTimelineSubprocessDescendantHelper$")
+	if !errors.Is(err, context.DeadlineExceeded) {
+		t.Fatalf("expected child timeout: %v", err)
+	}
+	if _, err := os.Stat(started); err != nil {
+		t.Fatalf("grandchild never ran, test not falsifiable: %v", err)
+	}
+	time.Sleep(1600 * time.Millisecond)
+	if _, err := os.Stat(finished); !os.IsNotExist(err) {
+		t.Fatalf("grandchild survived cancellation: %v", err)
 	}
 }

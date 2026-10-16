@@ -32,6 +32,8 @@ func runTimelinePerformanceProcess(ctx context.Context, dir, name string, args .
 		return "", fmt.Errorf("Timeline process cancelled: %w", err)
 	}
 	cmd := exec.CommandContext(ctx, name, args...) // #nosec G204,G702 -- constant Go tool or repo-compiled probe, no shell.
+	configureTimelineProcessTree(cmd)
+	cmd.WaitDelay = 500 * time.Millisecond
 	cmd.Dir = dir
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout, cmd.Stderr = &stdout, &stderr
