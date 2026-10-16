@@ -304,3 +304,47 @@ func TestAuthorizedProjectionBoundsEnvelopeBeforeAnyProvider(t *testing.T) {
 		})
 	}
 }
+
+func TestLegacyAccessCheckerBoundsTimelineSelectorsBeforeAuthority(t *testing.T) {
+	// Even the deprecated caller-snapshot entrypoint must not send unbounded
+	// object IDs to Case/Timeline permission providers before final projection.
+	for _, tc := range []struct {
+		name string
+		edit func(*Input)
+	}{
+		{"single-oversized-id", func(i *Input) { i.Entries[0].ID = strings.Repeat("A", MaxInputBytes+1) }},
+		{"cumulative-oversized-ids", func(i *Input) {
+			second := i.Entries[0]
+			i.Entries[0].ID = strings.Repeat("a", MaxInputBytes/2)
+			second.ID = strings.Repeat("b", MaxInputBytes/2)
+			i.Entries = append(i.Entries, second)
+		}},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			in := allowedFixture()
+			tc.edit(&in)
+			checker := allowedAccessChecker()
+			got := ProjectWithAccessChecker(context.Background(), in, "case-123", checker)
+			if got.Status != "deny" || len(got.Entries) != 0 ||
+				len(checker.calls) != 0 {
+				t.Fatalf("oversized Timeline ID reached authority: result=%+v calls=%+v", got, checker.calls)
+			}
+		})
+	}
+}
+
+func TestLegacyAccessCheckerIgnoresOpaqueEntrySizeDuringSelectorBudget(t *testing.T) {
+	// Foreign entries cannot consume the permitted tenant's selector budget,
+	// nor may their identifiers be sent to the target tenant's authority.
+	in := allowedFixture()
+	foreign := in.Entries[0]
+	foreign.Tenant = "tenant-foreign"
+	foreign.ID = strings.Repeat("secret", MaxInputBytes/6+1)
+	in.Entries = append(in.Entries, foreign)
+	checker := allowedAccessChecker()
+	got := ProjectWithAccessChecker(context.Background(), in, "case-123", checker)
+	if got.Status != "filtered" || len(got.Entries) != 1 ||
+		len(checker.calls) != 3 {
+		t.Fatalf("foreign entry size interfered with accessible projection: result=%+v calls=%+v", got, checker.calls)
+	}
+}

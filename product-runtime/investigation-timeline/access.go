@@ -45,6 +45,22 @@ func ProjectWithAccessChecker(ctx context.Context, in Input, caseID string, chec
 		len(in.Entries) > MaxEntries {
 		return deny
 	}
+	// This legacy caller-snapshot adapter is not a source of truth. As on
+	// the owner-resolved path, bound every object ID before invoking ANY
+	// authority: oversized requester-controlled strings must not reach an
+	// authorization provider merely because they will later fail Project.
+	// Foreign and malformed entries remain opaque; they are not selectors.
+	usedIDs := len(in.Scope.Tenant) + len(in.Scope.Environment) + len(caseID)
+	for _, entry := range in.Entries {
+		if entry.Tenant != in.Scope.Tenant ||
+			strings.TrimSpace(entry.ID) == "" || strings.TrimSpace(entry.ID) == "*" {
+			continue
+		}
+		if len(entry.ID) > MaxInputBytes-usedIDs {
+			return deny
+		}
+		usedIDs += len(entry.ID)
+	}
 	checked := func(resource, objectID, permission string) (string, bool) {
 		if ctx.Err() != nil {
 			return "", false
