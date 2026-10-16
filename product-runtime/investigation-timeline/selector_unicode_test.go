@@ -7,7 +7,7 @@ import (
 
 func TestAuthorizationSelectorsRejectNonTextUnicode(t *testing.T) {
 	selectors := []struct {
-		name string
+		name  string
 		value string
 	}{
 		{"combining-grapheme-joiner", "x\u034fy"},
