@@ -11,7 +11,7 @@ import (
 func TestCaseTimelineSearchAfterFullOwnerAuthorization(t *testing.T) {
 	cases := []struct {
 		name, query string
-		ids []string
+		ids         []string
 	}{
 		{"case-insensitive-id", "ENTRY-NEW", []string{"entry-new"}},
 		{"source-reference", "SRC-OLD", []string{"entry-old"}},
