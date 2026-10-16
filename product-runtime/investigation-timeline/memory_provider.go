@@ -58,6 +58,7 @@ type MemoryTimelineHTTPHandlers struct {
 	Timeline http.Handler
 	Cases    http.Handler
 	Navigate http.Handler
+	Compare  http.Handler
 }
 
 func NewMemoryCaseTimelineHTTPHandler(authenticate func(*http.Request) (string, error), data MemoryTimelineData) (http.Handler, error) {
@@ -158,7 +159,7 @@ func NewMemoryCaseTimelineHTTPHandlers(authenticate func(*http.Request) (string,
 	if err != nil {
 		return MemoryTimelineHTTPHandlers{}, err
 	}
-	return MemoryTimelineHTTPHandlers{Timeline: combined.Timeline, Cases: combined.Cases, Navigate: combined.Navigate}, nil
+	return MemoryTimelineHTTPHandlers{Timeline: combined.Timeline, Cases: combined.Cases, Navigate: combined.Navigate, Compare: combined.Compare}, nil
 }
 
 func (s *memoryTimelineProvider) validReaders(ids []string, tenant, environment string) bool {

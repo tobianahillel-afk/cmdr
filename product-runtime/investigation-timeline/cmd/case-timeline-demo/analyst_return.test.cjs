@@ -19,12 +19,13 @@ function node(tag = "div") {
   };
 }
 
-function boot(search = "", navigationQuery) {
+function boot(search = "", navigationQuery, compareDenied = false) {
   const ids = [
     "query", "token", "case-id", "kind", "search", "case-options",
     "discover", "case-discovery-status", "from", "to", "entries",
     "summary", "message", "page", "previous", "next", "load",
-    "source-detail", "source-status", "return-to-case", "copy-return-link"
+    "source-detail", "source-status", "return-to-case", "copy-return-link",
+    "comparison-status", "comparison-detail"
   ];
   const fields = Object.fromEntries(ids.map(id => [id, node(id)]));
   const requests = [];
@@ -58,8 +59,25 @@ function boot(search = "", navigationQuery) {
                 id: "event-new", kind: "observed",
                 source_time: "2026-10-01T11:00:00Z",
                 source_ref: "demo-telemetry-a", provenance: "synthetic-telemetry",
-                version: 2
+                version: 2, supersedes: "event-old"
               }]
+            };
+          }
+        };
+      }
+      if (url.pathname === "/case-version-comparison") {
+        if (compareDenied) return { ok: false };
+        return {
+          ok: true,
+          async json() {
+            return {
+              status: "ready", is_authority: false,
+              current: { id: "event-new", kind: "observed", source_time: "2026-10-01T11:00:00Z",
+                source_ref: "demo-telemetry-a", provenance: "synthetic-telemetry",
+                version: 2, supersedes: "event-old" },
+              previous: { id: "event-old", kind: "observed", source_time: "2026-10-01T10:00:00Z",
+                source_ref: "demo-telemetry-old", provenance: "synthetic-telemetry",
+                version: 1 }
             };
           }
         };
@@ -165,4 +183,37 @@ test("unknown query selector is inert and cannot auto-authorize", () => {
   assert.equal(env.fields["case-id"].value, "");
   assert.equal(env.requests.length, 0);
   assert.match(env.fields.message.textContent, /invalide/);
+});
+
+test("version comparison reauthorizes both entries outside current page", async () => {
+  const env = boot();
+  env.fields.token.value = "ephemeral-value";
+  env.fields["case-id"].value = "case-a";
+  env.fields.query.handlers.submit({ preventDefault() {} });
+  await flush();
+  const buttons = env.fields.entries.children[0].children.filter(n => n.tag === "button");
+  assert.equal(buttons.length, 2, "superseding entry must expose comparison");
+  buttons[1].handlers.click();
+  await flush();
+  assert.equal(env.requests.at(-1).url.pathname, "/case-version-comparison");
+  assert.equal(env.requests.at(-1).url.searchParams.get("entry_id"), "event-new");
+  assert.equal(env.requests.at(-1).url.searchParams.has("tenant"), false);
+  assert.equal(env.requests.at(-1).options.headers.Authorization, "Bearer ephemeral-value");
+  assert.equal(env.fields["comparison-detail"].hidden, false);
+  assert.match(env.fields["comparison-status"].textContent, /autorisées/);
+  assert.equal(env.requests.at(-1).url.href.includes("ephemeral-value"), false);
+  env.fields.token.handlers.input();
+  assert.equal(env.fields["comparison-detail"].hidden, true,
+    "changing identity must remove previously authorized comparison");
+});
+test("source revocation makes comparison inert", async () => {
+  const env = boot("", undefined, true);
+  env.fields.token.value = "ephemeral-value";
+  env.fields["case-id"].value = "case-a";
+  env.fields.query.handlers.submit({ preventDefault() {} });
+  await flush();
+  env.fields.entries.children[0].children.filter(n => n.tag === "button")[1].handlers.click();
+  await flush();
+  assert.equal(env.fields["comparison-detail"].hidden, true);
+  assert.match(env.fields["comparison-status"].textContent, /indisponible/);
 });
