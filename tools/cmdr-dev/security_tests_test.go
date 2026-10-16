@@ -1,9 +1,9 @@
 package main
 
 import (
-	"strings"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -395,17 +395,17 @@ func TestVerifyGoNegativeTestSelectionRequiresActualCases(t *testing.T) {
 		return `{"Action":"run","Test":"` + name + `"}` + "\n"
 	}
 	tests := []struct {
-		name string
-		output string
+		name      string
+		output    string
 		wantError bool
 	}{
-		{"all-selected", pass("TestSecurity")+pass("TestSecurity/case-denied")+pass("TestSecurity/cross-tenant"), false},
+		{"all-selected", pass("TestSecurity") + pass("TestSecurity/case-denied") + pass("TestSecurity/cross-tenant"), false},
 		{"parent-only", pass("TestSecurity"), true},
-		{"no-tests", `{"Action":"pass","Package":"example.invalid/runtime"}`+"\n", true},
+		{"no-tests", `{"Action":"pass","Package":"example.invalid/runtime"}` + "\n", true},
 		{"one-alternative-missing", pass("TestSecurity/case-denied"), true},
-		{"run-but-not-pass", run("TestSecurity/case-denied")+pass("TestSecurity/cross-tenant"), true},
-		{"skip-but-not-pass", `{"Action":"skip","Test":"TestSecurity/case-denied"}`+"\n"+pass("TestSecurity/cross-tenant"), true},
-		{"wrong-parent", pass("TestOther/case-denied")+pass("TestOther/cross-tenant"), true},
+		{"run-but-not-pass", run("TestSecurity/case-denied") + pass("TestSecurity/cross-tenant"), true},
+		{"skip-but-not-pass", `{"Action":"skip","Test":"TestSecurity/case-denied"}` + "\n" + pass("TestSecurity/cross-tenant"), true},
+		{"wrong-parent", pass("TestOther/case-denied") + pass("TestOther/cross-tenant"), true},
 		{"invalid-json", "not JSON", true},
 	}
 	for _, tc := range tests {
