@@ -296,3 +296,66 @@ func TestOwnerUnknownClockStillChecksSourcePermission(t *testing.T) {
 			got, checker.calls)
 	}
 }
+
+func TestOwnerChecksAllTimelineRightsBeforeAnyOwnerOrSourceCalls(t *testing.T) {
+	checker, owner := ownerFixture()
+	second := owner.entries["x"]
+	second.ID = "y"
+	second.SourceRef = "owner:y"
+	owner.entries["y"] = second
+	checker.decisions["timeline-entry:y"] = "allow"
+	checker.decisions["source:owner:y"] = "allow"
+
+	got := ProjectFromOwnerSnapshots(
+		context.Background(), allowedFixture().Scope, "case-123",
+		[]string{"x", "y"}, checker, owner,
+	)
+	if got.Status != "allow" || len(got.Entries) != 2 ||
+		len(owner.calls) != 2 || len(checker.calls) != 5 {
+		t.Fatalf("two authorized snapshots not projected: %+v owner=%+v calls=%+v", got, owner.calls, checker.calls)
+	}
+	resources := []string{"case", "timeline-entry", "timeline-entry", "source", "source"}
+	for i, call := range checker.calls {
+		if call.Resource != resources[i] {
+			t.Fatalf("source checked before all Timeline rights at call %d: %+v", i, checker.calls)
+		}
+	}
+
+	checker, owner = ownerFixture()
+	owner.entries["y"] = second
+	checker.fail = "timeline-entry:y"
+	got = ProjectFromOwnerSnapshots(
+		context.Background(), allowedFixture().Scope, "case-123",
+		[]string{"x", "y"}, checker, owner,
+	)
+	if got.Status != "deny" || len(got.Entries) != 0 ||
+		len(owner.calls) != 0 || len(checker.calls) != 3 {
+		t.Fatalf("later Timeline provider error permitted owner/source I/O: %+v owner=%+v checker=%+v", got, owner.calls, checker.calls)
+	}
+	for _, call := range checker.calls {
+		if call.Resource == "source" {
+			t.Fatal("source authority reached after a later Timeline permission failure")
+		}
+	}
+}
+
+func TestOwnerDeniedLaterTimelineNeverResolvesDeniedEntry(t *testing.T) {
+	checker, owner := ownerFixture()
+	denied := owner.entries["x"]
+	denied.ID = "hidden"
+	denied.SourceRef = "owner:secret"
+	owner.entries["hidden"] = denied
+	checker.decisions["timeline-entry:hidden"] = "deny"
+	got := ProjectFromOwnerSnapshots(context.Background(), allowedFixture().Scope,
+		"case-123", []string{"x", "hidden"}, checker, owner)
+	if got.Status != "filtered" || len(got.Entries) != 1 || got.Entries[0].ID != "x" ||
+		len(owner.calls) != 1 || owner.calls[0].ObjectID != "x" ||
+		len(checker.calls) != 4 {
+		t.Fatalf("denied later Timeline metadata leaked: %+v owner=%+v checker=%+v", got, owner.calls, checker.calls)
+	}
+	for _, call := range checker.calls {
+		if call.Resource == "source" && call.ObjectID == "owner:secret" {
+			t.Fatal("unauthorized source selector reached provider")
+		}
+	}
+}

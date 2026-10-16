@@ -71,12 +71,20 @@ func ProjectFromOwnerSnapshots(
 			CasePermission: "allow", TimelinePermission: "allow"},
 		Entries: make([]Entry, 0, len(ids)),
 	}
-	for _, id := range ids {
-		timelineRequest := request("timeline-entry", id, timelineReadPermission)
-		decision, valid := check(timelineRequest)
+	// Complete every Timeline Entry permission check before any owner
+	// resolution or linked-source check. A later provider error must not
+	// cause earlier source metadata to be fetched or forwarded needlessly.
+	// This is a bounded two-pass check, NOT an atomic external ACL snapshot.
+	decisions := make([]string, len(ids))
+	for i, id := range ids {
+		decision, valid := check(request("timeline-entry", id, timelineReadPermission))
 		if !valid {
-			return deny // provider error or unexpected response: atomic failure
+			return deny
 		}
+		decisions[i] = decision
+	}
+	for i, id := range ids {
+		decision := decisions[i]
 		if decision != "allow" {
 			// A denied ID cannot be resolved or used in a linked-source check.
 			out.Entries = append(out.Entries, Entry{
@@ -84,6 +92,7 @@ func ProjectFromOwnerSnapshots(
 			})
 			continue
 		}
+		timelineRequest := request("timeline-entry", id, timelineReadPermission)
 		entry, err := resolver.ResolveEntry(ctx, timelineRequest)
 		if err != nil || ctx.Err() != nil ||
 			entry.ID != id || entry.Tenant != scope.Tenant ||
