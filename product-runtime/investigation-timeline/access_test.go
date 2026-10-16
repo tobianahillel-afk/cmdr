@@ -513,3 +513,29 @@ func TestLegacyUnknownClockStillChecksSourcePermission(t *testing.T) {
 		t.Fatalf("legitimate uncertain timestamp incorrectly rejected: %+v calls=%+v", got, checker.calls)
 	}
 }
+
+func TestDeniedLongTimelineIDDoesNotExhaustVisibleSourceBudget(t *testing.T) {
+	// Both IDs are within the globally enforced 8 MiB request budget.
+	// Only the short, permitted ID should count against the linked-source
+	// authority budget. A denied 3 MiB ID cannot deny a 6 MiB visible ref.
+	deniedID := strings.Repeat("h", 3<<20)
+	allowedSource := strings.Repeat("s", 6<<20)
+	checker := allowedAccessChecker()
+	checker.decisions["timeline-entry:"+deniedID] = "deny"
+	checker.decisions["source:"+allowedSource] = "allow"
+	in := allowedFixture()
+	in.Entries[0].SourceRef = allowedSource
+	denied := in.Entries[0]
+	denied.ID = deniedID
+	denied.SourceRef = "owner:hidden"
+	in.Entries = append(in.Entries, denied)
+	result := ProjectWithAccessChecker(context.Background(), in, "case-123", checker)
+	if result.Status != "filtered" || len(result.Entries) != 1 ||
+		result.Entries[0].ID != "x" || len(checker.calls) != 4 {
+		t.Fatalf("denied ID reduced valid legacy source budget: status=%s entries=%d calls=%d",
+			result.Status, len(result.Entries), len(checker.calls))
+	}
+	if checker.calls[3].Resource != "source" || checker.calls[3].ObjectID != allowedSource {
+		t.Fatal("wrong authorized source checked")
+	}
+}

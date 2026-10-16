@@ -445,3 +445,28 @@ func TestOwnerCancellationBetweenAuthorizationAndResolutionDoesNotReadOwner(t *t
 		t.Fatalf("cancellation at owner boundary was never examined: reads=%d", ctx.errReads)
 	}
 }
+
+func TestDeniedLongTimelineIDDoesNotExhaustVisibleSourceBudget(t *testing.T) {
+	// Both IDs are within the globally enforced 8 MiB request budget.
+	// Only the short, permitted ID should count against the linked-source
+	// authority budget. A denied 3 MiB ID cannot deny a 6 MiB visible ref.
+	deniedID := strings.Repeat("h", 3<<20)
+	allowedSource := strings.Repeat("s", 6<<20)
+	checker := allowedAccessChecker()
+	checker.decisions["timeline-entry:"+deniedID] = "deny"
+	checker.decisions["source:"+allowedSource] = "allow"
+	owner := &ownedSnapshotResolver{entries: map[string]Entry{}}
+	entry := allowedFixture().Entries[0]
+	entry.SourceRef = allowedSource
+	owner.entries["x"] = entry
+	got := ProjectFromOwnerSnapshots(context.Background(), allowedFixture().Scope,
+		"case-123", []string{"x", deniedID}, checker, owner)
+	if got.Status != "filtered" || len(got.Entries) != 1 ||
+		got.Entries[0].ID != "x" || len(owner.calls) != 1 || len(checker.calls) != 4 {
+		t.Fatalf("denied ID reduced trusted owner source budget: status=%s entries=%d owner=%d calls=%d",
+			got.Status, len(got.Entries), len(owner.calls), len(checker.calls))
+	}
+	if checker.calls[3].Resource != "source" || checker.calls[3].ObjectID != allowedSource {
+		t.Fatal("wrong authorized owner source checked")
+	}
+}

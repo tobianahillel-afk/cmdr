@@ -59,9 +59,9 @@ func ProjectFromOwnerSnapshots(
 		}
 		seen[id] = true
 	}
-	// Source selectors share the envelope with every validated requested ID;
-	// keeping a separate starting counter would miss the ID bytes above.
-	usedSourceSelectors = usedIDs
+	// The entire requester-supplied selector set is bounded independently.
+	// Only IDs confirmed allowed by the Timeline Entry authority may later
+	// consume the linked-source selector budget.
 	allowed, valid := check(request("case", caseID, caseReadPermission))
 	if !valid || allowed != "allow" {
 		return deny
@@ -82,6 +82,15 @@ func ProjectFromOwnerSnapshots(
 			return deny
 		}
 		decisions[i] = decision
+	}
+	// Denied Timeline Entry IDs must never reduce the source budget of an
+	// authorized entry. This counter is distinct from the strict all-ID
+	// request bound applied BEFORE any authority I/O.
+	usedSourceSelectors = len(scope.Tenant) + len(scope.Environment) + len(caseID)
+	for i, id := range ids {
+		if decisions[i] == "allow" {
+			usedSourceSelectors += len(id)
+		}
 	}
 	// Resolve and validate ALL permitted owner snapshots before any linked
 	// source access checks. An invalid late owner response must not cause

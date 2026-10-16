@@ -93,11 +93,10 @@ func ProjectWithAccessChecker(ctx context.Context, in Input, caseID string, chec
 		seenIDs[entry.ID] = true
 		usedIDs += len(entry.ID)
 	}
-	// All visible Timeline Entry IDs were validated. Charge them to the
-	// same aggregate external-selector budget as linked source references.
-	// Otherwise individually legal ID and source budgets can exceed the
-	// total bound before a provider receives CheckAccess(source, ...).
-	usedSourceSelectors = usedIDs
+	// The complete caller-selector envelope was bounded above before I/O.
+	// Source authorization is a different trust boundary: denied entries
+	// must not consume the byte budget of visible linked-source selectors.
+	// Charge only Timeline Entry IDs independently permitted by the checker.
 	checked := func(resource, objectID, permission string) (string, bool) {
 		if ctx.Err() != nil {
 			return "", false
@@ -145,6 +144,14 @@ func ProjectWithAccessChecker(ctx context.Context, in Input, caseID string, chec
 		decisions[i] = decision
 	}
 
+	// Charge only permitted Timeline Entry IDs for subsequent source checks.
+	// This cannot exceed the separately bounded full requester envelope.
+	usedSourceSelectors = len(in.Scope.Tenant) + len(in.Scope.Environment) + len(caseID)
+	for i, entry := range in.Entries {
+		if decisions[i] == "allow" {
+			usedSourceSelectors += len(entry.ID)
+		}
+	}
 	// Validate ALL potentially visible snapshots and the cumulative source
 	// selector budget before making even one external source permission call.
 	// This reuses the owner-resolved adapter's three-pass trust ordering.
