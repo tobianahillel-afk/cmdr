@@ -12,7 +12,7 @@ const ids = [
   "case-discovery-status", "from", "to", "entries", "summary", "message",
   "page", "previous", "next", "load", "source-detail", "source-status",
   "return-to-case", "copy-return-link", "analyze", "analysis", "analysis-actions", "download-report",
-  "compare-case", "compare", "comparison", "comparison-actions"
+  "compare-case", "compare", "comparison", "comparison-actions", "download-comparison"
 ];
 function node() {
   return {
@@ -675,4 +675,72 @@ test("malformed certain source timestamp fails whole comparison without partial 
   assert.match(env.fields.comparison.textContent, /Aucun résultat partiel/);
   assert.doesNotMatch(env.fields.comparison.textContent, /shared-ref/);
   assert.equal(env.fields["comparison-actions"].children.length, 0);
+});
+
+test("authorized cross-Case comparison exports only bounded local metadata, no bearer or raw events", async () => {
+  const env = boot(url => page(0, 2, { sourceFor: n => n === 0 ? "shared-ref" : "other-shared" }));
+  env.fields["compare-case"].value = "case-peer";
+  assert.equal(env.fields["download-comparison"].disabled, true);
+  env.fields.compare.handlers.click();
+  for (let i = 0; i < 5; i++) await flush();
+  assert.equal(env.fields["download-comparison"].disabled, false);
+  env.fields["download-comparison"].handlers.click();
+  assert.equal(env.downloads.length, 1);
+  assert.equal(env.downloads[0].clicked, true);
+  const raw = await env.downloads[0].blob.text();
+  const data = JSON.parse(raw);
+  assert.equal(data.type, "cmdr-synthetic-authorized-case-comparison");
+  assert.deepEqual(data.case_ids, ["case-disk", "case-peer"]);
+  assert.deepEqual(data.visible_event_counts, [2, 2]);
+  assert.equal(data.shared_source_references, 2);
+  assert.equal(data.exported_source_references.length, 2);
+  assert.equal(data.excluded_or_unlisted_references, 0);
+  assert.ok(data.exported_source_references.every(r => r.visible_counts.join(",") === "1,1"));
+  assert.ok(data.exported_source_references.every(r => r.case_a_time.first_certain_utc));
+  assert.doesNotMatch(raw, /ephemeral-token|event-0|event-1|Bearer|source_ref.*https?:/);
+  assert.ok(env.requests.every(r => r.options.headers.Authorization === "Bearer ephemeral-token"));
+});
+
+test("denial, changed bearer and invalidated Case selection cannot export previous comparison", async () => {
+  const env = boot(url => page(0, 1, { sourceFor: () => "shared-ref" }));
+  env.fields["compare-case"].value = "case-peer";
+  env.fields.compare.handlers.click();
+  for (let i = 0; i < 5; i++) await flush();
+  env.fields.token.value = "new-bearer";
+  env.fields.token.handlers.input();
+  assert.equal(env.fields["download-comparison"].disabled, true);
+  env.fields["download-comparison"].handlers.click();
+  assert.equal(env.downloads.length, 0);
+  env.fields.compare.handlers.click();
+  for (let i = 0; i < 5; i++) await flush();
+  assert.equal(env.fields["download-comparison"].disabled, false);
+  env.fields["compare-case"].value = "different";
+  env.fields["compare-case"].handlers.input();
+  assert.equal(env.fields["download-comparison"].disabled, true);
+  env.fields["download-comparison"].handlers.click();
+  assert.equal(env.downloads.length, 0);
+  const denied = boot(url => url.searchParams.get("case_id") === "case-peer"
+    ? { ok: false } : page(0, 1));
+  denied.fields["compare-case"].value = "case-peer";
+  denied.fields.compare.handlers.click();
+  for (let i = 0; i < 5; i++) await flush();
+  assert.equal(denied.fields["download-comparison"].disabled, true);
+  denied.fields["download-comparison"].handlers.click();
+  assert.equal(denied.downloads.length, 0);
+});
+
+test("very long shared source references are not serialized or silently truncated", async () => {
+  const longRef = "protected-" + "X".repeat(120);
+  const env = boot(url => page(0, 2, { sourceFor: n => n === 0 ? longRef : "short-ref" }));
+  env.fields["compare-case"].value = "case-peer";
+  env.fields.compare.handlers.click();
+  for (let i = 0; i < 5; i++) await flush();
+  env.fields["download-comparison"].handlers.click();
+  const raw = await env.downloads[0].blob.text();
+  const data = JSON.parse(raw);
+  assert.equal(data.shared_source_references, 2);
+  assert.equal(data.exported_source_references.length, 1);
+  assert.equal(data.exported_source_references[0].source_ref, "short-ref");
+  assert.equal(data.excluded_or_unlisted_references, 1);
+  assert.ok(!raw.includes(longRef));
 });

@@ -47,6 +47,9 @@
   const compareButton = document.getElementById("compare");
   const comparison = document.getElementById("comparison");
   const comparisonActions = document.getElementById("comparison-actions");
+  const downloadComparison = document.getElementById("download-comparison");
+  let preparedComparison = null;
+  downloadComparison.disabled = true;
   let compareRevision = 0;
   let compareRequest = null;
   function clearComparison() {
@@ -54,6 +57,8 @@
     if (compareRequest) compareRequest.abort();
     compareRequest = null;
     compareButton.disabled = false;
+    preparedComparison = null;
+    downloadComparison.disabled = true;
     comparison.textContent = "Aucune comparaison calculée.";
     comparisonActions.replaceChildren();
   }
@@ -395,6 +400,48 @@
         ". Les écarts reposent sur les seuls horodatages certains et visibles. " +
         "Présence commune d'une référence exacte, pas une preuve de causalité, " +
         "d'identité d'objet ou d'exhaustivité. Lectures non transactionnelles.";
+      // An explicit local report contains only the already authorized
+      // aggregate: no raw event rows, token, owner preview or URL. Exclude
+      // references beyond the search bound instead of silently truncating.
+      const exportable = common.filter(group => group.ref.length <= 96).slice(0, 5);
+      const safeEnvelope = range => ({
+        certain_count: range.certain,
+        uncertain_count: range.uncertain,
+        first_certain_utc: range.certain ? new Date(range.first).toISOString() : null,
+        last_certain_utc: range.certain ? new Date(range.last).toISOString() : null
+      });
+      const receipt = {
+        schema_version: 1,
+        type: "cmdr-synthetic-authorized-case-comparison",
+        generated_at_utc: new Date().toISOString(),
+        case_ids: [selectedCase, otherCase],
+        filters: {
+          kind: kind.value, q: search.value.trim(),
+          from: windowSelection.from, to: windowSelection.to
+        },
+        visible_event_counts: [left.total, right.total],
+        shared_source_references: common.length,
+        exported_source_references: exportable.map(group => ({
+          source_ref: group.ref,
+          visible_counts: [group.left, group.right],
+          case_a_time: safeEnvelope(group.leftTime),
+          case_b_time: safeEnvelope(group.rightTime)
+        })),
+        excluded_or_unlisted_references: common.length - exportable.length,
+        limitations: [
+          "Local synthetic offline owner snapshot; no production identity or real SIEM source",
+          "Both Cases were authorized independently when pages were read",
+          "Comparisons are nontransactional and may become stale after rights or data change",
+          "Shared source reference is a triage indicator, not proof of causation or common object",
+          "Unsigned local aggregate; no raw events, forensic custody proof or complete export"
+        ]
+      };
+      preparedComparison = {
+        serialized: JSON.stringify(receipt, null, 2) + "\n",
+        revision: activeComparison, selection: activeSelection,
+        caseA: selectedCase, caseB: otherCase, bearer
+      };
+      downloadComparison.disabled = false;
       // A correlation is a triage hint, NOT an authority. Pivot into the
       // existing Case search; fetchPage performs a fresh server-side Case,
       // Timeline Entry and source authorization before showing any result.
@@ -814,6 +861,25 @@
   analyze.addEventListener("click", analyzeAuthorizedCase);
   compareButton.addEventListener("click", compareAuthorizedCases);
   compareCase.addEventListener("input", clearComparison);
+  downloadComparison.addEventListener("click", () => {
+    const receipt = preparedComparison;
+    if (!receipt || receipt.revision !== compareRevision ||
+        receipt.selection !== revision || token.value !== receipt.bearer ||
+        caseID.value.trim() !== receipt.caseA ||
+        compareCase.value.trim() !== receipt.caseB) return;
+    let objectURL = null;
+    try {
+      objectURL = URL.createObjectURL(new Blob([receipt.serialized], { type: "application/json" }));
+      const link = document.createElement("a");
+      link.href = objectURL;
+      link.download = "cmdr-local-case-comparison.json";
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(objectURL), 1000);
+    } catch {
+      if (objectURL) URL.revokeObjectURL(objectURL);
+      comparison.textContent = "Export local indisponible. Relancez la comparaison si nécessaire.";
+    }
+  });
   downloadReport.addEventListener("click", () => {
     const receipt = preparedReport;
     if (!receipt || receipt.revision !== analysisRevision ||

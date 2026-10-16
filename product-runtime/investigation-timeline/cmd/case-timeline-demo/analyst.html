@@ -78,8 +78,10 @@
                placeholder="Autre identifiant de Case autorisé">
       </div>
       <button id="compare" type="button">Comparer les références de source visibles</button>
+      <button id="download-comparison" type="button" disabled>Enregistrer la comparaison JSON locale</button>
       <p id="comparison" role="status" aria-live="polite">Aucune comparaison calculée.</p>
       <div id="comparison-actions" class="analysis-actions" aria-label="Explorer les sources corrélées"></div>
+      <p class="intro">L'export facultatif contient seulement les nombres d'événements autorisés, les cinq premières références communes de 96 caractères au maximum et leurs plages temporelles certaines. Les références longues sont exclues avec un décompte explicite. Aucun jeton ni événement brut n'est exporté. Synthèse locale non signée, non transactionnelle, pouvant devenir périmée ; ne pas utiliser comme preuve forensique ou avec des données clients réelles.</p>
       <p class="intro">Cette comparaison lit à nouveau les pages des deux Cases avec le jeton actuel et les mêmes filtres. Les boutons « Examiner » reprennent la recherche sur le Case choisi et déclenchent une nouvelle autorisation du serveur ; aucun résultat précédent n’accorde un droit d’accès. Elle ne présente que les références identiques déjà autorisées par le serveur. Aucun résultat partiel n'est affiché en cas de refus, et aucune cooccurrence ne constitue une preuve de causalité. Démonstration locale synthétique sans index inter-Cases.</p>
     </section>
     <section aria-labelledby="results-title">
