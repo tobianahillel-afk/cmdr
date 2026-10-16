@@ -52,12 +52,12 @@ func (h *CaseTimelineHTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Reque
 		return
 	}
 	if r.URL == nil || r.Body != nil && r.Body != http.NoBody ||
-		len(r.TransferEncoding) != 0 || len(r.URL.RawQuery) > maxHTTPCaseIDBytes*3+256 {
+		len(r.TransferEncoding) != 0 || len(r.URL.RawQuery) > maxHTTPCaseIDBytes*3+320 {
 		writeCaseTimelineError(w, http.StatusBadRequest)
 		return
 	}
 	query, err := url.ParseQuery(r.URL.RawQuery)
-	if err != nil || len(query["case_id"]) != 1 || len(query) > 4 {
+	if err != nil || len(query["case_id"]) != 1 || len(query) > 6 {
 		writeCaseTimelineError(w, http.StatusBadRequest)
 		return
 	}
@@ -97,7 +97,13 @@ func (h *CaseTimelineHTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Reque
 		writeCaseTimelineError(w, http.StatusServiceUnavailable)
 		return
 	}
-	encoded, err := json.Marshal(result)
+	// Only authorized, already filtered entries may be counted or paged.
+	// The non-paged response shape stays backward compatible.
+	var response any = result
+	if selection.paged {
+		response = paginateAuthorizedTimeline(result, selection)
+	}
+	encoded, err := json.Marshal(response)
 	if err != nil {
 		writeCaseTimelineError(w, http.StatusServiceUnavailable)
 		return

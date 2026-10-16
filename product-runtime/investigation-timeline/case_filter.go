@@ -2,6 +2,7 @@ package investigationtimeline
 
 import (
 	"net/url"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -11,6 +12,8 @@ type timelineReadSelection struct {
 	kind           string
 	from, to       time.Time
 	hasFrom, hasTo bool
+	paged          bool
+	limit, offset  int
 }
 
 func parseTimelineReadSelection(values url.Values) (timelineReadSelection, bool) {
@@ -21,6 +24,20 @@ func parseTimelineReadSelection(values url.Values) (timelineReadSelection, bool)
 		}
 		switch key {
 		case "case_id":
+		case "limit":
+			value, err := strconv.Atoi(entries[0])
+			if err != nil || value < 1 || value > maxTimelinePageSize ||
+				strconv.Itoa(value) != entries[0] {
+				return timelineReadSelection{}, false
+			}
+			s.paged, s.limit = true, value
+		case "offset":
+			value, err := strconv.Atoi(entries[0])
+			if err != nil || value < 0 || value > MaxEntries ||
+				strconv.Itoa(value) != entries[0] {
+				return timelineReadSelection{}, false
+			}
+			s.offset = value
 		case "kind":
 			if !validKind(entries[0]) {
 				return timelineReadSelection{}, false
@@ -43,6 +60,9 @@ func parseTimelineReadSelection(values url.Values) (timelineReadSelection, bool)
 		default:
 			return timelineReadSelection{}, false
 		}
+	}
+	if _, specified := values["offset"]; specified && !s.paged {
+		return timelineReadSelection{}, false
 	}
 	if s.hasFrom && s.hasTo && !s.from.Before(s.to) {
 		return timelineReadSelection{}, false
