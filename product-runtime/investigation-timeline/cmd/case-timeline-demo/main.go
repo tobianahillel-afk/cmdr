@@ -71,13 +71,13 @@ func newDemoHandler(token, principal string) (http.Handler, error) {
 		return principal, nil
 	}
 	data := demoData()
-	caseTimeline, err := timeline.NewMemoryCaseTimelineHTTPHandler(authenticate, data)
+	handlers, err := timeline.NewMemoryCaseTimelineHTTPHandlers(authenticate, data)
 	if err != nil {
 		return nil, fmt.Errorf("assemble synthetic owner chain: %w", err)
 	}
 	mux := http.NewServeMux()
-	mux.Handle("/case-timeline", caseTimeline)
-	mux.Handle("/demo-cases", newDemoCaseListHandler(authenticate, data))
+	mux.Handle("/case-timeline", handlers.Timeline)
+	mux.Handle("/demo-cases", handlers.Cases)
 	installAnalystDemoRoutes(mux)
 	return mux, nil
 }

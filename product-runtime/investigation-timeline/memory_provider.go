@@ -44,9 +44,26 @@ type memoryTimelineProvider struct {
 // using a static, trusted owner dataset and a HOST-VERIFIED authentication
 // callback. No persistence, remote ACL, mutation API or production auth
 // provider is supplied. Do not use this adapter as a production data store.
+// MemoryTimelineHTTPHandlers shares ONE immutable owner snapshot for Case
+// discovery and Case -> Timeline reads, preventing a split demo authority.
+type MemoryTimelineHTTPHandlers struct {
+	Timeline http.Handler
+	Cases    http.Handler
+}
+
 func NewMemoryCaseTimelineHTTPHandler(authenticate func(*http.Request) (string, error), data MemoryTimelineData) (http.Handler, error) {
+	handlers, err := NewMemoryCaseTimelineHTTPHandlers(authenticate, data)
+	if err != nil {
+		return nil, err
+	}
+	return handlers.Timeline, nil
+}
+
+// NewMemoryCaseTimelineHTTPHandlers is a process-local integration reference,
+// NOT a durable provider or a deployed authentication/authorization service.
+func NewMemoryCaseTimelineHTTPHandlers(authenticate func(*http.Request) (string, error), data MemoryTimelineData) (MemoryTimelineHTTPHandlers, error) {
 	if authenticate == nil {
-		return nil, errors.New("verified session authenticator required")
+		return MemoryTimelineHTTPHandlers{}, errors.New("verified session authenticator required")
 	}
 	s := &memoryTimelineProvider{
 		authenticate: authenticate,
@@ -57,20 +74,20 @@ func NewMemoryCaseTimelineHTTPHandler(authenticate func(*http.Request) (string, 
 	}
 	for _, principal := range data.Principals {
 		if invalidScope(principal.ID) || invalidScope(principal.Tenant) || invalidScope(principal.Environment) {
-			return nil, errors.New("invalid principal")
+			return MemoryTimelineHTTPHandlers{}, errors.New("invalid principal")
 		}
 		if _, exists := s.principals[principal.ID]; exists {
-			return nil, errors.New("duplicate principal")
+			return MemoryTimelineHTTPHandlers{}, errors.New("duplicate principal")
 		}
 		s.principals[principal.ID] = principal
 	}
 	for _, c := range data.Cases {
 		if invalidScope(c.ID) || invalidScope(c.Tenant) || invalidScope(c.Environment) ||
 			len(c.EntryIDs) > MaxEntries || !s.validReaders(c.Readers, c.Tenant, c.Environment) {
-			return nil, errors.New("invalid Case record")
+			return MemoryTimelineHTTPHandlers{}, errors.New("invalid Case record")
 		}
 		if _, exists := s.cases[c.ID]; exists {
-			return nil, errors.New("duplicate Case record")
+			return MemoryTimelineHTTPHandlers{}, errors.New("duplicate Case record")
 		}
 		c.Readers = append([]string(nil), c.Readers...)
 		c.EntryIDs = append([]string(nil), c.EntryIDs...)
@@ -81,10 +98,10 @@ func NewMemoryCaseTimelineHTTPHandler(authenticate func(*http.Request) (string, 
 		if !ok || invalidScope(e.Value.ID) || e.Value.Tenant != c.Tenant ||
 			!validTimelineEntryBeforeSourceLookup(e.Value) ||
 			!s.validReaders(e.Readers, c.Tenant, c.Environment) {
-			return nil, errors.New("invalid Timeline Entry record")
+			return MemoryTimelineHTTPHandlers{}, errors.New("invalid Timeline Entry record")
 		}
 		if _, exists := s.entries[e.Value.ID]; exists {
-			return nil, errors.New("duplicate Timeline Entry record")
+			return MemoryTimelineHTTPHandlers{}, errors.New("duplicate Timeline Entry record")
 		}
 		e.Readers = append([]string(nil), e.Readers...)
 		// Caller-provided source-access claims can never become authority.
@@ -98,10 +115,10 @@ func NewMemoryCaseTimelineHTTPHandler(authenticate func(*http.Request) (string, 
 		if !ok || !validKind || invalidScope(id.Reference) || invalidScope(id.ObjectID) ||
 			id.Tenant != c.Tenant || id.Environment != c.Environment ||
 			!s.validReaders(src.Readers, c.Tenant, c.Environment) {
-			return nil, errors.New("invalid source owner record")
+			return MemoryTimelineHTTPHandlers{}, errors.New("invalid source owner record")
 		}
 		if _, exists := s.sources[id.Reference]; exists {
-			return nil, errors.New("duplicate source reference")
+			return MemoryTimelineHTTPHandlers{}, errors.New("duplicate source reference")
 		}
 		src.Readers = append([]string(nil), src.Readers...)
 		s.sources[id.Reference] = src
@@ -111,16 +128,24 @@ func NewMemoryCaseTimelineHTTPHandler(authenticate func(*http.Request) (string, 
 		for _, id := range c.EntryIDs {
 			e, ok := s.entries[id]
 			if !ok || seen[id] || e.CaseID != c.ID {
-				return nil, errors.New("Case catalog points to foreign, missing or duplicate entry")
+				return MemoryTimelineHTTPHandlers{}, errors.New("Case catalog points to foreign, missing or duplicate entry")
 			}
 			seen[id] = true
 			src, ok := s.sources[e.Value.SourceRef]
 			if !ok || src.Identity.CaseID != c.ID {
-				return nil, errors.New("entry references missing or foreign source owner")
+				return MemoryTimelineHTTPHandlers{}, errors.New("entry references missing or foreign source owner")
 			}
 		}
 	}
-	return NewCaseTimelineHTTPHandler(s, s, s, s, s)
+	timeline, err := NewCaseTimelineHTTPHandler(s, s, s, s, s)
+	if err != nil {
+		return MemoryTimelineHTTPHandlers{}, err
+	}
+	cases, err := NewCaseDiscoveryHTTPHandler(s, s, s)
+	if err != nil {
+		return MemoryTimelineHTTPHandlers{}, err
+	}
+	return MemoryTimelineHTTPHandlers{Timeline: timeline, Cases: cases}, nil
 }
 
 func (s *memoryTimelineProvider) validReaders(ids []string, tenant, environment string) bool {
@@ -229,4 +254,21 @@ func (s *memoryTimelineProvider) ResolveSource(ctx context.Context, r AccessRequ
 		return SourceOwnerIdentity{}, errors.New("source unavailable")
 	}
 	return source.Identity, nil
+}
+
+// ListCandidateCaseIDs is a Case-owner listing, not a permission oracle.
+// Discovery invokes CheckAccess on every ID before presenting anything.
+func (s *memoryTimelineProvider) ListCandidateCaseIDs(ctx context.Context, scope Scope) ([]string, error) {
+	principal, ok := ctx.Value(memoryTimelinePrincipalKey{}).(string)
+	p, present := s.principals[principal]
+	if !ok || !present || ctx.Err() != nil || p.Tenant != scope.Tenant || p.Environment != scope.Environment {
+		return nil, errors.New("Case catalogue unavailable")
+	}
+	ids := make([]string, 0, len(s.cases))
+	for id, c := range s.cases {
+		if c.Tenant == scope.Tenant && c.Environment == scope.Environment {
+			ids = append(ids, id)
+		}
+	}
+	return ids, nil
 }
