@@ -414,3 +414,34 @@ func TestOwnerPrevalidatesBeforeSourceButPreservesSourceDenials(t *testing.T) {
 		t.Fatalf("unexpected authorization ordering: %+v", checker.calls)
 	}
 }
+
+type cancelBetweenTimelineAndOwner struct {
+	context.Context
+	errReads int
+}
+
+// Simulates cancellation immediately after the last timeline-entry ACL
+// result, before the owner-resolver phase begins. No scheduling or sleeps.
+func (c *cancelBetweenTimelineAndOwner) Err() error {
+	c.errReads++
+	if c.errReads >= 5 {
+		return context.Canceled
+	}
+	return nil
+}
+
+func TestOwnerCancellationBetweenAuthorizationAndResolutionDoesNotReadOwner(t *testing.T) {
+	checker, owner := ownerFixture()
+	ctx := &cancelBetweenTimelineAndOwner{Context: context.Background()}
+	result := ProjectFromOwnerSnapshots(ctx, allowedFixture().Scope,
+		"case-123", []string{"x"}, checker, owner)
+	if result.Status != "deny" || len(result.Entries) != 0 {
+		t.Fatalf("cancelled request did not fail closed: %+v", result)
+	}
+	if len(checker.calls) != 2 || len(owner.calls) != 0 {
+		t.Fatalf("owner read after cancellation: checker=%+v owner=%+v", checker.calls, owner.calls)
+	}
+	if ctx.errReads < 5 {
+		t.Fatalf("cancellation at owner boundary was never examined: reads=%d", ctx.errReads)
+	}
+}

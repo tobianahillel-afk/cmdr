@@ -87,6 +87,11 @@ func ProjectFromOwnerSnapshots(
 	// source access checks. An invalid late owner response must not cause
 	// earlier source metadata to be sent to an external ACL provider.
 	for i, id := range ids {
+		// An ACL provider can return its final allow immediately before the
+		// request is cancelled. Never dispatch owner I/O after cancellation.
+		if ctx.Err() != nil {
+			return deny
+		}
 		decision := decisions[i]
 		if decision != "allow" {
 			out.Entries = append(out.Entries, Entry{
