@@ -51,7 +51,7 @@ func TestCaseVersionComparisonDenyAtHTTPBoundary(t *testing.T) {
 	valid := "/case-version-comparison?case_id=case-a&entry_id=new"
 	cases := []struct {
 		name, method, path, bearer, body string
-		status                          int
+		status                           int
 	}{
 		{"anonymous", "GET", valid, "", "", http.StatusUnauthorized},
 		{"bad-token", "GET", valid, "Bearer wrong", "", http.StatusUnauthorized},
@@ -63,13 +63,13 @@ func TestCaseVersionComparisonDenyAtHTTPBoundary(t *testing.T) {
 		{"body", "GET", valid, "Bearer aa", "not-a-read", http.StatusBadRequest},
 		{"no-case", "GET", "/case-version-comparison?entry_id=new", "Bearer aa", "", http.StatusBadRequest},
 		{"no-entry", "GET", "/case-version-comparison?case_id=case-a", "Bearer aa", "", http.StatusBadRequest},
-		{"duplicate", "GET", valid+"&entry_id=old", "Bearer aa", "", http.StatusBadRequest},
-		{"tenant-injection", "GET", valid+"&tenant=tenant-b", "Bearer aa", "", http.StatusBadRequest},
-		{"permission-injection", "GET", valid+"&permission=allow", "Bearer aa", "", http.StatusBadRequest},
+		{"duplicate", "GET", valid + "&entry_id=old", "Bearer aa", "", http.StatusBadRequest},
+		{"tenant-injection", "GET", valid + "&tenant=tenant-b", "Bearer aa", "", http.StatusBadRequest},
+		{"permission-injection", "GET", valid + "&permission=allow", "Bearer aa", "", http.StatusBadRequest},
 		{"empty", "GET", "/case-version-comparison?case_id=case-a&entry_id=", "Bearer aa", "", http.StatusBadRequest},
 		{"wildcard", "GET", "/case-version-comparison?case_id=case-a&entry_id=%2A", "Bearer aa", "", http.StatusBadRequest},
 		{"encoded-null", "GET", "/case-version-comparison?case_id=case-a&entry_id=%00", "Bearer aa", "", http.StatusBadRequest},
-		{"too-long", "GET", "/case-version-comparison?case_id=case-a&entry_id="+strings.Repeat("x", maxHTTPCaseIDBytes+1), "Bearer aa", "", http.StatusBadRequest},
+		{"too-long", "GET", "/case-version-comparison?case_id=case-a&entry_id=" + strings.Repeat("x", maxHTTPCaseIDBytes+1), "Bearer aa", "", http.StatusBadRequest},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
@@ -107,7 +107,7 @@ func TestCaseVersionComparisonDenyAtHTTPBoundary(t *testing.T) {
 
 func TestCaseVersionComparisonCancelsAndDeniesInvisiblePredecessor(t *testing.T) {
 	for _, mutation := range []struct {
-		name string
+		name   string
 		change func(*MemoryTimelineData)
 	}{
 		{"predecessor-source-revoked", func(d *MemoryTimelineData) { d.Sources[1].Readers = nil }},
@@ -119,7 +119,9 @@ func TestCaseVersionComparisonCancelsAndDeniesInvisiblePredecessor(t *testing.T)
 			candidate := memoryDemoFixture()
 			mutation.change(&candidate)
 			h, err := NewMemoryCaseTimelineHTTPHandlers(demoAuthenticator, candidate)
-			if err != nil { t.Fatal(err) }
+			if err != nil {
+				t.Fatal(err)
+			}
 			req := httptest.NewRequest(http.MethodGet, "/case-version-comparison?case_id=case-a&entry_id=new", nil)
 			req.Header.Set("Authorization", "Bearer aa")
 			got := rr(h.Compare, req)
@@ -130,7 +132,9 @@ func TestCaseVersionComparisonCancelsAndDeniesInvisiblePredecessor(t *testing.T)
 		})
 	}
 	h, err := NewMemoryCaseTimelineHTTPHandlers(demoAuthenticator, memoryDemoFixture())
-	if err != nil { t.Fatal(err) }
+	if err != nil {
+		t.Fatal(err)
+	}
 	request := httptest.NewRequest(http.MethodGet, "/case-version-comparison?case_id=case-a&entry_id=new", nil)
 	request.Header.Set("Authorization", "Bearer aa")
 	ctx, cancel := context.WithCancel(request.Context())
@@ -155,12 +159,29 @@ func TestCaseVersionComparisonCancelsAndDeniesInvisiblePredecessor(t *testing.T)
 func TestCaseVersionComparisonConstructorRequiresAuthority(t *testing.T) {
 	store, _ := workspaceFixture()
 	for _, h := range []func() error{
-		func() error { _, err := NewCaseVersionComparisonHTTPHandler(nil, store, store, store, store); return err },
-		func() error { _, err := NewCaseVersionComparisonHTTPHandler(timelineHTTPSession{}, nil, store, store, store); return err },
-		func() error { _, err := NewCaseVersionComparisonHTTPHandler(timelineHTTPSession{}, store, nil, store, store); return err },
-		func() error { _, err := NewCaseVersionComparisonHTTPHandler(timelineHTTPSession{}, store, store, nil, store); return err },
-		func() error { _, err := NewCaseVersionComparisonHTTPHandler(timelineHTTPSession{}, store, store, store, nil); return err },
+		func() error {
+			_, err := NewCaseVersionComparisonHTTPHandler(nil, store, store, store, store)
+			return err
+		},
+		func() error {
+			_, err := NewCaseVersionComparisonHTTPHandler(timelineHTTPSession{}, nil, store, store, store)
+			return err
+		},
+		func() error {
+			_, err := NewCaseVersionComparisonHTTPHandler(timelineHTTPSession{}, store, nil, store, store)
+			return err
+		},
+		func() error {
+			_, err := NewCaseVersionComparisonHTTPHandler(timelineHTTPSession{}, store, store, nil, store)
+			return err
+		},
+		func() error {
+			_, err := NewCaseVersionComparisonHTTPHandler(timelineHTTPSession{}, store, store, store, nil)
+			return err
+		},
 	} {
-		if err := h(); err == nil { t.Fatal("accepted missing owner authority") }
+		if err := h(); err == nil {
+			t.Fatal("accepted missing owner authority")
+		}
 	}
 }
