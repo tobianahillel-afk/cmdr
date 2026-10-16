@@ -52,7 +52,7 @@ func TestOperatorSnapshotActualLoopbackCaseToSourceJourney(t *testing.T) {
 	capture := &demoCapture{ready: make(chan struct{})}
 	done := make(chan error, 1)
 	go func() {
-		done <- runDemoCLI(ctx, []string{"-principal=investigator-42", "-snapshot=" + path, "-case=case-incident-43"}, capture)
+		done <- runDemoCLI(ctx, []string{"-principal=investigator-42", "-snapshot=" + path}, capture)
 	}()
 	select {
 	case <-capture.ready:
@@ -72,7 +72,7 @@ func TestOperatorSnapshotActualLoopbackCaseToSourceJourney(t *testing.T) {
 	}
 	u, err := url.Parse(endpoint)
 	if err != nil || u.Hostname() != "127.0.0.1" || len(bearer) != 64 ||
-		u.Query().Get("case_id") != "case-incident-43" {
+		u.Query().Get("case_id") != "case-incident-42" {
 		t.Fatalf("invalid authenticated operator endpoint %q: %v", endpoint, err)
 	}
 	client := &http.Client{Timeout: 2 * time.Second}
