@@ -443,3 +443,57 @@ func TestProjectIgnoresMalformedOpaqueSourceReferences(t *testing.T) {
 		}
 	}
 }
+
+func TestProjectNegativeZeroLocalOffsetIsUncertain(t *testing.T) {
+	cases := []struct {
+		name, sourceTime, timezone string
+		uncertain bool
+	}{
+		{"negative-zero-time-positive-label", "2026-10-01T10:00:00-00:00", "+00:00", true},
+		{"negative-zero-time-negative-label", "2026-10-01T10:00:00-00:00", "-00:00", true},
+		{"positive-zero-time-negative-label", "2026-10-01T10:00:00+00:00", "-00:00", true},
+		{"z-time-negative-label", "2026-10-01T10:00:00Z", "-00:00", true},
+		{"positive-zero-known", "2026-10-01T10:00:00+00:00", "+00:00", false},
+		{"z-time-explicit-offset", "2026-10-01T10:00:00Z", "+00:00", false},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			in := allowedFixture()
+			in.Entries[0].SourceTime = tc.sourceTime
+			in.Entries[0].Timezone = tc.timezone
+			got := Project(in)
+			if len(got.Entries) != 1 || got.Entries[0].TimeUncertain != tc.uncertain {
+				t.Fatalf("offset uncertainty %q %q: %+v", tc.sourceTime, tc.timezone, got)
+			}
+			wantStatus := "allow"
+			if tc.uncertain {
+				wantStatus = "uncertain"
+			}
+			if got.Status != wantStatus {
+				t.Fatalf("offset %q %q status %s want %s", tc.sourceTime, tc.timezone, got.Status, wantStatus)
+			}
+			if got.Entries[0].SourceTime != tc.sourceTime || got.Entries[0].Timezone != tc.timezone {
+				t.Fatal("original forensic timestamp/offset was overwritten")
+			}
+		})
+	}
+}
+
+func TestProjectUnknownNegativeZeroSortsAfterKnownTime(t *testing.T) {
+	in := allowedFixture()
+	unknown := in.Entries[0]
+	unknown.ID = "a-unknown"
+	unknown.SourceTime = "2026-10-01T09:00:00-00:00"
+	unknown.Timezone = "+00:00"
+	known := in.Entries[0]
+	known.ID = "z-known"
+	known.SourceTime = "2026-10-01T11:00:00+00:00"
+	known.Timezone = "+00:00"
+	in.Entries = []Entry{unknown, known}
+	got := Project(in)
+	if got.Status != "uncertain" || len(got.Entries) != 2 ||
+		got.Entries[0].ID != known.ID || got.Entries[1].ID != unknown.ID ||
+		got.Entries[0].TimeUncertain || !got.Entries[1].TimeUncertain {
+		t.Fatalf("unknown local offset promoted to known chronology: %+v", got)
+	}
+}

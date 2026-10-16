@@ -110,7 +110,11 @@ func Project(input Input) Result {
 			return deny
 		}
 		instant, err := time.Parse(time.RFC3339Nano, e.SourceTime)
-		known := err == nil && e.ClockUncertaintyMS == 0
+		// A numeric negative-zero offset says that the local offset is
+		// unknown; time.Parse normalizes it to zero and loses that signal.
+		// Do not silently elevate its chronology to a known local offset.
+		known := err == nil && e.ClockUncertaintyMS == 0 &&
+			!strings.HasSuffix(e.SourceTime, "-00:00") && e.Timezone != "-00:00"
 		if known {
 			// A timezone label must agree with the source timestamp offset.
 			// Unknown or named zones are not silently interpreted as UTC.
