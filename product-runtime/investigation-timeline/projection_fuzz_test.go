@@ -12,7 +12,7 @@ import (
 // Fuzz seed cases also run during ordinary go test on GitHub Actions.
 func FuzzProjectionOpaqueFieldsDoNotInterfere(f *testing.F) {
 	for _, seed := range []struct {
-		secret string
+		secret   string
 		category uint8
 	}{
 		{"confidential", 0}, {"跨租户", 1}, {"\u200b", 2}, {"private/path:123", 3},
@@ -46,7 +46,7 @@ func FuzzProjectionOpaqueFieldsDoNotInterfere(f *testing.F) {
 		before := append([]Entry(nil), in.Entries...)
 		result := Project(in)
 		wantStatus := "filtered"
-		if category % 4 == 2 {
+		if category%4 == 2 {
 			wantStatus = "partial"
 		}
 		if result.Status != wantStatus || len(result.Entries) != 1 || result.Entries[0].ID != visible.ID {
