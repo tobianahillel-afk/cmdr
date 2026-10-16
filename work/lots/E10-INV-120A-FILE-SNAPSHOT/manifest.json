@@ -1,0 +1,112 @@
+{
+  "schema_version": 2,
+  "id": "E10-INV-120A-FILE-SNAPSHOT",
+  "title": "Read-only local Case owner snapshot integration for analyst loopback journey",
+  "type": "task",
+  "goal": "Load a bounded operator-supplied local JSON Case/Timeline/source snapshot and use existing authenticated Case picker, Timeline, navigation and preview handlers without changing the product objects or pretending production IAM/persistence",
+  "depends_on": [
+    "E10-INV-110E"
+  ],
+  "parent": "E10-INV-110",
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-110"
+    ],
+    "requirements": [
+      "REQ-PROD-014",
+      "REQ-PROD-018"
+    ],
+    "screens": [
+      "INV-TIM-001"
+    ],
+    "permissions": [],
+    "open_decisions": [
+      "OPEN-013"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/case.md",
+      "cmdr-product-spec/05-domain-model/objects/timeline-entry.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/investigation-timeline/cmd/case-timeline-demo/**",
+    "work/lots/E10-INV-120A-FILE-SNAPSHOT/**",
+    "engineering/state/current.json",
+    "work/graph.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/investigation-timeline/memory_provider.go"
+  ],
+  "invariants": [
+    "Immutable operator-controlled local snapshot; no browser-selected file, no data mutation, no production IAM or Shared Timeline Engine ownership claim",
+    "Reuse existing validated in-memory Case/Timeline/source access chain; never take permissions from HTTP flags",
+    "Only loopback ephemeral-token synthetic host; OPEN-013 remains unresolved"
+  ],
+  "security_properties": [
+    "Reject malformed, oversized, symlinked or non-regular snapshot file before binding listener",
+    "Trust only host-selected file and verify owner ACL membership with existing memory provider",
+    "No data exposure before bearer authentication; cross-tenant and denied source remain hidden"
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Only read operator-supplied snapshot at startup; no migration or persistent mutation",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert this lot; built-in demo fixture remains default",
+    "verification": [
+      "default synthetic journey unchanged",
+      "no canonical spec change"
+    ]
+  },
+  "inputs": [
+    "E10-INV-110E VERIFIED",
+    "Existing NewMemoryCaseTimelineHTTPHandlers and loopback CLI"
+  ],
+  "outputs": [
+    "Optional bounded operator-local JSON snapshot loader",
+    "End-to-end HTTP scenario from disk to Case discovery, Timeline and typed source ACLs",
+    "Evidence and production-exclusion handoff"
+  ],
+  "acceptance_tests": [
+    "Default demo behavior unchanged",
+    "Authorized two-tenant snapshot produces real Case HTTP flow",
+    "Denied/cross-tenant data inaccessible, missing/invalid file fails before listener",
+    "go test -race ./..., go vet and CI exact SHA"
+  ],
+  "performance_budget": {
+    "applicable": false,
+    "rationale": "startup-only 8MiB max file, no production benchmarking claim",
+    "metrics": []
+  },
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-ARCHITECTURE",
+    "CHK-RUNTIME-DEPS",
+    "CHK-SECURITY-TESTS"
+  ],
+  "definition_of_ready": [
+    "E10-INV-110E VERIFIED and Case owner in-memory integration exists"
+  ],
+  "definition_of_done": [
+    "Exact HEAD CI green for functional HTTP integration",
+    "Risk-based L2 on immutable functional snapshot",
+    "Document limitations before any production claim"
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 7,
+    "estimated_net_loc": 270,
+    "production_files": 2,
+    "net_production_loc": 110,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}
