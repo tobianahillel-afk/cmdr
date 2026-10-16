@@ -27,8 +27,8 @@ func TestLegacyChecksAllTimelineRightsBeforeSourceLookups(t *testing.T) {
 // Prevalidation must cover the last allowed snapshot BEFORE any source
 // lookup, not just the first one. Denied entries remain opaque as before.
 func TestLegacyPrevalidatesAllEntriesBeforeSourceIO(t *testing.T) {
-	for _, edit := range []struct{
-		name string
+	for _, edit := range []struct {
+		name   string
 		mutate func(*Entry)
 	}{
 		{"invalid-kind", func(e *Entry) { e.Kind = "unrecognized" }},
