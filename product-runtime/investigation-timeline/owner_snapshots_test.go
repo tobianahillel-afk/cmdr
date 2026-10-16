@@ -446,7 +446,7 @@ func TestOwnerCancellationBetweenAuthorizationAndResolutionDoesNotReadOwner(t *t
 	}
 }
 
-func TestDeniedLongTimelineIDDoesNotExhaustVisibleSourceBudget(t *testing.T) {
+func TestOwnerDeniedLongTimelineIDDoesNotExhaustVisibleSourceBudget(t *testing.T) {
 	// Both IDs are within the globally enforced 8 MiB request budget.
 	// Only the short, permitted ID should count against the linked-source
 	// authority budget. A denied 3 MiB ID cannot deny a 6 MiB visible ref.
