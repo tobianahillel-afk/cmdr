@@ -39,7 +39,9 @@ func TestHostInjectedInvestigationDiscoveryOpensAuthorizedTimeline(t *testing.T)
 		return rr
 	}
 	listed := get("/cases", "Bearer analyst-a")
-	var catalog struct { Cases []string `json:"cases"` }
+	var catalog struct {
+		Cases []string `json:"cases"`
+	}
 	if listed.Code != http.StatusOK || json.Unmarshal(listed.Body.Bytes(), &catalog) != nil ||
 		!reflect.DeepEqual(catalog.Cases, []string{"case-one"}) {
 		t.Fatalf("host Case discovery: HTTP %d %s", listed.Code, listed.Body.String())
@@ -81,19 +83,33 @@ func TestHostInjectedInvestigationRejectsMissingOwnerServices(t *testing.T) {
 	store, _ := workspaceFixture()
 	candidate := caseDiscoveryCatalogFunc(func(_ context.Context, _ Scope) ([]string, error) { return nil, nil })
 	for _, tc := range []struct {
-		name string
+		name  string
 		build func() (CaseInvestigationHTTPHandlers, error)
 	}{
-		{"session", func() (CaseInvestigationHTTPHandlers,error) {return NewCaseInvestigationHTTPHandlers(nil,store,candidate,store,store,store)}},
-		{"case-access", func() (CaseInvestigationHTTPHandlers,error) {return NewCaseInvestigationHTTPHandlers(timelineHTTPSession{},nil,candidate,store,store,store)}},
-		{"case-list", func() (CaseInvestigationHTTPHandlers,error) {return NewCaseInvestigationHTTPHandlers(timelineHTTPSession{},store,nil,store,store,store)}},
-		{"timeline-catalog", func() (CaseInvestigationHTTPHandlers,error) {return NewCaseInvestigationHTTPHandlers(timelineHTTPSession{},store,candidate,nil,store,store)}},
-		{"entry-owner", func() (CaseInvestigationHTTPHandlers,error) {return NewCaseInvestigationHTTPHandlers(timelineHTTPSession{},store,candidate,store,nil,store)}},
-		{"source-owner", func() (CaseInvestigationHTTPHandlers,error) {return NewCaseInvestigationHTTPHandlers(timelineHTTPSession{},store,candidate,store,store,nil)}},
+		{"session", func() (CaseInvestigationHTTPHandlers, error) {
+			return NewCaseInvestigationHTTPHandlers(nil, store, candidate, store, store, store)
+		}},
+		{"case-access", func() (CaseInvestigationHTTPHandlers, error) {
+			return NewCaseInvestigationHTTPHandlers(timelineHTTPSession{}, nil, candidate, store, store, store)
+		}},
+		{"case-list", func() (CaseInvestigationHTTPHandlers, error) {
+			return NewCaseInvestigationHTTPHandlers(timelineHTTPSession{}, store, nil, store, store, store)
+		}},
+		{"timeline-catalog", func() (CaseInvestigationHTTPHandlers, error) {
+			return NewCaseInvestigationHTTPHandlers(timelineHTTPSession{}, store, candidate, nil, store, store)
+		}},
+		{"entry-owner", func() (CaseInvestigationHTTPHandlers, error) {
+			return NewCaseInvestigationHTTPHandlers(timelineHTTPSession{}, store, candidate, store, nil, store)
+		}},
+		{"source-owner", func() (CaseInvestigationHTTPHandlers, error) {
+			return NewCaseInvestigationHTTPHandlers(timelineHTTPSession{}, store, candidate, store, store, nil)
+		}},
 	} {
-		t.Run(tc.name,func(t *testing.T){
-			h,err:=tc.build()
-			if err==nil||h.Cases!=nil||h.Timeline!=nil {t.Fatalf("missing %s accepted: %#v, %v",tc.name,h,err)}
+		t.Run(tc.name, func(t *testing.T) {
+			h, err := tc.build()
+			if err == nil || h.Cases != nil || h.Timeline != nil {
+				t.Fatalf("missing %s accepted: %#v, %v", tc.name, h, err)
+			}
 		})
 	}
 }
