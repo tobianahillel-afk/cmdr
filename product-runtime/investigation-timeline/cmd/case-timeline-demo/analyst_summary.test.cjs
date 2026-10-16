@@ -449,6 +449,12 @@ test("two authorized Cases yield exact shared-source counts across HTTP page bou
   assert.deepEqual(env.requests.map(r => [r.url.searchParams.get("case_id"),r.url.searchParams.get("offset")]),
     [["case-disk","0"],["case-disk","200"],["case-peer","0"]]);
   assert.match(env.fields.comparison.textContent, /205 \/ 3/);
+  assert.match(env.fields.comparison.textContent, /observés : 103 \/ 2/);
+  assert.match(env.fields.comparison.textContent, /inférés : 102 \/ 1/);
+  assert.match(env.fields.comparison.textContent, /horodatages incertains : 1 \/ 1/);
+  assert.match(env.fields.comparison.textContent, /plage certaine Case 1 \(UTC\)/);
+  assert.match(env.fields.comparison.textContent, /plage certaine Case 2 \(UTC\)/);
+  assert.match(env.fields.comparison.textContent, /chevauchement des plages certaines : oui/);
   assert.match(env.fields.comparison.textContent, /références communes : 1/);
   assert.match(env.fields.comparison.textContent, /shared-ref : 201 \/ 2/);
   assert.doesNotMatch(env.fields.comparison.textContent, /only-left|only-right/);
@@ -501,4 +507,52 @@ test("second Case cannot reuse same Case or absent bearer as a comparison", asyn
   await flush();
   assert.equal(env.requests.length, 0);
   assert.match(env.fields.comparison.textContent, /Choisissez deux Cases/);
+});
+
+test("two independently authorized Cases with disjoint sources still produce useful temporal triage", async () => {
+  const env = boot(url => {
+    const at = Number(url.searchParams.get("offset"));
+    const id = url.searchParams.get("case_id");
+    const response = page(at, id === "case-peer" ? 2 : 3, {
+      sourceFor: () => id === "case-peer" ? "peer-only" : "main-only"
+    });
+    const original = response.json;
+    response.json = async () => {
+      const data = await original();
+      if (id === "case-peer") {
+        // No certain timestamps for this Case: the overlap is unknowable.
+        for (const e of data.entries) e.time_uncertain = true;
+      }
+      return data;
+    };
+    return response;
+  });
+  env.fields["compare-case"].value = "case-peer";
+  env.fields.compare.handlers.click();
+  for (let i = 0; i < 5; i++) await flush();
+  assert.match(env.fields.comparison.textContent, /observés : 2 \/ 1/);
+  assert.match(env.fields.comparison.textContent, /inférés : 1 \/ 1/);
+  assert.match(env.fields.comparison.textContent, /références communes : 0/);
+  assert.match(env.fields.comparison.textContent, /plage certaine Case 2 \(UTC\) : aucune plage certaine/);
+  assert.match(env.fields.comparison.textContent, /chevauchement des plages certaines : indéterminable/);
+  assert.doesNotMatch(env.fields.comparison.textContent, /peer-only|main-only/);
+});
+
+test("malformed late certain timestamp discards entire cross-Case triage", async () => {
+  const env = boot(url => {
+    const id = url.searchParams.get("case_id");
+    const result = page(Number(url.searchParams.get("offset")), id === "case-peer" ? 1 : 2);
+    const original = result.json;
+    result.json = async () => {
+      const data = await original();
+      if (id === "case-peer") data.entries[0].source_time = "not-a-timestamp";
+      return data;
+    };
+    return result;
+  });
+  env.fields["compare-case"].value = "case-peer";
+  env.fields.compare.handlers.click();
+  for (let i = 0; i < 5; i++) await flush();
+  assert.match(env.fields.comparison.textContent, /Aucun résultat partiel/);
+  assert.doesNotMatch(env.fields.comparison.textContent, /observés :|plage certaine Case 1/);
 });

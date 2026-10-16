@@ -294,6 +294,10 @@
     async function sourcesFor(id) {
       const groups = new Map();
       const seen = new Set();
+      const kinds = { observed: 0, inferred: 0 };
+      let certainMin = null;
+      let certainMax = null;
+      let uncertain = 0;
       let total = null;
       for (let at = 0; at === 0 || at < total; at += pageSize) {
         if (controller.signal.aborted) throw Error("comparison cancelled");
@@ -331,14 +335,30 @@
         for (const entry of data.entries) {
           if (!entry || typeof entry.id !== "string" || !entry.id ||
               seen.has(entry.id) || !allowedKinds.has(entry.kind) ||
-              typeof entry.source_ref !== "string" || !entry.source_ref) {
+              typeof entry.source_ref !== "string" || !entry.source_ref ||
+              typeof entry.time_uncertain !== "boolean") {
             throw Error("invalid authorized comparison entry");
           }
           seen.add(entry.id);
           groups.set(entry.source_ref, (groups.get(entry.source_ref) || 0) + 1);
+          if (entry.kind === "observed" || entry.kind === "inferred") kinds[entry.kind]++;
+          if (entry.time_uncertain) {
+            uncertain++;
+          } else {
+            // Only declared-certain, valid RFC3339 instants may define a
+            // forensic comparison range; uncertain entries remain counted.
+            if (typeof entry.source_time !== "string" ||
+                !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,9})?(?:Z|[+-]\d{2}:\d{2})$/.test(entry.source_time)) {
+              throw Error("invalid certain comparison timestamp");
+            }
+            const instant = Date.parse(entry.source_time);
+            if (!Number.isFinite(instant)) throw Error("unparseable certain comparison timestamp");
+            certainMin = certainMin === null ? instant : Math.min(certainMin, instant);
+            certainMax = certainMax === null ? instant : Math.max(certainMax, instant);
+          }
         }
       }
-      return { total, groups };
+      return { total, groups, kinds, uncertain, certainMin, certainMax };
     }
     try {
       const left = await sourcesFor(selectedCase);
@@ -352,11 +372,24 @@
       const top = common.slice(0, 5).map(group =>
         (group.ref.length > 120 ? group.ref.slice(0, 120) + "… (abrégée)" : group.ref) +
         " : " + group.left + " / " + group.right).join(" · ");
+      const range = value => value.certainMin === null ? "aucune plage certaine" :
+        new Date(value.certainMin).toISOString() + " → " +
+        new Date(value.certainMax).toISOString();
+      const overlap = left.certainMin === null || right.certainMin === null
+        ? "indéterminable" :
+        (left.certainMin <= right.certainMax && right.certainMin <= left.certainMax
+          ? "oui" : "non");
       comparison.textContent = "Comparaison des événements autorisés : " +
-        left.total + " / " + right.total + " · références communes : " +
-        common.length + (top ? " · " + top : "") +
-        ". Présence commune d'une référence exacte, pas une preuve de causalité, " +
-        "d'identité d'objet ou d'exhaustivité. Lectures non transactionnelles.";
+        left.total + " / " + right.total +
+        " · observés : " + left.kinds.observed + " / " + right.kinds.observed +
+        " · inférés : " + left.kinds.inferred + " / " + right.kinds.inferred +
+        " · horodatages incertains : " + left.uncertain + " / " + right.uncertain +
+        " · plage certaine Case 1 (UTC) : " + range(left) +
+        " · plage certaine Case 2 (UTC) : " + range(right) +
+        " · chevauchement des plages certaines : " + overlap +
+        " · références communes : " + common.length + (top ? " · " + top : "") +
+        ". Ces plages ne sont pas des preuves d'activité continue, et une référence " +
+        "commune n'atteste ni causalité ni identité d'objet. Lectures non transactionnelles.";
     } catch {
       if (activeComparison === compareRevision) {
         comparison.textContent = "Comparaison indisponible ou droits modifiés. Aucun résultat partiel.";
