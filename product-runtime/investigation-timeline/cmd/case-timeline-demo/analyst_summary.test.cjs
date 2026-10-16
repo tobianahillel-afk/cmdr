@@ -11,7 +11,7 @@ const ids = [
   "query", "token", "case-id", "kind", "search", "case-options", "discover",
   "case-discovery-status", "from", "to", "entries", "summary", "message",
   "page", "previous", "next", "load", "source-detail", "source-status",
-  "return-to-case", "copy-return-link", "analyze", "analysis"
+  "return-to-case", "copy-return-link", "analyze", "analysis", "analysis-actions"
 ];
 function node() {
   return {
@@ -260,4 +260,88 @@ test("timestamp offsets are normalized for chronological gaps across page bounda
   assert.match(env.fields.analysis.textContent, /2026-10-01T10:00:00\.000Z/);
   assert.match(env.fields.analysis.textContent, /2026-10-01T10:03:20\.000Z/);
   assert.match(env.fields.analysis.textContent, /Plus grand écart entre événements visibles certains : 1\.000 s/);
+});
+
+test("source group drilldown reauthorizes a representative Entry with existing owner routes", async () => {
+  const env = boot((url) => {
+    const offset = Number(url.searchParams.get("offset"));
+    if (url.pathname === "/case-timeline") {
+      return page(offset, 205, { sourceFor: index => index < 201 ? "owner-a" : "owner-b" });
+    }
+    if (url.pathname === "/case-source-navigation") {
+      const query = new URLSearchParams(url.searchParams);
+      query.delete("entry_id");
+      return { ok: true, async json() { return {
+        status: "ready", kind: "telemetry-event", object_id: "authorized-source-object",
+        return_is_authority: false, return_case_id: "case-disk",
+        return_entry_id: url.searchParams.get("entry_id"),
+        return_query: query.toString()
+      }; } };
+    }
+    if (url.pathname === "/demo-source-open") {
+      return { ok: true, async json() { return {
+        status: "ready", synthetic: true, kind: "telemetry-event",
+        case_id: "case-disk", entry_id: url.searchParams.get("entry_id"),
+        object_id: "authorized-source-object", preview: "Synthèse source visible"
+      }; } };
+    }
+    throw Error("Unexpected endpoint " + url.pathname);
+  });
+  env.fields.analyze.handlers.click();
+  await flush();
+  await flush();
+  assert.equal(env.requests.length, 2);
+  const actions = env.fields["analysis-actions"].children;
+  assert.equal(actions.length, 2);
+  assert.match(actions[0].textContent, /owner-a/);
+  assert.match(actions[1].textContent, /owner-b/);
+  actions[1].handlers.click();
+  await flush();
+  await flush();
+  assert.equal(env.requests.length, 4);
+  assert.deepEqual(env.requests.slice(2).map(request => request.url.pathname),
+    ["/case-source-navigation", "/demo-source-open"]);
+  assert.equal(env.requests[2].url.searchParams.get("entry_id"), "event-201");
+  assert.equal(env.requests[3].url.searchParams.get("entry_id"), "event-201");
+  for (const request of env.requests.slice(2)) {
+    assert.equal(request.options.headers.Authorization, "Bearer ephemeral-token");
+    assert.equal(request.options.credentials, "omit");
+    assert.equal(request.options.cache, "no-store");
+    assert.equal(request.url.searchParams.has("source_ref"), false);
+    assert.equal(request.url.href.includes("ephemeral-token"), false);
+  }
+  assert.equal(env.fields["source-detail"].hidden, false);
+  env.fields.token.value = "revoked";
+  env.fields.token.handlers.input();
+  assert.equal(env.fields["analysis-actions"].children.length, 0);
+  assert.equal(env.fields["source-detail"].hidden, true);
+});
+
+test("source group action never exposes a denied destination or partial summary", async () => {
+  let deny = false;
+  const env = boot(url => {
+    if (url.pathname === "/case-timeline") return page(Number(url.searchParams.get("offset")), 205);
+    if (url.pathname === "/case-source-navigation") return { ok: !deny, async json() {
+      return { status: "ready" };
+    } };
+    throw Error("Denied source should not reach owner preview");
+  });
+  env.fields.analyze.handlers.click();
+  await flush();
+  await flush();
+  assert.equal(env.fields["analysis-actions"].children.length, 3);
+  deny = true;
+  env.fields["analysis-actions"].children[0].handlers.click();
+  await flush();
+  assert.equal(env.fields["source-detail"].hidden, true);
+  assert.equal(env.fields["copy-return-link"].disabled, true);
+  assert.match(env.fields["source-status"].textContent, /inaccessible|révoquée/);
+  // A failed later analysis MUST NOT leave a source action from a prior result.
+  env.fields.analyze.handlers.click();
+  await flush();
+  await flush();
+  assert.equal(env.fields["analysis-actions"].children.length, 3);
+  env.fields["case-id"].value = "other-case";
+  env.fields["case-id"].handlers.input();
+  assert.equal(env.fields["analysis-actions"].children.length, 0);
 });

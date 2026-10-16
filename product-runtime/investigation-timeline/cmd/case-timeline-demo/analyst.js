@@ -42,6 +42,7 @@
 
   const analyze = document.getElementById("analyze");
   const analysis = document.getElementById("analysis");
+  const analysisActions = document.getElementById("analysis-actions");
   let analysisRequest = null;
   let analysisRevision = 0;
 
@@ -51,6 +52,7 @@
     analysisRequest = null;
     analyze.disabled = false;
     analysis.textContent = "Aucune synthèse calculée.";
+    analysisActions.replaceChildren();
   }
 
   // Aggregate ONLY entries returned by the existing server-side Case/Entry/
@@ -139,7 +141,7 @@
           // Correlate only source references already released after the
           // existing server-side Case, Timeline Entry and source ACL chain.
           const source = bySource.get(entry.source_ref) ||
-            { ref: entry.source_ref, count: 0, observed: 0, inferred: 0 };
+            { ref: entry.source_ref, entryID: entry.id, count: 0, observed: 0, inferred: 0 };
           source.count++;
           if (entry.kind === "observed") source.observed++;
           if (entry.kind === "inferred") source.inferred++;
@@ -180,6 +182,22 @@
         "Un écart entre événements visibles ne démontre jamais l'absence d'activité " +
         "(données masquées, non collectées ou horodatages incertains). " +
         "Synthèse locale à l'instant de lecture ; les pages ne sont pas transactionnelles.";
+      // A representative authorized Entry is only a UI selector, never a
+      // source capability. Both existing routes independently reauthorize
+      // Case, Entry and typed source when the analyst clicks a source.
+      for (const source of ranked.slice(0, 3)) {
+        const label = source.ref.length > 120 ?
+          source.ref.slice(0, 120) + "… (abrégée)" : source.ref;
+        const button = document.createElement("button");
+        button.type = "button";
+        button.textContent = "Ouvrir une entrée de cette source : " + label;
+        button.addEventListener("click", () => {
+          if (currentRevision !== analysisRevision ||
+              currentSelection !== revision || controller.signal.aborted) return;
+          openSource(source.entryID);
+        });
+        analysisActions.append(button);
+      }
     } catch {
       if (currentRevision === analysisRevision) {
         analysis.textContent = "Synthèse indisponible ou droits modifiés. Aucun total partiel conservé.";
