@@ -49,3 +49,11 @@ jobs:
             exit 1
           fi
           echo "::endgroup::"
+
+      - name: Measure local synthetic Timeline projection
+        working-directory: product-runtime/investigation-timeline
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Go testing.B yields ns/op and allocs/op, not p95 or production SLOs.
+          go test -run '^$' -bench '^BenchmarkProject(500|5000)Entries$' -benchmem -count=3 -benchtime=100x .
