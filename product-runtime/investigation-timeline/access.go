@@ -1,9 +1,6 @@
 package investigationtimeline
 
-import (
-	"context"
-	"strings"
-)
+import "context"
 
 // AccessRequest is a server-side authorization obligation. Resource and
 // permission are distinct so Case, Shared Timeline Entry and linked sources
@@ -52,7 +49,7 @@ func ProjectWithAccessChecker(ctx context.Context, in Input, caseID string, chec
 	deny := Result{Status: "deny"}
 	if ctx == nil || checker == nil ||
 		invalidScope(in.Scope.Tenant) || invalidScope(in.Scope.Environment) ||
-		strings.TrimSpace(caseID) == "" || strings.TrimSpace(caseID) == "*" ||
+		invalidScope(caseID) ||
 		len(in.Scope.Tenant)+len(in.Scope.Environment)+len(caseID) > MaxInputBytes ||
 		len(in.Entries) > MaxEntries {
 		return deny
@@ -66,7 +63,7 @@ func ProjectWithAccessChecker(ctx context.Context, in Input, caseID string, chec
 	usedSourceSelectors := usedIDs
 	for _, entry := range in.Entries {
 		if entry.Tenant != in.Scope.Tenant ||
-			strings.TrimSpace(entry.ID) == "" || strings.TrimSpace(entry.ID) == "*" {
+			invalidScope(entry.ID) {
 			continue
 		}
 		if len(entry.ID) > MaxInputBytes-usedIDs {
@@ -115,7 +112,7 @@ func ProjectWithAccessChecker(ctx context.Context, in Input, caseID string, chec
 		}
 		// Missing entry IDs cannot be authorized against Shared ownership;
 		// keep them invisible rather than using a wildcard authorization.
-		if strings.TrimSpace(entry.ID) == "" || strings.TrimSpace(entry.ID) == "*" {
+		if invalidScope(entry.ID) {
 			derived.Entries = append(derived.Entries, entry)
 			continue
 		}

@@ -6,6 +6,7 @@ import (
 	"sort"
 	"strings"
 	"time"
+	"unicode"
 )
 
 const (
@@ -87,7 +88,7 @@ func Project(input Input) Result {
 		}
 		usedBytes += len(e.ID) + len(e.Kind) + len(e.Tenant) + len(e.SourcePermission) +
 			len(e.Timezone) + len(e.SourceTime) + len(e.SourceRef) + len(e.Provenance) + len(e.Supersedes)
-		if usedBytes > MaxInputBytes || e.ID == "" || seen[e.ID] {
+		if usedBytes > MaxInputBytes || invalidScope(e.ID) || seen[e.ID] {
 			return deny
 		}
 		seen[e.ID] = true
@@ -176,9 +177,20 @@ func Project(input Input) Result {
 	return out
 }
 
+// invalidScope rejects authority selectors with control or invisible
+// Unicode format characters as well as empty/wildcard identifiers.
+// The actual ACL remains the responsibility of the trusted provider.
 func invalidScope(v string) bool {
 	trimmed := strings.TrimSpace(v)
-	return trimmed == "" || trimmed == "*"
+	if trimmed == "" || trimmed == "*" {
+		return true
+	}
+	for _, r := range v {
+		if unicode.IsControl(r) || unicode.Is(unicode.Cf, r) {
+			return true
+		}
+	}
+	return false
 }
 
 func validKind(kind string) bool {

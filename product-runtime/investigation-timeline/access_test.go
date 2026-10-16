@@ -385,3 +385,36 @@ func TestLegacySourceSelectorBudgetIgnoresUnauthorizedTimelineEntries(t *testing
 		t.Fatalf("denied Timeline Entry affected visible source budget: %+v calls=%d", got, len(checker.calls))
 	}
 }
+
+func TestLegacySuppressesInvisibleAuthoritySelectors(t *testing.T) {
+	for _, selector := range []string{"x\x00bad","x\nspoof","x\u200bhidden","x\u202ebad"} {
+		for _, location := range []string{"tenant","environment","case"} {
+			in := allowedFixture()
+			caseID := "case-123"
+			switch location {
+			case "tenant": in.Scope.Tenant = selector
+			case "environment": in.Scope.Environment = selector
+			case "case": caseID = selector
+			}
+			checker := allowedAccessChecker()
+			got := ProjectWithAccessChecker(context.Background(),in,caseID,checker)
+			if got.Status != "deny" || len(checker.calls) != 0 {
+				t.Fatalf("%s malformed selector was forwarded: %+v calls=%+v",location,got,checker.calls)
+			}
+		}
+		in := allowedFixture()
+		in.Entries[0].ID = selector
+		checker := allowedAccessChecker()
+		got := ProjectWithAccessChecker(context.Background(),in,"case-123",checker)
+		if got.Status != "filtered" || len(got.Entries) != 0 || len(checker.calls) != 1 {
+			t.Fatalf("malformed Timeline ID was forwarded: %+v calls=%+v",got,checker.calls)
+		}
+		in = allowedFixture()
+		in.Entries[0].SourceRef = selector
+		checker = allowedAccessChecker()
+		got = ProjectWithAccessChecker(context.Background(),in,"case-123",checker)
+		if got.Status != "deny" || len(checker.calls) != 2 {
+			t.Fatalf("malformed source ID was forwarded: %+v calls=%+v",got,checker.calls)
+		}
+	}
+}

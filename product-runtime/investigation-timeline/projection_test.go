@@ -398,3 +398,18 @@ func TestAuthorizedSourceStillEnforcesIdentityAndByteLimits(t *testing.T) {
 		t.Fatalf("global entry count limit not enforced: %+v", got)
 	}
 }
+
+func TestProjectRejectsInvisibleVisibleIDsWithoutChargingHiddenEntries(t *testing.T) {
+	for _, id := range []string{"x\x00bad","x\nspoof","x\u200bhidden","x\u202ebad"} {
+		in := allowedFixture()
+		in.Entries[0].ID = id
+		if got := Project(in); got.Status != "deny" || len(got.Entries) != 0 {
+			t.Fatalf("visible malformed ID accepted: %+v",got)
+		}
+		in = allowedFixture()
+		in.Entries = append(in.Entries,Entry{ID:id,Tenant:"other-tenant",SourcePermission:"allow"})
+		if got := Project(in); got.Status != "filtered" || len(got.Entries) != 1 {
+			t.Fatalf("opaque foreign ID interfered with visible result: %+v",got)
+		}
+	}
+}
