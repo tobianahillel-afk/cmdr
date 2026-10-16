@@ -1,0 +1,9 @@
+# E10-INV-110C-NAV — authorized version comparison across pages
+
+A functional investigator can now select a superseding Timeline Entry and compare its current and previous *authorized* projections even if page filters or pagination exclude the predecessor. The new read-only `GET /case-version-comparison?case_id=...&entry_id=...` is built from the existing `OpenCaseTimeline` owner-side Case/Entry/canonical-source authority chain. No browser-provided tenant, source identifier, destination URL or permission is used.
+
+Two versions are only disclosed if BOTH are visible in the same freshly authorized result and the current version refers to the predecessor. Hidden, missing or cross-tenant predecessors return generic not found, including if a visible entry has its `supersedes` link redacted. The comparison carries forensic metadata (kind, UTC timestamp, provenance, sourceRef, version) but is **not** authority, evidence export or durable snapshot. The API returns exactly two projected rows with `is_authority=false`, no raw owner records. Source authorizations are evaluated on each request; concurrent external ACL updates are not an atomic database transaction.
+
+Reuse-first: CMDR's first-party `OpenCaseTimeline`, `Project`, `CaseInvestigationHTTPHandlers` and Go standard-library `net/http` and `encoding/json`. No third-party indexing, DB, generic diff engine or new permission abstraction.
+
+Acceptance: a real HTTP test with operator-imported owner JSON validates the authorized v2 inferred → v1 observed pair, independent of a filtered Timeline page; anonymous/foreign/tampered cases are denied, and predecessor source revocation suppresses comparison. Product Spec remains unchanged and `OPEN-013` unresolved. No production IdP, historical owner persistence, transactionally consistent snapshot, or final source-owner screen is claimed. This is the reusable functional source-safe comparison primitive for the local analyst flow.
