@@ -502,7 +502,7 @@ func TestProjectBoundsScopeEvenWithoutVisibleSources(t *testing.T) {
 	// An oversized envelope must fail before source filtering; the visible
 	// entry count cannot determine whether scope-budget validation happens.
 	for _, tc := range []struct {
-		name string
+		name    string
 		prepare func(*Input)
 	}{
 		{"oversized-tenant-empty", func(in *Input) {
@@ -549,9 +549,9 @@ func TestProjectScopeBudgetBoundaryDoesNotChargeOpaqueSources(t *testing.T) {
 	if got.Status != "empty" || len(got.Entries) != 0 {
 		t.Fatalf("valid exact-boundary empty scope was rejected: %+v", got)
 	}
-	in.Entries = []Entry{{Tenant:"foreign",SourcePermission:"deny",Provenance:strings.Repeat("secret",8)}}
+	in.Entries = []Entry{{Tenant: "foreign", SourcePermission: "deny", Provenance: strings.Repeat("secret", 8)}}
 	got = Project(in)
 	if got.Status != "filtered" || len(got.Entries) != 0 {
-		t.Fatalf("opaque source influenced envelope decision: %+v",got)
+		t.Fatalf("opaque source influenced envelope decision: %+v", got)
 	}
 }
