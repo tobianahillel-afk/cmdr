@@ -11,13 +11,17 @@ import (
 type AccessRequest struct {
 	Tenant      string
 	Environment string
+	CaseID      string // bind every object authorization to the selected Case
 	Resource    string
 	ObjectID    string
 	Permission  string
 }
 
 // AccessChecker is supplied by a trusted server integration, NOT the caller
-// providing Input. Its implementation must resolve authoritative decisions.
+// providing Input. Its implementation MUST verify authenticated principal,
+// tenant/environment, object permission AND that Timeline Entries and linked
+// sources belong to the CaseID in AccessRequest. CaseID is a context binding,
+// not itself proof that the checked object belongs to that Case.
 type AccessChecker interface {
 	CheckAccess(context.Context, AccessRequest) (string, error)
 }
@@ -46,7 +50,7 @@ func ProjectWithAccessChecker(ctx context.Context, in Input, caseID string, chec
 		}
 		decision, err := checker.CheckAccess(ctx, AccessRequest{
 			Tenant: in.Scope.Tenant, Environment: in.Scope.Environment,
-			Resource: resource, ObjectID: objectID, Permission: permission,
+			CaseID: caseID, Resource: resource, ObjectID: objectID, Permission: permission,
 		})
 		if err != nil || ctx.Err() != nil {
 			return "", false

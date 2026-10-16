@@ -55,9 +55,9 @@ func TestAuthorizedProjectionDerivesIndependentPermissions(t *testing.T) {
 		t.Fatal("provider adapter mutated caller input")
 	}
 	want := []AccessRequest{
-		{Tenant: "tenant-a", Environment: "prod", Resource: "case", ObjectID: "case-123", Permission: caseReadPermission},
-		{Tenant: "tenant-a", Environment: "prod", Resource: "timeline-entry", ObjectID: "x", Permission: timelineReadPermission},
-		{Tenant: "tenant-a", Environment: "prod", Resource: "source", ObjectID: "owner:x", Permission: sourceReadPermission},
+		{Tenant: "tenant-a", Environment: "prod", CaseID: "case-123", Resource: "case", ObjectID: "case-123", Permission: caseReadPermission},
+		{Tenant: "tenant-a", Environment: "prod", CaseID: "case-123", Resource: "timeline-entry", ObjectID: "x", Permission: timelineReadPermission},
+		{Tenant: "tenant-a", Environment: "prod", CaseID: "case-123", Resource: "source", ObjectID: "owner:x", Permission: sourceReadPermission},
 	}
 	if !reflect.DeepEqual(checker.calls, want) {
 		t.Fatalf("independent access obligations lost: got %+v want %+v", checker.calls, want)
@@ -193,5 +193,78 @@ func TestAuthorizedProjectionStopsOnCancellation(t *testing.T) {
 	checker.cancel = cancel
 	if got := ProjectWithAccessChecker(ctx, allowedFixture(), "case-123", checker); got.Status != "deny" || len(checker.calls) != 1 {
 		t.Fatalf("cancelled provider still used: %+v calls=%v", got, checker.calls)
+	}
+}
+
+type caseMembershipChecker struct {
+	calls []AccessRequest
+}
+
+func (s *caseMembershipChecker) CheckAccess(_ context.Context, r AccessRequest) (string, error) {
+	s.calls = append(s.calls, r)
+	if r.CaseID != "case-123" {
+		return "deny", nil
+	}
+	if r.Resource == "case" {
+		if r.ObjectID == r.CaseID && r.Permission == caseReadPermission {
+			return "allow", nil
+		}
+		return "deny", nil
+	}
+	// Entry x belongs to case-123, and only source owner:x is linked.
+	if r.Resource == "timeline-entry" && r.ObjectID == "x" && r.Permission == timelineReadPermission {
+		return "allow", nil
+	}
+	if r.Resource == "source" && r.ObjectID == "owner:x" && r.Permission == sourceReadPermission {
+		return "allow", nil
+	}
+	return "deny", nil
+}
+
+func TestAuthorizationRequestsBindAllObjectsToSelectedCase(t *testing.T) {
+	checker := &caseMembershipChecker{}
+	got := ProjectWithAccessChecker(context.Background(), allowedFixture(), "case-123", checker)
+	if got.Status != "allow" || len(got.Entries) != 1 || len(checker.calls) != 3 {
+		t.Fatalf("Case-bound provider rejected expected entry: %+v calls=%+v", got, checker.calls)
+	}
+	for _, request := range checker.calls {
+		if request.CaseID != "case-123" {
+			t.Fatalf("access obligation lost case membership context: %+v", request)
+		}
+	}
+	// The same entry ID must not be smuggled into another Case by reusing
+	// a checker permission obtained for the legitimate Case.
+	other := &caseMembershipChecker{}
+	out := ProjectWithAccessChecker(context.Background(), allowedFixture(), "case-other", other)
+	if out.Status != "deny" || len(out.Entries) != 0 || len(other.calls) != 1 {
+		t.Fatalf("cross-case object splice permitted: %+v calls=%+v", out, other.calls)
+	}
+}
+
+type deniedRelatedCaseChecker struct {
+	calls []AccessRequest
+}
+
+func (s *deniedRelatedCaseChecker) CheckAccess(_ context.Context, r AccessRequest) (string, error) {
+	s.calls = append(s.calls, r)
+	if r.Resource == "case" && r.CaseID == "case-123" {
+		return "allow", nil
+	}
+	// A timeline object or its source may be readable in a tenant, but
+	// its owner can still reject its association with this Case.
+	if r.Resource == "timeline-entry" && r.CaseID == "case-123" {
+		return "deny", nil
+	}
+	return "allow", nil
+}
+
+func TestAuthorizationCaseMembershipDenialCannotTriggerSourceLookup(t *testing.T) {
+	checker := &deniedRelatedCaseChecker{}
+	out := ProjectWithAccessChecker(context.Background(), allowedFixture(), "case-123", checker)
+	if out.Status != "filtered" || len(out.Entries) != 0 || len(checker.calls) != 2 {
+		t.Fatalf("unrelated Timeline Entry leaked or source checked: %+v calls=%+v", out, checker.calls)
+	}
+	if checker.calls[1].CaseID != "case-123" || checker.calls[1].Resource != "timeline-entry" {
+		t.Fatalf("case membership request not passed to authority: %+v", checker.calls[1])
 	}
 }
