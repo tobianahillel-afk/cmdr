@@ -64,7 +64,12 @@ func TestAnalystFullInvestigationJourneyAcrossHTTPRoutes(t *testing.T) {
 				"kind": {tc.kind}, "limit": {"20"}, "offset": {"0"}}
 			status, body = requestDemo(t, server, "/case-source-navigation?"+navigation.Encode(), testBearer)
 			var draft struct {
-				Status, Kind, ObjectID, ReturnCaseID, ReturnEntryID, ReturnQuery string
+				Status string `json:"status"`
+				Kind string `json:"kind"`
+				ObjectID string `json:"object_id"`
+				ReturnCaseID string `json:"return_case_id"`
+				ReturnEntryID string `json:"return_entry_id"`
+				ReturnQuery string `json:"return_query"`
 				ReturnIsAuthority bool `json:"return_is_authority"`
 			}
 			if status != http.StatusOK || json.Unmarshal([]byte(body), &draft) != nil ||
@@ -80,8 +85,13 @@ func TestAnalystFullInvestigationJourneyAcrossHTTPRoutes(t *testing.T) {
 			open := url.Values{"case_id": {tc.ownCase}, "entry_id": {tc.entry}}
 			status, body = requestDemo(t, server, "/demo-source-open?"+open.Encode(), testBearer)
 			var preview struct {
-				Status, CaseID, EntryID, Kind, ObjectID, Preview string
-				Synthetic bool
+				Status string `json:"status"`
+				CaseID string `json:"case_id"`
+				EntryID string `json:"entry_id"`
+				Kind string `json:"kind"`
+				ObjectID string `json:"object_id"`
+				Preview string `json:"preview"`
+				Synthetic bool `json:"synthetic"`
 			}
 			if status != http.StatusOK || json.Unmarshal([]byte(body), &preview) != nil ||
 				preview.Status != "ready" || !preview.Synthetic ||
