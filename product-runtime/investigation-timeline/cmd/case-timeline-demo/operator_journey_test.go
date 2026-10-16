@@ -52,7 +52,7 @@ func TestOperatorSnapshotActualLoopbackCaseToSourceJourney(t *testing.T) {
 	capture := &demoCapture{ready: make(chan struct{})}
 	done := make(chan error, 1)
 	go func() {
-		done <- runDemoCLI(ctx, []string{"-principal=investigator-42", "-snapshot=" + path}, capture)
+		done <- runDemoCLI(ctx, []string{"-principal=investigator-42", "-snapshot=" + path, "-case=case-incident-42"}, capture)
 	}()
 	select {
 	case <-capture.ready:

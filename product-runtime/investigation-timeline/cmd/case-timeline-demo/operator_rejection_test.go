@@ -65,3 +65,45 @@ func TestOperatorSnapshotFailsClosedAtStartup(t *testing.T) {
 		t.Fatalf("imported principal accepted without an explicit snapshot: %v %q", err, output.String())
 	}
 }
+
+func TestOperatorSelectedCaseRequiresExistingReaderPermission(t *testing.T) {
+	path, err := filepath.Abs(filepath.Join("testdata", "example-owners.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := loadDemoSnapshot(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, tc := range []struct {
+		principal, caseID string
+		want string
+	}{
+		{"investigator-42", "case-incident-42", "case-incident-42"},
+		{"investigator-99", "case-private-99", "case-private-99"},
+		{"investigator-42", "", "case-incident-42"},
+		{"investigator-42", "case-private-99", ""},
+		{"investigator-99", "case-incident-42", ""},
+		{"investigator-42", "missing-case", ""},
+		{"unknown-investigator", "case-incident-42", ""},
+	} {
+		got, err := selectDemoAuthorizedCase(data, tc.principal, tc.caseID)
+		if tc.want == "" {
+			if err == nil || got != "" {
+				t.Fatalf("selected forbidden Case for principal %q: %q %v", tc.principal, got, err)
+			}
+		} else if err != nil || got != tc.want {
+			t.Fatalf("authorized Case selection failed: %q %q %v", tc.principal, got, err)
+		}
+	}
+	for _, args := range [][]string{
+		{"-snapshot=" + path, "-principal=investigator-42", "-case=case-private-99"},
+		{"-snapshot=" + path, "-principal=investigator-42", "-case=missing-case"},
+		{"-snapshot=" + path, "-principal=unknown-investigator", "-case=case-incident-42"},
+	} {
+		var output bytes.Buffer
+		if err := runDemoCLI(context.Background(), args, &output); err == nil || output.Len() != 0 {
+			t.Fatalf("forbidden selected Case started a listener or disclosed credentials: %v %q", err, output.String())
+		}
+	}
+}

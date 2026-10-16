@@ -57,6 +57,12 @@ func loadDemoSnapshot(path string) (timeline.MemoryTimelineData, error) {
 // Choose a Case already visible to the selected synthetic principal, so the
 // CLI's advertised URL never reveals or points to another tenant's Case.
 func firstDemoAuthorizedCase(data timeline.MemoryTimelineData, principal string) (string, error) {
+	return selectDemoAuthorizedCase(data, principal, "")
+}
+
+// Select only a Case explicitly readable by the host-selected principal.
+// Empty requestedCase chooses the first authorized Case for legacy startup.
+func selectDemoAuthorizedCase(data timeline.MemoryTimelineData, principal, requestedCase string) (string, error) {
 	var tenant, environment string
 	for _, p := range data.Principals {
 		if p.ID == principal {
@@ -69,7 +75,8 @@ func firstDemoAuthorizedCase(data timeline.MemoryTimelineData, principal string)
 	}
 	var caseID string
 	for _, c := range data.Cases {
-		if c.Tenant != tenant || c.Environment != environment {
+		if c.Tenant != tenant || c.Environment != environment ||
+			(requestedCase != "" && c.ID != requestedCase) {
 			continue
 		}
 		for _, reader := range c.Readers {
@@ -79,7 +86,7 @@ func firstDemoAuthorizedCase(data timeline.MemoryTimelineData, principal string)
 		}
 	}
 	if caseID == "" {
-		return "", errors.New("no readable Case in operator snapshot")
+		return "", errors.New("no requested/readable Case in operator snapshot")
 	}
 	return caseID, nil
 }

@@ -38,13 +38,14 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	flags.SetOutput(io.Discard)
 	principal := flags.String("principal", "analyst-a", "synthetic analyst ID from the selected local owner snapshot")
 	snapshot := flags.String("snapshot", "", "absolute path to operator-owned read-only Case snapshot JSON (loopback demo only)")
+	requestedCase := flags.String("case", "", "optional Case ID within the selected snapshot that this principal can read")
 	if err := flags.Parse(args); err != nil {
 		return err
 	}
 	if flags.NArg() != 0 {
 		return errors.New("unexpected positional arguments")
 	}
-	return serveDemoWithSnapshot(ctx, *principal, *snapshot, output)
+	return serveDemoWithSelection(ctx, *principal, *snapshot, *requestedCase, output)
 }
 
 func randomBearer() (string, error) {
@@ -94,6 +95,13 @@ func serveDemo(ctx context.Context, principal string, output io.Writer) error {
 }
 
 func serveDemoWithSnapshot(ctx context.Context, principal, snapshot string, output io.Writer) error {
+	return serveDemoWithSelection(ctx, principal, snapshot, "", output)
+}
+
+// A Case deep-link is an operator hint, never an HTTP-supplied permission.
+// Both the selected Case and all subsequent source HTTP routes use the
+// existing owner snapshot ACL checks; invalid choices fail before Listen.
+func serveDemoWithSelection(ctx context.Context, principal, snapshot, selectedCase string, output io.Writer) error {
 	if err := ctx.Err(); err != nil {
 		return err
 	}
@@ -104,7 +112,7 @@ func serveDemoWithSnapshot(ctx context.Context, principal, snapshot string, outp
 	if err != nil {
 		return err
 	}
-	caseID, err := firstDemoAuthorizedCase(data, principal)
+	caseID, err := selectDemoAuthorizedCase(data, principal, selectedCase)
 	if err != nil {
 		return err
 	}
