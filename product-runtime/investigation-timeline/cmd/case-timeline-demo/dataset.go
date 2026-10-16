@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net/http"
 	"os"
 
 	timeline "github.com/tobianahillel-afk/cmdr/product-runtime/investigation-timeline"
@@ -45,4 +46,34 @@ func loadDemoDataset(path string) (timeline.MemoryTimelineData, error) {
 		return timeline.MemoryTimelineData{}, errors.New("dataset requires principals, Cases, Timeline Entries and sources")
 	}
 	return data, nil
+}
+
+// newReloadingDemoHandler is an opt-in offline host-owned source for the
+// loopback demo. It rebuilds all Case, Entry and typed-source ACL state on
+// EVERY request. Invalid, missing or revoked snapshots fail closed; nothing
+// falls back to a previously authorized in-memory owner.
+func newReloadingDemoHandler(token, principal, path string) (http.Handler, error) {
+	data, err := loadDemoDataset(path)
+	if err != nil {
+		return nil, err
+	}
+	if _, err := newDemoHandlerWithData(token, principal, data); err != nil {
+		return nil, err
+	}
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Cache-Control", "no-store")
+		current, err := loadDemoDataset(path)
+		if err == nil {
+			var handler http.Handler
+			handler, err = newDemoHandlerWithData(token, principal, current)
+			if err == nil {
+				handler.ServeHTTP(w, r)
+				return
+			}
+		}
+		// Do not expose local paths, snapshots, provider errors or stale
+		// authorized data to a loopback caller, even if the source is removed.
+		w.Header().Set("X-Content-Type-Options", "nosniff")
+		http.Error(w, "request-unavailable", http.StatusServiceUnavailable)
+	}), nil
 }
