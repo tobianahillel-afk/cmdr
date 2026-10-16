@@ -131,8 +131,8 @@ func TestCaseDiscoveryRejectsInvalidRequestAndCatalogFailure(t *testing.T) {
 				return malformed, nil
 			}))
 		if err != nil {
-		t.Fatal(err)
-	}
+			t.Fatal(err)
+		}
 		got = caseDiscoveryGet(h, "Bearer analyst-a")
 		if got.Code != http.StatusNotFound || strings.Contains(got.Body.String(), "case-one") {
 			t.Fatalf("malformed Case catalog not denied: %#v -> %d %s", malformed, got.Code, got.Body.String())

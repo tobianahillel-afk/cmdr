@@ -74,10 +74,10 @@ func NewMemoryCaseTimelineHTTPHandlers(authenticate func(*http.Request) (string,
 		return MemoryTimelineHTTPHandlers{}, errors.New("verified session authenticator required")
 	}
 	s := &memoryTimelineProvider{
-		authenticate: authenticate,
-		principals:   make(map[string]MemoryTimelinePrincipal, len(data.Principals)),
-		cases:        make(map[string]MemoryTimelineCase, len(data.Cases)),
-		entries:      make(map[string]MemoryTimelineEntry, len(data.Entries)),
+		authenticate:  authenticate,
+		principals:    make(map[string]MemoryTimelinePrincipal, len(data.Principals)),
+		cases:         make(map[string]MemoryTimelineCase, len(data.Cases)),
+		entries:       make(map[string]MemoryTimelineEntry, len(data.Entries)),
 		sources:       make(map[string]MemoryTimelineSource, len(data.Sources)),
 		sourceObjects: make(map[memorySourceObjectKey]MemoryTimelineSource, len(data.Sources)),
 	}
