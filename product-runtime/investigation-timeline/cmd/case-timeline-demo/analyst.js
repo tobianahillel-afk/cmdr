@@ -40,6 +40,106 @@
   let restoreOffsetOnSubmit = false;
   let restoredRange = null;
 
+  const analyze = document.getElementById("analyze");
+  const analysis = document.getElementById("analysis");
+  let analysisRequest = null;
+  let analysisRevision = 0;
+
+  function clearAnalysis() {
+    ++analysisRevision;
+    if (analysisRequest) analysisRequest.abort();
+    analysisRequest = null;
+    analyze.disabled = false;
+    analysis.textContent = "Aucune synthèse calculée.";
+  }
+
+  // Aggregate ONLY entries returned by the existing server-side Case/Entry/
+  // source-authorized endpoint. Each page is freshly authorized, so reject
+  // changing totals and never display a partial summary as definitive.
+  async function analyzeAuthorizedCase() {
+    const bearer = token.value;
+    const selectedCase = caseID.value.trim();
+    const selectedWindow = readWindow();
+    clearAnalysis();
+    if (!bearer || !selectedCase || !selectedWindow) {
+      analysis.textContent = "Sélection incomplète pour la synthèse.";
+      return;
+    }
+    const currentRevision = analysisRevision;
+    const currentSelection = revision;
+    const controller = new AbortController();
+    analysisRequest = controller;
+    analyze.disabled = true;
+    analysis.textContent = "Analyse des pages autorisées en cours…";
+    const pageSize = 200;
+    const kinds = ["observed", "inferred", "user-action", "decision", "response"];
+    const counts = Object.fromEntries(kinds.map(value => [value, 0]));
+    const seen = new Set();
+    let expectedTotal = null;
+    let uncertain = 0;
+    try {
+      for (let offset = 0; offset === 0 || offset < expectedTotal; offset += pageSize) {
+        if (controller.signal.aborted) throw new Error("cancelled");
+        const url = new URL("/case-timeline", window.location.origin);
+        url.searchParams.set("case_id", selectedCase);
+        url.searchParams.set("limit", String(pageSize));
+        url.searchParams.set("offset", String(offset));
+        if (kind.value) url.searchParams.set("kind", kind.value);
+        if (search.value.trim()) url.searchParams.set("q", search.value.trim());
+        if (selectedWindow.from) url.searchParams.set("from", selectedWindow.from);
+        if (selectedWindow.to) url.searchParams.set("to", selectedWindow.to);
+        const response = await fetch(url, {
+          method: "GET",
+          headers: { Authorization: "Bearer " + bearer },
+          cache: "no-store", credentials: "omit", redirect: "error",
+          mode: "same-origin", signal: controller.signal
+        });
+        if (!response.ok) throw new Error("Case unavailable");
+        const data = await response.json();
+        if (controller.signal.aborted || currentRevision !== analysisRevision ||
+            currentSelection !== revision) return;
+        if (!data || !data.page || !Array.isArray(data.entries) ||
+            !Number.isSafeInteger(data.page.total_visible) ||
+            data.page.total_visible < 0 || data.page.total_visible > 5000 ||
+            data.page.limit !== pageSize || data.page.offset !== offset ||
+            !["allow", "partial", "filtered", "uncertain", "empty"].includes(data.status) ||
+            (expectedTotal !== null && expectedTotal !== data.page.total_visible)) {
+          throw new Error("Inconsistent authorized pagination");
+        }
+        expectedTotal = data.page.total_visible;
+        const count = Math.min(pageSize, Math.max(0, expectedTotal - offset));
+        if (data.entries.length !== count ||
+            data.page.has_more !== (offset + count < expectedTotal)) {
+          throw new Error("Incomplete authorized page");
+        }
+        for (const entry of data.entries) {
+          if (!entry || typeof entry.id !== "string" || !entry.id ||
+              seen.has(entry.id) || !kinds.includes(entry.kind) ||
+              typeof entry.time_uncertain !== "boolean") {
+            throw new Error("Invalid authorized timeline entry");
+          }
+          seen.add(entry.id);
+          counts[entry.kind]++;
+          if (entry.time_uncertain) uncertain++;
+        }
+      }
+      if (currentRevision !== analysisRevision || currentSelection !== revision) return;
+      analysis.textContent = expectedTotal + " événement(s) autorisé(s) · " +
+        kinds.map(value => value + " : " + counts[value]).join(" · ") +
+        " · horodatage incertain : " + uncertain +
+        ". Synthèse locale à l'instant de lecture ; les pages ne sont pas transactionnelles.";
+    } catch {
+      if (currentRevision === analysisRevision) {
+        analysis.textContent = "Synthèse indisponible ou droits modifiés. Aucun total partiel conservé.";
+      }
+    } finally {
+      if (currentRevision === analysisRevision) {
+        analysisRequest = null;
+        analyze.disabled = false;
+      }
+    }
+  }
+
   // A return URL carries only a presentation selection, never credentials or
   // authorization. It is not fetched until the analyst enters a fresh bearer.
   function localTimestamp(iso) {
@@ -341,6 +441,7 @@
   }
 
   async function fetchPage() {
+    clearAnalysis();
     const windowSelection = readWindow();
     if (!windowSelection) {
       clearResults("Intervalle non valide");
@@ -415,6 +516,7 @@
     clearSource();
     fetchPage(); // reauthorize the Case and Timeline; keep current filters and offset
   });
+  analyze.addEventListener("click", analyzeAuthorizedCase);
   discover.addEventListener("click", discoverCases);
   caseOptions.addEventListener("change", () => {
     if (!caseOptions.value) return;
@@ -450,6 +552,7 @@
         clearCaseChoices();
       }
       ++revision;
+      clearAnalysis();
       clearSource();
       if (activeRequest) activeRequest.abort();
       activeRequest = null;

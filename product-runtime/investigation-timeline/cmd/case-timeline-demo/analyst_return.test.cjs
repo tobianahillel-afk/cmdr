@@ -24,7 +24,8 @@ function boot(search = "", navigationQuery, denySource = false) {
     "query", "token", "case-id", "kind", "search", "case-options",
     "discover", "case-discovery-status", "from", "to", "entries",
     "summary", "message", "page", "previous", "next", "load",
-    "source-detail", "source-status", "return-to-case", "copy-return-link"
+    "source-detail", "source-status", "return-to-case", "copy-return-link",
+    "analyze", "analysis"
   ];
   const fields = Object.fromEntries(ids.map(id => [id, node(id)]));
   const requests = [];
