@@ -83,10 +83,12 @@ func ProjectFromOwnerSnapshots(
 		}
 		decisions[i] = decision
 	}
+	// Resolve and validate ALL permitted owner snapshots before any linked
+	// source access checks. An invalid late owner response must not cause
+	// earlier source metadata to be sent to an external ACL provider.
 	for i, id := range ids {
 		decision := decisions[i]
 		if decision != "allow" {
-			// A denied ID cannot be resolved or used in a linked-source check.
 			out.Entries = append(out.Entries, Entry{
 				ID: id, Tenant: scope.Tenant, SourcePermission: decision,
 			})
@@ -100,12 +102,20 @@ func ProjectFromOwnerSnapshots(
 			!boundedSourceSelector(&usedSourceSelectors, entry.SourceRef) {
 			return deny
 		}
-		sourceDecision, valid := check(request("source", entry.SourceRef, sourceReadPermission))
+		// Permission returned by the owner is untrusted. Only the
+		// external authoritative source check below can set it.
+		entry.SourcePermission = "unknown"
+		out.Entries = append(out.Entries, entry)
+	}
+	for i := range out.Entries {
+		if decisions[i] != "allow" {
+			continue
+		}
+		sourceDecision, valid := check(request("source", out.Entries[i].SourceRef, sourceReadPermission))
 		if !valid {
 			return deny
 		}
-		entry.SourcePermission = sourceDecision // ignore any snapshot-provided permission flag
-		out.Entries = append(out.Entries, entry)
+		out.Entries[i].SourcePermission = sourceDecision
 	}
 	if ctx.Err() != nil {
 		return deny

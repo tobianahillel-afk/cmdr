@@ -359,3 +359,58 @@ func TestOwnerDeniedLaterTimelineNeverResolvesDeniedEntry(t *testing.T) {
 		}
 	}
 }
+
+func TestOwnerPrevalidatesAllSnapshotsBeforeSourceChecks(t *testing.T) {
+	for _, malformed := range []struct {
+		name string
+		mutate func(*Entry)
+	}{
+		{"wrong-id", func(e *Entry) { e.ID = "wrong" }},
+		{"missing-provenance", func(e *Entry) { e.Provenance = "" }},
+		{"invalid-kind", func(e *Entry) { e.Kind = "unrecognized" }},
+		{"bad-source-selector", func(e *Entry) { e.SourceRef = " * " }},
+		{"oversized-source-selector", func(e *Entry) { e.SourceRef = strings.Repeat("x", MaxInputBytes + 1) }},
+	} {
+		t.Run(malformed.name, func(t *testing.T) {
+			checker, owner := ownerFixture()
+			second := owner.entries["x"]
+			second.ID = "y"
+			second.SourceRef = "owner:y"
+			malformed.mutate(&second)
+			owner.entries["y"] = second
+			checker.decisions["timeline-entry:y"] = "allow"
+			got := ProjectFromOwnerSnapshots(context.Background(), allowedFixture().Scope,
+				"case-123", []string{"x", "y"}, checker, owner)
+			if got.Status != "deny" || len(got.Entries) != 0 ||
+				len(owner.calls) != 2 || len(checker.calls) != 3 {
+				t.Fatalf("invalid second owner leaked first source access: %+v, checker=%+v owner=%+v",
+					got, checker.calls, owner.calls)
+			}
+			for _, call := range checker.calls {
+				if call.Resource == "source" {
+					t.Fatalf("source checked before all owners validated: %+v", checker.calls)
+				}
+			}
+		})
+	}
+}
+
+func TestOwnerPrevalidatesBeforeSourceButPreservesSourceDenials(t *testing.T) {
+	checker, owner := ownerFixture()
+	second := owner.entries["x"]
+	second.ID = "y"
+	second.SourceRef = "owner:y"
+	owner.entries["y"] = second
+	checker.decisions["timeline-entry:y"] = "allow"
+	checker.decisions["source:owner:y"] = "deny"
+	got := ProjectFromOwnerSnapshots(context.Background(), allowedFixture().Scope,
+		"case-123", []string{"x", "y"}, checker, owner)
+	if got.Status != "filtered" || len(got.Entries) != 1 ||
+		got.Entries[0].ID != "x" || len(owner.calls) != 2 || len(checker.calls) != 5 {
+		t.Fatalf("source-denied snapshot incorrectly exposed/blocked: %+v, owner=%+v checker=%+v",
+			got, owner.calls, checker.calls)
+	}
+	if checker.calls[3].Resource != "source" || checker.calls[4].Resource != "source" {
+		t.Fatalf("unexpected authorization ordering: %+v", checker.calls)
+	}
+}
