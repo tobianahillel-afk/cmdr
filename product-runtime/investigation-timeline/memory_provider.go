@@ -32,12 +32,20 @@ type MemoryTimelineSource struct {
 }
 
 type memoryTimelinePrincipalKey struct{}
+
+// ACL is scoped to a canonical source object, not a caller-chosen reference.
+// Only one reference per Case/kind/object is accepted in the memory provider.
+type memorySourceObjectKey struct {
+	caseID, kind, objectID string
+}
+
 type memoryTimelineProvider struct {
-	authenticate func(*http.Request) (string, error)
-	principals   map[string]MemoryTimelinePrincipal
-	cases        map[string]MemoryTimelineCase
-	entries      map[string]MemoryTimelineEntry
-	sources      map[string]MemoryTimelineSource
+	authenticate  func(*http.Request) (string, error)
+	principals    map[string]MemoryTimelinePrincipal
+	cases         map[string]MemoryTimelineCase
+	entries       map[string]MemoryTimelineEntry
+	sources       map[string]MemoryTimelineSource
+	sourceObjects map[memorySourceObjectKey]MemoryTimelineSource
 }
 
 // NewMemoryCaseTimelineHTTPHandler creates a fully wired read-only HTTP flow
@@ -70,7 +78,8 @@ func NewMemoryCaseTimelineHTTPHandlers(authenticate func(*http.Request) (string,
 		principals:   make(map[string]MemoryTimelinePrincipal, len(data.Principals)),
 		cases:        make(map[string]MemoryTimelineCase, len(data.Cases)),
 		entries:      make(map[string]MemoryTimelineEntry, len(data.Entries)),
-		sources:      make(map[string]MemoryTimelineSource, len(data.Sources)),
+		sources:       make(map[string]MemoryTimelineSource, len(data.Sources)),
+		sourceObjects: make(map[memorySourceObjectKey]MemoryTimelineSource, len(data.Sources)),
 	}
 	for _, principal := range data.Principals {
 		if invalidScope(principal.ID) || invalidScope(principal.Tenant) || invalidScope(principal.Environment) {
@@ -120,8 +129,13 @@ func NewMemoryCaseTimelineHTTPHandlers(authenticate func(*http.Request) (string,
 		if _, exists := s.sources[id.Reference]; exists {
 			return MemoryTimelineHTTPHandlers{}, errors.New("duplicate source reference")
 		}
+		key := memorySourceObjectKey{caseID: id.CaseID, kind: id.Kind, objectID: id.ObjectID}
+		if _, exists := s.sourceObjects[key]; exists {
+			return MemoryTimelineHTTPHandlers{}, errors.New("ambiguous canonical source object references")
+		}
 		src.Readers = append([]string(nil), src.Readers...)
 		s.sources[id.Reference] = src
+		s.sourceObjects[key] = src
 	}
 	for _, c := range s.cases {
 		seen := make(map[string]bool, len(c.EntryIDs))
@@ -216,12 +230,10 @@ func (s *memoryTimelineProvider) CheckAccess(ctx context.Context, r AccessReques
 	case "evidence", "telemetry-event", "decision", "incident":
 		expected, valid := canonicalSourceReadPermission(r.Resource)
 		if valid && r.Permission == expected {
-			for _, source := range s.sources {
-				x := source.Identity
-				if x.CaseID == r.CaseID && x.Kind == r.Resource && x.ObjectID == r.ObjectID &&
-					containsReader(source.Readers, principal) {
-					return "allow", nil
-				}
+			key := memorySourceObjectKey{caseID: r.CaseID, kind: r.Resource, objectID: r.ObjectID}
+			source, exists := s.sourceObjects[key]
+			if exists && containsReader(source.Readers, principal) {
+				return "allow", nil
 			}
 		}
 	}
