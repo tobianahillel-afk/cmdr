@@ -47,6 +47,17 @@ func ProjectFromOwnerSnapshots(
 			return "", false
 		}
 	}
+	// Validate the entire requested ID set before consulting ANY authority.
+	// A malformed/duplicate later selector must not trigger earlier owner reads.
+	seen := make(map[string]bool, len(ids))
+	usedIDs := len(scope.Tenant) + len(scope.Environment) + len(caseID)
+	for _, id := range ids {
+		usedIDs += len(id)
+		if invalidScope(id) || seen[id] || usedIDs > MaxInputBytes {
+			return deny
+		}
+		seen[id] = true
+	}
 	allowed, valid := check(request("case", caseID, caseReadPermission))
 	if !valid || allowed != "allow" {
 		return deny
@@ -56,14 +67,7 @@ func ProjectFromOwnerSnapshots(
 			CasePermission: "allow", TimelinePermission: "allow"},
 		Entries: make([]Entry, 0, len(ids)),
 	}
-	seen := make(map[string]bool, len(ids))
-	usedIDs := len(scope.Tenant) + len(scope.Environment) + len(caseID)
 	for _, id := range ids {
-		usedIDs += len(id)
-		if invalidScope(id) || seen[id] || usedIDs > MaxInputBytes {
-			return deny
-		}
-		seen[id] = true
 		timelineRequest := request("timeline-entry", id, timelineReadPermission)
 		decision, valid := check(timelineRequest)
 		if !valid {
