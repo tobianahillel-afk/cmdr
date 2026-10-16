@@ -447,7 +447,7 @@ func TestProjectIgnoresMalformedOpaqueSourceReferences(t *testing.T) {
 func TestProjectNegativeZeroLocalOffsetIsUncertain(t *testing.T) {
 	cases := []struct {
 		name, sourceTime, timezone string
-		uncertain bool
+		uncertain                  bool
 	}{
 		{"negative-zero-time-positive-label", "2026-10-01T10:00:00-00:00", "+00:00", true},
 		{"negative-zero-time-negative-label", "2026-10-01T10:00:00-00:00", "-00:00", true},
