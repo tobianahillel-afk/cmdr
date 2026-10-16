@@ -80,13 +80,13 @@ func (s *memoryTimelineProvider) sourcePreviewHandler() http.Handler {
 			return
 		}
 		payload := struct {
-			Status string `json:"status"`
-			CaseID string `json:"case_id"`
-			EntryID string `json:"entry_id"`
-			Kind string `json:"kind"`
-			ObjectID string `json:"object_id"`
-			Preview string `json:"preview"`
-			Synthetic bool `json:"synthetic"`
+			Status    string `json:"status"`
+			CaseID    string `json:"case_id"`
+			EntryID   string `json:"entry_id"`
+			Kind      string `json:"kind"`
+			ObjectID  string `json:"object_id"`
+			Preview   string `json:"preview"`
+			Synthetic bool   `json:"synthetic"`
 		}{
 			Status: "ready", CaseID: caseID, EntryID: entryID,
 			Kind: draft.Kind, ObjectID: draft.ObjectID,
