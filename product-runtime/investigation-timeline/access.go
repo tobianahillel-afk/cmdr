@@ -2,6 +2,7 @@ package investigationtimeline
 
 import (
 	"context"
+	"reflect"
 	"unicode/utf8"
 )
 
@@ -58,13 +59,30 @@ func validTimelineEntryBeforeSourceLookup(entry Entry) bool {
 		utf8.ValidString(entry.Provenance) && utf8.ValidString(entry.Supersedes)
 }
 
+// missingAuthority prevents a typed-nil interface (for example a nil
+// *provider implementing AccessChecker) from bypassing a plain nil check and
+// panicking when a trusted integration has been misconfigured. This is a
+// guard at the integration boundary, not authorization by itself.
+func missingAuthority(provider any) bool {
+	if provider == nil {
+		return true
+	}
+	value := reflect.ValueOf(provider)
+	switch value.Kind() {
+	case reflect.Chan, reflect.Func, reflect.Interface, reflect.Map, reflect.Pointer, reflect.Slice:
+		return value.IsNil()
+	default:
+		return false
+	}
+}
+
 // ProjectWithAccessChecker is the opt-in trusted integration boundary for
 // read-only Timeline projections. It deliberately ignores ALL permission
 // decisions supplied by the Input; only checker-derived results are used.
 // This is not a production provider: none is bundled or configured here.
 func ProjectWithAccessChecker(ctx context.Context, in Input, caseID string, checker AccessChecker) Result {
 	deny := Result{Status: "deny"}
-	if ctx == nil || checker == nil ||
+	if missingAuthority(ctx) || missingAuthority(checker) ||
 		invalidScope(in.Scope.Tenant) || invalidScope(in.Scope.Environment) ||
 		invalidScope(caseID) ||
 		len(in.Scope.Tenant)+len(in.Scope.Environment)+len(caseID) > MaxInputBytes ||

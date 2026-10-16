@@ -18,7 +18,7 @@ func ProjectFromOwnerSnapshots(
 	checker AccessChecker, resolver EntryResolver,
 ) Result {
 	deny := Result{Status: "deny"}
-	if ctx == nil || checker == nil || resolver == nil ||
+	if missingAuthority(ctx) || missingAuthority(checker) || missingAuthority(resolver) ||
 		invalidScope(scope.Tenant) || invalidScope(scope.Environment) ||
 		invalidScope(caseID) || len(ids) > MaxEntries {
 		return deny

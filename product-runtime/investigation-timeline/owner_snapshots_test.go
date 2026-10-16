@@ -470,3 +470,26 @@ func TestOwnerDeniedLongTimelineIDDoesNotExhaustVisibleSourceBudget(t *testing.T
 		t.Fatal("wrong authorized owner source checked")
 	}
 }
+
+func TestOwnerTypedNilAuthoritiesFailClosedWithoutIO(t *testing.T) {
+	var nilChecker *stubAccessChecker
+	var nilResolver *ownedSnapshotResolver
+	var nilContext *typedNilTimelineContext
+	for _, tc := range []struct {
+		name string
+		ctx context.Context
+		checker AccessChecker
+		resolver EntryResolver
+	}{
+		{"typed-nil-checker", context.Background(), nilChecker, &ownedSnapshotResolver{}},
+		{"typed-nil-resolver", context.Background(), allowedAccessChecker(), nilResolver},
+		{"typed-nil-context", nilContext, allowedAccessChecker(), &ownedSnapshotResolver{}},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			result := ProjectFromOwnerSnapshots(tc.ctx, allowedFixture().Scope, "case-123", []string{"x"}, tc.checker, tc.resolver)
+			if result.Status != "deny" || len(result.Entries) != 0 {
+				t.Fatalf("typed-nil integration escaped fail-closed boundary: %+v", result)
+			}
+		})
+	}
+}

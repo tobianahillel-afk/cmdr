@@ -539,3 +539,28 @@ func TestDeniedLongTimelineIDDoesNotExhaustVisibleSourceBudget(t *testing.T) {
 		t.Fatal("wrong authorized source checked")
 	}
 }
+
+func TestLegacyTypedNilAuthoritiesFailClosed(t *testing.T) {
+	var typedChecker *stubAccessChecker
+	var typedContext *typedNilTimelineContext
+	cases := []struct {
+		name string
+		ctx context.Context
+		checker AccessChecker
+	}{
+		{name: "typed-nil-checker", ctx: context.Background(), checker: typedChecker},
+		{name: "typed-nil-context", ctx: typedContext, checker: allowedAccessChecker()},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			result := ProjectWithAccessChecker(tc.ctx, allowedFixture(), "case-123", tc.checker)
+			if result.Status != "deny" || len(result.Entries) != 0 {
+				t.Fatalf("typed-nil integration escaped fail-closed boundary: %+v", result)
+			}
+		})
+	}
+}
+
+type typedNilTimelineContext struct {
+	context.Context
+}
