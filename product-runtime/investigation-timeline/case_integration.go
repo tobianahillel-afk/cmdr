@@ -12,6 +12,7 @@ import (
 type CaseInvestigationHTTPHandlers struct {
 	Cases    http.Handler
 	Timeline http.Handler
+	Navigate http.Handler
 }
 
 // NewCaseInvestigationHTTPHandlers composes existing providers rather than
@@ -36,5 +37,9 @@ func NewCaseInvestigationHTTPHandlers(
 	if err != nil {
 		return CaseInvestigationHTTPHandlers{}, err
 	}
-	return CaseInvestigationHTTPHandlers{Cases: cases, Timeline: timeline}, nil
+	navigation, err := NewCaseSourceNavigationHTTPHandler(sessions, checker, timelineCases, entries, sources)
+	if err != nil {
+		return CaseInvestigationHTTPHandlers{}, err
+	}
+	return CaseInvestigationHTTPHandlers{Cases: cases, Timeline: timeline, Navigate: navigation}, nil
 }
