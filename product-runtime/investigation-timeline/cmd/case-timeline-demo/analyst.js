@@ -379,6 +379,31 @@
         }))
         .sort((a, b) => Math.min(b.left, b.right) - Math.min(a.left, a.right) ||
           (a.ref < b.ref ? -1 : a.ref > b.ref ? 1 : 0));
+      // Interpret only fully authorized, certain timestamp envelopes.
+      // The relation describes *visible ranges*, never causality or a
+      // shared underlying object; uncertain events cannot be ordered.
+      const temporalRelation = group => {
+        const a = group.leftTime;
+        const b = group.rightTime;
+        if (!a.certain || !b.certain) {
+          return { relation: "indeterminate", gapMS: null,
+            label: "ordre temporel indéterminé" };
+        }
+        if (a.last < b.first) {
+          const gapMS = b.first - a.last;
+          return { relation: "case_a_before_case_b", gapMS,
+            label: "plage certaine A avant B · écart entre plages : " +
+              (gapMS / 1000).toFixed(3) + " s" };
+        }
+        if (b.last < a.first) {
+          const gapMS = a.first - b.last;
+          return { relation: "case_b_before_case_a", gapMS,
+            label: "plage certaine B avant A · écart entre plages : " +
+              (gapMS / 1000).toFixed(3) + " s" };
+        }
+        return { relation: "certain_envelopes_overlap", gapMS: 0,
+          label: "plages certaines recoupées (pas nécessairement d'événements simultanés)" };
+      };
       const rangeLabel = range => range.certain
         ? new Date(range.first).toISOString() + " → " +
           new Date(range.last).toISOString() + " (" + range.certain + " certain(s), " +
@@ -392,7 +417,8 @@
         return (group.ref.length > 120 ? group.ref.slice(0, 120) + "… (abrégée)" : group.ref) +
           " : " + group.left + " / " + group.right +
           " · A : " + rangeLabel(group.leftTime) +
-          " · B : " + rangeLabel(group.rightTime) + temporalGap;
+          " · B : " + rangeLabel(group.rightTime) + temporalGap +
+          " · " + temporalRelation(group).label;
       }).join(" · ");
       comparison.textContent = "Comparaison des événements autorisés : " +
         left.total + " / " + right.total + " · références communes : " +
@@ -425,7 +451,9 @@
           source_ref: group.ref,
           visible_counts: [group.left, group.right],
           case_a_time: safeEnvelope(group.leftTime),
-          case_b_time: safeEnvelope(group.rightTime)
+          case_b_time: safeEnvelope(group.rightTime),
+          temporal_relation: temporalRelation(group).relation,
+          certain_envelope_gap_ms: temporalRelation(group).gapMS
         })),
         excluded_or_unlisted_references: common.length - exportable.length,
         limitations: [
@@ -433,6 +461,7 @@
           "Both Cases were authorized independently when pages were read",
           "Comparisons are nontransactional and may become stale after rights or data change",
           "Shared source reference is a triage indicator, not proof of causation or common object",
+          "Temporal ordering compares certain visible envelopes only; uncertain events may change real ordering",
           "Unsigned local aggregate; no raw events, forensic custody proof or complete export"
         ]
       };

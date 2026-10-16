@@ -84,8 +84,8 @@ function page(offset, total, options = {}) {
             id: "event-" + index,
             kind: index % 2 ? "inferred" : "observed",
             source_ref: options.sourceFor ? options.sourceFor(index) : "source-" + (index % 3),
-            source_time: new Date(Date.UTC(2026, 9, 1, 10, 0, index)).toISOString(),
-            time_uncertain: index === 2
+            source_time: options.timeFor ? options.timeFor(index) : new Date(Date.UTC(2026, 9, 1, 10, 0, index)).toISOString(),
+            time_uncertain: options.uncertainFor ? options.uncertainFor(index) : index === 2
           };
         })
       };
@@ -743,4 +743,58 @@ test("very long shared source references are not serialized or silently truncate
   assert.equal(data.exported_source_references[0].source_ref, "short-ref");
   assert.equal(data.excluded_or_unlisted_references, 1);
   assert.ok(!raw.includes(longRef));
+});
+
+test("cross-Case shared-source temporal relation is derived from authorized intervals and included in bounded JSON export", async () => {
+  const cases = [
+    { name: "A-before-B", a: [0, 1], b: [3, 4],
+      expected: "case_a_before_case_b", gap: 120000, message: /plage certaine A avant B/ },
+    { name: "B-before-A", a: [4, 5], b: [1, 2],
+      expected: "case_b_before_case_a", gap: 120000, message: /plage certaine B avant A/ },
+    { name: "overlapping-envelopes", a: [0, 3], b: [2, 4],
+      expected: "certain_envelopes_overlap", gap: 0, message: /plages certaines recoupées/ },
+    { name: "unknown-A-time", a: [0, 1], b: [2, 4],
+      uncertainA: true, expected: "indeterminate", gap: null,
+      message: /ordre temporel indéterminé/ }
+  ];
+  for (const scenario of cases) {
+    const env = boot(url => {
+      const left = url.searchParams.get("case_id") === "case-disk";
+      const minutes = left ? scenario.a : scenario.b;
+      return page(Number(url.searchParams.get("offset")), 2, {
+        sourceFor: () => "shared-source",
+        timeFor: index => new Date(Date.UTC(2026, 9, 1, 10, minutes[index])).toISOString(),
+        uncertainFor: () => Boolean(left && scenario.uncertainA)
+      });
+    });
+    env.fields["compare-case"].value = "case-peer";
+    env.fields.compare.handlers.click();
+    for (let i = 0; i < 6; i++) await flush();
+    assert.match(env.fields.comparison.textContent, scenario.message, scenario.name);
+    assert.equal(env.fields["download-comparison"].disabled, false, scenario.name);
+    env.fields["download-comparison"].handlers.click();
+    assert.equal(env.downloads.length, 1, scenario.name);
+    const report = JSON.parse(await env.downloads[0].blob.text());
+    const relation = report.exported_source_references[0];
+    assert.equal(relation.source_ref, "shared-source");
+    assert.equal(relation.temporal_relation, scenario.expected, scenario.name);
+    assert.equal(relation.certain_envelope_gap_ms, scenario.gap, scenario.name);
+    assert.ok(report.limitations.some(s => s.includes("uncertain events")));
+    assert.equal(report.exported_source_references.length, 1);
+    assert.ok(env.requests.every(req => req.options.headers.Authorization === "Bearer ephemeral-token"));
+    assert.doesNotMatch(JSON.stringify(report), /ephemeral-token|event-0|event-1/);
+  }
+});
+
+test("cross-Case shared-source relation does not publish a result if the second Case is denied", async () => {
+  const env = boot(url => url.searchParams.get("case_id") === "case-peer"
+    ? { ok: false, async json() { throw Error("denied payload must not be parsed"); } }
+    : page(0, 2, { sourceFor: () => "shared-source" }));
+  env.fields["compare-case"].value = "case-peer";
+  env.fields.compare.handlers.click();
+  for (let i = 0; i < 5; i++) await flush();
+  assert.match(env.fields.comparison.textContent, /Aucun résultat partiel/);
+  assert.equal(env.fields["download-comparison"].disabled, true);
+  assert.equal(env.fields["comparison-actions"].children.length, 0);
+  assert.equal(env.downloads.length, 0);
 });
