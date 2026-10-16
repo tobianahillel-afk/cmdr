@@ -25,7 +25,7 @@ const timelineMaxOutputBytes = 64 << 10
 // timelineBoundedOutput limits allocations from malformed/misbehaving probes.
 // Write reports all input consumed so the child is not blocked by the limit.
 type timelineBoundedOutput struct {
-	data bytes.Buffer
+	data     bytes.Buffer
 	exceeded bool
 }
 
@@ -45,7 +45,6 @@ func (out *timelineBoundedOutput) Write(p []byte) (int, error) {
 func (out *timelineBoundedOutput) String() string {
 	return out.data.String()
 }
-
 
 type timelineProbe struct {
 	moduleRoot string
