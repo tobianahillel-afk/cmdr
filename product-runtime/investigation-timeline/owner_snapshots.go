@@ -51,6 +51,9 @@ func ProjectFromOwnerSnapshots(
 	// A malformed/duplicate later selector must not trigger earlier owner reads.
 	seen := make(map[string]bool, len(ids))
 	usedIDs := len(scope.Tenant) + len(scope.Environment) + len(caseID)
+	if usedIDs > MaxInputBytes {
+		return deny // bound scope and Case ID even if no entries were selected
+	}
 	for _, id := range ids {
 		usedIDs += len(id)
 		if invalidScope(id) || seen[id] || usedIDs > MaxInputBytes {
@@ -83,6 +86,7 @@ func ProjectFromOwnerSnapshots(
 		entry, err := resolver.ResolveEntry(ctx, timelineRequest)
 		if err != nil || ctx.Err() != nil ||
 			entry.ID != id || entry.Tenant != scope.Tenant ||
+			len(entry.SourceRef) > MaxInputBytes || // do not forward unbounded owner data into authority calls
 			strings.TrimSpace(entry.SourceRef) == "" ||
 			strings.TrimSpace(entry.SourceRef) == "*" {
 			return deny

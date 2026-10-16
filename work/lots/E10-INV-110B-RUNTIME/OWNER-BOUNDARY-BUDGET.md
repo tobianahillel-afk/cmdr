@@ -1,0 +1,7 @@
+# E10-INV-110B — bounded owner-provider input handoff
+
+A bounded owner-snapshot improvement at the GitHub HEAD: `ProjectFromOwnerSnapshots` already prevalidates selected Timeline Entry IDs, but an owner-resolved `SourceRef` exceeding 8 MiB could previously pass to `CheckAccess(source, ...)` before `Project` applied its visible-entry string budget. The caller's overlong Case/scope could also reach authority calls with zero selected entries. This could impose unnecessary provider/network/logging load despite ultimately failing the projection.
+
+The implementation reuses the **existing** `MaxInputBytes` engineering bound and Go standard-library length checks. No new dependency, storage/index implementation or SourceRef schema is invented. Scope+Case selection is bounded before any authority I/O; an oversized linked source reference is refused before source permission lookup, even if the owner is buggy. Adversarial tests require atomic denial and prove source/permission providers were not invoked beyond the already necessary Case/Timeline checks.
+
+Limits: 8 MiB is an engineering protection, not a canonical upper bound. A real owner access provider or principal-binding service is still absent; these tests use mocks. Existing synthetic on-demand measurements are **not** measurements of this new SHA, no production SLO or native GitHub L2 approval is claimed. `OPEN-013` remains open, B remains READY pending independent risk and verification closure.

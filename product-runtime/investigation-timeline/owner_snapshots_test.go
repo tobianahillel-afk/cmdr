@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -108,5 +109,41 @@ func TestOwnerSnapshotProjectionRespectsCancelledContext(t *testing.T) {
 	got := ProjectFromOwnerSnapshots(ctx, allowedFixture().Scope, "case-123", []string{"x"}, checker, owner)
 	if got.Status != "deny" || len(checker.calls) != 0 || len(owner.calls) != 0 {
 		t.Fatalf("cancelled request called authority: %+v", got)
+	}
+}
+
+func TestOwnerSnapshotRejectsOversizedLinkedSourceBeforeAuthority(t *testing.T) {
+	checker, owner := ownerFixture()
+	e := owner.entries["x"]
+	e.SourceRef = strings.Repeat("A", MaxInputBytes+1)
+	owner.entries["x"] = e
+	got := ProjectFromOwnerSnapshots(context.Background(), allowedFixture().Scope, "case-123", []string{"x"}, checker, owner)
+	if got.Status != "deny" || len(got.Entries) != 0 {
+		t.Fatalf("oversized owner-controlled source reference reached output: %+v", got)
+	}
+	if len(checker.calls) != 2 || len(owner.calls) != 1 {
+		t.Fatalf("oversized owner-controlled source reference reached source authorization: checker=%+v owner=%+v", checker.calls, owner.calls)
+	}
+}
+
+func TestOwnerSnapshotRejectsOversizedScopeBeforeProviderCalls(t *testing.T) {
+	for _, variant := range []string{"case", "tenant", "environment"} {
+		t.Run(variant, func(t *testing.T) {
+			checker, owner := ownerFixture()
+			scope := allowedFixture().Scope
+			caseID := "case-123"
+			switch variant {
+			case "case":
+				caseID = strings.Repeat("C", MaxInputBytes+1)
+			case "tenant":
+				scope.Tenant = strings.Repeat("T", MaxInputBytes+1)
+			case "environment":
+				scope.Environment = strings.Repeat("E", MaxInputBytes+1)
+			}
+			got := ProjectFromOwnerSnapshots(context.Background(), scope, caseID, nil, checker, owner)
+			if got.Status != "deny" || len(got.Entries) != 0 || len(checker.calls) != 0 || len(owner.calls) != 0 {
+				t.Fatalf("oversized authority selector allowed provider I/O: %+v checker=%+v owner=%+v", got, checker.calls, owner.calls)
+			}
+		})
 	}
 }
