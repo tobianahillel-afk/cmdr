@@ -1,5 +1,9 @@
-# Investigation Timeline — preimplementation boundary
+# Investigation Timeline — bounded read-only projection core
 
-Reserved first-party read-only Investigate Case-scoped projection root for CAP-INV-110. Shared owns Timeline Entry and Timeline Engine; other sources retain independent permissions and provenance. No runnable product code, persistence, mutation, correction, export, vendor index, dependencies or production SLO yet.
+This module now contains an **initial first-party Go projection** for CAP-INV-110, not a complete Timeline Engine, source authorization service, backend provider or production-ready UI.
 
-Security authorizations and tenant-isolation negative gates are *obligations only*, not passed tests. Performance benchmarks remain unmeasured; no performance evidence can pass until a real probe is compiled and validated. `OPEN-013` remains unresolved. Future child manifests may access this registered path only within their bounded scopes.
+`Project` accepts caller-resolved Case/Shared Timeline Entry snapshots, enforces explicit tenant/environment + Case and Timeline Entry permission outcomes, masks denied/cross-tenant sources, preserves observed/inferred kind, source references, provenance, version and supersession, and sorts known timestamps deterministically. Unknown or clock-uncertain time does not become an observed chronology. Inputs are not mutated. The caller MUST obtain authoritative server-side permission decisions separately; caller-provided permission flags are **not** proof of production authorization.
+
+Executable tests cover the 18 predeclared synthetic contract scenarios and focused negative cases. Limits (5,000 entries and 8 MiB string input budget) are provisional engineering protection, not a canonical limit or production SLO. No persistence, Shared Timeline Entry mutation, replay/export, external runtime dependencies, network or final UI exists here. `OPEN-013` is unresolved.
+
+**Performance is NOT measured yet for Timeline**: the previously registered projection/navigation benchmark and deep-resource handlers remain fail-closed preimplementation handlers. They must not be advertised as passing until actual representative executable probes are introduced and tested. Security coverage and module-specific race/vet are exercised by CI, but no production deployment or full CAP-INV-110 completion is claimed.
