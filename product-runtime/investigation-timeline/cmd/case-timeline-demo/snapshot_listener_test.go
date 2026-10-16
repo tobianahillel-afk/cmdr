@@ -92,6 +92,7 @@ func TestOperatorSnapshotCustomAnalystCompletesFullSourceJourney(t *testing.T) {
 	data := demoData()
 	const principal = "forensic-operator-17"
 	const caseID = "case & forensics #17"
+	const diskPreview = "Aperçu issu exclusivement du fichier opérateur, jamais de la fixture Go"
 	data.Principals[0].ID = principal
 	data.Cases[0].ID = caseID
 	data.Cases[0].Readers = []string{principal}
@@ -104,6 +105,9 @@ func TestOperatorSnapshotCustomAnalystCompletesFullSourceJourney(t *testing.T) {
 	for i := range data.Sources {
 		if data.Sources[i].Identity.CaseID == "case-a" {
 			data.Sources[i].Identity.CaseID = caseID
+			if data.Sources[i].Identity.Reference == "demo-telemetry-a" {
+				data.Sources[i].Preview = diskPreview
+			}
 			if len(data.Sources[i].Readers) > 0 {
 				data.Sources[i].Readers = []string{principal}
 			}
@@ -175,7 +179,7 @@ func TestOperatorSnapshotCustomAnalystCompletesFullSourceJourney(t *testing.T) {
 		{"/demo-cases", http.StatusOK, ""},
 		{"/case-timeline?" + url.Values{"case_id": {caseID}}.Encode(), http.StatusOK, "event-new"},
 		{"/case-source-navigation?" + url.Values{"case_id": {caseID}, "entry_id": {"event-new"}}.Encode(), http.StatusOK, "demo-event-a"},
-		{"/demo-source-open?" + url.Values{"case_id": {caseID}, "entry_id": {"event-new"}}.Encode(), http.StatusOK, "Événement réseau synthétique"},
+		{"/demo-source-open?" + url.Values{"case_id": {caseID}, "entry_id": {"event-new"}}.Encode(), http.StatusOK, diskPreview},
 		{"/case-timeline?case_id=case-b", http.StatusNotFound, ""},
 		{"/demo-source-open?" + url.Values{"case_id": {caseID}, "entry_id": {"restricted"}}.Encode(), http.StatusNotFound, ""},
 	} {
