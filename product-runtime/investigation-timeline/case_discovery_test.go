@@ -49,7 +49,9 @@ func TestMemoryCaseDiscoveryOpensSameAuthorizedTimeline(t *testing.T) {
 			resp.Header().Get("Vary") != "Authorization" {
 			t.Fatalf("catalog HTTP=%d for %q: %s", resp.Code, tc.bearer, resp.Body.String())
 		}
-		var listed struct{ Cases []string `json:"cases"` }
+		var listed struct {
+			Cases []string `json:"cases"`
+		}
 		if err := json.Unmarshal(resp.Body.Bytes(), &listed); err != nil {
 			t.Fatal(err)
 		}
@@ -80,8 +82,13 @@ func TestCaseDiscoveryRejectsInvalidRequestAndCatalogFailure(t *testing.T) {
 	})
 	store, _ := workspaceFixture()
 	h, err := NewCaseDiscoveryHTTPHandler(timelineHTTPSession{}, store, catalog)
-	if err != nil { t.Fatal(err) }
-	for _, tc := range []struct { method, rawQuery, body string; code int }{
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, tc := range []struct {
+		method, rawQuery, body string
+		code                   int
+	}{
 		{http.MethodPost, "", "", http.StatusMethodNotAllowed},
 		{http.MethodGet, "tenant=tenant-b", "", http.StatusBadRequest},
 		{http.MethodGet, "", "unexpected", http.StatusBadRequest},
@@ -90,7 +97,9 @@ func TestCaseDiscoveryRejectsInvalidRequestAndCatalogFailure(t *testing.T) {
 		req.URL.RawQuery = tc.rawQuery
 		req.Header.Set("Authorization", "Bearer analyst-a")
 		got := rr(h, req)
-		if got.Code != tc.code {t.Fatalf("%s query %q: HTTP %d",tc.method,tc.rawQuery,got.Code)}
+		if got.Code != tc.code {
+			t.Fatalf("%s query %q: HTTP %d", tc.method, tc.rawQuery, got.Code)
+		}
 	}
 	req := httptest.NewRequest(http.MethodGet, "/cases", nil)
 	req.Header.Set("Authorization", "Bearer analyst-a")
@@ -104,10 +113,12 @@ func TestCaseDiscoveryRejectsInvalidRequestAndCatalogFailure(t *testing.T) {
 		return nil, errors.New("owner failed")
 	})
 	h, err = NewCaseDiscoveryHTTPHandler(timelineHTTPSession{}, store, fault)
-	if err != nil { t.Fatal(err) }
+	if err != nil {
+		t.Fatal(err)
+	}
 	got = caseDiscoveryGet(h, "Bearer analyst-a")
 	if got.Code != http.StatusNotFound || strings.Contains(got.Body.String(), "owner failed") {
-		t.Fatalf("provider failure disclosed sensitive internal error: %d %s",got.Code,got.Body.String())
+		t.Fatalf("provider failure disclosed sensitive internal error: %d %s", got.Code, got.Body.String())
 	}
 	for _, malformed := range [][]string{
 		{"case-one", "case-one"},
@@ -116,13 +127,15 @@ func TestCaseDiscoveryRejectsInvalidRequestAndCatalogFailure(t *testing.T) {
 		{strings.Repeat("x", maxHTTPCaseIDBytes+1)},
 	} {
 		h, err = NewCaseDiscoveryHTTPHandler(timelineHTTPSession{}, store,
-			caseDiscoveryCatalogFunc(func(context.Context, Scope) ([]string,error) {
-				return malformed,nil
+			caseDiscoveryCatalogFunc(func(context.Context, Scope) ([]string, error) {
+				return malformed, nil
 			}))
-		if err != nil { t.Fatal(err) }
+		if err != nil {
+		t.Fatal(err)
+	}
 		got = caseDiscoveryGet(h, "Bearer analyst-a")
-		if got.Code != http.StatusNotFound || strings.Contains(got.Body.String(),"case-one") {
-			t.Fatalf("malformed Case catalog not denied: %#v -> %d %s",malformed,got.Code,got.Body.String())
+		if got.Code != http.StatusNotFound || strings.Contains(got.Body.String(), "case-one") {
+			t.Fatalf("malformed Case catalog not denied: %#v -> %d %s", malformed, got.Code, got.Body.String())
 		}
 	}
 	if _, err := NewCaseDiscoveryHTTPHandler(nil, store, catalog); err == nil {
@@ -136,17 +149,23 @@ func TestCaseDiscoveryRejectsInvalidRequestAndCatalogFailure(t *testing.T) {
 func TestCaseDiscoveryFiltersDeniedCandidateBeforeResponse(t *testing.T) {
 	store, _ := workspaceFixture()
 	h, err := NewCaseDiscoveryHTTPHandler(timelineHTTPSession{}, store,
-		caseDiscoveryCatalogFunc(func(context.Context,Scope) ([]string,error) {
-			return []string{"case-two","case-one"},nil
+		caseDiscoveryCatalogFunc(func(context.Context, Scope) ([]string, error) {
+			return []string{"case-two", "case-one"}, nil
 		}))
-	if err != nil { t.Fatal(err) }
-	r := caseDiscoveryGet(h,"Bearer analyst-a")
-	if r.Code != http.StatusOK || strings.Contains(r.Body.String(),"case-two") {
-		t.Fatalf("unreadable Case leaked: %d %s",r.Code,r.Body.String())
+	if err != nil {
+		t.Fatal(err)
 	}
-	var got struct{ Cases []string `json:"cases"` }
-	if err:=json.Unmarshal(r.Body.Bytes(),&got);err!=nil {t.Fatal(err)}
-	if !reflect.DeepEqual(got.Cases,[]string{"case-one"}) {
-		t.Fatalf("Case access decision ignored: %v",got.Cases)
+	r := caseDiscoveryGet(h, "Bearer analyst-a")
+	if r.Code != http.StatusOK || strings.Contains(r.Body.String(), "case-two") {
+		t.Fatalf("unreadable Case leaked: %d %s", r.Code, r.Body.String())
+	}
+	var got struct {
+		Cases []string `json:"cases"`
+	}
+	if err := json.Unmarshal(r.Body.Bytes(), &got); err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(got.Cases, []string{"case-one"}) {
+		t.Fatalf("Case access decision ignored: %v", got.Cases)
 	}
 }
