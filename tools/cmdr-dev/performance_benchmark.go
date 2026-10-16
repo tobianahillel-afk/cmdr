@@ -134,7 +134,7 @@ var knownBenchmarkHandlerKeys = map[string]bool{
 	"builtin-case-queue-projection-v1":                               true,
 	"builtin-case-queue-saved-view-v1":                               true,
 	"builtin-case-queue-handoff-v1":                                  true,
-	"builtin-investigation-timeline-projection-v1": true,
+	"builtin-investigation-timeline-projection-v1":                   true,
 	"builtin-investigation-timeline-navigation-preimplementation-v1": true,
 }
 
