@@ -1675,6 +1675,97 @@
         "E10-SCALE-006A"
       ],
       "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-110"
+      ]
+    },
+    {
+      "id": "E10-INV-110",
+      "title": "Implement bounded read-only Investigation Timeline for CAP-INV-110",
+      "type": "epic",
+      "status": "DECOMPOSED",
+      "depends_on": [
+        "E10-SCALE-006B"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-110A-BOUNDARY"
+      ]
+    },
+    {
+      "id": "E10-INV-110A-BOUNDARY",
+      "title": "Register read-only Investigation Timeline boundary and performance/security obligations",
+      "type": "task",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E10-SCALE-006B"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-110A-CONTRACT"
+      ]
+    },
+    {
+      "id": "E10-INV-110A-CONTRACT",
+      "title": "Compile source-backed immutable Investigation Timeline projection contract",
+      "type": "task",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E10-INV-110A-BOUNDARY"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-110B-RUNTIME"
+      ]
+    },
+    {
+      "id": "E10-INV-110B-RUNTIME",
+      "title": "Implement deterministic permission-aware read-only Timeline projection",
+      "type": "task",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E10-INV-110A-CONTRACT"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-110C-NAV"
+      ]
+    },
+    {
+      "id": "E10-INV-110C-NAV",
+      "title": "Implement source-safe Timeline navigation and return-context drafts",
+      "type": "task",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E10-INV-110B-RUNTIME"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-110D-CLOSURE"
+      ]
+    },
+    {
+      "id": "E10-INV-110D-CLOSURE",
+      "title": "Verify Timeline adversarial security, performance and bounded exclusions",
+      "type": "task",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E10-INV-110C-NAV"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-110E"
+      ]
+    },
+    {
+      "id": "E10-INV-110E",
+      "title": "Compile bounded Investigation Timeline ledger-compatible runtime handoff",
+      "type": "task",
+      "status": "BLOCKED",
+      "depends_on": [
+        "E10-INV-110D-CLOSURE"
+      ],
+      "dependency_terminal_state": "VERIFIED",
       "unlocks": []
     }
   ]
