@@ -331,3 +331,70 @@ func TestSupersessionRequiresStrictVersionProgression(t *testing.T) {
 		t.Fatalf("cyclic supersession accepted: %+v", result)
 	}
 }
+
+func TestOpaqueSourcesCannotControlVisibleValidation(t *testing.T) {
+	// A denied, missing or foreign source is already inaccessible: even
+	// invalid IDs, duplicate IDs and oversized protected fields cannot
+	// affect validation of the one authorized Timeline Entry.
+	cases := []struct {
+		name       string
+		permission string
+		tenant     string
+		status     string
+	}{
+		{name: "denied", permission: "deny", tenant: "tenant-a", status: "filtered"},
+		{name: "unknown", permission: "unknown", tenant: "tenant-a", status: "filtered"},
+		{name: "missing", permission: "missing", tenant: "tenant-a", status: "partial"},
+		{name: "foreign", permission: "allow", tenant: "tenant-b", status: "filtered"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			base := allowedFixture()
+			hidden := base.Entries[0]
+			hidden.Tenant = tc.tenant
+			hidden.SourcePermission = tc.permission
+			hidden.ID = "protected"
+			hidden.SourceRef = "hidden-source"
+			base.Entries = append(base.Entries, hidden)
+			baseline := Project(base)
+			if baseline.Status != tc.status || len(baseline.Entries) != 1 {
+				t.Fatalf("invalid baseline: %+v", baseline)
+			}
+			for _, mutate := range []func(*Entry){
+				func(e *Entry) { e.ID = "" },
+				func(e *Entry) { e.ID = "x" },
+				func(e *Entry) { e.Provenance = strings.Repeat("protected", MaxInputBytes/9+1) },
+				func(e *Entry) { e.SourceRef = strings.Repeat("secret", MaxInputBytes/6+1) },
+				func(e *Entry) { e.Version = -999; e.Kind = "invalid"; e.SourceTime = "malformed" },
+			} {
+				in := allowedFixture()
+				opaque := hidden
+				mutate(&opaque)
+				in.Entries = append(in.Entries, opaque)
+				got := Project(in)
+				if !reflect.DeepEqual(got, baseline) {
+					t.Fatalf("protected fields changed visible result: got %+v want %+v", got, baseline)
+				}
+			}
+		})
+	}
+}
+
+func TestAuthorizedSourceStillEnforcesIdentityAndByteLimits(t *testing.T) {
+	for _, mutate := range []func(*Input){
+		func(i *Input) { i.Entries[0].ID = "" },
+		func(i *Input) { i.Entries = append(i.Entries, i.Entries[0]) },
+		func(i *Input) { i.Entries[0].SourceRef = strings.Repeat("x", MaxInputBytes+1) },
+	} {
+		in := allowedFixture()
+		mutate(&in)
+		if result := Project(in); result.Status != "deny" || len(result.Entries) != 0 {
+			t.Fatalf("authorized invalid input not denied: %+v", result)
+		}
+	}
+	in := allowedFixture()
+	in.Entries = make([]Entry, MaxEntries+1)
+	if got := Project(in); got.Status != "deny" {
+		t.Fatalf("global entry count limit not enforced: %+v", got)
+	}
+}

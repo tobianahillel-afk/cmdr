@@ -78,19 +78,19 @@ func Project(input Input) Result {
 	usedBytes := len(s.Tenant) + len(s.Environment)
 	seen := make(map[string]bool, len(input.Entries))
 	for _, e := range input.Entries {
+		// Only accessible sources may influence ID and byte validation.
+		// Hidden data must not turn a permitted Case timeline into a denial
+		// or reveal its size through a validation failure. The total number
+		// of supplied entries is independently bounded above.
+		if e.Tenant != s.Tenant || e.SourcePermission != "allow" {
+			continue
+		}
 		usedBytes += len(e.ID) + len(e.Kind) + len(e.Tenant) + len(e.SourcePermission) +
 			len(e.Timezone) + len(e.SourceTime) + len(e.SourceRef) + len(e.Provenance) + len(e.Supersedes)
-		if usedBytes > MaxInputBytes || e.ID == "" {
+		if usedBytes > MaxInputBytes || e.ID == "" || seen[e.ID] {
 			return deny
 		}
-		// Denied/foreign/missing entries must not affect the uniqueness
-		// decision for a caller-authorized Timeline Entry.
-		if e.Tenant == s.Tenant && e.SourcePermission == "allow" {
-			if seen[e.ID] {
-				return deny
-			}
-			seen[e.ID] = true
-		}
+		seen[e.ID] = true
 	}
 	rows := make([]sortableEntry, 0, len(input.Entries))
 	filtered, partial, uncertain := false, false, false
