@@ -146,6 +146,11 @@ func projectFromOwnerSnapshots(
 	// before any source ACL check, so a malformed later source cannot lead
 	// to partial release of earlier source metadata to an ACL authority.
 	sourceRequests := make([]AccessRequest, len(out.Entries))
+	// A trusted source reference must resolve to one canonical owner identity
+	// throughout this projection. A changing result is not safe to authorize
+	// as two different objects under one displayed SourceRef. Compare all
+	// observations before dispatching any linked-source ACL checks.
+	resolvedSourceIdentities := make(map[string]SourceOwnerIdentity)
 	// Canonical IDs returned by owner resolvers are new selectors and must
 	// have their own cumulative bound before any typed source ACL I/O.
 	usedTypedIDs := len(scope.Tenant) + len(scope.Environment) + len(caseID)
@@ -173,6 +178,10 @@ func projectFromOwnerSnapshots(
 		if !ok || len(identity.ObjectID) > MaxInputBytes-usedTypedIDs {
 			return deny
 		}
+		if previous, exists := resolvedSourceIdentities[identity.Reference]; exists && previous != identity {
+			return deny
+		}
+		resolvedSourceIdentities[identity.Reference] = identity
 		usedTypedIDs += len(identity.ObjectID)
 		sourceRequests[i] = request(identity.Kind, identity.ObjectID, permission)
 	}
