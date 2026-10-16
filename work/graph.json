@@ -1709,7 +1709,7 @@
       "id": "E10-INV-110A-CONTRACT",
       "title": "Compile source-backed immutable Investigation Timeline projection contract",
       "type": "task",
-      "status": "READY",
+      "status": "VERIFIED",
       "depends_on": [
         "E10-INV-110A-BOUNDARY"
       ],
@@ -1722,7 +1722,7 @@
       "id": "E10-INV-110B-RUNTIME",
       "title": "Implement deterministic permission-aware read-only Timeline projection",
       "type": "task",
-      "status": "BLOCKED",
+      "status": "READY",
       "depends_on": [
         "E10-INV-110A-CONTRACT"
       ],
