@@ -25,3 +25,9 @@ Tests: Go HTTP end-to-end for both demo tenants, authorized Event/Evidence/Incid
 This is a **runnable functional test/demonstration**, not real-world source ingestion or an integrated persistent EDR/SIEM backend. The bearer and owner data are synthetic; static reference data and permissions never change after construction. It does NOT implement durable Case or Timeline storage, vendor connectors, audit ingestion, TLS ingress, production IAM, a final UI, a production SLO or a cross-product source router. A real host must independently wire the owner application and enforce authorization on every source open. `OPEN-013` and the immutable Product Spec remain unchanged.
 
 Do not mark all of CAP-INV-110 delivered merely because this demo journey passes; C-NAV can be verified within this **bounded scope** only after exact-SHA CI and critical negative tests. A distinct independent L2 must inspect the published functional milestone, not any in-chat-only draft.
+
+## Browser integration CI gate
+
+The existing `analyst_return.test.cjs` is now run by the pinned Node 24.21.0 toolchain as part of the repository's existing `investigation-timeline-runtime` workflow, alongside Linux Go race/vet and macOS/Windows module checks. It executes the genuine checked-in browser script with a deterministic DOM/fetch shim: request 1 returns the authorized Timeline, request 2 obtains the non-authoritative source draft, request 3 opens the synthetic owner source using the same ephemeral bearer and fresh server-side permissions, and return-link handling never persists or embeds the bearer. A denied third request must not enable the source pane or return-link copy. This is an integration regression test for a DEMO, not a browser automation test against real EDR/IAM.
+
+The C-NAV manifest explicitly adds only this single first-party workflow path to its write scope for the essential end-to-end UI check; no runtime product dependency or global policy expansion occurs.
