@@ -13,3 +13,13 @@ The minimal fix reuses `usedIDs`, `usedSourceSelectors` and the existing `bounde
 New adversarial tests exercise a single 4 MiB Timeline Entry ID followed by a 4 MiB linked source ref in **both** adapters. The Case and Timeline Entry checks are allowed, but the source request must be rejected without contacting its authority. Existing negative tests cover cumulative source-only overflow and denied/cross-tenant objects. This hardening is not a production authorization-provider implementation and does not mean every upstream provider enforces correct Case membership. `OPEN-013` remains open. Historical on-demand performance measurements do not apply to this SHA.
 
 **Evidence discipline:** check the exact-SHA GitHub Actions status and the independent L2 result separately. Until they are verified, B stays READY and C stays BLOCKED.
+
+## Exact GitHub CI confirmation — code SHA `4b6caad0fbed0c59e8ac6eb51cfa86a0bc326c23`
+
+The four workflow runs were confirmed COMPLETED / SUCCESS on the exact code SHA (2026-10-16):
+- [engineering-kernel push #38901811787](https://github.com/tobianahillel-afk/cmdr/actions/runs/38901811787)
+- [engineering-kernel PR #38901819158](https://github.com/tobianahillel-afk/cmdr/actions/runs/38901819158)
+- [investigation-timeline-runtime push #38901811725](https://github.com/tobianahillel-afk/cmdr/actions/runs/38901811725): Linux Go race/test, cover, vet and Go formatting **PASS**; full Timeline module 96.4% statements (projection package 98.3%, synthetic perf-probe package 91.3%). macOS and Windows native Timeline + subprocess test jobs **SUCCESS**.
+- [investigation-timeline-runtime PR #38901819443](https://github.com/tobianahillel-afk/cmdr/actions/runs/38901819443).
+
+Linux synthetic Go `testing.B` measurements from the code-SHA push run: 500 entry projection 465168–532284 ns/op; 5000 entries 5664194–6084098 ns/op across three 100-operation local repetitions. These are **per-batch means, not per-request p95** and do not establish a production 5ms objective. Existing on-demand run measurements from previous commits are not re-attributed to this code SHA. The updated source-selector budget is code- and mock-test-verified; no real authenticated provider integration is included. `E10-INV-110B-RUNTIME` stays READY, `E10-INV-110C-NAV` stays BLOCKED. An independent second-context read-only L2 task was scheduled exactly for this code SHA; the report is **L2_EN_ATTENTE** and this text is not an L2 approval.
