@@ -125,8 +125,8 @@ func TestMemorySourcePreviewRejectsMalformedOrCancelledInput(t *testing.T) {
 	}
 	for _, tc := range []struct {
 		name, query, body string
-		cancel, transfer bool
-		want int
+		cancel, transfer  bool
+		want              int
 	}{
 		{"get-body", "case_id=case-a&entry_id=entry-a", "payload", false, false, 400},
 		{"transfer-encoding", "case_id=case-a&entry_id=entry-a", "", false, true, 400},
