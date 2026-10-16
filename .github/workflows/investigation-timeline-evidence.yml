@@ -65,7 +65,7 @@ jobs:
           PY
           {
             echo "### CMDR Timeline synthetic performance evidence"
-            echo "Source SHA: `$GITHUB_SHA`"
+            echo "Source SHA: $GITHUB_SHA"
             echo "Latency: target PERF-TGT-INV-TIMELINE-PROJECTION, on-demand, 5 x mean-of-200 operations"
             echo "Resource: target PERF-DEEP-INV-TIMELINE-PROJECTION, sampled Go heap, 1000 operations"
             echo "Not per-request p95, peak RSS, remote ACL-provider latency or a production SLO."
