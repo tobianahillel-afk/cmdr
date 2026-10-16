@@ -36,6 +36,14 @@
       "runtime_root": "product-runtime/saved-query-assets/**"
     },
     {
+      "capability": "CAP-INV-101",
+      "work_unit": "E10-INV-101F",
+      "manifest_path": "work/lots/E10-INV-101F/manifest.json",
+      "handoff_path": "work/lots/E10-INV-101F/HANDOFF.json",
+      "runtime_boundary": "case-queue-runtime",
+      "runtime_root": "product-runtime/case-queue/**"
+    },
+    {
       "capability": "CAP-SET-004",
       "work_unit": "E9-PILOT-001C-RUNTIME",
       "manifest_path": "work/lots/E9-PILOT-001C-RUNTIME/manifest.json",
