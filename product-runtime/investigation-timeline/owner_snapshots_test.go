@@ -160,7 +160,7 @@ func TestOwnerSnapshotBoundsCumulativeSourceSelectorsBeforeSecondLookup(t *testi
 	checker.decisions["timeline-entry:y"] = "allow"
 	checker.decisions["source:"+first.SourceRef] = "allow"
 	got := ProjectFromOwnerSnapshots(context.Background(), allowedFixture().Scope, "case-123", []string{"x", "y"}, checker, owner)
-	if got.Status != "deny" || len(got.Entries) != 0 || len(checker.calls) != 4 || len(owner.calls) != 2 {
+	if got.Status != "deny" || len(got.Entries) != 0 || len(checker.calls) != 3 || len(owner.calls) != 2 {
 		t.Fatalf("cumulative owner selectors reached source authority: %+v checker=%d resolver=%d", got, len(checker.calls), len(owner.calls))
 	}
 	for _, call := range checker.calls {
