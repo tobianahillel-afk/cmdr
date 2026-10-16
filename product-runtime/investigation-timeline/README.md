@@ -1,5 +1,10 @@
 # Investigation Timeline — bounded read-only projection core
 
+## Generic host integration: authenticated Case discovery + Timeline
+
+`NewCaseInvestigationHTTPHandlers` connects the existing trusted Case owner and source providers to BOTH read-only routes, returning `Cases` and `Timeline` handlers with a single injected session resolver and Case access checker. The synthetic memory demo uses this same path. Integration tests exercise a separate host-mounted mux, verified Case candidate discovery, authorized Timeline filters and revocation. This is an integration seam, **not** a deployed identity/ACL/persistent backend; the host owns route attachment, authentication verification, TLS, audit and rate limiting. See `work/lots/E10-INV-110B-RUNTIME/HOST-CASE-INTEGRATION.md`.
+
+
 ## Read-only HTTP Case entry point (bounded integration)
 
 `NewCaseTimelineHTTPHandler` adapts `OpenCaseTimeline` to `net/http`. A server-provided `CaseTimelineSessionResolver` must authenticate each request and attach the authenticated principal to the returned request-derived context. The only accepted user selector is `case_id` on a bodyless GET; tenant, environment, Case, Timeline Entry and linked-source permissions are derived/checked server-side using the same Case/catalog/owner/typed-source chain. Results are non-cacheable JSON; authentication failures are generic 401, malformed selectors 400, and Case/owner denials all receive the same generic 404. No frontend-supplied access flags, cookies or `X-Tenant` headers become authority.
