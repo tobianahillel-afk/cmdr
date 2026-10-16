@@ -13,6 +13,7 @@ import (
 	"io"
 	"net"
 	"net/http"
+	"net/url"
 	"os"
 	"os/signal"
 	"syscall"
@@ -35,7 +36,7 @@ func main() {
 func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	flags := flag.NewFlagSet("case-timeline-demo", flag.ContinueOnError)
 	flags.SetOutput(io.Discard)
-	principal := flags.String("principal", "analyst-a", "synthetic analyst-a or analyst-b")
+	principal := flags.String("principal", "analyst-a", "synthetic analyst ID from the selected local owner snapshot")
 	snapshot := flags.String("snapshot", "", "absolute path to operator-owned read-only Case snapshot JSON (loopback demo only)")
 	if err := flags.Parse(args); err != nil {
 		return err
@@ -65,8 +66,8 @@ func newDemoHandlerWithData(token, principal string, data timeline.MemoryTimelin
 	if _, err := hex.DecodeString(token); err != nil {
 		return nil, errors.New("invalid demo bearer encoding")
 	}
-	if principal != "analyst-a" && principal != "analyst-b" {
-		return nil, errors.New("unknown synthetic principal")
+	if _, err := firstDemoAuthorizedCase(data, principal); err != nil {
+		return nil, errors.New("principal must be a Case reader in the selected local owner dataset")
 	}
 	authenticate := func(r *http.Request) (string, error) {
 		expected := "Bearer " + token
@@ -96,8 +97,8 @@ func serveDemoWithSnapshot(ctx context.Context, principal, snapshot string, outp
 	if err := ctx.Err(); err != nil {
 		return err
 	}
-	if principal != "analyst-a" && principal != "analyst-b" {
-		return errors.New("select analyst-a or analyst-b")
+	if principal == "" || principal == "*" {
+		return errors.New("select a synthetic principal from the local owner dataset")
 	}
 	data, err := loadDemoSnapshot(snapshot)
 	if err != nil {
@@ -130,10 +131,11 @@ func serveDemoWithSnapshot(ctx context.Context, principal, snapshot string, outp
 		MaxHeaderBytes:    8 << 10,
 	}
 	fmt.Fprintf(output, "CMDR synthetic Case Timeline demo; NOT a production service\n")
-	fmt.Fprintf(output, "URL: http://%s/case-timeline?case_id=%s&limit=2\n", listener.Addr(), caseID)
+	fmt.Fprintf(output, "URL: http://%s/case-timeline?case_id=%s&limit=2\n", listener.Addr(), url.QueryEscape(caseID))
 	fmt.Fprintf(output, "Local analyst viewer: http://%s/analyst\n", listener.Addr())
 	fmt.Fprintf(output, "Bearer token (this run only): %s\n", token)
-	fmt.Fprintf(output, "Principal: %s; available synthetic Case: %s\n", principal, caseID)
+	// Quote operator-controlled identifiers to prevent multiline terminal output.
+	fmt.Fprintf(output, "Principal: %q; available synthetic Case: %q\n", principal, caseID)
 	fmt.Fprintln(output, "Only authenticated loopback requests are accepted. Ctrl-C exits.")
 	ready := make(chan error, 1)
 	go func() {
