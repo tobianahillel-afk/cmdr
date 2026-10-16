@@ -5,6 +5,8 @@ on:
     paths:
       - "product-runtime/investigation-timeline/**"
       - "tools/cmdr-dev/security_tests.go"
+      - "tools/cmdr-dev/performance_timeline*.go"
+      - "tools/cmdr-dev/go.mod"
       - ".github/workflows/investigation-timeline-runtime.yml"
   push:
     branches:
@@ -12,6 +14,8 @@ on:
     paths:
       - "product-runtime/investigation-timeline/**"
       - "tools/cmdr-dev/security_tests.go"
+      - "tools/cmdr-dev/performance_timeline*.go"
+      - "tools/cmdr-dev/go.mod"
       - ".github/workflows/investigation-timeline-runtime.yml"
 
 permissions:
@@ -28,6 +32,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - name: Set up Go
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
