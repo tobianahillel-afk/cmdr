@@ -60,8 +60,8 @@ func TestAuthorizationSelectorsRejectNonTextUnicode(t *testing.T) {
 							}
 						}
 					}
-			})
-		}
+				})
+			}
 		})
 	}
 }
