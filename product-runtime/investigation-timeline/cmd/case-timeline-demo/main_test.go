@@ -404,3 +404,36 @@ func TestDemoCaseSourceNavigationEndToEnd(t *testing.T) {
 		}
 	}
 }
+
+func TestDemoSourceObjectOpeningRequiresFreshAuthorization(t *testing.T) {
+	for _, tc := range []struct {
+		name, principal, path, token string
+		want int
+		preview string
+	}{
+		{"analyst-a-opens-network","analyst-a","/demo-source-open?case_id=case-a&entry_id=event-new",testBearer,200,"Événement réseau synthétique"},
+		{"analyst-a-opens-evidence","analyst-a","/demo-source-open?case_id=case-a&entry_id=event-old",testBearer,200,"Pièce synthétique"},
+		{"analyst-b-own-incident","analyst-b","/demo-source-open?case_id=case-b&entry_id=event-b",testBearer,200,"Incident synthétique"},
+		{"no-bearer","analyst-a","/demo-source-open?case_id=case-a&entry_id=event-new","",401,""},
+		{"revoked-hidden","analyst-a","/demo-source-open?case_id=case-a&entry_id=restricted",testBearer,404,""},
+		{"cross-tenant","analyst-a","/demo-source-open?case_id=case-b&entry_id=event-b",testBearer,404,""},
+		{"forged-object","analyst-a","/demo-source-open?case_id=case-a&entry_id=event-new&object_id=demo-secret",testBearer,400,""},
+		{"forged-return-url","analyst-a","/demo-source-open?case_id=case-a&entry_id=event-new&return_url=https://evil.invalid",testBearer,400,""},
+	} {
+		t.Run(tc.name,func(t *testing.T){
+			h,err:=newDemoHandler(testBearer,tc.principal)
+			if err!=nil{t.Fatal(err)}
+			server:=httptest.NewServer(h);defer server.Close()
+			status,body:=requestDemo(t,server,tc.path,tc.token)
+			if status!=tc.want{t.Fatalf("got %d want %d: %s",status,tc.want,body)}
+			if tc.want==200{
+				if !strings.Contains(body,tc.preview) || !strings.Contains(body,`"synthetic":true`) {
+					t.Fatalf("source preview not opened: %s",body)
+				}
+			} else if strings.Contains(body,"demo-secret") || strings.Contains(body,"demo-hidden-source") ||
+				strings.Contains(body,"DO NOT DISPLAY") || strings.Contains(body,"demo-tenant-b"){
+				t.Fatalf("private source leaked: %s",body)
+			}
+		})
+	}
+}

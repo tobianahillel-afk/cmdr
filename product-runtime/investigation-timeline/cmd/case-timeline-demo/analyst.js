@@ -293,6 +293,30 @@
             expected.getAll(key).length !== 1 || expected.get(key) !== value)) {
         throw new Error("Return selection differs from authorized request");
       }
+      // Opening the synthetic source is a SEPARATE HTTP operation:
+      // the owner reauthenticates the Case/Entry/typed source instead of
+      // treating the navigation draft as a bearer capability.
+      const sourceURL = new URL("/demo-source-open", window.location.origin);
+      sourceURL.searchParams.set("case_id", selectedCase);
+      sourceURL.searchParams.set("entry_id", entryID);
+      const openedResponse = await fetch(sourceURL, {
+        method: "GET",
+        headers: { Authorization: "Bearer " + bearer },
+        credentials: "omit",
+        cache: "no-store",
+        redirect: "error",
+        mode: "same-origin",
+        signal: controller.signal
+      });
+      if (!openedResponse.ok) throw new Error("Source owner access denied");
+      const owner = await openedResponse.json();
+      if (currentRevision !== sourceRevision) return;
+      if (!owner || owner.status !== "ready" || owner.synthetic !== true ||
+          owner.case_id !== selectedCase || owner.entry_id !== entryID ||
+          owner.kind !== data.kind || owner.object_id !== data.object_id ||
+          typeof owner.preview !== "string" || owner.preview.length > 2048) {
+        throw new Error("Source owner response differs from navigation");
+      }
       const localReturn = new URL("/analyst", window.location.origin);
       localReturn.search = expected.toString();
       returnLinkURL = localReturn.href;
@@ -300,10 +324,11 @@
       sourceDetail.replaceChildren();
       addLine(sourceDetail, "Objet source autorisé :", data.kind + " / " + data.object_id);
       addLine(sourceDetail, "Entrée d’origine :", data.return_entry_id);
-      addLine(sourceDetail, "Navigation :", "brouillon ; l’application propriétaire doit contrôler l’accès à l’ouverture.");
+      addLine(sourceDetail, "Aperçu propriétaire synthétique :", owner.preview || "Aucun aperçu disponible");
+      addLine(sourceDetail, "Ouverture :", "source vérifiée par le propriétaire à l’ouverture ; démonstration locale, aucune donnée réelle.");
       sourceDetail.hidden = false;
       returnToCase.disabled = false;
-      sourceStatus.textContent = "Destination vérifiée pour cette requête, sans lien externe.";
+      sourceStatus.textContent = "Objet synthétique ouvert après une nouvelle vérification côté serveur.";
     } catch {
       if (currentRevision !== sourceRevision) return;
       sourceDetail.hidden = true;

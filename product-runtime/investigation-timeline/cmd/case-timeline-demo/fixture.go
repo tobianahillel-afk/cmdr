@@ -43,19 +43,19 @@ func demoData() timeline.MemoryTimelineData {
 			{Identity: timeline.SourceOwnerIdentity{
 				Reference: "demo-telemetry-a", Kind: "telemetry-event", ObjectID: "demo-event-a",
 				Tenant: "demo-tenant-a", Environment: "lab", CaseID: "case-a",
-			}, Readers: []string{"analyst-a"}},
+			}, Readers: []string{"analyst-a"}, Preview: "Événement réseau synthétique : connexion DNS de laboratoire, sans données externes."},
 			{Identity: timeline.SourceOwnerIdentity{
 				Reference: "demo-evidence-a", Kind: "evidence", ObjectID: "demo-evidence-a",
 				Tenant: "demo-tenant-a", Environment: "lab", CaseID: "case-a",
-			}, Readers: []string{"analyst-a"}},
+			}, Readers: []string{"analyst-a"}, Preview: "Pièce synthétique : horodatage inféré conservé, aucun fichier exporté."},
 			{Identity: timeline.SourceOwnerIdentity{
 				Reference: "demo-hidden-source", Kind: "evidence", ObjectID: "demo-secret",
 				Tenant: "demo-tenant-a", Environment: "lab", CaseID: "case-a",
-			}, Readers: []string{}},
+			}, Readers: []string{}, Preview: "DO NOT DISPLAY: protected synthetic source."},
 			{Identity: timeline.SourceOwnerIdentity{
 				Reference: "demo-incident-b", Kind: "incident", ObjectID: "demo-incident",
 				Tenant: "demo-tenant-b", Environment: "lab", CaseID: "case-b",
-			}, Readers: []string{"analyst-b"}},
+			}, Readers: []string{"analyst-b"}, Preview: "Incident synthétique réservé au tenant B."},
 		},
 	}
 }

@@ -19,7 +19,7 @@ function node(tag = "div") {
   };
 }
 
-function boot(search = "", navigationQuery) {
+function boot(search = "", navigationQuery, denySource = false) {
   const ids = [
     "query", "token", "case-id", "kind", "search", "case-options",
     "discover", "case-discovery-status", "from", "to", "entries",
@@ -81,6 +81,20 @@ function boot(search = "", navigationQuery) {
           }
         };
       }
+      if (url.pathname === "/demo-source-open") {
+        return {
+          ok: !denySource,
+          async json() {
+            return {
+              status: "ready", synthetic: true,
+              case_id: url.searchParams.get("case_id"),
+              entry_id: url.searchParams.get("entry_id"),
+              kind: "telemetry-event", object_id: "demo-event-a",
+              preview: "Événement réseau synthétique autorisé."
+            };
+          }
+        };
+      }
       throw new Error("Unexpected outbound route: " + url.pathname);
     }
   };
@@ -131,8 +145,12 @@ test("source draft produces explicit same-origin return without authority", asyn
   assert.ok(open, "each visible event needs a source action");
   open.handlers.click();
   await flush();
-  assert.equal(env.requests.length, 2);
+  assert.equal(env.requests.length, 3);
   assert.equal(env.requests[1].url.pathname, "/case-source-navigation");
+  assert.equal(env.requests[2].url.pathname, "/demo-source-open");
+  assert.equal(env.requests[2].options.headers.Authorization, "Bearer ephemeral-value");
+  assert.equal(env.requests[2].url.searchParams.has("object_id"), false);
+  assert.equal(env.fields["source-detail"].hidden, false);
   assert.equal(env.fields["copy-return-link"].disabled, false);
   await env.fields["copy-return-link"].handlers.click();
   assert.equal(env.copied.length, 1);
@@ -165,4 +183,19 @@ test("unknown query selector is inert and cannot auto-authorize", () => {
   assert.equal(env.fields["case-id"].value, "");
   assert.equal(env.requests.length, 0);
   assert.match(env.fields.message.textContent, /invalide/);
+});
+
+test("denied owner opening cannot be treated as a ready source draft", async () => {
+  const env = boot("", undefined, true);
+  env.fields.token.value = "ephemeral-value";
+  env.fields["case-id"].value = "case-a";
+  env.fields.query.handlers.submit({ preventDefault() {} });
+  await flush();
+  env.fields.entries.children[0].children.find(n => n.tag === "button").handlers.click();
+  await flush();
+  assert.equal(env.requests.length, 3);
+  assert.equal(env.fields["source-detail"].hidden, true);
+  assert.equal(env.fields["copy-return-link"].disabled, true);
+  assert.equal(env.fields["return-to-case"].disabled, true);
+  assert.deepEqual(env.copied, []);
 });
