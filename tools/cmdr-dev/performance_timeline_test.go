@@ -148,3 +148,47 @@ func TestTimelineProcessCancellationKillsDescendants(t *testing.T) {
 		t.Fatalf("grandchild survived cancellation: %v", err)
 	}
 }
+
+func TestTimelineOutputHelper(t *testing.T) {
+	mode := os.Getenv("CMDR_TIMELINE_OUTPUT_HELPER")
+	if mode == "" {
+		return
+	}
+	if mode == "stdout" {
+		_, _ = os.Stdout.Write([]byte(strings.Repeat("X", timelineMaxOutputBytes+1)))
+		return
+	}
+	if mode == "stderr" {
+		_, _ = os.Stderr.Write([]byte(strings.Repeat("Y", timelineMaxOutputBytes+1)))
+		return
+	}
+	t.Fatal("unrecognized helper mode")
+}
+
+func TestTimelineProcessBoundsStdoutAndStderr(t *testing.T) {
+	for _, mode := range []string{"stdout", "stderr"} {
+		t.Run(mode, func(t *testing.T) {
+			t.Setenv("CMDR_TIMELINE_OUTPUT_HELPER", mode)
+			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+			defer cancel()
+			_, err := runTimelinePerformanceProcess(ctx, t.TempDir(), os.Args[0], "-test.run=^TestTimelineOutputHelper$")
+			if err == nil || !strings.Contains(err.Error(), "output exceeded") {
+				t.Fatalf("unbounded %s stream accepted: %v", mode, err)
+			}
+		})
+	}
+}
+
+func TestTimelineBoundedWriterDoesNotBlockOnOverflow(t *testing.T) {
+	var out timelineBoundedOutput
+	a := []byte(strings.Repeat("a", timelineMaxOutputBytes))
+	if n, err := out.Write(a); err != nil || n != len(a) || out.exceeded {
+		t.Fatalf("exact bound rejected: n=%d err=%v exceeded=%v", n, err, out.exceeded)
+	}
+	if n, err := out.Write([]byte("secret")); err != nil || n != 6 || !out.exceeded {
+		t.Fatalf("overflow not reported without blocking: n=%d err=%v", n, err)
+	}
+	if len(out.String()) != timelineMaxOutputBytes || strings.Contains(out.String(), "secret") {
+		t.Fatal("buffer grew beyond hard limit or exposed overflow")
+	}
+}

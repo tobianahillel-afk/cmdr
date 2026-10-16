@@ -20,6 +20,33 @@ const (
 	timelineProbeTimeout = 25 * time.Second
 )
 
+const timelineMaxOutputBytes = 64 << 10
+
+// timelineBoundedOutput limits allocations from malformed/misbehaving probes.
+// Write reports all input consumed so the child is not blocked by the limit.
+type timelineBoundedOutput struct {
+	data bytes.Buffer
+	exceeded bool
+}
+
+func (out *timelineBoundedOutput) Write(p []byte) (int, error) {
+	n := len(p)
+	remaining := timelineMaxOutputBytes - out.data.Len()
+	if remaining > 0 {
+		keep := min(n, remaining)
+		_, _ = out.data.Write(p[:keep])
+	}
+	if n > remaining {
+		out.exceeded = true
+	}
+	return n, nil
+}
+
+func (out *timelineBoundedOutput) String() string {
+	return out.data.String()
+}
+
+
 type timelineProbe struct {
 	moduleRoot string
 	binaryPath string
@@ -35,18 +62,22 @@ func runTimelinePerformanceProcess(ctx context.Context, dir, name string, args .
 	configureTimelineProcessTree(cmd)
 	cmd.WaitDelay = 500 * time.Millisecond
 	cmd.Dir = dir
-	var stdout, stderr bytes.Buffer
+	var stdout, stderr timelineBoundedOutput
 	cmd.Stdout, cmd.Stderr = &stdout, &stderr
-	if err := cmd.Run(); err != nil {
-		if ctxErr := ctx.Err(); ctxErr != nil {
-			return "", fmt.Errorf("Timeline process timed out or cancelled: %w", ctxErr)
-		}
+	runErr := cmd.Run()
+	if ctxErr := ctx.Err(); ctxErr != nil {
+		return "", fmt.Errorf("Timeline process timed out or cancelled: %w", ctxErr)
+	}
+	if stdout.exceeded || stderr.exceeded {
+		return "", fmt.Errorf("Timeline process output exceeded %d bytes per stream", timelineMaxOutputBytes)
+	}
+	if runErr != nil {
 		diagnostic := strings.TrimSpace(stderr.String())
 		if diagnostic == "" {
 			diagnostic = strings.TrimSpace(stdout.String())
 		}
 		if diagnostic == "" {
-			diagnostic = err.Error()
+			diagnostic = runErr.Error()
 		}
 		return "", fmt.Errorf("Timeline process failed: %s", diagnostic)
 	}
