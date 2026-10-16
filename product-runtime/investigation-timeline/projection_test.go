@@ -497,3 +497,61 @@ func TestProjectUnknownNegativeZeroSortsAfterKnownTime(t *testing.T) {
 		t.Fatalf("unknown local offset promoted to known chronology: %+v", got)
 	}
 }
+
+func TestProjectBoundsScopeEvenWithoutVisibleSources(t *testing.T) {
+	// An oversized envelope must fail before source filtering; the visible
+	// entry count cannot determine whether scope-budget validation happens.
+	for _, tc := range []struct {
+		name string
+		prepare func(*Input)
+	}{
+		{"oversized-tenant-empty", func(in *Input) {
+			in.Scope.Tenant = strings.Repeat("T", MaxInputBytes+1)
+			in.Entries = nil
+		}},
+		{"oversized-environment-empty", func(in *Input) {
+			in.Scope.Environment = strings.Repeat("E", MaxInputBytes+1)
+			in.Entries = nil
+		}},
+		{"combined-envelope-empty", func(in *Input) {
+			in.Scope.Tenant = strings.Repeat("T", MaxInputBytes/2+1)
+			in.Scope.Environment = strings.Repeat("E", MaxInputBytes/2+1)
+			in.Entries = nil
+		}},
+		{"oversized-tenant-denied", func(in *Input) {
+			in.Scope.Tenant = strings.Repeat("T", MaxInputBytes+1)
+			in.Entries[0].SourcePermission = "deny"
+		}},
+		{"oversized-environment-missing", func(in *Input) {
+			in.Scope.Environment = strings.Repeat("E", MaxInputBytes+1)
+			in.Entries[0].SourcePermission = "missing"
+		}},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			in := allowedFixture()
+			tc.prepare(&in)
+			got := Project(in)
+			if got.Status != "deny" || len(got.Entries) != 0 {
+				t.Fatalf("unbounded envelope accepted: %+v", got)
+			}
+		})
+	}
+}
+
+func TestProjectScopeBudgetBoundaryDoesNotChargeOpaqueSources(t *testing.T) {
+	// Independent envelope bound is 8 MiB. Hidden source contents are still
+	// ignored by the per-visible-entry budget after the envelope is accepted.
+	in := allowedFixture()
+	in.Scope.Tenant = strings.Repeat("T", MaxInputBytes-1)
+	in.Scope.Environment = "E"
+	in.Entries = nil
+	got := Project(in)
+	if got.Status != "empty" || len(got.Entries) != 0 {
+		t.Fatalf("valid exact-boundary empty scope was rejected: %+v", got)
+	}
+	in.Entries = []Entry{{Tenant:"foreign",SourcePermission:"deny",Provenance:strings.Repeat("secret",8)}}
+	got = Project(in)
+	if got.Status != "filtered" || len(got.Entries) != 0 {
+		t.Fatalf("opaque source influenced envelope decision: %+v",got)
+	}
+}

@@ -69,7 +69,12 @@ type sortableEntry struct {
 func Project(input Input) Result {
 	deny := Result{Status: "deny"}
 	s := input.Scope
-	if invalidScope(s.Tenant) || invalidScope(s.Environment) ||
+	// The envelope budget must hold even when there are no visible entries.
+	// Otherwise an oversized tenant or environment is silently accepted as
+	// an empty/filtered projection, unlike the two trusted access adapters.
+	if len(s.Tenant) > MaxInputBytes ||
+		len(s.Environment) > MaxInputBytes-len(s.Tenant) ||
+		invalidScope(s.Tenant) || invalidScope(s.Environment) ||
 		s.CasePermission != "allow" || s.TimelinePermission != "allow" {
 		return deny
 	}
