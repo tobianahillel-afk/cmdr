@@ -105,7 +105,7 @@ func Project(input Input) Result {
 			continue
 		}
 		if e.SourcePermission != "allow" || e.Provenance == "" ||
-			e.SourceRef == "" || e.Version < 1 || !validKind(e.Kind) ||
+			invalidScope(e.SourceRef) || e.Version < 1 || !validKind(e.Kind) ||
 			e.ClockUncertaintyMS < 0 || (e.Supersedes != "" && e.Supersedes == e.ID) {
 			return deny
 		}

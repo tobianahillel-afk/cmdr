@@ -413,3 +413,33 @@ func TestProjectRejectsInvisibleVisibleIDsWithoutChargingHiddenEntries(t *testin
 		}
 	}
 }
+
+func TestProjectRejectsInvisibleAuthorizedSourceReferences(t *testing.T) {
+	for _, ref := range []string{"", " * ", "owner:x\\x00suffix", "owner:x\\nspoof", "owner:\\u200bsecret", "owner:\\u202ereversed"} {
+		in := allowedFixture()
+		in.Entries[0].SourceRef = ref
+		got := Project(in)
+		if got.Status != "deny" || len(got.Entries) != 0 {
+			t.Fatalf("visible malformed source reference %q escaped projection: %+v", ref, got)
+		}
+	}
+}
+
+func TestProjectIgnoresMalformedOpaqueSourceReferences(t *testing.T) {
+	for _, permission := range []string{"deny", "unknown", "missing"} {
+		in := allowedFixture()
+		hidden := in.Entries[0]
+		hidden.ID = "unavailable"
+		hidden.SourcePermission = permission
+		hidden.SourceRef = "owner:\\u202ehidden\\x00"
+		in.Entries = append(in.Entries, hidden)
+		got := Project(in)
+		wantStatus := "filtered"
+		if permission == "missing" {
+			wantStatus = "partial"
+		}
+		if got.Status != wantStatus || len(got.Entries) != 1 || got.Entries[0].SourceRef != "owner:x" {
+			t.Fatalf("opaque malformed SourceRef influenced visible result: %+v", got)
+		}
+	}
+}
