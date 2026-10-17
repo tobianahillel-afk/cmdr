@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-//go:embed analyst.html analyst.css analyst.js
+//go:embed analyst.html analyst.css analyst.js hunt.js
 var analystAssets embed.FS
 
 // The analyst page is a local, synthetic UI; the existing server-side Case,
@@ -15,6 +15,7 @@ func installAnalystDemoRoutes(mux *http.ServeMux) {
 		{"/analyst", "analyst.html", "text/html; charset=utf-8"},
 		{"/analyst.css", "analyst.css", "text/css; charset=utf-8"},
 		{"/analyst.js", "analyst.js", "text/javascript; charset=utf-8"},
+		{"/hunt.js", "hunt.js", "text/javascript; charset=utf-8"},
 	} {
 		data, err := analystAssets.ReadFile(asset.file)
 		if err != nil {
