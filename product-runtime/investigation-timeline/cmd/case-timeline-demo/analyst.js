@@ -52,7 +52,10 @@
   const comparisonTraceActions = document.getElementById("comparison-trace-actions");
   const comparisonTraceResults = document.getElementById("comparison-trace-results");
   const downloadComparison = document.getElementById("download-comparison");
+  const downloadCrossEvents = document.getElementById("download-cross-events");
   let preparedComparison = null;
+  let preparedCrossEvents = null;
+  downloadCrossEvents.disabled = true;
   downloadComparison.disabled = true;
   let compareRevision = 0;
   let compareRequest = null;
@@ -67,7 +70,9 @@
     comparisonTraceResults.replaceChildren();
     comparisonTraceResults.textContent = "Aucune séquence croisée sélectionnée.";
     preparedComparison = null;
+    preparedCrossEvents = null;
     downloadComparison.disabled = true;
+    downloadCrossEvents.disabled = true;
   }
   const downloadReport = document.getElementById("download-report");
   let analysisRequest = null;
@@ -370,6 +375,7 @@
     async function sourcesFor(id) {
       const groups = new Map();
       const buckets = new Map();
+      const events = [];
       const seen = new Set();
       const kinds = { observed: 0, inferred: 0 };
       let certainMin = null;
@@ -417,6 +423,15 @@
             throw Error("invalid authorized comparison entry");
           }
           seen.add(entry.id);
+          // Retain ONLY the projected, source-authorized fields. The optional
+          // detailed download is never assembled from raw owner payloads.
+          events.push({
+            case_id: id, id: entry.id, kind: entry.kind,
+            source_time: entry.source_time, timezone: entry.timezone,
+            time_uncertain: entry.time_uncertain, source_ref: entry.source_ref,
+            provenance: entry.provenance, version: entry.version,
+            supersedes: entry.supersedes
+          });
           const group = groups.get(entry.source_ref) || { count: 0, firstEntryID: entry.id, rows: [] };
           group.count++;
           group.rows.push({
@@ -447,7 +462,7 @@
           }
         }
       }
-      return { total, groups, buckets, kinds, uncertain, certainMin, certainMax };
+      return { total, groups, buckets, kinds, uncertain, certainMin, certainMax, events };
     }
     try {
       const left = await sourcesFor(selectedCase);
@@ -526,6 +541,56 @@
         left: selectedCase, right: otherCase
       };
       downloadComparison.disabled = false;
+      // Explicit, SENSITIVE operator-local chronology export. Both Case
+      // traversals have already completed and passed pagination/ACL checks.
+      // Uncertain instants follow certain instants; no causality is inferred.
+      const fullRows = [...left.events, ...right.events];
+      const safeRows = fullRows.length === left.total + right.total &&
+        fullRows.length <= 10000 && fullRows.every(row =>
+          typeof row.id === "string" && row.id.length > 0 &&
+          typeof row.source_ref === "string" && row.source_ref.length > 0 &&
+          typeof row.provenance === "string" && row.provenance.length > 0 &&
+          typeof row.timezone === "string" && row.timezone.length > 0 &&
+          typeof row.source_time === "string" &&
+          Number.isSafeInteger(row.version) && row.version >= 1 &&
+          (row.supersedes === undefined || typeof row.supersedes === "string"));
+      if (safeRows) {
+        fullRows.sort((a, b) => {
+          if (a.time_uncertain !== b.time_uncertain) return a.time_uncertain ? 1 : -1;
+          if (!a.time_uncertain) {
+            const leftTime = Date.parse(a.source_time);
+            const rightTime = Date.parse(b.source_time);
+            if (leftTime !== rightTime) return leftTime - rightTime;
+          }
+          return a.case_id < b.case_id ? -1 : a.case_id > b.case_id ? 1 :
+            a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
+        });
+        const detailed = JSON.stringify({
+          schema_version: 1,
+          type: "cmdr-synthetic-authorized-cross-case-chronology",
+          generated_at_utc: new Date().toISOString(),
+          case_ids: [selectedCase, otherCase],
+          filters: comparisonReport.filters,
+          certain_entries: fullRows.filter(row => !row.time_uncertain).length,
+          uncertain_entries: fullRows.filter(row => row.time_uncertain).length,
+          events: fullRows,
+          limitations: [
+            "Sensitive operator-local export of authorized entry IDs, provenance and source references",
+            "Synthetic snapshot and bearer; not a real IAM, live SIEM or custody record",
+            "Each page authorized independently; not a transactionally consistent snapshot",
+            "Known times precede uncertain times; coincidence does not prove event identity or causation",
+            "No raw source-owner payload, remote destination, token or cryptographic signature"
+          ]
+        }, null, 2) + "\n";
+        if (detailed.length <= 16 * 1024 * 1024) {
+          preparedCrossEvents = {
+            serialized: detailed, comparison: activeComparison,
+            selection: activeSelection, left: selectedCase,
+            right: otherCase, bearer
+          };
+          downloadCrossEvents.disabled = false;
+        }
+      }
       comparison.textContent = "Comparaison des événements autorisés : " +
         left.total + " / " + right.total +
         " · observés : " + left.kinds.observed + " / " + right.kinds.observed +
@@ -675,7 +740,9 @@
     } catch {
       if (activeComparison === compareRevision) {
         preparedComparison = null;
+        preparedCrossEvents = null;
         downloadComparison.disabled = true;
+        downloadCrossEvents.disabled = true;
         comparisonActions.replaceChildren();
         comparisonTraceActions.replaceChildren();
         comparisonTraceResults.replaceChildren();
@@ -1087,6 +1154,27 @@
     } catch {
       if (objectURL) URL.revokeObjectURL(objectURL);
       comparison.textContent = "Export local indisponible. Recomparez les Cases si nécessaire.";
+    }
+  });
+  downloadCrossEvents.addEventListener("click", () => {
+    const receipt = preparedCrossEvents;
+    if (!receipt || receipt.comparison !== compareRevision ||
+        receipt.selection !== revision || token.value !== receipt.bearer ||
+        caseID.value.trim() !== receipt.left ||
+        compareCase.value.trim() !== receipt.right) return;
+    let objectURL = null;
+    try {
+      const blob = new Blob([receipt.serialized], { type: "application/json" });
+      if (blob.size > 16 * 1024 * 1024) throw Error("export exceeds size bound");
+      objectURL = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = objectURL;
+      link.download = "cmdr-local-cross-case-chronology-sensitive.json";
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(objectURL), 1000);
+    } catch {
+      if (objectURL) URL.revokeObjectURL(objectURL);
+      comparison.textContent = "Export chronologique indisponible. Recomparez les Cases.";
     }
   });
   downloadReport.addEventListener("click", () => {

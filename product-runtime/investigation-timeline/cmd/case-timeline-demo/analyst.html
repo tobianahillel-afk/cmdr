@@ -81,7 +81,9 @@
       </div>
       <button id="compare" type="button">Comparer les chronologies autorisées</button>
       <button id="download-comparison" type="button" disabled>Enregistrer la comparaison JSON locale</button>
+      <button id="download-cross-events" type="button" disabled>Enregistrer la chronologie détaillée JSON (sensible)</button>
       <p id="comparison" role="status" aria-live="polite">Aucune comparaison calculée.</p>
+      <p class="intro">Export détaillé strictement volontaire : jusqu’à 10 000 entrées déjà autorisées des deux Cases, avec identifiants, provenance et références de source. Le JSON est sensible et reste sur cet appareil ; aucun jeton ni aperçu brut de source n'y figure. N'utilisez pas de données clients réelles. Ni signature, ni chaîne de conservation, ni revalidation des droits après le téléchargement : relancez la comparaison avant chaque export.</p>
       <p class="intro">Export manuel des agrégats des deux Cases déjà autorisés, sans jeton, aperçus ni événements bruts. Rapport synthétique non signé, non transactionnel et sans valeur de chaîne de conservation.</p>
       <div id="comparison-actions" class="analysis-actions" aria-label="Examiner les sources communes et fenêtres temporelles dans un Case autorisé"></div>
       <div id="comparison-trace-actions" class="analysis-actions" aria-label="Comparer les séquences de sources communes déjà autorisées"></div>

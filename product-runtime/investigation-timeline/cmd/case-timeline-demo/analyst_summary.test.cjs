@@ -13,6 +13,7 @@ const ids = [
   "page", "previous", "next", "load", "source-detail", "source-status",
   "return-to-case", "copy-return-link", "analyze", "analysis", "analysis-actions", "download-report",
   "compare-case", "compare", "comparison", "comparison-actions", "download-comparison",
+  "download-cross-events",
   "trace-actions", "trace-results",
   "comparison-trace-actions", "comparison-trace-results"
 ];
@@ -86,6 +87,8 @@ function page(offset, total, options = {}) {
             id: "event-" + index,
             kind: index % 2 ? "inferred" : "observed",
             source_ref: options.sourceFor ? options.sourceFor(index) : "source-" + (index % 3),
+            provenance: "synthetic-owner:" + index,
+            timezone: "+00:00", version: 1, supersedes: "",
             source_time: new Date(Date.UTC(2026, 9, 1, 10, 0, index)).toISOString(),
             time_uncertain: index === 2
           };
@@ -996,4 +999,85 @@ test("cross-Case source sequence becomes inert on bearer invalidation", async ()
   assert.equal(env.requests.length, requestsBefore, "stale local correlation cannot invoke owners");
   assert.equal(env.fields["comparison-trace-actions"].children.length, 0);
   assert.equal(env.fields["comparison-trace-results"].children.length, 0);
+});
+
+test("explicit two-Case sensitive chronology exports all authorized rows in known-first order", async () => {
+  const env = boot(url => {
+    const id = url.searchParams.get("case_id");
+    const total = id === "case-disk" ? 205 : 3;
+    return page(Number(url.searchParams.get("offset")), total);
+  });
+  env.fields["compare-case"].value = "case-peer";
+  assert.equal(env.fields["download-cross-events"].disabled, true);
+  env.fields.compare.handlers.click();
+  for (let i = 0; i < 8; i++) await flush();
+  assert.equal(env.requests.length, 3, "two authorized Case traversals required");
+  assert.equal(env.fields["download-cross-events"].disabled, false);
+  assert.equal(env.downloads.length, 0, "sensitive export must require an explicit click");
+  env.fields["download-cross-events"].handlers.click();
+  assert.equal(env.downloads.length, 1);
+  assert.equal(env.downloads[0].clicked, true);
+  assert.equal(env.downloads[0].revoked, true);
+  const raw = await env.downloads[0].blob.text();
+  const receipt = JSON.parse(raw);
+  assert.equal(receipt.type, "cmdr-synthetic-authorized-cross-case-chronology");
+  assert.deepEqual(receipt.case_ids, ["case-disk", "case-peer"]);
+  assert.equal(receipt.events.length, 208);
+  assert.equal(receipt.uncertain_entries, 2);
+  assert.equal(receipt.certain_entries, 206);
+  assert.equal(receipt.events.at(-1).time_uncertain, true);
+  assert.equal(receipt.events[0].case_id, "case-disk");
+  assert.equal(receipt.events[0].id, "event-0");
+  assert.equal(receipt.events[0].provenance, "synthetic-owner:0");
+  assert.equal(receipt.events[0].version, 1);
+  assert.equal(receipt.events[0].source_ref, "source-0");
+  assert.ok(receipt.limitations.some(x => x.includes("Sensitive")));
+  for (const forbidden of ["ephemeral-token", "Bearer ephemeral-token", "http://127.0.0.1", "owner preview"]) {
+    assert.equal(raw.includes(forbidden), false, "private credential/preview in export: " + forbidden);
+  }
+  for (const request of env.requests) {
+    assert.equal(request.options.headers.Authorization, "Bearer ephemeral-token");
+    assert.equal(request.options.credentials, "omit");
+    assert.equal(request.options.cache, "no-store");
+  }
+});
+
+test("sensitive chronology fails closed on denied Case, invalid metadata and changed credential", async () => {
+  const denied = boot(url => url.searchParams.get("case_id") === "case-peer"
+    ? { ok: false } : page(Number(url.searchParams.get("offset")), 2));
+  denied.fields["compare-case"].value = "case-peer";
+  denied.fields.compare.handlers.click();
+  for (let i = 0; i < 6; i++) await flush();
+  assert.equal(denied.fields["download-cross-events"].disabled, true);
+  denied.fields["download-cross-events"].handlers.click();
+  assert.equal(denied.downloads.length, 0);
+
+  const invalid = boot(url => {
+    const result = page(Number(url.searchParams.get("offset")), 2);
+    const original = result.json;
+    result.json = async () => {
+      const data = await original();
+      if (url.searchParams.get("case_id") === "case-peer") delete data.entries[0].provenance;
+      return data;
+    };
+    return result;
+  });
+  invalid.fields["compare-case"].value = "case-peer";
+  invalid.fields.compare.handlers.click();
+  for (let i = 0; i < 6; i++) await flush();
+  assert.equal(invalid.fields["download-comparison"].disabled, false, "aggregate remains available");
+  assert.equal(invalid.fields["download-cross-events"].disabled, true, "incomplete event metadata cannot be exported");
+  invalid.fields["download-cross-events"].handlers.click();
+  assert.equal(invalid.downloads.length, 0);
+
+  const authorized = boot(url => page(Number(url.searchParams.get("offset")), 2));
+  authorized.fields["compare-case"].value = "case-peer";
+  authorized.fields.compare.handlers.click();
+  for (let i = 0; i < 6; i++) await flush();
+  assert.equal(authorized.fields["download-cross-events"].disabled, false);
+  authorized.fields.token.value = "revoked";
+  authorized.fields.token.handlers.input();
+  assert.equal(authorized.fields["download-cross-events"].disabled, true);
+  authorized.fields["download-cross-events"].handlers.click();
+  assert.equal(authorized.downloads.length, 0);
 });
