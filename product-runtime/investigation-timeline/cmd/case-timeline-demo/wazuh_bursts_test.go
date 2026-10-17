@@ -61,10 +61,10 @@ func TestWazuhTemporalBurstsAuthorizedMultifeedEndToEnd(t *testing.T) {
 	paths := []string{
 		writeJSONLEvents(t,
 			"{\"id\":\"a.1\",\"timestamp\":\"2026-10-17T10:00:00Z\",\"agent\":{\"id\":\"001\",\"name\":\"RAW-PRIVATE-HOST\"},\"rule\":{\"id\":\"5710\",\"level\":5,\"description\":\"RAW-PRIVATE-DESC\"}}\n"+
-			"{\"id\":\"a.2\",\"timestamp\":\"2026-10-17T10:00:20Z\",\"agent\":{\"id\":\"001\"},\"rule\":{\"id\":\"5710\",\"level\":7}}\n"),
+			"{\"id\":\"a.2\",\"timestamp\":\"2026-10-17T10:00:20Z\",\"agent\":{\"id\":\"001\"},\"rule\":{\"id\":\"5710\",\"level\":7,\"description\":\"known analyst preview\"}}\n"),
 		writeJSONLEvents(t,
-			"{\"id\":\"b.1\",\"timestamp\":\"2026-10-17T10:00:40Z\",\"agent\":{\"id\":\"001\"},\"rule\":{\"id\":\"5710\",\"level\":12}}\n"+
-			"{\"id\":\"b.2\",\"timestamp\":\"2026-10-17T10:02:00Z\",\"agent\":{\"id\":\"001\"},\"rule\":{\"id\":\"5710\",\"level\":15}}\n"),
+			"{\"id\":\"b.1\",\"timestamp\":\"2026-10-17T10:00:40Z\",\"agent\":{\"id\":\"001\"},\"rule\":{\"id\":\"5710\",\"level\":12,\"description\":\"known analyst preview\"}}\n"+
+			"{\"id\":\"b.2\",\"timestamp\":\"2026-10-17T10:02:00Z\",\"agent\":{\"id\":\"001\"},\"rule\":{\"id\":\"5710\",\"level\":15,\"description\":\"known analyst preview\"}}\n"),
 	}
 	data, imported, levels, err := loadMultipleWazuhFeedsWithLevels(
 		context.Background(), "analyst-a", owner, "forensic-case-on-disk", paths)
