@@ -11,6 +11,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -68,6 +69,15 @@ func readLocalEventFile(path string) ([]byte, error) {
 }
 
 func importLocalEvents(ctx context.Context, snapshot timeline.MemoryTimelineData, principal, caseID string, content []byte) (timeline.MemoryTimelineData, error) {
+	return importLocalEventsFromFeed(ctx, snapshot, principal, caseID, content, 0)
+}
+
+// The local operator assigns a small stable feed ordinal; imported source
+// records never supply tenant, permission or owner authority.
+func importLocalEventsFromFeed(ctx context.Context, snapshot timeline.MemoryTimelineData, principal, caseID string, content []byte, feedNumber int) (timeline.MemoryTimelineData, error) {
+	if feedNumber < 0 || feedNumber > maxWazuhAlertFiles {
+		return timeline.MemoryTimelineData{}, errors.New("invalid local feed number")
+	}
 	if err := ctx.Err(); err != nil {
 		return timeline.MemoryTimelineData{}, err
 	}
@@ -154,7 +164,14 @@ func importLocalEvents(ctx context.Context, snapshot timeline.MemoryTimelineData
 		if len(updatedCase.EntryIDs) >= timeline.MaxEntries {
 			return timeline.MemoryTimelineData{}, errors.New("Case exceeds 5000 entries")
 		}
-		digest := sha256.Sum256([]byte(caseID + "\x00" + event.ID))
+		identity := caseID + "\x00" + event.ID
+		provenance := "operator-local-jsonl"
+		if feedNumber > 0 {
+			feed := strconv.Itoa(feedNumber)
+			identity = caseID + "\x00feed-" + feed + "\x00" + event.ID
+			provenance = "operator-local-wazuh4/feed-" + feed
+		}
+		digest := sha256.Sum256([]byte(identity))
 		key := hex.EncodeToString(digest[:])
 		entryID := "local-jsonl-entry-" + key
 		sourceRef := "local-jsonl-source-" + key
@@ -167,7 +184,7 @@ func importLocalEvents(ctx context.Context, snapshot timeline.MemoryTimelineData
 			Value: timeline.Entry{
 				ID: entryID, Tenant: c.Tenant, Kind: "observed",
 				SourceTime: event.Timestamp, Timezone: at.Format("Z07:00"),
-				SourceRef: sourceRef, Provenance: "operator-local-jsonl",
+				SourceRef: sourceRef, Provenance: provenance,
 				Version: 1,
 			},
 		})

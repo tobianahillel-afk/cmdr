@@ -33,13 +33,29 @@ func main() {
 
 // CLI parsing is separate from process exit so real requests and rejected
 // arguments can be exercised in tests without a shell or subprocess runner.
+// Wazuh alert files are selected only by the local operator before listener
+// creation. The existing Case owner, not these files, grants access.
+const maxWazuhAlertFiles = 4
+
+type wazuhAlertFiles []string
+
+func (f *wazuhAlertFiles) String() string { return fmt.Sprintf("%d Wazuh file(s)", len(*f)) }
+func (f *wazuhAlertFiles) Set(path string) error {
+	if path == "" || len(*f) >= maxWazuhAlertFiles {
+		return errors.New("select 1 to 4 local Wazuh alerts files")
+	}
+	*f = append(*f, path)
+	return nil
+}
+
 func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	flags := flag.NewFlagSet("case-timeline-demo", flag.ContinueOnError)
 	flags.SetOutput(io.Discard)
 	principal := flags.String("principal", "analyst-a", "synthetic analyst ID from the selected local owner snapshot")
 	snapshot := flags.String("snapshot", "", "absolute path to operator-owned read-only Case snapshot JSON (loopback demo only)")
 	importJSONL := flags.String("import-jsonl", "", "absolute local normalized event JSONL for offline owner snapshot preparation (no listener)")
-	wazuhAlerts := flags.String("wazuh-alerts", "", "absolute local Wazuh 4.x alerts.json JSONL for authorized Case loopback viewer")
+	var wazuhFiles wazuhAlertFiles
+	flags.Var(&wazuhFiles, "wazuh-alerts", "absolute local Wazuh 4.x alerts.json JSONL; repeat up to 4 for loopback viewer")
 	intoCase := flags.String("into-case", "", "existing Case for imported local events (requires -import-jsonl)")
 	triageImport := flags.Bool("triage-import", false, "analyze locally imported events; use -with-case for a two-Case comparison, optionally -compare-proximity for bounded time leads")
 	serveImport := flags.Bool("serve-import", false, "import local JSONL into an in-memory Case and open the authenticated loopback analyst viewer; no merged owner file")
@@ -74,7 +90,7 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	}
 	// Wazuh 4.x is an offline source, not an ACL provider. Require exactly
 	// one of the existing viewer or authorized two-Case temporal paths.
-	if *wazuhAlerts != "" {
+	if len(wazuhFiles) > 0 {
 		if *snapshot == "" || *intoCase == "" || *importJSONL != "" ||
 			*reportCase != "" || *exportCase != "" || *compareCase != "" ||
 			*compareEvents || *sourceCase != "" || *sourceRef != "" ||
@@ -85,13 +101,13 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 			if *withCase != "" || *compareProximity || windowSet {
 				return errors.New("Wazuh viewer cannot combine with comparison options")
 			}
-			return serveDemoWithWazuhAlerts(ctx, *principal, *snapshot, *intoCase, *wazuhAlerts, output)
+			return serveDemoWithWazuhAlertsFiles(ctx, *principal, *snapshot, *intoCase, []string(wazuhFiles), output)
 		}
-		if *withCase == "" || !*compareProximity {
-			return errors.New("Wazuh temporal triage requires -with-case and -compare-proximity")
+		if len(wazuhFiles) != 1 || *withCase == "" || !*compareProximity {
+			return errors.New("Wazuh temporal triage requires one alerts file, -with-case and -compare-proximity")
 		}
 		return writeDemoWazuh4Proximity(ctx, *principal, *snapshot, *intoCase, *withCase,
-			*wazuhAlerts, *proximitySeconds, output)
+			wazuhFiles[0], *proximitySeconds, output)
 	}
 	if *serveImport && (*snapshot == "" || *importJSONL == "" || *intoCase == "") {
 		return errors.New("serve-import requires an owner snapshot, normalized JSONL file and destination Case")

@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"os"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -96,29 +97,61 @@ func normalizeWazuh4Alerts(ctx context.Context, raw []byte) ([]byte, error) {
 // straight to the already-authorized in-memory Case and loopback UI.
 // No merged owner graph is exported and no new ACL service is introduced.
 func serveDemoWithWazuhAlerts(ctx context.Context, principal, snapshotPath, caseID, alertsPath string, output io.Writer) error {
+	return serveDemoWithWazuhAlertsFiles(ctx, principal, snapshotPath, caseID, []string{alertsPath}, output)
+}
+
+// A single loopback session can correlate up to four operator-owned Wazuh
+// alert exports in one authorized Case without materializing a merged owner
+// snapshot. Duplicate raw Wazuh IDs are independent across feed ordinals.
+func serveDemoWithWazuhAlertsFiles(ctx context.Context, principal, snapshotPath, caseID string, paths []string, output io.Writer) error {
 	if err := ctx.Err(); err != nil {
 		return err
 	}
-	if snapshotPath == "" || alertsPath == "" || snapshotPath == alertsPath {
-		return errors.New("select two distinct absolute local owner and Wazuh files")
+	if snapshotPath == "" || len(paths) == 0 || len(paths) > maxWazuhAlertFiles {
+		return errors.New("select an owner snapshot and 1 to 4 Wazuh alerts files")
 	}
 	owner, err := loadDemoSnapshot(snapshotPath)
 	if err != nil {
 		return err
 	}
-	raw, err := readLocalEventFile(alertsPath)
+	ownerInfo, err := os.Lstat(snapshotPath)
 	if err != nil {
-		return err
+		return errors.New("cannot identify local owner snapshot")
 	}
-	events, err := normalizeWazuh4Alerts(ctx, raw)
-	if err != nil {
-		return err
+	seen := []os.FileInfo{ownerInfo}
+	for i, path := range paths {
+		if err := ctx.Err(); err != nil {
+			return err
+		}
+		data, err := readLocalEventFile(path)
+		if err != nil {
+			return err
+		}
+		info, err := os.Lstat(path)
+		if err != nil {
+			return errors.New("cannot identify Wazuh alert file")
+		}
+		for _, previous := range seen {
+			if os.SameFile(info, previous) {
+				return errors.New("each local Wazuh input must be a distinct file")
+			}
+		}
+		seen = append(seen, info)
+		events, err := normalizeWazuh4Alerts(ctx, data)
+		if err != nil {
+			return err
+		}
+		feed := 0
+		if len(paths) > 1 {
+			feed = i + 1
+		}
+		owner, err = importLocalEventsFromFeed(ctx, owner, principal, caseID, events, feed)
+		if err != nil {
+			return err
+		}
 	}
-	merged, err := importLocalEvents(ctx, owner, principal, caseID, events)
-	if err != nil {
-		return err
-	}
-	return serveDemoWithData(ctx, principal, merged, output)
+	// Nothing is served until all feeds pass validation and owner ACL checks.
+	return serveDemoWithData(ctx, principal, owner, output)
 }
 
 // writeDemoWazuh4Proximity turns a local Wazuh alert stream into time leads
