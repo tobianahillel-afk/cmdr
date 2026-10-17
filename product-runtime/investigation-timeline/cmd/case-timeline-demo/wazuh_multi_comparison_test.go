@@ -69,3 +69,64 @@ func TestMultiWazuhComparisonDeniedOrInvalidEmitsNothing(t *testing.T) {
 		})
 	}
 }
+
+func TestFourWazuhFeedsAsOneAuthorizedCaseComparison(t *testing.T) {
+	owner := proximityDiskSnapshot(t)
+	files := make([]string, 4)
+	for i := range files {
+		files[i] = writeJSONLEvents(t, "{\"id\":\"shared.42\",\"timestamp\":\"2026-10-01T10:02:02Z\",\"rule\":{\"description\":\"private per-feed signal\"}}\n")
+	}
+	var output bytes.Buffer
+	err := writeDemoMultiWazuhComparison(context.Background(), "analyst-a", owner, "case-a", "case-c", files, &output)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var got localImportedComparison
+	if err := json.Unmarshal(output.Bytes(), &got); err != nil {
+		t.Fatal(err)
+	}
+	if got.ImportedEntries != 4 || got.Comparison.First.VisibleEntries < 4 ||
+		got.Comparison.First.DistinctSources < 4 || got.Comparison.Second.CaseID != "case-c" {
+		t.Fatalf("four Wazuh exports not independently represented: %+v", got)
+	}
+	if strings.Contains(output.String(), "private per-feed signal") {
+		t.Fatal("raw source preview leaked into aggregate receipt")
+	}
+}
+
+func TestMultiWazuhFourFileFailClosedOnLateInvalidSource(t *testing.T) {
+	owner := proximityDiskSnapshot(t)
+	good := make([]string, 3)
+	for i := range good {
+		good[i] = writeJSONLEvents(t, "{\"id\":\"a.123\",\"timestamp\":\"2026-10-01T10:02:02Z\",\"rule\":{\"description\":\"private\"}}\n")
+	}
+	bad := writeJSONLEvents(t, "{invalid-json}\n")
+	files := append(good, bad)
+	for _, report := range []struct{
+		name string
+		run func(*bytes.Buffer) error
+	}{
+		{"comparison",func(out *bytes.Buffer) error {
+			return writeDemoMultiWazuhComparison(context.Background(), "analyst-a", owner, "case-a", "case-c", files, out)
+		}},
+		{"triage",func(out *bytes.Buffer) error {
+			return writeDemoMultiWazuhTriage(context.Background(), "analyst-a", owner, "case-a", files, out)
+		}},
+		{"cross-case-proximity",func(out *bytes.Buffer) error {
+			return writeDemoMultiWazuhProximity(context.Background(), "analyst-a", owner, "case-a", "case-c", files, 1, out)
+		}},
+	} {
+		t.Run(report.name,func(t *testing.T){
+			var output bytes.Buffer
+			if err := report.run(&output); err == nil || output.Len()!=0 {
+				t.Fatalf("partial import produced a report: %v / %s",err,output.String())
+			}
+		})
+	}
+	ctx,cancel := context.WithCancel(context.Background())
+	cancel()
+	var output bytes.Buffer
+	if err := writeDemoMultiWazuhComparison(ctx, "analyst-a", owner, "case-a", "case-c", good[:2], &output); err == nil || output.Len()!=0 {
+		t.Fatalf("canceled comparison exposed output: %v",err)
+	}
+}
