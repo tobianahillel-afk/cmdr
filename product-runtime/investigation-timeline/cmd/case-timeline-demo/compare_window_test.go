@@ -11,6 +11,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	timeline "github.com/tobianahillel-afk/cmdr/product-runtime/investigation-timeline"
 )
 
 // The second Case is sourced exclusively from operator-controlled disk JSON,
@@ -152,5 +154,97 @@ func TestCrossCaseWindowCancellationAndWriterFailure(t *testing.T) {
 	}
 	if err := writeDemoCaseWindowSequence(context.Background(), "analyst-a", path, "case-a", "case-c", "2026-10-01T10:00:00Z", rejectReportOutput{}); !errors.Is(err, io.ErrClosedPipe) {
 		t.Fatalf("window export ignored output error: %v", err)
+	}
+}
+
+func TestTemporalWindowHonorsOffsetsAndExclusiveEndWithTwoCaseOwner(t *testing.T) {
+	data, err := loadDemoSnapshot(twoCaseComparisonSnapshot(t))
+	if err != nil { t.Fatal(err) }
+	for i := range data.Entries {
+		if data.Entries[i].CaseID == "case-c" {
+			data.Entries[i].Value.SourceTime = "2026-10-01T11:02:05+01:00"
+			data.Entries[i].Value.Timezone = "+01:00"
+		}
+	}
+	for i := range data.Cases {
+		if data.Cases[i].ID == "case-c" {
+			data.Cases[i].EntryIDs = append(data.Cases[i].EntryIDs, "case-c-end-exclusive")
+		}
+	}
+	data.Entries = append(data.Entries, timeline.MemoryTimelineEntry{
+		CaseID: "case-c",
+		Value: timeline.Entry{
+			ID: "case-c-end-exclusive", Tenant: "demo-tenant-a", Kind: "observed",
+			SourceTime: "2026-10-01T10:05:00Z", Timezone: "+00:00", Version: 1,
+			SourceRef: "disk-source-c", Provenance: "boundary-from-disk",
+		},
+		Readers: []string{"analyst-a"},
+	})
+	blob, err := json.Marshal(data)
+	if err != nil { t.Fatal(err) }
+	path := filepath.Join(t.TempDir(), "boundary-owner.json")
+	if err := os.WriteFile(path, blob, 0o600); err != nil { t.Fatal(err) }
+	var out bytes.Buffer
+	if err := writeDemoCaseWindowSequence(context.Background(), "analyst-a", path, "case-a", "case-c", "2026-10-01T10:00:00Z", &out); err != nil { t.Fatal(err) }
+	var report localCaseWindowSequence
+	if err := json.Unmarshal(out.Bytes(), &report); err != nil { t.Fatal(err) }
+	if report.FirstEvents != 206 || report.SecondEvents != 1 || len(report.Events) != 207 {
+		t.Fatalf("unexpected boundary receipt counts: %+v", report)
+	}
+	if strings.Contains(out.String(), "case-c-end-exclusive") || strings.Contains(out.String(), "boundary-from-disk") {
+		t.Fatal("exclusive upper-bound leaked an out-of-window entry")
+	}
+	found := false
+	for _, item := range report.Events {
+		if item.CaseID == "case-c" {
+			found = item.Entry.ID == "event-c" &&
+				item.Entry.SourceTime == "2026-10-01T11:02:05+01:00"
+		}
+	}
+	if !found {
+		t.Fatal("original owner timezone/offset was lost")
+	}
+}
+
+func TestTemporalWindowFailsClosedWhenSecondSourceOwnerDenied(t *testing.T) {
+	data, err := loadDemoSnapshot(twoCaseComparisonSnapshot(t))
+	if err != nil { t.Fatal(err) }
+	for i := range data.Entries {
+		if data.Entries[i].CaseID == "case-c" {
+			data.Entries[i].Value.SourceTime = "2026-10-01T10:02:05Z"
+		}
+	}
+	for i := range data.Sources {
+		if data.Sources[i].Identity.CaseID == "case-c" {
+			data.Sources[i].Readers = nil
+		}
+	}
+	blob, err := json.Marshal(data)
+	if err != nil { t.Fatal(err) }
+	path := filepath.Join(t.TempDir(), "denied-source.json")
+	if err := os.WriteFile(path, blob, 0o600); err != nil { t.Fatal(err) }
+	var out bytes.Buffer
+	if err := writeDemoCaseWindowSequence(context.Background(), "analyst-a", path, "case-a", "case-c", "2026-10-01T10:00:00Z", &out); err == nil || out.Len() != 0 {
+		t.Fatalf("denied owner produced partial event receipt: err=%v output=%q", err, out.String())
+	}
+}
+
+func TestTemporalWindowDirectBoundaryValidation(t *testing.T) {
+	path := localSharedWindowSnapshot(t, "2026-10-01T10:02:05Z", "+00:00")
+	for _, tc := range []struct{principal,first,second,window string}{
+		{"", "case-a", "case-c", "2026-10-01T10:00:00Z"},
+		{"analyst-a", "", "case-c", "2026-10-01T10:00:00Z"},
+		{"analyst-a", "case-a", "case-a", "2026-10-01T10:00:00Z"},
+		{"analyst-a", strings.Repeat("x",1025), "case-c", "2026-10-01T10:00:00Z"},
+		{"analyst-a", "case-a", strings.Repeat("y",1025), "2026-10-01T10:00:00Z"},
+		{"analyst-a", "case-a", "case-c", "2026-10-01T10:02:00Z"},
+		{"analyst-a", "case-a", "case-c", "2026-10-01T10:00:00+00:00"},
+		{"missing-user", "case-a", "case-c", "2026-10-01T10:00:00Z"},
+		{"analyst-a", "case-a", "missing", "2026-10-01T10:00:00Z"},
+	} {
+		var out bytes.Buffer
+		if err := writeDemoCaseWindowSequence(context.Background(), tc.principal, path, tc.first, tc.second, tc.window, &out); err == nil || out.Len() != 0 {
+			t.Fatalf("invalid selected authority/window emitted data: %+v output=%q", tc, out.String())
+		}
 	}
 }
