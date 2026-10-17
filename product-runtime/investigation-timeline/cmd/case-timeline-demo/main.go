@@ -75,6 +75,7 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	pivotWazuh := flags.String("pivot-wazuh-field", "", "optional wazuh.rule.id or wazuh.agent.id search pivot draft")
 	pivotFrom := flags.String("pivot-start", "", "inclusive RFC3339 Event Search pivot start")
 	pivotTo := flags.String("pivot-end", "", "exclusive RFC3339 Event Search pivot end")
+	executePivot := flags.Bool("execute-wazuh-pivot", false, "execute the selected first-party search pivot on authorized offline Wazuh alerts; bounded, no live provider")
 	if err := flags.Parse(args); err != nil {
 		return err
 	}
@@ -93,6 +94,9 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	if *compareProximity && *compareEvents {
 		return errors.New("choose exactly one cross-Case comparison mode")
 	}
+	if *executePivot && (*inspectWazuh == "" || *pivotWazuh == "") {
+		return errors.New("executed Wazuh search requires an explicit Event Inspection pivot")
+	}
 	if *inspectWazuh == "" && (*pivotWazuh != "" || *pivotFrom != "" || *pivotTo != "") {
 		return errors.New("Wazuh pivot requires an imported Event Inspection selection")
 	}
@@ -110,8 +114,8 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 				*inspectEntry != "" || *serveImport || *triageImport || *withCase != "" {
 				return errors.New("Wazuh Event Inspection cannot combine with other investigation modes")
 			}
-			return writeDemoWazuhEventInspection(ctx, *principal, *snapshot, *intoCase,
-				[]string(wazuhFiles), *inspectWazuh, *pivotWazuh, *pivotFrom, *pivotTo, output)
+			return writeDemoWazuhEventInspectionWithSearch(ctx, *principal, *snapshot, *intoCase,
+				[]string(wazuhFiles), *inspectWazuh, *pivotWazuh, *pivotFrom, *pivotTo, *executePivot, output)
 		}
 		if *snapshot == "" || *intoCase == "" || *importJSONL != "" ||
 			*reportCase != "" || *exportCase != "" || *compareCase != "" ||
