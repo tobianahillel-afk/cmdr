@@ -19,7 +19,7 @@ function element() {
 
 function setup(reply) {
   const ids = ["token", "case-id", "search", "kind", "from", "to", "query", "hunt-query",
-    "hunt-run", "hunt-status", "hunt-results"];
+    "hunt-run", "hunt-status", "hunt-results", "hunt-evidence"];
   const fields = Object.fromEntries(ids.map(id => [id, element()]));
   const requests = [];
   let submits = 0;
@@ -268,4 +268,63 @@ test("source pivot becomes inert after token rotation", async () => {
   pivot.dispatchEvent({ type: "click" });
   assert.equal(env.submits, 0);
   assert.equal(env.fields["hunt-results"].children.length, 0);
+});
+
+test("exact authorized event shortcuts use the existing Case-specific search", async () => {
+  const env = setup(url => {
+    if (url.pathname === "/demo-cases") return cases(["case-a", "case-b"]);
+    const id = url.searchParams.get("case_id");
+    return { ok: true, async json() {
+      return {status:"allow", page:{offset:0, limit:200, total_visible:4, has_more:false},
+        entries:Array.from({length:4}, (_,i) => ({
+          id:id+"-event-"+i, kind:i%2?"inferred":"observed",
+          source_ref:"private-"+id+"-"+i
+        }))};
+    }};
+  });
+  env.fields["hunt-run"].dispatchEvent({type:"click"});
+  await flush();
+  assert.equal(env.fields["hunt-results"].children.length, 2);
+  assert.equal(env.fields["hunt-evidence"].children.length, 6);
+  assert.ok(env.fields["hunt-evidence"].children.every(x => !x.textContent.includes("private-")));
+  assert.equal(env.requests.length, 3);
+  env.fields.kind.value="decision";
+  env.fields.from.value="2026-10-02T12:00:00";
+  env.fields["hunt-evidence"].children[4].dispatchEvent({type:"click"});
+  assert.equal(env.fields["case-id"].value, "case-b");
+  assert.equal(env.fields.search.value, "case-b-event-1");
+  assert.equal(env.fields.kind.value, "");
+  assert.equal(env.fields.from.value, "");
+  assert.equal(env.submits, 1);
+  assert.equal(env.requests.length, 3); // no source endpoint without server reauthorization
+});
+
+test("event shortcuts are erased on bearer rotation and late Case rejection", async () => {
+  const ok = setup(url => url.pathname==="/demo-cases" ? cases(["case-a"]) : page(url, ["visible"]));
+  ok.fields["hunt-run"].dispatchEvent({type:"click"});
+  await flush();
+  const stale = ok.fields["hunt-evidence"].children[0];
+  assert.ok(stale);
+  ok.fields.token.value="rotated";
+  ok.fields.token.dispatchEvent({type:"input"});
+  stale.dispatchEvent({type:"click"});
+  assert.equal(ok.submits,0);
+  assert.equal(ok.fields["hunt-evidence"].children.length,0);
+  const denied=setup(url => {
+    if(url.pathname==="/demo-cases") return cases(["case-a","case-b"]);
+    return url.searchParams.get("case_id")==="case-a" ? page(url,["visible"]) : {ok:false};
+  });
+  denied.fields["hunt-run"].dispatchEvent({type:"click"});
+  await flush();
+  assert.equal(denied.fields["hunt-evidence"].children.length,0);
+  assert.equal(denied.fields["hunt-results"].children.length,0);
+});
+
+test("oversized authorized event IDs cannot create exact-event shortcuts", async () => {
+  const env=setup(url=>url.pathname==="/demo-cases" ? cases(["case-a"]) : page(url,["X".repeat(1025)]));
+  env.fields["hunt-run"].dispatchEvent({type:"click"});
+  await flush();
+  assert.equal(env.fields["hunt-evidence"].children.length,0);
+  assert.equal(env.fields["hunt-results"].children.length,0);
+  assert.match(env.fields["hunt-status"].textContent,/aucun résultat partiel/);
 });

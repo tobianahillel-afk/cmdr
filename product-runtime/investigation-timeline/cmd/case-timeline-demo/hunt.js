@@ -14,6 +14,7 @@
   const button = document.getElementById("hunt-run");
   const status = document.getElementById("hunt-status");
   const results = document.getElementById("hunt-results");
+  const evidence = document.getElementById("hunt-evidence");
   const maxCases = 8;
   const pageSize = 200;
   const maxEntries = 5000;
@@ -26,6 +27,7 @@
     active = null;
     button.disabled = false;
     results.replaceChildren();
+    evidence.replaceChildren();
     status.textContent = "Aucune recherche transversale effectuée.";
   }
 
@@ -89,6 +91,8 @@
         let total = null;
         const kinds = { observed: 0, inferred: 0 };
         const seen = new Set();
+        // Only bounded identifiers from already authorized pages become shortcuts.
+        const entryPivots = [];
         for (let offset = 0; offset === 0 || offset < total; offset += pageSize) {
           if (controller.signal.aborted || selectedRevision !== revision)
             throw new Error("cancelled");
@@ -113,23 +117,25 @@
             throw new Error("incomplete authorized Case page");
           for (const entry of data.entries) {
             if (!entry || typeof entry.id !== "string" || !entry.id ||
-                seen.has(entry.id) ||
+                entry.id.length > 1024 || seen.has(entry.id) ||
                 !["observed", "inferred", "user-action", "decision", "response"].includes(entry.kind) ||
                 typeof entry.source_ref !== "string" || !entry.source_ref ||
                 entry.source_ref.length > 1024) {
               throw new Error("invalid authorized entry");
             }
             seen.add(entry.id);
+            if (entryPivots.length < 3) entryPivots.push({ id: entry.id, kind: entry.kind });
             if (entry.kind === "observed" || entry.kind === "inferred") kinds[entry.kind]++;
           }
         }
-        if (total) matches.push({ caseID: id, total, kinds });
+        if (total) matches.push({ caseID: id, total, kinds, entryPivots });
 
       }
       if (controller.signal.aborted || selectedRevision !== revision ||
           token.value !== bearer || query.value.trim() !== needle) return;
       // Commit display only after EVERY Case completed. No partial release.
       results.replaceChildren();
+      evidence.replaceChildren();
       for (const item of matches) {
         const pivot = document.createElement("button");
         pivot.type = "button";
@@ -139,6 +145,15 @@
         pivot.addEventListener("click", () =>
           pivotTo(item.caseID, needle, selectedRevision, bearer, needle));
         results.append(pivot);
+        for (const hit of item.entryPivots) {
+          const open = document.createElement("button");
+          open.type = "button";
+          open.textContent = item.caseID + " — " + hit.kind + " / " + hit.id +
+            " · Ouvrir dans la chronologie du Case";
+          open.addEventListener("click", () =>
+            pivotTo(item.caseID, hit.id, selectedRevision, bearer, needle));
+          evidence.append(open);
+        }
       }
       // Source references belong to one canonical Case in the Go owner.
       // A shared source-ID join is unreachable on valid snapshots. Report
@@ -154,6 +169,7 @@
     } catch {
       if (selectedRevision === revision) {
         results.replaceChildren();
+        evidence.replaceChildren();
         status.textContent = "Recherche incomplète ou accès révoqué : aucun résultat partiel affiché.";
       }
     } finally {
