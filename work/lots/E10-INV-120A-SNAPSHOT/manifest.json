@@ -79,7 +79,8 @@
     "Authorized multi-page source-reference grouping in the analyst summary, no new data authority or network route",
     "Existing CI executes authorized analyst summary, comparison and temporal pivot browser tests",
     "Explicit single-Case authorized JSONL event export for downstream local DFIR analysis, bounded to 5000 already authorized rows",
-    "One-shot operator JSONL import into an authorized Case followed by a second independently authorized Case comparison, without sensitive intermediate owner export"
+    "One-shot operator JSONL import into an authorized Case followed by a second independently authorized Case comparison, without sensitive intermediate owner export",
+    "One-shot imported normalized JSONL -> independently owner-authorized two-Case nearest-certain-time leads (1..300 seconds), without exporting merged owner data or exposing denied sources"
   ],
   "acceptance_tests": [
     "Default demo behavior unchanged",
@@ -88,7 +89,8 @@
     "go test -race ./..., go vet and CI exact SHA",
     "Multi-page source grouping and observed/inferred counts, cancellation, malformed authorized reference fail closed, text-only display",
     "Real on-disk 207-entry Case export as newline-delimited JSON through per-page authenticated HTTP; forbidden data excluded and failed authorization emits zero bytes",
-    "Imported two-Case aggregate comparison succeeds across 200+ authorized pages; denied or foreign second Case returns zero output; disk owner unchanged"
+    "Imported two-Case aggregate comparison succeeds across 200+ authorized pages; denied or foreign second Case returns zero output; disk owner unchanged",
+    "One-process JSONL import-to-cross-Case temporal lead: imported event appears among authorized candidates; foreign/denied second Case, invalid event and cancelled request emit zero bytes; existing aggregate mode unchanged"
   ],
   "performance_budget": {
     "applicable": false,
