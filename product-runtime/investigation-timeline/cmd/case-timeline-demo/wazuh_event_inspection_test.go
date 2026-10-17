@@ -152,3 +152,65 @@ func TestWazuhEventInspectionRejectsUnauthorizedAndAmbiguousSelections(t *testin
 		t.Fatalf("cancelled Wazuh inspection emitted data: %v %s", err, output.String())
 	}
 }
+
+func TestWazuhInspectionCannotInventMissingSearchPivot(t *testing.T) {
+	const caseID = "forensic-case-on-disk"
+	owner := snapshotFixture(t)
+	feed := writeJSONLEvents(t, "{\"id\":\"no-rule.1\",\"timestamp\":\"2026-10-17T10:00:00Z\",\"agent\":{\"id\":\"000\"},\"rule\":{\"description\":\"missing rule ID\"}}\n")
+	args := []string{
+		"-snapshot=" + owner, "-principal=analyst-a", "-into-case=" + caseID,
+		"-wazuh-alerts=" + feed, "-inspect-wazuh-entry=" + importedWazuhID(caseID, "no-rule.1", 0),
+		"-pivot-wazuh-field=wazuh.rule.id",
+		"-pivot-start=2026-10-17T09:00:00Z",
+		"-pivot-end=2026-10-17T11:00:00Z",
+	}
+	var denied bytes.Buffer
+	if err := runDemoCLI(context.Background(), args, &denied); err == nil || denied.Len() != 0 {
+		t.Fatalf("missing rule identity produced fabricated search pivot: %v %s", err, denied.String())
+	}
+	args[5] = "-pivot-wazuh-field=wazuh.agent.id"
+	var allowed bytes.Buffer
+	if err := runDemoCLI(context.Background(), args, &allowed); err != nil {
+		t.Fatal(err)
+	}
+	var result wazuhInspectionReceipt
+	if err := json.Unmarshal(allowed.Bytes(), &result); err != nil ||
+		result.Pivot == nil || result.Pivot.Field != "wazuh.agent.id" ||
+		result.Pivot.Value != "000" {
+		t.Fatalf("valid agent-only pivot lost: %v %+v", err, result)
+	}
+	// Operator's explicit sensitive read is unaffected by missing rule IDs.
+	args = args[:5]
+	var inspected bytes.Buffer
+	if err := runDemoCLI(context.Background(), args, &inspected); err != nil {
+		t.Fatal(err)
+	}
+	if err := json.Unmarshal(inspected.Bytes(), &result); err != nil || result.Inspection == nil {
+		t.Fatalf("source inspection without search pivot failed: %v %+v", err, result)
+	}
+}
+
+func TestWazuhInspectionRejectsInvalidBoundaryBeforeOpeningSources(t *testing.T) {
+	for _, tc := range []struct {
+		name, principal, caseID, entryID, pivotField, from, to string
+		paths []string
+	}{
+		{name:"missing principal", caseID:"case-a", entryID:"event-a", paths:[]string{"/nonexistent"}},
+		{name:"missing Case", principal:"analyst-a", entryID:"event-a", paths:[]string{"/nonexistent"}},
+		{name:"missing entry", principal:"analyst-a", caseID:"case-a", paths:[]string{"/nonexistent"}},
+		{name:"missing feeds", principal:"analyst-a", caseID:"case-a", entryID:"event-a"},
+		{name:"too many feeds", principal:"analyst-a", caseID:"case-a", entryID:"event-a", paths:[]string{"a","b","c","d","e"}},
+		{name:"bounds without pivot", principal:"analyst-a", caseID:"case-a", entryID:"event-a", paths:[]string{"a"}, from:"2026-10-17T10:00:00Z"},
+		{name:"pivot without times", principal:"analyst-a", caseID:"case-a", entryID:"event-a", paths:[]string{"a"}, pivotField:"wazuh.rule.id"},
+		{name:"unapproved pivot field", principal:"analyst-a", caseID:"case-a", entryID:"event-a", paths:[]string{"a"}, pivotField:"raw.full_log", from:"2026-10-17T09:00:00Z", to:"2026-10-17T11:00:00Z"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			var output bytes.Buffer
+			if err := writeDemoWazuhEventInspection(context.Background(), tc.principal, "", tc.caseID,
+				tc.paths, tc.entryID, tc.pivotField, tc.from, tc.to, &output); err == nil ||
+				output.Len() != 0 {
+				t.Fatalf("invalid source selection passed: %v %s", err, output.String())
+			}
+		})
+	}
+}
