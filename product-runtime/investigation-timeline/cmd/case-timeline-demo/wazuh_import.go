@@ -113,14 +113,14 @@ func serveDemoWithWazuhAlerts(ctx context.Context, principal, snapshotPath, case
 // This optional lab-only route is never installed for ordinary snapshots.
 // No Wazuh metadata is returned before bearer AND owner-authorized traversal.
 func newDemoWazuhCohortHandler(token, principal, caseID string, data timeline.MemoryTimelineData, imported int, raw []byte, base http.Handler) http.Handler {
-	return newDemoWazuhCohortReceiptHandler(token, caseID, base, func(ctx context.Context, output io.Writer) error {
+	return newDemoWazuhCohortReceiptHandler(token, principal, caseID, data, imported, raw, base, func(ctx context.Context, output io.Writer) error {
 		return writeDemoWazuh4RuleTriageWithData(ctx, principal, data, imported, raw, caseID, output)
 	})
 }
 
 // A shared authenticated route, not a new trust boundary. The callback
 // computes a receipt only after the bearer and selected Case are checked.
-func newDemoWazuhCohortReceiptHandler(token, caseID string, base http.Handler, receipt func(context.Context, io.Writer) error) http.Handler {
+func newDemoWazuhCohortReceiptHandler(token, principal, caseID string, data timeline.MemoryTimelineData, imported int, raw []byte, base http.Handler, receipt func(context.Context, io.Writer) error) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/demo-wazuh-cohorts" {
 			base.ServeHTTP(w, r)
