@@ -13,7 +13,7 @@ const ids = [
   "page", "previous", "next", "load", "source-detail", "source-status",
   "return-to-case", "copy-return-link", "analyze", "analysis", "analysis-actions", "download-report",
   "compare-case", "compare", "comparison", "comparison-actions", "download-comparison",
-  "download-cross-events",
+  "download-cross-events", "proximity", "proximity-seconds", "proximity-results",
   "trace-actions", "trace-results",
   "comparison-trace-actions", "comparison-trace-results"
 ];
@@ -1080,4 +1080,62 @@ test("sensitive chronology fails closed on denied Case, invalid metadata and cha
   assert.equal(authorized.fields["download-cross-events"].disabled, true);
   authorized.fields["download-cross-events"].handlers.click();
   assert.equal(authorized.downloads.length, 0);
+});
+
+test("browser compares two authorized Cases and renders nearest certain-time leads", async () => {
+  const env = boot(async url => {
+    const result = await page(Number(url.searchParams.get("offset")), 4).json();
+    if (url.searchParams.get("case_id") === "case-peer") {
+      result.entries[0].source_time = "2026-10-01T10:00:02.250Z";
+      result.entries[1].source_time = "2026-10-01T10:00:05.000Z";
+      result.entries[3].source_time = "2026-10-01T10:00:50.000Z";
+    }
+    return { ok: true, async json() { return result; } };
+  });
+  env.fields["compare-case"].value = "case-peer";
+  env.fields["proximity-seconds"].value = "3";
+  assert.equal(env.fields.proximity.disabled, true);
+  env.fields.compare.handlers.click();
+  for (let i = 0; i < 8; i++) await flush();
+  assert.equal(env.requests.length, 2);
+  assert.equal(env.fields.proximity.disabled, false);
+  env.fields.proximity.handlers.click();
+  assert.match(env.fields["proximity-results"].textContent, /3 piste\\(s\\)/);
+  assert.match(env.fields["proximity-results"].textContent, /sans causalité/);
+  const list = env.fields["proximity-results"].children[0];
+  assert.equal(list.children.length, 3);
+  assert.match(list.children[0].textContent, /750 ms/);
+  assert.match(list.children[1].textContent, /1250 ms/);
+  assert.match(list.children[2].textContent, /2250 ms/);
+  assert.equal(list.children[0].children.length, 2);
+  assert.equal(env.requests.every(r => r.options.headers.Authorization === "Bearer ephemeral-token"), true);
+  assert.equal(env.requests.some(r => r.url.pathname !== "/case-timeline"), false);
+  assert.equal(JSON.stringify(env.fields["proximity-results"]).includes("ephemeral-token"), false);
+  env.fields["proximity-seconds"].value = "0";
+  env.fields["proximity-seconds"].handlers.input();
+  env.fields.proximity.handlers.click();
+  assert.match(env.fields["proximity-results"].textContent, /Fenêtre invalide/);
+});
+
+test("temporal leads cannot survive bearer changes or a denied second Case", async () => {
+  const env = boot(url => page(Number(url.searchParams.get("offset")), 2));
+  env.fields["compare-case"].value = "case-peer";
+  env.fields["proximity-seconds"].value = "30";
+  env.fields.compare.handlers.click();
+  for (let i = 0; i < 6; i++) await flush();
+  env.fields.proximity.handlers.click();
+  assert.match(env.fields["proximity-results"].textContent, /piste\\(s\\)/);
+  env.fields.token.value = "revoked";
+  env.fields.token.handlers.input();
+  assert.equal(env.fields.proximity.disabled, true);
+  assert.equal(env.fields["proximity-results"].children.length, 0);
+  assert.match(env.fields["proximity-results"].textContent, /Aucune piste/);
+
+  const denied = boot(url => url.searchParams.get("case_id") === "case-peer" ?
+    { ok: false } : page(Number(url.searchParams.get("offset")), 2));
+  denied.fields["compare-case"].value = "case-peer";
+  denied.fields.compare.handlers.click();
+  for (let i = 0; i < 6; i++) await flush();
+  assert.equal(denied.fields.proximity.disabled, true);
+  assert.equal(denied.fields["proximity-results"].children.length, 0);
 });

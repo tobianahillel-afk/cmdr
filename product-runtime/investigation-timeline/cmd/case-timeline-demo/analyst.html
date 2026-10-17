@@ -82,6 +82,13 @@
       <button id="compare" type="button">Comparer les chronologies autorisées</button>
       <button id="download-comparison" type="button" disabled>Enregistrer la comparaison JSON locale</button>
       <button id="download-cross-events" type="button" disabled>Enregistrer la chronologie détaillée JSON (sensible)</button>
+      <div class="field">
+        <label for="proximity-seconds">Fenêtre de proximité temporelle (secondes, 1–300)</label>
+        <input id="proximity-seconds" type="number" min="1" max="300" step="1" value="60">
+      </div>
+      <button id="proximity" type="button" disabled>Afficher les pistes temporelles</button>
+      <div id="proximity-results" role="region" aria-live="polite">Aucune piste temporelle calculée.</div>
+      <p class="intro">Après autorisation des deux Cases, recherche locale des rapprochements d'horodatages certains. Les entrées incertaines sont exclues, 25 pistes au maximum ; aucune relation causale ou identité de source n'est déduite. L'ouverture d'un événement réévalue ses droits sur le serveur.</p>
       <p id="comparison" role="status" aria-live="polite">Aucune comparaison calculée.</p>
       <p class="intro">Export détaillé strictement volontaire : jusqu’à 10 000 entrées déjà autorisées des deux Cases, avec identifiants, provenance et références de source. Le JSON est sensible et reste sur cet appareil ; aucun jeton ni aperçu brut de source n'y figure. N'utilisez pas de données clients réelles. Ni signature, ni chaîne de conservation, ni revalidation des droits après le téléchargement : relancez la comparaison avant chaque export.</p>
       <p class="intro">Export manuel des agrégats des deux Cases déjà autorisés, sans jeton, aperçus ni événements bruts. Rapport synthétique non signé, non transactionnel et sans valeur de chaîne de conservation.</p>

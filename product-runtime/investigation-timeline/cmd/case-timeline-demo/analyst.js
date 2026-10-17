@@ -53,6 +53,11 @@
   const comparisonTraceResults = document.getElementById("comparison-trace-results");
   const downloadComparison = document.getElementById("download-comparison");
   const downloadCrossEvents = document.getElementById("download-cross-events");
+  const proximityButton = document.getElementById("proximity");
+  const proximitySeconds = document.getElementById("proximity-seconds");
+  const proximityResults = document.getElementById("proximity-results");
+  let preparedProximity = null;
+  proximityButton.disabled = true;
   let preparedComparison = null;
   let preparedCrossEvents = null;
   downloadCrossEvents.disabled = true;
@@ -71,6 +76,10 @@
     comparisonTraceResults.textContent = "Aucune séquence croisée sélectionnée.";
     preparedComparison = null;
     preparedCrossEvents = null;
+    preparedProximity = null;
+    proximityButton.disabled = true;
+    proximityResults.replaceChildren();
+    proximityResults.textContent = "Aucune piste temporelle calculée.";
     downloadComparison.disabled = true;
     downloadCrossEvents.disabled = true;
   }
@@ -555,6 +564,11 @@
           Number.isSafeInteger(row.version) && row.version >= 1 &&
           (row.supersedes === undefined || typeof row.supersedes === "string"));
       if (safeRows) {
+        preparedProximity = {
+          rows: fullRows, left: selectedCase, right: otherCase,
+          comparison: activeComparison, selection: activeSelection, bearer
+        };
+        proximityButton.disabled = false;
         fullRows.sort((a, b) => {
           if (a.time_uncertain !== b.time_uncertain) return a.time_uncertain ? 1 : -1;
           if (!a.time_uncertain) {
@@ -864,6 +878,95 @@
     }
   }
 
+  // Reuse BOTH owner-authorized page traversals; do not infer permissions
+  // from the browser or create a second source-of-truth endpoint.
+  function nearestCaseLeads(rows, firstCase, secondCase, seconds) {
+    if (!Number.isSafeInteger(seconds) || seconds < 1 || seconds > 300 ||
+        rows.length > 10000) return null;
+    const certain = id => rows.filter(e => e.case_id === id && !e.time_uncertain)
+      .map(row => ({ row, ms: Date.parse(row.source_time) }))
+      .sort((a, b) => a.ms - b.ms || (a.row.id < b.row.id ? -1 : a.row.id > b.row.id ? 1 : 0));
+    const left = certain(firstCase), right = certain(secondCase);
+    if ([...left, ...right].some(e => !Number.isFinite(e.ms))) return null;
+    const leads = [], limitMS = seconds * 1000;
+    for (const event of left) {
+      let lo = 0, hi = right.length;
+      while (lo < hi) {
+        const mid = (lo + hi) >>> 1;
+        if (right[mid].ms < event.ms) lo = mid + 1;
+        else hi = mid;
+      }
+      let prior = lo - 1;
+      if (prior >= 0) {
+        const priorTime = right[prior].ms;
+        while (prior > 0 && right[prior - 1].ms === priorTime) prior--;
+      }
+      let best = null;
+      for (const at of [prior, lo]) {
+        if (at < 0 || at >= right.length) continue;
+        const peer = right[at], gap = Math.abs(peer.ms - event.ms);
+        if (gap > limitMS) continue;
+        if (!best || gap < best.gap || (gap === best.gap && peer.row.id < best.right.id)) {
+          best = { left: event.row, right: peer.row, gap };
+        }
+      }
+      if (best) leads.push(best);
+    }
+    leads.sort((a, b) => a.gap - b.gap ||
+      (a.left.id < b.left.id ? -1 : a.left.id > b.left.id ? 1 : 0) ||
+      (a.right.id < b.right.id ? -1 : a.right.id > b.right.id ? 1 : 0));
+    return { leads: leads.slice(0, 25), leftCount: left.length, rightCount: right.length };
+  }
+
+  function showCaseProximity() {
+    const snap = preparedProximity;
+    proximityResults.replaceChildren();
+    if (!snap || snap.comparison !== compareRevision || snap.selection !== revision ||
+        snap.bearer !== token.value || caseID.value.trim() !== snap.left ||
+        compareCase.value.trim() !== snap.right) {
+      proximityResults.textContent = "Comparaison expirée ; rechargez les deux Cases.";
+      return;
+    }
+    const seconds = Number(proximitySeconds.value);
+    const result = nearestCaseLeads(snap.rows, snap.left, snap.right, seconds);
+    if (!result) {
+      proximityResults.textContent = "Fenêtre invalide ; entrez un nombre entier de 1 à 300 secondes.";
+      return;
+    }
+    proximityResults.textContent = result.leads.length + " piste(s) dans " + seconds +
+      " s (maximum 25) · événements certains : " + result.leftCount +
+      " / " + result.rightCount +
+      ". Proximité temporelle non exhaustive, sans causalité démontrée. Toute ouverture revérifie les droits.";
+    const list = document.createElement("ol");
+    for (const lead of result.leads) {
+      const item = document.createElement("li");
+      item.textContent = "Écart " + lead.gap + " ms · " +
+        lead.left.kind + " / " + lead.right.kind + " · ";
+      for (const target of [
+        { label: "Case 1", case: snap.left, entry: lead.left },
+        { label: "Case 2", case: snap.right, entry: lead.right }
+      ]) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.textContent = target.label + " : " + target.entry.id.slice(0, 120);
+        button.addEventListener("click", () => {
+          if (snap.comparison !== compareRevision || snap.selection !== revision ||
+              snap.bearer !== token.value || caseID.value.trim() !== snap.left ||
+              compareCase.value.trim() !== snap.right) return;
+          clearComparison();
+          if (caseID.value.trim() !== target.case) {
+            caseID.value = target.case;
+            caseID.dispatchEvent(new Event("input", { bubbles: true }));
+          }
+          openSource(target.entry.id);
+        });
+        item.append(button);
+      }
+      list.append(item);
+    }
+    proximityResults.append(list);
+  }
+
   function readWindow() {
     // Preserve the exact RFC3339 timestamps on first return: local times
     // during a daylight-saving fold are ambiguous if round-tripped by Date.
@@ -1135,6 +1238,11 @@
   });
   analyze.addEventListener("click", analyzeAuthorizedCase);
   compareButton.addEventListener("click", compareAuthorizedCases);
+  proximityButton.addEventListener("click", showCaseProximity);
+  proximitySeconds.addEventListener("input", () => {
+    proximityResults.replaceChildren();
+    proximityResults.textContent = "Fenêtre modifiée ; relancez les pistes.";
+  });
   compareCase.addEventListener("input", clearComparison);
   downloadComparison.addEventListener("click", () => {
     const receipt = preparedComparison;
