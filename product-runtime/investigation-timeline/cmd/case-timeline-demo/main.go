@@ -42,24 +42,45 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	compareCase := flags.String("compare-case", "", "first authorized Case for an offline two-Case comparison receipt")
 	withCase := flags.String("with-case", "", "second authorized Case for the offline comparison (requires -compare-case)")
 	compareEvents := flags.Bool("compare-events", false, "explicit sensitive chronological event-level cross-Case JSON receipt")
+	compareWindow := flags.String("compare-window", "", "five-minute UTC window start for authorized two-Case event drilldown (requires -compare-events)")
 	sourceCase := flags.String("source-case", "", "authorized Case for offline source-specific event timeline")
 	sourceRef := flags.String("source-ref", "", "exact authorized source reference (requires -source-case)")
+	sourceWindow := flags.String("source-window", "", "optional canonical UTC five-minute window for this source (requires -source-case and -source-ref)")
+	openCase := flags.String("open-source-case", "", "Case owning the source preview (requires -open-source-entry; explicit sensitive local receipt)")
+	openEntry := flags.String("open-source-entry", "", "Timeline Entry to open via its typed source owner (requires -open-source-case)")
 	if err := flags.Parse(args); err != nil {
 		return err
 	}
 	if flags.NArg() != 0 {
 		return errors.New("unexpected positional arguments")
 	}
-	if *sourceCase != "" || *sourceRef != "" {
-		if *sourceCase == "" || *sourceRef == "" || *reportCase != "" || *compareCase != "" || *withCase != "" || *compareEvents {
+	if *openCase != "" || *openEntry != "" {
+		if *openCase == "" || *openEntry == "" || *sourceCase != "" || *sourceRef != "" ||
+			*sourceWindow != "" || *reportCase != "" || *compareCase != "" ||
+			*withCase != "" || *compareEvents || *compareWindow != "" {
+			return errors.New("select one complete offline source-open mode")
+		}
+		return writeDemoSourceOwnerReceipt(ctx, *principal, *snapshot, *openCase, *openEntry, output)
+	}
+	if *sourceCase != "" || *sourceRef != "" || *sourceWindow != "" {
+		if *sourceCase == "" || *sourceRef == "" || *reportCase != "" || *compareCase != "" || *withCase != "" || *compareEvents || *compareWindow != "" {
 			return errors.New("select one complete offline report mode")
+		}
+		if *sourceWindow != "" {
+			return writeDemoSourceWindowTimeline(ctx, *principal, *snapshot, *sourceCase, *sourceRef, *sourceWindow, output)
 		}
 		return writeDemoSourceTimeline(ctx, *principal, *snapshot, *sourceCase, *sourceRef, output)
 	}
-	if *reportCase != "" && (*compareCase != "" || *withCase != "") {
+	if *reportCase != "" && (*compareCase != "" || *withCase != "" || *compareEvents || *compareWindow != "") {
 		return errors.New("select one offline report mode")
 	}
-	if *compareCase != "" || *withCase != "" || *compareEvents {
+	if *compareCase != "" || *withCase != "" || *compareEvents || *compareWindow != "" {
+		if *compareWindow != "" {
+			if !*compareEvents {
+				return errors.New("five-minute event drilldown requires explicit -compare-events")
+			}
+			return writeDemoCaseWindowSequence(ctx, *principal, *snapshot, *compareCase, *withCase, *compareWindow, output)
+		}
 		if *compareEvents {
 			return writeDemoCaseEventSequence(ctx, *principal, *snapshot, *compareCase, *withCase, output)
 		}
