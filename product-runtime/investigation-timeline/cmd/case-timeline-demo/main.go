@@ -38,6 +38,8 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	flags.SetOutput(io.Discard)
 	principal := flags.String("principal", "analyst-a", "synthetic analyst ID from the selected local owner snapshot")
 	snapshot := flags.String("snapshot", "", "absolute path to operator-owned read-only Case snapshot JSON (loopback demo only)")
+	importJSONL := flags.String("import-jsonl", "", "absolute local normalized event JSONL for offline owner snapshot preparation (no listener)")
+	intoCase := flags.String("into-case", "", "existing Case for imported local events (requires -import-jsonl)")
 	reportCase := flags.String("report-case", "", "produce one authorized offline Case triage JSON receipt and exit (no listener)")
 	exportCase := flags.String("export-case", "", "export authorized Case Timeline events as sensitive local JSONL, without listener")
 	compareCase := flags.String("compare-case", "", "first authorized Case for an offline two-Case comparison receipt")
@@ -66,6 +68,14 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	}
 	if *compareProximity && *compareEvents {
 		return errors.New("choose exactly one cross-Case comparison mode")
+	}
+	if *importJSONL != "" || *intoCase != "" {
+		if *importJSONL == "" || *intoCase == "" || *reportCase != "" || *exportCase != "" ||
+			*compareCase != "" || *withCase != "" || *compareEvents || *compareProximity ||
+			*sourceCase != "" || *sourceRef != "" || *inspectCase != "" || *inspectEntry != "" {
+			return errors.New("local JSONL import requires a Case and cannot be combined with investigation modes")
+		}
+		return writeDemoImportedJSONL(ctx, *principal, *snapshot, *intoCase, *importJSONL, output)
 	}
 	if *exportCase != "" {
 		if *reportCase != "" || *compareCase != "" || *withCase != "" ||
