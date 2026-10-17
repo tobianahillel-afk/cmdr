@@ -1139,3 +1139,50 @@ test("temporal leads cannot survive bearer changes or a denied second Case", asy
   assert.equal(denied.fields.proximity.disabled, true);
   assert.equal(denied.fields["proximity-results"].children.length, 0);
 });
+
+test("authorized local JSONL feeds expose text-only browser pivots that requery ACL-protected Timeline", async () => {
+  const env = boot(async url => {
+    const reply = await page(Number(url.searchParams.get("offset")), 3).json();
+    reply.entries[0].provenance = "operator-local-jsonl/feed-1";
+    reply.entries[1].provenance = "operator-local-jsonl/feed-2";
+    reply.entries[2].provenance = "operator-local-jsonl/feed-1";
+    return { ok: true, async json() { return reply; } };
+  });
+  env.fields.analyze.handlers.click();
+  await flush();
+  const actions = env.fields["analysis-actions"].children;
+  const buttons = actions.filter(button => /^Afficher feed-[12]/.test(button.textContent));
+  assert.equal(buttons.length, 2);
+  assert.match(buttons[0].textContent, /feed-1 \(2 événement/);
+  assert.match(buttons[1].textContent, /feed-2 \(1 événement/);
+  assert.equal(env.requests.length, 1);
+  buttons[1].handlers.click();
+  await flush();
+  assert.equal(env.fields.search.value, "feed-2");
+  assert.equal(env.requests.length, 2);
+  assert.equal(env.requests[1].url.pathname, "/case-timeline");
+  assert.equal(env.requests[1].url.searchParams.get("q"), "feed-2");
+  assert.equal(env.requests[1].options.headers.Authorization, "Bearer ephemeral-token");
+  assert.ok(!env.requests[1].url.href.includes("ephemeral-token"));
+  assert.equal(env.fields["analysis-actions"].children.length, 0);
+});
+
+test("feed pivots cannot be fabricated from nonfeed labels or used after bearer revocation", async () => {
+  const env = boot(async url => {
+    const reply = await page(Number(url.searchParams.get("offset")), 2).json();
+    reply.entries[0].provenance = "operator-local-jsonl/feed-2";
+    reply.entries[1].provenance = "<img src=x onerror=alert(1)>";
+    return { ok: true, async json() { return reply; } };
+  });
+  env.fields.analyze.handlers.click();
+  await flush();
+  const buttons = env.fields["analysis-actions"].children.filter(
+    button => /^Afficher feed-/.test(button.textContent));
+  assert.equal(buttons.length, 1);
+  const before = env.requests.length;
+  env.fields.token.value = "revoked";
+  buttons[0].handlers.click();
+  await flush();
+  assert.equal(env.requests.length, before);
+  assert.equal(env.fields.search.value, "");
+});

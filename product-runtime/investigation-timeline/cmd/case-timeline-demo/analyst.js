@@ -129,6 +129,7 @@
     const counts = Object.fromEntries(kinds.map(value => [value, 0]));
     const seen = new Set();
     const bySource = new Map();
+    const importedFeeds = new Map();
     const certainTimes = [];
     let expectedTotal = null;
     let uncertain = 0;
@@ -176,6 +177,14 @@
           }
           seen.add(entry.id);
           counts[entry.kind]++;
+          // Only labels returned by the authorized Timeline response may
+          // offer a feed-specific pivot. Never use CLI paths or HTTP client
+          // metadata as a source of authorization.
+          if (typeof entry.provenance === "string" &&
+              /^operator-local-jsonl\/feed-[1-4]$/.test(entry.provenance)) {
+            const feed = entry.provenance.slice("operator-local-jsonl/".length);
+            importedFeeds.set(feed, (importedFeeds.get(feed) || 0) + 1);
+          }
           if (entry.time_uncertain) {
             uncertain++;
           } else {
@@ -275,6 +284,24 @@
       preparedReport = { serialized: JSON.stringify(report, null, 2) + "\n",
         revision: currentRevision, selection: currentSelection, caseID: selectedCase };
       downloadReport.disabled = false;
+      // A feed pivot is just a presentation filter over already
+      // server-authorized provenance. The next Timeline request independently
+      // rechecks Case, Entry and source ACLs; no bearer is stored in a URL.
+      for (const [feed, count] of [...importedFeeds].sort()) {
+        const pivot = document.createElement("button");
+        pivot.type = "button";
+        pivot.textContent = "Afficher " + feed + " (" + count + " événement(s) visibles)";
+        pivot.addEventListener("click", () => {
+          if (currentRevision !== analysisRevision ||
+              currentSelection !== revision || controller.signal.aborted ||
+              token.value !== bearer || caseID.value.trim() !== selectedCase) return;
+          search.value = feed;
+          search.dispatchEvent(new Event("input", { bubbles: true }));
+          offset = 0;
+          fetchPage();
+        });
+        analysisActions.append(pivot);
+      }
       // A representative authorized Entry is only a UI selector, never a
       // source capability. Both existing routes independently reauthorize
       // Case, Entry and typed source when the analyst clicks a source.
