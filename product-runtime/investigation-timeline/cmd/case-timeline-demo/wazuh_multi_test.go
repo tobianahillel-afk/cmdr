@@ -169,7 +169,7 @@ func TestMultipleWazuhFilesThroughAuthorizedLoopback(t *testing.T) {
 		{drillPath, "", http.StatusUnauthorized},
 		{drillPath, strings.Repeat("0", 64), http.StatusUnauthorized},
 		{"/demo-wazuh-drilldown?case_id=case-b&rule_id=5710", bearer, http.StatusNotFound},
-		{drillPath + "&agent_id=001", bearer, http.StatusNotFound},
+		{drillPath + "&rule_id=5710", bearer, http.StatusNotFound},
 	} {
 		code, body := request(requestData.path, requestData.bearer)
 		if code != requestData.want || strings.Contains(body, "local-jsonl-entry-") {

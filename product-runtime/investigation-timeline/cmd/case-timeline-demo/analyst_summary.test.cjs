@@ -1446,3 +1446,56 @@ test("Wazuh intersection refuses mismatched server metadata without rendering en
   assert.equal(env.fields["wazuh-events"].children.length,0);
   assert.match(env.fields["wazuh-events"].textContent,/Aucun résultat partiel/);
 });
+
+test("multi-feed Wazuh cooccurrence opens server-authorized paged agent/rule drilldown", async () => {
+  const env = boot(url => {
+    if (url.pathname === "/demo-wazuh-cohorts") return { ok: true, async json() {
+      return { format: "cmdr-local-wazuh4-case-triage-v1", synthetic: true,
+        imported_entries: 3,
+        top_agents: [{ agent_id: "001", count: 2, distinct_rule_ids: 1 }],
+        top_rules: [{ rule_id: "5710", count: 2 }],
+        multi_feed_signals: [{ agent_id: "001", rule_id: "5710",
+          alert_count: 2, distinct_feeds: 2, highest_known_rule_level: 9 }] };
+    } };
+    if (url.pathname === "/demo-wazuh-drilldown") return { ok: true, async json() {
+      assert.equal(url.searchParams.get("case_id"), "case-disk");
+      assert.equal(url.searchParams.get("agent_id"), "001");
+      assert.equal(url.searchParams.get("rule_id"), "5710");
+      assert.equal(url.searchParams.get("offset"), "0");
+      return { format: "cmdr-local-wazuh4-drilldown-v1", synthetic: true,
+        selector: "agent_rule", value: "001", secondary_value: "5710",
+        total_matches: 1, offset: 0, has_more: false,
+        entries: [{ id: "local-jsonl-entry-abcdef", kind: "observed",
+          source_time: "2026-10-17T10:00:00Z", time_uncertain: false }] };
+    } };
+    throw Error("Unexpected endpoint " + url.pathname);
+  });
+  env.fields["wazuh-cohorts"].handlers.click();
+  await flush();
+  await flush();
+  assert.match(env.fields["wazuh-status"].textContent, /2 flux distincts/);
+  const action = env.fields["wazuh-actions"].children.find(a =>
+    String(a.textContent).includes("Examiner les cooccurrences"));
+  assert.ok(action, "authorized cross-feed signal is not actionable");
+  action.handlers.click();
+  await flush();
+  await flush();
+  const req = env.requests.find(x => x.url.pathname === "/demo-wazuh-drilldown");
+  assert.ok(req, "drilldown not requested");
+  assert.equal(req.options.headers.Authorization, "Bearer ephemeral-token");
+  assert.equal(env.fields["wazuh-events"].children.length, 1);
+});
+
+test("malformed multi-feed signal never creates an analyst action", async () => {
+  const env = boot(() => ({ ok: true, async json() { return {
+    format: "cmdr-local-wazuh4-case-triage-v1", synthetic: true,
+    imported_entries: 2, top_agents: [], top_rules: [],
+    multi_feed_signals: [{ agent_id: "001<script>", rule_id: "5710",
+      alert_count: 2, distinct_feeds: 2 }]
+  }; } }));
+  env.fields["wazuh-cohorts"].handlers.click();
+  await flush();
+  await flush();
+  assert.match(env.fields["wazuh-status"].textContent, /indisponible|refusé/);
+  assert.equal(env.fields["wazuh-actions"].children.length, 0);
+});
