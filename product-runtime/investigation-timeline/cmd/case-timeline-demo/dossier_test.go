@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -145,5 +146,48 @@ func TestCaseDossierRejectsMissingAndOversizedIdentifiers(t *testing.T) {
 	var out bytes.Buffer
 	if err := writeDemoCaseDossier(context.Background(), "analyst-a", filepath.Join(t.TempDir(), "absent.json"), "case-a", "event-old", &out); err == nil || out.Len() != 0 {
 		t.Fatalf("missing operator snapshot did not fail closed: %v", err)
+	}
+}
+
+func TestDossierSourceOwnerRevalidationRejectsContradictoryReplies(t *testing.T) {
+	const valid = "{\"status\":\"ready\",\"synthetic\":true,\"case_id\":\"case-a\",\"entry_id\":\"event-old\",\"kind\":\"evidence\",\"object_id\":\"object-a\",\"preview\":\"owner-approved\"}"
+	for _, tc := range []struct {
+		name string
+		status int
+		body string
+	}{
+		{"denied-owner", http.StatusForbidden, valid},
+		{"invalid-owner-json", http.StatusOK, "{not-json"},
+		{"not-ready", http.StatusOK, strings.Replace(valid, "\"status\":\"ready\"", "\"status\":\"deny\"", 1)},
+		{"non-synthetic", http.StatusOK, strings.Replace(valid, "\"synthetic\":true", "\"synthetic\":false", 1)},
+		{"foreign-case", http.StatusOK, strings.Replace(valid, "\"case_id\":\"case-a\"", "\"case_id\":\"case-b\"", 1)},
+		{"different-entry", http.StatusOK, strings.Replace(valid, "\"entry_id\":\"event-old\"", "\"entry_id\":\"restricted\"", 1)},
+		{"missing-source-kind", http.StatusOK, strings.Replace(valid, "\"kind\":\"evidence\"", "\"kind\":\"\"", 1)},
+		{"missing-owner-object", http.StatusOK, strings.Replace(valid, "\"object_id\":\"object-a\"", "\"object_id\":\"\"", 1)},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.URL.Path != "/demo-source-open" || r.URL.Query().Get("case_id") != "case-a" ||
+					r.URL.Query().Get("entry_id") != "event-old" ||
+					r.Header.Get("Authorization") != "Bearer "+testBearer {
+					t.Error("source-owner query was not bound to selected authorized entry")
+				}
+				w.WriteHeader(tc.status)
+				_, _ = io.WriteString(w, tc.body)
+			})
+			if _, err := inspectAuthorizedDemoEntry(context.Background(), handler, testBearer, "case-a", "event-old"); err == nil {
+				t.Fatal("contradictory owner reply was accepted")
+			}
+		})
+	}
+	handler := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) { _, _ = io.WriteString(w, valid) })
+	got, err := inspectAuthorizedDemoEntry(context.Background(), handler, testBearer, "case-a", "event-old")
+	if err != nil || got.Preview != "owner-approved" || got.ObjectID != "object-a" {
+		t.Fatalf("authorized typed owner response rejected: %+v %v", got, err)
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	if _, err := inspectAuthorizedDemoEntry(ctx, handler, testBearer, "case-a", "event-old"); !errors.Is(err, context.Canceled) {
+		t.Fatalf("source owner cancellation not propagated: %v", err)
 	}
 }
