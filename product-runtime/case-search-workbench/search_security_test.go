@@ -42,9 +42,9 @@ func TestCaseSearchBackendRevocationAndTrustBoundaries(t *testing.T) {
 		environment: "lab", query: "sensor-dns",
 		sourceKinds: map[string]string{
 			"telemetry-early": "telemetry-event",
-			"telemetry-late": "telemetry-event",
-			"private-secret": "telemetry-event",
-			"evidence-1": "evidence",
+			"telemetry-late":  "telemetry-event",
+			"private-secret":  "telemetry-event",
+			"evidence-1":      "evidence",
 		},
 	}
 	result, err := backend.Execute(context.Background(), req)
