@@ -91,3 +91,36 @@ func TestImportedTriageFailsWithoutOutput(t *testing.T) {
 		t.Fatalf("write failure not propagated: %v", err)
 	}
 }
+
+func TestImportedTriageRejectsInvalidLocalFilesBeforeOutput(t *testing.T) {
+	owner := snapshotFixture(t)
+	events := writeJSONLEvents(t, importedJSONL)
+	for _, tc := range []struct {
+		name string
+		snapshot string
+		events string
+	}{
+		{name: "same-file", snapshot: owner, events: owner},
+		{name: "nonexistent-owner", snapshot: owner + ".missing", events: events},
+		{name: "nonexistent-events", snapshot: owner, events: events + ".missing"},
+		{name: "relative-owner", snapshot: "relative-owner.json", events: events},
+		{name: "relative-events", snapshot: owner, events: "relative-events.jsonl"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			var output bytes.Buffer
+			if err := writeDemoImportedJSONLTriage(context.Background(), "analyst-a", tc.snapshot,
+				"forensic-case-on-disk", tc.events, &output); err == nil || output.Len() != 0 {
+				t.Fatalf("unsafe local import produced output: err=%v bytes=%d", err, output.Len())
+			}
+		})
+	}
+	// The common import phase must reject crafted access-control fields
+	// without creating a triage receipt or a full owner snapshot.
+	forged := writeJSONLEvents(t,
+		"{\"id\":\"evil\",\"timestamp\":\"2026-10-15T10:20:31Z\",\"message\":\"event\",\"readers\":[\"analyst-b\"]}\n")
+	var output bytes.Buffer
+	if err := writeDemoImportedJSONLTriage(context.Background(), "analyst-a", owner,
+		"forensic-case-on-disk", forged, &output); err == nil || output.Len() != 0 {
+		t.Fatalf("forged owner access survived normalized ingestion: %v", err)
+	}
+}

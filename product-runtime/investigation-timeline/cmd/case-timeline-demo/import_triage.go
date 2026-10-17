@@ -37,24 +37,14 @@ func writeDemoImportedJSONLTriage(ctx context.Context, principal, snapshotPath, 
 	if err != nil {
 		return err
 	}
-	before := -1
-	for _, c := range snapshot.Cases {
-		if c.ID == caseID {
-			before = len(c.EntryIDs)
-			break
-		}
-	}
 	merged, err := importLocalEvents(ctx, snapshot, principal, caseID, events)
 	if err != nil {
 		return err
 	}
-	imported := -1
-	for _, c := range merged.Cases {
-		if c.ID == caseID {
-			imported = len(c.EntryIDs) - before
-			break
-		}
-	}
+	// The imported owner graph is already fully validated. Each accepted
+	// normalized event adds exactly one Timeline Entry and never modifies an
+	// existing one; avoid a second Case traversal or permission decision.
+	imported := len(merged.Entries) - len(snapshot.Entries)
 	if imported < 1 || imported > timeline.MaxEntries {
 		return errors.New("inconsistent imported Case entry count")
 	}
