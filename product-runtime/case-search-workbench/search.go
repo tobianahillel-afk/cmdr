@@ -63,10 +63,18 @@ func (b *caseSearchBackend) Execute(ctx context.Context, req search.BackendReque
 	if err != nil {
 		return search.BackendResult{}, errors.New("authorized search unavailable")
 	}
+	visible := make(map[string]bool)
+	for _, row := range rows {
+		if b.sourceKinds[row.SourceRef] == "telemetry-event" {
+			visible[row.SourceRef] = true
+		}
+	}
 	allowed := make(map[string]bool, len(req.Sources))
 	for _, src := range req.Sources {
-		if b.sourceKinds[src] != "telemetry-event" || allowed[src] {
-			return search.BackendResult{}, errors.New("invalid authorized search source")
+		// Revoked or disappeared source authorization must fail the job,
+		// not silently masquerade as an empty successful search.
+		if b.sourceKinds[src] != "telemetry-event" || allowed[src] || !visible[src] {
+			return search.BackendResult{}, errors.New("authorized search source no longer visible")
 		}
 		allowed[src] = true
 	}
