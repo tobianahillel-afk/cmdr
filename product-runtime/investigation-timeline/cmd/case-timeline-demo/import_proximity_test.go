@@ -124,3 +124,28 @@ func TestImportJSONLProximityFailsClosed(t *testing.T) {
 		t.Fatalf("output error was swallowed: %v", err)
 	}
 }
+
+func TestImportedProximityRejectsMissingOrInvalidOperatorFiles(t *testing.T) {
+	owner := proximityDiskSnapshot(t)
+	events := writeJSONLEvents(t,
+		"{\"id\":\"event-close\",\"timestamp\":\"2026-10-01T10:02:02.125Z\",\"message\":\"sensitive\"}\n")
+	invalidOwner := writeJSONLEvents(t, "{invalid-json}\n")
+	for _, tc := range []struct {
+		name, owner, events string
+	}{
+		{"nonexistent-owner", owner + ".missing", events},
+		{"nonexistent-events", owner, events + ".missing"},
+		{"invalid-owner-data", invalidOwner, events},
+		{"relative-owner", "relative-owner.json", events},
+		{"relative-events", owner, "relative-events.jsonl"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			var output bytes.Buffer
+			err := writeDemoImportedJSONLProximity(context.Background(), "analyst-a",
+				tc.owner, "case-a", "case-c", tc.events, 3, &output)
+			if err == nil || output.Len() != 0 {
+				t.Fatalf("unsafe local source produced %d bytes: %v", output.Len(), err)
+			}
+		})
+	}
+}
