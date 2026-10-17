@@ -7,6 +7,7 @@ import (
 	"errors"
 	"io"
 	"os"
+	"net/http"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -143,5 +144,69 @@ func TestCrossCaseSequenceUsesAuthorizedOwnerOnly(t *testing.T) {
 	_, err = collectAuthorizedCrossCaseSequence(context.Background(), h, testBearer, "case-a", "case-a")
 	if err == nil {
 		t.Fatal("duplicate Case accepted")
+	}
+}
+
+func TestCrossCaseSequenceRejectsTamperedSecondCasePagination(t *testing.T) {
+	// Deliberately corrupt ONLY the second owner's Timeline response.
+	// First Case contains 207 already-authorized entries across 2 pages.
+	data, err := loadDemoSnapshot(twoCaseComparisonSnapshot(t))
+	if err != nil {
+		t.Fatal(err)
+	}
+	owner, err := newDemoHandlerWithData(testBearer, "analyst-a", data)
+	if err != nil {
+		t.Fatal(err)
+	}
+	broken := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/case-timeline" && r.URL.Query().Get("case_id") == "case-c" {
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{"status":"allow","page":{"offset":0,"limit":200,"total_visible":7,"has_more":false},"entries":[]}`))
+			return
+		}
+		owner.ServeHTTP(w, r)
+	})
+	got, err := collectAuthorizedCrossCaseSequence(context.Background(), broken, testBearer, "case-a", "case-c")
+	if err == nil || len(got.Events) != 0 || got.First.CaseID != "" || got.Second.CaseID != "" {
+		t.Fatalf("corrupt second Case generated a partial receipt: err=%v result=%+v", err, got)
+	}
+}
+
+func TestCrossCaseSequenceTieBreakerAndOriginalOffsets(t *testing.T) {
+	data, err := loadDemoSnapshot(twoCaseComparisonSnapshot(t))
+	if err != nil {
+		t.Fatal(err)
+	}
+	for i := range data.Entries {
+		if data.Entries[i].CaseID == "case-c" {
+			// Same UTC instant as event-new, expressed in a different zone.
+			data.Entries[i].Value.SourceTime = "2026-10-01T12:00:00+01:00"
+			data.Entries[i].Value.Timezone = "+01:00"
+		}
+	}
+	payload, err := json.Marshal(data)
+	if err != nil {
+		t.Fatal(err)
+	}
+	path := filepath.Join(t.TempDir(), "same-instant.json")
+	if err := os.WriteFile(path, payload, 0o600); err != nil {
+		t.Fatal(err)
+	}
+	var out bytes.Buffer
+	if err := writeDemoCaseEventSequence(context.Background(), "analyst-a", path, "case-a", "case-c", &out); err != nil {
+		t.Fatal(err)
+	}
+	var result localCaseEventSequence
+	if err := json.Unmarshal(out.Bytes(), &result); err != nil {
+		t.Fatal(err)
+	}
+	n := len(result.Events)
+	if n != 208 || result.Events[n-2].CaseID != "case-a" ||
+		result.Events[n-2].Entry.ID != "event-new" ||
+		result.Events[n-1].CaseID != "case-c" ||
+		result.Events[n-1].Entry.ID != "event-c" ||
+		result.Events[n-1].Entry.SourceTime != "2026-10-01T12:00:00+01:00" ||
+		result.UncertainEntries != 0 {
+		t.Fatalf("same UTC instant lost owner or original offset: %+v", result.Events[n-2:])
 	}
 }
