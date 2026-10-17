@@ -53,6 +53,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          gofmt -d product-runtime/case-search-workbench/search.go
           files="$(gofmt -l product-runtime/case-search-workbench/*.go)"
           if [ -n "$files" ]; then
             echo "Unformatted Go files: $files" >&2
