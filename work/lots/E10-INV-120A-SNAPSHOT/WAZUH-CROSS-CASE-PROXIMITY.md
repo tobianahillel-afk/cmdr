@@ -23,3 +23,16 @@ The old Wazuh `-serve-import` browser journey remains independently supported. A
 **Limitations**: all owner permissions and identities are operator-supplied local lab state; no real production IAM, live Wazuh API, signed forensic provenance, chain of custody, database, durable audit or SIEM stream is implemented. A near timestamp is a **lead only**, not causation or confirmed correlation. `OPEN-013` remains unresolved. No performance SLO is claimed.
 
 **Acceptance evidence required**: exact-SHA Go race and functional test CI; one imported Wazuh event at 10:02:02.125Z should yield a 125ms lead against a separately authorized Case event at 10:02:02.250Z. Foreign/denied Cases, unsupported ECS input, cancellation and ambiguous flags must emit zero output. Run and L2 outcomes must be separately verified before any completion claim.
+
+## Exact GitHub validation and deterministic handoff (2026-10-17)
+
+Functional implementation and tests are frozen at `83061203d79da148d43da9ecc3b7b002002f4f0d`, relative to prior validated source `8ace16423fec2ab2fcee18084a7a9152a4930be5`. Verified GitHub Actions **SUCCESS** at this exact SHA:
+
+- Timeline runtime push: [39013321428](https://github.com/tobianahillel-afk/cmdr/actions/runs/39013321428), Linux runtime plus Windows and macOS subprocess matrix jobs.
+- Timeline runtime PR: [39013323995](https://github.com/tobianahillel-afk/cmdr/actions/runs/39013323995), same three jobs.
+- Engineering kernel push: [39013321433](https://github.com/tobianahillel-afk/cmdr/actions/runs/39013321433).
+- Engineering kernel PR: [39013324014](https://github.com/tobianahillel-afk/cmdr/actions/runs/39013324014).
+
+One **independent read-only** L2 task `CMDR — Revue L2 — E10-INV-120A-WAZUH-PROXIMITY` was created for this exact functional SHA and diff. **L2_EN_ATTENTE**: neither a detailed L2 report nor native GitHub reviewer approval has been verified; do not claim either.
+
+**Next functional step** after reviewing materially evidenced R0/R1/R2: move this bounded offline Wazuh-to-Case analyst bridge toward a real provider-owned IAM and durable ingestion/evidence boundary, only after their canonical authority and trust choices are settled. Avoid more microtest gates for already green local fixtures. The work graph still marks the broader snapshot lot READY, not production-shippable.
