@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
-	"net/url"
 
 	timeline "github.com/tobianahillel-afk/cmdr/product-runtime/investigation-timeline"
 )
@@ -68,23 +67,9 @@ func writeDemoCaseDossier(ctx context.Context, principal, snapshot, caseID, entr
 	if !found {
 		return errors.New("selected Timeline Entry is not authorized in the Case")
 	}
-	q := url.Values{"case_id": {caseID}, "entry_id": {entryID}}
-	var source struct {
-		Status    string `json:"status"`
-		Synthetic bool   `json:"synthetic"`
-		CaseID    string `json:"case_id"`
-		EntryID   string `json:"entry_id"`
-		Kind      string `json:"kind"`
-		ObjectID  string `json:"object_id"`
-		Preview   string `json:"preview"`
-	}
-	if err := queryDemoOwner(ctx, handler, token, "/demo-source-open?"+q.Encode(), &source); err != nil {
+	source, err := inspectAuthorizedDemoEntry(ctx, handler, token, caseID, entryID)
+	if err != nil {
 		return err
-	}
-	if source.Status != "ready" || !source.Synthetic ||
-		source.CaseID != caseID || source.EntryID != entryID ||
-		source.Kind == "" || source.ObjectID == "" {
-		return errors.New("source was not authorized or returned an inconsistent identity")
 	}
 	if err := ctx.Err(); err != nil {
 		return err
@@ -92,11 +77,7 @@ func writeDemoCaseDossier(ctx context.Context, principal, snapshot, caseID, entr
 	report := localCaseDossier{
 		Format: "cmdr-local-case-dossier-v1", Synthetic: true,
 		CaseID: caseID, SelectedEntry: selected, Summary: summary,
-		Source: localEntryInspection{
-			Format: "cmdr-local-entry-inspection-v1", Synthetic: true,
-			CaseID: caseID, EntryID: entryID,
-			Kind: source.Kind, ObjectID: source.ObjectID, Preview: source.Preview,
-		},
+		Source: source,
 		RelatedEntries: make([]timeline.ProjectedEntry, 0),
 	}
 	for _, entry := range entries {

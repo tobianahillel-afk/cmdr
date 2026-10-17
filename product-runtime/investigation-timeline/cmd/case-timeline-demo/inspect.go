@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"net/http"
 	"net/url"
 )
 
@@ -42,6 +43,16 @@ func writeDemoEntryInspection(ctx context.Context, principal, snapshot, caseID, 
 	if err != nil {
 		return err
 	}
+	receipt, err := inspectAuthorizedDemoEntry(ctx, handler, token, caseID, entryID)
+	if err != nil {
+		return err
+	}
+	return json.NewEncoder(output).Encode(receipt)
+}
+
+// inspectAuthorizedDemoEntry is the single existing owner-authorized inspection
+// used by both the standalone receipt and combined local analyst dossier.
+func inspectAuthorizedDemoEntry(ctx context.Context, handler http.Handler, token, caseID, entryID string) (localEntryInspection, error) {
 	q := url.Values{"case_id": {caseID}, "entry_id": {entryID}}
 	var source struct {
 		Status    string `json:"status"`
@@ -53,20 +64,19 @@ func writeDemoEntryInspection(ctx context.Context, principal, snapshot, caseID, 
 		Preview   string `json:"preview"`
 	}
 	if err := queryDemoOwner(ctx, handler, token, "/demo-source-open?"+q.Encode(), &source); err != nil {
-		return err
+		return localEntryInspection{}, err
 	}
 	if err := ctx.Err(); err != nil {
-		return err
+		return localEntryInspection{}, err
 	}
 	if source.Status != "ready" || !source.Synthetic ||
 		source.CaseID != caseID || source.EntryID != entryID ||
 		source.Kind == "" || source.ObjectID == "" {
-		return errors.New("source was not authorized or returned an inconsistent identity")
+		return localEntryInspection{}, errors.New("source was not authorized or returned an inconsistent identity")
 	}
-	receipt := localEntryInspection{
+	return localEntryInspection{
 		Format: "cmdr-local-entry-inspection-v1", Synthetic: true,
 		CaseID: caseID, EntryID: entryID,
 		Kind: source.Kind, ObjectID: source.ObjectID, Preview: source.Preview,
-	}
-	return json.NewEncoder(output).Encode(receipt)
+	}, nil
 }
