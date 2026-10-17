@@ -167,3 +167,73 @@ func TestMultipleWazuhSourcesFailClosedBeforeListener(t *testing.T) {
 		}
 	}
 }
+
+func TestFourWazuhFeedsPreserveDistinctSources(t *testing.T) {
+	owner := snapshotFixture(t)
+	files := make([]string, maxWazuhAlertFiles)
+	for i := range files {
+		// Reused raw alert IDs are normal across separately exported files.
+		files[i] = writeJSONLEvents(t, "{\"id\":\"same.4\",\"timestamp\":\"2026-10-17T11:00:00+0200\",\"rule\":{\"description\":\"separate Wazuh feed\"}}\n")
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	log := &demoCapture{ready: make(chan struct{})}
+	done := make(chan error, 1)
+	go func() {
+		done <- serveDemoWithWazuhAlertsFiles(ctx, "analyst-a", owner,
+			"forensic-case-on-disk", files, log)
+	}()
+	select {
+	case <-log.ready:
+	case err := <-done:
+		t.Fatalf("four-file viewer did not start: %v", err)
+	case <-time.After(10 * time.Second):
+		t.Fatal("four-file viewer start timeout")
+	}
+	var rawURL, bearer string
+	for _, line := range strings.Split(log.String(), "\n") {
+		if strings.HasPrefix(line, "URL: ") {
+			rawURL = strings.TrimPrefix(line, "URL: ")
+		}
+		if strings.HasPrefix(line, "Bearer token (this run only): ") {
+			bearer = strings.TrimPrefix(line, "Bearer token (this run only): ")
+		}
+	}
+	endpoint, err := url.Parse(rawURL)
+	if err != nil || endpoint.Hostname() != "127.0.0.1" || len(bearer) != 64 {
+		t.Fatalf("invalid four-feed viewer endpoint %q", rawURL)
+	}
+	client := &http.Client{Timeout: 3 * time.Second}
+	req, err := http.NewRequest(http.MethodGet, "http://"+endpoint.Host+
+		"/case-timeline?case_id=forensic-case-on-disk&limit=20", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Set("Authorization", "Bearer "+bearer)
+	resp, err := client.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	body, readErr := io.ReadAll(io.LimitReader(resp.Body, 1<<20))
+	resp.Body.Close()
+	if readErr != nil || resp.StatusCode != http.StatusOK {
+		t.Fatalf("four-feed authorized Timeline: %d %v", resp.StatusCode, readErr)
+	}
+	for i := range files {
+		identity := "forensic-case-on-disk\x00feed-" + string(rune('1'+i)) + "\x00wazuh-same.4"
+		sum := sha256.Sum256([]byte(identity))
+		entry := "local-jsonl-entry-" + hex.EncodeToString(sum[:])
+		if !bytes.Contains(body, []byte(entry)) {
+			t.Fatalf("four-feed projection missing authorized feed %d", i+1)
+		}
+	}
+	cancel()
+	select {
+	case err := <-done:
+		if err != nil {
+			t.Fatal(err)
+		}
+	case <-time.After(5 * time.Second):
+		t.Fatal("four-feed listener did not stop")
+	}
+}
