@@ -6,6 +6,8 @@ import (
 	"errors"
 	"io"
 	"sort"
+
+	timeline "github.com/tobianahillel-afk/cmdr/product-runtime/investigation-timeline"
 	"time"
 )
 
@@ -56,25 +58,45 @@ func writeDemoCaseComparison(ctx context.Context, principal, snapshot, firstID, 
 	if err != nil {
 		return err
 	}
-	token, err := randomBearer()
+	result, err := collectAuthorizedCaseComparison(ctx, principal, data, firstID, secondID)
 	if err != nil {
 		return err
+	}
+	return json.NewEncoder(output).Encode(result)
+}
+
+// Reuse this in-memory integration for both existing snapshot comparison and
+// operator-local JSONL import. Both Case ACL traversals must succeed before
+// the caller may write an aggregate receipt.
+func collectAuthorizedCaseComparison(ctx context.Context, principal string, data timeline.MemoryTimelineData, firstID, secondID string) (localCaseComparison, error) {
+	if principal == "" || firstID == "" || secondID == "" || firstID == secondID ||
+		len(firstID) > 1024 || len(secondID) > 1024 {
+		return localCaseComparison{}, errors.New("select two distinct authorized Cases and a principal")
+	}
+	token, err := randomBearer()
+	if err != nil {
+		return localCaseComparison{}, err
 	}
 	handler, err := newDemoHandlerWithData(token, principal, data)
 	if err != nil {
-		return err
+		return localCaseComparison{}, err
 	}
 	first, err := collectDemoCaseTriage(ctx, handler, token, firstID)
 	if err != nil {
-		return err
+		return localCaseComparison{}, err
 	}
 	second, err := collectDemoCaseTriage(ctx, handler, token, secondID)
 	if err != nil {
-		return err
+		return localCaseComparison{}, err
 	}
 	if err := ctx.Err(); err != nil {
-		return err
+		return localCaseComparison{}, err
 	}
+	return buildCaseComparison(first, second)
+}
+
+// Aggregate-only comparison: no raw Entry, preview or source ACL bypass.
+func buildCaseComparison(first, second caseTriageReceipt) (localCaseComparison, error) {
 	result := localCaseComparison{
 		Format:            "cmdr-local-case-comparison-v1",
 		Synthetic:         true,
@@ -110,7 +132,7 @@ func writeDemoCaseComparison(ctx context.Context, principal, snapshot, firstID, 
 		bStart, cErr := time.Parse(time.RFC3339Nano, second.FirstCertainUTC)
 		bEnd, dErr := time.Parse(time.RFC3339Nano, second.LastCertainUTC)
 		if aErr != nil || bErr != nil || cErr != nil || dErr != nil {
-			return errors.New("inconsistent authorized time bounds")
+			return localCaseComparison{}, errors.New("inconsistent authorized time bounds")
 		}
 		if bStart.After(aStart) {
 			aStart = bStart
@@ -125,5 +147,5 @@ func writeDemoCaseComparison(ctx context.Context, principal, snapshot, firstID, 
 			}
 		}
 	}
-	return json.NewEncoder(output).Encode(result)
+	return result, nil
 }
