@@ -49,7 +49,7 @@ func serveDemoWazuhSearch(w http.ResponseWriter, r *http.Request, token, princip
 		http.NotFound(w, r)
 		return
 	}
-	job, err := executeDemoWazuhMetadataSearch(r.Context(), principal, caseID, owner, token,
+	job, hits, err := executeDemoWazuhMetadataSearchWithHits(r.Context(), principal, caseID, owner, token,
 		tenant, environment, levels, imported, field, query.Get("value"), query.Get("from"), query.Get("to"))
 	if err != nil {
 		http.NotFound(w, r)
@@ -62,9 +62,11 @@ func serveDemoWazuhSearch(w http.ResponseWriter, r *http.Request, token, princip
 		Selector string `json:"selector"`
 		Value string `json:"value"`
 		Job any `json:"job"`
+		Hits []wazuhSearchHit `json:"search_hits"`
 	}{
 		Format: "cmdr-local-wazuh4-executed-search-v1", Synthetic: true,
 		CaseID: caseID, Selector: query.Get("field"), Value: query.Get("value"), Job: job,
+		Hits: hits,
 	}
 	// Never send a partial response when authorization or job execution fails.
 	var encoded bytes.Buffer
