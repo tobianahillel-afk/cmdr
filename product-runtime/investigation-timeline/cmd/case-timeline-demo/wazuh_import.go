@@ -165,54 +165,47 @@ func writeDemoWazuh4Proximity(ctx context.Context, principal, snapshotPath, into
 // Case triage and cross-Case analysis. The only access authority remains
 // the pre-existing operator-owned Case/Entry/typed-source snapshot.
 func prepareWazuh4Case(ctx context.Context, principal, snapshotPath, intoCase, alertsPath string) (timeline.MemoryTimelineData, int, error) {
+	data, count, _, err := prepareWazuh4CaseWithRaw(ctx, principal, snapshotPath, intoCase, alertsPath)
+	return data, count, err
+}
+
+// Retain the exact Wazuh source bytes used for import, not a second disk read.
+// The caller may compute non-authoritative metadata only AFTER owner ACL checks.
+func prepareWazuh4CaseWithRaw(ctx context.Context, principal, snapshotPath, intoCase, alertsPath string) (timeline.MemoryTimelineData, int, []byte, error) {
 	if err := ctx.Err(); err != nil {
-		return timeline.MemoryTimelineData{}, 0, err
+		return timeline.MemoryTimelineData{}, 0, nil, err
 	}
 	if principal == "" || intoCase == "" || len(intoCase) > 1024 ||
 		snapshotPath == "" || alertsPath == "" || snapshotPath == alertsPath {
-		return timeline.MemoryTimelineData{}, 0, errors.New("select a principal, Case and separate local owner/Wazuh files")
+		return timeline.MemoryTimelineData{}, 0, nil, errors.New("select a principal, Case and separate local owner/Wazuh files")
 	}
 	owner, err := loadDemoSnapshot(snapshotPath)
 	if err != nil {
-		return timeline.MemoryTimelineData{}, 0, err
+		return timeline.MemoryTimelineData{}, 0, nil, err
 	}
 	raw, err := readLocalEventFile(alertsPath)
 	if err != nil {
-		return timeline.MemoryTimelineData{}, 0, err
+		return timeline.MemoryTimelineData{}, 0, nil, err
 	}
 	events, err := normalizeWazuh4Alerts(ctx, raw)
 	if err != nil {
-		return timeline.MemoryTimelineData{}, 0, err
+		return timeline.MemoryTimelineData{}, 0, nil, err
 	}
 	merged, err := importLocalEvents(ctx, owner, principal, intoCase, events)
 	if err != nil {
-		return timeline.MemoryTimelineData{}, 0, err
+		return timeline.MemoryTimelineData{}, 0, nil, err
 	}
 	imported := len(merged.Entries) - len(owner.Entries)
 	if imported < 1 || imported > timeline.MaxEntries {
-		return timeline.MemoryTimelineData{}, 0, errors.New("inconsistent Wazuh import count")
+		return timeline.MemoryTimelineData{}, 0, nil, errors.New("inconsistent Wazuh import count")
 	}
-	return merged, imported, nil
+	return merged, imported, raw, nil
 }
 
 // An operator may triage Wazuh 4.x alerts in one authorized Case without a
 // listener, a second Case, or an intermediate merged owner export.
 func writeDemoWazuh4Triage(ctx context.Context, principal, snapshotPath, intoCase, alertsPath string, output io.Writer) error {
-	merged, imported, err := prepareWazuh4Case(ctx, principal, snapshotPath, intoCase, alertsPath)
-	if err != nil {
-		return err
-	}
-	receipt, err := collectDemoAuthorizedCaseTriage(ctx, principal, merged, intoCase)
-	if err != nil {
-		return err
-	}
-	if err := ctx.Err(); err != nil {
-		return err
-	}
-	return json.NewEncoder(output).Encode(localImportedTriage{
-		Format: "cmdr-local-wazuh4-case-triage-v1",
-		Synthetic: true, ImportedEntries: imported, Case: receipt,
-	})
+	return writeDemoWazuh4RuleTriage(ctx, principal, snapshotPath, intoCase, alertsPath, output)
 }
 
 // A two-Case Wazuh aggregate is released only after both Case AND typed
