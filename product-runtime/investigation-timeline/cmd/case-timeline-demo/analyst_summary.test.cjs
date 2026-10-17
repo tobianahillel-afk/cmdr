@@ -16,6 +16,8 @@ const ids = [
   "download-cross-events", "proximity", "proximity-seconds", "proximity-results",
   "trace-actions", "trace-results", "wazuh-cohorts", "wazuh-status", "wazuh-actions", "wazuh-events",
   "wazuh-previous", "wazuh-next",
+  "wazuh-search-field", "wazuh-search-value", "wazuh-search-from",
+  "wazuh-search-to", "wazuh-search-run", "wazuh-search-status", "wazuh-search-results",
   "comparison-trace-actions", "comparison-trace-results"
 ];
 function node() {
