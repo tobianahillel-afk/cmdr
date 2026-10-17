@@ -945,7 +945,8 @@ test("cross-Case source sequence paginates real authorized rows and rechecks pee
   env.fields.compare.handlers.click();
   for (let i = 0; i < 6; i++) await flush();
   assert.equal(env.requests.length, 2, "both complete Case page traversals are required");
-  assert.equal(env.fields["comparison-trace-actions"].children.length, 1);
+  assert.ok(env.fields["comparison-trace-actions"].children.length >= 2,
+    "authorized common source and UTC window should both be actionable");
   env.fields["comparison-trace-actions"].children[0].handlers.click();
   const result = env.fields["comparison-trace-results"];
   assert.match(result.textContent, /1–25 \/ 54/);
@@ -995,5 +996,83 @@ test("cross-Case source sequence becomes inert on bearer invalidation", async ()
   await flush();
   assert.equal(env.requests.length, requestsBefore, "stale local correlation cannot invoke owners");
   assert.equal(env.fields["comparison-trace-actions"].children.length, 0);
+  assert.equal(env.fields["comparison-trace-results"].children.length, 0);
+});
+
+test("cross-Case UTC window lists both authorized Cases and opens the peer through owner ACL", async () => {
+  const env = boot(url => {
+    const caseName = url.searchParams.get("case_id");
+    if (url.pathname === "/case-timeline") {
+      return page(Number(url.searchParams.get("offset")), 27,
+        { sourceFor: index => index % 2 ? "owner-one" : "owner-two" });
+    }
+    if (url.pathname === "/case-source-navigation") {
+      const selection = new URLSearchParams(url.searchParams);
+      selection.delete("entry_id");
+      return { ok: true, async json() { return {
+        status: "ready", kind: "telemetry-event", object_id: "owner-" + caseName,
+        return_is_authority: false, return_case_id: caseName,
+        return_entry_id: url.searchParams.get("entry_id"),
+        return_query: selection.toString()
+      }; } };
+    }
+    if (url.pathname === "/demo-source-open") return { ok: true, async json() { return {
+      status: "ready", synthetic: true, case_id: caseName,
+      entry_id: url.searchParams.get("entry_id"), kind: "telemetry-event",
+      object_id: "owner-" + caseName, preview: "authorized synthetic owner"
+    }; } };
+    throw Error("unexpected Timeline owner route " + url.pathname);
+  });
+  env.fields["compare-case"].value = "case-peer";
+  env.fields.compare.handlers.click();
+  for (let i = 0; i < 6; i++) await flush();
+  const windowAction = env.fields["comparison-trace-actions"].children.find(x =>
+    /Fenêtre UTC croisée/.test(x.textContent));
+  assert.ok(windowAction, "a certain five-minute bucket shared by both Cases must be actionable");
+  assert.equal(env.requests.length, 2, "both Cases must complete their own owner traversal");
+  windowAction.handlers.click();
+  const region = env.fields["comparison-trace-results"];
+  assert.match(region.textContent, /Fenêtre UTC croisée.*1–25 \/ 52/);
+  assert.equal(region.children[0].children.length, 25);
+  assert.match(region.children[0].children[0].children[0].textContent, /Case 1 · observed/);
+  assert.match(region.children[0].children[1].children[0].textContent, /Case 2 · observed/);
+  assert.equal(env.requests.length, 2, "window drilldown must not use a new index or server route");
+  region.children.find(x => /suivants/.test(x.textContent)).handlers.click();
+  assert.match(region.textContent, /26–50 \/ 52/);
+  region.children.find(x => /suivants/.test(x.textContent)).handlers.click();
+  assert.match(region.textContent, /51–52 \/ 52/);
+  region.children.find(x => /précédents/.test(x.textContent)).handlers.click();
+  region.children.find(x => /précédents/.test(x.textContent)).handlers.click();
+  region.children[0].children[1].children[0].handlers.click();
+  for (let i = 0; i < 6; i++) await flush();
+  assert.equal(env.fields["case-id"].value, "case-peer");
+  assert.deepEqual(env.requests.slice(2).map(x => x.url.pathname),
+    ["/case-source-navigation", "/demo-source-open"]);
+  for (const request of env.requests.slice(2)) {
+    assert.equal(request.url.searchParams.get("case_id"), "case-peer");
+    assert.equal(request.url.searchParams.has("source_ref"), false);
+    assert.equal(request.options.headers.Authorization, "Bearer ephemeral-token");
+  }
+  assert.equal(env.fields["source-detail"].hidden, false);
+});
+
+test("stale UTC window event selectors cannot reopen a source after token change", async () => {
+  const env = boot(url => page(Number(url.searchParams.get("offset")), 2,
+    { sourceFor: () => "authorized-owner" }));
+  env.fields["compare-case"].value = "case-peer";
+  env.fields.compare.handlers.click();
+  for (let i = 0; i < 6; i++) await flush();
+  const action = env.fields["comparison-trace-actions"].children.find(x =>
+    /Fenêtre UTC croisée/.test(x.textContent));
+  assert.ok(action);
+  action.handlers.click();
+  const row = env.fields["comparison-trace-results"].children[0].children[1].children[0];
+  const originalCount = env.requests.length;
+  env.fields.token.value = "new-token";
+  env.fields.token.handlers.input();
+  action.handlers.click();
+  row.handlers.click();
+  await flush();
+  assert.equal(env.requests.length, originalCount);
   assert.equal(env.fields["comparison-trace-results"].children.length, 0);
 });

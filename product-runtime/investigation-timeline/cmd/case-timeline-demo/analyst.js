@@ -538,46 +538,8 @@
         " · références communes : " + common.length + (top ? " · " + top : "") +
         ". Ces plages ne sont pas des preuves d'activité continue, et une référence " +
         "commune n'atteste ni causalité ni identité d'objet. Lectures non transactionnelles.";
-      // A shared source is a triage lead, never a client-side permission.
-      // The existing owner routes reauthorize Case, Entry and typed source.
-      for (const group of common.slice(0, 5)) {
-        const label = group.ref.length > 120 ?
-          group.ref.slice(0, 120) + "… (abrégée)" : group.ref;
-        for (const target of [
-          { id: selectedCase, label: "Case 1", entryID: group.leftEntryID },
-          { id: otherCase, label: "Case 2", entryID: group.rightEntryID }
-        ]) {
-          const button = document.createElement("button");
-          button.type = "button";
-          button.textContent = "Ouvrir un événement de source commune — " +
-            target.label + " · " + label;
-          button.addEventListener("click", () => {
-            if (controller.signal.aborted || compareRevision !== activeComparison ||
-                revision !== activeSelection || token.value !== bearer ||
-                caseID.value.trim() !== selectedCase ||
-                compareCase.value.trim() !== otherCase) return;
-            clearComparison();
-            if (target.id !== selectedCase) {
-              caseID.value = target.id;
-              caseID.dispatchEvent(new Event("input", { bubbles: true }));
-            }
-            openSource(target.entryID);
-          });
-          comparisonActions.append(button);
-        }
-        // Provide an actual cross-Case investigative view, not just one
-        // representative event. Rows were supplied by the two separately
-        // authenticated Timeline page traversals above; source identity is
-        // NEVER used as a new server-side authorization capability.
-        const trace = document.createElement("button");
-        trace.type = "button";
-        trace.textContent = "Examiner la séquence croisée de source : " + label;
-        trace.addEventListener("click", () => {
-          if (controller.signal.aborted || compareRevision !== activeComparison ||
-              revision !== activeSelection || token.value !== bearer ||
-              caseID.value.trim() !== selectedCase ||
-              compareCase.value.trim() !== otherCase) return;
-          const chronological = [...group.rows].sort((a, b) => {
+      function showCrossCaseRows(rows, heading) {
+          const chronological = [...rows].sort((a, b) => {
             const aTime = a.uncertain ? null : Date.parse(a.time);
             const bTime = b.uncertain ? null : Date.parse(b.time);
             if (aTime === null || bTime === null) {
@@ -595,7 +557,7 @@
                 compareCase.value.trim() !== otherCase) return;
             comparisonTraceResults.replaceChildren();
             const end = Math.min(start + pageSize, chronological.length);
-            comparisonTraceResults.textContent = "Source commune : " + label +
+            comparisonTraceResults.textContent = heading +
               " · " + (start + 1) + "–" + end + " / " + chronological.length +
               " événements visibles (deux Cases). Horodatages incertains en fin de liste. " +
               "Lecture non transactionnelle ; toute ouverture revérifie les droits.";
@@ -640,12 +602,75 @@
             }
           }
           renderCrossCase(0);
+      }
+      // A shared source is a triage lead, never a client-side permission.
+      // The existing owner routes reauthorize Case, Entry and typed source.
+      for (const group of common.slice(0, 5)) {
+        const label = group.ref.length > 120 ?
+          group.ref.slice(0, 120) + "… (abrégée)" : group.ref;
+        for (const target of [
+          { id: selectedCase, label: "Case 1", entryID: group.leftEntryID },
+          { id: otherCase, label: "Case 2", entryID: group.rightEntryID }
+        ]) {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.textContent = "Ouvrir un événement de source commune — " +
+            target.label + " · " + label;
+          button.addEventListener("click", () => {
+            if (controller.signal.aborted || compareRevision !== activeComparison ||
+                revision !== activeSelection || token.value !== bearer ||
+                caseID.value.trim() !== selectedCase ||
+                compareCase.value.trim() !== otherCase) return;
+            clearComparison();
+            if (target.id !== selectedCase) {
+              caseID.value = target.id;
+              caseID.dispatchEvent(new Event("input", { bubbles: true }));
+            }
+            openSource(target.entryID);
+          });
+          comparisonActions.append(button);
+        }
+        // Provide an actual cross-Case investigative view, not just one
+        // representative event. Rows were supplied by the two separately
+        // authenticated Timeline page traversals above; source identity is
+        // NEVER used as a new server-side authorization capability.
+        const trace = document.createElement("button");
+        trace.type = "button";
+        trace.textContent = "Examiner la séquence croisée de source : " + label;
+        trace.addEventListener("click", () => {
+          if (controller.signal.aborted || compareRevision !== activeComparison ||
+              revision !== activeSelection || token.value !== bearer ||
+              caseID.value.trim() !== selectedCase ||
+              compareCase.value.trim() !== otherCase) return;
+          showCrossCaseRows(group.rows, "Source commune : " + label);
         });
         comparisonTraceActions.append(trace);
       }
       for (const item of simultaneous.slice(0, 5)) {
         const from = new Date(item.bucket * 300000).toISOString();
         const to = new Date((item.bucket + 1) * 300000).toISOString();
+        // Both owner-authorized page traversals have completed. A shared UTC
+        // time bucket is only a triage lead; never infer source identity.
+        const inspectBoth = document.createElement("button");
+        inspectBoth.type = "button";
+        inspectBoth.textContent = "Fenêtre UTC croisée — " + from + " → " + to;
+        inspectBoth.addEventListener("click", () => {
+          if (controller.signal.aborted || compareRevision !== activeComparison ||
+              revision !== activeSelection || token.value !== bearer ||
+              caseID.value.trim() !== selectedCase ||
+              compareCase.value.trim() !== otherCase) return;
+          const rows = [];
+          for (const group of [...left.groups.values(), ...right.groups.values()]) {
+            for (const row of group.rows) {
+              if (!row.uncertain && Math.floor(Date.parse(row.time) / 300000) === item.bucket) {
+                rows.push(row);
+              }
+            }
+          }
+          if (rows.length !== item.left.total + item.right.total) return;
+          showCrossCaseRows(rows, "Fenêtre UTC croisée : " + from + " → " + to);
+        });
+        comparisonTraceActions.append(inspectBoth);
         for (const target of [
           { id: selectedCase, label: "Case 1", count: item.left },
           { id: otherCase, label: "Case 2", count: item.right }

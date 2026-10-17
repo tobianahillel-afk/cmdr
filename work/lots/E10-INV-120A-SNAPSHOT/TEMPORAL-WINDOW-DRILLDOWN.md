@@ -15,3 +15,31 @@ The existing browser cross-Case comparison offers coarse five-minute co-occurren
 Operator-supplied *local synthetic* owner snapshot and synthetic analyst only, with a random local token. No provider IAM, customer telemetry, persistent events, transactional two-Case snapshot, source identity resolution across Cases, real incident correlation or causal inference. The event receipt **contains authorized raw entry metadata** and must be treated as sensitive. No output is written on partial owner failure; it is not a forensic chain-of-custody certificate. `OPEN-013` remains open.
 
 Tests: actual two-Case disk fixture with 207 first-Case authorized rows across two pages and one second-Case event, independent ACL checks, correct [start,end) filter, observed/inferred classification, denied source exclusion, UTC boundary, uncertain time exclusion, invalid flags, unauthorized second Case, cancellation, and output writer error. Validate exact SHA through GitHub Actions and one risk-based L2. Do not claim production readiness from local CI.
+
+## Browser integration of the same functional milestone
+
+The loopback analyst UI extends the already authorized two-Case comparison
+with an **actionable combined five-minute chronology** for each of the
+five leading shared UTC windows. The action operates solely on the rows
+returned after BOTH existing `/case-timeline` Case/Timeline/typed-source
+owner traversals have completed, preserving the active search, kind and
+UTC bounds. It does not fetch a third-party service or add a new HTTP route.
+
+A small first-party renderer is reused for existing cross-Case shared-source
+sequences and these new time-window sequences: stable certain-UTC ordering,
+Case/entry ID tie-break, 25 entries per page, text-only labels. Selecting a
+row switches to the originating Case when needed, then calls the **existing
+server-authorized two-stage source navigation and source preview**; client
+selection cannot grant access. Changing the bearer, Case, second Case or
+filters invalidates stale actions. Known-time windows exclude events
+flagged uncertain and do not claim temporal causality. The browser's
+coarse per-Case time-window pivot remains available unchanged.
+
+Behavioral Node tests cover complete two-Case owner page retrieval, combined
+window list, second-page navigation, owner reauthorization for a peer Case,
+absence of `source_ref` or bearer in URLs, and stale action invalidation.
+No new SDK or abstraction boundary is introduced: the existing in-memory
+DOM and Go ACL boundaries are reused. No production IAM, durable provider,
+audit trail, chain-of-custody export or transaction consistency is implied.
+This is one material browser integration into the already open temporal
+window feature PR; do not schedule a separate L2 for cosmetic follow-ups.
