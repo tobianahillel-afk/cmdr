@@ -15,6 +15,7 @@ const ids = [
   "compare-case", "compare", "comparison", "comparison-actions", "download-comparison",
   "download-cross-events", "proximity", "proximity-seconds", "proximity-results",
   "trace-actions", "trace-results", "wazuh-cohorts", "wazuh-status", "wazuh-actions", "wazuh-events",
+  "wazuh-previous", "wazuh-next",
   "comparison-trace-actions", "comparison-trace-results"
 ];
 function node() {
@@ -1260,4 +1261,77 @@ test("Wazuh drilldown denial reveals no partial entry", async () => {
   await flush();
   assert.equal(env.fields["wazuh-events"].children.length, 0);
   assert.match(env.fields["wazuh-events"].textContent, /droits modifiés/);
+});
+
+test("Wazuh drilldown page controls traverse all authorized entries without exposing bearer in URL", async () => {
+  const env = boot(url => {
+    if (url.pathname === "/demo-wazuh-cohorts") return { ok: true, async json() {
+      return { format: "cmdr-local-wazuh4-case-triage-v1", synthetic: true,
+        imported_entries: 53,
+        top_agents: [{ agent_id: "001", count: 53, distinct_rule_ids: 1 }],
+        top_rules: [] };
+    }};
+    if (url.pathname === "/demo-wazuh-drilldown") {
+      const offset = Number(url.searchParams.get("offset"));
+      const count = Math.min(25, 53 - offset);
+      return { ok: true, async json() {
+        return { format: "cmdr-local-wazuh4-drilldown-v1", synthetic: true,
+          selector: "agent_id", value: "001", offset,
+          total_matches: 53, has_more: offset + count < 53,
+          entries: Array.from({ length: count }, (_, n) => ({
+            id: "authorized-" + (offset + n), kind: "observed",
+            source_time: "2026-10-01T10:00:00Z", time_uncertain: false
+          })) };
+      }};
+    }
+    throw Error("Unexpected endpoint");
+  });
+  env.fields["wazuh-cohorts"].handlers.click(); await flush(); await flush();
+  env.fields["wazuh-actions"].children[0].handlers.click(); await flush(); await flush();
+  assert.equal(env.fields["wazuh-events"].children[0].children.length, 25);
+  assert.equal(env.fields["wazuh-previous"].disabled, true);
+  assert.equal(env.fields["wazuh-next"].disabled, false);
+  env.fields["wazuh-next"].handlers.click(); await flush(); await flush();
+  assert.equal(env.fields["wazuh-events"].children[0].children.length, 25);
+  env.fields["wazuh-next"].handlers.click(); await flush(); await flush();
+  assert.equal(env.fields["wazuh-events"].children[0].children.length, 3);
+  assert.equal(env.fields["wazuh-next"].disabled, true);
+  env.fields["wazuh-previous"].handlers.click(); await flush(); await flush();
+  assert.match(env.fields["wazuh-events"].textContent, /lignes 26/);
+  const pages = env.requests.filter(r => r.url.pathname === "/demo-wazuh-drilldown");
+  assert.deepEqual(pages.map(r => r.url.searchParams.get("offset")), ["0","25","50","25"]);
+  for (const request of pages) {
+    assert.equal(request.options.headers.Authorization, "Bearer ephemeral-token");
+    assert.ok(!request.url.href.includes("ephemeral-token"));
+    assert.equal(request.options.credentials, "omit");
+  }
+});
+
+test("Wazuh page denial clears previous entries and disables navigation", async () => {
+  const env = boot(url => {
+    if (url.pathname === "/demo-wazuh-cohorts") return { ok: true, async json() {
+      return { format: "cmdr-local-wazuh4-case-triage-v1", synthetic: true,
+        imported_entries: 26,
+        top_agents: [{ agent_id:"001", count:26, distinct_rule_ids:1 }], top_rules:[] };
+    }};
+    if (url.pathname === "/demo-wazuh-drilldown") {
+      if (url.searchParams.get("offset") !== "0") return { ok:false };
+      return { ok:true, async json() { return {
+        format:"cmdr-local-wazuh4-drilldown-v1", synthetic:true, selector:"agent_id", value:"001",
+        total_matches:26, offset:0, has_more:true,
+        entries:Array.from({ length:25 }, (_,n) => ({
+          id:"event-"+n, kind:"observed", source_time:"2026-10-01T10:00:00Z",
+          time_uncertain:false
+        }))
+      }; }};
+    }
+    throw Error("Unexpected endpoint");
+  });
+  env.fields["wazuh-cohorts"].handlers.click(); await flush(); await flush();
+  env.fields["wazuh-actions"].children[0].handlers.click(); await flush(); await flush();
+  env.fields["wazuh-next"].handlers.click(); await flush(); await flush();
+  assert.equal(env.fields["wazuh-events"].children.length, 0);
+  assert.match(env.fields["wazuh-events"].textContent, /droits modifiés/);
+  assert.equal(env.fields["wazuh-next"].disabled, true);
+  assert.equal(env.fields["wazuh-previous"].disabled, true);
 });

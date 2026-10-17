@@ -29,6 +29,10 @@
   const wazuhStatus = document.getElementById("wazuh-status");
   const wazuhActions = document.getElementById("wazuh-actions");
   const wazuhEvents = document.getElementById("wazuh-events");
+  const wazuhPrevious = document.getElementById("wazuh-previous");
+  const wazuhNext = document.getElementById("wazuh-next");
+  let wazuhSelection = null;
+  let wazuhOffset = 0;
   let wazuhRevision = 0;
   let wazuhRequest = null;
   function clearWazuh() {
@@ -36,6 +40,10 @@
     if (wazuhRequest) wazuhRequest.abort();
     wazuhRequest = null;
     wazuhButton.disabled = false;
+    wazuhSelection = null;
+    wazuhOffset = 0;
+    wazuhPrevious.disabled = true;
+    wazuhNext.disabled = true;
     wazuhActions.replaceChildren();
     wazuhEvents.replaceChildren();
     wazuhEvents.textContent = "Aucun événement Wazuh sélectionné.";
@@ -120,14 +128,18 @@
   }
   // A cohort is a triage selector, never a permission. This route reruns the
   // server-owned Case/Timeline/typed-source traversal before returning IDs.
-  async function loadWazuhDrilldown(selector, value) {
+  async function loadWazuhDrilldown(selector, value, requestedOffset = 0) {
     const bearer = token.value;
     const selectedCase = caseID.value.trim();
     if (!bearer || !selectedCase || !/^[0-9]{1,16}$/.test(value) ||
-        !["agent_id", "rule_id"].includes(selector)) return;
+        !["agent_id", "rule_id"].includes(selector) ||
+        !Number.isInteger(requestedOffset) || requestedOffset < 0 ||
+        requestedOffset > 5000 || requestedOffset % 25 !== 0) return;
     if (wazuhRequest) wazuhRequest.abort();
     const controller = new AbortController();
     wazuhRequest = controller;
+    wazuhPrevious.disabled = true;
+    wazuhNext.disabled = true;
     const selectedRevision = wazuhRevision;
     const caseRevision = revision;
     wazuhEvents.replaceChildren();
@@ -136,6 +148,7 @@
       const url = new URL("/demo-wazuh-drilldown", window.location.origin);
       url.searchParams.set("case_id", selectedCase);
       url.searchParams.set(selector, value);
+      url.searchParams.set("offset", String(requestedOffset));
       const response = await fetch(url, {
         method: "GET", headers: { Authorization: "Bearer " + bearer },
         credentials: "omit", cache: "no-store", redirect: "error",
@@ -143,7 +156,8 @@
       });
       if (!response.ok) throw Error("Wazuh drilldown denied");
       const data = await response.json();
-      if (controller.signal.aborted || selectedRevision !== wazuhRevision ||
+      if (controller.signal.aborted || wazuhRequest !== controller ||
+          selectedRevision !== wazuhRevision ||
           caseRevision !== revision || token.value !== bearer ||
           caseID.value.trim() !== selectedCase) return;
       if (!data || data.format !== "cmdr-local-wazuh4-drilldown-v1" ||
@@ -151,7 +165,11 @@
           data.value !== value || !Number.isSafeInteger(data.total_matches) ||
           data.total_matches < 0 || data.total_matches > 5000 ||
           !Array.isArray(data.entries) || data.entries.length > 25 ||
-          data.entries.length > data.total_matches ||
+          data.entries.length !== Math.min(25, Math.max(0, data.total_matches - requestedOffset)) ||
+          (data.offset !== undefined && data.offset !== requestedOffset) ||
+          (data.has_more !== undefined &&
+            (typeof data.has_more !== "boolean" ||
+             data.has_more !== (requestedOffset + data.entries.length < data.total_matches))) ||
           data.entries.some(e => !e || typeof e.id !== "string" ||
             e.id.length < 1 || e.id.length > 1024 ||
             !["observed", "inferred", "user-action", "decision", "response"].includes(e.kind) ||
@@ -159,10 +177,16 @@
             typeof e.time_uncertain !== "boolean")) {
         throw Error("Invalid Wazuh drilldown");
       }
+      wazuhSelection = { selector, value };
+      wazuhOffset = requestedOffset;
+      wazuhPrevious.disabled = requestedOffset === 0;
+      wazuhNext.disabled = requestedOffset + data.entries.length >= data.total_matches;
       wazuhEvents.replaceChildren();
       wazuhEvents.textContent = data.total_matches +
-        " événement(s) Wazuh autorisé(s), " + data.entries.length +
-        " premiers affichés (maximum 25). Chaque ouverture revérifie les droits.";
+        " événement(s) Wazuh autorisé(s), lignes " +
+        (data.entries.length ? requestedOffset + 1 : 0) + "–" +
+        (requestedOffset + data.entries.length) +
+        ". Chaque page et ouverture revérifie les droits.";
       const list = document.createElement("ol");
       for (const entry of data.entries) {
         const item = document.createElement("li");
@@ -184,12 +208,22 @@
       if (selectedRevision === wazuhRevision) {
         wazuhEvents.replaceChildren();
         wazuhEvents.textContent = "Événements indisponibles ou droits modifiés. Aucun résultat partiel.";
+        wazuhPrevious.disabled = true;
+        wazuhNext.disabled = true;
       }
     } finally {
       if (wazuhRequest === controller) wazuhRequest = null;
     }
   }
   wazuhButton.addEventListener("click", loadWazuhCohorts);
+  wazuhPrevious.addEventListener("click", () => {
+    if (wazuhSelection && wazuhOffset > 0 && !wazuhRequest)
+      loadWazuhDrilldown(wazuhSelection.selector, wazuhSelection.value, wazuhOffset - 25);
+  });
+  wazuhNext.addEventListener("click", () => {
+    if (wazuhSelection && !wazuhNext.disabled && !wazuhRequest)
+      loadWazuhDrilldown(wazuhSelection.selector, wazuhSelection.value, wazuhOffset + 25);
+  });
   const limit = 20;
   let offset = 0;
   let pageCount = 0;
