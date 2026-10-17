@@ -108,6 +108,12 @@
       </div>
       <button id="wazuh-search-run" type="button">Exécuter le Search Job autorisé</button>
       <p id="wazuh-search-status" role="status" aria-live="polite">Aucune recherche Wazuh exécutée.</p>
+      <div class="field">
+        <button id="wazuh-replay-save" type="button" disabled>Enregistrer cette recherche JSON (manuel)</button>
+        <label for="wazuh-replay-file">Reprendre une recherche JSON sauvegardée</label>
+        <input id="wazuh-replay-file" type="file" accept=".json,application/json">
+      </div>
+      <p class="intro">Un fichier local conserve uniquement les critères, l'identifiant du Job initial et son nombre de résultats, jamais le jeton ni les messages bruts. Le fichier est sensible, non signé et modifiable. Son chargement n'accorde aucun accès : sélectionnez le même Case et un jeton valide, puis relancez volontairement la recherche pour vérifier les données et droits actuels.</p>
       <div id="wazuh-search-results" role="region" aria-label="Résultats du Search Job autorisé" aria-live="polite"></div>
       <p class="intro">Chaque événement s'ouvre par une nouvelle vérification des droits Case, Timeline et source. Les résultats ne sont pas des preuves de causalité. En changeant le Case ou le jeton, ils sont effacés.</p>
     </section>
