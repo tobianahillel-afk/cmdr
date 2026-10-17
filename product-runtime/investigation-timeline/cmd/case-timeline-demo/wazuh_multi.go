@@ -101,6 +101,7 @@ func loadMultipleWazuhFeedsWithLevels(ctx context.Context, principal, snapshotPa
 			if _, exists := levels[id]; exists {
 				return timeline.MemoryTimelineData{}, 0, nil, errors.New("duplicate Wazuh feed entry identity")
 			}
+			level.Feed = i + 1 // Trusted operator-selected feed ordinal, not alert metadata.
 			levels[id] = level
 		}
 		events, err := normalizeWazuh4Alerts(ctx, data)

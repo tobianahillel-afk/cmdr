@@ -71,7 +71,9 @@
           data.synthetic !== true || !Number.isSafeInteger(data.imported_entries) ||
           data.imported_entries < 1 || data.imported_entries > 5000 ||
           !Array.isArray(data.top_agents) || !Array.isArray(data.top_rules) ||
-          data.top_agents.length > 10 || data.top_rules.length > 10) {
+          data.top_agents.length > 10 || data.top_rules.length > 10 ||
+          (data.multi_feed_signals !== undefined &&
+            (!Array.isArray(data.multi_feed_signals) || data.multi_feed_signals.length > 10))) {
         throw Error("Invalid cohort schema");
       }
       const validID = value => typeof value === "string" && /^[0-9]{1,16}$/.test(value);
@@ -81,7 +83,12 @@
           !validCount(a.count) || !validCount(a.distinct_rule_ids) ||
           !validLevel(a.highest_known_rule_level)) ||
           data.top_rules.some(a => !a || !validID(a.rule_id) ||
-          !validCount(a.count) || !validLevel(a.highest_known_rule_level))) {
+          !validCount(a.count) || !validLevel(a.highest_known_rule_level)) ||
+          (data.multi_feed_signals || []).some(s => !s || !validID(s.agent_id) ||
+            !validID(s.rule_id) || !validCount(s.alert_count) ||
+            !Number.isSafeInteger(s.distinct_feeds) || s.distinct_feeds < 2 ||
+            s.distinct_feeds > 4 || s.alert_count < s.distinct_feeds ||
+            !validLevel(s.highest_known_rule_level))) {
         throw Error("Invalid cohort values");
       }
       // Always use textContent: source labels are never interpreted as HTML.
@@ -90,9 +97,16 @@
         (a.highest_known_rule_level ?? "inconnu"));
       const ruleLines = data.top_rules.map(a => "règle " + a.rule_id + " : " + a.count +
         " alerte(s), niveau maximum connu " + (a.highest_known_rule_level ?? "inconnu"));
+      const crossFeedLines = (data.multi_feed_signals || []).map(s =>
+        "agent " + s.agent_id + " / règle " + s.rule_id + " : " +
+        s.alert_count + " alerte(s) dans " + s.distinct_feeds +
+        " flux distinct(s), niveau maximum connu " +
+        (s.highest_known_rule_level ?? "inconnu"));
       wazuhStatus.textContent = data.imported_entries + " alerte(s) Wazuh importée(s) et autorisée(s)." +
         "\nAgents les plus touchés :\n" + (agentLines.join("\n") || "aucun agent connu") +
         "\nRègles les plus fréquentes :\n" + (ruleLines.join("\n") || "aucune règle connue") +
+        "\nCooccurrences multi-flux (même agent et règle) :\n" +
+        (crossFeedLines.join("\n") || "aucune") +
         "\nDonnées locales synthétiques, sans preuve de causalité.";
       for (const [selector, cohorts] of [
         ["agent_id", data.top_agents.map(a => a.agent_id)],

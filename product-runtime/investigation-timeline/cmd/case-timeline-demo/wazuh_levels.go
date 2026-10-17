@@ -21,6 +21,17 @@ type wazuhRuleLevel struct {
 	Known   bool
 	RuleID  string
 	AgentID string
+	Feed    int // Server-assigned import ordinal; zero for the single-feed mode.
+}
+
+// Co-occurrence describes an agent/rule pair observed on separate offline
+// operator feeds. It is not a causal correlation or evidence of compromise.
+type wazuhMultiFeedSignal struct {
+	AgentID               string `json:"agent_id"`
+	RuleID                string `json:"rule_id"`
+	AlertCount            int    `json:"alert_count"`
+	DistinctFeeds         int    `json:"distinct_feeds"`
+	HighestKnownRuleLevel *int   `json:"highest_known_rule_level,omitempty"`
 }
 
 // Host/agent grouping is derived only from already authorized alert entries.
@@ -68,6 +79,7 @@ type wazuhRuleTriageReceipt struct {
 	DistinctAgentIDs int `json:"distinct_agent_ids"`
 	UnknownAgentIDs int `json:"unknown_agent_ids"`
 	TopAgents []wazuhAgentCount `json:"top_agents"`
+	MultiFeedSignals []wazuhMultiFeedSignal `json:"multi_feed_signals,omitempty"`
 	DistinctTimeWindows int `json:"distinct_time_windows"`
 	PeakWindows []wazuhAlertWindow `json:"peak_windows"`
 	UnplacedAlerts int `json:"unplaced_alerts"`
@@ -172,6 +184,8 @@ func writeDemoWazuh4RuleTriageWithLevels(ctx context.Context, principal string, 
 	rules := make(map[string]*wazuhRuleIDCount)
 	agents := make(map[string]*wazuhAgentCount)
 	agentRules := make(map[string]map[string]bool)
+	multiPairs := make(map[string]*wazuhMultiFeedSignal)
+	multiFeeds := make(map[string]map[int]bool)
 	visibleImported, unknown, unplaced, unknownRules, unknownAgents := 0, 0, 0, 0, 0
 	receipt, err := collectDemoCaseTriageWithObserver(ctx, handler, token, intoCase, func(entry timeline.ProjectedEntry) error {
 		level, exists := levels[entry.ID]
@@ -179,6 +193,23 @@ func writeDemoWazuh4RuleTriageWithLevels(ctx context.Context, principal string, 
 			return nil
 		}
 		visibleImported++
+		// Join feed identity only after server-authorized typed-source traversal.
+		// Both IDs are validated decimal strings in wazuhRuleLevelsWithPrefix.
+		if level.Feed > 0 && level.AgentID != "" && level.RuleID != "" {
+			key := level.AgentID + "/" + level.RuleID
+			signal := multiPairs[key]
+			if signal == nil {
+				signal = &wazuhMultiFeedSignal{AgentID: level.AgentID, RuleID: level.RuleID}
+				multiPairs[key] = signal
+				multiFeeds[key] = make(map[int]bool)
+			}
+			signal.AlertCount++
+			multiFeeds[key][level.Feed] = true
+			if level.Known && (signal.HighestKnownRuleLevel == nil || level.Level > *signal.HighestKnownRuleLevel) {
+				maximum := level.Level
+				signal.HighestKnownRuleLevel = &maximum
+			}
+		}
 		if level.Known {
 			counts[level.Level]++
 		} else {
@@ -310,6 +341,31 @@ func writeDemoWazuh4RuleTriageWithLevels(ctx context.Context, principal string, 
 	if len(topAgents) > 10 {
 		topAgents = topAgents[:10]
 	}
+	// A signal requires independently imported observations in at least two
+	// distinct feeds; repeated alerts within one feed are not cross-feed.
+	multiSignals := make([]wazuhMultiFeedSignal, 0)
+	for key, signal := range multiPairs {
+		if len(multiFeeds[key]) < 2 {
+			continue
+		}
+		signal.DistinctFeeds = len(multiFeeds[key])
+		multiSignals = append(multiSignals, *signal)
+	}
+	sort.Slice(multiSignals, func(i, j int) bool {
+		if multiSignals[i].DistinctFeeds != multiSignals[j].DistinctFeeds {
+			return multiSignals[i].DistinctFeeds > multiSignals[j].DistinctFeeds
+		}
+		if multiSignals[i].AlertCount != multiSignals[j].AlertCount {
+			return multiSignals[i].AlertCount > multiSignals[j].AlertCount
+		}
+		if multiSignals[i].AgentID != multiSignals[j].AgentID {
+			return multiSignals[i].AgentID < multiSignals[j].AgentID
+		}
+		return multiSignals[i].RuleID < multiSignals[j].RuleID
+	})
+	if len(multiSignals) > 10 {
+		multiSignals = multiSignals[:10]
+	}
 	histogram := make([]wazuhLevelCount, 0, len(keys))
 	for _, level := range keys {
 		histogram = append(histogram, wazuhLevelCount{Level: level, Count: counts[level]})
@@ -320,6 +376,7 @@ func writeDemoWazuh4RuleTriageWithLevels(ctx context.Context, principal string, 
 		RuleLevels: histogram, UnknownRuleLevels: unknown,
 		DistinctRuleIDs: len(rules), UnknownRuleIDs: unknownRules, TopRules: topRules,
 		DistinctAgentIDs: len(agents), UnknownAgentIDs: unknownAgents, TopAgents: topAgents,
+		MultiFeedSignals: multiSignals,
 		DistinctTimeWindows: len(windows), PeakWindows: peaks, UnplacedAlerts: unplaced,
 	})
 }
