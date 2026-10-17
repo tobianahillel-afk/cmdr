@@ -15,10 +15,6 @@ import (
 // An explicitly requested sensitive local receipt; no ownership or custody claim.
 type localCaseEventSequence struct {
 	Format           string            `json:"format"`
-	WindowStartUTC   string            `json:"window_start_utc,omitempty"`
-	WindowEndUTC     string            `json:"window_end_utc,omitempty"`
-	MatchedFirst     int               `json:"matched_first,omitempty"`
-	MatchedSecond    int               `json:"matched_second,omitempty"`
 	Synthetic        bool              `json:"synthetic"`
 	First            caseTriageReceipt `json:"first"`
 	Second           caseTriageReceipt `json:"second"`
@@ -103,55 +99,7 @@ func collectAuthorizedCrossCaseSequence(ctx context.Context, handler http.Handle
 	return result, nil
 }
 
-// selectAuthorizedFiveMinuteWindow narrows an already completely authorized
-// two-Case sequence. It does not infer a shared owner, cause or identity.
-func selectAuthorizedFiveMinuteWindow(report localCaseEventSequence, selected string) (localCaseEventSequence, error) {
-	start, err := time.Parse(time.RFC3339, selected)
-	if err != nil || selected != start.UTC().Format(time.RFC3339) ||
-		start.Minute()%5 != 0 || start.Second() != 0 {
-		return localCaseEventSequence{}, errors.New("select a canonical UTC five-minute boundary")
-	}
-	end := start.Add(5 * time.Minute)
-	filtered := make([]localCaseEvent, 0)
-	firstCount, secondCount := 0, 0
-	for _, item := range report.Events {
-		if item.Entry.TimeUncertain {
-			continue // uncertainty must never be promoted to a certain window
-		}
-		instant, err := time.Parse(time.RFC3339Nano, item.Entry.SourceTime)
-		if err != nil {
-			return localCaseEventSequence{}, errors.New("invalid certain authorized Timeline timestamp")
-		}
-		if instant.Before(start) || !instant.Before(end) {
-			continue
-		}
-		filtered = append(filtered, item)
-		if item.CaseID == report.First.CaseID {
-			firstCount++
-		} else if item.CaseID == report.Second.CaseID {
-			secondCount++
-		} else {
-			return localCaseEventSequence{}, errors.New("unexpected Case in authorized sequence")
-		}
-	}
-	if firstCount == 0 || secondCount == 0 {
-		return localCaseEventSequence{}, errors.New("no certain events from both Cases in selected window")
-	}
-	report.Format = "cmdr-local-cross-case-window-events-v1"
-	report.WindowStartUTC = start.Format(time.RFC3339)
-	report.WindowEndUTC = end.Format(time.RFC3339)
-	report.MatchedFirst, report.MatchedSecond = firstCount, secondCount
-	report.Events = filtered
-	report.CertainEntries = len(filtered)
-	report.UncertainEntries = 0
-	return report, nil
-}
-
 func writeDemoCaseEventSequence(ctx context.Context, principal, snapshot, firstID, secondID string, out io.Writer) error {
-	return writeDemoCaseEventSequenceWithWindow(ctx, principal, snapshot, firstID, secondID, "", out)
-}
-
-func writeDemoCaseEventSequenceWithWindow(ctx context.Context, principal, snapshot, firstID, secondID, window string, out io.Writer) error {
 	if err := ctx.Err(); err != nil {
 		return err
 	}
@@ -174,12 +122,6 @@ func writeDemoCaseEventSequenceWithWindow(ctx context.Context, principal, snapsh
 	report, err := collectAuthorizedCrossCaseSequence(ctx, handler, token, firstID, secondID)
 	if err != nil {
 		return err
-	}
-	if window != "" {
-		report, err = selectAuthorizedFiveMinuteWindow(report, window)
-		if err != nil {
-			return err
-		}
 	}
 	if err := ctx.Err(); err != nil {
 		return err

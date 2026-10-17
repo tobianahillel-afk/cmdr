@@ -42,7 +42,6 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	compareCase := flags.String("compare-case", "", "first authorized Case for an offline two-Case comparison receipt")
 	withCase := flags.String("with-case", "", "second authorized Case for the offline comparison (requires -compare-case)")
 	compareEvents := flags.Bool("compare-events", false, "explicit sensitive chronological event-level cross-Case JSON receipt")
-	pivotWindow := flags.String("pivot-window", "", "five-minute UTC window start; requires two Cases and -compare-events")
 	sourceCase := flags.String("source-case", "", "authorized Case for offline source-specific event timeline")
 	sourceRef := flags.String("source-ref", "", "exact authorized source reference (requires -source-case)")
 	if err := flags.Parse(args); err != nil {
@@ -50,9 +49,6 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	}
 	if flags.NArg() != 0 {
 		return errors.New("unexpected positional arguments")
-	}
-	if *pivotWindow != "" && (!*compareEvents || *compareCase == "" || *withCase == "" || *reportCase != "" || *sourceCase != "" || *sourceRef != "") {
-		return errors.New("time-window pivot requires only two Cases and explicit event comparison")
 	}
 	if *sourceCase != "" || *sourceRef != "" {
 		if *sourceCase == "" || *sourceRef == "" || *reportCase != "" || *compareCase != "" || *withCase != "" || *compareEvents {
@@ -65,7 +61,7 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	}
 	if *compareCase != "" || *withCase != "" || *compareEvents {
 		if *compareEvents {
-			return writeDemoCaseEventSequenceWithWindow(ctx, *principal, *snapshot, *compareCase, *withCase, *pivotWindow, output)
+			return writeDemoCaseEventSequence(ctx, *principal, *snapshot, *compareCase, *withCase, output)
 		}
 		return writeDemoCaseComparison(ctx, *principal, *snapshot, *compareCase, *withCase, output)
 	}
