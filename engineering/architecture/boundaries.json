@@ -120,7 +120,8 @@
       ],
       "mutable_by_implementation": true,
       "may_depend_on": [
-        "event-inspection-runtime"
+        "event-inspection-runtime",
+        "event-search-runtime"
       ]
     }
   ]
