@@ -1335,3 +1335,48 @@ test("Wazuh page denial clears previous entries and disables navigation", async 
   assert.equal(env.fields["wazuh-next"].disabled, true);
   assert.equal(env.fields["wazuh-previous"].disabled, true);
 });
+
+test("Wazuh third page event opens through both independent source owner checks", async () => {
+  const env = boot(url => {
+    if (url.pathname === "/demo-wazuh-cohorts") return { ok:true, async json() {
+      return { format:"cmdr-local-wazuh4-case-triage-v1", synthetic:true,
+        imported_entries:26, top_agents:[{agent_id:"001",count:26,distinct_rule_ids:1}],top_rules:[] };
+    }};
+    if (url.pathname === "/demo-wazuh-drilldown") {
+      const off = Number(url.searchParams.get("offset"));
+      const n = Math.min(25,26-off);
+      return { ok:true, async json() { return {
+        format:"cmdr-local-wazuh4-drilldown-v1",synthetic:true,selector:"agent_id",value:"001",
+        offset:off,total_matches:26,has_more:off+n<26,
+        entries:Array.from({length:n}, (_,k)=>({
+          id:"timeline-wazuh-"+(off+k),kind:"observed",
+          source_time:"2026-10-01T10:00:00Z",time_uncertain:false
+        }))
+      }; }};
+    }
+    if (url.pathname === "/case-source-navigation") return { ok:true, async json() {
+      return { status:"ready",kind:"telemetry-event",object_id:"owner-approved-25",
+        return_is_authority:false,return_case_id:"case-disk",return_entry_id:"timeline-wazuh-25",
+        return_query:"case_id=case-disk&limit=20&offset=0" };
+    }};
+    if (url.pathname === "/demo-source-open") return { ok:true, async json() {
+      return { status:"ready",synthetic:true,case_id:"case-disk",entry_id:"timeline-wazuh-25",
+        kind:"telemetry-event",object_id:"owner-approved-25",preview:"authorized preview" };
+    }};
+    throw Error("Unexpected endpoint "+url.pathname);
+  });
+  env.fields["wazuh-cohorts"].handlers.click(); await flush(); await flush();
+  env.fields["wazuh-actions"].children[0].handlers.click(); await flush(); await flush();
+  env.fields["wazuh-next"].handlers.click(); await flush(); await flush();
+  const list = env.fields["wazuh-events"].children[0];
+  assert.equal(list.children.length,1);
+  list.children[0].children[0].handlers.click(); await flush(); await flush(); await flush();
+  assert.match(env.fields["source-status"].textContent,/nouvelle vérification|vérifiée/i);
+  const paths=env.requests.map(request=>request.url.pathname);
+  assert.ok(paths.includes("/case-source-navigation"));
+  assert.ok(paths.includes("/demo-source-open"));
+  for (const request of env.requests.filter(request=>request.url.pathname.includes("source"))) {
+    assert.equal(request.url.searchParams.get("entry_id"),"timeline-wazuh-25");
+    assert.equal(request.options.headers.Authorization,"Bearer ephemeral-token");
+  }
+});
