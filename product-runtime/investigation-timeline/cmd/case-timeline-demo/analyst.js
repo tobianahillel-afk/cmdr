@@ -46,6 +46,7 @@
   const compareCase = document.getElementById("compare-case");
   const compareButton = document.getElementById("compare");
   const comparison = document.getElementById("comparison");
+  const comparisonActions = document.getElementById("comparison-actions");
   let compareRevision = 0;
   let compareRequest = null;
   function clearComparison() {
@@ -54,6 +55,7 @@
     compareRequest = null;
     compareButton.disabled = false;
     comparison.textContent = "Aucune comparaison calculée.";
+    comparisonActions.replaceChildren();
   }
   const downloadReport = document.getElementById("download-report");
   let analysisRequest = null;
@@ -293,6 +295,7 @@
     // ACL chain. One inaccessible Case invalidates the ENTIRE comparison.
     async function sourcesFor(id) {
       const groups = new Map();
+      const buckets = new Map();
       const seen = new Set();
       const kinds = { observed: 0, inferred: 0 };
       let certainMin = null;
@@ -355,10 +358,16 @@
             if (!Number.isFinite(instant)) throw Error("unparseable certain comparison timestamp");
             certainMin = certainMin === null ? instant : Math.min(certainMin, instant);
             certainMax = certainMax === null ? instant : Math.max(certainMax, instant);
+            // A shared five-minute interval is a triage clue, not causal proof.
+            const bucket = Math.floor(instant / 300000);
+            const counts = buckets.get(bucket) || { total: 0, observed: 0, inferred: 0 };
+            counts.total++;
+            if (entry.kind === "observed" || entry.kind === "inferred") counts[entry.kind]++;
+            buckets.set(bucket, counts);
           }
         }
       }
-      return { total, groups, kinds, uncertain, certainMin, certainMax };
+      return { total, groups, buckets, kinds, uncertain, certainMin, certainMax };
     }
     try {
       const left = await sourcesFor(selectedCase);
@@ -379,6 +388,10 @@
         ? "indéterminable" :
         (left.certainMin <= right.certainMax && right.certainMin <= left.certainMax
           ? "oui" : "non");
+      const simultaneous = [...left.buckets].filter(([bucket]) => right.buckets.has(bucket))
+        .map(([bucket, leftCount]) => ({ bucket, left: leftCount, right: right.buckets.get(bucket) }))
+        .sort((a, b) => Math.min(b.left.total, b.right.total) -
+          Math.min(a.left.total, a.right.total) || a.bucket - b.bucket);
       comparison.textContent = "Comparaison des événements autorisés : " +
         left.total + " / " + right.total +
         " · observés : " + left.kinds.observed + " / " + right.kinds.observed +
@@ -387,11 +400,42 @@
         " · plage certaine Case 1 (UTC) : " + range(left) +
         " · plage certaine Case 2 (UTC) : " + range(right) +
         " · chevauchement des plages certaines : " + overlap +
+        " · fenêtres UTC de 5 min avec événements certains dans les deux Cases : " + simultaneous.length +
         " · références communes : " + common.length + (top ? " · " + top : "") +
         ". Ces plages ne sont pas des preuves d'activité continue, et une référence " +
         "commune n'atteste ni causalité ni identité d'objet. Lectures non transactionnelles.";
+      for (const item of simultaneous.slice(0, 5)) {
+        const from = new Date(item.bucket * 300000).toISOString();
+        const to = new Date((item.bucket + 1) * 300000).toISOString();
+        for (const target of [
+          { id: selectedCase, label: "Case 1", count: item.left },
+          { id: otherCase, label: "Case 2", count: item.right }
+        ]) {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.textContent = "Examiner " + target.label + " · " + from +
+            " → " + to + " · " + target.count.total + " événement(s) certain(s), " +
+            target.count.observed + " observé(s), " + target.count.inferred + " inféré(s)";
+          button.addEventListener("click", () => {
+            if (controller.signal.aborted || compareRevision !== activeComparison ||
+                revision !== activeSelection || token.value !== bearer ||
+                caseID.value.trim() !== selectedCase || compareCase.value.trim() !== otherCase) return;
+            // A pivot is a UI selector only; fetchPage reauthorizes all records.
+            clearComparison();
+            caseID.value = target.id;
+            offset = 0;
+            restoreOffsetOnSubmit = false;
+            fromInput.value = localTimestamp(from);
+            toInput.value = localTimestamp(to);
+            restoredRange = { from, to }; // preserve exact UTC through DST folds
+            fetchPage();
+          });
+          comparisonActions.append(button);
+        }
+      }
     } catch {
       if (activeComparison === compareRevision) {
+        comparisonActions.replaceChildren();
         comparison.textContent = "Comparaison indisponible ou droits modifiés. Aucun résultat partiel.";
       }
     } finally {

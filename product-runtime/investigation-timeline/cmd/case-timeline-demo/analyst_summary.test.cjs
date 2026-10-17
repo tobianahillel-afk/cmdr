@@ -12,7 +12,7 @@ const ids = [
   "case-discovery-status", "from", "to", "entries", "summary", "message",
   "page", "previous", "next", "load", "source-detail", "source-status",
   "return-to-case", "copy-return-link", "analyze", "analysis", "analysis-actions", "download-report",
-  "compare-case", "compare", "comparison"
+  "compare-case", "compare", "comparison", "comparison-actions"
 ];
 function node() {
   return {
@@ -555,4 +555,101 @@ test("malformed late certain timestamp discards entire cross-Case triage", async
   for (let i = 0; i < 5; i++) await flush();
   assert.match(env.fields.comparison.textContent, /Aucun résultat partiel/);
   assert.doesNotMatch(env.fields.comparison.textContent, /observés :|plage certaine Case 1/);
+});
+
+test("temporal pivot selects a five-minute UTC intersection and reauthorizes the target Case", async () => {
+  const env = boot(url => {
+    const id = url.searchParams.get("case_id");
+    const at = Number(url.searchParams.get("offset"));
+    const response = page(at, id === "case-peer" ? 2 : 3, {
+      sourceFor: () => id === "case-peer" ? "peer-only" : "main-only"
+    });
+    if (url.searchParams.get("limit") === "20") {
+      const original = response.json;
+      response.json = async () => {
+        const data = await original();
+        data.page.limit = 20;
+        return data;
+      };
+    }
+    return response;
+  });
+  env.fields["compare-case"].value = "case-peer";
+  env.fields.compare.handlers.click();
+  for (let i = 0; i < 6; i++) await flush();
+  assert.match(env.fields.comparison.textContent, /références communes : 0/);
+  assert.match(env.fields.comparison.textContent, /fenêtres UTC de 5 min .* : 1/);
+  const actions = env.fields["comparison-actions"].children;
+  assert.equal(actions.length, 2);
+  assert.match(actions[1].textContent, /Case 2/);
+  assert.doesNotMatch(actions[1].textContent, /ephemeral-token|peer-only/);
+  actions[1].handlers.click();
+  await flush();
+  assert.equal(env.fields["comparison-actions"].children.length, 0);
+  assert.equal(env.fields["case-id"].value, "case-peer");
+  const req = env.requests.at(-1);
+  assert.equal(req.url.pathname, "/case-timeline");
+  assert.equal(req.url.searchParams.get("case_id"), "case-peer");
+  assert.equal(req.url.searchParams.get("limit"), "20");
+  assert.equal(req.url.searchParams.get("offset"), "0");
+  assert.equal(req.url.searchParams.get("from"), "2026-10-01T10:00:00.000Z");
+  assert.equal(req.url.searchParams.get("to"), "2026-10-01T10:05:00.000Z");
+  assert.equal(req.options.headers.Authorization, "Bearer ephemeral-token");
+  assert.equal(req.options.credentials, "omit");
+  assert.equal(req.options.cache, "no-store");
+  assert.equal(req.url.href.includes("ephemeral-token"), false);
+});
+
+test("uncertain-only second Case has no temporal pivots; revoked token invalidates old buttons", async () => {
+  const env = boot(url => {
+    const id = url.searchParams.get("case_id");
+    const response = page(Number(url.searchParams.get("offset")), 2);
+    const original = response.json;
+    response.json = async () => {
+      const data = await original();
+      if (id === "case-peer") for (const entry of data.entries) entry.time_uncertain = true;
+      return data;
+    };
+    return response;
+  });
+  env.fields["compare-case"].value = "case-peer";
+  env.fields.compare.handlers.click();
+  for (let i = 0; i < 6; i++) await flush();
+  assert.match(env.fields.comparison.textContent, /fenêtres UTC de 5 min .* : 0/);
+  assert.equal(env.fields["comparison-actions"].children.length, 0);
+  const allowed = boot(url => page(Number(url.searchParams.get("offset")), 2));
+  allowed.fields["compare-case"].value = "case-peer";
+  allowed.fields.compare.handlers.click();
+  for (let i = 0; i < 6; i++) await flush();
+  const button = allowed.fields["comparison-actions"].children[0];
+  assert.ok(button);
+  allowed.fields.token.value = "revoked";
+  allowed.fields.token.handlers.input();
+  assert.equal(allowed.fields["comparison-actions"].children.length, 0);
+  const before = allowed.requests.length;
+  button.handlers.click();
+  await flush();
+  assert.equal(allowed.requests.length, before);
+});
+
+test("denied Case and malformed certain timestamp cannot create temporal pivot actions", async () => {
+  for (const denied of [true, false]) {
+    const env = boot(url => {
+      const id = url.searchParams.get("case_id");
+      if (denied && id === "case-peer") return { ok: false };
+      const response = page(Number(url.searchParams.get("offset")), 2);
+      const original = response.json;
+      response.json = async () => {
+        const data = await original();
+        if (!denied && id === "case-peer") data.entries[0].source_time = "invalid";
+        return data;
+      };
+      return response;
+    });
+    env.fields["compare-case"].value = "case-peer";
+    env.fields.compare.handlers.click();
+    for (let i = 0; i < 6; i++) await flush();
+    assert.match(env.fields.comparison.textContent, /Aucun résultat partiel/);
+    assert.equal(env.fields["comparison-actions"].children.length, 0);
+  }
 });
