@@ -204,3 +204,46 @@ func TestWazuh4DiskAlertsReachBearerAuthorizedCaseAndSource(t *testing.T) {
 		t.Fatal("Wazuh integration modified original alerts file")
 	}
 }
+
+func TestWazuh4ImportBoundaryFailuresCannotExposeViewer(t *testing.T) {
+	owner := snapshotFixture(t)
+	alerts := writeJSONLEvents(t, wazuh4Fixture)
+	invalidAlerts := writeJSONLEvents(t, "{invalid json}\n")
+	for _, tc := range []struct {
+		name, ownerPath, alertPath, principal, caseID string
+	}{
+		{"missing-owner", "", alerts, "analyst-a", "forensic-case-on-disk"},
+		{"same-file", owner, owner, "analyst-a", "forensic-case-on-disk"},
+		{"invalid-owner", alerts, alerts + ".missing", "analyst-a", "forensic-case-on-disk"},
+		{"missing-events", owner, alerts + ".missing", "analyst-a", "forensic-case-on-disk"},
+		{"invalid-alerts", owner, invalidAlerts, "analyst-a", "forensic-case-on-disk"},
+		{"foreign-case", owner, alerts, "analyst-a", "case-b"},
+		{"denied-principal", owner, alerts, "analyst-b", "forensic-case-on-disk"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			var output bytes.Buffer
+			if err := serveDemoWithWazuhAlerts(context.Background(), tc.principal, tc.ownerPath, tc.caseID, tc.alertPath, &output); err == nil || output.Len() != 0 {
+				t.Fatalf("invalid source started listener or exposed bearer: %v / %q", err, output.String())
+			}
+		})
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	var output bytes.Buffer
+	if err := serveDemoWithWazuhAlerts(ctx, "analyst-a", owner, "forensic-case-on-disk", alerts, &output); err != context.Canceled || output.Len() != 0 {
+		t.Fatalf("cancelled source started viewer: %v / %q", err, output.String())
+	}
+}
+
+func TestWazuh4RejectsOversizedAndInvalidUTF8Input(t *testing.T) {
+	for _, input := range [][]byte{
+		bytes.Repeat([]byte{'x'}, maxDemoSnapshotBytes+1),
+		[]byte{0xff},
+		[]byte("{\"timestamp\":\"2026-10-17T09:30:15+0200\",\"id\":\"one\",\"rule\":{\"description\":\"ok\"}}\n\n"),
+	} {
+		got, err := normalizeWazuh4Alerts(context.Background(), input)
+		if err == nil || len(got) != 0 {
+			t.Fatalf("invalid Wazuh source returned events: %v", err)
+		}
+	}
+}
