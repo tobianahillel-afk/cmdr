@@ -72,16 +72,26 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	if *compareProximity && *compareEvents {
 		return errors.New("choose exactly one cross-Case comparison mode")
 	}
-	// Wazuh 4.x is a real on-disk alert format, not a remote ingestion
-	// endpoint. Route it through the existing authorized Case owner chain.
+	// Wazuh 4.x is an offline source, not an ACL provider. Require exactly
+	// one of the existing viewer or authorized two-Case temporal paths.
 	if *wazuhAlerts != "" {
-		if !*serveImport || *snapshot == "" || *intoCase == "" || *importJSONL != "" ||
-			*triageImport || *reportCase != "" || *exportCase != "" || *compareCase != "" ||
-			*withCase != "" || *compareEvents || *compareProximity || windowSet ||
-			*sourceCase != "" || *sourceRef != "" || *inspectCase != "" || *inspectEntry != "" {
-			return errors.New("Wazuh alert import requires -snapshot, -into-case and -serve-import only")
+		if *snapshot == "" || *intoCase == "" || *importJSONL != "" ||
+			*reportCase != "" || *exportCase != "" || *compareCase != "" ||
+			*compareEvents || *sourceCase != "" || *sourceRef != "" ||
+			*inspectCase != "" || *inspectEntry != "" || *serveImport == *triageImport {
+			return errors.New("select Wazuh viewer or explicit two-Case temporal triage")
 		}
-		return serveDemoWithWazuhAlerts(ctx, *principal, *snapshot, *intoCase, *wazuhAlerts, output)
+		if *serveImport {
+			if *withCase != "" || *compareProximity || windowSet {
+				return errors.New("Wazuh viewer cannot combine with comparison options")
+			}
+			return serveDemoWithWazuhAlerts(ctx, *principal, *snapshot, *intoCase, *wazuhAlerts, output)
+		}
+		if *withCase == "" || !*compareProximity {
+			return errors.New("Wazuh temporal triage requires -with-case and -compare-proximity")
+		}
+		return writeDemoWazuh4Proximity(ctx, *principal, *snapshot, *intoCase, *withCase,
+			*wazuhAlerts, *proximitySeconds, output)
 	}
 	if *serveImport && (*snapshot == "" || *importJSONL == "" || *intoCase == "") {
 		return errors.New("serve-import requires an owner snapshot, normalized JSONL file and destination Case")

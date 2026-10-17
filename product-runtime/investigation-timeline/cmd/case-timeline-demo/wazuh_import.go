@@ -120,3 +120,64 @@ func serveDemoWithWazuhAlerts(ctx context.Context, principal, snapshotPath, case
 	}
 	return serveDemoWithData(ctx, principal, merged, output)
 }
+
+// writeDemoWazuh4Proximity turns a local Wazuh alert stream into time leads
+// across two independently authorized Cases. It never exports owner data,
+// does not interpret Wazuh agent/rule metadata as permissions, and emits no
+// report until both Case/typed-source traversals have completed.
+func writeDemoWazuh4Proximity(ctx context.Context, principal, snapshotPath, intoCase, withCase, alertsPath string, seconds int, output io.Writer) error {
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	if principal == "" || intoCase == "" || withCase == "" || intoCase == withCase ||
+		len(intoCase) > 1024 || len(withCase) > 1024 ||
+		snapshotPath == "" || alertsPath == "" || snapshotPath == alertsPath ||
+		seconds < 1 || seconds > 300 {
+		return errors.New("select two distinct Cases, separate local files and a 1..300-second window")
+	}
+	owner, err := loadDemoSnapshot(snapshotPath)
+	if err != nil {
+		return err
+	}
+	raw, err := readLocalEventFile(alertsPath)
+	if err != nil {
+		return err
+	}
+	events, err := normalizeWazuh4Alerts(ctx, raw)
+	if err != nil {
+		return err
+	}
+	merged, err := importLocalEvents(ctx, owner, principal, intoCase, events)
+	if err != nil {
+		return err
+	}
+	imported := len(merged.Entries) - len(owner.Entries)
+	if imported < 1 || imported > 5000 {
+		return errors.New("inconsistent Wazuh import count")
+	}
+	token, err := randomBearer()
+	if err != nil {
+		return err
+	}
+	handler, err := newDemoHandlerWithData(token, principal, merged)
+	if err != nil {
+		return err
+	}
+	both, err := collectAuthorizedCrossCaseSequence(ctx, handler, token, intoCase, withCase)
+	if err != nil {
+		return err
+	}
+	leads, err := selectCaseProximity(ctx, both, seconds)
+	if err != nil {
+		return err
+	}
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	return json.NewEncoder(output).Encode(localImportedProximity{
+		Format: "cmdr-local-wazuh4-case-proximity-v1",
+		Synthetic: true,
+		ImportedEntries: imported,
+		Proximity: leads,
+	})
+}
