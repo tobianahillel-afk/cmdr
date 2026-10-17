@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 	"net/url"
+	"sort"
 	"time"
 
 	search "github.com/tobianahillel-afk/cmdr/product-runtime/event-search"
@@ -226,6 +227,16 @@ func executeDemoWazuhMetadataSearchWithHits(ctx context.Context, principal, case
 		}
 		hits = append(hits, hit)
 	}
+	// The Job's own stable refs remain unchanged; metadata is ordered by
+	// certain source time to make investigation navigation chronologically useful.
+	sort.Slice(hits, func(i, j int) bool {
+		if hits[i].SourceTimeUTC != hits[j].SourceTimeUTC {
+			left, _ := time.Parse(time.RFC3339Nano, hits[i].SourceTimeUTC)
+			right, _ := time.Parse(time.RFC3339Nano, hits[j].SourceTimeUTC)
+			return left.Before(right)
+		}
+		return hits[i].EntryID < hits[j].EntryID
+	})
 	if err := ctx.Err(); err != nil {
 		return search.SearchJob{}, nil, err
 	}
