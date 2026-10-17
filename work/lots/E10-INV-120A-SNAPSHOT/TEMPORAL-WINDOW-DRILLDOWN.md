@@ -43,3 +43,11 @@ DOM and Go ACL boundaries are reused. No production IAM, durable provider,
 audit trail, chain-of-custody export or transaction consistency is implied.
 This is one material browser integration into the already open temporal
 window feature PR; do not schedule a separate L2 for cosmetic follow-ups.
+
+## Functional Case → source pivot within a selected temporal window
+
+The previously introduced two-Case chronological window receipt can now be followed by a **separate owner-reauthorized source-specific receipt**. The operator chooses an already visible `case_id` and its `source_ref`, then runs `-source-case=<case> -source-ref=<source> -source-window=2026-10-01T10:00:00Z` with the same trusted offline snapshot/principal. This produces `cmdr-local-source-timeline-window-v1`, returning only certain entries in `[start,start+5min)` from that exact Case-scoped source. It does **not** accept the old comparison JSON as authority: the existing Case discovery, all paginated Timeline owner checks and typed-source permissions run again.
+
+Reuse choice: the existing `writeDemoSourceTimeline`, `collectDemoCaseTriageWithObserver` and `parseCertainFiveMinuteWindow` are sufficient. No duplicate API, general graph engine, database, new JSON owner or vendor library. Standalone source timeline without a window remains byte-compatible; invalid windows, different tenants, denied references, uncertain or boundary-excluded events, cancel and writer errors yield no JSON receipt. No source preview, bearer or custody assurance is exported. This remains **an explicit sensitive local synthetic output only**, not production IAM, a causal indicator or external SIEM integration.
+
+Behavioral test: disk-backed two-Case HTTP traversal (with 207+1 authorized events) → selection of the actual `event-c` source in the combined time-window receipt → independent authenticated source-focused re-traversal → exact filtered `event-c` receipt. Negative paths exercise a denied principal, foreign Case, hidden reference, malformed/empty windows, uncertainty, exclusive boundary and cancellation. Existing compare and source timeline tests remain unchanged.

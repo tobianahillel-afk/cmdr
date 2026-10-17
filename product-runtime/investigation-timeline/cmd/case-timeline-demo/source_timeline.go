@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"time"
 
 	timeline "github.com/tobianahillel-afk/cmdr/product-runtime/investigation-timeline"
 )
@@ -22,17 +23,35 @@ type localSourceTimeline struct {
 	Observed       int                       `json:"observed"`
 	Inferred       int                       `json:"inferred"`
 	Entries        []timeline.ProjectedEntry `json:"entries"`
+	StartUTC       string                    `json:"start_utc,omitempty"`
+	EndUTC         string                    `json:"end_utc_exclusive,omitempty"`
 }
 
 // No listener, new provider or permission shortcut. Full authorized paging
 // must complete before any byte is written to the local output.
 func writeDemoSourceTimeline(ctx context.Context, principal, snapshot, caseID, reference string, output io.Writer) error {
+	return writeDemoSourceWindowTimeline(ctx, principal, snapshot, caseID, reference, "", output)
+}
+
+// A Case-scoped source pivot from a two-Case temporal drilldown. Both the
+// principal and selected source are reauthorized through the existing owner
+// chain on EVERY invocation; no prior JSON receipt is accepted as authority.
+func writeDemoSourceWindowTimeline(ctx context.Context, principal, snapshot, caseID, reference, window string, output io.Writer) error {
 	if err := ctx.Err(); err != nil {
 		return err
 	}
 	if principal == "" || caseID == "" || reference == "" ||
 		len(caseID) > 1024 || len(reference) > 1024 {
 		return errors.New("explicit principal, Case and bounded source reference required")
+	}
+	var start, end time.Time
+	if window != "" {
+		var err error
+		start, err = parseCertainFiveMinuteWindow(window)
+		if err != nil {
+			return err
+		}
+		end = start.Add(5 * time.Minute)
 	}
 	data, err := loadDemoSnapshot(snapshot)
 	if err != nil {
@@ -51,9 +70,26 @@ func writeDemoSourceTimeline(ctx context.Context, principal, snapshot, caseID, r
 		CaseID: caseID, SourceRef: reference,
 		Entries: make([]timeline.ProjectedEntry, 0),
 	}
+	if window != "" {
+		report.Format = "cmdr-local-source-timeline-window-v1"
+		report.StartUTC = start.Format(time.RFC3339)
+		report.EndUTC = end.Format(time.RFC3339)
+	}
 	caseSummary, err := collectDemoCaseTriageWithObserver(ctx, handler, token, caseID, func(entry timeline.ProjectedEntry) error {
 		if entry.SourceRef != reference {
 			return nil
+		}
+		if window != "" {
+			if entry.TimeUncertain {
+				return nil
+			}
+			instant, err := time.Parse(time.RFC3339Nano, entry.SourceTime)
+			if err != nil {
+				return errors.New("invalid certain source event timestamp")
+			}
+			if instant.Before(start) || !instant.Before(end) {
+				return nil
+			}
 		}
 		report.Entries = append(report.Entries, entry)
 		if entry.Kind == "observed" {

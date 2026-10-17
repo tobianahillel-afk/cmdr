@@ -298,3 +298,95 @@ func TestAuthorizedWindowSelectionRejectsTamperedChronologyAndCaseOrigin(t *test
 		t.Fatalf("cancelled selection returned data: %+v %v", result, err)
 	}
 }
+
+func TestCrossCaseWindowPivotsToReauthorizedSourceTimeline(t *testing.T) {
+	path := localSharedWindowSnapshot(t, "2026-10-01T10:02:05Z", "+00:00")
+	const window = "2026-10-01T10:00:00Z"
+	var combined bytes.Buffer
+	if err := runDemoCLI(context.Background(), []string{
+		"-principal=analyst-a", "-snapshot="+path,
+		"-compare-case=case-a", "-with-case=case-c",
+		"-compare-events", "-compare-window="+window,
+	}, &combined); err != nil { t.Fatal(err) }
+	var comparison localCaseWindowSequence
+	if err := json.Unmarshal(combined.Bytes(), &comparison); err != nil { t.Fatal(err) }
+	var source string
+	for _, event := range comparison.Events {
+		if event.CaseID == "case-c" && event.Entry.ID == "event-c" {
+			source = event.Entry.SourceRef
+		}
+	}
+	if source != "disk-source-c" { t.Fatalf("typed source missing in authorized cross-Case result: %q", source) }
+	var out bytes.Buffer
+	if err := runDemoCLI(context.Background(), []string{
+		"-principal=analyst-a", "-snapshot="+path,
+		"-source-case=case-c", "-source-ref="+source, "-source-window="+window,
+	}, &out); err != nil { t.Fatal(err) }
+	var report localSourceTimeline
+	if err := json.Unmarshal(out.Bytes(), &report); err != nil { t.Fatal(err) }
+	if report.Format != "cmdr-local-source-timeline-window-v1" ||
+		report.CaseID != "case-c" || report.SourceRef != source ||
+		report.StartUTC != window || report.EndUTC != "2026-10-01T10:05:00Z" ||
+		report.MatchedEntries != 1 || report.Inferred != 1 ||
+		len(report.Entries) != 1 || report.Entries[0].ID != "event-c" ||
+		report.Entries[0].Provenance != "snapshot-only-provenance" {
+		t.Fatalf("functional temporal Case-to-source pivot lost ownership/chronology: %+v", report)
+	}
+	for _, sensitive := range []string{"demo-hidden-source", "SENSITIVE-PREVIEW", "demo-tenant-b", "Bearer ", testBearer} {
+		if strings.Contains(out.String(), sensitive) { t.Fatalf("pivot leaked %q", sensitive) }
+	}
+}
+
+func TestSourceWindowRechecksOwnerAndFailsWithoutPartialReceipt(t *testing.T) {
+	path := localSharedWindowSnapshot(t, "2026-10-01T10:02:05Z", "+00:00")
+	common := []string{"-principal=analyst-a", "-snapshot="+path,
+		"-source-case=case-c", "-source-ref=disk-source-c"}
+	for _, delta := range [][]string{
+		{"-source-window=2026-10-01T10:01:00Z"},
+		{"-source-window=2026-10-01T10:00:00+00:00"},
+		{"-source-window=2026-10-01T10:05:00Z"},
+		{"-compare-window=2026-10-01T10:00:00Z"},
+		{"-compare-events", "-source-window=2026-10-01T10:00:00Z"},
+	} {
+		var out bytes.Buffer
+		args := append(append([]string(nil), common...), delta...)
+		if err := runDemoCLI(context.Background(), args, &out); err == nil || out.Len() != 0 {
+			t.Fatalf("bad source window accepted: %+v %v %q", delta, err, out.String())
+		}
+	}
+	for _, tc := range []struct{principal,caseID,ref string}{
+		{"analyst-b", "case-c", "disk-source-c"},
+		{"analyst-a", "case-b", "demo-incident-b"},
+		{"analyst-a", "case-c", "forbidden-source"},
+		{"analyst-a", "case-a", "disk-source-c"},
+	} {
+		var out bytes.Buffer
+		if err := writeDemoSourceWindowTimeline(context.Background(), tc.principal, path, tc.caseID, tc.ref,
+			"2026-10-01T10:00:00Z", &out); err == nil || out.Len() != 0 {
+			t.Fatalf("unauthorized source selected: %+v %v %q", tc, err, out.String())
+		}
+	}
+	for _, badTime := range []struct{time,zone string}{
+		{"undetermined", "unknown"},
+		{"2026-10-01T10:05:00Z", "+00:00"},
+		{"2026-10-01T09:59:59Z", "+00:00"},
+	} {
+		invalidPath := localSharedWindowSnapshot(t, badTime.time, badTime.zone)
+		var out bytes.Buffer
+		if err := writeDemoSourceWindowTimeline(context.Background(), "analyst-a", invalidPath,
+			"case-c", "disk-source-c", "2026-10-01T10:00:00Z", &out); err == nil || out.Len()!=0 {
+			t.Fatalf("out-of-window/uncertain source was elevated: %+v %v %q", badTime, err, out.String())
+		}
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	var out bytes.Buffer
+	if err := writeDemoSourceWindowTimeline(ctx, "analyst-a", path, "case-c",
+		"disk-source-c", "2026-10-01T10:00:00Z", &out); !errors.Is(err, context.Canceled) || out.Len() != 0 {
+		t.Fatalf("cancelled source pivot leaked: %v %q", err, out.String())
+	}
+	if err := writeDemoSourceWindowTimeline(context.Background(), "analyst-a", path, "case-c",
+		"disk-source-c", "2026-10-01T10:00:00Z", rejectReportOutput{}); !errors.Is(err, io.ErrClosedPipe) {
+		t.Fatalf("source pivot ignored writer failure: %v", err)
+	}
+}
