@@ -214,3 +214,23 @@ func TestWazuhInspectionRejectsInvalidBoundaryBeforeOpeningSources(t *testing.T)
 		})
 	}
 }
+
+func TestWazuhInspectionRejectsMalformedSourceMetadataAndWriterFailure(t *testing.T) {
+	const caseID = "forensic-case-on-disk"
+	owner := snapshotFixture(t)
+	malformed := writeJSONLEvents(t, "{\"id\":\"malformed.1\",\"timestamp\":\"2026-10-17T10:00:00Z\",\"agent\":{\"id\":\"002\"},\"rule\":{\"id\":\"not-numeric\",\"description\":\"invalid source rule\"}}\n")
+	var output bytes.Buffer
+	if err := runDemoCLI(context.Background(), []string{
+		"-snapshot=" + owner, "-principal=analyst-a", "-into-case=" + caseID,
+		"-wazuh-alerts=" + malformed,
+		"-inspect-wazuh-entry=" + importedWazuhID(caseID, "malformed.1", 0),
+	}, &output); err == nil || output.Len() != 0 {
+		t.Fatalf("unvalidated source rule metadata was exposed: %v %s", err, output.String())
+	}
+	valid := writeJSONLEvents(t, "{\"id\":\"valid.1\",\"timestamp\":\"2026-10-17T10:00:00Z\",\"agent\":{\"id\":\"002\"},\"rule\":{\"id\":\"5710\",\"description\":\"valid source\"}}\n")
+	if err := writeDemoWazuhEventInspection(context.Background(), "analyst-a", owner, caseID,
+		[]string{valid}, importedWazuhID(caseID, "valid.1", 0), "", "", "",
+		rejectReportOutput{}); err == nil {
+		t.Fatal("failed sensitive receipt writer was silently accepted")
+	}
+}
