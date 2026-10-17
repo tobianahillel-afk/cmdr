@@ -14,7 +14,7 @@ const ids = [
   "return-to-case", "copy-return-link", "analyze", "analysis", "analysis-actions", "download-report",
   "compare-case", "compare", "comparison", "comparison-actions", "download-comparison",
   "download-cross-events", "proximity", "proximity-seconds", "proximity-results",
-  "trace-actions", "trace-results",
+  "trace-actions", "trace-results", "wazuh-cohorts", "wazuh-status",
   "comparison-trace-actions", "comparison-trace-results"
 ];
 function node() {
@@ -1138,4 +1138,57 @@ test("temporal leads cannot survive bearer changes or a denied second Case", asy
   for (let i = 0; i < 6; i++) await flush();
   assert.equal(denied.fields.proximity.disabled, true);
   assert.equal(denied.fields["proximity-results"].children.length, 0);
+});
+
+test("Wazuh authorized agent/rule cohorts appear only after bearer HTTP response", async () => {
+  const env = boot(url => {
+    assert.equal(url.pathname, "/demo-wazuh-cohorts");
+    assert.equal(url.searchParams.get("case_id"), "case-disk");
+    return { ok: true, async json() { return {
+      format: "cmdr-local-wazuh4-case-triage-v1", synthetic: true,
+      imported_entries: 3,
+      top_agents: [{ agent_id: "001", count: 2, distinct_rule_ids: 1, highest_known_rule_level: 9 }],
+      top_rules: [{ rule_id: "5710", count: 3, highest_known_rule_level: 9 }]
+    }; } };
+  });
+  env.fields["wazuh-cohorts"].handlers.click();
+  await flush();
+  await flush();
+  assert.equal(env.requests.length, 1);
+  assert.equal(env.requests[0].options.headers.Authorization, "Bearer ephemeral-token");
+  assert.equal(env.requests[0].options.credentials, "omit");
+  assert.equal(env.requests[0].options.cache, "no-store");
+  assert.ok(!env.requests[0].url.href.includes("ephemeral-token"));
+  assert.match(env.fields["wazuh-status"].textContent, /agent 001 : 2 alerte/);
+  assert.match(env.fields["wazuh-status"].textContent, /règle 5710 : 3 alerte/);
+});
+
+test("Wazuh denied, malformed or stale replies never render a partial cohort", async () => {
+  for (const answer of [
+    { ok: false },
+    { ok: true, async json() { return { format: "cmdr-local-wazuh4-case-triage-v1",
+      synthetic: true, imported_entries: 1,
+      top_agents: [{agent_id: "<img>", count: 1, distinct_rule_ids: 1}],
+      top_rules: [] }; } }
+  ]) {
+    const env = boot(() => answer);
+    env.fields["wazuh-cohorts"].handlers.click();
+    await flush();
+    await flush();
+    assert.match(env.fields["wazuh-status"].textContent, /indisponible|refusé/);
+    assert.doesNotMatch(env.fields["wazuh-status"].textContent, /<img>|agent 001/);
+  }
+  let resolve;
+  const env = boot(() => new Promise(done => { resolve = done; }));
+  env.fields["wazuh-cohorts"].handlers.click();
+  env.fields.token.value = "changed";
+  env.fields.token.handlers.input();
+  resolve({ ok: true, async json() { return {
+    format: "cmdr-local-wazuh4-case-triage-v1", synthetic: true,
+    imported_entries: 1, top_agents: [{agent_id:"001", count:1, distinct_rule_ids:1}],
+    top_rules: []
+  }; } });
+  await flush();
+  await flush();
+  assert.doesNotMatch(env.fields["wazuh-status"].textContent, /agent 001/);
 });

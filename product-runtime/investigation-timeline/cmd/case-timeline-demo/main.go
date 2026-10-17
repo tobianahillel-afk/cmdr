@@ -231,6 +231,10 @@ func serveDemoWithSnapshot(ctx context.Context, principal, snapshot string, outp
 // serveDemoWithData reuses exactly the same authenticated loopback handler for
 // a disk snapshot and a strictly in-memory imported snapshot.
 func serveDemoWithData(ctx context.Context, principal string, data timeline.MemoryTimelineData, output io.Writer) error {
+	return serveDemoWithDataRoute(ctx, principal, data, output, nil)
+}
+
+func serveDemoWithDataRoute(ctx context.Context, principal string, data timeline.MemoryTimelineData, output io.Writer, augment func(token string, base http.Handler) http.Handler) error {
 	if err := ctx.Err(); err != nil {
 		return err
 	}
@@ -248,6 +252,9 @@ func serveDemoWithData(ctx context.Context, principal string, data timeline.Memo
 	handler, err := newDemoHandlerWithData(token, principal, data)
 	if err != nil {
 		return err
+	}
+	if augment != nil {
+		handler = augment(token, handler)
 	}
 	// Never accept a listener address from HTTP, CLI or an environment flag.
 	// The fixture is accessible only on the local IPv4 loopback interface.

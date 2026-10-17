@@ -25,6 +25,82 @@
   const sourceStatus = document.getElementById("source-status");
   const returnToCase = document.getElementById("return-to-case");
   const copyReturnLink = document.getElementById("copy-return-link");
+  const wazuhButton = document.getElementById("wazuh-cohorts");
+  const wazuhStatus = document.getElementById("wazuh-status");
+  let wazuhRevision = 0;
+  let wazuhRequest = null;
+  function clearWazuh() {
+    ++wazuhRevision;
+    if (wazuhRequest) wazuhRequest.abort();
+    wazuhRequest = null;
+    wazuhButton.disabled = false;
+    wazuhStatus.textContent = "Aucune corrélation Wazuh demandée.";
+  }
+  async function loadWazuhCohorts() {
+    const bearer = token.value;
+    const selectedCase = caseID.value.trim();
+    clearWazuh();
+    if (!bearer || !selectedCase) {
+      wazuhStatus.textContent = "Sélectionnez un Case et son jeton temporaire.";
+      return;
+    }
+    const currentRevision = wazuhRevision;
+    const currentSelection = revision;
+    const controller = new AbortController();
+    wazuhRequest = controller;
+    wazuhButton.disabled = true;
+    wazuhStatus.textContent = "Vérification des Case, Timeline et sources Wazuh…";
+    try {
+      const url = new URL("/demo-wazuh-cohorts", window.location.origin);
+      url.searchParams.set("case_id", selectedCase);
+      const response = await fetch(url, {
+        method: "GET", headers: { Authorization: "Bearer " + bearer },
+        credentials: "omit", cache: "no-store", signal: controller.signal
+      });
+      if (!response.ok) throw Error("Wazuh unavailable");
+      const data = await response.json();
+      if (controller.signal.aborted || currentRevision !== wazuhRevision ||
+          currentSelection !== revision || token.value !== bearer ||
+          caseID.value.trim() !== selectedCase) return;
+      if (!data || data.format !== "cmdr-local-wazuh4-case-triage-v1" ||
+          data.synthetic !== true || !Number.isSafeInteger(data.imported_entries) ||
+          data.imported_entries < 1 || data.imported_entries > 5000 ||
+          !Array.isArray(data.top_agents) || !Array.isArray(data.top_rules) ||
+          data.top_agents.length > 10 || data.top_rules.length > 10) {
+        throw Error("Invalid cohort schema");
+      }
+      const validID = value => typeof value === "string" && /^[0-9]{1,16}$/.test(value);
+      const validCount = value => Number.isSafeInteger(value) && value >= 0 && value <= 5000;
+      const validLevel = value => value === undefined || (Number.isInteger(value) && value >= 0 && value <= 16);
+      if (data.top_agents.some(a => !a || !validID(a.agent_id) ||
+          !validCount(a.count) || !validCount(a.distinct_rule_ids) ||
+          !validLevel(a.highest_known_rule_level)) ||
+          data.top_rules.some(a => !a || !validID(a.rule_id) ||
+          !validCount(a.count) || !validLevel(a.highest_known_rule_level))) {
+        throw Error("Invalid cohort values");
+      }
+      // Always use textContent: source labels are never interpreted as HTML.
+      const agentLines = data.top_agents.map(a => "agent " + a.agent_id + " : " + a.count +
+        " alerte(s), " + a.distinct_rule_ids + " règle(s), niveau maximum connu " +
+        (a.highest_known_rule_level ?? "inconnu"));
+      const ruleLines = data.top_rules.map(a => "règle " + a.rule_id + " : " + a.count +
+        " alerte(s), niveau maximum connu " + (a.highest_known_rule_level ?? "inconnu"));
+      wazuhStatus.textContent = data.imported_entries + " alerte(s) Wazuh importée(s) et autorisée(s)." +
+        "\nAgents les plus touchés :\n" + (agentLines.join("\n") || "aucun agent connu") +
+        "\nRègles les plus fréquentes :\n" + (ruleLines.join("\n") || "aucune règle connue") +
+        "\nDonnées locales synthétiques, sans preuve de causalité.";
+    } catch {
+      if (currentRevision === wazuhRevision) {
+        wazuhStatus.textContent = "Corrélation indisponible ou accès refusé. Aucune donnée partielle affichée.";
+      }
+    } finally {
+      if (currentRevision === wazuhRevision) {
+        wazuhRequest = null;
+        wazuhButton.disabled = false;
+      }
+    }
+  }
+  wazuhButton.addEventListener("click", loadWazuhCohorts);
   const limit = 20;
   let offset = 0;
   let pageCount = 0;
@@ -1343,6 +1419,7 @@
       ++revision;
       clearAnalysis();
       clearComparison();
+      clearWazuh();
       clearSource();
       if (activeRequest) activeRequest.abort();
       activeRequest = null;

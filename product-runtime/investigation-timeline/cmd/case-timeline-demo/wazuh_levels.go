@@ -137,6 +137,12 @@ func writeDemoWazuh4RuleTriage(ctx context.Context, principal, snapshotPath, int
 	if err != nil {
 		return err
 	}
+	return writeDemoWazuh4RuleTriageWithData(ctx, principal, merged, imported, raw, intoCase, output)
+}
+
+// Reuse the same Case/Timeline/typed-source traversal for offline CLI and
+// authenticated loopback UI without opening the operator's files twice.
+func writeDemoWazuh4RuleTriageWithData(ctx context.Context, principal string, merged timeline.MemoryTimelineData, imported int, raw []byte, intoCase string, output io.Writer) error {
 	levels, err := wazuhRuleLevels(raw, intoCase)
 	if err != nil {
 		return err

@@ -72,6 +72,12 @@
       <p class="intro">Enregistrement volontaire sur votre appareil : seul le résumé des événements autorisés et les trois principales références de source sont inclus. Aucun jeton ni aperçu brut n’est exporté. Le fichier n’est ni signé ni une preuve de chaîne de conservation ; il peut devenir périmé si les droits ou données changent. Ne l’utilisez pas avec des données clients réelles.</p>
       <p class="intro">Chaque action ouvre une entrée après une nouvelle vérification des droits Case, événement et source. Le parcours de source restitue par pages de 25 l'ordre déjà reçu des événements autorisés ; il n'est ni une preuve de causalité, ni un flux temps réel, ni un instantané transactionnel. Modifier le Case, le jeton ou les filtres efface cette sélection.</p>
     </section>
+    <section aria-labelledby="wazuh-title">
+      <h2 id="wazuh-title">Corrélation Wazuh 4.x — agent et règle</h2>
+      <p class="intro">Disponible uniquement lors de l'import Wazuh dans le laboratoire local. Les agrégats sont recalculés après vérification serveur du Case et des sources. Les identifiants d'agent/règle sont des métadonnées Wazuh, pas des preuves d'identité d'hôte ou de causalité.</p>
+      <button id="wazuh-cohorts" type="button">Afficher les agents et règles autorisés</button>
+      <p id="wazuh-status" role="status" aria-live="polite">Aucune corrélation Wazuh demandée.</p>
+    </section>
     <section aria-labelledby="compare-title">
       <h2 id="compare-title">Comparer deux Cases autorisés</h2>
       <div class="field">

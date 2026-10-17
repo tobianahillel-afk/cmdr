@@ -4,10 +4,12 @@ import (
 	timeline "github.com/tobianahillel-afk/cmdr/product-runtime/investigation-timeline"
 	"bytes"
 	"context"
+	"crypto/subtle"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
+	"net/http"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -97,29 +99,52 @@ func normalizeWazuh4Alerts(ctx context.Context, raw []byte) ([]byte, error) {
 // straight to the already-authorized in-memory Case and loopback UI.
 // No merged owner graph is exported and no new ACL service is introduced.
 func serveDemoWithWazuhAlerts(ctx context.Context, principal, snapshotPath, caseID, alertsPath string, output io.Writer) error {
-	if err := ctx.Err(); err != nil {
-		return err
-	}
-	if snapshotPath == "" || alertsPath == "" || snapshotPath == alertsPath {
-		return errors.New("select two distinct absolute local owner and Wazuh files")
-	}
-	owner, err := loadDemoSnapshot(snapshotPath)
+	merged, imported, raw, err := prepareWazuh4CaseWithRaw(ctx, principal, snapshotPath, caseID, alertsPath)
 	if err != nil {
 		return err
 	}
-	raw, err := readLocalEventFile(alertsPath)
-	if err != nil {
-		return err
-	}
-	events, err := normalizeWazuh4Alerts(ctx, raw)
-	if err != nil {
-		return err
-	}
-	merged, err := importLocalEvents(ctx, owner, principal, caseID, events)
-	if err != nil {
-		return err
-	}
-	return serveDemoWithData(ctx, principal, merged, output)
+	// The same snapshot that powers Timeline is used to reauthorize each
+	// Wazuh cohort request. File bytes are captured once before the listener.
+	return serveDemoWithDataRoute(ctx, principal, merged, output, func(token string, base http.Handler) http.Handler {
+		return newDemoWazuhCohortHandler(token, principal, caseID, merged, imported, raw, base)
+	})
+}
+
+// This optional lab-only route is never installed for ordinary snapshots.
+// No Wazuh metadata is returned before bearer AND owner-authorized traversal.
+func newDemoWazuhCohortHandler(token, principal, caseID string, data timeline.MemoryTimelineData, imported int, raw []byte, base http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/demo-wazuh-cohorts" {
+			base.ServeHTTP(w, r)
+			return
+		}
+		w.Header().Set("Cache-Control", "no-store")
+		w.Header().Set("X-Content-Type-Options", "nosniff")
+		w.Header().Set("Referrer-Policy", "no-referrer")
+		if r.Method != http.MethodGet {
+			w.Header().Set("Allow", "GET")
+			http.Error(w, "method unavailable", http.StatusMethodNotAllowed)
+			return
+		}
+		expected := "Bearer " + token
+		if subtle.ConstantTimeCompare([]byte(r.Header.Get("Authorization")), []byte(expected)) != 1 {
+			http.Error(w, "not authenticated", http.StatusUnauthorized)
+			return
+		}
+		query := r.URL.Query()
+		if len(query) != 1 || len(query["case_id"]) != 1 ||
+			query.Get("case_id") != caseID {
+			http.NotFound(w, r)
+			return
+		}
+		var encoded bytes.Buffer
+		if err := writeDemoWazuh4RuleTriageWithData(r.Context(), principal, data, imported, raw, caseID, &encoded); err != nil {
+			http.NotFound(w, r) // identical public denial for Case/source failures
+			return
+		}
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		_, _ = w.Write(encoded.Bytes())
+	})
 }
 
 // writeDemoWazuh4Proximity turns a local Wazuh alert stream into time leads
