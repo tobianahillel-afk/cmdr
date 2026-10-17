@@ -579,18 +579,34 @@
       comparisonChronology.append(heading);
       // Both group and event drill-downs reuse the server-authorized Case
       // search path. Correlation never grants source-owner or Case access.
-      function reopenAuthorizedCase(targetCase, query) {
+      function reopenAuthorizedCase(targetCase, query, utcWindow = null) {
         if (activeComparison !== compareRevision ||
             activeSelection !== revision || controller.signal.aborted ||
             token.value !== bearer || caseID.value.trim() !== selectedCase ||
             compareCase.value.trim() !== otherCase ||
-            !query || query.length > 96) return;
+            typeof query !== "string" || query.length > 96 ||
+            (!query && !utcWindow)) return;
+        // Only timestamps from fully authorized, certain response entries
+        // may create a temporal pivot. No correlation grants access.
+        let localFrom = "", localTo = "";
+        if (utcWindow) {
+          localFrom = localTimestamp(utcWindow.from);
+          localTo = localTimestamp(utcWindow.to);
+          if (!localFrom || !localTo || utcWindow.from >= utcWindow.to) return;
+        }
         caseID.value = targetCase;
         search.value = query;
-        // Invalidate the comparison, clear stale previews and start a new
-        // authorized Case/Timeline/source request.
+        // Clear all old comparison/preview authority before re-querying.
         caseID.dispatchEvent(new Event("input", { bubbles: true }));
-        fetchPage();
+        if (utcWindow) {
+          fromInput.value = localFrom;
+          toInput.value = localTo;
+          fromInput.dispatchEvent(new Event("input", { bubbles: true }));
+          // Preserve exact UTC times, including daylight-saving folds.
+          restoredRange = { from: utcWindow.from, to: utcWindow.to };
+        }
+        offset = 0;
+        fetchPage(); // server re-checks Case, Timeline Entry and typed source
       }
       const list = document.createElement("ol");
       for (const row of merged.slice(0, 20)) {
@@ -605,6 +621,22 @@
           drillDown.addEventListener("click", () =>
             reopenAuthorizedCase(row.side === "A" ? selectedCase : otherCase, row.id));
           item.append(drillDown);
+          // Move from a correlated event to its actual ±30 second context:
+          // no client-side authority, no guessed times for uncertain rows.
+          if (!row.uncertain && Number.isFinite(row.instant)) {
+            const first = new Date(row.instant - 30000);
+            const last = new Date(row.instant + 30000);
+            if (Number.isFinite(first.getTime()) && Number.isFinite(last.getTime()) &&
+                first.getUTCFullYear() <= 9999 && last.getUTCFullYear() <= 9999) {
+              const contextButton = document.createElement("button");
+              contextButton.type = "button";
+              contextButton.textContent = "Examiner ±30 s autour de cet événement dans Case " + row.side;
+              const exactRange = { from: first.toISOString(), to: last.toISOString() };
+              contextButton.addEventListener("click", () =>
+                reopenAuthorizedCase(row.side === "A" ? selectedCase : otherCase, "", exactRange));
+              item.append(contextButton);
+            }
+          }
         }
         list.append(item); // textContent prevents operator-controlled HTML injection
       }

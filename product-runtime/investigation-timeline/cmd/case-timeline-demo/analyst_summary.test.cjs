@@ -1084,3 +1084,94 @@ test("uncertain-only timestamps do not create active-window pivots", async () =>
   const exported = JSON.parse(await env.downloads[0].blob.text());
   assert.deepEqual(exported.busiest_five_minute_windows_utc, []);
 });
+
+test("correlated certain event pivots to its ±30s context with a fresh Case authorization", async () => {
+  const env = boot(url => {
+    const selected = url.searchParams.get("case_id");
+    if (url.searchParams.get("limit") === "20") {
+      assert.equal(selected, "case-peer");
+      assert.equal(url.searchParams.get("from"), "2026-10-01T09:59:30.000Z");
+      assert.equal(url.searchParams.get("to"), "2026-10-01T10:00:30.000Z");
+      assert.equal(url.searchParams.get("q"), null);
+      assert.equal(url.searchParams.get("offset"), "0");
+      return { ok: true, async json() {
+        return { status: "allow", page: { offset: 0, limit: 20,
+          total_visible: 1, has_more: false },
+          entries: [{ id: "nearby-event", kind: "observed", source_ref: "nearby-source",
+            source_time: "2026-10-01T10:00:11.000Z", provenance: "authorized" }] };
+      } };
+    }
+    return page(0, selected === "case-disk" ? 2 : 1,
+      { sourceFor: () => "shared-ref" });
+  });
+  env.fields["compare-case"].value = "case-peer";
+  env.fields.compare.handlers.click();
+  for (let i = 0; i < 5; i++) await flush();
+  const [, list] = env.fields["comparison-chronology"].children;
+  const item = list.children.find(row => /Case B.*event-0/.test(row.textContent));
+  assert.ok(item);
+  assert.equal(item.children.length, 2);
+  const context = item.children[1];
+  assert.match(context.textContent, /30 s.*Case B/);
+  context.handlers.click();
+  for (let i = 0; i < 3; i++) await flush();
+  assert.equal(env.requests.length, 3);
+  assert.equal(env.fields["case-id"].value, "case-peer");
+  assert.equal(env.fields.search.value, "");
+  assert.equal(env.requests[2].options.headers.Authorization, "Bearer ephemeral-token");
+  assert.equal(env.requests[2].options.credentials, "omit");
+  assert.equal(env.requests[2].options.cache, "no-store");
+  assert.match(env.fields.summary.textContent, /1 entrée/);
+  assert.equal(env.fields["comparison-chronology"].children.length, 0);
+  context.handlers.click();
+  await flush();
+  assert.equal(env.requests.length, 3); // stale old context cannot authorize
+});
+
+test("temporal correlation pivot refuses changed bearer and server-side Case revocation", async () => {
+  let allowed = true;
+  const env = boot(url => {
+    if (url.searchParams.get("limit") === "20") {
+      return { ok: allowed, async json() {
+        if (!allowed) throw Error("must not decode denied Case");
+        return page(0, 1).json();
+      } };
+    }
+    return page(0, 1, { sourceFor: () => "shared-ref" });
+  });
+  env.fields["compare-case"].value = "case-peer";
+  env.fields.compare.handlers.click();
+  for (let i = 0; i < 5; i++) await flush();
+  const old = env.fields["comparison-chronology"].children[1].children[1];
+  assert.equal(old.children.length, 2);
+  env.fields.token.value = "revoked-token";
+  env.fields.token.handlers.input();
+  old.children[1].handlers.click();
+  await flush();
+  assert.equal(env.requests.length, 2);
+  env.fields.token.value = "ephemeral-token";
+  env.fields.compare.handlers.click();
+  for (let i = 0; i < 4; i++) await flush();
+  const fresh = env.fields["comparison-chronology"].children[1].children[1].children[1];
+  allowed = false;
+  fresh.handlers.click();
+  for (let i = 0; i < 3; i++) await flush();
+  assert.equal(env.requests.length, 5);
+  assert.match(env.fields.message.textContent, /Accès refusé/);
+  assert.match(env.fields.summary.textContent, /Aucune donnée/);
+});
+
+test("uncertain correlated entries do not offer a synthetic time-window pivot", async () => {
+  const env = boot(() => page(0, 3, { sourceFor: () => "shared-ref",
+    uncertainFor: index => index === 0 }));
+  env.fields["compare-case"].value = "case-peer";
+  env.fields.compare.handlers.click();
+  for (let i = 0; i < 5; i++) await flush();
+  const [, list] = env.fields["comparison-chronology"].children;
+  const uncertainRows = list.children.filter(row => row.textContent.includes("heure incertaine"));
+  assert.ok(uncertainRows.length >= 1);
+  for (const row of uncertainRows) {
+    assert.equal(row.children.length, 1);
+    assert.doesNotMatch(row.textContent, /Examiner ±30 s/);
+  }
+});
