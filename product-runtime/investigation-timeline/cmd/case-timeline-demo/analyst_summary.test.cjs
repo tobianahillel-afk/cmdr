@@ -617,7 +617,11 @@ test("uncertain-only second Case has no temporal pivots; revoked token invalidat
   env.fields.compare.handlers.click();
   for (let i = 0; i < 6; i++) await flush();
   assert.match(env.fields.comparison.textContent, /fenêtres UTC de 5 min .* : 0/);
-  assert.equal(env.fields["comparison-actions"].children.length, 0);
+  // Uncertain clocks prohibit temporal claims, but an already-authorized
+  // common source is still actionable through separately checked owner ACLs.
+  assert.equal(env.fields["comparison-actions"].children.length, 4);
+  assert.equal(env.fields["comparison-actions"].children.filter(button =>
+    /^Examiner Case/.test(button.textContent)).length, 0);
   const allowed = boot(url => page(Number(url.searchParams.get("offset")), 2));
   allowed.fields["compare-case"].value = "case-peer";
   allowed.fields.compare.handlers.click();
