@@ -104,8 +104,5 @@ func writeDemoCaseDossier(ctx context.Context, principal, snapshot, caseID, entr
 			report.RelatedEntries = append(report.RelatedEntries, entry)
 		}
 	}
-	if len(report.RelatedEntries) == 0 || len(report.RelatedEntries) > timeline.MaxEntries {
-		return errors.New("inconsistent authorized source chronology")
-	}
 	return json.NewEncoder(output).Encode(report)
 }

@@ -100,3 +100,50 @@ func TestCaseDossierCancellationAndWriterFailure(t *testing.T) {
 		t.Fatalf("writer failure swallowed: %v",err)
 	}
 }
+
+func TestCaseDossierDistinctAuthorizedTypedSources(t *testing.T) {
+	cases := []struct {
+		principal, caseID, entryID, kind, object string
+	}{
+		{"analyst-a", "case-a", "event-new", "telemetry-event", "demo-event-a"},
+		{"analyst-b", "case-b", "event-b", "incident", "demo-incident"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.kind, func(t *testing.T) {
+			var out bytes.Buffer
+			err := runDemoCLI(context.Background(), []string{
+				"-principal="+tc.principal, "-dossier-case="+tc.caseID,
+				"-dossier-entry="+tc.entryID,
+			}, &out)
+			if err != nil { t.Fatal(err) }
+			var got localCaseDossier
+			if err := json.Unmarshal(out.Bytes(), &got); err != nil { t.Fatal(err) }
+			if got.Source.Kind != tc.kind || got.Source.ObjectID != tc.object ||
+				got.Source.EntryID != tc.entryID || got.SelectedEntry.ID != tc.entryID ||
+				len(got.RelatedEntries) != 1 || got.RelatedEntries[0].ID != tc.entryID {
+				t.Fatalf("Case -> Timeline -> owner source is not connected: %+v",got)
+			}
+		})
+	}
+}
+
+func TestCaseDossierRejectsMissingAndOversizedIdentifiers(t *testing.T) {
+	for _, args := range []struct{ principal, caseID, entryID string }{
+		{"", "case-a", "event-old"},
+		{"analyst-a", "", "event-old"},
+		{"analyst-a", "case-a", ""},
+		{"analyst-a", strings.Repeat("a", 1025), "event-old"},
+		{"analyst-a", "case-a", strings.Repeat("b", 1025)},
+		{strings.Repeat("c", 1025), "case-a", "event-old"},
+	} {
+		var out bytes.Buffer
+		err := writeDemoCaseDossier(context.Background(), args.principal, "", args.caseID, args.entryID, &out)
+		if err == nil || out.Len() != 0 {
+			t.Fatalf("invalid dossier accepted: %v output length=%d", err, out.Len())
+		}
+	}
+	var out bytes.Buffer
+	if err := writeDemoCaseDossier(context.Background(), "analyst-a", filepath.Join(t.TempDir(), "absent.json"), "case-a", "event-old", &out); err == nil || out.Len() != 0 {
+		t.Fatalf("missing operator snapshot did not fail closed: %v", err)
+	}
+}
