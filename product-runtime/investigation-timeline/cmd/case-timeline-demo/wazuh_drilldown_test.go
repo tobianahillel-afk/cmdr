@@ -60,6 +60,12 @@ func TestWazuhDrilldownReusesAuthorizedImportedTimeline(t *testing.T) {
 		{"GET","/demo-wazuh-drilldown?case_id=case-a&agent_id=001&rule_id=%2A",token,404},
 		{"GET","/demo-wazuh-drilldown?case_id=case-b&agent_id=001&rule_id=5710",token,404},
 		{"GET","/demo-wazuh-drilldown?case_id=case-a&agent_id=001&agent_id=002",token,404},
+		{"GET","/demo-wazuh-drilldown?case_id=case-a&agent_id=001&rule_id=5710&agent_id=002",token,404},
+		{"GET","/demo-wazuh-drilldown?case_id=case-a&agent_id=001&rule_id=5710&offset=1",token,404},
+		{"GET","/demo-wazuh-drilldown?case_id=case-a&agent_id=001&rule_id=5710&offset=25&offset=50",token,404},
+		{"GET","/demo-wazuh-drilldown?case_id=case-a&agent_id=001&rule_id=5710&unknown=1",token,404},
+		{"GET","/demo-wazuh-drilldown?case_id=case-a",token,404},
+		{"GET","/demo-wazuh-drilldown?case_id=case-a&agent_id=001&rule_id=",token,404},
 		{"GET","/demo-wazuh-drilldown?case_id=case-a&agent_id=%2A",token,404},
 		{"POST","/demo-wazuh-drilldown?case_id=case-a&agent_id=001",token,405},
 	}
@@ -67,6 +73,28 @@ func TestWazuhDrilldownReusesAuthorizedImportedTimeline(t *testing.T) {
 		got := request(tc.method,tc.path,tc.bearer,context.Background())
 		if got.Code != tc.want || bytes.Contains(got.Body.Bytes(),[]byte("local-wazuh4-drilldown")) {
 			t.Fatalf("request leaked data: %s %d %s",tc.path,got.Code,got.Body.String())
+		}
+	}
+	// The browser controls must never be an authority. A direct in-process
+	// caller providing invalid combined filters is also rejected atomically.
+	for _, bad := range []struct {
+		selector, value, secondary string
+		offset int
+	}{
+		{"agent_rule", "001", "", 0},
+		{"agent_rule", "001", "*", 0},
+		{"agent_rule", "001", "5710", 1},
+		{"agent_rule", "001", "5710", -25},
+		{"agent_id", "001", "5710", 0},
+		{"rule_id", "5710", "001", 0},
+		{"unknown", "001", "", 0},
+		{"agent_rule", "*", "5710", 0},
+	} {
+		var output bytes.Buffer
+		err := writeDemoWazuhDrilldownFilteredPage(context.Background(), "analyst-a",
+			data, imported, raw, "case-a", bad.selector, bad.value, bad.secondary, bad.offset, &output)
+		if err == nil || output.Len() != 0 {
+			t.Fatalf("invalid combined selector accepted: %+v, output %s", bad, output.String())
 		}
 	}
 	ctx,cancel := context.WithCancel(context.Background())
