@@ -132,6 +132,30 @@ func TestMultipleWazuhFilesThroughAuthorizedLoopback(t *testing.T) {
 		drill.Selector != "rule_id" || drill.Value != "5710" {
 		t.Fatalf("multi-feed drilldown failed to select both alerts: %+v", drill)
 	}
+	// Rule drilldown joins both feeds. The agent pivot must isolate each
+	// specific feed even when raw Wazuh alert IDs collide.
+	for _, tc := range []struct {
+		agent string
+		expectedFeed int
+	}{
+		{agent: "001", expectedFeed: 1},
+		{agent: "002", expectedFeed: 2},
+	} {
+		code, body := request("/demo-wazuh-drilldown?case_id=forensic-case-on-disk&agent_id="+tc.agent, bearer)
+		var agentDrill wazuhDrilldownReceipt
+		if code != http.StatusOK || json.Unmarshal([]byte(body), &agentDrill) != nil ||
+			agentDrill.TotalMatches != 1 || len(agentDrill.Entries) != 1 ||
+			agentDrill.Selector != "agent_id" || agentDrill.Value != tc.agent {
+			t.Fatalf("agent %q multi-feed drilldown mismatch: %d %s", tc.agent, code, body)
+		}
+		identity := "forensic-case-on-disk\x00feed-" + string(rune('0'+tc.expectedFeed)) + "-wazuh-123.456"
+		checksum := sha256.Sum256([]byte(identity))
+		wanted := "local-jsonl-entry-" + hex.EncodeToString(checksum[:])
+		if agentDrill.Entries[0].ID != wanted || strings.Contains(body, "Wazuh first feed alert") ||
+			strings.Contains(body, "Wazuh second feed alert") {
+			t.Fatalf("agent %q opened wrong/hidden Wazuh source: %s", tc.agent, body)
+		}
+	}
 	for i := range drill.Entries {
 		if drill.Entries[i].ID == "" || strings.Contains(drillJSON, "Wazuh first feed alert") ||
 			strings.Contains(drillJSON, "Wazuh second feed alert") {
