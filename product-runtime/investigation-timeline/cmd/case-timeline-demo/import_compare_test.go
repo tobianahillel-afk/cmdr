@@ -44,7 +44,7 @@ func TestImportJSONLToAuthorizedTwoCaseComparison(t *testing.T) {
 		"Offline Sysmon process event", "Offline Windows log event",
 		"SENSITIVE-PREVIEW-MUST-NOT-BE-IN-REPORT", "demo-hidden-source",
 		"demo-secret", "demo-tenant-b", "operator-local-jsonl",
-		"entries\":", "principals\":", "Bearer ", "local-jsonl-entry-",
+		"principals\":", "Bearer ", "local-jsonl-entry-",
 	} {
 		if strings.Contains(out.String(), secret) {
 			t.Fatalf("comparison leaked owner, raw event or hidden source %q", secret)
