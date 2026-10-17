@@ -20,3 +20,7 @@ Alternatives: (1) **selected** reuse existing first-party Go handlers and `encod
 ## Evidence
 
 This note alone is not CI evidence. Link exact workflow runs and independent L2 findings here only after inspection. The substantial functional integration merits ONE independent read-only L2 on a stable immutable published snapshot, not an L2 for every formatting fix.
+
+## New functional analyst context
+
+The integrated dossier additionally presents `nearby_entries`: eligible **owner-authorized** Case Timeline entries from different or same sources in the five-minute **half-open** interval `[selected-5m, selected+5m)`, excluding the selected entry, malformed timestamps and entries marked temporally uncertain. `context_time_certain=false` means no temporal inference is made; it does NOT override source ACLs or claim causality. The already-authorized pagination order is retained. A separate disk-backed behavioral test checks a nearby telemetry entry accompanying selected evidence, a distant entry excluded, and denied/foreign entries absent from the sensitive JSON. No new source reads, background store, DB, query service, or data authority.

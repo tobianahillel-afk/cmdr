@@ -10,6 +10,9 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
+
+	timeline "github.com/tobianahillel-afk/cmdr/product-runtime/investigation-timeline"
 	"testing"
 )
 
@@ -202,5 +205,62 @@ func TestCaseDossierRejectsImportExportModeConflicts(t *testing.T) {
 		if err := runDemoCLI(context.Background(), args, &output); err == nil || output.Len() != 0 {
 			t.Fatalf("ambiguous dossier mode accepted (%v): err=%v bytes=%d", args, err, output.Len())
 		}
+	}
+}
+
+func TestDossierTemporalContextOnlyAuthorizedCertainEntries(t *testing.T) {
+	anchor := timeline.ProjectedEntry{ID: "selected", SourceTime: "2026-10-01T09:00:00Z"}
+	entries := []timeline.ProjectedEntry{
+		{ID: "lower", SourceTime: "2026-10-01T08:55:00Z"},
+		{ID: "selected", SourceTime: "2026-10-01T09:00:00Z"},
+		{ID: "close", SourceTime: "2026-10-01T10:04:59+01:00"},
+		{ID: "upper", SourceTime: "2026-10-01T09:05:00Z"},
+		{ID: "uncertain", SourceTime: "2026-10-01T09:02:00Z", TimeUncertain: true},
+		{ID: "malformed", SourceTime: "not-a-time"},
+	}
+	got, certain := dossierTemporalContext(entries, anchor, 5*time.Minute)
+	if !certain || len(got) != 2 || got[0].ID != "lower" || got[1].ID != "close" {
+		t.Fatalf("wrong [anchor-5m,anchor+5m) authorized context: %+v, certain=%v", got, certain)
+	}
+	anchor.TimeUncertain = true
+	if got, certain := dossierTemporalContext(entries, anchor, 5*time.Minute); certain || len(got) != 0 {
+		t.Fatal("uncertain anchor falsely correlated nearby entries")
+	}
+	anchor.TimeUncertain = false
+	anchor.SourceTime = "bad-time"
+	if got, certain := dossierTemporalContext(entries, anchor, 5*time.Minute); certain || len(got) != 0 {
+		t.Fatal("invalid anchor falsely correlated nearby entries")
+	}
+}
+
+func TestCaseDossierDiskTimelineTemporalPivotRechecksOwner(t *testing.T) {
+	data := demoData()
+	near := data.Entries[0] // permitted telemetry, distinct from selected evidence source
+	near.Value.ID = "event-near"
+	near.Value.SourceTime = "2026-10-01T09:04:00Z"
+	far := data.Entries[0]
+	far.Value.ID = "event-far"
+	far.Value.SourceTime = "2026-10-01T09:06:00Z"
+	data.Cases[0].EntryIDs = append(data.Cases[0].EntryIDs, "event-near", "event-far")
+	data.Entries = append(data.Entries, near, far)
+	body, err := json.Marshal(data)
+	if err != nil { t.Fatal(err) }
+	path := filepath.Join(t.TempDir(), "owners.json")
+	if err := os.WriteFile(path, body, 0o600); err != nil { t.Fatal(err) }
+	var out bytes.Buffer
+	err = runDemoCLI(context.Background(), []string{
+		"-snapshot="+path, "-principal=analyst-a", "-dossier-case=case-a", "-dossier-entry=event-old",
+	}, &out)
+	if err != nil { t.Fatal(err) }
+	var got localCaseDossier
+	if err := json.Unmarshal(out.Bytes(), &got); err != nil { t.Fatal(err) }
+	if got.ContextWindowSeconds != 300 || !got.ContextTimeCertain ||
+		len(got.NearbyEntries) != 1 || got.NearbyEntries[0].ID != "event-near" ||
+		got.NearbyEntries[0].SourceRef == got.SelectedEntry.SourceRef ||
+		got.Source.EntryID != got.SelectedEntry.ID {
+		t.Fatalf("on-disk authorized temporal context missing or inconsistent: %+v", got)
+	}
+	for _, forbidden := range []string{"restricted", "demo-hidden-source", "event-far", "demo-tenant-b"} {
+		if strings.Contains(out.String(), forbidden) { t.Fatalf("sensitive or out-of-window event %q emitted", forbidden) }
 	}
 }

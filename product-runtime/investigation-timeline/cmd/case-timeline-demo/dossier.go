@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"time"
 
 	timeline "github.com/tobianahillel-afk/cmdr/product-runtime/investigation-timeline"
 )
@@ -19,6 +20,10 @@ type localCaseDossier struct {
 	Source         localEntryInspection      `json:"source"`
 	Summary        caseTriageReceipt         `json:"case_summary"`
 	RelatedEntries []timeline.ProjectedEntry `json:"same_source_entries"`
+	// Context is an analyst lead only: time proximity never implies causation.
+	ContextWindowSeconds int                      `json:"context_window_seconds"`
+	ContextTimeCertain bool                       `json:"context_time_certain"`
+	NearbyEntries      []timeline.ProjectedEntry  `json:"nearby_entries"`
 }
 
 // Compose only existing owner-authorized Case/Timeline/source HTTP handlers.
@@ -79,11 +84,40 @@ func writeDemoCaseDossier(ctx context.Context, principal, snapshot, caseID, entr
 		CaseID: caseID, SelectedEntry: selected, Summary: summary,
 		Source: source,
 		RelatedEntries: make([]timeline.ProjectedEntry, 0),
+		NearbyEntries: make([]timeline.ProjectedEntry, 0),
+		ContextWindowSeconds: 300,
 	}
+	report.NearbyEntries, report.ContextTimeCertain = dossierTemporalContext(entries, selected, 5*time.Minute)
 	for _, entry := range entries {
 		if entry.SourceRef == selected.SourceRef {
 			report.RelatedEntries = append(report.RelatedEntries, entry)
 		}
 	}
 	return json.NewEncoder(output).Encode(report)
+}
+
+// dossierTemporalContext searches only entries already authorized by the
+// Case owner Timeline pages. It never reads raw snapshot rows or source
+// objects, and explicitly excludes uncertain timestamps and the anchor.
+func dossierTemporalContext(entries []timeline.ProjectedEntry, selected timeline.ProjectedEntry, span time.Duration) ([]timeline.ProjectedEntry, bool) {
+	nearby := make([]timeline.ProjectedEntry, 0)
+	if selected.TimeUncertain || span <= 0 {
+		return nearby, false
+	}
+	anchor, err := time.Parse(time.RFC3339Nano, selected.SourceTime)
+	if err != nil {
+		return nearby, false
+	}
+	start, end := anchor.Add(-span), anchor.Add(span)
+	for _, entry := range entries {
+		if entry.ID == selected.ID || entry.TimeUncertain {
+			continue
+		}
+		instant, err := time.Parse(time.RFC3339Nano, entry.SourceTime)
+		if err != nil || instant.Before(start) || !instant.Before(end) {
+			continue
+		}
+		nearby = append(nearby, entry)
+	}
+	return nearby, true
 }
