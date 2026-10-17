@@ -89,16 +89,30 @@ func writeDemoCaseTriage(ctx context.Context, principal, snapshot, caseID string
 	if err != nil {
 		return err
 	}
+	result, err := collectDemoCaseTriage(ctx, handler, token, caseID)
+	if err != nil {
+		return err
+	}
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	return json.NewEncoder(output).Encode(result)
+}
+
+// collectDemoCaseTriage is separated from the local file reader so its
+// authorization and pagination failure behavior can be tested against
+// realistic failing HTTP handlers. It never trusts the reported page counts.
+func collectDemoCaseTriage(ctx context.Context, handler http.Handler, token, caseID string) (caseTriageReceipt, error) {
 	var discovery struct { Cases []string `json:"cases"` }
 	if err := queryDemoOwner(ctx, handler, token, "/demo-cases", &discovery); err != nil {
-		return err
+		return caseTriageReceipt{}, err
 	}
 	authorized := false
 	for _, id := range discovery.Cases {
 		if id == caseID { authorized = true; break }
 	}
 	if !authorized {
-		return errors.New("Case not available to selected principal")
+		return caseTriageReceipt{}, errors.New("Case not available to selected principal")
 	}
 
 	receipt := caseTriageReceipt{
@@ -114,7 +128,7 @@ func writeDemoCaseTriage(ctx context.Context, principal, snapshot, caseID string
 	var earliest, latest time.Time
 	for offset := 0; ; offset += pageSize {
 		if offset > timeline.MaxEntries {
-			return errors.New("Case exceeds bounded triage capacity")
+			return caseTriageReceipt{}, errors.New("Case exceeds bounded triage capacity")
 		}
 		selection := url.Values{
 			"case_id": {caseID}, "limit": {"200"},
@@ -122,7 +136,7 @@ func writeDemoCaseTriage(ctx context.Context, principal, snapshot, caseID string
 		}
 		var page caseTriagePage
 		if err := queryDemoOwner(ctx, handler, token, "/case-timeline?"+selection.Encode(), &page); err != nil {
-			return err
+			return caseTriageReceipt{}, err
 		}
 		if total < 0 {
 			total = page.Page.TotalVisible
@@ -134,17 +148,17 @@ func writeDemoCaseTriage(ctx context.Context, principal, snapshot, caseID string
 			len(page.Entries) > pageSize || offset+len(page.Entries) > total ||
 			(len(page.Entries) == 0 && offset < total) ||
 			page.Page.HasMore != (offset+len(page.Entries) < total) {
-			return errors.New("inconsistent authorized Case pagination")
+			return caseTriageReceipt{}, errors.New("inconsistent authorized Case pagination")
 		}
 		for _, entry := range page.Entries {
 			if entry.ID == "" || seen[entry.ID] || entry.SourceRef == "" ||
 				entry.Provenance == "" || entry.Version < 1 {
-				return errors.New("invalid or duplicated authorized Timeline Entry")
+				return caseTriageReceipt{}, errors.New("invalid or duplicated authorized Timeline Entry")
 			}
 			switch entry.Kind {
 			case "observed", "inferred", "user-action", "decision", "response":
 			default:
-				return errors.New("invalid authorized Timeline classification")
+				return caseTriageReceipt{}, errors.New("invalid authorized Timeline classification")
 			}
 			seen[entry.ID] = true
 			receipt.Kinds[entry.Kind]++
@@ -155,7 +169,7 @@ func writeDemoCaseTriage(ctx context.Context, principal, snapshot, caseID string
 			}
 			instant, err := time.Parse(time.RFC3339Nano, entry.SourceTime)
 			if err != nil {
-				return errors.New("invalid known Timeline timestamp")
+				return caseTriageReceipt{}, errors.New("invalid known Timeline timestamp")
 			}
 			instant = instant.UTC()
 			if earliest.IsZero() || instant.Before(earliest) { earliest = instant }
@@ -166,7 +180,7 @@ func writeDemoCaseTriage(ctx context.Context, principal, snapshot, caseID string
 		}
 	}
 	if len(seen) != total || ctx.Err() != nil {
-		return errors.New("incomplete or cancelled authorized Case triage")
+		return caseTriageReceipt{}, errors.New("incomplete or cancelled authorized Case triage")
 	}
 	receipt.VisibleEntries = total
 	receipt.DistinctSources = len(sources)
@@ -183,8 +197,5 @@ func writeDemoCaseTriage(ctx context.Context, principal, snapshot, caseID string
 		return a.Reference<b.Reference
 	})
 	if len(receipt.TopSources)>5 {receipt.TopSources=receipt.TopSources[:5]}
-	// Explicit CLI mode is the only export action; report is written once,
-	// never during the authorization or pagination process.
-	if err := ctx.Err(); err != nil {return err}
-	return json.NewEncoder(output).Encode(receipt)
+	return receipt, nil
 }
