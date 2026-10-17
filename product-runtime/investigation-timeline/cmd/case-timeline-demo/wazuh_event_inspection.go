@@ -8,6 +8,7 @@ import (
 	"io"
 
 	inspection "github.com/tobianahillel-afk/cmdr/product-runtime/event-inspection"
+	search "github.com/tobianahillel-afk/cmdr/product-runtime/event-search"
 	timeline "github.com/tobianahillel-afk/cmdr/product-runtime/investigation-timeline"
 )
 
@@ -20,9 +21,15 @@ type wazuhInspectionReceipt struct {
 	CaseID string `json:"case_id"`
 	Inspection *inspection.Projection `json:"inspection"`
 	Pivot *inspection.PivotDraft `json:"pivot_draft,omitempty"`
+	SearchJob *search.SearchJob `json:"search_job,omitempty"`
 }
 
 func writeDemoWazuhEventInspection(ctx context.Context, principal, snapshot, caseID string, paths []string, entryID, pivotField, pivotFrom, pivotTo string, output io.Writer) error {
+	return writeDemoWazuhEventInspectionWithSearch(ctx, principal, snapshot, caseID, paths,
+		entryID, pivotField, pivotFrom, pivotTo, false, output)
+}
+
+func writeDemoWazuhEventInspectionWithSearch(ctx context.Context, principal, snapshot, caseID string, paths []string, entryID, pivotField, pivotFrom, pivotTo string, execute bool, output io.Writer) error {
 	if ctx == nil {
 		return errors.New("request context required")
 	}
@@ -31,6 +38,9 @@ func writeDemoWazuhEventInspection(ctx context.Context, principal, snapshot, cas
 	}
 	if entryID == "" || len(paths) == 0 || len(paths) > maxWazuhAlertFiles {
 		return errors.New("select a local Wazuh alert in an authorized Case")
+	}
+	if execute && pivotField == "" {
+		return errors.New("executing a Wazuh search requires an Event Inspection pivot")
 	}
 	if pivotField == "" && (pivotFrom != "" || pivotTo != "") {
 		return errors.New("time bounds require an explicitly selected Wazuh pivot field")
@@ -155,6 +165,14 @@ func writeDemoWazuhEventInspection(ctx context.Context, principal, snapshot, cas
 			return errors.New("Wazuh search pivot unavailable")
 		}
 		receipt.Pivot = pivot.Draft
+		if execute {
+			job, err := executeDemoWazuhPivot(ctx, principal, caseID, handler, token,
+				tenant, environment, levels, imported, receipt.Pivot)
+			if err != nil {
+				return err
+			}
+			receipt.SearchJob = &job
+		}
 	}
 	if err := ctx.Err(); err != nil {
 		return err
