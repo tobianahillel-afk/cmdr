@@ -63,7 +63,7 @@ const page = (url, ids) => ({
       status: "allow",
       page: { offset: Number(url.searchParams.get("offset")),
         limit: 200, total_visible: ids.length, has_more: false },
-      entries: ids.map(id => ({ id }))
+      entries: ids.map(id => ({ id, kind: "observed", source_ref: "source-" + id }))
     };
   }
 });
@@ -154,4 +154,93 @@ test("malformed authorized page or duplicated entries never produces hunt output
     await flush();
     assert.equal(env.fields["hunt-results"].children.length, 0);
   }
+});
+
+test("authorized shared source across two Cases creates reauthorized source pivot", async () => {
+  const env = setup(url => {
+    if (url.pathname === "/demo-cases") return cases(["case-a", "case-b"]);
+    const id = url.searchParams.get("case_id");
+    return {
+      ok: true,
+      async json() {
+        return {
+          status: "allow", page: { offset: 0, limit: 200, total_visible: 1, has_more: false },
+          entries: [{
+            id: id + "-hit", kind: id === "case-a" ? "observed" : "inferred",
+            source_ref: "ioc-source:10.0.0.7"
+          }]
+        };
+      }
+    };
+  });
+  env.fields["hunt-run"].dispatchEvent({ type: "click" });
+  await flush();
+  const display = env.fields["hunt-results"].children;
+  assert.equal(display.length, 4); // 2 Cases, title, 1 common source
+  assert.match(display[0].textContent, /observés : 1.*inférés : 0/);
+  assert.match(display[1].textContent, /observés : 0.*inférés : 1/);
+  assert.match(display[2].textContent, /cooccurrence, pas causalité/);
+  assert.match(display[3].textContent, /ioc-source:10\.0\.0\.7.*2 Cases, 2 événements/);
+  display[3].dispatchEvent({ type: "click" });
+  assert.equal(env.submits, 1);
+  assert.equal(env.fields["case-id"].value, "case-a");
+  assert.equal(env.fields.search.value, "ioc-source:10.0.0.7");
+  assert.ok(env.requests.every(x => !x.url.href.includes("session-bearer")));
+});
+
+test("source correlation does not display a source seen in only one Case", async () => {
+  const env = setup(url => {
+    if (url.pathname === "/demo-cases") return cases(["case-a", "case-b"]);
+    return page(url, [url.searchParams.get("case_id") + "-hit"]);
+  });
+  env.fields["hunt-run"].dispatchEvent({ type: "click" });
+  await flush();
+  assert.equal(env.fields["hunt-results"].children.length, 2);
+});
+
+test("invalid authorized classification or source reference rejects all Case summaries", async () => {
+  for (const mutation of ["unknown-kind", "missing-source", "long-source"]) {
+    const env = setup(url => {
+      if (url.pathname === "/demo-cases") return cases(["case-a", "case-b"]);
+      if (url.searchParams.get("case_id") === "case-a") return page(url, ["authorized"]);
+      const response = page(url, ["later"]);
+      return {
+        ok: true,
+        async json() {
+          const data = await response.json();
+          if (mutation === "unknown-kind") data.entries[0].kind = "private-type";
+          if (mutation === "missing-source") data.entries[0].source_ref = "";
+          if (mutation === "long-source") data.entries[0].source_ref = "X".repeat(1025);
+          return data;
+        }
+      };
+    });
+    env.fields["hunt-run"].dispatchEvent({ type: "click" });
+    await flush();
+    assert.equal(env.fields["hunt-results"].children.length, 0, mutation);
+    assert.match(env.fields["hunt-status"].textContent, /aucun résultat partiel/);
+  }
+});
+
+test("source pivot becomes inert after token rotation", async () => {
+  const env = setup(url => {
+    if (url.pathname === "/demo-cases") return cases(["case-a", "case-b"]);
+    return {
+      ok: true, async json() {
+        return {
+          status: "allow", page: { offset: 0, limit: 200, total_visible: 1, has_more: false },
+          entries: [{ id: "hit-" + url.searchParams.get("case_id"),
+            kind: "observed", source_ref: "same-source" }]
+        };
+      }
+    };
+  });
+  env.fields["hunt-run"].dispatchEvent({ type: "click" });
+  await flush();
+  const pivot = env.fields["hunt-results"].children[3];
+  env.fields.token.value = "rotated-bearer";
+  env.fields.token.dispatchEvent({ type: "input" });
+  pivot.dispatchEvent({ type: "click" });
+  assert.equal(env.submits, 0);
+  assert.equal(env.fields["hunt-results"].children.length, 0);
 });

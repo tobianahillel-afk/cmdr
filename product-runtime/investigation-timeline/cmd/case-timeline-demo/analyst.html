@@ -89,8 +89,10 @@
       <h2 id="hunt-title">Recherche transversale d’indicateur textuel</h2>
       <p class="intro">Recherche dans les identifiants, provenances et références de sources des Cases accessibles.
         Chaque Case et chaque page sont autorisés à nouveau côté serveur. Maximum 8 Cases et 5 000 résultats par Case.
-        Aucun résultat partiel n’est affiché si un Case devient inaccessible. Correspondance textuelle, pas preuve
-        de compromission ni corrélation causale ; les pages ne sont pas transactionnelles.</p>
+        Les résultats distinguent les événements observés et inférés, et rapprochent les références de sources
+        déjà visibles dans plusieurs Cases autorisés. Ces cooccurrences ne prouvent ni identité d'incident,
+        ni causalité. Un clic relance une recherche dans un Case après vérification serveur.
+        Aucun résultat partiel n’est affiché si un Case devient inaccessible ; les pages ne sont pas transactionnelles.</p>
       <div class="field">
         <label for="hunt-query">Indicateur ou texte à rechercher</label>
         <input id="hunt-query" type="search" maxlength="96" autocomplete="off" spellcheck="false"
