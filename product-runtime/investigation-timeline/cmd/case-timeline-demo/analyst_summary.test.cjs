@@ -14,7 +14,7 @@ const ids = [
   "return-to-case", "copy-return-link", "analyze", "analysis", "analysis-actions", "download-report",
   "compare-case", "compare", "comparison", "comparison-actions", "download-comparison",
   "download-cross-events", "proximity", "proximity-seconds", "proximity-results",
-  "trace-actions", "trace-results", "wazuh-cohorts", "wazuh-status",
+  "trace-actions", "trace-results", "wazuh-cohorts", "wazuh-status", "wazuh-actions", "wazuh-events",
   "comparison-trace-actions", "comparison-trace-results"
 ];
 function node() {
