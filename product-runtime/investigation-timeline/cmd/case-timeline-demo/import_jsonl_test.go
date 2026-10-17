@@ -6,6 +6,8 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -179,5 +181,98 @@ func TestLocalJSONLImportPathsAndCaseCapacity(t *testing.T) {
 	var got timeline.MemoryTimelineData
 	if err := json.Unmarshal(out.Bytes(), &got); err != nil || len(got.Entries) != len(demoData().Entries)+2 {
 		t.Fatalf("CLI output not reusable: %v", err)
+	}
+}
+
+type rejectingSnapshotWriter struct{}
+
+func (rejectingSnapshotWriter) Write([]byte) (int, error) { return 0, io.ErrClosedPipe }
+
+func TestLocalJSONLImportStructuralBoundsAndIdentityConflicts(t *testing.T) {
+	data := demoData()
+	t.Run("existing-entry-identity", func(t *testing.T) {
+		clone := data
+		clone.Cases = append([]timeline.MemoryTimelineCase(nil), data.Cases...)
+		clone.Entries = append([]timeline.MemoryTimelineEntry(nil), data.Entries...)
+		clone.Cases[0].EntryIDs = append([]string(nil), data.Cases[0].EntryIDs...)
+		sum := sha256.Sum256([]byte("case-a\x00sysmon-1"))
+		id := "local-jsonl-entry-" + hex.EncodeToString(sum[:])
+		clone.Cases[0].EntryIDs[0] = id
+		clone.Entries[0].Value.ID = id
+		if _, err := importLocalEvents(context.Background(), clone, "analyst-a", "case-a", []byte(importedJSONL)); err == nil {
+			t.Fatal("import overwrote a pre-existing Timeline Entry")
+		}
+	})
+	t.Run("existing-source-identity", func(t *testing.T) {
+		clone := data
+		clone.Sources = append([]timeline.MemoryTimelineSource(nil), data.Sources...)
+		clone.Entries = append([]timeline.MemoryTimelineEntry(nil), data.Entries...)
+		sum := sha256.Sum256([]byte("case-a\x00sysmon-1"))
+		ref := "local-jsonl-source-" + hex.EncodeToString(sum[:])
+		clone.Sources[0].Identity.Reference = ref
+		clone.Entries[0].Value.SourceRef = ref
+		if _, err := importLocalEvents(context.Background(), clone, "analyst-a", "case-a", []byte(importedJSONL)); err == nil {
+			t.Fatal("import overwrote an existing typed source")
+		}
+	})
+	for _, input := range []struct {
+		name string
+		data []byte
+	}{
+		{"oversized-content", bytes.Repeat([]byte("x"), maxDemoSnapshotBytes+1)},
+		{"too-many-lines", bytes.Repeat([]byte("\n"), timeline.MaxEntries+2)},
+		{"oversized-line", []byte(strings.Repeat("x", 4097))},
+		{"invalid-unicode", []byte("{\"id\":\"x\",\"timestamp\":\"2026-10-15T10:20:30Z\",\"message\":\"\xff\"}")},
+		{"overlong-message", []byte("{\"id\":\"x\",\"timestamp\":\"2026-10-15T10:20:30Z\",\"message\":\"" + strings.Repeat("a", 513) + "\"}")},
+		{"invalid-control-character", []byte("{\"id\":\"x\",\"timestamp\":\"2026-10-15T10:20:30Z\",\"message\":\"bad\\nmessage\"}")},
+	} {
+		t.Run(input.name, func(t *testing.T) {
+			if _, err := importLocalEvents(context.Background(), data, "analyst-a", "case-a", input.data); err == nil {
+				t.Fatal("invalid input was promoted to owner snapshot")
+			}
+		})
+	}
+	for _, tc := range []struct{ principal, caseID string }{
+		{"analyst-a", "case-b"}, {"analyst-b", "case-a"}, {"analyst-a", "missing"},
+		{"", "case-a"}, {"analyst-a", ""}, {"analyst-a", strings.Repeat("c", 1025)},
+	} {
+		if _, err := importLocalEvents(context.Background(), data, tc.principal, tc.caseID, []byte(importedJSONL)); err == nil {
+			t.Fatalf("unauthorized Case import accepted: %+v", tc)
+		}
+	}
+}
+
+func TestLocalJSONLImportMaintainsOwnerSnapshotAndWriterFailures(t *testing.T) {
+	original := demoData()
+	before := append([]string(nil), original.Cases[0].EntryIDs...)
+	merged, err := importLocalEvents(context.Background(), original, "analyst-a", "case-a", []byte(importedJSONL))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(merged.Cases[0].EntryIDs) != len(before)+2 || len(original.Cases[0].EntryIDs) != len(before) ||
+		strings.Join(before, ",") != strings.Join(original.Cases[0].EntryIDs, ",") {
+		t.Fatal("import changed caller owned snapshot or omitted new events")
+	}
+	short := strings.TrimSuffix(importedJSONL, "\n")
+	if next, err := importLocalEvents(context.Background(), original, "analyst-a", "case-a", []byte(short)); err != nil ||
+		len(next.Entries) != len(original.Entries)+2 {
+		t.Fatalf("valid JSONL without trailing newline was rejected: %v", err)
+	}
+	ownerPath := snapshotFixture(t)
+	eventPath := writeJSONLEvents(t, importedJSONL)
+	for _, tc := range []struct{ snapshot, events string }{
+		{"", eventPath}, {ownerPath, ""}, {ownerPath, ownerPath},
+		{ownerPath, "relative.jsonl"},
+	} {
+		var output bytes.Buffer
+		if err := writeDemoImportedJSONL(context.Background(), "analyst-a", tc.snapshot,
+			"forensic-case-on-disk", tc.events, &output); err == nil || output.Len() > 0 {
+			t.Fatalf("untrusted path returned owner records: %v", err)
+		}
+	}
+	err = writeDemoImportedJSONL(context.Background(), "analyst-a", ownerPath,
+		"forensic-case-on-disk", eventPath, rejectingSnapshotWriter{})
+	if !errors.Is(err, io.ErrClosedPipe) {
+		t.Fatalf("failure of operator output target was swallowed: %v", err)
 	}
 }
