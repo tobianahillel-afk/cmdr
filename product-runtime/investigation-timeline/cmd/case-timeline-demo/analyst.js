@@ -347,17 +347,50 @@
       wazuhSearchStatus.textContent = "Search Job " + job.ID +
         " terminé — " + job.ResultRefs.length +
         " événement(s) autorisé(s). Ouvrir une source revérifie les droits.";
+      // Legacy SearchJob references remain supported, but when the server
+      // supplies a normalized chronology every entry must correspond 1:1
+      // to a completed, authorized Job result. No untrusted metadata becomes
+      // a source authorization or a source preview.
+      const hitRecords = receipt.search_hits;
+      let sortedEntries = job.ResultRefs.map(ref => ({ ref: ref.Ref, label: ref.Ref.slice(0, 120) }));
+      if (hitRecords !== undefined) {
+        if (!Array.isArray(hitRecords) || hitRecords.length !== job.ResultRefs.length)
+          throw Error("Incomplete Wazuh search timeline");
+        const allowedRefs = new Set(job.ResultRefs.map(ref => ref.Ref));
+        const seen = new Set();
+        sortedEntries = hitRecords.map(hit => {
+          if (!hit || typeof hit.entry_id !== "string" ||
+              !allowedRefs.has(hit.entry_id) || seen.has(hit.entry_id) ||
+              typeof hit.source_time_utc !== "string" ||
+              !/^\\d{4}-\\d{2}-\\d{2}T/.test(hit.source_time_utc) ||
+              !Number.isFinite(Date.parse(hit.source_time_utc)) ||
+              typeof hit.rule_id !== "string" || !/^[0-9]{0,16}$/.test(hit.rule_id) ||
+              typeof hit.agent_id !== "string" || !/^[0-9]{0,16}$/.test(hit.agent_id) ||
+              !Number.isInteger(hit.feed) || hit.feed < 0 || hit.feed > 4 ||
+              (hit.rule_level !== undefined && (!Number.isInteger(hit.rule_level) ||
+                hit.rule_level < 0 || hit.rule_level > 16)))
+            throw Error("Untrusted Wazuh timeline metadata");
+          seen.add(hit.entry_id);
+          const label = hit.source_time_utc + " UTC | règle " +
+            (hit.rule_id || "inconnue") + " | agent " +
+            (hit.agent_id || "inconnu") + " | niveau " +
+            (hit.rule_level ?? "inconnu") + " | flux " +
+            (hit.feed === 0 ? "unique" : hit.feed);
+          return { ref: hit.entry_id, label };
+        });
+      }
       const list = document.createElement("ol");
-      for (const ref of job.ResultRefs) {
+      list.setAttribute("aria-label", "Chronologie des alertes Wazuh correspondant au Search Job");
+      for (const hit of sortedEntries) {
         const item = document.createElement("li");
         const button = document.createElement("button");
         button.type = "button";
-        button.textContent = ref.Ref.slice(0, 120);
+        button.textContent = hit.label;
         button.addEventListener("click", () => {
           if (selectedRevision !== wazuhSearchRevision ||
               caseRevision !== revision || token.value !== bearer ||
               caseID.value.trim() !== selectedCase) return;
-          openSource(ref.Ref);
+          openSource(hit.ref);
         });
         item.append(button);
         list.append(item);
