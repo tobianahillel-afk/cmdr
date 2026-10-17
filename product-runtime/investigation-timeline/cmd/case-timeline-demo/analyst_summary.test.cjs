@@ -917,3 +917,83 @@ test("inconsistent authorized cross-Case page never leaves a downloadable receip
   assert.equal(env.fields["download-comparison"].disabled, true);
   assert.equal(env.downloads.length, 0);
 });
+
+test("cross-Case source sequence paginates real authorized rows and rechecks peer source owner", async () => {
+  const env = boot(url => {
+    const caseName = url.searchParams.get("case_id");
+    if (url.pathname === "/case-timeline") {
+      return page(Number(url.searchParams.get("offset")), 27, { sourceFor: () => "shared-correlation" });
+    }
+    if (url.pathname === "/case-source-navigation") {
+      const selection = new URLSearchParams(url.searchParams);
+      selection.delete("entry_id");
+      return { ok: true, async json() { return {
+        status: "ready", kind: "telemetry-event", object_id: "owner-" + caseName,
+        return_is_authority: false, return_case_id: caseName,
+        return_entry_id: url.searchParams.get("entry_id"),
+        return_query: selection.toString()
+      }; } };
+    }
+    if (url.pathname === "/demo-source-open") return { ok: true, async json() { return {
+      status: "ready", synthetic: true, case_id: caseName,
+      entry_id: url.searchParams.get("entry_id"), kind: "telemetry-event",
+      object_id: "owner-" + caseName, preview: "authorized synthetic owner"
+    }; } };
+    throw Error("unexpected source route " + url.pathname);
+  });
+  env.fields["compare-case"].value = "case-peer";
+  env.fields.compare.handlers.click();
+  for (let i = 0; i < 6; i++) await flush();
+  assert.equal(env.requests.length, 2, "both complete Case page traversals are required");
+  assert.equal(env.fields["comparison-trace-actions"].children.length, 1);
+  env.fields["comparison-trace-actions"].children[0].handlers.click();
+  const result = env.fields["comparison-trace-results"];
+  assert.match(result.textContent, /1–25 \/ 54/);
+  assert.equal(result.children[0].children.length, 25);
+  assert.match(result.children[0].children[0].textContent, /Case 1 · observed/);
+  assert.match(result.children[0].children[1].textContent, /Case 2 · observed/);
+  assert.equal(env.requests.length, 2, "local trace must not invent an extra source/index endpoint");
+  result.children.find(el => /suivants/.test(el.textContent)).handlers.click();
+  assert.match(result.textContent, /26–50 \/ 54/);
+  result.children.find(el => /suivants/.test(el.textContent)).handlers.click();
+  assert.match(result.textContent, /51–54 \/ 54/);
+  assert.equal(result.children[0].children.length, 4);
+  assert.match(result.children[0].children.at(-1).textContent, /incertain/);
+  // Return to first page and open the peer Case's authorized event.
+  result.children.find(el => /précédents/.test(el.textContent)).handlers.click();
+  result.children.find(el => /précédents/.test(el.textContent)).handlers.click();
+  result.children[0].children[1].children[0].handlers.click();
+  for (let i = 0; i < 6; i++) await flush();
+  assert.equal(env.fields["case-id"].value, "case-peer");
+  assert.equal(env.requests.length, 4, "the two first-party owner routes must be rechecked");
+  assert.deepEqual(env.requests.slice(2).map(r => r.url.pathname),
+    ["/case-source-navigation", "/demo-source-open"]);
+  for (const req of env.requests.slice(2)) {
+    assert.equal(req.url.searchParams.get("case_id"), "case-peer");
+    assert.equal(req.url.searchParams.get("entry_id"), "event-0");
+    assert.equal(req.url.searchParams.has("source_ref"), false);
+    assert.equal(req.options.headers.Authorization, "Bearer ephemeral-token");
+  }
+  assert.equal(env.fields["comparison-trace-results"].children.length, 0);
+  assert.equal(env.fields["source-detail"].hidden, false);
+});
+
+test("cross-Case source sequence becomes inert on bearer invalidation", async () => {
+  const env = boot(url => page(Number(url.searchParams.get("offset")), 2,
+    { sourceFor: () => "common-owner" }));
+  env.fields["compare-case"].value = "case-peer";
+  env.fields.compare.handlers.click();
+  for (let i = 0; i < 6; i++) await flush();
+  const oldAction = env.fields["comparison-trace-actions"].children[0];
+  oldAction.handlers.click();
+  const oldRow = env.fields["comparison-trace-results"].children[0].children[0].children[0];
+  const requestsBefore = env.requests.length;
+  env.fields.token.value = "revoked-token";
+  env.fields.token.handlers.input();
+  oldRow.handlers.click();
+  oldAction.handlers.click();
+  await flush();
+  assert.equal(env.requests.length, requestsBefore, "stale local correlation cannot invoke owners");
+  assert.equal(env.fields["comparison-trace-actions"].children.length, 0);
+  assert.equal(env.fields["comparison-trace-results"].children.length, 0);
+});
