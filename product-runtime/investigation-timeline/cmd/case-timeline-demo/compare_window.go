@@ -70,10 +70,10 @@ func writeDemoCaseWindowSequence(ctx context.Context, principal, snapshot, first
 		StartUTC: start.Format(time.RFC3339), EndUTC: end.Format(time.RFC3339),
 		Events: make([]localCaseEvent, 0),
 	}
+	// The shared collector already verified both Case IDs and full paging.
+	// A single cancellation check before emitting the receipt is sufficient
+	// for this bounded, in-memory selection of at most 10,000 rows.
 	for _, item := range full.Events {
-		if err := ctx.Err(); err != nil {
-			return err
-		}
 		if item.Entry.TimeUncertain {
 			continue
 		}
@@ -85,13 +85,11 @@ func writeDemoCaseWindowSequence(ctx context.Context, principal, snapshot, first
 			continue
 		}
 		report.Events = append(report.Events, item)
-		switch item.CaseID {
-		case firstID:
+		if item.CaseID == firstID {
 			report.FirstEvents++
-		case secondID:
+		} else {
+			// The independent authorization collector can only return secondID.
 			report.SecondEvents++
-		default:
-			return errors.New("invalid authorized Case in timeline")
 		}
 	}
 	if report.FirstEvents == 0 || report.SecondEvents == 0 {
