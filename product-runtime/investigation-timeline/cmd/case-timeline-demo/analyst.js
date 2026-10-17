@@ -362,7 +362,7 @@
           if (!hit || typeof hit.entry_id !== "string" ||
               !allowedRefs.has(hit.entry_id) || seen.has(hit.entry_id) ||
               typeof hit.source_time_utc !== "string" ||
-              !/^\\d{4}-\\d{2}-\\d{2}T/.test(hit.source_time_utc) ||
+              !/^\d{4}-\d{2}-\d{2}T/.test(hit.source_time_utc) ||
               !Number.isFinite(Date.parse(hit.source_time_utc)) ||
               typeof hit.rule_id !== "string" || !/^[0-9]{0,16}$/.test(hit.rule_id) ||
               typeof hit.agent_id !== "string" || !/^[0-9]{0,16}$/.test(hit.agent_id) ||
@@ -380,7 +380,6 @@
         });
       }
       const list = document.createElement("ol");
-      list.setAttribute("aria-label", "Chronologie des alertes Wazuh correspondant au Search Job");
       for (const hit of sortedEntries) {
         const item = document.createElement("li");
         const button = document.createElement("button");
