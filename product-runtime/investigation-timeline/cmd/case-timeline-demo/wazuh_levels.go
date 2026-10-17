@@ -17,13 +17,24 @@ import (
 // Source metadata, not an authorization claim or a derived severity score.
 // Wazuh 4.x rule level is an optional numeric field (0..16).
 type wazuhRuleLevel struct {
-	Level int
-	Known bool
+	Level  int
+	Known  bool
+	RuleID string
 }
 
 type wazuhLevelCount struct {
 	Level int `json:"level"`
 	Count int `json:"count"`
+}
+
+// An actionable aggregate of authorized imported alerts sharing a Wazuh
+// detection rule ID. It intentionally omits alert IDs and source previews.
+type wazuhRuleIDCount struct {
+	RuleID                string `json:"rule_id"`
+	Count                 int    `json:"count"`
+	HighestKnownRuleLevel *int   `json:"highest_known_rule_level,omitempty"`
+	FirstCertainUTC       string `json:"first_certain_utc,omitempty"`
+	LastCertainUTC        string `json:"last_certain_utc,omitempty"`
 }
 
 // A bounded, descriptive time distribution of visible imported alerts.
@@ -42,6 +53,9 @@ type wazuhRuleTriageReceipt struct {
 	Case caseTriageReceipt `json:"case_triage"`
 	RuleLevels []wazuhLevelCount `json:"rule_levels"`
 	UnknownRuleLevels int `json:"unknown_rule_levels"`
+	DistinctRuleIDs int `json:"distinct_rule_ids"`
+	UnknownRuleIDs int `json:"unknown_rule_ids"`
+	TopRules []wazuhRuleIDCount `json:"top_rules"`
 	DistinctTimeWindows int `json:"distinct_time_windows"`
 	PeakWindows []wazuhAlertWindow `json:"peak_windows"`
 	UnplacedAlerts int `json:"unplaced_alerts"`
@@ -58,7 +72,8 @@ func wazuhRuleLevels(raw []byte, caseID string) (map[string]wazuhRuleLevel, erro
 		var alert struct {
 			ID string `json:"id"`
 			Rule struct {
-				Level *int `json:"level"`
+				Level *int   `json:"level"`
+				ID    string `json:"id"`
 			} `json:"rule"`
 		}
 		if err := json.Unmarshal(line, &alert); err != nil {
@@ -69,12 +84,22 @@ func wazuhRuleLevels(raw []byte, caseID string) (map[string]wazuhRuleLevel, erro
 		if _, exists := result[entryID]; exists {
 			return nil, errors.New("duplicate Wazuh rule identity")
 		}
-		level := wazuhRuleLevel{}
+		level := wazuhRuleLevel{RuleID: alert.Rule.ID}
+		// Wazuh 4.x rule.id is a decimal string, not an ACL or alert ID.
+		// Restrict its width and alphabet before including it in a receipt.
+		if len(level.RuleID) > 16 {
+			return nil, errors.New("invalid Wazuh rule ID")
+		}
+		for _, digit := range level.RuleID {
+			if digit < '0' || digit > '9' {
+				return nil, errors.New("invalid Wazuh rule ID")
+			}
+		}
 		if alert.Rule.Level != nil {
 			if *alert.Rule.Level < 0 || *alert.Rule.Level > 16 {
 				return nil, errors.New("Wazuh rule level outside 0..16")
 			}
-			level = wazuhRuleLevel{Level: *alert.Rule.Level, Known: true}
+			level.Level, level.Known = *alert.Rule.Level, true
 		}
 		result[entryID] = level
 	}
@@ -103,7 +128,8 @@ func writeDemoWazuh4RuleTriage(ctx context.Context, principal, snapshotPath, int
 	}
 	counts := make(map[int]int)
 	windows := make(map[string]*wazuhAlertWindow)
-	visibleImported, unknown, unplaced := 0, 0, 0
+	rules := make(map[string]*wazuhRuleIDCount)
+	visibleImported, unknown, unplaced, unknownRules := 0, 0, 0, 0
 	receipt, err := collectDemoCaseTriageWithObserver(ctx, handler, token, intoCase, func(entry timeline.ProjectedEntry) error {
 		level, exists := levels[entry.ID]
 		if !exists {
@@ -115,6 +141,21 @@ func writeDemoWazuh4RuleTriage(ctx context.Context, principal, snapshotPath, int
 		} else {
 			unknown++
 		}
+		var rule *wazuhRuleIDCount
+		if level.RuleID == "" {
+			unknownRules++
+		} else {
+			rule = rules[level.RuleID]
+			if rule == nil {
+				rule = &wazuhRuleIDCount{RuleID: level.RuleID}
+				rules[level.RuleID] = rule
+			}
+			rule.Count++
+			if level.Known && (rule.HighestKnownRuleLevel == nil || level.Level > *rule.HighestKnownRuleLevel) {
+				highest := level.Level
+				rule.HighestKnownRuleLevel = &highest
+			}
+		}
 		if entry.TimeUncertain {
 			unplaced++
 			return nil
@@ -122,6 +163,16 @@ func writeDemoWazuh4RuleTriage(ctx context.Context, principal, snapshotPath, int
 		when, err := time.Parse(time.RFC3339Nano, entry.SourceTime)
 		if err != nil {
 			return errors.New("invalid authorized Wazuh Timeline timestamp")
+		}
+		// Fixed-width UTC precision keeps lexicographic min/max chronological.
+		utc := when.UTC().Format("2006-01-02T15:04:05.000000000Z")
+		if rule != nil {
+			if rule.FirstCertainUTC == "" || utc < rule.FirstCertainUTC {
+				rule.FirstCertainUTC = utc
+			}
+			if rule.LastCertainUTC == "" || utc > rule.LastCertainUTC {
+				rule.LastCertainUTC = utc
+			}
 		}
 		key := when.UTC().Truncate(5 * time.Minute).Format(time.RFC3339)
 		window := windows[key]
@@ -168,6 +219,21 @@ func writeDemoWazuh4RuleTriage(ctx context.Context, principal, snapshotPath, int
 	if len(peaks) > 10 {
 		peaks = peaks[:10]
 	}
+	// Expose the busiest detection rule cohorts, never raw Wazuh alert IDs.
+	// Exact seconds are supplied only for known authorized timestamps.
+	topRules := make([]wazuhRuleIDCount, 0, len(rules))
+	for _, rule := range rules {
+		topRules = append(topRules, *rule)
+	}
+	sort.Slice(topRules, func(i, j int) bool {
+		if topRules[i].Count != topRules[j].Count {
+			return topRules[i].Count > topRules[j].Count
+		}
+		return topRules[i].RuleID < topRules[j].RuleID
+	})
+	if len(topRules) > 10 {
+		topRules = topRules[:10]
+	}
 	histogram := make([]wazuhLevelCount, 0, len(keys))
 	for _, level := range keys {
 		histogram = append(histogram, wazuhLevelCount{Level: level, Count: counts[level]})
@@ -176,6 +242,7 @@ func writeDemoWazuh4RuleTriage(ctx context.Context, principal, snapshotPath, int
 		Format: "cmdr-local-wazuh4-case-triage-v1",
 		Synthetic: true, ImportedEntries: imported, Case: receipt,
 		RuleLevels: histogram, UnknownRuleLevels: unknown,
+		DistinctRuleIDs: len(rules), UnknownRuleIDs: unknownRules, TopRules: topRules,
 		DistinctTimeWindows: len(windows), PeakWindows: peaks, UnplacedAlerts: unplaced,
 	})
 }

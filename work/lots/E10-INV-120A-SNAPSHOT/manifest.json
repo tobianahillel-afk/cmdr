@@ -83,7 +83,8 @@
     "One-shot imported normalized JSONL -> independently owner-authorized two-Case nearest-certain-time leads (1..300 seconds), without exporting merged owner data or exposing denied sources",
     "Offline Wazuh 4.x alerts.json import directly to an owner-authorized Case and authenticated loopback analyst UI, without intermediate merged owner file or external IAM claim",
     "One-step offline Wazuh 4.x alerts.json -> imported Case -> independently authorized second Case nearest-certain-time analyst leads, without exporting owner data or adding a backend",
-    "Single-Case Wazuh 4.x alert JSONL -> normalized events -> server-owner-authorized offline Case triage receipt, and independent two-Case aggregate comparison, without local owner export or new backend"
+    "Single-Case Wazuh 4.x alert JSONL -> normalized events -> server-owner-authorized offline Case triage receipt, and independent two-Case aggregate comparison, without local owner export or new backend",
+    "Actionable Wazuh 4.x rule-ID frequency cohorts (top ten), known numeric severity and first/last certain UTC timestamps, only after owner-authorized import and typed-source traversal"
   ],
   "acceptance_tests": [
     "Default demo behavior unchanged",
@@ -96,7 +97,8 @@
     "One-process JSONL import-to-cross-Case temporal lead: imported event appears among authorized candidates; foreign/denied second Case, invalid event and cancelled request emit zero bytes; existing aggregate mode unchanged",
     "Wazuh 4.x real-shaped JSONL alerts with -0700 timestamps and rule descriptions flow from read-only disk through normalized import to Case timeline and source preview; reject foreign/anonymous access, malformed and unsupported ECS format, with no credential output before complete authorization",
     "Disk Wazuh alerts imported into one authorized Case and compared against independently authorized second Case for 125ms proximity; denied Case, unsupported alert, cancellation and ambiguous viewer/triage flags yield zero output",
-    "Wazuh 4.x one-Case triage and two-Case aggregate comparison use disk owner source ACL, reject foreign Cases and unsupported alerts with zero bytes, and preserve owner/Wazuh input files; previous viewer and temporal proximity remain operational"
+    "Wazuh 4.x one-Case triage and two-Case aggregate comparison use disk owner source ACL, reject foreign Cases and unsupported alerts with zero bytes, and preserve owner/Wazuh input files; previous viewer and temporal proximity remain operational",
+    "Offline Wazuh rule IDs are aggregated after authorization; repeated 5710 yields correct count, max known severity and fractionally ordered certain-time bounds; missing IDs counted separately; invalid IDs/denied Case emit zero data; top 10 ties stable"
   ],
   "performance_budget": {
     "applicable": false,
