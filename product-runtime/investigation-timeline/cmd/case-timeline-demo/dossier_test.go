@@ -237,10 +237,10 @@ func TestCaseDossierDiskTimelineTemporalPivotRechecksOwner(t *testing.T) {
 	data := demoData()
 	near := data.Entries[0] // permitted telemetry, distinct from selected evidence source
 	near.Value.ID = "event-near"
-	near.Value.SourceTime = "2026-10-01T09:04:00Z"
+	near.Value.SourceTime = "2026-10-01T10:04:00Z"
 	far := data.Entries[0]
 	far.Value.ID = "event-far"
-	far.Value.SourceTime = "2026-10-01T09:06:00Z"
+	far.Value.SourceTime = "2026-10-01T10:06:00Z"
 	data.Cases[0].EntryIDs = append(data.Cases[0].EntryIDs, "event-near", "event-far")
 	data.Entries = append(data.Entries, near, far)
 	body, err := json.Marshal(data)
