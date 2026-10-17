@@ -49,7 +49,7 @@ func writeDemoEntryInspection(ctx context.Context, principal, snapshot, caseID, 
 func inspectDemoEntryWithData(ctx context.Context, principal string, data timeline.MemoryTimelineData, caseID, entryID string) (localEntryInspection, error) {
 	token, err := randomBearer()
 	if err != nil {
-		return err
+		return localEntryInspection{}, err
 	}
 	handler, err := newDemoHandlerWithData(token, principal, data)
 	if err != nil {
