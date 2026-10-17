@@ -1501,3 +1501,104 @@ test("malformed multi-feed signal never creates an analyst action", async () => 
   assert.match(env.fields["wazuh-status"].textContent, /indisponible|refusé/);
   assert.equal(env.fields["wazuh-actions"].children.length, 0);
 });
+
+
+test("analyst executes a real Wazuh Search Job receipt and opens a hit through fresh owner authorization", async () => {
+  const env = boot(url => {
+    if (url.pathname === "/demo-wazuh-search") {
+      return {
+        ok: true, async json() {
+          return {
+            format: "cmdr-local-wazuh4-executed-search-v1", synthetic: true,
+            case_id: "case-disk", selector: "rule_id", value: "5710",
+            job: {
+              ID: "job-analyst-search", State: "completed",
+              ResultRefs: [{ Source: "wazuh4-authorized-local-import", Ref: "event-authorized" }],
+              AuditTrail: [{}, {}, {}]
+            }
+          };
+        }
+      };
+    }
+    if (url.pathname === "/case-source-navigation") {
+      const returns = new URLSearchParams(url.searchParams);
+      returns.delete("entry_id");
+      return {
+        ok: true, async json() {
+          return {
+            status: "ready", return_is_authority: false,
+            return_case_id: "case-disk", return_entry_id: "event-authorized",
+            kind: "telemetry-event", object_id: "owned-alert",
+            return_query: returns.toString()
+          };
+        }
+      };
+    }
+    if (url.pathname === "/demo-source-open") {
+      return {
+        ok: true, async json() {
+          return {
+            status: "ready", synthetic: true,
+            case_id: "case-disk", entry_id: "event-authorized",
+            kind: "telemetry-event", object_id: "owned-alert", preview: "authorized"
+          };
+        }
+      };
+    }
+    throw Error("unexpected route: " + url.pathname);
+  });
+  env.fields["wazuh-search-field"].value = "rule_id";
+  env.fields["wazuh-search-value"].value = "5710";
+  env.fields["wazuh-search-from"].value = "2026-10-17T09:59:00";
+  env.fields["wazuh-search-to"].value = "2026-10-17T10:03:00";
+  env.fields["wazuh-search-run"].handlers.click();
+  await flush();
+  await flush();
+  assert.equal(env.requests.length, 1);
+  assert.equal(env.requests[0].url.pathname, "/demo-wazuh-search");
+  assert.equal(env.requests[0].url.searchParams.get("case_id"), "case-disk");
+  assert.equal(env.requests[0].url.searchParams.get("field"), "rule_id");
+  assert.equal(env.requests[0].url.searchParams.get("value"), "5710");
+  assert.equal(env.requests[0].options.headers.Authorization, "Bearer ephemeral-token");
+  assert.ok(!env.requests[0].url.href.includes("ephemeral-token"));
+  assert.match(env.fields["wazuh-search-status"].textContent, /Search Job job-analyst-search terminé/);
+  const list = env.fields["wazuh-search-results"].children[0];
+  assert.equal(list.children.length, 1);
+  assert.equal(list.children[0].children[0].textContent, "event-authorized");
+  list.children[0].children[0].handlers.click();
+  await flush();
+  await flush();
+  assert.deepEqual(env.requests.map(x => x.url.pathname), [
+    "/demo-wazuh-search", "/case-source-navigation", "/demo-source-open"
+  ]);
+  assert.equal(env.fields["source-detail"].hidden, false);
+  // Changing the synthetic credential invalidates old search results.
+  env.fields.token.value = "rotated-credential";
+  env.fields.token.handlers.input();
+  assert.equal(env.fields["wazuh-search-results"].children.length, 0);
+  assert.match(env.fields["wazuh-search-status"].textContent, /Aucune recherche/);
+});
+
+test("analyst refuses incomplete or unauthorized Wazuh Job receipts without partial results", async () => {
+  const env = boot(() => ({
+    ok: true, async json() {
+      return {
+        format: "cmdr-local-wazuh4-executed-search-v1", synthetic: true,
+        case_id: "case-disk", selector: "rule_id", value: "5710",
+        job: { ID: "job-partial", State: "partial",
+          ResultRefs: [{ Source: "wazuh4-authorized-local-import", Ref: "event-leak" }],
+          AuditTrail: [{}, {}, {}] }
+      };
+    }
+  }));
+  env.fields["wazuh-search-field"].value = "rule_id";
+  env.fields["wazuh-search-value"].value = "5710";
+  env.fields["wazuh-search-from"].value = "2026-10-17T09:59:00";
+  env.fields["wazuh-search-to"].value = "2026-10-17T10:03:00";
+  env.fields["wazuh-search-run"].handlers.click();
+  await flush();
+  await flush();
+  assert.equal(env.fields["wazuh-search-results"].children.length, 0);
+  assert.doesNotMatch(env.fields["wazuh-search-status"].textContent, /event-leak|job-partial/);
+  assert.match(env.fields["wazuh-search-status"].textContent, /Aucun résultat partiel/);
+});
