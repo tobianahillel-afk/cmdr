@@ -31,6 +31,21 @@ func main() {
 	}
 }
 
+// Repeating -import-jsonl is permitted only for the loopback analyst journey.
+// Each input is operator-selected at startup, never supplied by a browser.
+const maxLiveEventFiles = 4
+
+type localEventFiles []string
+
+func (f *localEventFiles) String() string { return fmt.Sprintf("%d local file(s)", len(*f)) }
+func (f *localEventFiles) Set(value string) error {
+	if value == "" || len(*f) >= maxLiveEventFiles {
+		return errors.New("select 1 to 4 local event JSONL files")
+	}
+	*f = append(*f, value)
+	return nil
+}
+
 // CLI parsing is separate from process exit so real requests and rejected
 // arguments can be exercised in tests without a shell or subprocess runner.
 func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
@@ -38,9 +53,11 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	flags.SetOutput(io.Discard)
 	principal := flags.String("principal", "analyst-a", "synthetic analyst ID from the selected local owner snapshot")
 	snapshot := flags.String("snapshot", "", "absolute path to operator-owned read-only Case snapshot JSON (loopback demo only)")
-	importJSONL := flags.String("import-jsonl", "", "absolute local normalized event JSONL for offline owner snapshot preparation (no listener)")
+	var importedFiles localEventFiles
+	flags.Var(&importedFiles, "import-jsonl", "absolute normalized event JSONL (repeat up to 4 times only with -serve-import)")
 	intoCase := flags.String("into-case", "", "existing Case for imported local events (requires -import-jsonl)")
 	triageImport := flags.Bool("triage-import", false, "analyze locally imported events through Case authorization without outputting the full owner snapshot")
+	serveImport := flags.Bool("serve-import", false, "open local JSONL events directly in the loopback analyst UI (requires -snapshot, -import-jsonl and -into-case)")
 	reportCase := flags.String("report-case", "", "produce one authorized offline Case triage JSON receipt and exit (no listener)")
 	exportCase := flags.String("export-case", "", "export authorized Case Timeline events as sensitive local JSONL, without listener")
 	compareCase := flags.String("compare-case", "", "first authorized Case for an offline two-Case comparison receipt")
@@ -70,16 +87,25 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	if *compareProximity && *compareEvents {
 		return errors.New("choose exactly one cross-Case comparison mode")
 	}
-	if *importJSONL != "" || *intoCase != "" || *triageImport {
-		if *importJSONL == "" || *intoCase == "" || *reportCase != "" || *exportCase != "" ||
+	if *serveImport {
+		if *snapshot == "" || len(importedFiles) == 0 || *intoCase == "" || *triageImport ||
+			*reportCase != "" || *exportCase != "" || *compareCase != "" || *withCase != "" ||
+			*compareEvents || *compareProximity || *sourceCase != "" || *sourceRef != "" ||
+			*inspectCase != "" || *inspectEntry != "" {
+			return errors.New("live imported analyst viewer requires only an owner snapshot, local JSONL and an existing Case")
+		}
+		return serveDemoWithImportedJSONLFiles(ctx, *principal, *snapshot, *intoCase, []string(importedFiles), output)
+	}
+	if len(importedFiles) > 0 || *intoCase != "" || *triageImport {
+		if len(importedFiles) != 1 || *intoCase == "" || *reportCase != "" || *exportCase != "" ||
 			*compareCase != "" || *withCase != "" || *compareEvents || *compareProximity ||
 			*sourceCase != "" || *sourceRef != "" || *inspectCase != "" || *inspectEntry != "" {
 			return errors.New("local JSONL import requires a Case and cannot be combined with investigation modes")
 		}
 		if *triageImport {
-			return writeDemoImportedJSONLTriage(ctx, *principal, *snapshot, *intoCase, *importJSONL, output)
+			return writeDemoImportedJSONLTriage(ctx, *principal, *snapshot, *intoCase, importedFiles[0], output)
 		}
-		return writeDemoImportedJSONL(ctx, *principal, *snapshot, *intoCase, *importJSONL, output)
+		return writeDemoImportedJSONL(ctx, *principal, *snapshot, *intoCase, importedFiles[0], output)
 	}
 	if *exportCase != "" {
 		if *reportCase != "" || *compareCase != "" || *withCase != "" ||
@@ -171,16 +197,90 @@ func serveDemoWithSnapshot(ctx context.Context, principal, snapshot string, outp
 	if err := ctx.Err(); err != nil {
 		return err
 	}
-	if principal == "" || principal == "*" {
-		return errors.New("select a synthetic principal from the local owner dataset")
-	}
 	data, err := loadDemoSnapshot(snapshot)
 	if err != nil {
 		return err
 	}
+	return serveDemoWithData(ctx, principal, data, "", output)
+}
+
+// The live JSONL path composes existing bounded local import with the same
+// authenticated Case/source owner handlers used by the synthetic analyst UI.
+// Files are selected by the operator at startup, never by HTTP or the browser.
+func serveDemoWithImportedJSONL(ctx context.Context, principal, snapshotPath, caseID, eventsPath string, output io.Writer) error {
+	return serveDemoWithImportedJSONLFiles(ctx, principal, snapshotPath, caseID, []string{eventsPath}, output)
+}
+
+// Compose multiple independent operator-selected telemetry files into the
+// existing in-memory Case owner graph. Validate ALL files and reauthorize the
+// resulting graph before generating a bearer or binding a loopback listener.
+func serveDemoWithImportedJSONLFiles(ctx context.Context, principal, snapshotPath, caseID string, eventPaths []string, output io.Writer) error {
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	if snapshotPath == "" || len(eventPaths) == 0 || len(eventPaths) > maxLiveEventFiles {
+		return errors.New("live import requires an owner snapshot and 1 to 4 event files")
+	}
+	data, err := loadDemoSnapshot(snapshotPath)
+	if err != nil {
+		return err
+	}
+	seenPaths := map[string]bool{snapshotPath: true}
+	seenFiles := make([]os.FileInfo, 0, len(eventPaths)+1)
+	ownerInfo, err := os.Lstat(snapshotPath)
+	if err != nil {
+		return errors.New("cannot identify local owner snapshot")
+	}
+	seenFiles = append(seenFiles, ownerInfo)
+	for fileIndex, path := range eventPaths {
+		if err := ctx.Err(); err != nil {
+			return err
+		}
+		if path == "" || seenPaths[path] {
+			return errors.New("live import requires distinct local input files")
+		}
+		seenPaths[path] = true
+		content, err := readLocalEventFile(path)
+		if err != nil {
+			return err
+		}
+		info, err := os.Lstat(path)
+		if err != nil {
+			return errors.New("cannot identify event file")
+		}
+		for _, previous := range seenFiles {
+			if os.SameFile(info, previous) {
+				return errors.New("live import cannot reuse the same local file")
+			}
+		}
+		seenFiles = append(seenFiles, info)
+		feedNumber := 0
+		if len(eventPaths) > 1 {
+			feedNumber = fileIndex + 1
+		}
+		data, err = importLocalEventsFromFeed(ctx, data, principal, caseID, content, feedNumber)
+		if err != nil {
+			return err
+		}
+	}
+	return serveDemoWithData(ctx, principal, data, caseID, output)
+}
+
+func serveDemoWithData(ctx context.Context, principal string, data timeline.MemoryTimelineData, preferredCase string, output io.Writer) error {
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	if principal == "" || principal == "*" {
+		return errors.New("select a synthetic principal from the local owner dataset")
+	}
 	caseID, err := firstDemoAuthorizedCase(data, principal)
 	if err != nil {
 		return err
+	}
+	// Only the local JSONL importer supplies preferredCase; it has already
+	// verified membership and owner ACLs before any listener or credential.
+	if preferredCase != "" {
+		caseID = preferredCase
 	}
 	token, err := randomBearer()
 	if err != nil {
@@ -206,7 +306,15 @@ func serveDemoWithSnapshot(ctx context.Context, principal, snapshot string, outp
 	}
 	fmt.Fprintf(output, "CMDR synthetic Case Timeline demo; NOT a production service\n")
 	fmt.Fprintf(output, "URL: http://%s/case-timeline?case_id=%s&limit=2\n", listener.Addr(), url.QueryEscape(caseID))
-	fmt.Fprintf(output, "Local analyst viewer: http://%s/analyst\n", listener.Addr())
+	// Reuse the already validated browser return-selection format. A Case
+	// selector in the URL never carries a bearer or grants permission.
+	viewerURL := "http://" + listener.Addr().String() + "/analyst"
+	if preferredCase != "" {
+		viewerURL += "?" + url.Values{
+			"case_id": {caseID}, "limit": {"20"}, "offset": {"0"},
+		}.Encode()
+	}
+	fmt.Fprintf(output, "Local analyst viewer: %s\n", viewerURL)
 	fmt.Fprintf(output, "Bearer token (this run only): %s\n", token)
 	// Quote operator-controlled identifiers to prevent multiline terminal output.
 	fmt.Fprintf(output, "Principal: %q; available synthetic Case: %q\n", principal, caseID)
