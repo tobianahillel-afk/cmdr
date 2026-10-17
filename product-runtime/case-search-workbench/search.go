@@ -27,21 +27,21 @@ type searchOptions struct {
 }
 
 type caseSearchReceipt struct {
-	Format string `json:"format"`
-	Synthetic bool `json:"synthetic"`
-	CaseID string `json:"case_id"`
-	QueryScope string `json:"query_scope"`
-	Job search.SearchJob `json:"job"`
+	Format     string           `json:"format"`
+	Synthetic  bool             `json:"synthetic"`
+	CaseID     string           `json:"case_id"`
+	QueryScope string           `json:"query_scope"`
+	Job        search.SearchJob `json:"job"`
 }
 
 type ownerPage struct {
-	Status string `json:"status"`
+	Status  string                    `json:"status"`
 	Entries []timeline.ProjectedEntry `json:"entries"`
-	Page struct {
-		Offset int `json:"offset"`
-		Limit int `json:"limit"`
-		TotalVisible int `json:"total_visible"`
-		HasMore bool `json:"has_more"`
+	Page    struct {
+		Offset       int  `json:"offset"`
+		Limit        int  `json:"limit"`
+		TotalVisible int  `json:"total_visible"`
+		HasMore      bool `json:"has_more"`
 	} `json:"page"`
 }
 
@@ -49,9 +49,9 @@ type ownerPage struct {
 // Case/Entry/typed-source owner. Authorization is re-evaluated on execution;
 // no client-side claim about the source is sufficient.
 type caseSearchBackend struct {
-	owner http.Handler
+	owner                              http.Handler
 	caseID, tenant, environment, query string
-	sourceKinds map[string]string
+	sourceKinds                        map[string]string
 }
 
 func (b *caseSearchBackend) Execute(ctx context.Context, req search.BackendRequest) (search.BackendResult, error) {
@@ -79,7 +79,7 @@ func (b *caseSearchBackend) Execute(ctx context.Context, req search.BackendReque
 		allowed[src] = true
 	}
 	result := search.BackendResult{
-		TenantRef: req.TenantRef,
+		TenantRef:        req.TenantRef,
 		CompletedSources: append([]string(nil), req.Sources...),
 	}
 	for _, entry := range rows {
@@ -248,9 +248,9 @@ func runCaseSearch(ctx context.Context, data timeline.MemoryTimelineData, opts s
 		return caseSearchReceipt{}, errors.New("search job did not fully complete")
 	}
 	return caseSearchReceipt{
-		Format: "cmdr-local-authorized-case-search-job-v1",
+		Format:    "cmdr-local-authorized-case-search-job-v1",
 		Synthetic: true, CaseID: opts.CaseID,
 		QueryScope: "authorized-telemetry-timeline-reference-and-provenance-only",
-		Job: job,
+		Job:        job,
 	}, nil
 }
