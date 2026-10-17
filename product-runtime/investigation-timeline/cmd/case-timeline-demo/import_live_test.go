@@ -197,15 +197,24 @@ func TestLiveImportStartupSelectsImportedCaseAmongReadableCases(t *testing.T) {
 	case <-time.After(10 * time.Second):
 		t.Fatal("live multi-Case listener did not start")
 	}
-	var link string
+	var link, viewer string
 	for _, line := range strings.Split(log.String(), "\n") {
 		if strings.HasPrefix(line, "URL: ") {
 			link = strings.TrimPrefix(line, "URL: ")
+		}
+		if strings.HasPrefix(line, "Local analyst viewer: ") {
+			viewer = strings.TrimPrefix(line, "Local analyst viewer: ")
 		}
 	}
 	parsed, err := url.Parse(link)
 	if err != nil || parsed.Query().Get("case_id") != "forensic-case-on-disk" {
 		t.Fatalf("imported Case is not initial analyst selection: %q", link)
+	}
+	browser, err := url.Parse(viewer)
+	if err != nil || browser.Host != parsed.Host || browser.Path != "/analyst" ||
+		browser.Query().Get("case_id") != "forensic-case-on-disk" ||
+		browser.Query().Get("limit") != "20" || browser.Query().Get("offset") != "0" {
+		t.Fatalf("imported analyst viewer did not retain safe Case selection: %q", viewer)
 	}
 	cancel()
 	select {
@@ -227,5 +236,25 @@ func TestLiveImportRejectsInvalidOwnerBeforeBearerCreation(t *testing.T) {
 	}
 	if err := serveDemoWithData(context.Background(), "", demoData(), "", &output); err == nil || output.Len() != 0 {
 		t.Fatal("empty analyst identity accepted by local server")
+	}
+}
+
+func TestLiveJSONLStartupErrorsNeverEmitBearer(t *testing.T) {
+	data := demoData()
+	var output bytes.Buffer
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	if err := serveDemoWithData(ctx, "analyst-a", data, "", &output); err != context.Canceled || output.Len() != 0 {
+		t.Fatalf("cancelled owner launch leaked data: %v", err)
+	}
+	if err := serveDemoWithImportedJSONL(context.Background(), "analyst-a", "", "case-a", "/missing", &output); err == nil || output.Len() != 0 {
+		t.Fatal("missing owner accepted or bearer emitted")
+	}
+	if err := serveDemoWithImportedJSONL(context.Background(), "analyst-a", "/does-not-exist", "case-a", "/missing", &output); err == nil || output.Len() != 0 {
+		t.Fatal("invalid operator owner file accepted")
+	}
+	owner := snapshotFixture(t)
+	if err := serveDemoWithImportedJSONL(context.Background(), "analyst-a", owner, "forensic-case-on-disk", "/missing", &output); err == nil || output.Len() != 0 {
+		t.Fatal("missing JSONL input accepted")
 	}
 }

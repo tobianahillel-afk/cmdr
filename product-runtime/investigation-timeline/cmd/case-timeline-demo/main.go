@@ -253,7 +253,15 @@ func serveDemoWithData(ctx context.Context, principal string, data timeline.Memo
 	}
 	fmt.Fprintf(output, "CMDR synthetic Case Timeline demo; NOT a production service\n")
 	fmt.Fprintf(output, "URL: http://%s/case-timeline?case_id=%s&limit=2\n", listener.Addr(), url.QueryEscape(caseID))
-	fmt.Fprintf(output, "Local analyst viewer: http://%s/analyst\n", listener.Addr())
+	// Reuse the already validated browser return-selection format. A Case
+	// selector in the URL never carries a bearer or grants permission.
+	viewerURL := "http://" + listener.Addr().String() + "/analyst"
+	if preferredCase != "" {
+		viewerURL += "?" + url.Values{
+			"case_id": {caseID}, "limit": {"20"}, "offset": {"0"},
+		}.Encode()
+	}
+	fmt.Fprintf(output, "Local analyst viewer: %s\n", viewerURL)
 	fmt.Fprintf(output, "Bearer token (this run only): %s\n", token)
 	// Quote operator-controlled identifiers to prevent multiline terminal output.
 	fmt.Fprintf(output, "Principal: %q; available synthetic Case: %q\n", principal, caseID)
