@@ -18,7 +18,7 @@ function element() {
 }
 
 function setup(reply) {
-  const ids = ["token", "case-id", "search", "query", "hunt-query",
+  const ids = ["token", "case-id", "search", "kind", "from", "to", "query", "hunt-query",
     "hunt-run", "hunt-status", "hunt-results"];
   const fields = Object.fromEntries(ids.map(id => [id, element()]));
   const requests = [];
@@ -156,7 +156,7 @@ test("malformed authorized page or duplicated entries never produces hunt output
   }
 });
 
-test("authorized shared source across two Cases creates reauthorized source pivot", async () => {
+test("two authorized Case matches correlate the searched text without inventing shared source identity", async () => {
   const env = setup(url => {
     if (url.pathname === "/demo-cases") return cases(["case-a", "case-b"]);
     const id = url.searchParams.get("case_id");
@@ -167,7 +167,7 @@ test("authorized shared source across two Cases creates reauthorized source pivo
           status: "allow", page: { offset: 0, limit: 200, total_visible: 1, has_more: false },
           entries: [{
             id: id + "-hit", kind: id === "case-a" ? "observed" : "inferred",
-            source_ref: "ioc-source:10.0.0.7"
+            source_ref: id + "-owned-source"
           }]
         };
       }
@@ -175,17 +175,42 @@ test("authorized shared source across two Cases creates reauthorized source pivo
   });
   env.fields["hunt-run"].dispatchEvent({ type: "click" });
   await flush();
-  const display = env.fields["hunt-results"].children;
-  assert.equal(display.length, 4); // 2 Cases, title, 1 common source
-  assert.match(display[0].textContent, /observés : 1.*inférés : 0/);
-  assert.match(display[1].textContent, /observés : 0.*inférés : 1/);
-  assert.match(display[2].textContent, /cooccurrence, pas causalité/);
-  assert.match(display[3].textContent, /ioc-source:10\.0\.0\.7.*2 Cases, 2 événements/);
-  display[3].dispatchEvent({ type: "click" });
+  assert.equal(env.fields["hunt-results"].children.length, 2);
+  assert.match(env.fields["hunt-status"].textContent, /observés : 1.*inférés : 1/);
+  assert.match(env.fields["hunt-status"].textContent, /Cooccurrence textuelle/);
+  assert.doesNotMatch(env.fields["hunt-status"].textContent, /owned-source/);
+  env.fields["hunt-results"].children[0].dispatchEvent({ type: "click" });
   assert.equal(env.submits, 1);
   assert.equal(env.fields["case-id"].value, "case-a");
-  assert.equal(env.fields.search.value, "ioc-source:10.0.0.7");
+  assert.equal(env.fields.search.value, "10.0.0.7");
   assert.ok(env.requests.every(x => !x.url.href.includes("session-bearer")));
+});
+
+test("cross-Case text pivot clears conflicting time and kind filters before reauthorized Case search", async () => {
+  const env = setup(url => {
+    if (url.pathname === "/demo-cases") return cases(["case-a", "case-b"]);
+    return page(url, ["authorized-match"]);
+  });
+  env.fields.kind.value = "decision";
+  env.fields.from.value = "2026-10-02T10:00:00";
+  env.fields.to.value = "2026-10-02T11:00:00";
+  let cleared = 0;
+  for (const name of ["kind", "from", "to"]) {
+    env.fields[name].addEventListener("input", () => { cleared++; });
+  }
+  env.fields["hunt-run"].dispatchEvent({ type: "click" });
+  await flush();
+  const result = env.fields["hunt-results"].children[1];
+  assert.ok(result);
+  result.dispatchEvent({ type: "click" });
+  assert.equal(cleared, 3);
+  assert.equal(env.fields.kind.value, "");
+  assert.equal(env.fields.from.value, "");
+  assert.equal(env.fields.to.value, "");
+  assert.equal(env.fields["case-id"].value, "case-b");
+  assert.equal(env.fields.search.value, "10.0.0.7");
+  assert.equal(env.submits, 1);
+  assert.equal(env.requests.length, 3);
 });
 
 test("source correlation does not display a source seen in only one Case", async () => {
@@ -237,7 +262,7 @@ test("source pivot becomes inert after token rotation", async () => {
   });
   env.fields["hunt-run"].dispatchEvent({ type: "click" });
   await flush();
-  const pivot = env.fields["hunt-results"].children[3];
+  const pivot = env.fields["hunt-results"].children[0];
   env.fields.token.value = "rotated-bearer";
   env.fields.token.dispatchEvent({ type: "input" });
   pivot.dispatchEvent({ type: "click" });

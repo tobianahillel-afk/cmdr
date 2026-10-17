@@ -6,6 +6,9 @@
   const token = document.getElementById("token");
   const caseID = document.getElementById("case-id");
   const search = document.getElementById("search");
+  const kind = document.getElementById("kind");
+  const from = document.getElementById("from");
+  const to = document.getElementById("to");
   const form = document.getElementById("query");
   const query = document.getElementById("hunt-query");
   const button = document.getElementById("hunt-run");
@@ -44,6 +47,14 @@
   function pivotTo(id, text, selectedRevision, bearer, needle) {
     if (selectedRevision !== revision || token.value !== bearer ||
         query.value.trim() !== needle) return;
+    // The cross-Case hunt searched every kind and every time. Keeping the
+    // existing Case-specific filters would silently hide a proven text hit.
+    for (const field of [kind, from, to]) {
+      if (field.value) {
+        field.value = "";
+        field.dispatchEvent(new Event("input", { bubbles: true }));
+      }
+    }
     caseID.value = id;
     caseID.dispatchEvent(new Event("input", { bubbles: true }));
     search.value = text;
@@ -74,9 +85,6 @@
         throw new Error("bounded Case discovery required");
       }
       const matches = [];
-      // Shared source references are derived ONLY from successful, already
-      // authorized Timeline pages, never from host-private catalog metadata.
-      const bySource = new Map();
       for (const id of cases) {
         let total = null;
         const kinds = { observed: 0, inferred: 0 };
@@ -113,11 +121,6 @@
             }
             seen.add(entry.id);
             if (entry.kind === "observed" || entry.kind === "inferred") kinds[entry.kind]++;
-            const source = bySource.get(entry.source_ref) ||
-              { cases: new Set(), entries: 0 };
-            source.cases.add(id);
-            source.entries++;
-            bySource.set(entry.source_ref, source);
           }
         }
         if (total) matches.push({ caseID: id, total, kinds });
@@ -137,32 +140,16 @@
           pivotTo(item.caseID, needle, selectedRevision, bearer, needle));
         results.append(pivot);
       }
-      const common = [...bySource].filter(([, source]) => source.cases.size > 1)
-        .sort((a, b) => b[1].cases.size - a[1].cases.size ||
-          b[1].entries - a[1].entries || a[0].localeCompare(b[0])).slice(0, 5);
-      if (common.length) {
-        const caption = document.createElement("p");
-        caption.textContent = "Sources communes aux Cases autorisés — cooccurrence, pas causalité :";
-        results.append(caption);
-        for (const [ref, source] of common) {
-          const label = ref + " — " + source.cases.size + " Cases, " +
-            source.entries + " événements autorisés";
-          // The existing single-Case text query has a 96-character bound.
-          // Too-long source IDs remain inert text, never truncated selectors.
-          const entry = document.createElement(ref.length <= 96 ? "button" : "p");
-          entry.textContent = label;
-          if (ref.length <= 96) {
-            entry.type = "button";
-            entry.addEventListener("click", () =>
-              pivotTo(source.cases.values().next().value, ref,
-                selectedRevision, bearer, needle));
-          }
-          results.append(entry);
-        }
-      }
+      // Source references belong to one canonical Case in the Go owner.
+      // A shared source-ID join is unreachable on valid snapshots. Report
+      // only text cooccurrence across independently authorized Case results.
+      const observed = matches.reduce((sum, item) => sum + item.kinds.observed, 0);
+      const inferred = matches.reduce((sum, item) => sum + item.kinds.inferred, 0);
       status.textContent = matches.length
         ? matches.length + " Case(s) avec correspondance parmi " + cases.length +
-          " Case(s) accessibles. Recherche textuelle, pas un verdict de sécurité."
+          " Case(s) accessibles · observés : " + observed +
+          " · inférés : " + inferred +
+          ". Cooccurrence textuelle partielle, pas identité de source, IOC vérifié ni causalité."
         : "Aucune correspondance dans les Cases accessibles.";
     } catch {
       if (selectedRevision === revision) {
