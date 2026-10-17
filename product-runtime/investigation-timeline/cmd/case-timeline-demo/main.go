@@ -42,6 +42,8 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	compareCase := flags.String("compare-case", "", "first authorized Case for an offline two-Case comparison receipt")
 	withCase := flags.String("with-case", "", "second authorized Case for the offline comparison (requires -compare-case)")
 	compareEvents := flags.Bool("compare-events", false, "explicit sensitive chronological event-level cross-Case JSON receipt")
+	compareProximity := flags.Bool("compare-proximity", false, "explicit nearest certain-time event leads across two authorized Cases")
+	proximitySeconds := flags.Int("proximity-seconds", 60, "bounded nearest-event window in seconds, 1..300 (requires -compare-proximity)")
 	sourceCase := flags.String("source-case", "", "authorized Case for offline source-specific event timeline")
 	sourceRef := flags.String("source-ref", "", "exact authorized source reference (requires -source-case)")
 	inspectCase := flags.String("inspect-case", "", "Case containing an explicitly selected source Timeline Entry")
@@ -52,16 +54,28 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	if flags.NArg() != 0 {
 		return errors.New("unexpected positional arguments")
 	}
+	windowSet := false
+	flags.Visit(func(f *flag.Flag) {
+		if f.Name == "proximity-seconds" {
+			windowSet = true
+		}
+	})
+	if windowSet && !*compareProximity {
+		return errors.New("proximity window requires comparison proximity mode")
+	}
+	if *compareProximity && *compareEvents {
+		return errors.New("choose exactly one cross-Case comparison mode")
+	}
 	if *inspectCase != "" || *inspectEntry != "" {
 		if *inspectCase == "" || *inspectEntry == "" || *reportCase != "" ||
-			*compareCase != "" || *withCase != "" || *compareEvents ||
+			*compareCase != "" || *withCase != "" || *compareEvents || *compareProximity ||
 			*sourceCase != "" || *sourceRef != "" {
 			return errors.New("select one complete offline inspection mode")
 		}
 		return writeDemoEntryInspection(ctx, *principal, *snapshot, *inspectCase, *inspectEntry, output)
 	}
 	if *sourceCase != "" || *sourceRef != "" {
-		if *sourceCase == "" || *sourceRef == "" || *reportCase != "" || *compareCase != "" || *withCase != "" || *compareEvents {
+		if *sourceCase == "" || *sourceRef == "" || *reportCase != "" || *compareCase != "" || *withCase != "" || *compareEvents || *compareProximity {
 			return errors.New("select one complete offline report mode")
 		}
 		return writeDemoSourceTimeline(ctx, *principal, *snapshot, *sourceCase, *sourceRef, output)
@@ -69,7 +83,10 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	if *reportCase != "" && (*compareCase != "" || *withCase != "") {
 		return errors.New("select one offline report mode")
 	}
-	if *compareCase != "" || *withCase != "" || *compareEvents {
+	if *compareCase != "" || *withCase != "" || *compareEvents || *compareProximity {
+		if *compareProximity {
+			return writeDemoCaseProximity(ctx, *principal, *snapshot, *compareCase, *withCase, *proximitySeconds, output)
+		}
 		if *compareEvents {
 			return writeDemoCaseEventSequence(ctx, *principal, *snapshot, *compareCase, *withCase, output)
 		}
