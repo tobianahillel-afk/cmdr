@@ -87,9 +87,9 @@ func TestMultiWazuhTriageFailClosedBeforeOutput(t *testing.T) {
 		t.Fatalf("cancelled triage emitted output: %v / %q", err, out.String())
 	}
 	for _, args := range [][]string{
-		{"-principal=analyst-a", "-snapshot="+owner, "-into-case=case-a", "-wazuh-alerts="+first, "-triage-import"},
+		{"-principal=analyst-a", "-snapshot="+owner, "-into-case=case-a", "-wazuh-alerts="+first, "-triage-import", "-serve-import"},
 		{"-principal=analyst-a", "-snapshot="+owner, "-into-case=case-a", "-wazuh-alerts="+first, "-wazuh-alerts="+second, "-triage-import", "-compare-proximity"},
-		{"-principal=analyst-a", "-snapshot="+owner, "-into-case=case-a", "-wazuh-alerts="+first, "-wazuh-alerts="+second, "-triage-import", "-with-case=case-c"},
+		{"-principal=analyst-a", "-snapshot="+owner, "-into-case=case-a", "-wazuh-alerts="+first, "-wazuh-alerts="+second, "-triage-import", "-with-case=case-c", "-serve-import"},
 	} {
 		out.Reset()
 		if err := runDemoCLI(context.Background(), args, &out); err == nil || out.Len() != 0 {
