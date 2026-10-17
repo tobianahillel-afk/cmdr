@@ -17,9 +17,18 @@ import (
 // Source metadata, not an authorization claim or a derived severity score.
 // Wazuh 4.x rule level is an optional numeric field (0..16).
 type wazuhRuleLevel struct {
-	Level  int
-	Known  bool
-	RuleID string
+	Level   int
+	Known   bool
+	RuleID  string
+	AgentID string
+}
+
+// Host/agent grouping is derived only from already authorized alert entries.
+type wazuhAgentCount struct {
+	AgentID               string `json:"agent_id"`
+	Count                 int    `json:"count"`
+	DistinctRuleIDs       int    `json:"distinct_rule_ids"`
+	HighestKnownRuleLevel *int   `json:"highest_known_rule_level,omitempty"`
 }
 
 type wazuhLevelCount struct {
@@ -56,6 +65,9 @@ type wazuhRuleTriageReceipt struct {
 	DistinctRuleIDs int `json:"distinct_rule_ids"`
 	UnknownRuleIDs int `json:"unknown_rule_ids"`
 	TopRules []wazuhRuleIDCount `json:"top_rules"`
+	DistinctAgentIDs int `json:"distinct_agent_ids"`
+	UnknownAgentIDs int `json:"unknown_agent_ids"`
+	TopAgents []wazuhAgentCount `json:"top_agents"`
 	DistinctTimeWindows int `json:"distinct_time_windows"`
 	PeakWindows []wazuhAlertWindow `json:"peak_windows"`
 	UnplacedAlerts int `json:"unplaced_alerts"`
@@ -71,6 +83,7 @@ func wazuhRuleLevels(raw []byte, caseID string) (map[string]wazuhRuleLevel, erro
 		}
 		var alert struct {
 			ID string `json:"id"`
+			Agent struct { ID string `json:"id"` } `json:"agent"`
 			Rule struct {
 				Level *int   `json:"level"`
 				ID    string `json:"id"`
@@ -84,7 +97,7 @@ func wazuhRuleLevels(raw []byte, caseID string) (map[string]wazuhRuleLevel, erro
 		if _, exists := result[entryID]; exists {
 			return nil, errors.New("duplicate Wazuh rule identity")
 		}
-		level := wazuhRuleLevel{RuleID: alert.Rule.ID}
+		level := wazuhRuleLevel{RuleID: alert.Rule.ID, AgentID: alert.Agent.ID}
 		// Wazuh 4.x rule.id is a decimal string, not an ACL or alert ID.
 		// Restrict its width and alphabet before including it in a receipt.
 		if len(level.RuleID) > 16 {
@@ -93,6 +106,16 @@ func wazuhRuleLevels(raw []byte, caseID string) (map[string]wazuhRuleLevel, erro
 		for _, digit := range level.RuleID {
 			if digit < '0' || digit > '9' {
 				return nil, errors.New("invalid Wazuh rule ID")
+			}
+		}
+		// Agent IDs are the stable Wazuh 4.x strings (including 000).
+		// Never place an agent name, IP, hostname or full_log in this receipt.
+		if len(level.AgentID) > 16 {
+			return nil, errors.New("invalid Wazuh agent ID")
+		}
+		for _, digit := range level.AgentID {
+			if digit < '0' || digit > '9' {
+				return nil, errors.New("invalid Wazuh agent ID")
 			}
 		}
 		if alert.Rule.Level != nil {
@@ -129,7 +152,9 @@ func writeDemoWazuh4RuleTriage(ctx context.Context, principal, snapshotPath, int
 	counts := make(map[int]int)
 	windows := make(map[string]*wazuhAlertWindow)
 	rules := make(map[string]*wazuhRuleIDCount)
-	visibleImported, unknown, unplaced, unknownRules := 0, 0, 0, 0
+	agents := make(map[string]*wazuhAgentCount)
+	agentRules := make(map[string]map[string]bool)
+	visibleImported, unknown, unplaced, unknownRules, unknownAgents := 0, 0, 0, 0, 0
 	receipt, err := collectDemoCaseTriageWithObserver(ctx, handler, token, intoCase, func(entry timeline.ProjectedEntry) error {
 		level, exists := levels[entry.ID]
 		if !exists {
@@ -140,6 +165,25 @@ func writeDemoWazuh4RuleTriage(ctx context.Context, principal, snapshotPath, int
 			counts[level.Level]++
 		} else {
 			unknown++
+		}
+		if level.AgentID == "" {
+			unknownAgents++
+		} else {
+			agent := agents[level.AgentID]
+			if agent == nil {
+				agent = &wazuhAgentCount{AgentID: level.AgentID}
+				agents[level.AgentID] = agent
+				agentRules[level.AgentID] = make(map[string]bool)
+			}
+			agent.Count++
+			if level.RuleID != "" && !agentRules[level.AgentID][level.RuleID] {
+				agentRules[level.AgentID][level.RuleID] = true
+				agent.DistinctRuleIDs++
+			}
+			if level.Known && (agent.HighestKnownRuleLevel == nil || level.Level > *agent.HighestKnownRuleLevel) {
+				highest := level.Level
+				agent.HighestKnownRuleLevel = &highest
+			}
 		}
 		var rule *wazuhRuleIDCount
 		if level.RuleID == "" {
@@ -234,6 +278,20 @@ func writeDemoWazuh4RuleTriage(ctx context.Context, principal, snapshotPath, int
 	if len(topRules) > 10 {
 		topRules = topRules[:10]
 	}
+	// Rank affected Wazuh agents for an operator-visible host pivot.
+	topAgents := make([]wazuhAgentCount, 0, len(agents))
+	for _, agent := range agents {
+		topAgents = append(topAgents, *agent)
+	}
+	sort.Slice(topAgents, func(i, j int) bool {
+		if topAgents[i].Count != topAgents[j].Count {
+			return topAgents[i].Count > topAgents[j].Count
+		}
+		return topAgents[i].AgentID < topAgents[j].AgentID
+	})
+	if len(topAgents) > 10 {
+		topAgents = topAgents[:10]
+	}
 	histogram := make([]wazuhLevelCount, 0, len(keys))
 	for _, level := range keys {
 		histogram = append(histogram, wazuhLevelCount{Level: level, Count: counts[level]})
@@ -243,6 +301,7 @@ func writeDemoWazuh4RuleTriage(ctx context.Context, principal, snapshotPath, int
 		Synthetic: true, ImportedEntries: imported, Case: receipt,
 		RuleLevels: histogram, UnknownRuleLevels: unknown,
 		DistinctRuleIDs: len(rules), UnknownRuleIDs: unknownRules, TopRules: topRules,
+		DistinctAgentIDs: len(agents), UnknownAgentIDs: unknownAgents, TopAgents: topAgents,
 		DistinctTimeWindows: len(windows), PeakWindows: peaks, UnplacedAlerts: unplaced,
 	})
 }
