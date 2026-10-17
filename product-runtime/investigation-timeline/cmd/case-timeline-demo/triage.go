@@ -112,6 +112,12 @@ func writeDemoCaseTriage(ctx context.Context, principal, snapshot, caseID string
 // authorization and pagination failure behavior can be tested against
 // realistic failing HTTP handlers. It never trusts the reported page counts.
 func collectDemoCaseTriage(ctx context.Context, handler http.Handler, token, caseID string) (caseTriageReceipt, error) {
+	return collectDemoCaseTriageWithObserver(ctx, handler, token, caseID, nil)
+}
+
+// A bounded observer can build a different local report only from Timeline
+// rows already validated and authorized through the same paged Case owner.
+func collectDemoCaseTriageWithObserver(ctx context.Context, handler http.Handler, token, caseID string, observe func(timeline.ProjectedEntry) error) (caseTriageReceipt, error) {
 	var discovery struct { Cases []string `json:"cases"` }
 	if err := queryDemoOwner(ctx, handler, token, "/demo-cases", &discovery); err != nil {
 		return caseTriageReceipt{}, err
@@ -169,6 +175,11 @@ func collectDemoCaseTriage(ctx context.Context, handler http.Handler, token, cas
 			case "observed", "inferred", "user-action", "decision", "response":
 			default:
 				return caseTriageReceipt{}, errors.New("invalid authorized Timeline classification")
+			}
+			if observe != nil {
+				if err := observe(entry); err != nil {
+					return caseTriageReceipt{}, err
+				}
 			}
 			seen[entry.ID] = true
 			receipt.Kinds[entry.Kind]++
