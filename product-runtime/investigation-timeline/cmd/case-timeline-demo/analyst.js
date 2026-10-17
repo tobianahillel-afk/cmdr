@@ -269,6 +269,9 @@
   const wazuhSearchRun = document.getElementById("wazuh-search-run");
   const wazuhSearchStatus = document.getElementById("wazuh-search-status");
   const wazuhSearchResults = document.getElementById("wazuh-search-results");
+  const wazuhReplaySave = document.getElementById("wazuh-replay-save");
+  const wazuhReplayFile = document.getElementById("wazuh-replay-file");
+  let preparedWazuhReplay = null;
   let wazuhSearchRequest = null;
   let wazuhSearchRevision = 0;
   function clearWazuhSearch() {
@@ -276,6 +279,8 @@
     if (wazuhSearchRequest) wazuhSearchRequest.abort();
     wazuhSearchRequest = null;
     wazuhSearchRun.disabled = false;
+    preparedWazuhReplay = null;
+    wazuhReplaySave.disabled = true;
     wazuhSearchResults.replaceChildren();
     wazuhSearchStatus.textContent = "Aucune recherche Wazuh exécutée.";
   }
@@ -332,6 +337,13 @@
             ref.Ref.length > 1024 || ref.Source !== "wazuh4-authorized-local-import")) {
         throw Error("Invalid search job receipt");
       }
+      preparedWazuhReplay = {
+        format: "cmdr-local-wazuh4-query-replay-v1",
+        synthetic: true, case_id: selectedCase, selector: selectedField,
+        value: selectedValue, from: fromDate.toISOString(), to: toDate.toISOString(),
+        source_job_id: job.ID, result_count: job.ResultRefs.length
+      };
+      wazuhReplaySave.disabled = false;
       wazuhSearchStatus.textContent = "Search Job " + job.ID +
         " terminé — " + job.ResultRefs.length +
         " événement(s) autorisé(s). Ouvrir une source revérifie les droits.";
@@ -364,6 +376,100 @@
       }
     }
   }
+  // Explicit user-managed local file: a recall aid, never a Saved Query Asset,
+  // production evidence record or bearer capability. Re-execution always
+  // reauthorizes current Case, Timeline and typed source permissions.
+  wazuhReplaySave.addEventListener("click", () => {
+    const prepared = preparedWazuhReplay;
+    if (!prepared || !token.value || caseID.value.trim() !== prepared.case_id ||
+        wazuhSearchField.value !== prepared.selector ||
+        wazuhSearchValue.value !== prepared.value ||
+        new Date(wazuhSearchFrom.value).toISOString() !== prepared.from ||
+        new Date(wazuhSearchTo.value).toISOString() !== prepared.to) return;
+    let objectURL = null;
+    try {
+      const blob = new Blob([JSON.stringify(prepared) + "\n"], { type: "application/json" });
+      if (blob.size > 8192) throw Error("query receipt exceeds local bound");
+      objectURL = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = objectURL;
+      link.download = "cmdr-local-wazuh-query-replay.json";
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(objectURL), 1000);
+    } catch {
+      if (objectURL) URL.revokeObjectURL(objectURL);
+      wazuhSearchStatus.textContent = "Enregistrement local indisponible.";
+    }
+  });
+
+  // Native datetime-local fields must roundtrip UTC exactly: never quietly
+  // change a forensic time interval across DST gaps or ambiguous local hours.
+  function localReplayTime(iso) {
+    if (typeof iso !== "string" || iso.length > 32 || !/^\d{4}-\d{2}-\d{2}T/.test(iso)) {
+      throw Error("invalid saved UTC instant");
+    }
+    const instant = new Date(iso);
+    if (!Number.isFinite(instant.getTime()) || instant.toISOString() !== iso) {
+      throw Error("invalid saved RFC3339 UTC instant");
+    }
+    const pad = n => String(n).padStart(2, "0");
+    const local = instant.getFullYear() + "-" + pad(instant.getMonth() + 1) + "-" +
+      pad(instant.getDate()) + "T" + pad(instant.getHours()) + ":" +
+      pad(instant.getMinutes()) + ":" + pad(instant.getSeconds());
+    if (new Date(local).toISOString() !== iso) {
+      throw Error("ambiguous local time cannot preserve the original UTC interval");
+    }
+    return local;
+  }
+
+  wazuhReplayFile.addEventListener("change", async () => {
+    clearWazuhSearch();
+    const inputFile = wazuhReplayFile.files?.[0];
+    const selectedCase = caseID.value.trim();
+    const bearer = token.value;
+    const currentRevision = revision;
+    const currentSearchRevision = wazuhSearchRevision;
+    wazuhReplayFile.value = "";
+    if (!inputFile || !bearer || !selectedCase ||
+        !Number.isSafeInteger(inputFile.size) || inputFile.size < 1 ||
+        inputFile.size > 8192 || typeof inputFile.text !== "function") {
+      wazuhSearchStatus.textContent = "Fichier absent, trop volumineux ou Case/jeton non sélectionné.";
+      return;
+    }
+    try {
+      const raw = await inputFile.text();
+      if (revision !== currentRevision || wazuhSearchRevision !== currentSearchRevision ||
+          caseID.value.trim() !== selectedCase || token.value !== bearer) return;
+      if (typeof raw !== "string" || raw.length > 8192) throw Error("invalid local file");
+      const saved = JSON.parse(raw);
+      if (!saved || saved.format !== "cmdr-local-wazuh4-query-replay-v1" ||
+          saved.synthetic !== true || saved.case_id !== selectedCase ||
+          !["rule_id", "agent_id"].includes(saved.selector) ||
+          typeof saved.value !== "string" || !/^[0-9]{1,16}$/.test(saved.value) ||
+          typeof saved.source_job_id !== "string" ||
+          saved.source_job_id.length < 1 || saved.source_job_id.length > 128 ||
+          !Number.isSafeInteger(saved.result_count) || saved.result_count < 0 ||
+          saved.result_count > 200) {
+        throw Error("untrusted replay criteria");
+      }
+      const restoredFrom = localReplayTime(saved.from);
+      const restoredTo = localReplayTime(saved.to);
+      if (new Date(restoredFrom).getTime() >= new Date(restoredTo).getTime()) {
+        throw Error("invalid historical interval");
+      }
+      wazuhSearchField.value = saved.selector;
+      wazuhSearchValue.value = saved.value;
+      wazuhSearchFrom.value = restoredFrom;
+      wazuhSearchTo.value = restoredTo;
+      wazuhSearchStatus.textContent = "Critères rechargés depuis le Job " +
+        saved.source_job_id + " (" + saved.result_count +
+        " résultat(s) historiques non fiables). Cliquez sur Exécuter pour revérifier le Case et ses sources.";
+    } catch {
+      if (revision === currentRevision && wazuhSearchRevision === currentSearchRevision) {
+        wazuhSearchStatus.textContent = "Fichier non fiable, Case différent ou période ambiguë : aucune autorisation ni résultat restauré.";
+      }
+    }
+  });
   wazuhSearchRun.addEventListener("click", runWazuhSearch);
   for (const field of [token, caseID, wazuhSearchField, wazuhSearchValue, wazuhSearchFrom, wazuhSearchTo]) {
     field.addEventListener("input", clearWazuhSearch);

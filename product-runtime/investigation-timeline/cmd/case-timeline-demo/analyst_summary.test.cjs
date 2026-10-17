@@ -18,6 +18,7 @@ const ids = [
   "wazuh-previous", "wazuh-next",
   "wazuh-search-field", "wazuh-search-value", "wazuh-search-from",
   "wazuh-search-to", "wazuh-search-run", "wazuh-search-status", "wazuh-search-results",
+  "wazuh-replay-save", "wazuh-replay-file",
   "comparison-trace-actions", "comparison-trace-results"
 ];
 function node() {
@@ -1601,4 +1602,96 @@ test("analyst refuses incomplete or unauthorized Wazuh Job receipts without part
   assert.equal(env.fields["wazuh-search-results"].children.length, 0);
   assert.doesNotMatch(env.fields["wazuh-search-status"].textContent, /event-leak|job-partial/);
   assert.match(env.fields["wazuh-search-status"].textContent, /Aucun résultat partiel/);
+});
+
+test("a completed authorized Wazuh Search Job can be exported and replayed only through a fresh search", async () => {
+  const env = boot(url => {
+    assert.equal(url.pathname, "/demo-wazuh-search");
+    return { ok: true, async json() {
+      return {
+        format: "cmdr-local-wazuh4-executed-search-v1", synthetic: true,
+        case_id: "case-disk", selector: "rule_id", value: "5710",
+        job: {
+          ID: "job-original-durable-reference", State: "completed",
+          ResultRefs: [{ Source: "wazuh4-authorized-local-import", Ref: "private-event-ref" }],
+          AuditTrail: [{}, {}, {}]
+        }
+      };
+    }};
+  });
+  const fields = env.fields;
+  fields["wazuh-search-field"].value = "rule_id";
+  fields["wazuh-search-value"].value = "5710";
+  fields["wazuh-search-from"].value = "2026-10-17T09:59:00";
+  fields["wazuh-search-to"].value = "2026-10-17T10:03:00";
+  fields["wazuh-search-run"].handlers.click();
+  await flush(); await flush();
+  assert.equal(env.requests.length, 1);
+  assert.equal(fields["wazuh-replay-save"].disabled, false);
+  fields["wazuh-replay-save"].handlers.click();
+  assert.equal(env.downloads.length, 1);
+  assert.equal(env.downloads[0].clicked, true);
+  const json = await env.downloads[0].blob.text();
+  const saved = JSON.parse(json);
+  assert.equal(saved.format, "cmdr-local-wazuh4-query-replay-v1");
+  assert.equal(saved.case_id, "case-disk");
+  assert.equal(saved.source_job_id, "job-original-durable-reference");
+  assert.equal(saved.result_count, 1);
+  assert.equal(saved.from, "2026-10-17T09:59:00.000Z");
+  assert.equal(saved.to, "2026-10-17T10:03:00.000Z");
+  for (const forbidden of ["ephemeral-token", "private-event-ref", "Bearer", "raw_log"]) {
+    assert.ok(!json.includes(forbidden), "local query file includes " + forbidden);
+  }
+  // Changing an ID cancels the earlier search authority and export.
+  fields["wazuh-search-value"].value = "999";
+  fields["wazuh-search-value"].handlers.input();
+  assert.equal(fields["wazuh-replay-save"].disabled, true);
+  assert.equal(fields["wazuh-search-results"].children.length, 0);
+
+  const input = fields["wazuh-replay-file"];
+  input.files = [{ size: Buffer.byteLength(json), text: async () => json }];
+  await input.handlers.change();
+  assert.equal(fields["wazuh-search-value"].value, "5710");
+  assert.equal(fields["wazuh-search-from"].value, "2026-10-17T09:59:00");
+  assert.equal(fields["wazuh-search-to"].value, "2026-10-17T10:03:00");
+  assert.equal(fields["wazuh-search-results"].children.length, 0);
+  assert.equal(env.requests.length, 1, "import must not issue network requests");
+  assert.match(fields["wazuh-search-status"].textContent, /Cliquez sur Exécuter pour revérifier/);
+  fields["wazuh-search-run"].handlers.click();
+  await flush(); await flush();
+  assert.equal(env.requests.length, 2, "explicit rerun performs fresh authorized HTTP");
+  assert.equal(env.requests[1].options.headers.Authorization, "Bearer ephemeral-token");
+  assert.equal(env.requests[1].url.searchParams.get("value"), "5710");
+});
+
+test("untrusted or foreign Case Wazuh query replay files cannot restore authority or historical results", async () => {
+  const env = boot(() => { throw Error("import must not issue network requests"); });
+  const fields = env.fields;
+  const input = fields["wazuh-replay-file"];
+  const valid = {
+    format: "cmdr-local-wazuh4-query-replay-v1", synthetic: true,
+    case_id: "case-disk", selector: "agent_id", value: "001",
+    from: "2026-10-17T09:59:00.000Z", to: "2026-10-17T10:03:00.000Z",
+    source_job_id: "job-recorded", result_count: 1
+  };
+  for (const candidate of [
+    { ...valid, case_id: "foreign-tenant-case" },
+    { ...valid, result_count: 201 },
+    { ...valid, selector: "full_log" },
+    { ...valid, value: "1 OR 1=1" },
+    { ...valid, from: "2026-10-17T11:00:00.000Z" },
+    { ...valid, from: "2026-10-17T09:59:00+00:00" },
+    { ...valid, source_job_id: "" }
+  ]) {
+    const raw = JSON.stringify(candidate);
+    input.files = [{ size: Buffer.byteLength(raw), text: async () => raw }];
+    await input.handlers.change();
+    assert.equal(fields["wazuh-search-results"].children.length, 0);
+    assert.equal(fields["wazuh-replay-save"].disabled, true);
+    assert.match(fields["wazuh-search-status"].textContent, /aucune autorisation ni résultat restauré/);
+  }
+  input.files = [{ size: 8193, text: async () => JSON.stringify(valid) }];
+  await input.handlers.change();
+  assert.match(fields["wazuh-search-status"].textContent, /trop volumineux/);
+  assert.equal(env.requests.length, 0);
 });

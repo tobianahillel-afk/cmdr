@@ -30,6 +30,7 @@ function boot(search = "", navigationQuery, denySource = false) {
     "wazuh-previous", "wazuh-next",
     "wazuh-search-field", "wazuh-search-value", "wazuh-search-from",
     "wazuh-search-to", "wazuh-search-run", "wazuh-search-status", "wazuh-search-results",
+  "wazuh-replay-save", "wazuh-replay-file",
     "compare-case", "compare", "comparison", "comparison-actions", "download-comparison",
     "trace-actions", "trace-results",
     "comparison-trace-actions", "comparison-trace-results", "download-cross-events",
