@@ -185,7 +185,7 @@ func serveDemoWithSnapshot(ctx context.Context, principal, snapshot string, outp
 	if err != nil {
 		return err
 	}
-	return serveDemoWithData(ctx, principal, data, output)
+	return serveDemoWithData(ctx, principal, data, "", output)
 }
 
 // The live JSONL path composes existing bounded local import with the same
@@ -210,10 +210,10 @@ func serveDemoWithImportedJSONL(ctx context.Context, principal, snapshotPath, ca
 	if err != nil {
 		return err
 	}
-	return serveDemoWithData(ctx, principal, imported, output)
+	return serveDemoWithData(ctx, principal, imported, caseID, output)
 }
 
-func serveDemoWithData(ctx context.Context, principal string, data timeline.MemoryTimelineData, output io.Writer) error {
+func serveDemoWithData(ctx context.Context, principal string, data timeline.MemoryTimelineData, preferredCase string, output io.Writer) error {
 	if err := ctx.Err(); err != nil {
 		return err
 	}
@@ -223,6 +223,11 @@ func serveDemoWithData(ctx context.Context, principal string, data timeline.Memo
 	caseID, err := firstDemoAuthorizedCase(data, principal)
 	if err != nil {
 		return err
+	}
+	// Only the local JSONL importer supplies preferredCase; it has already
+	// verified membership and owner ACLs before any listener or credential.
+	if preferredCase != "" {
+		caseID = preferredCase
 	}
 	token, err := randomBearer()
 	if err != nil {

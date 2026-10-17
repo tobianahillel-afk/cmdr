@@ -5,10 +5,12 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
+	"encoding/json"
 	"io"
 	"net/http"
 	"net/url"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 	"time"
@@ -151,5 +153,79 @@ func TestLiveImportedJSONLRejectsUntrustedInputsBeforeListener(t *testing.T) {
 	var out bytes.Buffer
 	if err := serveDemoWithImportedJSONL(ctx, "analyst-a", owner, "forensic-case-on-disk", events, &out); err != context.Canceled || out.Len() != 0 {
 		t.Fatalf("cancelled live import published listener: %v %q", err, out.String())
+	}
+}
+
+func TestLiveImportStartupSelectsImportedCaseAmongReadableCases(t *testing.T) {
+	owner := snapshotFixture(t)
+	data, err := loadDemoSnapshot(owner)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// The operator may have an alphabetically earlier, readable Case.
+	// The requested imported Case, not that unrelated Case, should open.
+	other := data.Cases[0]
+	other.ID = "aaa-another-readable-case"
+	other.EntryIDs = nil
+	data.Cases = append(data.Cases, other)
+	if first, err := firstDemoAuthorizedCase(data, "analyst-a"); err != nil || first != other.ID {
+		t.Fatalf("fixture has no competing authorized Case: %q %v", first, err)
+	}
+	content, err := json.Marshal(data)
+	if err != nil {
+		t.Fatal(err)
+	}
+	path := filepath.Join(t.TempDir(), "multi-case-owner.json")
+	if err := os.WriteFile(path, content, 0o600); err != nil {
+		t.Fatal(err)
+	}
+	events := writeJSONLEvents(t, importedJSONL)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	log := &demoCapture{ready: make(chan struct{})}
+	done := make(chan error, 1)
+	go func() {
+		done <- runDemoCLI(ctx, []string{
+			"-principal=analyst-a", "-snapshot=" + path, "-import-jsonl=" + events,
+			"-into-case=forensic-case-on-disk", "-serve-import",
+		}, log)
+	}()
+	select {
+	case <-log.ready:
+	case err := <-done:
+		t.Fatalf("live import of nonfirst Case failed: %v", err)
+	case <-time.After(10 * time.Second):
+		t.Fatal("live multi-Case listener did not start")
+	}
+	var link string
+	for _, line := range strings.Split(log.String(), "\n") {
+		if strings.HasPrefix(line, "URL: ") {
+			link = strings.TrimPrefix(line, "URL: ")
+		}
+	}
+	parsed, err := url.Parse(link)
+	if err != nil || parsed.Query().Get("case_id") != "forensic-case-on-disk" {
+		t.Fatalf("imported Case is not initial analyst selection: %q", link)
+	}
+	cancel()
+	select {
+	case err := <-done:
+		if err != nil {
+			t.Fatal(err)
+		}
+	case <-time.After(5 * time.Second):
+		t.Fatal("multi-Case import listener did not stop")
+	}
+}
+
+func TestLiveImportRejectsInvalidOwnerBeforeBearerCreation(t *testing.T) {
+	data := demoData()
+	data.Cases[0].EntryIDs = append(data.Cases[0].EntryIDs, "nonexistent-entry")
+	var output bytes.Buffer
+	if err := serveDemoWithData(context.Background(), "analyst-a", data, "", &output); err == nil || output.Len() != 0 {
+		t.Fatalf("untrusted owner state started a listener: %v %q", err, output.String())
+	}
+	if err := serveDemoWithData(context.Background(), "", demoData(), "", &output); err == nil || output.Len() != 0 {
+		t.Fatal("empty analyst identity accepted by local server")
 	}
 }
