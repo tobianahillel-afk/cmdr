@@ -84,7 +84,7 @@ func TestMultipleWazuhFilesThroughAuthorizedLoopback(t *testing.T) {
 		t.Fatalf("authorized Case Timeline unavailable: %d %s", status, page)
 	}
 	for feed, preview := range []string{"Wazuh first feed alert", "Wazuh second feed alert"} {
-		identity := "forensic-case-on-disk\x00wazuh-feed-" + string(rune('1'+feed)) + "-123.456"
+		identity := "forensic-case-on-disk\x00feed-" + string(rune('1'+feed)) + "-wazuh-123.456"
 		digest := sha256.Sum256([]byte(identity))
 		entry := "local-jsonl-entry-" + hex.EncodeToString(digest[:])
 		if !strings.Contains(page, entry) || !strings.Contains(page, "operator-local-jsonl") {
@@ -220,7 +220,7 @@ func TestFourWazuhFeedsPreserveDistinctSources(t *testing.T) {
 		t.Fatalf("four-feed authorized Timeline: %d %v", resp.StatusCode, readErr)
 	}
 	for i := range files {
-		identity := "forensic-case-on-disk\x00wazuh-feed-" + string(rune('1'+i)) + "-same.4"
+		identity := "forensic-case-on-disk\x00feed-" + string(rune('1'+i)) + "-wazuh-same.4"
 		sum := sha256.Sum256([]byte(identity))
 		entry := "local-jsonl-entry-" + hex.EncodeToString(sum[:])
 		if !bytes.Contains(body, []byte(entry)) {
