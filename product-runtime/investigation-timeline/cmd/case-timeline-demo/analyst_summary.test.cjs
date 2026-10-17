@@ -12,7 +12,7 @@ const ids = [
   "case-discovery-status", "from", "to", "entries", "summary", "message",
   "page", "previous", "next", "load", "source-detail", "source-status",
   "return-to-case", "copy-return-link", "analyze", "analysis", "analysis-actions", "download-report",
-  "compare-case", "compare", "comparison", "comparison-actions", "comparison-windows", "comparison-chronology", "download-comparison"
+  "compare-case", "compare", "comparison", "comparison-actions", "comparison-windows", "comparison-chronology", "download-comparison", "compare-case-options"
 ];
 function node() {
   return {
@@ -1229,4 +1229,45 @@ test("uncertain-only second Case cannot create temporal cross-Case pivot", async
   for (let i = 0; i < 5; i++) await flush();
   assert.equal(env.fields["comparison-windows"].children.length, 0);
   assert.equal(env.fields["comparison-actions"].children.length, 2);
+});
+
+test("authorized discovery selects a second Case and both Case reads remain server-authenticated", async () => {
+  const env = boot(url => {
+    if (url.pathname === "/demo-cases") {
+      return { ok: true, async json() { return { cases: ["case-disk", "case-peer"] }; } };
+    }
+    assert.equal(url.pathname, "/case-timeline");
+    return page(Number(url.searchParams.get("offset")), 1);
+  });
+  assert.equal(env.fields["compare-case-options"].disabled, true);
+  env.fields.discover.handlers.click();
+  for (let i = 0; i < 4; i++) await flush();
+  assert.equal(env.fields["compare-case-options"].disabled, false);
+  assert.equal(env.fields["compare-case-options"].children.length, 3);
+  assert.equal(env.fields["compare-case-options"].children[2].value, "case-peer");
+  env.fields["compare-case-options"].value = "case-peer";
+  env.fields["compare-case-options"].handlers.change();
+  assert.equal(env.fields["compare-case"].value, "case-peer");
+  env.fields.compare.handlers.click();
+  for (let i = 0; i < 5; i++) await flush();
+  assert.match(env.fields.comparison.textContent, /Comparaison des événements autorisés/);
+  assert.deepEqual(env.requests.filter(x => x.url.pathname === "/case-timeline")
+    .map(x => x.url.searchParams.get("case_id")), ["case-disk", "case-peer"]);
+  assert.ok(env.requests.every(x => x.options.headers.Authorization === "Bearer ephemeral-token" &&
+    x.options.cache === "no-store" && x.options.credentials === "omit"));
+  env.fields.token.value = "revoked";
+  env.fields.token.handlers.input();
+  assert.equal(env.fields["compare-case-options"].disabled, true);
+  assert.equal(env.fields["compare-case-options"].children.length, 1);
+  assert.equal(env.fields["download-comparison"].disabled, true);
+});
+
+test("denied Case discovery never provides a selectable second Case", async () => {
+  const env = boot(() => ({ ok: false, async json() { throw Error("denied response"); } }));
+  env.fields.discover.handlers.click();
+  for (let i = 0; i < 3; i++) await flush();
+  assert.equal(env.fields["compare-case-options"].disabled, true);
+  assert.equal(env.fields["compare-case-options"].children.length, 1);
+  assert.equal(env.fields["compare-case-options"].children[0].value, "");
+  assert.match(env.fields["case-discovery-status"].textContent, /accès refusé/);
 });

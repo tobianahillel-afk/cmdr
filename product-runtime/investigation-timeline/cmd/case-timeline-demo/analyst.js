@@ -10,6 +10,7 @@
   const kind = document.getElementById("kind");
   const search = document.getElementById("search");
   const caseOptions = document.getElementById("case-options");
+  const compareCaseOptions = document.getElementById("compare-case-options");
   const discover = document.getElementById("discover");
   const discoveryStatus = document.getElementById("case-discovery-status");
   const fromInput = document.getElementById("from");
@@ -756,9 +757,11 @@
   }
 
   function clearCaseChoices() {
-    caseOptions.replaceChildren();
-    caseOptions.add(new Option("Aucun Case chargé", ""));
-    caseOptions.disabled = true;
+    for (const select of [caseOptions, compareCaseOptions]) {
+      select.replaceChildren();
+      select.add(new Option("Aucun Case chargé", ""));
+      select.disabled = true;
+    }
     discoveryStatus.textContent = "";
   }
 
@@ -799,8 +802,13 @@
         option.value = id;
         option.textContent = id;
         caseOptions.add(option);
+        const comparisonOption = document.createElement("option");
+        comparisonOption.value = id;
+        comparisonOption.textContent = id;
+        compareCaseOptions.add(comparisonOption);
       }
       caseOptions.disabled = result.cases.length === 0;
+      compareCaseOptions.disabled = result.cases.length === 0;
       discoveryStatus.textContent = result.cases.length + " Case(s) accessibles.";
     } catch {
       if (currentRevision !== discoveryRevision) return;
@@ -1131,6 +1139,12 @@
     if (!caseOptions.value) return;
     caseID.value = caseOptions.value;
     caseID.dispatchEvent(new Event("input", { bubbles: true }));
+  });
+  compareCaseOptions.addEventListener("change", () => {
+    if (!compareCaseOptions.value) return;
+    // Selection proposes an ID only; both Cases are freshly server-authorized.
+    compareCase.value = compareCaseOptions.value;
+    compareCase.dispatchEvent(new Event("input", { bubbles: true }));
   });
 
   form.addEventListener("submit", event => {

@@ -76,6 +76,10 @@
         <label for="compare-case">Deuxième Case à comparer</label>
         <input id="compare-case" type="text" autocomplete="off" maxlength="1024"
                placeholder="Autre identifiant de Case autorisé">
+        <label for="compare-case-options">Ou sélectionner un Case découvert</label>
+        <select id="compare-case-options" aria-label="Deuxième Case autorisé découvert" disabled>
+          <option value="">Aucun Case chargé</option>
+        </select>
       </div>
       <button id="compare" type="button">Comparer les chronologies autorisées</button>
       <button id="download-comparison" type="button" disabled>Enregistrer la comparaison JSON locale</button>
