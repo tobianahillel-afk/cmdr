@@ -162,7 +162,7 @@ func TestCaseSearchJobCLIReadsActualSnapshotAndWritesNoPartialDenials(t *testing
 		got.Job.ResultRefs[0].Ref != "allowed-early" {
 		t.Fatalf("offline disk-to-job search failed: %+v", got)
 	}
-	args[6] = "case-b" // caller cannot select another tenant's Case
+	args[5] = "case-b" // caller cannot select another tenant's Case
 	out.Reset()
 	if err := runCLI(context.Background(), args, &out); err == nil || out.Len() != 0 {
 		t.Fatalf("foreign Case leaked partial receipt: err=%v output=%s", err, out.String())
