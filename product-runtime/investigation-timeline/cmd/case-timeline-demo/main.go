@@ -39,6 +39,7 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	principal := flags.String("principal", "analyst-a", "synthetic analyst ID from the selected local owner snapshot")
 	snapshot := flags.String("snapshot", "", "absolute path to operator-owned read-only Case snapshot JSON (loopback demo only)")
 	importJSONL := flags.String("import-jsonl", "", "absolute local normalized event JSONL for offline owner snapshot preparation (no listener)")
+	wazuhAlerts := flags.String("wazuh-alerts", "", "absolute local Wazuh 4.x alerts.json JSONL for authorized Case loopback viewer")
 	intoCase := flags.String("into-case", "", "existing Case for imported local events (requires -import-jsonl)")
 	triageImport := flags.Bool("triage-import", false, "analyze locally imported events; use -with-case for a two-Case comparison, optionally -compare-proximity for bounded time leads")
 	serveImport := flags.Bool("serve-import", false, "import local JSONL into an in-memory Case and open the authenticated loopback analyst viewer; no merged owner file")
@@ -70,6 +71,17 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	}
 	if *compareProximity && *compareEvents {
 		return errors.New("choose exactly one cross-Case comparison mode")
+	}
+	// Wazuh 4.x is a real on-disk alert format, not a remote ingestion
+	// endpoint. Route it through the existing authorized Case owner chain.
+	if *wazuhAlerts != "" {
+		if !*serveImport || *snapshot == "" || *intoCase == "" || *importJSONL != "" ||
+			*triageImport || *reportCase != "" || *exportCase != "" || *compareCase != "" ||
+			*withCase != "" || *compareEvents || *compareProximity || windowSet ||
+			*sourceCase != "" || *sourceRef != "" || *inspectCase != "" || *inspectEntry != "" {
+			return errors.New("Wazuh alert import requires -snapshot, -into-case and -serve-import only")
+		}
+		return serveDemoWithWazuhAlerts(ctx, *principal, *snapshot, *intoCase, *wazuhAlerts, output)
 	}
 	if *serveImport && (*snapshot == "" || *importJSONL == "" || *intoCase == "") {
 		return errors.New("serve-import requires an owner snapshot, normalized JSONL file and destination Case")
