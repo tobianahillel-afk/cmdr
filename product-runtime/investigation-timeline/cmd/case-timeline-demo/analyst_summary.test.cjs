@@ -12,7 +12,7 @@ const ids = [
   "case-discovery-status", "from", "to", "entries", "summary", "message",
   "page", "previous", "next", "load", "source-detail", "source-status",
   "return-to-case", "copy-return-link", "analyze", "analysis", "analysis-actions", "download-report",
-  "compare-case", "compare", "comparison", "comparison-actions"
+  "compare-case", "compare", "comparison", "comparison-actions", "download-comparison"
 ];
 function node() {
   return {
@@ -652,4 +652,64 @@ test("denied Case and malformed certain timestamp cannot create temporal pivot a
     assert.match(env.fields.comparison.textContent, /Aucun résultat partiel/);
     assert.equal(env.fields["comparison-actions"].children.length, 0);
   }
+});
+
+test("two authorized Cases produce bounded local JSON comparison without bearer or raw events", async () => {
+  const env = boot(url => {
+    const id = url.searchParams.get("case_id");
+    return page(Number(url.searchParams.get("offset")), id === "case-peer" ? 3 : 205, {
+      sourceFor: i => i < 2 ? "shared-reference" : id + "-only"
+    });
+  });
+  env.fields["compare-case"].value = "case-peer";
+  assert.equal(env.fields["download-comparison"].disabled, true);
+  env.fields.compare.handlers.click();
+  for (let i = 0; i < 7; i++) await flush();
+  assert.equal(env.fields["download-comparison"].disabled, false);
+  env.fields["download-comparison"].handlers.click();
+  assert.equal(env.downloads.length, 1);
+  assert.equal(env.downloads[0].clicked, true);
+  const raw = await env.downloads[0].blob.text();
+  const result = JSON.parse(raw);
+  assert.equal(result.schema_version, 1);
+  assert.equal(result.type, "cmdr-synthetic-authorized-cross-case-comparison");
+  assert.deepEqual(Array.from(result.case_ids), ["case-disk", "case-peer"]);
+  assert.deepEqual(Array.from(result.cases.map(x => x.visible_entries)), [205, 3]);
+  assert.equal(result.shared_exact_reference_count, 1);
+  assert.equal(result.top_shared_references[0].reference, "shared-reference");
+  assert.equal(result.top_shared_references.length, 1);
+  assert.ok(result.top_common_buckets.length <= 5);
+  assert.ok(result.limitations.some(x => x.includes("not transactionally isolated")));
+  assert.doesNotMatch(raw, /ephemeral-token|Bearer |"entries"|source_preview|raw_content/);
+  assert.ok(env.requests.every(x => x.options.headers.Authorization === "Bearer ephemeral-token" &&
+    x.options.credentials === "omit" && !x.url.href.includes("ephemeral-token")));
+});
+
+test("comparison export fails closed on denied peer, midflight revocation and changed selection", async () => {
+  const denied = boot(url => url.searchParams.get("case_id") === "case-peer"
+    ? { ok: false, async json() { throw Error("denied response must not decode"); } }
+    : page(Number(url.searchParams.get("offset")), 1));
+  denied.fields["compare-case"].value = "case-peer";
+  denied.fields.compare.handlers.click();
+  for (let i = 0; i < 5; i++) await flush();
+  assert.equal(denied.fields["download-comparison"].disabled, true);
+  denied.fields["download-comparison"].handlers.click();
+  assert.equal(denied.downloads.length, 0);
+  const success = boot(url => page(Number(url.searchParams.get("offset")), 1));
+  success.fields["compare-case"].value = "case-peer";
+  success.fields.compare.handlers.click();
+  for (let i = 0; i < 5; i++) await flush();
+  assert.equal(success.fields["download-comparison"].disabled, false);
+  success.fields["compare-case"].value = "different";
+  success.fields["download-comparison"].handlers.click();
+  assert.equal(success.downloads.length, 0);
+  success.fields["compare-case"].handlers.input();
+  assert.equal(success.fields["download-comparison"].disabled, true);
+  success.fields["compare-case"].value = "case-peer";
+  success.fields.compare.handlers.click();
+  for (let i = 0; i < 5; i++) await flush();
+  success.fields.token.value = "new-bearer";
+  success.fields.token.handlers.input();
+  success.fields["download-comparison"].handlers.click();
+  assert.equal(success.downloads.length, 0);
 });

@@ -47,6 +47,9 @@
   const compareButton = document.getElementById("compare");
   const comparison = document.getElementById("comparison");
   const comparisonActions = document.getElementById("comparison-actions");
+  const downloadComparison = document.getElementById("download-comparison");
+  let preparedComparison = null;
+  downloadComparison.disabled = true;
   let compareRevision = 0;
   let compareRequest = null;
   function clearComparison() {
@@ -54,6 +57,8 @@
     if (compareRequest) compareRequest.abort();
     compareRequest = null;
     compareButton.disabled = false;
+    preparedComparison = null;
+    downloadComparison.disabled = true;
     comparison.textContent = "Aucune comparaison calculée.";
     comparisonActions.replaceChildren();
   }
@@ -392,6 +397,48 @@
         .map(([bucket, leftCount]) => ({ bucket, left: leftCount, right: right.buckets.get(bucket) }))
         .sort((a, b) => Math.min(b.left.total, b.right.total) -
           Math.min(a.left.total, a.right.total) || a.bucket - b.bucket);
+      // Structured local handoff from the SAME fully authorized pages as the
+      // displayed comparison. No raw entries, source previews or credentials.
+      // This is an unsigned, nontransactional synthetic triage snapshot.
+      const comparisonSummary = {
+        schema_version: 1,
+        type: "cmdr-synthetic-authorized-cross-case-comparison",
+        generated_at_utc: new Date().toISOString(),
+        case_ids: [selectedCase, otherCase],
+        filters: {
+          kind: kind.value, q: search.value.trim(),
+          from: windowSelection.from || "", to: windowSelection.to || ""
+        },
+        cases: [left, right].map(item => ({
+          visible_entries: item.total,
+          observed: item.kinds.observed,
+          inferred: item.kinds.inferred,
+          uncertain_timestamps: item.uncertain,
+          first_certain_utc: item.certainMin === null ? null : new Date(item.certainMin).toISOString(),
+          last_certain_utc: item.certainMax === null ? null : new Date(item.certainMax).toISOString()
+        })),
+        certain_range_overlap: overlap,
+        shared_exact_reference_count: common.length,
+        top_shared_references: common.slice(0, 5).map(item => ({
+          // Limit identifiers in a voluntary local file as in the visible UI.
+          reference: item.ref.slice(0, 120),
+          truncated: item.ref.length > 120,
+          case_1_count: item.left,
+          case_2_count: item.right
+        })),
+        common_certain_utc_five_minute_buckets: simultaneous.length,
+        top_common_buckets: simultaneous.slice(0, 5).map(item => ({
+          from_utc: new Date(item.bucket * 300000).toISOString(),
+          to_utc: new Date((item.bucket + 1) * 300000).toISOString(),
+          case_1: item.left, case_2: item.right
+        })),
+        limitations: [
+          "Synthetic operator-supplied Case data; not production IAM or live SIEM.",
+          "Pages were independently authorized but are not transactionally isolated.",
+          "Only visible certain timestamps define intervals; co-occurrence is not causality.",
+          "Local unsigned triage note, not evidence custody or an authorization receipt."
+        ]
+      };
       comparison.textContent = "Comparaison des événements autorisés : " +
         left.total + " / " + right.total +
         " · observés : " + left.kinds.observed + " / " + right.kinds.observed +
@@ -404,6 +451,12 @@
         " · références communes : " + common.length + (top ? " · " + top : "") +
         ". Ces plages ne sont pas des preuves d'activité continue, et une référence " +
         "commune n'atteste ni causalité ni identité d'objet. Lectures non transactionnelles.";
+      preparedComparison = {
+        serialized: JSON.stringify(comparisonSummary, null, 2) + "\n",
+        revision: activeComparison, selection: activeSelection,
+        first: selectedCase, second: otherCase
+      };
+      downloadComparison.disabled = false;
       for (const item of simultaneous.slice(0, 5)) {
         const from = new Date(item.bucket * 300000).toISOString();
         const to = new Date((item.bucket + 1) * 300000).toISOString();
@@ -825,6 +878,28 @@
   analyze.addEventListener("click", analyzeAuthorizedCase);
   compareButton.addEventListener("click", compareAuthorizedCases);
   compareCase.addEventListener("input", clearComparison);
+  downloadComparison.addEventListener("click", () => {
+    const receipt = preparedComparison;
+    if (!receipt || receipt.revision !== compareRevision ||
+        receipt.selection !== revision || !token.value ||
+        caseID.value.trim() !== receipt.first ||
+        compareCase.value.trim() !== receipt.second ||
+        compareButton.disabled) return;
+    let objectURL = null;
+    try {
+      const blob = new Blob([receipt.serialized], { type: "application/json" });
+      objectURL = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = objectURL;
+      link.download = "cmdr-local-case-comparison.json";
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(objectURL), 1000);
+    } catch {
+      if (objectURL) URL.revokeObjectURL(objectURL);
+      clearComparison();
+      comparison.textContent = "Enregistrement local indisponible. Relancez la comparaison.";
+    }
+  });
   downloadReport.addEventListener("click", () => {
     const receipt = preparedReport;
     if (!receipt || receipt.revision !== analysisRevision ||
