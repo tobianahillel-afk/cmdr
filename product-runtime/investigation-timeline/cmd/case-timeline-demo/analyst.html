@@ -7,6 +7,7 @@
   <title>CMDR — Investigation Timeline (démonstration locale)</title>
   <link rel="stylesheet" href="/analyst.css">
   <script src="/analyst.js" defer></script>
+  <script src="/hunt.js" defer></script>
 </head>
 <body>
   <main>
@@ -83,6 +84,21 @@
       <p id="comparison" role="status" aria-live="polite">Aucune comparaison calculée.</p>
       <div id="comparison-actions" class="analysis-actions" aria-label="Examiner les sources communes et fenêtres temporelles dans un Case autorisé"></div>
       <p class="intro">Cette comparaison lit à nouveau les pages des deux Cases avec le jeton actuel et les mêmes filtres. Elle confronte les volumes observés/inférés, les horodatages certains et les références identiques déjà autorisées par le serveur. Les plages ne prouvent pas une activité continue ; aucun résultat partiel n'est affiché en cas de refus, et aucune cooccurrence ne constitue une preuve de causalité. Un bouton de fenêtre temporelle ouvre le Case sélectionné avec une nouvelle vérification des droits ; cooccurrence ne veut pas dire causalité. Démonstration locale synthétique sans index inter-Cases.</p>
+    </section>
+    <section aria-labelledby="hunt-title">
+      <h2 id="hunt-title">Recherche transversale d’indicateur textuel</h2>
+      <p class="intro">Recherche dans les identifiants, provenances et références de sources des Cases accessibles.
+        Chaque Case et chaque page sont autorisés à nouveau côté serveur. Maximum 8 Cases et 5 000 résultats par Case.
+        Aucun résultat partiel n’est affiché si un Case devient inaccessible. Correspondance textuelle, pas preuve
+        de compromission ni corrélation causale ; les pages ne sont pas transactionnelles.</p>
+      <div class="field">
+        <label for="hunt-query">Indicateur ou texte à rechercher</label>
+        <input id="hunt-query" type="search" maxlength="96" autocomplete="off" spellcheck="false"
+               placeholder="IP, domaine, hash ou fragment d’identifiant">
+      </div>
+      <button type="button" id="hunt-run">Rechercher dans mes Cases</button>
+      <p id="hunt-status" role="status" aria-live="polite">Aucune recherche transversale effectuée.</p>
+      <div id="hunt-results" class="analysis-actions" aria-label="Résultats transversaux autorisés"></div>
     </section>
     <section aria-labelledby="results-title">
       <div class="section-title">
