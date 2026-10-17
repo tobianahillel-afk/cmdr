@@ -52,6 +52,9 @@ func normalizeWazuh4Alerts(ctx context.Context, raw []byte) ([]byte, error) {
 		if err := json.Unmarshal(line, &alert); err != nil {
 			return nil, fmt.Errorf("invalid Wazuh alert line %d", i+1)
 		}
+		if alert.ID == "" {
+			return nil, fmt.Errorf("missing Wazuh alert identity at line %d", i+1)
+		}
 		eventID := "wazuh-" + alert.ID
 		if !validLocalEventID(eventID) {
 			return nil, fmt.Errorf("invalid Wazuh alert identity at line %d", i+1)
