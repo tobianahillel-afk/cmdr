@@ -103,11 +103,15 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 			}
 			return serveDemoWithWazuhAlertsFiles(ctx, *principal, *snapshot, *intoCase, []string(wazuhFiles), output)
 		}
-		if len(wazuhFiles) != 1 || *withCase == "" || !*compareProximity {
-			return errors.New("Wazuh temporal triage requires one alerts file, -with-case and -compare-proximity")
+		if *withCase == "" || !*compareProximity {
+			return errors.New("Wazuh temporal triage requires -with-case and -compare-proximity")
 		}
-		return writeDemoWazuh4Proximity(ctx, *principal, *snapshot, *intoCase, *withCase,
-			wazuhFiles[0], *proximitySeconds, output)
+		if len(wazuhFiles) == 1 {
+			return writeDemoWazuh4Proximity(ctx, *principal, *snapshot, *intoCase, *withCase,
+				wazuhFiles[0], *proximitySeconds, output)
+		}
+		return writeDemoMultiWazuhProximity(ctx, *principal, *snapshot, *intoCase, *withCase,
+			[]string(wazuhFiles), *proximitySeconds, output)
 	}
 	if *serveImport && (*snapshot == "" || *importJSONL == "" || *intoCase == "") {
 		return errors.New("serve-import requires an owner snapshot, normalized JSONL file and destination Case")
