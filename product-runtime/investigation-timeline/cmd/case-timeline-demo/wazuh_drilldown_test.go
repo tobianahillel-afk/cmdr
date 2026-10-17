@@ -33,6 +33,9 @@ func TestWazuhDrilldownReusesAuthorizedImportedTimeline(t *testing.T) {
 	for _, tc := range []struct { path string; count int }{
 		{"/demo-wazuh-drilldown?case_id=case-a&agent_id=001", 1},
 		{"/demo-wazuh-drilldown?case_id=case-a&rule_id=5710", 2},
+		{"/demo-wazuh-drilldown?case_id=case-a&agent_id=001&rule_id=5710", 1},
+		{"/demo-wazuh-drilldown?case_id=case-a&agent_id=002&rule_id=5710", 1},
+		{"/demo-wazuh-drilldown?case_id=case-a&agent_id=003&rule_id=5710", 0},
 		{"/demo-wazuh-drilldown?case_id=case-a&agent_id=003", 0},
 	} {
 		got := request(http.MethodGet, tc.path, token, context.Background())
@@ -52,7 +55,10 @@ func TestWazuhDrilldownReusesAuthorizedImportedTimeline(t *testing.T) {
 	denials := []struct { method,path,bearer string; want int }{
 		{"GET","/demo-wazuh-drilldown?case_id=case-a&agent_id=001","",401},
 		{"GET","/demo-wazuh-drilldown?case_id=case-b&agent_id=001",token,404},
-		{"GET","/demo-wazuh-drilldown?case_id=case-a&agent_id=001&rule_id=5710",token,404},
+		{"GET","/demo-wazuh-drilldown?case_id=case-a&agent_id=001&rule_id=5710&tenant=tenant-a",token,404},
+		{"GET","/demo-wazuh-drilldown?case_id=case-a&agent_id=001&rule_id=5710&rule_id=100",token,404},
+		{"GET","/demo-wazuh-drilldown?case_id=case-a&agent_id=001&rule_id=%2A",token,404},
+		{"GET","/demo-wazuh-drilldown?case_id=case-b&agent_id=001&rule_id=5710",token,404},
 		{"GET","/demo-wazuh-drilldown?case_id=case-a&agent_id=001&agent_id=002",token,404},
 		{"GET","/demo-wazuh-drilldown?case_id=case-a&agent_id=%2A",token,404},
 		{"POST","/demo-wazuh-drilldown?case_id=case-a&agent_id=001",token,405},
@@ -136,4 +142,47 @@ func TestWazuhDrilldownPaginatesAuthorizedEvents(t *testing.T) {
 	req.Header.Set("Authorization","Bearer "+token)
 	out:=httptest.NewRecorder();handler.ServeHTTP(out,req)
 	if out.Code != http.StatusNotFound || strings.Contains(out.Body.String(),"entries") { t.Fatalf("cancelled page leaked: %s",out.Body.String()) }
+}
+
+func TestWazuhCombinedDrilldownUsesAuthorizedPagedIntersection(t *testing.T) {
+	owner := twoCaseComparisonSnapshot(t)
+	var alertsBuilder strings.Builder
+	for i := 0; i < 61; i++ {
+		agent, rule := "001", "5710"
+		if i%3 == 0 { agent = "002" }
+		if i%4 == 0 { rule = "1001" }
+		fmt.Fprintf(&alertsBuilder, "{\"id\":\"pair-%d\",\"timestamp\":\"2026-10-01T10:00:00Z\",\"agent\":{\"id\":\"%s\"},\"rule\":{\"id\":\"%s\",\"level\":9,\"description\":\"PRIVATE-DATA\"}}\n", i, agent, rule)
+	}
+	alerts := writeJSONLEvents(t, alertsBuilder.String())
+	data, imported, raw, err := prepareWazuh4CaseWithRaw(context.Background(), "analyst-a", owner, "case-a", alerts)
+	if err != nil { t.Fatal(err) }
+	token := strings.Repeat("a", 64)
+	base, err := newDemoHandlerWithData(token, "analyst-a", data)
+	if err != nil { t.Fatal(err) }
+	handler := newDemoWazuhCohortHandler(token, "analyst-a", "case-a", data, imported, raw, base)
+	matched := 0
+	for i := 0; i < 61; i++ { if i%3 != 0 && i%4 != 0 { matched++ } }
+	seen := map[string]bool{}
+	for offset := 0; offset < matched; offset += wazuhDrilldownPageSize {
+		path := fmt.Sprintf("/demo-wazuh-drilldown?case_id=case-a&agent_id=001&rule_id=5710&offset=%d",offset)
+		req := httptest.NewRequest("GET", path, nil); req.Header.Set("Authorization", "Bearer "+token)
+		out := httptest.NewRecorder();handler.ServeHTTP(out, req)
+		if out.Code != 200 { t.Fatalf("combined filter rejected: %d %s",out.Code,out.Body.String()) }
+		var result wazuhDrilldownReceipt
+		if err := json.Unmarshal(out.Body.Bytes(), &result);err != nil {t.Fatal(err)}
+		if result.Selector != "agent_rule" || result.Value != "001" || result.SecondaryValue != "5710" ||
+			result.TotalMatches != matched || result.Offset != offset ||
+			result.HasMore != (offset+len(result.Entries)<matched) {
+			t.Fatalf("bad intersection page: %+v",result)
+		}
+		for _, e := range result.Entries {
+			if seen[e.ID] { t.Fatal("repeated event identity") }
+			seen[e.ID] = true
+		}
+		if strings.Contains(out.Body.String(),"PRIVATE-DATA") {t.Fatal("source preview leaked in combined result")}
+	}
+	if len(seen) != matched {t.Fatalf("incomplete intersected result: %d want %d",len(seen),matched)}
+	req := httptest.NewRequest("GET","/demo-wazuh-drilldown?case_id=case-a&agent_id=001&rule_id=5710",nil)
+	out := httptest.NewRecorder();handler.ServeHTTP(out,req)
+	if out.Code != 401 || strings.Contains(out.Body.String(),"agent_rule") {t.Fatal("unauthenticated intersection disclosed results")}
 }

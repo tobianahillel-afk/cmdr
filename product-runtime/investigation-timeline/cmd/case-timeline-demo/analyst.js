@@ -115,6 +115,26 @@
           wazuhActions.append(button);
         }
       }
+      // Intersection is a server-owned authorized filter, not a permission.
+      // Reuse the cohort response; do not perform client-side union or join.
+      if (data.top_agents.length && data.top_rules.length) {
+        const agentPicker = document.createElement("select");
+        agentPicker.ariaLabel = "Agent Wazuh à croiser";
+        const rulePicker = document.createElement("select");
+        rulePicker.ariaLabel = "Règle Wazuh à croiser";
+        for (const agent of data.top_agents) {
+          agentPicker.add(new Option("Agent " + agent.agent_id, agent.agent_id));
+        }
+        for (const rule of data.top_rules) {
+          rulePicker.add(new Option("Règle " + rule.rule_id, rule.rule_id));
+        }
+        const intersect = document.createElement("button");
+        intersect.type = "button";
+        intersect.textContent = "Croiser l'agent et la règle";
+        intersect.addEventListener("click", () =>
+          loadWazuhDrilldown("agent_rule", agentPicker.value, 0, rulePicker.value));
+        wazuhActions.append(agentPicker, rulePicker, intersect);
+      }
     } catch {
       if (currentRevision === wazuhRevision) {
         wazuhStatus.textContent = "Corrélation indisponible ou accès refusé. Aucune donnée partielle affichée.";
@@ -128,11 +148,12 @@
   }
   // A cohort is a triage selector, never a permission. This route reruns the
   // server-owned Case/Timeline/typed-source traversal before returning IDs.
-  async function loadWazuhDrilldown(selector, value, requestedOffset = 0) {
+  async function loadWazuhDrilldown(selector, value, requestedOffset = 0, secondValue = "") {
     const bearer = token.value;
     const selectedCase = caseID.value.trim();
     if (!bearer || !selectedCase || !/^[0-9]{1,16}$/.test(value) ||
-        !["agent_id", "rule_id"].includes(selector) ||
+        !["agent_id", "rule_id", "agent_rule"].includes(selector) ||
+        (selector === "agent_rule" ? !/^[0-9]{1,16}$/.test(secondValue) : secondValue !== "") ||
         !Number.isInteger(requestedOffset) || requestedOffset < 0 ||
         requestedOffset > 5000 || requestedOffset % 25 !== 0) return;
     if (wazuhRequest) wazuhRequest.abort();
@@ -147,7 +168,8 @@
     try {
       const url = new URL("/demo-wazuh-drilldown", window.location.origin);
       url.searchParams.set("case_id", selectedCase);
-      url.searchParams.set(selector, value);
+      url.searchParams.set(selector === "rule_id" ? "rule_id" : "agent_id", value);
+      if (selector === "agent_rule") url.searchParams.set("rule_id", secondValue);
       url.searchParams.set("offset", String(requestedOffset));
       const response = await fetch(url, {
         method: "GET", headers: { Authorization: "Bearer " + bearer },
@@ -162,7 +184,9 @@
           caseID.value.trim() !== selectedCase) return;
       if (!data || data.format !== "cmdr-local-wazuh4-drilldown-v1" ||
           data.synthetic !== true || data.selector !== selector ||
-          data.value !== value || !Number.isSafeInteger(data.total_matches) ||
+          data.value !== value ||
+          data.secondary_value !== (selector === "agent_rule" ? secondValue : undefined) ||
+          !Number.isSafeInteger(data.total_matches) ||
           data.total_matches < 0 || data.total_matches > 5000 ||
           !Array.isArray(data.entries) || data.entries.length > 25 ||
           data.entries.length !== Math.min(25, Math.max(0, data.total_matches - requestedOffset)) ||
@@ -177,7 +201,7 @@
             typeof e.time_uncertain !== "boolean")) {
         throw Error("Invalid Wazuh drilldown");
       }
-      wazuhSelection = { selector, value };
+      wazuhSelection = { selector, value, secondValue };
       wazuhOffset = requestedOffset;
       wazuhPrevious.disabled = requestedOffset === 0;
       wazuhNext.disabled = requestedOffset + data.entries.length >= data.total_matches;
@@ -218,11 +242,11 @@
   wazuhButton.addEventListener("click", loadWazuhCohorts);
   wazuhPrevious.addEventListener("click", () => {
     if (wazuhSelection && wazuhOffset > 0 && !wazuhRequest)
-      loadWazuhDrilldown(wazuhSelection.selector, wazuhSelection.value, wazuhOffset - 25);
+      loadWazuhDrilldown(wazuhSelection.selector, wazuhSelection.value, wazuhOffset - 25, wazuhSelection.secondValue);
   });
   wazuhNext.addEventListener("click", () => {
     if (wazuhSelection && !wazuhNext.disabled && !wazuhRequest)
-      loadWazuhDrilldown(wazuhSelection.selector, wazuhSelection.value, wazuhOffset + 25);
+      loadWazuhDrilldown(wazuhSelection.selector, wazuhSelection.value, wazuhOffset + 25, wazuhSelection.secondValue);
   });
   const limit = 20;
   let offset = 0;

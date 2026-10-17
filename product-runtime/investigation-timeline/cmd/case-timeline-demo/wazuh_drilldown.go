@@ -29,6 +29,7 @@ type wazuhDrilldownReceipt struct {
 	Synthetic bool `json:"synthetic"`
 	Selector string `json:"selector"`
 	Value string `json:"value"`
+	SecondaryValue string `json:"secondary_value,omitempty"`
 	TotalMatches int `json:"total_matches"`
 	Offset int `json:"offset"`
 	HasMore bool `json:"has_more"`
@@ -53,7 +54,16 @@ func writeDemoWazuhDrilldown(ctx context.Context, principal string, data timelin
 }
 
 func writeDemoWazuhDrilldownPage(ctx context.Context, principal string, data timeline.MemoryTimelineData, imported int, raw []byte, caseID, selector, value string, offset int, output io.Writer) error {
-	if (selector != "agent_id" && selector != "rule_id") || !validWazuhCohortID(value) ||
+	return writeDemoWazuhDrilldownFilteredPage(ctx, principal, data, imported, raw, caseID, selector, value, "", offset, output)
+}
+
+// The intersection reuses exactly the same Case, Timeline and typed-source
+// authorization traversal. Wazuh agent/rule labels never grant permissions.
+func writeDemoWazuhDrilldownFilteredPage(ctx context.Context, principal string, data timeline.MemoryTimelineData, imported int, raw []byte, caseID, selector, value, secondValue string, offset int, output io.Writer) error {
+	if (selector != "agent_id" && selector != "rule_id" && selector != "agent_rule") ||
+		!validWazuhCohortID(value) ||
+		(selector == "agent_rule" && !validWazuhCohortID(secondValue)) ||
+		(selector != "agent_rule" && secondValue != "") ||
 		offset < 0 || offset > 5000 || offset%wazuhDrilldownPageSize != 0 {
 		return errors.New("invalid Wazuh cohort selector")
 	}
@@ -65,7 +75,7 @@ func writeDemoWazuhDrilldownPage(ctx context.Context, principal string, data tim
 	if err != nil { return err }
 	result := wazuhDrilldownReceipt{
 		Format: "cmdr-local-wazuh4-drilldown-v1", Synthetic: true,
-		Selector: selector, Value: value, Offset: offset,
+		Selector: selector, Value: value, SecondaryValue: secondValue, Offset: offset,
 		Entries: make([]wazuhDrilldownEntry, 0),
 	}
 	visibleImported := 0
@@ -74,7 +84,8 @@ func writeDemoWazuhDrilldownPage(ctx context.Context, principal string, data tim
 		if !exists { return nil }
 		visibleImported++
 		match := (selector == "agent_id" && metadata.AgentID == value) ||
-			(selector == "rule_id" && metadata.RuleID == value)
+			(selector == "rule_id" && metadata.RuleID == value) ||
+			(selector == "agent_rule" && metadata.AgentID == value && metadata.RuleID == secondValue)
 		if !match { return nil }
 		result.TotalMatches++
 		if result.TotalMatches > offset && len(result.Entries) < wazuhDrilldownPageSize {
@@ -98,21 +109,38 @@ func writeDemoWazuhDrilldownPage(ctx context.Context, principal string, data tim
 
 func serveDemoWazuhDrilldown(w http.ResponseWriter, r *http.Request, principal string, data timeline.MemoryTimelineData, imported int, raw []byte, caseID string) {
 	query := r.URL.Query()
-	if (len(query) != 2 && len(query) != 3) || len(query["case_id"]) != 1 || query.Get("case_id") != caseID {
+	if len(query["case_id"]) != 1 || query.Get("case_id") != caseID {
 		http.NotFound(w, r)
 		return
 	}
-	selector, value := "", ""
-	for _, key := range []string{"agent_id", "rule_id"} {
-		if ids, ok := query[key]; ok {
-			if len(ids) != 1 || selector != "" {
-				http.NotFound(w, r)
-				return
-			}
-			selector, value = key, ids[0]
+	agentValues, hasAgent := query["agent_id"]
+	ruleValues, hasRule := query["rule_id"]
+	if (!hasAgent && !hasRule) ||
+		(hasAgent && (len(agentValues) != 1 || !validWazuhCohortID(agentValues[0]))) ||
+		(hasRule && (len(ruleValues) != 1 || !validWazuhCohortID(ruleValues[0]))) {
+		http.NotFound(w, r)
+		return
+	}
+	selector, value, secondValue := "", "", ""
+	if hasAgent {
+		selector, value = "agent_id", agentValues[0]
+	}
+	if hasRule {
+		if hasAgent {
+			selector, secondValue = "agent_rule", ruleValues[0]
+		} else {
+			selector, value = "rule_id", ruleValues[0]
 		}
 	}
-	if selector == "" || !validWazuhCohortID(value) {
+	expectedKeys := 2
+	if hasAgent && hasRule {
+		expectedKeys++
+	}
+	if _, hasOffset := query["offset"]; hasOffset {
+		expectedKeys++
+	}
+	// Reject unrecognized query parameters; they can never affect access.
+	if len(query) != expectedKeys {
 		http.NotFound(w, r)
 		return
 	}
@@ -135,13 +163,8 @@ func serveDemoWazuhDrilldown(w http.ResponseWriter, r *http.Request, principal s
 		}
 		offset = parsed
 	}
-	// Unknown selectors are refused, even if the correct Case and cohort were supplied.
-	if len(query) == 3 && len(query["offset"]) != 1 {
-		http.NotFound(w, r)
-		return
-	}
 	var encoded bytes.Buffer
-	if err := writeDemoWazuhDrilldownPage(r.Context(), principal, data, imported, raw, caseID, selector, value, offset, &encoded); err != nil {
+	if err := writeDemoWazuhDrilldownFilteredPage(r.Context(), principal, data, imported, raw, caseID, selector, value, secondValue, offset, &encoded); err != nil {
 		http.NotFound(w, r)
 		return
 	}

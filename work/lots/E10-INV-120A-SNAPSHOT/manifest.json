@@ -86,7 +86,8 @@
     "Single-Case Wazuh 4.x alert JSONL -> normalized events -> server-owner-authorized offline Case triage receipt, and independent two-Case aggregate comparison, without local owner export or new backend",
     "Actionable Wazuh 4.x rule-ID frequency cohorts (top ten), known numeric severity and first/last certain UTC timestamps, only after owner-authorized import and typed-source traversal",
     "Wazuh 4.x rule+agent authorized host triage: top ten agent IDs, per-agent alert counts, distinct matched rule IDs, and highest known source severity; unknown agent IDs tracked without exposing hostnames",
-    "Authenticated loopback analyst Wazuh host/rule pivots reusing the exact imported owner and Wazuh source bytes, with typed-source reauthorization on every request and no additional producer/ACL"
+    "Authenticated loopback analyst Wazuh host/rule pivots reusing the exact imported owner and Wazuh source bytes, with typed-source reauthorization on every request and no additional producer/ACL",
+    "Authenticated Wazuh agent+rule intersection (two authorized metadata filters) -> 25-entry server-authorized paged drilldown -> existing typed-source open in analyst loopback UI, no new authority or store"
   ],
   "acceptance_tests": [
     "Default demo behavior unchanged",
@@ -102,7 +103,8 @@
     "Wazuh 4.x one-Case triage and two-Case aggregate comparison use disk owner source ACL, reject foreign Cases and unsupported alerts with zero bytes, and preserve owner/Wazuh input files; previous viewer and temporal proximity remain operational",
     "Offline Wazuh rule IDs are aggregated after authorization; repeated 5710 yields correct count, max known severity and fractionally ordered certain-time bounds; missing IDs counted separately; invalid IDs/denied Case emit zero data; top 10 ties stable",
     "Offline Wazuh alert JSONL with multiple agent.id values and rule.id values yields stable authorized host/rule pivot, handles unknown agents and level zero; invalid agent IDs or unauthorized Case emit no data; preserve existing rule/window results",
-    "Wazuh import -> authenticated loopback GET /demo-wazuh-cohorts -> analyst UI renders authorized top agents and rules; unauthorized, cross-Case, cancelled and non-Wazuh sessions expose no cohorts; Node browser text-only/no stale result"
+    "Wazuh import -> authenticated loopback GET /demo-wazuh-cohorts -> analyst UI renders authorized top agents and rules; unauthorized, cross-Case, cancelled and non-Wazuh sessions expose no cohorts; Node browser text-only/no stale result",
+    "Operator selects authorized Wazuh agent AND rule cohorts; server intersects on both raw-source metadata keys only after complete Case/Timeline/source traversal, supports 25-row pages and existing typed-source opening; invalid, foreign, missing-bearer or cancelled requests emit no sensitive data"
   ],
   "performance_budget": {
     "applicable": false,

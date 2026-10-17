@@ -1224,7 +1224,7 @@ test("Wazuh cohort drilldown opens a real authorized event through the existing 
   env.fields["wazuh-cohorts"].handlers.click();
   await flush();
   await flush();
-  assert.equal(env.fields["wazuh-actions"].children.length, 2);
+  assert.equal(env.fields["wazuh-actions"].children.length, 5);
   env.fields["wazuh-actions"].children[0].handlers.click();
   await flush();
   await flush();
@@ -1379,4 +1379,70 @@ test("Wazuh third page event opens through both independent source owner checks"
     assert.equal(request.url.searchParams.get("entry_id"),"timeline-wazuh-25");
     assert.equal(request.options.headers.Authorization,"Bearer ephemeral-token");
   }
+});
+
+test("Wazuh agent-rule intersection is server-authorized and paginates without URL credentials", async () => {
+  const env = boot(url => {
+    if (url.pathname === "/demo-wazuh-cohorts") return { ok: true, async json() {
+      return { format: "cmdr-local-wazuh4-case-triage-v1", synthetic: true,
+        imported_entries: 26,
+        top_agents: [{ agent_id: "001", count: 26, distinct_rule_ids: 2 }],
+        top_rules: [{ rule_id: "5710", count: 26 }] };
+    } };
+    if (url.pathname === "/demo-wazuh-drilldown") return { ok: true, async json() {
+      const offset = Number(url.searchParams.get("offset"));
+      const count = Math.min(25, 26 - offset);
+      return { format: "cmdr-local-wazuh4-drilldown-v1", synthetic: true,
+        selector: "agent_rule", value: "001", secondary_value: "5710", offset,
+        total_matches: 26, has_more: offset === 0,
+        entries: Array.from({length: count}, (_,i) => ({
+          id: "authorized-" + (i+offset), kind: "observed",
+          source_time: "2026-10-01T10:00:00Z", time_uncertain: false
+        })) };
+    } };
+    throw Error("unexpected route");
+  });
+  env.fields["wazuh-cohorts"].handlers.click();
+  await flush(); await flush();
+  const items = env.fields["wazuh-actions"].children;
+  assert.equal(items.length, 5);
+  items[2].value = "001";
+  items[3].value = "5710";
+  items[4].handlers.click(); await flush(); await flush();
+  assert.equal(env.fields["wazuh-events"].children[0].children.length, 25);
+  env.fields["wazuh-next"].handlers.click(); await flush(); await flush();
+  assert.equal(env.fields["wazuh-events"].children[0].children.length, 1);
+  const queries = env.requests.filter(r => r.url.pathname === "/demo-wazuh-drilldown");
+  assert.deepEqual(queries.map(x => x.url.searchParams.get("offset")), ["0","25"]);
+  for (const item of queries) {
+    assert.equal(item.url.searchParams.get("agent_id"), "001");
+    assert.equal(item.url.searchParams.get("rule_id"), "5710");
+    assert.equal(item.options.headers.Authorization, "Bearer ephemeral-token");
+    assert.equal(item.options.credentials, "omit");
+    assert.ok(!item.url.href.includes("ephemeral-token"));
+  }
+  env.fields.token.value = "revoked";
+  env.fields.token.handlers.input();
+  assert.equal(env.fields["wazuh-events"].children.length, 0);
+});
+
+test("Wazuh intersection refuses mismatched server metadata without rendering entries", async () => {
+  const env = boot(url => {
+    if (url.pathname === "/demo-wazuh-cohorts") return {ok:true,async json(){return {
+      format:"cmdr-local-wazuh4-case-triage-v1",synthetic:true,imported_entries:1,
+      top_agents:[{agent_id:"001",count:1,distinct_rule_ids:1}],
+      top_rules:[{rule_id:"5710",count:1}]
+    };}};
+    return {ok:true,async json(){return {
+      format:"cmdr-local-wazuh4-drilldown-v1",synthetic:true,
+      selector:"agent_rule",value:"001",secondary_value:"other-rule",
+      offset:0,total_matches:1,has_more:false,
+      entries:[{id:"secret",kind:"observed",source_time:"2026-10-01T10:00:00Z",time_uncertain:false}]
+    };}};
+  });
+  env.fields["wazuh-cohorts"].handlers.click(); await flush(); await flush();
+  const c = env.fields["wazuh-actions"].children;
+  c[2].value="001";c[3].value="5710";c[4].handlers.click();await flush();await flush();
+  assert.equal(env.fields["wazuh-events"].children.length,0);
+  assert.match(env.fields["wazuh-events"].textContent,/Aucun résultat partiel/);
 });
