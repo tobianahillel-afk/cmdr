@@ -120,6 +120,18 @@
       ],
       "mutable_by_implementation": true,
       "may_depend_on": []
+    },
+    {
+      "id": "case-search-workbench-integration",
+      "kind": "product-runtime",
+      "roots": [
+        "product-runtime/case-search-workbench/**"
+      ],
+      "mutable_by_implementation": true,
+      "may_depend_on": [
+        "event-search-runtime",
+        "investigation-timeline-runtime"
+      ]
     }
   ]
 }
