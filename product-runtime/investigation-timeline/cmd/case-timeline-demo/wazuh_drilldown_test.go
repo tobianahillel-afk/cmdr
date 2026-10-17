@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -77,4 +78,62 @@ func TestWazuhDrilldownUnavailableOutsideWazuhSession(t *testing.T) {
 	req.Header.Set("Authorization","Bearer "+strings.Repeat("a",64))
 	out:=httptest.NewRecorder();handler.ServeHTTP(out,req)
 	if out.Code!=404 {t.Fatalf("ordinary snapshot exposed Wazuh drilldown: %d",out.Code)}
+}
+
+func TestWazuhDrilldownPaginatesAuthorizedEvents(t *testing.T) {
+	owner := twoCaseComparisonSnapshot(t)
+	var alertLines strings.Builder
+	for i := 0; i < 53; i++ {
+		fmt.Fprintf(&alertLines, "{\"id\":\"page-%d\",\"timestamp\":\"2026-10-01T10:00:00Z\",\"agent\":{\"id\":\"001\"},\"rule\":{\"id\":\"5710\",\"level\":9,\"description\":\"PRIVATE-DATA\"}}\n", i)
+	}
+	alerts := writeJSONLEvents(t, alertLines.String())
+	data, imported, raw, err := prepareWazuh4CaseWithRaw(context.Background(), "analyst-a", owner, "case-a", alerts)
+	if err != nil { t.Fatal(err) }
+	token := strings.Repeat("a", 64)
+	base, err := newDemoHandlerWithData(token, "analyst-a", data)
+	if err != nil { t.Fatal(err) }
+	handler := newDemoWazuhCohortHandler(token, "analyst-a", "case-a", data, imported, raw, base)
+	seen := make(map[string]bool)
+	for _, page := range []struct{ offset, count int; more bool }{
+		{0,25,true},{25,25,true},{50,3,false},
+	} {
+		path := fmt.Sprintf("/demo-wazuh-drilldown?case_id=case-a&agent_id=001&offset=%d", page.offset)
+		req := httptest.NewRequest(http.MethodGet, path, nil)
+		req.Header.Set("Authorization","Bearer "+token)
+		out := httptest.NewRecorder()
+		handler.ServeHTTP(out, req)
+		if out.Code != http.StatusOK || out.Header().Get("Cache-Control") != "no-store" { t.Fatalf("paged request rejected: %d %s", out.Code, out.Body.String()) }
+		var receipt wazuhDrilldownReceipt
+		if err := json.Unmarshal(out.Body.Bytes(), &receipt); err != nil { t.Fatal(err) }
+		if receipt.Offset != page.offset || receipt.TotalMatches != 53 || receipt.HasMore != page.more || len(receipt.Entries) != page.count {
+			t.Fatalf("wrong authorized page: %+v", receipt)
+		}
+		if strings.Contains(out.Body.String(),"PRIVATE-DATA") || strings.Contains(out.Body.String(),"Bearer ") { t.Fatal("raw source or credential leaked") }
+		for _, entry := range receipt.Entries {
+			if seen[entry.ID] { t.Fatalf("duplicate entry across pages: %s", entry.ID) }
+			seen[entry.ID]=true
+		}
+	}
+	if len(seen) != 53 { t.Fatalf("missing authorized matching rows: %d",len(seen)) }
+	for _, query := range []string{
+		"case_id=case-a&rule_id=5710&offset=-25",
+		"case_id=case-a&rule_id=5710&offset=1",
+		"case_id=case-a&rule_id=5710&offset=25&offset=50",
+		"case_id=case-a&rule_id=5710&offset=999999999",
+		"case_id=case-a&rule_id=5710&offset=0&tenant=tenant-a",
+		"case_id=case-b&rule_id=5710&offset=25",
+	} {
+		req := httptest.NewRequest("GET","/demo-wazuh-drilldown?"+query,nil)
+		req.Header.Set("Authorization","Bearer "+token)
+		out := httptest.NewRecorder()
+		handler.ServeHTTP(out,req)
+		if out.Code != http.StatusNotFound || strings.Contains(out.Body.String(),"page-") {
+			t.Fatalf("invalid page leaked: %q status=%d",query,out.Code)
+		}
+	}
+	ctx,cancel := context.WithCancel(context.Background());cancel()
+	req := httptest.NewRequest("GET","/demo-wazuh-drilldown?case_id=case-a&agent_id=001&offset=25",nil).WithContext(ctx)
+	req.Header.Set("Authorization","Bearer "+token)
+	out:=httptest.NewRecorder();handler.ServeHTTP(out,req)
+	if out.Code != http.StatusNotFound || strings.Contains(out.Body.String(),"entries") { t.Fatalf("cancelled page leaked: %s",out.Body.String()) }
 }
