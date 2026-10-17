@@ -81,7 +81,9 @@
           !Array.isArray(data.top_agents) || !Array.isArray(data.top_rules) ||
           data.top_agents.length > 10 || data.top_rules.length > 10 ||
           (data.multi_feed_signals !== undefined &&
-           (!Array.isArray(data.multi_feed_signals) || data.multi_feed_signals.length > 10))) {
+           (!Array.isArray(data.multi_feed_signals) || data.multi_feed_signals.length > 10)) ||
+          (data.temporal_bursts !== undefined &&
+           (!Array.isArray(data.temporal_bursts) || data.temporal_bursts.length > 10))) {
         throw Error("Invalid cohort schema");
       }
       const validID = value => typeof value === "string" && /^[0-9]{1,16}$/.test(value);
@@ -96,7 +98,18 @@
             !validID(a.agent_id) || !validID(a.rule_id) ||
             !validCount(a.alert_count) || !Number.isSafeInteger(a.distinct_feeds) ||
             a.distinct_feeds < 2 || a.distinct_feeds > 4 ||
-            !validLevel(a.highest_known_rule_level))) {
+            !validLevel(a.highest_known_rule_level)) ||
+          (data.temporal_bursts || []).some(b => !b ||
+            !validID(b.agent_id) || !validID(b.rule_id) ||
+            !validCount(b.alert_count) || b.alert_count < 3 ||
+            !Number.isSafeInteger(b.distinct_feeds) || b.distinct_feeds < 1 ||
+            b.distinct_feeds > 4 || b.window_seconds !== 60 ||
+            typeof b.first_certain_utc !== "string" ||
+            typeof b.last_certain_utc !== "string" ||
+            !Number.isFinite(Date.parse(b.first_certain_utc)) ||
+            !Number.isFinite(Date.parse(b.last_certain_utc)) ||
+            Date.parse(b.first_certain_utc) > Date.parse(b.last_certain_utc) ||
+            Date.parse(b.last_certain_utc) - Date.parse(b.first_certain_utc) > 60000)) {
         throw Error("Invalid cohort values");
       }
       // Always use textContent: source labels are never interpreted as HTML.
@@ -108,10 +121,16 @@
       const signalLines = (data.multi_feed_signals || []).map(s =>
         "agent " + s.agent_id + " / règle " + s.rule_id + " : " +
         s.alert_count + " alerte(s) sur " + s.distinct_feeds + " flux distincts");
+      const burstLines = (data.temporal_bursts || []).map(b =>
+        "agent " + b.agent_id + " / règle " + b.rule_id + " : " +
+        b.alert_count + " alerte(s) sur 60 s (" + b.distinct_feeds + " flux), " +
+        b.first_certain_utc + " → " + b.last_certain_utc);
       wazuhStatus.textContent = data.imported_entries + " alerte(s) Wazuh importée(s) et autorisée(s)." +
         "\nAgents les plus touchés :\n" + (agentLines.join("\n") || "aucun agent connu") +
         "\nRègles les plus fréquentes :\n" + (ruleLines.join("\n") || "aucune règle connue") +
         (signalLines.length ? "\nCooccurrences entre flux :\n" + signalLines.join("\n") : "") +
+        (burstLines.length ? "\nRafales temporelles (même agent/règle, ≥3 en 60 s) :\n" +
+          burstLines.join("\n") : "") +
         "\nDonnées locales synthétiques, sans preuve de causalité.";
       for (const [selector, cohorts] of [
         ["agent_id", data.top_agents.map(a => a.agent_id)],
@@ -155,6 +174,18 @@
           signal.agent_id + " / règle " + signal.rule_id;
         button.addEventListener("click", () =>
           loadWazuhDrilldown("agent_rule", signal.agent_id, 0, signal.rule_id));
+        wazuhActions.append(button);
+      }
+      // Reauthorize all agent/rule events via the existing paginated owner
+      // route; this opens the cohort, not a falsely window-scoped export.
+      for (const burst of data.temporal_bursts || []) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.textContent = "Enquêter sur la rafale — agent " +
+          burst.agent_id + " / règle " + burst.rule_id +
+          " (tous les événements de cette paire)";
+        button.addEventListener("click", () =>
+          loadWazuhDrilldown("agent_rule", burst.agent_id, 0, burst.rule_id));
         wazuhActions.append(button);
       }
     } catch {
