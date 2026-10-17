@@ -1100,7 +1100,7 @@ test("browser compares two authorized Cases and renders nearest certain-time lea
   assert.equal(env.requests.length, 2);
   assert.equal(env.fields.proximity.disabled, false);
   env.fields.proximity.handlers.click();
-  assert.match(env.fields["proximity-results"].textContent, /3 piste\\(s\\)/);
+  assert.match(env.fields["proximity-results"].textContent, /3 piste\(s\)/);
   assert.match(env.fields["proximity-results"].textContent, /sans causalité/);
   const list = env.fields["proximity-results"].children[0];
   assert.equal(list.children.length, 3);
@@ -1124,7 +1124,7 @@ test("temporal leads cannot survive bearer changes or a denied second Case", asy
   env.fields.compare.handlers.click();
   for (let i = 0; i < 6; i++) await flush();
   env.fields.proximity.handlers.click();
-  assert.match(env.fields["proximity-results"].textContent, /piste\\(s\\)/);
+  assert.match(env.fields["proximity-results"].textContent, /piste\(s\)/);
   env.fields.token.value = "revoked";
   env.fields.token.handlers.input();
   assert.equal(env.fields.proximity.disabled, true);
