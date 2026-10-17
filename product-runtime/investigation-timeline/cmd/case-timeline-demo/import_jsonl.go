@@ -74,6 +74,11 @@ func importLocalEvents(ctx context.Context, snapshot timeline.MemoryTimelineData
 	if principal == "" || caseID == "" || len(caseID) > 1024 || len(content) == 0 || len(content) > maxDemoSnapshotBytes {
 		return timeline.MemoryTimelineData{}, errors.New("select an existing authorized Case and a bounded JSONL file")
 	}
+	// encoding/json replaces invalid UTF-8 with U+FFFD. A forensic import
+	// must not silently alter the original identity, message or provenance.
+	if !utf8.Valid(content) {
+		return timeline.MemoryTimelineData{}, errors.New("event JSONL is not valid UTF-8")
+	}
 	// Validate the complete existing owner graph before extending it.
 	if _, err := newDemoHandlerWithData(strings.Repeat("0", 64), principal, snapshot); err != nil {
 		return timeline.MemoryTimelineData{}, errors.New("invalid local owner snapshot")
