@@ -118,6 +118,12 @@ func collectDemoCaseTriage(ctx context.Context, handler http.Handler, token, cas
 // A bounded observer can build a different local report only from Timeline
 // rows already validated and authorized through the same paged Case owner.
 func collectDemoCaseTriageWithObserver(ctx context.Context, handler http.Handler, token, caseID string, observe func(timeline.ProjectedEntry) error) (caseTriageReceipt, error) {
+	return collectDemoCaseTriageWithObserverAndQuery(ctx, handler, token, caseID, "", observe)
+}
+
+// Search is always applied by the existing Case Timeline HTTP handler AFTER
+// the canonical Case/Entry/source authority chain; never filter raw snapshots.
+func collectDemoCaseTriageWithObserverAndQuery(ctx context.Context, handler http.Handler, token, caseID, searchText string, observe func(timeline.ProjectedEntry) error) (caseTriageReceipt, error) {
 	var discovery struct { Cases []string `json:"cases"` }
 	if err := queryDemoOwner(ctx, handler, token, "/demo-cases", &discovery); err != nil {
 		return caseTriageReceipt{}, err
@@ -149,6 +155,9 @@ func collectDemoCaseTriageWithObserver(ctx context.Context, handler http.Handler
 		selection := url.Values{
 			"case_id": {caseID}, "limit": {"200"},
 			"offset": {fmt.Sprint(offset)},
+		}
+		if searchText != "" {
+			selection.Set("q", searchText)
 		}
 		var page caseTriagePage
 		if err := queryDemoOwner(ctx, handler, token, "/case-timeline?"+selection.Encode(), &page); err != nil {
