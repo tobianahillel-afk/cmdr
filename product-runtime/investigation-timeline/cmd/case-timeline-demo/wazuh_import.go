@@ -113,6 +113,14 @@ func serveDemoWithWazuhAlerts(ctx context.Context, principal, snapshotPath, case
 // This optional lab-only route is never installed for ordinary snapshots.
 // No Wazuh metadata is returned before bearer AND owner-authorized traversal.
 func newDemoWazuhCohortHandler(token, principal, caseID string, data timeline.MemoryTimelineData, imported int, raw []byte, base http.Handler) http.Handler {
+	return newDemoWazuhCohortReceiptHandler(token, principal, caseID, data, imported, raw, nil, base, func(ctx context.Context, output io.Writer) error {
+		return writeDemoWazuh4RuleTriageWithData(ctx, principal, data, imported, raw, caseID, output)
+	})
+}
+
+// The same loopback route serves existing single-feed and authorized
+// multi-feed cohorts; raw metadata never provides an ACL decision.
+func newDemoWazuhCohortReceiptHandler(token, principal, caseID string, data timeline.MemoryTimelineData, imported int, raw []byte, levels map[string]wazuhRuleLevel, base http.Handler, receipt func(context.Context, io.Writer) error) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/demo-wazuh-cohorts" && r.URL.Path != "/demo-wazuh-drilldown" {
 			base.ServeHTTP(w, r)
@@ -132,7 +140,11 @@ func newDemoWazuhCohortHandler(token, principal, caseID string, data timeline.Me
 			return
 		}
 		if r.URL.Path == "/demo-wazuh-drilldown" {
-			serveDemoWazuhDrilldown(w, r, principal, data, imported, raw, caseID)
+			if levels != nil {
+				serveDemoWazuhDrilldownWithLevels(w, r, principal, data, imported, levels, caseID)
+			} else {
+				serveDemoWazuhDrilldown(w, r, principal, data, imported, raw, caseID)
+			}
 			return
 		}
 		query := r.URL.Query()
@@ -142,7 +154,7 @@ func newDemoWazuhCohortHandler(token, principal, caseID string, data timeline.Me
 			return
 		}
 		var encoded bytes.Buffer
-		if err := writeDemoWazuh4RuleTriageWithData(r.Context(), principal, data, imported, raw, caseID, &encoded); err != nil {
+		if err := receipt(r.Context(), &encoded); err != nil {
 			http.NotFound(w, r) // identical public denial for Case/source failures
 			return
 		}
