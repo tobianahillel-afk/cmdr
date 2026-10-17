@@ -38,7 +38,8 @@
     "engineering/state/current.json",
     "work/graph.json",
     "tools/cmdr-dev/secret_scan.go",
-    "tools/cmdr-dev/secret_scan_test.go"
+    "tools/cmdr-dev/secret_scan_test.go",
+    ".github/workflows/investigation-timeline-runtime.yml"
   ],
   "forbidden_paths": [
     "cmdr-product-spec/**",
@@ -75,7 +76,8 @@
     "End-to-end HTTP scenario from disk to Case discovery, Timeline and typed source ACLs",
     "Evidence and production-exclusion handoff",
     "Secret scan recognizes deleted paths whose parent directory was removed in the same diff",
-    "Authorized multi-page source-reference grouping in the analyst summary, no new data authority or network route"
+    "Authorized multi-page source-reference grouping in the analyst summary, no new data authority or network route",
+    "Existing CI executes authorized analyst summary, comparison and temporal pivot browser tests"
   ],
   "acceptance_tests": [
     "Default demo behavior unchanged",
