@@ -222,7 +222,7 @@ func TestCaseSearchOwnerSnapshotRejectsUnsafeFiles(t *testing.T) {
 	}
 }
 
-	
+
 // Pagination is a trust boundary: the second HTTP page may have been
 // independently reauthorized or revoked after the first was issued.
 func TestCaseSearchFullPaginationAndSecondPageRevocation(t *testing.T) {
