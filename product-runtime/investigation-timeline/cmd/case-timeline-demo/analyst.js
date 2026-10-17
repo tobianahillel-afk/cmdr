@@ -47,6 +47,7 @@
   const compareButton = document.getElementById("compare");
   const comparison = document.getElementById("comparison");
   const comparisonActions = document.getElementById("comparison-actions");
+  const comparisonWindows = document.getElementById("comparison-windows");
   const comparisonChronology = document.getElementById("comparison-chronology");
   const downloadComparison = document.getElementById("download-comparison");
   let preparedComparison = null;
@@ -62,6 +63,7 @@
     downloadComparison.disabled = true;
     comparison.textContent = "Aucune comparaison calculée.";
     comparisonActions.replaceChildren();
+    comparisonWindows.replaceChildren();
     comparisonChronology.replaceChildren();
   }
   const downloadReport = document.getElementById("download-report");
@@ -352,6 +354,7 @@
     async function sourcesFor(id) {
       const groups = new Map();
       const timeRanges = new Map();
+      const buckets = new Map();
       const visibleRows = [];
       const seen = new Set();
       const kinds = { observed: 0, inferred: 0 };
@@ -422,6 +425,13 @@
             certainMax = certainMax === null ? instant : Math.max(certainMax, instant);
             range.first = range.first === null ? instant : Math.min(range.first, instant);
             range.last = range.last === null ? instant : Math.max(range.last, instant);
+            // Co-visible certain-time windows can connect Cases even when
+            // they have NO identical source reference. Triage, not causality.
+            const bucket = Math.floor(instant / 300000);
+            const tally = buckets.get(bucket) || { total: 0, observed: 0, inferred: 0 };
+            tally.total++;
+            if (entry.kind === "observed" || entry.kind === "inferred") tally[entry.kind]++;
+            buckets.set(bucket, tally);
           }
           timeRanges.set(entry.source_ref, range);
           // Retain only the already authorized response fields needed for
@@ -432,13 +442,18 @@
           });
         }
       }
-      return { total, groups, timeRanges, kinds, certainMin, certainMax, uncertain, visibleRows };
+      return { total, groups, timeRanges, buckets, kinds, certainMin, certainMax, uncertain, visibleRows };
     }
     try {
       const left = await sourcesFor(selectedCase);
       const right = await sourcesFor(otherCase);
       if (controller.signal.aborted || activeComparison !== compareRevision ||
           activeSelection !== revision) return;
+      const sharedWindows = [...left.buckets]
+        .filter(([bucket]) => right.buckets.has(bucket))
+        .map(([bucket, a]) => ({ bucket, a, b: right.buckets.get(bucket) }))
+        .sort((a, b) => Math.min(b.a.total, b.b.total) -
+          Math.min(a.a.total, a.b.total) || a.bucket - b.bucket);
       const common = [...left.groups].filter(([ref]) => right.groups.has(ref))
         .map(([ref, count]) => ({
           ref, left: count, right: right.groups.get(ref),
@@ -501,6 +516,8 @@
         " · plage certaine Case 2 (UTC) : " + caseRange(right) +
         " · chevauchement des plages certaines : " +
         (envelopeOverlap === null ? "indéterminable" : envelopeOverlap ? "oui" : "non") +
+        " · fenêtres de 5 min avec événements certains dans les deux Cases : " +
+        sharedWindows.length +
         " · références communes : " + common.length + (top ? " · " + top : "") +
         ". Les écarts reposent sur les seuls horodatages certains et visibles. " +
         "Présence commune d'une référence exacte, pas une preuve de causalité, " +
@@ -641,6 +658,27 @@
         list.append(item); // textContent prevents operator-controlled HTML injection
       }
       comparisonChronology.append(list);
+      // Inter-Case temporal windows do not require a common source; each
+      // click returns to a real Case query with a new server-side ACL check.
+      for (const window of sharedWindows.slice(0, 5)) {
+        const start = new Date(window.bucket * 300000);
+        const end = new Date((window.bucket + 1) * 300000);
+        if (!Number.isFinite(start.getTime()) || !Number.isFinite(end.getTime()) ||
+            start.getUTCFullYear() > 9999 || end.getUTCFullYear() > 9999) continue;
+        const exactRange = { from: start.toISOString(), to: end.toISOString() };
+        for (const target of [
+          { id: selectedCase, label: "Case A", data: window.a },
+          { id: otherCase, label: "Case B", data: window.b }
+        ]) {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.textContent = "Examiner la fenêtre commune dans " + target.label + " : " +
+            exactRange.from + " → " + exactRange.to + " · " +
+            target.data.total + " événement(s) certain(s)";
+          button.addEventListener("click", () => reopenAuthorizedCase(target.id, "", exactRange));
+          comparisonWindows.append(button);
+        }
+      }
       // Source-reference pivots follow the same fresh authorization path.
       for (const group of common.slice(0, 5)) {
         if (group.ref.length > 96) continue;
@@ -658,6 +696,7 @@
       if (activeComparison === compareRevision) {
         comparison.textContent = "Comparaison indisponible ou droits modifiés. Aucun résultat partiel.";
         comparisonActions.replaceChildren();
+        comparisonWindows.replaceChildren();
         comparisonChronology.replaceChildren();
       }
     } finally {

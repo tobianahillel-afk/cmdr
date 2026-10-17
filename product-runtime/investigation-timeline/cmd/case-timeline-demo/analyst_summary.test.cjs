@@ -12,7 +12,7 @@ const ids = [
   "case-discovery-status", "from", "to", "entries", "summary", "message",
   "page", "previous", "next", "load", "source-detail", "source-status",
   "return-to-case", "copy-return-link", "analyze", "analysis", "analysis-actions", "download-report",
-  "compare-case", "compare", "comparison", "comparison-actions", "comparison-chronology", "download-comparison"
+  "compare-case", "compare", "comparison", "comparison-actions", "comparison-windows", "comparison-chronology", "download-comparison"
 ];
 function node() {
   return {
@@ -1174,4 +1174,59 @@ test("uncertain correlated entries do not offer a synthetic time-window pivot", 
     assert.equal(row.children.length, 1);
     assert.doesNotMatch(row.textContent, /Examiner ±30 s/);
   }
+});
+
+test("Cases with disjoint references can pivot a shared certain five-minute window", async () => {
+  const env = boot(url => {
+    const id = url.searchParams.get("case_id");
+    if (url.searchParams.get("limit") === "20") {
+      assert.equal(id, "case-peer");
+      assert.equal(url.searchParams.get("from"), "2026-10-01T10:00:00.000Z");
+      assert.equal(url.searchParams.get("to"), "2026-10-01T10:05:00.000Z");
+      assert.equal(url.searchParams.get("q"), null);
+      return { ok: true, async json() {
+        return { status: "allow", page: { offset: 0, limit: 20,
+          total_visible: 0, has_more: false }, entries: [] };
+      } };
+    }
+    return page(0, 2, { sourceFor: () => id === "case-peer" ? "peer-only" : "main-only" });
+  });
+  env.fields["compare-case"].value = "case-peer";
+  env.fields.compare.handlers.click();
+  for (let i = 0; i < 5; i++) await flush();
+  assert.match(env.fields.comparison.textContent, /références communes : 0/);
+  assert.match(env.fields.comparison.textContent, /fenêtres de 5 min.*: 1/);
+  const pivots = env.fields["comparison-windows"].children;
+  assert.equal(pivots.length, 2);
+  assert.equal(env.fields["comparison-actions"].children.length, 0);
+  pivots[1].handlers.click();
+  for (let i = 0; i < 3; i++) await flush();
+  assert.equal(env.requests.length, 3);
+  assert.equal(env.fields["case-id"].value, "case-peer");
+  assert.equal(env.requests[2].options.headers.Authorization, "Bearer ephemeral-token");
+  assert.equal(env.requests[2].options.cache, "no-store");
+  assert.equal(env.fields["comparison-windows"].children.length, 0);
+  pivots[0].handlers.click();
+  await flush();
+  assert.equal(env.requests.length, 3);
+});
+
+test("uncertain-only second Case cannot create temporal cross-Case pivot", async () => {
+  const env = boot(url => {
+    const response = page(0, 2, { sourceFor: () => "shared-ref" });
+    if (url.searchParams.get("case_id") === "case-peer") {
+      const original = response.json;
+      response.json = async () => {
+        const data = await original();
+        for (const item of data.entries) item.time_uncertain = true;
+        return data;
+      };
+    }
+    return response;
+  });
+  env.fields["compare-case"].value = "case-peer";
+  env.fields.compare.handlers.click();
+  for (let i = 0; i < 5; i++) await flush();
+  assert.equal(env.fields["comparison-windows"].children.length, 0);
+  assert.equal(env.fields["comparison-actions"].children.length, 2);
 });

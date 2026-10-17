@@ -26,7 +26,7 @@ function boot(search = "", navigationQuery, denySource = false) {
     "summary", "message", "page", "previous", "next", "load",
     "source-detail", "source-status", "return-to-case", "copy-return-link",
     "analyze", "analysis", "analysis-actions", "download-report",
-    "compare-case", "compare", "comparison", "comparison-actions", "comparison-chronology", "download-comparison"
+    "compare-case", "compare", "comparison", "comparison-actions", "comparison-windows", "comparison-chronology", "download-comparison"
   ];
   const fields = Object.fromEntries(ids.map(id => [id, node(id)]));
   const requests = [];
