@@ -390,3 +390,43 @@ func TestSourceWindowRechecksOwnerAndFailsWithoutPartialReceipt(t *testing.T) {
 		t.Fatalf("source pivot ignored writer failure: %v", err)
 	}
 }
+
+func TestTemporalSourcePivotReauthorizesAfterSourceRevocation(t *testing.T) {
+	path := localSharedWindowSnapshot(t, "2026-10-01T10:02:05Z", "+00:00")
+	const window = "2026-10-01T10:00:00Z"
+	var first bytes.Buffer
+	if err := writeDemoCaseWindowSequence(context.Background(), "analyst-a", path,
+		"case-a", "case-c", window, &first); err != nil { t.Fatal(err) }
+	if !strings.Contains(first.String(), "disk-source-c") { t.Fatal("initial authorized source absent") }
+	owner, err := loadDemoSnapshot(path)
+	if err != nil { t.Fatal(err) }
+	for i := range owner.Sources {
+		if owner.Sources[i].Identity.CaseID == "case-c" {
+			owner.Sources[i].Readers = nil // owner revokes source between independent commands
+		}
+	}
+	blob, err := json.Marshal(owner)
+	if err != nil { t.Fatal(err) }
+	if err := os.WriteFile(path, blob, 0o600); err != nil { t.Fatal(err) }
+	var out bytes.Buffer
+	if err := writeDemoSourceWindowTimeline(context.Background(), "analyst-a", path,
+		"case-c", "disk-source-c", window, &out); err == nil || out.Len() != 0 {
+		t.Fatalf("stale comparison receipt conferred access after source revocation: %v %q", err, out.String())
+	}
+}
+
+func TestSourceWindowDoesNotConfuseSourceNamesBetweenCases(t *testing.T) {
+	path := localSharedWindowSnapshot(t, "2026-10-01T10:02:05Z", "+00:00")
+	var out bytes.Buffer
+	if err := writeDemoSourceWindowTimeline(context.Background(), "analyst-a", path,
+		"case-a", "disk-source-c", "2026-10-01T10:00:00Z", &out); err == nil || out.Len() != 0 {
+		t.Fatalf("other Case source reference was accepted: %v %q", err, out.String())
+	}
+	if err := writeDemoSourceWindowTimeline(context.Background(), "analyst-a", path,
+		"case-c", "disk-source-c", "2026-10-01T10:00:00Z", &out); err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(out.String(), "only-on-disk-preview-c") || strings.Contains(out.String(), "Bearer") {
+		t.Fatal("sensitive preview or credential exported")
+	}
+}
