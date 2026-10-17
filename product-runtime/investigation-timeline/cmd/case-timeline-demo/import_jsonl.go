@@ -222,3 +222,31 @@ func writeDemoImportedJSONL(ctx context.Context, principal, snapshotPath, caseID
 	_, err = output.Write(append(payload, '\n'))
 	return err
 }
+
+
+// serveDemoWithImportedJSONL integrates offline event ingestion with the
+// existing authenticated analyst UI, without serializing an intermediate
+// owner graph containing other tenants or denied source previews.
+func serveDemoWithImportedJSONL(ctx context.Context, principal, snapshotPath, caseID, eventsPath string, output io.Writer) error {
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	if snapshotPath == "" || eventsPath == "" || snapshotPath == eventsPath {
+		return errors.New("select two distinct absolute local owner and event files")
+	}
+	snapshot, err := loadDemoSnapshot(snapshotPath)
+	if err != nil {
+		return err
+	}
+	content, err := readLocalEventFile(eventsPath)
+	if err != nil {
+		return err
+	}
+	merged, err := importLocalEvents(ctx, snapshot, principal, caseID, content)
+	if err != nil {
+		return err
+	}
+	// The merged graph stays in process memory and is revalidated by the
+	// same existing Case/Timeline/source owner HTTP handler at startup.
+	return serveDemoWithData(ctx, principal, merged, output)
+}

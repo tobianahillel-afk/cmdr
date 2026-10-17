@@ -41,6 +41,7 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	importJSONL := flags.String("import-jsonl", "", "absolute local normalized event JSONL for offline owner snapshot preparation (no listener)")
 	intoCase := flags.String("into-case", "", "existing Case for imported local events (requires -import-jsonl)")
 	triageImport := flags.Bool("triage-import", false, "analyze locally imported events; use -with-case for a two-Case comparison, optionally -compare-proximity for bounded time leads")
+	serveImport := flags.Bool("serve-import", false, "import local JSONL into an in-memory Case and open the authenticated loopback analyst viewer; no merged owner file")
 	reportCase := flags.String("report-case", "", "produce one authorized offline Case triage JSON receipt and exit (no listener)")
 	exportCase := flags.String("export-case", "", "export authorized Case Timeline events as sensitive local JSONL, without listener")
 	compareCase := flags.String("compare-case", "", "first authorized Case for an offline two-Case comparison receipt")
@@ -70,12 +71,19 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	if *compareProximity && *compareEvents {
 		return errors.New("choose exactly one cross-Case comparison mode")
 	}
-	if *importJSONL != "" || *intoCase != "" || *triageImport {
+	if *serveImport && (*snapshot == "" || *importJSONL == "" || *intoCase == "") {
+		return errors.New("serve-import requires an owner snapshot, normalized JSONL file and destination Case")
+	}
+	if *importJSONL != "" || *intoCase != "" || *triageImport || *serveImport {
 		if *importJSONL == "" || *intoCase == "" || *reportCase != "" || *exportCase != "" ||
 			*compareCase != "" || (*withCase != "" && !*triageImport) || *compareEvents ||
 			(*compareProximity && (!*triageImport || *withCase == "")) ||
+			(*serveImport && (*triageImport || *withCase != "" || *compareProximity)) ||
 			*sourceCase != "" || *sourceRef != "" || *inspectCase != "" || *inspectEntry != "" {
 			return errors.New("local JSONL import requires a Case and cannot be combined with investigation modes")
+		}
+		if *serveImport {
+			return serveDemoWithImportedJSONL(ctx, *principal, *snapshot, *intoCase, *importJSONL, output)
 		}
 		if *triageImport {
 			if *withCase != "" {
@@ -184,6 +192,18 @@ func serveDemoWithSnapshot(ctx context.Context, principal, snapshot string, outp
 	data, err := loadDemoSnapshot(snapshot)
 	if err != nil {
 		return err
+	}
+	return serveDemoWithData(ctx, principal, data, output)
+}
+
+// serveDemoWithData reuses exactly the same authenticated loopback handler for
+// a disk snapshot and a strictly in-memory imported snapshot.
+func serveDemoWithData(ctx context.Context, principal string, data timeline.MemoryTimelineData, output io.Writer) error {
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	if principal == "" || principal == "*" {
+		return errors.New("select a synthetic principal from the local owner dataset")
 	}
 	caseID, err := firstDemoAuthorizedCase(data, principal)
 	if err != nil {
