@@ -337,16 +337,6 @@
             ref.Ref.length > 1024 || ref.Source !== "wazuh4-authorized-local-import")) {
         throw Error("Invalid search job receipt");
       }
-      preparedWazuhReplay = {
-        format: "cmdr-local-wazuh4-query-replay-v1",
-        synthetic: true, case_id: selectedCase, selector: selectedField,
-        value: selectedValue, from: fromDate.toISOString(), to: toDate.toISOString(),
-        source_job_id: job.ID, result_count: job.ResultRefs.length
-      };
-      wazuhReplaySave.disabled = false;
-      wazuhSearchStatus.textContent = "Search Job " + job.ID +
-        " terminé — " + job.ResultRefs.length +
-        " événement(s) autorisé(s). Ouvrir une source revérifie les droits.";
       // Legacy SearchJob references remain supported, but when the server
       // supplies a normalized chronology every entry must correspond 1:1
       // to a completed, authorized Job result. No untrusted metadata becomes
@@ -396,6 +386,18 @@
       }
       wazuhSearchResults.replaceChildren();
       wazuhSearchResults.append(list);
+      // Publish visible results and allow export only after the entire
+      // completed Search Job and its per-hit source metadata were validated.
+      preparedWazuhReplay = {
+        format: "cmdr-local-wazuh4-query-replay-v1",
+        synthetic: true, case_id: selectedCase, selector: selectedField,
+        value: selectedValue, from: fromDate.toISOString(), to: toDate.toISOString(),
+        source_job_id: job.ID, result_count: job.ResultRefs.length
+      };
+      wazuhReplaySave.disabled = false;
+      wazuhSearchStatus.textContent = "Search Job " + job.ID +
+        " terminé — " + job.ResultRefs.length +
+        " événement(s) autorisé(s). Ouvrir une source revérifie les droits.";
     } catch {
       if (selectedRevision === wazuhSearchRevision) {
         wazuhSearchResults.replaceChildren();
