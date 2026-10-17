@@ -90,15 +90,7 @@ func writeDemoCaseTriage(ctx context.Context, principal, snapshot, caseID string
 	if err != nil {
 		return err
 	}
-	token, err := randomBearer()
-	if err != nil {
-		return err
-	}
-	handler, err := newDemoHandlerWithData(token, principal, data)
-	if err != nil {
-		return err
-	}
-	result, err := collectDemoCaseTriage(ctx, handler, token, caseID)
+	result, err := collectDemoAuthorizedCaseTriage(ctx, principal, data, caseID)
 	if err != nil {
 		return err
 	}
@@ -106,6 +98,20 @@ func writeDemoCaseTriage(ctx context.Context, principal, snapshot, caseID string
 		return err
 	}
 	return json.NewEncoder(output).Encode(result)
+}
+
+// Both the ordinary disk Case triage and JSONL-import-to-triage reuse the
+// same authenticated owner chain. No caller-provided access flags are used.
+func collectDemoAuthorizedCaseTriage(ctx context.Context, principal string, data timeline.MemoryTimelineData, caseID string) (caseTriageReceipt, error) {
+	token, err := randomBearer()
+	if err != nil {
+		return caseTriageReceipt{}, err
+	}
+	handler, err := newDemoHandlerWithData(token, principal, data)
+	if err != nil {
+		return caseTriageReceipt{}, err
+	}
+	return collectDemoCaseTriage(ctx, handler, token, caseID)
 }
 
 // collectDemoCaseTriage is separated from the local file reader so its

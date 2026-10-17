@@ -48,15 +48,7 @@ func writeDemoImportedJSONLTriage(ctx context.Context, principal, snapshotPath, 
 	if imported < 1 || imported > timeline.MaxEntries {
 		return errors.New("inconsistent imported Case entry count")
 	}
-	token, err := randomBearer()
-	if err != nil {
-		return err
-	}
-	handler, err := newDemoHandlerWithData(token, principal, merged)
-	if err != nil {
-		return err
-	}
-	receipt, err := collectDemoCaseTriage(ctx, handler, token, caseID)
+	receipt, err := collectDemoAuthorizedCaseTriage(ctx, principal, merged, caseID)
 	if err != nil {
 		return err
 	}
