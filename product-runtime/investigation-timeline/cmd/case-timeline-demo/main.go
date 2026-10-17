@@ -71,6 +71,10 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	sourceRef := flags.String("source-ref", "", "exact authorized source reference (requires -source-case)")
 	inspectCase := flags.String("inspect-case", "", "Case containing an explicitly selected source Timeline Entry")
 	inspectEntry := flags.String("inspect-entry", "", "Timeline Entry ID for an authorized offline typed-source preview (requires -inspect-case)")
+	inspectWazuh := flags.String("inspect-wazuh-entry", "", "selected imported Wazuh Timeline Entry for full first-party Event Inspection")
+	pivotWazuh := flags.String("pivot-wazuh-field", "", "optional wazuh.rule.id or wazuh.agent.id search pivot draft")
+	pivotFrom := flags.String("pivot-start", "", "inclusive RFC3339 Event Search pivot start")
+	pivotTo := flags.String("pivot-end", "", "exclusive RFC3339 Event Search pivot end")
 	if err := flags.Parse(args); err != nil {
 		return err
 	}
@@ -89,9 +93,26 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	if *compareProximity && *compareEvents {
 		return errors.New("choose exactly one cross-Case comparison mode")
 	}
+	if *inspectWazuh == "" && (*pivotWazuh != "" || *pivotFrom != "" || *pivotTo != "") {
+		return errors.New("Wazuh pivot requires an imported Event Inspection selection")
+	}
+	if *inspectWazuh != "" && len(wazuhFiles) == 0 {
+		return errors.New("Wazuh Event Inspection requires Wazuh alert files")
+	}
 	// Wazuh 4.x is an offline source, not an ACL provider. Require exactly
 	// one of the existing viewer or authorized two-Case temporal paths.
 	if len(wazuhFiles) > 0 {
+		if *inspectWazuh != "" {
+			if *snapshot == "" || *intoCase == "" || *importJSONL != "" ||
+				*reportCase != "" || *exportCase != "" || *compareCase != "" ||
+				*compareEvents || *compareProximity || windowSet ||
+				*sourceCase != "" || *sourceRef != "" || *inspectCase != "" ||
+				*inspectEntry != "" || *serveImport || *triageImport || *withCase != "" {
+				return errors.New("Wazuh Event Inspection cannot combine with other investigation modes")
+			}
+			return writeDemoWazuhEventInspection(ctx, *principal, *snapshot, *intoCase,
+				[]string(wazuhFiles), *inspectWazuh, *pivotWazuh, *pivotFrom, *pivotTo, output)
+		}
 		if *snapshot == "" || *intoCase == "" || *importJSONL != "" ||
 			*reportCase != "" || *exportCase != "" || *compareCase != "" ||
 			*compareEvents || *sourceCase != "" || *sourceRef != "" ||
