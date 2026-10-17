@@ -83,7 +83,7 @@ func TestWazuh4TemporalComparisonFailsClosed(t *testing.T) {
 		})
 	}
 	for _, flags := range [][]string{
-		{"-wazuh-alerts="+valid,"-snapshot="+owner,"-into-case=case-a","-triage-import"},
+		{"-wazuh-alerts="+valid,"-snapshot="+owner,"-into-case=case-a","-triage-import","-with-case=case-a"},
 		{"-wazuh-alerts="+valid,"-snapshot="+owner,"-into-case=case-a","-compare-proximity"},
 		{"-wazuh-alerts="+valid,"-snapshot="+owner,"-into-case=case-a","-serve-import","-triage-import","-with-case=case-c","-compare-proximity"},
 		{"-wazuh-alerts="+valid,"-snapshot="+owner,"-into-case=case-a","-triage-import","-with-case=case-c","-compare-proximity","-compare-events"},
