@@ -62,7 +62,7 @@ func TestMultiWazuhTriageFailClosedBeforeOutput(t *testing.T) {
 	bad := writeJSONLEvents(t, "{not-json}\n")
 	for _, tc := range []struct {
 		name, principal, caseID string
-		files []string
+		files                   []string
 	}{
 		{"cross-tenant-principal", "analyst-b", "case-a", []string{first, second}},
 		{"foreign-case", "analyst-a", "case-b", []string{first, second}},
