@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -144,4 +145,90 @@ func TestNearestTemporalLeadDoesNotInferIdentityOrCausation(t *testing.T) {
 
 func projectedForProximity(id, kind, instant string) timeline.ProjectedEntry {
 	return timeline.ProjectedEntry{ID: id, Kind: kind, SourceTime: instant, Timezone: "+00:00"}
+}
+
+func TestProximitySelectionCapsNearestLeadsAndHonorsWindow(t *testing.T) {
+	path := proximityDiskSnapshot(t)
+	var output bytes.Buffer
+	err := writeDemoCaseProximity(context.Background(), "analyst-a", path, "case-a", "case-c", 60, &output)
+	if err != nil { t.Fatal(err) }
+	var receipt localCaseProximity
+	if err := json.Unmarshal(output.Bytes(), &receipt); err != nil { t.Fatal(err) }
+	if len(receipt.Leads) != 25 {
+		t.Fatalf("expected 25 bounded nearest investigative leads, got %d",len(receipt.Leads))
+	}
+	for i, lead := range receipt.Leads {
+		if lead.SecondEntryID != "event-c" || lead.SeparationMS > 60000 ||
+			i > 0 && lead.SeparationMS < receipt.Leads[i-1].SeparationMS {
+			t.Fatalf("unsorted/out-of-window/cross-source lead %d: %+v", i, lead)
+		}
+	}
+	// No invented match: the two Case timelines are far apart.
+	data, err := loadDemoSnapshot(path)
+	if err != nil { t.Fatal(err) }
+	for i := range data.Entries {
+		if data.Entries[i].CaseID == "case-c" {
+			data.Entries[i].Value.SourceTime = "2026-10-02T10:02:02Z"
+		}
+	}
+	raw, err := json.Marshal(data)
+	if err != nil { t.Fatal(err) }
+	distantPath := filepath.Join(t.TempDir(),"distant.json")
+	if err := os.WriteFile(distantPath, raw, 0o600); err != nil { t.Fatal(err) }
+	output.Reset()
+	if err := writeDemoCaseProximity(context.Background(), "analyst-a", distantPath, "case-a", "case-c", 300, &output); err != nil { t.Fatal(err) }
+	var distant localCaseProximity
+	if err := json.Unmarshal(output.Bytes(), &distant); err != nil { t.Fatal(err) }
+	if len(distant.Leads) != 0 || distant.FirstCertainEntries != 207 || distant.SecondCertainEntries != 1 {
+		t.Fatalf("distant Cases falsely correlated: %+v", distant)
+	}
+}
+
+func TestProximityRejectsUnavailableSnapshotAndOutputFailures(t *testing.T) {
+	path := proximityDiskSnapshot(t)
+	for _, snapshot := range []string{"not-an-absolute.json", filepath.Join(t.TempDir(),"absent.json")} {
+		var output bytes.Buffer
+		if err := writeDemoCaseProximity(context.Background(),"analyst-a",snapshot,"case-a","case-c",60,&output); err == nil || output.Len()!=0 {
+			t.Fatalf("unavailable snapshot emitted a receipt: %s %v %q",snapshot,err,output.String())
+		}
+	}
+	var output bytes.Buffer
+	if err := writeDemoCaseProximity(context.Background(),"not-a-principal",path,"case-a","case-c",60,&output); err == nil || output.Len()!=0 {
+		t.Fatalf("invalid analyst emitted a receipt: %v %q",err,output.String())
+	}
+	err := writeDemoCaseProximity(context.Background(),"analyst-a",path,"case-a","case-c",60,rejectReportOutput{})
+	if !errors.Is(err,io.ErrClosedPipe) {
+		t.Fatalf("writer failure was not propagated: %v",err)
+	}
+}
+
+func TestProximityRejectsMalformedAuthorizedSequence(t *testing.T) {
+	base := localCaseEventSequence{
+		First: caseTriageReceipt{CaseID:"case-a"},
+		Second: caseTriageReceipt{CaseID:"case-c"},
+		Events: []localCaseEvent{
+			{CaseID:"case-a", Entry: projectedForProximity("first", "observed", "2026-10-01T10:00:00Z")},
+			{CaseID:"case-c", Entry: projectedForProximity("second", "inferred", "2026-10-01T10:00:01Z")},
+		},
+	}
+	for _, changed := range []func(*localCaseEventSequence){
+		func(x *localCaseEventSequence) { x.Events[0].Entry.ID="" },
+		func(x *localCaseEventSequence) { x.Events[0].CaseID="foreign" },
+		func(x *localCaseEventSequence) { x.Events[1].Entry.SourceTime="invalid-clock" },
+	} {
+		modified:=base
+		modified.Events=append([]localCaseEvent(nil),base.Events...)
+		changed(&modified)
+		if _,err:=selectCaseProximity(context.Background(),modified,60);err==nil {
+			t.Fatal("malformed authorized sequence yielded investigative lead")
+		}
+	}
+	// Known instants separated by centuries never overflow into a near match.
+	extreme:=base
+	extreme.Events=append([]localCaseEvent(nil),base.Events...)
+	extreme.Events[1].Entry.SourceTime="1800-01-01T00:00:00Z"
+	got,err:=selectCaseProximity(context.Background(),extreme,300)
+	if err!=nil || len(got.Leads)!=0 {
+		t.Fatalf("extreme time distance overflowed into a false lead: %+v %v",got,err)
+	}
 }
