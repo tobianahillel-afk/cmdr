@@ -308,7 +308,8 @@ test("source group drilldown reauthorizes a representative Entry with existing o
   await flush();
   await flush();
   assert.equal(env.requests.length, 2);
-  const actions = env.fields["analysis-actions"].children;
+  const actions = env.fields["analysis-actions"].children.filter(button =>
+    button.textContent.startsWith("Ouvrir une entrée de cette source"));
   assert.equal(actions.length, 2);
   assert.match(actions[0].textContent, /owner-a/);
   assert.match(actions[1].textContent, /owner-b/);
@@ -346,7 +347,8 @@ test("source group action never exposes a denied destination or partial summary"
   env.fields.analyze.handlers.click();
   await flush();
   await flush();
-  assert.equal(env.fields["analysis-actions"].children.length, 3);
+  assert.equal(env.fields["analysis-actions"].children.filter(button =>
+    button.textContent.startsWith("Ouvrir une entrée de cette source")).length, 3);
   deny = true;
   env.fields["analysis-actions"].children[0].handlers.click();
   await flush();
@@ -357,7 +359,8 @@ test("source group action never exposes a denied destination or partial summary"
   env.fields.analyze.handlers.click();
   await flush();
   await flush();
-  assert.equal(env.fields["analysis-actions"].children.length, 3);
+  assert.equal(env.fields["analysis-actions"].children.filter(button =>
+    button.textContent.startsWith("Ouvrir une entrée de cette source")).length, 3);
   env.fields["case-id"].value = "other-case";
   env.fields["case-id"].handlers.input();
   assert.equal(env.fields["analysis-actions"].children.length, 0);
