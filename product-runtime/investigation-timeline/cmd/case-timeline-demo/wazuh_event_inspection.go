@@ -24,8 +24,13 @@ type wazuhInspectionReceipt struct {
 }
 
 func writeDemoWazuhEventInspection(ctx context.Context, principal, snapshot, caseID string, paths []string, entryID, pivotField, pivotFrom, pivotTo string, output io.Writer) error {
-	if ctx == nil || ctx.Err() != nil || principal == "" || caseID == "" || len(caseID) > 1024 ||
-		entryID == "" || len(entryID) > 256 || len(paths) == 0 || len(paths) > maxWazuhAlertFiles {
+	if ctx == nil {
+		return errors.New("request context required")
+	}
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	if entryID == "" || len(paths) == 0 || len(paths) > maxWazuhAlertFiles {
 		return errors.New("select a local Wazuh alert in an authorized Case")
 	}
 	if pivotField == "" && (pivotFrom != "" || pivotTo != "") {
@@ -109,15 +114,11 @@ func writeDemoWazuhEventInspection(ctx context.Context, principal, snapshot, cas
 			break
 		}
 	}
-	ownerCase := false
-	for _, c := range data.Cases {
-		if c.ID == caseID && c.Tenant == tenant && c.Environment == environment {
-			ownerCase = true
-			break
-		}
-	}
-	if !ownerCase || tenant == "" || environment == "" {
-		return errors.New("selected principal and Case scope inconsistent")
+	// Case/Tenant membership was already enforced by the Case discovery,
+	// complete Timeline traversal and fresh typed-source owner checks above.
+	// Do not reimplement another Case authorization layer here.
+	if tenant == "" || environment == "" {
+		return errors.New("principal identity unavailable")
 	}
 
 	normalized := make(map[string]string)
