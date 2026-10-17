@@ -6,6 +6,8 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -84,6 +86,49 @@ func TestCLISourceOwnerInspectionDoesNotTrustEntryFromAnotherCase(t *testing.T) 
 		var out bytes.Buffer
 		if err := writeDemoSourceOwnerReceipt(context.Background(), "analyst-a", path, pair[0], pair[1], &out); err == nil || out.Len() != 0 {
 			t.Fatalf("source crossed Case ownership boundary %q: %q", pair, out.String())
+		}
+	}
+}
+
+func TestCLISourceOwnerRevocationAndScopeValidation(t *testing.T) {
+	original := twoCaseComparisonSnapshot(t)
+	data, err := loadDemoSnapshot(original)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for i := range data.Sources {
+		if data.Sources[i].Identity.Reference == "disk-source-c" {
+			data.Sources[i].Readers = nil // Case access survives; typed source access is revoked.
+		}
+	}
+	encoded, err := json.Marshal(data)
+	if err != nil {
+		t.Fatal(err)
+	}
+	revoked := filepath.Join(t.TempDir(), "revoked-source.json")
+	if err := os.WriteFile(revoked, encoded, 0o600); err != nil {
+		t.Fatal(err)
+	}
+	var out bytes.Buffer
+	if err := runDemoCLI(context.Background(), []string{
+		"-principal=analyst-a", "-snapshot=" + revoked,
+		"-open-source-case=case-c", "-open-source-entry=event-c",
+	}, &out); err == nil || out.Len() != 0 {
+		t.Fatalf("revoked source was disclosed: %v %q", err, out.String())
+	}
+	for _, selection := range []struct {
+		principal string
+		caseID string
+		entryID string
+	}{
+		{principal: "", caseID: "case-c", entryID: "event-c"},
+		{principal: "analyst-a", caseID: strings.Repeat("x", 1025), entryID: "event-c"},
+		{principal: "analyst-a", caseID: "case-c", entryID: strings.Repeat("x", 1025)},
+		{principal: "analyst-a", caseID: "case-c", entryID: string([]byte{0xff})},
+	} {
+		out.Reset()
+		if err := writeDemoSourceOwnerReceipt(context.Background(), selection.principal, original, selection.caseID, selection.entryID, &out); err == nil || out.Len() != 0 {
+			t.Fatalf("invalid source selection produced data: %v %q", err, out.String())
 		}
 	}
 }
