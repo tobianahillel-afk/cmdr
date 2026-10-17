@@ -30,11 +30,20 @@ type caseTriageReceipt struct {
 	DistinctSources int            `json:"distinct_source_references"`
 	TopSources      []sourceCount  `json:"top_sources"`
 	Visibility      string         `json:"visibility"`
+	certainWindows map[string]certainWindowCount
 }
 
 type sourceCount struct {
 	Reference string `json:"reference"`
 	Count     int    `json:"count"`
+}
+
+// Internal aggregates, never serialized in the standalone per-Case receipt.
+// The cross-Case comparison reuses the same authorized pagination traversal.
+type certainWindowCount struct {
+	Total    int
+	Observed int
+	Inferred int
 }
 
 type caseTriagePage struct {
@@ -120,6 +129,7 @@ func collectDemoCaseTriage(ctx context.Context, handler http.Handler, token, cas
 		CaseID: caseID, Synthetic: true,
 		Kinds: make(map[string]int),
 		TopSources: make([]sourceCount,0),
+		certainWindows: make(map[string]certainWindowCount),
 	}
 	const pageSize = 200
 	seen := make(map[string]bool)
@@ -172,6 +182,12 @@ func collectDemoCaseTriage(ctx context.Context, handler http.Handler, token, cas
 				return caseTriageReceipt{}, errors.New("invalid known Timeline timestamp")
 			}
 			instant = instant.UTC()
+			window := instant.Truncate(5 * time.Minute).Format(time.RFC3339)
+			counts := receipt.certainWindows[window]
+			counts.Total++
+			if entry.Kind == "observed" { counts.Observed++ }
+			if entry.Kind == "inferred" { counts.Inferred++ }
+			receipt.certainWindows[window] = counts
 			if earliest.IsZero() || instant.Before(earliest) { earliest = instant }
 			if latest.IsZero() || instant.After(latest) { latest = instant }
 		}

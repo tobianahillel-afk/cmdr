@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"sort"
 	"time"
 )
 
@@ -20,6 +21,19 @@ type localCaseComparison struct {
 	ObservedDelta      int               `json:"observed_delta"`
 	InferredDelta      int               `json:"inferred_delta"`
 	CertainTimeOverlap *timeOverlap      `json:"certain_time_overlap_utc,omitempty"`
+	SharedCertainWindows []sharedCertainWindow `json:"shared_certain_five_minute_windows"`
+}
+
+// This is an observational co-occurrence hint, not causal correlation.
+// Source references may be Case-scoped and are not compared as identities.
+type sharedCertainWindow struct {
+	StartUTC       string `json:"start_utc"`
+	FirstEntries   int    `json:"first_entries"`
+	SecondEntries  int    `json:"second_entries"`
+	FirstObserved  int    `json:"first_observed"`
+	SecondObserved int    `json:"second_observed"`
+	FirstInferred  int    `json:"first_inferred"`
+	SecondInferred int    `json:"second_inferred"`
 }
 
 type timeOverlap struct {
@@ -69,6 +83,24 @@ func writeDemoCaseComparison(ctx context.Context, principal, snapshot, firstID, 
 		VisibleEntryDelta: first.VisibleEntries - second.VisibleEntries,
 		ObservedDelta:     first.Kinds["observed"] - second.Kinds["observed"],
 		InferredDelta:     first.Kinds["inferred"] - second.Kinds["inferred"],
+		SharedCertainWindows: make([]sharedCertainWindow, 0),
+	}
+	// Compare precise, known five-minute bins, not just enclosing time spans.
+	// All bins originate from fully validated, source-authorized Case pages.
+	for start, a := range first.certainWindows {
+		b, ok := second.certainWindows[start]
+		if !ok { continue }
+		result.SharedCertainWindows = append(result.SharedCertainWindows, sharedCertainWindow{
+			StartUTC: start, FirstEntries: a.Total, SecondEntries: b.Total,
+			FirstObserved: a.Observed, SecondObserved: b.Observed,
+			FirstInferred: a.Inferred, SecondInferred: b.Inferred,
+		})
+	}
+	sort.Slice(result.SharedCertainWindows, func(i, j int) bool {
+		return result.SharedCertainWindows[i].StartUTC < result.SharedCertainWindows[j].StartUTC
+	})
+	if len(result.SharedCertainWindows) > 5 {
+		result.SharedCertainWindows = result.SharedCertainWindows[:5]
 	}
 	// Unknown clock intervals are never promoted to a known overlap.
 	if first.FirstCertainUTC != "" && first.LastCertainUTC != "" &&
