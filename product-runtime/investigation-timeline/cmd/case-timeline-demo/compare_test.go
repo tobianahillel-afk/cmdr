@@ -156,3 +156,65 @@ func TestCLIComparisonWithoutCertainOverlap(t *testing.T) {
 		t.Fatalf("comparison order or overlap altered: %+v", got)
 	}
 }
+
+func TestCLIComparisonDoesNotInventChronology(t *testing.T) {
+	original := twoCaseComparisonSnapshot(t)
+	base, err := loadDemoSnapshot(original)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, tc := range []struct {
+		name string
+		when string
+		zone string
+		uncertain bool
+	}{
+		{name: "disjoint", when: "2026-10-04T10:30:00Z", zone: "+00:00"},
+		{name: "unknown", when: "timestamp-not-established", zone: "unknown", uncertain: true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			data := base
+			data.Entries = append([]timeline.MemoryTimelineEntry(nil), base.Entries...)
+			for i := range data.Entries {
+				if data.Entries[i].CaseID == "case-c" {
+					data.Entries[i].Value.SourceTime = tc.when
+					data.Entries[i].Value.Timezone = tc.zone
+				}
+			}
+			payload, err := json.Marshal(data)
+			if err != nil {
+				t.Fatal(err)
+			}
+			path := filepath.Join(t.TempDir(), "changed-time.json")
+			if err := os.WriteFile(path, payload, 0o600); err != nil {
+				t.Fatal(err)
+			}
+			var out bytes.Buffer
+			if err := runDemoCLI(context.Background(), []string{
+				"-principal=analyst-a", "-snapshot=" + path,
+				"-compare-case=case-a", "-with-case=case-c",
+			}, &out); err != nil {
+				t.Fatal(err)
+			}
+			var comparison localCaseComparison
+			if err := json.Unmarshal(out.Bytes(), &comparison); err != nil {
+				t.Fatal(err)
+			}
+			if comparison.CertainTimeOverlap != nil || comparison.First.VisibleEntries != 207 ||
+				comparison.Second.VisibleEntries != 1 {
+				t.Fatalf("false temporal overlap asserted: %+v", comparison)
+			}
+			if tc.uncertain {
+				if comparison.Second.UncertainEntries != 1 || comparison.Second.FirstCertainUTC != "" {
+					t.Fatalf("unknown source time promoted to certain: %+v", comparison.Second)
+				}
+			} else if comparison.Second.UncertainEntries != 0 {
+				t.Fatalf("known disjoint timestamp marked uncertain: %+v", comparison.Second)
+			}
+			if strings.Contains(out.String(), "SENSITIVE-PREVIEW") ||
+				strings.Contains(out.String(), "demo-hidden-source") {
+				t.Fatalf("comparison exposed restricted source material: %s", out.String())
+			}
+		})
+	}
+}
