@@ -5,9 +5,11 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"os"
 	"strings"
 	"testing"
+	"time"
 )
 
 func TestWazuhRuleLevelsRequireAuthorizedImportedCase(t *testing.T) {
@@ -197,5 +199,36 @@ func TestWazuhWindowTriageUnknownLevelNotPromotedToSeverity(t *testing.T) {
 		receipt.PeakWindows[0].Count != 1 || receipt.PeakWindows[0].HighestKnownRuleLevel != nil ||
 		receipt.PeakWindows[0].UnknownRuleLevels != 1 || receipt.UnknownRuleLevels != 1 {
 		t.Fatalf("unknown Wazuh level or timezone altered: %+v", receipt)
+	}
+}
+
+func TestWazuhTimeWindowTriageRanksAndBoundsBusyBuckets(t *testing.T) {
+	owner := twoCaseComparisonSnapshot(t)
+	var input strings.Builder
+	start := time.Date(2026, time.October, 1, 9, 0, 0, 0, time.UTC)
+	for i := 0; i < 12; i++ {
+		when := start.Add(time.Duration(i) * 5 * time.Minute)
+		fmt.Fprintf(&input,
+			"{\"id\":\"alert-%02d\",\"timestamp\":%q,\"rule\":{\"level\":0,\"description\":\"synthetic alert\"}}\n",
+			i, when.Format(time.RFC3339))
+	}
+	path := writeJSONLEvents(t, input.String())
+	var output bytes.Buffer
+	if err := writeDemoWazuh4RuleTriage(context.Background(), "analyst-a", owner, "case-a", path, &output); err != nil {
+		t.Fatal(err)
+	}
+	var got wazuhRuleTriageReceipt
+	if err := json.Unmarshal(output.Bytes(), &got); err != nil { t.Fatal(err) }
+	if got.DistinctTimeWindows != 12 || len(got.PeakWindows) != 10 ||
+		got.ImportedEntries != 12 || got.UnknownRuleLevels != 0 {
+		t.Fatalf("peak windows truncated or miscounted: %+v", got)
+	}
+	for i, window := range got.PeakWindows {
+		want := start.Add(time.Duration(i) * 5 * time.Minute).Format(time.RFC3339)
+		if window.StartUTC != want || window.Count != 1 ||
+			window.HighestKnownRuleLevel == nil || *window.HighestKnownRuleLevel != 0 ||
+			window.UnknownRuleLevels != 0 {
+			t.Fatalf("incorrect top-window ordering or known-zero severity: %+v want %s", window, want)
+		}
 	}
 }
