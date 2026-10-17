@@ -22,7 +22,7 @@ func TestDemoCaseDiscoveryFailClosedOnInvalidOwner(t *testing.T) {
 		name string
 		data timeline.MemoryTimelineData
 	}{
-		{"no-owner", timeline.MemoryTimelineData{}},
+		{"invalid-principal", timeline.MemoryTimelineData{Principals: []timeline.MemoryTimelinePrincipal{{ID: "*", Tenant: "invalid", Environment: "lab"}}}},
 		{"duplicate-case", func() timeline.MemoryTimelineData {
 			data := demoData()
 			data.Cases = append(data.Cases, data.Cases[0])
@@ -106,5 +106,35 @@ func TestLiveImportInvalidOwnerHasNoListenerOrOutput(t *testing.T) {
 	cancel()
 	if err := runDemoCLI(ctx, args, &out); !errors.Is(err, context.Canceled) || out.Len() != 0 {
 		t.Fatalf("cancelled loader disclosed data: err=%v output=%q", err, out.String())
+	}
+}
+
+
+func TestLiveImportedOwnerValidationPreventsPrematureBearerDisclosure(t *testing.T) {
+	invalid := demoData()
+	invalid.Cases = append([]timeline.MemoryTimelineCase(nil), invalid.Cases...)
+	invalid.Cases[0].EntryIDs = append(append([]string(nil), invalid.Cases[0].EntryIDs...), "event-b")
+	for _, tc := range []struct {
+		name string
+		ctx context.Context
+		principal string
+		data timeline.MemoryTimelineData
+	}{
+		{"invalid-cross-case-catalog", context.Background(), "analyst-a", invalid},
+		{"missing-principal", context.Background(), "", demoData()},
+		{"unknown-principal", context.Background(), "unrecognized", demoData()},
+		{"wildcard-principal", context.Background(), "*", demoData()},
+		{"cancelled-context", func() context.Context {
+			ctx, cancel := context.WithCancel(context.Background())
+			cancel()
+			return ctx
+		}(), "analyst-a", demoData()},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			var out bytes.Buffer
+			if err := serveDemoWithData(tc.ctx, tc.principal, tc.data, &out); err == nil || out.Len() != 0 {
+				t.Fatalf("invalid imported owner opened listener or exposed bearer: %v %q", err, out.String())
+			}
+		})
 	}
 }
