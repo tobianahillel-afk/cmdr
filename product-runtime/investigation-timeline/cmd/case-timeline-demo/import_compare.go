@@ -39,9 +39,9 @@ func writeDemoImportedJSONLComparison(ctx context.Context, principal, ownerPath,
 	})
 }
 
- // prepareImportedAuthorizedComparison performs the bounded local import once
- // for both aggregate comparison and temporal lead modes. It never emits the
- // merged, potentially cross-tenant owner graph.
+// prepareImportedAuthorizedComparison performs the bounded local import once
+// for both aggregate comparison and temporal lead modes. It never emits the
+// merged, potentially cross-tenant owner graph.
 func prepareImportedAuthorizedComparison(ctx context.Context, principal, ownerPath, intoCase, withCase, eventsPath string) (timeline.MemoryTimelineData, int, error) {
 	if err := ctx.Err(); err != nil {
 		return timeline.MemoryTimelineData{}, 0, err
@@ -67,7 +67,6 @@ func prepareImportedAuthorizedComparison(ctx context.Context, principal, ownerPa
 	if imported < 1 || imported > timeline.MaxEntries {
 		return timeline.MemoryTimelineData{}, 0, errors.New("inconsistent imported event count")
 	}
-
 	return merged, imported, nil
 }
 
