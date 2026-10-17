@@ -65,7 +65,9 @@ func TestMultipleLocalJSONLFilesReachAuthorizedAnalystViewer(t *testing.T) {
 	for _, event:=range []struct{id,message string}{
 		{"sysmon-1","Observed process creation"},{"windows-2","Observed Windows authentication"},
 	} {
-		digest:=sha256.Sum256([]byte(caseID+"\x00"+event.id))
+		feed := "feed-1"
+		if event.id == "windows-2" {feed = "feed-2"}
+		digest:=sha256.Sum256([]byte(caseID+"\x00"+feed+"\x00"+event.id))
 		entry:="local-jsonl-entry-"+hex.EncodeToString(digest[:])
 		if !strings.Contains(body,entry) {t.Fatalf("imported %s not present in timeline",event.id)}
 		p:="/demo-source-open?"+url.Values{"case_id":{caseID},"entry_id":{entry}}.Encode()
@@ -90,7 +92,7 @@ func TestMultipleLocalJSONLFilesReachAuthorizedAnalystViewer(t *testing.T) {
 func TestMultipleLocalJSONLFilesFailClosedBeforeBearerOrListener(t *testing.T){
 	owner:=snapshotFixture(t)
 	ok:=writeJSONLEvents(t,"{\"id\":\"a\",\"timestamp\":\"2026-10-15T10:20:30Z\",\"message\":\"event a\"}\n")
-	duplicate:=writeJSONLEvents(t,"{\"id\":\"a\",\"timestamp\":\"2026-10-15T10:20:31Z\",\"message\":\"duplicate event\"}\n")
+	duplicate:=writeJSONLEvents(t,"{\"id\":\"a\",\"timestamp\":\"2026-10-15T10:20:31Z\",\"message\":\"duplicate event\"}\n{\"id\":\"a\",\"timestamp\":\"2026-10-15T10:20:32Z\",\"message\":\"duplicate within same feed\"}\n")
 	bad:=writeJSONLEvents(t,"{\"id\":\"b\",\"timestamp\":\"invalid\",\"message\":\"invalid\"}\n")
 	five:=[]string{"-serve-import","-snapshot="+owner,"-into-case=forensic-case-on-disk"}
 	for i:=0;i<5;i++{five=append(five,"-import-jsonl="+ok)}

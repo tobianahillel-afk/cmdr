@@ -232,7 +232,7 @@ func serveDemoWithImportedJSONLFiles(ctx context.Context, principal, snapshotPat
 		return errors.New("cannot identify local owner snapshot")
 	}
 	seenFiles = append(seenFiles, ownerInfo)
-	for _, path := range eventPaths {
+	for fileIndex, path := range eventPaths {
 		if err := ctx.Err(); err != nil {
 			return err
 		}
@@ -254,7 +254,11 @@ func serveDemoWithImportedJSONLFiles(ctx context.Context, principal, snapshotPat
 			}
 		}
 		seenFiles = append(seenFiles, info)
-		data, err = importLocalEvents(ctx, data, principal, caseID, content)
+		feedNumber := 0
+		if len(eventPaths) > 1 {
+			feedNumber = fileIndex + 1
+		}
+		data, err = importLocalEventsFromFeed(ctx, data, principal, caseID, content, feedNumber)
 		if err != nil {
 			return err
 		}
