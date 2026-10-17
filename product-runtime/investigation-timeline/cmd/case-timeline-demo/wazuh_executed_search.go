@@ -118,10 +118,24 @@ func executeDemoWazuhPivot(ctx context.Context, principal, caseID string, owner 
 		pivot.Value == "" || pivot.TimeRange.Start == "" || pivot.TimeRange.End == "" {
 		return search.SearchJob{}, errors.New("invalid authorized Event Inspection pivot")
 	}
+	return executeDemoWazuhMetadataSearch(ctx, principal, caseID, owner, token, tenant, environment,
+		levels, imported, pivot.Field, pivot.Value, pivot.TimeRange.Start, pivot.TimeRange.End)
+}
+
+// Both the existing CLI Event Inspection pivot and the authenticated local
+// analyst search route use one first-party Event Search Job execution path.
+// The route cannot grant itself more access than the per-Case owner.
+func executeDemoWazuhMetadataSearch(ctx context.Context, principal, caseID string, owner http.Handler,
+	token, tenant, environment string, levels map[string]wazuhRuleLevel, imported int,
+	field, value, start, end string) (search.SearchJob, error) {
+	if ctx == nil || (field != "wazuh.rule.id" && field != "wazuh.agent.id") ||
+		!validWazuhCohortID(value) {
+		return search.SearchJob{}, errors.New("invalid bounded Wazuh search selection")
+	}
 	backend := &wazuhPivotBackend{
 		owner: owner, token: token, caseID: caseID,
 		tenant: tenant, environment: environment, levels: levels,
-		imported: imported, field: pivot.Field, value: pivot.Value,
+		imported: imported, field: field, value: value,
 	}
 	orchestrator, err := search.NewOrchestrator(backend)
 	if err != nil {
@@ -130,7 +144,7 @@ func executeDemoWazuhPivot(ctx context.Context, principal, caseID string, owner 
 	input := search.Input{
 		TenantRef: tenant, AuthorizedTenants: []string{tenant},
 		EnvironmentRef: environment,
-		TimeStart: pivot.TimeRange.Start, TimeEnd: pivot.TimeRange.End,
+		TimeStart: start, TimeEnd: end,
 		Sources: []string{wazuhLocalSearchSource},
 		AuthorizedSources: []string{wazuhLocalSearchSource},
 		Permissions: []string{
