@@ -29,7 +29,7 @@ type wazuhRuleTriageReceipt struct {
 	Format string `json:"format"`
 	Synthetic bool `json:"synthetic"`
 	ImportedEntries int `json:"imported_entries"`
-	Case caseTriageReceipt `json:"case"`
+	Case caseTriageReceipt `json:"case_triage"`
 	RuleLevels []wazuhLevelCount `json:"rule_levels"`
 	UnknownRuleLevels int `json:"unknown_rule_levels"`
 }
