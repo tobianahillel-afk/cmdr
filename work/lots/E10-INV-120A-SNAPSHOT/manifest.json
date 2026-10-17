@@ -77,14 +77,17 @@
     "Evidence and production-exclusion handoff",
     "Secret scan recognizes deleted paths whose parent directory was removed in the same diff",
     "Authorized multi-page source-reference grouping in the analyst summary, no new data authority or network route",
-    "Existing CI executes authorized analyst summary, comparison and temporal pivot browser tests"
+    "Temporal comparison of exact shared source references between two reauthorized Cases, using only certain visible timestamps and with unknown-time disclaimer",
+    "Authorized relative chronology of shared source-reference time envelopes across two Cases, including indeterminate uncertainty and local aggregate export"
   ],
   "acceptance_tests": [
     "Default demo behavior unchanged",
     "Authorized two-tenant snapshot produces real Case HTTP flow",
     "Denied/cross-tenant data inaccessible, missing/invalid file fails before listener",
     "go test -race ./..., go vet and CI exact SHA",
-    "Multi-page source grouping and observed/inferred counts, cancellation, malformed authorized reference fail closed, text-only display"
+    "Multi-page source grouping and observed/inferred counts, cancellation, malformed authorized reference fail closed, text-only display",
+    "Functional Node CI covers authorized temporal cross-Case triage, offset normalization, unknown timestamps, and revocation/invalid page fail-closed",
+    "Temporal relation tests prove A-before-B, B-before-A, envelope overlap, indeterminate uncertainty, and bounded exported relation from authorized HTTP pages"
   ],
   "performance_budget": {
     "applicable": false,

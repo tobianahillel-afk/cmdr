@@ -10,6 +10,9 @@
   const kind = document.getElementById("kind");
   const search = document.getElementById("search");
   const caseOptions = document.getElementById("case-options");
+  const compareCaseOptions = document.getElementById("compare-case-options");
+  // The static HTML starts disabled; mirror it for embedded DOM test hosts.
+  compareCaseOptions.disabled = true;
   const discover = document.getElementById("discover");
   const discoveryStatus = document.getElementById("case-discovery-status");
   const fromInput = document.getElementById("from");
@@ -47,6 +50,11 @@
   const compareButton = document.getElementById("compare");
   const comparison = document.getElementById("comparison");
   const comparisonActions = document.getElementById("comparison-actions");
+  const comparisonWindows = document.getElementById("comparison-windows");
+  const comparisonChronology = document.getElementById("comparison-chronology");
+  const downloadComparison = document.getElementById("download-comparison");
+  let preparedComparison = null;
+  downloadComparison.disabled = true;
   let compareRevision = 0;
   let compareRequest = null;
   function clearComparison() {
@@ -54,8 +62,12 @@
     if (compareRequest) compareRequest.abort();
     compareRequest = null;
     compareButton.disabled = false;
+    preparedComparison = null;
+    downloadComparison.disabled = true;
     comparison.textContent = "Aucune comparaison calculée.";
     comparisonActions.replaceChildren();
+    comparisonWindows.replaceChildren();
+    comparisonChronology.replaceChildren();
   }
   const downloadReport = document.getElementById("download-report");
   let analysisRequest = null;
@@ -187,6 +199,16 @@
           " · Plus grand écart entre événements visibles certains : " +
           (largestGapMS / 1000).toFixed(3) + " s"
         : " · Écarts temporels non calculables (moins de deux horodatages certains)";
+      // Triage only timestamps already released by the authorized pages.
+      // Five-minute UTC buckets expose busy visible windows, not attacks.
+      const fiveMinutes = 5 * 60 * 1000;
+      const windowCounts = new Map();
+      for (const millis of certainTimes) {
+        const start = Math.floor(millis / fiveMinutes) * fiveMinutes;
+        windowCounts.set(start, (windowCounts.get(start) || 0) + 1);
+      }
+      const activeWindows = [...windowCounts].map(([start, count]) => ({ start, count }))
+        .sort((a, b) => b.count - a.count || a.start - b.start).slice(0, 3);
       const topSources = ranked.slice(0, 3).map(source => {
         // Cap visible labels; do not place owner identifiers in HTML or URLs.
         const label = source.ref.length > 120 ?
@@ -197,6 +219,9 @@
       analysis.textContent = expectedTotal + " événement(s) autorisé(s) · " +
         kinds.map(value => value + " : " + counts[value]).join(" · ") +
         " · horodatage incertain : " + uncertain + chronology +
+        " · fenêtres de 5 minutes les plus chargées (UTC, événements certains visibles) : " +
+        (activeWindows.length ? activeWindows.map(item =>
+          new Date(item.start).toISOString() + " (" + item.count + ")").join(" · ") : "aucune") +
         ". Sources présentes : " + ranked.length +
         (topSources.length ? " · Principales références : " +
           topSources.join(" · ") : "") +
@@ -226,6 +251,11 @@
         } : null,
         largest_visible_certain_gap_ms: certainTimes.length >= 2 ? largestGapMS : null,
         unique_sources: ranked.length,
+        busiest_five_minute_windows_utc: activeWindows.map(item => ({
+          from: new Date(item.start).toISOString(),
+          to_exclusive: new Date(item.start + fiveMinutes).toISOString(),
+          visible_certain_events: item.count
+        })),
         top_sources: ranked.slice(0, 3).map(source => ({
           source_ref: source.ref,
           count: source.count,
@@ -255,6 +285,37 @@
           if (currentRevision !== analysisRevision ||
               currentSelection !== revision || controller.signal.aborted) return;
           openSource(source.entryID);
+        });
+        analysisActions.append(button);
+      }
+      // A window pivot reuses the existing server-authorized Timeline route.
+      // Display local filter values while preserving exact UTC instants in
+      // restoredRange, including at daylight-saving folds.
+      const toLocalField = millis => {
+        const instant = new Date(millis);
+        const pad = n => String(n).padStart(2, "0");
+        return instant.getFullYear() + "-" + pad(instant.getMonth() + 1) +
+          "-" + pad(instant.getDate()) + "T" + pad(instant.getHours()) +
+          ":" + pad(instant.getMinutes()) + ":" + pad(instant.getSeconds());
+      };
+      for (const item of activeWindows) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.textContent = "Examiner la fenêtre de 5 min : " +
+          new Date(item.start).toISOString() + " · " + item.count + " événement(s)";
+        button.addEventListener("click", () => {
+          if (currentRevision !== analysisRevision ||
+              currentSelection !== revision || controller.signal.aborted ||
+              token.value !== bearer || caseID.value.trim() !== selectedCase) return;
+          fromInput.value = toLocalField(item.start);
+          toInput.value = toLocalField(item.start + fiveMinutes);
+          fromInput.dispatchEvent(new Event("input", { bubbles: true }));
+          restoredRange = {
+            from: new Date(item.start).toISOString(),
+            to: new Date(item.start + fiveMinutes).toISOString()
+          };
+          offset = 0;
+          fetchPage(); // always re-check Case/Timeline/source permissions
         });
         analysisActions.append(button);
       }
@@ -295,7 +356,9 @@
     // ACL chain. One inaccessible Case invalidates the ENTIRE comparison.
     async function sourcesFor(id) {
       const groups = new Map();
+      const timeRanges = new Map();
       const buckets = new Map();
+      const visibleRows = [];
       const seen = new Set();
       const kinds = { observed: 0, inferred: 0 };
       let certainMin = null;
@@ -345,98 +408,299 @@
           seen.add(entry.id);
           groups.set(entry.source_ref, (groups.get(entry.source_ref) || 0) + 1);
           if (entry.kind === "observed" || entry.kind === "inferred") kinds[entry.kind]++;
+          // Derive a temporal envelope only from timestamps the authorized
+          // Timeline projection marks certain. Unknown time is never guessed.
+          const range = timeRanges.get(entry.source_ref) ||
+            { first: null, last: null, certain: 0, uncertain: 0 };
+          let instant = null;
           if (entry.time_uncertain) {
+            range.uncertain++;
             uncertain++;
           } else {
-            // Only declared-certain, valid RFC3339 instants may define a
-            // forensic comparison range; uncertain entries remain counted.
             if (typeof entry.source_time !== "string" ||
                 !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,9})?(?:Z|[+-]\d{2}:\d{2})$/.test(entry.source_time)) {
               throw Error("invalid certain comparison timestamp");
             }
-            const instant = Date.parse(entry.source_time);
-            if (!Number.isFinite(instant)) throw Error("unparseable certain comparison timestamp");
+            instant = Date.parse(entry.source_time);
+            if (!Number.isFinite(instant)) throw Error("invalid certain comparison instant");
+            range.certain++;
             certainMin = certainMin === null ? instant : Math.min(certainMin, instant);
             certainMax = certainMax === null ? instant : Math.max(certainMax, instant);
-            // A shared five-minute interval is a triage clue, not causal proof.
+            range.first = range.first === null ? instant : Math.min(range.first, instant);
+            range.last = range.last === null ? instant : Math.max(range.last, instant);
+            // Co-visible certain-time windows can connect Cases even when
+            // they have NO identical source reference. Triage, not causality.
             const bucket = Math.floor(instant / 300000);
-            const counts = buckets.get(bucket) || { total: 0, observed: 0, inferred: 0 };
-            counts.total++;
-            if (entry.kind === "observed" || entry.kind === "inferred") counts[entry.kind]++;
-            buckets.set(bucket, counts);
+            const tally = buckets.get(bucket) || { total: 0, observed: 0, inferred: 0 };
+            tally.total++;
+            if (entry.kind === "observed" || entry.kind === "inferred") tally[entry.kind]++;
+            buckets.set(bucket, tally);
           }
+          timeRanges.set(entry.source_ref, range);
+          // Retain only the already authorized response fields needed for
+          // a read-only, bounded chronology; never cache owner previews.
+          visibleRows.push({
+            id: entry.id, kind: entry.kind, ref: entry.source_ref,
+            instant, uncertain: entry.time_uncertain
+          });
         }
       }
-      return { total, groups, buckets, kinds, uncertain, certainMin, certainMax };
+      return { total, groups, timeRanges, buckets, kinds, certainMin, certainMax, uncertain, visibleRows };
     }
     try {
       const left = await sourcesFor(selectedCase);
       const right = await sourcesFor(otherCase);
       if (controller.signal.aborted || activeComparison !== compareRevision ||
           activeSelection !== revision) return;
+      const sharedWindows = [...left.buckets]
+        .filter(([bucket]) => right.buckets.has(bucket))
+        .map(([bucket, a]) => ({ bucket, a, b: right.buckets.get(bucket) }))
+        .sort((a, b) => Math.min(b.a.total, b.b.total) -
+          Math.min(a.a.total, a.b.total) || a.bucket - b.bucket);
       const common = [...left.groups].filter(([ref]) => right.groups.has(ref))
-        .map(([ref, count]) => ({ ref, left: count, right: right.groups.get(ref) }))
+        .map(([ref, count]) => ({
+          ref, left: count, right: right.groups.get(ref),
+          leftTime: left.timeRanges.get(ref), rightTime: right.timeRanges.get(ref)
+        }))
         .sort((a, b) => Math.min(b.left, b.right) - Math.min(a.left, a.right) ||
           (a.ref < b.ref ? -1 : a.ref > b.ref ? 1 : 0));
-      const top = common.slice(0, 5).map(group =>
-        (group.ref.length > 120 ? group.ref.slice(0, 120) + "… (abrégée)" : group.ref) +
-        " : " + group.left + " / " + group.right).join(" · ");
-      const range = value => value.certainMin === null ? "aucune plage certaine" :
-        new Date(value.certainMin).toISOString() + " → " +
-        new Date(value.certainMax).toISOString();
-      const overlap = left.certainMin === null || right.certainMin === null
-        ? "indéterminable" :
-        (left.certainMin <= right.certainMax && right.certainMin <= left.certainMax
-          ? "oui" : "non");
-      const simultaneous = [...left.buckets].filter(([bucket]) => right.buckets.has(bucket))
-        .map(([bucket, leftCount]) => ({ bucket, left: leftCount, right: right.buckets.get(bucket) }))
-        .sort((a, b) => Math.min(b.left.total, b.right.total) -
-          Math.min(a.left.total, a.right.total) || a.bucket - b.bucket);
+      // Interpret only fully authorized, certain timestamp envelopes.
+      // The relation describes *visible ranges*, never causality or a
+      // shared underlying object; uncertain events cannot be ordered.
+      const temporalRelation = group => {
+        const a = group.leftTime;
+        const b = group.rightTime;
+        if (!a.certain || !b.certain) {
+          return { relation: "indeterminate", gapMS: null,
+            label: "ordre temporel indéterminé" };
+        }
+        if (a.last < b.first) {
+          const gapMS = b.first - a.last;
+          return { relation: "case_a_before_case_b", gapMS,
+            label: "plage certaine A avant B · écart entre plages : " +
+              (gapMS / 1000).toFixed(3) + " s" };
+        }
+        if (b.last < a.first) {
+          const gapMS = a.first - b.last;
+          return { relation: "case_b_before_case_a", gapMS,
+            label: "plage certaine B avant A · écart entre plages : " +
+              (gapMS / 1000).toFixed(3) + " s" };
+        }
+        return { relation: "certain_envelopes_overlap", gapMS: 0,
+          label: "plages certaines recoupées (pas nécessairement d'événements simultanés)" };
+      };
+      const rangeLabel = range => range.certain
+        ? new Date(range.first).toISOString() + " → " +
+          new Date(range.last).toISOString() + " (" + range.certain + " certain(s), " +
+          range.uncertain + " incertain(s))"
+        : "aucun horaire certain (" + range.uncertain + " incertain(s))";
+      const top = common.slice(0, 5).map(group => {
+        const temporalGap = group.leftTime.certain && group.rightTime.certain
+          ? " · écart des premiers instants certains : " +
+            (Math.abs(group.leftTime.first - group.rightTime.first) / 1000).toFixed(3) + " s"
+          : " · écart temporel indéterminé";
+        return (group.ref.length > 120 ? group.ref.slice(0, 120) + "… (abrégée)" : group.ref) +
+          " : " + group.left + " / " + group.right +
+          " · A : " + rangeLabel(group.leftTime) +
+          " · B : " + rangeLabel(group.rightTime) + temporalGap +
+          " · " + temporalRelation(group).label;
+      }).join(" · ");
+      const caseRange = value => value.certainMin === null ?
+        "aucune plage certaine" : new Date(value.certainMin).toISOString() +
+        " → " + new Date(value.certainMax).toISOString();
+      const envelopeOverlap = left.certainMin === null || right.certainMin === null
+        ? null : left.certainMin <= right.certainMax && right.certainMin <= left.certainMax;
       comparison.textContent = "Comparaison des événements autorisés : " +
         left.total + " / " + right.total +
         " · observés : " + left.kinds.observed + " / " + right.kinds.observed +
         " · inférés : " + left.kinds.inferred + " / " + right.kinds.inferred +
         " · horodatages incertains : " + left.uncertain + " / " + right.uncertain +
-        " · plage certaine Case 1 (UTC) : " + range(left) +
-        " · plage certaine Case 2 (UTC) : " + range(right) +
-        " · chevauchement des plages certaines : " + overlap +
-        " · fenêtres UTC de 5 min avec événements certains dans les deux Cases : " + simultaneous.length +
+        " · plage certaine Case 1 (UTC) : " + caseRange(left) +
+        " · plage certaine Case 2 (UTC) : " + caseRange(right) +
+        " · chevauchement des plages certaines : " +
+        (envelopeOverlap === null ? "indéterminable" : envelopeOverlap ? "oui" : "non") +
+        " · fenêtres de 5 min avec événements certains dans les deux Cases : " +
+        sharedWindows.length +
         " · références communes : " + common.length + (top ? " · " + top : "") +
-        ". Ces plages ne sont pas des preuves d'activité continue, et une référence " +
-        "commune n'atteste ni causalité ni identité d'objet. Lectures non transactionnelles.";
-      for (const item of simultaneous.slice(0, 5)) {
-        const from = new Date(item.bucket * 300000).toISOString();
-        const to = new Date((item.bucket + 1) * 300000).toISOString();
+        ". Les écarts reposent sur les seuls horodatages certains et visibles. " +
+        "Présence commune d'une référence exacte, pas une preuve de causalité, " +
+        "d'identité d'objet ou d'exhaustivité. Lectures non transactionnelles.";
+      // An explicit local report contains only the already authorized
+      // aggregate: no raw event rows, token, owner preview or URL. Exclude
+      // references beyond the search bound instead of silently truncating.
+      const exportable = common.filter(group => group.ref.length <= 96).slice(0, 5);
+      const safeEnvelope = range => ({
+        certain_count: range.certain,
+        uncertain_count: range.uncertain,
+        first_certain_utc: range.certain ? new Date(range.first).toISOString() : null,
+        last_certain_utc: range.certain ? new Date(range.last).toISOString() : null
+      });
+      const receipt = {
+        schema_version: 1,
+        type: "cmdr-synthetic-authorized-case-comparison",
+        generated_at_utc: new Date().toISOString(),
+        case_ids: [selectedCase, otherCase],
+        filters: {
+          kind: kind.value, q: search.value.trim(),
+          from: windowSelection.from, to: windowSelection.to
+        },
+        visible_event_counts: [left.total, right.total],
+        visible_observed_counts: [left.kinds.observed, right.kinds.observed],
+        visible_inferred_counts: [left.kinds.inferred, right.kinds.inferred],
+        uncertain_timestamp_counts: [left.uncertain, right.uncertain],
+        certain_case_envelopes_utc: [left, right].map(value => ({
+          first: value.certainMin === null ? null : new Date(value.certainMin).toISOString(),
+          last: value.certainMax === null ? null : new Date(value.certainMax).toISOString()
+        })),
+        certain_case_envelopes_overlap: envelopeOverlap,
+        shared_source_references: common.length,
+        exported_source_references: exportable.map(group => ({
+          source_ref: group.ref,
+          visible_counts: [group.left, group.right],
+          case_a_time: safeEnvelope(group.leftTime),
+          case_b_time: safeEnvelope(group.rightTime),
+          temporal_relation: temporalRelation(group).relation,
+          certain_envelope_gap_ms: temporalRelation(group).gapMS
+        })),
+        excluded_or_unlisted_references: common.length - exportable.length,
+        limitations: [
+          "Local synthetic offline owner snapshot; no production identity or real SIEM source",
+          "Both Cases were authorized independently when pages were read",
+          "Comparisons are nontransactional and may become stale after rights or data change",
+          "Shared source reference is a triage indicator, not proof of causation or common object",
+          "Temporal ordering compares certain visible envelopes only; uncertain events may change real ordering",
+          "Case-wide observed/inferred counts and envelopes include authorized events regardless of shared sources; ranges do not prove continuous activity",
+          "Unsigned local aggregate; no raw events, forensic custody proof or complete export"
+        ]
+      };
+      preparedComparison = {
+        serialized: JSON.stringify(receipt, null, 2) + "\n",
+        revision: activeComparison, selection: activeSelection,
+        caseA: selectedCase, caseB: otherCase, bearer
+      };
+      downloadComparison.disabled = false;
+      // Correlate only common, bounded source references across BOTH fully
+      // authorized Case reads. No new query/ACL, source preview, or storage.
+      const shared = new Set(exportable.map(group => group.ref));
+      const merged = [
+        ...left.visibleRows.filter(row => shared.has(row.ref)).map(row => ({ ...row, side: "A" })),
+        ...right.visibleRows.filter(row => shared.has(row.ref)).map(row => ({ ...row, side: "B" }))
+      ].sort((a, b) => {
+        if (a.uncertain !== b.uncertain) return a.uncertain ? 1 : -1;
+        if (!a.uncertain && a.instant !== b.instant) return a.instant - b.instant;
+        return a.side < b.side ? -1 : a.side > b.side ? 1 :
+          a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
+      });
+      const heading = document.createElement("p");
+      heading.textContent = "Chronologie corrélée des références communes autorisées : " +
+        Math.min(merged.length, 20) + " / " + merged.length +
+        " événement(s), horodatages incertains à la fin. " +
+        "Ordre de triage uniquement, ni causalité ni preuve de conservation.";
+      comparisonChronology.append(heading);
+      // Both group and event drill-downs reuse the server-authorized Case
+      // search path. Correlation never grants source-owner or Case access.
+      function reopenAuthorizedCase(targetCase, query, utcWindow = null) {
+        if (activeComparison !== compareRevision ||
+            activeSelection !== revision || controller.signal.aborted ||
+            token.value !== bearer || caseID.value.trim() !== selectedCase ||
+            compareCase.value.trim() !== otherCase ||
+            typeof query !== "string" || query.length > 96 ||
+            (!query && !utcWindow)) return;
+        // Only timestamps from fully authorized, certain response entries
+        // may create a temporal pivot. No correlation grants access.
+        let localFrom = "", localTo = "";
+        if (utcWindow) {
+          localFrom = localTimestamp(utcWindow.from);
+          localTo = localTimestamp(utcWindow.to);
+          if (!localFrom || !localTo || utcWindow.from >= utcWindow.to) return;
+        }
+        caseID.value = targetCase;
+        search.value = query;
+        // Clear all old comparison/preview authority before re-querying.
+        caseID.dispatchEvent(new Event("input", { bubbles: true }));
+        if (utcWindow) {
+          fromInput.value = localFrom;
+          toInput.value = localTo;
+          fromInput.dispatchEvent(new Event("input", { bubbles: true }));
+          // Preserve exact UTC times, including daylight-saving folds.
+          restoredRange = { from: utcWindow.from, to: utcWindow.to };
+        }
+        offset = 0;
+        fetchPage(); // server re-checks Case, Timeline Entry and typed source
+      }
+      const list = document.createElement("ol");
+      for (const row of merged.slice(0, 20)) {
+        const item = document.createElement("li");
+        item.textContent = "Case " + row.side + " · " + row.id + " · " +
+          row.kind + " · " + row.ref + " · " +
+          (row.uncertain ? "heure incertaine" : new Date(row.instant).toISOString());
+        if (row.id.length <= 96) {
+          const drillDown = document.createElement("button");
+          drillDown.type = "button";
+          drillDown.textContent = "Rechercher cet événement dans Case " + row.side;
+          drillDown.addEventListener("click", () =>
+            reopenAuthorizedCase(row.side === "A" ? selectedCase : otherCase, row.id));
+          item.append(drillDown);
+          // Move from a correlated event to its actual ±30 second context:
+          // no client-side authority, no guessed times for uncertain rows.
+          if (!row.uncertain && Number.isFinite(row.instant)) {
+            const first = new Date(row.instant - 30000);
+            const last = new Date(row.instant + 30000);
+            if (Number.isFinite(first.getTime()) && Number.isFinite(last.getTime()) &&
+                first.getUTCFullYear() <= 9999 && last.getUTCFullYear() <= 9999) {
+              const contextButton = document.createElement("button");
+              contextButton.type = "button";
+              contextButton.textContent = "Examiner ±30 s autour de cet événement dans Case " + row.side;
+              const exactRange = { from: first.toISOString(), to: last.toISOString() };
+              contextButton.addEventListener("click", () =>
+                reopenAuthorizedCase(row.side === "A" ? selectedCase : otherCase, "", exactRange));
+              item.append(contextButton);
+            }
+          }
+        }
+        list.append(item); // textContent prevents operator-controlled HTML injection
+      }
+      comparisonChronology.append(list);
+      // Inter-Case temporal windows do not require a common source; each
+      // click returns to a real Case query with a new server-side ACL check.
+      for (const window of sharedWindows.slice(0, 5)) {
+        const start = new Date(window.bucket * 300000);
+        const end = new Date((window.bucket + 1) * 300000);
+        if (!Number.isFinite(start.getTime()) || !Number.isFinite(end.getTime()) ||
+            start.getUTCFullYear() > 9999 || end.getUTCFullYear() > 9999) continue;
+        const exactRange = { from: start.toISOString(), to: end.toISOString() };
         for (const target of [
-          { id: selectedCase, label: "Case 1", count: item.left },
-          { id: otherCase, label: "Case 2", count: item.right }
+          { id: selectedCase, label: "Case A", data: window.a },
+          { id: otherCase, label: "Case B", data: window.b }
         ]) {
           const button = document.createElement("button");
           button.type = "button";
-          button.textContent = "Examiner " + target.label + " · " + from +
-            " → " + to + " · " + target.count.total + " événement(s) certain(s), " +
-            target.count.observed + " observé(s), " + target.count.inferred + " inféré(s)";
-          button.addEventListener("click", () => {
-            if (controller.signal.aborted || compareRevision !== activeComparison ||
-                revision !== activeSelection || token.value !== bearer ||
-                caseID.value.trim() !== selectedCase || compareCase.value.trim() !== otherCase) return;
-            // A pivot is a UI selector only; fetchPage reauthorizes all records.
-            clearComparison();
-            caseID.value = target.id;
-            offset = 0;
-            restoreOffsetOnSubmit = false;
-            fromInput.value = localTimestamp(from);
-            toInput.value = localTimestamp(to);
-            restoredRange = { from, to }; // preserve exact UTC through DST folds
-            fetchPage();
-          });
+          button.textContent = "Examiner la fenêtre commune dans " + target.label + " : " +
+            exactRange.from + " → " + exactRange.to + " · " +
+            target.data.total + " événement(s) certain(s)";
+          button.addEventListener("click", () => reopenAuthorizedCase(target.id, "", exactRange));
+          comparisonWindows.append(button);
+        }
+      }
+      // Source-reference pivots follow the same fresh authorization path.
+      for (const group of common.slice(0, 5)) {
+        if (group.ref.length > 96) continue;
+        for (const targetCase of [selectedCase, otherCase]) {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.textContent = "Examiner dans " +
+            (targetCase === selectedCase ? "Case A" : "Case B") +
+            " : " + group.ref;
+          button.addEventListener("click", () => reopenAuthorizedCase(targetCase, group.ref));
           comparisonActions.append(button);
         }
       }
     } catch {
       if (activeComparison === compareRevision) {
-        comparisonActions.replaceChildren();
         comparison.textContent = "Comparaison indisponible ou droits modifiés. Aucun résultat partiel.";
+        comparisonActions.replaceChildren();
+        comparisonWindows.replaceChildren();
+        comparisonChronology.replaceChildren();
       }
     } finally {
       if (activeComparison === compareRevision) {
@@ -495,9 +759,11 @@
   }
 
   function clearCaseChoices() {
-    caseOptions.replaceChildren();
-    caseOptions.add(new Option("Aucun Case chargé", ""));
-    caseOptions.disabled = true;
+    for (const select of [caseOptions, compareCaseOptions]) {
+      select.replaceChildren();
+      select.add(new Option("Aucun Case chargé", ""));
+      select.disabled = true;
+    }
     discoveryStatus.textContent = "";
   }
 
@@ -538,8 +804,13 @@
         option.value = id;
         option.textContent = id;
         caseOptions.add(option);
+        const comparisonOption = document.createElement("option");
+        comparisonOption.value = id;
+        comparisonOption.textContent = id;
+        compareCaseOptions.add(comparisonOption);
       }
       caseOptions.disabled = result.cases.length === 0;
+      compareCaseOptions.disabled = result.cases.length === 0;
       discoveryStatus.textContent = result.cases.length + " Case(s) accessibles.";
     } catch {
       if (currentRevision !== discoveryRevision) return;
@@ -825,6 +1096,25 @@
   analyze.addEventListener("click", analyzeAuthorizedCase);
   compareButton.addEventListener("click", compareAuthorizedCases);
   compareCase.addEventListener("input", clearComparison);
+  downloadComparison.addEventListener("click", () => {
+    const receipt = preparedComparison;
+    if (!receipt || receipt.revision !== compareRevision ||
+        receipt.selection !== revision || token.value !== receipt.bearer ||
+        caseID.value.trim() !== receipt.caseA ||
+        compareCase.value.trim() !== receipt.caseB) return;
+    let objectURL = null;
+    try {
+      objectURL = URL.createObjectURL(new Blob([receipt.serialized], { type: "application/json" }));
+      const link = document.createElement("a");
+      link.href = objectURL;
+      link.download = "cmdr-local-case-comparison.json";
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(objectURL), 1000);
+    } catch {
+      if (objectURL) URL.revokeObjectURL(objectURL);
+      comparison.textContent = "Export local indisponible. Relancez la comparaison si nécessaire.";
+    }
+  });
   downloadReport.addEventListener("click", () => {
     const receipt = preparedReport;
     if (!receipt || receipt.revision !== analysisRevision ||
@@ -851,6 +1141,12 @@
     if (!caseOptions.value) return;
     caseID.value = caseOptions.value;
     caseID.dispatchEvent(new Event("input", { bubbles: true }));
+  });
+  compareCaseOptions.addEventListener("change", () => {
+    if (!compareCaseOptions.value) return;
+    // Selection proposes an ID only; both Cases are freshly server-authorized.
+    compareCase.value = compareCaseOptions.value;
+    compareCase.dispatchEvent(new Event("input", { bubbles: true }));
   });
 
   form.addEventListener("submit", event => {
