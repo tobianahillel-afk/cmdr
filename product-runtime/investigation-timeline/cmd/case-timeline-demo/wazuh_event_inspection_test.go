@@ -127,11 +127,11 @@ func TestWazuhEventInspectionRejectsUnauthorizedAndAmbiguousSelections(t *testin
 		{"foreign principal", 1, "-principal=analyst-b", nil},
 		{"foreign Case", 2, "-into-case=case-b", nil},
 		{"unimported entry", 5, "-inspect-wazuh-entry=event-old", nil},
-		{"bad interval", 8, "-pivot-start=2026-10-17T12:00:00Z", nil},
-		{"unsupported pivot", 7, "-pivot-wazuh-field=hostname", nil},
+		{"bad interval", 7, "-pivot-start=2026-10-17T12:00:00Z", nil},
+		{"unsupported pivot", 6, "-pivot-wazuh-field=hostname", nil},
 		{"other mode", -1, "", []string{"-serve-import"}},
 		{"other comparison", -1, "", []string{"-with-case=case-b"}},
-		{"missing end", 9, "-pivot-end=", nil},
+		{"missing end", 8, "-pivot-end=", nil},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			args := append([]string(nil), good...)
