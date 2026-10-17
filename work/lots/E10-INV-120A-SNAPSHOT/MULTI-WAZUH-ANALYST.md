@@ -12,11 +12,11 @@ go run ./cmd/case-timeline-demo -principal=analyst-a \
   -into-case=case-a -serve-import
 ```
 
-The CLI is the only path selector; the browser cannot upload files, choose ACLs or mutate Case sources. All feeds are bounded, parsed and owner-authorized before generating the ephemeral bearer or binding the listener. Identical alert IDs across separate files get separate SHA-256-derived source/entry identities, using the local trusted feed ordinal. The owner snapshot and every input file remain untouched. Authenticated Case discovery, Timeline pagination and typed source previews work across both feeds, including the original source descriptions; anonymous/foreign/denied requests remain blocked.
+The CLI is the only path selector; the browser cannot upload files, choose ACLs or mutate Case sources. All feeds are bounded, parsed and owner-authorized before generating the ephemeral bearer or binding the listener. Identical alert IDs across separate files get separate SHA-256-derived source/entry identities, using the local trusted feed ordinal in each Wazuh normalized ID (`wazuh-feed-N-rawid`). The existing JSONL importer remains unchanged; its provenance remains `operator-local-jsonl`, while the feed identifier is encoded in the ID without disclosing a local file path. The owner snapshot and every input file remain untouched. Authenticated Case discovery, Timeline pagination and typed source previews work across both feeds, including the original source descriptions; anonymous/foreign/denied requests remain blocked.
 
 ## Reuse-first design
 
-The code composes the existing Wazuh 4.x normalizer, `readLocalEventFile`, `importLocalEvents` in-memory owner extension, `NewMemoryCaseTimelineHTTPHandlers` and first-party analyst UI. One optional local feed-number argument namespaces IDs and source provenance; no new serializer, queue, database, generic ACL engine, frontend framework, external dependency or paid API. A streaming parser, Wazuh SDK or live remote ingestion would add trust boundaries without enabling this bounded offline use case.
+The code composes the existing Wazuh 4.x normalizer, `readLocalEventFile`, `importLocalEvents` in-memory owner extension, `NewMemoryCaseTimelineHTTPHandlers` and first-party analyst UI. One optional local feed-number argument to Wazuh normalization namespaces IDs, before the unchanged JSONL importer; no new serializer, queue, database, generic ACL engine, frontend framework, external dependency or paid API. A streaming parser, Wazuh SDK or live remote ingestion would add trust boundaries without enabling this bounded offline use case.
 
 ## Compatibility, limits and risk
 

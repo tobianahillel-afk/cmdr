@@ -26,6 +26,15 @@ type wazuh4Alert struct {
 }
 
 func normalizeWazuh4Alerts(ctx context.Context, raw []byte) ([]byte, error) {
+	return normalizeWazuh4AlertsFromFeed(ctx, raw, 0)
+}
+
+// The trusted local feed ordinal namespaces events before the unchanged
+// generic JSONL importer. Neither feed metadata nor Wazuh grants permissions.
+func normalizeWazuh4AlertsFromFeed(ctx context.Context, raw []byte, feedNumber int) ([]byte, error) {
+	if feedNumber < 0 || feedNumber > maxWazuhAlertFiles {
+		return nil, errors.New("invalid Wazuh feed number")
+	}
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
@@ -57,6 +66,9 @@ func normalizeWazuh4Alerts(ctx context.Context, raw []byte) ([]byte, error) {
 			return nil, fmt.Errorf("missing Wazuh alert identity at line %d", i+1)
 		}
 		eventID := "wazuh-" + alert.ID
+		if feedNumber > 0 {
+			eventID = fmt.Sprintf("wazuh-feed-%d-%s", feedNumber, alert.ID)
+		}
 		if !validLocalEventID(eventID) {
 			return nil, fmt.Errorf("invalid Wazuh alert identity at line %d", i+1)
 		}
@@ -137,15 +149,15 @@ func serveDemoWithWazuhAlertsFiles(ctx context.Context, principal, snapshotPath,
 			}
 		}
 		seen = append(seen, info)
-		events, err := normalizeWazuh4Alerts(ctx, data)
-		if err != nil {
-			return err
-		}
 		feed := 0
 		if len(paths) > 1 {
 			feed = i + 1
 		}
-		owner, err = importLocalEventsFromFeed(ctx, owner, principal, caseID, events, feed)
+		events, err := normalizeWazuh4AlertsFromFeed(ctx, data, feed)
+		if err != nil {
+			return err
+		}
+		owner, err = importLocalEvents(ctx, owner, principal, caseID, events)
 		if err != nil {
 			return err
 		}
