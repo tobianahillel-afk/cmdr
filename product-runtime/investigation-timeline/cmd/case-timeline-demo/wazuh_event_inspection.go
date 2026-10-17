@@ -1,0 +1,176 @@
+package main
+
+import (
+	"context"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"io"
+	"net/url"
+
+	inspection "github.com/tobianahillel-afk/cmdr/product-runtime/event-inspection"
+	timeline "github.com/tobianahillel-afk/cmdr/product-runtime/investigation-timeline"
+)
+
+// One synthetic operator-selected Wazuh alert is inspected through the real
+// typed-source owner and the existing Event Inspection projection engine.
+// No Wazuh input, caller flag or normalized metadata grants permissions.
+type wazuhInspectionReceipt struct {
+	Format string `json:"format"`
+	Synthetic bool `json:"synthetic"`
+	CaseID string `json:"case_id"`
+	Inspection *inspection.Projection `json:"inspection"`
+	Pivot *inspection.PivotDraft `json:"pivot_draft,omitempty"`
+}
+
+func writeDemoWazuhEventInspection(ctx context.Context, principal, snapshot, caseID string, paths []string, entryID, pivotField, pivotFrom, pivotTo string, output io.Writer) error {
+	if ctx == nil || ctx.Err() != nil || principal == "" || caseID == "" || len(caseID) > 1024 ||
+		entryID == "" || len(entryID) > 256 || len(paths) == 0 || len(paths) > maxWazuhAlertFiles {
+		return errors.New("select a local Wazuh alert in an authorized Case")
+	}
+	if pivotField == "" && (pivotFrom != "" || pivotTo != "") {
+		return errors.New("time bounds require an explicitly selected Wazuh pivot field")
+	}
+	if pivotField != "" && (pivotFrom == "" || pivotTo == "") {
+		return errors.New("Wazuh pivot requires an explicit bounded time interval")
+	}
+	if pivotField != "" && pivotField != "wazuh.rule.id" && pivotField != "wazuh.agent.id" {
+		return errors.New("unsupported Wazuh normalized pivot field")
+	}
+
+	var data timeline.MemoryTimelineData
+	var imported int
+	var levels map[string]wazuhRuleLevel
+	var err error
+	if len(paths) == 1 {
+		var raw []byte
+		data, imported, raw, err = prepareWazuh4CaseWithRaw(ctx, principal, snapshot, caseID, paths[0])
+		if err == nil {
+			levels, err = wazuhRuleLevels(raw, caseID)
+		}
+	} else {
+		data, imported, levels, err = loadMultipleWazuhFeedsWithLevels(ctx, principal, snapshot, caseID, paths)
+	}
+	if err != nil || imported == 0 || len(levels) != imported {
+		return errors.New("Wazuh owner import or metadata unavailable")
+	}
+	metadata, belongsToImport := levels[entryID]
+	if !belongsToImport {
+		return errors.New("entry does not belong to selected Wazuh import")
+	}
+
+	token, err := randomBearer()
+	if err != nil {
+		return err
+	}
+	handler, err := newDemoHandlerWithData(token, principal, data)
+	if err != nil {
+		return err
+	}
+	var selected timeline.ProjectedEntry
+	visibleImported := 0
+	_, err = collectDemoCaseTriageWithObserver(ctx, handler, token, caseID, func(entry timeline.ProjectedEntry) error {
+		if _, ok := levels[entry.ID]; ok {
+			visibleImported++
+			if entry.ID == entryID {
+				selected = entry
+			}
+		}
+		return nil
+	})
+	if err != nil || visibleImported != imported || selected.ID != entryID ||
+		selected.Kind != "observed" || selected.SourceRef == "" || selected.TimeUncertain {
+		return errors.New("selected Wazuh event not fully owner-authorized")
+	}
+	// Independently re-open the typed source after completing authorized
+	// Case pagination. Preview is intentionally disclosed ONLY in this
+	// explicit, sensitive inspection command.
+	q := url.Values{"case_id": {caseID}, "entry_id": {entryID}}
+	var opened struct {
+		Status string `json:"status"`
+		Synthetic bool `json:"synthetic"`
+		CaseID string `json:"case_id"`
+		EntryID string `json:"entry_id"`
+		Kind string `json:"kind"`
+		ObjectID string `json:"object_id"`
+		Preview string `json:"preview"`
+	}
+	if err := queryDemoOwner(ctx, handler, token, "/demo-source-open?"+q.Encode(), &opened); err != nil {
+		return err
+	}
+	if opened.Status != "ready" || !opened.Synthetic || opened.CaseID != caseID ||
+		opened.EntryID != entryID || opened.Kind != "telemetry-event" || opened.ObjectID == "" {
+		return errors.New("typed telemetry owner denied or changed during inspection")
+	}
+	var tenant, environment string
+	for _, p := range data.Principals {
+		if p.ID == principal {
+			tenant, environment = p.Tenant, p.Environment
+			break
+		}
+	}
+	ownerCase := false
+	for _, c := range data.Cases {
+		if c.ID == caseID && c.Tenant == tenant && c.Environment == environment {
+			ownerCase = true
+			break
+		}
+	}
+	if !ownerCase || tenant == "" || environment == "" {
+		return errors.New("selected principal and Case scope inconsistent")
+	}
+
+	normalized := make(map[string]string)
+	if metadata.RuleID != "" {
+		normalized["wazuh.rule.id"] = metadata.RuleID
+	}
+	if metadata.AgentID != "" {
+		normalized["wazuh.agent.id"] = metadata.AgentID
+	}
+	datasource := "wazuh4-local-operator-feed"
+	if metadata.Feed > 0 {
+		datasource = fmt.Sprintf("wazuh4-local-feed-%d", metadata.Feed)
+	}
+	result := inspection.Project(inspection.Input{
+		TenantRef: tenant, AuthorizedTenants: []string{tenant}, EnvironmentRef: environment,
+		Permissions: []string{inspection.PermissionTelemetryRead}, // synthetic in-process exercise only
+		RawAccessDecision: inspection.AccessDeny, RenderedAccessDecision: inspection.AccessAllow,
+		CorrelationID: "offline-wazuh-event-inspection",
+		Event: inspection.Event{
+			Ref: selected.ID, TenantRef: tenant, State: inspection.StateAvailable,
+			Source: inspection.SourceMetadata{
+				SourceRef: selected.SourceRef, DataSourceRef: datasource, Kind: opened.Kind,
+			},
+			Parser: inspection.ParserMetadata{
+				ParserRef: "wazuh4-local-normalizer", Version: "1", Status: "normalized",
+			},
+			NormalizedFields: normalized,
+			RenderedPayload: []byte(opened.Preview),
+		},
+	})
+	if !result.Allowed || result.Projection == nil {
+		return errors.New("Event Inspection projection denied")
+	}
+	receipt := wazuhInspectionReceipt{
+		Format: "cmdr-local-wazuh4-event-inspection-v1", Synthetic: true,
+		CaseID: caseID, Inspection: result.Projection,
+	}
+	if pivotField != "" {
+		value, present := normalized[pivotField]
+		pivot := inspection.PreparePivot(result.Projection, inspection.PivotSelection{
+			Field: pivotField, Value: value, ValuePresent: present,
+			ValueAuthorized: present, TimeStart: pivotFrom, TimeEnd: pivotTo,
+			ReturnOrigin: "offline-wazuh-case",
+		})
+		if !pivot.Allowed || pivot.Draft == nil {
+			return errors.New("Wazuh search pivot unavailable")
+		}
+		receipt.Pivot = pivot.Draft
+	}
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	// No partial output: serialize only after complete Case/source rechecks
+	// and a successful first-party Event Inspection / Pivot evaluation.
+	return json.NewEncoder(output).Encode(receipt)
+}
