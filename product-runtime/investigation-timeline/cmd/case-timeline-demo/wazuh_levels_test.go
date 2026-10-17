@@ -97,3 +97,52 @@ func TestWazuhRuleLevelBadSourceOrCancellationEmitsNothing(t *testing.T) {
 		t.Fatalf("cancelled Wazuh analysis emitted output: %v", err)
 	}
 }
+
+func TestWazuhRuleLevelHistogramsIncludeBoundaryAndAbsentValues(t *testing.T) {
+	owner := twoCaseComparisonSnapshot(t)
+	alerts := writeJSONLEvents(t,
+		"{\"id\":\"low-boundary\",\"timestamp\":\"2026-10-01T10:30:00Z\",\"rule\":{\"level\":0,\"description\":\"low\"}}\n"+
+			"{\"id\":\"high-boundary\",\"timestamp\":\"2026-10-01T10:30:01Z\",\"rule\":{\"level\":16,\"description\":\"high\"}}\n"+
+			"{\"id\":\"no-level\",\"timestamp\":\"2026-10-01T10:30:02Z\",\"rule\":{\"description\":\"not classified\"}}\n")
+	var output bytes.Buffer
+	if err := writeDemoWazuh4Triage(context.Background(), "analyst-a", owner, "case-a", alerts, &output); err != nil {
+		t.Fatal(err)
+	}
+	var receipt wazuhRuleTriageReceipt
+	if err := json.Unmarshal(output.Bytes(), &receipt); err != nil {
+		t.Fatal(err)
+	}
+	if receipt.ImportedEntries != 3 || receipt.UnknownRuleLevels != 1 ||
+		len(receipt.RuleLevels) != 2 ||
+		receipt.RuleLevels[0] != (wazuhLevelCount{Level: 0, Count: 1}) ||
+		receipt.RuleLevels[1] != (wazuhLevelCount{Level: 16, Count: 1}) {
+		t.Fatalf("Wazuh boundary levels lost: %+v", receipt)
+	}
+}
+
+func TestWazuhRuleIdentifiersAreBoundToAuthorizedCase(t *testing.T) {
+	raw := []byte("{\"id\":\"same-alert\",\"rule\":{\"level\":12}}\n" +
+		"{\"id\":\"missing\",\"rule\":{}}\n")
+	first, err := wazuhRuleLevels(raw, "case-a")
+	if err != nil { t.Fatal(err) }
+	second, err := wazuhRuleLevels(raw, "case-c")
+	if err != nil { t.Fatal(err) }
+	if len(first) != 2 || len(second) != 2 {
+		t.Fatalf("wrong Wazuh identity cardinality: %d %d", len(first), len(second))
+	}
+	var known, unknown int
+	for id, level := range first {
+		if _, collides := second[id]; collides {
+			t.Fatal("Wazuh identity was shared across independent Cases")
+		}
+		if level.Known {
+			if level.Level != 12 { t.Fatalf("wrong source level %d", level.Level) }
+			known++
+		} else {
+			unknown++
+		}
+	}
+	if known != 1 || unknown != 1 {
+		t.Fatalf("known and unknown Wazuh rule levels not preserved: %d %d", known, unknown)
+	}
+}
