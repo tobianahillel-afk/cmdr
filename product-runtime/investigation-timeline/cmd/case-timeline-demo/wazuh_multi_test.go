@@ -117,6 +117,41 @@ func TestMultipleWazuhFilesThroughAuthorizedLoopback(t *testing.T) {
 			t.Fatalf("unauthorized multi-feed cohort leaked: status=%d body=%q", code, body)
 		}
 	}
+	// From the multi-source cohort, pivot to the actual authorized entries,
+	// then use the existing typed-source preview path for each selected ID.
+	drillPath := "/demo-wazuh-drilldown?case_id=forensic-case-on-disk&rule_id=5710"
+	status, drillJSON := request(drillPath, bearer)
+	if status != http.StatusOK {
+		t.Fatalf("multi-feed cohort-to-entry drilldown unavailable: %d %s", status, drillJSON)
+	}
+	var drill wazuhDrilldownReceipt
+	if err := json.Unmarshal([]byte(drillJSON), &drill); err != nil {
+		t.Fatal(err)
+	}
+	if drill.TotalMatches != 2 || len(drill.Entries) != 2 ||
+		drill.Selector != "rule_id" || drill.Value != "5710" {
+		t.Fatalf("multi-feed drilldown failed to select both alerts: %+v", drill)
+	}
+	for i := range drill.Entries {
+		if drill.Entries[i].ID == "" || strings.Contains(drillJSON, "Wazuh first feed alert") ||
+			strings.Contains(drillJSON, "Wazuh second feed alert") {
+			t.Fatalf("drilldown leaked or omitted source: %s", drillJSON)
+		}
+	}
+	for _, requestData := range []struct {
+		path, bearer string
+		want int
+	}{
+		{drillPath, "", http.StatusUnauthorized},
+		{drillPath, strings.Repeat("0", 64), http.StatusUnauthorized},
+		{"/demo-wazuh-drilldown?case_id=case-b&rule_id=5710", bearer, http.StatusNotFound},
+		{drillPath + "&agent_id=001", bearer, http.StatusNotFound},
+	} {
+		code, body := request(requestData.path, requestData.bearer)
+		if code != requestData.want || strings.Contains(body, "local-jsonl-entry-") {
+			t.Fatalf("invalid drilldown leaked identity: %d %s", code, body)
+		}
+	}
 	path := "/case-timeline?case_id=forensic-case-on-disk&limit=20"
 	status, page := request(path, bearer)
 	if status != http.StatusOK {

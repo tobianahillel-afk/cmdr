@@ -14,7 +14,7 @@ const ids = [
   "return-to-case", "copy-return-link", "analyze", "analysis", "analysis-actions", "download-report",
   "compare-case", "compare", "comparison", "comparison-actions", "download-comparison",
   "download-cross-events", "proximity", "proximity-seconds", "proximity-results",
-  "trace-actions", "trace-results", "wazuh-cohorts", "wazuh-status",
+  "trace-actions", "trace-results", "wazuh-cohorts", "wazuh-status", "wazuh-actions", "wazuh-events",
   "comparison-trace-actions", "comparison-trace-results"
 ];
 function node() {
@@ -1191,4 +1191,73 @@ test("Wazuh denied, malformed or stale replies never render a partial cohort", a
   await flush();
   await flush();
   assert.doesNotMatch(env.fields["wazuh-status"].textContent, /agent 001/);
+});
+
+test("Wazuh cohort drilldown opens a real authorized event through the existing source route", async () => {
+  const requestsSeen = [];
+  const env = boot((url, options) => {
+    requestsSeen.push(url.pathname);
+    if (url.pathname === "/demo-wazuh-cohorts") return { ok: true, async json() {
+      return { format: "cmdr-local-wazuh4-case-triage-v1", synthetic: true,
+        imported_entries: 2,
+        top_agents: [{ agent_id: "001", count: 1, distinct_rule_ids: 1, highest_known_rule_level: 9 }],
+        top_rules: [{ rule_id: "5710", count: 2, highest_known_rule_level: 9 }] };
+    } };
+    if (url.pathname === "/demo-wazuh-drilldown") return { ok: true, async json() {
+      return { format: "cmdr-local-wazuh4-drilldown-v1", synthetic: true,
+        selector: url.searchParams.has("agent_id") ? "agent_id" : "rule_id",
+        value: url.searchParams.get("agent_id") || url.searchParams.get("rule_id"),
+        total_matches: 1, entries: [{
+          id: "local-jsonl-entry-abcdef", kind: "observed",
+          source_time: "2026-10-01T10:00:00Z", time_uncertain: false
+        }] };
+    } };
+    if (url.pathname === "/case-source-navigation") return { ok: true, async json() {
+      return { status: "ready", kind: "telemetry-event", object_id: "authorized-event",
+        return_is_authority: false, return_case_id: "case-disk",
+        return_entry_id: "local-jsonl-entry-abcdef",
+        return_query: "case_id=case-disk&limit=20&offset=0" };
+    } };
+    throw Error("Unexpected endpoint " + url.pathname);
+  });
+  env.fields["wazuh-cohorts"].handlers.click();
+  await flush();
+  await flush();
+  assert.equal(env.fields["wazuh-actions"].children.length, 2);
+  env.fields["wazuh-actions"].children[0].handlers.click();
+  await flush();
+  await flush();
+  assert.deepEqual(requestsSeen.slice(0, 2), ["/demo-wazuh-cohorts", "/demo-wazuh-drilldown"]);
+  assert.equal(env.fields["wazuh-events"].children.length, 1);
+  const list = env.fields["wazuh-events"].children[0];
+  assert.equal(list.children.length, 1);
+  list.children[0].children[0].handlers.click();
+  await flush();
+  await flush();
+  assert.ok(requestsSeen.includes("/case-source-navigation"), "drilldown did not reauthorize source");
+  const drift = env.requests.find(r => r.url.pathname === "/demo-wazuh-drilldown");
+  assert.equal(drift.url.searchParams.get("case_id"), "case-disk");
+  assert.equal(drift.url.searchParams.get("agent_id"), "001");
+  assert.equal(drift.options.headers.Authorization, "Bearer ephemeral-token");
+  assert.ok(!drift.url.href.includes("ephemeral-token"));
+});
+
+test("Wazuh drilldown denial reveals no partial entry", async () => {
+  const env = boot(url => {
+    if (url.pathname === "/demo-wazuh-cohorts") return { ok: true, async json() {
+      return { format: "cmdr-local-wazuh4-case-triage-v1", synthetic: true,
+        imported_entries: 1,
+        top_agents: [{ agent_id: "001", count: 1, distinct_rule_ids: 1 }],
+        top_rules: [] };
+    } };
+    return { ok: false, async json() { throw Error("denied"); } };
+  });
+  env.fields["wazuh-cohorts"].handlers.click();
+  await flush();
+  await flush();
+  env.fields["wazuh-actions"].children[0].handlers.click();
+  await flush();
+  await flush();
+  assert.equal(env.fields["wazuh-events"].children.length, 0);
+  assert.match(env.fields["wazuh-events"].textContent, /droits modifiés/);
 });

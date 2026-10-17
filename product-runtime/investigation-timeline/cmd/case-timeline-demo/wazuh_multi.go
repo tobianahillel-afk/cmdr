@@ -140,7 +140,7 @@ func serveDemoWithWazuhAlertsFiles(ctx context.Context, principal, snapshotPath,
 		return err
 	}
 	return serveDemoWithDataRoute(ctx, principal, owner, output, func(token string, base http.Handler) http.Handler {
-		return newDemoWazuhCohortReceiptHandler(token, principal, caseID, owner, imported, nil, base, func(requestCtx context.Context, body io.Writer) error {
+		return newDemoWazuhCohortReceiptHandler(token, principal, caseID, owner, imported, nil, levels, base, func(requestCtx context.Context, body io.Writer) error {
 			return writeDemoWazuh4RuleTriageWithLevels(requestCtx, principal, owner, imported, levels, caseID, body)
 		})
 	})

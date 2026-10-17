@@ -113,16 +113,16 @@ func serveDemoWithWazuhAlerts(ctx context.Context, principal, snapshotPath, case
 // This optional lab-only route is never installed for ordinary snapshots.
 // No Wazuh metadata is returned before bearer AND owner-authorized traversal.
 func newDemoWazuhCohortHandler(token, principal, caseID string, data timeline.MemoryTimelineData, imported int, raw []byte, base http.Handler) http.Handler {
-	return newDemoWazuhCohortReceiptHandler(token, principal, caseID, data, imported, raw, base, func(ctx context.Context, output io.Writer) error {
+	return newDemoWazuhCohortReceiptHandler(token, principal, caseID, data, imported, raw, nil, base, func(ctx context.Context, output io.Writer) error {
 		return writeDemoWazuh4RuleTriageWithData(ctx, principal, data, imported, raw, caseID, output)
 	})
 }
 
-// A shared authenticated route, not a new trust boundary. The callback
-// computes a receipt only after the bearer and selected Case are checked.
-func newDemoWazuhCohortReceiptHandler(token, principal, caseID string, data timeline.MemoryTimelineData, imported int, raw []byte, base http.Handler, receipt func(context.Context, io.Writer) error) http.Handler {
+// The same loopback route serves existing single-feed and authorized
+// multi-feed cohorts; raw metadata never provides an ACL decision.
+func newDemoWazuhCohortReceiptHandler(token, principal, caseID string, data timeline.MemoryTimelineData, imported int, raw []byte, levels map[string]wazuhRuleLevel, base http.Handler, receipt func(context.Context, io.Writer) error) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path != "/demo-wazuh-cohorts" {
+		if r.URL.Path != "/demo-wazuh-cohorts" && r.URL.Path != "/demo-wazuh-drilldown" {
 			base.ServeHTTP(w, r)
 			return
 		}
@@ -137,6 +137,14 @@ func newDemoWazuhCohortReceiptHandler(token, principal, caseID string, data time
 		expected := "Bearer " + token
 		if subtle.ConstantTimeCompare([]byte(r.Header.Get("Authorization")), []byte(expected)) != 1 {
 			http.Error(w, "not authenticated", http.StatusUnauthorized)
+			return
+		}
+		if r.URL.Path == "/demo-wazuh-drilldown" {
+			if levels != nil {
+				serveDemoWazuhDrilldownWithLevels(w, r, principal, data, imported, levels, caseID)
+			} else {
+				serveDemoWazuhDrilldown(w, r, principal, data, imported, raw, caseID)
+			}
 			return
 		}
 		query := r.URL.Query()

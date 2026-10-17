@@ -26,7 +26,7 @@ function boot(search = "", navigationQuery, denySource = false) {
     "summary", "message", "page", "previous", "next", "load",
     "source-detail", "source-status", "return-to-case", "copy-return-link",
     "analyze", "analysis", "analysis-actions", "download-report",
-    "wazuh-cohorts", "wazuh-status",
+    "wazuh-cohorts", "wazuh-status", "wazuh-actions", "wazuh-events",
     "compare-case", "compare", "comparison", "comparison-actions", "download-comparison",
     "trace-actions", "trace-results",
     "comparison-trace-actions", "comparison-trace-results", "download-cross-events",
