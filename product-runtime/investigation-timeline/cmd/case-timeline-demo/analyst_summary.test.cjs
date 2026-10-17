@@ -950,15 +950,15 @@ test("cross-Case source sequence paginates real authorized rows and rechecks pee
   const result = env.fields["comparison-trace-results"];
   assert.match(result.textContent, /1–25 \/ 54/);
   assert.equal(result.children[0].children.length, 25);
-  assert.match(result.children[0].children[0].textContent, /Case 1 · observed/);
-  assert.match(result.children[0].children[1].textContent, /Case 2 · observed/);
+  assert.match(result.children[0].children[0].children[0].textContent, /Case 1 · observed/);
+  assert.match(result.children[0].children[1].children[0].textContent, /Case 2 · observed/);
   assert.equal(env.requests.length, 2, "local trace must not invent an extra source/index endpoint");
   result.children.find(el => /suivants/.test(el.textContent)).handlers.click();
   assert.match(result.textContent, /26–50 \/ 54/);
   result.children.find(el => /suivants/.test(el.textContent)).handlers.click();
   assert.match(result.textContent, /51–54 \/ 54/);
   assert.equal(result.children[0].children.length, 4);
-  assert.match(result.children[0].children.at(-1).textContent, /incertain/);
+  assert.match(result.children[0].children.at(-1).children[0].textContent, /incertain/);
   // Return to first page and open the peer Case's authorized event.
   result.children.find(el => /précédents/.test(el.textContent)).handlers.click();
   result.children.find(el => /précédents/.test(el.textContent)).handlers.click();
