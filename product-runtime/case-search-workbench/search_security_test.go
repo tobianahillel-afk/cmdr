@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -218,5 +219,68 @@ func TestCaseSearchOwnerSnapshotRejectsUnsafeFiles(t *testing.T) {
 		if err := runCLI(context.Background(), bad, &output); err == nil || output.Len() != 0 {
 			t.Fatalf("CLI accepted malformed selection: %q %v", bad, err)
 		}
+	}
+}
+
+	
+// Pagination is a trust boundary: the second HTTP page may have been
+// independently reauthorized or revoked after the first was issued.
+func TestCaseSearchFullPaginationAndSecondPageRevocation(t *testing.T) {
+	entries := make([]timeline.ProjectedEntry, 201)
+	for i := range entries {
+		entries[i] = timeline.ProjectedEntry{
+			ID: fmt.Sprintf("authorized-entry-%03d", i),
+			SourceRef: fmt.Sprintf("authorized-telemetry-%03d", i),
+			Provenance: "trusted-memory-owner", Version: 1,
+		}
+	}
+	owner := func(secondPage string) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			second := r.URL.Query().Get("offset") == "200"
+			if second && secondPage == "revoked" {
+				http.NotFound(w, r)
+				return
+			}
+			page := ownerPage{Status: "allow"}
+			page.Page.Limit = 200
+			page.Page.TotalVisible = len(entries)
+			if second {
+				page.Page.Offset = 200
+				page.Entries = append([]timeline.ProjectedEntry(nil), entries[200:]...)
+			} else {
+				page.Page.Offset = 0
+				page.Page.HasMore = true
+				page.Entries = append([]timeline.ProjectedEntry(nil), entries[:200]...)
+			}
+			if second {
+				switch secondPage {
+				case "duplicate":
+					page.Entries[0].ID = entries[0].ID
+				case "changed-total":
+					page.Page.TotalVisible--
+				case "changed-offset":
+					page.Page.Offset = 0
+				case "empty":
+					page.Entries = nil
+				}
+			}
+			_ = json.NewEncoder(w).Encode(page)
+		})
+	}
+	got, err := readOwnerPages(context.Background(), owner("valid"), "case-a")
+	if err != nil || len(got) != 201 ||
+		got[0].ID != "authorized-entry-000" ||
+		got[200].ID != "authorized-entry-200" {
+		t.Fatalf("complete 2-page authorized search failed: entries=%d err=%v", len(got), err)
+	}
+	for _, condition := range []string{
+		"revoked", "duplicate", "changed-total", "changed-offset", "empty",
+	} {
+		t.Run(condition, func(t *testing.T) {
+			result, err := readOwnerPages(context.Background(), owner(condition), "case-a")
+			if err == nil || len(result) != 0 {
+				t.Fatalf("unsafe second owner page accepted: %d rows, %v", len(result), err)
+			}
+		})
 	}
 }
