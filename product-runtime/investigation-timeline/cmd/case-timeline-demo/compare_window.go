@@ -63,6 +63,23 @@ func writeDemoCaseWindowSequence(ctx context.Context, principal, snapshot, first
 	if err != nil {
 		return err
 	}
+	report, err := selectAuthorizedCaseWindow(ctx, full, firstID, secondID, start)
+	if err != nil {
+		return err
+	}
+	return json.NewEncoder(out).Encode(report)
+}
+
+// Pure, bounded selection from the completed server-authorized two-Case
+// sequence. Keeping this separate from owner I/O allows independent
+// integrity checks without inventing a second authorization mechanism.
+func selectAuthorizedCaseWindow(
+	ctx context.Context, full localCaseEventSequence,
+	firstID, secondID string, start time.Time,
+) (localCaseWindowSequence, error) {
+	if err := ctx.Err(); err != nil {
+		return localCaseWindowSequence{}, err
+	}
 	end := start.Add(5 * time.Minute)
 	report := localCaseWindowSequence{
 		Format: "cmdr-local-cross-case-time-window-v1", Synthetic: true,
@@ -70,33 +87,33 @@ func writeDemoCaseWindowSequence(ctx context.Context, principal, snapshot, first
 		StartUTC: start.Format(time.RFC3339), EndUTC: end.Format(time.RFC3339),
 		Events: make([]localCaseEvent, 0),
 	}
-	// The shared collector already verified both Case IDs and full paging.
-	// A single cancellation check before emitting the receipt is sufficient
-	// for this bounded, in-memory selection of at most 10,000 rows.
 	for _, item := range full.Events {
 		if item.Entry.TimeUncertain {
 			continue
 		}
 		instant, err := time.Parse(time.RFC3339Nano, item.Entry.SourceTime)
 		if err != nil {
-			return errors.New("invalid authorized certain timestamp")
+			return localCaseWindowSequence{}, errors.New("invalid authorized certain timestamp")
 		}
 		if instant.Before(start) || !instant.Before(end) {
 			continue
 		}
-		report.Events = append(report.Events, item)
-		if item.CaseID == firstID {
+		switch item.CaseID {
+		case firstID:
 			report.FirstEvents++
-		} else {
-			// The independent authorization collector can only return secondID.
+		case secondID:
 			report.SecondEvents++
+		default:
+			return localCaseWindowSequence{}, errors.New("unexpected Case origin in authorized sequence")
 		}
+		report.Events = append(report.Events, item)
 	}
 	if report.FirstEvents == 0 || report.SecondEvents == 0 {
-		return errors.New("no shared certain window in the two authorized Cases")
+		return localCaseWindowSequence{}, errors.New("no shared certain window in the two authorized Cases")
 	}
 	if err := ctx.Err(); err != nil {
-		return err
+		return localCaseWindowSequence{}, err
 	}
-	return json.NewEncoder(out).Encode(report)
+	return report, nil
 }
+

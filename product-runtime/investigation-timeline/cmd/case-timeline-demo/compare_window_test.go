@@ -248,3 +248,53 @@ func TestTemporalWindowDirectBoundaryValidation(t *testing.T) {
 		}
 	}
 }
+
+func TestAuthorizedWindowSelectionRejectsTamperedChronologyAndCaseOrigin(t *testing.T) {
+	start := time.Date(2026, 10, 1, 10, 0, 0, 0, time.UTC)
+	entry := func(id, when string, uncertain bool) localCaseEvent {
+		return localCaseEvent{
+			CaseID: id,
+			Entry: timeline.ProjectedEntry{
+				ID: id + "-event", Kind: "observed", SourceTime: when,
+				Timezone: "+00:00", TimeUncertain: uncertain,
+				SourceRef: id + "-source", Provenance: "trusted-owner", Version: 1,
+			},
+		}
+	}
+	valid := localCaseEventSequence{Events: []localCaseEvent{
+		entry("case-a", "2026-10-01T10:00:00Z", false),
+		entry("case-c", "2026-10-01T10:04:59Z", false),
+		entry("case-c", "2026-10-01T10:01:00Z", true),
+		entry("case-a", "2026-10-01T10:05:00Z", false),
+	}}
+	got, err := selectAuthorizedCaseWindow(context.Background(), valid, "case-a", "case-c", start)
+	if err != nil || got.FirstEvents != 1 || got.SecondEvents != 1 ||
+		len(got.Events) != 2 || got.StartUTC != "2026-10-01T10:00:00Z" ||
+		got.EndUTC != "2026-10-01T10:05:00Z" {
+		t.Fatalf("valid bounded selection failed: %+v %v", got, err)
+	}
+	for _, tc := range []struct {
+		name string
+		change func(*localCaseEventSequence)
+	}{
+		{"invalid-certain-source-time", func(x *localCaseEventSequence) { x.Events[0].Entry.SourceTime = "not-a-time" }},
+		{"unexpected-third-case", func(x *localCaseEventSequence) { x.Events[0].CaseID = "case-b" }},
+		{"missing-second-case", func(x *localCaseEventSequence) { x.Events[1].Entry.TimeUncertain = true }},
+		{"both-outside-window", func(x *localCaseEventSequence) { x.Events[0].Entry.SourceTime = "2026-10-01T09:59:59Z"; x.Events[1].Entry.SourceTime = "2026-10-01T10:05:00Z" }},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			modified := localCaseEventSequence{Events: append([]localCaseEvent(nil), valid.Events...)}
+			tc.change(&modified)
+			result, err := selectAuthorizedCaseWindow(context.Background(), modified, "case-a", "case-c", start)
+			if err == nil || len(result.Events) != 0 {
+				t.Fatalf("tampered authorized sequence returned a partial result: %+v %v", result, err)
+			}
+		})
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	if result, err := selectAuthorizedCaseWindow(ctx, valid, "case-a", "case-c", start);
+		!errors.Is(err, context.Canceled) || len(result.Events) != 0 {
+		t.Fatalf("cancelled selection returned data: %+v %v", result, err)
+	}
+}
