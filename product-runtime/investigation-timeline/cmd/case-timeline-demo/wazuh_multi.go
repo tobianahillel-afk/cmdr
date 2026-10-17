@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net/http"
 	"os"
 
 	timeline "github.com/tobianahillel-afk/cmdr/product-runtime/investigation-timeline"
@@ -49,59 +50,80 @@ func namespaceWazuhEvents(ctx context.Context, normalized []byte, feed int) ([]b
 // All input files and source decisions are validated before a bearer is
 // issued, an HTTP listener starts, or a cross-Case report is emitted.
 func loadMultipleWazuhFeeds(ctx context.Context, principal, snapshotPath, caseID string, paths []string) (timeline.MemoryTimelineData, int, error) {
+	data, count, _, err := loadMultipleWazuhFeedsWithLevels(ctx, principal, snapshotPath, caseID, paths)
+	return data, count, err
+}
+
+// Loading all feed metadata alongside its single in-memory owner import keeps
+// the analyst's rule/agent cohorts tied to the exact source bytes viewed.
+func loadMultipleWazuhFeedsWithLevels(ctx context.Context, principal, snapshotPath, caseID string, paths []string) (timeline.MemoryTimelineData, int, map[string]wazuhRuleLevel, error) {
 	if err := ctx.Err(); err != nil {
-		return timeline.MemoryTimelineData{}, 0, err
+		return timeline.MemoryTimelineData{}, 0, nil, err
 	}
 	if snapshotPath == "" || principal == "" || caseID == "" || len(caseID) > 1024 ||
 		len(paths) < 2 || len(paths) > maxWazuhAlertFiles {
-		return timeline.MemoryTimelineData{}, 0, errors.New("select one owner snapshot, an authorized Case and 2..4 Wazuh alert files")
+		return timeline.MemoryTimelineData{}, 0, nil, errors.New("select one owner snapshot, an authorized Case and 2..4 Wazuh alert files")
 	}
 	owner, err := loadDemoSnapshot(snapshotPath)
 	if err != nil {
-		return timeline.MemoryTimelineData{}, 0, err
+		return timeline.MemoryTimelineData{}, 0, nil, err
 	}
 	info, err := os.Lstat(snapshotPath)
 	if err != nil {
-		return timeline.MemoryTimelineData{}, 0, errors.New("cannot identify owner snapshot")
+		return timeline.MemoryTimelineData{}, 0, nil, errors.New("cannot identify owner snapshot")
 	}
 	before := len(owner.Entries)
+	levels := make(map[string]wazuhRuleLevel)
 	seen := []os.FileInfo{info}
 	for i, path := range paths {
 		if err := ctx.Err(); err != nil {
-			return timeline.MemoryTimelineData{}, 0, err
+			return timeline.MemoryTimelineData{}, 0, nil, err
 		}
 		data, err := readLocalEventFile(path)
 		if err != nil {
-			return timeline.MemoryTimelineData{}, 0, err
+			return timeline.MemoryTimelineData{}, 0, nil, err
 		}
 		current, err := os.Lstat(path)
 		if err != nil {
-			return timeline.MemoryTimelineData{}, 0, errors.New("cannot identify Wazuh alert file")
+			return timeline.MemoryTimelineData{}, 0, nil, errors.New("cannot identify Wazuh alert file")
 		}
 		for _, previous := range seen {
 			if os.SameFile(current, previous) {
-				return timeline.MemoryTimelineData{}, 0, errors.New("Wazuh alert inputs must be distinct files")
+				return timeline.MemoryTimelineData{}, 0, nil, errors.New("Wazuh alert inputs must be distinct files")
 			}
 		}
 		seen = append(seen, current)
+		feedLevels, err := wazuhRuleLevelsWithPrefix(data, caseID, fmt.Sprintf("feed-%d-", i+1))
+		if err != nil {
+			return timeline.MemoryTimelineData{}, 0, nil, err
+		}
+		for id, level := range feedLevels {
+			if _, exists := levels[id]; exists {
+				return timeline.MemoryTimelineData{}, 0, nil, errors.New("duplicate Wazuh feed entry identity")
+			}
+			levels[id] = level
+		}
 		events, err := normalizeWazuh4Alerts(ctx, data)
 		if err != nil {
-			return timeline.MemoryTimelineData{}, 0, err
+			return timeline.MemoryTimelineData{}, 0, nil, err
 		}
 		events, err = namespaceWazuhEvents(ctx, events, i+1)
 		if err != nil {
-			return timeline.MemoryTimelineData{}, 0, err
+			return timeline.MemoryTimelineData{}, 0, nil, err
 		}
 		owner, err = importLocalEvents(ctx, owner, principal, caseID, events)
 		if err != nil {
-			return timeline.MemoryTimelineData{}, 0, err
+			return timeline.MemoryTimelineData{}, 0, nil, err
 		}
 	}
 	count := len(owner.Entries) - before
 	if count < len(paths) || count > timeline.MaxEntries {
-		return timeline.MemoryTimelineData{}, 0, errors.New("inconsistent Wazuh feed event count")
+		return timeline.MemoryTimelineData{}, 0, nil, errors.New("inconsistent Wazuh feed event count")
 	}
-	return owner, count, nil
+	if len(levels) != count {
+		return timeline.MemoryTimelineData{}, 0, nil, errors.New("inconsistent Wazuh level metadata count")
+	}
+	return owner, count, levels, nil
 }
 
 // Multi-feed viewer and two-Case time leads share precisely the same
@@ -113,11 +135,15 @@ func serveDemoWithWazuhAlertsFiles(ctx context.Context, principal, snapshotPath,
 	if len(paths) == 1 {
 		return serveDemoWithWazuhAlerts(ctx, principal, snapshotPath, caseID, paths[0], output)
 	}
-	owner, _, err := loadMultipleWazuhFeeds(ctx, principal, snapshotPath, caseID, paths)
+	owner, imported, levels, err := loadMultipleWazuhFeedsWithLevels(ctx, principal, snapshotPath, caseID, paths)
 	if err != nil {
 		return err
 	}
-	return serveDemoWithData(ctx, principal, owner, output)
+	return serveDemoWithDataRoute(ctx, principal, owner, output, func(token string, base http.Handler) http.Handler {
+		return newDemoWazuhCohortReceiptHandler(token, caseID, base, func(requestCtx context.Context, body io.Writer) error {
+			return writeDemoWazuh4RuleTriageWithLevels(requestCtx, principal, owner, imported, levels, caseID, body)
+		})
+	})
 }
 
 // Multi-feed proximity is a bounded unsigned temporal lead, not a causal

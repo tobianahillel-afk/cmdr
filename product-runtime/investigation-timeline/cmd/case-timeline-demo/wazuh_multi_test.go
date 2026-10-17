@@ -5,6 +5,7 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
+	"encoding/json"
 	"io"
 	"net/http"
 	"net/url"
@@ -16,8 +17,8 @@ import (
 
 func TestMultipleWazuhFilesThroughAuthorizedLoopback(t *testing.T) {
 	owner := snapshotFixture(t)
-	first := writeJSONLEvents(t, "{\"id\":\"123.456\",\"timestamp\":\"2026-10-17T10:01:00+0200\",\"rule\":{\"description\":\"Wazuh first feed alert\"}}\n")
-	second := writeJSONLEvents(t, "{\"id\":\"123.456\",\"timestamp\":\"2026-10-17T10:01:01+0200\",\"rule\":{\"description\":\"Wazuh second feed alert\"}}\n")
+	first := writeJSONLEvents(t, "{\"id\":\"123.456\",\"timestamp\":\"2026-10-17T10:01:00+0200\",\"agent\":{\"id\":\"001\"},\"rule\":{\"id\":\"5710\",\"level\":8,\"description\":\"Wazuh first feed alert\"}}\n")
+	second := writeJSONLEvents(t, "{\"id\":\"123.456\",\"timestamp\":\"2026-10-17T10:01:01+0200\",\"agent\":{\"id\":\"002\"},\"rule\":{\"id\":\"5710\",\"level\":12,\"description\":\"Wazuh second feed alert\"}}\n")
 	before := make(map[string][]byte)
 	for _, path := range []string{owner, first, second} {
 		data, err := os.ReadFile(path)
@@ -77,6 +78,44 @@ func TestMultipleWazuhFilesThroughAuthorizedLoopback(t *testing.T) {
 			t.Fatal(err)
 		}
 		return resp.StatusCode, string(data)
+	}
+	// The browser cohort endpoint must analyze ALL imported feeds, not just
+	// the first alert file, with per-source authorization on every request.
+	cohortPath := "/demo-wazuh-cohorts?case_id=forensic-case-on-disk"
+	status, cohortJSON := request(cohortPath, bearer)
+	if status != http.StatusOK {
+		t.Fatalf("multi-feed cohort endpoint unavailable: %d %s", status, cohortJSON)
+	}
+	var cohort wazuhRuleTriageReceipt
+	if err := json.Unmarshal([]byte(cohortJSON), &cohort); err != nil {
+		t.Fatal(err)
+	}
+	if cohort.ImportedEntries != 2 || len(cohort.TopRules) != 1 ||
+		cohort.TopRules[0].RuleID != "5710" || cohort.TopRules[0].Count != 2 ||
+		len(cohort.TopAgents) != 2 || cohort.TopAgents[0].AgentID != "001" ||
+		cohort.TopAgents[1].AgentID != "002" ||
+		cohort.TopAgents[1].HighestKnownRuleLevel == nil ||
+		*cohort.TopAgents[1].HighestKnownRuleLevel != 12 {
+		t.Fatalf("multi-feed analyst cohort does not reflect both feeds: %+v", cohort)
+	}
+	for _, secret := range []string{"Wazuh first feed alert", "Wazuh second feed alert", "123.456", "Bearer "} {
+		if strings.Contains(cohortJSON, secret) {
+			t.Fatalf("multi-feed cohort exposed source bytes or bearer: %q", secret)
+		}
+	}
+	for _, tc := range []struct {
+		path, token string
+		want int
+	}{
+		{cohortPath, "", http.StatusUnauthorized},
+		{cohortPath, strings.Repeat("0", 64), http.StatusUnauthorized},
+		{"/demo-wazuh-cohorts?case_id=case-b", bearer, http.StatusNotFound},
+		{cohortPath + "&case_id=forensic-case-on-disk", bearer, http.StatusNotFound},
+	} {
+		code, body := request(tc.path, tc.token)
+		if code != tc.want || strings.Contains(body, "5710") {
+			t.Fatalf("unauthorized multi-feed cohort leaked: status=%d body=%q", code, body)
+		}
 	}
 	path := "/case-timeline?case_id=forensic-case-on-disk&limit=20"
 	status, page := request(path, bearer)

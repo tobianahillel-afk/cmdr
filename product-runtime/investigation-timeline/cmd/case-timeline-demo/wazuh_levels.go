@@ -76,6 +76,12 @@ type wazuhRuleTriageReceipt struct {
 // This mapping is computed from the SAME bytes that were normalized and
 // imported into the Case; no second file open or independent ACL is introduced.
 func wazuhRuleLevels(raw []byte, caseID string) (map[string]wazuhRuleLevel, error) {
+	return wazuhRuleLevelsWithPrefix(raw, caseID, "")
+}
+
+// prefix is supplied only by the operator-side feed loader, never by
+// Wazuh input or an HTTP request. It matches the already-imported entry ID.
+func wazuhRuleLevelsWithPrefix(raw []byte, caseID, prefix string) (map[string]wazuhRuleLevel, error) {
 	result := make(map[string]wazuhRuleLevel)
 	for _, line := range bytes.Split(raw, []byte("\n")) {
 		if len(line) == 0 {
@@ -92,7 +98,7 @@ func wazuhRuleLevels(raw []byte, caseID string) (map[string]wazuhRuleLevel, erro
 		if err := json.Unmarshal(line, &alert); err != nil {
 			return nil, errors.New("invalid Wazuh rule level metadata")
 		}
-		digest := sha256.Sum256([]byte(caseID + "\x00wazuh-" + alert.ID))
+		digest := sha256.Sum256([]byte(caseID + "\x00" + prefix + "wazuh-" + alert.ID))
 		entryID := fmt.Sprintf("local-jsonl-entry-%x", digest)
 		if _, exists := result[entryID]; exists {
 			return nil, errors.New("duplicate Wazuh rule identity")
@@ -147,6 +153,12 @@ func writeDemoWazuh4RuleTriageWithData(ctx context.Context, principal string, me
 	if err != nil {
 		return err
 	}
+	return writeDemoWazuh4RuleTriageWithLevels(ctx, principal, merged, imported, levels, intoCase, output)
+}
+
+// The single- and multi-feed paths share the same authenticated,
+// per-entry typed-source pagination and aggregate evaluator.
+func writeDemoWazuh4RuleTriageWithLevels(ctx context.Context, principal string, merged timeline.MemoryTimelineData, imported int, levels map[string]wazuhRuleLevel, intoCase string, output io.Writer) error {
 	token, err := randomBearer()
 	if err != nil {
 		return err
