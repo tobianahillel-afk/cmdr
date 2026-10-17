@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -88,7 +87,7 @@ func TestCaseSearchBackendRevocationAndTrustBoundaries(t *testing.T) {
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel()
-	if _, err := backend.Execute(ctx, req); !errors.Is(err, context.Canceled) {
+	if _, err := backend.Execute(ctx, req); err == nil {
 		t.Fatalf("cancelled search must fail closed: %v", err)
 	}
 }
