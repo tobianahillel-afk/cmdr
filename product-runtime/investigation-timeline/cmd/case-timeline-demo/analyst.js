@@ -49,6 +49,9 @@
   const compareButton = document.getElementById("compare");
   const comparison = document.getElementById("comparison");
   const comparisonActions = document.getElementById("comparison-actions");
+  const downloadComparison = document.getElementById("download-comparison");
+  let preparedComparison = null;
+  downloadComparison.disabled = true;
   let compareRevision = 0;
   let compareRequest = null;
   function clearComparison() {
@@ -58,6 +61,8 @@
     compareButton.disabled = false;
     comparison.textContent = "Aucune comparaison calculée.";
     comparisonActions.replaceChildren();
+    preparedComparison = null;
+    downloadComparison.disabled = true;
   }
   const downloadReport = document.getElementById("download-report");
   let analysisRequest = null;
@@ -461,6 +466,56 @@
         .map(([bucket, leftCount]) => ({ bucket, left: leftCount, right: right.buckets.get(bucket) }))
         .sort((a, b) => Math.min(b.left.total, b.right.total) -
           Math.min(a.left.total, a.right.total) || a.bucket - b.bucket);
+      // Complete both Case page traversals before exposing any local receipt.
+      // Case/source owner checks are on the existing server endpoints; this
+      // report is a manually saved, unsigned summary, not evidence custody.
+      const comparisonReport = {
+        schema_version: 1,
+        type: "cmdr-synthetic-authorized-cross-case-comparison",
+        generated_at_utc: new Date().toISOString(),
+        case_ids: [selectedCase, otherCase],
+        filters: {
+          kind: kind.value, q: search.value.trim(),
+          from: windowSelection.from, to: windowSelection.to
+        },
+        cases: [left, right].map(item => ({
+          visible_events: item.total,
+          observed: item.kinds.observed,
+          inferred: item.kinds.inferred,
+          uncertain_timestamps: item.uncertain,
+          certain_time_range_utc: item.certainMin === null ? null : {
+            from: new Date(item.certainMin).toISOString(),
+            to: new Date(item.certainMax).toISOString()
+          }
+        })),
+        certain_range_overlap: overlap === "indéterminable" ? null : overlap === "oui",
+        common_reference_count: common.length,
+        top_common_sources: common.slice(0, 3).map(group => ({
+          source_ref: group.ref.slice(0, 120),
+          case_1_count: group.left,
+          case_2_count: group.right
+        })),
+        common_five_minute_windows: simultaneous.length,
+        top_common_windows_utc: simultaneous.slice(0, 3).map(item => ({
+          from: new Date(item.bucket * 300000).toISOString(),
+          to: new Date((item.bucket + 1) * 300000).toISOString(),
+          case_1_events: item.left.total,
+          case_2_events: item.right.total
+        })),
+        limitations: [
+          "Synthetic operator-selected local Cases, not production IAM or live SIEM",
+          "Each Case separately authorized by server-side Case/Entry/source checks",
+          "Paginated reads are not transactional; permissions and data can change",
+          "Overlapping times and source labels are triage hints, not causality or identity proof",
+          "Unsigned aggregates; not chain-of-custody evidence, no raw events"
+        ]
+      };
+      preparedComparison = {
+        serialized: JSON.stringify(comparisonReport, null, 2) + "\n",
+        comparison: activeComparison, selection: activeSelection,
+        left: selectedCase, right: otherCase
+      };
+      downloadComparison.disabled = false;
       comparison.textContent = "Comparaison des événements autorisés : " +
         left.total + " / " + right.total +
         " · observés : " + left.kinds.observed + " / " + right.kinds.observed +
@@ -532,6 +587,8 @@
       }
     } catch {
       if (activeComparison === compareRevision) {
+        preparedComparison = null;
+        downloadComparison.disabled = true;
         comparisonActions.replaceChildren();
         comparison.textContent = "Comparaison indisponible ou droits modifiés. Aucun résultat partiel.";
       }
@@ -922,6 +979,26 @@
   analyze.addEventListener("click", analyzeAuthorizedCase);
   compareButton.addEventListener("click", compareAuthorizedCases);
   compareCase.addEventListener("input", clearComparison);
+  downloadComparison.addEventListener("click", () => {
+    const receipt = preparedComparison;
+    if (!receipt || receipt.comparison !== compareRevision ||
+        receipt.selection !== revision || !token.value ||
+        caseID.value.trim() !== receipt.left ||
+        compareCase.value.trim() !== receipt.right) return;
+    let objectURL = null;
+    try {
+      const blob = new Blob([receipt.serialized], { type: "application/json" });
+      objectURL = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = objectURL;
+      link.download = "cmdr-local-cross-case-comparison.json";
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(objectURL), 1000);
+    } catch {
+      if (objectURL) URL.revokeObjectURL(objectURL);
+      comparison.textContent = "Export local indisponible. Recomparez les Cases si nécessaire.";
+    }
+  });
   downloadReport.addEventListener("click", () => {
     const receipt = preparedReport;
     if (!receipt || receipt.revision !== analysisRevision ||

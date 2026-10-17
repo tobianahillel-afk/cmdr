@@ -12,7 +12,7 @@ const ids = [
   "case-discovery-status", "from", "to", "entries", "summary", "message",
   "page", "previous", "next", "load", "source-detail", "source-status",
   "return-to-case", "copy-return-link", "analyze", "analysis", "analysis-actions", "download-report",
-  "compare-case", "compare", "comparison", "comparison-actions",
+  "compare-case", "compare", "comparison", "comparison-actions", "download-comparison",
   "trace-actions", "trace-results"
 ];
 function node() {
@@ -823,4 +823,96 @@ test("stale common-source action is inert after revoking bearer", async () => {
   await flush();
   assert.equal(env.requests.length, before);
   assert.equal(env.fields["comparison-actions"].children.length, 0);
+});
+
+test("complete authenticated two-Case comparison exports a bounded local JSON investigation lead", async () => {
+  const env = boot(url => {
+    const id = url.searchParams.get("case_id");
+    const total = id === "case-disk" ? 205 : 3;
+    return page(Number(url.searchParams.get("offset")), total,
+      { sourceFor: index => index % 2 ? "source-common" : "source-local" });
+  });
+  env.fields["compare-case"].value = "case-peer";
+  assert.equal(env.fields["download-comparison"].disabled, true);
+  env.fields.compare.handlers.click();
+  for (let i = 0; i < 7; i++) await flush();
+  assert.equal(env.requests.length, 3); // 2 pages in first Case, 1 in second
+  assert.equal(env.fields["download-comparison"].disabled, false);
+  assert.equal(env.downloads.length, 0, "only explicit user click may save");
+  env.fields["download-comparison"].handlers.click();
+  assert.equal(env.downloads.length, 1);
+  assert.equal(env.downloads[0].clicked, true);
+  assert.equal(env.downloads[0].revoked, true);
+  const json = await env.downloads[0].blob.text();
+  const receipt = JSON.parse(json);
+  assert.equal(receipt.schema_version, 1);
+  assert.equal(receipt.type, "cmdr-synthetic-authorized-cross-case-comparison");
+  assert.equal(receipt.case_ids[0], "case-disk");
+  assert.equal(receipt.case_ids[1], "case-peer");
+  assert.equal(receipt.cases[0].visible_events, 205);
+  assert.equal(receipt.cases[1].visible_events, 3);
+  assert.equal(receipt.cases[0].observed, 103);
+  assert.equal(receipt.cases[0].inferred, 102);
+  assert.equal(receipt.common_reference_count, 2);
+  assert.equal(receipt.top_common_sources.length, 2);
+  assert.ok(receipt.common_five_minute_windows >= 1);
+  assert.ok(receipt.top_common_windows_utc.length >= 1);
+  assert.equal(receipt.certain_range_overlap, true);
+  assert.ok(receipt.limitations.some(value => value.includes("not causality")));
+  for (const secret of ["ephemeral-token", "Bearer", "event-204", "http://127.0.0.1"]) {
+    assert.equal(json.includes(secret), false, "export must not contain " + secret);
+  }
+  for (const req of env.requests) {
+    assert.equal(req.options.headers.Authorization, "Bearer ephemeral-token");
+    assert.equal(req.options.credentials, "omit");
+    assert.equal(req.options.cache, "no-store");
+    assert.ok(!req.url.href.includes("ephemeral-token"));
+  }
+});
+
+test("cross-Case report never becomes available after denied second Case or stale selection", async () => {
+  const denied = boot(url => url.searchParams.get("case_id") === "case-peer"
+    ? { ok: false } : page(Number(url.searchParams.get("offset")), 1));
+  denied.fields["compare-case"].value = "case-peer";
+  denied.fields.compare.handlers.click();
+  for (let i = 0; i < 6; i++) await flush();
+  assert.equal(denied.fields["download-comparison"].disabled, true);
+  denied.fields["download-comparison"].handlers.click();
+  assert.equal(denied.downloads.length, 0);
+  assert.match(denied.fields.comparison.textContent, /Aucun résultat partiel/);
+
+  const env = boot(url => page(Number(url.searchParams.get("offset")), 1));
+  env.fields["compare-case"].value = "case-peer";
+  env.fields.compare.handlers.click();
+  for (let i = 0; i < 6; i++) await flush();
+  assert.equal(env.fields["download-comparison"].disabled, false);
+  env.fields["compare-case"].value = "changed-peer";
+  env.fields["compare-case"].handlers.input();
+  assert.equal(env.fields["download-comparison"].disabled, true);
+  env.fields["download-comparison"].handlers.click();
+  assert.equal(env.downloads.length, 0);
+
+  env.fields["compare-case"].value = "case-peer";
+  env.fields.compare.handlers.click();
+  for (let i = 0; i < 6; i++) await flush();
+  assert.equal(env.fields["download-comparison"].disabled, false);
+  env.fields.token.value = "revoked";
+  env.fields.token.handlers.input();
+  assert.equal(env.fields["download-comparison"].disabled, true);
+  env.fields["download-comparison"].handlers.click();
+  assert.equal(env.downloads.length, 0);
+});
+
+test("inconsistent authorized cross-Case page never leaves a downloadable receipt", async () => {
+  const env = boot(url => {
+    const id = url.searchParams.get("case_id");
+    if (id === "case-peer") return { ok: false };
+    const offset = Number(url.searchParams.get("offset"));
+    return page(offset, 201, offset === 200 ? { total: 200 } : {});
+  });
+  env.fields["compare-case"].value = "case-peer";
+  env.fields.compare.handlers.click();
+  for (let i = 0; i < 6; i++) await flush();
+  assert.equal(env.fields["download-comparison"].disabled, true);
+  assert.equal(env.downloads.length, 0);
 });
