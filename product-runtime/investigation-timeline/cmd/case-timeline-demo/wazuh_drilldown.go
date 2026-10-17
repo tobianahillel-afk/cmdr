@@ -93,29 +93,15 @@ func writeDemoWazuhDrilldownWithLevels(ctx context.Context, principal string, da
 	return err
 }
 
+// Existing single-feed Wazuh mode shares the same strict HTTP selector
+// and typed-source authorization path as the multi-feed mode.
 func serveDemoWazuhDrilldown(w http.ResponseWriter, r *http.Request, principal string, data timeline.MemoryTimelineData, imported int, raw []byte, caseID string) {
-	query := r.URL.Query()
-	if len(query) != 2 || len(query["case_id"]) != 1 || query.Get("case_id") != caseID {
+	levels, err := wazuhRuleLevels(raw, caseID)
+	if err != nil {
 		http.NotFound(w, r)
 		return
 	}
-	selector, value := "", ""
-	for _, key := range []string{"agent_id", "rule_id"} {
-		if ids, ok := query[key]; ok && len(ids) == 1 {
-			selector, value = key, ids[0]
-		}
-	}
-	if selector == "" || !validWazuhCohortID(value) {
-		http.NotFound(w, r)
-		return
-	}
-	var encoded bytes.Buffer
-	if err := writeDemoWazuhDrilldown(r.Context(), principal, data, imported, raw, caseID, selector, value, &encoded); err != nil {
-		http.NotFound(w, r) // no partial material on Case/source denial
-		return
-	}
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	_, _ = w.Write(encoded.Bytes())
+	serveDemoWazuhDrilldownWithLevels(w, r, principal, data, imported, levels, caseID)
 }
 
 func serveDemoWazuhDrilldownWithLevels(w http.ResponseWriter, r *http.Request, principal string, data timeline.MemoryTimelineData, imported int, levels map[string]wazuhRuleLevel, caseID string) {
