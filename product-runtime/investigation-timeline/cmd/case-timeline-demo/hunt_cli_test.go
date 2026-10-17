@@ -315,3 +315,84 @@ func TestOfflineHuntBadSecondCasePageDiscardsAllCounts(t *testing.T) {
 		t.Fatalf("incomplete authorized second Case page produced partial report: %+v %v", got, err)
 	}
 }
+
+func TestOfflineHuntUsesBuiltInAuthorizedOwnerWhenNoSnapshotSelected(t *testing.T) {
+	var out bytes.Buffer
+	if err := runDemoCLI(context.Background(), []string{
+		"-principal=analyst-a", "-hunt-q=synthetic",
+	}, &out); err != nil {
+		t.Fatal(err)
+	}
+	var result localCrossCaseHunt
+	if err := json.Unmarshal(out.Bytes(), &result); err != nil {
+		t.Fatal(err)
+	}
+	if result.SearchedCases != 1 || result.MatchingCases != 1 ||
+		result.VisibleMatches != 2 || len(result.Results) != 1 ||
+		result.Results[0].CaseID != "case-a" ||
+		result.Results[0].Observed != 1 || result.Results[0].Inferred != 1 {
+		t.Fatalf("fallback Case authorization and filtering failed: %+v", result)
+	}
+	if strings.Contains(out.String(), "demo-hidden-source") ||
+		strings.Contains(out.String(), "case-b") {
+		t.Fatalf("built-in hunt exported inaccessible metadata: %s", out.String())
+	}
+}
+
+func TestOfflineHuntUnavailablePrincipalNeverEmitsReceipt(t *testing.T) {
+	path := diskHuntSnapshot(t)
+	for _, principal := range []string{"not-a-principal", "analyst-elsewhere", "*"} {
+		var out bytes.Buffer
+		err := runDemoCLI(context.Background(), []string{
+			"-principal=" + principal, "-snapshot=" + path, "-hunt-q=ioc.example",
+		}, &out)
+		if err == nil || out.Len() != 0 {
+			t.Fatalf("unknown synthetic principal generated report: %q %v", principal, err)
+		}
+	}
+}
+
+func TestOfflineHuntRejectsBadDiscoveryAndRevocationMidRead(t *testing.T) {
+	data, err := loadDemoSnapshot(diskHuntSnapshot(t))
+	if err != nil {
+		t.Fatal(err)
+	}
+	realOwner, err := newDemoHandlerWithData(testBearer, "analyst-a", data)
+	if err != nil {
+		t.Fatal(err)
+	}
+	invalidCatalog := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/demo-cases" {
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = io.WriteString(w, "not-json")
+			return
+		}
+		realOwner.ServeHTTP(w, r)
+	})
+	if got, err := collectAuthorizedCrossCaseHunt(context.Background(), invalidCatalog,
+		testBearer, "ioc.example"); err == nil || got.Format != "" {
+		t.Fatalf("malformed owner discovery accepted: %+v %v", got, err)
+	}
+	if got, err := collectAuthorizedCrossCaseHunt(context.Background(), realOwner,
+		"not-the-authorized-bearer", "ioc.example"); err == nil || got.Format != "" {
+		t.Fatalf("wrong bearer accepted: %+v %v", got, err)
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	visited := 0
+	revoked := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/case-timeline" {
+			visited++
+			if r.URL.Query().Get("case_id") == "case-c" {
+				cancel()
+				return
+			}
+		}
+		realOwner.ServeHTTP(w, r)
+	})
+	got, err := collectAuthorizedCrossCaseHunt(ctx, revoked, testBearer, "ioc.example")
+	if !errors.Is(err, context.Canceled) || got.VisibleMatches != 0 ||
+		len(got.Results) != 0 || visited != 2 {
+		t.Fatalf("revocation leaked partial results: %+v %v visited=%d", got, err, visited)
+	}
+}
