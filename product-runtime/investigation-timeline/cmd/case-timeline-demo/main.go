@@ -44,11 +44,21 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	compareEvents := flags.Bool("compare-events", false, "explicit sensitive chronological event-level cross-Case JSON receipt")
 	sourceCase := flags.String("source-case", "", "authorized Case for offline source-specific event timeline")
 	sourceRef := flags.String("source-ref", "", "exact authorized source reference (requires -source-case)")
+	inspectCase := flags.String("inspect-case", "", "Case containing an explicitly selected source Timeline Entry")
+	inspectEntry := flags.String("inspect-entry", "", "Timeline Entry ID for an authorized offline typed-source preview (requires -inspect-case)")
 	if err := flags.Parse(args); err != nil {
 		return err
 	}
 	if flags.NArg() != 0 {
 		return errors.New("unexpected positional arguments")
+	}
+	if *inspectCase != "" || *inspectEntry != "" {
+		if *inspectCase == "" || *inspectEntry == "" || *reportCase != "" ||
+			*compareCase != "" || *withCase != "" || *compareEvents ||
+			*sourceCase != "" || *sourceRef != "" {
+			return errors.New("select one complete offline inspection mode")
+		}
+		return writeDemoEntryInspection(ctx, *principal, *snapshot, *inspectCase, *inspectEntry, output)
 	}
 	if *sourceCase != "" || *sourceRef != "" {
 		if *sourceCase == "" || *sourceRef == "" || *reportCase != "" || *compareCase != "" || *withCase != "" || *compareEvents {
