@@ -405,7 +405,7 @@
   // Native datetime-local fields must roundtrip UTC exactly: never quietly
   // change a forensic time interval across DST gaps or ambiguous local hours.
   function localReplayTime(iso) {
-    if (typeof iso !== "string" || iso.length > 32 || !/^\\d{4}-\\d{2}-\\d{2}T/.test(iso)) {
+    if (typeof iso !== "string" || iso.length > 32 || !/^\d{4}-\d{2}-\d{2}T/.test(iso)) {
       throw Error("invalid saved UTC instant");
     }
     const instant = new Date(iso);
