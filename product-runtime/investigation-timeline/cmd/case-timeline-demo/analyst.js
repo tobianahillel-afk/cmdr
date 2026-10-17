@@ -350,7 +350,8 @@
         item.append(button);
         list.append(item);
       }
-      wazuhSearchResults.replaceChildren(list);
+      wazuhSearchResults.replaceChildren();
+      wazuhSearchResults.append(list);
     } catch {
       if (selectedRevision === wazuhSearchRevision) {
         wazuhSearchResults.replaceChildren();
