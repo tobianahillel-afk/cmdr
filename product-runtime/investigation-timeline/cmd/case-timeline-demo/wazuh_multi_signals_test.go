@@ -55,8 +55,8 @@ func TestMultiWazuhAuthorizedCrossFeedAgentRuleSignal(t *testing.T) {
 
 func TestSingleFeedDoesNotFabricateMultiFeedSignal(t *testing.T) {
 	owner := snapshotFixture(t)
-	first := writeJSONLEvents(t, "{\"id\":\"x.1\",\"timestamp\":\"2026-10-17T10:00:00Z\",\"agent\":{\"id\":\"001\"},\"rule\":{\"id\":\"5710\",\"level\":8}}\n"+
-		"{\"id\":\"x.2\",\"timestamp\":\"2026-10-17T10:00:01Z\",\"agent\":{\"id\":\"001\"},\"rule\":{\"id\":\"5710\",\"level\":9}}\n")
+	first := writeJSONLEvents(t, "{\"id\":\"x.1\",\"timestamp\":\"2026-10-17T10:00:00Z\",\"agent\":{\"id\":\"001\"},\"rule\":{\"id\":\"5710\",\"level\":8,\"description\":\"visible single one\"}}\n"+
+		"{\"id\":\"x.2\",\"timestamp\":\"2026-10-17T10:00:01Z\",\"agent\":{\"id\":\"001\"},\"rule\":{\"id\":\"5710\",\"level\":9,\"description\":\"visible single two\"}}\n")
 	data, imported, raw, err := prepareWazuh4CaseWithRaw(context.Background(),
 		"analyst-a", owner, "forensic-case-on-disk", first)
 	if err != nil {
