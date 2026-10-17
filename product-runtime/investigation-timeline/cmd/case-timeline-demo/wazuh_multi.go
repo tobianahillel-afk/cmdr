@@ -158,3 +158,27 @@ func writeDemoMultiWazuhProximity(ctx context.Context, principal, snapshotPath, 
 		Synthetic: true, ImportedEntries: imported, Proximity: leads,
 	})
 }
+
+// writeDemoMultiWazuhTriage makes an actionable per-Case receipt from multiple
+// Wazuh 4.x alert feeds. Every aggregate is derived from the same authorized
+// Case -> Timeline -> typed source pagination as the analyst UI, not raw input.
+func writeDemoMultiWazuhTriage(ctx context.Context, principal, snapshotPath, caseID string, paths []string, output io.Writer) error {
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	owner, imported, err := loadMultipleWazuhFeeds(ctx, principal, snapshotPath, caseID, paths)
+	if err != nil {
+		return err
+	}
+	receipt, err := collectDemoAuthorizedCaseTriage(ctx, principal, owner, caseID)
+	if err != nil {
+		return err
+	}
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	return json.NewEncoder(output).Encode(localImportedTriage{
+		Format: "cmdr-local-multi-wazuh4-case-triage-v1",
+		Synthetic: true, ImportedEntries: imported, Case: receipt,
+	})
+}

@@ -25,3 +25,21 @@ Single-file Wazuh viewer and single-file Wazuh cross-Case proximity CLI retain t
 ## Acceptance
 
 End-to-end CI must exercise real disk files, duplicate IDs across two files, two independently authorized typed source previews, unauthorized and cross-tenant denial, multi-file ambiguity and all-or-nothing failure, plus Go race/vet/gofmt on an exact immutable PR SHA. One independent risk-based read-only L2 after CI. No merge implied by green tests.
+
+## New offline multi-feed authorized Case triage (functional milestone)
+
+An operator can analyze 2..4 Wazuh 4.x `alerts.json` files together, retaining distinct events when raw alert IDs overlap, without starting an HTTP listener or writing an intermediate owner snapshot:
+
+```sh
+go run ./cmd/case-timeline-demo -principal=analyst-a \
+  -snapshot=/absolute/path/owner.json \
+  -wazuh-alerts=/absolute/path/wazuh-a.json \
+  -wazuh-alerts=/absolute/path/wazuh-b.json \
+  -into-case=case-a -triage-import
+```
+
+The bounded JSON receipt `cmdr-local-multi-wazuh4-case-triage-v1` includes the imported-event count and the existing independently owner-authorized Case triage fields (visible entry counts by observed/inferred kind, certain UTC bounds, distinct visible source references and bounded top source counts). The output is assembled only after all feed files have passed validation and the chosen Case has completed authenticated Case/Timeline/typed-source traversal. Unknown, denied, cross-tenant or malformed Case/feeds/cancelled requests fail with no JSON receipt. No Wazuh alert description, full_log, bearer token, owner dataset or file path is in the receipt. This is descriptive local triage, **not** a live SIEM integration, a causal finding, an audit-grade custody record or deployed IAM.
+
+Comparison: simply compose the existing `loadMultipleWazuhFeeds`, `collectDemoAuthorizedCaseTriage` and `localImportedTriage` (Go standard library); no second parser, source ACL implementation, correlation index or external Wazuh SDK. This change is scoped to PR #48 and does not merge or override the engineering foundation/PR #36. Relevant acceptance includes positive two-feed shared alert IDs; denied principal, bad second feed and cancelled context with **zero output**. On-demand new CI and L2 evidence must be verified separately before declaring this draft PR merge-ready.
+
+Previous note that multi-file is viewer-only referred to an older PR snapshot and is superseded by this section; multi-feed viewer and 2-Case temporal proximity remain unchanged.

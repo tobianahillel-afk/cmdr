@@ -103,8 +103,15 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 			}
 			return serveDemoWithWazuhAlertsFiles(ctx, *principal, *snapshot, *intoCase, []string(wazuhFiles), output)
 		}
+		// A two-to-four-feed Case triage is a useful bounded investigation
+		// on its own. It reuses the same server-owner authorization chain;
+		// cross-Case proximity remains an explicit separate mode.
+		if *withCase == "" && !*compareProximity && !windowSet && len(wazuhFiles) >= 2 {
+			return writeDemoMultiWazuhTriage(ctx, *principal, *snapshot, *intoCase,
+				[]string(wazuhFiles), output)
+		}
 		if *withCase == "" || !*compareProximity {
-			return errors.New("Wazuh temporal triage requires -with-case and -compare-proximity")
+			return errors.New("Wazuh triage requires 2..4 files, or explicit -with-case and -compare-proximity")
 		}
 		if len(wazuhFiles) == 1 {
 			return writeDemoWazuh4Proximity(ctx, *principal, *snapshot, *intoCase, *withCase,
