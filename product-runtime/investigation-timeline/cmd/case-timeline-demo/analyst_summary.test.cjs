@@ -12,7 +12,8 @@ const ids = [
   "case-discovery-status", "from", "to", "entries", "summary", "message",
   "page", "previous", "next", "load", "source-detail", "source-status",
   "return-to-case", "copy-return-link", "analyze", "analysis", "analysis-actions", "download-report",
-  "compare-case", "compare", "comparison", "comparison-actions"
+  "compare-case", "compare", "comparison", "comparison-actions",
+  "trace-actions", "trace-results"
 ];
 function node() {
   return {
@@ -652,4 +653,86 @@ test("denied Case and malformed certain timestamp cannot create temporal pivot a
     assert.match(env.fields.comparison.textContent, /Aucun résultat partiel/);
     assert.equal(env.fields["comparison-actions"].children.length, 0);
   }
+});
+
+test("source sequence pages all authorized entries and reauthorizes an opened row", async () => {
+  const env = boot(url => {
+    if (url.pathname === "/case-timeline") return page(Number(url.searchParams.get("offset")), 65, {
+      sourceFor: () => "owner-same"
+    });
+    if (url.pathname === "/case-source-navigation") {
+      const query = new URLSearchParams(url.searchParams);
+      query.delete("entry_id");
+      return { ok: true, async json() { return {
+        status: "ready", kind: "telemetry-event", object_id: "local-source",
+        return_is_authority: false, return_case_id: "case-disk",
+        return_entry_id: url.searchParams.get("entry_id"),
+        return_query: query.toString()
+      }; } };
+    }
+    if (url.pathname === "/demo-source-open") return { ok: true, async json() { return {
+      status: "ready", synthetic: true, case_id: "case-disk",
+      entry_id: url.searchParams.get("entry_id"),
+      kind: "telemetry-event", object_id: "local-source", preview: "Authorized local source"
+    }; } };
+    throw Error("Unexpected source route " + url.pathname);
+  });
+  env.fields.analyze.handlers.click();
+  await flush();
+  assert.equal(env.requests.length, 1, "the complete authorized source was read once");
+  assert.equal(env.fields["trace-actions"].children.length, 1);
+  env.fields["trace-actions"].children[0].handlers.click();
+  const result = env.fields["trace-results"];
+  assert.match(result.textContent, /1–25 \/ 65/);
+  assert.equal(result.children[0].children.length, 25);
+  assert.match(result.children[0].children[0].children[0].textContent, /event-0 · observed/);
+  result.children[1].handlers.click();
+  assert.match(result.textContent, /26–50 \/ 65/);
+  result.children[2].handlers.click();
+  assert.match(result.textContent, /51–65 \/ 65/);
+  assert.equal(result.children[0].children.length, 15);
+  assert.match(result.children[0].children[0].children[0].textContent, /event-50/);
+  const open = result.children[0].children[0].children[0];
+  open.handlers.click();
+  await flush();
+  await flush();
+  assert.deepEqual(env.requests.slice(1).map(r => r.url.pathname),
+    ["/case-source-navigation", "/demo-source-open"]);
+  for (const req of env.requests.slice(1)) {
+    assert.equal(req.url.searchParams.get("entry_id"), "event-50");
+    assert.equal(req.options.headers.Authorization, "Bearer ephemeral-token");
+    assert.equal(req.options.cache, "no-store");
+    assert.equal(req.url.searchParams.has("source_ref"), false);
+  }
+});
+
+test("sequence actions become inert when bearer or Case changes", async () => {
+  const env = boot(url => page(Number(url.searchParams.get("offset")), 28, {sourceFor: () => "owner-a"}));
+  env.fields.analyze.handlers.click();
+  await flush();
+  const trace = env.fields["trace-actions"].children[0];
+  trace.handlers.click();
+  const oldRow = env.fields["trace-results"].children[0].children[0].children[0];
+  assert.equal(env.fields["trace-results"].children[0].children.length, 25);
+  env.fields.token.value = "revoked";
+  env.fields.token.handlers.input();
+  assert.equal(env.fields["trace-actions"].children.length, 0);
+  assert.equal(env.fields["trace-results"].children.length, 0);
+  assert.match(env.fields["trace-results"].textContent, /Aucune séquence/);
+  trace.handlers.click();
+  oldRow.handlers.click();
+  assert.equal(env.requests.length, 1, "stale source selectors must not make a network request");
+});
+
+test("partial analysis never publishes source sequence controls", async () => {
+  const env = boot(url => {
+    const offset = Number(url.searchParams.get("offset"));
+    return page(offset, 201, offset === 200 ? {total: 200} : {});
+  });
+  env.fields.analyze.handlers.click();
+  await flush();
+  await flush();
+  assert.match(env.fields.analysis.textContent, /Aucun total partiel/);
+  assert.equal(env.fields["trace-actions"].children.length, 0);
+  assert.equal(env.fields["trace-results"].children.length, 0);
 });

@@ -32,3 +32,8 @@ footer { border-top: 1px solid #304054; padding-top: 1rem; font-size: .83rem; ma
 
 .analysis-actions { display: flex; flex-wrap: wrap; gap: .65rem; margin-bottom: 1rem; }
 .analysis-actions button { max-width: 100%; overflow-wrap: anywhere; text-align: left; }
+
+#trace-results { padding: .75rem; border: 1px solid #33445d; border-radius: 9px; background: #152338; margin-bottom: 1rem; overflow-wrap: anywhere; }
+#trace-results ol { display: grid; gap: .4rem; padding-left: 1.6rem; }
+#trace-results li { padding: .1rem 0; }
+#trace-results button { margin: .2rem .4rem .2rem 0; max-width: 100%; overflow-wrap: anywhere; text-align: left; }

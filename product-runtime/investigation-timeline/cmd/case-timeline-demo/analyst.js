@@ -43,6 +43,8 @@
   const analyze = document.getElementById("analyze");
   const analysis = document.getElementById("analysis");
   const analysisActions = document.getElementById("analysis-actions");
+  const traceActions = document.getElementById("trace-actions");
+  const traceResults = document.getElementById("trace-results");
   const compareCase = document.getElementById("compare-case");
   const compareButton = document.getElementById("compare");
   const comparison = document.getElementById("comparison");
@@ -73,6 +75,9 @@
     downloadReport.disabled = true;
     analysis.textContent = "Aucune synthèse calculée.";
     analysisActions.replaceChildren();
+    traceActions.replaceChildren();
+    traceResults.replaceChildren();
+    traceResults.textContent = "Aucune séquence de source sélectionnée.";
   }
 
   // Aggregate ONLY entries returned by the existing server-side Case/Entry/
@@ -163,8 +168,12 @@
           // Correlate only source references already released after the
           // existing server-side Case, Timeline Entry and source ACL chain.
           const source = bySource.get(entry.source_ref) ||
-            { ref: entry.source_ref, entryID: entry.id, count: 0, observed: 0, inferred: 0 };
+            { ref: entry.source_ref, entryID: entry.id, count: 0, observed: 0, inferred: 0, rows: [] };
           source.count++;
+          source.rows.push({
+            id: entry.id, kind: entry.kind, time: entry.source_time,
+            uncertain: entry.time_uncertain
+          });
           if (entry.kind === "observed") source.observed++;
           if (entry.kind === "inferred") source.inferred++;
           bySource.set(entry.source_ref, source);
@@ -257,6 +266,61 @@
           openSource(source.entryID);
         });
         analysisActions.append(button);
+        const traceButton = document.createElement("button");
+        traceButton.type = "button";
+        traceButton.textContent = "Parcourir la séquence de cette source : " + label;
+        traceButton.addEventListener("click", () => {
+          if (currentRevision !== analysisRevision ||
+              currentSelection !== revision || controller.signal.aborted ||
+              token.value !== bearer || caseID.value.trim() !== selectedCase) return;
+          // The sequence is a local view of already returned authorized rows.
+          // Any opened source is reauthorized via the existing owner routes.
+          const tracePageSize = 25;
+          function renderTrace(start) {
+            if (currentRevision !== analysisRevision ||
+                currentSelection !== revision || controller.signal.aborted ||
+                token.value !== bearer || caseID.value.trim() !== selectedCase) return;
+            traceResults.replaceChildren();
+            const end = Math.min(start + tracePageSize, source.rows.length);
+            traceResults.textContent = "Séquence de source (ordre des pages autorisées) : " +
+              label + " · " + (start + 1) + "–" + end + " / " +
+              source.rows.length + ". Lecture non transactionnelle ; ouvrir une entrée revérifie ses droits.";
+            const list = document.createElement("ol");
+            for (const row of source.rows.slice(start, end)) {
+              const item = document.createElement("li");
+              const open = document.createElement("button");
+              open.type = "button";
+              const idLabel = row.id.length > 120 ? row.id.slice(0, 120) + "… (abrégé)" : row.id;
+              open.textContent = idLabel + " · " + row.kind + " · " +
+                row.time + (row.uncertain ? " (horodatage incertain)" : "");
+              open.addEventListener("click", () => {
+                if (currentRevision !== analysisRevision ||
+                    currentSelection !== revision || controller.signal.aborted ||
+                    token.value !== bearer || caseID.value.trim() !== selectedCase) return;
+                openSource(row.id);
+              });
+              item.append(open);
+              list.append(item);
+            }
+            traceResults.append(list);
+            if (start > 0) {
+              const prevTrace = document.createElement("button");
+              prevTrace.type = "button";
+              prevTrace.textContent = "Entrées précédentes de cette source";
+              prevTrace.addEventListener("click", () => renderTrace(Math.max(0, start - tracePageSize)));
+              traceResults.append(prevTrace);
+            }
+            if (end < source.rows.length) {
+              const nextTrace = document.createElement("button");
+              nextTrace.type = "button";
+              nextTrace.textContent = "Entrées suivantes de cette source";
+              nextTrace.addEventListener("click", () => renderTrace(end));
+              traceResults.append(nextTrace);
+            }
+          }
+          renderTrace(0);
+        });
+        traceActions.append(traceButton);
       }
     } catch {
       if (currentRevision === analysisRevision) {
