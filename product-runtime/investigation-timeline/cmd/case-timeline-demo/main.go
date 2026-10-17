@@ -47,6 +47,7 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	inspectCase := flags.String("inspect-case", "", "Case containing an explicitly selected source Timeline Entry")
 	inspectEntry := flags.String("inspect-entry", "", "Timeline Entry ID for an authorized offline typed-source preview (requires -inspect-case)")
 	huntText := flags.String("hunt-q", "", "offline text hunt across up to 8 Cases visible to the synthetic principal")
+	huntEventsCase := flags.String("hunt-events-case", "", "explicit authorized Case for detailed local text-hunt event drilldown (requires -hunt-q)")
 	if err := flags.Parse(args); err != nil {
 		return err
 	}
@@ -54,15 +55,25 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 		return errors.New("unexpected positional arguments")
 	}
 	huntSelected := false
+	huntEventsSelected := false
 	flags.Visit(func(f *flag.Flag) {
-		if f.Name == "hunt-q" {
+		switch f.Name {
+		case "hunt-q":
 			huntSelected = true
+		case "hunt-events-case":
+			huntEventsSelected = true
 		}
 	})
+	if huntEventsSelected && (!huntSelected || *huntEventsCase == "") {
+		return errors.New("sensitive Case hunt drilldown requires an explicit Case and text query")
+	}
 	if huntSelected {
 		if *reportCase != "" || *compareCase != "" || *withCase != "" || *compareEvents ||
 			*sourceCase != "" || *sourceRef != "" || *inspectCase != "" || *inspectEntry != "" {
 			return errors.New("cross-Case hunt is a separate offline mode")
+		}
+		if huntEventsSelected {
+			return writeDemoHuntCaseEvents(ctx, *principal, *snapshot, *huntEventsCase, *huntText, output)
 		}
 		return writeDemoCrossCaseHunt(ctx, *principal, *snapshot, *huntText, output)
 	}
