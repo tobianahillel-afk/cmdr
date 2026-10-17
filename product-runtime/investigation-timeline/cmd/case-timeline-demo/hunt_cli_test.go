@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -206,5 +207,111 @@ func TestOfflineHuntBoundsAuthorizedCatalogBeforeAnyTimelineRead(t *testing.T) {
 	result, err := collectAuthorizedCrossCaseHunt(context.Background(), fake, "ephemeral", "ioc.example")
 	if err == nil || result.Format != "" || requests != 1 {
 		t.Fatalf("oversized authorized Case catalog accepted: %+v %v requests=%d", result, err, requests)
+	}
+}
+
+func TestOfflineHuntEmptyResultsAndOutputFailure(t *testing.T) {
+	path := diskHuntSnapshot(t)
+	var buffer bytes.Buffer
+	if err := runDemoCLI(context.Background(), []string{
+		"-principal=analyst-a", "-snapshot=" + path, "-hunt-q=not-present",
+	}, &buffer); err != nil {
+		t.Fatal(err)
+	}
+	var result localCrossCaseHunt
+	if err := json.Unmarshal(buffer.Bytes(), &result); err != nil {
+		t.Fatal(err)
+	}
+	if result.SearchedCases != 2 || result.VisibleMatches != 0 ||
+		result.MatchingCases != 0 || len(result.Results) != 0 {
+		t.Fatalf("empty authorized result misreported: %+v", result)
+	}
+	if err := writeDemoCrossCaseHunt(context.Background(), "analyst-a", path,
+		"ioc.example", failingHuntWriter{}); !errors.Is(err, io.ErrClosedPipe) {
+		t.Fatalf("failed output writer was treated as success: %v", err)
+	}
+}
+
+type failingHuntWriter struct{}
+
+func (failingHuntWriter) Write([]byte) (int, error) {
+	return 0, io.ErrClosedPipe
+}
+
+func TestOfflineHuntRejectsMalformedDiscoveredCaseCatalog(t *testing.T) {
+	data, err := loadDemoSnapshot(diskHuntSnapshot(t))
+	if err != nil {
+		t.Fatal(err)
+	}
+	realHandler, err := newDemoHandlerWithData(testBearer, "analyst-a", data)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, list := range [][]string{
+		nil,
+		{"case-a", "case-a"},
+		{"case-a", ""},
+		{"case-a", strings.Repeat("x", 1025)},
+	} {
+		calls := 0
+		handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if r.URL.Path == "/demo-cases" {
+				_ = json.NewEncoder(w).Encode(struct {
+					Cases []string `json:"cases"`
+				}{list})
+				return
+			}
+			calls++
+			realHandler.ServeHTTP(w, r)
+		})
+		got, err := collectAuthorizedCrossCaseHunt(context.Background(), handler, testBearer, "ioc.example")
+		if err == nil || got.VisibleMatches != 0 || len(got.Results) != 0 {
+			t.Fatalf("bad discovered Case list was accepted: %v %+v", err, got)
+		}
+		if calls > 1 {
+			t.Fatalf("invalid Case catalog caused extra owner reads: %d", calls)
+		}
+	}
+}
+
+func TestOfflineHuntInvalidQueryBoundaryIsRejectedBeforeOwnerReads(t *testing.T) {
+	requests := 0
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requests++
+		http.Error(w, "not expected", http.StatusInternalServerError)
+	})
+	for _, query := range []string{"", "a", " bad", "bad ", "\tX", "x\u0000y", strings.Repeat("a", 97), string([]byte{0xff, 0xfe})} {
+		if result, err := collectAuthorizedCrossCaseHunt(context.Background(), handler, "token", query); err == nil || result.Format != "" {
+			t.Fatalf("invalid query %q accepted: %+v %v", query, result, err)
+		}
+	}
+	if requests != 0 {
+		t.Fatalf("invalid queries sent %d owner HTTP requests", requests)
+	}
+	if !validHuntText(strings.Repeat("x", 96)) || !validHuntText("ioc.example") {
+		t.Fatal("valid bounded indicator text rejected")
+	}
+}
+
+func TestOfflineHuntBadSecondCasePageDiscardsAllCounts(t *testing.T) {
+	data, err := loadDemoSnapshot(diskHuntSnapshot(t))
+	if err != nil {
+		t.Fatal(err)
+	}
+	h, err := newDemoHandlerWithData(testBearer, "analyst-a", data)
+	if err != nil {
+		t.Fatal(err)
+	}
+	broken := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/case-timeline" && r.URL.Query().Get("case_id") == "case-c" {
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = io.WriteString(w, `{"status":"allow","entries":[],"page":{"offset":0,"limit":200,"total_visible":1,"has_more":false}}`)
+			return
+		}
+		h.ServeHTTP(w, r)
+	})
+	got, err := collectAuthorizedCrossCaseHunt(context.Background(), broken, testBearer, "ioc.example")
+	if err == nil || got.SearchedCases != 0 || got.VisibleMatches != 0 {
+		t.Fatalf("incomplete authorized second Case page produced partial report: %+v %v", got, err)
 	}
 }
