@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 	"net/url"
+	"sort"
 	"time"
 
 	search "github.com/tobianahillel-afk/cmdr/product-runtime/event-search"
@@ -15,6 +16,17 @@ import (
 const wazuhLocalSearchSource = "wazuh4-authorized-local-import"
 const maxWazuhSearchMatches = 200
 
+// Minimal normalized metadata already authorized during Event Search execution.
+// No source preview, raw log, hostname, username, IP or owner data is copied.
+type wazuhSearchHit struct {
+	EntryID string `json:"entry_id"`
+	SourceTimeUTC string `json:"source_time_utc"`
+	RuleID string `json:"rule_id,omitempty"`
+	AgentID string `json:"agent_id,omitempty"`
+	Feed int `json:"feed"`
+	RuleLevel *int `json:"rule_level,omitempty"`
+}
+
 // This backend executes one pre-authorized Event Inspection PivotDraft over
 // imported Wazuh metadata. The effective authority remains the existing
 // Case/Timeline/typed-source owner, not agent/rule values or caller flags.
@@ -24,6 +36,7 @@ type wazuhPivotBackend struct {
 	levels map[string]wazuhRuleLevel
 	imported int
 	field, value string
+	hits []wazuhSearchHit
 }
 
 func (b *wazuhPivotBackend) Execute(ctx context.Context, req search.BackendRequest) (search.BackendResult, error) {
@@ -40,6 +53,8 @@ func (b *wazuhPivotBackend) Execute(ctx context.Context, req search.BackendReque
 		TenantRef: req.TenantRef,
 		CompletedSources: []string{wazuhLocalSearchSource},
 	}
+	// Backend instance is one-shot for one SearchJob execution.
+	b.hits = nil
 	visibleImported := 0
 	_, err := collectDemoCaseTriageWithObserver(ctx, b.owner, b.token, b.caseID, func(entry timeline.ProjectedEntry) error {
 		meta, imported := b.levels[entry.ID]
@@ -95,6 +110,15 @@ func (b *wazuhPivotBackend) Execute(ctx context.Context, req search.BackendReque
 		result.ResultRefs = append(result.ResultRefs, search.ResultReference{
 			Source: wazuhLocalSearchSource, Ref: entry.ID,
 		})
+		hit := wazuhSearchHit{
+			EntryID: entry.ID, SourceTimeUTC: at.UTC().Format(time.RFC3339Nano),
+			RuleID: meta.RuleID, AgentID: meta.AgentID, Feed: meta.Feed,
+		}
+		if meta.Known {
+			level := meta.Level
+			hit.RuleLevel = &level
+		}
+		b.hits = append(b.hits, hit)
 		return nil
 	})
 	if err != nil {
@@ -128,9 +152,19 @@ func executeDemoWazuhPivot(ctx context.Context, principal, caseID string, owner 
 func executeDemoWazuhMetadataSearch(ctx context.Context, principal, caseID string, owner http.Handler,
 	token, tenant, environment string, levels map[string]wazuhRuleLevel, imported int,
 	field, value, start, end string) (search.SearchJob, error) {
+	job, _, err := executeDemoWazuhMetadataSearchWithHits(ctx, principal, caseID,
+		owner, token, tenant, environment, levels, imported, field, value, start, end)
+	return job, err
+}
+
+// Also return only the selected, already reauthorized metadata for an analyst
+// timeline. The CLI continues using the same execution without this view.
+func executeDemoWazuhMetadataSearchWithHits(ctx context.Context, principal, caseID string, owner http.Handler,
+	token, tenant, environment string, levels map[string]wazuhRuleLevel, imported int,
+	field, value, start, end string) (search.SearchJob, []wazuhSearchHit, error) {
 	if ctx == nil || (field != "wazuh.rule.id" && field != "wazuh.agent.id") ||
 		!validWazuhCohortID(value) {
-		return search.SearchJob{}, errors.New("invalid bounded Wazuh search selection")
+		return search.SearchJob{}, nil, errors.New("invalid bounded Wazuh search selection")
 	}
 	backend := &wazuhPivotBackend{
 		owner: owner, token: token, caseID: caseID,
@@ -139,7 +173,7 @@ func executeDemoWazuhMetadataSearch(ctx context.Context, principal, caseID strin
 	}
 	orchestrator, err := search.NewOrchestrator(backend)
 	if err != nil {
-		return search.SearchJob{}, err
+		return search.SearchJob{}, nil, err
 	}
 	input := search.Input{
 		TenantRef: tenant, AuthorizedTenants: []string{tenant},
@@ -158,11 +192,53 @@ func executeDemoWazuhMetadataSearch(ctx context.Context, principal, caseID strin
 	audit := search.AuditContext{ActorRef: principal, Rationale: "offline-authorized-wazuh-pivot"}
 	job, err := orchestrator.Create(input, audit)
 	if err != nil {
-		return search.SearchJob{}, err
+		return search.SearchJob{}, nil, err
 	}
 	job, err = orchestrator.Execute(ctx, job, audit)
 	if err != nil || job.State != search.JobCompleted || ctx.Err() != nil {
-		return search.SearchJob{}, errors.New("authorized Wazuh search job did not complete")
+		return search.SearchJob{}, nil, errors.New("authorized Wazuh search job did not complete")
 	}
-	return job, nil
+	// Never expose a partial or inconsistent timeline if backend and actual
+	// SearchJob do not agree on precisely which references were completed.
+	if len(job.ResultRefs) != len(backend.hits) {
+		return search.SearchJob{}, nil, errors.New("Wazuh result metadata differs from completed job")
+	}
+	byRef := make(map[string]wazuhSearchHit, len(backend.hits))
+	for _, hit := range backend.hits {
+		if hit.EntryID == "" {
+			return search.SearchJob{}, nil, errors.New("Wazuh result identity absent")
+		}
+		if _, duplicate := byRef[hit.EntryID]; duplicate {
+			return search.SearchJob{}, nil, errors.New("Wazuh result identity repeated")
+		}
+		byRef[hit.EntryID] = hit
+	}
+	// Follow the actual Event Search Job's result ordering rather than an
+	// assumed backend order. The owner timestamp is normalized UTC, enabling
+	// deterministic temporal sorting in the viewer.
+	hits := make([]wazuhSearchHit, 0, len(job.ResultRefs))
+	for _, ref := range job.ResultRefs {
+		if ref.Source != wazuhLocalSearchSource {
+			return search.SearchJob{}, nil, errors.New("Wazuh result source unexpected")
+		}
+		hit, ok := byRef[ref.Ref]
+		if !ok {
+			return search.SearchJob{}, nil, errors.New("Wazuh result entry missing")
+		}
+		hits = append(hits, hit)
+	}
+	// The Job's own stable refs remain unchanged; metadata is ordered by
+	// certain source time to make investigation navigation chronologically useful.
+	sort.Slice(hits, func(i, j int) bool {
+		if hits[i].SourceTimeUTC != hits[j].SourceTimeUTC {
+			left, _ := time.Parse(time.RFC3339Nano, hits[i].SourceTimeUTC)
+			right, _ := time.Parse(time.RFC3339Nano, hits[j].SourceTimeUTC)
+			return left.Before(right)
+		}
+		return hits[i].EntryID < hits[j].EntryID
+	})
+	if err := ctx.Err(); err != nil {
+		return search.SearchJob{}, nil, err
+	}
+	return job, hits, nil
 }

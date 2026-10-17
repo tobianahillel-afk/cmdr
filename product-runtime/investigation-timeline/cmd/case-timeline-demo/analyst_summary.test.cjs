@@ -1695,3 +1695,80 @@ test("untrusted or foreign Case Wazuh query replay files cannot restore authorit
   assert.match(fields["wazuh-search-status"].textContent, /trop volumineux/);
   assert.equal(env.requests.length, 0);
 });
+
+test("analyst renders owner-authorized Wazuh rule/agent chronology from actual Search Job matches", async () => {
+  const env = boot(url => {
+    assert.equal(url.pathname, "/demo-wazuh-search");
+    return { ok: true, async json() {
+      return {
+        format: "cmdr-local-wazuh4-executed-search-v1", synthetic: true,
+        case_id: "case-disk", selector: "rule_id", value: "5710",
+        job: {
+          ID: "job-triage", State: "completed",
+          ResultRefs: [
+            { Source: "wazuh4-authorized-local-import", Ref: "event-after" },
+            { Source: "wazuh4-authorized-local-import", Ref: "event-before" }
+          ],
+          AuditTrail: [{}, {}, {}]
+        },
+        search_hits: [
+          { entry_id: "event-before", source_time_utc: "2026-10-17T10:00:00Z",
+            rule_id: "5710", agent_id: "001", feed: 1, rule_level: 12 },
+          { entry_id: "event-after", source_time_utc: "2026-10-17T10:01:00Z",
+            rule_id: "5710", agent_id: "002", feed: 2, rule_level: 6 }
+        ]
+      };
+    }};
+  });
+  env.fields["wazuh-search-field"].value = "rule_id";
+  env.fields["wazuh-search-value"].value = "5710";
+  env.fields["wazuh-search-from"].value = "2026-10-17T09:59:00";
+  env.fields["wazuh-search-to"].value = "2026-10-17T10:03:00";
+  env.fields["wazuh-search-run"].handlers.click();
+  await flush(); await flush();
+  const list = env.fields["wazuh-search-results"].children[0];
+  assert.equal(list.children.length, 2);
+  assert.match(list.children[0].children[0].textContent,
+    /2026-10-17T10:00:00Z UTC.*règle 5710.*agent 001.*niveau 12.*flux 1/);
+  assert.match(list.children[1].children[0].textContent,
+    /2026-10-17T10:01:00Z UTC.*règle 5710.*agent 002.*niveau 6.*flux 2/);
+  assert.ok(!env.fields["wazuh-search-results"].textContent.includes("private-log"));
+  assert.equal(env.fields["wazuh-replay-save"].disabled, false);
+});
+
+test("analyst refuses mismatched or injected Wazuh triage rows without partial results", async () => {
+  for (const hits of [
+    [{ entry_id: "not-in-job", source_time_utc: "2026-10-17T10:00:00Z",
+       rule_id: "5710", agent_id: "001", feed: 1, rule_level: 12 }],
+    [{ entry_id: "event-authorized", source_time_utc: "2026-10-17T10:00:00Z",
+       rule_id: "5710", agent_id: "001", feed: 1, rule_level: 19 }],
+    [{ entry_id: "event-authorized", source_time_utc: "2026-10-17T10:00:00Z",
+       rule_id: "<script>", agent_id: "001", feed: 1, rule_level: 12 }],
+    []
+  ]) {
+    const env = boot(() => ({
+      ok: true, async json() {
+        return {
+          format: "cmdr-local-wazuh4-executed-search-v1", synthetic: true,
+          case_id: "case-disk", selector: "rule_id", value: "5710",
+          job: {
+            ID: "job-unsafe", State: "completed",
+            ResultRefs: [{ Source: "wazuh4-authorized-local-import", Ref: "event-authorized" }],
+            AuditTrail: [{}, {}, {}]
+          },
+          search_hits: hits
+        };
+      }
+    }));
+    env.fields["wazuh-search-field"].value = "rule_id";
+    env.fields["wazuh-search-value"].value = "5710";
+    env.fields["wazuh-search-from"].value = "2026-10-17T09:59:00";
+    env.fields["wazuh-search-to"].value = "2026-10-17T10:03:00";
+    env.fields["wazuh-search-run"].handlers.click();
+    await flush(); await flush();
+    assert.equal(env.fields["wazuh-search-results"].children.length, 0);
+    assert.equal(env.fields["wazuh-replay-save"].disabled, true);
+    assert.match(env.fields["wazuh-search-status"].textContent, /Aucun résultat partiel/);
+    assert.equal(env.requests.length, 1);
+  }
+});

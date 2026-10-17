@@ -21,6 +21,7 @@ type wazuhHTTPJobReceipt struct {
 	Selector string `json:"selector"`
 	Value string `json:"value"`
 	Job search.SearchJob `json:"job"`
+	Hits []wazuhSearchHit `json:"search_hits"`
 }
 
 // Real disk imports, independent case-owner HTTP authentication and a full
@@ -29,9 +30,9 @@ func TestWazuhAnalystHTTPExecutesSearchAndReopensSources(t *testing.T) {
 	const caseID = "forensic-case-on-disk"
 	owner := snapshotFixture(t)
 	first := writeJSONLEvents(t,
-		"{\"id\":\"same.1\",\"timestamp\":\"2026-10-17T10:00:00Z\",\"agent\":{\"id\":\"001\"},\"rule\":{\"id\":\"5710\",\"description\":\"private-first-feed\"}}\n"+
+		"{\"id\":\"same.1\",\"timestamp\":\"2026-10-17T10:00:00Z\",\"agent\":{\"id\":\"001\"},\"rule\":{\"id\":\"5710\",\"level\":12,\"description\":\"private-first-feed\"}}\n"+
 		"{\"id\":\"late.1\",\"timestamp\":\"2026-10-17T10:05:00Z\",\"agent\":{\"id\":\"001\"},\"rule\":{\"id\":\"5710\",\"description\":\"private-late-feed\"}}\n")
-	second := writeJSONLEvents(t, "{\"id\":\"same.1\",\"timestamp\":\"2026-10-17T10:01:00Z\",\"agent\":{\"id\":\"002\"},\"rule\":{\"id\":\"5710\",\"description\":\"private-second-feed\"}}\n")
+	second := writeJSONLEvents(t, "{\"id\":\"same.1\",\"timestamp\":\"2026-10-17T10:01:00Z\",\"agent\":{\"id\":\"002\"},\"rule\":{\"id\":\"5710\",\"level\":6,\"description\":\"private-second-feed\"}}\n")
 	data, imported, levels, err := loadMultipleWazuhFeedsWithLevels(context.Background(),
 		"analyst-a", owner, caseID, []string{first, second})
 	if err != nil { t.Fatal(err) }
@@ -64,6 +65,19 @@ func TestWazuhAnalystHTTPExecutesSearchAndReopensSources(t *testing.T) {
 		receipt.Job.Provenance.TimeStart.IsZero() ||
 		receipt.Job.Provenance.TimeEnd.IsZero() {
 		t.Fatalf("search result has no authoritative completed job: %+v", receipt)
+	}
+	// The same authorized execution now yields a source-time-ordered triage
+	// view with metadata from the exact bytes of the imported Wazuh feeds.
+	if len(receipt.Hits) != len(receipt.Job.ResultRefs) ||
+		receipt.Hits[0].EntryID != importedWazuhID(caseID, "same.1", 1) ||
+		receipt.Hits[1].EntryID != importedWazuhID(caseID, "same.1", 2) ||
+		receipt.Hits[0].SourceTimeUTC != "2026-10-17T10:00:00Z" ||
+		receipt.Hits[1].SourceTimeUTC != "2026-10-17T10:01:00Z" ||
+		receipt.Hits[0].RuleID != "5710" || receipt.Hits[0].AgentID != "001" ||
+		receipt.Hits[0].Feed != 1 || receipt.Hits[1].Feed != 2 ||
+		receipt.Hits[0].RuleLevel == nil || *receipt.Hits[0].RuleLevel != 12 ||
+		receipt.Hits[1].RuleLevel == nil || *receipt.Hits[1].RuleLevel != 6 {
+		t.Fatalf("authorized chronological Wazuh triage context mismatches completed SearchJob: %+v", receipt.Hits)
 	}
 	matched := map[string]bool{}
 	for _, result := range receipt.Job.ResultRefs {
@@ -100,7 +114,8 @@ func TestWazuhAnalystHTTPExecutesSearchAndReopensSources(t *testing.T) {
 	narrow := invoke(t, agent, token)
 	var selected wazuhHTTPJobReceipt
 	if narrow.Code != http.StatusOK || json.Unmarshal(narrow.Body.Bytes(), &selected) != nil ||
-		len(selected.Job.ResultRefs) != 1 ||
+		len(selected.Job.ResultRefs) != 1 || len(selected.Hits) != 1 ||
+		selected.Hits[0].AgentID != "001" ||
 		selected.Job.ResultRefs[0].Ref != importedWazuhID(caseID, "same.1", 1) {
 		t.Fatalf("agent-only Search Job unexpected: %d %s", narrow.Code, narrow.Body.String())
 	}
@@ -109,7 +124,8 @@ func TestWazuhAnalystHTTPExecutesSearchAndReopensSources(t *testing.T) {
 	empty := invoke(t, agent, token)
 	var noMatch wazuhHTTPJobReceipt
 	if empty.Code != http.StatusOK || json.Unmarshal(empty.Body.Bytes(), &noMatch) != nil ||
-		noMatch.Job.State != search.JobCompleted || len(noMatch.Job.ResultRefs) != 0 {
+		noMatch.Job.State != search.JobCompleted || len(noMatch.Job.ResultRefs) != 0 ||
+		len(noMatch.Hits) != 0 {
 		t.Fatalf("no-match query did not complete safely: %d %s", empty.Code, empty.Body.String())
 	}
 
