@@ -11,6 +11,8 @@
   const search = document.getElementById("search");
   const caseOptions = document.getElementById("case-options");
   const compareCaseOptions = document.getElementById("compare-case-options");
+  // The static HTML starts disabled; mirror it for embedded DOM test hosts.
+  compareCaseOptions.disabled = true;
   const discover = document.getElementById("discover");
   const discoveryStatus = document.getElementById("case-discovery-status");
   const fromInput = document.getElementById("from");
