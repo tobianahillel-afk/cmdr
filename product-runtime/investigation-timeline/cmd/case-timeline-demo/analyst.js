@@ -36,6 +36,7 @@
   let wazuhRevision = 0;
   let wazuhRequest = null;
   function clearWazuh() {
+    clearWazuhSearch();
     ++wazuhRevision;
     if (wazuhRequest) wazuhRequest.abort();
     wazuhRequest = null;
@@ -260,6 +261,112 @@
     } finally {
       if (wazuhRequest === controller) wazuhRequest = null;
     }
+  }
+  const wazuhSearchField = document.getElementById("wazuh-search-field");
+  const wazuhSearchValue = document.getElementById("wazuh-search-value");
+  const wazuhSearchFrom = document.getElementById("wazuh-search-from");
+  const wazuhSearchTo = document.getElementById("wazuh-search-to");
+  const wazuhSearchRun = document.getElementById("wazuh-search-run");
+  const wazuhSearchStatus = document.getElementById("wazuh-search-status");
+  const wazuhSearchResults = document.getElementById("wazuh-search-results");
+  let wazuhSearchRequest = null;
+  let wazuhSearchRevision = 0;
+  function clearWazuhSearch() {
+    ++wazuhSearchRevision;
+    if (wazuhSearchRequest) wazuhSearchRequest.abort();
+    wazuhSearchRequest = null;
+    wazuhSearchRun.disabled = false;
+    wazuhSearchResults.replaceChildren();
+    wazuhSearchStatus.textContent = "Aucune recherche Wazuh exécutée.";
+  }
+  async function runWazuhSearch() {
+    clearWazuhSearch();
+    const bearer = token.value;
+    const selectedCase = caseID.value.trim();
+    const selectedField = wazuhSearchField.value;
+    const selectedValue = wazuhSearchValue.value;
+    const fromText = wazuhSearchFrom.value;
+    const toText = wazuhSearchTo.value;
+    const fromDate = fromText ? new Date(fromText) : new Date(NaN);
+    const toDate = toText ? new Date(toText) : new Date(NaN);
+    if (!bearer || !selectedCase ||
+        !["agent_id", "rule_id"].includes(selectedField) ||
+        !/^[0-9]{1,16}$/.test(selectedValue) ||
+        !Number.isFinite(fromDate.getTime()) || !Number.isFinite(toDate.getTime()) ||
+        fromDate.getTime() >= toDate.getTime()) {
+      wazuhSearchStatus.textContent = "Sélectionnez un Case, un jeton, un ID numérique et une période valide.";
+      return;
+    }
+    const selectedRevision = wazuhSearchRevision;
+    const caseRevision = revision;
+    const controller = new AbortController();
+    wazuhSearchRequest = controller;
+    wazuhSearchRun.disabled = true;
+    wazuhSearchStatus.textContent = "Exécution du Search Job et nouvelle autorisation des sources…";
+    try {
+      const url = new URL("/demo-wazuh-search", window.location.origin);
+      url.searchParams.set("case_id", selectedCase);
+      url.searchParams.set("field", selectedField);
+      url.searchParams.set("value", selectedValue);
+      url.searchParams.set("from", fromDate.toISOString());
+      url.searchParams.set("to", toDate.toISOString());
+      const response = await fetch(url, {
+        method: "GET", headers: { Authorization: "Bearer " + bearer },
+        credentials: "omit", cache: "no-store", redirect: "error", mode: "same-origin",
+        signal: controller.signal
+      });
+      if (!response.ok) throw Error("Search Job denied or unavailable");
+      const receipt = await response.json();
+      if (controller.signal.aborted || selectedRevision !== wazuhSearchRevision ||
+          caseRevision !== revision || token.value !== bearer || caseID.value.trim() !== selectedCase ||
+          wazuhSearchField.value !== selectedField || wazuhSearchValue.value !== selectedValue ||
+          wazuhSearchFrom.value !== fromText || wazuhSearchTo.value !== toText) return;
+      const job = receipt?.job;
+      if (receipt?.format !== "cmdr-local-wazuh4-executed-search-v1" ||
+          receipt.synthetic !== true || receipt.case_id !== selectedCase ||
+          receipt.selector !== selectedField || receipt.value !== selectedValue ||
+          job?.State !== "completed" || typeof job.ID !== "string" ||
+          !Array.isArray(job.ResultRefs) || job.ResultRefs.length > 200 ||
+          !Array.isArray(job.AuditTrail) || job.AuditTrail.length < 3 ||
+          job.ResultRefs.some(ref => typeof ref.Ref !== "string" || ref.Ref.length < 1 ||
+            ref.Ref.length > 1024 || ref.Source !== "wazuh4-authorized-local-import")) {
+        throw Error("Invalid search job receipt");
+      }
+      wazuhSearchStatus.textContent = "Search Job " + job.ID +
+        " terminé — " + job.ResultRefs.length +
+        " événement(s) autorisé(s). Ouvrir une source revérifie les droits.";
+      const list = document.createElement("ol");
+      for (const ref of job.ResultRefs) {
+        const item = document.createElement("li");
+        const button = document.createElement("button");
+        button.type = "button";
+        button.textContent = ref.Ref.slice(0, 120);
+        button.addEventListener("click", () => {
+          if (selectedRevision !== wazuhSearchRevision ||
+              caseRevision !== revision || token.value !== bearer ||
+              caseID.value.trim() !== selectedCase) return;
+          openSource(ref.Ref);
+        });
+        item.append(button);
+        list.append(item);
+      }
+      wazuhSearchResults.replaceChildren(list);
+    } catch {
+      if (selectedRevision === wazuhSearchRevision) {
+        wazuhSearchResults.replaceChildren();
+        wazuhSearchStatus.textContent = "Search Job indisponible, trop volumineux ou droits refusés. Aucun résultat partiel.";
+      }
+    } finally {
+      if (wazuhSearchRequest === controller) {
+        wazuhSearchRequest = null;
+        wazuhSearchRun.disabled = false;
+      }
+    }
+  }
+  wazuhSearchRun.addEventListener("click", runWazuhSearch);
+  for (const field of [token, caseID, wazuhSearchField, wazuhSearchValue, wazuhSearchFrom, wazuhSearchTo]) {
+    field.addEventListener("input", clearWazuhSearch);
+    field.addEventListener("change", clearWazuhSearch);
   }
   wazuhButton.addEventListener("click", loadWazuhCohorts);
   wazuhPrevious.addEventListener("click", () => {
