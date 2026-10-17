@@ -122,7 +122,7 @@ func newDemoWazuhCohortHandler(token, principal, caseID string, data timeline.Me
 // multi-feed cohorts; raw metadata never provides an ACL decision.
 func newDemoWazuhCohortReceiptHandler(token, principal, caseID string, data timeline.MemoryTimelineData, imported int, raw []byte, levels map[string]wazuhRuleLevel, base http.Handler, receipt func(context.Context, io.Writer) error) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path != "/demo-wazuh-cohorts" && r.URL.Path != "/demo-wazuh-drilldown" {
+		if r.URL.Path != "/demo-wazuh-cohorts" && r.URL.Path != "/demo-wazuh-drilldown" && r.URL.Path != "/demo-wazuh-search" {
 			base.ServeHTTP(w, r)
 			return
 		}
@@ -137,6 +137,19 @@ func newDemoWazuhCohortReceiptHandler(token, principal, caseID string, data time
 		expected := "Bearer " + token
 		if subtle.ConstantTimeCompare([]byte(r.Header.Get("Authorization")), []byte(expected)) != 1 {
 			http.Error(w, "not authenticated", http.StatusUnauthorized)
+			return
+		}
+		if r.URL.Path == "/demo-wazuh-search" {
+			activeLevels := levels
+			if activeLevels == nil {
+				var err error
+				activeLevels, err = wazuhRuleLevels(raw, caseID)
+				if err != nil {
+					http.NotFound(w, r)
+					return
+				}
+			}
+			serveDemoWazuhSearch(w, r, token, principal, caseID, data, imported, activeLevels, base)
 			return
 		}
 		if r.URL.Path == "/demo-wazuh-drilldown" {

@@ -84,6 +84,33 @@
         <button id="wazuh-next" type="button" disabled>Page Wazuh suivante</button>
       </div>
     </section>
+    <section aria-labelledby="wazuh-search-title">
+      <h2 id="wazuh-search-title">Recherche Wazuh exécutée — Event Search Job</h2>
+      <p class="intro">Sur les alertes Wazuh du Case autorisé uniquement. Recherche exacte par ID d’agent ou de règle, dans la fenêtre [début, fin). Le serveur réévalue les droits et crée un véritable Search Job. Maximum 200 résultats : au-delà, la recherche échoue sans rapport tronqué. Aucun stockage, ingestion en direct ou IAM de production.</p>
+      <div class="field">
+        <label for="wazuh-search-field">Critère de recherche</label>
+        <select id="wazuh-search-field">
+          <option value="rule_id">ID de règle Wazuh</option>
+          <option value="agent_id">ID d'agent Wazuh</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="wazuh-search-value">Identifiant numérique exact</label>
+        <input id="wazuh-search-value" type="text" inputmode="numeric" pattern="[0-9]{1,16}" maxlength="16" autocomplete="off" spellcheck="false" placeholder="5710">
+      </div>
+      <div class="field">
+        <label for="wazuh-search-from">Depuis (heure locale, incluse)</label>
+        <input id="wazuh-search-from" type="datetime-local" step="1" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="wazuh-search-to">Jusqu'à (heure locale, exclue)</label>
+        <input id="wazuh-search-to" type="datetime-local" step="1" autocomplete="off">
+      </div>
+      <button id="wazuh-search-run" type="button">Exécuter le Search Job autorisé</button>
+      <p id="wazuh-search-status" role="status" aria-live="polite">Aucune recherche Wazuh exécutée.</p>
+      <div id="wazuh-search-results" role="region" aria-label="Résultats du Search Job autorisé" aria-live="polite"></div>
+      <p class="intro">Chaque événement s'ouvre par une nouvelle vérification des droits Case, Timeline et source. Les résultats ne sont pas des preuves de causalité. En changeant le Case ou le jeton, ils sont effacés.</p>
+    </section>
     <section aria-labelledby="compare-title">
       <h2 id="compare-title">Comparer deux Cases autorisés</h2>
       <div class="field">
