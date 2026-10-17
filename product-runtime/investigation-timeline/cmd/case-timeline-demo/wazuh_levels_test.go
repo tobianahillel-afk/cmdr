@@ -146,3 +146,56 @@ func TestWazuhRuleIdentifiersAreBoundToAuthorizedCase(t *testing.T) {
 		t.Fatalf("known and unknown Wazuh rule levels not preserved: %d %d", known, unknown)
 	}
 }
+
+func TestWazuhAuthorizedTimeWindowTriageFromDisk(t *testing.T) {
+	owner := twoCaseComparisonSnapshot(t)
+	alerts := writeJSONLEvents(t,
+		"{\"id\":\"window-a\",\"timestamp\":\"2026-10-01T10:30:00Z\",\"rule\":{\"level\":3,\"description\":\"SECRET-ALERT-A\"}}\n"+
+		"{\"id\":\"window-b\",\"timestamp\":\"2026-10-01T10:30:30Z\",\"rule\":{\"level\":12,\"description\":\"SECRET-ALERT-B\"}}\n"+
+		"{\"id\":\"window-c\",\"timestamp\":\"2026-10-01T10:34:59Z\",\"rule\":{\"description\":\"SECRET-ALERT-C\"}}\n"+
+		"{\"id\":\"window-d\",\"timestamp\":\"2026-10-01T10:35:00Z\",\"rule\":{\"level\":7,\"description\":\"SECRET-ALERT-D\"}}\n")
+	var output bytes.Buffer
+	if err := runDemoCLI(context.Background(), []string{
+		"-principal=analyst-a", "-snapshot="+owner, "-wazuh-alerts="+alerts,
+		"-into-case=case-a", "-triage-import",
+	}, &output); err != nil {
+		t.Fatal(err)
+	}
+	var receipt wazuhRuleTriageReceipt
+	if err := json.Unmarshal(output.Bytes(), &receipt); err != nil { t.Fatal(err) }
+	if receipt.ImportedEntries != 4 || receipt.DistinctTimeWindows != 2 ||
+		len(receipt.PeakWindows) != 2 || receipt.UnplacedAlerts != 0 {
+		t.Fatalf("wrong authorized Wazuh window count: %+v", receipt)
+	}
+	first, last := receipt.PeakWindows[0], receipt.PeakWindows[1]
+	if first.StartUTC != "2026-10-01T10:30:00Z" || first.Count != 3 ||
+		first.HighestKnownRuleLevel == nil || *first.HighestKnownRuleLevel != 12 ||
+		first.UnknownRuleLevels != 1 || last.StartUTC != "2026-10-01T10:35:00Z" ||
+		last.Count != 1 || last.HighestKnownRuleLevel == nil ||
+		*last.HighestKnownRuleLevel != 7 || last.UnknownRuleLevels != 0 {
+		t.Fatalf("wrong five-minute window summary: %+v", receipt.PeakWindows)
+	}
+	for _, secret := range []string{"SECRET-ALERT-", "window-a", "demo-tenant-b", "demo-hidden-source", "Bearer "} {
+		if strings.Contains(output.String(), secret) { t.Fatalf("sensitive metadata leaked: %q", secret) }
+	}
+	var denied bytes.Buffer
+	if err := writeDemoWazuh4RuleTriage(context.Background(), "analyst-b", owner, "case-a", alerts, &denied); err == nil || denied.Len() != 0 {
+		t.Fatalf("unauthorized analysis wrote time buckets: err=%v body=%q", err, denied.String())
+	}
+}
+
+func TestWazuhWindowTriageUnknownLevelNotPromotedToSeverity(t *testing.T) {
+	owner := twoCaseComparisonSnapshot(t)
+	alerts := writeJSONLEvents(t,
+		"{\"id\":\"unknown-one\",\"timestamp\":\"2026-10-01T10:59:59+01:00\",\"rule\":{\"description\":\"undetermined\"}}\n")
+	var out bytes.Buffer
+	if err := writeDemoWazuh4RuleTriage(context.Background(), "analyst-a", owner, "case-a", alerts, &out); err != nil { t.Fatal(err) }
+	var receipt wazuhRuleTriageReceipt
+	if err := json.Unmarshal(out.Bytes(), &receipt); err != nil { t.Fatal(err) }
+	if receipt.DistinctTimeWindows != 1 || len(receipt.PeakWindows) != 1 ||
+		receipt.PeakWindows[0].StartUTC != "2026-10-01T09:55:00Z" ||
+		receipt.PeakWindows[0].Count != 1 || receipt.PeakWindows[0].HighestKnownRuleLevel != nil ||
+		receipt.PeakWindows[0].UnknownRuleLevels != 1 || receipt.UnknownRuleLevels != 1 {
+		t.Fatalf("unknown Wazuh level or timezone altered: %+v", receipt)
+	}
+}

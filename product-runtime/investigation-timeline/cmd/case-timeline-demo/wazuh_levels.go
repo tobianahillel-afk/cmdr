@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"io"
 	"sort"
+	"time"
 
 	timeline "github.com/tobianahillel-afk/cmdr/product-runtime/investigation-timeline"
 )
@@ -25,6 +26,15 @@ type wazuhLevelCount struct {
 	Count int `json:"count"`
 }
 
+// A bounded, descriptive time distribution of visible imported alerts.
+// These are alert-volume windows, not inferred incident boundaries.
+type wazuhAlertWindow struct {
+	StartUTC string `json:"start_utc"`
+	Count int `json:"count"`
+	HighestKnownRuleLevel *int `json:"highest_known_rule_level,omitempty"`
+	UnknownRuleLevels int `json:"unknown_rule_levels"`
+}
+
 type wazuhRuleTriageReceipt struct {
 	Format string `json:"format"`
 	Synthetic bool `json:"synthetic"`
@@ -32,6 +42,9 @@ type wazuhRuleTriageReceipt struct {
 	Case caseTriageReceipt `json:"case_triage"`
 	RuleLevels []wazuhLevelCount `json:"rule_levels"`
 	UnknownRuleLevels int `json:"unknown_rule_levels"`
+	DistinctTimeWindows int `json:"distinct_time_windows"`
+	PeakWindows []wazuhAlertWindow `json:"peak_windows"`
+	UnplacedAlerts int `json:"unplaced_alerts"`
 }
 
 // This mapping is computed from the SAME bytes that were normalized and
@@ -89,7 +102,8 @@ func writeDemoWazuh4RuleTriage(ctx context.Context, principal, snapshotPath, int
 		return err
 	}
 	counts := make(map[int]int)
-	visibleImported, unknown := 0, 0
+	windows := make(map[string]*wazuhAlertWindow)
+	visibleImported, unknown, unplaced := 0, 0, 0
 	receipt, err := collectDemoCaseTriageWithObserver(ctx, handler, token, intoCase, func(entry timeline.ProjectedEntry) error {
 		level, exists := levels[entry.ID]
 		if !exists {
@@ -100,6 +114,29 @@ func writeDemoWazuh4RuleTriage(ctx context.Context, principal, snapshotPath, int
 			counts[level.Level]++
 		} else {
 			unknown++
+		}
+		if entry.TimeUncertain {
+			unplaced++
+			return nil
+		}
+		when, err := time.Parse(time.RFC3339Nano, entry.SourceTime)
+		if err != nil {
+			return errors.New("invalid authorized Wazuh Timeline timestamp")
+		}
+		key := when.UTC().Truncate(5 * time.Minute).Format(time.RFC3339)
+		window := windows[key]
+		if window == nil {
+			window = &wazuhAlertWindow{StartUTC: key}
+			windows[key] = window
+		}
+		window.Count++
+		if level.Known {
+			if window.HighestKnownRuleLevel == nil || level.Level > *window.HighestKnownRuleLevel {
+				highest := level.Level
+				window.HighestKnownRuleLevel = &highest
+			}
+		} else {
+			window.UnknownRuleLevels++
 		}
 		return nil
 	})
@@ -117,6 +154,20 @@ func writeDemoWazuh4RuleTriage(ctx context.Context, principal, snapshotPath, int
 		keys = append(keys, level)
 	}
 	sort.Ints(keys)
+	peaks := make([]wazuhAlertWindow, 0, len(windows))
+	for _, window := range windows {
+		peaks = append(peaks, *window)
+	}
+	sort.Slice(peaks, func(i, j int) bool {
+		if peaks[i].Count != peaks[j].Count {
+			return peaks[i].Count > peaks[j].Count
+		}
+		return peaks[i].StartUTC < peaks[j].StartUTC
+	})
+	// Export at most ten active windows; all windows are still counted.
+	if len(peaks) > 10 {
+		peaks = peaks[:10]
+	}
 	histogram := make([]wazuhLevelCount, 0, len(keys))
 	for _, level := range keys {
 		histogram = append(histogram, wazuhLevelCount{Level: level, Count: counts[level]})
@@ -125,5 +176,6 @@ func writeDemoWazuh4RuleTriage(ctx context.Context, principal, snapshotPath, int
 		Format: "cmdr-local-wazuh4-case-triage-v1",
 		Synthetic: true, ImportedEntries: imported, Case: receipt,
 		RuleLevels: histogram, UnknownRuleLevels: unknown,
+		DistinctTimeWindows: len(windows), PeakWindows: peaks, UnplacedAlerts: unplaced,
 	})
 }
