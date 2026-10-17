@@ -420,7 +420,7 @@
           const group = groups.get(entry.source_ref) || { count: 0, firstEntryID: entry.id, rows: [] };
           group.count++;
           group.rows.push({
-            caseID: id, id: entry.id, kind: entry.kind,
+            caseID: id, id: entry.id, kind: entry.kind, sourceRef: entry.source_ref,
             time: entry.source_time, uncertain: entry.time_uncertain
           });
           groups.set(entry.source_ref, group);
@@ -600,6 +600,52 @@
               nextPage.addEventListener("click", () => renderCrossCase(end));
               comparisonTraceResults.append(nextPage);
             }
+            // Explicit offline export of this selected owner-authorized sequence.
+            // The receipt is sensitive, unsigned and can be stale after revocation.
+            const save = document.createElement("button");
+            save.type = "button";
+            save.textContent = "Enregistrer la séquence croisée JSON (sensible)";
+            save.addEventListener("click", () => {
+              if (controller.signal.aborted || compareRevision !== activeComparison ||
+                  revision !== activeSelection || token.value !== bearer ||
+                  caseID.value.trim() !== selectedCase ||
+                  compareCase.value.trim() !== otherCase || !bearer ||
+                  chronological.length > 10000) return;
+              const receipt = {
+                schema_version: 1,
+                type: "cmdr-synthetic-authorized-cross-case-sequence",
+                synthetic: true,
+                generated_at_utc: new Date().toISOString(),
+                case_ids: [selectedCase, otherCase],
+                selection: heading,
+                event_count: chronological.length,
+                events: chronological.map(row => ({
+                  case_id: row.caseID, entry_id: row.id, kind: row.kind,
+                  source_reference: row.sourceRef, source_time: row.time,
+                  time_uncertain: row.uncertain
+                })),
+                limitations: [
+                  "Local unsigned sensitive synthetic receipt, not forensic custody",
+                  "Previously authorized paginated results; rights may have changed",
+                  "Same source label and time proximity do not prove shared identity or causality"
+                ]
+              };
+              let objectURL = null;
+              try {
+                const blob = new Blob([JSON.stringify(receipt, null, 2) + "\n"],
+                  { type: "application/json" });
+                objectURL = URL.createObjectURL(blob);
+                const link = document.createElement("a");
+                link.href = objectURL;
+                link.download = "cmdr-local-cross-case-sequence.json";
+                link.click();
+                setTimeout(() => URL.revokeObjectURL(objectURL), 1000);
+              } catch {
+                if (objectURL) URL.revokeObjectURL(objectURL);
+                comparisonTraceResults.textContent = "Export local indisponible.";
+              }
+            });
+            comparisonTraceResults.append(save);
           }
           renderCrossCase(0);
       }
