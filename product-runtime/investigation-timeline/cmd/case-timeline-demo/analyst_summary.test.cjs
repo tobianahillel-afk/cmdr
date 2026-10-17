@@ -1148,7 +1148,9 @@ test("Wazuh authorized agent/rule cohorts appear only after bearer HTTP response
       format: "cmdr-local-wazuh4-case-triage-v1", synthetic: true,
       imported_entries: 3,
       top_agents: [{ agent_id: "001", count: 2, distinct_rule_ids: 1, highest_known_rule_level: 9 }],
-      top_rules: [{ rule_id: "5710", count: 3, highest_known_rule_level: 9 }]
+      top_rules: [{ rule_id: "5710", count: 3, highest_known_rule_level: 9 }],
+      multi_feed_signals: [{ agent_id: "001", rule_id: "5710", alert_count: 3,
+        distinct_feeds: 2, highest_known_rule_level: 9 }]
     }; } };
   });
   env.fields["wazuh-cohorts"].handlers.click();
@@ -1161,6 +1163,8 @@ test("Wazuh authorized agent/rule cohorts appear only after bearer HTTP response
   assert.ok(!env.requests[0].url.href.includes("ephemeral-token"));
   assert.match(env.fields["wazuh-status"].textContent, /agent 001 : 2 alerte/);
   assert.match(env.fields["wazuh-status"].textContent, /règle 5710 : 3 alerte/);
+  assert.match(env.fields["wazuh-status"].textContent, /agent 001 \/ règle 5710 : 3 alerte/);
+  assert.match(env.fields["wazuh-status"].textContent, /2 flux distinct/);
 });
 
 test("Wazuh denied, malformed or stale replies never render a partial cohort", async () => {
