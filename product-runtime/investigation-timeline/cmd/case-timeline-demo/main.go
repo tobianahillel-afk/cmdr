@@ -39,7 +39,7 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	principal := flags.String("principal", "analyst-a", "synthetic analyst ID from the selected local owner snapshot")
 	snapshot := flags.String("snapshot", "", "absolute path to operator-owned read-only Case snapshot JSON (loopback demo only)")
 	importJSONL := flags.String("import-jsonl", "", "absolute local normalized event JSONL for offline owner snapshot preparation (no listener)")
-	wazuhAlerts := flags.String("wazuh-alerts", "", "absolute local Wazuh 4.x alerts.json JSONL for authorized Case loopback viewer")
+	wazuhAlerts := flags.String("wazuh-alerts", "", "absolute local Wazuh 4.x alerts.json JSONL for authorized Case viewer, triage or comparison")
 	intoCase := flags.String("into-case", "", "existing Case for imported local events (requires -import-jsonl)")
 	triageImport := flags.Bool("triage-import", false, "analyze locally imported events; use -with-case for a two-Case comparison, optionally -compare-proximity for bounded time leads")
 	serveImport := flags.Bool("serve-import", false, "import local JSONL into an in-memory Case and open the authenticated loopback analyst viewer; no merged owner file")
@@ -87,11 +87,21 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 			}
 			return serveDemoWithWazuhAlerts(ctx, *principal, *snapshot, *intoCase, *wazuhAlerts, output)
 		}
-		if *withCase == "" || !*compareProximity {
-			return errors.New("Wazuh temporal triage requires -with-case and -compare-proximity")
+		if *withCase == "" {
+			if *compareProximity || windowSet {
+				return errors.New("Wazuh temporal leads require a second authorized Case")
+			}
+			return writeDemoWazuh4Triage(ctx, *principal, *snapshot, *intoCase, *wazuhAlerts, output)
 		}
-		return writeDemoWazuh4Proximity(ctx, *principal, *snapshot, *intoCase, *withCase,
-			*wazuhAlerts, *proximitySeconds, output)
+		if *compareProximity {
+			return writeDemoWazuh4Proximity(ctx, *principal, *snapshot, *intoCase, *withCase,
+				*wazuhAlerts, *proximitySeconds, output)
+		}
+		if windowSet {
+			return errors.New("Wazuh proximity window requires temporal lead selection")
+		}
+		return writeDemoWazuh4Comparison(ctx, *principal, *snapshot, *intoCase, *withCase,
+			*wazuhAlerts, output)
 	}
 	if *serveImport && (*snapshot == "" || *importJSONL == "" || *intoCase == "") {
 		return errors.New("serve-import requires an owner snapshot, normalized JSONL file and destination Case")
