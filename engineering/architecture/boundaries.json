@@ -119,7 +119,9 @@
         "product-runtime/investigation-timeline/**"
       ],
       "mutable_by_implementation": true,
-      "may_depend_on": []
+      "may_depend_on": [
+        "event-inspection-runtime"
+      ]
     }
   ]
 }
