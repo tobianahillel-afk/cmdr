@@ -49,6 +49,15 @@ func writeDemoWazuhDrilldown(ctx context.Context, principal string, data timelin
 	}
 	levels, err := wazuhRuleLevels(raw, caseID)
 	if err != nil { return err }
+	return writeDemoWazuhDrilldownWithLevels(ctx, principal, data, imported, levels, caseID, selector, value, output)
+}
+
+// Wazuh metadata is joined ONLY after the trusted owner traversal. The
+// caller supplies feed-qualified IDs from the exact validated import bytes.
+func writeDemoWazuhDrilldownWithLevels(ctx context.Context, principal string, data timeline.MemoryTimelineData, imported int, levels map[string]wazuhRuleLevel, caseID, selector, value string, output io.Writer) error {
+	if (selector != "agent_id" && selector != "rule_id") || !validWazuhCohortID(value) {
+		return errors.New("invalid Wazuh cohort selector")
+	}
 	token, err := randomBearer()
 	if err != nil { return err }
 	handler, err := newDemoHandlerWithData(token, principal, data)
@@ -84,7 +93,18 @@ func writeDemoWazuhDrilldown(ctx context.Context, principal string, data timelin
 	return err
 }
 
+// Existing single-feed Wazuh mode shares the same strict HTTP selector
+// and typed-source authorization path as the multi-feed mode.
 func serveDemoWazuhDrilldown(w http.ResponseWriter, r *http.Request, principal string, data timeline.MemoryTimelineData, imported int, raw []byte, caseID string) {
+	levels, err := wazuhRuleLevels(raw, caseID)
+	if err != nil {
+		http.NotFound(w, r)
+		return
+	}
+	serveDemoWazuhDrilldownWithLevels(w, r, principal, data, imported, levels, caseID)
+}
+
+func serveDemoWazuhDrilldownWithLevels(w http.ResponseWriter, r *http.Request, principal string, data timeline.MemoryTimelineData, imported int, levels map[string]wazuhRuleLevel, caseID string) {
 	query := r.URL.Query()
 	if len(query) != 2 || len(query["case_id"]) != 1 || query.Get("case_id") != caseID {
 		http.NotFound(w, r)
@@ -101,8 +121,8 @@ func serveDemoWazuhDrilldown(w http.ResponseWriter, r *http.Request, principal s
 		return
 	}
 	var encoded bytes.Buffer
-	if err := writeDemoWazuhDrilldown(r.Context(), principal, data, imported, raw, caseID, selector, value, &encoded); err != nil {
-		http.NotFound(w, r) // no partial material on Case/source denial
+	if err := writeDemoWazuhDrilldownWithLevels(r.Context(), principal, data, imported, levels, caseID, selector, value, &encoded); err != nil {
+		http.NotFound(w, r)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
