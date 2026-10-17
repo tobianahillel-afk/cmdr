@@ -46,6 +46,8 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	proximitySeconds := flags.Int("proximity-seconds", 60, "bounded nearest-event window in seconds, 1..300 (requires -compare-proximity)")
 	sourceCase := flags.String("source-case", "", "authorized Case for offline source-specific event timeline")
 	sourceRef := flags.String("source-ref", "", "exact authorized source reference (requires -source-case)")
+	dossierCase := flags.String("dossier-case", "", "authorized Case for one combined local investigation dossier")
+	dossierEntry := flags.String("dossier-entry", "", "selected Timeline Entry whose source is revalidated (requires -dossier-case)")
 	inspectCase := flags.String("inspect-case", "", "Case containing an explicitly selected source Timeline Entry")
 	inspectEntry := flags.String("inspect-entry", "", "Timeline Entry ID for an authorized offline typed-source preview (requires -inspect-case)")
 	if err := flags.Parse(args); err != nil {
@@ -65,6 +67,14 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	}
 	if *compareProximity && *compareEvents {
 		return errors.New("choose exactly one cross-Case comparison mode")
+	}
+	if *dossierCase != "" || *dossierEntry != "" {
+		if *dossierCase == "" || *dossierEntry == "" || *reportCase != "" ||
+			*compareCase != "" || *withCase != "" || *compareEvents || *compareProximity ||
+			*sourceCase != "" || *sourceRef != "" || *inspectCase != "" || *inspectEntry != "" {
+			return errors.New("select one complete offline investigation dossier mode")
+		}
+		return writeDemoCaseDossier(ctx, *principal, *snapshot, *dossierCase, *dossierEntry, output)
 	}
 	if *inspectCase != "" || *inspectEntry != "" {
 		if *inspectCase == "" || *inspectEntry == "" || *reportCase != "" ||
