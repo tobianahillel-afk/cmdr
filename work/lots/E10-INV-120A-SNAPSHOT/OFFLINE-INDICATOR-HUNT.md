@@ -27,3 +27,13 @@ Alternatives considered: adding a second search index, a vendor SIEM client, a n
 ## Acceptance evidence
 
 Integration tests consume an actual on-disk owner snapshot containing two readable same-tenant Cases, a different tenant and a linked denied source; confirm independent matching of distinct source owners, no denied/foreign Case disclosure, complete two-page 205-event search, invalid query/flag rejection, cancellation, second-Case refusal and excessive authorized Case catalog. Exact-SHA CI and risk-based L2 are required before claiming this functional milestone verified.
+
+## Functional integration: temporal lead selection
+
+The same `-hunt-q` offline JSON command now includes **per matching authorized Case** the optional `first_certain_utc`, `last_certain_utc` and up to **three** `top_five_minute_windows`, each with UTC start, matches, observed and inferred counts. Windows are ordered by count descending, then UTC ascending for deterministic ties. This is an additive extension to the existing `cmdr-local-cross-case-text-hunt-v1` receipt and requires no new CLI mode.
+
+This closes a triage usability gap: an analyst can move from a cross-Case text hit to the most relevant Case/time window and use the existing authenticated Case Timeline, five-minute drilldown and typed-source navigation where available. It **reuses** `caseTriageReceipt.FirstCertainUTC`, `LastCertainUTC`, and the previously calculated `certainWindows` map, never reads the raw snapshot for search, and does not expose source refs, event IDs, preview, tenant IDs or bearer.
+
+Only confirmed timestamps are eligible for windows. An entirely time-uncertain match retains `uncertain` but no certain window; do not infer an observation time for it. The aggregates may themselves be sensitive even though permission-filtered, so redirected local output must be protected. This remains a synthetic in-process owner, not production IAM, live SOC correlation, an IOC verdict or forensic evidence chain.
+
+The functional acceptance checks include a disk-backed two-Case query with denied source and foreign tenant, verified per-Case UTC buckets, no raw metadata output, and a deterministic three-window ranking. The existing 205-hit two-page regression exercises the same path. CI and any later L2 must be pinned to the published SHA; no claim of an exact-SHA pass is made by this text alone.

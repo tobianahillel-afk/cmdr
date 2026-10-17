@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 )
 
 // A real operator-selected disk snapshot exercises the same in-process
@@ -394,5 +395,84 @@ func TestOfflineHuntRejectsBadDiscoveryAndRevocationMidRead(t *testing.T) {
 	if !errors.Is(err, context.Canceled) || got.VisibleMatches != 0 ||
 		len(got.Results) != 0 || visited != 2 {
 		t.Fatalf("revocation leaked partial results: %+v %v visited=%d", got, err, visited)
+	}
+}
+
+func TestOfflineHuntRanksBoundedAuthorizedFiveMinuteWindows(t *testing.T) {
+	windows := map[string]certainWindowCount{
+		"2026-10-01T10:00:00Z": {Total: 5, Observed: 3, Inferred: 2},
+		"2026-10-01T10:05:00Z": {Total: 9, Observed: 8, Inferred: 1},
+		"2026-10-01T10:10:00Z": {Total: 9, Observed: 4, Inferred: 5},
+		"2026-10-01T10:15:00Z": {Total: 1, Observed: 1},
+	}
+	got := topAuthorizedHuntWindows(windows)
+	if len(got) != 3 || got[0].StartUTC != "2026-10-01T10:05:00Z" ||
+		got[1].StartUTC != "2026-10-01T10:10:00Z" ||
+		got[2].StartUTC != "2026-10-01T10:00:00Z" ||
+		got[0].Matches != 9 || got[0].Observed != 8 || got[1].Inferred != 5 {
+		t.Fatalf("top three Case windows were not ranked deterministically: %+v", got)
+	}
+	if result := topAuthorizedHuntWindows(nil); len(result) != 0 {
+		t.Fatalf("uncertain-only timeline created certain windows: %+v", result)
+	}
+}
+
+func TestOfflineHuntProvidesAuthorizedTemporalPivotFromDisk(t *testing.T) {
+	data, err := loadDemoSnapshot(diskHuntSnapshot(t))
+	if err != nil {
+		t.Fatal(err)
+	}
+	for i := range data.Entries {
+		switch data.Entries[i].Value.ID {
+		case "event-old":
+			data.Entries[i].Value.SourceTime = "2026-10-01T10:01:00Z"
+			data.Entries[i].Value.Timezone = "+00:00"
+			data.Entries[i].Value.ClockUncertaintyMS = 0
+		case "event-c":
+			data.Entries[i].Value.SourceTime = "2026-10-01T10:02:00Z"
+			data.Entries[i].Value.Timezone = "+00:00"
+			data.Entries[i].Value.ClockUncertaintyMS = 0
+		}
+	}
+	blob, err := json.Marshal(data)
+	if err != nil {
+		t.Fatal(err)
+	}
+	path := filepath.Join(t.TempDir(), "temporal-hunt.json")
+	if err := os.WriteFile(path, blob, 0o600); err != nil {
+		t.Fatal(err)
+	}
+	var output bytes.Buffer
+	if err := runDemoCLI(context.Background(), []string{
+		"-principal=analyst-a", "-snapshot=" + path, "-hunt-q=ioc.example",
+	}, &output); err != nil {
+		t.Fatal(err)
+	}
+	var got localCrossCaseHunt
+	if err := json.Unmarshal(output.Bytes(), &got); err != nil {
+		t.Fatal(err)
+	}
+	if got.VisibleMatches != 2 || len(got.Results) != 2 {
+		t.Fatalf("authorized Case hunt did not complete: %+v", got)
+	}
+	for _, item := range got.Results {
+		if item.Matches != 1 || item.FirstCertainUTC == "" ||
+			item.LastCertainUTC != item.FirstCertainUTC || len(item.TopWindows) != 1 {
+			t.Fatalf("Case did not have actionable certain-time pivot: %+v", item)
+		}
+		instant, err := time.Parse(time.RFC3339Nano, item.FirstCertainUTC)
+		if err != nil {
+			t.Fatal(err)
+		}
+		wantWindow := instant.UTC().Truncate(5*time.Minute).Format(time.RFC3339)
+		if item.TopWindows[0].StartUTC != wantWindow ||
+			item.TopWindows[0].Matches != 1 || item.TopWindows[0].Inferred != 1 {
+			t.Fatalf("wrong authenticated window aggregate: %+v", item)
+		}
+	}
+	for _, secret := range []string{"restricted", "hidden IOC.EXAMPLE", "event-old", "event-c", "demo-secret", "demo-hidden-source", "case-b"} {
+		if strings.Contains(output.String(), secret) {
+			t.Fatalf("unapproved raw/source/foreign metadata in pivot: %s", output.String())
+		}
 	}
 }

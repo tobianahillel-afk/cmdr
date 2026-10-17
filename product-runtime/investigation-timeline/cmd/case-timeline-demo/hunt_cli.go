@@ -6,6 +6,7 @@ import (
 	"errors"
 	"io"
 	"net/http"
+	"sort"
 	"strings"
 	"unicode"
 	"unicode/utf8"
@@ -16,11 +17,45 @@ import (
 const maxHuntCases = 8
 
 type localHuntCase struct {
-	CaseID    string `json:"case_id"`
-	Matches   int    `json:"matches"`
-	Observed  int    `json:"observed"`
-	Inferred  int    `json:"inferred"`
-	Uncertain int    `json:"uncertain"`
+	CaseID          string            `json:"case_id"`
+	Matches         int               `json:"matches"`
+	Observed        int               `json:"observed"`
+	Inferred        int               `json:"inferred"`
+	Uncertain       int               `json:"uncertain"`
+	FirstCertainUTC string            `json:"first_certain_utc,omitempty"`
+	LastCertainUTC  string            `json:"last_certain_utc,omitempty"`
+	TopWindows      []localHuntWindow `json:"top_five_minute_windows,omitempty"`
+}
+
+// These UTC buckets contain only entries that passed Case, Entry and source
+// permission checks. Their counts are not proof that an IOC is malicious.
+type localHuntWindow struct {
+	StartUTC string `json:"start_utc"`
+	Matches  int    `json:"matches"`
+	Observed int    `json:"observed"`
+	Inferred int    `json:"inferred"`
+}
+
+// Return at most three actionable windows per Case without disclosing raw
+// entry IDs, source references or unbounded time series.
+func topAuthorizedHuntWindows(windows map[string]certainWindowCount) []localHuntWindow {
+	out := make([]localHuntWindow, 0, len(windows))
+	for start, count := range windows {
+		out = append(out, localHuntWindow{
+			StartUTC: start, Matches: count.Total,
+			Observed: count.Observed, Inferred: count.Inferred,
+		})
+	}
+	sort.Slice(out, func(i, j int) bool {
+		if out[i].Matches != out[j].Matches {
+			return out[i].Matches > out[j].Matches
+		}
+		return out[i].StartUTC < out[j].StartUTC
+	})
+	if len(out) > 3 {
+		out = out[:3]
+	}
+	return out
 }
 
 type localCrossCaseHunt struct {
@@ -86,6 +121,9 @@ func collectAuthorizedCrossCaseHunt(
 			Observed: summary.Kinds["observed"],
 			Inferred: summary.Kinds["inferred"],
 			Uncertain: summary.UncertainEntries,
+			FirstCertainUTC: summary.FirstCertainUTC,
+			LastCertainUTC: summary.LastCertainUTC,
+			TopWindows: topAuthorizedHuntWindows(summary.certainWindows),
 		})
 	}
 	if err := ctx.Err(); err != nil {
