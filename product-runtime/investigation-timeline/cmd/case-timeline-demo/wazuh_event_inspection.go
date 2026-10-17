@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"net/url"
 
 	inspection "github.com/tobianahillel-afk/cmdr/product-runtime/event-inspection"
 	timeline "github.com/tobianahillel-afk/cmdr/product-runtime/investigation-timeline"
@@ -87,25 +86,14 @@ func writeDemoWazuhEventInspection(ctx context.Context, principal, snapshot, cas
 		selected.Kind != "observed" || selected.SourceRef == "" || selected.TimeUncertain {
 		return errors.New("selected Wazuh event not fully owner-authorized")
 	}
-	// Independently re-open the typed source after completing authorized
-	// Case pagination. Preview is intentionally disclosed ONLY in this
-	// explicit, sensitive inspection command.
-	q := url.Values{"case_id": {caseID}, "entry_id": {entryID}}
-	var opened struct {
-		Status string `json:"status"`
-		Synthetic bool `json:"synthetic"`
-		CaseID string `json:"case_id"`
-		EntryID string `json:"entry_id"`
-		Kind string `json:"kind"`
-		ObjectID string `json:"object_id"`
-		Preview string `json:"preview"`
-	}
-	if err := queryDemoOwner(ctx, handler, token, "/demo-source-open?"+q.Encode(), &opened); err != nil {
+	// Open again through the already existing Case typed-source owner.
+	// This is a fresh authorization decision, not a reuse of a preview.
+	opened, err := inspectDemoEntryWithData(ctx, principal, data, caseID, entryID)
+	if err != nil {
 		return err
 	}
-	if opened.Status != "ready" || !opened.Synthetic || opened.CaseID != caseID ||
-		opened.EntryID != entryID || opened.Kind != "telemetry-event" || opened.ObjectID == "" {
-		return errors.New("typed telemetry owner denied or changed during inspection")
+	if opened.Kind != "telemetry-event" {
+		return errors.New("selected source is not telemetry")
 	}
 	var tenant, environment string
 	for _, p := range data.Principals {
