@@ -21,7 +21,7 @@ func testOwner() timeline.MemoryTimelineData {
 		},
 		Cases: []timeline.MemoryTimelineCase{
 			{ID: "case-a", Tenant: "tenant-a", Environment: "lab",
-				Readers: []string{"analyst-a"},
+				Readers:  []string{"analyst-a"},
 				EntryIDs: []string{"allowed-late", "restricted", "evidence-entry", "allowed-early"}},
 			{ID: "case-b", Tenant: "tenant-b", Environment: "lab",
 				Readers: []string{"analyst-b"}, EntryIDs: []string{"foreign"}},
@@ -110,7 +110,7 @@ func TestActualAuthorizedCaseSearchJob(t *testing.T) {
 
 func TestAuthorizedCaseSearchBoundsAndLeastPrivilege(t *testing.T) {
 	for _, tc := range []struct {
-		name string
+		name   string
 		change func(*searchOptions)
 	}{
 		{"foreign Case", func(o *searchOptions) { o.CaseID = "case-b" }},
@@ -148,16 +148,24 @@ func TestAuthorizedCaseSearchBoundsAndLeastPrivilege(t *testing.T) {
 func TestCaseSearchJobCLIReadsActualSnapshotAndWritesNoPartialDenials(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "owner.json")
 	encoded, err := json.Marshal(testOwner())
-	if err != nil { t.Fatal(err) }
-	if err := os.WriteFile(path, encoded, 0600); err != nil { t.Fatal(err) }
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(path, encoded, 0600); err != nil {
+		t.Fatal(err)
+	}
 	args := []string{
 		"-snapshot", path, "-principal", "analyst-a", "-case", "case-a",
 		"-query", "sensor-dns", "-from", "2026-10-01T09:00:00Z", "-to", "2026-10-01T11:00:00Z",
 	}
 	var out bytes.Buffer
-	if err := runCLI(context.Background(), args, &out); err != nil { t.Fatal(err) }
+	if err := runCLI(context.Background(), args, &out); err != nil {
+		t.Fatal(err)
+	}
 	var got caseSearchReceipt
-	if err := json.Unmarshal(out.Bytes(), &got); err != nil { t.Fatal(err) }
+	if err := json.Unmarshal(out.Bytes(), &got); err != nil {
+		t.Fatal(err)
+	}
 	if got.Job.State != search.JobCompleted || len(got.Job.ResultRefs) != 1 ||
 		got.Job.ResultRefs[0].Ref != "allowed-early" {
 		t.Fatalf("offline disk-to-job search failed: %+v", got)
