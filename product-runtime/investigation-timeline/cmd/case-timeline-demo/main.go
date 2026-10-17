@@ -41,6 +41,7 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	importJSONL := flags.String("import-jsonl", "", "absolute local normalized event JSONL for offline owner snapshot preparation (no listener)")
 	intoCase := flags.String("into-case", "", "existing Case for imported local events (requires -import-jsonl)")
 	triageImport := flags.Bool("triage-import", false, "analyze locally imported events through Case authorization without outputting the full owner snapshot")
+	serveImport := flags.Bool("serve-import", false, "open local JSONL events directly in the loopback analyst UI (requires -snapshot, -import-jsonl and -into-case)")
 	reportCase := flags.String("report-case", "", "produce one authorized offline Case triage JSON receipt and exit (no listener)")
 	exportCase := flags.String("export-case", "", "export authorized Case Timeline events as sensitive local JSONL, without listener")
 	compareCase := flags.String("compare-case", "", "first authorized Case for an offline two-Case comparison receipt")
@@ -69,6 +70,15 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	}
 	if *compareProximity && *compareEvents {
 		return errors.New("choose exactly one cross-Case comparison mode")
+	}
+	if *serveImport {
+		if *snapshot == "" || *importJSONL == "" || *intoCase == "" || *triageImport ||
+			*reportCase != "" || *exportCase != "" || *compareCase != "" || *withCase != "" ||
+			*compareEvents || *compareProximity || *sourceCase != "" || *sourceRef != "" ||
+			*inspectCase != "" || *inspectEntry != "" {
+			return errors.New("live imported analyst viewer requires only an owner snapshot, local JSONL and an existing Case")
+		}
+		return serveDemoWithImportedJSONL(ctx, *principal, *snapshot, *intoCase, *importJSONL, output)
 	}
 	if *importJSONL != "" || *intoCase != "" || *triageImport {
 		if *importJSONL == "" || *intoCase == "" || *reportCase != "" || *exportCase != "" ||
@@ -171,12 +181,44 @@ func serveDemoWithSnapshot(ctx context.Context, principal, snapshot string, outp
 	if err := ctx.Err(); err != nil {
 		return err
 	}
-	if principal == "" || principal == "*" {
-		return errors.New("select a synthetic principal from the local owner dataset")
-	}
 	data, err := loadDemoSnapshot(snapshot)
 	if err != nil {
 		return err
+	}
+	return serveDemoWithData(ctx, principal, data, output)
+}
+
+// The live JSONL path composes existing bounded local import with the same
+// authenticated Case/source owner handlers used by the synthetic analyst UI.
+// Files are selected by the operator at startup, never by HTTP or the browser.
+func serveDemoWithImportedJSONL(ctx context.Context, principal, snapshotPath, caseID, eventsPath string, output io.Writer) error {
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	if snapshotPath == "" || eventsPath == "" || snapshotPath == eventsPath {
+		return errors.New("live import requires two separate existing local files")
+	}
+	data, err := loadDemoSnapshot(snapshotPath)
+	if err != nil {
+		return err
+	}
+	events, err := readLocalEventFile(eventsPath)
+	if err != nil {
+		return err
+	}
+	imported, err := importLocalEvents(ctx, data, principal, caseID, events)
+	if err != nil {
+		return err
+	}
+	return serveDemoWithData(ctx, principal, imported, output)
+}
+
+func serveDemoWithData(ctx context.Context, principal string, data timeline.MemoryTimelineData, output io.Writer) error {
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	if principal == "" || principal == "*" {
+		return errors.New("select a synthetic principal from the local owner dataset")
 	}
 	caseID, err := firstDemoAuthorizedCase(data, principal)
 	if err != nil {
