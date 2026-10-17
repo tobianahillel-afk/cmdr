@@ -114,7 +114,7 @@ func serveDemoWithWazuhAlerts(ctx context.Context, principal, snapshotPath, case
 // No Wazuh metadata is returned before bearer AND owner-authorized traversal.
 func newDemoWazuhCohortHandler(token, principal, caseID string, data timeline.MemoryTimelineData, imported int, raw []byte, base http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path != "/demo-wazuh-cohorts" {
+		if r.URL.Path != "/demo-wazuh-cohorts" && r.URL.Path != "/demo-wazuh-drilldown" {
 			base.ServeHTTP(w, r)
 			return
 		}
@@ -129,6 +129,10 @@ func newDemoWazuhCohortHandler(token, principal, caseID string, data timeline.Me
 		expected := "Bearer " + token
 		if subtle.ConstantTimeCompare([]byte(r.Header.Get("Authorization")), []byte(expected)) != 1 {
 			http.Error(w, "not authenticated", http.StatusUnauthorized)
+			return
+		}
+		if r.URL.Path == "/demo-wazuh-drilldown" {
+			serveDemoWazuhDrilldown(w, r, principal, data, imported, raw, caseID)
 			return
 		}
 		query := r.URL.Query()

@@ -27,6 +27,8 @@
   const copyReturnLink = document.getElementById("copy-return-link");
   const wazuhButton = document.getElementById("wazuh-cohorts");
   const wazuhStatus = document.getElementById("wazuh-status");
+  const wazuhActions = document.getElementById("wazuh-actions");
+  const wazuhEvents = document.getElementById("wazuh-events");
   let wazuhRevision = 0;
   let wazuhRequest = null;
   function clearWazuh() {
@@ -34,6 +36,9 @@
     if (wazuhRequest) wazuhRequest.abort();
     wazuhRequest = null;
     wazuhButton.disabled = false;
+    wazuhActions.replaceChildren();
+    wazuhEvents.replaceChildren();
+    wazuhEvents.textContent = "Aucun événement Wazuh sélectionné.";
     wazuhStatus.textContent = "Aucune corrélation Wazuh demandée.";
   }
   async function loadWazuhCohorts() {
@@ -89,6 +94,19 @@
         "\nAgents les plus touchés :\n" + (agentLines.join("\n") || "aucun agent connu") +
         "\nRègles les plus fréquentes :\n" + (ruleLines.join("\n") || "aucune règle connue") +
         "\nDonnées locales synthétiques, sans preuve de causalité.";
+      for (const [selector, cohorts] of [
+        ["agent_id", data.top_agents.map(a => a.agent_id)],
+        ["rule_id", data.top_rules.map(a => a.rule_id)]
+      ]) {
+        for (const value of cohorts) {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.textContent = "Voir les événements Wazuh — " +
+            (selector === "agent_id" ? "agent " : "règle ") + value;
+          button.addEventListener("click", () => loadWazuhDrilldown(selector, value));
+          wazuhActions.append(button);
+        }
+      }
     } catch {
       if (currentRevision === wazuhRevision) {
         wazuhStatus.textContent = "Corrélation indisponible ou accès refusé. Aucune donnée partielle affichée.";
@@ -98,6 +116,77 @@
         wazuhRequest = null;
         wazuhButton.disabled = false;
       }
+    }
+  }
+  // A cohort is a triage selector, never a permission. This route reruns the
+  // server-owned Case/Timeline/typed-source traversal before returning IDs.
+  async function loadWazuhDrilldown(selector, value) {
+    const bearer = token.value;
+    const selectedCase = caseID.value.trim();
+    if (!bearer || !selectedCase || !/^[0-9]{1,16}$/.test(value) ||
+        !["agent_id", "rule_id"].includes(selector)) return;
+    if (wazuhRequest) wazuhRequest.abort();
+    const controller = new AbortController();
+    wazuhRequest = controller;
+    const selectedRevision = wazuhRevision;
+    const caseRevision = revision;
+    wazuhEvents.replaceChildren();
+    wazuhEvents.textContent = "Nouvelle vérification des événements Wazuh…";
+    try {
+      const url = new URL("/demo-wazuh-drilldown", window.location.origin);
+      url.searchParams.set("case_id", selectedCase);
+      url.searchParams.set(selector, value);
+      const response = await fetch(url, {
+        method: "GET", headers: { Authorization: "Bearer " + bearer },
+        credentials: "omit", cache: "no-store", redirect: "error",
+        mode: "same-origin", signal: controller.signal
+      });
+      if (!response.ok) throw Error("Wazuh drilldown denied");
+      const data = await response.json();
+      if (controller.signal.aborted || selectedRevision !== wazuhRevision ||
+          caseRevision !== revision || token.value !== bearer ||
+          caseID.value.trim() !== selectedCase) return;
+      if (!data || data.format !== "cmdr-local-wazuh4-drilldown-v1" ||
+          data.synthetic !== true || data.selector !== selector ||
+          data.value !== value || !Number.isSafeInteger(data.total_matches) ||
+          data.total_matches < 0 || data.total_matches > 5000 ||
+          !Array.isArray(data.entries) || data.entries.length > 25 ||
+          data.entries.length > data.total_matches ||
+          data.entries.some(e => !e || typeof e.id !== "string" ||
+            e.id.length < 1 || e.id.length > 1024 ||
+            !["observed", "inferred", "user-action", "decision", "response"].includes(e.kind) ||
+            typeof e.source_time !== "string" || e.source_time.length > 64 ||
+            typeof e.time_uncertain !== "boolean")) {
+        throw Error("Invalid Wazuh drilldown");
+      }
+      wazuhEvents.replaceChildren();
+      wazuhEvents.textContent = data.total_matches +
+        " événement(s) Wazuh autorisé(s), " + data.entries.length +
+        " premiers affichés (maximum 25). Chaque ouverture revérifie les droits.";
+      const list = document.createElement("ol");
+      for (const entry of data.entries) {
+        const item = document.createElement("li");
+        const button = document.createElement("button");
+        button.type = "button";
+        button.textContent = entry.kind + " · " + entry.source_time +
+          (entry.time_uncertain ? " (incertain)" : "") + " · " + entry.id.slice(0, 120);
+        button.addEventListener("click", () => {
+          if (controller.signal.aborted || selectedRevision !== wazuhRevision ||
+              caseRevision !== revision || token.value !== bearer ||
+              caseID.value.trim() !== selectedCase) return;
+          openSource(entry.id); // existing authoritative navigation ACL chain
+        });
+        item.append(button);
+        list.append(item);
+      }
+      wazuhEvents.append(list);
+    } catch {
+      if (selectedRevision === wazuhRevision) {
+        wazuhEvents.replaceChildren();
+        wazuhEvents.textContent = "Événements indisponibles ou droits modifiés. Aucun résultat partiel.";
+      }
+    } finally {
+      if (wazuhRequest === controller) wazuhRequest = null;
     }
   }
   wazuhButton.addEventListener("click", loadWazuhCohorts);
