@@ -26,6 +26,7 @@ type wazuhDrilldownReceipt struct {
 	Synthetic bool `json:"synthetic"`
 	Selector string `json:"selector"`
 	Value string `json:"value"`
+	SecondaryValue string `json:"secondary_value,omitempty"`
 	TotalMatches int `json:"total_matches"`
 	Entries []wazuhDrilldownEntry `json:"entries"`
 }
@@ -55,7 +56,15 @@ func writeDemoWazuhDrilldown(ctx context.Context, principal string, data timelin
 // Wazuh metadata is joined ONLY after the trusted owner traversal. The
 // caller supplies feed-qualified IDs from the exact validated import bytes.
 func writeDemoWazuhDrilldownWithLevels(ctx context.Context, principal string, data timeline.MemoryTimelineData, imported int, levels map[string]wazuhRuleLevel, caseID, selector, value string, output io.Writer) error {
-	if (selector != "agent_id" && selector != "rule_id") || !validWazuhCohortID(value) {
+	return writeDemoWazuhDrilldownWithLevelsFilter(ctx, principal, data, imported, levels, caseID, selector, value, "", output)
+}
+
+// Cross-feed signals are filters over already-authorized sources, not access rights.
+func writeDemoWazuhDrilldownWithLevelsFilter(ctx context.Context, principal string, data timeline.MemoryTimelineData, imported int, levels map[string]wazuhRuleLevel, caseID, selector, value, secondValue string, output io.Writer) error {
+	if (selector != "agent_id" && selector != "rule_id" && selector != "agent_rule") ||
+		!validWazuhCohortID(value) ||
+		(selector == "agent_rule" && !validWazuhCohortID(secondValue)) ||
+		(selector != "agent_rule" && secondValue != "") {
 		return errors.New("invalid Wazuh cohort selector")
 	}
 	token, err := randomBearer()
@@ -64,7 +73,7 @@ func writeDemoWazuhDrilldownWithLevels(ctx context.Context, principal string, da
 	if err != nil { return err }
 	result := wazuhDrilldownReceipt{
 		Format: "cmdr-local-wazuh4-drilldown-v1", Synthetic: true,
-		Selector: selector, Value: value, Entries: make([]wazuhDrilldownEntry, 0),
+		Selector: selector, Value: value, SecondaryValue: secondValue, Entries: make([]wazuhDrilldownEntry, 0),
 	}
 	visibleImported := 0
 	_, err = collectDemoCaseTriageWithObserver(ctx, handler, token, caseID, func(entry timeline.ProjectedEntry) error {
@@ -72,7 +81,8 @@ func writeDemoWazuhDrilldownWithLevels(ctx context.Context, principal string, da
 		if !exists { return nil }
 		visibleImported++
 		match := (selector == "agent_id" && metadata.AgentID == value) ||
-			(selector == "rule_id" && metadata.RuleID == value)
+			(selector == "rule_id" && metadata.RuleID == value) ||
+			(selector == "agent_rule" && metadata.AgentID == value && metadata.RuleID == secondValue)
 		if !match { return nil }
 		result.TotalMatches++
 		if len(result.Entries) < 25 {
@@ -106,22 +116,34 @@ func serveDemoWazuhDrilldown(w http.ResponseWriter, r *http.Request, principal s
 
 func serveDemoWazuhDrilldownWithLevels(w http.ResponseWriter, r *http.Request, principal string, data timeline.MemoryTimelineData, imported int, levels map[string]wazuhRuleLevel, caseID string) {
 	query := r.URL.Query()
-	if len(query) != 2 || len(query["case_id"]) != 1 || query.Get("case_id") != caseID {
+	if len(query["case_id"]) != 1 || query.Get("case_id") != caseID {
 		http.NotFound(w, r)
 		return
 	}
-	selector, value := "", ""
-	for _, key := range []string{"agent_id", "rule_id"} {
-		if ids, ok := query[key]; ok && len(ids) == 1 {
-			selector, value = key, ids[0]
+	agents, hasAgent := query["agent_id"]
+	rules, hasRule := query["rule_id"]
+	expectedKeys := 1
+	if hasAgent { expectedKeys++ }
+	if hasRule { expectedKeys++ }
+	if (!hasAgent && !hasRule) || len(query) != expectedKeys ||
+		(hasAgent && (len(agents) != 1 || !validWazuhCohortID(agents[0]))) ||
+		(hasRule && (len(rules) != 1 || !validWazuhCohortID(rules[0]))) {
+		http.NotFound(w, r)
+		return
+	}
+	selector, value, secondValue := "", "", ""
+	if hasAgent {
+		selector, value = "agent_id", agents[0]
+	}
+	if hasRule {
+		if hasAgent {
+			selector, secondValue = "agent_rule", rules[0]
+		} else {
+			selector, value = "rule_id", rules[0]
 		}
 	}
-	if selector == "" || !validWazuhCohortID(value) {
-		http.NotFound(w, r)
-		return
-	}
 	var encoded bytes.Buffer
-	if err := writeDemoWazuhDrilldownWithLevels(r.Context(), principal, data, imported, levels, caseID, selector, value, &encoded); err != nil {
+	if err := writeDemoWazuhDrilldownWithLevelsFilter(r.Context(), principal, data, imported, levels, caseID, selector, value, secondValue, &encoded); err != nil {
 		http.NotFound(w, r)
 		return
 	}

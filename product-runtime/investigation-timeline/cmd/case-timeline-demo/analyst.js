@@ -121,6 +121,16 @@
           wazuhActions.append(button);
         }
       }
+      // A signal becomes actionable only through the existing owner ACL route.
+      for (const signal of data.multi_feed_signals || []) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.textContent = "Examiner la cooccurrence — agent " +
+          signal.agent_id + " / règle " + signal.rule_id;
+        button.addEventListener("click", () =>
+          loadWazuhDrilldown("agent_rule", signal.agent_id, signal.rule_id));
+        wazuhActions.append(button);
+      }
     } catch {
       if (currentRevision === wazuhRevision) {
         wazuhStatus.textContent = "Corrélation indisponible ou accès refusé. Aucune donnée partielle affichée.";
@@ -134,11 +144,13 @@
   }
   // A cohort is a triage selector, never a permission. This route reruns the
   // server-owned Case/Timeline/typed-source traversal before returning IDs.
-  async function loadWazuhDrilldown(selector, value) {
+  async function loadWazuhDrilldown(selector, value, secondValue = "") {
     const bearer = token.value;
     const selectedCase = caseID.value.trim();
     if (!bearer || !selectedCase || !/^[0-9]{1,16}$/.test(value) ||
-        !["agent_id", "rule_id"].includes(selector)) return;
+        !["agent_id", "rule_id", "agent_rule"].includes(selector) ||
+        (selector === "agent_rule" && !/^[0-9]{1,16}$/.test(secondValue)) ||
+        (selector !== "agent_rule" && secondValue !== "")) return;
     if (wazuhRequest) wazuhRequest.abort();
     const controller = new AbortController();
     wazuhRequest = controller;
@@ -149,7 +161,8 @@
     try {
       const url = new URL("/demo-wazuh-drilldown", window.location.origin);
       url.searchParams.set("case_id", selectedCase);
-      url.searchParams.set(selector, value);
+      url.searchParams.set(selector === "agent_rule" ? "agent_id" : selector, value);
+      if (selector === "agent_rule") url.searchParams.set("rule_id", secondValue);
       const response = await fetch(url, {
         method: "GET", headers: { Authorization: "Bearer " + bearer },
         credentials: "omit", cache: "no-store", redirect: "error",
@@ -162,7 +175,8 @@
           caseID.value.trim() !== selectedCase) return;
       if (!data || data.format !== "cmdr-local-wazuh4-drilldown-v1" ||
           data.synthetic !== true || data.selector !== selector ||
-          data.value !== value || !Number.isSafeInteger(data.total_matches) ||
+          data.value !== value || (data.secondary_value || "") !== secondValue ||
+          !Number.isSafeInteger(data.total_matches) ||
           data.total_matches < 0 || data.total_matches > 5000 ||
           !Array.isArray(data.entries) || data.entries.length > 25 ||
           data.entries.length > data.total_matches ||

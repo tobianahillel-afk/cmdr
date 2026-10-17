@@ -1,0 +1,11 @@
+# E10-INV-120A — multi-feed signal → authorized source investigation
+
+**Functional integration on focused draft PR #49**, snapshot to be fixed at first published commit: the existing multi-Wazuh aggregation identifies an agent.id/rule.id cooccurrence across two or more operator-selected files, but this was only text and could not directly open matching events.
+
+The analyst can now click **Examiner la cooccurrence — agent 001 / règle 5710**. The existing authenticated local `/demo-wazuh-drilldown` supports the AND of `agent_id` and `rule_id`, validates exact query keys and numeric selectors, performs a full owner-authorized Case/Timeline/typed-source traversal before returning up to 25 basic Timeline identities, and reuses the existing `openSource(entry.id)` route for a fresh source authorization. Legacy single-key drilldowns remain supported. The same immutable feed metadata map loaded from the validated original input bytes is reused; Wazuh metadata and browser selectors are **never access authority**. Unknown/duplicate/unauthorized queries fail closed and no partial JSON is committed.
+
+**Choice:** reuse Go stdlib and existing routes, loopback bearer, source ACL and UI DOM/textContent. A new indexing engine, correlation DSL, second ACL evaluator, persistence, vendor SDK or API adds no value to this 5000-entry owner-local bounded workflow. The cross-feed signal is a triage lead only, not an independent identity or causal claim.
+
+**Tests:** HTTP owner fixture with two distinct Wazuh feeds including the same raw alert ID, different agents with the same rule, positive AND, legacy single selectors, foreign Case and missing/wrong bearer, duplicate selectors, revoked metadata and absence of raw descriptions; Node browser click from signal → route → source navigation, malformed response identity denied. Tests are synthetic, not deployed IAM, live Wazuh, persistence, evidence chain of custody or cross-tenant production authorization.
+
+**Independent-review status:** existing L2 tasks for other SHA and for cross-feed aggregation **do not cover this new click-through flow**. Complete independent L2 is justified only after CI at the exact published snapshot, with R0/R1 and functional R2 prioritized; R3/R4 can be documented. `OPEN-013` remains open. No production readiness claimed.
