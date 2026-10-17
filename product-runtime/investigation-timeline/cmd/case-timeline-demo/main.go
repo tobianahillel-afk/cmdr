@@ -46,11 +46,21 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	sourceCase := flags.String("source-case", "", "authorized Case for offline source-specific event timeline")
 	sourceRef := flags.String("source-ref", "", "exact authorized source reference (requires -source-case)")
 	sourceWindow := flags.String("source-window", "", "optional canonical UTC five-minute window for this source (requires -source-case and -source-ref)")
+	openCase := flags.String("open-source-case", "", "Case owning the source preview (requires -open-source-entry; explicit sensitive local receipt)")
+	openEntry := flags.String("open-source-entry", "", "Timeline Entry to open via its typed source owner (requires -open-source-case)")
 	if err := flags.Parse(args); err != nil {
 		return err
 	}
 	if flags.NArg() != 0 {
 		return errors.New("unexpected positional arguments")
+	}
+	if *openCase != "" || *openEntry != "" {
+		if *openCase == "" || *openEntry == "" || *sourceCase != "" || *sourceRef != "" ||
+			*sourceWindow != "" || *reportCase != "" || *compareCase != "" ||
+			*withCase != "" || *compareEvents || *compareWindow != "" {
+			return errors.New("select one complete offline source-open mode")
+		}
+		return writeDemoSourceOwnerReceipt(ctx, *principal, *snapshot, *openCase, *openEntry, output)
 	}
 	if *sourceCase != "" || *sourceRef != "" || *sourceWindow != "" {
 		if *sourceCase == "" || *sourceRef == "" || *reportCase != "" || *compareCase != "" || *withCase != "" || *compareEvents || *compareWindow != "" {
