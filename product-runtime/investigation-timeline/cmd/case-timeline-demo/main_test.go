@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"os"
 	"sync"
 	"strings"
 	"testing"
@@ -435,5 +436,33 @@ func TestDemoSourceObjectOpeningRequiresFreshAuthorization(t *testing.T) {
 				t.Fatalf("private source leaked: %s",body)
 			}
 		})
+	}
+}
+
+// Test the actual main() entry point (not only runDemoCLI) in its
+// non-server, explicitly requested local source receipt mode. This is
+// deliberately not parallel: os.Args/stdout are process-global resources.
+func TestDemoMainEntrypointExportsAuthorizedSourceOnly(t *testing.T) {
+	originalArgs, originalOut := os.Args, os.Stdout
+	read, write, err := os.Pipe()
+	if err != nil { t.Fatal(err) }
+	defer read.Close()
+	defer func() { os.Args = originalArgs; os.Stdout = originalOut; _ = write.Close() }()
+	os.Args = []string{"case-timeline-demo",
+		"-principal=analyst-a", "-source-case=case-a", "-source-ref=demo-evidence-a"}
+	os.Stdout = write
+	main()
+	if err := write.Close(); err != nil { t.Fatal(err) }
+	data, err := io.ReadAll(io.LimitReader(read, 1<<20))
+	if err != nil { t.Fatal(err) }
+	var receipt localSourceTimeline
+	if err := json.Unmarshal(data, &receipt); err != nil { t.Fatalf("main CLI did not emit JSON: %v", err) }
+	if receipt.CaseID != "case-a" || receipt.SourceRef != "demo-evidence-a" ||
+		receipt.MatchedEntries != 1 || len(receipt.Entries) != 1 ||
+		receipt.Entries[0].ID != "event-old" {
+		t.Fatalf("CLI returned wrong authorized entry: %+v", receipt)
+	}
+	for _, forbidden := range []string{"demo-hidden-source", "demo-secret", "Bearer ", "restricted"} {
+		if strings.Contains(string(data), forbidden) { t.Fatalf("main CLI exposed %q", forbidden) }
 	}
 }
