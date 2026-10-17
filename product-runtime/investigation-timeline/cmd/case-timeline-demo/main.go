@@ -38,11 +38,15 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	flags.SetOutput(io.Discard)
 	principal := flags.String("principal", "analyst-a", "synthetic analyst ID from the selected local owner snapshot")
 	snapshot := flags.String("snapshot", "", "absolute path to operator-owned read-only Case snapshot JSON (loopback demo only)")
+	reportCase := flags.String("report-case", "", "produce one authorized offline Case triage JSON receipt and exit (no listener)")
 	if err := flags.Parse(args); err != nil {
 		return err
 	}
 	if flags.NArg() != 0 {
 		return errors.New("unexpected positional arguments")
+	}
+	if *reportCase != "" {
+		return writeDemoCaseTriage(ctx, *principal, *snapshot, *reportCase, output)
 	}
 	return serveDemoWithSnapshot(ctx, *principal, *snapshot, output)
 }

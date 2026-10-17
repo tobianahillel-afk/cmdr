@@ -7,7 +7,6 @@
   <title>CMDR — Investigation Timeline (démonstration locale)</title>
   <link rel="stylesheet" href="/analyst.css">
   <script src="/analyst.js" defer></script>
-  <script src="/hunt.js" defer></script>
 </head>
 <body>
   <main>
@@ -81,9 +80,13 @@
                placeholder="Autre identifiant de Case autorisé">
       </div>
       <button id="compare" type="button">Comparer les chronologies autorisées</button>
+      <button id="download-comparison" type="button" disabled>Enregistrer la comparaison JSON locale</button>
       <p id="comparison" role="status" aria-live="polite">Aucune comparaison calculée.</p>
+      <p class="intro">Export manuel des agrégats des deux Cases déjà autorisés, sans jeton, aperçus ni événements bruts. Rapport synthétique non signé, non transactionnel et sans valeur de chaîne de conservation.</p>
       <div id="comparison-actions" class="analysis-actions" aria-label="Examiner les sources communes et fenêtres temporelles dans un Case autorisé"></div>
-      <p class="intro">Cette comparaison lit à nouveau les pages des deux Cases avec le jeton actuel et les mêmes filtres. Elle confronte les volumes observés/inférés, les horodatages certains et les références identiques déjà autorisées par le serveur. Les plages ne prouvent pas une activité continue ; aucun résultat partiel n'est affiché en cas de refus, et aucune cooccurrence ne constitue une preuve de causalité. Un bouton de fenêtre temporelle ouvre le Case sélectionné avec une nouvelle vérification des droits ; cooccurrence ne veut pas dire causalité. Démonstration locale synthétique sans index inter-Cases.</p>
+      <div id="comparison-trace-actions" class="analysis-actions" aria-label="Comparer les séquences de sources communes déjà autorisées"></div>
+      <div id="comparison-trace-results" role="region" aria-label="Séquence croisée autorisée, triée par horodatage" aria-live="polite">Aucune séquence croisée sélectionnée.</div>
+      <p class="intro">Cette comparaison lit à nouveau les pages des deux Cases avec le jeton actuel et les mêmes filtres. Elle confronte les volumes observés/inférés, les horodatages certains et les références identiques déjà autorisées par le serveur. Les plages ne prouvent pas une activité continue ; aucun résultat partiel n'est affiché en cas de refus, et aucune cooccurrence ne constitue une preuve de causalité. Une source commune peut être examinée comme séquence chronologique croisée de ses seuls événements déjà autorisés, 25 par page, horodatages incertains en fin de liste. Ouvrir une ligne déclenche une nouvelle vérification serveur des droits Case, entrée et source. Un bouton de fenêtre temporelle ouvre le Case sélectionné avec une nouvelle vérification des droits ; cooccurrence ne veut pas dire causalité. Démonstration locale synthétique sans index inter-Cases.</p>
     </section>
     <section aria-labelledby="hunt-title">
       <h2 id="hunt-title">Recherche transversale d’indicateur textuel</h2>

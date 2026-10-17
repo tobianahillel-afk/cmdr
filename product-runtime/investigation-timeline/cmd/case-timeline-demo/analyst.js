@@ -49,6 +49,11 @@
   const compareButton = document.getElementById("compare");
   const comparison = document.getElementById("comparison");
   const comparisonActions = document.getElementById("comparison-actions");
+  const comparisonTraceActions = document.getElementById("comparison-trace-actions");
+  const comparisonTraceResults = document.getElementById("comparison-trace-results");
+  const downloadComparison = document.getElementById("download-comparison");
+  let preparedComparison = null;
+  downloadComparison.disabled = true;
   let compareRevision = 0;
   let compareRequest = null;
   function clearComparison() {
@@ -58,6 +63,11 @@
     compareButton.disabled = false;
     comparison.textContent = "Aucune comparaison calculée.";
     comparisonActions.replaceChildren();
+    comparisonTraceActions.replaceChildren();
+    comparisonTraceResults.replaceChildren();
+    comparisonTraceResults.textContent = "Aucune séquence croisée sélectionnée.";
+    preparedComparison = null;
+    downloadComparison.disabled = true;
   }
   const downloadReport = document.getElementById("download-report");
   let analysisRequest = null;
@@ -407,8 +417,12 @@
             throw Error("invalid authorized comparison entry");
           }
           seen.add(entry.id);
-          const group = groups.get(entry.source_ref) || { count: 0, firstEntryID: entry.id };
+          const group = groups.get(entry.source_ref) || { count: 0, firstEntryID: entry.id, rows: [] };
           group.count++;
+          group.rows.push({
+            caseID: id, id: entry.id, kind: entry.kind,
+            time: entry.source_time, uncertain: entry.time_uncertain
+          });
           groups.set(entry.source_ref, group);
           if (entry.kind === "observed" || entry.kind === "inferred") kinds[entry.kind]++;
           if (entry.time_uncertain) {
@@ -443,7 +457,8 @@
       const common = [...left.groups].filter(([ref]) => right.groups.has(ref))
         .map(([ref, group]) => ({
           ref, left: group.count, right: right.groups.get(ref).count,
-          leftEntryID: group.firstEntryID, rightEntryID: right.groups.get(ref).firstEntryID
+          leftEntryID: group.firstEntryID, rightEntryID: right.groups.get(ref).firstEntryID,
+          rows: [...group.rows, ...right.groups.get(ref).rows]
         }))
         .sort((a, b) => Math.min(b.left, b.right) - Math.min(a.left, a.right) ||
           (a.ref < b.ref ? -1 : a.ref > b.ref ? 1 : 0));
@@ -461,6 +476,56 @@
         .map(([bucket, leftCount]) => ({ bucket, left: leftCount, right: right.buckets.get(bucket) }))
         .sort((a, b) => Math.min(b.left.total, b.right.total) -
           Math.min(a.left.total, a.right.total) || a.bucket - b.bucket);
+      // Complete both Case page traversals before exposing any local receipt.
+      // Case/source owner checks are on the existing server endpoints; this
+      // report is a manually saved, unsigned summary, not evidence custody.
+      const comparisonReport = {
+        schema_version: 1,
+        type: "cmdr-synthetic-authorized-cross-case-comparison",
+        generated_at_utc: new Date().toISOString(),
+        case_ids: [selectedCase, otherCase],
+        filters: {
+          kind: kind.value, q: search.value.trim(),
+          from: windowSelection.from, to: windowSelection.to
+        },
+        cases: [left, right].map(item => ({
+          visible_events: item.total,
+          observed: item.kinds.observed,
+          inferred: item.kinds.inferred,
+          uncertain_timestamps: item.uncertain,
+          certain_time_range_utc: item.certainMin === null ? null : {
+            from: new Date(item.certainMin).toISOString(),
+            to: new Date(item.certainMax).toISOString()
+          }
+        })),
+        certain_range_overlap: overlap === "indéterminable" ? null : overlap === "oui",
+        common_reference_count: common.length,
+        top_common_sources: common.slice(0, 3).map(group => ({
+          source_ref: group.ref.slice(0, 120),
+          case_1_count: group.left,
+          case_2_count: group.right
+        })),
+        common_five_minute_windows: simultaneous.length,
+        top_common_windows_utc: simultaneous.slice(0, 3).map(item => ({
+          from: new Date(item.bucket * 300000).toISOString(),
+          to: new Date((item.bucket + 1) * 300000).toISOString(),
+          case_1_events: item.left.total,
+          case_2_events: item.right.total
+        })),
+        limitations: [
+          "Synthetic operator-selected local Cases, not production IAM or live SIEM",
+          "Each Case separately authorized by server-side Case/Entry/source checks",
+          "Paginated reads are not transactional; permissions and data can change",
+          "Overlapping times and source labels are triage hints, not causality or identity proof",
+          "Unsigned aggregates; not chain-of-custody evidence, no raw events"
+        ]
+      };
+      preparedComparison = {
+        serialized: JSON.stringify(comparisonReport, null, 2) + "\n",
+        comparison: activeComparison, selection: activeSelection,
+        left: selectedCase, right: otherCase
+      };
+      downloadComparison.disabled = false;
       comparison.textContent = "Comparaison des événements autorisés : " +
         left.total + " / " + right.total +
         " · observés : " + left.kinds.observed + " / " + right.kinds.observed +
@@ -500,6 +565,83 @@
           });
           comparisonActions.append(button);
         }
+        // Provide an actual cross-Case investigative view, not just one
+        // representative event. Rows were supplied by the two separately
+        // authenticated Timeline page traversals above; source identity is
+        // NEVER used as a new server-side authorization capability.
+        const trace = document.createElement("button");
+        trace.type = "button";
+        trace.textContent = "Examiner la séquence croisée de source : " + label;
+        trace.addEventListener("click", () => {
+          if (controller.signal.aborted || compareRevision !== activeComparison ||
+              revision !== activeSelection || token.value !== bearer ||
+              caseID.value.trim() !== selectedCase ||
+              compareCase.value.trim() !== otherCase) return;
+          const chronological = [...group.rows].sort((a, b) => {
+            const aTime = a.uncertain ? null : Date.parse(a.time);
+            const bTime = b.uncertain ? null : Date.parse(b.time);
+            if (aTime === null || bTime === null) {
+              if (aTime === null && bTime !== null) return 1;
+              if (bTime === null && aTime !== null) return -1;
+            } else if (aTime !== bTime) return aTime - bTime;
+            return a.caseID < b.caseID ? -1 : a.caseID > b.caseID ? 1 :
+              a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
+          });
+          const pageSize = 25;
+          function renderCrossCase(start) {
+            if (controller.signal.aborted || compareRevision !== activeComparison ||
+                revision !== activeSelection || token.value !== bearer ||
+                caseID.value.trim() !== selectedCase ||
+                compareCase.value.trim() !== otherCase) return;
+            comparisonTraceResults.replaceChildren();
+            const end = Math.min(start + pageSize, chronological.length);
+            comparisonTraceResults.textContent = "Source commune : " + label +
+              " · " + (start + 1) + "–" + end + " / " + chronological.length +
+              " événements visibles (deux Cases). Horodatages incertains en fin de liste. " +
+              "Lecture non transactionnelle ; toute ouverture revérifie les droits.";
+            const list = document.createElement("ol");
+            for (const row of chronological.slice(start, end)) {
+              const item = document.createElement("li");
+              const open = document.createElement("button");
+              open.type = "button";
+              open.textContent = (row.caseID === selectedCase ? "Case 1" : "Case 2") +
+                " · " + row.kind + " · " + String(row.time).slice(0, 64) +
+                (row.uncertain ? " (incertain)" : "") +
+                " · " + row.id.slice(0, 120);
+              open.addEventListener("click", () => {
+                if (controller.signal.aborted || compareRevision !== activeComparison ||
+                    revision !== activeSelection || token.value !== bearer ||
+                    caseID.value.trim() !== selectedCase ||
+                    compareCase.value.trim() !== otherCase) return;
+                clearComparison();
+                if (row.caseID !== selectedCase) {
+                  caseID.value = row.caseID;
+                  caseID.dispatchEvent(new Event("input", { bubbles: true }));
+                }
+                openSource(row.id); // Existing server-side Case/Entry/source ACLs.
+              });
+              item.append(open);
+              list.append(item);
+            }
+            comparisonTraceResults.append(list);
+            if (start > 0) {
+              const previousPage = document.createElement("button");
+              previousPage.type = "button";
+              previousPage.textContent = "Événements croisés précédents";
+              previousPage.addEventListener("click", () => renderCrossCase(Math.max(0, start - pageSize)));
+              comparisonTraceResults.append(previousPage);
+            }
+            if (end < chronological.length) {
+              const nextPage = document.createElement("button");
+              nextPage.type = "button";
+              nextPage.textContent = "Événements croisés suivants";
+              nextPage.addEventListener("click", () => renderCrossCase(end));
+              comparisonTraceResults.append(nextPage);
+            }
+          }
+          renderCrossCase(0);
+        });
+        comparisonTraceActions.append(trace);
       }
       for (const item of simultaneous.slice(0, 5)) {
         const from = new Date(item.bucket * 300000).toISOString();
@@ -532,7 +674,12 @@
       }
     } catch {
       if (activeComparison === compareRevision) {
+        preparedComparison = null;
+        downloadComparison.disabled = true;
         comparisonActions.replaceChildren();
+        comparisonTraceActions.replaceChildren();
+        comparisonTraceResults.replaceChildren();
+        comparisonTraceResults.textContent = "Aucune séquence croisée sélectionnée.";
         comparison.textContent = "Comparaison indisponible ou droits modifiés. Aucun résultat partiel.";
       }
     } finally {
@@ -922,6 +1069,26 @@
   analyze.addEventListener("click", analyzeAuthorizedCase);
   compareButton.addEventListener("click", compareAuthorizedCases);
   compareCase.addEventListener("input", clearComparison);
+  downloadComparison.addEventListener("click", () => {
+    const receipt = preparedComparison;
+    if (!receipt || receipt.comparison !== compareRevision ||
+        receipt.selection !== revision || !token.value ||
+        caseID.value.trim() !== receipt.left ||
+        compareCase.value.trim() !== receipt.right) return;
+    let objectURL = null;
+    try {
+      const blob = new Blob([receipt.serialized], { type: "application/json" });
+      objectURL = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = objectURL;
+      link.download = "cmdr-local-cross-case-comparison.json";
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(objectURL), 1000);
+    } catch {
+      if (objectURL) URL.revokeObjectURL(objectURL);
+      comparison.textContent = "Export local indisponible. Recomparez les Cases si nécessaire.";
+    }
+  });
   downloadReport.addEventListener("click", () => {
     const receipt = preparedReport;
     if (!receipt || receipt.revision !== analysisRevision ||
