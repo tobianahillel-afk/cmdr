@@ -407,7 +407,9 @@
             throw Error("invalid authorized comparison entry");
           }
           seen.add(entry.id);
-          groups.set(entry.source_ref, (groups.get(entry.source_ref) || 0) + 1);
+          const group = groups.get(entry.source_ref) || { count: 0, firstEntryID: entry.id };
+          group.count++;
+          groups.set(entry.source_ref, group);
           if (entry.kind === "observed" || entry.kind === "inferred") kinds[entry.kind]++;
           if (entry.time_uncertain) {
             uncertain++;
@@ -439,7 +441,10 @@
       if (controller.signal.aborted || activeComparison !== compareRevision ||
           activeSelection !== revision) return;
       const common = [...left.groups].filter(([ref]) => right.groups.has(ref))
-        .map(([ref, count]) => ({ ref, left: count, right: right.groups.get(ref) }))
+        .map(([ref, group]) => ({
+          ref, left: group.count, right: right.groups.get(ref).count,
+          leftEntryID: group.firstEntryID, rightEntryID: right.groups.get(ref).firstEntryID
+        }))
         .sort((a, b) => Math.min(b.left, b.right) - Math.min(a.left, a.right) ||
           (a.ref < b.ref ? -1 : a.ref > b.ref ? 1 : 0));
       const top = common.slice(0, 5).map(group =>
@@ -468,6 +473,34 @@
         " · références communes : " + common.length + (top ? " · " + top : "") +
         ". Ces plages ne sont pas des preuves d'activité continue, et une référence " +
         "commune n'atteste ni causalité ni identité d'objet. Lectures non transactionnelles.";
+      // A shared source is a triage lead, never a client-side permission.
+      // The existing owner routes reauthorize Case, Entry and typed source.
+      for (const group of common.slice(0, 5)) {
+        const label = group.ref.length > 120 ?
+          group.ref.slice(0, 120) + "… (abrégée)" : group.ref;
+        for (const target of [
+          { id: selectedCase, label: "Case 1", entryID: group.leftEntryID },
+          { id: otherCase, label: "Case 2", entryID: group.rightEntryID }
+        ]) {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.textContent = "Ouvrir un événement de source commune — " +
+            target.label + " · " + label;
+          button.addEventListener("click", () => {
+            if (controller.signal.aborted || compareRevision !== activeComparison ||
+                revision !== activeSelection || token.value !== bearer ||
+                caseID.value.trim() !== selectedCase ||
+                compareCase.value.trim() !== otherCase) return;
+            clearComparison();
+            if (target.id !== selectedCase) {
+              caseID.value = target.id;
+              caseID.dispatchEvent(new Event("input", { bubbles: true }));
+            }
+            openSource(target.entryID);
+          });
+          comparisonActions.append(button);
+        }
+      }
       for (const item of simultaneous.slice(0, 5)) {
         const from = new Date(item.bucket * 300000).toISOString();
         const to = new Date((item.bucket + 1) * 300000).toISOString();

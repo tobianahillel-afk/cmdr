@@ -736,3 +736,87 @@ test("partial analysis never publishes source sequence controls", async () => {
   assert.equal(env.fields["trace-actions"].children.length, 0);
   assert.equal(env.fields["trace-results"].children.length, 0);
 });
+
+test("common-source pivot opens a representative event in peer Case via both authorization routes", async () => {
+  const env = boot(url => {
+    const id = url.searchParams.get("case_id");
+    if (url.pathname === "/case-timeline") {
+      return page(Number(url.searchParams.get("offset")), 1, { sourceFor: () => "shared-ref" });
+    }
+    if (url.pathname === "/case-source-navigation") {
+      const selection = new URLSearchParams(url.searchParams);
+      selection.delete("entry_id");
+      return { ok: true, async json() { return {
+        status: "ready", kind: "telemetry-event", object_id: "owner-" + id,
+        return_is_authority: false, return_case_id: id,
+        return_entry_id: url.searchParams.get("entry_id"),
+        return_query: selection.toString()
+      }; } };
+    }
+    if (url.pathname === "/demo-source-open") {
+      return { ok: true, async json() { return {
+        status: "ready", synthetic: true, case_id: id,
+        entry_id: url.searchParams.get("entry_id"), kind: "telemetry-event",
+        object_id: "owner-" + id, preview: "permitted synthetic owner"
+      }; } };
+    }
+    throw Error("unexpected endpoint " + url.pathname);
+  });
+  env.fields["compare-case"].value = "case-peer";
+  env.fields.compare.handlers.click();
+  for (let i = 0; i < 6; i++) await flush();
+  const actions = env.fields["comparison-actions"].children;
+  assert.equal(actions.length, 4); // two common-source and two time-bucket pivots
+  assert.match(actions[1].textContent, /source commune.*Case 2/);
+  actions[1].handlers.click();
+  for (let i = 0; i < 5; i++) await flush();
+  assert.equal(env.fields["case-id"].value, "case-peer");
+  assert.equal(env.fields["comparison-actions"].children.length, 0);
+  assert.deepEqual(env.requests.slice(2).map(r => r.url.pathname),
+    ["/case-source-navigation", "/demo-source-open"]);
+  for (const req of env.requests.slice(2)) {
+    assert.equal(req.url.searchParams.get("case_id"), "case-peer");
+    assert.equal(req.url.searchParams.get("entry_id"), "event-0");
+    assert.equal(req.options.headers.Authorization, "Bearer ephemeral-token");
+    assert.equal(req.options.cache, "no-store");
+    assert.equal(req.options.credentials, "omit");
+    assert.equal(req.url.searchParams.has("source_ref"), false);
+    assert.ok(!req.url.href.includes("ephemeral-token"));
+  }
+  assert.equal(env.fields["source-detail"].hidden, false);
+});
+
+test("shared-source pivot fails closed if owner revokes access", async () => {
+  const env = boot(url => {
+    if (url.pathname === "/case-timeline") return page(Number(url.searchParams.get("offset")), 1,
+      { sourceFor: () => "<img onerror=alert(1)>".repeat(10) });
+    if (url.pathname === "/case-source-navigation") return { ok: false };
+    throw Error("denied destination owner preview must not be fetched");
+  });
+  env.fields["compare-case"].value = "case-peer";
+  env.fields.compare.handlers.click();
+  for (let i = 0; i < 6; i++) await flush();
+  const action = env.fields["comparison-actions"].children[1];
+  assert.match(action.textContent, /abrégée/);
+  action.handlers.click();
+  for (let i = 0; i < 5; i++) await flush();
+  assert.equal(env.requests.length, 3);
+  assert.equal(env.fields["source-detail"].hidden, true);
+  assert.match(env.fields["source-status"].textContent, /autorisation révoquée/);
+});
+
+test("stale common-source action is inert after revoking bearer", async () => {
+  const env = boot(url => page(Number(url.searchParams.get("offset")), 1,
+    { sourceFor: () => "shared-source" }));
+  env.fields["compare-case"].value = "case-peer";
+  env.fields.compare.handlers.click();
+  for (let i = 0; i < 6; i++) await flush();
+  const action = env.fields["comparison-actions"].children[1];
+  const before = env.requests.length;
+  env.fields.token.value = "revoked";
+  env.fields.token.handlers.input();
+  action.handlers.click();
+  await flush();
+  assert.equal(env.requests.length, before);
+  assert.equal(env.fields["comparison-actions"].children.length, 0);
+});
