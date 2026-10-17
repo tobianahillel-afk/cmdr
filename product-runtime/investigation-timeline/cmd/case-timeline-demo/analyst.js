@@ -49,6 +49,8 @@
   const compareButton = document.getElementById("compare");
   const comparison = document.getElementById("comparison");
   const comparisonActions = document.getElementById("comparison-actions");
+  const comparisonTraceActions = document.getElementById("comparison-trace-actions");
+  const comparisonTraceResults = document.getElementById("comparison-trace-results");
   const downloadComparison = document.getElementById("download-comparison");
   let preparedComparison = null;
   downloadComparison.disabled = true;
@@ -61,6 +63,9 @@
     compareButton.disabled = false;
     comparison.textContent = "Aucune comparaison calculée.";
     comparisonActions.replaceChildren();
+    comparisonTraceActions.replaceChildren();
+    comparisonTraceResults.replaceChildren();
+    comparisonTraceResults.textContent = "Aucune séquence croisée sélectionnée.";
     preparedComparison = null;
     downloadComparison.disabled = true;
   }
@@ -412,8 +417,12 @@
             throw Error("invalid authorized comparison entry");
           }
           seen.add(entry.id);
-          const group = groups.get(entry.source_ref) || { count: 0, firstEntryID: entry.id };
+          const group = groups.get(entry.source_ref) || { count: 0, firstEntryID: entry.id, rows: [] };
           group.count++;
+          group.rows.push({
+            caseID: id, id: entry.id, kind: entry.kind,
+            time: entry.source_time, uncertain: entry.time_uncertain
+          });
           groups.set(entry.source_ref, group);
           if (entry.kind === "observed" || entry.kind === "inferred") kinds[entry.kind]++;
           if (entry.time_uncertain) {
@@ -448,7 +457,8 @@
       const common = [...left.groups].filter(([ref]) => right.groups.has(ref))
         .map(([ref, group]) => ({
           ref, left: group.count, right: right.groups.get(ref).count,
-          leftEntryID: group.firstEntryID, rightEntryID: right.groups.get(ref).firstEntryID
+          leftEntryID: group.firstEntryID, rightEntryID: right.groups.get(ref).firstEntryID,
+          rows: [...group.rows, ...right.groups.get(ref).rows]
         }))
         .sort((a, b) => Math.min(b.left, b.right) - Math.min(a.left, a.right) ||
           (a.ref < b.ref ? -1 : a.ref > b.ref ? 1 : 0));
@@ -555,6 +565,83 @@
           });
           comparisonActions.append(button);
         }
+        // Provide an actual cross-Case investigative view, not just one
+        // representative event. Rows were supplied by the two separately
+        // authenticated Timeline page traversals above; source identity is
+        // NEVER used as a new server-side authorization capability.
+        const trace = document.createElement("button");
+        trace.type = "button";
+        trace.textContent = "Examiner la séquence croisée de source : " + label;
+        trace.addEventListener("click", () => {
+          if (controller.signal.aborted || compareRevision !== activeComparison ||
+              revision !== activeSelection || token.value !== bearer ||
+              caseID.value.trim() !== selectedCase ||
+              compareCase.value.trim() !== otherCase) return;
+          const chronological = [...group.rows].sort((a, b) => {
+            const aTime = a.uncertain ? null : Date.parse(a.time);
+            const bTime = b.uncertain ? null : Date.parse(b.time);
+            if (aTime === null || bTime === null) {
+              if (aTime === null && bTime !== null) return 1;
+              if (bTime === null && aTime !== null) return -1;
+            } else if (aTime !== bTime) return aTime - bTime;
+            return a.caseID < b.caseID ? -1 : a.caseID > b.caseID ? 1 :
+              a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
+          });
+          const pageSize = 25;
+          function renderCrossCase(start) {
+            if (controller.signal.aborted || compareRevision !== activeComparison ||
+                revision !== activeSelection || token.value !== bearer ||
+                caseID.value.trim() !== selectedCase ||
+                compareCase.value.trim() !== otherCase) return;
+            comparisonTraceResults.replaceChildren();
+            const end = Math.min(start + pageSize, chronological.length);
+            comparisonTraceResults.textContent = "Source commune : " + label +
+              " · " + (start + 1) + "–" + end + " / " + chronological.length +
+              " événements visibles (deux Cases). Horodatages incertains en fin de liste. " +
+              "Lecture non transactionnelle ; toute ouverture revérifie les droits.";
+            const list = document.createElement("ol");
+            for (const row of chronological.slice(start, end)) {
+              const item = document.createElement("li");
+              const open = document.createElement("button");
+              open.type = "button";
+              open.textContent = (row.caseID === selectedCase ? "Case 1" : "Case 2") +
+                " · " + row.kind + " · " + String(row.time).slice(0, 64) +
+                (row.uncertain ? " (incertain)" : "") +
+                " · " + row.id.slice(0, 120);
+              open.addEventListener("click", () => {
+                if (controller.signal.aborted || compareRevision !== activeComparison ||
+                    revision !== activeSelection || token.value !== bearer ||
+                    caseID.value.trim() !== selectedCase ||
+                    compareCase.value.trim() !== otherCase) return;
+                clearComparison();
+                if (row.caseID !== selectedCase) {
+                  caseID.value = row.caseID;
+                  caseID.dispatchEvent(new Event("input", { bubbles: true }));
+                }
+                openSource(row.id); // Existing server-side Case/Entry/source ACLs.
+              });
+              item.append(open);
+              list.append(item);
+            }
+            comparisonTraceResults.append(list);
+            if (start > 0) {
+              const previousPage = document.createElement("button");
+              previousPage.type = "button";
+              previousPage.textContent = "Événements croisés précédents";
+              previousPage.addEventListener("click", () => renderCrossCase(Math.max(0, start - pageSize)));
+              comparisonTraceResults.append(previousPage);
+            }
+            if (end < chronological.length) {
+              const nextPage = document.createElement("button");
+              nextPage.type = "button";
+              nextPage.textContent = "Événements croisés suivants";
+              nextPage.addEventListener("click", () => renderCrossCase(end));
+              comparisonTraceResults.append(nextPage);
+            }
+          }
+          renderCrossCase(0);
+        });
+        comparisonTraceActions.append(trace);
       }
       for (const item of simultaneous.slice(0, 5)) {
         const from = new Date(item.bucket * 300000).toISOString();
@@ -590,6 +677,9 @@
         preparedComparison = null;
         downloadComparison.disabled = true;
         comparisonActions.replaceChildren();
+        comparisonTraceActions.replaceChildren();
+        comparisonTraceResults.replaceChildren();
+        comparisonTraceResults.textContent = "Aucune séquence croisée sélectionnée.";
         comparison.textContent = "Comparaison indisponible ou droits modifiés. Aucun résultat partiel.";
       }
     } finally {

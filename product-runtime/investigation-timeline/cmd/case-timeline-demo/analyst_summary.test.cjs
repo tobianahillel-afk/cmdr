@@ -13,7 +13,8 @@ const ids = [
   "page", "previous", "next", "load", "source-detail", "source-status",
   "return-to-case", "copy-return-link", "analyze", "analysis", "analysis-actions", "download-report",
   "compare-case", "compare", "comparison", "comparison-actions", "download-comparison",
-  "trace-actions", "trace-results"
+  "trace-actions", "trace-results",
+  "comparison-trace-actions", "comparison-trace-results"
 ];
 function node() {
   return {
