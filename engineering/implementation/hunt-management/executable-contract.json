@@ -1,0 +1,140 @@
+{
+  "schema_version": 1,
+  "contract_id": "HUNT-WORKSPACE-READONLY-CONTRACT-V1",
+  "contract_kind": "provider-neutral-readonly-local-executable-contract",
+  "canonical_schema_claim": false,
+  "capability": "CAP-INV-005",
+  "runtime_boundary": {
+    "id": "hunt-management-runtime",
+    "root": "product-runtime/hunt-management/**",
+    "expected_state": "implemented",
+    "external_runtime_dependencies": []
+  },
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-005"
+    ],
+    "requirements": [
+      "REQ-PROD-014",
+      "REQ-PROD-020"
+    ],
+    "screens": [],
+    "permissions": [],
+    "open_decisions": [
+      "OPEN-013"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/audit-event-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/error-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/correlation-identifiers.md",
+      "cmdr-product-spec/17-implementation-contracts/object-reference-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/cross-product-context-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/search-query-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/query.md",
+      "cmdr-product-spec/05-domain-model/objects/search-job.md",
+      "cmdr-product-spec/05-domain-model/objects/hypothesis.md",
+      "cmdr-product-spec/05-domain-model/objects/case.md",
+      "cmdr-product-spec/05-domain-model/objects/incident.md"
+    ]
+  },
+  "scope_policy": {
+    "tenant_required": true,
+    "environment_required": true,
+    "question_required": true,
+    "scope_required": true,
+    "time_range_required": true,
+    "owner_required": true,
+    "wildcard_tenant_forbidden": true,
+    "cross_tenant_forbidden": true
+  },
+  "reference_policy": {
+    "allowed_types": [
+      "query",
+      "search-job",
+      "hypothesis",
+      "case",
+      "incident"
+    ],
+    "tenant_scoped": true,
+    "stable_identifier_required": true,
+    "caller_access_decision_required": true,
+    "denied_reference_projection_forbidden": true,
+    "ownership_transfer_forbidden": true,
+    "provenance_required": true,
+    "search_job_requires_visible_query": true,
+    "unavailable_state_becomes_limitation": true,
+    "stale_state_becomes_limitation": true,
+    "partial_state_becomes_limitation": true
+  },
+  "projection_policy": {
+    "immutable": true,
+    "deep_copy_isolation": true,
+    "question_visible": true,
+    "scope_visible": true,
+    "time_range_visible": true,
+    "owner_visible": true,
+    "contributors_visible": true,
+    "provenance_visible": true,
+    "limitations_visible": true,
+    "synthesis_of_missing_facts_forbidden": true
+  },
+  "mutation_policy": {
+    "canonical_hunt_object_created": false,
+    "hunt_state_mutation_executable": false,
+    "contributor_mutation_executable": false,
+    "case_promotion_mutation_executable": false,
+    "case_link_mutation_executable": false,
+    "hypothesis_mutation_executable": false,
+    "query_mutation_executable": false,
+    "query_execution_executable": false,
+    "saved_search_mutation_executable": false,
+    "search_job_execution_executable": false
+  },
+  "technology_policy": {
+    "storage_engine_selected": false,
+    "provider_selected": false,
+    "retention_policy_selected": false,
+    "collaboration_backend_selected": false,
+    "final_query_dialect_selected": false,
+    "final_hunt_ui_selected": false
+  },
+  "exclusions": [
+    "canonical-hunt-object",
+    "final-hunt-state-machine",
+    "hunt-mutation:OPEN-013",
+    "case-promotion-or-link-mutation:OPEN-013",
+    "hypothesis-mutation:OPEN-013",
+    "query-or-query-asset-mutation:OPEN-013",
+    "search-job-execution",
+    "storage-provider-retention",
+    "collaboration-backend",
+    "final-query-dialect",
+    "final-hunt-ui"
+  ],
+  "semantic_rules": [
+    "The bounded Hunt runtime validates and projects caller-owned workspace state rather than creating a canonical Hunt object",
+    "tenant environment question scope period and owner are mandatory",
+    "Query and Search Job remain owned by Shared Capabilities",
+    "Hypothesis and Case remain owned by Investigate",
+    "Incident remains owned by Command",
+    "object references are typed tenant-scoped provenance-preserving and do not transfer ownership or permission",
+    "a projected Search Job must reference a visible projected Query",
+    "denied or cross-tenant references fail closed and are never projected",
+    "stale partial and unavailable source conditions become named limitations",
+    "no class-2 Hunt Case Hypothesis or Query mutation is executable while OPEN-013 remains unresolved"
+  ],
+  "security_invariants": [
+    "single-selected-Tenant only",
+    "no wildcard tenant fallback",
+    "no cross-tenant workspace or object-reference projection",
+    "caller-provided access decisions are required for every referenced canonical object",
+    "denied references expose neither identity nor projected content",
+    "projection is immutable and deep-copy isolated from caller input",
+    "no query execution or canonical object mutation occurs",
+    "missing facts are represented as limitations rather than synthesized"
+  ]
+}

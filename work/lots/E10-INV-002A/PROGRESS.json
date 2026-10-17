@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-002A",
+  "status": "VERIFIED",
+  "final_validated_head": "32a3cea495c3256b73c40fcd3ac1a6fefe2c63ee",
+  "validation": {
+    "boundary": "E10-INV-002A-BOUNDARY VERIFIED",
+    "contract": "E10-INV-002A-CONTRACT VERIFIED",
+    "push_workflow_run": 36036370262,
+    "pull_request_workflow_run": 36036374407,
+    "result": "PASS"
+  },
+  "runtime_boundary": {
+    "id": "event-search-runtime",
+    "state": "preimplementation",
+    "external_runtime_dependencies": 0
+  },
+  "executable_contract": {
+    "id": "EVENT-SEARCH-EXECUTABLE-CONTRACT-V1",
+    "fixtures": 14,
+    "negative_fixtures": 11
+  },
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-002B"
+  ]
+}

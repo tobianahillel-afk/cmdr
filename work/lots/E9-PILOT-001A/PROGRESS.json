@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "work_unit": "E9-PILOT-001A",
+  "status": "VERIFIED",
+  "final_validated_head": "5b3e5050f37282dfc3a48ee66d5301e02e8dedb5",
+  "validation": {
+    "push_workflow_run": 35972367994,
+    "pull_request_workflow_run": 35972373479,
+    "result": "PASS",
+    "pilot_scope_audit": "PASS",
+    "go_sast": "PASS",
+    "go_sca": "PASS",
+    "sbom": "PASS"
+  },
+  "pilot_scope": {
+    "slice_id": "PILOT-CONTEXT-001",
+    "capability": "CAP-SET-004",
+    "requirements": 5,
+    "permissions": 2,
+    "open_decisions": 0,
+    "implementation_contracts": 2,
+    "canonical_objects": 2,
+    "product_graph_digest": "a5f45351eba180d0edb734f33ecbeaabb7eceb7143305e201e207e8ae5a60d27"
+  },
+  "parser_hardening": {
+    "inline_yaml_lists": true,
+    "rationale": "CAP-SET-004 uses inline front-matter lists; canonical parser was corrected rather than weakening pilot traceability."
+  },
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E9-PILOT-001B"
+  ]
+}

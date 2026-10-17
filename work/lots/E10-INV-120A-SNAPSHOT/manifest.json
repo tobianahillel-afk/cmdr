@@ -1,0 +1,139 @@
+{
+  "schema_version": 2,
+  "id": "E10-INV-120A-SNAPSHOT",
+  "title": "Read-only local Case owner snapshot integration for analyst loopback journey",
+  "type": "task",
+  "goal": "Load a bounded operator-supplied local JSON Case/Timeline/source snapshot and use existing authenticated Case picker, Timeline, navigation and preview handlers without changing the product objects or pretending production IAM/persistence",
+  "depends_on": [
+    "E10-INV-110E"
+  ],
+  "parent": "E10-INV-110",
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-110"
+    ],
+    "requirements": [
+      "REQ-PROD-014",
+      "REQ-PROD-018"
+    ],
+    "screens": [
+      "INV-TIM-001"
+    ],
+    "permissions": [],
+    "open_decisions": [
+      "OPEN-013"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/case.md",
+      "cmdr-product-spec/05-domain-model/objects/timeline-entry.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/investigation-timeline/cmd/case-timeline-demo/**",
+    "work/lots/E10-INV-120A-SNAPSHOT/**",
+    "engineering/state/current.json",
+    "work/graph.json",
+    "tools/cmdr-dev/secret_scan.go",
+    "tools/cmdr-dev/secret_scan_test.go",
+    ".github/workflows/investigation-timeline-runtime.yml"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/investigation-timeline/memory_provider.go"
+  ],
+  "invariants": [
+    "Immutable operator-controlled local snapshot; no browser-selected file, no data mutation, no production IAM or Shared Timeline Engine ownership claim",
+    "Reuse existing validated in-memory Case/Timeline/source access chain; never take permissions from HTTP flags",
+    "Only loopback ephemeral-token synthetic host; OPEN-013 remains unresolved"
+  ],
+  "security_properties": [
+    "Reject malformed, oversized, symlinked or non-regular snapshot file before binding listener",
+    "Trust only host-selected file and verify owner ACL membership with existing memory provider",
+    "No data exposure before bearer authentication; cross-tenant and denied source remain hidden"
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Only read operator-supplied snapshot at startup; no migration or persistent mutation",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert this lot; built-in demo fixture remains default",
+    "verification": [
+      "default synthetic journey unchanged",
+      "no canonical spec change"
+    ]
+  },
+  "inputs": [
+    "E10-INV-110E VERIFIED",
+    "Existing NewMemoryCaseTimelineHTTPHandlers and loopback CLI"
+  ],
+  "outputs": [
+    "Optional bounded operator-local JSON snapshot loader",
+    "End-to-end HTTP scenario from disk to Case discovery, Timeline and typed source ACLs",
+    "Evidence and production-exclusion handoff",
+    "Secret scan recognizes deleted paths whose parent directory was removed in the same diff",
+    "Authorized multi-page source-reference grouping in the analyst summary, no new data authority or network route",
+    "Existing CI executes authorized analyst summary, comparison and temporal pivot browser tests",
+    "Explicit single-Case authorized JSONL event export for downstream local DFIR analysis, bounded to 5000 already authorized rows",
+    "One-shot operator JSONL import into an authorized Case followed by a second independently authorized Case comparison, without sensitive intermediate owner export",
+    "One-shot imported normalized JSONL -> independently owner-authorized two-Case nearest-certain-time leads (1..300 seconds), without exporting merged owner data or exposing denied sources",
+    "Offline Wazuh 4.x alerts.json import directly to an owner-authorized Case and authenticated loopback analyst UI, without intermediate merged owner file or external IAM claim",
+    "One-step offline Wazuh 4.x alerts.json -> imported Case -> independently authorized second Case nearest-certain-time analyst leads, without exporting owner data or adding a backend",
+    "Single-Case Wazuh 4.x alert JSONL -> normalized events -> server-owner-authorized offline Case triage receipt, and independent two-Case aggregate comparison, without local owner export or new backend",
+    "Actionable Wazuh 4.x rule-ID frequency cohorts (top ten), known numeric severity and first/last certain UTC timestamps, only after owner-authorized import and typed-source traversal",
+    "Wazuh 4.x rule+agent authorized host triage: top ten agent IDs, per-agent alert counts, distinct matched rule IDs, and highest known source severity; unknown agent IDs tracked without exposing hostnames",
+    "Authenticated loopback analyst Wazuh host/rule pivots reusing the exact imported owner and Wazuh source bytes, with typed-source reauthorization on every request and no additional producer/ACL",
+    "Authenticated Wazuh agent+rule intersection (two authorized metadata filters) -> 25-entry server-authorized paged drilldown -> existing typed-source open in analyst loopback UI, no new authority or store"
+  ],
+  "acceptance_tests": [
+    "Default demo behavior unchanged",
+    "Authorized two-tenant snapshot produces real Case HTTP flow",
+    "Denied/cross-tenant data inaccessible, missing/invalid file fails before listener",
+    "go test -race ./..., go vet and CI exact SHA",
+    "Multi-page source grouping and observed/inferred counts, cancellation, malformed authorized reference fail closed, text-only display",
+    "Real on-disk 207-entry Case export as newline-delimited JSON through per-page authenticated HTTP; forbidden data excluded and failed authorization emits zero bytes",
+    "Imported two-Case aggregate comparison succeeds across 200+ authorized pages; denied or foreign second Case returns zero output; disk owner unchanged",
+    "One-process JSONL import-to-cross-Case temporal lead: imported event appears among authorized candidates; foreign/denied second Case, invalid event and cancelled request emit zero bytes; existing aggregate mode unchanged",
+    "Wazuh 4.x real-shaped JSONL alerts with -0700 timestamps and rule descriptions flow from read-only disk through normalized import to Case timeline and source preview; reject foreign/anonymous access, malformed and unsupported ECS format, with no credential output before complete authorization",
+    "Disk Wazuh alerts imported into one authorized Case and compared against independently authorized second Case for 125ms proximity; denied Case, unsupported alert, cancellation and ambiguous viewer/triage flags yield zero output",
+    "Wazuh 4.x one-Case triage and two-Case aggregate comparison use disk owner source ACL, reject foreign Cases and unsupported alerts with zero bytes, and preserve owner/Wazuh input files; previous viewer and temporal proximity remain operational",
+    "Offline Wazuh rule IDs are aggregated after authorization; repeated 5710 yields correct count, max known severity and fractionally ordered certain-time bounds; missing IDs counted separately; invalid IDs/denied Case emit zero data; top 10 ties stable",
+    "Offline Wazuh alert JSONL with multiple agent.id values and rule.id values yields stable authorized host/rule pivot, handles unknown agents and level zero; invalid agent IDs or unauthorized Case emit no data; preserve existing rule/window results",
+    "Wazuh import -> authenticated loopback GET /demo-wazuh-cohorts -> analyst UI renders authorized top agents and rules; unauthorized, cross-Case, cancelled and non-Wazuh sessions expose no cohorts; Node browser text-only/no stale result",
+    "Operator selects authorized Wazuh agent AND rule cohorts; server intersects on both raw-source metadata keys only after complete Case/Timeline/source traversal, supports 25-row pages and existing typed-source opening; invalid, foreign, missing-bearer or cancelled requests emit no sensitive data"
+  ],
+  "performance_budget": {
+    "applicable": false,
+    "rationale": "startup-only 8MiB max file, no production benchmarking claim",
+    "metrics": []
+  },
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-ARCHITECTURE",
+    "CHK-RUNTIME-DEPS",
+    "CHK-SECURITY-TESTS"
+  ],
+  "definition_of_ready": [
+    "E10-INV-110E VERIFIED and Case owner in-memory integration exists"
+  ],
+  "definition_of_done": [
+    "Exact HEAD CI green for functional HTTP integration",
+    "Risk-based L2 on immutable functional snapshot",
+    "Document limitations before any production claim"
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 7,
+    "estimated_net_loc": 270,
+    "production_files": 2,
+    "net_production_loc": 110,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

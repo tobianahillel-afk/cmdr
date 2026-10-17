@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-002B-RUNTIME",
+  "result": "VERIFIED",
+  "final_validated_head": "4611ad2f94045e96688545b885e6f1cd901ba8f1",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 36039494332,
+    "pull_request_run": 36039500082,
+    "contract_state": "implemented",
+    "runtime_dependencies": 0,
+    "sast_findings": 0,
+    "sca_actionable": 0,
+    "global_runtime_coverage_percent": 91.87,
+    "validation_p95_ms": 0.0001982749,
+    "validation_budget_ms": 1
+  },
+  "rules": [
+    "runtime validates tenant/environment/time/source/query/permission/provenance envelope only",
+    "no query language, index, storage engine or provider is selected",
+    "OPEN-013 Case-link mutation remains excluded",
+    "denied validation returns no populated execution envelope",
+    "runtime uses the Go standard library only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-002C"
+  ]
+}

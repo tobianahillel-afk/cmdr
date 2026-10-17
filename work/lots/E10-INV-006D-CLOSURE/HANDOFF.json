@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-006D-CLOSURE",
+  "result": "VERIFIED",
+  "final_validated_head": "8a8def2493b4f573147a251dfd5e372662c8c028",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 36493825455,
+    "pull_request_run": 36493830969,
+    "capability": "CAP-INV-006",
+    "contract": "QUERY-ASSET-READONLY-CONTRACT-V1",
+    "adversarial_tests": 10,
+    "runtime_coverage_percent": 92.03,
+    "projection_p95_ms_worst_observed": 0.000299968,
+    "projection_budget_ms": 1,
+    "handoff_p95_ms_worst_observed": 0.00049418,
+    "handoff_budget_ms": 1,
+    "sast_findings": 0,
+    "sca_actionable_findings": 0,
+    "runtime_dependencies": 0,
+    "runtime_unchanged": true,
+    "blocking_open_decisions": [
+      "OPEN-013"
+    ]
+  },
+  "limitations": [
+    "Saved Search and Query Asset save, update, share, duplicate, deprecate, archive and every other class-2 mutation remain excluded while OPEN-013 is unresolved.",
+    "No canonical Saved Search or Query Asset persistence schema is invented by this bounded core.",
+    "Saved View remains a separate Shared-owned concept and is not merged with Saved Search or Query Asset.",
+    "Detection Rule creation, conversion, deployment and lifecycle remain outside this capability.",
+    "Search Job creation and execution remain outside this bounded runtime and stay Shared-owned.",
+    "No storage engine, provider or retention policy is selected by this bounded wave.",
+    "No collaboration backend is selected by this bounded wave.",
+    "No final query dialect is selected by this bounded wave.",
+    "No dedicated final Saved Search or Query Asset UI is claimed by this bounded core.",
+    "No production readiness or production Saved Search/Event Search SLO is claimed.",
+    "No full-capability completion is claimed."
+  ],
+  "production_readiness_claim": false,
+  "full_capability_completion_claim": false,
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-006E"
+  ]
+}

@@ -1,0 +1,70 @@
+name: engineering-kernel
+
+on:
+  pull_request:
+    paths:
+      - "AGENTS.md"
+      - "AI_START_HERE.md"
+      - "engineering/**"
+      - "work/**"
+      - "tools/cmdr-dev/**"
+      - "product-runtime/**"
+      - ".github/workflows/engineering-kernel.yml"
+      - ".github/workflows/engineering-kernel-full.yml"
+      - ".github/workflows/security-deep.yml"
+      - ".github/workflows/performance-deep.yml"
+  push:
+    branches:
+      - "engineering/autonomous-development-foundation"
+    paths:
+      - "AGENTS.md"
+      - "AI_START_HERE.md"
+      - "engineering/**"
+      - "work/**"
+      - "tools/cmdr-dev/**"
+      - "product-runtime/**"
+      - ".github/workflows/engineering-kernel.yml"
+      - ".github/workflows/engineering-kernel-full.yml"
+      - ".github/workflows/security-deep.yml"
+      - ".github/workflows/performance-deep.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: engineering-kernel-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  kernel:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: tools/cmdr-dev/go.mod
+          cache: false
+
+      - name: Set up Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "24.21.0"
+
+      - name: Derive change set and run adaptive validation
+        working-directory: tools/cmdr-dev
+        shell: bash
+        env:
+          CMDR_BASE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
+          CMDR_HEAD_SHA: ${{ github.sha }}
+        run: |
+          kernel="$GITHUB_WORKSPACE/.cmdr-dev-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          changes="$GITHUB_WORKSPACE/.cmdr-changes-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}.txt"
+          trap 'rm -f "$kernel" "$changes"' EXIT
+          go build -o "$kernel" .
+          "$kernel" git-changes --root ../.. --base-commit "$CMDR_BASE_SHA" --head-commit "$CMDR_HEAD_SHA" --output "$changes" --json
+          "$kernel" validation-plan --root ../.. --changes-file "$changes" --json
+          "$kernel" validation-run --root ../.. --changes-file "$changes" --json

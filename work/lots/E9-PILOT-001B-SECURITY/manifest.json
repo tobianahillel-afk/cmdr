@@ -1,0 +1,123 @@
+{
+  "schema_version": 2,
+  "id": "E9-PILOT-001B-SECURITY",
+  "title": "Register pilot runtime security ownership and preimplementation state",
+  "type": "task",
+  "parent": "E9-PILOT-001B",
+  "goal": "Make the reserved pilot product-runtime boundary security-complete without fabricating runtime coverage or negative-test PASS before executable code exists.",
+  "product_refs": {
+    "capabilities": [
+      "CAP-SET-004"
+    ],
+    "requirements": [
+      "REQ-PROD-008",
+      "REQ-SEC-001",
+      "REQ-UX-006",
+      "REQ-UX-007",
+      "REQ-UX-009"
+    ],
+    "screens": [],
+    "permissions": [
+      "perm.platform-settings.environment.read",
+      "perm.platform-settings.tenant.read"
+    ],
+    "open_decisions": [],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/cross-product-context-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/environment.md",
+      "cmdr-product-spec/05-domain-model/objects/tenant.md"
+    ]
+  },
+  "depends_on": [
+    "E9-PILOT-001B-CONTRACT"
+  ],
+  "allowed_paths": [
+    "engineering/security/**",
+    "engineering/testing/runtime-security-evidence.json",
+    "tools/cmdr-dev/security_tests.go",
+    "tools/cmdr-dev/security_tests_test.go",
+    "work/lots/E9-PILOT-001B*/**",
+    "engineering/state/**",
+    "work/graph.json",
+    "tools/cmdr-dev/repo_paths.go",
+    "tools/cmdr-dev/repo_paths_test.go"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**"
+  ],
+  "inputs": [
+    "implemented E9-PILOT-001B-CONTRACT runtime reservation",
+    "E4 runtime security ownership and coverage policy",
+    "pilot context-envelope security invariants"
+  ],
+  "outputs": [
+    "explicit security owner and critical-path scope for pilot-context-envelope-runtime",
+    "filesystem-derived preimplementation runtime state",
+    "preimplementation evidence that contains no fabricated coverage or negative-test PASS",
+    "automatic fail-closed transition to measured requirements when executable runtime appears"
+  ],
+  "invariants": [
+    "Product Spec remains read-only",
+    "preimplementation is valid only while runtime roots contain marker files",
+    "authorization and tenant-isolation obligations are registered before code",
+    "no runtime coverage percentage is fabricated before executable runtime exists"
+  ],
+  "security_properties": [
+    "authorization negative testing becomes mandatory once runtime is implemented",
+    "tenant isolation negative testing becomes mandatory once runtime is implemented",
+    "stale preimplementation evidence fails as soon as runtime content appears",
+    "runtime boundary symlinks fail closed"
+  ],
+  "acceptance_tests": [
+    "unit tests cover not-applicable, preimplementation, measured and stale-preimplementation rejection",
+    "security-test-audit reports one registered preimplementation scope",
+    "deferred runtime gates are not falsely activated",
+    "adaptive push and PR kernel progress beyond CHK-SECURITY-TESTS"
+  ],
+  "performance_budget": {
+    "applicable": false,
+    "rationale": "security ownership/control-plane registration only",
+    "metrics": []
+  },
+  "migration": {
+    "required": false,
+    "rationale": "engineering control-plane state only",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert the security registration task and keep E9-PILOT-001B-PERF blocked",
+    "verification": [
+      "no executable product runtime is claimed",
+      "Product Spec remains unchanged"
+    ]
+  },
+  "required_checks": [
+    "CHK-SECURITY-TESTS",
+    "CHK-MANIFESTS",
+    "CHK-ARCHITECTURE"
+  ],
+  "definition_of_ready": [
+    "E9-PILOT-001B-CONTRACT is IMPLEMENTED",
+    "runtime root contains no executable code"
+  ],
+  "definition_of_done": [
+    "pilot runtime boundary has explicit security ownership scope",
+    "filesystem-derived state is preimplementation",
+    "no measured coverage or negative-test PASS is claimed",
+    "push and PR adaptive kernel pass CHK-SECURITY-TESTS"
+  ],
+  "complexity": {
+    "primary_components": 2,
+    "estimated_files_changed": 11,
+    "estimated_net_loc": 470,
+    "production_files": 3,
+    "net_production_loc": 285,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

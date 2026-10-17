@@ -1,0 +1,113 @@
+{
+  "schema_version": 2,
+  "id": "E10-SCALE-001C",
+  "title": "Materialize first bounded implementation wave",
+  "type": "sublot",
+  "parent": "E10-SCALE-001",
+  "goal": "Convert the first deterministic READY capability closure into bounded implementation lots/manifests that the autonomous engine can execute on future continue requests.",
+  "product_refs": {
+    "capabilities": [],
+    "requirements": [],
+    "screens": [],
+    "permissions": [],
+    "open_decisions": [],
+    "implementation_contracts": [],
+    "canonical_objects": []
+  },
+  "depends_on": [
+    "E10-SCALE-001B"
+  ],
+  "allowed_paths": [
+    "engineering/implementation/**",
+    "tools/cmdr-dev/**",
+    "engineering/testing/**",
+    "engineering/state/**",
+    "work/graph.json",
+    "work/lots/E10-SCALE-001*/**",
+    "work/lots/E10-INV-002*/**"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**"
+  ],
+  "inputs": [
+    "VERIFIED E0-E9 engineering execution foundation",
+    "canonical Product Spec read-only baseline",
+    "verified E9 bounded pilot implementation evidence"
+  ],
+  "outputs": [
+    "deterministic reuse-first bounded wave selection",
+    "source-backed selected READY capability and canonical Product Spec file",
+    "engineering/implementation/waves/CAP-INV-002-core.json",
+    "bounded E10-INV-002 parent plus four child implementation manifests"
+  ],
+  "invariants": [
+    "Product Spec remains read-only",
+    "Product Spec Delivery Roadmap Phase 7 is not created or implied",
+    "implementation readiness is evidence-backed and never inferred from documentary PASS alone",
+    "unresolved blocking decisions fail closed"
+  ],
+  "security_properties": [
+    "no new product-runtime dependency is introduced by program compilation",
+    "verified implementation claims require exact runtime/work evidence",
+    "blocked dependency or decision states cannot be silently upgraded to READY"
+  ],
+  "acceptance_tests": [
+    "go test ./...",
+    "cmdr-dev validate-manifests succeeds",
+    "cmdr-dev complexity-audit succeeds",
+    "adaptive engineering-kernel remains green",
+    "unit tests prove reuse-first family preference and stable fallback ordering",
+    "unit tests prove IMPLEMENTED/BLOCKED/PROPOSED capabilities cannot enter the selected READY wave",
+    "CHK-IMPLEMENTATION-WAVE resolves the selected canonical Product Spec file"
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "program compilation runs on every relevant planning change and must remain cheap relative to product validation",
+    "metrics": [
+      "control-plane compilation remains deterministic and bounded by repository metadata size"
+    ]
+  },
+  "migration": {
+    "required": false,
+    "rationale": "engineering control-plane metadata only",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert E10 program metadata while retaining the VERIFIED E0-E9 foundation",
+    "verification": [
+      "E9 terminal evidence remains valid",
+      "Product Spec baseline remains unchanged"
+    ]
+  },
+  "required_checks": [
+    "adaptive engineering-kernel",
+    "cmdr-dev validate-manifests",
+    "cmdr-dev complexity-audit",
+    "CHK-METRICS-BUDGET",
+    "CHK-IMPLEMENTATION-WAVE"
+  ],
+  "definition_of_ready": [
+    "E9-PILOT-001D is VERIFIED",
+    "engineering foundation status is VERIFIED",
+    "Product Spec baseline is unchanged"
+  ],
+  "definition_of_done": [
+    "first wave contains only the source-backed READY capability CAP-INV-002",
+    "bounded core exclusions preserve OPEN-013 and neighboring capability ownership",
+    "each child implementation lot stays within complexity budgets",
+    "contracts/security/performance gates are declared before runtime code",
+    "work graph contains E10-INV-002A as the deterministic next implementation unit after this lot is VERIFIED",
+    "no Product Spec mutation occurs"
+  ],
+  "complexity": {
+    "primary_components": 2,
+    "estimated_files_changed": 11,
+    "estimated_net_loc": 760,
+    "production_files": 2,
+    "net_production_loc": 420,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

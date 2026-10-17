@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-101B-RUNTIME",
+  "status": "VERIFIED",
+  "final_validated_head": "1f322e3cfa020d925afbf466d9746db5c0e89daa",
+  "validation": {
+    "push_workflow_run": 36605066982,
+    "pull_request_workflow_run": 36605075022,
+    "result": "PASS",
+    "case_queue_contract": "PASS",
+    "runtime_security": "PASS",
+    "sast": "PASS",
+    "sca": "PASS",
+    "runtime_dependencies": "PASS"
+  },
+  "evidence": {
+    "contract_id": "CASE-QUEUE-READONLY-CONTRACT-V1",
+    "runtime_state": "implemented",
+    "fixtures": 24,
+    "positive_fixtures": 8,
+    "negative_fixtures": 16,
+    "runtime_dependencies": 0,
+    "global_runtime_security_coverage_percent": 92.42,
+    "global_coverage_floor_percent": 80,
+    "changed_security_critical_coverage_floor_percent": 90,
+    "changed_case_queue_scope_floor_passed": true,
+    "authorization_negative_passed": true,
+    "tenant_isolation_negative_passed": true,
+    "gosec_findings": 0,
+    "govulncheck_actionable_findings": 0
+  },
+  "invariants": [
+    "runtime is standard-library-only with zero external runtime dependencies",
+    "denied Case identity never enters projected rows",
+    "cross-tenant Case, Incident, Finding and Saved View snapshots fail closed",
+    "projection is deep-copy isolated from caller-owned input",
+    "search/filter/sort are deterministic and stable",
+    "OPEN-013 Case mutation, export and Command Work Queue aggregation remain fail-closed",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-101C-VIEW"
+  ]
+}

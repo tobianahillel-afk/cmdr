@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "work_unit": "E7-REC-001C",
+  "status": "VERIFIED",
+  "final_validated_head": "33fcd58f6316a4412724aa3a2f0fc4cbb651814d",
+  "validation": {
+    "push_workflow_run": 35910364892,
+    "pull_request_workflow_run": 35910370690,
+    "result": "PASS",
+    "reconciliation_audit": "PASS",
+    "unit_tests": "PASS",
+    "sast": "PASS",
+    "sca": "PASS"
+  },
+  "repository_observation": {
+    "journal_events": 0,
+    "claims": 0,
+    "outcome": "resume",
+    "next_action": "claim-or-start",
+    "git_relation": "none",
+    "lease_status": "none",
+    "ci_status": "not-provided"
+  },
+  "rules": [
+    "Git HEAD and ancestry outrank cached checkpoint state",
+    "validation-passed without matching successful CI observation requires revalidation",
+    "ancestor checkpoints require revalidation when repository has advanced",
+    "diverged history is a conflict and is never auto-overwritten",
+    "expired or released leases require reacquisition before mutation"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E7-REC-001D"
+  ]
+}

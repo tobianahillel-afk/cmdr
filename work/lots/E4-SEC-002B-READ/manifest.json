@@ -1,0 +1,101 @@
+{
+  "schema_version": 2,
+  "parent": "E4-SEC-002B",
+  "product_refs": {
+    "capabilities": [],
+    "requirements": [],
+    "screens": [],
+    "permissions": [],
+    "open_decisions": [],
+    "implementation_contracts": [],
+    "canonical_objects": []
+  },
+  "forbidden_paths": [
+    "cmdr-product-spec/**"
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "path validation and security analysis remain PR-suitable",
+    "metrics": [
+      "security path validation adds bounded local filesystem work only"
+    ]
+  },
+  "migration": {
+    "required": false,
+    "rationale": "engineering control-plane only",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert this task without claiming the dependent security gate active",
+    "verification": [
+      "adaptive engineering-kernel remains truthful"
+    ]
+  },
+  "definition_of_ready": [
+    "dependencies are VERIFIED",
+    "scope is one coherent security behavior"
+  ],
+  "id": "E4-SEC-002B-READ",
+  "title": "Harden repository reads and reject symlink traversal",
+  "type": "task",
+  "goal": "Eliminate actionable path/symlink findings for repository and Product Spec reads before any SAST baseline or gate activation.",
+  "depends_on": [
+    "E4-SEC-002B-OUTPUT"
+  ],
+  "allowed_paths": [
+    "tools/cmdr-dev/**",
+    "engineering/security/**",
+    "engineering/testing/**",
+    "work/lots/E4-SEC-002B*/**",
+    "engineering/state/**",
+    "work/graph.json"
+  ],
+  "inputs": [
+    "verified repository-confined output handling",
+    "redacted gosec finding evidence",
+    "canonical repository root and Product Spec path invariants"
+  ],
+  "outputs": [
+    "symlink-safe repository read primitives",
+    "Product Spec root confinement",
+    "reviewed residual high-severity SAST findings"
+  ],
+  "invariants": [
+    "Product Spec remains read-only",
+    "repository reads cannot escape root",
+    "repository reads reject symlink traversal",
+    "no high SAST finding is suppressed before sink review"
+  ],
+  "security_properties": [
+    "fail closed on path escape",
+    "fail closed on symlink traversal",
+    "canonical Product Spec path must resolve inside repository root"
+  ],
+  "acceptance_tests": [
+    "go test ./...",
+    "G122 symlink-read finding is eliminated",
+    "actionable G703 repository-read findings are eliminated or explicitly proven false positives",
+    "adaptive engineering-kernel executes on push and PR"
+  ],
+  "required_checks": [
+    "adaptive engineering-kernel",
+    "CHK-SAST-GO"
+  ],
+  "definition_of_done": [
+    "G122 is eliminated by explicit symlink-safe handling",
+    "Product Spec and work-manifest repository reads are root-confined",
+    "remaining high SAST findings are individually justified false positives or eliminated",
+    "task stays within engineering paths only"
+  ],
+  "complexity": {
+    "primary_components": 2,
+    "estimated_files_changed": 8,
+    "estimated_net_loc": 320,
+    "production_files": 6,
+    "net_production_loc": 230,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

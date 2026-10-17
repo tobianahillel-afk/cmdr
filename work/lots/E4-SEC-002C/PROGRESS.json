@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "work_unit": "E4-SEC-002C",
+  "status": "VERIFIED",
+  "final_validated_head": "16b0992f490add2beff11d4416170517a7a4fb2a",
+  "implementation": {
+    "standard": "CycloneDX JSON 1.7",
+    "generator": "cmdr-dev/sbom-v1",
+    "deterministic": true,
+    "transitive_completeness_claimed": false,
+    "source_sha_bound": true,
+    "unresolved_identity_policy": "fail-closed"
+  },
+  "pre_activation_proof": {
+    "implementation_head": "0823aa0115ff4b3c090d0781be4f09b7ffcf6ffc",
+    "push_run": 35850549109,
+    "pull_request_run": 35850552860,
+    "pull_request_sbom": {
+      "components": 2,
+      "runtime": 0,
+      "development": 2,
+      "unsupported": 0,
+      "source": "b2e439673089f056b783b0c16191e82bee6e7be0",
+      "digest": "b6086e349acbe3e8a3cf08b5083fabf98458b6f2c78fa8d4e9d189ded07ba655"
+    }
+  },
+  "activation_proof": {
+    "head": "16b0992f490add2beff11d4416170517a7a4fb2a",
+    "push_run": 35851088900,
+    "pull_request_run": 35851093708,
+    "security_gates": {
+      "total": 12,
+      "active": 4,
+      "specified": 2,
+      "deferred_runtime": 6
+    },
+    "sbom_gate": {
+      "id": "SEC-SBOM-001",
+      "implementation_key": "builtin-cyclonedx17-sbom-v1"
+    },
+    "supply_chain_gate": {
+      "id": "SEC-SUPPLY-001",
+      "readiness": "specified",
+      "reason": "no releasable signed CMDR product artifact exists yet"
+    }
+  },
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E4-SEC-001C"
+  ]
+}

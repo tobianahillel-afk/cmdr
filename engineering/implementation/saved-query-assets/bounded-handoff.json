@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "handoff_kind": "saved-query-assets-bounded-core",
+  "readiness": "BOUNDED_SAVED_QUERY_ASSETS_VALIDATED_NOT_FULL_CAPABILITY",
+  "capability": "CAP-INV-006",
+  "production_readiness_claim": false,
+  "full_capability_completion_claim": false,
+  "class2_mutation_enabled": false,
+  "provider_selected": false,
+  "storage_engine_selected": false,
+  "retention_policy_selected": false,
+  "collaboration_backend_selected": false,
+  "final_query_dialect_selected": false,
+  "dedicated_final_ui_claim": false,
+  "blocking_open_decisions": [
+    "OPEN-013"
+  ],
+  "evidence_sources": [
+    "work/lots/E10-INV-006B-RUNTIME/PROGRESS.json",
+    "work/lots/E10-INV-006C-HANDOFF/PROGRESS.json"
+  ],
+  "limitations": [
+    "Saved Search and Query Asset save, update, share, duplicate, deprecate, archive and every other class-2 mutation remain excluded while OPEN-013 is unresolved.",
+    "No canonical Saved Search or Query Asset persistence schema is invented by this bounded core.",
+    "Saved View remains a separate Shared-owned concept and is not merged with Saved Search or Query Asset.",
+    "Detection Rule creation, conversion, deployment and lifecycle remain outside this capability.",
+    "Search Job creation and execution remain outside this bounded runtime and stay Shared-owned.",
+    "No storage engine, provider or retention policy is selected by this bounded wave.",
+    "No collaboration backend is selected by this bounded wave.",
+    "No final query dialect is selected by this bounded wave.",
+    "No dedicated final Saved Search or Query Asset UI is claimed by this bounded core.",
+    "No production readiness or production Saved Search/Event Search SLO is claimed.",
+    "No full-capability completion is claimed."
+  ],
+  "next_conditions": [
+    "Resolve OPEN-013 before enabling any class-2 Saved Search or Query Asset mutation.",
+    "Keep Shared Query and Search Job ownership authoritative for any future execution integration.",
+    "Run a future decision gate before selecting storage, provider, retention or collaboration implementations.",
+    "Authorize any dedicated final UI through Product Spec rather than inventing screens locally.",
+    "Compile any implementation-ledger claim only from VERIFIED bounded closure evidence."
+  ]
+}

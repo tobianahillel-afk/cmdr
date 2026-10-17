@@ -1,0 +1,101 @@
+{
+  "schema_version": 2,
+  "id": "E10-SCALE-001",
+  "title": "Compile the scaled product implementation program",
+  "type": "epic",
+  "parent": "",
+  "goal": "Turn canonical Product Spec obligations and verified runtime evidence into a deterministic, blocker-aware implementation program without creating a new Product Spec roadmap phase.",
+  "product_refs": {
+    "capabilities": [],
+    "requirements": [],
+    "screens": [],
+    "permissions": [],
+    "open_decisions": [],
+    "implementation_contracts": [],
+    "canonical_objects": []
+  },
+  "depends_on": [
+    "E9-PILOT-001D"
+  ],
+  "allowed_paths": [
+    "engineering/implementation/**",
+    "tools/cmdr-dev/**",
+    "engineering/testing/**",
+    "engineering/state/**",
+    "work/graph.json",
+    "work/lots/E10-SCALE-001*/**"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**"
+  ],
+  "inputs": [
+    "VERIFIED E0-E9 engineering execution foundation",
+    "canonical Product Spec read-only baseline",
+    "verified E9 bounded pilot implementation evidence"
+  ],
+  "outputs": [
+    "machine-readable implementation-program evidence"
+  ],
+  "invariants": [
+    "Product Spec remains read-only",
+    "Product Spec Delivery Roadmap Phase 7 is not created or implied",
+    "implementation readiness is evidence-backed and never inferred from documentary PASS alone",
+    "unresolved blocking decisions fail closed"
+  ],
+  "security_properties": [
+    "no new product-runtime dependency is introduced by program compilation",
+    "verified implementation claims require exact runtime/work evidence",
+    "blocked dependency or decision states cannot be silently upgraded to READY"
+  ],
+  "acceptance_tests": [
+    "go test ./...",
+    "cmdr-dev validate-manifests succeeds",
+    "cmdr-dev complexity-audit succeeds",
+    "adaptive engineering-kernel remains green"
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "program compilation runs on every relevant planning change and must remain cheap relative to product validation",
+    "metrics": [
+      "control-plane compilation remains deterministic and bounded by repository metadata size"
+    ]
+  },
+  "migration": {
+    "required": false,
+    "rationale": "engineering control-plane metadata only",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert E10 program metadata while retaining the VERIFIED E0-E9 foundation",
+    "verification": [
+      "E9 terminal evidence remains valid",
+      "Product Spec baseline remains unchanged"
+    ]
+  },
+  "required_checks": [
+    "adaptive engineering-kernel",
+    "cmdr-dev validate-manifests",
+    "cmdr-dev complexity-audit",
+    "CHK-METRICS-BUDGET"
+  ],
+  "definition_of_ready": [
+    "E9-PILOT-001D is VERIFIED",
+    "engineering foundation status is VERIFIED",
+    "Product Spec baseline is unchanged"
+  ],
+  "definition_of_done": [
+    "E10-SCALE-001A, E10-SCALE-001B and E10-SCALE-001C are VERIFIED",
+    "the first post-pilot implementation wave is bounded, traceable and executable"
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 8,
+    "estimated_net_loc": 650,
+    "production_files": 0,
+    "net_production_loc": 0,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 3
+  }
+}

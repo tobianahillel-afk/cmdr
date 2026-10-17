@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-005A-BOUNDARY",
+  "result": "VERIFIED",
+  "final_validated_head": "78a580ff8ae784f9fc3ec2d2e9eb848e1abae8e1",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 36402839820,
+    "pull_request_run": 36402846270,
+    "boundary_id": "hunt-management-runtime",
+    "performance_target": "PERF-TGT-HUNT-MANAGEMENT-PROJECTION",
+    "deep_performance_target": "PERF-DEEP-HUNT-MANAGEMENT-PROJECTION"
+  },
+  "rules": [
+    "product-runtime/hunt-management is now the unique first-party runtime boundary for this bounded wave",
+    "README.md is the only product-runtime file at boundary stage",
+    "runtime security and tenant isolation obligations are registered before code",
+    "performance handlers fail closed until E10-INV-005B-RUNTIME",
+    "OPEN-013 remains unresolved and mutation behavior is excluded"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-005A-CONTRACT"
+  ]
+}

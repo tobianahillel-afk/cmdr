@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-SCALE-004B",
+  "result": "VERIFIED",
+  "final_validated_head": "0ee0694dffd2f1bcdc7227eb028fbeb2611e5c29",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 36459730613,
+    "pull_request_run": 36459738919,
+    "implementation_ledger_entries": 4,
+    "readiness_ready": 17,
+    "selected_capability": "CAP-INV-006",
+    "selection_policy": "reuse-first-v1",
+    "wave": "WAVE-CAP-INV-006-CORE-001"
+  },
+  "rules": [
+    "only READY capabilities are eligible for wave selection",
+    "reuse-first-v1 selected CAP-INV-006 from the already implemented CAP-INV family",
+    "CAP-INV-006 canonical Saved Searches and Query Assets file resolves inside the read-only Product Spec",
+    "OPEN-013 class-2 asset mutations remain excluded from the bounded wave",
+    "Query and Search Job remain Shared-owned; Saved View and Detection Rule concepts remain separate",
+    "product-runtime/saved-query-assets path claim remains deferred until E10-INV-006A-BOUNDARY atomically registers unique architecture ownership",
+    "only E10-INV-006A-BOUNDARY is unlocked; downstream runtime work remains dependency-gated"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-006A-BOUNDARY"
+  ]
+}

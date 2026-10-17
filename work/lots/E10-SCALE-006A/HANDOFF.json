@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-SCALE-006A",
+  "result": "VERIFIED",
+  "final_validated_head": "a678f87b0dd828823d93156612f43666c7a8bfef",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 38833325482,
+    "pull_request_run": 38833331209,
+    "ledger_entries": 6,
+    "verified_claims": 6,
+    "readiness_implemented": 6,
+    "readiness_ready": 15,
+    "readiness_blocked": 476,
+    "readiness_proposed": 1,
+    "selected_capability": "CAP-INV-110",
+    "selected_canonical_file": "07-investigate/modules/cases-and-evidence/capabilities/investigation-timeline.md",
+    "product_spec_baseline": "99c3826cdcbc79bad51631cf6462450f92e012eb"
+  },
+  "invariants": [
+    "CAP-INV-101 is registered exactly once with source-backed VERIFIED E10-INV-101F handoff",
+    "IMPLEMENTED is strictly bounded Case Queue read-only runtime, not full CAP-INV-101 delivery",
+    "OPEN-013 still unresolved; lifecycle/assignment mutation and export/provider/final UI excluded",
+    "Product Spec and product runtime unchanged",
+    "Next wave CAP-INV-110 compiler-derived by reuse-first-v1 from READY set"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-SCALE-006B"
+  ]
+}

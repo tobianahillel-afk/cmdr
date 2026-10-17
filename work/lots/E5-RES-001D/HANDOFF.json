@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "work_unit": "E5-RES-001D",
+  "result": "VERIFIED",
+  "final_validated_head": "b692a9a2bc2b051e8cfc2b62a256b20703f1c269",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 35873056256,
+    "pull_request_run": 35873063289,
+    "check": "CHK-DECISION-FRESHNESS",
+    "push_status": "PASS",
+    "pull_request_status": "PASS"
+  },
+  "rules": [
+    "accepted Class B/C decisions require explicit freshness records",
+    "date, decision, research, validation, repository-input and Product Spec baseline drift invalidate reuse",
+    "external revisit signals are explicit and evidence-backed",
+    "Class C and performance-sensitive decisions require stronger revisit triggers",
+    "reusable cache entries are derived from validated snapshots rather than trusted hand-maintained state"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E6-PERF-001A"
+  ]
+}

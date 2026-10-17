@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-005D",
+  "status": "VERIFIED",
+  "final_validated_head": "8c8206179502bca010dff5c67a8c9137a2f94db6",
+  "validation": {
+    "push_workflow_run": 36437541014,
+    "pull_request_workflow_run": 36437548719,
+    "result": "PASS",
+    "hunt_management_e2e_audit": "PASS",
+    "adaptive_kernel": "PASS",
+    "product_spec_baseline": "UNCHANGED"
+  },
+  "claim": {
+    "capability": "CAP-INV-005",
+    "work_unit": "E10-INV-005D",
+    "runtime_boundary": "hunt-management-runtime",
+    "runtime_root": "product-runtime/hunt-management/**",
+    "implementation_commit": "9ce7aabe06b859b2b54d4ce6b5a27f2531429531",
+    "contract": "HUNT-WORKSPACE-READONLY-CONTRACT-V1",
+    "fixtures": 15,
+    "negative_fixtures": 12,
+    "runtime_files": 5,
+    "runtime_dependencies": 0,
+    "cross_boundary_edges": 0,
+    "global_coverage_percent": 91.84,
+    "sast_findings": 0,
+    "sca_actionable_findings": 0
+  },
+  "interpretation": {
+    "runtime_implementation_verified": true,
+    "production_readiness_claim": false,
+    "full_capability_completion_claim": false,
+    "residual_open_decisions": [
+      "OPEN-013"
+    ],
+    "note": "IMPLEMENTED in the engineering ledger means verified bounded runtime implementation evidence; it does not resolve excluded Product Spec behavior or claim production readiness."
+  },
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-SCALE-004A"
+  ]
+}

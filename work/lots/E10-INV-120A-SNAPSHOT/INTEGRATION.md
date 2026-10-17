@@ -1,0 +1,11 @@
+# E10-INV-120A — Operator-local Case snapshot to full read-only analyst flow
+
+A concrete gap after the VERIFIED bounded CAP-INV-110 reference was that the loopback analyst journey could read only the Go-embedded hardcoded synthetic fixture. The new `case-timeline-demo -principal analyst-a -snapshot /absolute/path/snapshot.json` connects **an operator-controlled, read-only JSON snapshot stored on disk** to the already verified Case discovery → timeline projection → typed-source authorization → source preview/return HTTP chain.
+
+Technical alternatives: reuse `encoding/json`, `net/http`, Go file primitives and `NewMemoryCaseTimelineHTTPHandlers` (selected); reject a new database/ORM, third-party component, hand-rolled authorization engine or live remote provider for this single offline first-party integration milestone. No new business-logic dependency or new object schema.
+
+The path is supplied only as a process CLI argument, never from a browser. Must be absolute; symlinks and nonregular files are rejected; input is limited to 8 MiB with a strict single JSON object and unknown-field rejection. The host-selected dataset is validated by the existing owner provider at startup before listening; first visible Case link comes from server-verified snapshot membership. Default embedded demo stays unchanged.
+
+**Security/provenance:** Data read from the operator file is trusted only to define the local, synthetic owner dataset. It is not a production ACL oracle; `-principal` is still a synthetic choice and the ephemeral bearer authenticates only this demo process. Each HTTP request still separately checks Case/Timeline Entry/typed source before displaying content. Do NOT pass real sensitive customer data to the demo, rely on file permissions for durable confidentiality or expose the loopback port as an external production service. There is no live reload, database transaction, migrations, persistent write, external IAM, audit backend, or delivery of complete CAP-INV-110. `OPEN-013` remains unresolved.
+
+Acceptance includes an actual Go httptest HTTP flow loading an operator JSON file (not direct function-only assertions), Case picker, chronology, denied source isolation, cross-tenant denial, malformed file rejection and default behavior. Review and CI must independently validate exact published SHA.

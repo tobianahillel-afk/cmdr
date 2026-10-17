@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-110A-CONTRACT",
+  "status": "VERIFIED",
+  "final_validated_head": "5b4eb476371c6a3307126c73cfac3095d992018f",
+  "validation": {
+    "push_workflow_run": 38836365651,
+    "pull_request_workflow_run": 38836371825,
+    "result": "PASS",
+    "adaptive_engineering_kernel": "PASS",
+    "code_formatting": "PASS",
+    "contract_fixture_oracle_tests": "PASS"
+  },
+  "contract": {
+    "id": "TIMELINE-READONLY-CONTRACT-V1",
+    "capability": "CAP-INV-110",
+    "fixtures": 18,
+    "implementation_state": "preimplementation",
+    "runtime_code_added": false,
+    "runtime_negative_tests_pass_claim": false,
+    "production_slo_claim": false
+  },
+  "residuals": [
+    "User-facing full Timeline runtime not yet implemented",
+    "Authorization decisions in fixture input must become authoritative in product integration",
+    "True timezone/clock uncertainty ordering and supersession runtime behavior still require red/green tests",
+    "Case and linked owner permission leakage still require negative runtime tests",
+    "OPEN-013 mutation excluded"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-110B-RUNTIME"
+  ]
+}

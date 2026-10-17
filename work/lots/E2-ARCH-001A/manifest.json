@@ -1,0 +1,105 @@
+{
+  "schema_version": 2,
+  "id": "E2-ARCH-001A",
+  "title": "Define architecture boundary and path ownership registry",
+  "type": "sublot",
+  "parent": "E2-ARCH-001",
+  "goal": "Create a strict path-ownership registry and block strict-v2 manifests from authorizing paths outside registered mutable architecture boundaries.",
+  "product_refs": {
+    "capabilities": [],
+    "requirements": [],
+    "screens": [],
+    "permissions": [],
+    "open_decisions": [],
+    "implementation_contracts": [],
+    "canonical_objects": []
+  },
+  "depends_on": [
+    "E1-WORK-001C"
+  ],
+  "allowed_paths": [
+    "tools/cmdr-dev/**",
+    "engineering/architecture/**",
+    "engineering/dependencies/**",
+    "engineering/security/**",
+    "work/lots/E2-ARCH-001*/**",
+    ".github/workflows/engineering-kernel.yml",
+    "engineering/state/**",
+    "work/graph.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**"
+  ],
+  "inputs": [
+    "strict-v2 work manifests",
+    "source authority",
+    "dependency policy"
+  ],
+  "outputs": [
+    "boundary registry",
+    "boundary validator",
+    "manifest path-ownership gate",
+    "deny-by-default path authorization gate"
+  ],
+  "invariants": [
+    "canonical Product Spec remains read-only",
+    "architecture enforcement is deny-by-default"
+  ],
+  "security_properties": [
+    "unregistered product runtime paths cannot become implementation scope",
+    "third-party runtime dependencies require explicit Trusted Base authorization"
+  ],
+  "acceptance_tests": [
+    "go test ./...",
+    "cmdr-dev validate-manifests succeeds",
+    "cmdr-dev complexity-audit succeeds",
+    "cmdr-dev architecture-audit succeeds for all strict-v2 manifests",
+    "unit tests reject overlapping roots, unknown allowed paths, and Product Spec mutation"
+  ],
+  "performance_budget": {
+    "applicable": false,
+    "rationale": "engineering control-plane validation; no product runtime performance claim",
+    "metrics": []
+  },
+  "migration": {
+    "required": false,
+    "rationale": "no product runtime persistent data migration",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert the architecture-engine commit",
+    "verification": [
+      "engineering-kernel returns to the previous verified behavior"
+    ]
+  },
+  "required_checks": [
+    "gofmt",
+    "go vet ./...",
+    "go test ./...",
+    "cmdr-dev validate-manifests",
+    "cmdr-dev complexity-audit",
+    "cmdr-dev architecture-audit"
+  ],
+  "definition_of_ready": [
+    "dependencies are VERIFIED",
+    "architecture scope is explicit"
+  ],
+  "definition_of_done": [
+    "boundary registry is strict and machine-readable",
+    "registered roots cannot overlap ambiguously",
+    "Product Spec boundary is explicitly non-mutable",
+    "every strict-v2 allowed path is covered by a mutable registered boundary",
+    "CI runs architecture path audit"
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 6,
+    "estimated_net_loc": 360,
+    "production_files": 2,
+    "net_production_loc": 270,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

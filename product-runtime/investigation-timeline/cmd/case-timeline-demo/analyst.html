@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <title>CMDR — Investigation Timeline (démonstration locale)</title>
+  <link rel="stylesheet" href="/analyst.css">
+  <script src="/analyst.js" defer></script>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="eyebrow">CMDR / LABORATOIRE LOCAL</p>
+      <h1>Investigation Timeline</h1>
+      <p class="intro">Consultez la chronologie d’un Case autorisé. Démonstration synthétique uniquement — aucune donnée de production, aucun stockage du jeton.</p>
+    </header>
+    <form id="query">
+      <div class="field">
+        <label for="token">Jeton temporaire du terminal</label>
+        <input id="token" type="password" autocomplete="off" spellcheck="false" required>
+      </div>
+      <div class="field">
+        <label for="case-id">Identifiant du Case</label>
+        <input id="case-id" type="text" autocomplete="off" maxlength="1024" placeholder="case-a" required>
+      </div>
+      <div class="field">
+        <label for="case-options">Mes Cases accessibles</label>
+        <button id="discover" type="button">Afficher mes Cases</button>
+        <select id="case-options" aria-label="Sélectionner un Case autorisé" disabled>
+          <option value="">Aucun Case chargé</option>
+        </select>
+        <span id="case-discovery-status" role="status" aria-live="polite"></span>
+      </div>
+      <div class="field">
+        <label for="kind">Nature de l'événement</label>
+        <select id="kind">
+          <option value="">Toutes les catégories</option>
+          <option value="observed">Observé</option>
+          <option value="inferred">Inféré</option>
+          <option value="user-action">Action utilisateur</option>
+          <option value="decision">Décision</option>
+          <option value="response">Réponse</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="search">Rechercher dans les entrées autorisées</label>
+        <input id="search" type="search" maxlength="96" autocomplete="off" spellcheck="false"
+               placeholder="ID, référence source, provenance">
+      </div>
+      <div class="field">
+        <label for="from">Depuis (heure locale)</label>
+        <input id="from" type="datetime-local" step="1" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="to">Jusqu’à (heure locale, exclue)</label>
+        <input id="to" type="datetime-local" step="1" autocomplete="off">
+      </div>
+      <button id="load" type="submit">Charger la chronologie</button>
+    </form>
+    <section aria-labelledby="analysis-title">
+      <div class="section-title">
+        <h2 id="analysis-title">Synthèse d’investigation du Case</h2>
+        <button id="analyze" type="button">Analyser les événements autorisés</button>
+        <button id="download-report" type="button" disabled>Enregistrer la synthèse JSON locale</button>
+      </div>
+      <p class="intro">Analyse uniquement les événements renvoyés par les pages autorisées du Case sélectionné. Les filtres actifs sont appliqués ; aucune donnée cachée n’entre dans les totaux. Jusqu’à 5 000 événements, sans stockage. La synthèse regroupe les références de sources les plus fréquentes, distingue les événements observés des inférences et calcule la plage temporelle certaine ainsi que le plus grand écart entre événements visibles. Ces écarts ne prouvent pas l'absence d'activité ; une source commune ne prouve pas une causalité.</p>
+      <p id="analysis" role="status" aria-live="polite">Aucune synthèse calculée.</p>
+      <div id="analysis-actions" class="analysis-actions" aria-label="Vérifier les sources corrélées"></div>
+      <div id="trace-actions" class="analysis-actions" aria-label="Choisir une séquence de source autorisée"></div>
+      <div id="trace-results" role="region" aria-label="Séquence locale des événements d'une source" aria-live="polite">Aucune séquence de source sélectionnée.</div>
+      <p class="intro">Enregistrement volontaire sur votre appareil : seul le résumé des événements autorisés et les trois principales références de source sont inclus. Aucun jeton ni aperçu brut n’est exporté. Le fichier n’est ni signé ni une preuve de chaîne de conservation ; il peut devenir périmé si les droits ou données changent. Ne l’utilisez pas avec des données clients réelles.</p>
+      <p class="intro">Chaque action ouvre une entrée après une nouvelle vérification des droits Case, événement et source. Le parcours de source restitue par pages de 25 l'ordre déjà reçu des événements autorisés ; il n'est ni une preuve de causalité, ni un flux temps réel, ni un instantané transactionnel. Modifier le Case, le jeton ou les filtres efface cette sélection.</p>
+    </section>
+    <section aria-labelledby="wazuh-title">
+      <h2 id="wazuh-title">Corrélation Wazuh 4.x — agent et règle</h2>
+      <p class="intro">Disponible uniquement lors de l'import Wazuh dans le laboratoire local. Les agrégats sont recalculés après vérification serveur du Case et des sources. Les identifiants d'agent/règle sont des métadonnées Wazuh, pas des preuves d'identité d'hôte ou de causalité.</p>
+      <button id="wazuh-cohorts" type="button">Afficher les agents et règles autorisés</button>
+      <p id="wazuh-status" role="status" aria-live="polite">Aucune corrélation Wazuh demandée.</p>
+      <div id="wazuh-actions" class="analysis-actions" aria-label="Examiner les événements d'un agent ou d'une règle"></div>
+      <div id="wazuh-events" role="region" aria-live="polite">Aucun événement Wazuh sélectionné.</div>
+      <div class="analysis-actions" aria-label="Pagination des événements Wazuh autorisés">
+        <button id="wazuh-previous" type="button" disabled>Page Wazuh précédente</button>
+        <button id="wazuh-next" type="button" disabled>Page Wazuh suivante</button>
+      </div>
+    </section>
+    <section aria-labelledby="compare-title">
+      <h2 id="compare-title">Comparer deux Cases autorisés</h2>
+      <div class="field">
+        <label for="compare-case">Deuxième Case à comparer</label>
+        <input id="compare-case" type="text" autocomplete="off" maxlength="1024"
+               placeholder="Autre identifiant de Case autorisé">
+      </div>
+      <button id="compare" type="button">Comparer les chronologies autorisées</button>
+      <button id="download-comparison" type="button" disabled>Enregistrer la comparaison JSON locale</button>
+      <button id="download-cross-events" type="button" disabled>Enregistrer la chronologie détaillée JSON (sensible)</button>
+      <div class="field">
+        <label for="proximity-seconds">Fenêtre de proximité temporelle (secondes, 1–300)</label>
+        <input id="proximity-seconds" type="number" min="1" max="300" step="1" value="60">
+      </div>
+      <button id="proximity" type="button" disabled>Afficher les pistes temporelles</button>
+      <div id="proximity-results" role="region" aria-live="polite">Aucune piste temporelle calculée.</div>
+      <p class="intro">Après autorisation des deux Cases, recherche locale des rapprochements d'horodatages certains. Les entrées incertaines sont exclues, 25 pistes au maximum ; aucune relation causale ou identité de source n'est déduite. L'ouverture d'un événement réévalue ses droits sur le serveur.</p>
+      <p id="comparison" role="status" aria-live="polite">Aucune comparaison calculée.</p>
+      <p class="intro">Export détaillé strictement volontaire : jusqu’à 10 000 entrées déjà autorisées des deux Cases, avec identifiants, provenance et références de source. Le JSON est sensible et reste sur cet appareil ; aucun jeton ni aperçu brut de source n'y figure. N'utilisez pas de données clients réelles. Ni signature, ni chaîne de conservation, ni revalidation des droits après le téléchargement : relancez la comparaison avant chaque export.</p>
+      <p class="intro">Export manuel des agrégats des deux Cases déjà autorisés, sans jeton, aperçus ni événements bruts. Rapport synthétique non signé, non transactionnel et sans valeur de chaîne de conservation.</p>
+      <div id="comparison-actions" class="analysis-actions" aria-label="Examiner les sources communes et fenêtres temporelles dans un Case autorisé"></div>
+      <div id="comparison-trace-actions" class="analysis-actions" aria-label="Comparer les séquences de sources communes déjà autorisées"></div>
+      <div id="comparison-trace-results" role="region" aria-label="Séquence croisée autorisée, triée par horodatage" aria-live="polite">Aucune séquence croisée sélectionnée.</div>
+      <p class="intro">Cette comparaison lit à nouveau les pages des deux Cases avec le jeton actuel et les mêmes filtres. Elle confronte les volumes observés/inférés, les horodatages certains et les références identiques déjà autorisées par le serveur. Les plages ne prouvent pas une activité continue ; aucun résultat partiel n'est affiché en cas de refus, et aucune cooccurrence ne constitue une preuve de causalité. Une source commune peut être examinée comme séquence chronologique croisée de ses seuls événements déjà autorisés, 25 par page, horodatages incertains en fin de liste. Ouvrir une ligne déclenche une nouvelle vérification serveur des droits Case, entrée et source. Un bouton de fenêtre temporelle ouvre le Case sélectionné avec une nouvelle vérification des droits ; cooccurrence ne veut pas dire causalité. Démonstration locale synthétique sans index inter-Cases.</p>
+    </section>
+    <section aria-labelledby="results-title">
+      <div class="section-title">
+        <h2 id="results-title">Événements autorisés</h2>
+        <p id="summary" aria-live="polite">Aucune recherche effectuée.</p>
+      </div>
+      <p class="intro">La recherche porte uniquement sur les ID, références de source et provenances des événements déjà autorisés ; elle s’associe aux catégories et aux dates. Filtre temporel [début, fin) : la sélection locale est transmise en UTC. Les événements dont l’horodatage est incertain restent visibles et signalés comme tels.</p>
+      <p id="message" role="status" aria-live="polite"></p>
+      <ol id="entries"></ol>
+      <section aria-label="Source propriétaire" class="source-navigation">
+        <p id="source-status" role="status" aria-live="polite"></p>
+        <div id="source-detail" hidden></div>
+        <button type="button" id="return-to-case" disabled>Retour à la chronologie (vérifier les droits)</button>
+        <button type="button" id="copy-return-link" disabled>Copier le lien local de retour (Case et filtres)</button>
+        <p class="intro">Le lien contient les critères de recherche, jamais le jeton. Ne le partagez qu’avec un destinataire autorisé ; l’accès sera revérifié à l’ouverture.</p>
+      </section>
+      <nav aria-label="Pagination des événements">
+        <button id="previous" type="button" disabled>Précédent</button>
+        <span id="page">—</span>
+        <button id="next" type="button" disabled>Suivant</button>
+      </nav>
+    </section>
+    <footer>Accès limité à 127.0.0.1 · authentification par jeton éphémère · contrôles d’accès évalués côté serveur à chaque page.</footer>
+  </main>
+</body>
+</html>

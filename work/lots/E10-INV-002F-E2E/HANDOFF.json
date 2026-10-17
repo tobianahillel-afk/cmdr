@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-002F-E2E",
+  "result": "VERIFIED",
+  "final_validated_head": "841277d1e47c2917e5888e284b01a6ae25cae983",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 36131014034,
+    "pull_request_run": 36131020370,
+    "screen": "INV-EVS-001",
+    "capability": "CAP-INV-002",
+    "node_test_files": 5,
+    "production_modules": 4,
+    "global_runtime_coverage_percent": 91.19,
+    "frontend_p95_push_ms": 0.0525784425,
+    "frontend_p95_pull_request_ms": 0.0830992435,
+    "frontend_p95_budget_ms": 16,
+    "runtime_dependencies": 0
+  },
+  "invariants": [
+    "hostile query/event content remains text-only and never becomes executable DOM",
+    "permission denial clears previous protected projections and masks query content",
+    "cancellation prevents stale publication",
+    "offline state is semantic and cannot execute search",
+    "deep-link serialization survives refresh without tenant widening",
+    "server-side authorization remains authoritative",
+    "OPEN-013 remains unresolved and Case-link mutation is not implemented"
+  ],
+  "production_readiness_claim": false,
+  "full_capability_completion_claim": false,
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-002G"
+  ]
+}

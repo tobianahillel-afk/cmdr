@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "work_unit": "E6-PERF-001B",
+  "result": "VERIFIED",
+  "final_validated_head": "e97e2fafbfdfb9f2a6e230a327f8797105a0bd21",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 35875921106,
+    "pull_request_run": 35875928250,
+    "check": "CHK-PERFORMANCE-BENCHMARK",
+    "status": "not-applicable",
+    "registered": 0,
+    "executed": 0
+  },
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E6-PERF-001C"
+  ]
+}

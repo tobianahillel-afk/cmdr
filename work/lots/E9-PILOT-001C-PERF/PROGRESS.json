@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "work_unit": "E9-PILOT-001C-PERF",
+  "status": "VERIFIED",
+  "final_validated_head": "55e7d473a1f767b1e7bca0b44ad06259fd23389e",
+  "validation": {
+    "push_workflow_run": 35991062649,
+    "pull_request_workflow_run": 35991067963,
+    "result": "PASS",
+    "performance_target": "PERF-TGT-PILOT-CONTEXT-PROJECTION",
+    "metric": "projection-p95-latency",
+    "budget_ms": 1,
+    "push_observed_p95_ms": 0.00025389875,
+    "pull_request_observed_p95_ms": 0.00035315945,
+    "absolute_budget_pass": true,
+    "relative_baseline_claimed": false,
+    "runtime_global_coverage_percent": 90.35,
+    "sast_findings": 0,
+    "sca_actionable_findings": 0,
+    "performance_cache_records": 0
+  },
+  "implementation": {
+    "benchmark_handler": "builtin-pilot-context-projection-v1",
+    "benchmark_stages": [
+      "pr",
+      "on-demand"
+    ],
+    "probe": "product-runtime/context-envelope/cmd/perf-probe",
+    "measurement_scope": "Project(Input) execution only; probe build and process startup excluded from reported per-operation latency",
+    "deep_handler": "executable and exercised by cmdr-dev unit/integration tests",
+    "runtime_dependencies": 0
+  },
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E9-PILOT-001D"
+  ]
+}

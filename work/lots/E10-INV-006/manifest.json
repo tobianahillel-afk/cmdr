@@ -1,0 +1,145 @@
+{
+  "schema_version": 2,
+  "id": "E10-INV-006",
+  "title": "Implement bounded Saved Search and Query Asset read-only core for CAP-INV-006",
+  "type": "epic",
+  "parent": "",
+  "goal": "Deliver a provider-neutral persistence-neutral read-only Saved Search / Query Asset validation and compatibility core plus deterministic Event Search execution handoff, without performing any OPEN-013 class-2 mutation.",
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-006",
+      "CAP-INV-002",
+      "CAP-INV-005"
+    ],
+    "requirements": [
+      "REQ-PROD-014",
+      "REQ-PROD-020"
+    ],
+    "screens": [],
+    "permissions": [],
+    "open_decisions": [
+      "OPEN-013"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/audit-event-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/error-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/correlation-identifiers.md",
+      "cmdr-product-spec/17-implementation-contracts/object-reference-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/search-query-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/query.md",
+      "cmdr-product-spec/05-domain-model/objects/search-job.md"
+    ]
+  },
+  "depends_on": [
+    "E10-SCALE-004B"
+  ],
+  "allowed_paths": [
+    "engineering/implementation/saved-query-assets/**",
+    "engineering/architecture/**",
+    "engineering/security/**",
+    "engineering/performance/**",
+    "engineering/testing/**",
+    "work/lots/E10-INV-006*/**",
+    "engineering/state/**",
+    "work/graph.json",
+    "tools/cmdr-dev/**",
+    ".github/workflows/**"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**"
+  ],
+  "inputs": [
+    "CAP-INV-006 canonical Saved Searches and Query Assets contract",
+    "canonical Shared Query and Search Job contracts",
+    "tenant/permission/audit/error/correlation/object-reference/search-query contracts",
+    "OPEN-013 class-2 mutation constraint",
+    "VERIFIED Event Search bounded runtime evidence"
+  ],
+  "outputs": [
+    "registered saved-query-assets runtime boundary",
+    "executable QUERY-ASSET-READONLY-CONTRACT-V1",
+    "immutable query-asset validation and compatibility projection runtime",
+    "deterministic backend-neutral Event Search execution handoff",
+    "adversarial security and bounded local performance evidence"
+  ],
+  "invariants": [
+    "Product Spec remains read-only",
+    "no canonical Saved Search or Query Asset object is invented by this bounded wave",
+    "Query remains owned by Shared Capabilities and is referenced by stable versioned identity",
+    "Search Job remains owned by Shared Capabilities",
+    "Saved View remains Shared-owned and is never merged with a Saved Search or Query Asset",
+    "Detection Rule creation/deployment/conversion remains outside this capability",
+    "OPEN-013 remains unresolved and save/share/duplicate/deprecate plus every other class-2 asset mutation is excluded",
+    "tenant scope is mandatory and cross-tenant copy is excluded",
+    "no provider, storage engine, retention policy, collaboration backend, final query dialect or final UI is selected"
+  ],
+  "security_properties": [
+    "caller-provided tenant and access decisions fail closed",
+    "inaccessible Query or source/field prerequisites cannot be projected as usable",
+    "compatibility diagnostics are deterministic and never synthesize missing source/field facts",
+    "execution handoff preserves original Query/version and cannot mutate the source asset",
+    "no Search Job is created or executed by the bounded runtime"
+  ],
+  "acceptance_tests": [
+    "E10-INV-006A-BOUNDARY is VERIFIED",
+    "E10-INV-006A-CONTRACT is VERIFIED",
+    "E10-INV-006B-RUNTIME is VERIFIED",
+    "E10-INV-006C-HANDOFF is VERIFIED",
+    "E10-INV-006D-CLOSURE is VERIFIED",
+    "no full capability completion or production-readiness claim is made"
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "local asset validation compatibility projection and handoff construction are measurable without claiming storage/provider/Search Job production SLOs",
+    "metrics": [
+      "local projection/handoff p95 engineering target declared before runtime"
+    ]
+  },
+  "migration": {
+    "required": false,
+    "rationale": "bounded core is in-process, persistence-neutral and does not create a canonical Saved Search/Query Asset object",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert the current bounded task and keep downstream CAP-INV-006 tasks blocked",
+    "verification": [
+      "Product Spec baseline remains unchanged",
+      "no ledger claim is created before bounded closure",
+      "no Shared canonical object is mutated"
+    ]
+  },
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-RUNTIME-DEPS",
+    "CHK-BOUNDARY-EDGES",
+    "CHK-SECURITY-TESTS",
+    "CHK-PERFORMANCE-REGISTRY"
+  ],
+  "definition_of_ready": [
+    "E10-SCALE-004B is VERIFIED"
+  ],
+  "definition_of_done": [
+    "E10-INV-006A-BOUNDARY is VERIFIED",
+    "E10-INV-006A-CONTRACT is VERIFIED",
+    "E10-INV-006B-RUNTIME is VERIFIED",
+    "E10-INV-006C-HANDOFF is VERIFIED",
+    "E10-INV-006D-CLOSURE is VERIFIED"
+  ],
+  "complexity": {
+    "primary_components": 2,
+    "estimated_files_changed": 14,
+    "estimated_net_loc": 1150,
+    "production_files": 4,
+    "net_production_loc": 650,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 5
+  }
+}

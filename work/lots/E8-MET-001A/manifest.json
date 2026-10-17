@@ -1,0 +1,113 @@
+{
+  "schema_version": 2,
+  "id": "E8-MET-001A",
+  "title": "Define deterministic engine metrics registry and evidence model",
+  "type": "sublot",
+  "parent": "E8-MET-001",
+  "goal": "Define a strict local registry for engineering-engine metrics, units, evidence provenance, aggregation semantics, safety class and optimization eligibility.",
+  "product_refs": {
+    "capabilities": [],
+    "requirements": [],
+    "screens": [],
+    "permissions": [],
+    "open_decisions": [],
+    "implementation_contracts": [],
+    "canonical_objects": []
+  },
+  "depends_on": [
+    "E7-REC-001D"
+  ],
+  "allowed_paths": [
+    "tools/cmdr-dev/**",
+    "engineering/metrics/**",
+    "engineering/testing/**",
+    "work/lots/E8-MET-001*/**",
+    "engineering/state/**",
+    "work/graph.json",
+    ".github/workflows/**"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**"
+  ],
+  "inputs": [
+    "verified E0-E7 engineering foundation",
+    "adaptive validation evidence",
+    "canonical Product Spec remains read-only"
+  ],
+  "outputs": [
+    "strict local engine metrics registry",
+    "closed units aggregations sources safety classes and directions",
+    "validated bounded metric observation model",
+    "catalogued CHK-METRICS-REGISTRY gate"
+  ],
+  "invariants": [
+    "Product Spec remains read-only",
+    "metrics never become product-runtime telemetry",
+    "optimization cannot remove mandatory or prerequisite-closed safety gates",
+    "absence or corruption of metrics cannot weaken validation",
+    "raw source code and secrets are never stored as optimization evidence"
+  ],
+  "security_properties": [
+    "metrics are local engineering metadata",
+    "unknown metric schemas fail closed",
+    "recommendations are advisory until separately verified",
+    "security and correctness floors outrank throughput optimization"
+  ],
+  "acceptance_tests": [
+    "go test ./...",
+    "cmdr-dev validate-manifests succeeds",
+    "cmdr-dev complexity-audit succeeds",
+    "adaptive engineering-kernel remains green",
+    "unit tests reject optimization of safety/quality floors",
+    "unit tests reject unknown enums duplicate IDs source mismatches and non-finite observations",
+    "cmdr-dev metrics-registry-audit succeeds"
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "this layer exists to reduce engine overhead without trading away safety",
+    "metrics": [
+      "metrics collection remains metadata-scale",
+      "ordinary PR validation overhead from metrics collection remains negligible compared with selected checks"
+    ]
+  },
+  "migration": {
+    "required": false,
+    "rationale": "engineering control-plane only",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert E8 changes while retaining verified E0-E7 behavior",
+    "verification": [
+      "adaptive engineering-kernel remains green",
+      "mandatory validation selection remains unchanged"
+    ]
+  },
+  "required_checks": [
+    "adaptive engineering-kernel",
+    "cmdr-dev validate-manifests",
+    "cmdr-dev complexity-audit",
+    "CHK-METRICS-REGISTRY",
+    "cmdr-dev metrics-registry-audit"
+  ],
+  "definition_of_ready": [
+    "dependencies are VERIFIED",
+    "scope is bounded",
+    "Product Spec is read-only"
+  ],
+  "definition_of_done": [
+    "metric IDs units aggregation and safety classes are machine validated",
+    "mandatory safety metrics are explicitly non-optimizable",
+    "registry contains no arbitrary executable commands or external telemetry destination"
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 9,
+    "estimated_net_loc": 500,
+    "production_files": 3,
+    "net_production_loc": 360,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

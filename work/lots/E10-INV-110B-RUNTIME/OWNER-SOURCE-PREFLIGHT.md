@@ -1,0 +1,9 @@
+# E10-INV-110B — source authorization only after all owned snapshots are validated
+
+Risk: even with the earlier all-Timeline-ID ACL preflight, the old owner loop resolved each authorized entry and immediately sent its linked source identifier to the ACL checker. A malformed later owner snapshot caused a final `deny`, but earlier source authorization requests had already escaped. This is avoidable metadata I/O on a transaction that must fail.
+
+Decision/reuse: retain the injected `AccessChecker` and `EntryResolver`, the same deterministic `Entry` slice, and Go standard library. Pass 1 checks Case and all selected Timeline rights. Pass 2 resolves and validates all **authorized** owner snapshots, accounting for bounded cumulative source selectors, but intentionally makes NO linked-source ACL calls. Pass 3 checks linked sources only after pass 2 succeeds, then calls the existing immutable projection. A denied/unknown/missing Timeline ID is never resolved. No new storage, caching, service, batch provider API, third-party library or paid service is required.
+
+Tests: a **second** authorized owner's mismatched ID, missing provenance, invalid kind, wildcard source or over-limit source selector must cause zero source ACL calls while preserving the expected preliminary Case+Timeline checks. Valid owner snapshots followed by a denied source must remain filtered, not leaked. This does NOT supply principal verification, transactional consistency across external ACL provider calls, Case membership, or production source resolvers. `OPEN-013` remains unresolved and work unit B remains READY pending independent review and closure.
+
+Status: code/notes can only be counted as implemented after this exact SHA is published. CI and L2 must be verified separately. Older synthetic performance measurements cannot be assigned to this change.

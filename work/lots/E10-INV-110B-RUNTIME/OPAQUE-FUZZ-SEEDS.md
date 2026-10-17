@@ -1,0 +1,7 @@
+# E10-INV-110B — adversarial property seeds for opaque source data
+
+This increment adds one standard-library Go fuzz target, `FuzzProjectionOpaqueFieldsDoNotInterfere`, to the first-party Timeline module. It runs as ordinary seed cases in the existing `go test -race ./...` workflow and is separately usable for an explicit `go test -fuzz` campaign if/when deliberately authorized. No new dependency, GitHub secret, external service or product schema is needed.
+
+For each bounded arbitrary source-marker input and four states (denied, unknown, missing, cross-tenant), assert the single visible Timeline Entry survives, the caller-owned input is unchanged, protected identifiers/source references/provenance/supersession never appear in marshalled output, and opaque-only mutations do not influence the visible projection. This is a **different test family** from the deterministic contract fixture oracle and the seeded permutations.
+
+Evidence limitations: seed execution in CI is not a sustained fuzz campaign. An upstream authoritative authorization provider is still required; in-memory caller-claimed permissions and filtered/partial status are not authorization proofs. No vendor index, production SLO or `OPEN-013` decision is introduced. Lot B remains READY until independently qualified.

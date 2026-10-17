@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "contract_id": "PILOT-CONTEXT-ENVELOPE-V1",
+  "contract_kind": "pilot-local-executable-contract",
+  "canonical_schema_claim": false,
+  "slice_id": "PILOT-CONTEXT-001",
+  "capability": "CAP-SET-004",
+  "runtime_boundary": {
+    "id": "pilot-context-envelope-runtime",
+    "root": "product-runtime/context-envelope/**",
+    "package_identity": "github.com/tobianahillel-afk/cmdr/product-runtime/context-envelope",
+    "external_runtime_dependencies": []
+  },
+  "product_refs": {
+    "capabilities": [
+      "CAP-SET-004"
+    ],
+    "requirements": [
+      "REQ-PROD-008",
+      "REQ-SEC-001",
+      "REQ-UX-006",
+      "REQ-UX-007",
+      "REQ-UX-009"
+    ],
+    "screens": [],
+    "permissions": [
+      "perm.platform-settings.environment.read",
+      "perm.platform-settings.tenant.read"
+    ],
+    "open_decisions": [],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/cross-product-context-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/environment.md",
+      "cmdr-product-spec/05-domain-model/objects/tenant.md"
+    ]
+  },
+  "action_classes": [
+    "0",
+    "1"
+  ],
+  "authorization_outcomes": [
+    "allow",
+    "deny"
+  ],
+  "functional_states": [
+    "context-valid",
+    "context-incompatible",
+    "permission-denied",
+    "expired",
+    "source-missing"
+  ],
+  "error_codes": [
+    "invalid-tenant-ref",
+    "unsafe-return-origin"
+  ],
+  "reference_policy": {
+    "kind": "opaque-stable-reference",
+    "min_bytes": 1,
+    "max_bytes": 128,
+    "wildcard_forbidden": true,
+    "whitespace_forbidden": true,
+    "control_characters_forbidden": true
+  },
+  "return_origin_policy": {
+    "relative_route_only": true,
+    "max_bytes": 1024,
+    "query_forbidden": true,
+    "fragment_forbidden": true,
+    "scheme_forbidden": true
+  },
+  "semantic_rules": [
+    "source tenant reference is required; missing source tenant yields source-missing",
+    "destination authorization deny yields permission-denied and exposes no tenant or environment reference",
+    "expired context exposes no inherited tenant or environment reference",
+    "same-tenant compatible environment is preserved",
+    "incompatible environment is cleared and never silently replaced",
+    "tenant change preserves only the explicitly supplied destination tenant and clears inherited environment",
+    "environment whose tenant differs from the preserved tenant is cleared as incompatible",
+    "missing environment requires explicit choice only when destination_requires_environment is true",
+    "return-origin may be preserved only when it is a non-sensitive relative route without query fragment or scheme",
+    "the API has no raw-payload or secret-bearing field"
+  ],
+  "security_invariants": [
+    "no cross-tenant mutation",
+    "no permission gain",
+    "no wildcard tenant default",
+    "no silent environment fallback",
+    "no raw payload or secret transport",
+    "denied authorization masks protected references and retains only non-sensitive transition evidence"
+  ]
+}

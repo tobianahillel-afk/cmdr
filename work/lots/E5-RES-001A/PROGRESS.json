@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "work_unit": "E5-RES-001A",
+  "status": "VERIFIED",
+  "final_validated_head": "7d27a232dd6d201dcef81a1349813145e530e523",
+  "validation": {
+    "push_workflow_run": 35855381873,
+    "pull_request_workflow_run": 35855386492,
+    "result": "PASS",
+    "decision_registry_audit": "PASS",
+    "adaptive_kernel": "PASS"
+  },
+  "registry_observation": {
+    "decisions": 0,
+    "accepted": 0,
+    "blocked_product": 0,
+    "critical": 0,
+    "performance_sensitive": 0,
+    "rationale": "registry intentionally starts empty; earlier work is not retroactively accepted without evidence"
+  },
+  "invariants": [
+    "only engineering-only decisions may be accepted",
+    "product-owned choices cannot be silently resolved by engineering",
+    "accepted Class B/C decisions require evidence",
+    "performance-sensitive accepted decisions require benchmark evidence",
+    "accepted Class C decisions require adversarial evidence",
+    "duplicate live decision keys fail closed"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E5-RES-001B"
+  ]
+}

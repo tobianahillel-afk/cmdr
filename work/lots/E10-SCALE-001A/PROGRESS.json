@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-SCALE-001A",
+  "status": "VERIFIED",
+  "final_validated_head": "0fc613e8a8df77450c86329e6932e90731aa7d8d",
+  "validation": {
+    "push_workflow_run": 36003807756,
+    "pull_request_workflow_run": 36003812747,
+    "result": "PASS",
+    "implementation_ledger_audit": "PASS",
+    "unit_tests": "PASS",
+    "manifest_validation": "PASS",
+    "complexity_audit": "PASS",
+    "sast_findings": 0,
+    "sca_actionable_findings": 0
+  },
+  "ledger_observation": {
+    "entries": 1,
+    "verified_claims": 1,
+    "capabilities": [
+      "CAP-SET-004"
+    ],
+    "runtime_boundaries": [
+      "pilot-context-envelope-runtime"
+    ],
+    "product_spec_baseline": "99c3826cdcbc79bad51631cf6462450f92e012eb",
+    "spec_tree_digest": "a5f45351eba180d0edb734f33ecbeaabb7eceb7143305e201e207e8ae5a60d27"
+  },
+  "negative_proofs": [
+    "duplicate capability claims rejected",
+    "duplicate work-unit claims rejected",
+    "duplicate runtime-boundary claims rejected",
+    "repository path escapes rejected",
+    "Product Spec baseline drift rejected"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-SCALE-001B"
+  ]
+}

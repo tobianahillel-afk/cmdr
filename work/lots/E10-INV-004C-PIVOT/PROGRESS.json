@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-004C-PIVOT",
+  "status": "VERIFIED",
+  "final_validated_head": "ca95fd13ddf20d2a8937b2ed06929e5de6b4c40c",
+  "validation": {
+    "implementation_commit": "13d75b415f1b4f46942766f713f4d9cae0315a80",
+    "branch_coverage_fix_commit": "ca95fd13ddf20d2a8937b2ed06929e5de6b4c40c",
+    "push_workflow_run": 36356955530,
+    "pull_request_workflow_run": 36356957571,
+    "result": "PASS"
+  },
+  "runtime_evidence": {
+    "contract": "EVENT-INSPECTION-READONLY-CONTRACT-V1",
+    "fixtures": 17,
+    "positive_fixtures": 4,
+    "negative_fixtures": 13,
+    "external_runtime_dependencies": 0,
+    "global_runtime_security_coverage_push_percent": 91.61,
+    "global_runtime_security_coverage_pr_percent": 91.66,
+    "global_coverage_floor_percent": 80,
+    "changed_security_critical_floor_percent": 90
+  },
+  "static_security": {
+    "gosec_version": "v2.28.0",
+    "findings": 0,
+    "govulncheck_version": "v1.8.0",
+    "analyzed_modules": 8,
+    "actionable_findings": 0
+  },
+  "invariants": [
+    "PivotDraft is dialect-neutral and deterministic",
+    "restricted or non-visible values fail closed before any search execution",
+    "tenant/environment/event/source/correlation/time/return context are preserved",
+    "source, normalized, raw-derived-sensitive and enrichment origins remain explicit",
+    "no Event Search execution or class-2 mutation is introduced"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-004D-CLOSURE"
+  ]
+}

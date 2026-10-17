@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "work_unit": "E0-COVERAGE-001B",
+  "status": "VERIFIED",
+  "final_validated_head": "a61b08e4a73f3a8f73fa3ee23625cc4c3365afce",
+  "validation": {
+    "push_workflow_run": 35784892131,
+    "pull_request_workflow_run": 35784896939,
+    "result": "PASS",
+    "gofmt": "PASS",
+    "go_vet": "PASS",
+    "unit_tests": "PASS",
+    "obligation_derivation_full_corpus": "PASS",
+    "known_count_invariants": "PASS",
+    "doctor": "PASS",
+    "next_resolution": "PASS"
+  },
+  "obligation_observation": {
+    "total": 971,
+    "by_family": {
+      "canonical-object": 57,
+      "capability": 498,
+      "implementation-contract": 52,
+      "permission": 186,
+      "requirement": 122,
+      "screen": 56
+    },
+    "unresolved_references": 254,
+    "unregistered_requirement_references": [
+      "REQ-OBJ-013",
+      "REQ-OBJ-014",
+      "REQ-OBJ-015",
+      "REQ-OBJ-016",
+      "REQ-OBJ-017",
+      "REQ-OBJ-018",
+      "REQ-OBJ-019",
+      "REQ-SEC-006"
+    ]
+  },
+  "source_requirement_identity": {
+    "count": 122,
+    "origin_commit": "0d4c6183daa5d7a99b51718a99250a2dfcb4ecc6",
+    "origin_blob": "652c7e2300664a70a9257d4fbb6f971b210a5a8e"
+  },
+  "product_spec_mutated": false,
+  "next_unlocked": ["E0-COVERAGE-001C"]
+}

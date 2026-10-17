@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-SCALE-001B",
+  "result": "VERIFIED",
+  "final_validated_head": "6bbbc235f910d82f681acb4177d1db0d9e0978d9",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 36007630473,
+    "pull_request_run": 36007637946,
+    "active_capabilities": 498,
+    "implemented": 1,
+    "ready": 158,
+    "blocked": 338,
+    "proposed": 1,
+    "readiness_digest": "a5f45351eba180d0edb734f33ecbeaabb7eceb7143305e201e207e8ae5a60d27"
+  },
+  "rules": [
+    "readiness is recomputed from canonical Product Spec plus verified runtime ledger, not stored as a competing static truth",
+    "three canonical capability-register delivery schemas are explicitly supported and tested",
+    "missing or ambiguous delivery evidence fails closed",
+    "READY never overrides implementation evidence or source-backed blockers"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-SCALE-001C"
+  ]
+}

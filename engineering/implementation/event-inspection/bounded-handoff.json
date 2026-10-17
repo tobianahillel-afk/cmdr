@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "handoff_kind": "event-inspection-bounded-core",
+  "readiness": "BOUNDED_EVENT_INSPECTION_VALIDATED_NOT_FULL_CAPABILITY",
+  "capability": "CAP-INV-004",
+  "production_readiness_claim": false,
+  "full_capability_completion_claim": false,
+  "class2_mutation_enabled": false,
+  "provider_selected": false,
+  "final_query_dialect_selected": false,
+  "dedicated_final_ui_claim": false,
+  "blocking_open_decisions": [
+    "OPEN-013",
+    "OPEN-014"
+  ],
+  "evidence_sources": [
+    "work/lots/E10-INV-004B-RUNTIME/PROGRESS.json",
+    "work/lots/E10-INV-004C-PIVOT/PROGRESS.json"
+  ],
+  "limitations": [
+    "Case-link mutation remains excluded while OPEN-013 is unresolved.",
+    "Artifact proposal and Evidence-candidate mutations remain excluded while OPEN-013 and OPEN-014 are unresolved.",
+    "No parser engine or entity-resolution engine is selected by this bounded wave.",
+    "No storage engine or provider is selected by this bounded wave.",
+    "No final query dialect is selected; PivotDraft remains dialect-neutral.",
+    "No dedicated final Event Inspector UI is claimed by this bounded core.",
+    "No production readiness, production Event Inspection SLO, or full-capability completion is claimed."
+  ],
+  "next_conditions": [
+    "Resolve OPEN-013 before enabling Case-link mutation.",
+    "Resolve OPEN-013 and OPEN-014 before Artifact proposal or Evidence-candidate mutation.",
+    "Run a future decision gate before selecting parser, entity-resolution, storage or provider implementations.",
+    "Authorize any dedicated final Event Inspector UI through Product Spec rather than inventing a screen locally.",
+    "Compile any implementation-ledger claim only from VERIFIED closure evidence."
+  ]
+}

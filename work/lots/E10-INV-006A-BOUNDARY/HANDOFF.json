@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-006A-BOUNDARY",
+  "result": "VERIFIED",
+  "final_validated_head": "28f0cd096623e4a9aba408f8be864ab511cfc578",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 36469814250,
+    "pull_request_run": 36469820682,
+    "boundary_id": "saved-query-assets-runtime",
+    "performance_targets": [
+      "PERF-TGT-SAVED-QUERY-ASSETS-PROJECTION",
+      "PERF-TGT-SAVED-QUERY-ASSETS-HANDOFF"
+    ],
+    "deep_performance_targets": [
+      "PERF-DEEP-SAVED-QUERY-ASSETS-PROJECTION",
+      "PERF-DEEP-SAVED-QUERY-ASSETS-HANDOFF"
+    ]
+  },
+  "rules": [
+    "product-runtime/saved-query-assets is now uniquely registered as a first-party boundary",
+    "README.md is the only product-runtime file at boundary stage",
+    "runtime authorization and tenant-isolation obligations are registered before executable code",
+    "projection and handoff performance handlers fail closed while their respective runtime stages are preimplementation",
+    "Query and Search Job ownership remain Shared; Saved View and Detection Rule concepts remain separate",
+    "OPEN-013 remains unresolved and all class-2 asset mutation stays excluded"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-006A-CONTRACT"
+  ]
+}

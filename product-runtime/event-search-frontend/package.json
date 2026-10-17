@@ -1,0 +1,11 @@
+{
+  "name": "@cmdr/event-search-frontend",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": "24.21.0"
+  },
+  "scripts": {
+    "test": "node --test state.test.mjs shell.test.mjs results.test.mjs integration.test.mjs e2e.test.mjs"
+  }
+}

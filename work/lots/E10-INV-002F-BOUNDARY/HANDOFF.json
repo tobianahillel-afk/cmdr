@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-002F-BOUNDARY",
+  "result": "VERIFIED",
+  "final_validated_head": "01c1dc9a57618771cb410eae3c9dd25f697d1546",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 36064627523,
+    "pull_request_run": 36064632835,
+    "boundary": "event-search-frontend-runtime",
+    "security_scope": "event-search-frontend-runtime",
+    "performance_target": "PERF-TGT-EVENT-SEARCH-FRONTEND-STATE",
+    "deep_performance_target": "PERF-DEEP-EVENT-SEARCH-FRONTEND-STATE"
+  },
+  "rules": [
+    "frontend boundary is registered but remains preimplementation-only",
+    "README.md is the only product-runtime file under the frontend boundary",
+    "server-side authorization remains authoritative and client permission state is UX-only",
+    "tenant isolation obligations are registered before executable frontend code",
+    "frontend performance target is a 16 ms engineering state/update budget, not a backend or production Search SLO",
+    "benchmark and deep-performance handlers fail closed until executable browser-backed runtime exists",
+    "no third-party UI runtime dependency is introduced",
+    "OPEN-013 remains unresolved and Case-link mutation is not implemented",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-002F-STATE"
+  ]
+}

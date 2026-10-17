@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "id": "E0-COVERAGE-001B",
+  "title": "Derive implementation obligations from product graph",
+  "parent": "E0-COVERAGE-001",
+  "goal": "Derive deterministic implementation obligations from explicit canonical product evidence without inventing implementation semantics.",
+  "depends_on": ["E0-COVERAGE-001A"],
+  "requires_reading": [
+    "AGENTS.md",
+    "engineering/governance/source-authority.md",
+    "engineering/coverage/README.md",
+    "cmdr-product-spec/00-governance/source-material/cmdr-master-product-brief.md",
+    "cmdr-product-spec/00-governance/source-material/requirements-traceability-matrix.md",
+    "cmdr-product-spec/00-governance/registers/capability-register.md",
+    "cmdr-product-spec/00-governance/registers/screen-register.md",
+    "cmdr-product-spec/00-governance/registers/permission-register.md",
+    "cmdr-product-spec/17-implementation-contracts/README.md"
+  ],
+  "allowed_paths": [
+    "tools/cmdr-dev/**",
+    "engineering/coverage/**",
+    "engineering/state/**",
+    "work/graph.json",
+    "work/lots/E0-COVERAGE-001*/**",
+    ".github/workflows/engineering-kernel.yml"
+  ],
+  "forbidden_paths": ["cmdr-product-spec/**"],
+  "constraints": {
+    "no_semantic_invention": true,
+    "obligations_must_have_source_evidence": true,
+    "reference_only_entities_do_not_create_active_delivery_obligations": true,
+    "historical_aliases_do_not_create_active_delivery_obligations": true,
+    "third_party_runtime_dependencies": 0
+  },
+  "required_obligation_families": [
+    "capability",
+    "requirement",
+    "screen",
+    "permission",
+    "implementation-contract",
+    "canonical-object"
+  ],
+  "definition_of_done": [
+    "obligation derivation is deterministic",
+    "every obligation records one or more source paths",
+    "every active registered capability produces a capability obligation",
+    "every active registered screen produces a screen obligation",
+    "referenced historical identifiers remain traceable but do not become active obligations",
+    "obligation output records unresolved references separately from active obligations",
+    "tests cover provenance, deduplication and exclusion of reference-only historical entities",
+    "CI derives obligations on the full canonical corpus"
+  ]
+}

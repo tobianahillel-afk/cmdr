@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "work_unit": "E4-SEC-002B-ACTIVATE",
+  "result": "VERIFIED",
+  "final_validated_head": "1cb0c05272bdccef4df264292f6345436e8402ba",
+  "pull_request": 36,
+  "evidence": {
+    "activation_push_run": 35849028333,
+    "activation_pr_run": 35849033520,
+    "active_gates": [
+      "SEC-SECRETS-001",
+      "SEC-SAST-001",
+      "SEC-SCA-001"
+    ],
+    "sast_findings": 0,
+    "sca_actionable_findings": 0
+  },
+  "rules": [
+    "SAST evidence retains no source snippets",
+    "no SAST baseline exception exists because reviewed findings are zero",
+    "all reachable govulncheck findings block",
+    "external tools remain development-only and exactly version pinned",
+    "gate activation is backed by green push and pull-request execution"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E4-SEC-002C"
+  ]
+}

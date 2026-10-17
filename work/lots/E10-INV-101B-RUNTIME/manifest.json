@@ -1,0 +1,154 @@
+{
+  "schema_version": 2,
+  "parent": "E10-INV-101",
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-101",
+      "CAP-INV-102"
+    ],
+    "requirements": [
+      "REQ-PROD-014",
+      "REQ-PROD-020"
+    ],
+    "screens": [
+      "INV-CAS-001"
+    ],
+    "permissions": [],
+    "open_decisions": [
+      "OPEN-013"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/error-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/correlation-identifiers.md",
+      "cmdr-product-spec/17-implementation-contracts/object-reference-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/pagination-filtering-sorting.md",
+      "cmdr-product-spec/17-implementation-contracts/saved-view-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/frontend-state-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/cross-product-context-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/screen-routing-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/case.md",
+      "cmdr-product-spec/05-domain-model/objects/incident.md",
+      "cmdr-product-spec/05-domain-model/objects/finding.md",
+      "cmdr-product-spec/05-domain-model/objects/saved-view.md"
+    ]
+  },
+  "forbidden_paths": [
+    "cmdr-product-spec/**"
+  ],
+  "invariants": [
+    "Product Spec remains read-only",
+    "Case remains the Investigate-owned canonical object and is never redefined",
+    "Incident remains Command-owned and is projected only as optional context",
+    "Saved View remains Shared-owned and is never mutated by this bounded runtime",
+    "Case Queue remains distinct from Command Work Queue and owns no Task, Decision or Response Run",
+    "OPEN-013 assignment/lifecycle mutations remain unresolved and excluded",
+    "final columns, final Case state machine, persistence/provider, export backend and final UI remain out of scope",
+    "product-runtime/case-queue access remains unavailable until E10-INV-101A-BOUNDARY atomically registers unique architecture ownership"
+  ],
+  "security_properties": [
+    "tenant scope and Case read access fail closed",
+    "cross-tenant object projections are rejected",
+    "Saved View fields and filters are permission-re-evaluated before projection",
+    "partial/stale diagnostics never synthesize or leak inaccessible data"
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "bounded Case Queue core is provider-neutral, persistence-neutral and introduces no canonical data migration",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert the current bounded task and keep downstream CAP-INV-101 tasks blocked",
+    "verification": [
+      "Product Spec baseline remains unchanged",
+      "no ledger claim is created before bounded closure",
+      "no canonical object mutation occurred"
+    ]
+  },
+  "id": "E10-INV-101B-RUNTIME",
+  "title": "Implement immutable Case Queue projection runtime",
+  "type": "task",
+  "goal": "Implement a Go standard-library-only immutable Case Queue projection over caller-owned Case snapshots with tenant/access filtering, deterministic search/filter/sort and explicit stale/partial diagnostics.",
+  "depends_on": [
+    "E10-INV-101A-CONTRACT"
+  ],
+  "allowed_paths": [
+    "product-runtime/case-queue/**",
+    "engineering/implementation/case-queue/**",
+    "engineering/security/**",
+    "engineering/performance/**",
+    "engineering/testing/**",
+    "work/lots/E10-INV-101*/**",
+    "engineering/state/**",
+    "work/graph.json",
+    "tools/cmdr-dev/**"
+  ],
+  "inputs": [
+    "CASE-QUEUE-READONLY-CONTRACT-V1 fixtures",
+    "caller-owned Case snapshots",
+    "optional Incident/Finding projection availability",
+    "tenant/access decisions"
+  ],
+  "outputs": [
+    "standard-library-only immutable Case Queue projection",
+    "deep-copy isolated queue rows",
+    "deterministic search/filter/sort results",
+    "explicit available/empty/partial/stale/permission-filtered/view-dirty diagnostics",
+    "implemented CASE-QUEUE-READONLY-CONTRACT-V1 runtime state",
+    "measured authorization-negative and tenant-isolation adapter for case-queue-runtime"
+  ],
+  "acceptance_tests": [
+    "all 24 predeclared contract fixtures execute against the runtime",
+    "caller input cannot be mutated or aliased",
+    "cross-tenant or denied Cases fail closed",
+    "stable ordering is deterministic under equal keys",
+    "missing Incident/Finding context is explicitly partial/unavailable rather than invented",
+    "runtime creates no Task/Decision/Run and performs no Case mutation",
+    "authorization-negative and tenant-isolation adapters execute against case-queue-runtime",
+    "security-critical runtime coverage target is at least 90 percent"
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "queue projection and local filtering/sorting are pure local transformations independent of storage providers",
+    "metrics": [
+      "bounded local projection p95 engineering target declared by A-BOUNDARY",
+      "no storage/query-provider production SLO claim"
+    ]
+  },
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-RUNTIME-DEPS",
+    "CHK-BOUNDARY-EDGES",
+    "CHK-SECURITY-TESTS",
+    "CHK-PERFORMANCE-REGISTRY",
+    "CHK-SECRETS",
+    "CHK-SAST-GO",
+    "CHK-SCA-GO",
+    "CHK-CASE-QUEUE-CONTRACT"
+  ],
+  "definition_of_ready": [
+    "E10-INV-101A-CONTRACT is VERIFIED"
+  ],
+  "definition_of_done": [
+    "immutable projection passes all contract fixtures",
+    "permission and tenant negative tests are measured",
+    "deterministic ordering/search/filtering is covered",
+    "security-critical runtime coverage target is at least 90 percent"
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 9,
+    "estimated_net_loc": 690,
+    "production_files": 2,
+    "net_production_loc": 300,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

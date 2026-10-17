@@ -1,0 +1,163 @@
+name: investigation-timeline-evidence
+
+on:
+  push:
+    branches:
+      - "engineering/autonomous-development-foundation"
+    paths:
+      - ".github/workflows/investigation-timeline-evidence.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: investigation-timeline-evidence-${{ github.ref }}-${{ github.sha }}
+  cancel-in-progress: false
+
+jobs:
+  evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - name: Checkout exact source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: tools/cmdr-dev/go.mod
+          cache: false
+      - name: Run exact Timeline projection latency and resource targets
+        shell: bash
+        run: |
+          set -euo pipefail
+          (cd tools/cmdr-dev && go build -trimpath -o "$RUNNER_TEMP/cmdr-dev-timeline" .)
+          # Refuse on-demand target selection in PR stage and unknown targets.
+          # Assert the actual diagnostic so an unrelated crash cannot pass.
+          if "$RUNNER_TEMP/cmdr-dev-timeline" performance-benchmark-audit \
+            --root "$GITHUB_WORKSPACE" --stage pr \
+            --requested-performance-target PERF-TGT-INV-TIMELINE-PROJECTION --json \
+            > "$RUNNER_TEMP/timeline-negative-pr.json" 2> "$RUNNER_TEMP/timeline-negative-pr.err"; then
+            echo "Invalid PR-stage explicit performance target unexpectedly accepted" >&2
+            exit 1
+          fi
+          grep -Fq "explicit benchmark target selection requires on-demand stage" "$RUNNER_TEMP/timeline-negative-pr.err"
+          if "$RUNNER_TEMP/cmdr-dev-timeline" performance-benchmark-audit \
+            --root "$GITHUB_WORKSPACE" --stage on-demand \
+            --requested-performance-target PERF-TGT-INV-TIMELINE-UNREGISTERED --json \
+            > "$RUNNER_TEMP/timeline-negative-unknown.json" 2> "$RUNNER_TEMP/timeline-negative-unknown.err"; then
+            echo "Unregistered explicit performance target unexpectedly accepted" >&2
+            exit 1
+          fi
+          grep -Fq "unknown explicit performance target PERF-TGT-INV-TIMELINE-UNREGISTERED" "$RUNNER_TEMP/timeline-negative-unknown.err"
+          "$RUNNER_TEMP/cmdr-dev-timeline" performance-benchmark-audit \
+            --root "$GITHUB_WORKSPACE" --stage on-demand \
+            --requested-performance-target PERF-TGT-INV-TIMELINE-PROJECTION --json \
+            | tee "$RUNNER_TEMP/timeline-latency.json"
+          "$RUNNER_TEMP/cmdr-dev-timeline" deep-performance-audit \
+            --root "$GITHUB_WORKSPACE" --stage on-demand \
+            --requested-performance-target PERF-DEEP-INV-TIMELINE-PROJECTION --json \
+            | tee "$RUNNER_TEMP/timeline-resource.json"
+          python3 - "$GITHUB_SHA" "$RUNNER_TEMP/timeline-latency.json" "$RUNNER_TEMP/timeline-resource.json" <<'PY'
+          import json
+          import sys
+          sha, latency_path, resource_path = sys.argv[1:]
+          for filename, target, selected_field, executed_field in (
+              (latency_path, "PERF-TGT-INV-TIMELINE-PROJECTION", "selected_targets", "executed_targets"),
+              (resource_path, "PERF-DEEP-INV-TIMELINE-PROJECTION", "selected_targets", "executed_targets"),
+          ):
+              with open(filename, encoding="utf-8") as file:
+                  result = json.load(file)
+              if (result.get("source_sha") != sha or result.get("stage") != "on-demand"
+                      or result.get("status") != "pass"
+                      or result.get(selected_field) != 1
+                      or result.get(executed_field) != 1
+                      or len(result.get("results", [])) != 1
+                      or result["results"][0].get("target_id") != target):
+                  raise SystemExit(f"Missing or misattributed measurement for {target}")
+              if target.startswith("PERF-TGT-") and result.get("reused_targets") != 0:
+                  raise SystemExit("Reused benchmark is not fresh exact-SHA evidence")
+              print(f"Verified synthetic {target} source {sha}")
+          PY
+          {
+            echo "### CMDR Timeline synthetic performance evidence"
+            echo "Source SHA: $GITHUB_SHA"
+            echo "Latency: target PERF-TGT-INV-TIMELINE-PROJECTION, on-demand, 5 x mean-of-200 operations"
+            echo "Resource: target PERF-DEEP-INV-TIMELINE-PROJECTION, sampled Go heap, 1000 operations"
+            echo "Not per-request p95, peak RSS, remote ACL-provider latency or a production SLO."
+            echo "Full machine-readable measurements are retained in the step logs."
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Archive verified exact-SHA synthetic observations
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: investigation-timeline-on-demand-${{ github.sha }}-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/timeline-latency.json
+            ${{ runner.temp }}/timeline-resource.json
+          if-no-files-found: error
+          retention-days: 30
+
+  platform-process:
+    name: Timeline process tree / ${{ matrix.os }}
+    # Run OS-specific cancellation code instead of assuming Linux coverage.
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest]
+    steps:
+      - name: Checkout immutable source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up pinned Go toolchain
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: tools/cmdr-dev/go.mod
+          cache: false
+      - name: Compile and exercise Timeline subprocess boundaries
+        shell: bash
+        working-directory: tools/cmdr-dev
+        run: |
+          set -euo pipefail
+          go build -trimpath -o "$RUNNER_TEMP/cmdr-dev-platform" .
+          go vet ./...
+          go test -count=1 -timeout=6m -v \
+            -run '^TestTimeline(Process|Subprocess|Output|Bounded|ProbeReal|ProbeContext)' .
+          echo "### Timeline subprocess platform smoke: $RUNNER_OS" >> "$GITHUB_STEP_SUMMARY"
+          echo "Exact source: $GITHUB_SHA; runner test only, no production SLA." >> "$GITHUB_STEP_SUMMARY"
+
+  fuzz:
+    name: Timeline bounded opaque-source fuzz / Linux
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout exact published source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up pinned Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: product-runtime/investigation-timeline/go.mod
+          cache: false
+      - name: Execute bounded Go-native fuzzing
+        shell: bash
+        working-directory: product-runtime/investigation-timeline
+        run: |
+          set -euo pipefail
+          # Normal go test only executes seeds. This runs Go's mutation engine,
+          # with no external fuzz SaaS or persistent corpus upload.
+          go test -run '^$' \
+            -fuzz '^FuzzProjectionOpaqueFieldsDoNotInterfere$' \
+            -fuzztime=25s -parallel=2 -timeout=3m .
+          {
+            echo "### Timeline bounded opaque-source fuzz campaign"
+            echo "Source SHA: `$GITHUB_SHA`"
+            echo "Duration budget: 25 seconds; Go fuzz engine with 2 workers."
+            echo "Synthetic non-authorized source fields only; not provider ACL testing."
+            echo "No retained fuzz corpus, no claim of exhaustive test coverage."
+          } >> "$GITHUB_STEP_SUMMARY"

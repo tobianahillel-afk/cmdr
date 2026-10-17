@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "id": "E0-COVERAGE-001",
+  "title": "Build product obligation and coverage graph",
+  "type": "epic",
+  "goal": "Turn canonical Product Spec identities and relations into a machine-readable graph that can later drive implementation obligations and completeness checks without redefining product truth.",
+  "decomposition_reason": "Entity extraction, obligation derivation and coverage reconciliation are independently testable behaviors and would exceed a single safe agent lot.",
+  "sublots": [
+    "E0-COVERAGE-001A",
+    "E0-COVERAGE-001B",
+    "E0-COVERAGE-001C"
+  ],
+  "product_scope": {
+    "changes_product_behavior": false,
+    "canonical_product_spec_is_read_only": true
+  }
+}

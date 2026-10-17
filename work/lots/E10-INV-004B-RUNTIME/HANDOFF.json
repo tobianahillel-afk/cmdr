@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-004B-RUNTIME",
+  "result": "VERIFIED",
+  "final_validated_head": "5f6300b7a20d04b52c7c14b23fc31f90c55e9827",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 36352007442,
+    "pull_request_run": 36352012067,
+    "contract_status": "PASS",
+    "runtime_dependencies": 0,
+    "gosec_findings": 0,
+    "govulncheck_actionable_findings": 0,
+    "global_runtime_security_coverage_percent": 91.47
+  },
+  "rules": [
+    "E10-INV-004C-PIVOT may add only dialect-neutral PivotDraft preparation inside event-inspection-runtime",
+    "C must not execute Event Search or select a provider/final query dialect",
+    "C must preserve tenant/environment/event/field/value/time/source/return origin and correlation",
+    "OPEN-013/OPEN-014 and class-2 mutations remain outside executable scope"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-004C-PIVOT"
+  ]
+}

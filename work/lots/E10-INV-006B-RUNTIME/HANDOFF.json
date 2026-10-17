@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-006B-RUNTIME",
+  "result": "VERIFIED",
+  "final_validated_head": "f262c1a8ff0d1ecc1ebe5f15c15dad25809f3334",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 36488064659,
+    "pull_request_run": 36488071274,
+    "contract": "QUERY-ASSET-READONLY-CONTRACT-V1",
+    "runtime_state": "implemented",
+    "fixtures": 18,
+    "push_global_coverage_percent": 92.06,
+    "pull_request_global_coverage_percent": 92.1,
+    "sast_findings": 0,
+    "sca_actionable_findings": 0
+  },
+  "rules": [
+    "caller-owned snapshots are projected locally without persistence",
+    "Query reference and exact version are preserved",
+    "parameters, source/field prerequisites and provenance are deep-copy isolated",
+    "only compatible projections are handoff-eligible",
+    "OPEN-013 continues to exclude all class-2 asset mutation",
+    "Search Job ownership remains Shared and no Search Job is created or executed"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-006C-HANDOFF"
+  ]
+}

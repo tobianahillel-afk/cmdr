@@ -1,0 +1,110 @@
+{
+  "schema_version": 2,
+  "id": "E6-PERF-001D",
+  "title": "Cache performance evidence and integrate adaptive revisit triggers",
+  "type": "sublot",
+  "parent": "E6-PERF-001",
+  "goal": "Reuse valid benchmark evidence across agent continuations while invalidating it on source workload environment toolchain budget or research-decision freshness changes.",
+  "product_refs": {
+    "capabilities": [],
+    "requirements": [],
+    "screens": [],
+    "permissions": [],
+    "open_decisions": [],
+    "implementation_contracts": [],
+    "canonical_objects": []
+  },
+  "depends_on": [
+    "E6-PERF-001C"
+  ],
+  "allowed_paths": [
+    "tools/cmdr-dev/**",
+    "engineering/performance/**",
+    "engineering/testing/**",
+    ".github/workflows/**",
+    "work/lots/E6-PERF-001*/**",
+    "engineering/state/**",
+    "work/graph.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**"
+  ],
+  "inputs": [
+    "verified E0-E5 engineering foundation",
+    "canonical Product Spec remains read-only",
+    "architecture/runtime boundary registry",
+    "risk-adaptive validation engine"
+  ],
+  "outputs": [
+    "performance evidence cache index",
+    "baseline freshness evaluator",
+    "E5 benchmark-regression trigger integration"
+  ],
+  "invariants": [
+    "Product Spec remains read-only",
+    "performance claims require representative measured evidence",
+    "no runtime target is fabricated when no product-runtime boundary exists",
+    "benchmark noise cannot silently relax an explicit budget",
+    "expensive performance work is triggered proportionally rather than on every trivial change"
+  ],
+  "security_properties": [
+    "benchmark inputs and result files are untrusted data, never executable configuration",
+    "performance tooling remains development-only unless separately approved",
+    "resource tests use explicit bounded time and memory limits"
+  ],
+  "acceptance_tests": [
+    "go test ./...",
+    "cmdr-dev validate-manifests succeeds",
+    "cmdr-dev architecture-audit succeeds",
+    "cmdr-dev complexity-audit succeeds",
+    "adaptive engineering-kernel remains green",
+    "tests invalidate cache on source workload environment toolchain and budget changes"
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "this layer governs performance measurement overhead as well as product targets",
+    "metrics": [
+      "valid unchanged evidence avoids duplicate benchmark execution"
+    ]
+  },
+  "migration": {
+    "required": false,
+    "rationale": "engineering control-plane only",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert the E6 unit while retaining verified E0-E5 controls",
+    "verification": [
+      "engineering-kernel remains green",
+      "no accepted product contract changed"
+    ]
+  },
+  "required_checks": [
+    "adaptive engineering-kernel",
+    "cmdr-dev validate-manifests",
+    "cmdr-dev complexity-audit",
+    "cmdr-dev performance-cache-audit"
+  ],
+  "definition_of_ready": [
+    "dependencies are VERIFIED",
+    "scope is bounded",
+    "Product Spec is read-only"
+  ],
+  "definition_of_done": [
+    "cache key includes source target workload environment toolchain and budget identity",
+    "stale baselines cannot satisfy current gates",
+    "benchmark regression can fire the E5 revisit signal deterministically",
+    "fresh agents can discover reusable versus invalid evidence"
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 8,
+    "estimated_net_loc": 500,
+    "production_files": 3,
+    "net_production_loc": 360,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-002B",
+  "result": "VERIFIED",
+  "final_validated_head": "4611ad2f94045e96688545b885e6f1cd901ba8f1",
+  "pull_request": 36,
+  "evidence": {
+    "controls_task": "E10-INV-002B-CONTROLS",
+    "runtime_task": "E10-INV-002B-RUNTIME",
+    "runtime_state": "implemented",
+    "security_coverage_percent": 91.87,
+    "validation_p95_ms": 0.0001982749
+  },
+  "rules": [
+    "graph node E10-INV-002B remains DECOMPOSED because its separately testable children carry verification",
+    "downstream work depends on the verified E10-INV-002B-RUNTIME child",
+    "no implementation-ledger capability-completion claim is created before final bounded validation"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-002C"
+  ]
+}

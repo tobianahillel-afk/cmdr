@@ -1,0 +1,115 @@
+{
+  "schema_version": 2,
+  "id": "E8-MET-001D",
+  "title": "Enforce engine efficiency regression budgets and optimization handoff",
+  "type": "sublot",
+  "parent": "E8-MET-001",
+  "goal": "Enforce bounded engineering-engine efficiency regressions, record verified optimization outcomes, and produce the exact handoff into the end-to-end implementation pilot.",
+  "product_refs": {
+    "capabilities": [],
+    "requirements": [],
+    "screens": [],
+    "permissions": [],
+    "open_decisions": [],
+    "implementation_contracts": [],
+    "canonical_objects": []
+  },
+  "depends_on": [
+    "E8-MET-001C"
+  ],
+  "allowed_paths": [
+    "tools/cmdr-dev/**",
+    "engineering/metrics/**",
+    "engineering/testing/**",
+    "work/lots/E8-MET-001*/**",
+    "engineering/state/**",
+    "work/graph.json",
+    ".github/workflows/**"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**"
+  ],
+  "inputs": [
+    "verified E0-E7 engineering foundation",
+    "adaptive validation evidence",
+    "canonical Product Spec remains read-only"
+  ],
+  "outputs": [
+    "engine efficiency regression gate",
+    "verified zero-regression same-profile budget policy",
+    "versioned E8-C standard and strict efficiency baselines",
+    "post-validation CHK-METRICS-BUDGET safety floor enforcement",
+    "E9 pilot readiness handoff"
+  ],
+  "invariants": [
+    "Product Spec remains read-only",
+    "metrics never become product-runtime telemetry",
+    "optimization cannot remove mandatory or prerequisite-closed safety gates",
+    "absence or corruption of metrics cannot weaken validation",
+    "raw source code and secrets are never stored as optimization evidence"
+  ],
+  "security_properties": [
+    "metrics are local engineering metadata",
+    "unknown metric schemas fail closed",
+    "recommendations are advisory until separately verified",
+    "security and correctness floors outrank throughput optimization"
+  ],
+  "acceptance_tests": [
+    "go test ./...",
+    "cmdr-dev validate-manifests succeeds",
+    "cmdr-dev complexity-audit succeeds",
+    "adaptive engineering-kernel remains green",
+    "unit tests prove safety floors block even without a comparable baseline",
+    "unit tests prove same-profile validation cost/selection regressions block",
+    "unit tests prove context growth remains advisory",
+    "unit tests prove a higher mandatory floor requires a new comparable baseline instead of blocking a security increase",
+    "real adaptive validation reports current baseline match or explicit no-baseline status"
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "this layer exists to reduce engine overhead without trading away safety",
+    "metrics": [
+      "metrics collection remains metadata-scale",
+      "ordinary PR validation overhead from metrics collection remains negligible compared with selected checks"
+    ]
+  },
+  "migration": {
+    "required": false,
+    "rationale": "engineering control-plane only",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert E8 changes while retaining verified E0-E7 behavior",
+    "verification": [
+      "adaptive engineering-kernel remains green",
+      "mandatory validation selection remains unchanged"
+    ]
+  },
+  "required_checks": [
+    "adaptive engineering-kernel",
+    "cmdr-dev validate-manifests",
+    "cmdr-dev complexity-audit",
+    "CHK-METRICS-BUDGET"
+  ],
+  "definition_of_ready": [
+    "dependencies are VERIFIED",
+    "scope is bounded",
+    "Product Spec is read-only"
+  ],
+  "definition_of_done": [
+    "efficiency regressions are visible and fail according to explicit budgets",
+    "security/correctness regressions cannot be traded for speed",
+    "handoff identifies remaining engine limitations before E9 pilot"
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 10,
+    "estimated_net_loc": 690,
+    "production_files": 3,
+    "net_production_loc": 500,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

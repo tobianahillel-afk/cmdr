@@ -1,0 +1,1049 @@
+{
+  "schema_version": 1,
+  "contract_id": "QUERY-ASSET-READONLY-CONTRACT-V1",
+  "cases": [
+    {
+      "id": "valid-compatible-saved-search",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "asset_id": "asset-001",
+        "asset_kind": "saved-search",
+        "asset_access_decision": "allow",
+        "query_ref": "qry-001",
+        "query_tenant_ref": "tenant-a",
+        "query_version": "v7",
+        "query_access_decision": "allow",
+        "author_ref": "user-hunter-1",
+        "validation_state": "validated",
+        "parameter_names": [
+          "hostname",
+          "window"
+        ],
+        "sources": [
+          {
+            "id": "source-edr",
+            "tenant_ref": "tenant-a",
+            "state": "available",
+            "fields": [
+              {
+                "name": "host.name",
+                "state": "available"
+              },
+              {
+                "name": "event.action",
+                "state": "available"
+              }
+            ]
+          }
+        ],
+        "lineage_ref": "",
+        "deprecation_reason": "",
+        "replacement_asset_ref": "",
+        "mutation_requested": "",
+        "search_job_execution_requested": false
+      },
+      "expected": {
+        "allowed": true,
+        "error_code": "",
+        "compatibility": "compatible",
+        "diagnostics": [],
+        "handoff_eligible": true,
+        "immutable_projection": true,
+        "deep_copy_isolated": true,
+        "mutation_executed": false,
+        "search_job_created": false,
+        "search_job_executed": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "valid-compatible-query-asset",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "asset_id": "asset-qa-002",
+        "asset_kind": "query-asset",
+        "asset_access_decision": "allow",
+        "query_ref": "qry-001",
+        "query_tenant_ref": "tenant-a",
+        "query_version": "v7",
+        "query_access_decision": "allow",
+        "author_ref": "user-hunter-1",
+        "validation_state": "validated",
+        "parameter_names": [
+          "hostname",
+          "window"
+        ],
+        "sources": [
+          {
+            "id": "source-edr",
+            "tenant_ref": "tenant-a",
+            "state": "available",
+            "fields": [
+              {
+                "name": "host.name",
+                "state": "available"
+              },
+              {
+                "name": "event.action",
+                "state": "available"
+              }
+            ]
+          }
+        ],
+        "lineage_ref": "asset-parent-001",
+        "deprecation_reason": "",
+        "replacement_asset_ref": "",
+        "mutation_requested": "",
+        "search_job_execution_requested": false
+      },
+      "expected": {
+        "allowed": true,
+        "error_code": "",
+        "compatibility": "compatible",
+        "diagnostics": [],
+        "handoff_eligible": true,
+        "immutable_projection": true,
+        "deep_copy_isolated": true,
+        "mutation_executed": false,
+        "search_job_created": false,
+        "search_job_executed": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "stale-prerequisites-are-visible",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "asset_id": "asset-001",
+        "asset_kind": "saved-search",
+        "asset_access_decision": "allow",
+        "query_ref": "qry-001",
+        "query_tenant_ref": "tenant-a",
+        "query_version": "v7",
+        "query_access_decision": "allow",
+        "author_ref": "user-hunter-1",
+        "validation_state": "stale",
+        "parameter_names": [
+          "hostname",
+          "window"
+        ],
+        "sources": [
+          {
+            "id": "source-edr",
+            "tenant_ref": "tenant-a",
+            "state": "stale",
+            "fields": [
+              {
+                "name": "host.name",
+                "state": "available"
+              },
+              {
+                "name": "event.action",
+                "state": "stale"
+              }
+            ]
+          }
+        ],
+        "lineage_ref": "",
+        "deprecation_reason": "",
+        "replacement_asset_ref": "",
+        "mutation_requested": "",
+        "search_job_execution_requested": false
+      },
+      "expected": {
+        "allowed": true,
+        "error_code": "",
+        "compatibility": "stale",
+        "diagnostics": [
+          "field:source-edr/event.action:stale",
+          "source:source-edr:stale",
+          "validation:stale"
+        ],
+        "handoff_eligible": false,
+        "immutable_projection": true,
+        "deep_copy_isolated": true,
+        "mutation_executed": false,
+        "search_job_created": false,
+        "search_job_executed": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "missing-source-is-incompatible",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "asset_id": "asset-001",
+        "asset_kind": "saved-search",
+        "asset_access_decision": "allow",
+        "query_ref": "qry-001",
+        "query_tenant_ref": "tenant-a",
+        "query_version": "v7",
+        "query_access_decision": "allow",
+        "author_ref": "user-hunter-1",
+        "validation_state": "validated",
+        "parameter_names": [
+          "hostname",
+          "window"
+        ],
+        "sources": [
+          {
+            "id": "source-edr",
+            "tenant_ref": "tenant-a",
+            "state": "missing",
+            "fields": []
+          }
+        ],
+        "lineage_ref": "",
+        "deprecation_reason": "",
+        "replacement_asset_ref": "",
+        "mutation_requested": "",
+        "search_job_execution_requested": false
+      },
+      "expected": {
+        "allowed": true,
+        "error_code": "",
+        "compatibility": "incompatible",
+        "diagnostics": [
+          "source:source-edr:missing"
+        ],
+        "handoff_eligible": false,
+        "immutable_projection": true,
+        "deep_copy_isolated": true,
+        "mutation_executed": false,
+        "search_job_created": false,
+        "search_job_executed": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "removed-field-is-incompatible",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "asset_id": "asset-001",
+        "asset_kind": "saved-search",
+        "asset_access_decision": "allow",
+        "query_ref": "qry-001",
+        "query_tenant_ref": "tenant-a",
+        "query_version": "v7",
+        "query_access_decision": "allow",
+        "author_ref": "user-hunter-1",
+        "validation_state": "validated",
+        "parameter_names": [
+          "hostname",
+          "window"
+        ],
+        "sources": [
+          {
+            "id": "source-edr",
+            "tenant_ref": "tenant-a",
+            "state": "available",
+            "fields": [
+              {
+                "name": "host.name",
+                "state": "available"
+              },
+              {
+                "name": "event.action",
+                "state": "removed"
+              }
+            ]
+          }
+        ],
+        "lineage_ref": "",
+        "deprecation_reason": "",
+        "replacement_asset_ref": "",
+        "mutation_requested": "",
+        "search_job_execution_requested": false
+      },
+      "expected": {
+        "allowed": true,
+        "error_code": "",
+        "compatibility": "incompatible",
+        "diagnostics": [
+          "field:source-edr/event.action:removed"
+        ],
+        "handoff_eligible": false,
+        "immutable_projection": true,
+        "deep_copy_isolated": true,
+        "mutation_executed": false,
+        "search_job_created": false,
+        "search_job_executed": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "missing-tenant-is-rejected",
+      "input": {
+        "tenant_ref": "",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "asset_id": "asset-001",
+        "asset_kind": "saved-search",
+        "asset_access_decision": "allow",
+        "query_ref": "qry-001",
+        "query_tenant_ref": "tenant-a",
+        "query_version": "v7",
+        "query_access_decision": "allow",
+        "author_ref": "user-hunter-1",
+        "validation_state": "validated",
+        "parameter_names": [
+          "hostname",
+          "window"
+        ],
+        "sources": [
+          {
+            "id": "source-edr",
+            "tenant_ref": "tenant-a",
+            "state": "available",
+            "fields": [
+              {
+                "name": "host.name",
+                "state": "available"
+              },
+              {
+                "name": "event.action",
+                "state": "available"
+              }
+            ]
+          }
+        ],
+        "lineage_ref": "",
+        "deprecation_reason": "",
+        "replacement_asset_ref": "",
+        "mutation_requested": "",
+        "search_job_execution_requested": false
+      },
+      "expected": {
+        "allowed": false,
+        "error_code": "missing-tenant",
+        "compatibility": "",
+        "diagnostics": [],
+        "handoff_eligible": false,
+        "immutable_projection": false,
+        "deep_copy_isolated": false,
+        "mutation_executed": false,
+        "search_job_created": false,
+        "search_job_executed": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "wildcard-tenant-is-rejected",
+      "input": {
+        "tenant_ref": "*",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "asset_id": "asset-001",
+        "asset_kind": "saved-search",
+        "asset_access_decision": "allow",
+        "query_ref": "qry-001",
+        "query_tenant_ref": "tenant-a",
+        "query_version": "v7",
+        "query_access_decision": "allow",
+        "author_ref": "user-hunter-1",
+        "validation_state": "validated",
+        "parameter_names": [
+          "hostname",
+          "window"
+        ],
+        "sources": [
+          {
+            "id": "source-edr",
+            "tenant_ref": "tenant-a",
+            "state": "available",
+            "fields": [
+              {
+                "name": "host.name",
+                "state": "available"
+              },
+              {
+                "name": "event.action",
+                "state": "available"
+              }
+            ]
+          }
+        ],
+        "lineage_ref": "",
+        "deprecation_reason": "",
+        "replacement_asset_ref": "",
+        "mutation_requested": "",
+        "search_job_execution_requested": false
+      },
+      "expected": {
+        "allowed": false,
+        "error_code": "wildcard-tenant",
+        "compatibility": "",
+        "diagnostics": [],
+        "handoff_eligible": false,
+        "immutable_projection": false,
+        "deep_copy_isolated": false,
+        "mutation_executed": false,
+        "search_job_created": false,
+        "search_job_executed": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "cross-tenant-asset-is-rejected",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-b"
+        ],
+        "environment_ref": "env-prod",
+        "asset_id": "asset-001",
+        "asset_kind": "saved-search",
+        "asset_access_decision": "allow",
+        "query_ref": "qry-001",
+        "query_tenant_ref": "tenant-a",
+        "query_version": "v7",
+        "query_access_decision": "allow",
+        "author_ref": "user-hunter-1",
+        "validation_state": "validated",
+        "parameter_names": [
+          "hostname",
+          "window"
+        ],
+        "sources": [
+          {
+            "id": "source-edr",
+            "tenant_ref": "tenant-a",
+            "state": "available",
+            "fields": [
+              {
+                "name": "host.name",
+                "state": "available"
+              },
+              {
+                "name": "event.action",
+                "state": "available"
+              }
+            ]
+          }
+        ],
+        "lineage_ref": "",
+        "deprecation_reason": "",
+        "replacement_asset_ref": "",
+        "mutation_requested": "",
+        "search_job_execution_requested": false
+      },
+      "expected": {
+        "allowed": false,
+        "error_code": "cross-tenant",
+        "compatibility": "",
+        "diagnostics": [],
+        "handoff_eligible": false,
+        "immutable_projection": false,
+        "deep_copy_isolated": false,
+        "mutation_executed": false,
+        "search_job_created": false,
+        "search_job_executed": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "missing-environment-is-rejected",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "",
+        "asset_id": "asset-001",
+        "asset_kind": "saved-search",
+        "asset_access_decision": "allow",
+        "query_ref": "qry-001",
+        "query_tenant_ref": "tenant-a",
+        "query_version": "v7",
+        "query_access_decision": "allow",
+        "author_ref": "user-hunter-1",
+        "validation_state": "validated",
+        "parameter_names": [
+          "hostname",
+          "window"
+        ],
+        "sources": [
+          {
+            "id": "source-edr",
+            "tenant_ref": "tenant-a",
+            "state": "available",
+            "fields": [
+              {
+                "name": "host.name",
+                "state": "available"
+              },
+              {
+                "name": "event.action",
+                "state": "available"
+              }
+            ]
+          }
+        ],
+        "lineage_ref": "",
+        "deprecation_reason": "",
+        "replacement_asset_ref": "",
+        "mutation_requested": "",
+        "search_job_execution_requested": false
+      },
+      "expected": {
+        "allowed": false,
+        "error_code": "missing-environment",
+        "compatibility": "",
+        "diagnostics": [],
+        "handoff_eligible": false,
+        "immutable_projection": false,
+        "deep_copy_isolated": false,
+        "mutation_executed": false,
+        "search_job_created": false,
+        "search_job_executed": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "asset-access-denied-is-rejected",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "asset_id": "asset-001",
+        "asset_kind": "saved-search",
+        "asset_access_decision": "deny",
+        "query_ref": "qry-001",
+        "query_tenant_ref": "tenant-a",
+        "query_version": "v7",
+        "query_access_decision": "allow",
+        "author_ref": "user-hunter-1",
+        "validation_state": "validated",
+        "parameter_names": [
+          "hostname",
+          "window"
+        ],
+        "sources": [
+          {
+            "id": "source-edr",
+            "tenant_ref": "tenant-a",
+            "state": "available",
+            "fields": [
+              {
+                "name": "host.name",
+                "state": "available"
+              },
+              {
+                "name": "event.action",
+                "state": "available"
+              }
+            ]
+          }
+        ],
+        "lineage_ref": "",
+        "deprecation_reason": "",
+        "replacement_asset_ref": "",
+        "mutation_requested": "",
+        "search_job_execution_requested": false
+      },
+      "expected": {
+        "allowed": false,
+        "error_code": "asset-access-denied",
+        "compatibility": "",
+        "diagnostics": [],
+        "handoff_eligible": false,
+        "immutable_projection": false,
+        "deep_copy_isolated": false,
+        "mutation_executed": false,
+        "search_job_created": false,
+        "search_job_executed": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "missing-query-ref-is-rejected",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "asset_id": "asset-001",
+        "asset_kind": "saved-search",
+        "asset_access_decision": "allow",
+        "query_ref": "",
+        "query_tenant_ref": "tenant-a",
+        "query_version": "v7",
+        "query_access_decision": "allow",
+        "author_ref": "user-hunter-1",
+        "validation_state": "validated",
+        "parameter_names": [
+          "hostname",
+          "window"
+        ],
+        "sources": [
+          {
+            "id": "source-edr",
+            "tenant_ref": "tenant-a",
+            "state": "available",
+            "fields": [
+              {
+                "name": "host.name",
+                "state": "available"
+              },
+              {
+                "name": "event.action",
+                "state": "available"
+              }
+            ]
+          }
+        ],
+        "lineage_ref": "",
+        "deprecation_reason": "",
+        "replacement_asset_ref": "",
+        "mutation_requested": "",
+        "search_job_execution_requested": false
+      },
+      "expected": {
+        "allowed": false,
+        "error_code": "missing-query-ref",
+        "compatibility": "",
+        "diagnostics": [],
+        "handoff_eligible": false,
+        "immutable_projection": false,
+        "deep_copy_isolated": false,
+        "mutation_executed": false,
+        "search_job_created": false,
+        "search_job_executed": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "missing-query-version-is-rejected",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "asset_id": "asset-001",
+        "asset_kind": "saved-search",
+        "asset_access_decision": "allow",
+        "query_ref": "qry-001",
+        "query_tenant_ref": "tenant-a",
+        "query_version": "",
+        "query_access_decision": "allow",
+        "author_ref": "user-hunter-1",
+        "validation_state": "validated",
+        "parameter_names": [
+          "hostname",
+          "window"
+        ],
+        "sources": [
+          {
+            "id": "source-edr",
+            "tenant_ref": "tenant-a",
+            "state": "available",
+            "fields": [
+              {
+                "name": "host.name",
+                "state": "available"
+              },
+              {
+                "name": "event.action",
+                "state": "available"
+              }
+            ]
+          }
+        ],
+        "lineage_ref": "",
+        "deprecation_reason": "",
+        "replacement_asset_ref": "",
+        "mutation_requested": "",
+        "search_job_execution_requested": false
+      },
+      "expected": {
+        "allowed": false,
+        "error_code": "missing-query-version",
+        "compatibility": "",
+        "diagnostics": [],
+        "handoff_eligible": false,
+        "immutable_projection": false,
+        "deep_copy_isolated": false,
+        "mutation_executed": false,
+        "search_job_created": false,
+        "search_job_executed": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "query-access-denied-is-rejected",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "asset_id": "asset-001",
+        "asset_kind": "saved-search",
+        "asset_access_decision": "allow",
+        "query_ref": "qry-001",
+        "query_tenant_ref": "tenant-a",
+        "query_version": "v7",
+        "query_access_decision": "deny",
+        "author_ref": "user-hunter-1",
+        "validation_state": "validated",
+        "parameter_names": [
+          "hostname",
+          "window"
+        ],
+        "sources": [
+          {
+            "id": "source-edr",
+            "tenant_ref": "tenant-a",
+            "state": "available",
+            "fields": [
+              {
+                "name": "host.name",
+                "state": "available"
+              },
+              {
+                "name": "event.action",
+                "state": "available"
+              }
+            ]
+          }
+        ],
+        "lineage_ref": "",
+        "deprecation_reason": "",
+        "replacement_asset_ref": "",
+        "mutation_requested": "",
+        "search_job_execution_requested": false
+      },
+      "expected": {
+        "allowed": false,
+        "error_code": "query-access-denied",
+        "compatibility": "",
+        "diagnostics": [],
+        "handoff_eligible": false,
+        "immutable_projection": false,
+        "deep_copy_isolated": false,
+        "mutation_executed": false,
+        "search_job_created": false,
+        "search_job_executed": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "cross-tenant-query-is-rejected",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "asset_id": "asset-001",
+        "asset_kind": "saved-search",
+        "asset_access_decision": "allow",
+        "query_ref": "qry-001",
+        "query_tenant_ref": "tenant-b",
+        "query_version": "v7",
+        "query_access_decision": "allow",
+        "author_ref": "user-hunter-1",
+        "validation_state": "validated",
+        "parameter_names": [
+          "hostname",
+          "window"
+        ],
+        "sources": [
+          {
+            "id": "source-edr",
+            "tenant_ref": "tenant-a",
+            "state": "available",
+            "fields": [
+              {
+                "name": "host.name",
+                "state": "available"
+              },
+              {
+                "name": "event.action",
+                "state": "available"
+              }
+            ]
+          }
+        ],
+        "lineage_ref": "",
+        "deprecation_reason": "",
+        "replacement_asset_ref": "",
+        "mutation_requested": "",
+        "search_job_execution_requested": false
+      },
+      "expected": {
+        "allowed": false,
+        "error_code": "cross-tenant-query",
+        "compatibility": "",
+        "diagnostics": [],
+        "handoff_eligible": false,
+        "immutable_projection": false,
+        "deep_copy_isolated": false,
+        "mutation_executed": false,
+        "search_job_created": false,
+        "search_job_executed": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "cross-tenant-source-is-rejected",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "asset_id": "asset-001",
+        "asset_kind": "saved-search",
+        "asset_access_decision": "allow",
+        "query_ref": "qry-001",
+        "query_tenant_ref": "tenant-a",
+        "query_version": "v7",
+        "query_access_decision": "allow",
+        "author_ref": "user-hunter-1",
+        "validation_state": "validated",
+        "parameter_names": [
+          "hostname",
+          "window"
+        ],
+        "sources": [
+          {
+            "id": "source-edr",
+            "tenant_ref": "tenant-b",
+            "state": "available",
+            "fields": [
+              {
+                "name": "host.name",
+                "state": "available"
+              },
+              {
+                "name": "event.action",
+                "state": "available"
+              }
+            ]
+          }
+        ],
+        "lineage_ref": "",
+        "deprecation_reason": "",
+        "replacement_asset_ref": "",
+        "mutation_requested": "",
+        "search_job_execution_requested": false
+      },
+      "expected": {
+        "allowed": false,
+        "error_code": "cross-tenant-source",
+        "compatibility": "",
+        "diagnostics": [],
+        "handoff_eligible": false,
+        "immutable_projection": false,
+        "deep_copy_isolated": false,
+        "mutation_executed": false,
+        "search_job_created": false,
+        "search_job_executed": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "missing-author-is-rejected",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "asset_id": "asset-001",
+        "asset_kind": "saved-search",
+        "asset_access_decision": "allow",
+        "query_ref": "qry-001",
+        "query_tenant_ref": "tenant-a",
+        "query_version": "v7",
+        "query_access_decision": "allow",
+        "author_ref": "",
+        "validation_state": "validated",
+        "parameter_names": [
+          "hostname",
+          "window"
+        ],
+        "sources": [
+          {
+            "id": "source-edr",
+            "tenant_ref": "tenant-a",
+            "state": "available",
+            "fields": [
+              {
+                "name": "host.name",
+                "state": "available"
+              },
+              {
+                "name": "event.action",
+                "state": "available"
+              }
+            ]
+          }
+        ],
+        "lineage_ref": "",
+        "deprecation_reason": "",
+        "replacement_asset_ref": "",
+        "mutation_requested": "",
+        "search_job_execution_requested": false
+      },
+      "expected": {
+        "allowed": false,
+        "error_code": "missing-author",
+        "compatibility": "",
+        "diagnostics": [],
+        "handoff_eligible": false,
+        "immutable_projection": false,
+        "deep_copy_isolated": false,
+        "mutation_executed": false,
+        "search_job_created": false,
+        "search_job_executed": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "class-2-mutation-is-rejected",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "asset_id": "asset-001",
+        "asset_kind": "saved-search",
+        "asset_access_decision": "allow",
+        "query_ref": "qry-001",
+        "query_tenant_ref": "tenant-a",
+        "query_version": "v7",
+        "query_access_decision": "allow",
+        "author_ref": "user-hunter-1",
+        "validation_state": "validated",
+        "parameter_names": [
+          "hostname",
+          "window"
+        ],
+        "sources": [
+          {
+            "id": "source-edr",
+            "tenant_ref": "tenant-a",
+            "state": "available",
+            "fields": [
+              {
+                "name": "host.name",
+                "state": "available"
+              },
+              {
+                "name": "event.action",
+                "state": "available"
+              }
+            ]
+          }
+        ],
+        "lineage_ref": "",
+        "deprecation_reason": "",
+        "replacement_asset_ref": "",
+        "mutation_requested": "share",
+        "search_job_execution_requested": false
+      },
+      "expected": {
+        "allowed": false,
+        "error_code": "mutation-open-decision",
+        "compatibility": "",
+        "diagnostics": [],
+        "handoff_eligible": false,
+        "immutable_projection": false,
+        "deep_copy_isolated": false,
+        "mutation_executed": false,
+        "search_job_created": false,
+        "search_job_executed": false,
+        "audit_required": true
+      }
+    },
+    {
+      "id": "search-job-execution-is-rejected",
+      "input": {
+        "tenant_ref": "tenant-a",
+        "authorized_tenants": [
+          "tenant-a"
+        ],
+        "environment_ref": "env-prod",
+        "asset_id": "asset-001",
+        "asset_kind": "saved-search",
+        "asset_access_decision": "allow",
+        "query_ref": "qry-001",
+        "query_tenant_ref": "tenant-a",
+        "query_version": "v7",
+        "query_access_decision": "allow",
+        "author_ref": "user-hunter-1",
+        "validation_state": "validated",
+        "parameter_names": [
+          "hostname",
+          "window"
+        ],
+        "sources": [
+          {
+            "id": "source-edr",
+            "tenant_ref": "tenant-a",
+            "state": "available",
+            "fields": [
+              {
+                "name": "host.name",
+                "state": "available"
+              },
+              {
+                "name": "event.action",
+                "state": "available"
+              }
+            ]
+          }
+        ],
+        "lineage_ref": "",
+        "deprecation_reason": "",
+        "replacement_asset_ref": "",
+        "mutation_requested": "",
+        "search_job_execution_requested": true
+      },
+      "expected": {
+        "allowed": false,
+        "error_code": "search-job-execution-forbidden",
+        "compatibility": "",
+        "diagnostics": [],
+        "handoff_eligible": false,
+        "immutable_projection": false,
+        "deep_copy_isolated": false,
+        "mutation_executed": false,
+        "search_job_created": false,
+        "search_job_executed": false,
+        "audit_required": true
+      }
+    }
+  ]
+}

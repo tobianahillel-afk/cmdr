@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "work_unit": "E3-IMPACT-002A",
+  "result": "VERIFIED",
+  "final_validated_head": "9af75912ac14167e7d8ff96ee9a0d9a4a5c113a2",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 35797967120,
+    "pull_request_run": 35797970347,
+    "push_changed_paths": 8,
+    "pr_changed_paths": 115,
+    "push_shadow_plan": "strict",
+    "pr_shadow_plan": "strict"
+  },
+  "rules": [
+    "only full non-zero Git commit IDs are accepted",
+    "missing commits may be fetched only by exact validated SHA from origin",
+    "rename detection is disabled so old and new rename paths both reach impact analysis",
+    "deleted paths remain valid impact evidence",
+    "real push and pull_request change sets feed the planner before the legacy full kernel",
+    "the legacy full kernel remains authoritative until adaptive executor parity is proven"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E3-IMPACT-002B"
+  ]
+}

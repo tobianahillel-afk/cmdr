@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "work_unit": "E4-SEC-001D",
+  "status": "VERIFIED",
+  "final_validated_head": "df2033057ac3fc83ca2436f87158d2cd4816c0bc",
+  "validation": {
+    "push_workflow_run": 35854183264,
+    "pull_request_workflow_run": 35854187492,
+    "result": "PASS",
+    "deep_security_audit": "PASS",
+    "security_test_audit": "PASS",
+    "sast": "PASS",
+    "sca": "PASS",
+    "sbom": "PASS"
+  },
+  "push_observation": {
+    "security_sensitive_change": false,
+    "runtime_boundaries": 0,
+    "registered_targets": 0,
+    "selected_targets": 0,
+    "deferred_gates": 0,
+    "validated_evidence": 0
+  },
+  "pull_request_observation": {
+    "security_sensitive_change": true,
+    "runtime_boundaries": 0,
+    "registered_targets": 0,
+    "selected_targets": 0,
+    "deferred_gates": 3,
+    "validated_evidence": 0
+  },
+  "guarantees": [
+    "heavy dynamic security gates are not run on non-sensitive PR changes",
+    "security-sensitive PRs surface unavailable runtime gates as deferred rather than passed",
+    "registered deep-security targets require active canonical gates",
+    "fuzz DAST race and sanitizer evidence is source-SHA target seed configuration and duration bound",
+    "release evidence requires exact artifact SHA-256",
+    "deep runtime security evidence is synthetic-data-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E5-RES-001A"
+  ]
+}

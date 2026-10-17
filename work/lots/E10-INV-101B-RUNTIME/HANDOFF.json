@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-101B-RUNTIME",
+  "result": "VERIFIED",
+  "final_validated_head": "1f322e3cfa020d925afbf466d9746db5c0e89daa",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 36605066982,
+    "pull_request_run": 36605075022,
+    "contract": "CASE-QUEUE-READONLY-CONTRACT-V1",
+    "runtime_state": "implemented",
+    "fixtures": 24,
+    "runtime_dependencies": 0,
+    "global_runtime_security_coverage_percent": 92.42,
+    "changed_security_critical_floor_percent": 90,
+    "sast_findings": 0,
+    "sca_actionable": 0
+  },
+  "rules": [
+    "C-VIEW may refine Saved View application/fallback without introducing Shared persistence or mutation",
+    "Case Queue remains read-only and distinct from Command Work Queue",
+    "OPEN-013 assignment/status/lifecycle mutations remain excluded",
+    "runtime contract state must remain implemented and all 24 fixtures must continue to pass"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-101C-VIEW"
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-002C-RUNTIME",
+  "result": "VERIFIED",
+  "final_validated_head": "81d4a1993af856cb599d33953d7b5e8e131271a1",
+  "evidence": {
+    "push_run": 36046150008,
+    "pull_request_run": 36046157371
+  },
+  "rules": [
+    "every requested backend source must be explicitly completed or failed",
+    "cross-tenant backend results fail closed without copying result references",
+    "partial state preserves only valid stable references and exposes stable failed-source codes",
+    "terminal jobs never restart in place; retry creates new identities",
+    "backend diagnostic text is not persisted in audit evidence"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-002C-PERF"
+  ]
+}

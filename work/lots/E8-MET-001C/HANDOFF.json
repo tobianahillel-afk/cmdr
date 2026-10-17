@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "work_unit": "E8-MET-001C",
+  "result": "VERIFIED",
+  "final_validated_head": "05b51dcbdafb2a3e9aba8d89ca11e5c8fdc99190",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 35920870190,
+    "pull_request_run": 35920878285,
+    "check": "CHK-METRICS-OPTIMIZER",
+    "push_recommendations": 0,
+    "pull_request_recommendations": 0,
+    "withheld_opportunities": 3
+  },
+  "rules": [
+    "recommendations require a verified older comparable baseline",
+    "unsafe or incomplete safety evidence withholds every optimization",
+    "optimization reports are advisory and cannot mutate validation plans",
+    "mandatory checks, prerequisite closure and Product Spec mutation remain forbidden"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E8-MET-001D"
+  ]
+}

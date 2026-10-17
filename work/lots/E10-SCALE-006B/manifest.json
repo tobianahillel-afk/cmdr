@@ -1,0 +1,120 @@
+{
+  "schema_version": 2,
+  "id": "E10-SCALE-006B",
+  "title": "Choose next READY capability and materialize its bounded wave",
+  "type": "task",
+  "parent": "E10-SCALE-006",
+  "goal": "Run the canonical reuse-first-v1 readiness and wave-selection compilers after E10-SCALE-006A; inspect the selected canonical capability and decompose it into bounded, secure and verifiable implementation tasks without prematurely writing product runtime.",
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-101"
+    ],
+    "requirements": [
+      "REQ-PROD-014",
+      "REQ-PROD-020"
+    ],
+    "screens": [
+      "INV-CAS-001"
+    ],
+    "permissions": [],
+    "open_decisions": [
+      "OPEN-013"
+    ],
+    "implementation_contracts": [],
+    "canonical_objects": []
+  },
+  "depends_on": [
+    "E10-SCALE-006A"
+  ],
+  "allowed_paths": [
+    "engineering/implementation/**",
+    "engineering/state/**",
+    "work/graph.json",
+    "work/lots/E10-SCALE-006B/**",
+    "work/lots/E10-INV-*/**",
+    "work/lots/E10-SET-*/**",
+    "work/lots/E10-CMD-*/**",
+    "work/lots/E10-GOV-*/**",
+    "work/lots/E10-STD-*/**",
+    "tools/cmdr-dev/**"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/**"
+  ],
+  "inputs": [
+    "VERIFIED E10-SCALE-006A ledger and readiness evidence",
+    "canonical Product Spec of selected READY capability",
+    "reuse-first-v1 wave-selection policy",
+    "explicit capability boundary ownership and current OPEN decision set"
+  ],
+  "outputs": [
+    "new source-backed READY capability selection",
+    "one bounded implementation wave and manifests",
+    "first executable READY child and dependency-gated successors"
+  ],
+  "invariants": [
+    "Product Spec remains read-only",
+    "no product runtime code is written by this selection task",
+    "selection must be computed, never assumed as CAP-INV-101 or prior wave",
+    "every selected capability source must be validated before decomposition",
+    "OPEN decisions and boundary ownership enforced fail closed"
+  ],
+  "security_properties": [
+    "deny cross-tenant permission leaks and unverified capability selection",
+    "no third-party runtime functionality without explicit trusted-base decision",
+    "split oversized work units before implementation"
+  ],
+  "acceptance_tests": [
+    "adaptive engineering-kernel green",
+    "ledger and readiness compilers PASS",
+    "wave selection matches READY and reuse-first policy",
+    "new manifests pass strict-v2 schema and complexity budgets",
+    "one first child READY, others dependency-blocked"
+  ],
+  "performance_budget": {
+    "applicable": false,
+    "rationale": "control-plane decomposition only; runtime budgets are compiled in the selected capability child work",
+    "metrics": []
+  },
+  "migration": {
+    "required": false,
+    "rationale": "no product runtime or persistent data is changed",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert only next-wave planning metadata",
+    "verification": [
+      "verified Case Queue ledger entry and product runtimes unchanged",
+      "canonical Product Spec unchanged"
+    ]
+  },
+  "required_checks": [
+    "adaptive engineering-kernel",
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-IMPLEMENTATION-LEDGER",
+    "CHK-IMPLEMENTATION-READINESS",
+    "CHK-IMPLEMENTATION-WAVE"
+  ],
+  "definition_of_ready": [
+    "E10-SCALE-006A is VERIFIED",
+    "fresh capability readiness and wave selection available"
+  ],
+  "definition_of_done": [
+    "next canonical capability selected from READY set",
+    "bounded child manifests and dependency graph committed",
+    "one first implementation child is READY"
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 10,
+    "estimated_net_loc": 680,
+    "production_files": 0,
+    "net_production_loc": 0,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

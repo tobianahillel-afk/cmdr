@@ -1,0 +1,100 @@
+{
+  "schema_version": 2,
+  "id": "E1-WORK-001C",
+  "title": "Compile minimal deterministic agent context bundles",
+  "type": "sublot",
+  "parent": "E1-WORK-001",
+  "goal": "Compile only authoritative sources required for one work unit so agents avoid full-repository rereads.",
+  "product_refs": {
+    "capabilities": [],
+    "requirements": [],
+    "screens": [],
+    "permissions": [],
+    "open_decisions": [],
+    "implementation_contracts": [],
+    "canonical_objects": []
+  },
+  "depends_on": [
+    "E1-WORK-001B"
+  ],
+  "allowed_paths": [
+    "tools/cmdr-dev/**",
+    "engineering/work/**",
+    "work/lots/E1-WORK-001C/**",
+    ".github/workflows/engineering-kernel.yml",
+    "engineering/state/**",
+    "work/graph.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**"
+  ],
+  "inputs": [
+    "validated work manifest",
+    "product reference graph",
+    "work dependency graph"
+  ],
+  "outputs": [
+    "content-addressed context bundle",
+    "missing-source blocker",
+    "active product-reference validation",
+    "dependency-closure context selection"
+  ],
+  "invariants": [
+    "canonical Product Spec remains read-only",
+    "manifest validation must be deterministic"
+  ],
+  "security_properties": [
+    "manifest parsing rejects unknown fields",
+    "path authorization is explicit"
+  ],
+  "acceptance_tests": [
+    "go test ./...",
+    "cmdr-dev validate-manifests succeeds on repository manifests",
+    "cmdr-dev context compiles the active work unit to a non-empty deterministic bundle",
+    "unit tests reject inactive product identifiers and prove canonical capability source resolution"
+  ],
+  "performance_budget": {
+    "applicable": false,
+    "rationale": "engineering control-plane operation; no product runtime performance claim",
+    "metrics": []
+  },
+  "migration": {
+    "required": false,
+    "rationale": "no product runtime persistent data migration",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert the work-engine commit",
+    "verification": [
+      "validate-manifests returns to the previous verified behavior"
+    ]
+  },
+  "required_checks": [
+    "gofmt",
+    "go vet ./...",
+    "go test ./...",
+    "cmdr-dev validate-manifests",
+    "cmdr-dev context"
+  ],
+  "definition_of_ready": [
+    "dependencies satisfy their required terminal state",
+    "authorized paths and goal are explicit"
+  ],
+  "definition_of_done": [
+    "bundle follows manifest references and dependency closure",
+    "Product Spec sources outrank generated summaries",
+    "bundle is deterministic and content-addressed",
+    "unreferenced repository content is excluded by default"
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 6,
+    "estimated_net_loc": 390,
+    "production_files": 2,
+    "net_production_loc": 360,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 0,
+    "separately_testable_behaviors": 1
+  }
+}

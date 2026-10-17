@@ -1,0 +1,114 @@
+{
+  "schema_version": 2,
+  "id": "E10-SCALE-006A",
+  "title": "Register CAP-INV-101 bounded runtime claim and refresh readiness",
+  "type": "task",
+  "parent": "E10-SCALE-006",
+  "goal": "Add exactly one VERIFIED CAP-INV-101 Case Queue read-only runtime claim sourced from E10-INV-101F into the global implementation ledger, validate the manifest/handoff evidence floors and recompute readiness. Do not equate bounded implementation with full capability completion.",
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-101"
+    ],
+    "requirements": [
+      "REQ-PROD-014",
+      "REQ-PROD-020"
+    ],
+    "screens": [
+      "INV-CAS-001"
+    ],
+    "permissions": [],
+    "open_decisions": [
+      "OPEN-013"
+    ],
+    "implementation_contracts": [],
+    "canonical_objects": []
+  },
+  "depends_on": [
+    "E10-INV-101F"
+  ],
+  "allowed_paths": [
+    "engineering/implementation/**",
+    "engineering/state/**",
+    "work/graph.json",
+    "work/lots/E10-SCALE-006A/**",
+    "tools/cmdr-dev/**"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/**"
+  ],
+  "inputs": [
+    "E10-INV-101F VERIFIED runtime handoff and closure-evidence.json",
+    "existing global implementation ledger",
+    "Product Spec baseline and active capability register"
+  ],
+  "outputs": [
+    "one verified CAP-INV-101 ledger entry",
+    "ledger audit PASS",
+    "readiness compiler marks CAP-INV-101 IMPLEMENTED",
+    "fresh READY capability inventory"
+  ],
+  "invariants": [
+    "canonical Product Spec and runtime are read-only",
+    "the F handoff must remain source-backed and satisfy strict RuntimeImplementationHandoff schema",
+    "CAP-INV-101 ledger entry only once, independently verified against manifest and runtime ownership",
+    "full-capability completion or production readiness is not claimed",
+    "OPEN-013 remains unresolved, export/mutation/provider/final UI excluded"
+  ],
+  "security_properties": [
+    "zero runtime dependency and cross-boundary-edge claims are verified, not invented",
+    "false or inaccessible capability evidence blocks ledger registration",
+    "TENANT and Saved View authorization behavior remains unchanged"
+  ],
+  "acceptance_tests": [
+    "adaptive engineering-kernel remains green",
+    "implementation-ledger-audit passes",
+    "implementation-readiness passes",
+    "implementation-wave selection remains source-backed"
+  ],
+  "performance_budget": {
+    "applicable": false,
+    "rationale": "control-plane metadata task only",
+    "metrics": []
+  },
+  "migration": {
+    "required": false,
+    "rationale": "engineering control-plane metadata only",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert only ledger and scaling metadata, preserving all verified runtimes",
+    "verification": [
+      "Case Queue runtime unchanged",
+      "Product Spec baseline unchanged"
+    ]
+  },
+  "required_checks": [
+    "adaptive engineering-kernel",
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-IMPLEMENTATION-LEDGER",
+    "CHK-IMPLEMENTATION-READINESS",
+    "CHK-IMPLEMENTATION-WAVE"
+  ],
+  "definition_of_ready": [
+    "E10-INV-101F is VERIFIED and source-backed"
+  ],
+  "definition_of_done": [
+    "CAP-INV-101 exists once in verified global ledger",
+    "implementation-ledger audit PASS",
+    "readiness marks CAP-INV-101 IMPLEMENTED",
+    "fresh readiness snapshot identifies next candidates"
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 5,
+    "estimated_net_loc": 280,
+    "production_files": 0,
+    "net_production_loc": 0,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

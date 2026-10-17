@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-SCALE-006B",
+  "status": "VERIFIED",
+  "final_validated_head": "6715a6a80ab294d2a544fe71c14ce614f3b0648f",
+  "validation": {
+    "push_workflow_run": 38834402675,
+    "pull_request_workflow_run": 38834408552,
+    "result": "PASS",
+    "implementation_ledger": "PASS",
+    "implementation_readiness": "PASS",
+    "implementation_wave": "PASS",
+    "architecture_audit": "PASS",
+    "manifest_validation": "PASS"
+  },
+  "selection": {
+    "policy": "reuse-first-v1",
+    "readiness_snapshot": {
+      "total": 498,
+      "implemented": 6,
+      "ready": 15,
+      "blocked": 476,
+      "proposed": 1
+    },
+    "preferred_family": "CAP-INV",
+    "capability": "CAP-INV-110",
+    "name": "Investigation Timeline",
+    "canonical_file": "07-investigate/modules/cases-and-evidence/capabilities/investigation-timeline.md",
+    "product_spec_baseline": "99c3826cdcbc79bad51631cf6462450f92e012eb",
+    "spec_tree_digest": "a5f45351eba180d0edb734f33ecbeaabb7eceb7143305e201e207e8ae5a60d27"
+  },
+  "wave": {
+    "id": "WAVE-CAP-INV-110-CORE-001",
+    "status": "VERIFIED_MATERIALIZED",
+    "children": [
+      "E10-INV-110A-BOUNDARY",
+      "E10-INV-110A-CONTRACT",
+      "E10-INV-110B-RUNTIME",
+      "E10-INV-110C-NAV",
+      "E10-INV-110D-CLOSURE",
+      "E10-INV-110E"
+    ],
+    "next_ready": "E10-INV-110A-BOUNDARY"
+  },
+  "sequencing": {
+    "future_runtime_root": "product-runtime/investigation-timeline/**",
+    "runtime_path_claim": "deferred until E10-INV-110A-BOUNDARY atomically registers ownership; no current manifest grants unregistered path",
+    "product_runtime_mutated": false
+  },
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-110A-BOUNDARY"
+  ]
+}
