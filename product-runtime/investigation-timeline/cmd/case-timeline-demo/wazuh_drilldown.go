@@ -69,6 +69,19 @@ func writeDemoWazuhDrilldownFilteredPage(ctx context.Context, principal string, 
 	}
 	levels, err := wazuhRuleLevels(raw, caseID)
 	if err != nil { return err }
+	return writeDemoWazuhDrilldownWithLevelsPage(ctx, principal, data, imported, levels, caseID, selector, value, secondValue, offset, output)
+}
+
+// This serves both single- and multi-feed imports, retaining the existing
+// independently authorized traversal and 25-row paging.
+func writeDemoWazuhDrilldownWithLevelsPage(ctx context.Context, principal string, data timeline.MemoryTimelineData, imported int, levels map[string]wazuhRuleLevel, caseID, selector, value, secondValue string, offset int, output io.Writer) error {
+	if (selector != "agent_id" && selector != "rule_id" && selector != "agent_rule") ||
+		!validWazuhCohortID(value) ||
+		(selector == "agent_rule" && !validWazuhCohortID(secondValue)) ||
+		(selector != "agent_rule" && secondValue != "") ||
+		offset < 0 || offset > 5000 || offset%wazuhDrilldownPageSize != 0 {
+		return errors.New("invalid Wazuh cohort selector")
+	}
 	token, err := randomBearer()
 	if err != nil { return err }
 	handler, err := newDemoHandlerWithData(token, principal, data)
@@ -107,7 +120,24 @@ func writeDemoWazuhDrilldownFilteredPage(ctx context.Context, principal string, 
 	return err
 }
 
+func writeDemoWazuhDrilldownWithLevels(ctx context.Context, principal string, data timeline.MemoryTimelineData, imported int, levels map[string]wazuhRuleLevel, caseID, selector, value string, output io.Writer) error {
+	return writeDemoWazuhDrilldownWithLevelsPage(ctx, principal, data, imported, levels, caseID, selector, value, "", 0, output)
+}
+
+func writeDemoWazuhDrilldownWithLevelsFilter(ctx context.Context, principal string, data timeline.MemoryTimelineData, imported int, levels map[string]wazuhRuleLevel, caseID, selector, value, secondValue string, output io.Writer) error {
+	return writeDemoWazuhDrilldownWithLevelsPage(ctx, principal, data, imported, levels, caseID, selector, value, secondValue, 0, output)
+}
+
 func serveDemoWazuhDrilldown(w http.ResponseWriter, r *http.Request, principal string, data timeline.MemoryTimelineData, imported int, raw []byte, caseID string) {
+	levels, err := wazuhRuleLevels(raw, caseID)
+	if err != nil {
+		http.NotFound(w, r)
+		return
+	}
+	serveDemoWazuhDrilldownWithLevels(w, r, principal, data, imported, levels, caseID)
+}
+
+func serveDemoWazuhDrilldownWithLevels(w http.ResponseWriter, r *http.Request, principal string, data timeline.MemoryTimelineData, imported int, levels map[string]wazuhRuleLevel, caseID string) {
 	query := r.URL.Query()
 	if len(query["case_id"]) != 1 || query.Get("case_id") != caseID {
 		http.NotFound(w, r)
@@ -164,7 +194,7 @@ func serveDemoWazuhDrilldown(w http.ResponseWriter, r *http.Request, principal s
 		offset = parsed
 	}
 	var encoded bytes.Buffer
-	if err := writeDemoWazuhDrilldownFilteredPage(r.Context(), principal, data, imported, raw, caseID, selector, value, secondValue, offset, &encoded); err != nil {
+	if err := writeDemoWazuhDrilldownWithLevelsPage(r.Context(), principal, data, imported, levels, caseID, selector, value, secondValue, offset, &encoded); err != nil {
 		http.NotFound(w, r)
 		return
 	}

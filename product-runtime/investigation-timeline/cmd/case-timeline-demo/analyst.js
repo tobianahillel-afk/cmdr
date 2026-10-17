@@ -79,7 +79,9 @@
           data.synthetic !== true || !Number.isSafeInteger(data.imported_entries) ||
           data.imported_entries < 1 || data.imported_entries > 5000 ||
           !Array.isArray(data.top_agents) || !Array.isArray(data.top_rules) ||
-          data.top_agents.length > 10 || data.top_rules.length > 10) {
+          data.top_agents.length > 10 || data.top_rules.length > 10 ||
+          (data.multi_feed_signals !== undefined &&
+           (!Array.isArray(data.multi_feed_signals) || data.multi_feed_signals.length > 10))) {
         throw Error("Invalid cohort schema");
       }
       const validID = value => typeof value === "string" && /^[0-9]{1,16}$/.test(value);
@@ -89,7 +91,12 @@
           !validCount(a.count) || !validCount(a.distinct_rule_ids) ||
           !validLevel(a.highest_known_rule_level)) ||
           data.top_rules.some(a => !a || !validID(a.rule_id) ||
-          !validCount(a.count) || !validLevel(a.highest_known_rule_level))) {
+          !validCount(a.count) || !validLevel(a.highest_known_rule_level)) ||
+          (data.multi_feed_signals || []).some(a => !a ||
+            !validID(a.agent_id) || !validID(a.rule_id) ||
+            !validCount(a.alert_count) || !Number.isSafeInteger(a.distinct_feeds) ||
+            a.distinct_feeds < 2 || a.distinct_feeds > 4 ||
+            !validLevel(a.highest_known_rule_level))) {
         throw Error("Invalid cohort values");
       }
       // Always use textContent: source labels are never interpreted as HTML.
@@ -98,9 +105,13 @@
         (a.highest_known_rule_level ?? "inconnu"));
       const ruleLines = data.top_rules.map(a => "règle " + a.rule_id + " : " + a.count +
         " alerte(s), niveau maximum connu " + (a.highest_known_rule_level ?? "inconnu"));
+      const signalLines = (data.multi_feed_signals || []).map(s =>
+        "agent " + s.agent_id + " / règle " + s.rule_id + " : " +
+        s.alert_count + " alerte(s) sur " + s.distinct_feeds + " flux distincts");
       wazuhStatus.textContent = data.imported_entries + " alerte(s) Wazuh importée(s) et autorisée(s)." +
         "\nAgents les plus touchés :\n" + (agentLines.join("\n") || "aucun agent connu") +
         "\nRègles les plus fréquentes :\n" + (ruleLines.join("\n") || "aucune règle connue") +
+        (signalLines.length ? "\nCooccurrences entre flux :\n" + signalLines.join("\n") : "") +
         "\nDonnées locales synthétiques, sans preuve de causalité.";
       for (const [selector, cohorts] of [
         ["agent_id", data.top_agents.map(a => a.agent_id)],
@@ -134,6 +145,17 @@
         intersect.addEventListener("click", () =>
           loadWazuhDrilldown("agent_rule", agentPicker.value, 0, rulePicker.value));
         wazuhActions.append(agentPicker, rulePicker, intersect);
+      }
+      // Each signal opens a fresh server-authorized paginated intersection;
+      // client-side Wazuh metadata never grants source or Case access.
+      for (const signal of data.multi_feed_signals || []) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.textContent = "Examiner les cooccurrences — agent " +
+          signal.agent_id + " / règle " + signal.rule_id;
+        button.addEventListener("click", () =>
+          loadWazuhDrilldown("agent_rule", signal.agent_id, 0, signal.rule_id));
+        wazuhActions.append(button);
       }
     } catch {
       if (currentRevision === wazuhRevision) {
