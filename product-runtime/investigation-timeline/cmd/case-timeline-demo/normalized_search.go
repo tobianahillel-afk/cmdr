@@ -5,6 +5,7 @@ import (
 	"context"
 	"crypto/subtle"
 	"encoding/json"
+	"io"
 	"errors"
 	"net/http"
 	"net/url"
@@ -144,8 +145,10 @@ func newDemoLocalJSONLSearchHandler(token, principal, caseID string,
 		w.Header().Set("Cache-Control", "no-store")
 		w.Header().Set("X-Content-Type-Options", "nosniff")
 		w.Header().Set("Referrer-Policy", "no-referrer")
-		if r.Method != http.MethodGet {
-			w.Header().Set("Allow", "GET")
+		// Use POST for sensitive hunt terms: no literal source text, token,
+		// or Case selector is placed in a URL or browser history.
+		if r.Method != http.MethodPost {
+			w.Header().Set("Allow", "POST")
 			http.Error(w, "method unavailable", http.StatusMethodNotAllowed)
 			return
 		}
@@ -154,15 +157,30 @@ func newDemoLocalJSONLSearchHandler(token, principal, caseID string,
 			http.Error(w, "not authenticated", http.StatusUnauthorized)
 			return
 		}
-		args := r.URL.Query()
-		if len(args) != 4 || len(args["case_id"]) != 1 || args.Get("case_id") != caseID ||
-			len(args["value"]) != 1 || !validWazuhPreviewLiteral(args.Get("value")) ||
-			len(args["from"]) != 1 || len(args["to"]) != 1 {
+		if r.URL.RawQuery != "" || r.Header.Get("Content-Type") != "application/json" {
 			http.NotFound(w, r)
 			return
 		}
-		from, startErr := time.Parse(time.RFC3339Nano, args.Get("from"))
-		to, endErr := time.Parse(time.RFC3339Nano, args.Get("to"))
+		var selection struct {
+			CaseID string `json:"case_id"`
+			Value string `json:"value"`
+			From string `json:"from"`
+			To string `json:"to"`
+		}
+		decoder := json.NewDecoder(io.LimitReader(r.Body, 4097))
+		decoder.DisallowUnknownFields()
+		if err := decoder.Decode(&selection); err != nil || selection.CaseID != caseID ||
+			!validWazuhPreviewLiteral(selection.Value) {
+			http.NotFound(w, r)
+			return
+		}
+		var trailing any
+		if err := decoder.Decode(&trailing); err != io.EOF {
+			http.NotFound(w, r)
+			return
+		}
+		from, startErr := time.Parse(time.RFC3339Nano, selection.From)
+		to, endErr := time.Parse(time.RFC3339Nano, selection.To)
 		if startErr != nil || endErr != nil || !from.Before(to) {
 			http.NotFound(w, r)
 			return
