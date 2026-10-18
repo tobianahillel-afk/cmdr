@@ -96,6 +96,7 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	inspectSavedPairFirstEntry := flags.String("inspect-saved-pair-first-entry", "", "first Case Wazuh Entry ID from an authorized pair receipt")
 	inspectSavedPairSecondEntry := flags.String("inspect-saved-pair-second-entry", "", "second Case Wazuh Entry ID from an authorized pair receipt")
 	findSavedPairFirstEntry := flags.String("find-saved-pair-first-entry", "", "metadata-only nearest Wazuh pair for an exact first Case Entry ID, including later than ten summary leads")
+	listSavedWazuhPairOffset := flags.Int("list-saved-wazuh-pair-offset", -1, "zero-based authorized Wazuh pair offset (0..5000); up to ten deterministic source-linked leads per page")
 	includePairGenericEvidence := flags.Bool("include-pair-generic-evidence", false, "explicitly include up to ten independently source-authorized generic previews per Case in the NEW private paired report only")
 	compareSavedCase := flags.String("compare-saved-case", "", "first saved authorized Case ID for independent offline cross-snapshot comparison")
 	compareSavedWithCase := flags.String("compare-saved-with-case", "", "second distinct saved Case ID for independent cross-snapshot comparison")
@@ -278,7 +279,7 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 			"compare-saved-with-snapshot", "expect-other-snapshot-sha256",
 			"inspect-saved-pair", "inspect-saved-pair-first-entry",
 			"inspect-saved-pair-second-entry", "include-pair-generic-evidence",
-			"find-saved-pair-first-entry":
+			"find-saved-pair-first-entry", "list-saved-wazuh-pair-offset":
 			savedComparisonSelected = true
 		}
 	})
@@ -291,7 +292,8 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 				"expect-snapshot-sha256", "expect-other-snapshot-sha256",
 				"private-report", "inspect-saved-pair",
 				"inspect-saved-pair-first-entry", "inspect-saved-pair-second-entry",
-				"include-pair-generic-evidence", "find-saved-pair-first-entry":
+				"include-pair-generic-evidence", "find-saved-pair-first-entry",
+				"list-saved-wazuh-pair-offset":
 			default:
 				allowed = false
 			}
@@ -310,6 +312,25 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 				entryIDsSelected = true
 			}
 		})
+		// Explicit listing and exact-ID discovery are separate metadata-only
+		// modes. A listing flag never silently falls into private evidence
+		// generation, even when an inspector selector is also provided.
+		pageSelected := false
+		flags.Visit(func(f *flag.Flag) {
+			if f.Name == "list-saved-wazuh-pair-offset" { pageSelected = true }
+		})
+		if pageSelected {
+			if ordinalSelected || entryIDsSelected ||
+				*findSavedPairFirstEntry != "" || *includePairGenericEvidence ||
+				*privateReport != "" || *listSavedWazuhPairOffset < 0 ||
+				*listSavedWazuhPairOffset > 5000 {
+				return errors.New("pair page requires only two verified Cases and offset 0..5000")
+			}
+			return listVerifiedSavedWazuhPairPage(ctx, *principal, *snapshot,
+				*compareSavedCase, *expectedSnapshotSHA256,
+				*compareSavedWithSnapshot, *compareSavedWithCase,
+				*expectedOtherSHA256, *listSavedWazuhPairOffset, output)
+		}
 		if *findSavedPairFirstEntry != "" {
 			// Discover only source-scoped pair IDs. Never combine with private
 			// inspections, preview consent or filesystem report output.
