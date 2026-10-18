@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"net/url"
 	"sort"
+	"strings"
+	"unicode/utf8"
 	"time"
 
 	search "github.com/tobianahillel-afk/cmdr/product-runtime/event-search"
@@ -15,6 +17,7 @@ import (
 
 const wazuhLocalSearchSource = "wazuh4-authorized-local-import"
 const maxWazuhSearchMatches = 200
+const maxWazuhPreviewCandidates = 500
 
 // Minimal normalized metadata already authorized during Event Search execution.
 // No source preview, raw log, hostname, username, IP or owner data is copied.
@@ -56,6 +59,7 @@ func (b *wazuhPivotBackend) Execute(ctx context.Context, req search.BackendReque
 	// Backend instance is one-shot for one SearchJob execution.
 	b.hits = nil
 	visibleImported := 0
+	previewCandidates := 0
 	_, err := collectDemoCaseTriageWithObserver(ctx, b.owner, b.token, b.caseID, func(entry timeline.ProjectedEntry) error {
 		meta, imported := b.levels[entry.ID]
 		if !imported {
@@ -73,24 +77,25 @@ func (b *wazuhPivotBackend) Execute(ctx context.Context, req search.BackendReque
 		if at.Before(req.TimeStart) || !at.Before(req.TimeEnd) {
 			return nil
 		}
-		var actual string
-		switch b.field {
-		case "wazuh.rule.id":
-			actual = meta.RuleID
-		case "wazuh.agent.id":
-			actual = meta.AgentID
-		default:
-			return errors.New("unsupported normalized Wazuh pivot")
+		previewMode := b.field == "wazuh.preview.contains"
+		if !previewMode {
+			var actual string
+			switch b.field {
+			case "wazuh.rule.id":
+				actual = meta.RuleID
+			case "wazuh.agent.id":
+				actual = meta.AgentID
+			default:
+				return errors.New("unsupported Wazuh search field")
+			}
+			if actual == "" || actual != b.value { return nil }
+		} else {
+			// Search only normalized, rendered owner previews, never raw Wazuh.
+			previewCandidates++
+			if previewCandidates > maxWazuhPreviewCandidates {
+				return errors.New("Wazuh preview search exceeds authorized candidate capacity")
+			}
 		}
-		if actual == "" || actual != b.value {
-			return nil
-		}
-		if len(result.ResultRefs) >= maxWazuhSearchMatches {
-			// Never return a silently truncated "completed" search.
-			return errors.New("Wazuh search exceeds bounded result capacity")
-		}
-		// Second, independent typed-source opening makes matched references
-		// actionable; raw source previews are never copied into SearchJob.
 		q := url.Values{"case_id": {b.caseID}, "entry_id": {entry.ID}}
 		var opened struct {
 			Status string `json:"status"`
@@ -99,13 +104,26 @@ func (b *wazuhPivotBackend) Execute(ctx context.Context, req search.BackendReque
 			EntryID string `json:"entry_id"`
 			Kind string `json:"kind"`
 			ObjectID string `json:"object_id"`
+			Preview string `json:"preview"`
 		}
 		if err := queryDemoOwner(ctx, b.owner, b.token, "/demo-source-open?"+q.Encode(), &opened); err != nil {
 			return errors.New("Wazuh telemetry source authorization revoked")
 		}
-		if opened.Status != "ready" || !opened.Synthetic || opened.CaseID != b.caseID ||
-			opened.EntryID != entry.ID || opened.Kind != "telemetry-event" || opened.ObjectID == "" {
+		if opened.Status != "ready" || !opened.Synthetic ||
+			opened.CaseID != b.caseID || opened.EntryID != entry.ID ||
+			opened.Kind != "telemetry-event" || opened.ObjectID == "" {
 			return errors.New("Wazuh typed source identity changed")
+		}
+		if previewMode {
+			if !utf8.ValidString(opened.Preview) || len(opened.Preview) > 2048 {
+				return errors.New("invalid bounded authorized source preview")
+			}
+			if !strings.Contains(strings.ToLower(opened.Preview), strings.ToLower(b.value)) {
+				return nil
+			}
+		}
+		if len(result.ResultRefs) >= maxWazuhSearchMatches {
+			return errors.New("Wazuh search exceeds bounded result capacity")
 		}
 		result.ResultRefs = append(result.ResultRefs, search.ResultReference{
 			Source: wazuhLocalSearchSource, Ref: entry.ID,
@@ -162,8 +180,9 @@ func executeDemoWazuhMetadataSearch(ctx context.Context, principal, caseID strin
 func executeDemoWazuhMetadataSearchWithHits(ctx context.Context, principal, caseID string, owner http.Handler,
 	token, tenant, environment string, levels map[string]wazuhRuleLevel, imported int,
 	field, value, start, end string) (search.SearchJob, []wazuhSearchHit, error) {
-	if ctx == nil || (field != "wazuh.rule.id" && field != "wazuh.agent.id") ||
-		!validWazuhCohortID(value) {
+	if ctx == nil || !(
+		((field == "wazuh.rule.id" || field == "wazuh.agent.id") && validWazuhCohortID(value)) ||
+		(field == "wazuh.preview.contains" && validWazuhPreviewLiteral(value))) {
 		return search.SearchJob{}, nil, errors.New("invalid bounded Wazuh search selection")
 	}
 	backend := &wazuhPivotBackend{
@@ -174,6 +193,10 @@ func executeDemoWazuhMetadataSearchWithHits(ctx context.Context, principal, case
 	orchestrator, err := search.NewOrchestrator(backend)
 	if err != nil {
 		return search.SearchJob{}, nil, err
+	}
+	queryVersion := "wazuh-agent-rule-pivot-v1"
+	if field == "wazuh.preview.contains" {
+		queryVersion = "wazuh-rendered-preview-literal-v1"
 	}
 	input := search.Input{
 		TenantRef: tenant, AuthorizedTenants: []string{tenant},
@@ -187,7 +210,7 @@ func executeDemoWazuhMetadataSearchWithHits(ctx context.Context, principal, case
 		},
 		QueryPresent: true, QueryValid: true,
 		CorrelationID: "offline-wazuh-event-inspection",
-		QueryVersion: "wazuh-agent-rule-pivot-v1",
+		QueryVersion: queryVersion,
 	}
 	audit := search.AuditContext{ActorRef: principal, Rationale: "offline-authorized-wazuh-pivot"}
 	job, err := orchestrator.Create(input, audit)
@@ -241,4 +264,9 @@ func executeDemoWazuhMetadataSearchWithHits(ctx context.Context, principal, case
 		return search.SearchJob{}, nil, err
 	}
 	return job, hits, nil
+}
+
+func validWazuhPreviewLiteral(value string) bool {
+	return len(value) >= 3 && len(value) <= 128 && utf8.ValidString(value) &&
+		!strings.ContainsAny(value, "\x00\r\n")
 }
