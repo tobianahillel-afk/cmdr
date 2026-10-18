@@ -164,3 +164,82 @@ func TestWazuhAnalystHTTPExecutesSearchAndReopensSources(t *testing.T) {
 	handler.ServeHTTP(postResult,post)
 	if postResult.Code != http.StatusMethodNotAllowed {t.Fatalf("unsafe HTTP method: %d",postResult.Code)}
 }
+
+func TestAuthorizedWazuhRenderedPreviewLiteralSearch(t *testing.T) {
+	const caseID = "forensic-case-on-disk"
+	owner := snapshotFixture(t)
+	first := writeJSONLEvents(t,
+		"{\"id\":\"x.1\",\"timestamp\":\"2026-10-17T10:00:00Z\",\"agent\":{\"id\":\"001\"},\"rule\":{\"id\":\"5710\",\"description\":\"Suspicious PowerShell use on host\"}}\n"+
+		"{\"id\":\"x.2\",\"timestamp\":\"2026-10-17T10:01:00Z\",\"agent\":{\"id\":\"001\"},\"rule\":{\"id\":\"5710\",\"description\":\"benign scheduled maintenance\"}}\n")
+	second := writeJSONLEvents(t, "{\"id\":\"x.1\",\"timestamp\":\"2026-10-17T10:02:00Z\",\"agent\":{\"id\":\"002\"},\"rule\":{\"id\":\"5730\",\"description\":\"POWERSHELL executed on second feed\"}}\n")
+	data, imported, levels, err := loadMultipleWazuhFeedsWithLevels(context.Background(),
+		"analyst-a", owner, caseID, []string{first, second})
+	if err != nil { t.Fatal(err) }
+	token, err := randomBearer()
+	if err != nil { t.Fatal(err) }
+	base, err := newDemoHandlerWithData(token, "analyst-a", data)
+	if err != nil { t.Fatal(err) }
+	handler := newDemoWazuhCohortReceiptHandler(token, "analyst-a", caseID, data, imported, nil,
+		levels, base, func(context.Context, io.Writer) error { return nil })
+	q := url.Values{
+		"case_id": {caseID}, "field": {"preview"}, "value": {"powershell"},
+		"from": {"2026-10-17T09:59:00Z"}, "to": {"2026-10-17T10:03:00Z"},
+	}
+	send := func(q url.Values, bearer string) *httptest.ResponseRecorder {
+		t.Helper()
+		req := httptest.NewRequest(http.MethodGet, "/demo-wazuh-search?"+q.Encode(), nil)
+		if bearer != "" { req.Header.Set("Authorization", "Bearer "+bearer) }
+		out := httptest.NewRecorder()
+		handler.ServeHTTP(out, req)
+		return out
+	}
+	out := send(q, token)
+	var receipt wazuhHTTPJobReceipt
+	if out.Code != http.StatusOK || json.Unmarshal(out.Body.Bytes(), &receipt) != nil ||
+		receipt.Job.State != search.JobCompleted ||
+		receipt.Job.Provenance.QueryVersion != "wazuh-rendered-preview-literal-v1" ||
+		len(receipt.Job.ResultRefs) != 2 || len(receipt.Hits) != 2 {
+		t.Fatalf("owner-authorized rendered literal search failed: %d %s", out.Code, out.Body.String())
+	}
+	refs := map[string]bool{}
+	for _, hit := range receipt.Hits { refs[hit.EntryID] = true }
+	if !refs[importedWazuhID(caseID, "x.1", 1)] ||
+		!refs[importedWazuhID(caseID, "x.1", 2)] ||
+		refs[importedWazuhID(caseID, "x.2", 1)] {
+		t.Fatalf("literal search results not isolated: %+v", receipt.Hits)
+	}
+	for _, secret := range []string{"Suspicious PowerShell use", "POWERSHELL executed", "benign scheduled", token} {
+		if strings.Contains(out.Body.String(), secret) {
+			t.Fatalf("rendered source payload leaked through SearchJob: %q", secret)
+		}
+	}
+	// No match produces a complete empty Job, not an unfiltered fallback.
+	q.Set("value", "no-such-literal")
+	empty := send(q, token)
+	var noHit wazuhHTTPJobReceipt
+	if empty.Code != http.StatusOK || json.Unmarshal(empty.Body.Bytes(), &noHit) != nil ||
+		noHit.Job.State != search.JobCompleted || len(noHit.Job.ResultRefs) != 0 {
+		t.Fatalf("literal no-match should be a completed empty Job: %d %s", empty.Code, empty.Body.String())
+	}
+	// The renderer is NOT a raw full_log search: rule.description wins when
+	// it exists, even if full_log contains the requested term.
+	for _, tc := range []struct { name,key,value,bearer string }{
+		{"no bearer","","",""},
+		{"foreign Case","case_id","foreign-case",token},
+		{"missing literal","value","xx",token},
+		{"overlong literal","value",strings.Repeat("x",129),token},
+		{"newline injection","value","bad\ntext",token},
+		{"unsupported DSL selector","field","full_log",token},
+		{"invalid time","from","not-a-time",token},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			args := url.Values{}
+			for k,v := range q { args[k]=append([]string(nil),v...) }
+			if tc.key!="" { args.Set(tc.key,tc.value) }
+			failed:=send(args,tc.bearer)
+			if failed.Code == http.StatusOK || strings.Contains(failed.Body.String(),"local-jsonl-entry") {
+				t.Fatalf("unsafe literal query returned data: %d %s",failed.Code,failed.Body.String())
+			}
+		})
+	}
+}
