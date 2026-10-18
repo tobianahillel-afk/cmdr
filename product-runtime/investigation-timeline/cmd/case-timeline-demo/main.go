@@ -117,20 +117,29 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	if flags.NArg() != 0 {
 		return errors.New("unexpected positional arguments")
 	}
-	// Distinguish an omitted sensitive destination from an explicitly
-	// selected empty value (for example after shell expansion). An empty
-	// private save path must never fall through into the legacy stdout
-	// JSONL export, even when the normalized import itself is valid.
-	emptySensitive := false
+	// Distinguish omitted CLI modes from options explicitly set to an
+	// empty string (commonly via shell variable expansion). In particular,
+	// an empty Case export/reopen/inspection selector MUST NOT silently
+	// fall through to the default loopback viewer or legacy stdout export.
+	// This check belongs at the one CLI entry boundary, before any
+	// snapshot read, listener, bearer, source export or private file write.
+	emptyExplicitMode := false
 	flags.Visit(func(f *flag.Flag) {
 		switch f.Name {
 		case "private-report", "save-import-snapshot", "save-wazuh-case-snapshot",
-			"save-mixed-case-snapshot", "expect-snapshot-sha256":
-			if f.Value.String() == "" { emptySensitive = true }
+			"save-mixed-case-snapshot", "expect-snapshot-sha256",
+			"expect-other-snapshot-sha256", "resume-import-search-case",
+			"verify-import-snapshot-case", "hunt-saved-case",
+			"compare-saved-case", "compare-saved-with-case",
+			"compare-saved-with-snapshot", "export-case", "report-case",
+			"compare-case", "with-case", "source-case", "source-ref",
+			"inspect-case", "inspect-entry", "inspect-wazuh-entry",
+			"snapshot":
+			if f.Value.String() == "" { emptyExplicitMode = true }
 		}
 	})
-	if emptySensitive {
-		return errors.New("explicit private output or snapshot integrity option cannot be empty")
+	if emptyExplicitMode {
+		return errors.New("explicit investigation, private output or snapshot integrity option cannot be empty")
 	}
 	if *privateReport != "" {
 		modes := 0

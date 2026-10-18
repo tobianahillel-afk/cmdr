@@ -60,10 +60,10 @@ func (b *localJSONLSearchBackend) Execute(ctx context.Context, request search.Ba
 		if at.Before(request.TimeStart) || !at.Before(request.TimeEnd) {
 			return nil
 		}
-		candidates++
-		if candidates > maxWazuhPreviewCandidates {
-			return errors.New("normalized search exceeds 500 candidates")
-		}
+		// The owner still reauthorizes EVERY in-window imported source,
+		// including other source families, before a family-specific query
+		// may decide whether to count and compare it. Thus a revoked
+		// source never becomes invisible to authorization checks.
 		// This existing owner call is the security boundary: authorize
 		// source before examining its rendered text, even on no-match.
 		q := url.Values{"case_id": {b.caseID}, "entry_id": {entry.ID}}
@@ -92,6 +92,14 @@ func (b *localJSONLSearchBackend) Execute(ctx context.Context, request search.Ba
 		if (b.family == "wazuh" && !ownerWazuh) ||
 			(b.family == "generic" && ownerWazuh) {
 			return nil
+		}
+		// Bound only the requested, owner-authorized family. Previously
+		// 500 unrelated Wazuh hits could exhaust a generic-only query (or
+		// vice versa), even when the selected family contained one event.
+		// "all" keeps the identical 500-candidate fail-closed ceiling.
+		candidates++
+		if candidates > maxWazuhPreviewCandidates {
+			return errors.New("normalized search exceeds 500 candidates")
 		}
 		var match bool
 		switch b.field {
