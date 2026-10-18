@@ -27,6 +27,12 @@ func sharedAuthorizedWazuhEventPairs(first,second timeline.MemoryTimelineData,fi
 	if err!=nil{return nil,err}
 	right,err:=collectAuthorizedWazuhObservations(second,secondCase)
 	if err!=nil{return nil,err}
+	return sharedWazuhPairsFromObservations(left,right)
+}
+
+// Reuse a single immutable owner-authorized observation set for the
+// deterministic <=60s pairing as well as the five-minute bin summary.
+func sharedWazuhPairsFromObservations(left,right map[authorizedWazuhCohort][]authorizedWazuhObservation)([]sharedAuthorizedWazuhEventPair,error){
 	type selection struct { cohort authorizedWazuhCohort; event authorizedWazuhObservation }
 	var ordered []selection
 	for key,observations:=range left {
