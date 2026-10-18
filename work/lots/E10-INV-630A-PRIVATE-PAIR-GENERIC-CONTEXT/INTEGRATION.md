@@ -1,0 +1,23 @@
+# E10-INV-630A — Mixed-source paired-source DFIR dossier
+
+## Analyst capability
+
+Extend the EXISTING one-pass, independently authorized cross-Case Wazuh private pair inspection from consolidated PR #102/#103: a single explicit `-inspect-saved-pair N -private-report /absolute/NEW.json` now includes the original two Wazuh source previews AND contextual generic normalized JSONL event **references**, separately scoped and authorized in each respective Case. No new standalone API, datastore, correlation engine, paid provider or extra CLI mode.
+
+Previously the operator had to issue separate generic Event Search Jobs after receiving a correlated Wazuh pair. This report now directly links up to **10 generic event IDs from each authorized Case** in the inclusive 60-second neighbourhood of the actual first and second Wazuh event. Only first-party normalized imported observed, certain-time, typed `telemetry-event` sources **without Wazuh metadata** qualify. Sort by absolute temporal proximity, then UTC and canonical ID; `truncated` signals more than ten candidates. Lead data contains Entry ID, normalized UTC and signed seconds offset, never a generic message, hostname, IP, original path, bearer or source preview.
+
+Owner boundary: the two existing snapshot files are individually SHA-256 verified against operator-retained digests and independently projected by the existing owner, Case, tenant/environment and source permissions. The original two Wazuh correlation IDs are reauthorized by the first-party typed-source inspection. Each selected generic Entry ID is then independently reopened through the **same Case-specific first-party typed-source owner** before the minimal metadata enters the private report. No shared principal permission, no direct cross-Case links, no client-requested grant, no new conditional access wrapper. Source timestamps and IDs remain Case-local. Any failing owner, wrong digest, canceled context or source-open failure prevents ANY file publication; reuses `writeAuthorizedReceiptPrivate` (private 0600 atomic no-replace) with no stdout or public HTTP listener.
+
+The output format is deliberately revised from `cmdr-private-verified-wazuh-pair-v1` to **`cmdr-private-verified-wazuh-pair-v2`** with additive `first_generic_context` / `second_generic_context` properties; existing `pair`, `first`, `second` retain their contents. Explicit format versioning allows downstream consumers to reject the changed schema instead of silently assuming the old report. The report is still sensitive because it contains both Wazuh source previews: handle only as an operator-local private forensic aid, **NOT production IAM, signed custody, live SIEM ingestion or proof of causation**.
+
+## End-to-end acceptance
+
+1. Use original fixture that creates two separately authorized Wazuh 4.x Case snapshots whose first/second Wazuh events are 20 seconds apart; attach a distinct real normalized generic JSONL feed to EACH existing Case. One Case also has a generic event 4 minutes away.
+2. Save both Cases independently as private files, recompute their SHA256, delete original generic feeds and run original `writeVerifiedCorrelatedPairPrivate` journey.
+3. Both Wazuh source previews/paired IDs still match original Case owners. Output has precisely ONE additional authorized generic contextual link per side at 10 seconds and 2 seconds respectively, no far-event link, no generic preview or credentials.
+4. Context ID can be independently reopened only via its own authorized Case and source. If the second file is modified but remains valid JSON, its independently held fingerprint fails and **no partial dossier** is written; no source owners are shared.
+5. Existing private bundle tests updated for explicit `v2` schema. All prior security and functional flows must remain green on Linux/Windows/macOS, including browser. Mandatory engineering-kernel changed-security-critical 90% floor **remains unchanged** and gates merging.
+
+## Integration constraints
+
+Source parent PR #103 SHA `5b52e4cdd82281c4ed5537b532b78b5064756df2` is frozen for its prior review; current changes belong exclusively to new child branch/PR. No changes to #102 consolidated source SHA, #92, #36, #2 or earlier L2-frozen ancestors. This is one material cross-module investigation improvement and merits ONE risk-based independent read-only L2 on stable exact SHA/diff, not separate review for each internal test/corrective commit. The long PR train remains unmerged; independent parent security/approvals still apply. New functionality is an offline synthetic lab workflow, not production SIEM.
