@@ -2066,3 +2066,44 @@ test("analyst uses the same owner-authorized SearchJob for feed provenance and c
     "changed metadata field must revoke stale already-displayed source references");
   assert.match(f["local-search-status"].textContent,/Aucune recherche/);
 });
+
+test("mixed Case source-family selector stays private and invalidates old authorized results",async()=>{
+  const ref="local-jsonl-entry-"+"d".repeat(64);
+  const env=boot((url,options)=>{
+    assert.equal(url.pathname,"/demo-local-search");
+    assert.equal(url.search,"","source-family and analyst term must not leak to URL");
+    const criteria=JSON.parse(options.body);
+    assert.equal(criteria.source_family,"generic");
+    assert.equal(criteria.field,"source_ref");
+    assert.equal(criteria.value,"local-jsonl-source-");
+    return {ok:true,async json(){return {
+      format:"cmdr-local-jsonl-event-search-v1",synthetic:true,case_id:"case-disk",
+      job:{ID:"source-family-job",State:"completed",AuditTrail:[{},{},{}],
+        ResultRefs:[{Source:"normalized-jsonl-authorized-import",Ref:ref}]}
+    }}};
+  });
+  const f=env.fields;
+  f["local-search-family"].value="generic";
+  f["local-search-field"].value="source_ref";
+  f["local-search-value"].value="local-jsonl-source-";
+  f["local-search-from"].value="2026-10-17T10:00:00";
+  f["local-search-to"].value="2026-10-17T10:03:00";
+  f["local-search-run"].handlers.click();
+  await flush();await flush();
+  assert.equal(env.requests.length,1);
+  assert.equal(f["local-search-results"].children[0].children.length,1);
+  f["local-search-family"].value="wazuh";
+  f["local-search-family"].handlers.change();
+  assert.equal(f["local-search-results"].children.length,0,"old source refs must be cleared when family changes");
+  assert.match(f["local-search-status"].textContent,/Aucune recherche/);
+
+  // A generic family does not support Wazuh-only pivots, and must reject
+  // the selection client-side before emitting credentials or queries.
+  f["local-search-family"].value="generic";
+  f["local-search-field"].value="rule_id";
+  f["local-search-value"].value="5710";
+  f["local-search-run"].handlers.click();
+  await flush();
+  assert.equal(env.requests.length,1);
+  assert.match(f["local-search-status"].textContent,/Sélectionnez/);
+});
