@@ -118,25 +118,48 @@ func TestExplicitPrivatePairIncludesAuthorizedGenericSourcePreviewsOnlyByConsent
 	}
 }
 
-func TestGenericEvidenceReopeningRequiresSelectedOwnerAndCase(t *testing.T) {
-	owner,err:=loadDemoSnapshot(snapshotFixture(t));if err!=nil{t.Fatal(err)}
-	const caseID="forensic-case-on-disk"
-	owner,err=importLocalEvents(context.Background(),owner,"analyst-a",caseID,[]byte(
+func TestGenericEvidenceSinglePassStillRequiresSelectedOwnerAndCase(t *testing.T) {
+	owner, err := loadDemoSnapshot(snapshotFixture(t))
+	if err != nil { t.Fatal(err) }
+	const caseID = "forensic-case-on-disk"
+	owner, err = importLocalEvents(context.Background(), owner, "analyst-a", caseID, []byte(
 		"{\"id\":\"owned\",\"timestamp\":\"2026-10-17T10:00:05Z\",\"message\":\"PRIVATE SOURCE\"}\n"))
-	if err!=nil{t.Fatal(err)}
-	ids,err:=importedNormalizedIDs(owner,caseID);if err!=nil{t.Fatal(err)}
-	ctx,err:=nearbyAuthorizedGenericPairContext(context.Background(),"analyst-a",
-		owner,caseID,ids,"2026-10-17T10:00:00Z")
-	if err!=nil || len(ctx.Entries)!=1 {t.Fatalf("missing real owned source: %v",err)}
-	if _,err:=reopenGenericContextEvidence(context.Background(),"foreign-analyst",
-		owner,caseID,ctx);err==nil {t.Fatal("foreign principal reopened private generic source")}
-	if _,err:=reopenGenericContextEvidence(context.Background(),"analyst-a",
-		owner,"wrong-case",ctx);err==nil {t.Fatal("foreign Case reopened private generic source")}
-	// A context ID is a navigation hint; no source is opened without
-	// repeating its own first-party typed-source owner authorization.
-	invalid:=ctx
-	invalid.Entries=[]authorizedGenericPairContext{{EntryID:"unrelated-foreign-event"}}
-	if _,err:=reopenGenericContextEvidence(context.Background(),"analyst-a",
-		owner,caseID,invalid);err==nil{t.Fatal("arbitrary user-selected context ref opened private source")}
-	_ = strings.Contains
+	if err != nil { t.Fatal(err) }
+	ids, err := importedNormalizedIDs(owner, caseID)
+	if err != nil { t.Fatal(err) }
+	const center = "2026-10-17T10:00:00Z"
+	metadata, err := nearbyAuthorizedGenericPairContext(
+		context.Background(), "analyst-a", owner, caseID, ids, center)
+	if err != nil || len(metadata.Entries) != 1 {
+		t.Fatalf("v2 must preserve authorized metadata: %v", err)
+	}
+	var private []localEntryInspection
+	authorized, err := nearbyAuthorizedGenericPairContext(
+		context.Background(), "analyst-a", owner, caseID, ids, center, &private)
+	if err != nil || len(authorized.Entries) != 1 || len(private) != 1 ||
+		private[0].CaseID != caseID || private[0].EntryID != authorized.Entries[0].EntryID ||
+		!strings.Contains(private[0].Preview, "PRIVATE SOURCE") {
+		t.Fatalf("v3 one owner inspection did not retain selected authorized private source: %v", err)
+	}
+	// Failed first-party source authorization must NOT assign a partial
+	// private evidence slice to the caller.
+	var denied []localEntryInspection
+	if summary, err := nearbyAuthorizedGenericPairContext(
+		context.Background(), "foreign-analyst", owner, caseID, ids, center, &denied);
+		err == nil || len(summary.Entries) != 0 || len(denied) != 0 {
+		t.Fatal("foreign principal obtained generic evidence")
+	}
+	var other []localEntryInspection
+	if summary, err := nearbyAuthorizedGenericPairContext(
+		context.Background(), "analyst-a", owner, "wrong-case", ids, center, &other);
+		err != nil || len(summary.Entries) != 0 || len(other) != 0 {
+		t.Fatal("unrelated Case leaked generic evidence")
+	}
+	forged := map[string]struct{}{"unrelated-foreign-event": {}}
+	var forgedEvidence []localEntryInspection
+	if summary, err := nearbyAuthorizedGenericPairContext(
+		context.Background(), "analyst-a", owner, caseID, forged, center, &forgedEvidence);
+		err != nil || len(summary.Entries) != 0 || len(forgedEvidence) != 0 {
+		t.Fatal("forged generic ID bypassed Case source selection")
+	}
 }

@@ -29,7 +29,7 @@ type authorizedGenericPairContextSummary struct {
 // The input data is the scope-minimized result of loadAuthorizedImportedCase.
 func nearbyAuthorizedGenericPairContext(ctx context.Context, principal string,
 	data timeline.MemoryTimelineData, caseID string, imported map[string]struct{},
-	centerUTC string) (authorizedGenericPairContextSummary, error) {
+	centerUTC string, optionalEvidence ...*[]localEntryInspection) (authorizedGenericPairContextSummary, error) {
 	if ctx == nil || ctx.Err() != nil {
 		return authorizedGenericPairContextSummary{}, errors.New("generic context inspection cancelled")
 	}
@@ -92,6 +92,10 @@ func nearbyAuthorizedGenericPairContext(ctx context.Context, principal string,
 		Entries: make([]authorizedGenericPairContext, 0, 10),
 		Truncated: len(candidates) > 10,
 	}
+	// Only explicit private v3 callers receive already owner-authorized
+	// source inspections. Default v2 never retains their raw previews.
+	retainEvidence := len(optionalEvidence) > 0 && optionalEvidence[0] != nil
+	var stagedEvidence []localEntryInspection
 	for i, selected := range candidates {
 		if i == 10 { break }
 		// A canonical imported ID is only a selector. Reopen its owner on
@@ -103,9 +107,17 @@ func nearbyAuthorizedGenericPairContext(ctx context.Context, principal string,
 			return authorizedGenericPairContextSummary{}, errors.New("generic contextual source authorization failed")
 		}
 		result.Entries = append(result.Entries, selected.authorizedGenericPairContext)
+		if retainEvidence {
+			stagedEvidence = append(stagedEvidence, opened)
+		}
 	}
 	if err := ctx.Err(); err != nil {
 		return authorizedGenericPairContextSummary{}, err
+	}
+	// Assign the fully authorized result only after ALL candidate source
+	// checks succeed; no caller can receive a partial private preview set.
+	if retainEvidence {
+		*optionalEvidence[0] = stagedEvidence
 	}
 	return result, nil
 }
