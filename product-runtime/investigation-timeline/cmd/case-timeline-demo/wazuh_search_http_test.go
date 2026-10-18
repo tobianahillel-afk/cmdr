@@ -162,7 +162,7 @@ func TestWazuhAnalystHTTPExecutesSearchAndReopensSources(t *testing.T) {
 	post.Header.Set("Authorization","Bearer "+token)
 	postResult:=httptest.NewRecorder()
 	handler.ServeHTTP(postResult,post)
-	if postResult.Code != http.StatusMethodNotAllowed {t.Fatalf("unsafe HTTP method: %d",postResult.Code)}
+	if postResult.Code == http.StatusOK {t.Fatalf("numeric GET-only pivot accepted POST: %d",postResult.Code)}
 }
 
 func TestAuthorizedWazuhRenderedPreviewLiteralSearch(t *testing.T) {
@@ -187,7 +187,15 @@ func TestAuthorizedWazuhRenderedPreviewLiteralSearch(t *testing.T) {
 	}
 	send := func(q url.Values, bearer string) *httptest.ResponseRecorder {
 		t.Helper()
-		req := httptest.NewRequest(http.MethodGet, "/demo-wazuh-search?"+q.Encode(), nil)
+		// No preview literal in URL, history or access logs. Reuse the
+		// first-party private normalized JSONL search transport convention.
+		payload, err := json.Marshal(map[string]string{
+			"case_id":q.Get("case_id"),"field":q.Get("field"),
+			"value":q.Get("value"),"from":q.Get("from"),"to":q.Get("to"),
+		})
+		if err != nil { t.Fatal(err) }
+		req := httptest.NewRequest(http.MethodPost, "/demo-wazuh-search", bytes.NewReader(payload))
+		req.Header.Set("Content-Type","application/json")
 		if bearer != "" { req.Header.Set("Authorization", "Bearer "+bearer) }
 		out := httptest.NewRecorder()
 		handler.ServeHTTP(out, req)
@@ -200,6 +208,10 @@ func TestAuthorizedWazuhRenderedPreviewLiteralSearch(t *testing.T) {
 		receipt.Job.Provenance.QueryVersion != "wazuh-rendered-preview-literal-v1" ||
 		len(receipt.Job.ResultRefs) != 2 || len(receipt.Hits) != 2 {
 		t.Fatalf("owner-authorized rendered literal search failed: %d %s", out.Code, out.Body.String())
+	}
+	if receipt.Selector != "preview" || receipt.Value != "" ||
+		strings.Contains(out.Body.String(), "\"value\":\"powershell\"") {
+		t.Fatalf("private text leaked into Wazuh SearchJob receipt: %.250s",out.Body.String())
 	}
 	refs := map[string]bool{}
 	for _, hit := range receipt.Hits { refs[hit.EntryID] = true }
@@ -241,5 +253,34 @@ func TestAuthorizedWazuhRenderedPreviewLiteralSearch(t *testing.T) {
 				t.Fatalf("unsafe literal query returned data: %d %s",failed.Code,failed.Body.String())
 			}
 		})
+	// The former GET preview path MUST fail, even when the Case and bearer
+	// are otherwise authorized. Only the existing numeric GET pivots remain.
+	oldGET := httptest.NewRequest(http.MethodGet,"/demo-wazuh-search?"+q.Encode(),nil)
+	oldGET.Header.Set("Authorization","Bearer "+token)
+	refusedGET := httptest.NewRecorder()
+	handler.ServeHTTP(refusedGET,oldGET)
+	if refusedGET.Code == http.StatusOK { t.Fatal("sensitive Wazuh GET search still accepted") }
+
+	// Reject POST query strings, wrong content type, trailing JSON,
+	// oversized requests and unexpected fields without any search receipt.
+	postBody:=[]byte(`{"case_id":"`+caseID+`","field":"preview","value":"powershell","from":"2026-10-17T09:59:00Z","to":"2026-10-17T10:03:00Z"}`)
+	for _,tc:=range []struct{name,uri,ctype string; body []byte}{
+		{"POST query leakage","/demo-wazuh-search?value=powershell","application/json",postBody},
+		{"wrong media type","/demo-wazuh-search","text/plain",postBody},
+		{"unknown security field","/demo-wazuh-search","application/json",append(append([]byte(nil),postBody[:len(postBody)-1]...),[]byte(`,"source":"foreign"}`)...)},
+		{"trailing JSON","/demo-wazuh-search","application/json",append(append([]byte(nil),postBody...),[]byte(` {}`)...)},
+		{"oversized POST","/demo-wazuh-search","application/json",append(append([]byte(nil),postBody...),bytes.Repeat([]byte(" "),4097)...)},
+	} {
+		t.Run(tc.name,func(t *testing.T){
+			req:=httptest.NewRequest(http.MethodPost,tc.uri,bytes.NewReader(tc.body))
+			req.Header.Set("Content-Type",tc.ctype)
+			req.Header.Set("Authorization","Bearer "+token)
+			res:=httptest.NewRecorder()
+			handler.ServeHTTP(res,req)
+			if res.Code==http.StatusOK || strings.Contains(res.Body.String(),"local-jsonl-entry-") {
+				t.Fatalf("invalid Wazuh text query exposed a SearchJob: %d %s",res.Code,res.Body.String())
+			}
+		})
+	}
 	}
 }
