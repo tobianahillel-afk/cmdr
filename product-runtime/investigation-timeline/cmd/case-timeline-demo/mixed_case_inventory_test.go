@@ -54,7 +54,7 @@ func TestOfflineInventoryDistinguishesAuthorizedMixedWazuhAndGenericSources(t *t
 	receipt, text, err := check(file, hash)
 	if err != nil || receipt.Format != "cmdr-offline-authorized-case-verification-v1" ||
 		receipt.Count != 3 || receipt.Wazuh != 2 || receipt.Generic != 1 ||
-		receipt.Slots["operator-local-jsonl-feed-1"] != 3 {
+		receipt.Slots["operator-local-jsonl"] != 2 || receipt.Slots["operator-local-jsonl-feed-1"] != 1 {
 		t.Fatalf("mixed Case source inventory wrongly merges source families: %+v %v", receipt, err)
 	}
 	for _,secret := range []string{"PRIVATE-WAZUH", "PRIVATE-GENERIC", "local-jsonl-entry-",
