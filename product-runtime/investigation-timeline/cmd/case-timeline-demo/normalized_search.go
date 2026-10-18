@@ -24,7 +24,7 @@ const localJSONLSearchSource = "normalized-jsonl-authorized-import"
 
 type localJSONLSearchBackend struct {
 	owner http.Handler
-	bearer, caseID, tenant, environment, literal, field string
+	bearer, caseID, tenant, environment, literal, field, family string
 	imported map[string]struct{}
 	// Source-owned metadata is a query filter only AFTER typed-source ACL.
 	wazuh map[string]timeline.WazuhSourceMetadata
@@ -86,6 +86,13 @@ func (b *localJSONLSearchBackend) Execute(ctx context.Context, request search.Ba
 			len(opened.Preview) > 2048 || !utf8.ValidString(opened.Preview) {
 			return errors.New("normalized source owner identity or preview invalid")
 		}
+		// A source-family pivot acts ONLY after the typed source has been
+		// reopened and authorized. Feed labels/filenames are never trusted.
+		_, ownerWazuh := b.wazuh[entry.ID]
+		if (b.family == "wazuh" && !ownerWazuh) ||
+			(b.family == "generic" && ownerWazuh) {
+			return nil
+		}
 		var match bool
 		switch b.field {
 		case "preview":
@@ -124,8 +131,10 @@ func (b *localJSONLSearchBackend) Execute(ctx context.Context, request search.Ba
 func executeDemoLocalJSONLSearch(ctx context.Context, principal, caseID string,
 	owner http.Handler, bearer, tenant, environment string,
 	imported map[string]struct{}, wazuh map[string]timeline.WazuhSourceMetadata,
-	field, literal, start, end string) (search.SearchJob, error) {
+	field, family, literal, start, end string) (search.SearchJob, error) {
 	if ctx == nil || len(imported) == 0 ||
+		(family != "all" && family != "wazuh" && family != "generic") ||
+		(family == "generic" && (field == "rule_id" || field == "agent_id")) ||
 		!(((field == "preview" || field == "entry_id" || field == "source_ref" ||
 			field == "provenance") && validWazuhPreviewLiteral(literal)) ||
 			((field == "rule_id" || field == "agent_id") && validWazuhCohortID(literal))) {
@@ -134,7 +143,7 @@ func executeDemoLocalJSONLSearch(ctx context.Context, principal, caseID string,
 	backend := &localJSONLSearchBackend{
 		owner: owner, bearer: bearer, caseID: caseID,
 		tenant: tenant, environment: environment,
-		imported: imported, literal: literal, field: field, wazuh: wazuh,
+		imported: imported, literal: literal, field: field, family: family, wazuh: wazuh,
 	}
 	orchestrator, err := search.NewOrchestrator(backend)
 	if err != nil { return search.SearchJob{}, err }
@@ -221,6 +230,7 @@ func newDemoLocalJSONLSearchHandler(token, principal, caseID string,
 		var selection struct {
 			CaseID string `json:"case_id"`
 			Field string `json:"field,omitempty"`
+			Family string `json:"source_family,omitempty"`
 			Value string `json:"value"`
 			From string `json:"from"`
 			To string `json:"to"`
@@ -236,7 +246,12 @@ func newDemoLocalJSONLSearchHandler(token, principal, caseID string,
 		decoder.DisallowUnknownFields()
 		decodeErr := decoder.Decode(&selection)
 		if selection.Field == "" { selection.Field = "preview" }
+		if selection.Family == "" { selection.Family = "all" }
 		if decodeErr != nil || selection.CaseID != caseID ||
+			(selection.Family != "all" && selection.Family != "wazuh" &&
+				selection.Family != "generic") ||
+			(selection.Family == "generic" &&
+				(selection.Field == "rule_id" || selection.Field == "agent_id")) ||
 			!(((selection.Field == "preview" || selection.Field == "entry_id" ||
 				selection.Field == "source_ref" || selection.Field == "provenance") &&
 				validWazuhPreviewLiteral(selection.Value)) ||
@@ -269,7 +284,7 @@ func newDemoLocalJSONLSearchHandler(token, principal, caseID string,
 		}
 		job, err := executeDemoLocalJSONLSearch(r.Context(), principal, caseID,
 			owner, token, tenant, environment, imported, wazuh,
-			selection.Field, selection.Value, selection.From, selection.To)
+			selection.Field, selection.Family, selection.Value, selection.From, selection.To)
 		if err != nil {
 			http.NotFound(w, r)
 			return
