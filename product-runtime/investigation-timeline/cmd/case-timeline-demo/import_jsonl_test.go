@@ -45,6 +45,11 @@ func TestLocalJSONLImportDiskToAuthenticatedTimelineSource(t *testing.T) {
 	if out.Len() == 0 || out.Len() > maxDemoSnapshotBytes {
 		t.Fatal("missing or oversized owner snapshot output")
 	}
+	for _, forbidden := range []string{"demo-hidden-source", "demo-tenant-b", "demo-secret", "restricted", "\"case-b\""} {
+		if bytes.Contains(out.Bytes(), []byte(forbidden)) {
+			t.Fatalf("legacy import exported inaccessible owner records: %q", forbidden)
+		}
+	}
 	check, err := os.ReadFile(ownerPath)
 	if err != nil || !bytes.Equal(check, original) {
 		t.Fatal("import modified operator input snapshot")
@@ -57,8 +62,11 @@ func TestLocalJSONLImportDiskToAuthenticatedTimelineSource(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(derived.Cases[0].EntryIDs) != 5 {
-		t.Fatalf("events not integrated into Case: %+v", derived.Cases[0])
+	if len(derived.Cases) != 1 || len(derived.Principals) != 1 ||
+		derived.Principals[0].ID != "analyst-a" ||
+		derived.Cases[0].ID != "forensic-case-on-disk" ||
+		len(derived.Cases[0].EntryIDs) != 4 || len(derived.Entries) != 4 {
+		t.Fatalf("import failed to preserve exactly the readable Case projection: %+v", derived)
 	}
 	handler, err := newDemoHandlerWithData(testBearer, "analyst-a", derived)
 	if err != nil {
@@ -179,8 +187,11 @@ func TestLocalJSONLImportPathsAndCaseCapacity(t *testing.T) {
 		t.Fatalf("CLI imported no snapshot: %v", err)
 	}
 	var got timeline.MemoryTimelineData
-	if err := json.Unmarshal(out.Bytes(), &got); err != nil || len(got.Entries) != len(demoData().Entries)+2 {
-		t.Fatalf("CLI output not reusable: %v", err)
+	if err := json.Unmarshal(out.Bytes(), &got); err != nil || len(got.Cases) != 1 ||
+		len(got.Principals) != 1 || len(got.Entries) != 4 ||
+		len(got.Cases[0].EntryIDs) != 4 ||
+		bytes.Contains(out.Bytes(), []byte("demo-tenant-b")) {
+		t.Fatalf("CLI exported data beyond the selected authorized Case: %v", err)
 	}
 }
 
