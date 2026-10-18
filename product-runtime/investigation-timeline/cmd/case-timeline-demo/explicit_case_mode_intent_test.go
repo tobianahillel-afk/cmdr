@@ -60,3 +60,16 @@ func TestNonemptyCaseReportRemainsAvailableAfterSelectorHardening(t *testing.T) 
 		t.Fatalf("authorized offline Case report missing or viewer leaked a token: %q", report.String())
 	}
 }
+
+func TestExplicitEmptySnapshotNeverSelectsDefaultFixtureForOfflineReport(t *testing.T) {
+	for _,args := range [][]string{
+		{"-snapshot=", "-report-case", "forensic-case-on-disk"},
+		{"-snapshot", "", "-report-case", "forensic-case-on-disk"},
+	} {
+		var output bytes.Buffer
+		err:=runDemoCLI(context.Background(),args,&output)
+		if err==nil || !strings.Contains(err.Error(),"cannot be empty") || output.Len()!=0 {
+			t.Fatalf("explicitly empty Case owner snapshot fell back to synthetic default: %v %q",err,output.String())
+		}
+	}
+}
