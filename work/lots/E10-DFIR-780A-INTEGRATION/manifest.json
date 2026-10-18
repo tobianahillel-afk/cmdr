@@ -1,0 +1,119 @@
+{
+  "schema_version": 2,
+  "id": "E10-DFIR-780A-INTEGRATION",
+  "title": "Reconcile and verify one consolidated source-authorized DFIR release candidate",
+  "type": "task",
+  "goal": "Integrate previously implemented, independently reviewed saved-Case investigation capabilities into one green release candidate based directly on the earlier Case foundation, while preserving all original Git SHAs and code ownership; perform no new product-runtime work in this unit.",
+  "depends_on": [
+    "E10-INV-110E"
+  ],
+  "parent": "E10-DFIR-780A",
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-002",
+      "CAP-INV-004",
+      "CAP-INV-110"
+    ],
+    "requirements": [
+      "REQ-PROD-014",
+      "REQ-PROD-018",
+      "REQ-PROD-019"
+    ],
+    "screens": [
+      "INV-TIM-001"
+    ],
+    "permissions": [],
+    "open_decisions": [
+      "OPEN-013"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/case.md",
+      "cmdr-product-spec/05-domain-model/objects/timeline-entry.md"
+    ]
+  },
+  "allowed_paths": [
+    "work/graph.json",
+    "engineering/state/current.json",
+    "work/lots/E10-DFIR-780A-INTEGRATION/**"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/**",
+    "tools/cmdr-dev/**"
+  ],
+  "invariants": [
+    "The new integration branch must preserve exact prior product implementation commits as ancestors, with no code rewrite, force push, or new runtime API.",
+    "The proposed merge base is the unchanged GitHub PR #113 head, not main; preserve native review and required checks of every relevant ancestor.",
+    "Never equate local synthetic owner snapshot, SHA-256 comparison, correlation leads, or green branch checks with production IAM or signed forensic custody."
+  ],
+  "security_properties": [
+    "No change to first-party Case/Timeline/typed-source ACL, principal, tenant/environment isolation, or raw evidence boundaries.",
+    "Require every mandatory security and runtime check on the actual new integration HEAD; no lowering of the changed-critical-coverage 90% floor.",
+    "A branch that passes its own CI cannot be merged if protected-base/approval dependencies remain unresolved."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Git-only consolidation of existing commits and engineering recovery metadata; no product runtime, datastore or schema change.",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Close the consolidation PR and leave frozen parent PRs unchanged; no source code or repository history is removed.",
+    "verification": [
+      "Original PR #113, #120, #122, #123 and #124 heads remain unchanged.",
+      "The original tested product code remains reachable at SHA 37c9a64714d5a0ae4a08691c69480126500b1bf8."
+    ]
+  },
+  "inputs": [
+    "GitHub PR #113 fixed head c11809d41a54851d709ed19f33a10b5771cc2c06",
+    "PR #123 fixed head 18fbbeb871813e7fb5ac1cc89dec575303f41805, parent engineering kernel failed, not mergeable",
+    "PR #124 fixed head 37c9a64714d5a0ae4a08691c69480126500b1bf8, BOTH exact SHA workflows success",
+    "Canonical CAP-INV-002, CAP-INV-004 and CAP-INV-110 and trusted owner / source ACL boundaries"
+  ],
+  "outputs": [
+    "A single new DRAFT GitHub release-candidate PR based directly on PR #113 and reusing all unmodified previously integrated source commits.",
+    "Traceable reconciliation of stale E10-INV-120A-SNAPSHOT READY state as decomposed and a bounded actionable follow-up integration unit.",
+    "Recorded exact GitHub compare and CI evidence, remaining native approval and parent dependency gates, and next independent product obligation."
+  ],
+  "acceptance_tests": [
+    "GitHub compare PR #113 head .. new branch reports ahead >0, behind 0, and contains the complete known integrated Wazuh catalog and source-revocation regression.",
+    "GitHub's investigation-timeline-runtime workflow and engineering-kernel mandatory checks both succeed on the exact published release-candidate SHA.",
+    "No diff under cmdr-product-spec or product-runtime against source PR #124; only engineering handoff metadata is new.",
+    "Release candidate stays draft and unmerged until native reviews, branch protections and all required ancestors are satisfied."
+  ],
+  "performance_budget": {
+    "applicable": false,
+    "rationale": "No changed executable code, data flow, queries or runtime design; reuse already measured source branch.",
+    "metrics": []
+  },
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-ARCHITECTURE",
+    "CHK-RUNTIME-DEPS",
+    "CHK-SECURITY-TESTS"
+  ],
+  "definition_of_ready": [
+    "E10-INV-110E VERIFIED.",
+    "Identical GitHub ancestry confirmed from PR #113 to #124 with 0 behind commits.",
+    "PR #124 exact-head runtime and kernel CI SUCCESS."
+  ],
+  "definition_of_done": [
+    "Verified HEAD/base and original frozen SHA provenance for a single DRAFT integration candidate.",
+    "Exact new SHA mandatory GitHub CI recorded.",
+    "Independent review of significant Git integration delta, and no merge claims until native approvals and required checks."
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 3,
+    "estimated_net_loc": 0,
+    "production_files": 0,
+    "net_production_loc": 0,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 0,
+    "separately_testable_behaviors": 1
+  }
+}
