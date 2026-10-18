@@ -29,27 +29,13 @@ type authorizedGenericPairContextSummary struct {
 // The input data is the scope-minimized result of loadAuthorizedImportedCase.
 func nearbyAuthorizedGenericPairContext(ctx context.Context, principal string,
 	data timeline.MemoryTimelineData, caseID string, imported map[string]struct{},
-	centerUTC string) (authorizedGenericPairContextSummary, error) {
-	summary, _, err := nearbyAuthorizedGenericPairContextAndEvidence(
-		ctx, principal, data, caseID, imported, centerUTC, false)
-	return summary, err
-}
-
-// The first-party owner is opened ONCE per selected generic lead, whether
-// the caller needs metadata-only context (default v2) or explicitly opts into
-// private raw previews (v3). Previously v3 opened every shortlisted source
-// twice, rebuilding owner authorization and repeating private reads.
-// This function never returns previews unless requested; a failed source
-// authorization returns neither a partial summary nor partial evidence.
-func nearbyAuthorizedGenericPairContextAndEvidence(ctx context.Context, principal string,
-	data timeline.MemoryTimelineData, caseID string, imported map[string]struct{},
-	centerUTC string, includeEvidence bool) (authorizedGenericPairContextSummary, []localEntryInspection, error) {
+	centerUTC string, optionalEvidence ...*[]localEntryInspection) (authorizedGenericPairContextSummary, error) {
 	if ctx == nil || ctx.Err() != nil {
-		return authorizedGenericPairContextSummary{}, nil, errors.New("generic context inspection cancelled")
+		return authorizedGenericPairContextSummary{}, errors.New("generic context inspection cancelled")
 	}
 	center, err := time.Parse(time.RFC3339Nano, centerUTC)
 	if err != nil {
-		return authorizedGenericPairContextSummary{}, nil, errors.New("paired Wazuh clock unavailable")
+		return authorizedGenericPairContextSummary{}, errors.New("paired Wazuh clock unavailable")
 	}
 	sources := make(map[string]timeline.MemoryTimelineSource, len(data.Sources))
 	for _, src := range data.Sources {
@@ -78,62 +64,60 @@ func nearbyAuthorizedGenericPairContextAndEvidence(ctx context.Context, principa
 		}
 		at, err := time.Parse(time.RFC3339Nano, entry.Value.SourceTime)
 		if err != nil {
-			return authorizedGenericPairContextSummary{}, nil, errors.New("generic Case source has invalid UTC clock")
+			return authorizedGenericPairContextSummary{}, errors.New("generic Case source has invalid UTC clock")
 		}
 		offset := at.Sub(center)
 		if offset < -radius || offset > radius {
 			continue
 		}
 		distance := offset
-		if distance < 0 {
-			distance = -distance
-		}
+		if distance < 0 { distance = -distance }
 		candidates = append(candidates, candidate{
 			authorizedGenericPairContext: authorizedGenericPairContext{
-				EntryID: entry.Value.ID,
-				TimeUTC: at.UTC().Format(time.RFC3339Nano),
+				EntryID: entry.Value.ID, TimeUTC: at.UTC().Format(time.RFC3339Nano),
 				OffsetSeconds: int(offset / time.Second),
 			},
 			at: at, distance: distance,
 		})
 	}
+	// Prioritize actual proximity, not Case catalogue insertion order; only
+	// ten contextual leads are published, with deterministic tie-breaking.
 	sort.Slice(candidates, func(i, j int) bool {
 		a, b := candidates[i], candidates[j]
-		if a.distance != b.distance {
-			return a.distance < b.distance
-		}
-		if !a.at.Equal(b.at) {
-			return a.at.Before(b.at)
-		}
+		if a.distance != b.distance { return a.distance < b.distance }
+		if !a.at.Equal(b.at) { return a.at.Before(b.at) }
 		return a.EntryID < b.EntryID
 	})
-	summary := authorizedGenericPairContextSummary{
+	result := authorizedGenericPairContextSummary{
 		Entries: make([]authorizedGenericPairContext, 0, 10),
 		Truncated: len(candidates) > 10,
 	}
-	var evidence []localEntryInspection
-	if includeEvidence {
-		evidence = make([]localEntryInspection, 0, 10)
-	}
+	// Only explicit private v3 callers receive already owner-authorized
+	// source inspections. Default v2 never retains their raw previews.
+	retainEvidence := len(optionalEvidence) > 0 && optionalEvidence[0] != nil
+	var stagedEvidence []localEntryInspection
 	for i, selected := range candidates {
-		if i == 10 {
-			break
-		}
-		// IDs are navigation selectors, NEVER access grants. The same
-		// first-party source inspection authorizes each result in both
-		// modes; only the explicitly private v3 caller retains its preview.
+		if i == 10 { break }
+		// A canonical imported ID is only a selector. Reopen its owner on
+		// the SAME independently authorized Case before disclosing even
+		// contextual metadata; discard previews, never export raw events.
 		opened, err := inspectDemoEntryWithData(ctx, principal, data, caseID, selected.EntryID)
 		if err != nil || !opened.Synthetic || opened.CaseID != caseID ||
 			opened.EntryID != selected.EntryID || opened.Kind != "telemetry-event" {
-			return authorizedGenericPairContextSummary{}, nil, errors.New("generic contextual source authorization failed")
+			return authorizedGenericPairContextSummary{}, errors.New("generic contextual source authorization failed")
 		}
-		summary.Entries = append(summary.Entries, selected.authorizedGenericPairContext)
-		if includeEvidence {
-			evidence = append(evidence, opened)
+		result.Entries = append(result.Entries, selected.authorizedGenericPairContext)
+		if retainEvidence {
+			stagedEvidence = append(stagedEvidence, opened)
 		}
 	}
 	if err := ctx.Err(); err != nil {
-		return authorizedGenericPairContextSummary{}, nil, err
+		return authorizedGenericPairContextSummary{}, err
 	}
-	return summary, evidence, nil
+	// Assign the fully authorized result only after ALL candidate source
+	// checks succeed; no caller can receive a partial private preview set.
+	if retainEvidence {
+		*optionalEvidence[0] = stagedEvidence
+	}
+	return result, nil
 }
