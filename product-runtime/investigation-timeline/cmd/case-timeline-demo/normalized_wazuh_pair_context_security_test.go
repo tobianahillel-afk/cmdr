@@ -137,10 +137,21 @@ func TestPrivateWazuhPairContextDoesNotExportRevokedGenericSource(t *testing.T) 
 		FirstGenericContext authorizedGenericPairContextSummary `json:"first_generic_context"`
 	}
 	if err:=json.Unmarshal(raw,&report);err!=nil {t.Fatal(err)}
+	// The original Wazuh Case fixture already contains a DIFFERENT,
+	// owner-authorized generic event at exactly +60 seconds. Revoking
+	// the newly imported source must not hide that valid contextual lead.
+	// It must only hide the revoked source and its canonical Entry ID.
+	revokedEntryID := "local-jsonl-entry-" + strings.TrimPrefix(genericSource,"local-jsonl-source-")
 	if report.Pair.FirstEntryID!=pair.FirstEntryID ||
 		report.Pair.SecondEntryID!=pair.SecondEntryID ||
-		len(report.FirstGenericContext.Entries)!=0 {
-		t.Fatalf("revoked generic source leaked into independently authorized pair: %+v",report)
+		len(report.FirstGenericContext.Entries)!=1 ||
+		report.FirstGenericContext.Entries[0].OffsetSeconds!=60 {
+		t.Fatalf("first-owner authorization or legitimate contextual visibility changed: %+v",report)
+	}
+	for _,lead:=range report.FirstGenericContext.Entries {
+		if lead.EntryID==revokedEntryID {
+			t.Fatal("revoked generic source was reintroduced as contextual evidence")
+		}
 	}
 }
 
