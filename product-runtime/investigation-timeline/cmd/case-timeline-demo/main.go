@@ -96,6 +96,8 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	inspectSavedPairFirstEntry := flags.String("inspect-saved-pair-first-entry", "", "first Case Wazuh Entry ID from an authorized pair receipt")
 	inspectSavedPairSecondEntry := flags.String("inspect-saved-pair-second-entry", "", "second Case Wazuh Entry ID from an authorized pair receipt")
 	findSavedPairFirstEntry := flags.String("find-saved-pair-first-entry", "", "metadata-only nearest authorized Wazuh pair for an exact first Case Entry ID")
+	findSavedPairSecondEntry := flags.String("find-saved-pair-second-entry", "", "metadata-only reverse Wazuh pair lookup by an exact second Case Entry ID")
+	findSavedPairSecondOffset := flags.Int("find-saved-pair-second-offset", 0, "zero-based offset (0..5000) for reverse Wazuh pair matches, ten per page")
 	listSavedWazuhPairOffset := flags.Int("list-saved-wazuh-pair-offset", -1, "zero-based authorized Wazuh pair page offset (0..5000), ten leads per page; needs two verified Case snapshots")
 	pairRuleID := flags.String("pair-rule-id", "", "exact Wazuh rule ID to scope metadata-only pair pagination; requires matching agent ID")
 	pairAgentID := flags.String("pair-agent-id", "", "exact Wazuh agent ID to scope metadata-only pair pagination; requires matching rule ID")
@@ -145,7 +147,7 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 			"compare-case", "with-case", "source-case", "source-ref",
 			"inspect-case", "inspect-entry", "inspect-wazuh-entry",
 			"inspect-saved-case", "inspect-saved-entry", "snapshot",
-			"find-saved-pair-first-entry", "pair-rule-id", "pair-agent-id":
+			"find-saved-pair-first-entry", "find-saved-pair-second-entry", "pair-rule-id", "pair-agent-id":
 			if f.Value.String() == "" { emptyExplicitMode = true }
 		}
 	})
@@ -281,7 +283,8 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 			"inspect-saved-pair", "inspect-saved-pair-first-entry",
 			"inspect-saved-pair-second-entry", "include-pair-generic-evidence",
 			"list-saved-wazuh-pair-offset", "find-saved-pair-first-entry",
-			"pair-rule-id", "pair-agent-id":
+			"pair-rule-id", "pair-agent-id",
+			"find-saved-pair-second-entry", "find-saved-pair-second-offset":
 			savedComparisonSelected = true
 		}
 	})
@@ -295,7 +298,8 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 				"private-report", "inspect-saved-pair",
 				"inspect-saved-pair-first-entry", "inspect-saved-pair-second-entry",
 				"include-pair-generic-evidence", "list-saved-wazuh-pair-offset",
-				"find-saved-pair-first-entry", "pair-rule-id", "pair-agent-id":
+				"find-saved-pair-first-entry", "find-saved-pair-second-entry",
+				"find-saved-pair-second-offset", "pair-rule-id", "pair-agent-id":
 			default:
 				allowed = false
 			}
@@ -335,14 +339,33 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 		}
 		// Discovery modes disclose only authorized metadata and are mutually
 		// exclusive with private dossier generation and with each other.
+		reverseOffsetSelected := false
+		flags.Visit(func(f *flag.Flag) {
+			if f.Name == "find-saved-pair-second-offset" { reverseOffsetSelected = true }
+		})
+		if reverseOffsetSelected && *findSavedPairSecondEntry == "" {
+			return errors.New("reverse pair offset requires a second-Case Entry ID")
+		}
 		if *findSavedPairFirstEntry != "" {
-			if pageSelected || ordinalSelected || entryIDsSelected ||
+			if *findSavedPairSecondEntry != "" || reverseOffsetSelected ||
+				pageSelected || ordinalSelected || entryIDsSelected ||
 				*privateReport != "" || *includePairGenericEvidence {
 				return errors.New("exact-ID discovery cannot be combined with pagination or private evidence")
 			}
 			return writeVerifiedSelectedWazuhPairLead(ctx, *principal, *snapshot,
 				*compareSavedCase, *expectedSnapshotSHA256, *compareSavedWithSnapshot,
 				*compareSavedWithCase, *expectedOtherSHA256, *findSavedPairFirstEntry, output)
+		}
+		if *findSavedPairSecondEntry != "" {
+			if pageSelected || ordinalSelected || entryIDsSelected ||
+				*privateReport != "" || *includePairGenericEvidence ||
+				*findSavedPairSecondOffset < 0 || *findSavedPairSecondOffset > 5000 {
+				return errors.New("reverse pair lookup cannot combine with private or other pair selectors")
+			}
+			return listVerifiedSavedWazuhPairsForSecondEntry(ctx, *principal, *snapshot,
+				*compareSavedCase, *expectedSnapshotSHA256, *compareSavedWithSnapshot,
+				*compareSavedWithCase, *expectedOtherSHA256,
+				*findSavedPairSecondEntry, *findSavedPairSecondOffset, output)
 		}
 		if pageSelected && (ordinalSelected || entryIDsSelected) {
 			return errors.New("pair pagination cannot be combined with a private pair selector")
