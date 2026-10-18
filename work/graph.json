@@ -1798,7 +1798,7 @@
       "id": "E10-DFIR-780A-INTEGRATION",
       "title": "Promote one unified tested DFIR release candidate against the earlier verified first-party Case foundation",
       "type": "task",
-      "status": "READY",
+      "status": "IMPLEMENTED",
       "depends_on": [
         "E10-INV-110E"
       ],

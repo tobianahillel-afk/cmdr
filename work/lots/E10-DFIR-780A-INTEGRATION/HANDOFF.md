@@ -107,3 +107,44 @@ integration plan as though GitHub had no later code.
 
 This reconciliation is additional history, not a retroactive replacement of
 the earlier `E10-DFIR-780A` manifests or product requirements.
+
+
+## Canonical continuation checkpoint — 2026-10-19, after new-base CI
+
+The direct-base integration is now supported by **fresh exact-head GitHub Actions
+on the retargeted PR #127**. On the 20-commit, 14-file diff from immutable
+PR #120 HEAD `db97ebb3299de6f2e9c3c1558553fdf78174bb35` to
+candidate `a72ecbbe77c5972d9b79d995751061470348310b`:
+
+- `investigation-timeline-runtime` run [39177579100](https://github.com/tobianahillel-afk/cmdr/actions/runs/39177579100):
+  **COMPLETED SUCCESS**, Linux Go/Node, macOS and Windows.
+- `engineering-kernel` run [39177579094](https://github.com/tobianahillel-afk/cmdr/actions/runs/39177579094):
+  **COMPLETED SUCCESS**, mandatory `CHK-SECURITY-TESTS` PASS; report
+  `coverage_status=measured global_coverage=90.76 global_floor=80
+  changed_floor=90 changed_scopes=1 auth_required=8 tenant_required=8`.
+  The mandatory floor was NOT changed or waived.
+- Historical PR #126's own 88.87% red kernel status REMAINS recorded;
+  this is a different, narrower integration-base/diff with its own real
+  successful check, not a retroactive green result for #126.
+- Code, Wazuh correlation algorithms, typed-source ACLs and L2-frozen
+  source commit contents are unchanged. Only PR base and recovery records
+  changed. The current integration work unit is therefore **IMPLEMENTED**
+  as an auditable DRAFT release candidate, deliberately NOT
+  `VERIFIED`, `ACCEPTED`, native-approved, merged or production ready.
+- This recovery metadata commit itself is the NEXT head. Its own
+  `pull_request.synchronize` mandatory checks must also be checked at
+  the exact new SHA; don't transfer the prior run status to it.
+- Distinct former ChatGPT L2 work reviewed #126's original base..head,
+  #127's earlier 5-file diff and source lead navigation. Results were
+  not available in the author conversation; a single independently
+  scoped combined-diff review is needed for the new base before
+  advancing beyond `IMPLEMENTED`. Do NOT create redundant reviews of
+  each immutable parent commit.
+- The work graph no longer falsely advertises the completed integration
+  as `READY`; the execution cache deliberately has NO preferred READY
+  work unit until canonical planning chooses a genuinely admissible
+  next behavior and creates its scoped manifest, instead of recycling
+  E10-INV-120A-SNAPSHOT or growing this transversal release unit.
+- Keep the prior #36 engineering foundation and #2 product-spec PRs
+  separate; downstream merge rights and required native approvals
+  must be checked independently. No fusion requested or performed.
