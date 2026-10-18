@@ -79,6 +79,7 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	triageImport := flags.Bool("triage-import", false, "analyze locally imported events; use -with-case for a two-Case comparison, optionally -compare-proximity for bounded time leads")
 	serveImport := flags.Bool("serve-import", false, "import local JSONL into an in-memory Case and open the authenticated loopback analyst viewer; no merged owner file")
 	saveImportSnapshot := flags.String("save-import-snapshot", "", "absolute new path for private normalized Case snapshot; explicit import only, no listener or overwrite")
+	saveWazuhCaseSnapshot := flags.String("save-wazuh-case-snapshot", "", "explicit new private scoped Case snapshot from 1..4 validated Wazuh 4.x local alert files; no listener")
 	resumeImportSearchCase := flags.String("resume-import-search-case", "", "Case ID in a saved normalized owner snapshot to reopen with an authenticated Search Job viewer")
 	verifyImportSnapshotCase := flags.String("verify-import-snapshot-case", "", "Case ID of a saved authorized owner snapshot to verify WITHOUT a listener; requires -expect-snapshot-sha256")
 	compareSavedCase := flags.String("compare-saved-case", "", "first saved authorized Case ID for independent offline cross-snapshot comparison")
@@ -107,6 +108,25 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	}
 	if flags.NArg() != 0 {
 		return errors.New("unexpected positional arguments")
+	}
+	// Bridge a real Wazuh import into the existing private, source-authorized
+	// Case persistence. This is a separate explicit mode; no other local
+	// report, online viewer, or saved-Case command can be combined with it.
+	if *saveWazuhCaseSnapshot != "" {
+		allowed := true
+		flags.Visit(func(f *flag.Flag) {
+			switch f.Name {
+			case "principal", "snapshot", "into-case", "wazuh-alerts",
+				"save-wazuh-case-snapshot":
+			default:
+				allowed = false
+			}
+		})
+		if !allowed || *snapshot == "" || *intoCase == "" || len(wazuhFiles) == 0 {
+			return errors.New("Wazuh private Case save requires owner snapshot, selected Case and 1..4 Wazuh files only")
+		}
+		return writePersistedWazuhCase(ctx, *principal, *snapshot, *intoCase,
+			[]string(wazuhFiles), *saveWazuhCaseSnapshot, output)
 	}
 	// Separate, strictly scoped read-only comparison of two independently
 	// persisted Cases. Never join their owner graphs or allow cross-tenant
