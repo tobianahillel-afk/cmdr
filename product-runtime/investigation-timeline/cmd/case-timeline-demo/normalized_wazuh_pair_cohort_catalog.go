@@ -50,13 +50,21 @@ func countAuthorizedCohortPairs(first, second []authorizedWazuhObservation) int 
 // Never include unpaired rule/agent metadata from either Case.
 func authorizedWazuhCohortCatalog(
 	left, right map[authorizedWazuhCohort][]authorizedWazuhObservation,
-	offset int,
+	offset int, filters ...string,
 ) ([]verifiedWazuhCohortCount, bool, error) {
+	if len(filters) != 0 && len(filters) != 2 {
+		return nil, false, errors.New("cohort catalog requires zero or two exact filters")
+	}
+	var ruleID, agentID string
+	if len(filters) == 2 { ruleID, agentID = filters[0], filters[1] }
 	if offset < 0 || offset > 5000 {
 		return nil, false, errors.New("Wazuh cohort catalog offset out of bounds")
 	}
 	found := make([]verifiedWazuhCohortCount, 0)
 	for key, first := range left {
+		if (ruleID != "" && key.rule != ruleID) || (agentID != "" && key.agent != agentID) {
+			continue
+		}
 		second := right[key]
 		if len(first) == 0 || len(second) == 0 {
 			continue
@@ -92,7 +100,7 @@ func authorizedWazuhCohortCatalog(
 
 func listVerifiedSavedWazuhCohortCatalog(ctx context.Context, principal,
 	firstPath, firstCase, firstSHA, secondPath, secondCase, secondSHA string,
-	offset int, output io.Writer,
+	offset int, filterRuleID, filterAgentID string, output io.Writer,
 ) error {
 	if ctx == nil || ctx.Err() != nil || output == nil || principal == "" ||
 		firstCase == "" || secondCase == "" || firstCase == secondCase ||
@@ -118,7 +126,7 @@ func listVerifiedSavedWazuhCohortCatalog(ctx context.Context, principal,
 	if err != nil {
 		return err
 	}
-	cohorts, hasMore, err := authorizedWazuhCohortCatalog(left, right, offset)
+	cohorts, hasMore, err := authorizedWazuhCohortCatalog(left, right, offset, filterRuleID, filterAgentID)
 	if err != nil {
 		return err
 	}
@@ -132,12 +140,15 @@ func listVerifiedSavedWazuhCohortCatalog(ctx context.Context, principal,
 		FirstCaseID  string                     `json:"first_case_id"`
 		SecondCaseID string                     `json:"second_case_id"`
 		Offset       int                        `json:"offset"`
+		FilterRuleID string                     `json:"filter_rule_id,omitempty"`
+		FilterAgentID string                    `json:"filter_agent_id,omitempty"`
 		HasMore      bool                       `json:"has_more"`
 		Cohorts      []verifiedWazuhCohortCount `json:"cohorts"`
 	}{
 		Format: "cmdr-authorized-wazuh-cohort-catalog-v1",
 		Synthetic: true, FirstCaseID: firstCase, SecondCaseID: secondCase,
-		Offset: offset, HasMore: hasMore, Cohorts: cohorts,
+		Offset: offset, FilterRuleID: filterRuleID, FilterAgentID: filterAgentID,
+		HasMore: hasMore, Cohorts: cohorts,
 	})
 	if err != nil {
 		return err
