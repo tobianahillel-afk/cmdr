@@ -18,6 +18,9 @@ type verifiedWazuhCohortCount struct {
 	FirstEvents  int    `json:"first_events"`
 	SecondEvents int    `json:"second_events"`
 	MatchedPairs int    `json:"matched_pairs"`
+	// First source-authorized pair, for a direct exact Entry-ID navigation.
+	// No report contents or access authority are included.
+	LeadPair *sharedAuthorizedWazuhEventPair `json:"lead_pair,omitempty"`
 }
 
 // Count precisely the first-Case events with an eligible second-Case peer
@@ -95,7 +98,20 @@ func authorizedWazuhCohortCatalog(
 	if end > len(found) {
 		end = len(found)
 	}
-	return found[offset:end], end < len(found), nil
+	// Resolve only the page's (at most ten) authorized cohorts. Reuse the
+	// exact pair navigator so IDs and time tie-breaks cannot diverge.
+	page := found[offset:end]
+	for i := range page {
+		key := authorizedWazuhCohort{rule: page[i].RuleID, agent: page[i].AgentID}
+		first, _ := sharedWazuhPairsPageFromObservations(
+			map[authorizedWazuhCohort][]authorizedWazuhObservation{key: left[key]},
+			map[authorizedWazuhCohort][]authorizedWazuhObservation{key: right[key]}, 0)
+		if len(first) == 0 {
+			return nil, false, errors.New("authorized Wazuh cohort has no navigable pair")
+		}
+		page[i].LeadPair = &first[0]
+	}
+	return page, end < len(found), nil
 }
 
 func listVerifiedSavedWazuhCohortCatalog(ctx context.Context, principal,

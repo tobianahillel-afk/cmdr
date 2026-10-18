@@ -62,6 +62,24 @@ func TestSavedWazuhCohortExactDiscoveryAndPairPivot(t *testing.T) {
 		var verified wazuhPairPageReceipt
 		if err := json.Unmarshal(pair.Bytes(), &verified); err != nil { t.Fatal(err) }
 		if len(verified.Pairs) != got.Cohorts[0].MatchedPairs { t.Fatal("catalog/pair count mismatch") }
+		lead := got.Cohorts[0].LeadPair
+		if lead == nil || lead.RuleID != tc.rule || lead.AgentID != tc.agent ||
+			lead.FirstEntryID != verified.Pairs[0].FirstEntryID ||
+			lead.SecondEntryID != verified.Pairs[0].SecondEntryID ||
+			lead.FirstTimeUTC != verified.Pairs[0].FirstTimeUTC ||
+			lead.SecondTimeUTC != verified.Pairs[0].SecondTimeUTC {
+			t.Fatalf("catalog entry is not directly navigable to authorized first pair: %+v", lead)
+		}
+		// Drill down through the existing exact Entry-ID navigation, not a new
+		// report access mechanism or a leaked source preview.
+		selected, err := call("-find-saved-pair-first-entry", lead.FirstEntryID)
+		if err != nil { t.Fatalf("follow cohort lead: %v", err) }
+		var selectedPair struct { Pair sharedAuthorizedWazuhEventPair `json:"pair"` }
+		if err := json.Unmarshal(selected.Bytes(), &selectedPair); err != nil { t.Fatal(err) }
+		if selectedPair.Pair.FirstEntryID != lead.FirstEntryID ||
+			selectedPair.Pair.SecondEntryID != lead.SecondEntryID {
+			t.Fatalf("catalog lead cannot be followed by exact Entry ID: %+v", selectedPair.Pair)
+		}
 	}
 	none, err := call("-list-saved-wazuh-cohorts-offset", "0", "-catalog-rule-id", "absent")
 	if err != nil { t.Fatal(err) }

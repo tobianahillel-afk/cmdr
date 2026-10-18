@@ -60,7 +60,8 @@ func TestIntegratedWazuhCatalogRecountsAfterSourceRevocation(t *testing.T) {
 	}
 	before := readCatalog()
 	beforeFiltered := readFiltered("5710", "001")
-	if len(beforeFiltered) != 1 || beforeFiltered[0].MatchedPairs != 2 {
+	if len(beforeFiltered) != 1 || beforeFiltered[0].MatchedPairs != 2 ||
+		beforeFiltered[0].LeadPair == nil {
 		t.Fatalf("initial exact-source cohort mismatch: %+v", beforeFiltered)
 	}
 	if len(before) != 2 || before[0].RuleID != "5710" || before[0].MatchedPairs != 2 {
@@ -109,7 +110,9 @@ func TestIntegratedWazuhCatalogRecountsAfterSourceRevocation(t *testing.T) {
 	}
 	after := readCatalog()
 	afterFiltered := readFiltered("5710", "001")
-	if len(afterFiltered) != 1 || afterFiltered[0].MatchedPairs != 1 {
+	if len(afterFiltered) != 1 || afterFiltered[0].MatchedPairs != 1 ||
+		afterFiltered[0].LeadPair == nil ||
+		afterFiltered[0].LeadPair.FirstEntryID == revokedID {
 		t.Fatalf("revoked first-Case source still counted by exact catalog filter: %+v", afterFiltered)
 	}
 	unrelatedFiltered := readFiltered("8020", "002")
@@ -127,7 +130,9 @@ func TestIntegratedWazuhCatalogRecountsAfterSourceRevocation(t *testing.T) {
 		t.Fatal(err)
 	}
 	if len(filtered.Pairs) != after[1].MatchedPairs ||
-		filtered.Pairs[0].FirstEntryID == revokedID {
+		filtered.Pairs[0].FirstEntryID == revokedID ||
+		filtered.Pairs[0].FirstEntryID != afterFiltered[0].LeadPair.FirstEntryID ||
+		filtered.Pairs[0].SecondEntryID != afterFiltered[0].LeadPair.SecondEntryID {
 		t.Fatalf("catalog and pair navigation diverge after revocation: %+v", filtered)
 	}
 }
