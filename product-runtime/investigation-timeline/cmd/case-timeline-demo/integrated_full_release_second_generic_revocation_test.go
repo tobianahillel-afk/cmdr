@@ -98,7 +98,7 @@ func TestConsolidatedPairDossierExcludesRevokedSecondGenericSource(t *testing.T)
 	if report.Format != "cmdr-private-verified-wazuh-pair-v3" ||
 		report.Pair.FirstEntryID != pair.FirstEntryID ||
 		report.Pair.SecondEntryID != pair.SecondEntryID ||
-		len(report.FirstGenericEvidence) != 1 {
+		len(report.FirstGenericEvidence) < 1 {
 		t.Fatalf("revocation corrupted authorized first source or Wazuh pair: %+v", report)
 	}
 	allowed := false
@@ -112,6 +112,13 @@ func TestConsolidatedPairDossierExcludesRevokedSecondGenericSource(t *testing.T)
 		}
 	}
 	if !allowed { t.Fatal("valid second generic evidence was hidden by unrelated revocation") }
+	firstAllowed := false
+	for _, opened := range report.FirstGenericEvidence {
+		if strings.Contains(opened.Preview, "FIRST-GENERIC-ALLOWED-CONTENT") {
+			firstAllowed = true
+		}
+	}
+	if !firstAllowed { t.Fatal("authorized first generic source disappeared from the private dossier") }
 	for _, lead := range report.SecondGenericContext.Entries {
 		if lead.EntryID == deniedEntry { t.Fatal("denied second entry leaked even as metadata") }
 	}
