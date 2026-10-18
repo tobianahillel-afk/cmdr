@@ -133,7 +133,8 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 			"compare-saved-case", "compare-saved-with-case",
 			"compare-saved-with-snapshot", "export-case", "report-case",
 			"compare-case", "with-case", "source-case", "source-ref",
-			"inspect-case", "inspect-entry", "inspect-wazuh-entry":
+			"inspect-case", "inspect-entry", "inspect-wazuh-entry",
+			"snapshot":
 			if f.Value.String() == "" { emptyExplicitMode = true }
 		}
 	})
