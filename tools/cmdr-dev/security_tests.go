@@ -578,8 +578,8 @@ func unexecutedRuntimeBlocks(data []byte, changedPaths []string, adapter runtime
 	}
 	prefix := adapter.ModuleIdentity + "/"
 	type miss struct {
-		path string
-		line int
+		path       string
+		line       int
 		statements int
 	}
 	var all, selected []miss
