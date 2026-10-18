@@ -156,3 +156,76 @@ func TestOfflineCaseVerificationCLIExclusiveAndMandatoryFingerprint(t *testing.T
 		}
 	}
 }
+
+func TestOfflineVerifierRefusesUnimportedButReadableCase(t *testing.T) {
+	const caseID="forensic-case-on-disk"
+	// Original owner snapshot is a valid and readable Case. It is not a
+	// saved normalized import, so verification must refuse a misleading
+	// forensic completeness receipt even when its SHA-256 is correct.
+	path:=snapshotFixture(t)
+	raw,err:=os.ReadFile(path)
+	if err!=nil {t.Fatal(err)}
+	digest:=fmt.Sprintf("%x",sha256.Sum256(raw))
+	var out bytes.Buffer
+	if err:=verifySavedNormalizedCase(context.Background(),"analyst-a",path,caseID,digest,&out);err==nil || out.Len()!=0 {
+		t.Fatalf("ordinary Case snapshot falsely verified as normalized import: %q",out.String())
+	}
+}
+
+func TestPrivateCaseAtomicPublicationDeniesUnsafeFilesystemDestinations(t *testing.T) {
+	dir:=t.TempDir()
+	existing:=filepath.Join(dir,"original-forensic-evidence.json")
+	const sentinel="DO NOT OVERWRITE EXISTING FORENSIC EVIDENCE"
+	if err:=os.WriteFile(existing,[]byte(sentinel),0600);err!=nil {t.Fatal(err)}
+	// A hardlink to the same evidence is not a new writable destination.
+	link:=filepath.Join(dir,"hardlink.json")
+	if err:=os.Link(existing,link);err!=nil {t.Fatalf("test hardlinks unavailable: %v",err)}
+	for _,dst:=range []string{
+		existing,
+		link,
+		dir,
+		filepath.Join(dir,"directory-that-does-not-exist","new-case.json"),
+	} {
+		if err:=writePrivateSnapshotAtomic(context.Background(),dst,[]byte("new sensitive owner"));err==nil {
+			t.Fatalf("unsafe private Case destination accepted: %q",dst)
+		}
+	}
+	got,err:=os.ReadFile(existing)
+	if err!=nil || string(got)!=sentinel {t.Fatal("existing forensic evidence modified")}
+	for _,ent:=range []string{existing,link} {
+		contents,err:=os.ReadFile(ent)
+		if err!=nil || string(contents)!=sentinel {t.Fatalf("existing evidence hardlink modified %s: %v",ent,err)}
+	}
+	for _,entry:=range []string{
+		"directory-that-does-not-exist",
+	} {
+		if _,err:=os.Stat(filepath.Join(dir,entry));!os.IsNotExist(err) {
+			t.Fatal("failed write created a missing directory")
+		}
+	}
+	// The caller cannot circumvent the bounded snapshot or choose relative
+	// evidence paths. These checks run before any output is created.
+	for _,test:=range []struct{ dest string; data []byte; ctx context.Context }{
+		{filepath.Join(dir,"too-large.json"),bytes.Repeat([]byte("x"),maxDemoSnapshotBytes+1),context.Background()},
+		{filepath.Join(dir,"empty.json"),nil,context.Background()},
+		{"relative-owner.json",[]byte("sensitive"),context.Background()},
+		{filepath.Join(dir,"nil-context.json"),[]byte("sensitive"),nil},
+	} {
+		if err:=writePrivateSnapshotAtomic(test.ctx,test.dest,test.data);err==nil {
+			t.Fatalf("invalid private Case export accepted: %q",test.dest)
+		}
+		if filepath.IsAbs(test.dest) {
+			if _,err:=os.Lstat(test.dest);!os.IsNotExist(err) {
+				t.Fatalf("rejected path was created: %q",test.dest)
+			}
+		}
+	}
+	// Failed attempts must never leave a .partial file with sensitive bytes.
+	entries,err:=os.ReadDir(dir)
+	if err!=nil {t.Fatal(err)}
+	for _,entry:=range entries {
+		if strings.HasPrefix(entry.Name(),".cmdr-private-case-") {
+			t.Fatalf("private owner tempfile leaked after a denied write: %q",entry.Name())
+		}
+	}
+}
