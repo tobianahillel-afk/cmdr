@@ -27,6 +27,7 @@ type MemoryTimelineEntry struct {
 	Value   Entry
 	Readers []string
 }
+
 // WazuhSourceMetadata is narrowly bounded descriptive information retained
 // with an operator-approved source; it is NEVER an access-control decision.
 // Original alert JSON, hostnames, IPs and full_log are not stored here.
