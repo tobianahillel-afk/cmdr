@@ -23,7 +23,7 @@ type sharedAuthorizedWazuhEventPair struct {
 // fully traversed before the caller can emit a comparison receipt.
 // Derive event-linked 60s leads from the SAME separately authorized
 // Wazuh source observations already used for five-minute counts.
-func sharedWazuhPairsFromObservations(left,right map[authorizedWazuhCohort][]authorizedWazuhObservation)([]sharedAuthorizedWazuhEventPair,error){
+func sharedWazuhPairsFromObservations(left,right map[authorizedWazuhCohort][]authorizedWazuhObservation)[]sharedAuthorizedWazuhEventPair{
 	type selection struct { cohort authorizedWazuhCohort; event authorizedWazuhObservation }
 	var ordered []selection
 	for key,observations:=range left {
@@ -75,7 +75,7 @@ func sharedWazuhPairsFromObservations(left,right map[authorizedWazuhCohort][]aut
 		})
 		if len(pairs)==10{break}
 	}
-	return pairs,nil
+	return pairs
 }
 
 func absTimeOffset(d time.Duration)time.Duration{
