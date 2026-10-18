@@ -81,6 +81,10 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	saveImportSnapshot := flags.String("save-import-snapshot", "", "absolute new path for private normalized Case snapshot; explicit import only, no listener or overwrite")
 	resumeImportSearchCase := flags.String("resume-import-search-case", "", "Case ID in a saved normalized owner snapshot to reopen with an authenticated Search Job viewer")
 	verifyImportSnapshotCase := flags.String("verify-import-snapshot-case", "", "Case ID of a saved authorized owner snapshot to verify WITHOUT a listener; requires -expect-snapshot-sha256")
+	compareSavedCase := flags.String("compare-saved-case", "", "first saved authorized Case ID for independent offline cross-snapshot comparison")
+	compareSavedWithCase := flags.String("compare-saved-with-case", "", "second distinct saved Case ID for independent cross-snapshot comparison")
+	compareSavedWithSnapshot := flags.String("compare-saved-with-snapshot", "", "absolute path to second independent saved Case snapshot")
+	expectedOtherSHA256 := flags.String("expect-other-snapshot-sha256", "", "independently retained SHA-256 of second saved Case snapshot")
 	expectedSnapshotSHA256 := flags.String("expect-snapshot-sha256", "", "optional 64-digit SHA-256 recorded at explicit Case save; verified against exact bytes on resume only")
 	reportCase := flags.String("report-case", "", "produce one authorized offline Case triage JSON receipt and exit (no listener)")
 	exportCase := flags.String("export-case", "", "export authorized Case Timeline events as sensitive local JSONL, without listener")
@@ -103,6 +107,38 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	}
 	if flags.NArg() != 0 {
 		return errors.New("unexpected positional arguments")
+	}
+	// Separate, strictly scoped read-only comparison of two independently
+	// persisted Cases. Never join their owner graphs or allow cross-tenant
+	// source access through the comparison output.
+	savedComparisonSelected := false
+	flags.Visit(func(f *flag.Flag) {
+		switch f.Name {
+		case "compare-saved-case", "compare-saved-with-case",
+			"compare-saved-with-snapshot", "expect-other-snapshot-sha256":
+			savedComparisonSelected = true
+		}
+	})
+	if savedComparisonSelected {
+		allowed := true
+		flags.Visit(func(f *flag.Flag) {
+			switch f.Name {
+			case "principal", "snapshot", "compare-saved-case",
+				"compare-saved-with-case", "compare-saved-with-snapshot",
+				"expect-snapshot-sha256", "expect-other-snapshot-sha256":
+			default:
+				allowed = false
+			}
+		})
+		if !allowed || *snapshot == "" || *compareSavedCase == "" ||
+			*compareSavedWithCase == "" || *compareSavedWithSnapshot == "" ||
+			*expectedSnapshotSHA256 == "" || *expectedOtherSHA256 == "" {
+			return errors.New("offline saved-Case comparison requires two Cases, snapshots and independently held SHA-256 receipts")
+		}
+		return compareVerifiedSavedCases(ctx, *principal, *snapshot,
+			*compareSavedCase, *expectedSnapshotSHA256,
+			*compareSavedWithSnapshot, *compareSavedWithCase,
+			*expectedOtherSHA256, output)
 	}
 	if *saveImportSnapshot != "" || *resumeImportSearchCase != "" || *verifyImportSnapshotCase != "" {
 		modes := 0
