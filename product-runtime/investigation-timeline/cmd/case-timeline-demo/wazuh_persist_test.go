@@ -15,6 +15,7 @@ import (
 	"time"
 
 	search "github.com/tobianahillel-afk/cmdr/product-runtime/event-search"
+	timeline "github.com/tobianahillel-afk/cmdr/product-runtime/investigation-timeline"
 )
 
 func TestWazuhFeedsPersistReopenAndSearchWithoutOriginalInputs(t *testing.T) {
@@ -146,5 +147,116 @@ func TestWazuhPrivatePersistenceProtectsExistingEvidenceAndCLIIsolation(t *testi
 	unchanged,err:=os.ReadFile(existing)
 	if err!=nil || !bytes.Equal(unchanged,sentinel) {
 		t.Fatal("operator evidence was overwritten by Wazuh Case save")
+	}
+}
+
+func TestPersistedWazuhRuleAndAgentSearchJobsAfterRestart(t *testing.T) {
+	const caseID="forensic-case-on-disk"
+	owner:=snapshotFixture(t)
+	one:=writeJSONLEvents(t,
+		"{\"id\":\"same-alert\",\"timestamp\":\"2026-10-17T10:00:00Z\",\"agent\":{\"id\":\"001\"},\"rule\":{\"id\":\"5710\",\"description\":\"PowerShell activity\" ,\"level\":9}}\n")
+	two:=writeJSONLEvents(t,
+		"{\"id\":\"same-alert\",\"timestamp\":\"2026-10-17T10:00:15Z\",\"agent\":{\"id\":\"002\"},\"rule\":{\"id\":\"5710\",\"description\":\"Shell alert on other feed\",\"level\":6}}\n"+
+		"{\"id\":\"other-alert\",\"timestamp\":\"2026-10-17T10:01:00Z\",\"agent\":{\"id\":\"002\"},\"rule\":{\"id\":\"1000\",\"description\":\"routine maintenance\"}}\n")
+	dest:=filepath.Join(t.TempDir(),"authorized-wazuh-owner.json")
+	if err:=writePersistedWazuhCase(context.Background(),"analyst-a",owner,caseID,[]string{one,two},dest,&bytes.Buffer{});err!=nil {
+		t.Fatalf("Wazuh authorized save failed: %v",err)
+	}
+	raw,err:=os.ReadFile(dest)
+	if err!=nil {t.Fatal(err)}
+	digest:=fmt.Sprintf("%x",sha256.Sum256(raw))
+	if err:=os.Remove(one);err!=nil {t.Fatal(err)}
+	if err:=os.Remove(two);err!=nil {t.Fatal(err)}
+	data,ids,err:=loadAuthorizedImportedCase(context.Background(),"analyst-a",dest,caseID,digest)
+	if err!=nil || len(ids)!=3 {t.Fatalf("Wazuh saved Case not independently restorable: %d %v",len(ids),err)}
+	metaCount:=0
+	for _,src:=range data.Sources {
+		if src.Wazuh==nil {continue}
+		metaCount++
+		if src.Wazuh.RuleID=="5710" && (src.Wazuh.RuleLevel==nil ||
+			*src.Wazuh.RuleLevel<6 || *src.Wazuh.RuleLevel>9) {
+			t.Fatalf("saved canonical Wazuh severity lost: %+v",src.Wazuh)
+		}
+		if src.Wazuh.Feed<1 || src.Wazuh.Feed>2 {
+			t.Fatalf("saved source feed discriminator missing: %+v",src.Wazuh)
+		}
+	}
+	if metaCount!=3 {t.Fatalf("expected 3 owner-attached Wazuh source metadata records, got %d",metaCount)}
+	token,err:=randomBearer()
+	if err!=nil {t.Fatal(err)}
+	ownerHandler,err:=newDemoHandlerWithData(token,"analyst-a",data)
+	if err!=nil {t.Fatal(err)}
+	searchHandler:=newDemoLocalJSONLSearchHandler(token,"analyst-a",caseID,data,ids,ownerHandler)
+	invoke:=func(field,value,bearer string) *httptest.ResponseRecorder {
+		t.Helper()
+		requestBody,_:=json.Marshal(map[string]string{
+			"case_id":caseID,"field":field,"value":value,
+			"from":"2026-10-17T09:59:00Z","to":"2026-10-17T10:02:00Z"})
+		req:=httptest.NewRequest(http.MethodPost,"/demo-local-search",bytes.NewReader(requestBody))
+		req.Header.Set("Authorization","Bearer "+bearer)
+		req.Header.Set("Content-Type","application/json")
+		out:=httptest.NewRecorder()
+		searchHandler.ServeHTTP(out,req)
+		return out
+	}
+	for _,tc:=range []struct{field,value string;want int}{
+		{"rule_id","5710",2},
+		{"rule_id","1000",1},
+		{"agent_id","001",1},
+		{"agent_id","002",2},
+		{"rule_id","9999",0},
+		{"preview","powershell",1},
+	}{
+		out:=invoke(tc.field,tc.value,token)
+		var receipt struct { Job search.SearchJob `json:"job"` }
+		if out.Code!=http.StatusOK || json.Unmarshal(out.Body.Bytes(),&receipt)!=nil ||
+			receipt.Job.State!=search.JobCompleted || len(receipt.Job.ResultRefs)!=tc.want {
+			t.Fatalf("saved Wazuh field=%s value=%s pivot failed: %d %s",tc.field,tc.value,out.Code,out.Body.String())
+		}
+		for _,result:=range receipt.Job.ResultRefs {
+			if _,authorized:=ids[result.Ref];!authorized {
+				t.Fatalf("pivot returned unauthorized source: %+v",result)
+			}
+			srcReq:=httptest.NewRequest(http.MethodGet,"/demo-source-open?case_id="+caseID+"&entry_id="+result.Ref,nil)
+			srcReq.Header.Set("Authorization","Bearer "+token)
+			opened:=httptest.NewRecorder()
+			ownerHandler.ServeHTTP(opened,srcReq)
+			if opened.Code!=http.StatusOK {t.Fatalf("returned source not reopenable by owner: %s",result.Ref)}
+		}
+		for _,secret:=range []string{"PowerShell activity","Shell alert on other feed","routine maintenance",token} {
+			if strings.Contains(out.Body.String(),secret) {t.Fatalf("SearchJob leaked raw source or bearer: %q",secret)}
+		}
+	}
+	for _,bad:=range []struct{field,value,bearer string}{
+		{"rule_id","x5710",token},
+		{"agent_id","10.1.1.1",token},
+		{"rule_id","5710","bad-bearer"},
+		{"agent_id","",token},
+		{"full_log","PowerShell",token},
+	}{
+		out:=invoke(bad.field,bad.value,bad.bearer)
+		if out.Code==http.StatusOK || strings.Contains(out.Body.String(),"local-jsonl-entry-") {
+			t.Fatalf("invalid or unauthorized Wazuh pivot returned source: %s %d",bad.field,out.Code)
+		}
+	}
+	// A saved owner with malformed numerical fields must fail validation
+	// on reload, before it can issue any Case or source access.
+	for _,change:=range []func(*timeline.WazuhSourceMetadata){
+		func(m *timeline.WazuhSourceMetadata){m.AgentID="other-tenant-host"},
+		func(m *timeline.WazuhSourceMetadata){v:=17;m.RuleLevel=&v},
+		func(m *timeline.WazuhSourceMetadata){m.Feed=5},
+	}{
+		copyData:=data
+		copyData.Sources=append([]timeline.MemoryTimelineSource(nil),data.Sources...)
+		for i:=range copyData.Sources {
+			if copyData.Sources[i].Wazuh==nil {continue}
+			meta:=*copyData.Sources[i].Wazuh
+			change(&meta)
+			copyData.Sources[i].Wazuh=&meta
+			break
+		}
+		if _,err:=newDemoHandlerWithData(token,"analyst-a",copyData);err==nil {
+			t.Fatal("invalid or spoofed Wazuh source metadata trusted by owner")
+		}
 	}
 }
