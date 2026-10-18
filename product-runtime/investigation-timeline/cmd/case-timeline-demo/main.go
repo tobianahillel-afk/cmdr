@@ -80,6 +80,7 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	serveImport := flags.Bool("serve-import", false, "import local JSONL into an in-memory Case and open the authenticated loopback analyst viewer; no merged owner file")
 	saveImportSnapshot := flags.String("save-import-snapshot", "", "absolute new path for private normalized Case snapshot; explicit import only, no listener or overwrite")
 	resumeImportSearchCase := flags.String("resume-import-search-case", "", "Case ID in a saved normalized owner snapshot to reopen with an authenticated Search Job viewer")
+	verifyImportSnapshotCase := flags.String("verify-import-snapshot-case", "", "Case ID of a saved authorized owner snapshot to verify WITHOUT a listener; requires -expect-snapshot-sha256")
 	expectedSnapshotSHA256 := flags.String("expect-snapshot-sha256", "", "optional 64-digit SHA-256 recorded at explicit Case save; verified against exact bytes on resume only")
 	reportCase := flags.String("report-case", "", "produce one authorized offline Case triage JSON receipt and exit (no listener)")
 	exportCase := flags.String("export-case", "", "export authorized Case Timeline events as sensitive local JSONL, without listener")
@@ -103,9 +104,13 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	if flags.NArg() != 0 {
 		return errors.New("unexpected positional arguments")
 	}
-	if *saveImportSnapshot != "" || *resumeImportSearchCase != "" {
-		if *saveImportSnapshot != "" && *resumeImportSearchCase != "" {
-			return errors.New("choose either save or resume, not both")
+	if *saveImportSnapshot != "" || *resumeImportSearchCase != "" || *verifyImportSnapshotCase != "" {
+		modes := 0
+		for _, chosen := range []string{*saveImportSnapshot, *resumeImportSearchCase, *verifyImportSnapshotCase} {
+			if chosen != "" { modes++ }
+		}
+		if modes != 1 {
+			return errors.New("select exactly one Case save, resume, or offline verify mode")
 		}
 		// Explicit modes are intentionally narrow. Never accidentally
 		// combine sensitive disk writes with a Wazuh, Case export, viewer,
@@ -116,8 +121,12 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 			case "principal", "snapshot":
 			case "save-import-snapshot", "into-case", "import-jsonl", "import-jsonl-extra":
 				if *saveImportSnapshot == "" { invalid = true }
-			case "resume-import-search-case", "expect-snapshot-sha256":
+			case "resume-import-search-case":
 				if *resumeImportSearchCase == "" { invalid = true }
+			case "verify-import-snapshot-case":
+				if *verifyImportSnapshotCase == "" { invalid = true }
+			case "expect-snapshot-sha256":
+				if *resumeImportSearchCase == "" && *verifyImportSnapshotCase == "" { invalid = true }
 			default:
 				invalid = true
 			}
@@ -131,6 +140,9 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 			}
 			paths := append([]string{*importJSONL}, extraJSONL...)
 			return writeDemoPersistedNormalizedCase(ctx, *principal, *snapshot, *intoCase, paths, *saveImportSnapshot, output)
+		}
+		if *verifyImportSnapshotCase != "" {
+			return verifySavedNormalizedCase(ctx, *principal, *snapshot, *verifyImportSnapshotCase, *expectedSnapshotSHA256, output)
 		}
 		return serveDemoReopenedNormalizedCase(ctx, *principal, *snapshot, *resumeImportSearchCase, *expectedSnapshotSHA256, output)
 	}
