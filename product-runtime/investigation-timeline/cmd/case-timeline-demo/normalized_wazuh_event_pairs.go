@@ -4,7 +4,6 @@ import (
 	"sort"
 	"time"
 
-	timeline "github.com/tobianahillel-afk/cmdr/product-runtime/investigation-timeline"
 )
 
 // Entry references remain scoped to their separately authorized Case owners.
