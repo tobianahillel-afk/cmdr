@@ -78,32 +78,6 @@ func sharedWazuhPairsFromObservations(left,right map[authorizedWazuhCohort][]aut
 	return pairs
 }
 
- // Find one exact source-scoped pair without the receipt's global first-ten
- // display cap. Reuse the same nearest-60s and deterministic tie-break logic.
- // The caller must independently verify/authorize both saved Case owners.
- func selectedAuthorizedWazuhPairByEntryIDs(
-     left, right map[authorizedWazuhCohort][]authorizedWazuhObservation,
-     firstID, secondID string,
- ) (sharedAuthorizedWazuhEventPair, bool) {
-     if firstID=="" || secondID=="" { return sharedAuthorizedWazuhEventPair{},false }
-     var subset map[authorizedWazuhCohort][]authorizedWazuhObservation
-     for cohort, events := range left {
-         for _,event := range events {
-             if event.id!=firstID { continue }
-             if subset!=nil { return sharedAuthorizedWazuhEventPair{},false }
-             subset=map[authorizedWazuhCohort][]authorizedWazuhObservation{
-                 cohort: []authorizedWazuhObservation{event},
-             }
-         }
-     }
-     if subset==nil { return sharedAuthorizedWazuhEventPair{},false }
-     matches:=sharedWazuhPairsFromObservations(subset,right)
-     if len(matches)!=1 || matches[0].SecondEntryID!=secondID {
-         return sharedAuthorizedWazuhEventPair{},false
-     }
-     return matches[0],true
- }
-
 func absTimeOffset(d time.Duration)time.Duration{
 	if d<0{return -d}
 	return d
