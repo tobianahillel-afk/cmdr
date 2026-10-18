@@ -33,7 +33,7 @@ func authorizedPersistedWazuhHits(data timeline.MemoryTimelineData, caseID strin
 		seen[ref.Ref] = true
 		entry, exists := entries[ref.Ref]
 		meta, authorized := metadata[ref.Ref]
-		if !exists || !authorized || entry.Value.Kind != "observed" || entry.Value.TimeUncertain {
+		if !exists || !authorized || entry.Value.Kind != "observed" || entry.Value.ClockUncertaintyMS != 0 {
 			return nil, errors.New("persisted Wazuh result lacks canonical authorized source and time")
 		}
 		at, err := time.Parse(time.RFC3339Nano, entry.Value.SourceTime)
