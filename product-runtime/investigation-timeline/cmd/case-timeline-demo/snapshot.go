@@ -2,6 +2,8 @@ package main
 
 import (
 	"bytes"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -18,6 +20,22 @@ const maxDemoSnapshotBytes = 8 << 20
 // The full dataset is copied and cross-checked by the existing memory provider
 // before the loopback listener starts. This is not a durable live repository.
 func loadDemoSnapshot(path string) (timeline.MemoryTimelineData, error) {
+	return loadDemoSnapshotWithExpectedDigest(path, "")
+}
+
+// Integrity checking uses the EXACT bytes loaded for JSON decoding, not a
+// separate file read susceptible to a rename/write race between validations.
+// The expected digest is recorded out-of-band by the operator at export;
+// this is NOT an authenticated signature or chain-of-custody attestation.
+func loadDemoSnapshotWithExpectedDigest(path, expectedHex string) (timeline.MemoryTimelineData, error) {
+	var expected []byte
+	if expectedHex != "" {
+		var err error
+		expected, err = hex.DecodeString(expectedHex)
+		if err != nil || len(expected) != sha256.Size || path == "" {
+			return timeline.MemoryTimelineData{}, errors.New("expected snapshot SHA-256 must be exactly 64 hexadecimal characters")
+		}
+	}
 	if path == "" {
 		return demoData(), nil
 	}
@@ -40,6 +58,12 @@ func loadDemoSnapshot(path string) (timeline.MemoryTimelineData, error) {
 	data, err := io.ReadAll(io.LimitReader(file, maxDemoSnapshotBytes+1))
 	if err != nil || len(data) > maxDemoSnapshotBytes {
 		return timeline.MemoryTimelineData{}, errors.New("snapshot exceeds size limit or cannot be read")
+	}
+	if expected != nil {
+		actual := sha256.Sum256(data)
+		if !bytes.Equal(actual[:], expected) {
+			return timeline.MemoryTimelineData{}, errors.New("operator-supplied snapshot SHA-256 does not match file bytes")
+		}
 	}
 	var snapshot timeline.MemoryTimelineData
 	decoder := json.NewDecoder(bytes.NewReader(data))
