@@ -211,9 +211,9 @@ func importLocalEventsFromFeed(ctx context.Context, snapshot timeline.MemoryTime
 	return result, nil
 }
 
-// Export only after full input validation and owner-graph construction.
-// The resulting file is a SENSITIVE synthetic owner snapshot; it may include
-// other tenants already in the operator-controlled input snapshot.
+// Export only the selected authorized Case after full input validation.
+// The resulting file remains sensitive because it contains permitted source
+// previews, but cannot include other tenants or denied source objects.
 func writeDemoImportedJSONL(ctx context.Context, principal, snapshotPath, caseID, eventsPath string, output io.Writer) error {
 	if snapshotPath == "" || eventsPath == "" || snapshotPath == eventsPath {
 		return errors.New("provide separate absolute owner snapshot and event JSONL files")
@@ -227,6 +227,15 @@ func writeDemoImportedJSONL(ctx context.Context, principal, snapshotPath, caseID
 		return err
 	}
 	merged, err := importLocalEvents(ctx, snapshot, principal, caseID, content)
+	if err != nil {
+		return err
+	}
+	// The legacy stdout JSONL import is ALSO a data export boundary: a
+	// caller able to import into one Case may not read other tenants/Cases,
+	// or even denied typed sources within their selected Case. Reuse the
+	// same first-party minimal owner projection as private disk snapshots.
+	// Do not serialize the unfiltered operator-supplied owner graph.
+	merged, err = scopedNormalizedCaseSnapshot(merged, principal, caseID)
 	if err != nil {
 		return err
 	}
