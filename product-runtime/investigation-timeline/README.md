@@ -73,3 +73,32 @@ and no-overwrite owner-private publisher are all reused unchanged.
 One ID alone or mixing ordinal and IDs fails closed. No raw data goes to stdout.
 Explicit -include-pair-generic-evidence still produces private v3 opt-in only.
 This remains offline lab DFIR, not deployed IAM or live ingestion.
+
+
+### Inspect a specific Wazuh pair beyond ten summary leads
+
+The metadata-only cross-Case correlation receipt deliberately lists only the
+first ten chronological leads. A specific later Wazuh alert can still be
+opened using the existing `-inspect-saved-pair-first-entry` and
+`-inspect-saved-pair-second-entry` options, with **both** original snapshot
+SHA-256 fingerprints and a new `-private-report`. The two Cases are independently
+reauthorized, and the nearest compatible rule/agent alert within 60 seconds
+is recomputed for that exact first Entry ID. An arbitrary second Entry ID
+cannot be substituted. Only the existing private 0600, no-overwrite v2/v3
+artifact receives raw source evidence; the bounded summary and stdout remain
+unchanged. This is temporal co-occurrence, not evidence of causation.
+
+### Discover a Wazuh pair beyond the first ten leads
+
+After saving two separately authorized Case snapshots and retaining their
+SHA-256 receipts, use the existing comparison flags with
+`-find-saved-pair-first-entry FIRST_ENTRY_ID` and no private report.
+The command returns only the nearest 60-second matched pair's original Entry
+IDs and clock metadata as `cmdr-authorized-wazuh-pair-lead-v1`.
+The two Cases and original typed sources are reauthorized, and no source
+preview or private file is emitted during discovery.
+
+The returned first and second Entry IDs can then be used with the existing
+`-inspect-saved-pair-first-entry` and `-inspect-saved-pair-second-entry`
+options and an explicitly new `-private-report` path. Neither an ID
+nor a temporal match is an access grant or proof of causality.
