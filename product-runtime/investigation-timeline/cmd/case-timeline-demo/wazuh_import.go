@@ -129,7 +129,11 @@ func newDemoWazuhCohortReceiptHandler(token, principal, caseID string, data time
 		w.Header().Set("Cache-Control", "no-store")
 		w.Header().Set("X-Content-Type-Options", "nosniff")
 		w.Header().Set("Referrer-Policy", "no-referrer")
-		if r.Method != http.MethodGet {
+		// Only this existing Search Job route accepts POST, and only
+		// text hunts are permitted by serveDemoWazuhSearch below. Other
+		// cohort/drilldown routes remain GET-only.
+		if r.Method != http.MethodGet &&
+			!(r.URL.Path == "/demo-wazuh-search" && r.Method == http.MethodPost) {
 			w.Header().Set("Allow", "GET")
 			http.Error(w, "method unavailable", http.StatusMethodNotAllowed)
 			return

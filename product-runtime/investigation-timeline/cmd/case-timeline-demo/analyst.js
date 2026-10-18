@@ -415,13 +415,26 @@
     wazuhSearchStatus.textContent = "Exécution du Search Job et nouvelle autorisation des sources…";
     try {
       const url = new URL("/demo-wazuh-search", window.location.origin);
-      url.searchParams.set("case_id", selectedCase);
-      url.searchParams.set("field", selectedField);
-      url.searchParams.set("value", selectedValue);
-      url.searchParams.set("from", fromDate.toISOString());
-      url.searchParams.set("to", toDate.toISOString());
+      const sensitiveText = selectedField === "preview";
+      // Consistent with the generic JSONL hunt: never put an indicator or
+      // operator search phrase in a URL. Keep existing numeric GET contract.
+      if (!sensitiveText) {
+        url.searchParams.set("case_id", selectedCase);
+        url.searchParams.set("field", selectedField);
+        url.searchParams.set("value", selectedValue);
+        url.searchParams.set("from", fromDate.toISOString());
+        url.searchParams.set("to", toDate.toISOString());
+      }
       const response = await fetch(url, {
-        method: "GET", headers: { Authorization: "Bearer " + bearer },
+        method: sensitiveText ? "POST" : "GET",
+        headers: {
+          Authorization: "Bearer " + bearer,
+          ...(sensitiveText ? { "Content-Type": "application/json" } : {})
+        },
+        ...(sensitiveText ? { body: JSON.stringify({
+          case_id: selectedCase, field: selectedField, value: selectedValue,
+          from: fromDate.toISOString(), to: toDate.toISOString()
+        }) } : {}),
         credentials: "omit", cache: "no-store", redirect: "error", mode: "same-origin",
         signal: controller.signal
       });
@@ -434,7 +447,8 @@
       const job = receipt?.job;
       if (receipt?.format !== "cmdr-local-wazuh4-executed-search-v1" ||
           receipt.synthetic !== true || receipt.case_id !== selectedCase ||
-          receipt.selector !== selectedField || receipt.value !== selectedValue ||
+          receipt.selector !== selectedField ||
+          receipt.value !== (selectedField === "preview" ? "" : selectedValue) ||
           job?.State !== "completed" || typeof job.ID !== "string" ||
           !Array.isArray(job.ResultRefs) || job.ResultRefs.length > 200 ||
           !Array.isArray(job.AuditTrail) || job.AuditTrail.length < 3 ||
