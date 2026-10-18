@@ -1774,6 +1774,30 @@
       "id": "E10-INV-120A-SNAPSHOT",
       "title": "Integrate an operator-provided durable Case snapshot into the authenticated loopback analyst journey",
       "type": "task",
+      "status": "DECOMPOSED",
+      "depends_on": [
+        "E10-INV-110E"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": []
+    },
+    {
+      "id": "E10-DFIR-780A",
+      "title": "Consolidate independently reviewed Case search, Wazuh pair navigation and source-authorized cohort discovery",
+      "type": "epic",
+      "status": "DECOMPOSED",
+      "depends_on": [
+        "E10-INV-110E"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-DFIR-780A-INTEGRATION"
+      ]
+    },
+    {
+      "id": "E10-DFIR-780A-INTEGRATION",
+      "title": "Promote one unified tested DFIR release candidate against the earlier verified first-party Case foundation",
+      "type": "task",
       "status": "READY",
       "depends_on": [
         "E10-INV-110E"

@@ -1,0 +1,119 @@
+{
+  "schema_version": 2,
+  "id": "E10-DFIR-780A-INTEGRATION",
+  "title": "Reconcile and verify one consolidated source-authorized DFIR release candidate",
+  "type": "task",
+  "goal": "Consolidate the already green Wazuh pair navigation from PR #120 with original source-authorized cohort catalog and independently reviewed Case ACL release candidate components, targeting the closest product-runtime parent PR #120; preserve all original SHA and product code without rewrite.",
+  "depends_on": [
+    "E10-INV-110E"
+  ],
+  "parent": "E10-DFIR-780A",
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-002",
+      "CAP-INV-004",
+      "CAP-INV-110"
+    ],
+    "requirements": [
+      "REQ-PROD-014",
+      "REQ-PROD-018",
+      "REQ-PROD-019"
+    ],
+    "screens": [
+      "INV-TIM-001"
+    ],
+    "permissions": [],
+    "open_decisions": [
+      "OPEN-013"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/case.md",
+      "cmdr-product-spec/05-domain-model/objects/timeline-entry.md"
+    ]
+  },
+  "allowed_paths": [
+    "work/graph.json",
+    "engineering/state/current.json",
+    "work/lots/E10-DFIR-780A-INTEGRATION/**"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/**",
+    "tools/cmdr-dev/**"
+  ],
+  "invariants": [
+    "The new integration branch must preserve exact prior product implementation commits as ancestors, with no code rewrite, force push, or new runtime API.",
+    "The proposed merge base is the unchanged GitHub PR #113 head, not main; preserve native review and required checks of every relevant ancestor.",
+    "Never equate local synthetic owner snapshot, SHA-256 comparison, correlation leads, or green branch checks with production IAM or signed forensic custody."
+  ],
+  "security_properties": [
+    "No change to first-party Case/Timeline/typed-source ACL, principal, tenant/environment isolation, or raw evidence boundaries.",
+    "Require every mandatory security and runtime check on the actual new integration HEAD; no lowering of the changed-critical-coverage 90% floor.",
+    "A branch that passes its own CI cannot be merged if protected-base/approval dependencies remain unresolved."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Git-only consolidation of existing commits and engineering recovery metadata; no product runtime, datastore or schema change.",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Close the consolidation PR and leave frozen parent PRs unchanged; no source code or repository history is removed.",
+    "verification": [
+      "PR #120, #113, #122, #123 and #124 frozen SHAs all remain unchanged.",
+      "Only newly introduced engineering-control-plane files differ from original #124 product-runtime tree."
+    ]
+  },
+  "inputs": [
+    "Unchanged GitHub PR #120 HEAD db97ebb3299de6f2e9c3c1558553fdf78174bb35 (Wazuh pair owner/source navigator, chosen closest integration base)",
+    "PR #113 HEAD c11809d41a54851d709ed19f33a10b5771cc2c06 is a parallel broader release candidate (its full kernel CI is red), its relevant regression is present via the original native merge ancestry.",
+    "PR #122 HEAD ef0fd7088447f85ed241ef1115645dd3aa8366e0 contains original separately tested cohort catalog source.",
+    "PR #124 HEAD 37c9a64714d5a0ae4a08691c69480126500b1bf8 contains the combined code with both exact-head workflows SUCCESS.",
+    "Canonical CAP-INV-002, CAP-INV-004, CAP-INV-110 first-party Case, Query and typed-source boundaries"
+  ],
+  "outputs": [
+    "Single DRAFT candidate PR using the closest relevant tested Wazuh navigation base PR #120, without requiring the red broad #113/#123 release PRs to merge first.",
+    "No rewritten source commits or duplicated Wazuh correlation engine; exact Case/source ACL regressions and catalog remain present.",
+    "Conservative reconciliation of stale snapshot READY into DECOMPOSED and a correct transversal engineering integration unit, without false full-capability VERIFIED claim."
+  ],
+  "acceptance_tests": [
+    "GitHub compare PR #120 head .. new branch reports ahead >0, behind 0, and contains the complete known integrated Wazuh catalog and source-revocation regression.",
+    "GitHub's investigation-timeline-runtime workflow and engineering-kernel mandatory checks both succeed on the exact published release-candidate SHA.",
+    "No diff under cmdr-product-spec or product-runtime against source PR #124; only engineering handoff metadata is new.",
+    "Release candidate stays draft and unmerged until native reviews, branch protections and all required ancestors are satisfied."
+  ],
+  "performance_budget": {
+    "applicable": false,
+    "rationale": "No changed executable code, data flow, queries or runtime design; reuse already measured source branch.",
+    "metrics": []
+  },
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-ARCHITECTURE",
+    "CHK-RUNTIME-DEPS",
+    "CHK-SECURITY-TESTS"
+  ],
+  "definition_of_ready": [
+    "E10-INV-110E VERIFIED and the existing first-party Wazuh pair-navigation stack from #120 is tested.",
+    "Exact GitHub compare PR #120..#124 shows 0 behind and 8 changed source/product files, with two independent PR #124 workflows SUCCESS."
+  ],
+  "definition_of_done": [
+    "Verified HEAD/base and original frozen SHA provenance for a single DRAFT integration candidate.",
+    "Exact new SHA mandatory GitHub CI recorded.",
+    "Independent review of significant Git integration delta, and no merge claims until native approvals and required checks."
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 3,
+    "estimated_net_loc": 0,
+    "production_files": 0,
+    "net_production_loc": 0,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 0,
+    "separately_testable_behaviors": 1
+  }
+}
