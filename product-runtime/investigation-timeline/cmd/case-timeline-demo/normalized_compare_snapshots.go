@@ -42,6 +42,11 @@ func compareVerifiedSavedCases(ctx context.Context, principal, firstPath, firstC
 	result, err := buildCaseComparison(a, b)
 	if err != nil { return err }
 	result.Format = "cmdr-local-verified-saved-case-comparison-v1"
+	// Both owners have already passed independent fingerprint, Case,
+	// Timeline and typed-source authorization before any Wazuh metadata
+	// is correlated. Generic JSONL snapshots simply produce no cohorts.
+	result.SharedWazuhWindows, err = sharedAuthorizedWazuhWindows(first, second, firstCase, secondCase)
+	if err != nil { return err }
 
 	// Stage the complete receipt before writing so a denied second Case can
 	// never cause a partial report about the first Case.
