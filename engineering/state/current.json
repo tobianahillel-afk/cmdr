@@ -23,27 +23,6 @@
   },
   "reconciliation": {
     "required_on_resume": true,
-    "recorded_state_is_authoritative": false,
-    "last_verified_candidate": {
-      "work_unit": "E10-DFIR-780A-INTEGRATION",
-      "pull_request": 127,
-      "base_pull_request": 120,
-      "reviewed_frozen_source_sha": "11607f13c355027cb0de21ce9bbde287860bef44",
-      "retarget_validated_head": "a72ecbbe77c5972d9b79d995751061470348310b",
-      "base_sha": "db97ebb3299de6f2e9c3c1558553fdf78174bb35",
-      "ahead_commits": 20,
-      "changed_files": 14,
-      "runtime_workflow_run": 39177579100,
-      "runtime_conclusion": "SUCCESS",
-      "engineering_workflow_run": 39177579094,
-      "engineering_conclusion": "SUCCESS",
-      "measured_global_coverage_percent": 90.76,
-      "required_changed_security_floor_percent": 90,
-      "work_status": "IMPLEMENTED",
-      "native_approved": false,
-      "merged": false,
-      "production_accepted": false,
-      "next_head_checks_required": true
-    }
+    "recorded_state_is_authoritative": false
   }
 }
