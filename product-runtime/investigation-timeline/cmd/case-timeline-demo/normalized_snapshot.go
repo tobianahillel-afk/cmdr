@@ -108,6 +108,19 @@ func writeDemoPersistedNormalizedCase(ctx context.Context, principal, snapshotPa
 		data, _, err = loadMultipleNormalizedJSONLFeeds(ctx, principal, snapshotPath, caseID, paths)
 	}
 	if err != nil { return err }
+	return persistScopedCaseOwner(ctx, data, principal, caseID, destination, output)
+}
+
+// Persist an already imported in-memory owner graph. The same single trust
+// boundary applies whether events originated from normalized JSONL or from
+// the existing validated Wazuh 4.x normalizer. No raw Wazuh bytes are saved.
+func persistScopedCaseOwner(ctx context.Context, data timeline.MemoryTimelineData,
+	principal, caseID, destination string, output io.Writer) error {
+	if ctx == nil || ctx.Err() != nil || !filepath.IsAbs(destination) ||
+		principal == "" || caseID == "" {
+		return errors.New("select an authorized Case and absolute private snapshot destination")
+	}
+	var err error
 	data, err = scopedNormalizedCaseSnapshot(data, principal, caseID)
 	if err != nil { return err }
 	if _, err := importedNormalizedIDs(data, caseID); err != nil { return err }
