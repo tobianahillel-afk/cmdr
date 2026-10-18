@@ -269,6 +269,7 @@
   const wazuhSearchRun = document.getElementById("wazuh-search-run");
   const wazuhSearchStatus = document.getElementById("wazuh-search-status");
   const wazuhSearchResults = document.getElementById("wazuh-search-results");
+  const wazuhSearchBursts = document.getElementById("wazuh-search-bursts");
   const wazuhReplaySave = document.getElementById("wazuh-replay-save");
   const wazuhReplayFile = document.getElementById("wazuh-replay-file");
   let preparedWazuhReplay = null;
@@ -282,6 +283,7 @@
     preparedWazuhReplay = null;
     wazuhReplaySave.disabled = true;
     wazuhSearchResults.replaceChildren();
+    wazuhSearchBursts.replaceChildren();
     wazuhSearchStatus.textContent = "Aucune recherche Wazuh exécutée.";
   }
   async function runWazuhSearch() {
@@ -369,6 +371,71 @@
           return { ref: hit.entry_id, label };
         });
       }
+      // Every returned correlation lead must be a subset of the owner-
+      // authorized, completed Search Job. Invalid membership is all-or-none.
+      const burstGroups = receipt.search_bursts;
+      if (burstGroups !== undefined &&
+          (!Array.isArray(burstGroups) || burstGroups.length > 10 ||
+           !Array.isArray(hitRecords)))
+        throw Error("Incomplete authorized Wazuh correlation");
+      const hitByID = new Map((hitRecords || []).map(hit => [hit.entry_id, hit]));
+      const burstList = document.createElement("ul");
+      for (const lead of burstGroups || []) {
+        if (!lead || typeof lead.agent_id !== "string" ||
+            !/^[0-9]{1,16}$/.test(lead.agent_id) ||
+            typeof lead.rule_id !== "string" ||
+            !/^[0-9]{1,16}$/.test(lead.rule_id) ||
+            lead.window_seconds !== 60 ||
+            !Number.isInteger(lead.alert_count) ||
+            lead.alert_count < 3 || lead.alert_count > 200 ||
+            !Number.isInteger(lead.distinct_feeds) ||
+            lead.distinct_feeds < 1 || lead.distinct_feeds > 4 ||
+            !Array.isArray(lead.entry_ids) ||
+            lead.entry_ids.length !== lead.alert_count ||
+            typeof lead.first_utc !== "string" ||
+            typeof lead.last_utc !== "string")
+          throw Error("Invalid Wazuh correlation lead");
+        const first = Date.parse(lead.first_utc);
+        const last = Date.parse(lead.last_utc);
+        if (!Number.isFinite(first) || !Number.isFinite(last) ||
+            first > last || last - first > 60000)
+          throw Error("Invalid Wazuh correlation time window");
+        const group = document.createElement("li");
+        const description = document.createElement("span");
+        description.textContent = "Piste temporelle : agent " + lead.agent_id +
+          ", règle " + lead.rule_id + ", " + lead.alert_count +
+          " alertes, " + lead.distinct_feeds + " flux entre " +
+          lead.first_utc + " et " + lead.last_utc + " UTC";
+        group.append(description);
+        const members = document.createElement("ol");
+        const used = new Set(), feeds = new Set();
+        for (const id of lead.entry_ids) {
+          if (typeof id !== "string" || used.has(id) || !hitByID.has(id))
+            throw Error("Wazuh correlation references a denied entry");
+          used.add(id);
+          const hit = hitByID.get(id), at = Date.parse(hit.source_time_utc);
+          if (hit.rule_id !== lead.rule_id || hit.agent_id !== lead.agent_id ||
+              !Number.isFinite(at) || at < first || at > last)
+            throw Error("Inconsistent Wazuh burst member");
+          feeds.add(hit.feed);
+          const item = document.createElement("li");
+          const button = document.createElement("button");
+          button.type = "button";
+          button.textContent = hit.source_time_utc + " UTC — source autorisée";
+          button.addEventListener("click", () => {
+            if (selectedRevision !== wazuhSearchRevision ||
+                caseRevision !== revision || token.value !== bearer ||
+                caseID.value.trim() !== selectedCase) return;
+            openSource(id);
+          });
+          item.append(button);
+          members.append(item);
+        }
+        if (feeds.size !== lead.distinct_feeds)
+          throw Error("Wazuh correlation feed count mismatch");
+        group.append(members);
+        burstList.append(group);
+      }
       const list = document.createElement("ol");
       for (const hit of sortedEntries) {
         const item = document.createElement("li");
@@ -386,6 +453,8 @@
       }
       wazuhSearchResults.replaceChildren();
       wazuhSearchResults.append(list);
+      wazuhSearchBursts.replaceChildren();
+      wazuhSearchBursts.append(burstList);
       // Publish visible results and allow export only after the entire
       // completed Search Job and its per-hit source metadata were validated.
       preparedWazuhReplay = {
@@ -401,6 +470,9 @@
     } catch {
       if (selectedRevision === wazuhSearchRevision) {
         wazuhSearchResults.replaceChildren();
+        wazuhSearchBursts.replaceChildren();
+        preparedWazuhReplay = null;
+        wazuhReplaySave.disabled = true;
         wazuhSearchStatus.textContent = "Search Job indisponible, trop volumineux ou droits refusés. Aucun résultat partiel.";
       }
     } finally {

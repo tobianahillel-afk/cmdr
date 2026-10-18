@@ -63,10 +63,12 @@ func serveDemoWazuhSearch(w http.ResponseWriter, r *http.Request, token, princip
 		Value string `json:"value"`
 		Job any `json:"job"`
 		Hits []wazuhSearchHit `json:"search_hits"`
+		Bursts []wazuhSearchBurst `json:"search_bursts"`
 	}{
 		Format: "cmdr-local-wazuh4-executed-search-v1", Synthetic: true,
 		CaseID: caseID, Selector: query.Get("field"), Value: query.Get("value"), Job: job,
 		Hits: hits,
+		Bursts: deriveWazuhSearchBursts(hits),
 	}
 	// Never send a partial response when authorization or job execution fails.
 	var encoded bytes.Buffer

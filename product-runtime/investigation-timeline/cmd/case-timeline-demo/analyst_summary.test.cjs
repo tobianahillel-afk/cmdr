@@ -18,6 +18,7 @@ const ids = [
   "wazuh-previous", "wazuh-next",
   "wazuh-search-field", "wazuh-search-value", "wazuh-search-from",
   "wazuh-search-to", "wazuh-search-run", "wazuh-search-status", "wazuh-search-results",
+  "wazuh-search-bursts",
   "wazuh-replay-save", "wazuh-replay-file",
   "comparison-trace-actions", "comparison-trace-results"
 ];
@@ -1771,4 +1772,67 @@ test("analyst refuses mismatched or injected Wazuh triage rows without partial r
     assert.match(env.fields["wazuh-search-status"].textContent, /Aucun résultat partiel/);
     assert.equal(env.requests.length, 1);
   }
+});
+
+test("authorized Wazuh SearchJob shows 60-second agent/rule burst with exact navigable matched refs", async () => {
+  const hitIDs=["event-a","event-b","event-c","event-late"];
+  const observations=hitIDs.map((entry_id,i)=>({
+    entry_id, rule_id:"5710",agent_id:"001",feed:i<2?1:2,
+    source_time_utc:["2026-10-17T10:00:00Z","2026-10-17T10:00:20Z",
+      "2026-10-17T10:00:40Z","2026-10-17T10:02:00Z"][i],rule_level:5+i
+  }));
+  const env=boot(url=>{
+    assert.equal(url.pathname,"/demo-wazuh-search");
+    return {ok:true,async json(){return {
+      format:"cmdr-local-wazuh4-executed-search-v1",synthetic:true,
+      case_id:"case-disk",selector:"rule_id",value:"5710",
+      job:{ID:"job-burst",State:"completed",AuditTrail:[{},{},{}],
+        ResultRefs:hitIDs.map(Ref=>({Source:"wazuh4-authorized-local-import",Ref}))},
+      search_hits:observations,
+      search_bursts:[{agent_id:"001",rule_id:"5710",alert_count:3,
+        distinct_feeds:2,first_utc:"2026-10-17T10:00:00Z",
+        last_utc:"2026-10-17T10:00:40Z",window_seconds:60,
+        entry_ids:["event-a","event-b","event-c"]}]
+    }}};
+  });
+  env.fields["wazuh-search-field"].value="rule_id";
+  env.fields["wazuh-search-value"].value="5710";
+  env.fields["wazuh-search-from"].value="2026-10-17T09:59:00";
+  env.fields["wazuh-search-to"].value="2026-10-17T10:03:00";
+  env.fields["wazuh-search-run"].handlers.click();
+  await flush();await flush();
+  assert.equal(env.fields["wazuh-search-results"].children[0].children.length,4);
+  const lead=env.fields["wazuh-search-bursts"].children[0].children[0];
+  assert.match(lead.children[0].textContent,/agent 001.*règle 5710.*3 alertes, 2 flux/);
+  assert.equal(lead.children[1].children.length,3);
+  assert.equal(env.fields["wazuh-replay-save"].disabled,false);
+  env.fields.token.value="other-bearer";
+  env.fields.token.handlers.input();
+  assert.equal(env.fields["wazuh-search-results"].children.length,0);
+  assert.equal(env.fields["wazuh-search-bursts"].children.length,0);
+});
+
+test("invalid correlation burst cannot restore forbidden hit or previous replay",async()=>{
+  const env=boot(()=>({ok:true,async json(){return {
+    format:"cmdr-local-wazuh4-executed-search-v1",synthetic:true,
+    case_id:"case-disk",selector:"rule_id",value:"5710",
+    job:{ID:"job-invalid-burst",State:"completed",AuditTrail:[{},{},{}],
+      ResultRefs:[{Source:"wazuh4-authorized-local-import",Ref:"event-a"}]},
+    search_hits:[{entry_id:"event-a",source_time_utc:"2026-10-17T10:00:00Z",
+      rule_id:"5710",agent_id:"001",feed:1}],
+    search_bursts:[{agent_id:"001",rule_id:"5710",alert_count:3,
+      distinct_feeds:1,first_utc:"2026-10-17T10:00:00Z",
+      last_utc:"2026-10-17T10:00:40Z",window_seconds:60,
+      entry_ids:["event-a","foreign-event","event-other"]}]
+  }}}));
+  env.fields["wazuh-search-field"].value="rule_id";
+  env.fields["wazuh-search-value"].value="5710";
+  env.fields["wazuh-search-from"].value="2026-10-17T09:59:00";
+  env.fields["wazuh-search-to"].value="2026-10-17T10:03:00";
+  env.fields["wazuh-search-run"].handlers.click();
+  await flush();await flush();
+  assert.equal(env.fields["wazuh-search-results"].children.length,0);
+  assert.equal(env.fields["wazuh-search-bursts"].children.length,0);
+  assert.equal(env.fields["wazuh-replay-save"].disabled,true);
+  assert.match(env.fields["wazuh-search-status"].textContent,/Aucun résultat partiel/);
 });

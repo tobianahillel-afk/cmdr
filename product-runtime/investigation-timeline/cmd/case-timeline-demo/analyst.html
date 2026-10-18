@@ -116,6 +116,8 @@
       <p class="intro">Un fichier local conserve uniquement les critères, l'identifiant du Job initial et son nombre de résultats, jamais le jeton ni les messages bruts. Le fichier est sensible, non signé et modifiable. Son chargement n'accorde aucun accès : sélectionnez le même Case et un jeton valide, puis relancez volontairement la recherche pour vérifier les données et droits actuels.</p>
       <p class="intro">Chronologie des alertes correspondantes : heure source UTC, règle, agent, niveau Wazuh 0–16 lorsqu'il est connu, et flux d'importation. Ces métadonnées sont sensibles, dérivées uniquement des sources autorisées, et ne constituent ni un score d'incident ni une preuve de causalité.</p>
       <div id="wazuh-search-results" role="region" aria-label="Résultats du Search Job autorisé" aria-live="polite"></div>
+      <div id="wazuh-search-bursts" role="region" aria-label="Pistes temporelles Wazuh uniquement sur les résultats autorisés" aria-live="polite"></div>
+      <p class="intro">Concentrations : au moins trois alertes du même agent et de la même règle en 60 secondes incluses, sur les résultats du Search Job courant uniquement. Chaque piste renvoie vers les événements sources autorisés. Une répétition temporelle ne prouve pas une attaque.</p>
       <p class="intro">Chaque événement s'ouvre par une nouvelle vérification des droits Case, Timeline et source. Les résultats ne sont pas des preuves de causalité. En changeant le Case ou le jeton, ils sont effacés.</p>
     </section>
     <section aria-labelledby="compare-title">
