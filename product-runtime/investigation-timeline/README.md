@@ -73,3 +73,17 @@ and no-overwrite owner-private publisher are all reused unchanged.
 One ID alone or mixing ordinal and IDs fails closed. No raw data goes to stdout.
 Explicit -include-pair-generic-evidence still produces private v3 opt-in only.
 This remains offline lab DFIR, not deployed IAM or live ingestion.
+
+
+### Inspect a specific Wazuh pair beyond ten summary leads
+
+The metadata-only cross-Case correlation receipt deliberately lists only the
+first ten chronological leads. A specific later Wazuh alert can still be
+opened using the existing `-inspect-saved-pair-first-entry` and
+`-inspect-saved-pair-second-entry` options, with **both** original snapshot
+SHA-256 fingerprints and a new `-private-report`. The two Cases are independently
+reauthorized, and the nearest compatible rule/agent alert within 60 seconds
+is recomputed for that exact first Entry ID. An arbitrary second Entry ID
+cannot be substituted. Only the existing private 0600, no-overwrite v2/v3
+artifact receives raw source evidence; the bounded summary and stdout remain
+unchanged. This is temporal co-occurrence, not evidence of causation.
