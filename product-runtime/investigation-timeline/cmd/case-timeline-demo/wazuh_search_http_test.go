@@ -253,6 +253,7 @@ func TestAuthorizedWazuhRenderedPreviewLiteralSearch(t *testing.T) {
 				t.Fatalf("unsafe literal query returned data: %d %s",failed.Code,failed.Body.String())
 			}
 		})
+	}
 	// The former GET preview path MUST fail, even when the Case and bearer
 	// are otherwise authorized. Only the existing numeric GET pivots remain.
 	oldGET := httptest.NewRequest(http.MethodGet,"/demo-wazuh-search?"+q.Encode(),nil)
@@ -281,6 +282,5 @@ func TestAuthorizedWazuhRenderedPreviewLiteralSearch(t *testing.T) {
 				t.Fatalf("invalid Wazuh text query exposed a SearchJob: %d %s",res.Code,res.Body.String())
 			}
 		})
-	}
 	}
 }
