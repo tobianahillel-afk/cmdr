@@ -139,8 +139,7 @@ func TestWazuhCohortCatalogChangedSecondSnapshotNeverEmitsMetadata(t *testing.T)
 	firstPath, firstCase, firstSHA, secondPath, secondCase, secondSHA := savedWazuhPairPivotFixture(t)
 	data,err:=os.ReadFile(secondPath)
 	if err!=nil {t.Fatal(err)}
-	if err:=os.WriteFile(secondPath,append(data,'
-'),0600);err!=nil {t.Fatal(err)}
+	if err:=os.WriteFile(secondPath,append(data, byte(10)),0600);err!=nil {t.Fatal(err)}
 	var out bytes.Buffer
 	err=runDemoCLI(context.Background(),[]string{
 		"-principal","analyst-a","-snapshot",firstPath,
