@@ -69,11 +69,16 @@ func writeVerifiedCorrelatedPairPrivateWithGenericEvidence(ctx context.Context, 
 		// One first-party source reauthorization per selected generic lead.
 		// Default v2 retains only metadata; explicit private v3 reuses the
 		// very same already authorized source inspection, without reopening.
-		firstContext, firstGenericEvidence, err := nearbyAuthorizedGenericPairContextAndEvidence(
-			ctx, principal, first, firstCase, firstIDs, pair.FirstTimeUTC, includeGenericEvidence)
+		var firstGenericEvidence, secondGenericEvidence []localEntryInspection
+		var firstPrivate, secondPrivate *[]localEntryInspection
+		if includeGenericEvidence {
+			firstPrivate, secondPrivate = &firstGenericEvidence, &secondGenericEvidence
+		}
+		firstContext, err := nearbyAuthorizedGenericPairContext(
+			ctx, principal, first, firstCase, firstIDs, pair.FirstTimeUTC, firstPrivate)
 		if err != nil { return err }
-		secondContext, secondGenericEvidence, err := nearbyAuthorizedGenericPairContextAndEvidence(
-			ctx, principal, second, secondCase, secondIDs, pair.SecondTimeUTC, includeGenericEvidence)
+		secondContext, err := nearbyAuthorizedGenericPairContext(
+			ctx, principal, second, secondCase, secondIDs, pair.SecondTimeUTC, secondPrivate)
 		if err != nil { return err }
 		format := "cmdr-private-verified-wazuh-pair-v2"
 		if includeGenericEvidence {
