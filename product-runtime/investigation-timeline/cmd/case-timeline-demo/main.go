@@ -78,6 +78,8 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	intoCase := flags.String("into-case", "", "existing Case for imported local events (requires -import-jsonl)")
 	triageImport := flags.Bool("triage-import", false, "analyze locally imported events; use -with-case for a two-Case comparison, optionally -compare-proximity for bounded time leads")
 	serveImport := flags.Bool("serve-import", false, "import local JSONL into an in-memory Case and open the authenticated loopback analyst viewer; no merged owner file")
+	saveImportSnapshot := flags.String("save-import-snapshot", "", "absolute new path for private normalized Case snapshot; explicit import only, no listener or overwrite")
+	resumeImportSearchCase := flags.String("resume-import-search-case", "", "Case ID in a saved normalized owner snapshot to reopen with an authenticated Search Job viewer")
 	reportCase := flags.String("report-case", "", "produce one authorized offline Case triage JSON receipt and exit (no listener)")
 	exportCase := flags.String("export-case", "", "export authorized Case Timeline events as sensitive local JSONL, without listener")
 	compareCase := flags.String("compare-case", "", "first authorized Case for an offline two-Case comparison receipt")
@@ -100,6 +102,38 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	if flags.NArg() != 0 {
 		return errors.New("unexpected positional arguments")
 	}
+	if *saveImportSnapshot != "" || *resumeImportSearchCase != "" {
+		if *saveImportSnapshot != "" && *resumeImportSearchCase != "" {
+			return errors.New("choose either save or resume, not both")
+		}
+		// Explicit modes are intentionally narrow. Never accidentally
+		// combine sensitive disk writes with a Wazuh, Case export, viewer,
+		// or any unrelated command mode.
+		invalid := false
+		flags.Visit(func(f *flag.Flag) {
+			switch f.Name {
+			case "principal", "snapshot":
+			case "save-import-snapshot", "into-case", "import-jsonl", "import-jsonl-extra":
+				if *saveImportSnapshot == "" { invalid = true }
+			case "resume-import-search-case":
+				if *resumeImportSearchCase == "" { invalid = true }
+			default:
+				invalid = true
+			}
+		})
+		if invalid || *snapshot == "" {
+			return errors.New("private snapshot save/resume cannot combine with other investigation modes")
+		}
+		if *saveImportSnapshot != "" {
+			if *intoCase == "" || *importJSONL == "" {
+				return errors.New("snapshot save needs existing Case and first normalized source")
+			}
+			paths := append([]string{*importJSONL}, extraJSONL...)
+			return writeDemoPersistedNormalizedCase(ctx, *principal, *snapshot, *intoCase, paths, *saveImportSnapshot, output)
+		}
+		return serveDemoReopenedNormalizedCase(ctx, *principal, *snapshot, *resumeImportSearchCase, output)
+	}
+
 	windowSet := false
 	flags.Visit(func(f *flag.Flag) {
 		if f.Name == "proximity-seconds" {
