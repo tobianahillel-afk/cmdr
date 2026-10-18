@@ -82,7 +82,7 @@ func TestFullReleaseExactWazuhPairIDsFailClosedAfterSourceRevocation(t *testing.
 	// The independent second snapshot has not lost its legitimate source
 	// because of the first owner's revocation; the denial cannot be
 	// explained away as a malformed second Case or changed hash.
-	if _,err:=loadAuthorizedImportedCase(context.Background(),"analyst-a",
+	if _,_,err:=loadAuthorizedImportedCase(context.Background(),"analyst-a",
 		secondPath,secondCase,secondHash);err!=nil {
 		t.Fatalf("independently authorized second Case unexpectedly unavailable: %v",err)
 	}
