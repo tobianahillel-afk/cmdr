@@ -101,6 +101,7 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	listSavedWazuhPairOffset := flags.Int("list-saved-wazuh-pair-offset", -1, "zero-based authorized Wazuh pair page offset (0..5000), ten leads per page; needs two verified Case snapshots")
 	pairRuleID := flags.String("pair-rule-id", "", "exact Wazuh rule ID to scope metadata-only pair pagination; requires matching agent ID")
 	pairAgentID := flags.String("pair-agent-id", "", "exact Wazuh agent ID to scope metadata-only pair pagination; requires matching rule ID")
+	listSavedWazuhCohortsOffset := flags.Int("list-saved-wazuh-cohorts-offset", -1, "discover correlated authorized Wazuh rule+agent cohorts, ten per page (0..5000)")
 	includePairGenericEvidence := flags.Bool("include-pair-generic-evidence", false, "explicitly include up to ten independently source-authorized generic previews per Case in the NEW private paired report only")
 	compareSavedCase := flags.String("compare-saved-case", "", "first saved authorized Case ID for independent offline cross-snapshot comparison")
 	compareSavedWithCase := flags.String("compare-saved-with-case", "", "second distinct saved Case ID for independent cross-snapshot comparison")
@@ -284,7 +285,8 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 			"inspect-saved-pair-second-entry", "include-pair-generic-evidence",
 			"list-saved-wazuh-pair-offset", "find-saved-pair-first-entry",
 			"pair-rule-id", "pair-agent-id",
-			"find-saved-pair-second-entry", "find-saved-pair-second-offset":
+			"find-saved-pair-second-entry", "find-saved-pair-second-offset",
+			"list-saved-wazuh-cohorts-offset":
 			savedComparisonSelected = true
 		}
 	})
@@ -299,7 +301,8 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 				"inspect-saved-pair-first-entry", "inspect-saved-pair-second-entry",
 				"include-pair-generic-evidence", "list-saved-wazuh-pair-offset",
 				"find-saved-pair-first-entry", "find-saved-pair-second-entry",
-				"find-saved-pair-second-offset", "pair-rule-id", "pair-agent-id":
+				"find-saved-pair-second-offset", "pair-rule-id", "pair-agent-id",
+				"list-saved-wazuh-cohorts-offset":
 			default:
 				allowed = false
 			}
@@ -345,6 +348,23 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 		})
 		if reverseOffsetSelected && *findSavedPairSecondEntry == "" {
 			return errors.New("reverse pair offset requires a second-Case Entry ID")
+		}
+		cohortCatalogSelected := false
+		flags.Visit(func(f *flag.Flag) {
+			if f.Name == "list-saved-wazuh-cohorts-offset" {
+				cohortCatalogSelected = true
+			}
+		})
+		if cohortCatalogSelected {
+			if pageSelected || pivotSelected || ordinalSelected || entryIDsSelected ||
+				*findSavedPairFirstEntry != "" || *findSavedPairSecondEntry != "" ||
+				reverseOffsetSelected || *privateReport != "" || *includePairGenericEvidence ||
+				*listSavedWazuhCohortsOffset < 0 || *listSavedWazuhCohortsOffset > 5000 {
+				return errors.New("Wazuh cohort catalog requires only two verified Cases and an offset 0..5000")
+			}
+			return listVerifiedSavedWazuhCohortCatalog(ctx, *principal, *snapshot,
+				*compareSavedCase, *expectedSnapshotSHA256, *compareSavedWithSnapshot,
+				*compareSavedWithCase, *expectedOtherSHA256, *listSavedWazuhCohortsOffset, output)
 		}
 		if *findSavedPairFirstEntry != "" {
 			if *findSavedPairSecondEntry != "" || reverseOffsetSelected ||
