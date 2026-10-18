@@ -35,6 +35,7 @@
   // owner as Timeline, but never exposes the Wazuh-only route.
   const localSearchField = document.getElementById("local-search-field");
   const localSearchValue = document.getElementById("local-search-value");
+  const localSearchFamily = document.getElementById("local-search-family");
   const localSearchFrom = document.getElementById("local-search-from");
   const localSearchTo = document.getElementById("local-search-to");
   const localSearchRun = document.getElementById("local-search-run");
@@ -56,10 +57,13 @@
     const selectedCase = caseID.value.trim();
     const literal = localSearchValue.value;
     const selectedField = localSearchField.value || "preview";
+    const selectedFamily = localSearchFamily.value || "all";
     const fromText = localSearchFrom.value, toText = localSearchTo.value;
     const fromDate = fromText ? new Date(fromText) : new Date(NaN);
     const toDate = toText ? new Date(toText) : new Date(NaN);
     if (!bearer || !selectedCase ||
+        !["all","wazuh","generic"].includes(selectedFamily) ||
+        (selectedFamily === "generic" && ["rule_id","agent_id"].includes(selectedField)) ||
         !(selectedField === "preview" ?
           (literal.length >= 3 && literal.length <= 128 && !/[\x00\r\n]/.test(literal)) :
           (["rule_id","agent_id"].includes(selectedField) && /^[0-9]{1,16}$/.test(literal)) ||
@@ -79,7 +83,8 @@
       const response = await fetch(new URL("/demo-local-search", window.location.origin), {
         method: "POST",
         headers: { Authorization: "Bearer " + bearer, "Content-Type": "application/json" },
-        body: JSON.stringify({ case_id: selectedCase, field: selectedField, value: literal,
+        body: JSON.stringify({ case_id: selectedCase, field: selectedField,
+          source_family: selectedFamily, value: literal,
           from: fromDate.toISOString(), to: toDate.toISOString() }),
         credentials: "omit", cache: "no-store", redirect: "error", mode: "same-origin",
         signal: controller.signal
@@ -90,6 +95,7 @@
           selectedRevision !== revision || token.value !== bearer ||
           caseID.value.trim() !== selectedCase || localSearchValue.value !== literal ||
           (localSearchField.value || "preview") !== selectedField ||
+          (localSearchFamily.value || "all") !== selectedFamily ||
           localSearchFrom.value !== fromText || localSearchTo.value !== toText) return;
       const job = receipt?.job;
       if (receipt?.format !== "cmdr-local-jsonl-event-search-v1" ||
@@ -183,7 +189,7 @@
     }
   }
   localSearchRun.addEventListener("click", runLocalSearch);
-  for (const field of [localSearchField, localSearchValue, localSearchFrom, localSearchTo]) {
+  for (const field of [localSearchField, localSearchFamily, localSearchValue, localSearchFrom, localSearchTo]) {
     field.addEventListener("input", clearLocalSearch);
     field.addEventListener("change", clearLocalSearch);
   }
