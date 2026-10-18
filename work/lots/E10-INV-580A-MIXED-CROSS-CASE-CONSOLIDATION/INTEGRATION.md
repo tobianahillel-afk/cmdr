@@ -1,0 +1,25 @@
+# E10-INV-580A — Mixed-source cross-Case correlation and private pair inspection: integration candidate
+
+## Why consolidate, rather than adding another isolated module
+
+Existing immutable PR #92 `fced2c5c89f0458247be9cc0644e516118af2ae6` integrates operator-local Wazuh 4.x + generic JSONL Case, authenticated Event Search Jobs, temporal leads, private Case snapshots, offline source inventory, and first-party authenticated Case/Timeline/typed-source navigation. Following PRs #93–#95 implement 60s Wazuh cross-Case pairing and independently owner-authorized source drilldown. PR #96 already combines their history, PR #97 adds ONE private paired-source report, and PR #98 eliminates double loading and duplicated Timeline triage, reusing existing `compareLoadedAuthorizedSavedCases` for paired-source inspection.
+
+Rather than require sequential merging of all those separate stacked source PRs, this branch starts at **frozen #98 HEAD** `434fc38c79320240715c06c952d7b14d13a7d908` and targets **frozen #92** directly; GitHub native compare has verified the integrated branch is **27 real commits ahead / 0 behind** #92 with 18 changed files. No source commit was rewritten, cherry-picked, or changed in any parent L2-frozen PR, no new engine or validator framework created, no API paid or dependency added. This is a draft integrated delivery candidate, not a permission to skip required checks, PR reviews or approvals.
+
+## Previously separate components now tested as one DFIR workflow
+
+- Create two independently owned offline Wazuh Case snapshots, each with a real Wazuh JSONL rule/agent event; append a real generic normalized JSONL contextual event into **each** Case using the existing saved mixed owner writer. Retain independently computed SHA-256 of both final private Case snapshots. Delete raw generic input files.
+- For each mixed Case, run the **existing first-party authenticated in-process headless Event Search Job** with source family `generic`; each query matches exactly the intended synthetic normalized source, no Wazuh bursts or raw previews are invented or leaked.
+- Run the **existing** independent SHA256+principal+tenant/environment+Case ACL verification and source-owned full Timeline traversal for BOTH Cases, `compareVerifiedSavedCases`. Both generic events remain visible for timeline counters, while the sole Wazuh pair is correlated only when real Wazuh rule_id/agent_id and <=60s UTC match. The pair Event IDs are stable across mixed-source import and preserve their original source owners. No raw messages/bearer in comparison.
+- Use **existing first-party single-pass** `writeVerifiedCorrelatedPairPrivate` to inspect BOTH correlated Wazuh events and atomically produce exactly ONE new 0600 private JSON artifact. No network listener, stdout preview, reuse of a foreign owner's permission, or generic source accidentally mixed into the paired Wazuh previews. The pair ordinal is not an ACL grant.
+- Tamper the second Case's file while retaining its independently held digest and verify the file publisher cannot emit even a partial first-Case private report.
+
+The acceptance test `normalized_mixed_cross_case_pair_integration_test.go` covers this **complete cross-workflow chain** with real source payloads and filesystem outputs. Previous component tests already check cases such as revoked source ACLs, wrong principal or tenant/environment, no-overwrite destinations, equal-time tie-breaking and Windows/macOS portability; do NOT recreate them in multiple layers solely to increase coverage.
+
+## Honest scope and merge constraints
+
+- **SYNTHETIC OFFLINE LAB, NOT PRODUCTION.** Wazuh 4.x and normalized JSONL are operator-selected files. No continuous ingestion, production tenant IAM, durable multi-user database, signed chain-of-custody, live alert action, or external paid API.
+- SHA-256 is an operator-held local integrity checksum only, not authenticated provenance. The two Case datasets remain separate and principal/tenant/environment authorized; a Wazuh temporal pair is **co-occurrence**, NOT causation or definitive incident classification.
+- The massive foundation PR #36 (763 commits / 871 files, draft) and upstream spec PR #2 remain unmerged into main, so passing this PR's checks would not alone mean a production release.
+- **Security gate:** unchanged mandatory engineering-kernel `CHK-SECURITY-TESTS` changed critical coverage **>=90%** and actual exact-head Linux, macOS, Windows Go + Node browser tests; no waiver or lowering the floor. Parent #98 on frozen head `434fc38c79320240715c06c952d7b14d13a7d908` had functional test run 39150584496 SUCCESS but engineering-kernel 39150584542 FAILURE (**89.52%**). This consolidated integration diff MUST be independently checked; passing component CI is insufficient.
+- Keep in DRAFT until CI and L2 exact HEAD and upstream mandatory reviews/approval are settled. ONE independent READ-ONLY L2 for this material consolidation, and do not repeat existing parent L2s. Legacy source PRs remain open/unchanged until their integration findings/approvals are reconciled.
