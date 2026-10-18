@@ -101,15 +101,10 @@ func TestLocalJSONLImportDiskToAuthenticatedTimelineSource(t *testing.T) {
 			t.Fatalf("anonymous source disclosure: %d %s", code, leaked)
 		}
 	}
-	forbidden, err := newDemoHandlerWithData(testBearer, "analyst-b", derived)
-	if err != nil {
-		t.Fatal(err)
-	}
-	foreign := httptest.NewServer(forbidden)
-	defer foreign.Close()
-	code, leaked := requestDemo(t, foreign, "/case-timeline?case_id=forensic-case-on-disk", testBearer)
-	if code != http.StatusNotFound || strings.Contains(leaked, id) {
-		t.Fatalf("foreign tenant saw imported records: %d %s", code, leaked)
+	// The exported graph intentionally has NO foreign tenant principal,
+	// so the first-party owner refuses to construct a session for one.
+	if _, err := newDemoHandlerWithData(testBearer, "analyst-b", derived); err == nil {
+		t.Fatal("restricted exported owner granted a foreign principal a session")
 	}
 }
 
