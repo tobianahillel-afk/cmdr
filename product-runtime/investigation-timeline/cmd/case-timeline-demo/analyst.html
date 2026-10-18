@@ -92,11 +92,12 @@
         <select id="wazuh-search-field">
           <option value="rule_id">ID de règle Wazuh</option>
           <option value="agent_id">ID d'agent Wazuh</option>
+          <option value="preview">Texte littéral dans l'aperçu autorisé de l'alerte</option>
         </select>
       </div>
       <div class="field">
-        <label for="wazuh-search-value">Identifiant numérique exact</label>
-        <input id="wazuh-search-value" type="text" inputmode="numeric" pattern="[0-9]{1,16}" maxlength="16" autocomplete="off" spellcheck="false" placeholder="5710">
+        <label for="wazuh-search-value">Identifiant numérique (règle/agent) ou terme littéral (aperçu)</label>
+        <input id="wazuh-search-value" type="text" maxlength="128" autocomplete="off" spellcheck="false" placeholder="5710 ou erreur authentification">
       </div>
       <div class="field">
         <label for="wazuh-search-from">Depuis (heure locale, incluse)</label>
@@ -106,6 +107,7 @@
         <label for="wazuh-search-to">Jusqu'à (heure locale, exclue)</label>
         <input id="wazuh-search-to" type="datetime-local" step="1" autocomplete="off">
       </div>
+      <p class="intro">La recherche par texte examine uniquement les aperçus rendus et réautorisés par le propriétaire de source ; comparaison littérale insensible à la casse (3–128 octets), au maximum 500 candidats Wazuh dans la fenêtre. Aucune recherche dans les fichiers bruts. Le terme textuel n'est pas exporté en JSON de reprise.</p>
       <button id="wazuh-search-run" type="button">Exécuter le Search Job autorisé</button>
       <p id="wazuh-search-status" role="status" aria-live="polite">Aucune recherche Wazuh exécutée.</p>
       <div class="field">
