@@ -12,6 +12,8 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	timeline "github.com/tobianahillel-afk/cmdr/product-runtime/investigation-timeline"
 )
 
 type rejectedOfflineReceiptWriter struct{}
@@ -226,6 +228,67 @@ func TestPrivateCaseAtomicPublicationDeniesUnsafeFilesystemDestinations(t *testi
 	for _,entry:=range entries {
 		if strings.HasPrefix(entry.Name(),".cmdr-private-case-") {
 			t.Fatalf("private owner tempfile leaked after a denied write: %q",entry.Name())
+		}
+	}
+}
+
+func TestOfflineVerificationCountsOnlyReadableImportedSources(t *testing.T) {
+	const caseID="forensic-case-on-disk"
+	original,err:=loadDemoSnapshot(snapshotFixture(t))
+	if err!=nil {t.Fatal(err)}
+	first,err:=importLocalEvents(context.Background(),original,"analyst-a",caseID,[]byte(
+		"{\"id\":\"allowed\",\"timestamp\":\"2026-10-17T10:00:00Z\",\"message\":\"readable normalized evidence\"}\n"+
+		"{\"id\":\"denied\",\"timestamp\":\"2026-10-17T10:01:00Z\",\"message\":\"CONFIDENTIAL DENIED SOURCE CONTENT\"}\n"))
+	if err!=nil {t.Fatal(err)}
+	var owner timeline.MemoryTimelineCase
+	for _,c:=range first.Cases {if c.ID==caseID {owner=c;break}}
+	if owner.ID=="" {t.Fatal("missing selected Case fixture")}
+	blockedPrincipal:="read-only-other-analyst"
+	first.Principals=append(first.Principals,timeline.MemoryTimelinePrincipal{
+		ID:blockedPrincipal,Tenant:owner.Tenant,Environment:owner.Environment,
+	})
+	deniedID:=""
+	for i:=range first.Entries {
+		if first.Entries[i].CaseID!=caseID ||
+			first.Entries[i].Value.Provenance!="operator-local-jsonl" {
+			continue
+		}
+		if first.Entries[i].Value.SourceTime=="2026-10-17T10:01:00Z" {
+			deniedID=first.Entries[i].Value.ID
+			first.Entries[i].Readers=[]string{blockedPrincipal}
+		}
+	}
+	if deniedID=="" {t.Fatal("missing imported denied source")}
+	for i:=range first.Sources {
+		if first.Sources[i].Identity.Reference=="local-jsonl-source-"+strings.TrimPrefix(deniedID,"local-jsonl-entry-") {
+			first.Sources[i].Readers=[]string{blockedPrincipal}
+		}
+	}
+	if _,err:=newDemoHandlerWithData(strings.Repeat("0",64),"analyst-a",first);err!=nil {
+		t.Fatalf("input Case with source-specific deny should remain owner-valid: %v",err)
+	}
+	raw,err:=json.Marshal(first)
+	if err!=nil {t.Fatal(err)}
+	file:=filepath.Join(t.TempDir(),"old-unminimized-snapshot.json")
+	if err:=os.WriteFile(file,raw,0600);err!=nil {t.Fatal(err)}
+	hash:=fmt.Sprintf("%x",sha256.Sum256(raw))
+	var receipt bytes.Buffer
+	if err:=verifySavedNormalizedCase(context.Background(),"analyst-a",file,caseID,hash,&receipt);err!=nil {
+		t.Fatalf("valid readable projection should verify: %v",err)
+	}
+	var data struct {
+		Imported int `json:"authorized_imported_events"`
+		Slots map[string]int `json:"authorized_events_by_import_slot"`
+	}
+	if err:=json.Unmarshal(receipt.Bytes(),&data);err!=nil {t.Fatal(err)}
+	if data.Imported!=1 || data.Slots["operator-local-jsonl"]!=1 {
+		t.Fatalf("unreadable source affected offline authorized inventory: %+v",data)
+	}
+	for _,disallowed:=range []string{
+		blockedPrincipal,deniedID,"CONFIDENTIAL DENIED SOURCE CONTENT","local-jsonl-source-",
+	} {
+		if strings.Contains(receipt.String(),disallowed) {
+			t.Fatalf("offline receipt disclosed inaccessible source info: %q",disallowed)
 		}
 	}
 }
