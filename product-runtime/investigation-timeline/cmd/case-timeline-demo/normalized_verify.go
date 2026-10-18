@@ -20,11 +20,32 @@ func verifySavedNormalizedCase(ctx context.Context, principal, snapshotPath, cas
 	if err != nil {
 		return err
 	}
+	// Provenance slots overlap between independent Wazuh and generic
+	// importers, so an operator's inventory must distinguish source types
+	// using the already-authorized typed-source owner, not filename or text.
+	sources := make(map[string]bool, len(data.Sources))
+	for _, src := range data.Sources {
+		sources[src.Identity.Reference] = src.Wazuh != nil
+	}
 	counts := make(map[string]int)
+	wazuhAlerts, genericEvents := 0, 0
 	for _, entry := range data.Entries {
-		if _, ok := ids[entry.Value.ID]; ok {
-			counts[entry.Value.Provenance]++
+		if _, ok := ids[entry.Value.ID]; !ok {
+			continue
 		}
+		isWazuh, found := sources[entry.Value.SourceRef]
+		if !found {
+			return errors.New("authorized imported event lost its typed source")
+		}
+		counts[entry.Value.Provenance]++
+		if isWazuh {
+			wazuhAlerts++
+		} else {
+			genericEvents++
+		}
+	}
+	if wazuhAlerts+genericEvents != len(ids) {
+		return errors.New("authorized imported source inventory is incomplete")
 	}
 	if err := ctx.Err(); err != nil {
 		return err
@@ -35,10 +56,13 @@ func verifySavedNormalizedCase(ctx context.Context, principal, snapshotPath, cas
 		CaseID string `json:"case_id"`
 		ImportedEvents int `json:"authorized_imported_events"`
 		Feeds map[string]int `json:"authorized_events_by_import_slot"`
+		WazuhAlerts int `json:"authorized_wazuh_alerts"`
+		GenericEvents int `json:"authorized_generic_events"`
 	}{
 		Format: "cmdr-offline-authorized-case-verification-v1",
 		Synthetic: true, CaseID: caseID,
 		ImportedEvents: len(ids), Feeds: counts,
+		WazuhAlerts: wazuhAlerts, GenericEvents: genericEvents,
 	})
 }
 
