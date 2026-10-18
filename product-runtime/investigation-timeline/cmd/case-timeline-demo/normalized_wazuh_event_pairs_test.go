@@ -25,6 +25,7 @@ func TestCrossCaseWazuhPairsNearestDeterministicAndBounded(t *testing.T) {
 	}
 	secondFeed:=strings.Join([]string{
 		`{"id":"b-near-5","timestamp":"2026-10-17T10:00:05Z","agent":{"id":"001"},"rule":{"id":"5710","description":"PRIVATE B FIVE","level":7}}`,
+		`{"id":"b-near-5-duplicate","timestamp":"2026-10-17T10:00:05Z","agent":{"id":"001"},"rule":{"id":"5710","description":"PRIVATE B FIVE TIED","level":8}}`,
 		`{"id":"b-near-7","timestamp":"2026-10-17T10:00:07Z","agent":{"id":"001"},"rule":{"id":"5710","description":"PRIVATE B SEVEN","level":8}}`,
 		`{"id":"b-wrong-rule","timestamp":"2026-10-17T10:00:06Z","agent":{"id":"001"},"rule":{"id":"9999","description":"PRIVATE WRONG RULE"}}`,
 		`{"id":"b-wrong-agent","timestamp":"2026-10-17T10:00:06Z","agent":{"id":"999"},"rule":{"id":"5710","description":"PRIVATE WRONG AGENT"}}`,
@@ -82,8 +83,23 @@ func TestCrossCaseWazuhPairsNearestDeterministicAndBounded(t *testing.T) {
 		got.SharedWazuhEventPairs[9].OffsetSeconds!=-2 {
 		t.Fatalf("nearest event selection not correct at either end: %+v",got.SharedWazuhEventPairs)
 	}
+	// Two independent second-Case Wazuh alerts have exactly the same
+	// winning timestamp. Resolve the tie by canonical scoped Entry ID,
+	// never by file position, map iteration, or the last binary-search hit.
+	smallestTiedID:=""
+	for _,entry:=range bData.Entries {
+		if entry.CaseID!=bCase || entry.Value.SourceTime!="2026-10-17T10:00:05Z" {continue}
+		if _,authorized:=bImported[entry.Value.ID];!authorized {continue}
+		if smallestTiedID=="" || entry.Value.ID<smallestTiedID {
+			smallestTiedID=entry.Value.ID
+		}
+	}
+	if smallestTiedID=="" || got.SharedWazuhEventPairs[0].SecondEntryID!=smallestTiedID {
+		t.Fatalf("equal-time Wazuh source tie did not select canonical minimal Entry ID: want %q, got %q",
+			smallestTiedID,got.SharedWazuhEventPairs[0].SecondEntryID)
+	}
 	for _,secret:=range []string{
-		"PRIVATE FIRST ALERT","PRIVATE B FIVE","PRIVATE B SEVEN",
+		"PRIVATE FIRST ALERT","PRIVATE B FIVE","PRIVATE B FIVE TIED","PRIVATE B SEVEN",
 		"PRIVATE WRONG RULE","PRIVATE WRONG AGENT","PRIVATE TOO LATE","Bearer ",
 	} {
 		if bytes.Contains(raw,[]byte(secret)) {t.Fatalf("comparison leaked raw evidence: %q",secret)}
