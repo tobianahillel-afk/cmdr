@@ -212,8 +212,9 @@ func newDemoLocalJSONLSearchHandler(token, principal, caseID string,
 		}
 		decoder := json.NewDecoder(bytes.NewReader(body))
 		decoder.DisallowUnknownFields()
+		decodeErr := decoder.Decode(&selection)
 		if selection.Field == "" { selection.Field = "preview" }
-		if err := decoder.Decode(&selection); err != nil || selection.CaseID != caseID ||
+		if decodeErr != nil || selection.CaseID != caseID ||
 			!((selection.Field == "preview" && validWazuhPreviewLiteral(selection.Value)) ||
 				((selection.Field == "rule_id" || selection.Field == "agent_id") &&
 					validWazuhCohortID(selection.Value))) {
