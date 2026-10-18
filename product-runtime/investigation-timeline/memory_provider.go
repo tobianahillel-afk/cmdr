@@ -31,10 +31,10 @@ type MemoryTimelineEntry struct {
 // with an operator-approved source; it is NEVER an access-control decision.
 // Original alert JSON, hostnames, IPs and full_log are not stored here.
 type WazuhSourceMetadata struct {
-	RuleID string `json:"rule_id,omitempty"`
-	AgentID string `json:"agent_id,omitempty"`
-	RuleLevel *int `json:"rule_level,omitempty"`
-	Feed int `json:"feed,omitempty"`
+	RuleID    string `json:"rule_id,omitempty"`
+	AgentID   string `json:"agent_id,omitempty"`
+	RuleLevel *int   `json:"rule_level,omitempty"`
+	Feed      int    `json:"feed,omitempty"`
 }
 
 type MemoryTimelineSource struct {
@@ -148,8 +148,14 @@ func NewMemoryCaseTimelineHTTPHandlers(authenticate func(*http.Request) (string,
 		}
 		if src.Wazuh != nil {
 			validID := func(v string) bool {
-				if len(v) > 16 { return false }
-				for _, ch := range v { if ch < '0' || ch > '9' { return false } }
+				if len(v) > 16 {
+					return false
+				}
+				for _, ch := range v {
+					if ch < '0' || ch > '9' {
+						return false
+					}
+				}
 				return true
 			}
 			if id.Kind != "telemetry-event" || !validID(src.Wazuh.RuleID) ||
