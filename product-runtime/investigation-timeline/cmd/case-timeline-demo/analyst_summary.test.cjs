@@ -1839,13 +1839,21 @@ test("invalid correlation burst cannot restore forbidden hit or previous replay"
 });
 
 test("analyst can hunt bounded rendered Wazuh preview literals without storing query text", async () => {
-  const env=boot(url=>{
+  const env=boot((url,options)=>{
     assert.equal(url.pathname,"/demo-wazuh-search");
-    assert.equal(url.searchParams.get("field"),"preview");
-    assert.equal(url.searchParams.get("value"),"powershell");
+    assert.equal(url.search,"","private Wazuh phrase must never appear in URL");
+    assert.equal(options.method,"POST");
+    assert.equal(options.headers["Content-Type"],"application/json");
+    assert.equal(options.headers.Authorization,"Bearer ephemeral-token");
+    assert.equal(options.credentials,"omit");
+    assert.equal(options.cache,"no-store");
+    const body=JSON.parse(options.body);
+    assert.equal(body.field,"preview");
+    assert.equal(body.value,"powershell");
+    assert.equal(body.case_id,"case-disk");
     return {ok:true,async json(){return {
       format:"cmdr-local-wazuh4-executed-search-v1",synthetic:true,
-      case_id:"case-disk",selector:"preview",value:"powershell",
+      case_id:"case-disk",selector:"preview",value:"",
       job:{ID:"job-preview",State:"completed",AuditTrail:[{},{},{}],
         ResultRefs:[{Source:"wazuh4-authorized-local-import",Ref:"hit-1"}]},
       search_hits:[{entry_id:"hit-1",source_time_utc:"2026-10-17T10:00:00Z",
