@@ -10,6 +10,8 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	timeline "github.com/tobianahillel-afk/cmdr/product-runtime/investigation-timeline"
 )
 
 func savedHeadlessMixedCase(t *testing.T) (string, string, string) {
@@ -162,4 +164,100 @@ func TestHeadlessCaseHuntCLIRejectsMixedModes(t *testing.T) {
 	},&out);err==nil || out.Len()!=0 {
 		t.Fatalf("orphan headless search selection accepted: %q",out.String())
 	}
+}
+
+func TestConsolidatedHeadlessCorrelationExcludesRevokedWazuhSourceBeforeSearching(t *testing.T) {
+	// An imported Case may still be syntactically valid while one source
+	// has become unreadable. Neither headless Job references nor temporal
+	// leads may re-expose that entry just because its owner was archived.
+	file, caseID, _ := savedHeadlessMixedCase(t)
+	data, err := loadDemoSnapshot(file)
+	if err != nil { t.Fatal(err) }
+	deniedID, deniedRef := "", ""
+	for _, entry := range data.Entries {
+		if entry.CaseID != caseID || !strings.HasPrefix(entry.Value.ID,"local-jsonl-entry-") {
+			continue
+		}
+		for _, source := range data.Sources {
+			if source.Identity.Reference == entry.Value.SourceRef && source.Wazuh != nil {
+				deniedID, deniedRef = entry.Value.ID, source.Identity.Reference
+				break
+			}
+		}
+		if deniedID != "" { break }
+	}
+	if deniedID == "" { t.Fatal("expected authorized imported Wazuh source fixture") }
+	principal := data.Principals[0]
+	data.Principals = append(data.Principals, timeline.MemoryTimelinePrincipal{
+		ID: "unrelated-analyst",Tenant: principal.Tenant,Environment: principal.Environment,
+	})
+	for i := range data.Entries {
+		if data.Entries[i].Value.ID == deniedID {
+			data.Entries[i].Readers = []string{"unrelated-analyst"}
+		}
+	}
+	for i := range data.Sources {
+		if data.Sources[i].Identity.Reference == deniedRef {
+			data.Sources[i].Readers = []string{"unrelated-analyst"}
+		}
+	}
+	if _, err := newDemoHandlerWithData(strings.Repeat("0",64), "analyst-a", data); err != nil {
+		t.Fatalf("Case with source-level revocation must remain valid: %v",err)
+	}
+	modified, err := json.Marshal(data)
+	if err != nil { t.Fatal(err) }
+	if err := os.WriteFile(file,modified,0600); err != nil { t.Fatal(err) }
+	digest := fmt.Sprintf("%x",sha256.Sum256(modified))
+	var result bytes.Buffer
+	if err := runSavedCaseHeadlessHunt(context.Background(),"analyst-a",file,caseID,
+		digest,"source_ref","all","local-jsonl-source-",
+		"2026-10-17T09:59:00Z","2026-10-17T10:02:00Z",&result); err != nil {
+		t.Fatalf("reauthorized archived Case should remain investigable: %v",err)
+	}
+	var receipt struct {
+		Refs []struct{Ref string `json:"ref"`} `json:"authorized_refs"`
+		Hits []struct{EntryID string `json:"entry_id"`} `json:"wazuh_hits"`
+		Leads []mixedTemporalLead `json:"mixed_temporal_context"`
+	}
+	if err := json.Unmarshal(result.Bytes(),&receipt); err != nil { t.Fatal(err) }
+	if len(receipt.Refs)!=2 || len(receipt.Hits)!=1 || len(receipt.Leads)!=1 {
+		t.Fatalf("revoked Wazuh source incorrectly included in mixed hunt: %+v",receipt)
+	}
+	for _,ref := range receipt.Refs {
+		if ref.Ref == deniedID {t.Fatal("revoked source reappeared in authorized results")}
+	}
+	for _,hit := range receipt.Hits {
+		if hit.EntryID == deniedID {t.Fatal("revoked Wazuh source reappeared in hits")}
+	}
+	for _,lead := range receipt.Leads {
+		if lead.WazuhEntryID == deniedID {t.Fatal("revoked source contributed temporal lead")}
+	}
+	if strings.Contains(result.String(), deniedID) || strings.Contains(result.String(), deniedRef) ||
+		strings.Contains(result.String(), "PRIVATE-WAZUH") || strings.Contains(result.String(), "unrelated-analyst") {
+		t.Fatal("rejected source identity or confidential data leaked from headless correlation")
+	}
+}
+
+type unavailableHuntReceiptWriter struct{}
+func (unavailableHuntReceiptWriter) Write([]byte) (int,error) {
+	return 0, fmt.Errorf("operator output unavailable")
+}
+
+func TestConsolidatedHeadlessHuntCancelledOrUnwritableNeverClaimsSuccess(t *testing.T) {
+	file,caseID,digest:=savedHeadlessMixedCase(t)
+	ctx,cancel:=context.WithCancel(context.Background())
+	cancel()
+	for _,invalidContext:=range []context.Context{nil,ctx} {
+		var output bytes.Buffer
+		err:=runSavedCaseHeadlessHunt(invalidContext,"analyst-a",file,
+			caseID,digest,"source_ref","all","local-jsonl-source-",
+			"2026-10-17T09:59:00Z","2026-10-17T10:02:00Z",&output)
+		if err==nil || output.Len()!=0 {
+			t.Fatalf("cancelled headless hunt emitted a Case receipt: %v %q",err,output.String())
+		}
+	}
+	err:=runSavedCaseHeadlessHunt(context.Background(),"analyst-a",file,
+		caseID,digest,"source_ref","all","local-jsonl-source-",
+		"2026-10-17T09:59:00Z","2026-10-17T10:02:00Z",unavailableHuntReceiptWriter{})
+	if err==nil {t.Fatal("failed forensic output sink silently reported success")}
 }
