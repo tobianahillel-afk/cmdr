@@ -62,7 +62,9 @@
     if (!bearer || !selectedCase ||
         !(selectedField === "preview" ?
           (literal.length >= 3 && literal.length <= 128 && !/[\x00\r\n]/.test(literal)) :
-          (["rule_id","agent_id"].includes(selectedField) && /^[0-9]{1,16}$/.test(literal))) ||
+          (["rule_id","agent_id"].includes(selectedField) && /^[0-9]{1,16}$/.test(literal)) ||
+          (["entry_id","source_ref","provenance"].includes(selectedField) &&
+            literal.length >= 3 && literal.length <= 128 && !/[\x00\r\n]/.test(literal))) ||
         !Number.isFinite(fromDate.getTime()) || !Number.isFinite(toDate.getTime()) ||
         fromDate.getTime() >= toDate.getTime()) {
       localSearchStatus.textContent = "Sélectionnez un Case, un jeton, un texte littéral et une période valides.";
