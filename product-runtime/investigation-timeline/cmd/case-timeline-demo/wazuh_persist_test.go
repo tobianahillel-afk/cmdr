@@ -261,6 +261,73 @@ func TestPersistedWazuhRuleAndAgentSearchJobsAfterRestart(t *testing.T) {
 	}
 }
 
+// The saved owner and Search Job index must be immutable after validation.
+// This is a real isolation boundary: RuleLevel is a *int; copying the struct
+// without copying the pointed severity lets an unrelated caller mutate
+// source triage displayed in already-authorized completed SearchJobs.
+func TestSavedWazuhSearchMetadataIgnoresCallerMutationsAfterStartup(t *testing.T) {
+	const caseID = "forensic-case-on-disk"
+	owner := snapshotFixture(t)
+	input := writeJSONLEvents(t,
+		"{\"id\":\"mutable-id\",\"timestamp\":\"2026-10-17T10:00:00Z\",\"agent\":{\"id\":\"001\"},\"rule\":{\"id\":\"5710\",\"description\":\"authorized immutable Wazuh source\",\"level\":9}}\n")
+	out := filepath.Join(t.TempDir(), "persisted-metadata-owner.json")
+	if err := writePersistedWazuhCase(context.Background(), "analyst-a", owner, caseID,
+		[]string{input}, out, &bytes.Buffer{}); err != nil {
+		t.Fatal(err)
+	}
+	data, err := loadDemoSnapshot(out)
+	if err != nil { t.Fatal(err) }
+	ids, err := importedNormalizedIDs(data, caseID)
+	if err != nil { t.Fatal(err) }
+	token, err := randomBearer()
+	if err != nil { t.Fatal(err) }
+	typedOwner, err := newDemoHandlerWithData(token, "analyst-a", data)
+	if err != nil { t.Fatal(err) }
+	searchHandler := newDemoLocalJSONLSearchHandler(token, "analyst-a", caseID, data, ids, typedOwner)
+
+	// Deliberately mutate the caller's original Wazuh pointer after both
+	// immutable owner and search index have been constructed.
+	for i := range data.Sources {
+		if data.Sources[i].Wazuh != nil {
+			data.Sources[i].Wazuh.RuleID = "9999"
+			if data.Sources[i].Wazuh.RuleLevel == nil { t.Fatal("fixture has no rule level") }
+			*data.Sources[i].Wazuh.RuleLevel = 17 // invalid post-validation severity
+		}
+	}
+	request := func(value string) *httptest.ResponseRecorder {
+		t.Helper()
+		query, _ := json.Marshal(map[string]string{
+			"case_id": caseID, "field": "rule_id", "value": value,
+			"from": "2026-10-17T09:59:00Z", "to": "2026-10-17T10:01:00Z",
+		})
+		req := httptest.NewRequest(http.MethodPost, "/demo-local-search", bytes.NewReader(query))
+		req.Header.Set("Authorization", "Bearer "+token)
+		req.Header.Set("Content-Type", "application/json")
+		resp := httptest.NewRecorder()
+		searchHandler.ServeHTTP(resp, req)
+		return resp
+	}
+	matched := request("5710")
+	var receipt struct {
+		Job search.SearchJob `json:"job"`
+		Hits []wazuhSearchHit `json:"search_hits"`
+	}
+	if matched.Code != http.StatusOK ||
+		json.Unmarshal(matched.Body.Bytes(), &receipt) != nil ||
+		receipt.Job.State != search.JobCompleted ||
+		len(receipt.Job.ResultRefs) != 1 || len(receipt.Hits) != 1 ||
+		receipt.Hits[0].RuleID != "5710" ||
+		receipt.Hits[0].RuleLevel == nil || *receipt.Hits[0].RuleLevel != 9 {
+		t.Fatalf("validated Wazuh source metadata was mutable after startup: %d %s", matched.Code, matched.Body.String())
+	}
+	stale := request("9999")
+	var denied struct{ Job search.SearchJob `json:"job"` }
+	if stale.Code != http.StatusOK || json.Unmarshal(stale.Body.Bytes(), &denied) != nil ||
+		len(denied.Job.ResultRefs) != 0 {
+		t.Fatalf("post-validation caller metadata mutation altered authorized query: %d %s", stale.Code, stale.Body.String())
+	}
+}
+
 func TestPersistedWazuhSearchBurstsFromCompletedAuthorizedJob(t *testing.T) {
 	const caseID="forensic-case-on-disk"
 	owner:=snapshotFixture(t)
