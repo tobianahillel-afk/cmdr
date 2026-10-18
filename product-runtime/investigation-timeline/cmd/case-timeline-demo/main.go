@@ -97,6 +97,8 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	inspectSavedPairSecondEntry := flags.String("inspect-saved-pair-second-entry", "", "second Case Wazuh Entry ID from an authorized pair receipt")
 	findSavedPairFirstEntry := flags.String("find-saved-pair-first-entry", "", "metadata-only nearest authorized Wazuh pair for an exact first Case Entry ID")
 	listSavedWazuhPairOffset := flags.Int("list-saved-wazuh-pair-offset", -1, "zero-based authorized Wazuh pair page offset (0..5000), ten leads per page; needs two verified Case snapshots")
+	pairRuleID := flags.String("pair-rule-id", "", "exact Wazuh rule ID to scope metadata-only pair pagination; requires matching agent ID")
+	pairAgentID := flags.String("pair-agent-id", "", "exact Wazuh agent ID to scope metadata-only pair pagination; requires matching rule ID")
 	includePairGenericEvidence := flags.Bool("include-pair-generic-evidence", false, "explicitly include up to ten independently source-authorized generic previews per Case in the NEW private paired report only")
 	compareSavedCase := flags.String("compare-saved-case", "", "first saved authorized Case ID for independent offline cross-snapshot comparison")
 	compareSavedWithCase := flags.String("compare-saved-with-case", "", "second distinct saved Case ID for independent cross-snapshot comparison")
@@ -143,7 +145,7 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 			"compare-case", "with-case", "source-case", "source-ref",
 			"inspect-case", "inspect-entry", "inspect-wazuh-entry",
 			"inspect-saved-case", "inspect-saved-entry", "snapshot",
-			"find-saved-pair-first-entry":
+			"find-saved-pair-first-entry", "pair-rule-id", "pair-agent-id":
 			if f.Value.String() == "" { emptyExplicitMode = true }
 		}
 	})
@@ -278,7 +280,8 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 			"compare-saved-with-snapshot", "expect-other-snapshot-sha256",
 			"inspect-saved-pair", "inspect-saved-pair-first-entry",
 			"inspect-saved-pair-second-entry", "include-pair-generic-evidence",
-			"list-saved-wazuh-pair-offset", "find-saved-pair-first-entry":
+			"list-saved-wazuh-pair-offset", "find-saved-pair-first-entry",
+			"pair-rule-id", "pair-agent-id":
 			savedComparisonSelected = true
 		}
 	})
@@ -292,7 +295,7 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 				"private-report", "inspect-saved-pair",
 				"inspect-saved-pair-first-entry", "inspect-saved-pair-second-entry",
 				"include-pair-generic-evidence", "list-saved-wazuh-pair-offset",
-				"find-saved-pair-first-entry":
+				"find-saved-pair-first-entry", "pair-rule-id", "pair-agent-id":
 			default:
 				allowed = false
 			}
@@ -317,6 +320,19 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 				pageSelected = true
 			}
 		})
+		// Rule/agent cohort filtering is meaningful ONLY in metadata-only
+		// page navigation; never let a stray filter silently redirect a
+		// private dossier or unfiltered exact-ID discovery.
+		pivotSelected := false
+		flags.Visit(func(f *flag.Flag) {
+			if f.Name == "pair-rule-id" || f.Name == "pair-agent-id" {
+				pivotSelected = true
+			}
+		})
+		if pivotSelected && (!pageSelected || *pairRuleID == "" || *pairAgentID == "" ||
+			len(*pairRuleID) > 128 || len(*pairAgentID) > 128) {
+			return errors.New("pair rule/agent pivot requires metadata-only pagination and both bounded identifiers")
+		}
 		// Discovery modes disclose only authorized metadata and are mutually
 		// exclusive with private dossier generation and with each other.
 		if *findSavedPairFirstEntry != "" {
@@ -358,6 +374,13 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 				*privateReport != "" || *listSavedWazuhPairOffset < 0 ||
 				*listSavedWazuhPairOffset > 5000 {
 				return errors.New("pair pagination needs only two verified Cases and an offset from 0 to 5000")
+			}
+			if pivotSelected {
+				return listVerifiedSavedWazuhPairPage(ctx, *principal, *snapshot,
+					*compareSavedCase, *expectedSnapshotSHA256,
+					*compareSavedWithSnapshot, *compareSavedWithCase,
+					*expectedOtherSHA256, *listSavedWazuhPairOffset, output,
+					*pairRuleID, *pairAgentID)
 			}
 			return listVerifiedSavedWazuhPairPage(ctx, *principal, *snapshot,
 				*compareSavedCase, *expectedSnapshotSHA256,

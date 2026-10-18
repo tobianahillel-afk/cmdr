@@ -14,7 +14,19 @@ import (
 // Returned Entry IDs are navigation selectors, never access grants.
 func listVerifiedSavedWazuhPairPage(ctx context.Context, principal,
 	firstPath, firstCase, firstSHA, secondPath, secondCase, secondSHA string,
-	offset int, output io.Writer) error {
+	offset int, output io.Writer, cohortFilters ...string) error {
+	// Optional exact rule+agent pivot is scoped to the already authorized
+	// Wazuh cohorts; no unverified source metadata is used for filtering.
+	ruleID, agentID := "", ""
+	if len(cohortFilters) != 0 {
+		if len(cohortFilters) != 2 {
+			return errors.New("pair pivot requires both Wazuh rule and agent identifiers")
+		}
+		ruleID, agentID = cohortFilters[0], cohortFilters[1]
+		if ruleID == "" || agentID == "" || len(ruleID) > 128 || len(agentID) > 128 {
+			return errors.New("pair pivot requires bounded, non-empty rule and agent identifiers")
+		}
+	}
 	if ctx == nil || ctx.Err() != nil || offset < 0 || offset > 5000 ||
 		firstCase == "" || secondCase == "" || firstCase == secondCase ||
 		principal == "" || firstSHA == "" || secondSHA == "" {
@@ -33,6 +45,13 @@ func listVerifiedSavedWazuhPairPage(ctx context.Context, principal,
 	if err != nil { return err }
 	right, err := collectAuthorizedWazuhObservations(second, secondCase)
 	if err != nil { return err }
+	if ruleID != "" {
+		// Both independently authorized owners must contain the exact
+		// cohort; unrelated Wazuh sources never enter the eligible result.
+		key := authorizedWazuhCohort{rule: ruleID, agent: agentID}
+		left = map[authorizedWazuhCohort][]authorizedWazuhObservation{key: left[key]}
+		right = map[authorizedWazuhCohort][]authorizedWazuhObservation{key: right[key]}
+	}
 	pairs, hasMore := sharedWazuhPairsPageFromObservations(left, right, offset)
 	if err := ctx.Err(); err != nil { return err }
 	var encoded bytes.Buffer
@@ -42,12 +61,14 @@ func listVerifiedSavedWazuhPairPage(ctx context.Context, principal,
 		FirstCase string `json:"first_case_id"`
 		SecondCase string `json:"second_case_id"`
 		Offset int `json:"offset"`
+		RuleID string `json:"rule_id,omitempty"`
+		AgentID string `json:"agent_id,omitempty"`
 		HasMore bool `json:"has_more"`
 		Pairs []sharedAuthorizedWazuhEventPair `json:"pairs"`
 	}{
 		Format: "cmdr-local-authorized-wazuh-pair-page-v1",
 		Synthetic: true, FirstCase: firstCase, SecondCase: secondCase,
-		Offset: offset, HasMore: hasMore, Pairs: pairs,
+		Offset: offset, RuleID: ruleID, AgentID: agentID, HasMore: hasMore, Pairs: pairs,
 	})
 	if err != nil { return err }
 	if err := ctx.Err(); err != nil { return err }
