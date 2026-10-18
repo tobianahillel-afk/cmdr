@@ -50,3 +50,60 @@ The original node is conservatively changed from READY to **DECOMPOSED**, **not 
 ## Corrected Git integration choice (same product code, no SHA rewrite)
 
 The original exploratory base #113 produced a 26-file security-critical diff and a concrete kernel gate failure (88.87% below the mandatory 90%). Instead of adding nearly duplicate tests or changing the gate, the actual product-boundary parent is #120, containing the existing authorized Wazuh pair navigation. The explicit Git base is retargeted to `feat/e10-inv-750a-unified-wazuh-pair-navigation` / immutable SHA `db97ebb3299de6f2e9c3c1558553fdf78174bb35`. The candidate still contains source-provenance contributions from #113 and #122 via Git ancestry; their PRs and L2 SHAs are not modified, merged, approved or closed. The exact new-head CI and independent material integration review still must pass. This is a corrected **dependency boundary**, not a security threshold exemption. Future work must separately reconcile upstream foundation #36 and release candidates, and only merge when the real required ancestor gates and native approvals are satisfied.
+
+
+## Reconciliation — consolidated PR #127 retargeted to first-party #120 (2026-10-19)
+
+This additive handoff records GitHub reality without rewriting prior independently
+reviewed source SHA or asserting a native approval. The engineering manifest above
+was authored before the independently reviewed #125 cohort filter and #127
+filtered catalog/lead navigation existed. Do not re-run its original #120/#124
+integration plan as though GitHub had no later code.
+
+- GitHub `main` remains `bc1ec59e5e79ccbaba291e2984b0eb7d5e54129c` (product-spec documents; no published production runtime).
+- Canonical engineering integration unit: `E10-DFIR-780A-INTEGRATION`, under
+  transversal epic `E10-DFIR-780A`, referencing CAP-INV-002 (Event Search),
+  CAP-INV-004 (Event Inspection/Pivot), CAP-INV-110 (Case Timeline). The
+  normalized Case owner/typed source remains first-party read-only lab code;
+  source Event and Timeline Entry ownership remain Shared. Class-2 mutations
+  remain blocked by OPEN-013.
+- GitHub PR #120, original Wazuh rule+agent pair navigation, **frozen base SHA**
+  `db97ebb3299de6f2e9c3c1558553fdf78174bb35`, is the direct base of
+  the new *consolidated* GitHub PR #127. Native Git compare from that base
+  to former PR #127 HEAD `11607f13c355027cb0de21ce9bbde287860bef44`
+  verified **ahead 19, behind 0, 14 changed files**; source code includes
+  both #126's Wazuh catalog integration and #125's exact cohort filtering,
+  plus #127's source-authorized lead-pair navigation. No source is rewritten.
+- The former intermediary PR #126 is still DRAFT at the **frozen original**
+  `2859eb9236f50e49588985e81d292e7c28a0b5e4`. Its own original
+  `engineering-kernel` run #39175059577 is **FAILURE** due to mandatory
+  changed-security coverage **88.87% <90.00%**; never transfer the green
+  checks of an unrelated diff or silently waive that failed gate. PR #125,
+  #124, #123, #122, #113, #36 and #2 remain independently reviewable and
+  unmerged. #120 itself has prior green independent exact-SHA checks.
+- PR #127's original smaller-diff HEAD `11607f13c355027cb0de21ce9bbde287860bef44`
+  had GitHub Actions `investigation-timeline-runtime` run #39175997382
+  **SUCCESS** and `engineering-kernel` run #39175997394 **SUCCESS**.
+  **Those pre-retarget runs were assessed against parent PR #126, not
+  necessarily against PR #120.** This handoff-only commit deliberately
+  triggers fresh `pull_request.synchronize` workflows on the newly
+  retargeted PR #127 and its entire actual 19-commit delta. Report their
+  exact new HEAD conclusions before any claim of merge-readiness.
+- Candidate remains **DRAFT**, unmerged and not production-accepted.
+  Real runtime outcomes are operator-local synthetic saved Case investigation
+  and authorized Wazuh metadata/cohort navigation, NOT continuous Wazuh
+  collection, production IAM, signed custody, product CAP acceptance or
+  deployment. Any prior ChatGPT L2 of #126 and #127 reviewed separate,
+  smaller diffs; a changed merge base requires proportionate combined-diff
+  review but does not invalidate immutable original commit evidence.
+- No further branch stacking is justified merely to re-document these same
+  features. On successful exact-HEAD mandatory checks, reconcile the READY
+  execution cache to an evidence-based status without claiming VERIFIED or
+  accepted before reviews/native approvals, then select a canonical
+  READY *functional* obligation with its own correct engineering parent.
+  On a security check failure, keep DRAFT, identify the exact affected
+  security-critical scope and fix genuine behavior/design; do NOT lower the
+  mandatory threshold or create near-identical tests solely for coverage.
+
+This reconciliation is additional history, not a retroactive replacement of
+the earlier `E10-DFIR-780A` manifests or product requirements.
