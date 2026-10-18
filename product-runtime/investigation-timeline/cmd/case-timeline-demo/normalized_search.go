@@ -24,8 +24,10 @@ const localJSONLSearchSource = "normalized-jsonl-authorized-import"
 
 type localJSONLSearchBackend struct {
 	owner http.Handler
-	bearer, caseID, tenant, environment, literal string
+	bearer, caseID, tenant, environment, literal, field string
 	imported map[string]struct{}
+	// Source-owned metadata is a query filter only AFTER typed-source ACL.
+	wazuh map[string]timeline.WazuhSourceMetadata
 }
 
 func (b *localJSONLSearchBackend) Execute(ctx context.Context, request search.BackendRequest) (search.BackendResult, error) {
@@ -33,6 +35,9 @@ func (b *localJSONLSearchBackend) Execute(ctx context.Context, request search.Ba
 		len(request.Sources) != 1 || request.Sources[0] != localJSONLSearchSource ||
 		!request.TimeStart.Before(request.TimeEnd) {
 		return search.BackendResult{}, errors.New("normalized event search scope changed")
+	}
+	if b.field != "preview" && len(b.wazuh) != len(b.imported) {
+		return search.BackendResult{}, errors.New("persistent Wazuh numeric pivots unavailable for this Case")
 	}
 	result := search.BackendResult{
 		TenantRef: request.TenantRef,
@@ -78,9 +83,20 @@ func (b *localJSONLSearchBackend) Execute(ctx context.Context, request search.Ba
 			len(opened.Preview) > 2048 || !utf8.ValidString(opened.Preview) {
 			return errors.New("normalized source owner identity or preview invalid")
 		}
-		if !strings.Contains(strings.ToLower(opened.Preview), strings.ToLower(b.literal)) {
-			return nil
+		var match bool
+		switch b.field {
+		case "preview":
+			match = strings.Contains(strings.ToLower(opened.Preview), strings.ToLower(b.literal))
+		case "rule_id":
+			meta, ok := b.wazuh[entry.ID]
+			match = ok && meta.RuleID != "" && meta.RuleID == b.literal
+		case "agent_id":
+			meta, ok := b.wazuh[entry.ID]
+			match = ok && meta.AgentID != "" && meta.AgentID == b.literal
+		default:
+			return errors.New("unsupported persisted Wazuh search field")
 		}
+		if !match { return nil }
 		if len(result.ResultRefs) >= maxWazuhSearchMatches {
 			return errors.New("normalized search exceeds 200 matching events")
 		}
@@ -98,17 +114,22 @@ func (b *localJSONLSearchBackend) Execute(ctx context.Context, request search.Ba
 
 func executeDemoLocalJSONLSearch(ctx context.Context, principal, caseID string,
 	owner http.Handler, bearer, tenant, environment string,
-	imported map[string]struct{}, literal, start, end string) (search.SearchJob, error) {
-	if ctx == nil || len(imported) == 0 || !validWazuhPreviewLiteral(literal) {
+	imported map[string]struct{}, wazuh map[string]timeline.WazuhSourceMetadata,
+	field, literal, start, end string) (search.SearchJob, error) {
+	if ctx == nil || len(imported) == 0 ||
+		!((field == "preview" && validWazuhPreviewLiteral(literal)) ||
+			((field == "rule_id" || field == "agent_id") && validWazuhCohortID(literal))) {
 		return search.SearchJob{}, errors.New("select bounded normalized text search")
 	}
 	backend := &localJSONLSearchBackend{
 		owner: owner, bearer: bearer, caseID: caseID,
 		tenant: tenant, environment: environment,
-		imported: imported, literal: literal,
+		imported: imported, literal: literal, field: field, wazuh: wazuh,
 	}
 	orchestrator, err := search.NewOrchestrator(backend)
 	if err != nil { return search.SearchJob{}, err }
+	queryVersion := "normalized-jsonl-rendered-literal-v1"
+	if field != "preview" { queryVersion = "persisted-wazuh-rule-agent-pivot-v1" }
 	job, err := orchestrator.Create(search.Input{
 		TenantRef: tenant, AuthorizedTenants: []string{tenant},
 		EnvironmentRef: environment,
@@ -121,7 +142,7 @@ func executeDemoLocalJSONLSearch(ctx context.Context, principal, caseID string,
 		},
 		QueryPresent: true, QueryValid: true,
 		CorrelationID: "offline-normalized-jsonl-hunt",
-		QueryVersion: "normalized-jsonl-rendered-literal-v1",
+		QueryVersion: queryVersion,
 	}, search.AuditContext{ActorRef: principal, Rationale: "offline-normalized-source-hunt"})
 	if err != nil { return search.SearchJob{}, err }
 	job, err = orchestrator.Execute(ctx, job, search.AuditContext{
@@ -137,6 +158,20 @@ func executeDemoLocalJSONLSearch(ctx context.Context, principal, caseID string,
 // JSONL import, never the ordinary snapshot or Wazuh-specific viewer.
 func newDemoLocalJSONLSearchHandler(token, principal, caseID string,
 	data timeline.MemoryTimelineData, imported map[string]struct{}, owner http.Handler) http.Handler {
+	// Build the immutable authorized source metadata index ONCE from the
+	// already validated owner graph. Numeric pivots never read raw Wazuh.
+	sources := make(map[string]timeline.MemoryTimelineSource, len(data.Sources))
+	for _, src := range data.Sources { sources[src.Identity.Reference] = src }
+	wazuh := make(map[string]timeline.WazuhSourceMetadata)
+	for _, entry := range data.Entries {
+		if entry.CaseID != caseID { continue }
+		if _, ok := imported[entry.Value.ID]; !ok { continue }
+		src, found := sources[entry.Value.SourceRef]
+		if found && src.Identity.CaseID == caseID &&
+			src.Identity.Kind == "telemetry-event" && src.Wazuh != nil {
+			wazuh[entry.Value.ID] = *src.Wazuh
+		}
+	}
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/demo-local-search" {
 			owner.ServeHTTP(w, r)
@@ -163,6 +198,7 @@ func newDemoLocalJSONLSearchHandler(token, principal, caseID string,
 		}
 		var selection struct {
 			CaseID string `json:"case_id"`
+			Field string `json:"field,omitempty"`
 			Value string `json:"value"`
 			From string `json:"from"`
 			To string `json:"to"`
@@ -176,8 +212,11 @@ func newDemoLocalJSONLSearchHandler(token, principal, caseID string,
 		}
 		decoder := json.NewDecoder(bytes.NewReader(body))
 		decoder.DisallowUnknownFields()
+		if selection.Field == "" { selection.Field = "preview" }
 		if err := decoder.Decode(&selection); err != nil || selection.CaseID != caseID ||
-			!validWazuhPreviewLiteral(selection.Value) {
+			!((selection.Field == "preview" && validWazuhPreviewLiteral(selection.Value)) ||
+				((selection.Field == "rule_id" || selection.Field == "agent_id") &&
+					validWazuhCohortID(selection.Value))) {
 			http.NotFound(w, r)
 			return
 		}
@@ -204,8 +243,8 @@ func newDemoLocalJSONLSearchHandler(token, principal, caseID string,
 			return
 		}
 		job, err := executeDemoLocalJSONLSearch(r.Context(), principal, caseID,
-			owner, token, tenant, environment, imported,
-			selection.Value, selection.From, selection.To)
+			owner, token, tenant, environment, imported, wazuh,
+			selection.Field, selection.Value, selection.From, selection.To)
 		if err != nil {
 			http.NotFound(w, r)
 			return
