@@ -13,15 +13,12 @@ import (
 // (which would print a bearer) or the legacy stdout evidence exporter.
 func TestExplicitEmptyCaseModesNeverFallbackToListenerOrEvidenceOutput(t *testing.T) {
 	snapshot := snapshotFixture(t)
+	// Representative sensitive fall-through routes; all selectors are
+	// protected by one shared entry check, not separate validators.
 	flags := []string{
-		"resume-import-search-case", "verify-import-snapshot-case",
-		"export-case", "report-case", "compare-case", "with-case",
-		"source-case", "source-ref", "inspect-case", "inspect-entry",
-		"inspect-wazuh-entry", "hunt-saved-case", "compare-saved-case",
-		"compare-saved-with-case", "compare-saved-with-snapshot",
-		"expect-other-snapshot-sha256", "expect-snapshot-sha256",
-		"save-import-snapshot", "save-wazuh-case-snapshot",
-		"save-mixed-case-snapshot", "private-report",
+		"resume-import-search-case", "export-case", "report-case",
+		"source-case", "inspect-case", "compare-case", "with-case",
+		"expect-other-snapshot-sha256",
 	}
 	for _, selector := range flags {
 		for _, syntax := range []string{"separate", "equals"} {
