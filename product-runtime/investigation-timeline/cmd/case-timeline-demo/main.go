@@ -117,6 +117,22 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	if flags.NArg() != 0 {
 		return errors.New("unexpected positional arguments")
 	}
+	// An explicitly selected privacy or integrity control must never
+	// silently downgrade to stdout or an unchecked Case resume when a
+	// shell-expanded argument happens to be empty. Omission remains the
+	// intentional backward-compatible mode; explicit emptiness is an error.
+	flagsProvided := map[string]bool{}
+	flags.Visit(func(f *flag.Flag) {
+		if f.Name == "private-report" || f.Name == "expect-snapshot-sha256" {
+			flagsProvided[f.Name] = true
+		}
+	})
+	if flagsProvided["private-report"] && *privateReport == "" {
+		return errors.New("explicit private-report requires a nonempty absolute destination")
+	}
+	if flagsProvided["expect-snapshot-sha256"] && *expectedSnapshotSHA256 == "" {
+		return errors.New("explicit snapshot integrity verification requires a nonempty SHA-256")
+	}
 	if *privateReport != "" {
 		modes := 0
 		for _, selected := range []string{*huntSavedCase, *compareSavedCase, *verifyImportSnapshotCase} {
