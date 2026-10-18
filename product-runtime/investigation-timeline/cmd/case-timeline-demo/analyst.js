@@ -31,6 +31,106 @@
   const wazuhEvents = document.getElementById("wazuh-events");
   const wazuhPrevious = document.getElementById("wazuh-previous");
   const wazuhNext = document.getElementById("wazuh-next");
+  // Generic normalized JSONL hunt uses the same Case and typed-source
+  // owner as Timeline, but never exposes the Wazuh-only route.
+  const localSearchValue = document.getElementById("local-search-value");
+  const localSearchFrom = document.getElementById("local-search-from");
+  const localSearchTo = document.getElementById("local-search-to");
+  const localSearchRun = document.getElementById("local-search-run");
+  const localSearchStatus = document.getElementById("local-search-status");
+  const localSearchResults = document.getElementById("local-search-results");
+  let localSearchRevision = 0;
+  let localSearchRequest = null;
+  function clearLocalSearch() {
+    ++localSearchRevision;
+    if (localSearchRequest) localSearchRequest.abort();
+    localSearchRequest = null;
+    localSearchRun.disabled = false;
+    localSearchResults.replaceChildren();
+    localSearchStatus.textContent = "Aucune recherche JSONL exécutée.";
+  }
+  async function runLocalSearch() {
+    clearLocalSearch();
+    const bearer = token.value;
+    const selectedCase = caseID.value.trim();
+    const literal = localSearchValue.value;
+    const fromText = localSearchFrom.value, toText = localSearchTo.value;
+    const fromDate = fromText ? new Date(fromText) : new Date(NaN);
+    const toDate = toText ? new Date(toText) : new Date(NaN);
+    if (!bearer || !selectedCase || literal.length < 3 || literal.length > 128 ||
+        /[\x00\r\n]/.test(literal) ||
+        !Number.isFinite(fromDate.getTime()) || !Number.isFinite(toDate.getTime()) ||
+        fromDate.getTime() >= toDate.getTime()) {
+      localSearchStatus.textContent = "Sélectionnez un Case, un jeton, un texte littéral et une période valides.";
+      return;
+    }
+    const searchRevision = localSearchRevision, selectedRevision = revision;
+    const controller = new AbortController();
+    localSearchRequest = controller;
+    localSearchRun.disabled = true;
+    localSearchStatus.textContent = "Recherche et autorisation des sources normalisées en cours…";
+    try {
+      const response = await fetch(new URL("/demo-local-search", window.location.origin), {
+        method: "POST",
+        headers: { Authorization: "Bearer " + bearer, "Content-Type": "application/json" },
+        body: JSON.stringify({ case_id: selectedCase, value: literal,
+          from: fromDate.toISOString(), to: toDate.toISOString() }),
+        credentials: "omit", cache: "no-store", redirect: "error", mode: "same-origin",
+        signal: controller.signal
+      });
+      if (!response.ok) throw Error("Local search denied");
+      const receipt = await response.json();
+      if (controller.signal.aborted || searchRevision !== localSearchRevision ||
+          selectedRevision !== revision || token.value !== bearer ||
+          caseID.value.trim() !== selectedCase || localSearchValue.value !== literal ||
+          localSearchFrom.value !== fromText || localSearchTo.value !== toText) return;
+      const job = receipt?.job;
+      if (receipt?.format !== "cmdr-local-jsonl-event-search-v1" ||
+          receipt.synthetic !== true || receipt.case_id !== selectedCase ||
+          job?.State !== "completed" || typeof job.ID !== "string" ||
+          job.ID.length === 0 || !Array.isArray(job.AuditTrail) ||
+          job.AuditTrail.length < 3 || !Array.isArray(job.ResultRefs) ||
+          job.ResultRefs.length > 200) throw Error("Incomplete authorized SearchJob");
+      const seen = new Set(), list = document.createElement("ol");
+      for (const ref of job.ResultRefs) {
+        if (!ref || ref.Source !== "normalized-jsonl-authorized-import" ||
+            typeof ref.Ref !== "string" || !/^local-jsonl-entry-[a-f0-9]{64}$/.test(ref.Ref) ||
+            seen.has(ref.Ref)) throw Error("Foreign normalized event result");
+        seen.add(ref.Ref);
+        const item = document.createElement("li");
+        const button = document.createElement("button");
+        button.type = "button";
+        button.textContent = ref.Ref;
+        button.addEventListener("click", () => {
+          if (searchRevision !== localSearchRevision ||
+              selectedRevision !== revision || token.value !== bearer ||
+              caseID.value.trim() !== selectedCase) return;
+          openSource(ref.Ref); // triggers fresh Case/navigation/typed-source checks
+        });
+        item.append(button);
+        list.append(item);
+      }
+      localSearchResults.replaceChildren();
+      localSearchResults.append(list);
+      localSearchStatus.textContent = "Event Search Job " + job.ID + " terminé : " +
+        job.ResultRefs.length + " résultat(s) autorisé(s). Ouvrir revérifie les droits.";
+    } catch {
+      if (searchRevision === localSearchRevision) {
+        localSearchResults.replaceChildren();
+        localSearchStatus.textContent = "Recherche refusée ou trop volumineuse. Aucun résultat partiel.";
+      }
+    } finally {
+      if (localSearchRequest === controller) {
+        localSearchRequest = null;
+        localSearchRun.disabled = false;
+      }
+    }
+  }
+  localSearchRun.addEventListener("click", runLocalSearch);
+  for (const field of [localSearchValue, localSearchFrom, localSearchTo]) {
+    field.addEventListener("input", clearLocalSearch);
+    field.addEventListener("change", clearLocalSearch);
+  }
   let wazuhSelection = null;
   let wazuhOffset = 0;
   let wazuhRevision = 0;
@@ -1916,6 +2016,7 @@
       clearAnalysis();
       clearComparison();
       clearWazuh();
+      clearLocalSearch();
       clearSource();
       if (activeRequest) activeRequest.abort();
       activeRequest = null;
