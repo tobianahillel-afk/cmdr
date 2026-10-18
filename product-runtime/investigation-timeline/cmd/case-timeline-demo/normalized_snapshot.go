@@ -16,9 +16,73 @@ import (
 	timeline "github.com/tobianahillel-afk/cmdr/product-runtime/investigation-timeline"
 )
 
-// Persist exactly the same synthetic owner graph that the normal importer
-// builds. The file is SENSITIVE: the original snapshot may include other
-// tenants and sources. Only an explicit operator CLI flag may save it.
+// Save only a single Case and records readable by this synthetic principal.
+// The full source snapshot may contain unrelated or denied tenant data.
+func scopedNormalizedCaseSnapshot(data timeline.MemoryTimelineData, principal, caseID string) (timeline.MemoryTimelineData, error) {
+	if _, err := newDemoHandlerWithData(strings.Repeat("0", 64), principal, data); err != nil {
+		return timeline.MemoryTimelineData{}, errors.New("input owner graph invalid")
+	}
+	readable := func(ids []string) bool {
+		for _, id := range ids {
+			if id == principal { return true }
+		}
+		return false
+	}
+	var current timeline.MemoryTimelinePrincipal
+	for _, p := range data.Principals {
+		if p.ID == principal { current = p; break }
+	}
+	var chosen timeline.MemoryTimelineCase
+	found := false
+	for _, c := range data.Cases {
+		if c.ID != caseID { continue }
+		if current.ID == "" || c.Tenant != current.Tenant ||
+			c.Environment != current.Environment || !readable(c.Readers) {
+			return timeline.MemoryTimelineData{}, errors.New("Case unavailable to selected principal")
+		}
+		chosen = c
+		found = true
+		break
+	}
+	if !found { return timeline.MemoryTimelineData{}, errors.New("selected Case absent") }
+	entryByID := make(map[string]timeline.MemoryTimelineEntry)
+	sourceByRef := make(map[string]timeline.MemoryTimelineSource)
+	for _, entry := range data.Entries {
+		if entry.CaseID == caseID { entryByID[entry.Value.ID] = entry }
+	}
+	for _, src := range data.Sources {
+		if src.Identity.CaseID == caseID { sourceByRef[src.Identity.Reference] = src }
+	}
+	limited := timeline.MemoryTimelineData{
+		Principals: []timeline.MemoryTimelinePrincipal{current},
+		Cases: []timeline.MemoryTimelineCase{chosen},
+	}
+	limited.Cases[0].Readers = []string{principal}
+	limited.Cases[0].EntryIDs = make([]string, 0, len(chosen.EntryIDs))
+	addedSource := make(map[string]bool)
+	for _, id := range chosen.EntryIDs {
+		entry, ok := entryByID[id]
+		if !ok { return timeline.MemoryTimelineData{}, errors.New("Case entry missing") }
+		src, found := sourceByRef[entry.Value.SourceRef]
+		if !readable(entry.Readers) || !found || !readable(src.Readers) {
+			continue // denied metadata and source previews are never saved
+		}
+		entry.Readers = []string{principal}
+		limited.Entries = append(limited.Entries, entry)
+		limited.Cases[0].EntryIDs = append(limited.Cases[0].EntryIDs, id)
+		if !addedSource[src.Identity.Reference] {
+			src.Readers = []string{principal}
+			limited.Sources = append(limited.Sources, src)
+			addedSource[src.Identity.Reference] = true
+		}
+	}
+	if _, err := newDemoHandlerWithData(strings.Repeat("0", 64), principal, limited); err != nil {
+		return timeline.MemoryTimelineData{}, errors.New("scoped Case owner invalid")
+	}
+	return limited, nil
+}
+
+// Explicit private persistence of only the selected authorized Case owner.
 func writeDemoPersistedNormalizedCase(ctx context.Context, principal, snapshotPath, caseID string,
 	paths []string, destination string, output io.Writer) error {
 	if ctx == nil || ctx.Err() != nil || !filepath.IsAbs(destination) ||
@@ -43,11 +107,11 @@ func writeDemoPersistedNormalizedCase(ctx context.Context, principal, snapshotPa
 	} else {
 		data, _, err = loadMultipleNormalizedJSONLFeeds(ctx, principal, snapshotPath, caseID, paths)
 	}
-	if err != nil {
-		return err
-	}
-	// Marshal to bounded memory before creating ANY output; on failure the
-	// existing destination is neither opened nor altered.
+	if err != nil { return err }
+	data, err = scopedNormalizedCaseSnapshot(data, principal, caseID)
+	if err != nil { return err }
+	if _, err := importedNormalizedIDs(data, caseID); err != nil { return err }
+	// Marshal the minimal authorized Case graph before any output is opened.
 	payload, err := json.Marshal(data)
 	if err != nil || len(payload)+1 > maxDemoSnapshotBytes {
 		return errors.New("persisted normalized Case exceeds bounded snapshot size")
@@ -154,9 +218,11 @@ func serveDemoReopenedNormalizedCase(ctx context.Context, principal, snapshotPat
 		return errors.New("select a saved Case owner snapshot and Case ID")
 	}
 	data, err := loadDemoSnapshot(snapshotPath)
-	if err != nil {
-		return err
-	}
+	if err != nil { return err }
+	// Older snapshots may contain unrelated tenants; never load them into
+	// the loopback owner even when they are operator-selected local files.
+	data, err = scopedNormalizedCaseSnapshot(data, principal, caseID)
+	if err != nil { return err }
 	ids, err := importedNormalizedIDs(data, caseID)
 	if err != nil {
 		return err
