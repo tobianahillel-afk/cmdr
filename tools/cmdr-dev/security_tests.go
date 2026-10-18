@@ -361,7 +361,23 @@ func measureRuntimeCoverage(root, tempDir string, changedPaths []string, adapter
 	if err != nil {
 		return RuntimeCoverageMeasurement{}, err
 	}
-	return parseRuntimeCoverageProfile(data, changedPaths, adapter)
+	measurement, err := parseRuntimeCoverageProfile(data, changedPaths, adapter)
+	if err != nil {
+		return RuntimeCoverageMeasurement{}, err
+	}
+	// Diagnostic ONLY: show actual unexecuted Go statement blocks on the
+	// already generated profile. No policy, scoring, gate, or test change.
+	// If no runtime source file changed in this PR, show global misses to
+	// help reconcile independently failing stacked parent PRs.
+	if adapter.RuntimeKind == "go" && (measurement.ChangedExecutableStmts > 0 ||
+		measurement.GlobalPercent < 90) {
+		missing := unexecutedRuntimeBlocks(data, changedPaths, adapter, 20)
+		for _, block := range missing {
+			fmt.Fprintf(os.Stderr, "cmdr-dev coverage diagnostic (non-gating): %s %s\n",
+				adapter.BoundaryID, block)
+		}
+	}
+	return measurement, nil
 }
 
 func runRuntimeNegativeTest(root string, adapter runtimeSecurityAdapter, pattern, label string) error {
@@ -546,6 +562,71 @@ func parseRuntimeCoverageProfile(data []byte, changedPaths []string, adapter run
 		measurement.ChangedExecutablePercent = 100 * float64(changedCovered) / float64(changedTotal)
 	}
 	return measurement, nil
+}
+
+// unexecutedRuntimeBlocks reports the largest uncovered executable Go blocks
+// from the SAME measured profile used by the mandatory security gate. These
+// paths/locations are diagnostic only, never alternative coverage evidence.
+// GitHub logs receive no source lines, event payloads, or access credentials.
+func unexecutedRuntimeBlocks(data []byte, changedPaths []string, adapter runtimeSecurityAdapter, limit int) []string {
+	if limit <= 0 {
+		return nil
+	}
+	changed := make(map[string]bool, len(changedPaths))
+	for _, path := range changedPaths {
+		changed[filepath.ToSlash(path)] = true
+	}
+	prefix := adapter.ModuleIdentity + "/"
+	type miss struct {
+		path       string
+		line       int
+		statements int
+	}
+	var all, selected []miss
+	for _, record := range strings.Split(string(data), "\n") {
+		fields := strings.Fields(record)
+		if len(fields) != 3 || fields[2] != "0" {
+			continue
+		}
+		sep := strings.LastIndex(fields[0], ":")
+		if sep < 1 || !strings.HasPrefix(fields[0], prefix) {
+			continue
+		}
+		coord := strings.SplitN(fields[0][sep+1:], ",", 2)[0]
+		line, err := strconv.Atoi(strings.SplitN(coord, ".", 2)[0])
+		statements, parseErr := strconv.Atoi(fields[1])
+		if err != nil || parseErr != nil || line <= 0 || statements <= 0 {
+			continue
+		}
+		path := filepath.ToSlash(filepath.Join(adapter.RuntimeRoot,
+			filepath.FromSlash(strings.TrimPrefix(fields[0][:sep], prefix))))
+		block := miss{path: path, line: line, statements: statements}
+		all = append(all, block)
+		if changed[path] {
+			selected = append(selected, block)
+		}
+	}
+	if len(selected) == 0 {
+		selected = all
+	}
+	sort.Slice(selected, func(i, j int) bool {
+		if selected[i].statements != selected[j].statements {
+			return selected[i].statements > selected[j].statements
+		}
+		if selected[i].path != selected[j].path {
+			return selected[i].path < selected[j].path
+		}
+		return selected[i].line < selected[j].line
+	})
+	if limit > len(selected) {
+		limit = len(selected)
+	}
+	result := make([]string, 0, limit)
+	for _, block := range selected[:limit] {
+		result = append(result, fmt.Sprintf("%s:%d (%d unexecuted statements)",
+			block.path, block.line, block.statements))
+	}
+	return result
 }
 
 func measurePilotRuntimeCoverage(root, tempDir string, changedPaths []string) (RuntimeCoverageMeasurement, error) {
