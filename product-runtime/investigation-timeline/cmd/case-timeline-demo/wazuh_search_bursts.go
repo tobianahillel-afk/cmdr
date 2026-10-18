@@ -19,12 +19,6 @@ type wazuhSearchBurst struct {
 	EntryIDs []string `json:"entry_ids"`
 }
 
-type wazuhSearchBurstEvent struct {
-	At time.Time
-	Feed int
-	EntryID string
-}
-
 // Reuse the proven 60-second sliding-window/two-pointer method from the
 // independent E10-INV-120A temporal-burst capability (PR #51), adapting it
 // to return the exact subset of authorized Event Search hit identities.
@@ -33,7 +27,7 @@ func deriveWazuhSearchBursts(hits []wazuhSearchHit) []wazuhSearchBurst {
 	if len(hits) < 3 || len(hits) > maxWazuhSearchMatches {
 		return []wazuhSearchBurst{}
 	}
-	groups := make(map[string][]wazuhSearchBurstEvent)
+	groups := make(map[string][]wazuhBurstObservation)
 	for _, hit := range hits {
 		if hit.AgentID == "" || hit.RuleID == "" {
 			continue
@@ -43,7 +37,7 @@ func deriveWazuhSearchBursts(hits []wazuhSearchHit) []wazuhSearchBurst {
 			continue
 		}
 		key := hit.AgentID + "/" + hit.RuleID
-		groups[key] = append(groups[key], wazuhSearchBurstEvent{
+		groups[key] = append(groups[key], wazuhBurstObservation{
 			At: at, Feed: hit.Feed, EntryID: hit.EntryID,
 		})
 	}
@@ -53,36 +47,13 @@ func deriveWazuhSearchBursts(hits []wazuhSearchHit) []wazuhSearchBurst {
 		if len(events) < 3 || agent == "" || rule == "" {
 			continue
 		}
-		sort.Slice(events, func(i, j int) bool {
-			if events[i].At.Equal(events[j].At) {
-				return events[i].EntryID < events[j].EntryID
-			}
-			return events[i].At.Before(events[j].At)
-		})
-		first, bestStart, bestEnd, bestCount, bestFeeds := 0, 0, 0, 0, 0
-		feedCount := make(map[int]int)
-		for right, event := range events {
-			feedCount[event.Feed]++
-			for event.At.Sub(events[first].At) > 60*time.Second {
-				oldFeed := events[first].Feed
-				feedCount[oldFeed]--
-				if feedCount[oldFeed] == 0 {
-					delete(feedCount, oldFeed)
-				}
-				first++
-			}
-			count := right-first+1
-			if count >= 3 && (count > bestCount ||
-				count == bestCount && len(feedCount) > bestFeeds) {
-				bestStart, bestEnd, bestCount, bestFeeds = first, right, count, len(feedCount)
-			}
-		}
+		bestStart,bestEnd,bestCount,bestFeeds := strongestWazuhBurstWindow(events)
 		if bestCount == 0 {
 			continue
 		}
 		burst := wazuhSearchBurst{
 			AgentID: agent, RuleID: rule, AlertCount: bestCount,
-			DistinctFeeds: bestFeeds, WindowSeconds: 60,
+			DistinctFeeds: bestFeeds, WindowSeconds: int(wazuhBurstWindow/time.Second),
 			FirstUTC: events[bestStart].At.UTC().Format(time.RFC3339Nano),
 			LastUTC: events[bestEnd].At.UTC().Format(time.RFC3339Nano),
 			EntryIDs: make([]string, 0, bestCount),

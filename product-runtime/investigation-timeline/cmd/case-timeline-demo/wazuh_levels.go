@@ -80,6 +80,7 @@ type wazuhRuleTriageReceipt struct {
 	UnknownAgentIDs int `json:"unknown_agent_ids"`
 	TopAgents []wazuhAgentCount `json:"top_agents"`
 	MultiFeedSignals []wazuhMultiFeedSignal `json:"multi_feed_signals,omitempty"`
+	TemporalBursts []wazuhAlertBurst `json:"temporal_bursts,omitempty"`
 	DistinctTimeWindows int `json:"distinct_time_windows"`
 	PeakWindows []wazuhAlertWindow `json:"peak_windows"`
 	UnplacedAlerts int `json:"unplaced_alerts"`
@@ -186,6 +187,7 @@ func writeDemoWazuh4RuleTriageWithLevels(ctx context.Context, principal string, 
 	agentRules := make(map[string]map[string]bool)
 	multiPairs := make(map[string]*wazuhMultiFeedSignal)
 	multiFeeds := make(map[string]map[int]bool)
+	burstGroups := make(map[string][]wazuhBurstObservation)
 	visibleImported, unknown, unplaced, unknownRules, unknownAgents := 0, 0, 0, 0, 0
 	receipt, err := collectDemoCaseTriageWithObserver(ctx, handler, token, intoCase, func(entry timeline.ProjectedEntry) error {
 		level, exists := levels[entry.ID]
@@ -256,6 +258,14 @@ func writeDemoWazuh4RuleTriageWithLevels(ctx context.Context, principal string, 
 		when, err := time.Parse(time.RFC3339Nano, entry.SourceTime)
 		if err != nil {
 			return errors.New("invalid authorized Wazuh Timeline timestamp")
+		}
+		// The first-party observer runs only after Case/Timeline and typed
+		// source authorization. Uncertain timestamps never contribute.
+		if level.AgentID != "" && level.RuleID != "" {
+			key := level.AgentID + "/" + level.RuleID
+			burstGroups[key] = append(burstGroups[key], wazuhBurstObservation{
+				At: when.UTC(), Feed: level.Feed, EntryID: entry.ID,
+			})
 		}
 		// Fixed-width UTC precision keeps lexicographic min/max chronological.
 		utc := when.UTC().Format("2006-01-02T15:04:05.000000000Z")
@@ -377,6 +387,7 @@ func writeDemoWazuh4RuleTriageWithLevels(ctx context.Context, principal string, 
 		DistinctRuleIDs: len(rules), UnknownRuleIDs: unknownRules, TopRules: topRules,
 		DistinctAgentIDs: len(agents), UnknownAgentIDs: unknownAgents, TopAgents: topAgents,
 		MultiFeedSignals: multiSignals,
+		TemporalBursts: deriveWazuhTemporalBursts(burstGroups),
 		DistinctTimeWindows: len(windows), PeakWindows: peaks, UnplacedAlerts: unplaced,
 	})
 }
