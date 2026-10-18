@@ -18,6 +18,7 @@ const ids = [
   "wazuh-previous", "wazuh-next",
   "wazuh-search-field", "wazuh-search-value", "wazuh-search-from",
   "wazuh-search-to", "wazuh-search-run", "wazuh-search-status", "wazuh-search-results",
+  "wazuh-search-bursts",
   "wazuh-replay-save", "wazuh-replay-file",
   "comparison-trace-actions", "comparison-trace-results"
 ];
