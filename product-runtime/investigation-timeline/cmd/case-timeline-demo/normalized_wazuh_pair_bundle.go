@@ -68,14 +68,16 @@ func writeVerifiedCorrelatedPairPrivateSelected(ctx context.Context, principal,
 		}
 		var pair sharedAuthorizedWazuhEventPair
 		if byID {
-			found := false
-			for _, candidate := range verified.SharedWazuhEventPairs {
-				if candidate.FirstEntryID == firstEntryID &&
-					candidate.SecondEntryID == secondEntryID {
-					pair, found = candidate, true
-					break
-				}
-			}
+			// The receipt contains only ten leads; exact IDs may refer to a
+			// later alert. Independently derive the nearest peer from both
+			// previously owner-authorized, integrity-verified saved Cases.
+			firstGroups, err := collectAuthorizedWazuhObservations(first, firstCase)
+			if err != nil { return err }
+			secondGroups, err := collectAuthorizedWazuhObservations(second, secondCase)
+			if err != nil { return err }
+			var found bool
+			pair, found = selectedAuthorizedWazuhPairByEntryIDs(
+				firstGroups, secondGroups, firstEntryID, secondEntryID)
 			if !found {
 				return errors.New("selected Wazuh Entry pair is not available in authorized Cases")
 			}
@@ -143,3 +145,28 @@ func writeVerifiedCorrelatedPairPrivateSelected(ctx context.Context, principal,
 	})
 }
 
+// Find one exact source-scoped pair without the receipt's global first-ten
+ // display cap. Reuse the same nearest-60s and deterministic tie-break logic.
+ // The caller must independently verify/authorize both saved Case owners.
+ func selectedAuthorizedWazuhPairByEntryIDs(
+     left, right map[authorizedWazuhCohort][]authorizedWazuhObservation,
+     firstID, secondID string,
+ ) (sharedAuthorizedWazuhEventPair, bool) {
+     if firstID=="" || secondID=="" { return sharedAuthorizedWazuhEventPair{},false }
+     var subset map[authorizedWazuhCohort][]authorizedWazuhObservation
+     for cohort, events := range left {
+         for _,event := range events {
+             if event.id!=firstID { continue }
+             if subset!=nil { return sharedAuthorizedWazuhEventPair{},false }
+             subset=map[authorizedWazuhCohort][]authorizedWazuhObservation{
+                 cohort: []authorizedWazuhObservation{event},
+             }
+         }
+     }
+     if subset==nil { return sharedAuthorizedWazuhEventPair{},false }
+     matches:=sharedWazuhPairsFromObservations(subset,right)
+     if len(matches)!=1 || matches[0].SecondEntryID!=secondID {
+         return sharedAuthorizedWazuhEventPair{},false
+     }
+     return matches[0],true
+ }
