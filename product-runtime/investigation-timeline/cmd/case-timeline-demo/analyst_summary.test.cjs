@@ -1836,3 +1836,34 @@ test("invalid correlation burst cannot restore forbidden hit or previous replay"
   assert.equal(env.fields["wazuh-replay-save"].disabled,true);
   assert.match(env.fields["wazuh-search-status"].textContent,/Aucun résultat partiel/);
 });
+
+test("analyst can hunt bounded rendered Wazuh preview literals without storing query text", async () => {
+  const env=boot(url=>{
+    assert.equal(url.pathname,"/demo-wazuh-search");
+    assert.equal(url.searchParams.get("field"),"preview");
+    assert.equal(url.searchParams.get("value"),"powershell");
+    return {ok:true,async json(){return {
+      format:"cmdr-local-wazuh4-executed-search-v1",synthetic:true,
+      case_id:"case-disk",selector:"preview",value:"powershell",
+      job:{ID:"job-preview",State:"completed",AuditTrail:[{},{},{}],
+        ResultRefs:[{Source:"wazuh4-authorized-local-import",Ref:"hit-1"}]},
+      search_hits:[{entry_id:"hit-1",source_time_utc:"2026-10-17T10:00:00Z",
+        rule_id:"5710",agent_id:"001",feed:1,rule_level:6}],
+      search_bursts:[]
+    }}};
+  });
+  const f=env.fields;
+  f["wazuh-search-field"].value="preview";
+  f["wazuh-search-value"].value="powershell";
+  f["wazuh-search-from"].value="2026-10-17T09:59:00";
+  f["wazuh-search-to"].value="2026-10-17T10:03:00";
+  f["wazuh-search-run"].handlers.click();
+  await flush();await flush();
+  assert.equal(env.requests.length,1);
+  assert.equal(f["wazuh-search-results"].children[0].children.length,1);
+  assert.equal(f["wazuh-replay-save"].disabled,true,"private literal must not be exported");
+  assert.equal(env.downloads.length,0);
+  f.token.value="rotated";
+  f.token.handlers.input();
+  assert.equal(f["wazuh-search-results"].children.length,0);
+});

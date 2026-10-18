@@ -297,8 +297,11 @@
     const fromDate = fromText ? new Date(fromText) : new Date(NaN);
     const toDate = toText ? new Date(toText) : new Date(NaN);
     if (!bearer || !selectedCase ||
-        !["agent_id", "rule_id"].includes(selectedField) ||
-        !/^[0-9]{1,16}$/.test(selectedValue) ||
+        !["agent_id", "rule_id", "preview"].includes(selectedField) ||
+        (selectedField === "preview" ?
+          (selectedValue.length < 3 || selectedValue.length > 128 ||
+            /[\x00\r\n]/.test(selectedValue)) :
+          !/^[0-9]{1,16}$/.test(selectedValue)) ||
         !Number.isFinite(fromDate.getTime()) || !Number.isFinite(toDate.getTime()) ||
         fromDate.getTime() >= toDate.getTime()) {
       wazuhSearchStatus.textContent = "Sélectionnez un Case, un jeton, un ID numérique et une période valide.";
@@ -457,13 +460,17 @@
       wazuhSearchBursts.append(burstList);
       // Publish visible results and allow export only after the entire
       // completed Search Job and its per-hit source metadata were validated.
-      preparedWazuhReplay = {
-        format: "cmdr-local-wazuh4-query-replay-v1",
-        synthetic: true, case_id: selectedCase, selector: selectedField,
-        value: selectedValue, from: fromDate.toISOString(), to: toDate.toISOString(),
-        source_job_id: job.ID, result_count: job.ResultRefs.length
-      };
-      wazuhReplaySave.disabled = false;
+      // Sensitive preview terms are deliberately never exported in local
+      // replay JSON. Rule/agent equality queries preserve existing replay.
+      if (selectedField !== "preview") {
+        preparedWazuhReplay = {
+          format: "cmdr-local-wazuh4-query-replay-v1",
+          synthetic: true, case_id: selectedCase, selector: selectedField,
+          value: selectedValue, from: fromDate.toISOString(), to: toDate.toISOString(),
+          source_job_id: job.ID, result_count: job.ResultRefs.length
+        };
+        wazuhReplaySave.disabled = false;
+      }
       wazuhSearchStatus.textContent = "Search Job " + job.ID +
         " terminé — " + job.ResultRefs.length +
         " événement(s) autorisé(s). Ouvrir une source revérifie les droits.";
