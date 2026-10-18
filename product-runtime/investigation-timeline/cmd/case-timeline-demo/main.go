@@ -80,6 +80,7 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	serveImport := flags.Bool("serve-import", false, "import local JSONL into an in-memory Case and open the authenticated loopback analyst viewer; no merged owner file")
 	saveImportSnapshot := flags.String("save-import-snapshot", "", "absolute new path for private normalized Case snapshot; explicit import only, no listener or overwrite")
 	saveWazuhCaseSnapshot := flags.String("save-wazuh-case-snapshot", "", "explicit new private scoped Case snapshot from 1..4 validated Wazuh 4.x local alert files; no listener")
+	saveMixedCaseSnapshot := flags.String("save-mixed-case-snapshot", "", "create one atomic private Case archive with both Wazuh and generic JSONL sources; no intermediary archive")
 	resumeImportSearchCase := flags.String("resume-import-search-case", "", "Case ID in a saved normalized owner snapshot to reopen with an authenticated Search Job viewer")
 	verifyImportSnapshotCase := flags.String("verify-import-snapshot-case", "", "Case ID of a saved authorized owner snapshot to verify WITHOUT a listener; requires -expect-snapshot-sha256")
 	compareSavedCase := flags.String("compare-saved-case", "", "first saved authorized Case ID for independent offline cross-snapshot comparison")
@@ -108,6 +109,27 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	}
 	if flags.NArg() != 0 {
 		return errors.New("unexpected positional arguments")
+	}
+	// Build a mixed Wazuh + generic JSONL Case in ONE owner-validated,
+	// no-overwrite filesystem transaction, avoiding an intermediate
+	// sensitive Wazuh-only archive. No online listener is started.
+	if *saveMixedCaseSnapshot != "" {
+		allowed := true
+		flags.Visit(func(f *flag.Flag) {
+			switch f.Name {
+			case "principal", "snapshot", "into-case", "wazuh-alerts",
+				"import-jsonl", "import-jsonl-extra", "save-mixed-case-snapshot":
+			default:
+				allowed = false
+			}
+		})
+		if !allowed || *snapshot == "" || *intoCase == "" || *importJSONL == "" ||
+			len(wazuhFiles) == 0 {
+			return errors.New("mixed private Case save requires one Case, Wazuh and normalized JSONL inputs only")
+		}
+		normalized := append([]string{*importJSONL}, extraJSONL...)
+		return writePersistedMixedCase(ctx, *principal, *snapshot, *intoCase,
+			[]string(wazuhFiles), normalized, *saveMixedCaseSnapshot, output)
 	}
 	// Bridge a real Wazuh import into the existing private, source-authorized
 	// Case persistence. This is a separate explicit mode; no other local
