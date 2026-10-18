@@ -39,7 +39,7 @@ func TestPrivatePairBundleReopensBothIndependentlyAuthorizedSources(t *testing.T
 		Second localEntryInspection `json:"second"`
 	}
 	if err:=json.Unmarshal(file,&bundle);err!=nil {t.Fatalf("invalid private bundle JSON: %v",err)}
-	if bundle.Format!="cmdr-private-verified-wazuh-pair-v1" || !bundle.Synthetic ||
+	if bundle.Format!="cmdr-private-verified-wazuh-pair-v2" || !bundle.Synthetic ||
 		bundle.Pair.FirstEntryID!=pair.FirstEntryID || bundle.Pair.SecondEntryID!=pair.SecondEntryID ||
 		bundle.Pair.OffsetSeconds!=20 || bundle.Pair.RuleID!="5710" || bundle.Pair.AgentID!="001" ||
 		bundle.First.CaseID!=aCase || bundle.First.EntryID!=pair.FirstEntryID ||
