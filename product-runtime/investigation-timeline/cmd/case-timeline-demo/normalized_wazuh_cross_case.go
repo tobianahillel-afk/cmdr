@@ -17,16 +17,8 @@ type sharedAuthorizedWazuhWindow struct {
 	SecondEvents int `json:"second_events"`
 }
 
-func sharedAuthorizedWazuhWindows(first,second timeline.MemoryTimelineData,firstCase,secondCase string)([]sharedAuthorizedWazuhWindow,error){
-	a,err:=collectAuthorizedWazuhObservations(first,firstCase)
-	if err!=nil{return nil,err}
-	b,err:=collectAuthorizedWazuhObservations(second,secondCase)
-	if err!=nil{return nil,err}
-	return sharedWazuhWindowsFromObservations(a,b)
-}
-
-// The same already-authorized and sorted cohorts may be reused by the
-// five-minute and 60-second correlation views, without re-traversal.
+// Derive five-minute temporal leads from already independently authorized
+// and sorted Case-owner Wazuh cohorts. No redundant owner collection.
 func sharedWazuhWindowsFromObservations(a,b map[authorizedWazuhCohort][]authorizedWazuhObservation)([]sharedAuthorizedWazuhWindow,error){
 	type bin struct { window string; cohort authorizedWazuhCohort }
 	count:=func(groups map[authorizedWazuhCohort][]authorizedWazuhObservation)map[bin]int{
