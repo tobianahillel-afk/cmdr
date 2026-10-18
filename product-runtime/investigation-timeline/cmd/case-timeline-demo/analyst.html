@@ -74,7 +74,14 @@
     </section>
     <section aria-labelledby="local-search-title">
       <h2 id="local-search-title">Recherche d'événements JSONL normalisés — Event Search</h2>
-      <p class="intro">Disponible exclusivement avec l'import JSONL normalisé du laboratoire local. Ce parcours exécute un véritable Search Job sur les aperçus rendus des nouveaux événements du Case, après autorisation Case, Timeline et source. Les entrées préexistantes et celles d'autres Cases ne sont jamais recherchées.</p>
+      <p class="intro">Disponible avec l'import JSONL normalisé et les Cases Wazuh sauvegardés du laboratoire local. Ce parcours exécute un véritable Search Job sur les aperçus rendus des nouveaux événements du Case, après autorisation Case, Timeline et source. Les entrées préexistantes et celles d'autres Cases ne sont jamais recherchées.</p>
+      <div class="field"><label for="local-search-field">Champ autorisé</label>
+        <select id="local-search-field">
+          <option value="preview">Texte littéral de l'aperçu</option>
+          <option value="rule_id">ID de règle Wazuh sauvegardé</option>
+          <option value="agent_id">ID d'agent Wazuh sauvegardé</option>
+        </select>
+      </div>
       <div class="field"><label for="local-search-value">Expression littérale (3 à 128 octets UTF-8)</label>
         <input id="local-search-value" type="search" maxlength="128" autocomplete="off" spellcheck="false" placeholder="authentication failed">
       </div>
@@ -87,7 +94,7 @@
       <button id="local-search-run" type="button">Exécuter la recherche autorisée</button>
       <p id="local-search-status" role="status" aria-live="polite">Aucune recherche JSONL exécutée.</p>
       <div id="local-search-results" role="region" aria-label="Résultats du Search Job JSONL autorisé" aria-live="polite"></div>
-      <p class="intro">Le texte et le jeton passent dans le corps d'une requête POST authentifiée, jamais dans l'URL. Maximum 500 aperçus candidats et 200 événements correspondants ; au-delà, échec sans résultat partiel. Chaque événement nécessite une nouvelle ouverture de source autorisée. Aucun stockage, IAM de production ni recherche dans des logs bruts.</p>
+      <p class="intro">Le texte ou l'identifiant et le jeton passent dans le corps d'une requête POST authentifiée, jamais dans l'URL. Maximum 500 aperçus candidats et 200 événements correspondants ; au-delà, échec sans résultat partiel. Chaque événement nécessite une nouvelle ouverture de source autorisée. Aucun stockage, IAM de production ni recherche dans des logs bruts.</p>
     </section>
     <section aria-labelledby="wazuh-title">
       <h2 id="wazuh-title">Corrélation Wazuh 4.x — agent et règle</h2>
