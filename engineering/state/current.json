@@ -17,9 +17,9 @@
     "phase_title": "Scaled product implementation program bootstrap"
   },
   "execution": {
-    "active_work_unit": "E10-INV-120A-SNAPSHOT",
-    "preferred_next_unit": "E10-INV-120A-SNAPSHOT",
-    "selection_rule": "first READY unit whose dependencies satisfy their required terminal state; when no READY exists create a separately scoped functional integration unit"
+    "active_work_unit": "E10-DFIR-780A-INTEGRATION",
+    "preferred_next_unit": null,
+    "selection_rule": "When no READY work unit exists, derive one bounded canonical functional unit from actual GitHub evidence and admissible dependencies; do not repeat implemented integration candidates or claim native merge/approval."
   },
   "reconciliation": {
     "required_on_resume": true,
