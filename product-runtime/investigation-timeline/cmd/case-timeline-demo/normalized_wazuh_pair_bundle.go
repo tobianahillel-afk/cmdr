@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -22,34 +21,22 @@ func writeVerifiedCorrelatedPairPrivate(ctx context.Context, principal,
 		return errors.New("select an authorized cross-Case Wazuh pair and a new private destination")
 	}
 	return writeAuthorizedReceiptPrivate(ctx, destination, func(output io.Writer) error {
-		// Reuse the COMPLETE first-party comparison, including independent
-		// digests, tenant/environment equality, Timeline/source traversal,
-		// and the canonical <=60s Wazuh correlation. No reimplementation.
-		var comparison bytes.Buffer
-		if err := compareVerifiedSavedCases(ctx, principal, firstPath, firstCase,
-			firstDigest, secondPath, secondCase, secondDigest, &comparison); err != nil {
-			return err
-		}
-		var verified localCaseComparison
-		if err := json.Unmarshal(comparison.Bytes(), &verified); err != nil {
-			return errors.New("cannot decode independently authorized comparison")
-		}
+		// Independently verify/load each snapshot once. The very same owner
+		// bytes and typed sources will be used for BOTH correlation and the
+		// final drilldown: no repeated disk reads or owner pagination.
+		first, firstIDs, err := loadAuthorizedImportedCase(ctx, principal, firstPath, firstCase, firstDigest)
+		if err != nil { return err }
+		second, secondIDs, err := loadAuthorizedImportedCase(ctx, principal, secondPath, secondCase, secondDigest)
+		if err != nil { return err }
+		verified, err := compareLoadedAuthorizedSavedCases(ctx, principal, first, second, firstCase, secondCase)
+		if err != nil { return err }
 		if verified.First.CaseID != firstCase || verified.Second.CaseID != secondCase ||
 			pairOrdinal > len(verified.SharedWazuhEventPairs) {
 			return errors.New("selected Wazuh pair is unavailable in both authorized Cases")
 		}
 		pair := verified.SharedWazuhEventPairs[pairOrdinal-1]
 
-		// Entry selectors may be exposed in a correlation receipt but are
-		// never an authorization grant. Re-open EACH bounded snapshot
-		// independently and require its canonical imported Entry identity.
-		first, firstIDs, err := loadAuthorizedImportedCase(ctx, principal, firstPath, firstCase, firstDigest)
-		if err != nil { return err }
-		second, secondIDs, err := loadAuthorizedImportedCase(ctx, principal, secondPath, secondCase, secondDigest)
-		if err != nil { return err }
-		if !sameComparisonEnvironment(first, second) {
-			return errors.New("correlated source owners are not in the same tenant and environment")
-		}
+		// Selected correlation IDs are selectors, never access grants.
 		if _, ok := firstIDs[pair.FirstEntryID]; !ok {
 			return errors.New("first paired entry is not available in selected Case")
 		}
