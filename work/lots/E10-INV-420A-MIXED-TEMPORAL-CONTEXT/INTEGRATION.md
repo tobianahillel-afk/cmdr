@@ -1,0 +1,23 @@
+# E10-INV-420A — Wazuh ↔ generic JSONL temporal context from authorized Search Jobs
+
+## User-facing functional integration
+
+The existing saved-Case analyst now searches mixed Wazuh 4.x alerts and generic normalized JSONL telemetry within ONE synthetic authorized Case, with field pivots, typed-source authorization and Wazuh 60-second agent/rule bursts. This increment adds a missing **cross-family time-context** view for SOC/forensic triage: when an authorized mixed-source Search Job contains a Wazuh alert and generic JSONL observations within **±60 seconds**, show that alert with up to **five** nearby generic observations. Return at most **10** Wazuh alerts per completed job.
+
+No new data collection, correlation engine, database, IAM subsystem, network endpoint, paid API, regex grammar or alternative source reader. Only the existing authenticated `POST /demo-local-search` Event Search Job, existing immutable Case/Timeline/typed-source owner, actual typed-source Wazuh metadata and the same analyst UI are used.
+
+### Authorization and interpretation
+
+1. The existing server authenticates the temporary bearer, verifies selected Case tenant/environment and time window, navigates **all** authorized Case Timeline pages, and **independently opens each eligible typed Source BEFORE evaluating the query**. The first-party Event Search Orchestrator must complete with ≤200 individually authorized reference IDs. Revocation, missing pagination, wrong Case, overflow or malformed source prevents the entire Job.
+2. New derivation reads **only those completed authorized ResultRefs**. It maps referenced IDs to observed UTC timestamps in the same already validated Case graph, uses existing typed-source owner metadata `Wazuh != nil` to distinguish Wazuh from generic, and emits a time-bounded set of cross-family **leads**, never raw logs. It does not examine or link any event outside that completed Job, even if another Case or source file contains apparently matching events.
+3. Return `mixed_temporal_context` only for `source_family=all`, with `wazuh_entry_id`, Wazuh UTC time, fixed 60-second radius and `generic_events` containing eligible generic EntryID, UTC time and signed offset seconds. Search-family selections `wazuh` or `generic` alone never generate mixed contexts. Co-occurrence is not causality, persistence or a confirmed incident.
+4. Browser checks that **every** lead member appears in the same completed Job, the alert is also a Wazuh-only search hit, generic members are not Wazuh hits, all offsets and timestamps agree and no event is repeated within a lead. All links use **existing fresh Case/typed-source authorization**, not the previous Job as a permission grant. Changing the token, Case, filter, family, or time range clears the links and aborts stale responses. Text is rendered as `textContent`.
+5. Bound complexity to <=200 authorized references, <=10 leads × 5 generic links. Inputs remain trusted only after the existing source-open authorization. Do not create a source query from this summary or assert missing matches imply absence of activity.
+
+### Proof and limitations
+
+Go integration test: create and save a real operator-selected Case with two Wazuh alerts and three generic JSONL records; execute actual authenticated first-party Search Jobs `all`, `wazuh`, `generic`; verify two Wazuh→generic leads, inclusive -60s boundary, exclusive out-of-window distant record, authorized result/reference membership, owner reopening, denied foreign Case/wrong bearer, absent raw descriptions. Direct derivation rejects missing, duplicate or foreign Job refs. Node analyst VM tests render the cross-family lead, clear it when selector changes, and fail closed without partial links when the server supplies foreign IDs or inconsistent times.
+
+This is **synthetic offline Case triage**, not production SIEM ingestion, signed forensics, verified Wazuh origin, durable indexed correlation or real multitenant IAM. Matches are restricted to the operator's current search predicate; a generic event outside its result set is deliberately not shown even if nearby in time.
+
+**Integration dependency** frozen parent PR #81 SHA `c173c34dbe224b6427cfb37ed880da9266504e1c`, itself a diagnostics-only green PR; parent functional PR #80 SHA `14622cc350853f6ee950a98447bb52a74ab66cd1` still has mandatory changed security-critical coverage failure **87.90% < 90.00%**. This new diff MUST pass its own exact-head Linux Go/Node, macOS/Windows and unchanged `engineering-kernel` checks. A green diagnostics-only parent does NOT waive upstream blockers. One independent READ-ONLY risk-based L2 on stable delivered feature; no merge until every parent gate, native approval and security review is satisfied.

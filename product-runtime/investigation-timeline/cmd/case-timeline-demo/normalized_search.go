@@ -310,6 +310,16 @@ func newDemoLocalJSONLSearchHandler(token, principal, caseID string,
 				bursts = deriveWazuhSearchBursts(hits)
 			}
 		}
+		// Correlate only the two families whose individual refs were
+		// authorized by this SAME completed first-party Search Job.
+		var mixedContext []mixedTemporalLead
+		if selection.Family == "all" && len(wazuh) > 0 {
+			mixedContext, err = deriveAuthorizedMixedTemporalContext(data, caseID, job.ResultRefs, wazuh)
+			if err != nil {
+				http.NotFound(w, r)
+				return
+			}
+		}
 		receipt := struct {
 			Format string `json:"format"`
 			Synthetic bool `json:"synthetic"`
@@ -317,9 +327,10 @@ func newDemoLocalJSONLSearchHandler(token, principal, caseID string,
 			Job search.SearchJob `json:"job"`
 			Hits []wazuhSearchHit `json:"search_hits,omitempty"`
 			Bursts []wazuhSearchBurst `json:"search_bursts,omitempty"`
+			MixedContext []mixedTemporalLead `json:"mixed_temporal_context,omitempty"`
 		}{
 			Format: "cmdr-local-jsonl-event-search-v1", Synthetic: true,
-			CaseID: caseID, Job: job, Hits: hits, Bursts: bursts,
+			CaseID: caseID, Job: job, Hits: hits, Bursts: bursts, MixedContext: mixedContext,
 		}
 		// Serialize only after all owner authorizations and Job completion;
 		// no partial result or preview is written to the HTTP response.

@@ -171,6 +171,68 @@
           leads.append(item);
         }
       }
+      // Cross-family temporal leads never restore authority: each member
+      // must be present in this completed Job, and each click reopens the
+      // existing Case/source owner under the CURRENT bearer.
+      if (receipt.mixed_temporal_context !== undefined) {
+        const contexts = receipt.mixed_temporal_context;
+        const wazuhMembers = new Set((receipt.search_hits || []).map(hit => hit?.entry_id));
+        if (selectedFamily !== "all" || !Array.isArray(contexts) ||
+            contexts.length > 10 ||
+            !Array.isArray(receipt.search_hits)) {
+          throw Error("Invalid cross-family temporal context");
+        }
+        const leadsSeen = new Set();
+        for (const lead of contexts) {
+          if (!lead || typeof lead.wazuh_entry_id !== "string" ||
+              !seen.has(lead.wazuh_entry_id) ||
+              !wazuhMembers.has(lead.wazuh_entry_id) ||
+              leadsSeen.has(lead.wazuh_entry_id) ||
+              lead.window_seconds !== 60 ||
+              !Array.isArray(lead.generic_events) ||
+              lead.generic_events.length < 1 || lead.generic_events.length > 5) {
+            throw Error("Cross-family lead has invalid or unowned Wazuh membership");
+          }
+          leadsSeen.add(lead.wazuh_entry_id);
+          const alertTime = Date.parse(lead.wazuh_time_utc);
+          if (!Number.isFinite(alertTime)) throw Error("Invalid alert time");
+          const genericSeen = new Set();
+          const item = document.createElement("article");
+          const heading = document.createElement("p");
+          heading.textContent = "Contexte temporel Wazuh/JSONL (±60 s, pas de causalité) : " +
+            lead.wazuh_entry_id;
+          item.append(heading);
+          for (const nearby of lead.generic_events) {
+            if (!nearby || typeof nearby.entry_id !== "string" ||
+                !seen.has(nearby.entry_id) ||
+                wazuhMembers.has(nearby.entry_id) ||
+                genericSeen.has(nearby.entry_id) ||
+                !Number.isSafeInteger(nearby.offset_seconds) ||
+                Math.abs(nearby.offset_seconds) > 60) {
+              throw Error("Cross-family lead contains a foreign generic member");
+            }
+            genericSeen.add(nearby.entry_id);
+            const eventTime = Date.parse(nearby.source_time_utc);
+            if (!Number.isFinite(eventTime) ||
+                Math.abs(eventTime - alertTime) > 60000 ||
+                Math.trunc((eventTime-alertTime)/1000) !== nearby.offset_seconds) {
+              throw Error("Inconsistent temporal correlation");
+            }
+            const button = document.createElement("button");
+            button.type = "button";
+            button.textContent = "JSONL " + nearby.entry_id +
+              " (" + nearby.offset_seconds + " s)";
+            button.addEventListener("click", () => {
+              if (searchRevision !== localSearchRevision ||
+                  selectedRevision !== revision || token.value !== bearer ||
+                  caseID.value.trim() !== selectedCase) return;
+              openSource(nearby.entry_id);
+            });
+            item.append(button);
+          }
+          leads.append(item);
+        }
+      }
       localSearchResults.replaceChildren();
       localSearchResults.append(list);
       if (leads.children.length > 0) localSearchResults.append(leads);
