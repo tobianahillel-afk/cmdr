@@ -14,6 +14,7 @@ import (
 	"net/http/httptest"
 
 	search "github.com/tobianahillel-afk/cmdr/product-runtime/event-search"
+	timeline "github.com/tobianahillel-afk/cmdr/product-runtime/investigation-timeline"
 )
 
 func TestPersistedNormalizedMultiFeedReopensAuthorizedSearch(t *testing.T) {
@@ -192,5 +193,119 @@ func TestReopenedNormalizedEligibilityNeverWidensToOtherCases(t *testing.T) {
 	}
 	if _,err:=importedNormalizedIDs(data,caseID);err==nil {
 		t.Fatal("inconsistent owner source identity accepted after tampering")
+	}
+}
+
+func TestPrivateSavedCaseExcludesOtherTenantsDeniedSourcesAndCases(t *testing.T) {
+	const caseID = "forensic-case-on-disk"
+	full, err := loadDemoSnapshot(snapshotFixture(t))
+	if err != nil { t.Fatal(err) }
+	selected := -1
+	for i, c := range full.Cases {
+		if c.ID == caseID { selected=i; break }
+	}
+	if selected < 0 { t.Fatal("expected Case fixture") }
+	c := full.Cases[selected]
+	other := timeline.MemoryTimelinePrincipal{
+		ID: "foreign-analyst", Tenant: "unrelated-tenant", Environment: c.Environment,
+	}
+	sameTenantDenied := timeline.MemoryTimelinePrincipal{
+		ID: "excluded-analyst", Tenant: c.Tenant, Environment: c.Environment,
+	}
+	full.Principals=append(full.Principals,other,sameTenantDenied)
+	full.Cases=append(full.Cases,timeline.MemoryTimelineCase{
+		ID:"foreign-case-secret",Tenant:other.Tenant,Environment:other.Environment,
+		Readers:[]string{other.ID},EntryIDs:[]string{"foreign-event-secret"},
+	})
+	full.Entries=append(full.Entries,timeline.MemoryTimelineEntry{
+		CaseID:"foreign-case-secret",Readers:[]string{other.ID},
+		Value:timeline.Entry{
+			ID:"foreign-event-secret",Tenant:other.Tenant,Kind:"observed",
+			SourceTime:"2026-10-17T10:00:00Z",Timezone:"Z",
+			SourceRef:"foreign-typed-source",Provenance:"external",Version:1,
+		},
+	})
+	full.Sources=append(full.Sources,timeline.MemoryTimelineSource{
+		Identity:timeline.SourceOwnerIdentity{
+			Reference:"foreign-typed-source",Kind:"telemetry-event",
+			ObjectID:"foreign-canonical",CaseID:"foreign-case-secret",
+			Tenant:other.Tenant,Environment:other.Environment,
+		},
+		Readers:[]string{other.ID},Preview:"TOP-SECRET-CROSS-TENANT-PAYLOAD",
+	})
+	// A denied source within the SELECTED Case must be excluded as well.
+	// It does not matter that the principal can see the Case container.
+	full.Cases[selected].EntryIDs=append(full.Cases[selected].EntryIDs,"denied-event-secret")
+	full.Entries=append(full.Entries,timeline.MemoryTimelineEntry{
+		CaseID:caseID,Readers:[]string{sameTenantDenied.ID},
+		Value:timeline.Entry{
+			ID:"denied-event-secret",Tenant:c.Tenant,Kind:"observed",
+			SourceTime:"2026-10-17T10:00:30Z",Timezone:"Z",
+			SourceRef:"denied-owner-source",Provenance:"external",Version:1,
+		},
+	})
+	full.Sources=append(full.Sources,timeline.MemoryTimelineSource{
+		Identity:timeline.SourceOwnerIdentity{
+			Reference:"denied-owner-source",Kind:"telemetry-event",
+			ObjectID:"denied-canonical",CaseID:caseID,
+			Tenant:c.Tenant,Environment:c.Environment,
+		},
+		Readers:[]string{sameTenantDenied.ID},Preview:"TOP-SECRET-ENTRY-SAME-TENANT",
+	})
+	// The original graph is owner-valid even though it includes inaccessible
+	// metadata. This is exactly the unsafe state old full-snapshot exports had.
+	if _,err:=newDemoHandlerWithData(strings.Repeat("0",64),"analyst-a",full);err!=nil {
+		t.Fatalf("valid multi-tenant input fixture rejected: %v",err)
+	}
+	input := filepath.Join(t.TempDir(),"original-owner.json")
+	bytesIn,err:=json.Marshal(full)
+	if err!=nil {t.Fatal(err)}
+	if err:=os.WriteFile(input,bytesIn,0600);err!=nil {t.Fatal(err)}
+	events:=writeJSONLEvents(t,
+		"{\"id\":\"selected-one\",\"timestamp\":\"2026-10-17T10:01:00Z\",\"message\":\"only authorized content\"}\n")
+	dest:=filepath.Join(t.TempDir(),"only-selected-case.json")
+	if err:=writeDemoPersistedNormalizedCase(context.Background(),"analyst-a",
+		input,caseID,[]string{events},dest,&bytes.Buffer{});err!=nil {
+		t.Fatalf("authorized minimal snapshot save failed: %v",err)
+	}
+	onDisk,err:=os.ReadFile(dest)
+	if err!=nil {t.Fatal(err)}
+	for _,forbidden:=range []string{
+		"unrelated-tenant","foreign-analyst","foreign-case-secret",
+		"foreign-event-secret","foreign-typed-source",
+		"TOP-SECRET-CROSS-TENANT-PAYLOAD",
+		"excluded-analyst","denied-event-secret","denied-owner-source",
+		"TOP-SECRET-ENTRY-SAME-TENANT",
+	} {
+		if bytes.Contains(onDisk,[]byte(forbidden)) {
+			t.Fatalf("saved Case leaks denied owner record: %q",forbidden)
+		}
+	}
+	saved,err:=loadDemoSnapshot(dest)
+	if err!=nil {t.Fatal(err)}
+	if len(saved.Principals)!=1 || saved.Principals[0].ID!="analyst-a" ||
+		len(saved.Cases)!=1 || saved.Cases[0].ID!=caseID ||
+		len(saved.Cases[0].Readers)!=1 || saved.Cases[0].Readers[0]!="analyst-a" {
+		t.Fatalf("saved graph not narrowed to selected principal/Case: %+v",saved)
+	}
+	for _,entry:=range saved.Entries {
+		if entry.CaseID!=caseID || len(entry.Readers)!=1 ||
+			entry.Readers[0]!="analyst-a" {
+			t.Fatalf("saved Timeline leaks unrelated owner: %+v",entry)
+		}
+	}
+	for _,source:=range saved.Sources {
+		if source.Identity.CaseID!=caseID || len(source.Readers)!=1 ||
+			source.Readers[0]!="analyst-a" {
+			t.Fatalf("saved source escapes Case: %+v",source.Identity)
+		}
+	}
+	ids,err:=importedNormalizedIDs(saved,caseID)
+	if err!=nil || len(ids)!=1 {t.Fatalf("scoped exported owner lost imported source: %v",err)}
+	// A local reader reopening an older multitenant snapshot must also
+	// serve ONLY its selected Case instead of exposing the old graph.
+	limited,err:=scopedNormalizedCaseSnapshot(full,"analyst-a",caseID)
+	if err!=nil || len(limited.Cases)!=1 || len(limited.Principals)!=1 {
+		t.Fatalf("legacy multi-Case graph not narrowed on resume: %v",err)
 	}
 }
