@@ -49,12 +49,30 @@ func (files *wazuhAlertFiles) Set(path string) error {
 	return nil
 }
 
+// Extra normalized sources are enabled only in the existing import-and-serve
+// mode; other snapshot export/triage workflows keep their single-file contract.
+type normalizedExtraFiles []string
+
+func (files *normalizedExtraFiles) String() string {
+	return fmt.Sprintf("%d additional normalized event files", len(*files))
+}
+
+func (files *normalizedExtraFiles) Set(path string) error {
+	if path == "" || len(*files) >= 3 {
+		return errors.New("select up to three additional normalized JSONL feeds")
+	}
+	*files = append(*files, path)
+	return nil
+}
+
 func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	flags := flag.NewFlagSet("case-timeline-demo", flag.ContinueOnError)
 	flags.SetOutput(io.Discard)
 	principal := flags.String("principal", "analyst-a", "synthetic analyst ID from the selected local owner snapshot")
 	snapshot := flags.String("snapshot", "", "absolute path to operator-owned read-only Case snapshot JSON (loopback demo only)")
 	importJSONL := flags.String("import-jsonl", "", "absolute local normalized event JSONL for offline owner snapshot preparation (no listener)")
+	var extraJSONL normalizedExtraFiles
+	flags.Var(&extraJSONL, "import-jsonl-extra", "additional absolute normalized JSONL file for -serve-import; repeat at most 3 times")
 	var wazuhFiles wazuhAlertFiles
 	flags.Var(&wazuhFiles, "wazuh-alerts", "absolute local Wazuh 4.x alerts.json JSONL; repeat up to four times")
 	intoCase := flags.String("into-case", "", "existing Case for imported local events (requires -import-jsonl)")
@@ -93,6 +111,11 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	}
 	if *compareProximity && *compareEvents {
 		return errors.New("choose exactly one cross-Case comparison mode")
+	}
+	if len(extraJSONL) > 0 &&
+		(!*serveImport || *importJSONL == "" || *snapshot == "" || *intoCase == "" ||
+			*triageImport || len(wazuhFiles) > 0) {
+		return errors.New("additional normalized feeds require only -serve-import with existing Case, snapshot and first normalized file")
 	}
 	if *executePivot && (*inspectWazuh == "" || *pivotWazuh == "") {
 		return errors.New("executed Wazuh search requires an explicit Event Inspection pivot")
@@ -175,6 +198,10 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 			return errors.New("local JSONL import requires a Case and cannot be combined with investigation modes")
 		}
 		if *serveImport {
+			if len(extraJSONL) > 0 {
+				all := append([]string{*importJSONL}, extraJSONL...)
+				return serveDemoWithMultipleNormalizedJSONL(ctx, *principal, *snapshot, *intoCase, all, output)
+			}
 			return serveDemoWithImportedJSONL(ctx, *principal, *snapshot, *intoCase, *importJSONL, output)
 		}
 		if *triageImport {
