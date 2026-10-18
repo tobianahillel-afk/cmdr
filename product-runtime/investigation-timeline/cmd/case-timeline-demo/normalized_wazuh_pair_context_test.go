@@ -63,11 +63,13 @@ func TestPrivateWazuhPairDossierIncludesOnlyOwnerAuthorizedNearbyGenericLeads(t 
 		!strings.Contains(dossier.Second.Preview,"PRIVATE SECOND OWNER PAIR") {
 		t.Fatalf("paired Wazuh source inspection regressed: %+v",dossier)
 	}
-	if len(dossier.FirstContext.Entries)!=1 || len(dossier.SecondContext.Entries)!=1 ||
+	if len(dossier.FirstContext.Entries)!=2 || len(dossier.SecondContext.Entries)!=1 ||
 		dossier.FirstContext.Truncated || dossier.SecondContext.Truncated ||
 		dossier.FirstContext.Entries[0].TimeUTC!="2026-10-17T10:00:10Z" ||
 		dossier.SecondContext.Entries[0].TimeUTC!="2026-10-17T10:00:22Z" ||
 		dossier.FirstContext.Entries[0].OffsetSeconds!=10 ||
+		dossier.FirstContext.Entries[1].TimeUTC!="2026-10-17T10:01:00Z" ||
+		dossier.FirstContext.Entries[1].OffsetSeconds!=60 ||
 		dossier.SecondContext.Entries[0].OffsetSeconds!=2 {
 		t.Fatalf("nearby authorized generic Case context not attached with correct clock/Case: %+v %+v",
 			dossier.FirstContext,dossier.SecondContext)
