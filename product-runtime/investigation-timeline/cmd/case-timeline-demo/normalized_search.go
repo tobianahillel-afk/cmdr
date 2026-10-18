@@ -60,10 +60,10 @@ func (b *localJSONLSearchBackend) Execute(ctx context.Context, request search.Ba
 		if at.Before(request.TimeStart) || !at.Before(request.TimeEnd) {
 			return nil
 		}
-		candidates++
-		if candidates > maxWazuhPreviewCandidates {
-			return errors.New("normalized search exceeds 500 candidates")
-		}
+		// The owner still reauthorizes EVERY in-window imported source,
+		// including other source families, before a family-specific query
+		// may decide whether to count and compare it. Thus a revoked
+		// source never becomes invisible to authorization checks.
 		// This existing owner call is the security boundary: authorize
 		// source before examining its rendered text, even on no-match.
 		q := url.Values{"case_id": {b.caseID}, "entry_id": {entry.ID}}
@@ -92,6 +92,14 @@ func (b *localJSONLSearchBackend) Execute(ctx context.Context, request search.Ba
 		if (b.family == "wazuh" && !ownerWazuh) ||
 			(b.family == "generic" && ownerWazuh) {
 			return nil
+		}
+		// Bound only the requested, owner-authorized family. Previously
+		// 500 unrelated Wazuh hits could exhaust a generic-only query (or
+		// vice versa), even when the selected family contained one event.
+		// "all" keeps the identical 500-candidate fail-closed ceiling.
+		candidates++
+		if candidates > maxWazuhPreviewCandidates {
+			return errors.New("normalized search exceeds 500 candidates")
 		}
 		var match bool
 		switch b.field {
@@ -310,6 +318,16 @@ func newDemoLocalJSONLSearchHandler(token, principal, caseID string,
 				bursts = deriveWazuhSearchBursts(hits)
 			}
 		}
+		// Correlate only the two families whose individual refs were
+		// authorized by this SAME completed first-party Search Job.
+		var mixedContext []mixedTemporalLead
+		if selection.Family == "all" && len(wazuh) > 0 {
+			mixedContext, err = deriveAuthorizedMixedTemporalContext(data, caseID, job.ResultRefs, wazuh)
+			if err != nil {
+				http.NotFound(w, r)
+				return
+			}
+		}
 		receipt := struct {
 			Format string `json:"format"`
 			Synthetic bool `json:"synthetic"`
@@ -317,9 +335,10 @@ func newDemoLocalJSONLSearchHandler(token, principal, caseID string,
 			Job search.SearchJob `json:"job"`
 			Hits []wazuhSearchHit `json:"search_hits,omitempty"`
 			Bursts []wazuhSearchBurst `json:"search_bursts,omitempty"`
+			MixedContext []mixedTemporalLead `json:"mixed_temporal_context,omitempty"`
 		}{
 			Format: "cmdr-local-jsonl-event-search-v1", Synthetic: true,
-			CaseID: caseID, Job: job, Hits: hits, Bursts: bursts,
+			CaseID: caseID, Job: job, Hits: hits, Bursts: bursts, MixedContext: mixedContext,
 		}
 		// Serialize only after all owner authorizations and Job completion;
 		// no partial result or preview is written to the HTTP response.
