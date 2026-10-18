@@ -3,6 +3,8 @@ package main
 import (
 	"bytes"
 	"context"
+
+	timeline "github.com/tobianahillel-afk/cmdr/product-runtime/investigation-timeline"
 	"crypto/sha256"
 	"encoding/json"
 	"fmt"
@@ -141,4 +143,49 @@ func TestPrivatePairBundleCannotCrossAuthorizedTenantBoundary(t *testing.T) {
 	},&stdout)
 	if err==nil || stdout.Len()!=0 {t.Fatal("valid second tenant snapshot bypassed first tenant owner isolation")}
 	if _,err:=os.Lstat(dest);!os.IsNotExist(err) {t.Fatal("denied cross-tenant evidence bundle created")}
+}
+
+func TestPrivatePairBundleRevokedSecondTypedSourceWithCurrentDigest(t *testing.T) {
+	aPath, aCase, aHash, bPath, bCase, _, pair := makeSavedPairDrilldownOwners(t)
+	second, err := loadDemoSnapshot(bPath)
+	if err != nil { t.Fatal(err) }
+	var sourceRef string
+	for _, entry := range second.Entries {
+		if entry.Value.ID == pair.SecondEntryID && entry.CaseID == bCase {
+			sourceRef = entry.Value.SourceRef
+			break
+		}
+	}
+	if sourceRef == "" { t.Fatal("second correlated event absent from saved Case") }
+	if len(second.Principals) != 1 { t.Fatal("expected privately scoped principal") }
+	identity := second.Principals[0]
+	second.Principals = append(second.Principals, timeline.MemoryTimelinePrincipal{
+		ID: "independent-denied-source-reader", Tenant: identity.Tenant,
+		Environment: identity.Environment,
+	})
+	found := false
+	for i := range second.Sources {
+		if second.Sources[i].Identity.Reference == sourceRef {
+			second.Sources[i].Readers = []string{"independent-denied-source-reader"}
+			found = true
+		}
+	}
+	if !found { t.Fatal("typed source for correlated second event missing") }
+	// A changed snapshot can have a perfectly valid *new* SHA-256 and
+	// internally valid owner graph, but that is not an access grant.
+	if _, err := newDemoHandlerWithData(strings.Repeat("0",64),"analyst-a",second); err != nil {
+		t.Fatalf("source-denied graph should still have valid first-party structure: %v",err)
+	}
+	bytesAfter, err := json.Marshal(second)
+	if err != nil { t.Fatal(err) }
+	if err := os.WriteFile(bPath,bytesAfter,0600);err != nil { t.Fatal(err) }
+	updatedHash := fmt.Sprintf("%x",sha256.Sum256(bytesAfter))
+	dest := filepath.Join(t.TempDir(),"must-not-publish-paired-sources.json")
+	if err := writeVerifiedCorrelatedPairPrivate(context.Background(),
+		"analyst-a",aPath,aCase,aHash,bPath,bCase,updatedHash,1,dest); err == nil {
+		t.Fatal("revoked second typed-source owner allowed correlated private bundle")
+	}
+	if _,err:=os.Lstat(dest);!os.IsNotExist(err) {
+		t.Fatalf("one-sided sensitive artifact exists after second owner denial: %v",err)
+	}
 }
