@@ -146,7 +146,7 @@ func TestReverseSecondWazuhPairHonorsNearestPeerAndAmbiguousIDs(t *testing.T) {
 		key: {{id:"left", at:now}},
 	}
 	right := map[authorizedWazuhCohort][]authorizedWazuhObservation{
-		key: {{id:"target", at:now.Add(20*time.Second)}, {id:"closer", at:now.Add(time.Second)}},
+		key: {{id:"closer", at:now.Add(time.Second)}, {id:"target", at:now.Add(20*time.Second)}},
 	}
 	// Filtering second events before nearest-match computation would create
 	// a false pair with "target". The full authorized cohort must still win.
