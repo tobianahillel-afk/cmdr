@@ -1939,3 +1939,35 @@ test("normalized JSONL analyst discards denied, partial or foreign search result
     assert.equal(env.requests.length,1);
   }
 });
+
+test("saved Wazuh Case can pivot by retained rule without query-string or replay export", async()=>{
+  const ref="local-jsonl-entry-"+"a".repeat(64);
+  const env=boot((url,options)=>{
+    assert.equal(url.pathname,"/demo-local-search");
+    assert.equal(url.search,"","operator Wazuh pivot must use POST body");
+    assert.equal(options.method,"POST");
+    const criteria=JSON.parse(options.body);
+    assert.equal(criteria.case_id,"case-disk");
+    assert.equal(criteria.field,"rule_id");
+    assert.equal(criteria.value,"5710");
+    return {ok:true,async json(){return {
+      format:"cmdr-local-jsonl-event-search-v1",synthetic:true,case_id:"case-disk",
+      job:{ID:"saved-wazuh-rule-job",State:"completed",AuditTrail:[{},{},{}],
+        ResultRefs:[{Source:"normalized-jsonl-authorized-import",Ref:ref}]}
+    }}};
+  });
+  const f=env.fields;
+  f["local-search-field"].value="rule_id";
+  f["local-search-value"].value="5710";
+  f["local-search-from"].value="2026-10-17T10:00:00";
+  f["local-search-to"].value="2026-10-17T10:03:00";
+  f["local-search-run"].handlers.click();
+  await flush();await flush();
+  assert.equal(env.requests.length,1);
+  assert.match(f["local-search-status"].textContent,/saved-wazuh-rule-job terminé/);
+  assert.equal(f["local-search-results"].children[0].children[0].children[0].textContent,ref);
+  // Switching Case or query invalidates all displayed references.
+  f["local-search-field"].value="agent_id";
+  f["local-search-field"].handlers.change();
+  assert.equal(f["local-search-results"].children.length,0);
+});
