@@ -47,6 +47,10 @@ func compareVerifiedSavedCases(ctx context.Context, principal, firstPath, firstC
 	// is correlated. Generic JSONL snapshots simply produce no cohorts.
 	result.SharedWazuhWindows, err = sharedAuthorizedWazuhWindows(first, second, firstCase, secondCase)
 	if err != nil { return err }
+	// Precise event-linked leads are computed ONLY after both independently
+	// authorized owners and their complete Timeline traversals succeeded.
+	result.SharedWazuhEventPairs, err = sharedAuthorizedWazuhEventPairs(first, second, firstCase, secondCase)
+	if err != nil { return err }
 
 	// Stage the complete receipt before writing so a denied second Case can
 	// never cause a partial report about the first Case.
