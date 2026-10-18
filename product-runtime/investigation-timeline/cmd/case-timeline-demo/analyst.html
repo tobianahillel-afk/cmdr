@@ -85,6 +85,13 @@
           <option value="provenance">Provenance normalisée du flux</option>
         </select>
       </div>
+      <div class="field"><label for="local-search-family">Famille de source autorisée</label>
+        <select id="local-search-family">
+          <option value="all">Toutes les sources</option>
+          <option value="wazuh">Alertes Wazuh uniquement</option>
+          <option value="generic">Événements JSONL génériques uniquement</option>
+        </select>
+      </div>
       <div class="field"><label for="local-search-value">Expression littérale (3 à 128 octets UTF-8)</label>
         <input id="local-search-value" type="search" maxlength="128" autocomplete="off" spellcheck="false" placeholder="authentication failed">
       </div>
