@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 
 	timeline "github.com/tobianahillel-afk/cmdr/product-runtime/investigation-timeline"
 )
@@ -36,6 +37,7 @@ func writePersistedWazuhCase(ctx context.Context, principal, snapshotPath, caseI
 		}
 	}
 	var merged timeline.MemoryTimelineData
+	var levels map[string]wazuhRuleLevel
 	if len(alertFiles) == 1 {
 		source, err := os.Lstat(snapshotPath)
 		if err != nil || !source.Mode().IsRegular() {
@@ -46,16 +48,40 @@ func writePersistedWazuhCase(ctx context.Context, principal, snapshotPath, caseI
 			os.SameFile(source, alert) {
 			return errors.New("Wazuh alerts must be independent of the Case owner")
 		}
-		merged, _, err = prepareWazuh4Case(ctx, principal, snapshotPath, caseID, alertFiles[0])
-		if err != nil {
-			return err
-		}
+		var raw []byte
+		merged, _, raw, err = prepareWazuh4CaseWithRaw(ctx, principal, snapshotPath, caseID, alertFiles[0])
+		if err != nil { return err }
+		levels, err = wazuhRuleLevels(raw, caseID)
+		if err != nil { return err }
 	} else {
 		var err error
-		merged, _, err = loadMultipleWazuhFeeds(ctx, principal, snapshotPath, caseID, alertFiles)
-		if err != nil {
-			return err
+		merged, _, levels, err = loadMultipleWazuhFeedsWithLevels(ctx, principal, snapshotPath, caseID, alertFiles)
+		if err != nil { return err }
+	}
+	// Preserve only the validated numerical pivots corresponding to actual
+	// typed sources from the already-authorized Wazuh import. Never copy raw
+	// JSON, full_log, IP, hostname or the input file paths into metadata.
+	linked := 0
+	for i := range merged.Sources {
+		source := &merged.Sources[i]
+		if !strings.HasPrefix(source.Identity.Reference, "local-jsonl-source-") {
+			continue
 		}
+		entryID := "local-jsonl-entry-" + strings.TrimPrefix(source.Identity.Reference, "local-jsonl-source-")
+		meta, present := levels[entryID]
+		if !present { continue }
+		info := &timeline.WazuhSourceMetadata{
+			RuleID: meta.RuleID, AgentID: meta.AgentID, Feed: meta.Feed,
+		}
+		if meta.Known {
+			value := meta.Level
+			info.RuleLevel = &value
+		}
+		source.Wazuh = info
+		linked++
+	}
+	if linked != len(levels) || linked == 0 {
+		return errors.New("Wazuh metadata does not match all imported typed sources")
 	}
 	// No other file output or stdout before the entire Wazuh import and
 	// scoped owner validation succeeds. Existing no-replace atomic writer
