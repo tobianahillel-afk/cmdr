@@ -92,6 +92,7 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	huntTo := flags.String("hunt-to", "", "exclusive RFC3339 end for offline authorized Event Search Job")
 	inspectSavedCase := flags.String("inspect-saved-case", "", "explicit saved Case to privately inspect a correlated Entry (requires snapshot, SHA-256 and private-report)")
 	inspectSavedEntry := flags.String("inspect-saved-entry", "", "exact imported Entry ID from a cross-Case correlation receipt; not an authorization grant")
+	inspectSavedPair := flags.Int("inspect-saved-pair", 0, "1-based index (1..10) of an authorized Wazuh cross-Case pair; requires two verified Case snapshots and private-report")
 	compareSavedCase := flags.String("compare-saved-case", "", "first saved authorized Case ID for independent offline cross-snapshot comparison")
 	compareSavedWithCase := flags.String("compare-saved-with-case", "", "second distinct saved Case ID for independent cross-snapshot comparison")
 	compareSavedWithSnapshot := flags.String("compare-saved-with-snapshot", "", "absolute path to second independent saved Case snapshot")
@@ -268,7 +269,8 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	flags.Visit(func(f *flag.Flag) {
 		switch f.Name {
 		case "compare-saved-case", "compare-saved-with-case",
-			"compare-saved-with-snapshot", "expect-other-snapshot-sha256":
+			"compare-saved-with-snapshot", "expect-other-snapshot-sha256",
+			"inspect-saved-pair":
 			savedComparisonSelected = true
 		}
 	})
@@ -278,7 +280,8 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 			switch f.Name {
 			case "principal", "snapshot", "compare-saved-case",
 				"compare-saved-with-case", "compare-saved-with-snapshot",
-				"expect-snapshot-sha256", "expect-other-snapshot-sha256", "private-report":
+				"expect-snapshot-sha256", "expect-other-snapshot-sha256",
+				"private-report", "inspect-saved-pair":
 			default:
 				allowed = false
 			}
@@ -287,6 +290,19 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 			*compareSavedWithCase == "" || *compareSavedWithSnapshot == "" ||
 			*expectedSnapshotSHA256 == "" || *expectedOtherSHA256 == "" {
 			return errors.New("offline saved-Case comparison requires two Cases, snapshots and independently held SHA-256 receipts")
+		}
+		pairRequested := false
+		flags.Visit(func(f *flag.Flag) {
+			if f.Name == "inspect-saved-pair" { pairRequested = true }
+		})
+		if pairRequested {
+			if *inspectSavedPair < 1 || *inspectSavedPair > 10 || *privateReport == "" {
+				return errors.New("private pair inspection requires a 1..10 pair index and explicit new private-report path")
+			}
+			return writeVerifiedCorrelatedPairPrivate(ctx, *principal, *snapshot,
+				*compareSavedCase, *expectedSnapshotSHA256,
+				*compareSavedWithSnapshot, *compareSavedWithCase,
+				*expectedOtherSHA256, *inspectSavedPair, *privateReport)
 		}
 		if *privateReport != "" {
 			return writeAuthorizedReceiptPrivate(ctx, *privateReport, func(w io.Writer) error {
