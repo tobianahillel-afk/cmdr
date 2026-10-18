@@ -24,7 +24,8 @@ func TestSavedWazuhCohortExactDiscoveryAndPairPivot(t *testing.T) {
 		t.Helper()
 		var out bytes.Buffer
 		args := append(append([]string{}, base...), extra...)
-		return out, runDemoCLI(context.Background(), args, &out)
+		err := runDemoCLI(context.Background(), args, &out)
+		return out, err
 	}
 	// A single exact rule or agent suffices; returning a source label does not
 	// authorize reading its private payload.
