@@ -49,3 +49,27 @@ This is **an interactive, loopback-only synthetic product demonstration**, not t
 The loopback-only `/demo-cases` GET route exposes only IDs of Cases readable by the bearer-authenticated demo principal according to the same immutable synthetic principal/tenant/Case reader data used to build the Timeline owner handler. It rejects arbitrary selectors, write methods and missing credentials, returns no source or Timeline Entry metadata, and never trusts browser-supplied tenant identifiers. The analyst can discover a permitted Case in the UI before opening its timeline, retaining server-side Case/Timeline/source checks when reading events.
 
 This is deliberately a **fixture-only Case picker** owned by `cmd/case-timeline-demo`, not a general Case-catalog API, production Case search or production identity provider. In a deployment, a real host Case-owner catalogue would implement authenticated Case discovery using its own authorization model; the current module must not expose synthetic fixture data as real Cases. No persistence, schemas or ownership decisions were changed.
+
+
+## Private cross-Case Wazuh dossier by exact Entry ID
+
+To reopen one correlated Wazuh pair, operators can now use the two actual
+first_entry_id and second_entry_id fields from an authorized comparison receipt,
+instead of an ordinal from the capped pair list:
+
+    go run ./cmd/case-timeline-demo \
+      -principal analyst-a -snapshot /private/first.json \
+      -compare-saved-case case-A -expect-snapshot-sha256 FIRST_SHA256 \
+      -compare-saved-with-snapshot /private/second.json \
+      -compare-saved-with-case case-B -expect-other-snapshot-sha256 SECOND_SHA256 \
+      -inspect-saved-pair-first-entry FIRST_ENTRY_ID \
+      -inspect-saved-pair-second-entry SECOND_ENTRY_ID \
+      -private-report /private/new-pair-dossier.json
+
+Both exact IDs must match ONE currently authorized Wazuh 60-second pair among
+the at-most-ten correlation leads. The IDs never confer Case/source access;
+the existing first-party owner, tenant, Case, typed-source, operator-held SHA256
+and no-overwrite owner-private publisher are all reused unchanged.
+One ID alone or mixing ordinal and IDs fails closed. No raw data goes to stdout.
+Explicit -include-pair-generic-evidence still produces private v3 opt-in only.
+This remains offline lab DFIR, not deployed IAM or live ingestion.
