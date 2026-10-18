@@ -208,3 +208,54 @@ func TestMemoryOwnerInputImmutabilityAndConcurrentReads(t *testing.T) {
 		}
 	}
 }
+
+func TestWazuhTypedSourceMetadataCannotGrantAccessOrEscapeOwner(t *testing.T) {
+	base:=memorySourcePreviewFixture()
+	level:=9
+	base.Sources[0].Wazuh=&WazuhSourceMetadata{
+		RuleID:"5710", AgentID:"001", RuleLevel:&level, Feed:2,
+	}
+	h,err:=NewMemoryCaseTimelineHTTPHandlers(func(r *http.Request)(string,error){
+		if r.Header.Get("Authorization")=="Bearer aa" { return "analyst-a",nil }
+		if r.Header.Get("Authorization")=="Bearer bb" { return "analyst-b",nil }
+		return "",errors.New("not authenticated")
+	},base)
+	if err!=nil {t.Fatal(err)}
+	for _,tc:=range []struct{path,bearer string;want int}{
+		{"/demo-source-open?case_id=case-a&entry_id=entry-a","Bearer aa",http.StatusOK},
+		{"/demo-source-open?case_id=case-a&entry_id=entry-a","Bearer bb",http.StatusNotFound},
+		{"/demo-source-open?case_id=case-b&entry_id=entry-b","Bearer aa",http.StatusNotFound},
+		{"/demo-source-open?case_id=case-a&entry_id=hidden-a","Bearer aa",http.StatusNotFound},
+	}{
+		req:=httptest.NewRequest(http.MethodGet,tc.path,nil)
+		req.Header.Set("Authorization",tc.bearer)
+		out:=httptest.NewRecorder()
+		h.OpenSource.ServeHTTP(out,req)
+		if out.Code!=tc.want {t.Fatalf("metadata changed source ACL: %s got %d",tc.path,out.Code)}
+		for _,secret:=range []string{"5710","001","rule_id","agent_id","rule_level","\"feed\""} {
+			if strings.Contains(out.Body.String(),secret) {
+				t.Fatalf("source-open exported metadata without explicit analyst pivot: %q",secret)
+			}
+		}
+	}
+	for _,bad:=range []struct{name string;mutate func(*MemoryTimelineData)}{
+		{"non-numeric-rule",func(d *MemoryTimelineData){d.Sources[0].Wazuh.RuleID="5710X"}},
+		{"non-numeric-agent",func(d *MemoryTimelineData){d.Sources[0].Wazuh.AgentID="unknown-host"}},
+		{"long-rule",func(d *MemoryTimelineData){d.Sources[0].Wazuh.RuleID=strings.Repeat("1",17)}},
+		{"negative-severity",func(d *MemoryTimelineData){v:=-1;d.Sources[0].Wazuh.RuleLevel=&v}},
+		{"oversized-severity",func(d *MemoryTimelineData){v:=17;d.Sources[0].Wazuh.RuleLevel=&v}},
+		{"negative-feed",func(d *MemoryTimelineData){d.Sources[0].Wazuh.Feed=-1}},
+		{"unrecognized-feed",func(d *MemoryTimelineData){d.Sources[0].Wazuh.Feed=5}},
+		{"metadata-on-non-telemetry",func(d *MemoryTimelineData){d.Sources[0].Identity.Kind="evidence"}},
+	}{
+		t.Run(bad.name,func(t *testing.T){
+			fixture:=memorySourcePreviewFixture()
+			copyMeta:=*base.Sources[0].Wazuh
+			fixture.Sources[0].Wazuh=&copyMeta
+			bad.mutate(&fixture)
+			if _,err:=NewMemoryCaseTimelineHTTPHandlers(demoAuthenticator,fixture);err==nil {
+				t.Fatal("invalid or forged saved Wazuh source metadata accepted")
+			}
+		})
+	}
+}
