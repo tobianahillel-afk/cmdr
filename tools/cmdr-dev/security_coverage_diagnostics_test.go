@@ -8,8 +8,8 @@ import (
 
 func TestUnexecutedRuntimeBlocksReportsOnlyRealChangedCoverageMisses(t *testing.T) {
 	adapter := runtimeSecurityAdapter{
-		BoundaryID: "investigation-timeline-runtime",
-		RuntimeRoot: "product-runtime/investigation-timeline",
+		BoundaryID:     "investigation-timeline-runtime",
+		RuntimeRoot:    "product-runtime/investigation-timeline",
 		ModuleIdentity: "github.com/tobianahillel-afk/cmdr/product-runtime/investigation-timeline",
 	}
 	const profile = "mode: atomic\n" +
@@ -38,8 +38,8 @@ func TestUnexecutedRuntimeBlocksReportsOnlyRealChangedCoverageMisses(t *testing.
 
 func TestUnexecutedRuntimeBlocksDoesNotLeakContentOrClaimCoverage(t *testing.T) {
 	adapter := runtimeSecurityAdapter{
-		BoundaryID: "investigation-timeline-runtime",
-		RuntimeRoot: "product-runtime/investigation-timeline",
+		BoundaryID:     "investigation-timeline-runtime",
+		RuntimeRoot:    "product-runtime/investigation-timeline",
 		ModuleIdentity: "github.com/tobianahillel-afk/cmdr/product-runtime/investigation-timeline",
 	}
 	const profile = "mode: atomic\n" +
