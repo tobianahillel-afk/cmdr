@@ -213,11 +213,11 @@ func importedNormalizedIDs(data timeline.MemoryTimelineData, caseID string) (map
 // Reuse exactly the existing Case/Timeline/typed source HTTP and SearchJob
 // implementation. Each session generates a NEW short-lived bearer token;
 // neither bearer nor SearchJob results are stored in the snapshot.
-func serveDemoReopenedNormalizedCase(ctx context.Context, principal, snapshotPath, caseID string, output io.Writer) error {
+func serveDemoReopenedNormalizedCase(ctx context.Context, principal, snapshotPath, caseID, expectedDigest string, output io.Writer) error {
 	if ctx == nil || ctx.Err() != nil || snapshotPath == "" || caseID == "" {
 		return errors.New("select a saved Case owner snapshot and Case ID")
 	}
-	data, err := loadDemoSnapshot(snapshotPath)
+	data, err := loadDemoSnapshotWithExpectedDigest(snapshotPath, expectedDigest)
 	if err != nil { return err }
 	// Older snapshots may contain unrelated tenants; never load them into
 	// the loopback owner even when they are operator-selected local files.
