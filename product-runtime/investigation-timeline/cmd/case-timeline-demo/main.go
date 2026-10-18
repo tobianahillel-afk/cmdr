@@ -83,6 +83,7 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	saveMixedCaseSnapshot := flags.String("save-mixed-case-snapshot", "", "create one atomic private Case archive with both Wazuh and generic JSONL sources; no intermediary archive")
 	resumeImportSearchCase := flags.String("resume-import-search-case", "", "Case ID in a saved normalized owner snapshot to reopen with an authenticated Search Job viewer")
 	verifyImportSnapshotCase := flags.String("verify-import-snapshot-case", "", "Case ID of a saved authorized owner snapshot to verify WITHOUT a listener; requires -expect-snapshot-sha256")
+	privateReport := flags.String("private-report", "", "optional absolute NEW private file for a completed authorized verification, headless hunt or cross-snapshot comparison receipt")
 	huntSavedCase := flags.String("hunt-saved-case", "", "run one authorized Event Search Job on a saved Case without listener or browser")
 	huntField := flags.String("hunt-field", "preview", "first-party search field (preview, rule_id, agent_id, entry_id, source_ref, provenance)")
 	huntFamily := flags.String("hunt-family", "all", "source family for offline search (all, wazuh, generic)")
@@ -116,6 +117,15 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	if flags.NArg() != 0 {
 		return errors.New("unexpected positional arguments")
 	}
+	if *privateReport != "" {
+		modes := 0
+		for _, selected := range []string{*huntSavedCase, *compareSavedCase, *verifyImportSnapshotCase} {
+			if selected != "" { modes++ }
+		}
+		if modes != 1 {
+			return errors.New("private-report requires exactly one authorized offline hunt, saved-Case comparison or verification")
+		}
+	}
 	// Reuse the SAME authenticated owner and Event Search backend used by
 	// the analyst UI, but produce an explicit minimal offline JSON receipt.
 	// No local listener, bearer in stdout, independent search implementation
@@ -134,7 +144,7 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 			switch f.Name {
 			case "principal", "snapshot", "expect-snapshot-sha256",
 				"hunt-saved-case", "hunt-field", "hunt-family",
-				"hunt-value", "hunt-from", "hunt-to":
+				"hunt-value", "hunt-from", "hunt-to", "private-report":
 			default:
 				allowed = false
 			}
@@ -143,6 +153,13 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 			*expectedSnapshotSHA256 == "" || *huntValue == "" ||
 			*huntFrom == "" || *huntTo == "" {
 			return errors.New("headless Case hunt needs an independent snapshot fingerprint, authorized Case, literal and time window")
+		}
+		if *privateReport != "" {
+			return writeAuthorizedReceiptPrivate(ctx, *privateReport, func(w io.Writer) error {
+				return runSavedCaseHeadlessHunt(ctx, *principal, *snapshot, *huntSavedCase,
+					*expectedSnapshotSHA256, *huntField, *huntFamily,
+					*huntValue, *huntFrom, *huntTo, w)
+			})
 		}
 		return runSavedCaseHeadlessHunt(ctx, *principal, *snapshot, *huntSavedCase,
 			*expectedSnapshotSHA256, *huntField, *huntFamily,
@@ -205,7 +222,7 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 			switch f.Name {
 			case "principal", "snapshot", "compare-saved-case",
 				"compare-saved-with-case", "compare-saved-with-snapshot",
-				"expect-snapshot-sha256", "expect-other-snapshot-sha256":
+				"expect-snapshot-sha256", "expect-other-snapshot-sha256", "private-report":
 			default:
 				allowed = false
 			}
@@ -214,6 +231,14 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 			*compareSavedWithCase == "" || *compareSavedWithSnapshot == "" ||
 			*expectedSnapshotSHA256 == "" || *expectedOtherSHA256 == "" {
 			return errors.New("offline saved-Case comparison requires two Cases, snapshots and independently held SHA-256 receipts")
+		}
+		if *privateReport != "" {
+			return writeAuthorizedReceiptPrivate(ctx, *privateReport, func(w io.Writer) error {
+				return compareVerifiedSavedCases(ctx, *principal, *snapshot,
+					*compareSavedCase, *expectedSnapshotSHA256,
+					*compareSavedWithSnapshot, *compareSavedWithCase,
+					*expectedOtherSHA256, w)
+			})
 		}
 		return compareVerifiedSavedCases(ctx, *principal, *snapshot,
 			*compareSavedCase, *expectedSnapshotSHA256,
@@ -241,6 +266,8 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 				if *resumeImportSearchCase == "" { invalid = true }
 			case "verify-import-snapshot-case":
 				if *verifyImportSnapshotCase == "" { invalid = true }
+			case "private-report":
+				if *verifyImportSnapshotCase == "" { invalid = true }
 			case "expect-snapshot-sha256":
 				if *resumeImportSearchCase == "" && *verifyImportSnapshotCase == "" { invalid = true }
 			default:
@@ -258,6 +285,11 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 			return writeDemoPersistedNormalizedCase(ctx, *principal, *snapshot, *intoCase, paths, *saveImportSnapshot, output)
 		}
 		if *verifyImportSnapshotCase != "" {
+			if *privateReport != "" {
+				return writeAuthorizedReceiptPrivate(ctx, *privateReport, func(w io.Writer) error {
+					return verifySavedNormalizedCase(ctx, *principal, *snapshot, *verifyImportSnapshotCase, *expectedSnapshotSHA256, w)
+				})
+			}
 			return verifySavedNormalizedCase(ctx, *principal, *snapshot, *verifyImportSnapshotCase, *expectedSnapshotSHA256, output)
 		}
 		return serveDemoReopenedNormalizedCase(ctx, *principal, *snapshot, *resumeImportSearchCase, *expectedSnapshotSHA256, output)
