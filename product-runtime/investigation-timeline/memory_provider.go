@@ -27,12 +27,26 @@ type MemoryTimelineEntry struct {
 	Value   Entry
 	Readers []string
 }
+
+// WazuhSourceMetadata is narrowly bounded descriptive information retained
+// with an operator-approved source; it is NEVER an access-control decision.
+// Original alert JSON, hostnames, IPs and full_log are not stored here.
+type WazuhSourceMetadata struct {
+	RuleID    string `json:"rule_id,omitempty"`
+	AgentID   string `json:"agent_id,omitempty"`
+	RuleLevel *int   `json:"rule_level,omitempty"`
+	Feed      int    `json:"feed,omitempty"`
+}
+
 type MemoryTimelineSource struct {
 	Identity SourceOwnerIdentity
 	Readers  []string
 	// Preview belongs to the synthetic source owner, never the Timeline Entry.
 	// It is available only via a fresh, authenticated source-open operation.
 	Preview string
+	// This optional, source-owned metadata is not returned by source-open.
+	// Only already-authorized investigation jobs may use it for filtering.
+	Wazuh *WazuhSourceMetadata `json:"Wazuh,omitempty"`
 }
 
 type memoryTimelinePrincipalKey struct{}
@@ -132,6 +146,26 @@ func NewMemoryCaseTimelineHTTPHandlers(authenticate func(*http.Request) (string,
 			len(src.Preview) > 2048 || !utf8.ValidString(src.Preview) ||
 			!s.validReaders(src.Readers, c.Tenant, c.Environment) {
 			return MemoryTimelineHTTPHandlers{}, errors.New("invalid source owner record")
+		}
+		if src.Wazuh != nil {
+			validID := func(v string) bool {
+				if len(v) > 16 {
+					return false
+				}
+				for _, ch := range v {
+					if ch < '0' || ch > '9' {
+						return false
+					}
+				}
+				return true
+			}
+			if id.Kind != "telemetry-event" || !validID(src.Wazuh.RuleID) ||
+				!validID(src.Wazuh.AgentID) || src.Wazuh.Feed < 0 ||
+				src.Wazuh.Feed > 4 ||
+				(src.Wazuh.RuleLevel != nil &&
+					(*src.Wazuh.RuleLevel < 0 || *src.Wazuh.RuleLevel > 16)) {
+				return MemoryTimelineHTTPHandlers{}, errors.New("invalid bounded Wazuh owner metadata")
+			}
 		}
 		if _, exists := s.sources[id.Reference]; exists {
 			return MemoryTimelineHTTPHandlers{}, errors.New("duplicate source reference")
