@@ -144,3 +144,75 @@ func TestAuthorizedWazuhPairPaginationDenialsReturnNoPartialReceipt(t *testing.T
 		t.Fatalf("changed source returned cross-Case data: %v %q",err,out.String())
 	}
 }
+
+
+func TestAuthorizedPairDirectDiscoveryAndPaginationAgree(t *testing.T) {
+	aPath, aCase, aHash, bPath, bCase, bHash := savedWazuhPairPageFixture(t)
+	base := []string{
+		"-principal", "analyst-a", "-snapshot", aPath,
+		"-compare-saved-case", aCase, "-expect-snapshot-sha256", aHash,
+		"-compare-saved-with-snapshot", bPath, "-compare-saved-with-case", bCase,
+		"-expect-other-snapshot-sha256", bHash,
+	}
+	var pageOutput bytes.Buffer
+	pageArgs := append(append([]string{}, base...), "-list-saved-wazuh-pair-offset", "10")
+	if err := runDemoCLI(context.Background(), pageArgs, &pageOutput); err != nil {
+		t.Fatal(err)
+	}
+	var page wazuhPairPageReceipt
+	if err := json.Unmarshal(pageOutput.Bytes(), &page); err != nil {
+		t.Fatal(err)
+	}
+	if len(page.Pairs) != 2 {
+		t.Fatalf("page missing later evidence: %d", len(page.Pairs))
+	}
+	var direct bytes.Buffer
+	args := append(append([]string{}, base...), "-find-saved-pair-first-entry", page.Pairs[0].FirstEntryID)
+	if err := runDemoCLI(context.Background(), args, &direct); err != nil {
+		t.Fatal(err)
+	}
+	var found struct {
+		Format string `json:"format"`
+		Pair sharedAuthorizedWazuhEventPair `json:"pair"`
+	}
+	if err := json.Unmarshal(direct.Bytes(), &found); err != nil {
+		t.Fatal(err)
+	}
+	if found.Format != "cmdr-authorized-wazuh-pair-lead-v1" ||
+		found.Pair.FirstEntryID != page.Pairs[0].FirstEntryID ||
+		found.Pair.SecondEntryID != page.Pairs[0].SecondEntryID ||
+		found.Pair.OffsetSeconds != page.Pairs[0].OffsetSeconds {
+		t.Fatalf("two discovery modes disagree about the authorized pair: %+v", found.Pair)
+	}
+	for _, forbidden := range []string{"PRIVATE FIRST", "PRIVATE SECOND", "Bearer "} {
+		if strings.Contains(direct.String(), forbidden) {
+			t.Fatal("private evidence escaped to discovery stdout")
+		}
+	}
+	for _, extra := range [][]string{
+		{"-list-saved-wazuh-pair-offset", "10"},
+		{"-private-report", filepath.Join(t.TempDir(), "forbidden.json")},
+		{"-include-pair-generic-evidence"},
+		{"-inspect-saved-pair-first-entry", found.Pair.FirstEntryID,
+			"-inspect-saved-pair-second-entry", found.Pair.SecondEntryID},
+	} {
+		var output bytes.Buffer
+		if err := runDemoCLI(context.Background(), append(append([]string{}, args...), extra...), &output); err == nil || output.Len() != 0 {
+			t.Fatalf("mixed discovery mode accepted: %v %q", extra, output.String())
+		}
+	}
+	// Even with valid pair IDs and a private destination, a paging request
+	// cannot be silently ignored by the private-inspection branch.
+	private := filepath.Join(t.TempDir(), "should-not-exist.json")
+	mixed := append(append([]string{}, pageArgs...),
+		"-inspect-saved-pair-first-entry", found.Pair.FirstEntryID,
+		"-inspect-saved-pair-second-entry", found.Pair.SecondEntryID,
+		"-private-report", private)
+	var out bytes.Buffer
+	if err := runDemoCLI(context.Background(), mixed, &out); err == nil || out.Len() != 0 {
+		t.Fatal("paging/private selectors must not be combined")
+	}
+	if _, err := os.Lstat(private); !os.IsNotExist(err) {
+		t.Fatal("rejected mixed request created a private artifact")
+	}
+}

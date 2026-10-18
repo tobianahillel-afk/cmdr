@@ -95,6 +95,7 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	inspectSavedPair := flags.Int("inspect-saved-pair", 0, "1-based index (1..10) of an authorized Wazuh cross-Case pair; requires two verified Case snapshots and private-report")
 	inspectSavedPairFirstEntry := flags.String("inspect-saved-pair-first-entry", "", "first Case Wazuh Entry ID from an authorized pair receipt")
 	inspectSavedPairSecondEntry := flags.String("inspect-saved-pair-second-entry", "", "second Case Wazuh Entry ID from an authorized pair receipt")
+	findSavedPairFirstEntry := flags.String("find-saved-pair-first-entry", "", "metadata-only nearest authorized Wazuh pair for an exact first Case Entry ID")
 	listSavedWazuhPairOffset := flags.Int("list-saved-wazuh-pair-offset", -1, "zero-based authorized Wazuh pair page offset (0..5000), ten leads per page; needs two verified Case snapshots")
 	includePairGenericEvidence := flags.Bool("include-pair-generic-evidence", false, "explicitly include up to ten independently source-authorized generic previews per Case in the NEW private paired report only")
 	compareSavedCase := flags.String("compare-saved-case", "", "first saved authorized Case ID for independent offline cross-snapshot comparison")
@@ -141,7 +142,8 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 			"compare-saved-with-snapshot", "export-case", "report-case",
 			"compare-case", "with-case", "source-case", "source-ref",
 			"inspect-case", "inspect-entry", "inspect-wazuh-entry",
-			"inspect-saved-case", "inspect-saved-entry", "snapshot":
+			"inspect-saved-case", "inspect-saved-entry", "snapshot",
+			"find-saved-pair-first-entry":
 			if f.Value.String() == "" { emptyExplicitMode = true }
 		}
 	})
@@ -276,7 +278,7 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 			"compare-saved-with-snapshot", "expect-other-snapshot-sha256",
 			"inspect-saved-pair", "inspect-saved-pair-first-entry",
 			"inspect-saved-pair-second-entry", "include-pair-generic-evidence",
-			"list-saved-wazuh-pair-offset":
+			"list-saved-wazuh-pair-offset", "find-saved-pair-first-entry":
 			savedComparisonSelected = true
 		}
 	})
@@ -289,7 +291,8 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 				"expect-snapshot-sha256", "expect-other-snapshot-sha256",
 				"private-report", "inspect-saved-pair",
 				"inspect-saved-pair-first-entry", "inspect-saved-pair-second-entry",
-				"include-pair-generic-evidence", "list-saved-wazuh-pair-offset":
+				"include-pair-generic-evidence", "list-saved-wazuh-pair-offset",
+				"find-saved-pair-first-entry":
 			default:
 				allowed = false
 			}
@@ -308,6 +311,26 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 				entryIDsSelected = true
 			}
 		})
+		pageSelected := false
+		flags.Visit(func(f *flag.Flag) {
+			if f.Name == "list-saved-wazuh-pair-offset" {
+				pageSelected = true
+			}
+		})
+		// Discovery modes disclose only authorized metadata and are mutually
+		// exclusive with private dossier generation and with each other.
+		if *findSavedPairFirstEntry != "" {
+			if pageSelected || ordinalSelected || entryIDsSelected ||
+				*privateReport != "" || *includePairGenericEvidence {
+				return errors.New("exact-ID discovery cannot be combined with pagination or private evidence")
+			}
+			return writeVerifiedSelectedWazuhPairLead(ctx, *principal, *snapshot,
+				*compareSavedCase, *expectedSnapshotSHA256, *compareSavedWithSnapshot,
+				*compareSavedWithCase, *expectedOtherSHA256, *findSavedPairFirstEntry, output)
+		}
+		if pageSelected && (ordinalSelected || entryIDsSelected) {
+			return errors.New("pair pagination cannot be combined with a private pair selector")
+		}
 		if ordinalSelected || entryIDsSelected {
 			if *privateReport == "" || (ordinalSelected && entryIDsSelected) {
 				return errors.New("select exactly one pair selector and a new private-report path")
@@ -330,10 +353,6 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 				*compareSavedWithSnapshot, *compareSavedWithCase,
 				*expectedOtherSHA256, *inspectSavedPair, *privateReport, *includePairGenericEvidence)
 		}
-		pageSelected := false
-		flags.Visit(func(f *flag.Flag) {
-			if f.Name == "list-saved-wazuh-pair-offset" { pageSelected = true }
-		})
 		if pageSelected {
 			if ordinalSelected || entryIDsSelected || *includePairGenericEvidence ||
 				*privateReport != "" || *listSavedWazuhPairOffset < 0 ||
