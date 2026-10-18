@@ -175,6 +175,17 @@ func NewMemoryCaseTimelineHTTPHandlers(authenticate func(*http.Request) (string,
 			return MemoryTimelineHTTPHandlers{}, errors.New("ambiguous canonical source object references")
 		}
 		src.Readers = append([]string(nil), src.Readers...)
+		// Caller-owned Wazuh metadata must not remain mutable after owner
+		// validation. The severity pointer requires its own copy too:
+		// otherwise callers can change a validated source after startup.
+		if src.Wazuh != nil {
+			frozen := *src.Wazuh
+			if frozen.RuleLevel != nil {
+				level := *frozen.RuleLevel
+				frozen.RuleLevel = &level
+			}
+			src.Wazuh = &frozen
+		}
 		s.sources[id.Reference] = src
 		s.sourceObjects[key] = src
 	}
