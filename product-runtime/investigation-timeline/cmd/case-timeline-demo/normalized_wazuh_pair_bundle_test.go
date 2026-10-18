@@ -189,3 +189,38 @@ func TestPrivatePairBundleRevokedSecondTypedSourceWithCurrentDigest(t *testing.T
 		t.Fatalf("one-sided sensitive artifact exists after second owner denial: %v",err)
 	}
 }
+
+func TestPrivatePairBundleRejectsDifferentEnvironmentWithValidDigests(t *testing.T) {
+	aPath, aCase, aHash, bPath, bCase, _, _ := makeSavedPairDrilldownOwners(t)
+	second, err := loadDemoSnapshot(bPath)
+	if err != nil { t.Fatal(err) }
+	if len(second.Principals) != 1 || len(second.Cases) != 1 {
+		t.Fatal("expected minimally scoped second source Case")
+	}
+	// Keep the tenant and all source identities valid, but give the
+	// second Case a *different* environment. Cross-environment temporal
+	// correlation must not silently inherit the first Case's access.
+	const isolatedEnvironment = "isolated-production-environment"
+	second.Principals[0].Environment = isolatedEnvironment
+	second.Cases[0].Environment = isolatedEnvironment
+	for i := range second.Sources {
+		second.Sources[i].Identity.Environment = isolatedEnvironment
+	}
+	if _, err := newDemoHandlerWithData(strings.Repeat("0", 64), "analyst-a", second); err != nil {
+		t.Fatalf("different environment must remain independently owner-valid: %v", err)
+	}
+	encoded, err := json.Marshal(second)
+	if err != nil { t.Fatal(err) }
+	if err := os.WriteFile(bPath, encoded, 0600); err != nil { t.Fatal(err) }
+	secondHash := fmt.Sprintf("%x", sha256.Sum256(encoded))
+	destination := filepath.Join(t.TempDir(), "must-not-cross-environments.json")
+	err = writeVerifiedCorrelatedPairPrivate(context.Background(),
+		"analyst-a", aPath, aCase, aHash, bPath, bCase, secondHash,
+		1, destination)
+	if err == nil {
+		t.Fatal("valid cross-environment Case snapshots produced a private source bundle")
+	}
+	if _, err := os.Lstat(destination); !os.IsNotExist(err) {
+		t.Fatalf("private report published after environment denial: %v", err)
+	}
+}
