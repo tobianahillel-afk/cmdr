@@ -14,7 +14,7 @@ This is a **code-level integration / reduction of duplicate security logic**, no
 
 The unchanged behavioral tests (including all tests added in PRs #62–#66) exercise:
 
-- one authorized Case save and encrypted? **No**, explicitly private but not encrypted local source;
+- one authorized Case save into a private, non-encrypted local file with no overwrite;
 - actual restart with new bearer and first-party source authorization;
 - bytes modified after save denied when operator supplies independently held SHA-256;
 - offline authorization/tenant-aware inventory with source-denied entries removed;
