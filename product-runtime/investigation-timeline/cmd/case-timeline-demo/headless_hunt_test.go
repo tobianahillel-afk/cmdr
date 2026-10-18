@@ -261,3 +261,17 @@ func TestConsolidatedHeadlessHuntCancelledOrUnwritableNeverClaimsSuccess(t *test
 		"2026-10-17T09:59:00Z","2026-10-17T10:02:00Z",unavailableHuntReceiptWriter{})
 	if err==nil {t.Fatal("failed forensic output sink silently reported success")}
 }
+
+func TestConsolidatedHeadlessRejectsOverlargeSelectionBeforeAnySearchReceipt(t *testing.T) {
+	// The authenticated first-party handler has a strict 4 KiB total POST
+	// limit. Headless mode must apply that same bound BEFORE dispatching a
+	// local request: a huge query cannot create a truncated/partial Job.
+	file, caseID, digest := savedHeadlessMixedCase(t)
+	var output bytes.Buffer
+	err := runSavedCaseHeadlessHunt(context.Background(),"analyst-a",file,
+		caseID,digest,"preview","all",strings.Repeat("X",5000),
+		"2026-10-17T09:59:00Z","2026-10-17T10:02:00Z",&output)
+	if err == nil || output.Len()!=0 {
+		t.Fatalf("overlarge search selection produced partial forensic receipt: %v %q",err,output.String())
+	}
+}
