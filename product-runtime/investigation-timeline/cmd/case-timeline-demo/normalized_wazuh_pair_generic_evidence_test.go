@@ -128,37 +128,38 @@ func TestGenericEvidenceSinglePassStillRequiresSelectedOwnerAndCase(t *testing.T
 	ids, err := importedNormalizedIDs(owner, caseID)
 	if err != nil { t.Fatal(err) }
 	const center = "2026-10-17T10:00:00Z"
-	metadata, discarded, err := nearbyAuthorizedGenericPairContextAndEvidence(
-		context.Background(), "analyst-a", owner, caseID, ids, center, false)
-	if err != nil || len(metadata.Entries) != 1 || len(discarded) != 0 {
-		t.Fatalf("v2 must authorize but discard all raw generic evidence: %v", err)
+	metadata, err := nearbyAuthorizedGenericPairContext(
+		context.Background(), "analyst-a", owner, caseID, ids, center)
+	if err != nil || len(metadata.Entries) != 1 {
+		t.Fatalf("v2 must preserve authorized metadata: %v", err)
 	}
-	authorized, private, err := nearbyAuthorizedGenericPairContextAndEvidence(
-		context.Background(), "analyst-a", owner, caseID, ids, center, true)
+	var private []localEntryInspection
+	authorized, err := nearbyAuthorizedGenericPairContext(
+		context.Background(), "analyst-a", owner, caseID, ids, center, &private)
 	if err != nil || len(authorized.Entries) != 1 || len(private) != 1 ||
 		private[0].CaseID != caseID || private[0].EntryID != authorized.Entries[0].EntryID ||
 		!strings.Contains(private[0].Preview, "PRIVATE SOURCE") {
-		t.Fatalf("v3 single-pass source owner did not return selected authorized private source: %v", err)
+		t.Fatalf("v3 one owner inspection did not retain selected authorized private source: %v", err)
 	}
-	// The principal and the selected Case are independent source-owner
-	// boundaries, regardless of a caller's imported-ID hint.
-	if summary, evidence, err := nearbyAuthorizedGenericPairContextAndEvidence(
-		context.Background(), "foreign-analyst", owner, caseID, ids, center, true);
-		err == nil || len(summary.Entries) != 0 || len(evidence) != 0 {
-		t.Fatal("foreign principal obtained or influenced authorized generic source")
+	// Failed first-party source authorization must NOT assign a partial
+	// private evidence slice to the caller.
+	var denied []localEntryInspection
+	if summary, err := nearbyAuthorizedGenericPairContext(
+		context.Background(), "foreign-analyst", owner, caseID, ids, center, &denied);
+		err == nil || len(summary.Entries) != 0 || len(denied) != 0 {
+		t.Fatal("foreign principal obtained generic evidence")
 	}
-	// Unlike the removed second-open helper, the new operation accepts NO
-	// user-provided context Entry IDs. It derives candidates only from the
-	// selected Case's own canonical typed sources.
-	if summary, evidence, err := nearbyAuthorizedGenericPairContextAndEvidence(
-		context.Background(), "analyst-a", owner, "wrong-case", ids, center, true);
-		err != nil || len(summary.Entries) != 0 || len(evidence) != 0 {
-		t.Fatal("unrelated Case leaked source preview")
+	var other []localEntryInspection
+	if summary, err := nearbyAuthorizedGenericPairContext(
+		context.Background(), "analyst-a", owner, "wrong-case", ids, center, &other);
+		err != nil || len(summary.Entries) != 0 || len(other) != 0 {
+		t.Fatal("unrelated Case leaked generic evidence")
 	}
 	forged := map[string]struct{}{"unrelated-foreign-event": {}}
-	if summary, evidence, err := nearbyAuthorizedGenericPairContextAndEvidence(
-		context.Background(), "analyst-a", owner, caseID, forged, center, true);
-		err != nil || len(summary.Entries) != 0 || len(evidence) != 0 {
-		t.Fatal("forged generic source ID bypassed canonical Case selection")
+	var forgedEvidence []localEntryInspection
+	if summary, err := nearbyAuthorizedGenericPairContext(
+		context.Background(), "analyst-a", owner, caseID, forged, center, &forgedEvidence);
+		err != nil || len(summary.Entries) != 0 || len(forgedEvidence) != 0 {
+		t.Fatal("forged generic ID bypassed Case source selection")
 	}
 }
