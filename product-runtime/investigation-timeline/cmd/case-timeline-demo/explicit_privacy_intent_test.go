@@ -48,7 +48,7 @@ func TestExplicitEmptyPrivateReportNeverFallsBackToStdout(t *testing.T) {
 // Omission of the optional flag remains backwards-compatible, but explicit
 // empty values are rejected before any bearer or source receipt is emitted.
 func TestExplicitEmptySnapshotDigestCannotDisableVerification(t *testing.T) {
-	archive,caseID,_:=savedHeadlessMixedCase(t)
+	archive,caseID,sha:=savedHeadlessMixedCase(t)
 	for _,extra:=range [][]string{
 		{"-resume-import-search-case",caseID,"-expect-snapshot-sha256",""},
 		{"-resume-import-search-case",caseID,"-expect-snapshot-sha256="},
@@ -72,7 +72,6 @@ func TestExplicitEmptySnapshotDigestCannotDisableVerification(t *testing.T) {
 	}
 	// An ordinary explicitly private output still works with a real path.
 	// This proves the fix protects only missing input, not the capability.
-	_,caseID,sha:=savedHeadlessMixedCase(t)
 	outfile:=filepath.Join(t.TempDir(),"private-receipt.json")
 	var stdout bytes.Buffer
 	err:=runDemoCLI(context.Background(),[]string{
