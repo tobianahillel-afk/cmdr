@@ -14,7 +14,7 @@ The output format is deliberately revised from `cmdr-private-verified-wazuh-pair
 
 1. Use original fixture that creates two separately authorized Wazuh 4.x Case snapshots whose first/second Wazuh events are 20 seconds apart; attach a distinct real normalized generic JSONL feed to EACH existing Case. One Case also has a generic event 4 minutes away.
 2. Save both Cases independently as private files, recompute their SHA256, delete original generic feeds and run original `writeVerifiedCorrelatedPairPrivate` journey.
-3. Both Wazuh source previews/paired IDs still match original Case owners. Output has precisely ONE additional authorized generic contextual link per side at 10 seconds and 2 seconds respectively, no far-event link, no generic preview or credentials.
+3. Both Wazuh source previews/paired IDs still match original Case owners. Output has two authorized first-Case generic links at +10s and the inclusive +60s boundary (the latter is present in the original Wazuh Case fixture), plus one second-Case generic link at +2s. No 4-minute far-event link, no generic preview or credentials.
 4. Context ID can be independently reopened only via its own authorized Case and source. If the second file is modified but remains valid JSON, its independently held fingerprint fails and **no partial dossier** is written; no source owners are shared.
 5. Existing private bundle tests updated for explicit `v2` schema. All prior security and functional flows must remain green on Linux/Windows/macOS, including browser. Mandatory engineering-kernel changed-security-critical 90% floor **remains unchanged** and gates merging.
 
