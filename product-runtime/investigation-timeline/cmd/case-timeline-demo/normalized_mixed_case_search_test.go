@@ -12,6 +12,7 @@ import (
 	"testing"
 
 	search "github.com/tobianahillel-afk/cmdr/product-runtime/event-search"
+	timeline "github.com/tobianahillel-afk/cmdr/product-runtime/investigation-timeline"
 )
 
 func TestSavedMixedWazuhAndGenericSourcesShareAuthorizedSearchAndBursts(t *testing.T) {
@@ -139,6 +140,55 @@ func TestSavedMixedWazuhAndGenericSourcesShareAuthorizedSearchAndBursts(t *testi
 		reply:=invoke("provenance","operator-local-jsonl",denied.token,denied.caseID)
 		if reply.Code==http.StatusOK || strings.Contains(reply.Body.String(),genericRef) {
 			t.Fatalf("mixed source scope leaked to unauthorized principal/Case: %d %s",reply.Code,reply.Body.String())
+		}
+	}
+	// Material ACL revocation case: even when three Wazuh records are
+	// normalized and a preview or numeric pivot otherwise matches, denying
+	// one typed source must reject the ENTIRE Search Job before chronology
+	// or burst leads are disclosed. A cached Wazuh metadata map is never an
+	// alternative authorization authority.
+	restricted := data
+	restricted.Principals = append([]timeline.MemoryTimelinePrincipal(nil), data.Principals...)
+	for _,p := range data.Principals {
+		if p.ID == "analyst-a" {
+			restricted.Principals = append(restricted.Principals,
+				timeline.MemoryTimelinePrincipal{
+					ID:"restricted-source-reader",Tenant:p.Tenant,Environment:p.Environment,
+				})
+			break
+		}
+	}
+	restricted.Sources = append([]timeline.MemoryTimelineSource(nil),data.Sources...)
+	revoked := false
+	for i:=range restricted.Sources {
+		if restricted.Sources[i].Wazuh != nil {
+			restricted.Sources[i].Readers = []string{"restricted-source-reader"}
+			revoked = true
+			break
+		}
+	}
+	if !revoked {t.Fatal("cannot exercise Wazuh source revocation")}
+	limitedOwner,err:=newDemoHandlerWithData(token,"analyst-a",restricted)
+	if err!=nil {t.Fatalf("valid owner with independently denied source refused: %v",err)}
+	limitedHandler:=newDemoLocalJSONLSearchHandler(token,"analyst-a",caseID,restricted,ids,limitedOwner)
+	for _,filter:=range []struct {field,value string}{
+		{"preview","powershell"},{"rule_id","5710"},
+	} {
+		body,_:=json.Marshal(map[string]string{
+			"case_id":caseID,"field":filter.field,"value":filter.value,
+			"from":"2026-10-17T09:59:00Z","to":"2026-10-17T10:02:00Z",
+		})
+		req:=httptest.NewRequest(http.MethodPost,"/demo-local-search",bytes.NewReader(body))
+		req.Header.Set("Authorization","Bearer "+token)
+		req.Header.Set("Content-Type","application/json")
+		rejected:=httptest.NewRecorder()
+		limitedHandler.ServeHTTP(rejected,req)
+		if rejected.Code==http.StatusOK ||
+			strings.Contains(rejected.Body.String(),"local-jsonl-entry-") ||
+			strings.Contains(rejected.Body.String(),"WAZUH-SECRET") ||
+			strings.Contains(rejected.Body.String(),"search_bursts") {
+			t.Fatalf("revoked Wazuh source leaked authorized results or burst leads: %s %d %s",
+				filter.field,rejected.Code,rejected.Body.String())
 		}
 	}
 	// The saved combined owner is independent of both original input files.
