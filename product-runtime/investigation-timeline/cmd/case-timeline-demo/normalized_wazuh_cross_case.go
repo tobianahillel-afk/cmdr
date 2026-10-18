@@ -22,6 +22,12 @@ func sharedAuthorizedWazuhWindows(first,second timeline.MemoryTimelineData,first
 	if err!=nil{return nil,err}
 	b,err:=collectAuthorizedWazuhObservations(second,secondCase)
 	if err!=nil{return nil,err}
+	return sharedWazuhWindowsFromObservations(a,b)
+}
+
+// The same already-authorized and sorted cohorts may be reused by the
+// five-minute and 60-second correlation views, without re-traversal.
+func sharedWazuhWindowsFromObservations(a,b map[authorizedWazuhCohort][]authorizedWazuhObservation)([]sharedAuthorizedWazuhWindow,error){
 	type bin struct { window string; cohort authorizedWazuhCohort }
 	count:=func(groups map[authorizedWazuhCohort][]authorizedWazuhObservation)map[bin]int{
 		out:=make(map[bin]int)
