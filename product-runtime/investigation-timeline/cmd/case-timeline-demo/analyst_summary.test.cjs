@@ -2032,3 +2032,37 @@ test("saved Wazuh burst cannot link an event outside completed authorized Search
   assert.equal(f["local-search-results"].children.length,0);
   assert.match(f["local-search-status"].textContent,/Aucun résultat partiel/);
 });
+
+test("analyst uses the same owner-authorized SearchJob for feed provenance and clears stale source leads",async()=>{
+  const id="local-jsonl-entry-"+"b".repeat(64);
+  const env=boot((url,options)=>{
+    assert.equal(url.pathname,"/demo-local-search");
+    assert.equal(url.search,"","authorized source metadata must not enter URL");
+    assert.equal(options.method,"POST");
+    const q=JSON.parse(options.body);
+    assert.equal(q.case_id,"case-disk");
+    assert.equal(q.field,"provenance");
+    assert.equal(q.value,"feed-2");
+    assert.equal(options.headers.Authorization,"Bearer ephemeral-token");
+    return {ok:true,async json(){return {
+      format:"cmdr-local-jsonl-event-search-v1",synthetic:true,case_id:"case-disk",
+      job:{ID:"authorized-feed-pivot",State:"completed",AuditTrail:[{},{},{}],
+        ResultRefs:[{Source:"normalized-jsonl-authorized-import",Ref:id}]}
+    }}};
+  });
+  const f=env.fields;
+  f["local-search-field"].value="provenance";
+  f["local-search-value"].value="feed-2";
+  f["local-search-from"].value="2026-10-17T10:00:00";
+  f["local-search-to"].value="2026-10-17T10:03:00";
+  f["local-search-run"].handlers.click();
+  await flush();await flush();
+  assert.equal(env.requests.length,1);
+  assert.match(f["local-search-status"].textContent,/authorized-feed-pivot terminé/);
+  assert.equal(f["local-search-results"].children[0].children[0].children[0].textContent,id);
+  f["local-search-field"].value="source_ref";
+  f["local-search-field"].handlers.change();
+  assert.equal(f["local-search-results"].children.length,0,
+    "changed metadata field must revoke stale already-displayed source references");
+  assert.match(f["local-search-status"].textContent,/Aucune recherche/);
+});
