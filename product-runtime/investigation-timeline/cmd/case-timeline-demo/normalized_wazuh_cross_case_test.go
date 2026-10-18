@@ -22,7 +22,7 @@ func TestCrossSnapshotWazuhRuleAgentTemporalLeadsFromRealPersistedSources(t *tes
 		"{\"id\":\"a-2\",\"timestamp\":\"2026-10-17T10:02:00Z\",\"agent\":{\"id\":\"001\"},\"rule\":{\"id\":\"5710\",\"description\":\"CONFIDENTIAL SECOND WAZUH SOURCE\",\"level\":10}}\n"+
 		"{\"id\":\"a-3\",\"timestamp\":\"2026-10-17T10:06:00Z\",\"agent\":{\"id\":\"004\"},\"rule\":{\"id\":\"5720\",\"description\":\"unrelated A\"}}\n")
 	feedB:=writeJSONLEvents(t,
-		"{\"id\":\"b-1\",\"timestamp\":\"2026-10-17T10:03:30Z\",\"agent\":{\"id\":\"001\"},\"rule\":{\"id\":\"5710\",\"description\":\"CONFIDENTIAL THIRD WAZUH SOURCE\",\"level\":8}}\n"+
+		"{\"id\":\"b-1\",\"timestamp\":\"2026-10-17T10:03:00Z\",\"agent\":{\"id\":\"001\"},\"rule\":{\"id\":\"5710\",\"description\":\"CONFIDENTIAL THIRD WAZUH SOURCE\",\"level\":8}}\n"+
 		"{\"id\":\"b-2\",\"timestamp\":\"2026-10-17T10:04:00Z\",\"agent\":{\"id\":\"099\"},\"rule\":{\"id\":\"5710\",\"description\":\"different agent not a cohort\"}}\n"+
 		"{\"id\":\"b-3\",\"timestamp\":\"2026-10-17T10:06:00Z\",\"agent\":{\"id\":\"001\"},\"rule\":{\"id\":\"5710\",\"description\":\"later window no matching A\"}}\n")
 	aPath:=filepath.Join(t.TempDir(),"saved-Wazuh-case-A.json")
@@ -56,6 +56,43 @@ func TestCrossSnapshotWazuhRuleAgentTemporalLeadsFromRealPersistedSources(t *tes
 		result.Format!="cmdr-local-verified-saved-case-comparison-v1" ||
 		len(result.SharedWazuhWindows)!=1 {
 		t.Fatalf("did not correlate only authorized Wazuh temporal cohorts: %+v",result)
+	}
+	// A 10:02:00 Wazuh source in the first authorized Case and the
+	// independently stored 10:03:00 source in the second Case are EXACTLY
+	// +60s apart. Link the two Case-scoped Entry IDs; do not invent shared
+	// global source identities or reveal either raw source preview.
+	if len(result.SharedWazuhEventPairs)!=1 {
+		t.Fatalf("inclusive +60s precise Wazuh lead absent, or another cohort leaked: %+v",result.SharedWazuhEventPairs)
+	}
+	pair:=result.SharedWazuhEventPairs[0]
+	if pair.RuleID!="5710" || pair.AgentID!="001" || pair.OffsetSeconds!=60 ||
+		pair.FirstTimeUTC!="2026-10-17T10:02:00Z" ||
+		pair.SecondTimeUTC!="2026-10-17T10:03:00Z" ||
+		pair.FirstEntryID=="" || pair.SecondEntryID=="" {
+		t.Fatalf("incorrect independently authorized Wazuh source pair: %+v",pair)
+	}
+	// IDs must actually belong to different saved Case owners. A mere
+	// matching Wazuh rule ID or fabricated ref is not a navigable event.
+	firstOwner,err:=loadDemoSnapshot(aPath)
+	if err!=nil {t.Fatal(err)}
+	secondOwner,err:=loadDemoSnapshot(bPath)
+	if err!=nil {t.Fatal(err)}
+	contains:=func(owner []string,target string) bool {
+		for _,id:=range owner {if id==target {return true}}
+		return false
+	}
+	var firstCatalog,secondCatalog []string
+	for _,c:=range firstOwner.Cases {if c.ID==aCase {firstCatalog=c.EntryIDs}}
+	for _,c:=range secondOwner.Cases {if c.ID==bCase {secondCatalog=c.EntryIDs}}
+	if !contains(firstCatalog,pair.FirstEntryID) || !contains(secondCatalog,pair.SecondEntryID) {
+		t.Fatalf("event pair not navigable in its independently verified Case: %+v",pair)
+	}
+	pairJSON,err:=json.Marshal(pair)
+	if err!=nil {t.Fatal(err)}
+	for _,secret:=range []string{"CONFIDENTIAL","local-jsonl-source-","Bearer"} {
+		if strings.Contains(string(pairJSON),secret) {
+			t.Fatalf("precise event link disclosed source preview or bearer: %q",secret)
+		}
 	}
 	lead:=result.SharedWazuhWindows[0]
 	if lead.StartUTC!="2026-10-17T10:00:00Z" || lead.RuleID!="5710" ||
@@ -95,7 +132,7 @@ func TestCrossSnapshotWazuhCohortsFailClosedOnChangedSecondCase(t *testing.T) {
 	}
 	var result localCaseComparison
 	if err:=json.Unmarshal(output.Bytes(),&result);err!=nil {t.Fatal(err)}
-	if len(result.SharedWazuhWindows)!=0 {
+	if len(result.SharedWazuhWindows)!=0 || len(result.SharedWazuhEventPairs)!=0 {
 		t.Fatal("ordinary normalized JSONL cases produced invented Wazuh agent/rule correlation")
 	}
 	// A parseable single-byte modification to the second Case must be
