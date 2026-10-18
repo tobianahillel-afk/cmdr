@@ -93,6 +93,8 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	inspectSavedCase := flags.String("inspect-saved-case", "", "explicit saved Case to privately inspect a correlated Entry (requires snapshot, SHA-256 and private-report)")
 	inspectSavedEntry := flags.String("inspect-saved-entry", "", "exact imported Entry ID from a cross-Case correlation receipt; not an authorization grant")
 	inspectSavedPair := flags.Int("inspect-saved-pair", 0, "1-based index (1..10) of an authorized Wazuh cross-Case pair; requires two verified Case snapshots and private-report")
+	inspectSavedPairFirstEntry := flags.String("inspect-saved-pair-first-entry", "", "first Case Wazuh Entry ID from an authorized pair receipt")
+	inspectSavedPairSecondEntry := flags.String("inspect-saved-pair-second-entry", "", "second Case Wazuh Entry ID from an authorized pair receipt")
 	includePairGenericEvidence := flags.Bool("include-pair-generic-evidence", false, "explicitly include up to ten independently source-authorized generic previews per Case in the NEW private paired report only")
 	compareSavedCase := flags.String("compare-saved-case", "", "first saved authorized Case ID for independent offline cross-snapshot comparison")
 	compareSavedWithCase := flags.String("compare-saved-with-case", "", "second distinct saved Case ID for independent cross-snapshot comparison")
@@ -271,7 +273,8 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 		switch f.Name {
 		case "compare-saved-case", "compare-saved-with-case",
 			"compare-saved-with-snapshot", "expect-other-snapshot-sha256",
-			"inspect-saved-pair", "include-pair-generic-evidence":
+			"inspect-saved-pair", "inspect-saved-pair-first-entry",
+			"inspect-saved-pair-second-entry", "include-pair-generic-evidence":
 			savedComparisonSelected = true
 		}
 	})
@@ -282,7 +285,9 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 			case "principal", "snapshot", "compare-saved-case",
 				"compare-saved-with-case", "compare-saved-with-snapshot",
 				"expect-snapshot-sha256", "expect-other-snapshot-sha256",
-				"private-report", "inspect-saved-pair", "include-pair-generic-evidence":
+				"private-report", "inspect-saved-pair",
+				"inspect-saved-pair-first-entry", "inspect-saved-pair-second-entry",
+				"include-pair-generic-evidence":
 			default:
 				allowed = false
 			}
@@ -292,13 +297,31 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 			*expectedSnapshotSHA256 == "" || *expectedOtherSHA256 == "" {
 			return errors.New("offline saved-Case comparison requires two Cases, snapshots and independently held SHA-256 receipts")
 		}
-		pairRequested := false
+		ordinalSelected, entryIDsSelected := false, false
 		flags.Visit(func(f *flag.Flag) {
-			if f.Name == "inspect-saved-pair" { pairRequested = true }
+			switch f.Name {
+			case "inspect-saved-pair":
+				ordinalSelected = true
+			case "inspect-saved-pair-first-entry", "inspect-saved-pair-second-entry":
+				entryIDsSelected = true
+			}
 		})
-		if pairRequested {
-			if *inspectSavedPair < 1 || *inspectSavedPair > 10 || *privateReport == "" {
-				return errors.New("private pair inspection requires a 1..10 pair index and explicit new private-report path")
+		if ordinalSelected || entryIDsSelected {
+			if *privateReport == "" || (ordinalSelected && entryIDsSelected) {
+				return errors.New("select exactly one pair selector and a new private-report path")
+			}
+			if entryIDsSelected {
+				if *inspectSavedPairFirstEntry == "" || *inspectSavedPairSecondEntry == "" {
+					return errors.New("both authorized Wazuh pair Entry IDs are required")
+				}
+				return writeVerifiedCorrelatedPairPrivateByEntryIDs(ctx, *principal, *snapshot,
+					*compareSavedCase, *expectedSnapshotSHA256,
+					*compareSavedWithSnapshot, *compareSavedWithCase,
+					*expectedOtherSHA256, *inspectSavedPairFirstEntry,
+					*inspectSavedPairSecondEntry, *privateReport, *includePairGenericEvidence)
+			}
+			if *inspectSavedPair < 1 || *inspectSavedPair > 10 {
+				return errors.New("private pair inspection requires a 1..10 pair index")
 			}
 			return writeVerifiedCorrelatedPairPrivateWithGenericEvidence(ctx, *principal, *snapshot,
 				*compareSavedCase, *expectedSnapshotSHA256,

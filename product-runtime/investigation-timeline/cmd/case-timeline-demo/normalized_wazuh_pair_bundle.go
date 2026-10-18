@@ -27,9 +27,30 @@ func writeVerifiedCorrelatedPairPrivate(ctx context.Context, principal,
 func writeVerifiedCorrelatedPairPrivateWithGenericEvidence(ctx context.Context, principal,
 	firstPath, firstCase, firstDigest, secondPath, secondCase, secondDigest string,
 	pairOrdinal int, destination string, includeGenericEvidence bool) error {
+	return writeVerifiedCorrelatedPairPrivateSelected(ctx, principal,
+		firstPath, firstCase, firstDigest, secondPath, secondCase, secondDigest,
+		pairOrdinal, "", "", destination, includeGenericEvidence)
+}
+
+// Entry IDs identify the same currently authorized correlation lead, not
+// permission to read either source. Both owners are always reauthorized.
+func writeVerifiedCorrelatedPairPrivateByEntryIDs(ctx context.Context, principal,
+	firstPath, firstCase, firstDigest, secondPath, secondCase, secondDigest string,
+	firstEntryID, secondEntryID, destination string, includeGenericEvidence bool) error {
+	return writeVerifiedCorrelatedPairPrivateSelected(ctx, principal,
+		firstPath, firstCase, firstDigest, secondPath, secondCase, secondDigest,
+		0, firstEntryID, secondEntryID, destination, includeGenericEvidence)
+}
+
+func writeVerifiedCorrelatedPairPrivateSelected(ctx context.Context, principal,
+	firstPath, firstCase, firstDigest, secondPath, secondCase, secondDigest string,
+	pairOrdinal int, firstEntryID, secondEntryID, destination string,
+	includeGenericEvidence bool) error {
+	byID := pairOrdinal == 0 && firstEntryID != "" && secondEntryID != ""
+	byOrdinal := pairOrdinal >= 1 && pairOrdinal <= 10 &&
+		firstEntryID == "" && secondEntryID == ""
 	if ctx == nil || ctx.Err() != nil || principal == "" ||
-		pairOrdinal < 1 || pairOrdinal > 10 || destination == "" ||
-		firstCase == secondCase {
+		(!byID && !byOrdinal) || destination == "" || firstCase == secondCase {
 		return errors.New("select an authorized cross-Case Wazuh pair and a new private destination")
 	}
 	return writeAuthorizedReceiptPrivate(ctx, destination, func(output io.Writer) error {
@@ -42,11 +63,28 @@ func writeVerifiedCorrelatedPairPrivateWithGenericEvidence(ctx context.Context, 
 		if err != nil { return err }
 		verified, err := compareLoadedAuthorizedSavedCases(ctx, principal, first, second, firstCase, secondCase)
 		if err != nil { return err }
-		if verified.First.CaseID != firstCase || verified.Second.CaseID != secondCase ||
-			pairOrdinal > len(verified.SharedWazuhEventPairs) {
-			return errors.New("selected Wazuh pair is unavailable in both authorized Cases")
+		if verified.First.CaseID != firstCase || verified.Second.CaseID != secondCase {
+			return errors.New("correlated Case identity not authorized")
 		}
-		pair := verified.SharedWazuhEventPairs[pairOrdinal-1]
+		var pair sharedAuthorizedWazuhEventPair
+		if byID {
+			found := false
+			for _, candidate := range verified.SharedWazuhEventPairs {
+				if candidate.FirstEntryID == firstEntryID &&
+					candidate.SecondEntryID == secondEntryID {
+					pair, found = candidate, true
+					break
+				}
+			}
+			if !found {
+				return errors.New("selected Wazuh Entry pair is not available in authorized Cases")
+			}
+		} else {
+			if pairOrdinal > len(verified.SharedWazuhEventPairs) {
+				return errors.New("selected Wazuh pair is unavailable in both authorized Cases")
+			}
+			pair = verified.SharedWazuhEventPairs[pairOrdinal-1]
+		}
 
 		// Selected correlation IDs are selectors, never access grants.
 		if _, ok := firstIDs[pair.FirstEntryID]; !ok {
