@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -246,7 +247,17 @@ func serveDemoWithImportedJSONL(ctx context.Context, principal, snapshotPath, ca
 	if err != nil {
 		return err
 	}
-	// The merged graph stays in process memory and is revalidated by the
-	// same existing Case/Timeline/source owner HTTP handler at startup.
-	return serveDemoWithData(ctx, principal, merged, output)
+	// The importer's append-only owner graph is the sole authority for which
+	// new events belong to this operator import, not an HTTP query or
+	// unrelated events in the original Case snapshot.
+	imported := make(map[string]struct{}, len(merged.Entries)-len(snapshot.Entries))
+	for _, entry := range merged.Entries[len(snapshot.Entries):] {
+		imported[entry.Value.ID] = struct{}{}
+	}
+	// The merged graph remains in memory. Only this import-mode listener
+	// offers Event Search; the generic snapshot listener stays read-only.
+	return serveDemoWithDataRoute(ctx, principal, merged, output,
+		func(token string, base http.Handler) http.Handler {
+			return newDemoLocalJSONLSearchHandler(token, principal, caseID, merged, imported, base)
+		})
 }
