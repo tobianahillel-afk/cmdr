@@ -36,7 +36,10 @@ func (b *localJSONLSearchBackend) Execute(ctx context.Context, request search.Ba
 		!request.TimeStart.Before(request.TimeEnd) {
 		return search.BackendResult{}, errors.New("normalized event search scope changed")
 	}
-	if (b.field == "rule_id" || b.field == "agent_id") && len(b.wazuh) != len(b.imported) {
+	// A mixed Case can legitimately contain both Wazuh and generic JSONL
+	// sources. Numeric pivots apply only to owner-linked Wazuh metadata,
+	// never to generic events. An entirely generic Case has no such pivot.
+	if (b.field == "rule_id" || b.field == "agent_id") && len(b.wazuh) == 0 {
 		return search.BackendResult{}, errors.New("persistent Wazuh numeric pivots unavailable for this Case")
 	}
 	result := search.BackendResult{
@@ -271,18 +274,26 @@ func newDemoLocalJSONLSearchHandler(token, principal, caseID string,
 			http.NotFound(w, r)
 			return
 		}
-		// Derive Wazuh chronology and 60s leads only from an actually
-		// completed and owner-authorized first-party Event Search Job.
-		// Generic JSONL Cases never receive invented Wazuh metadata.
+		// Only completed, individually owner-authorized result references
+		// can contribute to Wazuh chronology and 60s burst leads. Generic
+		// events remain ordinary Search Job hits, never fake Wazuh alerts.
 		var hits []wazuhSearchHit
 		var bursts []wazuhSearchBurst
-		if len(wazuh) > 0 && len(wazuh) == len(imported) {
-			hits, err = authorizedPersistedWazuhHits(data, caseID, job.ResultRefs, wazuh)
-			if err != nil {
-				http.NotFound(w, r)
-				return
+		if len(wazuh) > 0 {
+			wazuhRefs := make([]search.ResultReference, 0, len(job.ResultRefs))
+			for _, ref := range job.ResultRefs {
+				if _, exists := wazuh[ref.Ref]; exists {
+					wazuhRefs = append(wazuhRefs, ref)
+				}
 			}
-			bursts = deriveWazuhSearchBursts(hits)
+			if len(wazuhRefs) > 0 {
+				hits, err = authorizedPersistedWazuhHits(data, caseID, wazuhRefs, wazuh)
+				if err != nil {
+					http.NotFound(w, r)
+					return
+				}
+				bursts = deriveWazuhSearchBursts(hits)
+			}
 		}
 		receipt := struct {
 			Format string `json:"format"`
