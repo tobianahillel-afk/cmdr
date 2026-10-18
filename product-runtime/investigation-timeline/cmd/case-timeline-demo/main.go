@@ -136,7 +136,7 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 			"compare-saved-with-snapshot", "export-case", "report-case",
 			"compare-case", "with-case", "source-case", "source-ref",
 			"inspect-case", "inspect-entry", "inspect-wazuh-entry",
-			"snapshot":
+			"inspect-saved-case", "inspect-saved-entry", "snapshot":
 			if f.Value.String() == "" { emptyExplicitMode = true }
 		}
 	})
@@ -145,11 +145,11 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	}
 	if *privateReport != "" {
 		modes := 0
-		for _, selected := range []string{*huntSavedCase, *compareSavedCase, *verifyImportSnapshotCase} {
+		for _, selected := range []string{*huntSavedCase, *compareSavedCase, *verifyImportSnapshotCase, *inspectSavedCase} {
 			if selected != "" { modes++ }
 		}
 		if modes != 1 {
-			return errors.New("private-report requires exactly one authorized offline hunt, saved-Case comparison or verification")
+			return errors.New("private-report requires exactly one authorized offline hunt, saved-Case comparison, verification or private source inspection")
 		}
 	}
 	// Reuse the SAME authenticated owner and Event Search backend used by
