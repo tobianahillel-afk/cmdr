@@ -18,7 +18,7 @@ type sharedAuthorizedWazuhWindow struct {
 
 // Derive five-minute temporal leads from already independently authorized
 // and sorted Case-owner Wazuh cohorts. No redundant owner collection.
-func sharedWazuhWindowsFromObservations(a,b map[authorizedWazuhCohort][]authorizedWazuhObservation)([]sharedAuthorizedWazuhWindow,error){
+func sharedWazuhWindowsFromObservations(a,b map[authorizedWazuhCohort][]authorizedWazuhObservation)[]sharedAuthorizedWazuhWindow{
 	type bin struct { window string; cohort authorizedWazuhCohort }
 	count:=func(groups map[authorizedWazuhCohort][]authorizedWazuhObservation)map[bin]int{
 		out:=make(map[bin]int)
@@ -46,6 +46,6 @@ func sharedWazuhWindowsFromObservations(a,b map[authorizedWazuhCohort][]authoriz
 		if a.RuleID!=b.RuleID{return a.RuleID<b.RuleID}
 		return a.AgentID<b.AgentID
 	})
-	if len(result)>10{return result[:10],nil}
-	return result,nil
+	if len(result)>10{return result[:10]}
+	return result
 }
