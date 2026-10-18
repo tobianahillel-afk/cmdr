@@ -4,7 +4,6 @@ import (
 	"sort"
 	"time"
 
-	timeline "github.com/tobianahillel-afk/cmdr/product-runtime/investigation-timeline"
 )
 
 // Retrospective time co-occurrence of the SAME rule+agent in independently
