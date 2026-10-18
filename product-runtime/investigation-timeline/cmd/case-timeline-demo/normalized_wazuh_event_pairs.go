@@ -4,7 +4,6 @@ import (
 	"sort"
 	"time"
 
-	timeline "github.com/tobianahillel-afk/cmdr/product-runtime/investigation-timeline"
 )
 
 // Entry references remain scoped to their separately authorized Case owners.
@@ -22,11 +21,9 @@ type sharedAuthorizedWazuhEventPair struct {
 // Uses the SAME imported-ID, typed-source metadata and certain UTC checks as
 // five-minute correlation. Both owners were independently authenticated and
 // fully traversed before the caller can emit a comparison receipt.
-func sharedAuthorizedWazuhEventPairs(first,second timeline.MemoryTimelineData,firstCase,secondCase string)([]sharedAuthorizedWazuhEventPair,error){
-	left,err:=collectAuthorizedWazuhObservations(first,firstCase)
-	if err!=nil{return nil,err}
-	right,err:=collectAuthorizedWazuhObservations(second,secondCase)
-	if err!=nil{return nil,err}
+// Derive event-linked 60s leads from the SAME separately authorized
+// Wazuh source observations already used for five-minute counts.
+func sharedWazuhPairsFromObservations(left,right map[authorizedWazuhCohort][]authorizedWazuhObservation)([]sharedAuthorizedWazuhEventPair,error){
 	type selection struct { cohort authorizedWazuhCohort; event authorizedWazuhObservation }
 	var ordered []selection
 	for key,observations:=range left {

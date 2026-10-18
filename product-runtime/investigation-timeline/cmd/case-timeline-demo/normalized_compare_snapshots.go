@@ -67,9 +67,16 @@ func compareLoadedAuthorizedSavedCases(ctx context.Context, principal string,
 	result, err := buildCaseComparison(a, b)
 	if err != nil { return localCaseComparison{}, err }
 	result.Format = "cmdr-local-verified-saved-case-comparison-v1"
-	result.SharedWazuhWindows, err = sharedAuthorizedWazuhWindows(first, second, firstCase, secondCase)
+	// Both temporal views must use exactly the SAME imported/authorized
+	// Wazuh owner observations. Previously each collected and sorted both
+	// Cases separately, quadrupling the source walk for one comparison.
+	firstWazuh, err := collectAuthorizedWazuhObservations(first, firstCase)
 	if err != nil { return localCaseComparison{}, err }
-	result.SharedWazuhEventPairs, err = sharedAuthorizedWazuhEventPairs(first, second, firstCase, secondCase)
+	secondWazuh, err := collectAuthorizedWazuhObservations(second, secondCase)
+	if err != nil { return localCaseComparison{}, err }
+	result.SharedWazuhWindows, err = sharedWazuhWindowsFromObservations(firstWazuh, secondWazuh)
+	if err != nil { return localCaseComparison{}, err }
+	result.SharedWazuhEventPairs, err = sharedWazuhPairsFromObservations(firstWazuh, secondWazuh)
 	if err != nil { return localCaseComparison{}, err }
 	if err := ctx.Err(); err != nil { return localCaseComparison{}, err }
 	return result, nil
