@@ -198,7 +198,7 @@ func newDemoLocalJSONLSearchHandler(token, principal, caseID string,
 		}
 		job, err := executeDemoLocalJSONLSearch(r.Context(), principal, caseID,
 			owner, token, tenant, environment, imported,
-			args.Get("value"), args.Get("from"), args.Get("to"))
+			selection.Value, selection.From, selection.To)
 		if err != nil {
 			http.NotFound(w, r)
 			return
