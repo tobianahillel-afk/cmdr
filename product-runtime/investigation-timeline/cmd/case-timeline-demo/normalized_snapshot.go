@@ -171,25 +171,6 @@ func writePrivateSnapshotAtomic(ctx context.Context, path string, data []byte) e
 	return nil
 }
 
-		return errors.New("cannot write complete private snapshot")
-	}
-	if err := file.Sync(); err != nil {
-		return errors.New("cannot synchronize private snapshot data")
-	}
-	if err := file.Close(); err != nil {
-		return errors.New("cannot close private snapshot")
-	}
-	if err := ctx.Err(); err != nil {
-		return err
-	}
-	// os.Link fails if path exists, without replacing it. A regular rename
-	// could silently overwrite the existing operator evidence file.
-	if err := os.Link(tempName, path); err != nil {
-		return errors.New("cannot atomically create new private snapshot destination")
-	}
-	return nil
-}
-
 // A reopened snapshot never needs the original raw JSONL files. Eligible
 // source refs are recovered from existing first-party normalized import
 // provenance and stable owner identities, not an attacker-supplied HTTP list.
