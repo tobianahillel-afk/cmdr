@@ -117,3 +117,44 @@ func TestWazuhTemporalBurstsLimit(t *testing.T) {
 		t.Fatalf("top-ten summary limit broken: %d", len(got))
 	}
 }
+
+func TestOfflineAndAuthorizedSearchJobUseIdenticalStrongestWazuhBurst(t *testing.T) {
+	base := time.Date(2026, 10, 17, 10, 0, 0, 0, time.UTC)
+	observations := []wazuhBurstObservation{
+		{At:base,Feed:1,EntryID:"authorized-a"},
+		{At:base.Add(15*time.Second),Feed:1,EntryID:"authorized-b"},
+		{At:base.Add(45*time.Second),Feed:2,EntryID:"authorized-c"},
+		{At:base.Add(3*time.Minute),Feed:2,EntryID:"late"},
+	}
+	groups := map[string][]wazuhBurstObservation{"001/5710":append([]wazuhBurstObservation(nil),observations...)}
+	offline := deriveWazuhTemporalBursts(groups)
+	searchHits := make([]wazuhSearchHit,0,len(observations))
+	for _,observation := range observations {
+		searchHits = append(searchHits,wazuhSearchHit{
+			EntryID:observation.EntryID, AgentID:"001", RuleID:"5710",
+			Feed:observation.Feed,
+			SourceTimeUTC:observation.At.Format(time.RFC3339Nano),
+		})
+	}
+	authorizedSearch := deriveWazuhSearchBursts(searchHits)
+	if len(offline)!=1 || len(authorizedSearch)!=1 {
+		t.Fatalf("two first-party Wazuh modes disagree on presence of burst: %+v %+v",offline,authorizedSearch)
+	}
+	a,b:=offline[0],authorizedSearch[0]
+	if a.AgentID!=b.AgentID || a.RuleID!=b.RuleID || a.AlertCount!=b.AlertCount ||
+		a.DistinctFeeds!=b.DistinctFeeds || a.FirstUTC!=b.FirstUTC ||
+		a.LastUTC!=b.LastUTC || a.WindowSeconds!=b.WindowSeconds {
+		t.Fatalf("offline/authorized SearchJob burst semantics drifted: %+v %+v",a,b)
+	}
+	if len(b.EntryIDs)!=3 || strings.Contains(strings.Join(b.EntryIDs,","),"late") {
+		t.Fatalf("SearchJob listed source references outside the shared strongest window: %+v",b)
+	}
+	// Privacy difference is intentional: offline summary never lists even
+	// authorized EntryIDs, while interactive SearchJobs may link their
+	// own previously authorized members through a fresh source-open.
+	raw,err:=json.Marshal(a)
+	if err!=nil {t.Fatal(err)}
+	if strings.Contains(string(raw),"authorized-") {
+		t.Fatal("offline summary unexpectedly contains SearchJob source identity")
+	}
+}
