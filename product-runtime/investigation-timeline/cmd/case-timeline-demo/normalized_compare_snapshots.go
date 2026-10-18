@@ -21,21 +21,13 @@ func compareVerifiedSavedCases(ctx context.Context, principal, firstPath, firstC
 		secondDigest == "" || firstPath == "" || secondPath == "" {
 		return errors.New("two distinct saved Cases and independent SHA-256 receipts are required")
 	}
-	// Both files are parsed from the EXACT bytes independently verified by
-	// their operator-retained fingerprints, before any aggregate is returned.
-	first, err := loadDemoSnapshotWithExpectedDigest(firstPath, firstDigest)
+	// The SAME first-party integrity and Case/source ACL boundary now
+	// guards restore, offline inventory and BOTH comparison operands.
+	// Neither owner can inherit access from the other.
+	first, _, err := loadAuthorizedImportedCase(ctx, principal, firstPath, firstCase, firstDigest)
 	if err != nil { return err }
-	second, err := loadDemoSnapshotWithExpectedDigest(secondPath, secondDigest)
+	second, _, err := loadAuthorizedImportedCase(ctx, principal, secondPath, secondCase, secondDigest)
 	if err != nil { return err }
-
-	// Limit each owner to the selected principal/Case. Neither side inherits
-	// any permissions, extra source refs or tenant metadata from the other.
-	first, err = scopedNormalizedCaseSnapshot(first, principal, firstCase)
-	if err != nil { return err }
-	second, err = scopedNormalizedCaseSnapshot(second, principal, secondCase)
-	if err != nil { return err }
-	if _, err := importedNormalizedIDs(first, firstCase); err != nil { return err }
-	if _, err := importedNormalizedIDs(second, secondCase); err != nil { return err }
 
 	if !sameComparisonEnvironment(first, second) {
 		return errors.New("saved Cases belong to different tenant or environment scopes")
