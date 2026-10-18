@@ -74,10 +74,11 @@ func compareLoadedAuthorizedSavedCases(ctx context.Context, principal string,
 	if err != nil { return localCaseComparison{}, err }
 	secondWazuh, err := collectAuthorizedWazuhObservations(second, secondCase)
 	if err != nil { return localCaseComparison{}, err }
-	result.SharedWazuhWindows, err = sharedWazuhWindowsFromObservations(firstWazuh, secondWazuh)
-	if err != nil { return localCaseComparison{}, err }
-	result.SharedWazuhEventPairs, err = sharedWazuhPairsFromObservations(firstWazuh, secondWazuh)
-	if err != nil { return localCaseComparison{}, err }
+	// Pure derivations cannot fail after both independently authorized
+	// source cohorts have been collected and validated. No phantom error
+	// branches or duplicate security decisions at this presentation layer.
+	result.SharedWazuhWindows = sharedWazuhWindowsFromObservations(firstWazuh, secondWazuh)
+	result.SharedWazuhEventPairs = sharedWazuhPairsFromObservations(firstWazuh, secondWazuh)
 	if err := ctx.Err(); err != nil { return localCaseComparison{}, err }
 	return result, nil
 }
