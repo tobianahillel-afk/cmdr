@@ -80,6 +80,44 @@ func TestAuthorizedWazuhPairPaginationReachesBeyondFirstTen(t *testing.T) {
 	if two.Pairs[0].OffsetSeconds!=10 || two.Pairs[1].OffsetSeconds!=9 {
 		t.Fatalf("stable nearest-peer offsets corrupted: %+v",two.Pairs)
 	}
+	// This integration combines two previously conflicting navigation
+	// branches. An explicit page may not also find a specific Entry or
+	// inspect private evidence: reject before metadata or file publication.
+	for _,extra:=range [][]string{
+		{"-find-saved-pair-first-entry",two.Pairs[0].FirstEntryID},
+		{"-inspect-saved-pair-first-entry",two.Pairs[0].FirstEntryID,
+			"-inspect-saved-pair-second-entry",two.Pairs[0].SecondEntryID,
+			"-private-report",filepath.Join(t.TempDir(),"must-not-write.json")},
+	} {
+		args:=append(append(append([]string{},base...),
+			"-list-saved-wazuh-pair-offset","10"),extra...)
+		var denied bytes.Buffer
+		if err:=runDemoCLI(context.Background(),args,&denied);err==nil || denied.Len()!=0 {
+			t.Fatalf("conflicting pair selection leaked or executed: %v, %q",err,denied.String())
+		}
+		for i:=0;i<len(extra);i++ {
+			if extra[i]=="-private-report" {
+				if _,err:=os.Stat(extra[i+1]);!os.IsNotExist(err) {
+					t.Fatal("conflicting metadata/page selector produced sensitive private evidence")
+				}
+			}
+		}
+	}
+	// Both newly integrated selectors remain usable individually:
+	// a paginated Entry can be resolved by exact first-ID discovery.
+	var byExact bytes.Buffer
+	findArgs:=append(append([]string{},base...),
+		"-find-saved-pair-first-entry",two.Pairs[0].FirstEntryID)
+	if err:=runDemoCLI(context.Background(),findArgs,&byExact);err!=nil {
+		t.Fatalf("exact Entry discovery regressed after pagination integration: %v",err)
+	}
+	var lead struct{ Pair sharedAuthorizedWazuhEventPair `json:"pair"` }
+	if err:=json.Unmarshal(byExact.Bytes(),&lead);err!=nil {t.Fatal(err)}
+	if lead.Pair.FirstEntryID!=two.Pairs[0].FirstEntryID ||
+		lead.Pair.SecondEntryID!=two.Pairs[0].SecondEntryID ||
+		bytes.Contains(byExact.Bytes(),[]byte("PRIVATE FIRST")) {
+		t.Fatalf("exact discovery mismatched paginated authorized pair: %q",byExact.String())
+	}
 	// A discovered lead beyond ten must lead to the SAME private, typed-
 	// source re-authorized dossier as direct exact-ID inspection.
 	dest:=filepath.Join(t.TempDir(),"selected-11th-pair.json")
