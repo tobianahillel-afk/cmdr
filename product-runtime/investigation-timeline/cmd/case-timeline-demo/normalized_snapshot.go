@@ -138,11 +138,9 @@ func writePrivateSnapshotAtomic(ctx context.Context, path string, data []byte) e
 		return errors.New("invalid private owner snapshot output request")
 	}
 	dir := filepath.Dir(path)
-	if _, err := os.Lstat(path); err == nil {
-		return errors.New("owner snapshot destination already exists")
-	} else if !os.IsNotExist(err) {
-		return errors.New("cannot inspect owner snapshot destination")
-	}
+	// Do not precheck the destination: os.Link below is the one atomic
+	// no-replace decision. A separate Lstat introduces a time-of-check /
+	// time-of-use window without protecting against a concurrent writer.
 	// CreateTemp uses mode 0600 on POSIX; Windows filesystem ACL behavior
 	// still depends on the operator's selected directory.
 	file, err := os.CreateTemp(dir, ".cmdr-private-case-*.partial")
@@ -151,8 +149,28 @@ func writePrivateSnapshotAtomic(ctx context.Context, path string, data []byte) e
 	}
 	tempName := file.Name()
 	defer os.Remove(tempName)
-	defer file.Close()
 	if _, err := file.Write(data); err != nil {
+		_ = file.Close()
+		return errors.New("cannot write complete private snapshot")
+	}
+	if err := file.Sync(); err != nil {
+		_ = file.Close()
+		return errors.New("cannot synchronize private snapshot data")
+	}
+	if err := file.Close(); err != nil {
+		return errors.New("cannot close private snapshot")
+	}
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	// The publication itself is atomic and refuses any existing destination
+	// (regular file, symlink or hard link) even under concurrent creation.
+	if err := os.Link(tempName, path); err != nil {
+		return errors.New("cannot atomically create new private snapshot destination")
+	}
+	return nil
+}
+
 		return errors.New("cannot write complete private snapshot")
 	}
 	if err := file.Sync(); err != nil {
