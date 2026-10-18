@@ -22,16 +22,8 @@ type sharedAuthorizedWazuhEventPair struct {
 // Uses the SAME imported-ID, typed-source metadata and certain UTC checks as
 // five-minute correlation. Both owners were independently authenticated and
 // fully traversed before the caller can emit a comparison receipt.
-func sharedAuthorizedWazuhEventPairs(first,second timeline.MemoryTimelineData,firstCase,secondCase string)([]sharedAuthorizedWazuhEventPair,error){
-	left,err:=collectAuthorizedWazuhObservations(first,firstCase)
-	if err!=nil{return nil,err}
-	right,err:=collectAuthorizedWazuhObservations(second,secondCase)
-	if err!=nil{return nil,err}
-	return sharedWazuhPairsFromObservations(left,right)
-}
-
-// Reuse a single immutable owner-authorized observation set for the
-// deterministic <=60s pairing as well as the five-minute bin summary.
+// Derive event-linked 60s leads from the SAME separately authorized
+// Wazuh source observations already used for five-minute counts.
 func sharedWazuhPairsFromObservations(left,right map[authorizedWazuhCohort][]authorizedWazuhObservation)([]sharedAuthorizedWazuhEventPair,error){
 	type selection struct { cohort authorizedWazuhCohort; event authorizedWazuhObservation }
 	var ordered []selection
