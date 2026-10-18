@@ -83,6 +83,30 @@ func TestNormalizedJSONLSearchOwnsRealImportedSources(t *testing.T) {
 	if opened.Code!=http.StatusOK {
 		t.Fatalf("matched generic JSONL source not independently openable: %d",opened.Code)
 	}
+	// A normal Case-only owner must not accept import-only search requests.
+	notImport := httptest.NewRecorder()
+	baseRequest := httptest.NewRequest(http.MethodPost, "/demo-local-search", bytes.NewReader(nil))
+	baseRequest.Header.Set("Authorization", "Bearer "+token)
+	base.ServeHTTP(notImport, baseRequest)
+	if notImport.Code == http.StatusOK {
+		t.Fatal("generic Event Search leaked into non-import Case owner")
+	}
+	// Exact 4KiB total POST bound, unknown schema field and trailing JSON
+	// are security boundaries, not optional parser conveniences.
+	for _, requestBody := range []string{
+		"{\"case_id\":\""+caseID+"\",\"value\":\"search\",\"from\":\"2026-10-17T09:59:00Z\",\"to\":\"2026-10-17T10:02:00Z\",\"debug\":true}",
+		"{\"case_id\":\""+caseID+"\",\"value\":\"search\",\"from\":\"2026-10-17T09:59:00Z\",\"to\":\"2026-10-17T10:02:00Z\"} {}",
+		strings.Repeat(" ", 4097) + "{}",
+	} {
+		req := httptest.NewRequest(http.MethodPost, "/demo-local-search", strings.NewReader(requestBody))
+		req.Header.Set("Authorization", "Bearer "+token)
+		req.Header.Set("Content-Type", "application/json")
+		denied := httptest.NewRecorder()
+		handler.ServeHTTP(denied, req)
+		if denied.Code == http.StatusOK || strings.Contains(denied.Body.String(), hit.Ref) {
+			t.Fatalf("oversized or malformed search input returned data: %d %.100s", denied.Code, denied.Body.String())
+		}
+	}
 	query["value"]="nonexistent-literal"
 	empty:=invoke(t,query,token,http.MethodPost)
 	var emptyJob struct{ Job search.SearchJob `json:"job"` }
