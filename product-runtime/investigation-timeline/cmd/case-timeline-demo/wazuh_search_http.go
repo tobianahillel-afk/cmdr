@@ -17,8 +17,7 @@ func serveDemoWazuhSearch(w http.ResponseWriter, r *http.Request, token, princip
 	query := r.URL.Query()
 	if len(query) != 5 || len(query["case_id"]) != 1 || query.Get("case_id") != caseID ||
 		len(query["field"]) != 1 || len(query["value"]) != 1 ||
-		len(query["from"]) != 1 || len(query["to"]) != 1 ||
-		!validWazuhCohortID(query.Get("value")) {
+		len(query["from"]) != 1 || len(query["to"]) != 1 {
 		http.NotFound(w, r)
 		return
 	}
@@ -28,7 +27,14 @@ func serveDemoWazuhSearch(w http.ResponseWriter, r *http.Request, token, princip
 		field = "wazuh.rule.id"
 	case "agent_id":
 		field = "wazuh.agent.id"
+	case "preview":
+		field = "wazuh.preview.contains"
 	default:
+		http.NotFound(w, r)
+		return
+	}
+	if (field == "wazuh.preview.contains" && !validWazuhPreviewLiteral(query.Get("value"))) ||
+		(field != "wazuh.preview.contains" && !validWazuhCohortID(query.Get("value"))) {
 		http.NotFound(w, r)
 		return
 	}
