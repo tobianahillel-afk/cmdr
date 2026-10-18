@@ -36,7 +36,7 @@ func (b *localJSONLSearchBackend) Execute(ctx context.Context, request search.Ba
 		!request.TimeStart.Before(request.TimeEnd) {
 		return search.BackendResult{}, errors.New("normalized event search scope changed")
 	}
-	if b.field != "preview" && len(b.wazuh) != len(b.imported) {
+	if (b.field == "rule_id" || b.field == "agent_id") && len(b.wazuh) != len(b.imported) {
 		return search.BackendResult{}, errors.New("persistent Wazuh numeric pivots unavailable for this Case")
 	}
 	result := search.BackendResult{
@@ -93,6 +93,12 @@ func (b *localJSONLSearchBackend) Execute(ctx context.Context, request search.Ba
 		case "agent_id":
 			meta, ok := b.wazuh[entry.ID]
 			match = ok && meta.AgentID != "" && meta.AgentID == b.literal
+		case "entry_id":
+			match = strings.Contains(strings.ToLower(entry.ID), strings.ToLower(b.literal))
+		case "source_ref":
+			match = strings.Contains(strings.ToLower(entry.SourceRef), strings.ToLower(b.literal))
+		case "provenance":
+			match = strings.Contains(strings.ToLower(entry.Provenance), strings.ToLower(b.literal))
 		default:
 			return errors.New("unsupported persisted Wazuh search field")
 		}
@@ -117,7 +123,8 @@ func executeDemoLocalJSONLSearch(ctx context.Context, principal, caseID string,
 	imported map[string]struct{}, wazuh map[string]timeline.WazuhSourceMetadata,
 	field, literal, start, end string) (search.SearchJob, error) {
 	if ctx == nil || len(imported) == 0 ||
-		!((field == "preview" && validWazuhPreviewLiteral(literal)) ||
+		!(((field == "preview" || field == "entry_id" || field == "source_ref" ||
+			field == "provenance") && validWazuhPreviewLiteral(literal)) ||
 			((field == "rule_id" || field == "agent_id") && validWazuhCohortID(literal))) {
 		return search.SearchJob{}, errors.New("select bounded normalized text search")
 	}
@@ -129,7 +136,12 @@ func executeDemoLocalJSONLSearch(ctx context.Context, principal, caseID string,
 	orchestrator, err := search.NewOrchestrator(backend)
 	if err != nil { return search.SearchJob{}, err }
 	queryVersion := "normalized-jsonl-rendered-literal-v1"
-	if field != "preview" { queryVersion = "persisted-wazuh-rule-agent-pivot-v1" }
+	switch field {
+	case "rule_id", "agent_id":
+		queryVersion = "persisted-wazuh-rule-agent-pivot-v1"
+	case "entry_id", "source_ref", "provenance":
+		queryVersion = "authorized-normalized-owner-reference-v1"
+	}
 	job, err := orchestrator.Create(search.Input{
 		TenantRef: tenant, AuthorizedTenants: []string{tenant},
 		EnvironmentRef: environment,
@@ -222,7 +234,9 @@ func newDemoLocalJSONLSearchHandler(token, principal, caseID string,
 		decodeErr := decoder.Decode(&selection)
 		if selection.Field == "" { selection.Field = "preview" }
 		if decodeErr != nil || selection.CaseID != caseID ||
-			!((selection.Field == "preview" && validWazuhPreviewLiteral(selection.Value)) ||
+			!(((selection.Field == "preview" || selection.Field == "entry_id" ||
+				selection.Field == "source_ref" || selection.Field == "provenance") &&
+				validWazuhPreviewLiteral(selection.Value)) ||
 				((selection.Field == "rule_id" || selection.Field == "agent_id") &&
 					validWazuhCohortID(selection.Value))) {
 			http.NotFound(w, r)
