@@ -24,6 +24,16 @@ type sharedAuthorizedWazuhEventPair struct {
 // Derive event-linked 60s leads from the SAME separately authorized
 // Wazuh source observations already used for five-minute counts.
 func sharedWazuhPairsFromObservations(left,right map[authorizedWazuhCohort][]authorizedWazuhObservation)[]sharedAuthorizedWazuhEventPair{
+	pairs, _ := sharedWazuhPairsPageFromObservations(left, right, 0)
+	return pairs
+}
+
+// Bounded, deterministic navigation of the SAME source-authorized pair leads
+// used by the original ten-item receipt. The offset counts only eligible
+// matched pairs, never denied or out-of-window observations. One extra item
+// establishes whether another page exists without exposing raw events.
+func sharedWazuhPairsPageFromObservations(left,right map[authorizedWazuhCohort][]authorizedWazuhObservation,offset int)([]sharedAuthorizedWazuhEventPair,bool){
+	if offset<0 || offset>5000 {return nil,false}
 	type selection struct { cohort authorizedWazuhCohort; event authorizedWazuhObservation }
 	var ordered []selection
 	for key,observations:=range left {
@@ -40,7 +50,8 @@ func sharedWazuhPairsFromObservations(left,right map[authorizedWazuhCohort][]aut
 		return a.event.id<b.event.id
 	})
 	const radius=60*time.Second
-	pairs:=make([]sharedAuthorizedWazuhEventPair,0,10)
+	pairs:=make([]sharedAuthorizedWazuhEventPair,0,11)
+	eligible:=0
 	for _,item:=range ordered {
 		candidates:=right[item.cohort]
 		idx:=sort.Search(len(candidates),func(i int)bool{
@@ -58,6 +69,8 @@ func sharedWazuhPairsFromObservations(left,right map[authorizedWazuhCohort][]aut
 			}
 		}
 		if best<0{continue}
+		eligible++
+		if eligible<=offset {continue}
 		// The preceding group can contain multiple equal-time events.
 		// Choose the smallest authorized Entry ID at the winning instant,
 		// not the last ID before idx: stable pair navigation after reorder.
@@ -73,9 +86,9 @@ func sharedWazuhPairsFromObservations(left,right map[authorizedWazuhCohort][]aut
 			SecondTimeUTC:other.at.Format(time.RFC3339Nano),
 			OffsetSeconds:int(other.at.Sub(item.event.at)/time.Second),
 		})
-		if len(pairs)==10{break}
+		if len(pairs)==11{return pairs[:10],true}
 	}
-	return pairs
+	return pairs,false
 }
 
 func absTimeOffset(d time.Duration)time.Duration{
