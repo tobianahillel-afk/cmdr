@@ -1868,3 +1868,66 @@ test("analyst can hunt bounded rendered Wazuh preview literals without storing q
   f.token.handlers.input();
   assert.equal(f["wazuh-search-results"].children.length,0);
 });
+
+test("normalized JSONL analyst hunts by POST, reveals only authorized Event Search references",async()=>{
+  const ref="local-jsonl-entry-"+"a".repeat(64);
+  const env=boot((url,options)=>{
+    assert.equal(url.pathname,"/demo-local-search");
+    assert.equal(url.search,"","sensitive literals must not be query parameters");
+    assert.equal(options.method,"POST");
+    assert.equal(options.credentials,"omit");
+    assert.equal(options.cache,"no-store");
+    assert.equal(options.headers.Authorization,"Bearer ephemeral-token");
+    const body=JSON.parse(options.body);
+    assert.equal(body.case_id,"case-disk");
+    assert.equal(body.value,"authentication failed");
+    assert.equal(body.from,"2026-10-17T10:00:00.000Z");
+    return {ok:true,async json(){return {
+      format:"cmdr-local-jsonl-event-search-v1",synthetic:true,case_id:"case-disk",
+      job:{ID:"job-normalized",State:"completed",AuditTrail:[{},{},{}],
+        ResultRefs:[{Source:"normalized-jsonl-authorized-import",Ref:ref}]}
+    }}};
+  });
+  const f=env.fields;
+  f["local-search-value"].value="authentication failed";
+  f["local-search-from"].value="2026-10-17T10:00:00";
+  f["local-search-to"].value="2026-10-17T10:03:00";
+  f["local-search-run"].handlers.click();
+  await flush();await flush();
+  assert.equal(env.requests.length,1);
+  assert.match(f["local-search-status"].textContent,/Event Search Job job-normalized terminé/);
+  const list=f["local-search-results"].children[0];
+  assert.equal(list.children.length,1);
+  assert.equal(list.children[0].children[0].textContent,ref);
+  // Selection changed after a completed Job: its previously authorized ref
+  // can no longer be opened from this stale browser context.
+  f["case-id"].value="foreign-case";
+  f["case-id"].handlers.input();
+  assert.equal(f["local-search-results"].children.length,0);
+  assert.match(f["local-search-status"].textContent,/Aucune recherche/);
+  assert.equal(env.requests.length,1);
+});
+test("normalized JSONL analyst discards denied, partial or foreign search results",async()=>{
+  const foreignRef="local-jsonl-entry-"+"b".repeat(64);
+  for (const receipt of [
+    {format:"cmdr-local-jsonl-event-search-v1",synthetic:true,case_id:"other-case",
+      job:{ID:"job",State:"completed",AuditTrail:[{},{},{}],ResultRefs:[]}},
+    {format:"cmdr-local-jsonl-event-search-v1",synthetic:true,case_id:"case-disk",
+      job:{ID:"job",State:"partial",AuditTrail:[{},{},{}],
+        ResultRefs:[{Source:"normalized-jsonl-authorized-import",Ref:foreignRef}]}},
+    {format:"cmdr-local-jsonl-event-search-v1",synthetic:true,case_id:"case-disk",
+      job:{ID:"job",State:"completed",AuditTrail:[{},{},{}],
+        ResultRefs:[{Source:"foreign-source",Ref:foreignRef}]}},
+  ]) {
+    const env=boot(()=>({ok:true,async json(){return receipt}}));
+    const f=env.fields;
+    f["local-search-value"].value="authentication failed";
+    f["local-search-from"].value="2026-10-17T10:00:00";
+    f["local-search-to"].value="2026-10-17T10:03:00";
+    f["local-search-run"].handlers.click();
+    await flush();await flush();
+    assert.equal(f["local-search-results"].children.length,0);
+    assert.match(f["local-search-status"].textContent,/Aucun résultat partiel/);
+    assert.equal(env.requests.length,1);
+  }
+});
