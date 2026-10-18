@@ -19,9 +19,9 @@ func TestSearchBurstsReuseAuthorizedWazuhSearchJob(t *testing.T) {
  owner := snapshotFixture(t)
  paths := []string{
   writeJSONLEvents(t, "{\"id\":\"a.1\",\"timestamp\":\"2026-10-17T10:00:00Z\",\"agent\":{\"id\":\"001\",\"name\":\"SECRET-HOST\"},\"rule\":{\"id\":\"5710\",\"level\":5,\"description\":\"SECRET-PAYLOAD\"}}\n"+
-   "{\"id\":\"a.2\",\"timestamp\":\"2026-10-17T10:00:20Z\",\"agent\":{\"id\":\"001\"},\"rule\":{\"id\":\"5710\",\"level\":7}}\n"),
-  writeJSONLEvents(t, "{\"id\":\"b.1\",\"timestamp\":\"2026-10-17T10:00:40Z\",\"agent\":{\"id\":\"001\"},\"rule\":{\"id\":\"5710\",\"level\":12}}\n"+
-   "{\"id\":\"b.2\",\"timestamp\":\"2026-10-17T10:02:00Z\",\"agent\":{\"id\":\"001\"},\"rule\":{\"id\":\"5710\",\"level\":15}}\n"),
+   "{\"id\":\"a.2\",\"timestamp\":\"2026-10-17T10:00:20Z\",\"agent\":{\"id\":\"001\"},\"rule\":{\"id\":\"5710\",\"level\":7,\"description\":\"known preview\"}}\n"),
+  writeJSONLEvents(t, "{\"id\":\"b.1\",\"timestamp\":\"2026-10-17T10:00:40Z\",\"agent\":{\"id\":\"001\"},\"rule\":{\"id\":\"5710\",\"level\":12,\"description\":\"known preview\"}}\n"+
+   "{\"id\":\"b.2\",\"timestamp\":\"2026-10-17T10:02:00Z\",\"agent\":{\"id\":\"001\"},\"rule\":{\"id\":\"5710\",\"level\":15,\"description\":\"known preview\"}}\n"),
  }
  data, imported, levels, err := loadMultipleWazuhFeedsWithLevels(context.Background(), "analyst-a", owner, caseID, paths)
  if err != nil { t.Fatal(err) }
@@ -82,7 +82,7 @@ func TestSearchBurstsSlidingWindowBoundaryRankingAndUncertain(t *testing.T) {
   makeHit("a","001","5710",at,1),
   makeHit("b","001","5710",at.Add(30*time.Second),1),
   makeHit("c","001","5710",at.Add(60*time.Second),2),
-  makeHit("late","001","5710",at.Add(60*time.Second+time.Nanosecond),3),
+  makeHit("late","001","5710",at.Add(60*time.Second+time.Nanosecond),2),
   makeHit("wrong-rule","001","5500",at,1),
   makeHit("other-agent","002","5710",at,1),
   {EntryID:"unknown-time",AgentID:"001",RuleID:"5710",SourceTimeUTC:"bad"},
