@@ -138,11 +138,9 @@ func writePrivateSnapshotAtomic(ctx context.Context, path string, data []byte) e
 		return errors.New("invalid private owner snapshot output request")
 	}
 	dir := filepath.Dir(path)
-	if _, err := os.Lstat(path); err == nil {
-		return errors.New("owner snapshot destination already exists")
-	} else if !os.IsNotExist(err) {
-		return errors.New("cannot inspect owner snapshot destination")
-	}
+	// Do not precheck the destination: os.Link below is the one atomic
+	// no-replace decision. A separate Lstat introduces a time-of-check /
+	// time-of-use window without protecting against a concurrent writer.
 	// CreateTemp uses mode 0600 on POSIX; Windows filesystem ACL behavior
 	// still depends on the operator's selected directory.
 	file, err := os.CreateTemp(dir, ".cmdr-private-case-*.partial")
@@ -151,11 +149,12 @@ func writePrivateSnapshotAtomic(ctx context.Context, path string, data []byte) e
 	}
 	tempName := file.Name()
 	defer os.Remove(tempName)
-	defer file.Close()
 	if _, err := file.Write(data); err != nil {
+		_ = file.Close()
 		return errors.New("cannot write complete private snapshot")
 	}
 	if err := file.Sync(); err != nil {
+		_ = file.Close()
 		return errors.New("cannot synchronize private snapshot data")
 	}
 	if err := file.Close(); err != nil {
@@ -164,8 +163,8 @@ func writePrivateSnapshotAtomic(ctx context.Context, path string, data []byte) e
 	if err := ctx.Err(); err != nil {
 		return err
 	}
-	// os.Link fails if path exists, without replacing it. A regular rename
-	// could silently overwrite the existing operator evidence file.
+	// The publication itself is atomic and refuses any existing destination
+	// (regular file, symlink or hard link) even under concurrent creation.
 	if err := os.Link(tempName, path); err != nil {
 		return errors.New("cannot atomically create new private snapshot destination")
 	}
@@ -210,27 +209,45 @@ func importedNormalizedIDs(data timeline.MemoryTimelineData, caseID string) (map
 	return ids, nil
 }
 
+// One first-party trust boundary for all three saved-Case paths:
+// authenticated browser reopen, no-listener verification and offline
+// cross-archive investigation comparison. Always validate the exact file
+// bytes (when an operator fingerprint is supplied), project only the
+// selected principal's Case and sources, and recognize canonical imports.
+// This is deliberately limited to our local synthetic owner, not generic IAM.
+func loadAuthorizedImportedCase(ctx context.Context, principal, snapshotPath, caseID, expectedDigest string) (
+	timeline.MemoryTimelineData, map[string]struct{}, error,
+) {
+	if ctx == nil || ctx.Err() != nil || principal == "" || snapshotPath == "" || caseID == "" {
+		return timeline.MemoryTimelineData{}, nil, errors.New("select a readable saved Case and principal")
+	}
+	data, err := loadDemoSnapshotWithExpectedDigest(snapshotPath, expectedDigest)
+	if err != nil {
+		return timeline.MemoryTimelineData{}, nil, err
+	}
+	// A legacy unscoped operator snapshot is never passed intact to a
+	// downstream listener or report, even if its JSON is otherwise valid.
+	data, err = scopedNormalizedCaseSnapshot(data, principal, caseID)
+	if err != nil {
+		return timeline.MemoryTimelineData{}, nil, err
+	}
+	imported, err := importedNormalizedIDs(data, caseID)
+	if err != nil {
+		return timeline.MemoryTimelineData{}, nil, err
+	}
+	if err := ctx.Err(); err != nil {
+		return timeline.MemoryTimelineData{}, nil, err
+	}
+	return data, imported, nil
+}
+
 // Reuse exactly the existing Case/Timeline/typed source HTTP and SearchJob
 // implementation. Each session generates a NEW short-lived bearer token;
 // neither bearer nor SearchJob results are stored in the snapshot.
 func serveDemoReopenedNormalizedCase(ctx context.Context, principal, snapshotPath, caseID, expectedDigest string, output io.Writer) error {
-	if ctx == nil || ctx.Err() != nil || snapshotPath == "" || caseID == "" {
-		return errors.New("select a saved Case owner snapshot and Case ID")
-	}
-	data, err := loadDemoSnapshotWithExpectedDigest(snapshotPath, expectedDigest)
-	if err != nil { return err }
-	// Older snapshots may contain unrelated tenants; never load them into
-	// the loopback owner even when they are operator-selected local files.
-	data, err = scopedNormalizedCaseSnapshot(data, principal, caseID)
-	if err != nil { return err }
-	ids, err := importedNormalizedIDs(data, caseID)
+	data, ids, err := loadAuthorizedImportedCase(ctx, principal, snapshotPath, caseID, expectedDigest)
 	if err != nil {
 		return err
-	}
-	// The owner is still the authority for principal and source permissions.
-	// A forged provenance label is NOT authorization.
-	if _, err := newDemoHandlerWithData(strings.Repeat("0", 64), principal, data); err != nil {
-		return errors.New("persisted Case owner authorization or graph invalid")
 	}
 	return serveDemoWithDataRoute(ctx, principal, data, output, func(token string, owner http.Handler) http.Handler {
 		return newDemoLocalJSONLSearchHandler(token, principal, caseID, data, ids, owner)
