@@ -24,6 +24,7 @@ type localCaseComparison struct {
 	InferredDelta      int               `json:"inferred_delta"`
 	CertainTimeOverlap *timeOverlap      `json:"certain_time_overlap_utc,omitempty"`
 	SharedCertainWindows []sharedCertainWindow `json:"shared_certain_five_minute_windows"`
+	SharedWazuhWindows []sharedAuthorizedWazuhWindow `json:"shared_authorized_wazuh_five_minute_windows,omitempty"`
 }
 
 // This is an observational co-occurrence hint, not causal correlation.
