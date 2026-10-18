@@ -45,6 +45,45 @@ func TestSelectedWazuhPairBeyondTenIsPrivatelyInspectable(t *testing.T) {
 	if err:=json.Unmarshal(summary.Bytes(),&receipt);err!=nil{t.Fatal(err)}
 	if len(receipt.SharedWazuhEventPairs)!=10{t.Fatal("summary limit changed")}
 	for _,p:=range receipt.SharedWazuhEventPairs{if p.FirstEntryID==firstID{t.Fatal("target is inside first ten")}}
+	// A summary intentionally stops at ten. Operators must still discover
+	// the second exact ID, without receiving any raw report before consent.
+	findArgs:=[]string{"-principal","analyst-a","-snapshot",aPath,
+		"-compare-saved-case",aCase,"-expect-snapshot-sha256",aHash,
+		"-compare-saved-with-snapshot",bPath,"-compare-saved-with-case",bCase,
+		"-expect-other-snapshot-sha256",bHash,
+		"-find-saved-pair-first-entry",firstID}
+	var discovered bytes.Buffer
+	if err:=runDemoCLI(context.Background(),findArgs,&discovered);err!=nil{
+		t.Fatalf("cannot discover exact authorized later pair: %v",err)
+	}
+	var lead struct{
+		Format string `json:"format"`
+		Pair sharedAuthorizedWazuhEventPair `json:"pair"`
+	}
+	if err:=json.Unmarshal(discovered.Bytes(),&lead);err!=nil{t.Fatal(err)}
+	if lead.Format!="cmdr-authorized-wazuh-pair-lead-v1"||
+		lead.Pair.FirstEntryID!=firstID||lead.Pair.SecondEntryID!=secondID||
+		bytes.Contains(discovered.Bytes(),[]byte("PRIVATE TARGET"))||
+		bytes.Contains(discovered.Bytes(),[]byte("PRIVATE SECOND TARGET")){
+		t.Fatalf("discovery leaked private evidence or selected wrong pair: %s",discovered.String())
+	}
+	// Discovery never creates a private dossier; every rejected operation
+	// emits no partial pair, metadata, source message or file.
+	for _,bad:=range []struct{name string; args []string}{
+		{"unknown first ID",append(append([]string{},findArgs[:len(findArgs)-1]...),"missing-first-id")},
+		{"wrong snapshot digest",func()[]string{x:=append([]string{},findArgs...);for i:=range x{if x[i]=="-expect-other-snapshot-sha256"{x[i+1]=strings.Repeat("0",64)}};return x}()},
+		{"foreign analyst",func()[]string{x:=append([]string{},findArgs...);x[1]="foreign-analyst";return x}()},
+		{"forbidden private output",append(append([]string{},findArgs...),"-private-report",filepath.Join(t.TempDir(),"denied.json"))},
+		{"forbidden generic previews",append(append([]string{},findArgs...),"-include-pair-generic-evidence")},
+		{"mixed inspect selector",append(append([]string{},findArgs...),"-inspect-saved-pair-first-entry",firstID)},
+	} {
+		t.Run("discovery "+bad.name,func(t *testing.T){
+			var output bytes.Buffer
+			if err:=runDemoCLI(context.Background(),bad.args,&output);err==nil||output.Len()!=0{
+				t.Fatalf("unauthorized discovery returned output: %s",output.String())
+			}
+		})
+	}
 	args:=[]string{"-principal","analyst-a","-snapshot",aPath,
 		"-compare-saved-case",aCase,"-expect-snapshot-sha256",aHash,
 		"-compare-saved-with-snapshot",bPath,"-compare-saved-with-case",bCase,
