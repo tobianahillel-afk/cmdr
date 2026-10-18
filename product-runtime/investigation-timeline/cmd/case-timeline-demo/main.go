@@ -90,6 +90,8 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	huntValue := flags.String("hunt-value", "", "literal Event Search Job value, passed in-memory only")
 	huntFrom := flags.String("hunt-from", "", "inclusive RFC3339 start for offline authorized Event Search Job")
 	huntTo := flags.String("hunt-to", "", "exclusive RFC3339 end for offline authorized Event Search Job")
+	inspectSavedCase := flags.String("inspect-saved-case", "", "explicit saved Case to privately inspect a correlated Entry (requires snapshot, SHA-256 and private-report)")
+	inspectSavedEntry := flags.String("inspect-saved-entry", "", "exact imported Entry ID from a cross-Case correlation receipt; not an authorization grant")
 	compareSavedCase := flags.String("compare-saved-case", "", "first saved authorized Case ID for independent offline cross-snapshot comparison")
 	compareSavedWithCase := flags.String("compare-saved-with-case", "", "second distinct saved Case ID for independent cross-snapshot comparison")
 	compareSavedWithSnapshot := flags.String("compare-saved-with-snapshot", "", "absolute path to second independent saved Case snapshot")
@@ -228,6 +230,36 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 		}
 		return writePersistedWazuhCase(ctx, *principal, *snapshot, *intoCase,
 			[]string(wazuhFiles), *saveWazuhCaseSnapshot, output)
+	}
+	// An Entry ID in a saved cross-Case Wazuh correlation is a navigational
+	// hint only. To inspect it, select exactly ONE independently authorized
+	// saved owner, supply its operator-held fingerprint and write the
+	// sensitive source preview only to a new private destination.
+	savedEntrySelected := false
+	flags.Visit(func(f *flag.Flag) {
+		if f.Name == "inspect-saved-case" || f.Name == "inspect-saved-entry" {
+			savedEntrySelected = true
+		}
+	})
+	if savedEntrySelected {
+		allowed := true
+		flags.Visit(func(f *flag.Flag) {
+			switch f.Name {
+			case "principal", "snapshot", "inspect-saved-case",
+				"inspect-saved-entry", "expect-snapshot-sha256",
+				"private-report":
+			default:
+				allowed = false
+			}
+		})
+		if !allowed || *snapshot == "" || *inspectSavedCase == "" ||
+			*inspectSavedEntry == "" || *expectedSnapshotSHA256 == "" ||
+			*privateReport == "" {
+			return errors.New("private saved-entry inspection requires authorized Case, Entry, SHA-256 and private-report only")
+		}
+		return writeVerifiedSavedCaseEntryPrivate(ctx, *principal, *snapshot,
+			*inspectSavedCase, *expectedSnapshotSHA256, *inspectSavedEntry,
+			*privateReport)
 	}
 	// Separate, strictly scoped read-only comparison of two independently
 	// persisted Cases. Never join their owner graphs or allow cross-tenant
