@@ -118,25 +118,47 @@ func TestExplicitPrivatePairIncludesAuthorizedGenericSourcePreviewsOnlyByConsent
 	}
 }
 
-func TestGenericEvidenceReopeningRequiresSelectedOwnerAndCase(t *testing.T) {
-	owner,err:=loadDemoSnapshot(snapshotFixture(t));if err!=nil{t.Fatal(err)}
-	const caseID="forensic-case-on-disk"
-	owner,err=importLocalEvents(context.Background(),owner,"analyst-a",caseID,[]byte(
+func TestGenericEvidenceSinglePassStillRequiresSelectedOwnerAndCase(t *testing.T) {
+	owner, err := loadDemoSnapshot(snapshotFixture(t))
+	if err != nil { t.Fatal(err) }
+	const caseID = "forensic-case-on-disk"
+	owner, err = importLocalEvents(context.Background(), owner, "analyst-a", caseID, []byte(
 		"{\"id\":\"owned\",\"timestamp\":\"2026-10-17T10:00:05Z\",\"message\":\"PRIVATE SOURCE\"}\n"))
-	if err!=nil{t.Fatal(err)}
-	ids,err:=importedNormalizedIDs(owner,caseID);if err!=nil{t.Fatal(err)}
-	ctx,err:=nearbyAuthorizedGenericPairContext(context.Background(),"analyst-a",
-		owner,caseID,ids,"2026-10-17T10:00:00Z")
-	if err!=nil || len(ctx.Entries)!=1 {t.Fatalf("missing real owned source: %v",err)}
-	if _,err:=reopenGenericContextEvidence(context.Background(),"foreign-analyst",
-		owner,caseID,ctx);err==nil {t.Fatal("foreign principal reopened private generic source")}
-	if _,err:=reopenGenericContextEvidence(context.Background(),"analyst-a",
-		owner,"wrong-case",ctx);err==nil {t.Fatal("foreign Case reopened private generic source")}
-	// A context ID is a navigation hint; no source is opened without
-	// repeating its own first-party typed-source owner authorization.
-	invalid:=ctx
-	invalid.Entries=[]authorizedGenericPairContext{{EntryID:"unrelated-foreign-event"}}
-	if _,err:=reopenGenericContextEvidence(context.Background(),"analyst-a",
-		owner,caseID,invalid);err==nil{t.Fatal("arbitrary user-selected context ref opened private source")}
-	_ = strings.Contains
+	if err != nil { t.Fatal(err) }
+	ids, err := importedNormalizedIDs(owner, caseID)
+	if err != nil { t.Fatal(err) }
+	const center = "2026-10-17T10:00:00Z"
+	metadata, discarded, err := nearbyAuthorizedGenericPairContextAndEvidence(
+		context.Background(), "analyst-a", owner, caseID, ids, center, false)
+	if err != nil || len(metadata.Entries) != 1 || len(discarded) != 0 {
+		t.Fatalf("v2 must authorize but discard all raw generic evidence: %v", err)
+	}
+	authorized, private, err := nearbyAuthorizedGenericPairContextAndEvidence(
+		context.Background(), "analyst-a", owner, caseID, ids, center, true)
+	if err != nil || len(authorized.Entries) != 1 || len(private) != 1 ||
+		private[0].CaseID != caseID || private[0].EntryID != authorized.Entries[0].EntryID ||
+		!strings.Contains(private[0].Preview, "PRIVATE SOURCE") {
+		t.Fatalf("v3 single-pass source owner did not return selected authorized private source: %v", err)
+	}
+	// The principal and the selected Case are independent source-owner
+	// boundaries, regardless of a caller's imported-ID hint.
+	if summary, evidence, err := nearbyAuthorizedGenericPairContextAndEvidence(
+		context.Background(), "foreign-analyst", owner, caseID, ids, center, true);
+		err == nil || len(summary.Entries) != 0 || len(evidence) != 0 {
+		t.Fatal("foreign principal obtained or influenced authorized generic source")
+	}
+	// Unlike the removed second-open helper, the new operation accepts NO
+	// user-provided context Entry IDs. It derives candidates only from the
+	// selected Case's own canonical typed sources.
+	if summary, evidence, err := nearbyAuthorizedGenericPairContextAndEvidence(
+		context.Background(), "analyst-a", owner, "wrong-case", ids, center, true);
+		err != nil || len(summary.Entries) != 0 || len(evidence) != 0 {
+		t.Fatal("unrelated Case leaked source preview")
+	}
+	forged := map[string]struct{}{"unrelated-foreign-event": {}}
+	if summary, evidence, err := nearbyAuthorizedGenericPairContextAndEvidence(
+		context.Background(), "analyst-a", owner, caseID, forged, center, true);
+		err != nil || len(summary.Entries) != 0 || len(evidence) != 0 {
+		t.Fatal("forged generic source ID bypassed canonical Case selection")
+	}
 }
