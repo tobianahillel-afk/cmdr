@@ -169,7 +169,14 @@ func newDemoLocalJSONLSearchHandler(token, principal, caseID string,
 		src, found := sources[entry.Value.SourceRef]
 		if found && src.Identity.CaseID == caseID &&
 			src.Identity.Kind == "telemetry-event" && src.Wazuh != nil {
-			wazuh[entry.Value.ID] = *src.Wazuh
+			// Freeze the source-owned severity pointer with the metadata.
+			// Searches must not observe caller mutations after authorization.
+			frozen := *src.Wazuh
+			if frozen.RuleLevel != nil {
+				level := *frozen.RuleLevel
+				frozen.RuleLevel = &level
+			}
+			wazuh[entry.Value.ID] = frozen
 		}
 	}
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
