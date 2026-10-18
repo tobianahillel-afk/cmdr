@@ -54,6 +54,10 @@ func writeVerifiedCorrelatedPairPrivate(ctx context.Context, principal,
 			!firstInspection.Synthetic || !secondInspection.Synthetic {
 			return errors.New("paired source owner returned inconsistent authorized identity")
 		}
+		firstContext, err := nearbyAuthorizedGenericPairContext(ctx, principal, first, firstCase, firstIDs, pair.FirstTimeUTC)
+		if err != nil { return err }
+		secondContext, err := nearbyAuthorizedGenericPairContext(ctx, principal, second, secondCase, secondIDs, pair.SecondTimeUTC)
+		if err != nil { return err }
 		if err := ctx.Err(); err != nil { return err }
 		return json.NewEncoder(output).Encode(struct {
 			Format string `json:"format"`
@@ -61,10 +65,13 @@ func writeVerifiedCorrelatedPairPrivate(ctx context.Context, principal,
 			Pair sharedAuthorizedWazuhEventPair `json:"pair"`
 			First localEntryInspection `json:"first"`
 			Second localEntryInspection `json:"second"`
+			FirstGenericContext authorizedGenericPairContextSummary `json:"first_generic_context"`
+			SecondGenericContext authorizedGenericPairContextSummary `json:"second_generic_context"`
 		}{
-			Format: "cmdr-private-verified-wazuh-pair-v1",
+			Format: "cmdr-private-verified-wazuh-pair-v2",
 			Synthetic: true, Pair: pair,
 			First: firstInspection, Second: secondInspection,
+			FirstGenericContext: firstContext, SecondGenericContext: secondContext,
 		})
 	})
 }
