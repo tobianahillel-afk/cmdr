@@ -69,6 +69,15 @@ func readLocalEventFile(path string) ([]byte, error) {
 }
 
 func importLocalEvents(ctx context.Context, snapshot timeline.MemoryTimelineData, principal, caseID string, content []byte) (timeline.MemoryTimelineData, error) {
+	return importLocalEventsFromFeed(ctx, snapshot, principal, caseID, content, 0)
+}
+
+// Nonzero feed ordinal is used only for multi-feed operator imports.
+// Legacy single-file IDs and provenance are preserved unchanged.
+func importLocalEventsFromFeed(ctx context.Context, snapshot timeline.MemoryTimelineData, principal, caseID string, content []byte, feed int) (timeline.MemoryTimelineData, error) {
+	if feed < 0 || feed > 4 {
+		return timeline.MemoryTimelineData{}, errors.New("invalid normalized source feed ordinal")
+	}
 	if err := ctx.Err(); err != nil {
 		return timeline.MemoryTimelineData{}, err
 	}
@@ -155,7 +164,11 @@ func importLocalEvents(ctx context.Context, snapshot timeline.MemoryTimelineData
 		if len(updatedCase.EntryIDs) >= timeline.MaxEntries {
 			return timeline.MemoryTimelineData{}, errors.New("Case exceeds 5000 entries")
 		}
-		digest := sha256.Sum256([]byte(caseID + "\x00" + event.ID))
+		identity := caseID + "\x00" + event.ID
+		if feed > 0 {
+			identity = fmt.Sprintf("%s\x00feed-%d\x00%s", caseID, feed, event.ID)
+		}
+		digest := sha256.Sum256([]byte(identity))
 		key := hex.EncodeToString(digest[:])
 		entryID := "local-jsonl-entry-" + key
 		sourceRef := "local-jsonl-source-" + key
@@ -163,12 +176,16 @@ func importLocalEvents(ctx context.Context, snapshot timeline.MemoryTimelineData
 			return timeline.MemoryTimelineData{}, errors.New("imported identity conflicts with owner snapshot")
 		}
 		entryIDs[entryID], sourceIDs[sourceRef] = true, true
+		provenance := "operator-local-jsonl"
+		if feed > 0 {
+			provenance = fmt.Sprintf("operator-local-jsonl-feed-%d", feed)
+		}
 		result.Entries = append(result.Entries, timeline.MemoryTimelineEntry{
 			CaseID: caseID, Readers: []string{principal},
 			Value: timeline.Entry{
 				ID: entryID, Tenant: c.Tenant, Kind: "observed",
 				SourceTime: event.Timestamp, Timezone: at.Format("Z07:00"),
-				SourceRef: sourceRef, Provenance: "operator-local-jsonl",
+				SourceRef: sourceRef, Provenance: provenance,
 				Version: 1,
 			},
 		})
