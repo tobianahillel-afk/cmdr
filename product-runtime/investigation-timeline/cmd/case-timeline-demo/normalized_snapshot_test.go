@@ -9,6 +9,7 @@ import (
 	"runtime"
 	"strings"
 	"testing"
+	"time"
 	"net/http"
 	"net/http/httptest"
 
@@ -99,6 +100,22 @@ func TestPersistedNormalizedMultiFeedReopensAuthorizedSearch(t *testing.T) {
 	if err:=os.Remove(feedB);err!=nil {t.Fatal(err)}
 	if _,err:=loadDemoSnapshot(saved);err!=nil {
 		t.Fatalf("persisted owner unexpectedly depends on raw input feeds: %v",err)
+	}
+	// Exercise the actual reopen CLI and listener lifecycle after deleting
+	// original input files, not only its internal owner/search helpers.
+	resumeContext, stop := context.WithTimeout(context.Background(), 600*time.Millisecond)
+	defer stop()
+	var viewer bytes.Buffer
+	if err:=runDemoCLI(resumeContext, []string{
+		"-principal", "analyst-a", "-snapshot", saved,
+		"-resume-import-search-case", caseID,
+	}, &viewer);err!=nil {
+		t.Fatalf("persisted search viewer CLI failed: %v",err)
+	}
+	if !strings.Contains(viewer.String(), "Local analyst viewer: http://127.0.0.1:") ||
+		!strings.Contains(viewer.String(), "Bearer token (this run only):") ||
+		strings.Contains(viewer.String(), "PowerShell first source") {
+		t.Fatalf("reopened viewer failed to start independently or leaked payload: %q",viewer.String())
 	}
 }
 
