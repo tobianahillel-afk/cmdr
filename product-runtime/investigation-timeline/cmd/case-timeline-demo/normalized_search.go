@@ -167,7 +167,14 @@ func newDemoLocalJSONLSearchHandler(token, principal, caseID string,
 			From string `json:"from"`
 			To string `json:"to"`
 		}
-		decoder := json.NewDecoder(io.LimitReader(r.Body, 4097))
+		// Enforce a total POST body ceiling, including trailing whitespace
+		// after a valid JSON object; do not silently accept a truncated body.
+		body, readErr := io.ReadAll(io.LimitReader(r.Body, 4097))
+		if readErr != nil || len(body) == 0 || len(body) > 4096 {
+			http.NotFound(w, r)
+			return
+		}
+		decoder := json.NewDecoder(bytes.NewReader(body))
 		decoder.DisallowUnknownFields()
 		if err := decoder.Decode(&selection); err != nil || selection.CaseID != caseID ||
 			!validWazuhPreviewLiteral(selection.Value) {
