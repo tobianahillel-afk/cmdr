@@ -3,6 +3,8 @@ package main
 import (
 	"bytes"
 	"context"
+	"crypto/sha256"
+	"fmt"
 	"encoding/json"
 	"os"
 	"path/filepath"
@@ -108,10 +110,14 @@ func TestIntegratedSavedCaseProducesThreeConsistentPrivateInvestigationReports(t
 	}
 	// No recomputation or mutation is allowed: outputs must not modify
 	// the original private archived Case or its operator-held digest.
-	original, err := os.ReadFile(file)
-	if err != nil { t.Fatal(err) }
-	if len(digest) != 64 || len(original) == 0 {
-		t.Fatal("selected Case evidence was not retained")
+	for _, archive := range []struct{path, expectedSHA string}{
+		{file, digest}, {otherFile, otherDigest},
+	} {
+		data, err := os.ReadFile(archive.path)
+		if err != nil { t.Fatal(err) }
+		if fmt.Sprintf("%x", sha256.Sum256(data)) != archive.expectedSHA {
+			t.Fatalf("archived Case was modified by one of the three report workflows: %q", archive.path)
+		}
 	}
 	for _, dst := range paths {
 		if dst == file || dst == otherFile {
