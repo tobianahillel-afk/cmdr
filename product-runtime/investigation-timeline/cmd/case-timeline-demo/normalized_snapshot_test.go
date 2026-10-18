@@ -3,6 +3,8 @@ package main
 import (
 	"bytes"
 	"context"
+	"crypto/sha256"
+	"fmt"
 	"encoding/json"
 	"os"
 	"path/filepath"
@@ -307,5 +309,79 @@ func TestPrivateSavedCaseExcludesOtherTenantsDeniedSourcesAndCases(t *testing.T)
 	limited,err:=scopedNormalizedCaseSnapshot(full,"analyst-a",caseID)
 	if err!=nil || len(limited.Cases)!=1 || len(limited.Principals)!=1 {
 		t.Fatalf("legacy multi-Case graph not narrowed on resume: %v",err)
+	}
+}
+
+func TestVerifiedReopenUsesExactSavedBytesAndRejectsTamperingBeforeListener(t *testing.T) {
+	const caseID="forensic-case-on-disk"
+	snapshot:=snapshotFixture(t)
+	feed:=writeJSONLEvents(t,
+		"{\"id\":\"verifiable\",\"timestamp\":\"2026-10-17T10:00:00Z\",\"message\":\"Sensitive PowerShell event\"}\n")
+	path:=filepath.Join(t.TempDir(),"private-owner.json")
+	var saveReceipt bytes.Buffer
+	if err:=runDemoCLI(context.Background(), []string{
+		"-principal","analyst-a","-snapshot",snapshot,"-into-case",caseID,
+		"-import-jsonl",feed,"-save-import-snapshot",path,
+	},&saveReceipt);err!=nil {t.Fatalf("save failed: %v",err)}
+	original,err:=os.ReadFile(path)
+	if err!=nil {t.Fatal(err)}
+	sum:=sha256.Sum256(original)
+	hexDigest:=fmt.Sprintf("%x",sum)
+	if !strings.Contains(saveReceipt.String(),hexDigest) {
+		t.Fatalf("CLI receipt does not provide exact saved snapshot SHA256: %q",saveReceipt.String())
+	}
+	if _,err:=loadDemoSnapshotWithExpectedDigest(path,hexDigest);err!=nil {
+		t.Fatalf("verified loader rejects saved byte-for-byte snapshot: %v",err)
+	}
+	// The actual CLI listener is allowed after exact verified bytes and
+	// principal/Case/source ownership validation; a new bearer is created.
+	reopen:=func(expected string) (string,error) {
+		ctx,cancel:=context.WithTimeout(context.Background(),600*time.Millisecond)
+		defer cancel()
+		var output bytes.Buffer
+		err:=runDemoCLI(ctx,[]string{
+			"-principal","analyst-a","-snapshot",path,
+			"-resume-import-search-case",caseID,
+			"-expect-snapshot-sha256",expected,
+		},&output)
+		return output.String(),err
+	}
+	started,err:=reopen(hexDigest)
+	if err!=nil || !strings.Contains(started,"Local analyst viewer: http://127.0.0.1:") ||
+		!strings.Contains(started,"Bearer token (this run only):") ||
+		strings.Contains(started,"Sensitive PowerShell") {
+		t.Fatalf("verified Case owner not reopened securely: %v %q",err,started)
+	}
+	if _,err:=loadDemoSnapshotWithExpectedDigest(path,strings.Repeat("0",64));err==nil {
+		t.Fatal("wrong out-of-band snapshot digest was accepted")
+	}
+	if _,err:=loadDemoSnapshotWithExpectedDigest(path,"not-a-sha256");err==nil {
+		t.Fatal("invalid digest syntax was accepted")
+	}
+	// A harmless extra newline leaves the JSON valid but must break the
+	// byte-for-byte digest, before any HTTP server/bearer is created.
+	if err:=os.WriteFile(path,append(original,'\n'),0600);err!=nil {t.Fatal(err)}
+	if _,err:=loadDemoSnapshot(path);err!=nil {
+		t.Fatalf("test tamper must be parseable JSON: %v",err)
+	}
+	if _,err:=loadDemoSnapshotWithExpectedDigest(path,hexDigest);err==nil {
+		t.Fatal("modified snapshot accepted with prior saved SHA256")
+	}
+	out,err:=reopen(hexDigest)
+	if err==nil || out!="" {
+		t.Fatalf("tampered saved Case opened a listener or exposed bearer: %v %q",err,out)
+	}
+	// An operator-chosen expected SHA cannot be supplied while saving or
+	// when executing an unrelated investigation command.
+	for _,args:=range [][]string{
+		{"-principal","analyst-a","-snapshot",snapshot,"-into-case",caseID,
+		 "-import-jsonl",feed,"-save-import-snapshot",filepath.Join(t.TempDir(),"invalid.json"),
+		 "-expect-snapshot-sha256",hexDigest},
+		{"-snapshot",snapshot,"-expect-snapshot-sha256",hexDigest},
+	} {
+		var output bytes.Buffer
+		if err:=runDemoCLI(context.Background(),args,&output);err==nil || output.Len()!=0 {
+			t.Fatalf("expected digest improperly accepted in non-resume mode: %v",args)
+		}
 	}
 }

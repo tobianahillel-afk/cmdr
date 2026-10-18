@@ -80,6 +80,7 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	serveImport := flags.Bool("serve-import", false, "import local JSONL into an in-memory Case and open the authenticated loopback analyst viewer; no merged owner file")
 	saveImportSnapshot := flags.String("save-import-snapshot", "", "absolute new path for private normalized Case snapshot; explicit import only, no listener or overwrite")
 	resumeImportSearchCase := flags.String("resume-import-search-case", "", "Case ID in a saved normalized owner snapshot to reopen with an authenticated Search Job viewer")
+	expectedSnapshotSHA256 := flags.String("expect-snapshot-sha256", "", "optional 64-digit SHA-256 recorded at explicit Case save; verified against exact bytes on resume only")
 	reportCase := flags.String("report-case", "", "produce one authorized offline Case triage JSON receipt and exit (no listener)")
 	exportCase := flags.String("export-case", "", "export authorized Case Timeline events as sensitive local JSONL, without listener")
 	compareCase := flags.String("compare-case", "", "first authorized Case for an offline two-Case comparison receipt")
@@ -115,7 +116,7 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 			case "principal", "snapshot":
 			case "save-import-snapshot", "into-case", "import-jsonl", "import-jsonl-extra":
 				if *saveImportSnapshot == "" { invalid = true }
-			case "resume-import-search-case":
+			case "resume-import-search-case", "expect-snapshot-sha256":
 				if *resumeImportSearchCase == "" { invalid = true }
 			default:
 				invalid = true
@@ -131,9 +132,12 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 			paths := append([]string{*importJSONL}, extraJSONL...)
 			return writeDemoPersistedNormalizedCase(ctx, *principal, *snapshot, *intoCase, paths, *saveImportSnapshot, output)
 		}
-		return serveDemoReopenedNormalizedCase(ctx, *principal, *snapshot, *resumeImportSearchCase, output)
+		return serveDemoReopenedNormalizedCase(ctx, *principal, *snapshot, *resumeImportSearchCase, *expectedSnapshotSHA256, output)
 	}
 
+	if *expectedSnapshotSHA256 != "" {
+		return errors.New("expected snapshot SHA-256 requires an explicit resume-import-search-case")
+	}
 	windowSet := false
 	flags.Visit(func(f *flag.Flag) {
 		if f.Name == "proximity-seconds" {
