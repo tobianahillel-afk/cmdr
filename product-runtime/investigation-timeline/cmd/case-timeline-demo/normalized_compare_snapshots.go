@@ -29,23 +29,7 @@ func compareVerifiedSavedCases(ctx context.Context, principal, firstPath, firstC
 	second, _, err := loadAuthorizedImportedCase(ctx, principal, secondPath, secondCase, secondDigest)
 	if err != nil { return err }
 
-	if !sameComparisonEnvironment(first, second) {
-		return errors.New("saved Cases belong to different tenant or environment scopes")
-	}
-	// Existing first-party triage traverses every owner-authorized Timeline
-	// page and canonical typed source independently before any comparison.
-	a, err := collectDemoAuthorizedCaseTriage(ctx, principal, first, firstCase)
-	if err != nil { return err }
-	b, err := collectDemoAuthorizedCaseTriage(ctx, principal, second, secondCase)
-	if err != nil { return err }
-	if err := ctx.Err(); err != nil { return err }
-	result, err := buildCaseComparison(a, b)
-	if err != nil { return err }
-	result.Format = "cmdr-local-verified-saved-case-comparison-v1"
-	// Both owners have already passed independent fingerprint, Case,
-	// Timeline and typed-source authorization before any Wazuh metadata
-	// is correlated. Generic JSONL snapshots simply produce no cohorts.
-	result.SharedWazuhWindows, err = sharedAuthorizedWazuhWindows(first, second, firstCase, secondCase)
+	result, err := compareLoadedAuthorizedSavedCases(ctx, principal, first, second, firstCase, secondCase)
 	if err != nil { return err }
 
 	// Stage the complete receipt before writing so a denied second Case can
@@ -57,6 +41,46 @@ func compareVerifiedSavedCases(ctx context.Context, principal, firstPath, firstC
 	// fewer bytes than the fully authorized result.
 	_, err = io.Copy(output, &encoded)
 	return err
+}
+
+
+ // Compare already verified and *independently authorized* owners. This
+ // single shared path powers both the metadata-only CLI comparison and the
+ // private two-source drilldown, avoiding a second disk read/owner traversal.
+ // The caller must have loaded each Case through loadAuthorizedImportedCase.
+func compareLoadedAuthorizedSavedCases(ctx context.Context, principal string,
+	first, second timeline.MemoryTimelineData, firstCase, secondCase string) (localCaseComparison, error) {
+	if ctx == nil || ctx.Err() != nil {
+		return localCaseComparison{}, errors.New("comparison cancelled")
+	}
+	if principal == "" || firstCase == "" || secondCase == "" || firstCase == secondCase ||
+		!sameComparisonEnvironment(first, second) {
+		return localCaseComparison{}, errors.New("saved Cases require distinct IDs and a common authorized tenant/environment")
+	}
+	// Each owner is independently paginated through existing Case/Timeline
+	// and typed-source authorization before any Wazuh metadata is correlated.
+	a, err := collectDemoAuthorizedCaseTriage(ctx, principal, first, firstCase)
+	if err != nil { return localCaseComparison{}, err }
+	b, err := collectDemoAuthorizedCaseTriage(ctx, principal, second, secondCase)
+	if err != nil { return localCaseComparison{}, err }
+	if err := ctx.Err(); err != nil { return localCaseComparison{}, err }
+	result, err := buildCaseComparison(a, b)
+	if err != nil { return localCaseComparison{}, err }
+	result.Format = "cmdr-local-verified-saved-case-comparison-v1"
+	// Both temporal views must use exactly the SAME imported/authorized
+	// Wazuh owner observations. Previously each collected and sorted both
+	// Cases separately, quadrupling the source walk for one comparison.
+	firstWazuh, err := collectAuthorizedWazuhObservations(first, firstCase)
+	if err != nil { return localCaseComparison{}, err }
+	secondWazuh, err := collectAuthorizedWazuhObservations(second, secondCase)
+	if err != nil { return localCaseComparison{}, err }
+	// Pure derivations cannot fail after both independently authorized
+	// source cohorts have been collected and validated. No phantom error
+	// branches or duplicate security decisions at this presentation layer.
+	result.SharedWazuhWindows = sharedWazuhWindowsFromObservations(firstWazuh, secondWazuh)
+	result.SharedWazuhEventPairs = sharedWazuhPairsFromObservations(firstWazuh, secondWazuh)
+	if err := ctx.Err(); err != nil { return localCaseComparison{}, err }
+	return result, nil
 }
 
 func sameComparisonEnvironment(first, second timeline.MemoryTimelineData) bool {
