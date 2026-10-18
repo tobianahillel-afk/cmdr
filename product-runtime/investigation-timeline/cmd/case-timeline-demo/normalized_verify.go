@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -50,7 +51,10 @@ func verifySavedNormalizedCase(ctx context.Context, principal, snapshotPath, cas
 	if err := ctx.Err(); err != nil {
 		return err
 	}
-	return json.NewEncoder(output).Encode(struct {
+	// Stage and verify the entire receipt before exposing it to an
+	// untrusted output sink; io.Copy detects silent short writes.
+	var receipt bytes.Buffer
+	if err := json.NewEncoder(&receipt).Encode(struct {
 		Format string `json:"format"`
 		Synthetic bool `json:"synthetic"`
 		CaseID string `json:"case_id"`
@@ -63,6 +67,8 @@ func verifySavedNormalizedCase(ctx context.Context, principal, snapshotPath, cas
 		Synthetic: true, CaseID: caseID,
 		ImportedEvents: len(ids), Feeds: counts,
 		WazuhAlerts: wazuhAlerts, GenericEvents: genericEvents,
-	})
+	}); err != nil { return err }
+	_, err = io.Copy(output, &receipt)
+	return err
 }
 

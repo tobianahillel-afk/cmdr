@@ -2107,3 +2107,82 @@ test("mixed Case source-family selector stays private and invalidates old author
   assert.equal(env.requests.length,1);
   assert.match(f["local-search-status"].textContent,/Sélectionnez/);
 });
+
+test("mixed saved Case renders only Wazuh-to-generic leads from completed authorized SearchJob", async () => {
+  const alert="local-jsonl-entry-"+"a".repeat(64);
+  const generic="local-jsonl-entry-"+"b".repeat(64);
+  const reply={
+    format:"cmdr-local-jsonl-event-search-v1", synthetic:true, case_id:"case-disk",
+    job:{ID:"mixed-context-job",State:"completed",AuditTrail:[{},{},{}],
+      ResultRefs:[
+        {Source:"normalized-jsonl-authorized-import",Ref:alert},
+        {Source:"normalized-jsonl-authorized-import",Ref:generic}
+      ]},
+    search_hits:[{entry_id:alert,agent_id:"001",rule_id:"5710"}],
+    mixed_temporal_context:[{
+      wazuh_entry_id:alert,wazuh_time_utc:"2026-10-17T10:00:00Z",window_seconds:60,
+      generic_events:[{
+        entry_id:generic,source_time_utc:"2026-10-17T10:00:30Z",offset_seconds:30
+      }]
+    }]
+  };
+  const env=boot((url,options)=>{
+    assert.equal(url.pathname,"/demo-local-search");
+    assert.equal(options.method,"POST");
+    return {ok:true,async json(){return reply}};
+  });
+  const fields=env.fields;
+  fields["local-search-family"].value="all";
+  fields["local-search-field"].value="source_ref";
+  fields["local-search-value"].value="local-jsonl-source-";
+  fields["local-search-from"].value="2026-10-17T09:59:00";
+  fields["local-search-to"].value="2026-10-17T10:02:00";
+  fields["local-search-run"].handlers.click();
+  await flush();await flush();
+  assert.equal(env.requests.length,1);
+  assert.equal(fields["local-search-results"].children.length,2);
+  const context=fields["local-search-results"].children[1].children[0];
+  assert.match(context.children[0].textContent,/pas de causalité/);
+  assert.match(context.children[1].textContent,/30 s/);
+  assert.match(context.children[1].textContent,new RegExp(generic));
+  assert.match(fields["local-search-status"].textContent,/mixed-context-job terminé/);
+  fields["local-search-family"].value="generic";
+  fields["local-search-family"].handlers.change();
+  assert.equal(fields["local-search-results"].children.length,0,
+    "changed selection must clear contextual links and authority");
+});
+
+test("mixed temporal context with a foreign or forged event fails closed",async()=>{
+  const alert="local-jsonl-entry-"+"a".repeat(64);
+  const generic="local-jsonl-entry-"+"b".repeat(64);
+  for (const forged of [
+    {entry_id:"local-jsonl-entry-"+"c".repeat(64),source_time_utc:"2026-10-17T10:00:30Z",offset_seconds:30},
+    {entry_id:generic,source_time_utc:"2026-10-17T10:02:00Z",offset_seconds:120},
+    {entry_id:generic,source_time_utc:"2026-10-17T10:00:30Z",offset_seconds:-30}
+  ]) {
+    const receipt={
+      format:"cmdr-local-jsonl-event-search-v1", synthetic:true,case_id:"case-disk",
+      job:{ID:"invalid-context",State:"completed",AuditTrail:[{},{},{}],
+        ResultRefs:[
+          {Source:"normalized-jsonl-authorized-import",Ref:alert},
+          {Source:"normalized-jsonl-authorized-import",Ref:generic}
+        ]},
+      search_hits:[{entry_id:alert}],
+      mixed_temporal_context:[{
+        wazuh_entry_id:alert,wazuh_time_utc:"2026-10-17T10:00:00Z",window_seconds:60,
+        generic_events:[forged]
+      }]
+    };
+    const env=boot(()=>({ok:true,async json(){return receipt}}));
+    const f=env.fields;
+    f["local-search-family"].value="all";
+    f["local-search-field"].value="source_ref";
+    f["local-search-value"].value="local-jsonl-source-";
+    f["local-search-from"].value="2026-10-17T09:59:00";
+    f["local-search-to"].value="2026-10-17T10:03:00";
+    f["local-search-run"].handlers.click();
+    await flush();await flush();
+    assert.equal(f["local-search-results"].children.length,0);
+    assert.match(f["local-search-status"].textContent,/Aucun résultat partiel/);
+  }
+});
