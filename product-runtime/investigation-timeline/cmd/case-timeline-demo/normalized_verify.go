@@ -16,15 +16,7 @@ func verifySavedNormalizedCase(ctx context.Context, principal, snapshotPath, cas
 		expectedDigest == "" {
 		return errors.New("offline Case verification requires saved snapshot, Case, and operator-held SHA-256")
 	}
-	data, err := loadDemoSnapshotWithExpectedDigest(snapshotPath, expectedDigest)
-	if err != nil {
-		return err
-	}
-	data, err = scopedNormalizedCaseSnapshot(data, principal, caseID)
-	if err != nil {
-		return err
-	}
-	ids, err := importedNormalizedIDs(data, caseID)
+	data, ids, err := loadAuthorizedImportedCase(ctx, principal, snapshotPath, caseID, expectedDigest)
 	if err != nil {
 		return err
 	}
