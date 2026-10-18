@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 
-	timeline "github.com/tobianahillel-afk/cmdr/product-runtime/investigation-timeline"
 	"encoding/json"
 	"errors"
 	"io"
@@ -67,22 +66,17 @@ func writeVerifiedCorrelatedPairPrivateWithGenericEvidence(ctx context.Context, 
 			!firstInspection.Synthetic || !secondInspection.Synthetic {
 			return errors.New("paired source owner returned inconsistent authorized identity")
 		}
-		firstContext, err := nearbyAuthorizedGenericPairContext(ctx, principal, first, firstCase, firstIDs, pair.FirstTimeUTC)
+		// One first-party source reauthorization per selected generic lead.
+		// Default v2 retains only metadata; explicit private v3 reuses the
+		// very same already authorized source inspection, without reopening.
+		firstContext, firstGenericEvidence, err := nearbyAuthorizedGenericPairContextAndEvidence(
+			ctx, principal, first, firstCase, firstIDs, pair.FirstTimeUTC, includeGenericEvidence)
 		if err != nil { return err }
-		secondContext, err := nearbyAuthorizedGenericPairContext(ctx, principal, second, secondCase, secondIDs, pair.SecondTimeUTC)
+		secondContext, secondGenericEvidence, err := nearbyAuthorizedGenericPairContextAndEvidence(
+			ctx, principal, second, secondCase, secondIDs, pair.SecondTimeUTC, includeGenericEvidence)
 		if err != nil { return err }
-		var firstGenericEvidence, secondGenericEvidence []localEntryInspection
 		format := "cmdr-private-verified-wazuh-pair-v2"
 		if includeGenericEvidence {
-			// Each contextual ID remains a SELECTOR, not a permission. This
-			// separate explicit step reopens the original Case/typed Source;
-			// an authorization failure aborts the WHOLE private publication.
-			firstGenericEvidence, err = reopenGenericContextEvidence(ctx, principal,
-				first, firstCase, firstContext)
-			if err != nil { return err }
-			secondGenericEvidence, err = reopenGenericContextEvidence(ctx, principal,
-				second, secondCase, secondContext)
-			if err != nil { return err }
 			format = "cmdr-private-verified-wazuh-pair-v3"
 		}
 		if err := ctx.Err(); err != nil { return err }
@@ -106,20 +100,3 @@ func writeVerifiedCorrelatedPairPrivateWithGenericEvidence(ctx context.Context, 
 	})
 }
 
-// Only the at-most-ten already shortlisted AND separately authorized generic
-// source records from one independently verified Case may be placed in the
-// explicitly opted-in private dossier. Never copy raw previews to stdout.
-func reopenGenericContextEvidence(ctx context.Context, principal string,
-	data timeline.MemoryTimelineData, caseID string, contextSummary authorizedGenericPairContextSummary) ([]localEntryInspection, error) {
-	evidence := make([]localEntryInspection, 0, len(contextSummary.Entries))
-	for _, lead := range contextSummary.Entries {
-		if err := ctx.Err(); err != nil { return nil, err }
-		opened, err := inspectDemoEntryWithData(ctx, principal, data, caseID, lead.EntryID)
-		if err != nil || !opened.Synthetic || opened.CaseID != caseID ||
-			opened.EntryID != lead.EntryID || opened.Kind != "telemetry-event" {
-			return nil, errors.New("selected contextual evidence is not authorized by its source owner")
-		}
-		evidence = append(evidence, opened)
-	}
-	return evidence, nil
-}
