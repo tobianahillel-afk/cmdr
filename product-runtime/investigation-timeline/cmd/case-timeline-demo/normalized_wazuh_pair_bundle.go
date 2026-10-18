@@ -1,0 +1,125 @@
+package main
+
+import (
+	"context"
+
+	timeline "github.com/tobianahillel-afk/cmdr/product-runtime/investigation-timeline"
+	"encoding/json"
+	"errors"
+	"io"
+)
+
+// Open a concrete cross-Case Wazuh pair as ONE private artifact. The pair
+// ordinal selects an existing authorized correlation result; it grants no
+// access to either source. The two first-party owners independently recheck
+// the operator-held fingerprints, Case ACL and typed-source authorization.
+// The existing atomic no-replace publisher emits nothing until BOTH succeed.
+func writeVerifiedCorrelatedPairPrivate(ctx context.Context, principal,
+	firstPath, firstCase, firstDigest, secondPath, secondCase, secondDigest string,
+	pairOrdinal int, destination string) error {
+	return writeVerifiedCorrelatedPairPrivateWithGenericEvidence(ctx, principal,
+		firstPath, firstCase, firstDigest, secondPath, secondCase, secondDigest,
+		pairOrdinal, destination, false)
+}
+
+// Explicitly expand source-owned generic leads to their sensitive previews
+// only inside an operator-selected NEW private report. Ordinary pair inspection
+// retains its metadata-only generic leads and the v2 report format.
+func writeVerifiedCorrelatedPairPrivateWithGenericEvidence(ctx context.Context, principal,
+	firstPath, firstCase, firstDigest, secondPath, secondCase, secondDigest string,
+	pairOrdinal int, destination string, includeGenericEvidence bool) error {
+	if ctx == nil || ctx.Err() != nil || principal == "" ||
+		pairOrdinal < 1 || pairOrdinal > 10 || destination == "" ||
+		firstCase == secondCase {
+		return errors.New("select an authorized cross-Case Wazuh pair and a new private destination")
+	}
+	return writeAuthorizedReceiptPrivate(ctx, destination, func(output io.Writer) error {
+		// Independently verify/load each snapshot once. The very same owner
+		// bytes and typed sources will be used for BOTH correlation and the
+		// final drilldown: no repeated disk reads or owner pagination.
+		first, firstIDs, err := loadAuthorizedImportedCase(ctx, principal, firstPath, firstCase, firstDigest)
+		if err != nil { return err }
+		second, secondIDs, err := loadAuthorizedImportedCase(ctx, principal, secondPath, secondCase, secondDigest)
+		if err != nil { return err }
+		verified, err := compareLoadedAuthorizedSavedCases(ctx, principal, first, second, firstCase, secondCase)
+		if err != nil { return err }
+		if verified.First.CaseID != firstCase || verified.Second.CaseID != secondCase ||
+			pairOrdinal > len(verified.SharedWazuhEventPairs) {
+			return errors.New("selected Wazuh pair is unavailable in both authorized Cases")
+		}
+		pair := verified.SharedWazuhEventPairs[pairOrdinal-1]
+
+		// Selected correlation IDs are selectors, never access grants.
+		if _, ok := firstIDs[pair.FirstEntryID]; !ok {
+			return errors.New("first paired entry is not available in selected Case")
+		}
+		if _, ok := secondIDs[pair.SecondEntryID]; !ok {
+			return errors.New("second paired entry is not available in selected Case")
+		}
+		// The existing source handler independently checks selected Case,
+		// entry and typed source on both sides, including source read ACL.
+		firstInspection, err := inspectDemoEntryWithData(ctx, principal, first, firstCase, pair.FirstEntryID)
+		if err != nil { return err }
+		secondInspection, err := inspectDemoEntryWithData(ctx, principal, second, secondCase, pair.SecondEntryID)
+		if err != nil { return err }
+		if firstInspection.CaseID != firstCase || firstInspection.EntryID != pair.FirstEntryID ||
+			secondInspection.CaseID != secondCase || secondInspection.EntryID != pair.SecondEntryID ||
+			!firstInspection.Synthetic || !secondInspection.Synthetic {
+			return errors.New("paired source owner returned inconsistent authorized identity")
+		}
+		firstContext, err := nearbyAuthorizedGenericPairContext(ctx, principal, first, firstCase, firstIDs, pair.FirstTimeUTC)
+		if err != nil { return err }
+		secondContext, err := nearbyAuthorizedGenericPairContext(ctx, principal, second, secondCase, secondIDs, pair.SecondTimeUTC)
+		if err != nil { return err }
+		var firstGenericEvidence, secondGenericEvidence []localEntryInspection
+		format := "cmdr-private-verified-wazuh-pair-v2"
+		if includeGenericEvidence {
+			// Each contextual ID remains a SELECTOR, not a permission. This
+			// separate explicit step reopens the original Case/typed Source;
+			// an authorization failure aborts the WHOLE private publication.
+			firstGenericEvidence, err = reopenGenericContextEvidence(ctx, principal,
+				first, firstCase, firstContext)
+			if err != nil { return err }
+			secondGenericEvidence, err = reopenGenericContextEvidence(ctx, principal,
+				second, secondCase, secondContext)
+			if err != nil { return err }
+			format = "cmdr-private-verified-wazuh-pair-v3"
+		}
+		if err := ctx.Err(); err != nil { return err }
+		return json.NewEncoder(output).Encode(struct {
+			Format string `json:"format"`
+			Synthetic bool `json:"synthetic"`
+			Pair sharedAuthorizedWazuhEventPair `json:"pair"`
+			First localEntryInspection `json:"first"`
+			Second localEntryInspection `json:"second"`
+			FirstGenericContext authorizedGenericPairContextSummary `json:"first_generic_context"`
+			SecondGenericContext authorizedGenericPairContextSummary `json:"second_generic_context"`
+			FirstGenericEvidence []localEntryInspection `json:"first_generic_evidence,omitempty"`
+			SecondGenericEvidence []localEntryInspection `json:"second_generic_evidence,omitempty"`
+		}{
+			Format: format,
+			Synthetic: true, Pair: pair,
+			First: firstInspection, Second: secondInspection,
+			FirstGenericContext: firstContext, SecondGenericContext: secondContext,
+			FirstGenericEvidence: firstGenericEvidence, SecondGenericEvidence: secondGenericEvidence,
+		})
+	})
+}
+
+// Only the at-most-ten already shortlisted AND separately authorized generic
+// source records from one independently verified Case may be placed in the
+// explicitly opted-in private dossier. Never copy raw previews to stdout.
+func reopenGenericContextEvidence(ctx context.Context, principal string,
+	data timeline.MemoryTimelineData, caseID string, contextSummary authorizedGenericPairContextSummary) ([]localEntryInspection, error) {
+	evidence := make([]localEntryInspection, 0, len(contextSummary.Entries))
+	for _, lead := range contextSummary.Entries {
+		if err := ctx.Err(); err != nil { return nil, err }
+		opened, err := inspectDemoEntryWithData(ctx, principal, data, caseID, lead.EntryID)
+		if err != nil || !opened.Synthetic || opened.CaseID != caseID ||
+			opened.EntryID != lead.EntryID || opened.Kind != "telemetry-event" {
+			return nil, errors.New("selected contextual evidence is not authorized by its source owner")
+		}
+		evidence = append(evidence, opened)
+	}
+	return evidence, nil
+}
