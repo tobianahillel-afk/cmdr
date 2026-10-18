@@ -83,6 +83,12 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	saveMixedCaseSnapshot := flags.String("save-mixed-case-snapshot", "", "create one atomic private Case archive with both Wazuh and generic JSONL sources; no intermediary archive")
 	resumeImportSearchCase := flags.String("resume-import-search-case", "", "Case ID in a saved normalized owner snapshot to reopen with an authenticated Search Job viewer")
 	verifyImportSnapshotCase := flags.String("verify-import-snapshot-case", "", "Case ID of a saved authorized owner snapshot to verify WITHOUT a listener; requires -expect-snapshot-sha256")
+	huntSavedCase := flags.String("hunt-saved-case", "", "run one authorized Event Search Job on a saved Case without listener or browser")
+	huntField := flags.String("hunt-field", "preview", "first-party search field (preview, rule_id, agent_id, entry_id, source_ref, provenance)")
+	huntFamily := flags.String("hunt-family", "all", "source family for offline search (all, wazuh, generic)")
+	huntValue := flags.String("hunt-value", "", "literal Event Search Job value, passed in-memory only")
+	huntFrom := flags.String("hunt-from", "", "inclusive RFC3339 start for offline authorized Event Search Job")
+	huntTo := flags.String("hunt-to", "", "exclusive RFC3339 end for offline authorized Event Search Job")
 	compareSavedCase := flags.String("compare-saved-case", "", "first saved authorized Case ID for independent offline cross-snapshot comparison")
 	compareSavedWithCase := flags.String("compare-saved-with-case", "", "second distinct saved Case ID for independent cross-snapshot comparison")
 	compareSavedWithSnapshot := flags.String("compare-saved-with-snapshot", "", "absolute path to second independent saved Case snapshot")
@@ -109,6 +115,38 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	}
 	if flags.NArg() != 0 {
 		return errors.New("unexpected positional arguments")
+	}
+	// Reuse the SAME authenticated owner and Event Search backend used by
+	// the analyst UI, but produce an explicit minimal offline JSON receipt.
+	// No local listener, bearer in stdout, independent search implementation
+	// or trust of the operator's source/tenant permission claims.
+	headlessSelected := false
+	flags.Visit(func(f *flag.Flag) {
+		switch f.Name {
+		case "hunt-saved-case", "hunt-field", "hunt-family", "hunt-value",
+			"hunt-from", "hunt-to":
+			headlessSelected = true
+		}
+	})
+	if headlessSelected {
+		allowed := true
+		flags.Visit(func(f *flag.Flag) {
+			switch f.Name {
+			case "principal", "snapshot", "expect-snapshot-sha256",
+				"hunt-saved-case", "hunt-field", "hunt-family",
+				"hunt-value", "hunt-from", "hunt-to":
+			default:
+				allowed = false
+			}
+		})
+		if !allowed || *huntSavedCase == "" || *snapshot == "" ||
+			*expectedSnapshotSHA256 == "" || *huntValue == "" ||
+			*huntFrom == "" || *huntTo == "" {
+			return errors.New("headless Case hunt needs an independent snapshot fingerprint, authorized Case, literal and time window")
+		}
+		return runSavedCaseHeadlessHunt(ctx, *principal, *snapshot, *huntSavedCase,
+			*expectedSnapshotSHA256, *huntField, *huntFamily,
+			*huntValue, *huntFrom, *huntTo, output)
 	}
 	// Build a mixed Wazuh + generic JSONL Case in ONE owner-validated,
 	// no-overwrite filesystem transaction, avoiding an intermediate
