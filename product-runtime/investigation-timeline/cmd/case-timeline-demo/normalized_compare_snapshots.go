@@ -17,9 +17,9 @@ import (
 func compareVerifiedSavedCases(ctx context.Context, principal, firstPath, firstCase, firstDigest,
 	secondPath, secondCase, secondDigest string, output io.Writer) error {
 	if ctx == nil || ctx.Err() != nil || principal == "" || firstCase == "" ||
-		secondCase == "" || firstCase == secondCase || firstDigest == "" ||
+		secondCase == "" || firstDigest == "" ||
 		secondDigest == "" || firstPath == "" || secondPath == "" {
-		return errors.New("two distinct saved Cases and independent SHA-256 receipts are required")
+		return errors.New("two saved Case snapshots and independent SHA-256 receipts are required")
 	}
 	// The SAME first-party integrity and Case/source ACL boundary now
 	// guards restore, offline inventory and BOTH comparison operands.
@@ -42,6 +42,13 @@ func compareVerifiedSavedCases(ctx context.Context, principal, firstPath, firstC
 	result, err := buildCaseComparison(a, b)
 	if err != nil { return err }
 	result.Format = "cmdr-local-verified-saved-case-comparison-v1"
+	if firstCase == secondCase {
+		// Two independently authorized snapshots may describe the SAME Case
+		// at different operator-selected capture points. Never compare raw
+		// event/source IDs across archives: owner-local IDs can collide.
+		// The operator's input order is NOT a verified capture chronology.
+		result.Format = "cmdr-local-verified-same-case-snapshot-comparison-v1"
+	}
 	// Both owners have already passed independent fingerprint, Case,
 	// Timeline and typed-source authorization before any Wazuh metadata
 	// is correlated. Generic JSONL snapshots simply produce no cohorts.
