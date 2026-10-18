@@ -91,6 +91,8 @@ func runSavedCaseHeadlessHunt(ctx context.Context, principal, snapshotPath, case
 	if err != nil || ctx.Err() != nil || strings.Contains(receipt.String(), token) {
 		return errors.New("headless Event Search output unavailable")
 	}
-	_, err = output.Write(receipt.Bytes())
+	// io.Copy reports io.ErrShortWrite when the destination silently
+	// accepts only part of an authorized forensic receipt.
+	_, err = io.Copy(output, &receipt)
 	return err
 }

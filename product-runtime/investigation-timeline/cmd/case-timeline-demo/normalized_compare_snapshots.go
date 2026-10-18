@@ -53,7 +53,9 @@ func compareVerifiedSavedCases(ctx context.Context, principal, firstPath, firstC
 	var encoded bytes.Buffer
 	if err := json.NewEncoder(&encoded).Encode(result); err != nil { return err }
 	if err := ctx.Err(); err != nil { return err }
-	_, err = output.Write(encoded.Bytes())
+	// Do not report a successful comparison when the destination accepted
+	// fewer bytes than the fully authorized result.
+	_, err = io.Copy(output, &encoded)
 	return err
 }
 
