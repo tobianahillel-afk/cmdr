@@ -115,8 +115,57 @@
         item.append(button);
         list.append(item);
       }
+      // Reuse actual Wazuh burst leads derived only from completed,
+      // owner-authorized Event Search references after a saved Case restart.
+      // Validate memberships locally for safe navigation, never treat the
+      // server-derived lead as an incident or bypass source-open ACL.
+      const leads = document.createElement("section");
+      if (receipt.search_bursts !== undefined) {
+        if (!Array.isArray(receipt.search_bursts) || receipt.search_bursts.length > 10) {
+          throw Error("Invalid Wazuh burst summary");
+        }
+        for (const lead of receipt.search_bursts) {
+          if (!lead || !/^[0-9]{1,16}$/.test(lead.agent_id) ||
+              !/^[0-9]{1,16}$/.test(lead.rule_id) ||
+              !Number.isSafeInteger(lead.alert_count) ||
+              lead.alert_count < 3 || lead.alert_count > 200 ||
+              !Number.isSafeInteger(lead.distinct_feeds) ||
+              lead.distinct_feeds < 1 || lead.distinct_feeds > lead.alert_count ||
+              lead.window_seconds !== 60 || !Array.isArray(lead.entry_ids) ||
+              lead.entry_ids.length !== lead.alert_count ||
+              new Set(lead.entry_ids).size !== lead.entry_ids.length ||
+              !lead.entry_ids.every(ref => seen.has(ref))) {
+            throw Error("Wazuh lead membership not in completed Job");
+          }
+          const first = Date.parse(lead.first_utc), last = Date.parse(lead.last_utc);
+          if (!Number.isFinite(first) || !Number.isFinite(last) ||
+              last < first || last - first > 60000) {
+            throw Error("Invalid persisted Wazuh temporal lead");
+          }
+          const item = document.createElement("article");
+          const title = document.createElement("p");
+          title.textContent = "Piste Wazuh : agent " + lead.agent_id +
+            ", règle " + lead.rule_id + ", " + lead.alert_count +
+            " événements en 60 s (" + lead.distinct_feeds + " flux).";
+          item.append(title);
+          for (const ref of lead.entry_ids) {
+            const button = document.createElement("button");
+            button.type = "button";
+            button.textContent = "Ouvrir l'événement " + ref;
+            button.addEventListener("click", () => {
+              if (searchRevision !== localSearchRevision ||
+                  selectedRevision !== revision || token.value !== bearer ||
+                  caseID.value.trim() !== selectedCase) return;
+              openSource(ref); // fresh independent Case + typed-source ACL
+            });
+            item.append(button);
+          }
+          leads.append(item);
+        }
+      }
       localSearchResults.replaceChildren();
       localSearchResults.append(list);
+      if (leads.children.length > 0) localSearchResults.append(leads);
       localSearchStatus.textContent = "Event Search Job " + job.ID + " terminé : " +
         job.ResultRefs.length + " résultat(s) autorisé(s). Ouvrir revérifie les droits.";
     } catch {

@@ -250,14 +250,29 @@ func newDemoLocalJSONLSearchHandler(token, principal, caseID string,
 			http.NotFound(w, r)
 			return
 		}
+		// Derive Wazuh chronology and 60s leads only from an actually
+		// completed and owner-authorized first-party Event Search Job.
+		// Generic JSONL Cases never receive invented Wazuh metadata.
+		var hits []wazuhSearchHit
+		var bursts []wazuhSearchBurst
+		if len(wazuh) > 0 && len(wazuh) == len(imported) {
+			hits, err = authorizedPersistedWazuhHits(data, caseID, job.ResultRefs, wazuh)
+			if err != nil {
+				http.NotFound(w, r)
+				return
+			}
+			bursts = deriveWazuhSearchBursts(hits)
+		}
 		receipt := struct {
 			Format string `json:"format"`
 			Synthetic bool `json:"synthetic"`
 			CaseID string `json:"case_id"`
 			Job search.SearchJob `json:"job"`
+			Hits []wazuhSearchHit `json:"search_hits,omitempty"`
+			Bursts []wazuhSearchBurst `json:"search_bursts,omitempty"`
 		}{
 			Format: "cmdr-local-jsonl-event-search-v1", Synthetic: true,
-			CaseID: caseID, Job: job,
+			CaseID: caseID, Job: job, Hits: hits, Bursts: bursts,
 		}
 		// Serialize only after all owner authorizations and Job completion;
 		// no partial result or preview is written to the HTTP response.

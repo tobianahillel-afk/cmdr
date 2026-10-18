@@ -260,3 +260,82 @@ func TestPersistedWazuhRuleAndAgentSearchJobsAfterRestart(t *testing.T) {
 		}
 	}
 }
+
+func TestPersistedWazuhSearchBurstsFromCompletedAuthorizedJob(t *testing.T) {
+	const caseID="forensic-case-on-disk"
+	owner:=snapshotFixture(t)
+	first:=writeJSONLEvents(t,
+		"{\"id\":\"same-id\",\"timestamp\":\"2026-10-17T10:00:00Z\",\"agent\":{\"id\":\"001\"},\"rule\":{\"id\":\"5710\",\"description\":\"PowerShell first alert\",\"level\":9}}\n"+
+		"{\"id\":\"second\",\"timestamp\":\"2026-10-17T10:00:20Z\",\"agent\":{\"id\":\"001\"},\"rule\":{\"id\":\"5710\",\"description\":\"PowerShell follow up\",\"level\":8}}\n")
+	second:=writeJSONLEvents(t,
+		"{\"id\":\"same-id\",\"timestamp\":\"2026-10-17T10:00:40Z\",\"agent\":{\"id\":\"001\"},\"rule\":{\"id\":\"5710\",\"description\":\"PowerShell second feed\",\"level\":10}}\n"+
+		"{\"id\":\"late\",\"timestamp\":\"2026-10-17T10:02:00Z\",\"agent\":{\"id\":\"001\"},\"rule\":{\"id\":\"5710\",\"description\":\"Later separate alert\"}}\n"+
+		"{\"id\":\"other\",\"timestamp\":\"2026-10-17T10:00:10Z\",\"agent\":{\"id\":\"002\"},\"rule\":{\"id\":\"1000\",\"description\":\"Unrelated maintenance\"}}\n")
+	saved:=filepath.Join(t.TempDir(),"scoped-wazuh-owner.json")
+	if err:=writePersistedWazuhCase(context.Background(),"analyst-a",owner,caseID,
+		[]string{first,second},saved,&bytes.Buffer{});err!=nil {t.Fatalf("persist Wazuh: %v",err)}
+	blob,err:=os.ReadFile(saved)
+	if err!=nil {t.Fatal(err)}
+	digest:=fmt.Sprintf("%x",sha256.Sum256(blob))
+	if err:=os.Remove(first);err!=nil {t.Fatal(err)}
+	if err:=os.Remove(second);err!=nil {t.Fatal(err)}
+	data,imported,err:=loadAuthorizedImportedCase(context.Background(),"analyst-a",saved,caseID,digest)
+	if err!=nil || len(imported)!=5 {t.Fatalf("owner lost independent feeds after restart: %d %v",len(imported),err)}
+	token,err:=randomBearer()
+	if err!=nil {t.Fatal(err)}
+	ownerHTTP,err:=newDemoHandlerWithData(token,"analyst-a",data)
+	if err!=nil {t.Fatal(err)}
+	handler:=newDemoLocalJSONLSearchHandler(token,"analyst-a",caseID,data,imported,ownerHTTP)
+	query:=[]byte("{\"case_id\":\""+caseID+"\",\"field\":\"rule_id\",\"value\":\"5710\",\"from\":\"2026-10-17T09:59:00Z\",\"to\":\"2026-10-17T10:03:00Z\"}")
+	send:=func(bearer string)*httptest.ResponseRecorder {
+		t.Helper()
+		req:=httptest.NewRequest(http.MethodPost,"/demo-local-search",bytes.NewReader(query))
+		req.Header.Set("Content-Type","application/json")
+		req.Header.Set("Authorization","Bearer "+bearer)
+		out:=httptest.NewRecorder()
+		handler.ServeHTTP(out,req)
+		return out
+	}
+	ok:=send(token)
+	var receipt struct{
+		Job search.SearchJob `json:"job"`
+		Hits []wazuhSearchHit `json:"search_hits"`
+		Bursts []wazuhSearchBurst `json:"search_bursts"`
+	}
+	if ok.Code!=http.StatusOK || json.Unmarshal(ok.Body.Bytes(),&receipt)!=nil ||
+		receipt.Job.State!=search.JobCompleted || len(receipt.Job.ResultRefs)!=4 ||
+		len(receipt.Hits)!=4 || len(receipt.Bursts)!=1 {
+		t.Fatalf("persisted authorized Wazuh correlation failed: %d %s",ok.Code,ok.Body.String())
+	}
+	burst:=receipt.Bursts[0]
+	if burst.AgentID!="001" || burst.RuleID!="5710" ||
+		burst.AlertCount!=3 || burst.DistinctFeeds!=2 || burst.WindowSeconds!=60 ||
+		burst.FirstUTC!="2026-10-17T10:00:00Z" ||
+		burst.LastUTC!="2026-10-17T10:00:40Z" || len(burst.EntryIDs)!=3 {
+		t.Fatalf("wrong saved Wazuh 60-second leads: %+v",burst)
+	}
+	refs:=make(map[string]bool)
+	for _,ref:=range receipt.Job.ResultRefs {
+		if ref.Source!=localJSONLSearchSource {t.Fatalf("foreign source ref: %+v",ref)}
+		refs[ref.Ref]=true
+	}
+	for _,hit:=range receipt.Hits {
+		if !refs[hit.EntryID] {t.Fatalf("hit not present in authorized completed Search Job: %+v",hit)}
+	}
+	for _,ref:=range burst.EntryIDs {
+		if !refs[ref] {t.Fatalf("burst linked foreign source: %s",ref)}
+		req:=httptest.NewRequest(http.MethodGet,"/demo-source-open?case_id="+caseID+"&entry_id="+ref,nil)
+		req.Header.Set("Authorization","Bearer "+token)
+		opened:=httptest.NewRecorder()
+		ownerHTTP.ServeHTTP(opened,req)
+		if opened.Code!=http.StatusOK {t.Fatalf("burst member not independently owner-openable: %s",ref)}
+	}
+	for _,secret:=range []string{"PowerShell first alert","PowerShell follow up",
+		"PowerShell second feed","Later separate alert","Unrelated maintenance",token} {
+		if strings.Contains(ok.Body.String(),secret) {t.Fatalf("source preview/bearer leaked through burst: %q",secret)}
+	}
+	denied:=send("not-this-owner")
+	if denied.Code==http.StatusOK || strings.Contains(denied.Body.String(),"local-jsonl-entry-") {
+		t.Fatalf("unauthorized caller received burst or source identities: %d %s",denied.Code,denied.Body.String())
+	}
+}
