@@ -2,6 +2,8 @@ package main
 
 import (
 	"bytes"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -18,6 +20,21 @@ const maxDemoSnapshotBytes = 8 << 20
 // The full dataset is copied and cross-checked by the existing memory provider
 // before the loopback listener starts. This is not a durable live repository.
 func loadDemoSnapshot(path string) (timeline.MemoryTimelineData, error) {
+	return loadDemoSnapshotWithExpectedSHA256(path, "")
+}
+
+// The operator-held digest must match the EXACT bytes decoded below. Hashing
+// in a separate pass would leave a second-open time-of-check/use window.
+// This is byte-change detection, not authenticated provenance or custody.
+func loadDemoSnapshotWithExpectedSHA256(path, expectedHex string) (timeline.MemoryTimelineData, error) {
+	var expected []byte
+	if expectedHex != "" {
+		var err error
+		expected, err = hex.DecodeString(expectedHex)
+		if err != nil || len(expected) != sha256.Size || path == "" {
+			return timeline.MemoryTimelineData{}, errors.New("expected owner snapshot SHA-256 must be 64 hexadecimal digits")
+		}
+	}
 	if path == "" {
 		return demoData(), nil
 	}
@@ -40,6 +57,12 @@ func loadDemoSnapshot(path string) (timeline.MemoryTimelineData, error) {
 	data, err := io.ReadAll(io.LimitReader(file, maxDemoSnapshotBytes+1))
 	if err != nil || len(data) > maxDemoSnapshotBytes {
 		return timeline.MemoryTimelineData{}, errors.New("snapshot exceeds size limit or cannot be read")
+	}
+	if expected != nil {
+		sum := sha256.Sum256(data)
+		if !bytes.Equal(sum[:], expected) {
+			return timeline.MemoryTimelineData{}, errors.New("owner snapshot bytes differ from operator-held SHA-256")
+		}
 	}
 	var snapshot timeline.MemoryTimelineData
 	decoder := json.NewDecoder(bytes.NewReader(data))
