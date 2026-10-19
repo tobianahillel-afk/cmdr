@@ -1,0 +1,124 @@
+{
+  "schema_version": 2,
+  "id": "E10-INV-101P-INSPECT",
+  "title": "Inspect one authorized Case Queue row without Workspace navigation",
+  "type": "task",
+  "parent": "E10-INV-101",
+  "goal": "Complete CAP-INV-101 §17 Queue → Inspector Class-0 selection using only the existing server-authorized Queue row, including saved views, filtering and pagination; no separate Inspector UI or Case mutation.",
+  "depends_on": [
+    "E10-INV-101O-INCIDENT"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-101"
+    ],
+    "requirements": [
+      "REQ-PROD-014",
+      "REQ-PROD-020",
+      "REQ-UX-002",
+      "REQ-UX-003"
+    ],
+    "screens": [
+      "INV-CAS-001"
+    ],
+    "permissions": [
+      "perm.investigate.case.read",
+      "perm.command.incident.read"
+    ],
+    "open_decisions": [],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/case.md",
+      "cmdr-product-spec/05-domain-model/objects/incident.md"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/pagination-filtering-sorting.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/case-queue/http.go",
+    "product-runtime/case-queue/http_inspector_test.go",
+    "product-runtime/case-queue/README.md",
+    "work/lots/E10-INV-101P-INSPECT/**",
+    "work/graph.json",
+    "engineering/state/current.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/event-search/**",
+    "product-runtime/investigation-timeline/**",
+    "tools/cmdr-dev/**"
+  ],
+  "invariants": [
+    "inspect_case opaque exact Case ID selects only an already source-authorized row of the SAME current Case Queue projection; no second query/search/authorization engine.",
+    "The current server session, independent Case/Incident/Finding ACLs, Shared Saved View, filters and page cursor are applied before Inspector selection.",
+    "Denied, stale-page or filtered-out selection emits generic error without unauthorized Case/Incident/Finding data; a readable stale Case may be inspected as stale but cannot automatically be opened for mutation.",
+    "Inspector HTTP returns a read-only row projection, NOT the canonical visual component or production UI; no new permissions, Command Work Queue or object mutation."
+  ],
+  "security_properties": [
+    "No Case snapshot or nested Incident/Finding data reaches Inspector if the corresponding first-party read check denied it.",
+    "Unknown, duplicated or injection controls fail before session/provider. Selected Case cannot come from outside requested current page.",
+    "Provider revocation invalidates the authorized projection/cursor; raw candidate AccessDecision cannot grant read rights."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Additional optional read-only HTTP Queue projection selection, no schema or store.",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Remove optional inspect_case mode; old GET list/pagination, open_case/scroll, POST return and Saved Views unchanged.",
+    "verification": [
+      "Existing native Queue/Workspace handoff tests unchanged",
+      "No state mutations"
+    ]
+  },
+  "inputs": [
+    "Canonical CAP-INV-101 §17 Queue -> Inspector selection; design-system Inspector owner remains Shared.",
+    "Exact frozen parent PR #146 SHA 6a7a265b473def439d19f2a43bc381feac6256df; engineering-kernel run 39309883879 SUCCESS, parent DRAFT."
+  ],
+  "outputs": [
+    "Optional GET /case-queue?inspect_case=OPAQUE_CASE_ID returns only one current sanitized read-only Row, not the full Queue or a second owner object.",
+    "Same filters/sort, Shared view and `limit`/`cursor` select only currently visible rows. Existing open_case, POST return unaffected."
+  ],
+  "acceptance_tests": [
+    "Real Go httptest: selected Case authorized, denied Case and denied Incident/Finding never leak, including partial Case flags.",
+    "Selection outside current page rejected; source revocation between page and inspection denies stale cursor.",
+    "Invalid/multiple selector or conflicting open_case/scroll or tenant/principal injections fail before session/provider; old Queue tests all green."
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "Reuse existing <=5000 owner authorization and <=100 page projection, no second owner traversal or new store.",
+    "metrics": [
+      "<=5000 candidates per request",
+      "<=100 page rows",
+      "No extra authorization pass"
+    ]
+  },
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-RUNTIME-DEPS",
+    "CHK-SECURITY-TESTS"
+  ],
+  "definition_of_ready": [
+    "Parent #146 implemented on published exact HEAD, with latest engineering-kernel success; L2/native approvals separate.",
+    "Read-only Case selection only; no Inspector UI implementation or OPEN-013 mutation."
+  ],
+  "definition_of_done": [
+    "Publish exact base/head and meaningful Go native HTTP integration tests, obtain SHA-matched CI evidence.",
+    "One independent read-only L2 for material new inspector projection; no claim of product-wide acceptance or merging when ancestor PRs draft."
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 6,
+    "estimated_net_loc": 75,
+    "production_files": 1,
+    "net_production_loc": 45,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}
