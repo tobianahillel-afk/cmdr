@@ -44,6 +44,26 @@
   const localWorkspaceStatus = document.getElementById("local-search-workspace-status");
   const localWorkspaceActions = document.getElementById("local-search-workspace-actions");
   const localSearchProvenance = document.getElementById("local-search-provenance");
+  const compareRunBaseline = document.getElementById("local-search-compare-baseline");
+  const compareRunStatus = document.getElementById("local-search-compare-status");
+  let provenanceBaseline = null, currentProvenance = null, provenanceScope = 0;
+  // CAP-INV-008 Class-0: retain ONLY bounded aggregate fields of a previously
+  // authorized completed run. No bearer, raw refs, source names or persistence.
+  const compareRunCounts = (a, b) =>
+    a === null || b === null ? "indisponible" : String(b - a);
+  function clearRunComparisonScope() {
+    provenanceScope++;
+    provenanceBaseline = null;
+    currentProvenance = null;
+    compareRunBaseline.disabled = true;
+    compareRunStatus.textContent = "Aucune comparaison de runs autorisés.";
+  }
+  compareRunBaseline.addEventListener("click", () => {
+    if (!currentProvenance || compareRunBaseline.disabled) return;
+    provenanceBaseline = { ...currentProvenance };
+    compareRunStatus.textContent =
+      "Référence éphémère mémorisée. Exécutez un autre Search Job autorisé dans le même Case.";
+  });
   let localSearchRevision = 0;
   let localSearchRequest = null;
   function clearLocalSearch() {
@@ -56,6 +76,11 @@
     localWorkspaceStatus.textContent = "Aucun résultat à organiser.";
     localSearchStatus.textContent = "Aucune recherche JSONL exécutée.";
     localSearchProvenance.textContent = "Aucune provenance de Search Job consultable.";
+    currentProvenance = null;
+    compareRunBaseline.disabled = true;
+    compareRunStatus.textContent = provenanceBaseline ?
+      "Référence précédente conservée pour le prochain Search Job de ce Case." :
+      "Aucune comparaison de runs autorisés.";
   }
   async function runLocalSearch() {
     clearLocalSearch();
@@ -335,6 +360,32 @@
         (incomplete ? "Provenance partielle : champs indisponibles explicites." :
           "Provenance de run consultable, sans attestation de complétude canonique.") +
         " Consultation locale éphémère uniquement, pas de Trace Shared persistée.";
+      // Compare only two separately completed and owner-authorized runs
+      // in this unchanged Case/session. Unknown counts are NOT interpreted
+      // as zero. The baseline stores no result IDs, tokens or source names.
+      const run = {
+        caseID: selectedCase, scope: provenanceScope, runID,
+        queryVersion: versions, fromUTC, toUTC,
+        sources: sourceCount === "indisponible" ? null : Number(sourceCount),
+        failures: failures === "indisponible" ? null : Number(failures),
+        audit: job.AuditTrail.length, results: job.ResultRefs.length
+      };
+      let runComparison = "Aucune comparaison de runs autorisés.";
+      if (provenanceBaseline && provenanceBaseline.scope === provenanceScope &&
+          provenanceBaseline.caseID === selectedCase) {
+        const base = provenanceBaseline;
+        runComparison = base.runID === run.runID ?
+          "RunID identique : aucun second run distinct à comparer." :
+          "CAP-INV-008 — comparaison locale de deux runs autorisés : " +
+          "version Query [" + base.queryVersion + " → " + run.queryVersion + "], " +
+          "fenêtre UTC de référence [" + base.fromUTC + " ; " + base.toUTC +
+          "], nouvelle fenêtre [" + run.fromUTC + " ; " + run.toUTC + "], " +
+          "écart résultats " + (run.results - base.results) +
+          ", sources déclarées " + compareRunCounts(base.sources, run.sources) +
+          ", sources en échec " + compareRunCounts(base.failures, run.failures) +
+          ", événements d'audit " + (run.audit - base.audit) +
+          ". Écarts descriptifs seulement : pas de causalité, auteur, Trace ni preuve de complétude.";
+      }
       // Publish only after the ENTIRE SearchJob and correlated lead
       // membership was validated. No persistent annotation or Case link.
       localSearchResults.replaceChildren();
@@ -344,6 +395,9 @@
       localWorkspaceActions.append(pinButton, openSelected);
       updateWorkspace();
       localSearchProvenance.textContent = provenanceSummary;
+      currentProvenance = run;
+      compareRunBaseline.disabled = false;
+      compareRunStatus.textContent = runComparison;
       localSearchStatus.textContent = "Event Search Job " + job.ID + " terminé : " +
         job.ResultRefs.length + " résultat(s) autorisé(s). Ouvrir revérifie les droits.";
     } catch {
@@ -352,6 +406,7 @@
         localWorkspaceActions.replaceChildren();
         localWorkspaceStatus.textContent = "Aucun résultat à organiser.";
         localSearchProvenance.textContent = "Aucune provenance de Search Job consultable.";
+        clearRunComparisonScope();
         localSearchStatus.textContent = "Recherche refusée ou trop volumineuse. Aucun résultat partiel.";
       }
     } finally {
@@ -2282,6 +2337,7 @@
       clearComparison();
       clearWazuh();
       clearLocalSearch();
+      clearRunComparisonScope();
       clearSource();
       if (activeRequest) activeRequest.abort();
       activeRequest = null;
