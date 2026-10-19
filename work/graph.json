@@ -1905,7 +1905,7 @@
       "unlocks": []
     },
     {
-      "id": "E10-INV-110H-STARTUP-SELECTOR",
+      "id": "E10-INV-110H-BOOT",
       "title": "Fail closed on invalid owner Case selectors before synthetic viewer startup",
       "type": "task",
       "status": "IMPLEMENTED",
