@@ -169,10 +169,9 @@
           else selected.delete(ref.Ref);
           updateWorkspace();
         });
-        item.append(checkbox);
         const button = document.createElement("button");
         button.type = "button";
-        button.textContent = (isWazuh ? "Wazuh — " : "JSONL — ") + ref.Ref;
+        button.textContent = ref.Ref;
         button.addEventListener("click", () => {
           if (searchRevision !== localSearchRevision ||
               selectedRevision !== revision || token.value !== bearer ||
@@ -180,6 +179,10 @@
           openSource(ref.Ref); // triggers fresh Case/navigation/typed-source checks
         });
         item.append(button);
+        item.append(checkbox);
+        const label = document.createElement("span");
+        label.textContent = isWazuh ? " — Wazuh" : " — JSONL";
+        item.append(label);
         list.append(item);
       }
       // Reuse actual Wazuh burst leads derived only from completed,
