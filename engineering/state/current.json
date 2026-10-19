@@ -17,9 +17,9 @@
     "phase_title": "Scaled product implementation program bootstrap"
   },
   "execution": {
-    "active_work_unit": "E10-INV-101Q-BROWSER",
+    "active_work_unit": "E10-INV-101R-SELECT",
     "preferred_next_unit": null,
-    "selection_rule": "2026-10-19: CAP-INV-101 native API #147 exact HEAD b989d5d1284b8e7b8370021019a49b042d346d7e had engineering-kernel #39311482545 SUCCESS (state cache incorrectly said pending); #147 IMPLEMENTED, parent still DRAFT/nonmerged, independent L2 already executed but no native APPROVED. New E10-INV-101Q-BROWSER materially consumes the same first-party authorized Queue projection through an opt-in same-origin read-only UI. Code/manifest published on a child branch. Only IMPLEMENTED until exact-head CI/L2 and integration review; do not promote full CAP-INV-101 or assume ancestors merged."
+    "selection_rule": "2026-10-19: Verified GitHub #148 Q opt-in read-only browser HEAD ab997eb3... with engineering-kernel run 39315546287 SUCCESS; prior Q ChatGPT L2 task executed, native APPROVED not evidenced. New R connects Q row to already implemented P native inspect_case under current host ACL, code/manifest published on child PR draft. R IMPLEMENTED only: require exact-head CI and one independent L2; do not promote full CAP-INV-101, alter audited parent SHAs or treat any draft as merged."
   },
   "reconciliation": {
     "required_on_resume": true,
