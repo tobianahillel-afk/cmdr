@@ -48,3 +48,16 @@ those results MUST NOT be transferred to this additional code/test diff.
 The full-scope Go security coverage gate remains mandatory even for browser
 changes. No artificial tests or reduced thresholds should be added solely
 to force green.
+
+
+## 2026-10-19 — Exact Case identity in return links (same R2 root cause)
+
+After correcting the browser picker and comparison, the first-party **return-from-Inspector Timeline URL** still rejected valid owner-issued Case IDs with significant surrounding spaces in `restoreReturnSelection` (`analyst.js` around line 1783). The old `id.trim() !== id` presentation check meant an authorized Case called `" case-disk "` was accepted by the backend and picker, but could **never** have its Timeline/time-range restored from a source-navigation return link. The navigation contract requires a return to the same selected Case, not silent alteration or an invalid link.
+
+Minimal correction **within the already authorized E10-INV-110G-EXACT paths and SAME PR #135**: require the URL `case_id` to be nonempty, length <=1024, nonblank after a read-only whitespace check `!id.trim()`, and not wildcard, but **do not normalize** its identity. Keep existing strict allowed-query-key and single-value validation, page/time/other-filter bounds, no automatic bearer or HTTP fetch on URL load, and fresh server-side reauthorization after explicit submission. No new parser, router, IAM, state model or security rule.
+
+An existing Node browser test harness in `analyst_summary.test.cjs` now takes an optional mocked URL query. New behavioral test checks a return URL with `case_id=%20case-disk%20`, verifies zero initial requests, exact unchanged restored Case value, and an explicit Timeline submit with the same original encoded Case identity and freshly entered bearer. A whitespace-only Case return link is rejected with no request. Existing native Case picker, SearchJob, comparison and inspector tests remain unchanged.
+
+**Source changes recorded:** 2 real code/test commits on the same PR #135 after the prior frozen historical HEAD `44957cad74eeb6a391ede967a08f0dfdf95dd284`: `0d5a653e3ce6374676b5b95bf0a7aa6ba8578c3a` (browser return selector), then `78fa3353f94331d6c49111ac84f31fd125cd68de` (real browser regression). Both changes are in the task manifest's allowlist; no SHA in parent PR #134 was changed. The historical `44957cad...` runtime SUCCESS and security-test 89.30% FAIL are **not evidence for new HEAD**. Exact-head GitHub Actions for `78fa335...` must be read, and any subsequent documentation/ledger commit also mandates checking its **own** SHA. The mandatory 90.00% security-coverage gate is unchanged; if the fallback full-Go scope remains 89.30%, merge stays BLOCKED even when browser/runtime tests succeed. No repetitive tests solely to increase a coverage score; solving the underlying full-scope security coverage and PR stack is independent engineering work outside this small read-only Case selector task and **must not silently widen its allowed paths**.
+
+Official node status remains **IMPLEMENTED**, never VERIFIED/ACCEPTED solely because this local synthetic UI fix works; parent PR #134, PR #36 foundation, approved live IAM and production Case persistence have separate acceptance and merge gates. L2 is not presumed from an existing PR #134 review.
