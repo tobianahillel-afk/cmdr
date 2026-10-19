@@ -17,9 +17,9 @@
     "phase_title": "Scaled product implementation program bootstrap"
   },
   "execution": {
-    "active_work_unit": "E10-INV-110H-STARTUP-SELECTOR",
+    "active_work_unit": "E10-INV-110H-BOOT",
     "preferred_next_unit": null,
-    "selection_rule": "GitHub reconciled 2026-10-19: E10-INV-110H-STARTUP-SELECTOR IMPLEMENTED child of E10-INV-110, consuming E10-INV-110G-EXACT IMPLEMENTED; PR child of frozen #136 SHA a0be908a5712ae24ec6c0ee6e791648058f9995b. Correct shared Case HTTP selector predicate now reused by local startup; meaningful Case-selection security invariant, exact-head required CI and L2 not yet accepted. Parent #36 DRAFT (763 commits,871 changed files), main bc1ec59e5e79ccbaba291e2984b0eb7d5e54129c. See work/lots/E10-INV-110H-STARTUP-SELECTOR/HANDOFF.md. No READY inferred and no production IAM/custody claimed."
+    "selection_rule": "GitHub reconciled 2026-10-19: E10-INV-110H-BOOT IMPLEMENTED child of E10-INV-110, consuming E10-INV-110G-EXACT IMPLEMENTED; PR child of frozen #136 SHA a0be908a5712ae24ec6c0ee6e791648058f9995b. Correct shared Case HTTP selector predicate now reused by local startup; meaningful Case-selection security invariant, exact-head required CI and L2 not yet accepted. Parent #36 DRAFT (763 commits,871 changed files), main bc1ec59e5e79ccbaba291e2984b0eb7d5e54129c. See work/lots/E10-INV-110H-BOOT/HANDOFF.md. No READY inferred and no production IAM/custody claimed."
   },
   "reconciliation": {
     "required_on_resume": true,
