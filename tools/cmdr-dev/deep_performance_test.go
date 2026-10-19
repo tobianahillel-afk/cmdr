@@ -237,24 +237,28 @@ func TestEventSearchOrchestrationDeepHandlerExecutesRealRuntime(t *testing.T) {
 }
 
 func TestCommandWorkQueueDeepResourceHandlerExecutesActualRuntime(t *testing.T) {
-	root,err:=filepath.Abs(filepath.Join("..",".."))
-	if err!=nil {t.Fatal(err)}
-	target:=DeepPerformanceTarget{
-		ID:"PERF-DEEP-COMMAND-WORK-QUEUE-PROJECTION",
-		PerformanceTargetID:"PERF-TGT-COMMAND-WORK-QUEUE-PROJECTION",
-		Kind:"resource",HandlerKey:"builtin-command-work-queue-projection-v1",
-		Stages:[]string{"on-demand"},TriggerPaths:[]string{"product-runtime/work-queue/**"},
-		TimeoutSeconds:30,MemoryLimitMiB:128,Concurrency:1,Iterations:1000,
-		Rationale:"real resource-probe integration of authorized Command Work Queue",
+	root, err := filepath.Abs(filepath.Join("..", ".."))
+	if err != nil {
+		t.Fatal(err)
 	}
-	result,err:=runDeepPerformanceHandler(context.Background(),root,target)
-	if err!=nil {t.Fatalf("Command Work Queue deep target not executable: %v",err)}
-	if result.Operations!=int64(target.Iterations) || result.PeakHeapBytes==0 ||
-		result.PeakHeapBytes>128*1024*1024 || result.TotalAllocationBytes==0 ||
-		result.ThroughputOpsPerSec<=0 {
-		t.Fatalf("deep target produced no actual Command heap/allocation metrics: %+v",result)
+	target := DeepPerformanceTarget{
+		ID:                  "PERF-DEEP-COMMAND-WORK-QUEUE-PROJECTION",
+		PerformanceTargetID: "PERF-TGT-COMMAND-WORK-QUEUE-PROJECTION",
+		Kind:                "resource", HandlerKey: "builtin-command-work-queue-projection-v1",
+		Stages: []string{"on-demand"}, TriggerPaths: []string{"product-runtime/work-queue/**"},
+		TimeoutSeconds: 30, MemoryLimitMiB: 128, Concurrency: 1, Iterations: 1000,
+		Rationale: "real resource-probe integration of authorized Command Work Queue",
 	}
-	if err:=validateDeepPerformanceObservation(target,result);err!=nil {
-		t.Fatalf("valid Command observation failed common deep gate: %v",err)
+	result, err := runDeepPerformanceHandler(context.Background(), root, target)
+	if err != nil {
+		t.Fatalf("Command Work Queue deep target not executable: %v", err)
+	}
+	if result.Operations != int64(target.Iterations) || result.PeakHeapBytes == 0 ||
+		result.PeakHeapBytes > 128*1024*1024 || result.TotalAllocationBytes == 0 ||
+		result.ThroughputOpsPerSec <= 0 {
+		t.Fatalf("deep target produced no actual Command heap/allocation metrics: %+v", result)
+	}
+	if err := validateDeepPerformanceObservation(target, result); err != nil {
+		t.Fatalf("valid Command observation failed common deep gate: %v", err)
 	}
 }
