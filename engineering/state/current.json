@@ -17,9 +17,9 @@
     "phase_title": "Scaled product implementation program bootstrap"
   },
   "execution": {
-    "active_work_unit": "E10-INV-101L-VIEW",
+    "active_work_unit": "E10-INV-101M-PAGE",
     "preferred_next_unit": null,
-    "selection_rule": "GitHub-reconciled 2026-10-19: PR #142 E10-INV-101K-RETURN exact immutable HEAD a41bbcf6b2ac40f366b17c29f9bd1c573d7ce6ff, engineering-kernel run 39263545787 SUCCESS; independent one-shot L2 scheduled and executed but report NOT accessible, native APPROVED unverified; status K=IMPLEMENTED. Work graph had zero READY units and existing HTTP native Queue/Case return omitted canonical CAP-INV-101 Shared Saved Views. New bounded E10-INV-101L-VIEW child of K under epic E10-INV-101 adds opt-in trusted host-selected Shared read-only view with per-request ACL/version re-evaluation, not a second Saved View engine. Source committed on child branch from frozen K; L remains IMPLEMENTED until exact HEAD GitHub CI, L2 and native approvals. Parent #142 and #36/#2 still DRAFT, main spec-only, parallel #138 security FAIL 89.34%. No IAM, host/deployment, Shared persistence or CAP full acceptance claim."
+    "selection_rule": "GitHub reconciled 2026-10-19: #143 E10-INV-101L-VIEW frozen exact HEAD d30771735029bd21207357b0966c1ac0ccad7d9b, kernel run 39272411656 SUCCESS; one-shot independent L2 executed but report inaccessible; no native APPROVED or merge. Canonical CAP-INV-101 Case Queue read-only listing already has authenticated Case/Incident/Finding ACL, search/filter/sort/Shared Saved Views and Workspace return, but 5000-row native HTTP GET had no pagination and could exceed 4MiB output. New bounded E10-INV-101M-PAGE child of L (IMPLEMENTED), optional 1..100 page, stale-digest cursor, full ACL revalidation, original first-party ProjectWithSavedViewFallback reused. Graph node IMPLEMENTED pending exact-head security/kernel, L2 and GitHub integration. Parallel #138 local demo Case lookup has mandatory security failure 89.34%, is NOT merged and not a prerequisite; large #36/#2 and other PRs remain DRAFT, main unchanged. No production IAM, durable data source or acceptance claim."
   },
   "reconciliation": {
     "required_on_resume": true,
