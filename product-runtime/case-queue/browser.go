@@ -1,13 +1,18 @@
 package casequeue
 
 import (
- "embed"
- "errors"
+ _ "embed"
  "net/http"
 )
 
-//go:embed browser.html browser.js browser.css
-var browserAssets embed.FS
+//go:embed browser.html
+var queueBrowserHTML []byte
+
+//go:embed browser.js
+var queueBrowserJS []byte
+
+//go:embed browser.css
+var queueBrowserCSS []byte
 
 // NewAuthorizedQueueBrowserHandler is an opt-in, same-origin, host-mounted
 // read-only consumer for the existing first-party Queue HTTP projection.
@@ -24,7 +29,6 @@ func NewAuthorizedQueueBrowserHandler(sessions QueueSessionResolver,
   api, err = NewAuthorizedQueueHTTPHandlerWithSavedViews(sessions, cases, access, views)
  }
  if err != nil { return nil, err }
- if api == nil { return nil, errors.New("authorized Queue handler required") }
  return queueBrowser{api: api}, nil
 }
 
@@ -36,11 +40,12 @@ func (h queueBrowser) ServeHTTP(w http.ResponseWriter, r *http.Request) {
   h.api.ServeHTTP(w, r)
   return
  }
- var name, mimeType string
+ var mimeType string
+ var body []byte
  switch r.URL.Path {
- case "/case-queue/ui": name, mimeType = "browser.html", "text/html; charset=utf-8"
- case "/case-queue/ui.js": name, mimeType = "browser.js", "text/javascript; charset=utf-8"
- case "/case-queue/ui.css": name, mimeType = "browser.css", "text/css; charset=utf-8"
+ case "/case-queue/ui": body, mimeType = queueBrowserHTML, "text/html; charset=utf-8"
+ case "/case-queue/ui.js": body, mimeType = queueBrowserJS, "text/javascript; charset=utf-8"
+ case "/case-queue/ui.css": body, mimeType = queueBrowserCSS, "text/css; charset=utf-8"
  default: http.Error(w, "not found", http.StatusNotFound); return
  }
  w.Header().Set("Cache-Control", "no-store")
@@ -56,8 +61,6 @@ func (h queueBrowser) ServeHTTP(w http.ResponseWriter, r *http.Request) {
   http.Error(w, "invalid UI request", http.StatusBadRequest)
   return
  }
- body, err := browserAssets.ReadFile(name)
- if err != nil { http.Error(w, "unavailable", http.StatusServiceUnavailable); return }
  w.Header().Set("Content-Type", mimeType)
  w.WriteHeader(http.StatusOK)
  _, _ = w.Write(body)
