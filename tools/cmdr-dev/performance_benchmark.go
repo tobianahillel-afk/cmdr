@@ -132,7 +132,7 @@ var knownBenchmarkHandlerKeys = map[string]bool{
 	"builtin-saved-query-assets-projection-v1":                       true,
 	"builtin-saved-query-assets-handoff-v1":                          true,
 	"builtin-case-queue-projection-v1":                               true,
-	"builtin-command-work-queue-projection-v1": true,
+	"builtin-command-work-queue-projection-v1":                       true,
 	"builtin-case-queue-saved-view-v1":                               true,
 	"builtin-case-queue-handoff-v1":                                  true,
 	"builtin-investigation-timeline-projection-v1":                   true,
@@ -454,10 +454,14 @@ func prepareBenchmarkHandler(root string, workload BenchmarkWorkloadDefinition) 
 	switch workload.HandlerKey {
 	case "builtin-command-work-queue-projection-v1":
 		probe, cleanup, err := prepareCommandWorkQueueProbe(root)
-		if err != nil { return nil, func(){}, err }
-		return func() (BenchmarkSample,error) {
+		if err != nil {
+			return nil, func() {}, err
+		}
+		return func() (BenchmarkSample, error) {
 			observation, err := probe.run(2000)
-			if err != nil { return BenchmarkSample{}, err }
+			if err != nil {
+				return BenchmarkSample{}, err
+			}
 			return BenchmarkSample{Measurements: []BenchmarkMeasurement{{
 				Kind: "latency", Unit: "ns", Value: observation.NSPerOperation,
 			}}}, nil
