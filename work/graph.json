@@ -1970,6 +1970,19 @@
         "E10-INV-101K-RETURN"
       ],
       "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-INV-101M-PAGE"
+      ]
+    },
+    {
+      "id": "E10-INV-101M-PAGE",
+      "title": "Serve current owner-authorized native Case Queue in cursor-bound pages",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-INV-101L-VIEW"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
       "unlocks": []
     }
   ]
