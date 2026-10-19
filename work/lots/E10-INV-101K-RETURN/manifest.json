@@ -1,0 +1,126 @@
+{
+  "schema_version": 2,
+  "id": "E10-INV-101K-RETURN",
+  "title": "Restore independently reauthorized Case Queue return context over native HTTP",
+  "type": "task",
+  "parent": "E10-INV-101",
+  "goal": "Expose the already-existing RestoreCaseQueue as a bounded host-authenticated HTTP POST response for the exact originating Case Queue, without sending navigation state through GET query strings or trusting decoded tokens as authority.",
+  "depends_on": [
+    "E10-INV-101J-HANDOFF"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-101"
+    ],
+    "requirements": [
+      "REQ-PROD-014",
+      "REQ-PROD-020"
+    ],
+    "screens": [
+      "INV-CAS-001"
+    ],
+    "permissions": [
+      "perm.investigate.case.read"
+    ],
+    "open_decisions": [],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/pagination-filtering-sorting.md",
+      "cmdr-product-spec/17-implementation-contracts/error-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/case.md",
+      "cmdr-product-spec/05-domain-model/objects/incident.md",
+      "cmdr-product-spec/05-domain-model/objects/finding.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/case-queue/http.go",
+    "product-runtime/case-queue/http_return_test.go",
+    "product-runtime/case-queue/README.md",
+    "work/lots/E10-INV-101K-RETURN/**",
+    "work/graph.json",
+    "engineering/state/current.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/investigation-timeline/**",
+    "product-runtime/event-search/**",
+    "tools/cmdr-dev/**"
+  ],
+  "invariants": [
+    "Never treat a base64 token as a credential or trusted tenant/environment/Case selector. Current authenticated host session determines scope and owner provider data.",
+    "Every candidate Case and nested Incident/Finding is independently reauthorized server-side before RestoreCaseQueue reprojects currently visible selected Case and filters.",
+    "Return token travels in POST JSON body, not GET URL or logs. Unknown, malformed, excessive, duplicate JSON or query parameters are rejected before session/provider.",
+    "Restore is read-only; no Case mutation, new provider, IAM, Saved View persistence, storage, external dependency or paid API."
+  ],
+  "security_properties": [
+    "Host-supplied current session/tenant/environment and read authorizer guard all Case and nested resources before applying untrusted ReturnState.",
+    "POST must be to the exact /case-queue/return route with bounded JSON token body and no query or new authorization fields; URL use of token forbidden.",
+    "Stale, denied, filtered Case, changed tenant/environment and invalid token return generic error with no partial queue or source metadata.",
+    "No-store/no-referrer, Vary Authorization, JSON response cap and no token leaks preserved."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Read-only navigation response only; no migration, IAM or storage change.",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Revert POST return handling; existing authorized GET Queue projection/handoff and Go helper RestoreCaseQueue remain intact.",
+    "verification": [
+      "No Change to Case mutation or Saved View persistence",
+      "GET and original handoff tests green"
+    ]
+  },
+  "inputs": [
+    "Frozen PR #141 native GET Case Queue -> Workspace handoff on dcabc46620e06e0452a0e5d9c6827b4aff2a006c, exact-head engineering-kernel 39257205407 SUCCESS; L2 and merge still pending.",
+    "Existing first-party RestoreCaseQueue from E10-INV-101D-HANDOFF is VERIFIED; CAP-INV-101 §25 explicitly requires restoring selected Case, view, filters and scroll with reauthorization."
+  ],
+  "outputs": [
+    "POST /case-queue/return accepts bounded JSON return_token in body, re-checks current host session and independent Case/Incident/Finding source ACL, invokes existing RestoreCaseQueue, returns only reauthorized ReturnState.",
+    "GET Case Queue listing and open_case remain unchanged; restore returns no Case payload and no permission grant."
+  ],
+  "acceptance_tests": [
+    "Open Case from filtered/sorted native GET; POST returned token through /case-queue/return with the SAME authenticated principal and Case owner; restored selected Case, q, filters, sort, scroll.",
+    "Change ACL, Case staleness or tenant/environment before POST; deny with generic response and zero selected Case metadata.",
+    "Missing/invalid/oversize/malformed/double JSON keys, query token, wrong path, GET return and mismatched methods rejected before sessions/provider.",
+    "Existing GET projection/handoff unchanged; exact HEAD mandatory engineering-kernel security CI success, independent read-only L2 and approval still required."
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "Reuse existing <=5000 authorized Case candidate pass and RestoreCaseQueue re-projection once for one selected Case; no additional network/provider fetching.",
+    "metrics": [
+      "POST input <= approximately 16KiB strict JSON and existing <=8192-byte decoded state token",
+      "No second provider read; only bounded first-party Case Queue projection",
+      "Output JSON <=4MiB, no Case/raw source in state receipt"
+    ]
+  },
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-RUNTIME-DEPS",
+    "CHK-SECURITY-TESTS"
+  ],
+  "definition_of_ready": [
+    "E10-INV-101D-HANDOFF VERIFIED first-party return engine and E10-INV-101J-HANDOFF IMPLEMENTED on parent frozen SHA with required engineering-kernel SUCCESS; its L2 remains inaccessible, no APPROVED claim.",
+    "CAP-INV-101 §25 queue return is a Class-0 read-only operation and does not require OPEN-013 mutations or selecting production IAM."
+  ],
+  "definition_of_done": [
+    "Native same-owner HTTP POST restores current authorized queue navigation through existing RestoreCaseQueue; tests cover valid and denied/stale/malformed and exact method/body limits.",
+    "Exact SHA mandatory GitHub CI recorded and risk-based one-shot independent L2 requested once, with no parent SHA modification.",
+    "Graph remains IMPLEMENTED rather than VERIFIED until actual L2/GitHub integration, even if Go tests and kernel green."
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 6,
+    "estimated_net_loc": 120,
+    "production_files": 1,
+    "net_production_loc": 80,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}
