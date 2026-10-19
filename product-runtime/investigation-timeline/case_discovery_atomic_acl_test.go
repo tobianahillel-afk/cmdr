@@ -78,14 +78,14 @@ func TestCaseDiscoveryDoesNotLeakPartialCatalogAfterLateACLFailure(t *testing.T)
 // realistic race when a browser closes the picker. No partial Case list may
 // be returned, even though an earlier Case had already been authorized.
 func TestCaseDiscoveryRejectsLateCancelledSessionWithoutPartialResponse(t *testing.T) {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	var cancel context.CancelFunc
 	checks := 0
 	handler, err := NewCaseDiscoveryHTTPHandler(
-		cancelledCaseDiscoverySession{ctx},
+		cancelOnSecondCaseSession{func(next context.CancelFunc) { cancel = next }},
 		discoveryCheckerFunc(func(_ context.Context, req AccessRequest) (string, error) {
 			checks++
 			if checks == 2 {
+				if cancel == nil { t.Fatal("session never supplied request-derived cancel") }
 				cancel()
 			}
 			return "allow", nil
@@ -105,11 +105,14 @@ func TestCaseDiscoveryRejectsLateCancelledSessionWithoutPartialResponse(t *testi
 	}
 }
 
-type cancelledCaseDiscoverySession struct{ ctx context.Context }
+type cancelOnSecondCaseSession struct { setCancel func(context.CancelFunc) }
 
-func (s cancelledCaseDiscoverySession) ResolveCaseTimelineSession(r *http.Request) (context.Context, Scope, error) {
+func (s cancelOnSecondCaseSession) ResolveCaseTimelineSession(r *http.Request) (context.Context, Scope, error) {
 	if r.Header.Get("Authorization") != "Bearer analyst-a" {
 		return nil, Scope{}, errors.New("unauthorized")
 	}
-	return s.ctx, Scope{Tenant: "tenant-a", Environment: "prod"}, nil
+	ctx, cancel := context.WithCancel(r.Context())
+	s.setCancel(cancel)
+	return context.WithValue(ctx, integrationPrincipal{}, "analyst-a"),
+		Scope{Tenant: "tenant-a", Environment: "prod"}, nil
 }
