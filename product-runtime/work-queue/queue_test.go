@@ -3,6 +3,7 @@ package workqueue
 import (
 	"context"
 	"errors"
+	"fmt"
 	"reflect"
 	"testing"
 )
@@ -104,7 +105,7 @@ func TestEmptyAndStableBoundedFirstPage(t *testing.T){
 	if err!=nil||r.State!="no-authorized-items"||len(r.Rows)!=0{t.Fatalf("empty failed: %+v %v",r,err)}
 	o=fixture();o.items=o.items[:0];o.allowed=map[string]bool{}
 	for i:=0;i<80;i++{
-		id:=string(rune('A'+i))+"-opaque"
+		id:=fmt.Sprintf("task-%03d",i)
 		o.items=append(o.items,Item{Kind:Task,ID:id,Tenant:"t1",Environment:"e1",UpdatedAt:"2026-10-19T09:00:00Z"})
 		o.allowed["Task:"+id]=true
 	}
