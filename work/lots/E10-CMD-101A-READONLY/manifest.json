@@ -50,7 +50,8 @@
     "tools/cmdr-dev/performance_registry.go",
     "tools/cmdr-dev/performance_benchmark.go",
     "tools/cmdr-dev/performance_command_work_queue.go",
-    "tools/cmdr-dev/security_tests.go"
+    "tools/cmdr-dev/security_tests.go",
+    "tools/cmdr-dev/security_tests_test.go"
   ],
   "forbidden_paths": [
     "cmdr-product-spec/**",
