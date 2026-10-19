@@ -34,7 +34,7 @@ function node() {
     dispatchEvent(event) { this.handlers[event.type]?.(); }
   };
 }
-function boot(fetchMock) {
+function boot(fetchMock, locationSearch = "") {
   const fields = Object.fromEntries(ids.map(id => [id, node()]));
   const requests = [];
   const downloads = [];
@@ -47,7 +47,7 @@ function boot(fetchMock) {
     if (downloads.length) downloads[downloads.length - 1].revoked = true;
   };
   const ctx = {
-    window: { location: { origin: "http://127.0.0.1:8765", search: "" } },
+    window: { location: { origin: "http://127.0.0.1:8765", search: locationSearch } },
     document: {
       getElementById: id => fields[id],
       createElement: tag => {
@@ -2591,6 +2591,43 @@ test("Case picker preserves exact opaque owner Case IDs through Timeline and Sea
   assert.equal(f["case-id"].value, "case-disk");
   assert.equal(f["local-search-results"].children.length, 0);
   assert.match(f["local-search-provenance"].textContent, /Aucune provenance/);
+});
+
+test("Timeline return context retains the exact whitespace-significant Case owner identity", async () => {
+  // These are two distinct owner-issued Case IDs, not aliases. A return link
+  // is only presentation context: no network call until a fresh bearer and
+  // an explicit Timeline submit.
+  const selected = " case-disk ";
+  const deepLink = new URL("http://127.0.0.1:8765/analyst");
+  deepLink.searchParams.set("case_id", selected);
+  deepLink.searchParams.set("kind", "observed");
+  deepLink.searchParams.set("q", "");
+  deepLink.searchParams.set("limit", "20");
+  deepLink.searchParams.set("offset", "0");
+  const env = boot((url, options) => {
+    assert.equal(url.pathname, "/case-timeline");
+    assert.equal(url.searchParams.get("case_id"), selected,
+      "return navigation must not silently open the trimmed sibling Case");
+    assert.equal(options.headers.Authorization, "Bearer ephemeral-token");
+    return page(Number(url.searchParams.get("offset")), 1);
+  }, deepLink.search);
+  assert.equal(env.requests.length, 0, "return URL must not authorize or fetch by itself");
+  assert.equal(env.fields["case-id"].value, selected);
+  assert.equal(env.fields.message.textContent.includes("jeton temporaire"), true);
+  env.fields.query.handlers.submit({ preventDefault() {} });
+  await flush(); await flush();
+  assert.equal(env.requests.length, 1);
+  assert.equal(env.requests[0].url.searchParams.get("case_id"), selected);
+
+  // The empty/blank-only identifier remains invalid: a permissive change
+  // must preserve the existing denial at the presentation boundary.
+  const invalid = new URL("http://127.0.0.1:8765/analyst");
+  invalid.searchParams.set("case_id", "  ");
+  invalid.searchParams.set("limit", "20");
+  const rejected = boot(() => { throw Error("blank Case return unexpectedly queried"); }, invalid.search);
+  assert.equal(rejected.fields["case-id"].value, "case-disk");
+  assert.equal(rejected.requests.length, 0);
+  assert.match(rejected.fields.message.textContent, /Contexte de retour invalide/);
 });
 
 test("two-Case triage keeps target owner ID distinct from whitespace alias", async () => {
