@@ -2136,7 +2136,9 @@
     // only an explicit new Search Job may reset this transient workspace.
     const fromSearch = sourceOpenedFromCompletedSearch;
     clearSource();
-    if (!fromSearch) fetchPage(); // Timeline origin keeps its own existing return
+    if (!fromSearch) {
+      fetchPage(); // reauthorize the Case and Timeline
+    }
   });
   analyze.addEventListener("click", analyzeAuthorizedCase);
   compareButton.addEventListener("click", compareAuthorizedCases);
