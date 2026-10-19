@@ -2323,6 +2323,18 @@ test("CAP-INV-007 selected-result inspection reauthorizes typed source and denie
   assert.equal(env.requests[2].options.headers.Authorization,"Bearer ephemeral-token");
   assert.equal(env.requests[2].url.href.includes("ephemeral-token"),false);
   assert.equal(f["source-detail"].hidden,false);
+  // Canonical CAP-INV-007 return transition: an inspected Search Job result
+  // returns to the SAME selected/pinned workspace, not the unrelated Case
+  // Timeline. The Timeline date is deliberately invalid above; fetching
+  // that panel would otherwise strand this valid Search Job investigation.
+  f["return-to-case"].handlers.click();
+  await flush();
+  assert.equal(env.requests.length,3,"Search Job return must not request the Timeline");
+  assert.equal(f["source-detail"].hidden,true);
+  assert.equal(check.checked,true,"return must retain Search Job selection");
+  assert.equal(f["local-search-workspace-actions"].children.length,2);
+  assert.equal(f["local-search-workspace-actions"].children[1].disabled,false);
+  assert.equal(f["local-search-results"].children.length,1);
 
   // This same ref is not durable authority: the next click must go back
   // to the source owner and may be denied independently after revocation.
