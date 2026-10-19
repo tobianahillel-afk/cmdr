@@ -96,6 +96,12 @@ func firstDemoAuthorizedCase(data timeline.MemoryTimelineData, principal string)
 		if c.Tenant != tenant || c.Environment != environment {
 			continue
 		}
+		// Discovery refuses its ENTIRE in-scope catalog when even one
+		// owner Case ID is not a valid HTTP selector, before checking
+		// individual Case read grants. Match that boundary at bootstrap.
+		if !timeline.ValidHTTPCaseSelector(c.ID) {
+			return "", errors.New("operator Case catalog contains an invalid HTTP selector")
+		}
 		for _, reader := range c.Readers {
 			if reader == principal && (caseID == "" || c.ID < caseID) {
 				caseID = c.ID

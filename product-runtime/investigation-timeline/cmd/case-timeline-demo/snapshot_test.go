@@ -182,3 +182,84 @@ func TestSnapshotCLISelectsDiskCaseAndRetainsDefaults(t *testing.T) {
 		t.Fatal("unknown snapshot principal selected a Case")
 	}
 }
+
+
+func TestLocalViewerBootstrapRejectsMalformedInScopeCaseCatalog(t *testing.T) {
+	for _, bad := range []struct {
+		name string
+		id string
+	}{
+		{"nul", "\x00case"},
+		{"line-feed", "case\nother"},
+		{"carriage-return", "case\rother"},
+		{"invalid-utf8", string([]byte{0xff, 'x'})},
+		{"too-long", strings.Repeat("x", 1025)},
+		{"blank", "  "},
+	} {
+		t.Run(bad.name, func(t *testing.T) {
+			data := demoData()
+			data.Cases[0].ID = bad.id
+			// The same in-scope catalog is exposed by /demo-cases:
+			// bootstrap must fail closed before allocating any listener.
+			if got, err := firstDemoAuthorizedCase(data, "analyst-a"); err == nil || got != "" {
+				t.Fatalf("unsafe owner Case selector accepted: %q %v", got, err)
+			}
+			if _, err := newDemoHandlerWithData(testBearer, "analyst-a", data); err == nil {
+				t.Fatal("unopenable Case accepted for authenticated viewer setup")
+			}
+		})
+	}
+}
+
+func TestLocalViewerBootstrapRejectsUnreadableMalformedInScopeCase(t *testing.T) {
+	data := demoData()
+	caseA := data.Cases[0]
+	// Invalid ID is not visible by Case ACL, but first-party discovery
+	// checks the ENTIRE in-scope candidate catalog before read grants.
+	unreadable := caseA
+	unreadable.ID = "malformed\ncase"
+	unreadable.Readers = []string{"a-different-reader"}
+	unreadable.EntryIDs = nil
+	data.Cases = append(data.Cases, unreadable)
+	if _, err := firstDemoAuthorizedCase(data, "analyst-a"); err == nil {
+		t.Fatal("viewer would advertise a usable Case with an unusable owner catalog")
+	}
+}
+
+func TestLocalViewerBootstrapPreservesValidOpaqueCaseWhitespace(t *testing.T) {
+	data := demoData()
+	before := data.Cases[0].ID
+	const opaque = " case-a "
+	data.Cases[0].ID = opaque
+	for i := range data.Entries {
+		if data.Entries[i].CaseID == before { data.Entries[i].CaseID = opaque }
+	}
+	for i := range data.Sources {
+		if data.Sources[i].Identity.CaseID == before {
+			data.Sources[i].Identity.CaseID = opaque
+		}
+	}
+	if !timeline.ValidHTTPCaseSelector(opaque) {
+		t.Fatal("backend predicate incorrectly trims allowed opaque Case")
+	}
+	got, err := firstDemoAuthorizedCase(data, "analyst-a")
+	if err != nil || got != opaque {
+		t.Fatalf("bootstrap altered server-authorized Case ID: %q %v", got, err)
+	}
+	if _, err := newDemoHandlerWithData(testBearer, "analyst-a", data); err != nil {
+		t.Fatalf("backend owner chain rejects valid whitespace-distinct Case: %v", err)
+	}
+}
+
+func TestLocalViewerBootstrapNeverImportsForeignTenantCaseSelection(t *testing.T) {
+	data := demoData()
+	const foreignInvalid = "foreign\nmalformed"
+	for i := range data.Cases {
+		if data.Cases[i].Tenant != data.Cases[0].Tenant {
+			data.Cases[i].ID = foreignInvalid
+		}
+	}
+	if got, err := firstDemoAuthorizedCase(data, "analyst-a"); err != nil || got != data.Cases[0].ID {
+		t.Fatalf("foreign Case influenced selected tenant Case: %q %v", got, err)
+	}
+}

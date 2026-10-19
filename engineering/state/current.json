@@ -17,9 +17,9 @@
     "phase_title": "Scaled product implementation program bootstrap"
   },
   "execution": {
-    "active_work_unit": "E10-INV-002H-REVOCATION",
+    "active_work_unit": "E10-INV-110H-BOOT",
     "preferred_next_unit": null,
-    "selection_rule": "Reconciled GitHub 2026-10-19: 149 graph nodes, 124 VERIFIED, 17 DECOMPOSED, 8 IMPLEMENTED, ZERO READY. Active unit E10-INV-002H-REVOCATION IMPLEMENTED (not VERIFIED), PR #136 DRAFT based on PR #135 immutable base 4f27c41c4554b21fe835fc2a366b2da9b46a1423. Tested original SHA 7feae9601f03682fbbf7dd8acbb46410004a54d9: investigation-timeline-runtime run 39216688574 SUCCESS (Linux Go/Node, macOS, Windows), engineering-kernel run 39216688631 FAILURE unchanged mandatory CHK-SECURITY-TESTS Go changed critical 89.33% < 90%. A new handoff-documentation commit 724bb063411be14cd34f6d7b1557887e9fe59a28 was published on same PR #136 after original CI; this cache update will also advance HEAD, so new exact-HEAD checks MUST be fetched, not inherited. PR #36 763 commits/871 files DRAFT, PR #2 DRAFT, no native independent APPROVED review on checked PRs. Full CAP-INV-002/110 and product deployment NOT accepted, OPEN-013 not closed. No new invented READY task. Review material security code paths/ownership or independently authorized unit; avoid repeated micro-test cycles and do not relax 90% floor. Handoff: work/lots/E10-INV-002H-REVOCATION/HANDOFF.md."
+    "selection_rule": "GitHub reconciled 2026-10-19: E10-INV-110H-BOOT IMPLEMENTED child of E10-INV-110, consuming E10-INV-110G-EXACT IMPLEMENTED; PR child of frozen #136 SHA a0be908a5712ae24ec6c0ee6e791648058f9995b. Correct shared Case HTTP selector predicate now reused by local startup; meaningful Case-selection security invariant, exact-head required CI and L2 not yet accepted. Parent #36 DRAFT (763 commits,871 changed files), main bc1ec59e5e79ccbaba291e2984b0eb7d5e54129c. See work/lots/E10-INV-110H-BOOT/HANDOFF.md. No READY inferred and no production IAM/custody claimed."
   },
   "reconciliation": {
     "required_on_resume": true,
