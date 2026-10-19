@@ -1780,6 +1780,17 @@
       ],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": []
+    },
+    {
+      "id": "E10-INV-110F-SELECTOR",
+      "title": "Keep permission-filtered Case discovery selectors reopenable in Timeline HTTP",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-INV-110E"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": []
     }
   ]
 }
