@@ -151,3 +151,34 @@ Command Incident and authorize its current projection; merely supplying an
 `incident_id` string is not proof of any relationship or read grant.
 No Case/Incident mutation, Export Job, assignment, provider storage, new
 Saved View engine, third-party dependency or paid API.
+
+
+## Read-only Case Queue → Inspector selection (E10-INV-101P-INSPECT)
+
+The canonical CAP-INV-101 §17 includes `Case Queue → Inspector` before/alongside
+full `Case Workspace` navigation. Optional native
+`GET /case-queue?inspect_case=EXACT_CASE_ID` returns **one existing
+source-authorized Case Queue `Row`**, including currently authorized
+Incident/Finding context and the `partial`/`stale` indicators. It never
+creates another Case owner, Inspector search engine, source data provider,
+mutation path or UI implementation.
+
+The selection composes with the SAME existing Queue query, status/owner/
+freshness/Incident filters, host-selected Shared Saved View, deterministic
+sorting and optional `limit/cursor`. A selected Case must appear in the
+currently authorized and filtered page. Each request rechecks the verified
+session and independent Case/Incident/Finding object read authorizations
+*before* selecting the visible row. If a source is revoked, its content is
+omitted, or an obsolete page cursor is rejected; denied/filtered/out-of-page
+Case IDs produce only the generic not-found response. A stale yet authorized
+Case is still inspectable with a stale indicator; the existing full Workspace
+handoff keeps its stricter stale-selection refusal. `inspect_case` cannot be
+combined with `open_case` or the latter's `scroll`.
+
+Only the read-only *data projection* needed for a future Shared Inspector is
+provided. The canonical Shared Inspector's keyboard, focus, responsive,
+accessible and full-screen behaviors and the final native Case Queue UI are
+NOT implemented here. The host still owns IAM, Case/Incident/Finding
+providers, TLS, CSRF, audit, rate limiting, and a real deployed frontend.
+Existing `open_case`, saved view, paging, and POST return interfaces are
+not modified. See `work/lots/E10-INV-101P-INSPECT/HANDOFF.md`.
