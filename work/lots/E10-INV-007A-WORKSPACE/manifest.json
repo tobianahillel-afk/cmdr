@@ -1,0 +1,128 @@
+{
+  "schema_version": 2,
+  "id": "E10-INV-007A-WORKSPACE",
+  "title": "Organize authorized Event Search Job results transiently in the local analyst workspace",
+  "type": "lot",
+  "goal": "Demonstrate CAP-INV-007 class-0 multi-selection, source-family grouping, temporary pinning and independent Event Inspector navigation using only verified, owner-authorized Search Job references; exclude all persistent Class-2 mutations and exports.",
+  "depends_on": [
+    "E10-INV-002G",
+    "E10-INV-110E"
+  ],
+  "parent": "",
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-007",
+      "CAP-INV-002",
+      "CAP-INV-004"
+    ],
+    "requirements": [
+      "REQ-PROD-014",
+      "REQ-PROD-020"
+    ],
+    "screens": [],
+    "permissions": [],
+    "open_decisions": [
+      "OPEN-013"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/frontend-state-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/search-job.md",
+      "cmdr-product-spec/05-domain-model/objects/telemetry-event.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/investigation-timeline/cmd/case-timeline-demo/analyst.html",
+    "product-runtime/investigation-timeline/cmd/case-timeline-demo/analyst.js",
+    "product-runtime/investigation-timeline/cmd/case-timeline-demo/analyst_return.test.cjs",
+    "product-runtime/investigation-timeline/cmd/case-timeline-demo/analyst_summary.test.cjs",
+    "work/lots/E10-INV-007A-WORKSPACE/**",
+    "work/graph.json",
+    "engineering/state/current.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/event-search/**",
+    "product-runtime/investigation-timeline/memory_provider.go",
+    "tools/cmdr-dev/**"
+  ],
+  "invariants": [
+    "CAP-INV-007 owns transient investigative workspace semantics; Search Job and Event source references remain Shared-owned; no new canonical Collection object.",
+    "The existing owner-validated Search Job is the only population of selectable refs. Client-side pins and selection MUST NOT grant access, persist or infer raw source data.",
+    "Independent existing server-owned Case/Timeline/typed-source reauthorization occurs on each explicit source open.",
+    "No persistent annotation, audited exclusion, Case result linking, export, Evidence creation or additional storage: OPEN-013 unaffected. Placement in demo is temporary and not production code ownership."
+  ],
+  "security_properties": [
+    "Reject untrusted Wazuh grouping metadata outside completed SearchJob or repeated membership; never publish partial workspace on invalid result.",
+    "Clear selection/pins on new query/filter, and guard stale controls by Case, bearer, query revision and interval.",
+    "Tenant/environment/source ACLs remain exclusively owned by existing first-party server; no raw preview, secret or token in exported data."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Browser-only ephemeral state; no database, stored object or schema.",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Revert this bounded browser-only workspace; existing completed-job result list and source-open path remain.",
+    "verification": [
+      "Prior normalized Search Job CLI/API and source authorization tests remain unchanged.",
+      "No authored Case or stored results exist."
+    ]
+  },
+  "inputs": [
+    "Canonical CAP-INV-007 full specification and current READ class-0 scope.",
+    "Existing parent Event Search first-party complete Search Job and Case/typed-source owner.",
+    "E10-INV-002G and E10-INV-110E verified runtime contracts; current PR #127 CI-green head is a Git dependency, not a business owner."
+  ],
+  "outputs": [
+    "Transitory multi-selection and pinned refs for ONE completed Search Job, with visible Wazuh/JSONL grouping counts.",
+    "Explicit inspect-selected flow which independently reauthorizes existing source owner.",
+    "Fail-closed browser tests with foreign Wazuh metadata and stale selection reset.",
+    "Handoff stating partial CAP-INV-007 status and blocked/deferred Class-2 flows."
+  ],
+  "acceptance_tests": [
+    "A completed first-party normalized search with one authorized Wazuh and one generic hit shows both groups, allows choosing and locally pinning only valid refs.",
+    "Changing current criteria or requesting another job destroys all selection and pins; stale control is inert.",
+    "Foreign or duplicated source grouping metadata causes no displayed results/workspace; no partial response.",
+    "Browser Go/Node Linux, Go macOS and Windows runtime test on exact SHA; mandatory engineering-kernel unchanged security floor and manifest validation."
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "At most 200 server-authorized SearchJob refs; grouping uses a Set with O(n) processing and transient browser memory.",
+    "metrics": [
+      "No more than 200 selectable rows per completed SearchJob",
+      "Single-pass grouping O(n); no extra HTTP requests until explicit source open"
+    ]
+  },
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-RUNTIME-DEPS",
+    "CHK-SECURITY-TESTS"
+  ],
+  "definition_of_ready": [
+    "Verified first-party SearchJob and independently authorized Case source-open are available.",
+    "Class-0 selection is permitted; all Class-2 operations remain excluded under OPEN-013.",
+    "Bounded one UI behavior with source group membership already available in authorized response."
+  ],
+  "definition_of_done": [
+    "Exact SHA browser tests prove source-only completed Job membership, selections, stale invalidation and group counts.",
+    "New manifest + diff + CI and draft PR remain GitHub recoverable.",
+    "No full CAP-INV-007 acceptance, production IAM, persistent workspace, Export Job or Evidence claim."
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 2,
+    "estimated_net_loc": 100,
+    "production_files": 2,
+    "net_production_loc": 110,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 0,
+    "separately_testable_behaviors": 1
+  }
+}
