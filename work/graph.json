@@ -1925,6 +1925,17 @@
       ],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": []
+    },
+    {
+      "id": "E10-INV-101I-FILTERS",
+      "title": "Expose permission-safe filters and stable sort via native Case Queue HTTP",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-INV-101H-HTTP"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": []
     }
   ]
 }

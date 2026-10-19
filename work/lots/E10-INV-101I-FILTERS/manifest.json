@@ -1,0 +1,126 @@
+{
+  "schema_version": 2,
+  "id": "E10-INV-101I-FILTERS",
+  "title": "Expose native read-only Case Queue filters and deterministic sort through authorized HTTP",
+  "type": "task",
+  "parent": "E10-INV-101",
+  "goal": "Integrate the canonical CAP-INV-101 Class-0 status/owner/freshness filters and stable Case Queue sorting with the already-existing native authorized HTTP handler, preserving server authorization before filtering.",
+  "depends_on": [
+    "E10-INV-101H-HTTP"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-101"
+    ],
+    "requirements": [
+      "REQ-PROD-014",
+      "REQ-PROD-020"
+    ],
+    "screens": [
+      "INV-CAS-001"
+    ],
+    "permissions": [
+      "perm.investigate.case.read"
+    ],
+    "open_decisions": [],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/pagination-filtering-sorting.md",
+      "cmdr-product-spec/17-implementation-contracts/error-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/case.md",
+      "cmdr-product-spec/05-domain-model/objects/incident.md",
+      "cmdr-product-spec/05-domain-model/objects/finding.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/case-queue/http.go",
+    "product-runtime/case-queue/http_test.go",
+    "product-runtime/case-queue/README.md",
+    "work/lots/E10-INV-101I-FILTERS/**",
+    "work/graph.json",
+    "engineering/state/current.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/investigation-timeline/**",
+    "product-runtime/event-search/**",
+    "tools/cmdr-dev/**"
+  ],
+  "invariants": [
+    "Only one native ProjectWithSavedViewFallback owns all filtering, sorting and tie-breaking; HTTP does not reproduce business predicates.",
+    "Every Case and nested Incident/Finding is independently authorized before any client-driven filtering or sorting.",
+    "Tenant/environment, permission/ACL, Saved View application, mutation, export and pagination controls are not accepted from HTTP query.",
+    "Host session, candidate provider, object authorizer, rate limiting, audit and TLS remain independent integrations; production not claimed."
+  ],
+  "security_properties": [
+    "Unknown, duplicate, forbidden or malformed query parameters fail before session or provider access.",
+    "Each filter is one bounded valid UTF-8 literal and sorting is one allowed field/direction; client cannot choose tenant or owner permissions.",
+    "Foreign, missing, denied or unverified source records remain removed before projection, with no denied counts in response.",
+    "HTTP response remains no-store, no-referrer, Vary Authorization and <=4MiB."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Read-only first-party HTTP adapter with host-supplied session, Case owner provider and authorizer; no canonical state mutation or persistence.",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Revert optional HTTP query parsing while retaining original authorized GET q",
+    "verification": [
+      "ProjectWithSavedViewFallback unchanged",
+      "No Case data or Saved View mutation and parent SHA unchanged"
+    ]
+  },
+  "inputs": [
+    "E10-INV-101F verified native Case Queue core; E10-INV-101H-HTTP implemented first-party authorized read-only HTTP handler with exact-head security CI green but independent L2 pending.",
+    "CAP-INV-101 canonical read-only filters/sorting/permissions; existing ProjectWithSavedViewFallback Filter/SortSpec and stable tie breakers."
+  ],
+  "outputs": [
+    "Native authenticated HTTP GET optional q/status/owner/freshness and single allowed sort field/direction mapped to existing projection.",
+    "Real HTTP tests for authorized multi-filter/sort, denied Case exclusion and invalid parameter fail-closed before resolving any authority."
+  ],
+  "acceptance_tests": [
+    "GET q/status/owner/freshness/sort returns only Case rows visible to independently authorized principal, deterministically ordered by native engine.",
+    "Search and filters cannot see any denied Case/title, metadata or denied counts; object authorization executes before projection and filter matching.",
+    "Duplicate, malformed or forbidden tenant/saved-view/ACL inputs return generic HTTP 400 before provider/session; no new mutation/storage.",
+    "Exact-head required engineering CI PASS and independent material L2 before reviewable integration; preserve parent L2-frozen SHA."
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "Same <=5000 provider candidates and <=4MiB output, one authorized projection, constant count 5 params; native sort O(n log n).",
+    "metrics": [
+      "<=5000 candidate Cases, <=4 MiB response, <=1024 encoded query bytes",
+      "One literal value per q/status/owner/freshness/sort, with 256/128 UTF-8 byte bounds",
+      "Single native deterministic sort after per-object authorizations"
+    ]
+  },
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-RUNTIME-DEPS",
+    "CHK-SECURITY-TESTS"
+  ],
+  "definition_of_ready": [
+    "E10-INV-101F VERIFIED; native handler E10-INV-101H-HTTP IMPLEMENTED and engineering-kernel run #39238017552 SUCCESS on frozen SHA. Engineering dependency may use IMPLEMENTED to permit a child DRAFT, but merge acceptance awaits parent L2/approvals.",
+    "Read-only Case Queue HTTP filtering and sorting require no OPEN-013 Case mutation decision, no cursor contract or production IAM provider."
+  ],
+  "definition_of_done": [
+    "Native server-owned Case Queue HTTP accepts bounded optional read-only filters/sort using ONLY existing projection.",
+    "Real HTTP security/function tests and exact-head CI evidence are recorded and independently reviewable.",
+    "Work graph retains IMPLEMENTED not VERIFIED until required gate/L2 and downstream approvals; parent/parallel PRs remain frozen."
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 6,
+    "estimated_net_loc": 80,
+    "production_files": 1,
+    "net_production_loc": 48,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

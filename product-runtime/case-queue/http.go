@@ -70,25 +70,40 @@ func (h nativeQueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	parameters, err := url.ParseQuery(r.URL.RawQuery)
-	if err != nil || len(parameters) > 1 {
+	if err != nil || len(parameters) > 5 {
 		queueError(w, http.StatusBadRequest)
 		return
 	}
 	query := ""
-	if len(parameters) != 0 {
-		values, ok := parameters["q"]
-		if !ok || len(values) != 1 {
+	var filters []Filter
+	var sortSpecs []SortSpec
+	// Only literal, single-valued queue controls reach the existing
+	// projector. Authorization of ALL candidates and nested sources still
+	// happens first; nothing here selects a tenant or confers permissions.
+	for name, values := range parameters {
+		if len(values) != 1 || !validQueueLiteral(values[0], 256) {
 			queueError(w, http.StatusBadRequest)
 			return
 		}
-		query = values[0]
-	}
-	if len(query) > 256 || !utf8.ValidString(query) {
-		queueError(w, http.StatusBadRequest)
-		return
-	}
-	for _, c := range query {
-		if c < 0x20 || c == 0x7f {
+		value := values[0]
+		switch name {
+		case "q":
+			query = value
+		case "status", "owner", "freshness":
+			if len(value) > 128 || strings.TrimSpace(value) == "" {
+				queueError(w, http.StatusBadRequest)
+				return
+			}
+			filters = append(filters, Filter{Field: name, Values: []string{value}})
+		case "sort":
+			field, direction, ok := strings.Cut(value, ":")
+			if !ok || !allowedSortFields[field] ||
+				(direction != "asc" && direction != "desc") {
+				queueError(w, http.StatusBadRequest)
+				return
+			}
+			sortSpecs = []SortSpec{{Field: field, Direction: direction}}
+		default:
 			queueError(w, http.StatusBadRequest)
 			return
 		}
@@ -172,7 +187,7 @@ func (h nativeQueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	result := ProjectWithSavedViewFallback(Input{
 		TenantRef: scope.Tenant, EnvironmentRef: scope.Environment,
 		AuthorizedTenants: []string{scope.Tenant},
-		SearchQuery: query, Cases: authorized,
+		SearchQuery: query, Filters: filters, Sort: sortSpecs, Cases: authorized,
 	})
 	if !result.Allowed || result.Projection == nil || ctx.Err() != nil ||
 		r.Context().Err() != nil {
@@ -197,6 +212,18 @@ func (h nativeQueueHTTP) allowed(ctx context.Context, scope QueueScope,
 	case "deny", "missing", "unknown": return false, nil
 	default: return false, errors.New("invalid owner authorization decision")
 	}
+}
+
+func validQueueLiteral(value string, maxBytes int) bool {
+	if len(value) > maxBytes || !utf8.ValidString(value) {
+		return false
+	}
+	for _, c := range value {
+		if c < 0x20 || c == 0x7f {
+			return false
+		}
+	}
+	return true
 }
 
 func queueError(w http.ResponseWriter, status int) {
