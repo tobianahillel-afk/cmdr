@@ -17,7 +17,7 @@
     "phase_title": "Scaled product implementation program bootstrap"
   },
   "execution": {
-    "active_work_unit": "E10-INV-008A-RUN-PROVENANCE",
+    "active_work_unit": "E10-INV-008A-PROVENANCE",
     "preferred_next_unit": null,
     "selection_rule": "Current CAP-INV-008 class-0 read-only Search Job provenance lot is IMPLEMENTED candidate only; exact SHA CI, independent L2 and ancestor #130/#127 native reviews must be reconciled. OPEN-015 blocks Trace storage; do not assume remaining CAP-INV-008 obligations READY."
   },
