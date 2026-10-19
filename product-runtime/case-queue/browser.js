@@ -144,8 +144,12 @@
       if (!inspected) throw new Error("returned Case selection no longer authorized");
       if (typeof window.scrollTo === "function") window.scrollTo(0,returned.scroll_offset);
     } catch (_) {
-      if (current !== workspaceGeneration) return;
+      // After a successful POST, clearWorkspace() invalidated the transient
+      // token exactly once. Failures in the fresh page/Inspector steps still
+      // MUST clear private rows; only a newer independent navigation wins.
+      if (current !== workspaceGeneration && current + 1 !== workspaceGeneration) return;
       clearWorkspace();
+      clearSelection();
       clearRows();
       first.disabled = next.disabled = true;
       status.textContent = "Case Queue return denied or stale. Apply filters to reload access.";
