@@ -272,3 +272,102 @@ func TestNativeQueueHTTPFailsClosedOnProviderLimitsAndCancellation(t *testing.T)
 	h.ServeHTTP(got,req.WithContext(ctx))
 	if got.Code!=http.StatusServiceUnavailable {t.Fatalf("cancelled read returned HTTP %d",got.Code)}
 }
+
+func TestNativeQueueHTTPFiltersAndSortOnlyAuthorizedCases(t *testing.T) {
+	first:=nativeCase("c-20","Zeta response case")
+	first.Status="review"
+	first.Owner="analyst-a"
+	first.UpdatedAt="2026-10-19T08:00:00Z"
+	second:=nativeCase("c-10","Alpha response case")
+	second.Status="review"
+	second.Owner="analyst-a"
+	second.UpdatedAt="2026-10-19T09:00:00Z"
+	hidden:=nativeCase("c-secret","TOP-SECRET matching title")
+	hidden.Status="review"
+	hidden.Owner="analyst-a"
+	other:=nativeCase("c-30","Unrelated case")
+	other.Status="closed"
+	other.Owner="analyst-b"
+	session:=queueSessionFunc(func(r *http.Request)(context.Context,QueueScope,error){
+		if r.Header.Get("Authorization")!="Bearer operator" {
+			return nil,QueueScope{},errors.New("no session")
+		}
+		return r.Context(),QueueScope{Tenant:"tenant-a",Environment:"prod"},nil
+	})
+	provider:=queueProviderFunc(func(_ context.Context,scope QueueScope)([]CaseSnapshot,error){
+		if scope.Tenant!="tenant-a" || scope.Environment!="prod" {
+			t.Fatal("query changed authenticated scope")
+		}
+		return []CaseSnapshot{first,second,hidden,other},nil
+	})
+	seen:=map[string]int{}
+	authorizer:=queueAccessFunc(func(_ context.Context,_ QueueScope,kind,id string)(string,error){
+		seen[kind+":"+id]++
+		if id=="c-secret" { return "deny",nil }
+		return "allow",nil
+	})
+	handler,err:=NewAuthorizedQueueHTTPHandler(session,provider,authorizer)
+	if err!=nil {t.Fatal(err)}
+	resp:=getQueue(handler,"/case-queue?q=response&status=review&owner=analyst-a&freshness=available&sort=title:asc")
+	if resp.Code!=http.StatusOK {t.Fatalf("filtered authorized queue: HTTP %d %q",resp.Code,resp.Body.String())}
+	var result Projection
+	if err:=json.Unmarshal(resp.Body.Bytes(),&result);err!=nil {t.Fatal(err)}
+	if len(result.Rows)!=2 || result.Rows[0].Case.ID!="c-10" || result.Rows[1].Case.ID!="c-20" {
+		t.Fatalf("native queue did not filter and stably sort allowed cases: %+v",result.Rows)
+	}
+	if len(result.AppliedSort)<1 || result.AppliedSort[0].Field!="title" ||
+		result.AppliedSort[0].Direction!="asc" {
+		t.Fatalf("native sort was not applied: %+v",result.AppliedSort)
+	}
+	if result.PermissionFilteredCases!=0 || strings.Contains(resp.Body.String(),"TOP-SECRET") ||
+		strings.Contains(resp.Body.String(),"c-secret") {
+		t.Fatal("client filter leaked denied Case or its count")
+	}
+	for _,id:=range []string{"c-10","c-20","c-30","c-secret"} {
+		if seen["case:"+id]!=1 {t.Fatalf("candidate %s was not independently authorized before filtering",id)}
+	}
+	// The same native projection supports descending updated-at and does
+	// not mutate any Case or save a Shared Saved View.
+	recent:=getQueue(handler,"/case-queue?status=review&sort=updated_at:desc")
+	if recent.Code!=http.StatusOK {t.Fatalf("native sort unavailable: %d",recent.Code)}
+	var sorted Projection
+	if err:=json.Unmarshal(recent.Body.Bytes(),&sorted);err!=nil {t.Fatal(err)}
+	if len(sorted.Rows)!=2 || sorted.Rows[0].Case.ID!="c-10" ||
+		sorted.Rows[1].Case.ID!="c-20" {
+		t.Fatalf("sort by Case update freshness failed: %+v",sorted.Rows)
+	}
+}
+
+func TestNativeQueueHTTPRejectsUnsafeFilterSortBeforeAuthorityCalls(t *testing.T) {
+	sessions:=queueSessionFunc(func(r *http.Request)(context.Context,QueueScope,error){
+		t.Fatal("invalid query reached session resolver")
+		return nil,QueueScope{},errors.New("not expected")
+	})
+	provider:=queueProviderFunc(func(context.Context,QueueScope)([]CaseSnapshot,error){
+		t.Fatal("invalid query reached provider")
+		return nil,nil
+	})
+	access:=queueAccessFunc(func(context.Context,QueueScope,string,string)(string,error){
+		t.Fatal("invalid query reached authorizer")
+		return "",nil
+	})
+	handler,err:=NewAuthorizedQueueHTTPHandler(sessions,provider,access)
+	if err!=nil {t.Fatal(err)}
+	for _,path:=range []string{
+		"/case-queue?tenant=tenant-b&status=review",
+		"/case-queue?status=review&status=closed",
+		"/case-queue?owner=",
+		"/case-queue?status=%00",
+		"/case-queue?owner="+strings.Repeat("x",129),
+		"/case-queue?sort=tenant:asc",
+		"/case-queue?sort=title:up",
+		"/case-queue?sort=title",
+		"/case-queue?sort=title:asc&sort=title:desc",
+		"/case-queue?status=review&owner=analyst-a&freshness=available&sort=title:asc&q=x&extra=unsafe",
+	} {
+		got:=getQueue(handler,path)
+		if got.Code!=http.StatusBadRequest || strings.Contains(got.Body.String(),"tenant-b") {
+			t.Fatalf("unsafe queue query %q accepted: %d %q",path,got.Code,got.Body.String())
+		}
+	}
+}
