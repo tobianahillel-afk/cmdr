@@ -1,0 +1,128 @@
+{
+  "schema_version": 2,
+  "id": "E10-INV-101M-PAGE",
+  "title": "Expose short-lived authorization-bound pagination on native HTTP Case Queue",
+  "type": "task",
+  "parent": "E10-INV-101",
+  "goal": "Page the existing fully server-authorized native Case Queue projection without repeating search, saved-view, access or sorting engines; fail closed on stale or forged continuation.",
+  "depends_on": [
+    "E10-INV-101L-VIEW"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-101"
+    ],
+    "requirements": [
+      "REQ-PROD-014",
+      "REQ-PROD-020"
+    ],
+    "screens": [
+      "INV-CAS-001"
+    ],
+    "permissions": [
+      "perm.investigate.case.read"
+    ],
+    "open_decisions": [],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/pagination-filtering-sorting.md",
+      "cmdr-product-spec/17-implementation-contracts/saved-view-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/case.md",
+      "cmdr-product-spec/05-domain-model/objects/incident.md",
+      "cmdr-product-spec/05-domain-model/objects/finding.md",
+      "cmdr-product-spec/05-domain-model/objects/saved-view.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/case-queue/http.go",
+    "product-runtime/case-queue/http_pagination.go",
+    "product-runtime/case-queue/http_pagination_test.go",
+    "product-runtime/case-queue/README.md",
+    "work/lots/E10-INV-101M-PAGE/**",
+    "work/graph.json",
+    "engineering/state/current.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/investigation-timeline/**",
+    "product-runtime/event-search/**",
+    "tools/cmdr-dev/**"
+  ],
+  "invariants": [
+    "Every GET page re-resolves current authenticated tenant/environment, object-read Case/Incident/Finding ACL, and trusted Shared Saved View before the single existing ProjectWithSavedViewFallback.",
+    "Cursor is not a credential and cannot grant Case access. It binds offset and page size to SHA-256 of full currently readable projection including current Shared Saved View version/permission state. Stale or malformed cursor fails without partial rows.",
+    "Existing unpaged native GET and GET open_case, POST return preserve behavior; limit/cursor valid only on pure GET listing.",
+    "No Case mutation, provider/IAM implementation, Saved View storage, production deployment or third-party runtime dependencies."
+  ],
+  "security_properties": [
+    "No denied Case/Incident/Finding contributes any row or count to the page; all owner reads precede cursor check.",
+    "Session change, source ACL revocation, changed Case metadata, changed Saved View ID/version/access/filters must make old cursor unusable when the current read projection or Shared view changes.",
+    "Untrusted paging controls cannot choose tenant/environment/principal, Saved View, authorized resources or source owner."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Read-only opt-in listing pagination; old responses unchanged.",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Remove limit/cursor handling and helper; retain original Case Queue native GET/open/return, projectors and authorized Shared Saved Views.",
+    "verification": [
+      "Original HTTP tests continue",
+      "No persistent data changed"
+    ]
+  },
+  "inputs": [
+    "Canonical CAP-INV-101 §§3,11,15,16,22,25 requires navigable read-only Case Queue with search/filter/sort and visible states; pagination contract names bounded cursors and limits.",
+    "Native Queue can already resolve up to 5000 owner-authorized Cases but serializes whole list; larger selected lists can exceed 4 MiB JSON output.",
+    "Parent PR #143 E10-INV-101L-VIEW exact frozen HEAD d30771735029bd21207357b0966c1ac0ccad7d9b has engineering-kernel run 39272411656 SUCCESS. Separate one-shot L2 executed but its report not accessible, native GitHub approval absent, graph state IMPLEMENTED."
+  ],
+  "outputs": [
+    "Optional native GET list query limit=1..100 and next_cursor; subsequent GET passes same limit/cursor, with ACL re-evaluation and stale invalidation.",
+    "Same read-only projection JSON fields for each page, no extra fields for old clients, no explicit cross-request durable data or new storage.",
+    "Go integration tests cover actual HTTP 3-case paging, owner revocation, Shared Saved View version changes, tampering, invalid inputs, legacy GET and no denied data."
+  ],
+  "acceptance_tests": [
+    "Bounded GET limit yields first <=100 authorized sorted rows and only a continuation token when more remain; later page sees remaining rows with full per-request ACL checks and no denied metadata.",
+    "Current Shared view change or owner ACL revocation between two GET requests invalidates cursor, returning generic error without partial old/new rows.",
+    "Wrong/missing/oversize/duplicate/forged pagination controls rejected; cursor cannot be used for Case open or return.",
+    "Unpaged native Case Queue GET/open/return and Shared view behavior remain compatible. Exact HEAD security/engineering checks green and independent L2 plus native approvals distinct."
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "One existing <=5000 candidate authorization and projection per request and one streamed SHA256 of fully projected JSON; response <=100 rows and <=4 MiB; no full-list temporary JSON buffer for digest.",
+    "metrics": [
+      "At most 100 rows per page, 5000 provider candidates",
+      "One full owner ACL and Saved View pass per page",
+      "One streaming digest of the projected queue, no separate query engine"
+    ]
+  },
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-RUNTIME-DEPS",
+    "CHK-SECURITY-TESTS"
+  ],
+  "definition_of_ready": [
+    "Parent E10-INV-101L-VIEW IMPLEMENTED with exact-head engineering CI SUCCESS; new work is independent of its L2 but cannot be VERIFIED or merged before required reviews.",
+    "The operation is strictly read-only and does not cross the OPEN-013 assignment/mutation decision."
+  ],
+  "definition_of_done": [
+    "Source, behavior tests, handoff, graph state and exact GitHub Actions evidence recorded.",
+    "Graph IMPLEMENTED only until independent review/native approval; no full CAP-INV-101 acceptance or production readiness claim."
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 7,
+    "estimated_net_loc": 170,
+    "production_files": 2,
+    "net_production_loc": 115,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}
