@@ -76,3 +76,26 @@ This is **navigation state only**, not a launched workspace, production UI, Case
 assignment, durable Saved View, or Case lifecycle mutation. The host still
 owns IAM/session issuance, HTTP deployment/TLS/rate limiting/audit and Case
 providers. Do not store or use the return token as authorization.
+
+## Native reauthorized Case Queue return (E10-INV-101K-RETURN)
+
+The host-mounted read-only Case Queue adapter supports `POST /case-queue/return`
+with JSON `{"return_token":"<opaque state from GET open_case>"}` and the SAME
+injected trusted session, current Case candidate provider and independent
+Case/Incident/Finding reader authorizer. The return token is **never put in a
+GET URL** and is not a credential or trusted permission/tenant selector.
+
+After independently reauthorizing every current Case and nested context source,
+the adapter invokes the existing first-party `RestoreCaseQueue`, which checks
+the caller's tenant/environment, selected Case, stale state, Saved View/version,
+current filters, sort and scroll. The response is a read-only ReturnState,
+not a raw Case or evidence preview; unauthorized/stale/changed Cases fail closed
+without partial Queue data. Accepts only a bounded single `return_token`
+JSON key; unknown/duplicate keys, query parameters and wrong route/method are
+rejected before host owner access. The host must mount this route and enforce
+production authentication, TLS, CSRF protection, request-body log redaction,
+rate limits and audit; none are implied by this stand-alone Go handler.
+
+The prior GET listing/filter/sort/open_case behavior and canonical Queue
+projector are untouched. No mutation, Saved View persistence, export,
+production IAM, external dependencies or API costs.

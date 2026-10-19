@@ -17,9 +17,9 @@
     "phase_title": "Scaled product implementation program bootstrap"
   },
   "execution": {
-    "active_work_unit": "E10-INV-101J-HANDOFF",
+    "active_work_unit": "E10-INV-101K-RETURN",
     "preferred_next_unit": null,
-    "selection_rule": "GitHub-reconciled 2026-10-19: work graph had 0 READY tasks. CAP-INV-101 Canonical §§12/17/25 requires read-only Case Queue-to-Workspace transition; verified first-party E10-INV-101D-HANDOFF already implements the transition, but native HTTP E10-INV-101I-FILTERS exposed only filter/sort. New bounded engineering child E10-INV-101J-HANDOFF depends on I-FILTERS IMPLEMENTED, base PR #140 L2-frozen SHA 030b06748d0c0d646e3f95b1e67e12631e73321b, native owner-authorized Class-0 selection only, no IAM/provider/mutation. Work unit IMPLEMENTED pending exact HEAD engineering-kernel CI and independent L2. Parent #140 mandatory CI run 39253620402 success but L2 report pending, #139 L2 pending, #138 parallel security-red, #36 foundation and #2 specs DRAFT/unmerged. No READY claim, promotion or merge."
+    "selection_rule": "GitHub-reconciled 2026-10-19: latest PR #141 exact HEAD dcabc46620e06e0452a0e5d9c6827b4aff2a006c engineering-kernel 39257205407 SUCCESS, L2 report unavailable/native GitHub APPROVED absent; zero READY existing work graph nodes. CAP-INV-101 canonical §25 requires restore selection/filter/scroll. Verified first-party E10-INV-101D-HANDOFF RestoreCaseQueue had no native HTTP return; selected new bounded E10-INV-101K-RETURN under epic E10-INV-101, child of J-HANDOFF IMPLEMENTED (Git base frozen #141). New exact-head CI and independent review mandatory before VERIFIED or merge. Foundation #36, specs #2, upstream #139/#140/#141 DRAFT; parallel #138 89.34% changed security gate FAILURE. No prod IAM/provider/accepted claim."
   },
   "reconciliation": {
     "required_on_resume": true,
