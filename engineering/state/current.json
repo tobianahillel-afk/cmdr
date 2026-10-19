@@ -17,9 +17,9 @@
     "phase_title": "Scaled product implementation program bootstrap"
   },
   "execution": {
-    "active_work_unit": "E10-INV-008A-PROVENANCE",
+    "active_work_unit": "E10-INV-008B-COMPARE",
     "preferred_next_unit": null,
-    "selection_rule": "Current CAP-INV-008 class-0 read-only Search Job provenance lot is IMPLEMENTED candidate only; exact SHA CI, independent L2 and ancestor #130/#127 native reviews must be reconciled. OPEN-015 blocks Trace storage; do not assume remaining CAP-INV-008 obligations READY."
+    "selection_rule": "New CAP-INV-008 Class-0 in-memory run comparison is IMPLEMENTED candidate only on a child of frozen PR #131; parent E10-INV-008A remains unverified (89.30%/90 mandatory security coverage). No READY release, verify exact HEAD CI, one independent L2 and parent approvals before advancement. OPEN-015 prevents Shared Trace storage."
   },
   "reconciliation": {
     "required_on_resume": true,
