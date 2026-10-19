@@ -1,0 +1,122 @@
+{
+  "schema_version": 2,
+  "id": "E10-INV-110H-BOOT",
+  "title": "Align synthetic Case bootstrap with canonical HTTP Case picker selector validation",
+  "type": "task",
+  "parent": "E10-INV-110",
+  "goal": "Ensure the operator-local Case viewer never chooses or advertises an owner Case selector that the first-party authenticated Case Timeline/picker refuses; reject malformed in-scope Case catalog before minting bearer or listener.",
+  "depends_on": [
+    "E10-INV-110G-EXACT"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-110",
+      "CAP-INV-101"
+    ],
+    "requirements": [
+      "REQ-PROD-014",
+      "REQ-PROD-018"
+    ],
+    "screens": [
+      "INV-TIM-001",
+      "INV-CAS-001"
+    ],
+    "permissions": [
+      "perm.investigate.case.read"
+    ],
+    "open_decisions": [],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/screen-routing-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/case.md",
+      "cmdr-product-spec/05-domain-model/objects/timeline-entry.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/investigation-timeline/case_http.go",
+    "product-runtime/investigation-timeline/cmd/case-timeline-demo/snapshot.go",
+    "product-runtime/investigation-timeline/cmd/case-timeline-demo/snapshot_test.go",
+    "work/lots/E10-INV-110H-BOOT/**",
+    "work/graph.json",
+    "engineering/state/current.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/event-search/**",
+    "tools/cmdr-dev/**"
+  ],
+  "invariants": [
+    "Reuse the exact existing HTTP Case selector predicate including valid UTF-8, byte-length, forbidden control characters, and nonblank semantics; never trim or normalize opaque valid IDs.",
+    "For an in-scope owner candidate with an invalid selector, abort synthetic viewer bootstrap before minting a bearer/listener, as the first-party Case picker denies the entire malformed catalog.",
+    "Keep first-party server Case/Timeline/source authorization unchanged; never infer access from CLI flags or an operator-provided source payload.",
+    "Do not modify any L2-frozen parent HEAD, canonical product contract, OPEN decision or production IAM."
+  ],
+  "security_properties": [
+    "Do not announce an unusable, malformed or different Case ID, especially before first-party Case permissions are evaluated.",
+    "Refuse an in-scope malformed Case ID even if the analyst is not a reader, because the first-party discovery enumerates the whole in-scope catalog before applying read ACL.",
+    "Cross-tenant/out-of-environment case candidates do not authorize another tenant and cannot be selected."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Read-only synthetic startup and shared selector predicate compatibility only",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Revert child integration PR after review; audited parent unchanged",
+    "verification": [
+      "Current synthetic fixture still opens",
+      "Existing correct whitespace-distinct opaque selectors remain unchanged"
+    ]
+  },
+  "inputs": [
+    "Existing CAP-INV-110 Case/Timeline read-only HTTP picker and viewer",
+    "Frozen PR #136 HEAD a0be908a5712ae24ec6c0ee6e791648058f9995b",
+    "First-party validHTTPCaseSelector in case_http.go (server), distinct from CLI firstDemoAuthorizedCase selection in snapshot.go",
+    "E10-INV-110F-SELECTOR and E10-INV-110G-EXACT are recorded IMPLEMENTED (not ACCEPTED), whereas E10-INV-110E is VERIFIED."
+  ],
+  "outputs": [
+    "Single canonical exported selector predicate reused by first-party HTTP picker and operator-local startup, no duplicate frontend approximation",
+    "Synthetic local viewer denies malformed in-scope candidate before credential/listener, and selects valid space-distinct owner ID exactly",
+    "Exact-HEAD Go/Node Linux, macOS, Windows plus unchanged security mandatory floor and review handoff"
+  ],
+  "acceptance_tests": [
+    "Bad in-scope catalog ID with NUL, CR, LF, invalid UTF-8, blank or >1024 bytes: no selected Case and no synthetic bearer/listener, including unreadable same-tenant candidate",
+    "Valid authorized opaque ID with surrounding whitespace remains byte-for-byte unchanged and selectable",
+    "Out-of-scope Case cannot replace authorized Case; first-party HTTP picker/Timeline predicates unchanged",
+    "All exact SHA GitHub required workflows observed, no waiver of 90% security-critical changed code coverage"
+  ],
+  "performance_budget": {
+    "applicable": false,
+    "rationale": "Bounded in-memory Case catalog selection and pure string selector reuse"
+  },
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-RUNTIME-DEPS",
+    "CHK-SECURITY-TESTS"
+  ],
+  "definition_of_ready": [
+    "Canonical CAP-INV-110 read-only Case selection and CAP-INV-101 consumer are in scope, no Case mutation or OPEN-013 claim",
+    "Single root mismatch between firstDemoAuthorizedCase and server selector, no new permission authority",
+    "Existing E10-INV-110G-EXACT is IMPLEMENTED (not VERIFIED) and is a permitted integration dependency; E10-INV-110E separately remains VERIFIED. This new child stays IMPLEMENTED pending mandatory checks and approvals."
+  ],
+  "definition_of_done": [
+    "One deterministic Case startup and first-party HTTP selector consistency test",
+    "New PR draft based on frozen #136 SHA; exact-head GitHub functional and engineering checks recorded",
+    "Security coverage and GitHub approvals remain blocking if failing; do not mark VERIFIED merely for code/tests"
+  ],
+  "complexity": {
+    "primary_components": 2,
+    "estimated_files_changed": 3,
+    "estimated_net_loc": 35,
+    "production_files": 2,
+    "net_production_loc": 30,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 0,
+    "separately_testable_behaviors": 1
+  }
+}
