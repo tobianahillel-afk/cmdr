@@ -1,0 +1,124 @@
+{
+  "schema_version": 2,
+  "id": "E10-INV-101U-SELECTION",
+  "title": "Restore the exact current Case selection after server-authorized Queue Workspace return",
+  "type": "task",
+  "parent": "E10-INV-101",
+  "goal": "Complete CAP-INV-101 §25 by re-selecting the returned Case only after a fresh authorized Queue GET confirms exact membership on the current filtered page and a second, independent first-party Inspector GET authorizes that Case; never resurrect old rows on any failed or stale step.",
+  "depends_on": [
+    "E10-INV-101T-WORKSPACE"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-101"
+    ],
+    "requirements": [
+      "REQ-PROD-014",
+      "REQ-PROD-020",
+      "REQ-UX-001",
+      "REQ-UX-002",
+      "REQ-UX-003"
+    ],
+    "screens": [
+      "INV-CAS-001"
+    ],
+    "permissions": [
+      "perm.investigate.case.read"
+    ],
+    "open_decisions": [],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/case.md"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/pagination-filtering-sorting.md",
+      "cmdr-product-spec/17-implementation-contracts/frontend-state-contract.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/case-queue/browser.js",
+    "product-runtime/case-queue/browser.test.cjs",
+    "work/lots/E10-INV-101U-SELECTION/**",
+    "work/graph.json",
+    "engineering/state/current.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/investigation-timeline/**",
+    "product-runtime/event-search/**",
+    "tools/cmdr-dev/**"
+  ],
+  "invariants": [
+    "CAP-INV-101 §25 filtered return restores current authorized page, filters, scroll AND selected Case; original Workspace handoff+return token never grants authority.",
+    "After first-party POST /case-queue/return, a NEW server-auth GET page must contain the exact opaque Case ID and a second NEW GET inspect_case must independently authorize its source before rendering any selected detail.",
+    "Filtered page, current Applied search and cursor are unchanged; no tenant/permission/Shared view token from browser; no Case mutation, no actual hosted Workspace or cloned Shared Inspector.",
+    "Absent Case, denied Inspector or invalid/revoked concurrent navigation must discard existing sensitive Queue/selected details without partial success."
+  ],
+  "security_properties": [
+    "Use the existing first-party Case/Incident/Finding source authorization for each GET and POST; selection only from reauthorized current filtered page, never the old row or return token.",
+    "Fail-closed if currently returned Case absent from fresh page, independently denied/mismatched at Inspector, or request stale; discard earlier sensitive content.",
+    "Token remains transient JS memory, no bearer or return token in URL/storage and no new IAM/CSRF backend assumptions."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Opt-in same-origin host-mounted static browser with no changed persistence or Case schema",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Disable opt-in workspace handoff buttons and retain previous browser GET filter/list/Inspector; backend first-party J/K/N unchanged",
+    "verification": [
+      "Existing native authorized Queue and Inspector flows remain available",
+      "No return token or Case data persisted"
+    ]
+  },
+  "inputs": [
+    "Canonical CAP-INV-101 §25 requires preserved view, filters, scroll and selected Case; parent T restores only view/filter/page/scroll after a server POST and fresh GET.",
+    "Existing browser Inspect action already sends an independent read-only GET /case-queue?inspect_case with current applied projection and current cursor; no new server method is required.",
+    "Parent #151 frozen HEAD e3e35e9d8e0fb1f3ba8378c9c24d3b2ee1fc9e99 with completed successful engineering-kernel run 39323528195, but native merge/reviews remain separate."
+  ],
+  "outputs": [
+    "After verified POST return, fetch current owner-authorized Queue page and require exact Case ID on that page; if absent clear old display.",
+    "Reinvoke existing independently authorized Inspector GET with that ID under current applied filter/sort and cursor, then restore scroll only after current Case selection is freshly authorized.",
+    "Node browser integration tests include successful end-to-end restore plus missing Case on returned page and revoked Inspector, without old data or tokens."
+  ],
+  "acceptance_tests": [
+    "Node DOM actual browser.js tests show POST return -> fresh current Queue GET -> a second authorized GET inspect_case=exact opaque ID; only then restore selected detail, focus and scroll.",
+    "Denied/missing Case after page read and denied Inspector after successful page read both wipe private page/selection, no partial output; existing Workspace/filter/XSS/Inspector tests pass.",
+    "Exact GitHub HEAD engineering-kernel CHK-CASE-QUEUE-CONTRACT, CHK-MANIFESTS and mandatory CHK-SECURITY-TESTS >=90% changed-critical unchanged; no production acceptance inferred."
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "Only one extra bounded server-authorized read-only Inspector GET on successful Case Workspace return, reusing existing Queue provider and auth; no new index, provider or persistent token.",
+    "metrics": [
+      "One existing GET handoff, one POST return, one fresh GET page, one fresh GET Inspector on successful restore",
+      "At most 25 candidates on current page of <=5000 owner records per request"
+    ]
+  },
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-RUNTIME-DEPS",
+    "CHK-SECURITY-TESTS"
+  ],
+  "definition_of_ready": [
+    "Parent E10-INV-101T-WORKSPACE IMPLEMENTED; GitHub exact SHA e3e35e9d8e0fb1f3ba8378c9c24d3b2ee1fc9e99 CI engineering-kernel 39323528195 COMPLETED SUCCESS; the required remaining canonical selection restore is not a completed feature.",
+    "Existing first-party Inspector endpoint reauthorizes exact current Case from same filtered page, so no new permission authority, storage decision or OPEN-013 mutation is needed."
+  ],
+  "definition_of_done": [
+    "Publish a bounded actual browser selection restore and adversarial tests; exact HEAD green GitHub Actions and immutable parent #151 evidence.",
+    "One independent READ-ONLY L2 for the material GET/POST/GET/GET trust boundary only, without duplicating #151 L2 or promoting full CAP-INV-101/Workspace to accepted."
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 2,
+    "estimated_net_loc": 40,
+    "production_files": 1,
+    "net_production_loc": 20,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}
