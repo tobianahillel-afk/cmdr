@@ -2559,7 +2559,14 @@ test("Case picker preserves exact opaque owner Case IDs through Timeline and Sea
   const list = f["case-options"];
   assert.equal(list.disabled, false);
   assert.equal(list.children.length, 3);
+  assert.equal(list.children[1].value, "case-disk");
   assert.equal(list.children[2].value, selected);
+  // The native dropdown must visibly distinguish whitespace-significant IDs;
+  // labels are readable JSON representations, but values remain exact.
+  assert.equal(list.children[1].textContent, JSON.stringify("case-disk"));
+  assert.notEqual(list.children[1].textContent, list.children[2].textContent);
+  assert.match(list.children[2].textContent, /\\u0020/);
+  assert.equal(JSON.parse(list.children[2].textContent), selected);
   list.value = selected;
   list.handlers.change();
   assert.equal(f["case-id"].value, selected);
