@@ -118,7 +118,10 @@
       }
       const actual = Object.fromEntries(returned.filters.map(f => [f.field,f.values]));
       for (const key of ["status","owner","freshness"]) {
-        if (oldApplied[key] !== (actual[key] && actual[key][0] || "")) {
+        // The existing Go filter engine trims/lowercases literal values
+        // before serializing its return token; compare that same meaning.
+        const expected = (oldApplied[key] || "").trim().toLowerCase();
+        if (expected !== (actual[key] && actual[key][0] || "")) {
           throw new Error("returned Queue filters differ");
         }
       }
