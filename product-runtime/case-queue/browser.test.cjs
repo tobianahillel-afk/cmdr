@@ -299,3 +299,29 @@ test("Workspace handoff preserves applied filtered page and rejects a changed re
  assert.match(h.nodes.get("status").textContent,/return denied/);
  assert.equal(h.requests.length,4);
 });
+
+test("Go-normalized case filters still restore a live browser page without widening access",async()=>{
+ const h=harness([
+  {ok:true,data:{rows:[row("case-a","Initial")]}},
+  {ok:true,data:{rows:[row("case-a","Filtered")]}},
+  {ok:true,data:{screen_id:"INV-CAS-001",case_id:"case-a",return_token:"nonce-nonauthorizing"}},
+  {ok:true,data:{origin:"case-queue",selected_case_id:"case-a",
+   page_limit:25,page_cursor:"",search_query:"",
+   filters:[{field:"status",values:["review"]},{field:"owner",values:["analyst-a"]}],
+   sort:[],scroll_offset:0}},
+  {ok:true,data:{rows:[row("case-a","Current owner authorized")]}}
+ ]);
+ await tick();
+ h.nodes.get("case-status").value="Review";
+ h.nodes.get("case-owner").value="Analyst-A";
+ h.nodes.get("search").events.get("submit")({preventDefault(){}});
+ await tick();
+ h.nodes.get("cases").children[0].children[0].children[1].events.get("click")();
+ await tick();
+ h.nodes.get("workspace-return").events.get("click")();
+ await tick();await tick();
+ assert.equal(h.nodes.get("workspace-handoff").hidden,true);
+ assert.equal(h.nodes.get("cases").children[0].children[0].textContent,"Current owner authorized — case-a");
+ assert.match(h.requests[4].uri,/status=Review/);
+ assert.match(h.requests[4].uri,/owner=Analyst-A/);
+});
