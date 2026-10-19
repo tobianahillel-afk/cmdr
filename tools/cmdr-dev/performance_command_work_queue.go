@@ -74,7 +74,7 @@ func (p commandWorkQueueProbe) runResource(iterations, memoryLimitMiB int) (Deep
 	}
 	raw, err := runPerformanceProcess(p.moduleRoot, p.binaryPath,
 		"-iterations", strconv.Itoa(iterations), "-mode", "resource",
-		"-operation", "projection", "-memory-limit-mib", strconv.Itoa(memoryLimitMiB))
+		"-operation", "projection")
 	if err != nil {
 		return DeepPerformanceObservation{}, err
 	}
