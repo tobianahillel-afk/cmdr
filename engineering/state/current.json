@@ -17,9 +17,9 @@
     "phase_title": "Scaled product implementation program bootstrap"
   },
   "execution": {
-    "active_work_unit": "E10-INV-101K-RETURN",
+    "active_work_unit": "E10-INV-101L-VIEW",
     "preferred_next_unit": null,
-    "selection_rule": "GitHub-reconciled 2026-10-19: latest PR #141 exact HEAD dcabc46620e06e0452a0e5d9c6827b4aff2a006c engineering-kernel 39257205407 SUCCESS, L2 report unavailable/native GitHub APPROVED absent; zero READY existing work graph nodes. CAP-INV-101 canonical §25 requires restore selection/filter/scroll. Verified first-party E10-INV-101D-HANDOFF RestoreCaseQueue had no native HTTP return; selected new bounded E10-INV-101K-RETURN under epic E10-INV-101, child of J-HANDOFF IMPLEMENTED (Git base frozen #141). New exact-head CI and independent review mandatory before VERIFIED or merge. Foundation #36, specs #2, upstream #139/#140/#141 DRAFT; parallel #138 89.34% changed security gate FAILURE. No prod IAM/provider/accepted claim."
+    "selection_rule": "GitHub-reconciled 2026-10-19: PR #142 E10-INV-101K-RETURN exact immutable HEAD a41bbcf6b2ac40f366b17c29f9bd1c573d7ce6ff, engineering-kernel run 39263545787 SUCCESS; independent one-shot L2 scheduled and executed but report NOT accessible, native APPROVED unverified; status K=IMPLEMENTED. Work graph had zero READY units and existing HTTP native Queue/Case return omitted canonical CAP-INV-101 Shared Saved Views. New bounded E10-INV-101L-VIEW child of K under epic E10-INV-101 adds opt-in trusted host-selected Shared read-only view with per-request ACL/version re-evaluation, not a second Saved View engine. Source committed on child branch from frozen K; L remains IMPLEMENTED until exact HEAD GitHub CI, L2 and native approvals. Parent #142 and #36/#2 still DRAFT, main spec-only, parallel #138 security FAIL 89.34%. No IAM, host/deployment, Shared persistence or CAP full acceptance claim."
   },
   "reconciliation": {
     "required_on_resume": true,

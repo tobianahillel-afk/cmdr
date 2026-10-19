@@ -99,3 +99,12 @@ rate limits and audit; none are implied by this stand-alone Go handler.
 The prior GET listing/filter/sort/open_case behavior and canonical Queue
 projector are untouched. No mutation, Saved View persistence, export,
 production IAM, external dependencies or API costs.
+
+
+## Host-selected Shared Saved View in native Queue HTTP (E10-INV-101L-VIEW)
+
+An optional `NewAuthorizedQueueHTTPHandlerWithSavedViews` constructor accepts the host's **trusted Shared Capabilities** `QueueSavedViewProvider`. This adapter resolves the current authenticated principal's selected, versioned, permission-rechecked Saved View **on each request** using the host's trusted tenant/environment; the browser can neither supply a view snapshot nor select a view or tenant by URL. The host is responsible for Shared Saved View read/use ACL and **individual field/filter/sort permission re-evaluation** when producing the `SavedView` and `AccessDecision` values; this is **not** a second Shared storage or IAM implementation.
+
+The same existing first-party `ProjectWithSavedViewFallback` strips `deny` elements without leaking forbidden names, applies allowed view filters/ordering, and reports permission-filtered and fallback states. Existing GET list and GET `open_case` use the selected view, and POST `/case-queue/return` re-resolves it independently before the existing `RestoreCaseQueue` checks version, Case visibility, tenant, environment, scroll, and current access. A version change or lost Shared use right denies the old token; a denied current view produces the existing generic default-view fallback on fresh GET. Cross-tenant and malformed Shared snapshots fail closed with no Case contents. No extra Case permission is obtained from a view.
+
+This is still **host-injected read-only runtime**, not a working persistent Shared provider, real IAM, production UI, CSRF-protected deployed HTTP service, Saved View mutation, Case assignment, export, or full CAP-INV-101 acceptance. Hosts without the new adapter retain the previous `NewAuthorizedQueueHTTPHandler` default-view behavior. The product/Shared owner must decide actual Saved View selection and lifecycle; no new canonically authoritative storage is introduced.

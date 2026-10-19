@@ -38,10 +38,20 @@ type QueueReadAuthorizer interface {
 	CheckQueueRead(context.Context, QueueScope, string, string) (string, error)
 }
 
+// QueueSavedViewProvider is an optional trusted Shared Capabilities adapter.
+// It resolves the current session's selected Saved View on EVERY request,
+// including return. Returned AccessDecision values for the view and each
+// element MUST come from server-side, permission-rechecked Shared policy.
+// The HTTP client cannot submit a Saved View object or choose tenant/scope.
+type QueueSavedViewProvider interface {
+	CurrentQueueSavedView(context.Context, QueueScope) (*SavedView, error)
+}
+
 type nativeQueueHTTP struct {
 	sessions QueueSessionResolver
 	cases QueueCaseProvider
 	access QueueReadAuthorizer
+	savedViews QueueSavedViewProvider
 }
 
 // NewAuthorizedQueueHTTPHandler exposes the existing CAP-INV-101 read-only
@@ -54,6 +64,23 @@ func NewAuthorizedQueueHTTPHandler(sessions QueueSessionResolver,
 		return nil, errors.New("Case Queue requires session, candidate provider and read authorization")
 	}
 	return nativeQueueHTTP{sessions: sessions, cases: cases, access: access}, nil
+}
+
+// NewAuthorizedQueueHTTPHandlerWithSavedViews opts into the existing native
+// permission-safe Saved View projector using the host's authoritative Shared
+// selection. No Saved View is created, updated, stored or selected by a URL.
+// Legacy hosts without a Shared adapter retain the default-view behavior.
+func NewAuthorizedQueueHTTPHandlerWithSavedViews(sessions QueueSessionResolver,
+	cases QueueCaseProvider, access QueueReadAuthorizer,
+	savedViews QueueSavedViewProvider) (http.Handler, error) {
+	if savedViews == nil {
+		return nil, errors.New("Shared Saved View resolver required")
+	}
+	base, err := NewAuthorizedQueueHTTPHandler(sessions, cases, access)
+	if err != nil { return nil, err }
+	handler := base.(nativeQueueHTTP)
+	handler.savedViews = savedViews
+	return handler, nil
 }
 
 func (h nativeQueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -254,12 +281,29 @@ func (h nativeQueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		candidate.AccessDecision = "allow"
 		authorized = append(authorized, candidate)
 	}
-	// Reuse the one existing native Case Queue projection; no second
-	// search/sort engine and no client supplied tenant or Saved View ACL.
+	// Shared Capabilities, not the client and not the Case candidate records,
+	// owns the current Saved View and its per-element permission decisions.
+	// On return the same provider runs again, so a revoked/changed version
+	// cannot be silently restored from an old presentation token.
+	var currentView *SavedView
+	if h.savedViews != nil {
+		currentView, err = h.savedViews.CurrentQueueSavedView(ctx, scope)
+		if err != nil || ctx.Err() != nil || r.Context().Err() != nil {
+			queueError(w, http.StatusNotFound)
+			return
+		}
+		if currentView != nil && currentView.TenantRef != scope.Tenant {
+			queueError(w, http.StatusNotFound)
+			return
+		}
+	}
+	// Reuse the ONE existing first-party Saved View sanitizer and projector.
+	// Forbidden elements are stripped before any Case Queue serialization.
 	in := Input{
 		TenantRef: scope.Tenant, EnvironmentRef: scope.Environment,
 		AuthorizedTenants: []string{scope.Tenant},
-		SearchQuery: query, Filters: filters, Sort: sortSpecs, Cases: authorized,
+		SearchQuery: query, Filters: filters, Sort: sortSpecs,
+		SavedView: currentView, Cases: authorized,
 	}
 	result := ProjectWithSavedViewFallback(in)
 	if !result.Allowed || result.Projection == nil || ctx.Err() != nil ||

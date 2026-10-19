@@ -1957,6 +1957,19 @@
         "E10-INV-101J-HANDOFF"
       ],
       "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-INV-101L-VIEW"
+      ]
+    },
+    {
+      "id": "E10-INV-101L-VIEW",
+      "title": "Apply server-authorized Shared Saved View during native Queue read/open/return",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-INV-101K-RETURN"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
       "unlocks": []
     }
   ]
