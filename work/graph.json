@@ -1856,11 +1856,11 @@
       ],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": [
-        "E10-INV-008B-RUN-DIFF"
+        "E10-INV-008B-COMPARE"
       ]
     },
     {
-      "id": "E10-INV-008B-RUN-DIFF",
+      "id": "E10-INV-008B-COMPARE",
       "title": "Compare two authorized Search Job runs with transient metadata only",
       "type": "lot",
       "status": "IMPLEMENTED",
