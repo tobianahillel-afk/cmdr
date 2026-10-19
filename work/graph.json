@@ -1806,6 +1806,20 @@
       "unlocks": []
     },
     {
+      "id": "E10-INV-007",
+      "title": "Canonical CAP-INV-007 Search Result Organization staged delivery",
+      "type": "epic",
+      "status": "DECOMPOSED",
+      "depends_on": [
+        "E10-INV-002G",
+        "E10-INV-110E"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-007A-WORKSPACE"
+      ]
+    },
+    {
       "id": "E10-INV-007A-WORKSPACE",
       "title": "Provide a transient Class-0 authorized Event Search result workspace",
       "type": "lot",
