@@ -32,7 +32,7 @@ function boot(search = "", navigationQuery, denySource = false) {
     "wazuh-search-to", "wazuh-search-run", "wazuh-search-status", "wazuh-search-results",
   "wazuh-search-bursts",
   "wazuh-replay-save", "wazuh-replay-file",
-  "local-search-field", "local-search-family", "local-search-value", "local-search-from", "local-search-to", "local-search-run", "local-search-status", "local-search-results",
+  "local-search-field", "local-search-family", "local-search-value", "local-search-from", "local-search-to", "local-search-run", "local-search-status", "local-search-results", "local-search-workspace-status", "local-search-workspace-actions",
     "compare-case", "compare", "comparison", "comparison-actions", "download-comparison",
     "trace-actions", "trace-results",
     "comparison-trace-actions", "comparison-trace-results", "download-cross-events",

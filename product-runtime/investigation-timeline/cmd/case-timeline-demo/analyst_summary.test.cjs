@@ -20,7 +20,7 @@ const ids = [
   "wazuh-search-to", "wazuh-search-run", "wazuh-search-status", "wazuh-search-results",
   "wazuh-search-bursts",
   "wazuh-replay-save", "wazuh-replay-file",
-  "local-search-field", "local-search-family", "local-search-value", "local-search-from", "local-search-to", "local-search-run", "local-search-status", "local-search-results",
+  "local-search-field", "local-search-family", "local-search-value", "local-search-from", "local-search-to", "local-search-run", "local-search-status", "local-search-results", "local-search-workspace-status", "local-search-workspace-actions",
   "comparison-trace-actions", "comparison-trace-results"
 ];
 function node() {
@@ -2185,4 +2185,170 @@ test("mixed temporal context with a foreign or forged event fails closed",async(
     assert.equal(f["local-search-results"].children.length,0);
     assert.match(f["local-search-status"].textContent,/Aucun résultat partiel/);
   }
+});
+
+test("CAP-INV-007 groups only completed owner-authorized SearchJob hits and keeps selection ephemeral",async()=>{
+  const wazuh="local-jsonl-entry-"+"a".repeat(64);
+  const generic="local-jsonl-entry-"+"b".repeat(64);
+  const env=boot((url,options)=>{
+    assert.equal(url.pathname,"/demo-local-search");
+    assert.equal(url.search,"","source scope and user query must stay out of URLs");
+    assert.equal(options.method,"POST");
+    return {ok:true,async json(){return {
+      format:"cmdr-local-jsonl-event-search-v1",synthetic:true,case_id:"case-disk",
+      job:{ID:"organized-authorized-job",State:"completed",AuditTrail:[{},{},{}],
+        ResultRefs:[
+          {Source:"normalized-jsonl-authorized-import",Ref:wazuh},
+          {Source:"normalized-jsonl-authorized-import",Ref:generic}
+        ]},
+      search_hits:[{entry_id:wazuh,rule_id:"5710",agent_id:"007"}]
+    }}};
+  });
+  const f=env.fields;
+  f["local-search-family"].value="all";
+  f["local-search-field"].value="source_ref";
+  f["local-search-value"].value="local-jsonl-source-";
+  f["local-search-from"].value="2026-10-17T09:59:00";
+  f["local-search-to"].value="2026-10-17T10:03:00";
+  f["local-search-run"].handlers.click();
+  await flush();await flush();
+  assert.equal(env.requests.length,1);
+  assert.match(f["local-search-workspace-status"].textContent,/1 Wazuh, 1 JSONL/);
+  assert.equal(f["local-search-results"].children.length,1);
+  const rows=f["local-search-results"].children[0].children;
+  assert.equal(rows.length,2);
+  assert.equal(rows[0].children[0].textContent,wazuh);
+  assert.equal(rows[0].children[2].textContent," — Wazuh");
+  assert.equal(rows[1].children[2].textContent," — JSONL");
+  const controls=f["local-search-workspace-actions"].children;
+  assert.equal(controls.length,2);
+  assert.equal(controls[0].disabled,true);
+  assert.equal(controls[1].disabled,true);
+  const selection=rows[0].children[1];
+  selection.checked=true;
+  selection.handlers.change();
+  assert.match(f["local-search-workspace-status"].textContent,/1 sélectionné/);
+  assert.equal(controls[1].disabled,false);
+  controls[0].handlers.click();
+  assert.match(f["local-search-workspace-status"].textContent,/1 épinglé/);
+  selection.checked=false; selection.handlers.change();
+  assert.equal(controls[1].disabled,true);
+  f["local-search-field"].handlers.change();
+  assert.equal(f["local-search-results"].children.length,0);
+  assert.equal(f["local-search-workspace-actions"].children.length,0);
+  assert.match(f["local-search-workspace-status"].textContent,/Aucun résultat à organiser/);
+  // A formerly rendered checkbox is NOT a future authority.
+  selection.checked=true; selection.handlers.change();
+  assert.equal(f["local-search-workspace-actions"].children.length,0);
+});
+
+test("CAP-INV-007 refuses Wazuh grouping metadata for a result absent from the completed Job",async()=>{
+  const good="local-jsonl-entry-"+"a".repeat(64);
+  const denied="local-jsonl-entry-"+"f".repeat(64);
+  const env=boot(()=>({ok:true,async json(){return {
+    format:"cmdr-local-jsonl-event-search-v1",synthetic:true,case_id:"case-disk",
+    job:{ID:"invalid-group-job",State:"completed",AuditTrail:[{},{},{}],
+      ResultRefs:[{Source:"normalized-jsonl-authorized-import",Ref:good}]},
+    search_hits:[{entry_id:denied,rule_id:"5710",agent_id:"007"}]
+  }}}));
+  const f=env.fields;
+  f["local-search-family"].value="all";
+  f["local-search-field"].value="source_ref";
+  f["local-search-value"].value="local-jsonl-source-";
+  f["local-search-from"].value="2026-10-17T09:59:00";
+  f["local-search-to"].value="2026-10-17T10:03:00";
+  f["local-search-run"].handlers.click();
+  await flush();await flush();
+  assert.equal(f["local-search-results"].children.length,0);
+  assert.equal(f["local-search-workspace-actions"].children.length,0);
+  assert.match(f["local-search-status"].textContent,/Aucun résultat partiel/);
+});
+
+test("CAP-INV-007 selected-result inspection reauthorizes typed source and denies revoked or stale controls",async()=>{
+  const id="local-jsonl-entry-"+"a".repeat(64);
+  let revoked=false;
+  const env=boot((url,options)=>{
+    if (url.pathname==="/demo-local-search") return {ok:true,async json(){return {
+      format:"cmdr-local-jsonl-event-search-v1",synthetic:true,case_id:"case-disk",
+      job:{ID:"source-open-authorized-job",State:"completed",AuditTrail:[{},{},{}],
+        ResultRefs:[{Source:"normalized-jsonl-authorized-import",Ref:id}]}
+    }}};
+    if (url.pathname==="/case-source-navigation") return {ok:!revoked,async json(){
+      return {status:"ready",kind:"telemetry-event",object_id:"owner-verified-event",
+        return_is_authority:false,return_case_id:"case-disk",
+        return_entry_id:url.searchParams.get("entry_id"),
+        return_query:(()=>{
+          const selection=new URLSearchParams(url.searchParams);
+          selection.delete("entry_id");
+          return selection.toString();
+        })()};
+    }};
+    if (url.pathname==="/demo-source-open") return {ok:true,async json(){return {
+      status:"ready",synthetic:true,kind:"telemetry-event",
+      case_id:"case-disk",entry_id:url.searchParams.get("entry_id"),
+      object_id:"owner-verified-event",preview:"Sensitive source preview only after owner checks"
+    }}};
+    throw Error("Unexpected endpoint "+url.pathname);
+  });
+  const f=env.fields;
+  f["local-search-family"].value="all";
+  f["local-search-field"].value="source_ref";
+  f["local-search-value"].value="local-jsonl-source-";
+  f["local-search-from"].value="2026-10-17T09:59:00";
+  f["local-search-to"].value="2026-10-17T10:03:00";
+  f["local-search-run"].handlers.click();
+  await flush();await flush();
+  const check=f["local-search-results"].children[0].children[0].children[1];
+  check.checked=true;check.handlers.change();
+  const inspect=f["local-search-workspace-actions"].children[1];
+  assert.equal(inspect.disabled,false);
+  // The unrelated Timeline selection can be invalid or restrictive while
+  // the separately authorized completed Search Job has valid references.
+  // Do not reinterpret its source navigation with the Timeline's filters.
+  f["from"].value="not-a-valid-timeline-date";
+  f["kind"].value="inferred";
+  f.search.value="unrelated timeline keyword";
+  inspect.handlers.click();
+  await flush();await flush();
+  assert.deepEqual(env.requests.map(request=>request.url.pathname),
+    ["/demo-local-search","/case-source-navigation","/demo-source-open"]);
+  const navigation=env.requests[1].url;
+  assert.equal(navigation.searchParams.get("case_id"),"case-disk");
+  assert.equal(navigation.searchParams.get("entry_id"),id);
+  assert.equal(navigation.searchParams.has("kind"),false);
+  assert.equal(navigation.searchParams.has("q"),false);
+  assert.equal(navigation.searchParams.has("from"),false);
+  assert.equal(navigation.searchParams.has("to"),false);
+  assert.equal(env.requests[2].url.searchParams.get("entry_id"),id);
+  assert.equal(env.requests[2].options.headers.Authorization,"Bearer ephemeral-token");
+  assert.equal(env.requests[2].url.href.includes("ephemeral-token"),false);
+  assert.equal(f["source-detail"].hidden,false);
+  // Canonical CAP-INV-007 return transition: an inspected Search Job result
+  // returns to the SAME selected/pinned workspace, not the unrelated Case
+  // Timeline. The Timeline date is deliberately invalid above; fetching
+  // that panel would otherwise strand this valid Search Job investigation.
+  f["return-to-case"].handlers.click();
+  await flush();
+  assert.equal(env.requests.length,3,"Search Job return must not request the Timeline");
+  assert.equal(f["source-detail"].hidden,true);
+  assert.equal(check.checked,true,"return must retain Search Job selection");
+  assert.equal(f["local-search-workspace-actions"].children.length,2);
+  assert.equal(f["local-search-workspace-actions"].children[1].disabled,false);
+  assert.equal(f["local-search-results"].children.length,1);
+
+  // This same ref is not durable authority: the next click must go back
+  // to the source owner and may be denied independently after revocation.
+  revoked=true;
+  inspect.handlers.click();
+  await flush();await flush();
+  assert.equal(env.requests.length,4);
+  assert.equal(env.requests[3].url.pathname,"/case-source-navigation");
+  assert.equal(f["source-detail"].hidden,true);
+  assert.equal(f["copy-return-link"].disabled,true);
+  f["token"].value="revoked-token";
+  f["token"].handlers.input();
+  inspect.handlers.click();
+  await flush();
+  assert.equal(env.requests.length,4,"stale selected results must not reopen after bearer rotation");
+  assert.equal(f["local-search-workspace-actions"].children.length,0);
 });

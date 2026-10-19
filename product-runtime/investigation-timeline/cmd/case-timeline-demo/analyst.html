@@ -104,6 +104,12 @@
       <button id="local-search-run" type="button">Exécuter la recherche autorisée</button>
       <p id="local-search-status" role="status" aria-live="polite">Aucune recherche JSONL exécutée.</p>
       <div id="local-search-results" role="region" aria-label="Résultats du Search Job JSONL autorisé" aria-live="polite"></div>
+      <section aria-labelledby="local-workspace-title">
+        <h3 id="local-workspace-title">Organiser les résultats autorisés (sélection locale)</h3>
+        <p class="intro">Regroupe les résultats de ce seul Search Job par famille de source, permet une sélection multiple et un épinglage temporaire. Les références ne sont ni sauvegardées ni transmises au Case : ce n'est ni une Evidence ni une annotation auditée. Une nouvelle recherche ou un changement de Case/jeton efface cet état.</p>
+        <p id="local-search-workspace-status" role="status" aria-live="polite">Aucun résultat à organiser.</p>
+        <div id="local-search-workspace-actions" class="analysis-actions"></div>
+      </section>
       <p class="intro">Le texte ou l'identifiant et le jeton passent dans le corps d'une requête POST authentifiée, jamais dans l'URL. Maximum 500 aperçus candidats et 200 événements correspondants ; au-delà, échec sans résultat partiel. Chaque événement nécessite une nouvelle ouverture de source autorisée. Aucun stockage, IAM de production ni recherche dans des logs bruts.</p>
     </section>
     <section aria-labelledby="wazuh-title">

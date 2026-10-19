@@ -1,0 +1,108 @@
+{
+  "schema_version": 2,
+  "id": "E10-INV-007",
+  "title": "Deliver canonical Investigate CAP-INV-007 Search Result Organization in bounded, decision-aware increments",
+  "type": "epic",
+  "goal": "Coordinate class-0 read-only Search Job result workspaces before separately authorized versioned annotations, linking and export; do not treat transient selection as a full CAP-INV-007 delivery.",
+  "depends_on": [
+    "E10-INV-002G",
+    "E10-INV-110E"
+  ],
+  "parent": "",
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-007",
+      "CAP-INV-002",
+      "CAP-INV-004"
+    ],
+    "requirements": [
+      "REQ-PROD-014",
+      "REQ-PROD-020"
+    ],
+    "screens": [],
+    "permissions": [],
+    "open_decisions": [
+      "OPEN-013"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/frontend-state-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/search-job.md",
+      "cmdr-product-spec/05-domain-model/objects/telemetry-event.md"
+    ]
+  },
+  "allowed_paths": [
+    "work/lots/E10-INV-007/**",
+    "work/lots/E10-INV-007A-WORKSPACE/**",
+    "work/graph.json",
+    "engineering/state/current.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/**",
+    "tools/cmdr-dev/**"
+  ],
+  "invariants": [
+    "CAP-INV-007 remains Investigate-owned; Shared Search Job/Telemetry Event and Saved View retain canonical ownership.",
+    "This epic contains bounded executable lots; it cannot be marked fully implemented from a transient local browser UI.",
+    "No class-2 annotations, exclusions or Case result linking before OPEN-013 and permission decisions are resolved."
+  ],
+  "security_properties": [
+    "A completed Search Job result reference is not an authority grant; source opens reauthorize against first-party owner.",
+    "Never widen tenant/environment or persist browser-selected raw event or bearer."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Engineering decomposition only; no data/schema mutation.",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Discard new bounded CAP-INV-007 lot while preserving existing Event Search and Case Timeline runtime.",
+    "verification": [
+      "Existing typed-source owner and Search Job functionality unchanged."
+    ]
+  },
+  "inputs": [
+    "Canonical CAP-INV-007 full specification",
+    "Verified Shared Search Job and Case owner foundations"
+  ],
+  "outputs": [
+    "E10-INV-007A-WORKSPACE separately executed, reviewed and recorded",
+    "Further class-2 work only after authority and persistence policy decisions"
+  ],
+  "acceptance_tests": [
+    "Every child lot has a separate validated manifest and its exact-head test proof.",
+    "Epic remains DECOMPOSED while complete canonical selection/persistence/Case linking/export remains absent."
+  ],
+  "performance_budget": {
+    "applicable": false,
+    "rationale": "No executable logic in engineering epic.",
+    "metrics": []
+  },
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-SECURITY-TESTS"
+  ],
+  "definition_of_ready": [
+    "Canonical CAP-INV-007 source exists and predecessors E10-INV-002G/E10-INV-110E are VERIFIED."
+  ],
+  "definition_of_done": [
+    "All separately accepted canonical CAP-INV-007 requirements are satisfied under their owners and required permission decisions.",
+    "Native approvals and exact-head CI are satisfied; no demonstration is misreported as production."
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 0,
+    "estimated_net_loc": 0,
+    "production_files": 0,
+    "net_production_loc": 0,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 0,
+    "separately_testable_behaviors": 1
+  }
+}
