@@ -6,8 +6,7 @@
   "parent": "E10-INV-110",
   "goal": "Ensure the operator-local Case viewer never chooses or advertises an owner Case selector that the first-party authenticated Case Timeline/picker refuses; reject malformed in-scope Case catalog before minting bearer or listener.",
   "depends_on": [
-    "E10-INV-110F-SELECTOR",
-    "E10-INV-110E"
+    "E10-INV-110G-EXACT"
   ],
   "product_refs": {
     "capabilities": [
@@ -74,7 +73,8 @@
   "inputs": [
     "Existing CAP-INV-110 Case/Timeline read-only HTTP picker and viewer",
     "Frozen PR #136 HEAD a0be908a5712ae24ec6c0ee6e791648058f9995b",
-    "First-party validHTTPCaseSelector in case_http.go (server), distinct from CLI firstDemoAuthorizedCase selection in snapshot.go"
+    "First-party validHTTPCaseSelector in case_http.go (server), distinct from CLI firstDemoAuthorizedCase selection in snapshot.go",
+    "E10-INV-110F-SELECTOR and E10-INV-110G-EXACT are recorded IMPLEMENTED (not ACCEPTED), whereas E10-INV-110E is VERIFIED."
   ],
   "outputs": [
     "Single canonical exported selector predicate reused by first-party HTTP picker and operator-local startup, no duplicate frontend approximation",
@@ -101,7 +101,7 @@
   "definition_of_ready": [
     "Canonical CAP-INV-110 read-only Case selection and CAP-INV-101 consumer are in scope, no Case mutation or OPEN-013 claim",
     "Single root mismatch between firstDemoAuthorizedCase and server selector, no new permission authority",
-    "Existing E10-INV-110F-SELECTOR and E10-INV-110E dependencies VERIFIED in work graph"
+    "Existing E10-INV-110G-EXACT is IMPLEMENTED (not VERIFIED) and is a permitted integration dependency; E10-INV-110E separately remains VERIFIED. This new child stays IMPLEMENTED pending mandatory checks and approvals."
   ],
   "definition_of_done": [
     "One deterministic Case startup and first-party HTTP selector consistency test",
