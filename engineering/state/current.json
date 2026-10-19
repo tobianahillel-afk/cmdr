@@ -17,9 +17,9 @@
     "phase_title": "Scaled product implementation program bootstrap"
   },
   "execution": {
-    "active_work_unit": "E10-INV-008B-COMPARE",
+    "active_work_unit": "E10-INV-110G-EXACT",
     "preferred_next_unit": null,
-    "selection_rule": "New CAP-INV-008 Class-0 in-memory run comparison is IMPLEMENTED candidate only on a child of frozen PR #131; parent E10-INV-008A remains unverified (89.30%/90 mandatory security coverage). No READY release, verify exact HEAD CI, one independent L2 and parent approvals before advancement. OPEN-015 prevents Shared Trace storage."
+    "selection_rule": "Verified 2026-10-19 from exact GitHub repo: 0 READY among 148 graph nodes (124 VERIFIED, 17 DECOMPOSED, 7 IMPLEMENTED); do not invent a product unit. CAP-INV-110 read-only exact Case picker/return selector E10-INV-110G-EXACT remains IMPLEMENTED (not VERIFIED/ACCEPTED), PR #135 DRAFT based on frozen PR #134 SHA 5d7de39e53cf993c76f7811448221b7f67c8b20e; GitHub exact code head before this cache reconciliation adf6327a689271231c88dd9c5e86e62795a10841. Its exact-head investigation-timeline-runtime run 39208672059 SUCCESS (Linux Go/Node, macOS Go, Windows Go). engineering-kernel run 39208672073 FAILURE unchanged CHK-SECURITY-TESTS investigation-timeline-runtime scoped Go fallback 89.30% < mandatory 90.00%; diagnostics at case_http, case_discovery, normalized_search and CLI, not proof of JS selector vulnerability. This is a release blocker, not waiver target. PR #134 workflows SUCCESS but not transferred to #135. At check time 97 open PRs, PR #36 foundation DRAFT 763 commits/871 files, PR #2 product specification DRAFT, zero native APPROVED reviews on #36/#134/#135. OPEN-013 prevents unauthorized Case mutations; no production IAM, live ingestion, acceptance, native approval or merge inferred. Next legitimate action: finish root-cause/security design and exact-head evidence under a correctly scoped new work unit or clear existing CI/review dependencies, then reconcile graph only on proof. This cache update itself changes the branch HEAD: recheck exact new SHA and CI; no L2 duplicate on a state-only correction."
   },
   "reconciliation": {
     "required_on_resume": true,

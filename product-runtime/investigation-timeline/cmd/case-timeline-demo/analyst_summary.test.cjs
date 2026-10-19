@@ -34,7 +34,7 @@ function node() {
     dispatchEvent(event) { this.handlers[event.type]?.(); }
   };
 }
-function boot(fetchMock) {
+function boot(fetchMock, locationSearch = "") {
   const fields = Object.fromEntries(ids.map(id => [id, node()]));
   const requests = [];
   const downloads = [];
@@ -47,7 +47,7 @@ function boot(fetchMock) {
     if (downloads.length) downloads[downloads.length - 1].revoked = true;
   };
   const ctx = {
-    window: { location: { origin: "http://127.0.0.1:8765", search: "" } },
+    window: { location: { origin: "http://127.0.0.1:8765", search: locationSearch } },
     document: {
       getElementById: id => fields[id],
       createElement: tag => {
@@ -72,7 +72,7 @@ function boot(fetchMock) {
   };
   vm.runInNewContext(source, ctx);
   fields.token.value = "ephemeral-token";
-  fields["case-id"].value = "case-disk";
+  if (!fields["case-id"].value) fields["case-id"].value = "case-disk";
   return { fields, requests, downloads };
 }
 const flush = () => new Promise(resolve => setImmediate(resolve));
@@ -2523,4 +2523,127 @@ test("CAP-INV-008 refuses partial run comparisons after denied Search Job and pr
   assert.equal(f["local-search-compare-baseline"].disabled,true);
   assert.equal(f["local-search-results"].children.length,0);
   assert.equal(env.requests.length,3);
+});
+
+test("Case picker preserves exact opaque owner Case IDs through Timeline and Search Job", async () => {
+  // The first-party Go owner accepts non-empty valid selectors including
+  // surrounding spaces; they are not an alias to the trimmed Case ID.
+  const selected = " case-disk ";
+  const authorizedRef = "local-jsonl-entry-" + "a".repeat(64);
+  const env = boot((url, options) => {
+    if (url.pathname === "/demo-cases") {
+      assert.equal(options.headers.Authorization, "Bearer ephemeral-token");
+      return { ok: true, async json() { return { cases: ["case-disk", selected] }; } };
+    }
+    if (url.pathname === "/case-timeline") {
+      assert.equal(url.searchParams.get("case_id"), selected,
+        "opening a Case from the picker must never silently open its trimmed sibling");
+      return page(Number(url.searchParams.get("offset")), 1);
+    }
+    if (url.pathname === "/demo-local-search") {
+      assert.equal(options.method, "POST");
+      assert.equal(JSON.parse(options.body).case_id, selected,
+        "SearchJob must carry the exact previously authorized Case selector");
+      return { ok: true, async json() { return {
+        format: "cmdr-local-jsonl-event-search-v1",
+        synthetic: true, case_id: selected,
+        job: { ID: "job-exact-case", State: "completed", AuditTrail: [{}, {}, {}],
+          ResultRefs: [{ Source: "normalized-jsonl-authorized-import", Ref: authorizedRef }] }
+      }; } };
+    }
+    throw Error("unexpected route " + url.pathname);
+  });
+  const f = env.fields;
+  f.discover.handlers.click();
+  await flush(); await flush();
+  const list = f["case-options"];
+  assert.equal(list.disabled, false);
+  assert.equal(list.children.length, 3);
+  assert.equal(list.children[1].value, "case-disk");
+  assert.equal(list.children[2].value, selected);
+  // The native dropdown must visibly distinguish whitespace-significant IDs;
+  // labels are readable JSON representations, but values remain exact.
+  assert.equal(list.children[1].textContent, JSON.stringify("case-disk"));
+  assert.notEqual(list.children[1].textContent, list.children[2].textContent);
+  assert.match(list.children[2].textContent, /\\u0020/);
+  assert.equal(JSON.parse(list.children[2].textContent), selected);
+  list.value = selected;
+  list.handlers.change();
+  assert.equal(f["case-id"].value, selected);
+
+  f.query.handlers.submit({ preventDefault() {} });
+  await flush(); await flush();
+  assert.equal(env.requests.filter(r => r.url.pathname === "/case-timeline").length, 1);
+
+  f["local-search-field"].value = "preview";
+  f["local-search-value"].value = "authentication";
+  f["local-search-from"].value = "2026-10-17T10:00:00";
+  f["local-search-to"].value = "2026-10-17T10:05:00";
+  f["local-search-run"].handlers.click();
+  await flush(); await flush();
+  assert.match(f["local-search-status"].textContent, /job-exact-case terminé/);
+  assert.equal(env.requests.filter(r => r.url.pathname === "/demo-local-search").length, 1);
+
+  // Changing to the other valid Case is a security-scope transition, even
+  // though the only difference is whitespace around its opaque identity.
+  list.value = "case-disk";
+  list.handlers.change();
+  assert.equal(f["case-id"].value, "case-disk");
+  assert.equal(f["local-search-results"].children.length, 0);
+  assert.match(f["local-search-provenance"].textContent, /Aucune provenance/);
+});
+
+test("Timeline return context retains the exact whitespace-significant Case owner identity", async () => {
+  // These are two distinct owner-issued Case IDs, not aliases. A return link
+  // is only presentation context: no network call until a fresh bearer and
+  // an explicit Timeline submit.
+  const selected = " case-disk ";
+  const deepLink = new URL("http://127.0.0.1:8765/analyst");
+  deepLink.searchParams.set("case_id", selected);
+  deepLink.searchParams.set("kind", "observed");
+  deepLink.searchParams.set("q", "");
+  deepLink.searchParams.set("limit", "20");
+  deepLink.searchParams.set("offset", "0");
+  const env = boot((url, options) => {
+    assert.equal(url.pathname, "/case-timeline");
+    assert.equal(url.searchParams.get("case_id"), selected,
+      "return navigation must not silently open the trimmed sibling Case");
+    assert.equal(options.headers.Authorization, "Bearer ephemeral-token");
+    return page(Number(url.searchParams.get("offset")), 1);
+  }, deepLink.search);
+  assert.equal(env.requests.length, 0, "return URL must not authorize or fetch by itself");
+  assert.equal(env.fields["case-id"].value, selected);
+  assert.equal(env.fields.message.textContent.includes("jeton temporaire"), true);
+  env.fields.query.handlers.submit({ preventDefault() {} });
+  await flush(); await flush();
+  assert.equal(env.requests.length, 1);
+  assert.equal(env.requests[0].url.searchParams.get("case_id"), selected);
+
+  // The empty/blank-only identifier remains invalid: a permissive change
+  // must preserve the existing denial at the presentation boundary.
+  const invalid = new URL("http://127.0.0.1:8765/analyst");
+  invalid.searchParams.set("case_id", "  ");
+  invalid.searchParams.set("limit", "20");
+  const rejected = boot(() => { throw Error("blank Case return unexpectedly queried"); }, invalid.search);
+  assert.equal(rejected.fields["case-id"].value, "case-disk");
+  assert.equal(rejected.requests.length, 0);
+  assert.match(rejected.fields.message.textContent, /Contexte de retour invalide/);
+});
+
+test("two-Case triage keeps target owner ID distinct from whitespace alias", async () => {
+  const left = "case-disk";
+  const right = "case-disk ";
+  const env = boot((url) => {
+    assert.equal(url.pathname, "/case-timeline");
+    const id = url.searchParams.get("case_id");
+    assert.ok(id === left || id === right, "the compare route must not fabricate a normalized Case");
+    return page(Number(url.searchParams.get("offset")), 1);
+  });
+  env.fields["compare-case"].value = right;
+  env.fields.compare.handlers.click();
+  await flush(); await flush();
+  const used = env.requests.filter(r => r.url.pathname === "/case-timeline")
+    .map(r => r.url.searchParams.get("case_id"));
+  assert.ok(used.includes(left) && used.includes(right),
+    "independently authorized Cases may have distinct whitespace-significant IDs");
 });

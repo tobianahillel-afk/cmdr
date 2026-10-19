@@ -1,0 +1,127 @@
+{
+  "schema_version": 2,
+  "id": "E10-INV-110G-EXACT",
+  "title": "Preserve exact owner-issued Case identifiers across Case picker, Timeline, Search Job and run comparison",
+  "type": "task",
+  "parent": "E10-INV-110",
+  "goal": "Repair the integrated Case selector contract: never trim owner-issued Case IDs in the local analyst browser, so two authorized IDs that differ only by surrounding spaces remain distinct through Timeline, Search Job and two-Case comparisons.",
+  "depends_on": [
+    "E10-INV-110F-SELECTOR"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-110",
+      "CAP-INV-101",
+      "CAP-INV-002",
+      "CAP-INV-008"
+    ],
+    "requirements": [
+      "REQ-PROD-014",
+      "REQ-PROD-018",
+      "REQ-PROD-020"
+    ],
+    "screens": [
+      "INV-TIM-001",
+      "INV-CAS-001"
+    ],
+    "permissions": [
+      "perm.investigate.case.read"
+    ],
+    "open_decisions": [],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/screen-routing-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/frontend-state-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/case.md",
+      "cmdr-product-spec/05-domain-model/objects/timeline-entry.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/investigation-timeline/cmd/case-timeline-demo/analyst.js",
+    "product-runtime/investigation-timeline/cmd/case-timeline-demo/analyst_summary.test.cjs",
+    "product-runtime/investigation-timeline/cmd/case-timeline-demo/analyst_ui_test.go",
+    "work/lots/E10-INV-110G-EXACT/**",
+    "work/graph.json",
+    "engineering/state/current.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/event-search/**",
+    "product-runtime/investigation-timeline/case_http.go",
+    "product-runtime/investigation-timeline/case_discovery.go",
+    "tools/cmdr-dev/**"
+  ],
+  "invariants": [
+    "An owner-issued Case ID is an opaque exact selector, not a presentation string; no client-side whitespace normalization or aliasing.",
+    "Case picker must never silently open a different Case, Timeline, Search Job, local provenance or comparison when two IDs differ only in whitespace.",
+    "Existing server-side principal, tenant/environment, Case, Timeline, and typed-source authorization remains authoritative; no client trust, new IAM, persistence or Evidence mutation."
+  ],
+  "security_properties": [
+    "For every Case-selection path, compare asynchronous context revisions against the exact unchanged Case ID string.",
+    "Use exactly the selected Case ID in authorized Timeline GET, normalized Search Job POST and cross-Case selection; distinct owner IDs must remain distinct.",
+    "Existing denial, case-change invalidation and foreign-source protections remain unchanged; no extra requests, source data, bearer or tenant leakage."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Client-only exact selector fidelity; no persisted canonical Case identifier or backend schema change.",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Revert only browser selector normalization change; server-side Case owner and discovery predicates remain unchanged.",
+    "verification": [
+      "Existing Case picker, Timeline and Search Job authorization tests remain unchanged."
+    ]
+  },
+  "inputs": [
+    "Canonical CAP-INV-110 Case and Timeline navigation and CAP-INV-101 Case picker transitions.",
+    "Existing backend validHTTPCaseSelector accepts valid owner-issued IDs with nonblank surrounding spaces; client trim() previously silently selected a different ID.",
+    "Previously independently integrated and CI-green PR #134 preserves owner authentication and transient CAP-INV-008 comparison.",
+    "Existing first-party Go analyst UI asset security test used brittle literal marker `option.textContent = id`; replace only that marker with the equally inert unambiguous JSON escaped visual textContent contract while preserving option.value opaque wire identity."
+  ],
+  "outputs": [
+    "Exact Case ID string preserved through Case picker → Timeline GET and Search Job POST; no silent aliasing.",
+    "Two Case IDs differing by trailing spaces remain valid distinct Case choices in the local comparator.",
+    "Browser regression tests, exact-HEAD cross-OS Actions, bounded handoff documenting partial synthetic nature.",
+    "Case selector dropdown renders whitespace-significant owner IDs unambiguously; matching Go UI static contract test is updated within this task, no backend authorization change."
+  ],
+  "acceptance_tests": [
+    "Case discovery with both 'case-disk' and ' case-disk ' allows opening the exact selected original ID without silently changing it.",
+    "Executing an authorized completed normalized Search Job submits exactly the selected owner Case ID; moving to the other ID invalidates all stale results and provenance.",
+    "A two-Case comparison retains 'case-disk' and 'case-disk ' as separate owner selections.",
+    "Full Linux Go/Node browser and macOS/Windows Go suites and mandatory unchanged security coverage gate on exact SHA.",
+    "Go asset contract accepts the first-party dropdown rendering `option.textContent = JSON.stringify(id).replace(/ /g, \"\\\\u0020\")` and still rejects raw HTML injection or switching to client-authorized source lookup; Node tests prove both visible distinct labels and byte-exact option values."
+  ],
+  "performance_budget": {
+    "applicable": false,
+    "rationale": "Only remove string normalization on local Case identifiers, no additional network or data enumeration."
+  },
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-RUNTIME-DEPS",
+    "CHK-SECURITY-TESTS"
+  ],
+  "definition_of_ready": [
+    "CAP-INV-110/101 case selector contract and CAP-INV-002 Search Job have existing first-party backend, fixed identity predicate and CI-green integration PR #134, with no product decision required.",
+    "Git parent PR #134 exact frozen SHA is a dependency, not the engineering parent; new work is a bounded browser-facing R2 fix."
+  ],
+  "definition_of_done": [
+    "Exact owner-issued Case IDs retained in actual Case picker, Timeline, Search Job and cross-Case comparison workflows.",
+    "Case changes invalidate prior authorized Search Job and provenance controls, no metadata leak or wrong-Case silent reroute.",
+    "Exact-head runtime and mandatory engineering security workflows verified, release/draft/parent approvals kept distinct."
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 3,
+    "estimated_net_loc": 35,
+    "production_files": 1,
+    "net_production_loc": 4,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 0,
+    "separately_testable_behaviors": 1
+  }
+}
