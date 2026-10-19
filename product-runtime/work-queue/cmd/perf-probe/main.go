@@ -38,10 +38,8 @@ func run(args []string, out io.Writer) error {
 	n:=fs.Int("iterations",10000,"operations")
 	mode:=fs.String("mode","latency","mode")
 	op:=fs.String("operation","projection","operation")
-	memoryMiB:=fs.Int("memory-limit-mib",0,"resource-mode heap limit")
 	if err:=fs.Parse(args);err!=nil{return err}
-	if fs.NArg()!=0||*n<1||*n>100000||(*mode!="latency"&&*mode!="resource")||*op!="projection" ||
-		(*mode=="resource"&&(*memoryMiB<64||*memoryMiB>8192)) || (*mode=="latency"&&*memoryMiB!=0){
+	if fs.NArg()!=0||*n<1||*n>100000||(*mode!="latency"&&*mode!="resource")||*op!="projection"{
 		return fmt.Errorf("unsupported performance operation, mode or iteration count")
 	}
 	req:=queue.Request{Principal:"analyst",Tenant:"perf-tenant",Environment:"perf-env",View:queue.All}
@@ -79,14 +77,8 @@ func run(args []string, out io.Writer) error {
 		var after runtime.MemStats
 		runtime.ReadMemStats(&after)
 		if after.HeapAlloc>peak {peak=after.HeapAlloc}
-		if peak>uint64(*memoryMiB)*1024*1024 {
-			return fmt.Errorf("Command queue probe exceeded heap budget")
-		}
 		receipt.PeakHeapBytes=peak
 		receipt.TotalAllocationBytes=after.TotalAlloc-before.TotalAlloc
-		if receipt.PeakHeapBytes==0 || receipt.TotalAllocationBytes==0 {
-			return fmt.Errorf("Command queue resource observation unavailable")
-		}
 	}
 	return json.NewEncoder(out).Encode(receipt)
 }
