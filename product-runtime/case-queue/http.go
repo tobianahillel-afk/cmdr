@@ -6,6 +6,7 @@ import (
 	"errors"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 	"unicode/utf8"
 )
@@ -65,28 +66,47 @@ func (h nativeQueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if r.URL == nil || r.Body != nil && r.Body != http.NoBody ||
-		len(r.TransferEncoding) != 0 || len(r.URL.RawQuery) > 1024 {
+		len(r.TransferEncoding) != 0 || len(r.URL.RawQuery) > 4096 {
 		queueError(w, http.StatusBadRequest)
 		return
 	}
 	parameters, err := url.ParseQuery(r.URL.RawQuery)
-	if err != nil || len(parameters) > 5 {
+	if err != nil || len(parameters) > 7 {
 		queueError(w, http.StatusBadRequest)
 		return
 	}
 	query := ""
+	openCase := ""
+	scrollOffset := 0
+	scrollProvided := false
 	var filters []Filter
 	var sortSpecs []SortSpec
 	// Only literal, single-valued queue controls reach the existing
 	// projector. Authorization of ALL candidates and nested sources still
 	// happens first; nothing here selects a tenant or confers permissions.
 	for name, values := range parameters {
-		if len(values) != 1 || !validQueueLiteral(values[0], 256) {
+		literalLimit := 256
+		if name == "open_case" { literalLimit = 1024 }
+		if len(values) != 1 || !validQueueLiteral(values[0], literalLimit) {
 			queueError(w, http.StatusBadRequest)
 			return
 		}
 		value := values[0]
 		switch name {
+		case "open_case":
+			if strings.TrimSpace(value) == "" {
+				queueError(w, http.StatusBadRequest)
+				return
+			}
+			openCase = value // opaque ID; leading/trailing spaces are significant
+		case "scroll":
+			parsed, err := strconv.Atoi(value)
+			if err != nil || parsed < 0 || parsed > maxReturnScroll {
+				queueError(w, http.StatusBadRequest)
+				return
+			}
+			scrollProvided = true
+			scrollOffset = parsed
 		case "q":
 			query = value
 		case "status", "owner", "freshness":
@@ -107,6 +127,10 @@ func (h nativeQueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			queueError(w, http.StatusBadRequest)
 			return
 		}
+	}
+	if scrollProvided && openCase == "" {
+		queueError(w, http.StatusBadRequest)
+		return
 	}
 	if r.Context().Err() != nil {
 		queueError(w, http.StatusServiceUnavailable)
@@ -184,17 +208,31 @@ func (h nativeQueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	// Reuse the one existing native Case Queue projection; no second
 	// search/sort engine and no client supplied tenant or Saved View ACL.
-	result := ProjectWithSavedViewFallback(Input{
+	in := Input{
 		TenantRef: scope.Tenant, EnvironmentRef: scope.Environment,
 		AuthorizedTenants: []string{scope.Tenant},
 		SearchQuery: query, Filters: filters, Sort: sortSpecs, Cases: authorized,
-	})
+	}
+	result := ProjectWithSavedViewFallback(in)
 	if !result.Allowed || result.Projection == nil || ctx.Err() != nil ||
 		r.Context().Err() != nil {
 		queueError(w, http.StatusNotFound)
 		return
 	}
-	response, err := json.Marshal(result.Projection)
+	var response []byte
+	if openCase != "" {
+		// Reuse the existing CAP-INV-101 Class-0 handoff engine. It checks
+		// selection visibility AFTER current server ACL, filters and freshness.
+		// The token is presentation state, not a credential or a signed grant.
+		handoff := OpenCaseWorkspace(in, openCase, scrollOffset, OriginCaseQueue)
+		if !handoff.Allowed || handoff.Handoff == nil {
+			queueError(w, http.StatusNotFound)
+			return
+		}
+		response, err = json.Marshal(handoff.Handoff)
+	} else {
+		response, err = json.Marshal(result.Projection)
+	}
 	if err != nil || len(response) > 4<<20 {
 		queueError(w, http.StatusServiceUnavailable)
 		return
