@@ -30,11 +30,8 @@ func TestCommandQueueProbeRejectsUnsupportedModesBeforeReceipt(t *testing.T) {
 		{"-iterations", "0"},
 		{"-iterations", "100001"},
 		{"-iterations", "not-an-integer"},
-		{"-mode", "resource"},
-		{"-mode", "resource", "-memory-limit-mib", "1"},
-		{"-mode", "resource", "-memory-limit-mib", "8193"},
-		{"-mode", "resource", "-memory-limit-mib", "128", "-operation", "saved-view"},
-		{"-mode", "latency", "-memory-limit-mib", "128"},
+		{"-mode", "resource", "-operation", "saved-view"},
+		{"-mode", "resource", "-memory-limit-mib", "128"},
 		{"-operation", "saved-view"},
 		{"-operation", "projection", "unexpected-position"},
 		{"-invalid-option"},
@@ -60,12 +57,12 @@ func TestCommandQueueProbeSurfacesReceiptFailure(t *testing.T) {
 
 func TestCommandQueueResourceProbeMeasuresRealProjectionHeap(t *testing.T) {
 	var output bytes.Buffer
-	if err:=run([]string{"-iterations","1000","-operation","projection","-mode","resource","-memory-limit-mib","128"},&output);err!=nil {
+	if err:=run([]string{"-iterations","100000","-operation","projection","-mode","resource"},&output);err!=nil {
 		t.Fatalf("Command resource probe failed: %v",err)
 	}
 	var sample observation
 	if err:=json.Unmarshal(output.Bytes(),&sample);err!=nil {t.Fatal(err)}
-	if sample.Mode!="resource" || sample.Operation!="projection" || sample.Operations!=1000 ||
+	if sample.Mode!="resource" || sample.Operation!="projection" || sample.Operations!=100000 ||
 		sample.PeakHeapBytes==0 || sample.TotalAllocationBytes==0 ||
 		sample.PeakHeapBytes>128*1024*1024 || sample.ElapsedNS<=0 {
 		t.Fatalf("Command probe did not actually record bounded runtime heap/allocations: %+v",sample)
@@ -73,7 +70,6 @@ func TestCommandQueueResourceProbeMeasuresRealProjectionHeap(t *testing.T) {
 }
 
 func TestCommandQueueResourceProbeDoesNotReturnPartialReceiptOnSinkFailure(t *testing.T) {
-	err:=run([]string{"-mode","resource","-memory-limit-mib","128",
-		"-iterations","10000"},unavailableReceiptWriter{})
+	err:=run([]string{"-mode","resource","-iterations","100000"},unavailableReceiptWriter{})
 	if err==nil {t.Fatal("failed to reject unavailable sensitive benchmark result sink")}
 }
