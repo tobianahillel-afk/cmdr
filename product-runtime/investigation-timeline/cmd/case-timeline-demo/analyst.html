@@ -114,6 +114,9 @@
         <h3 id="local-provenance-title">Provenance de cette recherche (CAP-INV-008, lecture seule)</h3>
         <p class="intro">Affiche uniquement les métadonnées autorisées fournies par le Search Job terminé : run, version de Query, fenêtre temporelle, nombre de sources et erreurs déclarées. Une valeur absente reste indisponible ; aucune source, auteur, transformation ou activité non fournie n’est inventée. Ce résumé temporaire n’est ni une Trace Shared persistée ni une chaîne de conservation.</p>
         <p id="local-search-provenance" role="status" aria-live="polite">Aucune provenance de Search Job consultable.</p>
+        <button id="local-search-compare-baseline" type="button" disabled>Mémoriser ce run comme référence locale</button>
+        <p id="local-search-compare-status" role="status" aria-live="polite">Aucune comparaison de runs autorisés.</p>
+        <p class="intro">Comparaison en mémoire de deux Search Jobs terminés et autorisés successivement dans le même Case. Seuls les comptes de résultats, sources déclarées/en échec, événements d'audit et fenêtres UTC sont comparés ; toute source ou date manquante reste indisponible. La référence est effacée quand le Case, le jeton ou les filtres de Timeline changent. Aucune Trace persistante, aucun acteur ni lien causal n'est produit.</p>
       </section>
       <p class="intro">Le texte ou l'identifiant et le jeton passent dans le corps d'une requête POST authentifiée, jamais dans l'URL. Maximum 500 aperçus candidats et 200 événements correspondants ; au-delà, échec sans résultat partiel. Chaque événement nécessite une nouvelle ouverture de source autorisée. Aucun stockage, IAM de production ni recherche dans des logs bruts.</p>
     </section>
