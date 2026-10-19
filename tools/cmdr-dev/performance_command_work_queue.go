@@ -58,38 +58,40 @@ func (p commandWorkQueueProbe) run(iterations int) (pilotProjectionProbeObservat
 }
 
 type commandQueueResourceSample struct {
-	Operation string `json:"operation"`
-	Mode string `json:"mode"`
-	Operations int `json:"operations"`
-	ElapsedNS int64 `json:"elapsed_ns"`
-	PeakHeapBytes uint64 `json:"peak_heap_bytes"`
+	Operation            string `json:"operation"`
+	Mode                 string `json:"mode"`
+	Operations           int    `json:"operations"`
+	ElapsedNS            int64  `json:"elapsed_ns"`
+	PeakHeapBytes        uint64 `json:"peak_heap_bytes"`
 	TotalAllocationBytes uint64 `json:"total_allocation_bytes"`
 }
 
 // Deep validation executes the SAME compiled first-party Work Queue module,
 // not a metadata benchmark pretending to exercise Command.
 func (p commandWorkQueueProbe) runResource(iterations, memoryLimitMiB int) (DeepPerformanceObservation, error) {
-	if iterations<1 || iterations>100000 || memoryLimitMiB<64 || memoryLimitMiB>8192 {
+	if iterations < 1 || iterations > 100000 || memoryLimitMiB < 64 || memoryLimitMiB > 8192 {
 		return DeepPerformanceObservation{}, fmt.Errorf("invalid Command resource probe bounds")
 	}
-	raw,err:=runPerformanceProcess(p.moduleRoot,p.binaryPath,
-		"-iterations",strconv.Itoa(iterations),"-mode","resource",
-		"-operation","projection","-memory-limit-mib",strconv.Itoa(memoryLimitMiB))
-	if err!=nil {return DeepPerformanceObservation{},err}
-	var sample commandQueueResourceSample
-	if err:=json.Unmarshal([]byte(strings.TrimSpace(raw)),&sample);err!=nil {
-		return DeepPerformanceObservation{},err
+	raw, err := runPerformanceProcess(p.moduleRoot, p.binaryPath,
+		"-iterations", strconv.Itoa(iterations), "-mode", "resource",
+		"-operation", "projection", "-memory-limit-mib", strconv.Itoa(memoryLimitMiB))
+	if err != nil {
+		return DeepPerformanceObservation{}, err
 	}
-	if sample.Operation!="projection" || sample.Mode!="resource" || sample.Operations!=iterations ||
-		sample.ElapsedNS<=0 || sample.PeakHeapBytes==0 || sample.TotalAllocationBytes==0 ||
-		sample.PeakHeapBytes>uint64(memoryLimitMiB)*1024*1024 {
-		return DeepPerformanceObservation{},fmt.Errorf("invalid Command resource observation")
+	var sample commandQueueResourceSample
+	if err := json.Unmarshal([]byte(strings.TrimSpace(raw)), &sample); err != nil {
+		return DeepPerformanceObservation{}, err
+	}
+	if sample.Operation != "projection" || sample.Mode != "resource" || sample.Operations != iterations ||
+		sample.ElapsedNS <= 0 || sample.PeakHeapBytes == 0 || sample.TotalAllocationBytes == 0 ||
+		sample.PeakHeapBytes > uint64(memoryLimitMiB)*1024*1024 {
+		return DeepPerformanceObservation{}, fmt.Errorf("invalid Command resource observation")
 	}
 	return DeepPerformanceObservation{
-		DurationMS: sample.ElapsedNS/int64(1000000),
-		PeakHeapBytes: sample.PeakHeapBytes,
+		DurationMS:           sample.ElapsedNS / int64(1000000),
+		PeakHeapBytes:        sample.PeakHeapBytes,
 		TotalAllocationBytes: sample.TotalAllocationBytes,
-		Operations: int64(sample.Operations),
-		ThroughputOpsPerSec: float64(sample.Operations)*1e9/float64(sample.ElapsedNS),
-	},nil
+		Operations:           int64(sample.Operations),
+		ThroughputOpsPerSec:  float64(sample.Operations) * 1e9 / float64(sample.ElapsedNS),
+	}, nil
 }
