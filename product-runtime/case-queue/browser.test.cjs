@@ -21,6 +21,7 @@ function harness(replies) {
   return node;
  }
  for(const id of ["cases","status","scope","prev","next","page","search","query","clear",
+  "case-status","case-owner","case-freshness","case-sort",
   "selection","selection-status","selection-close","selection-title","selection-id",
   "selection-status-value","selection-owner","selection-updated","selection-freshness",
   "selection-next-action"])
@@ -141,4 +142,68 @@ test("Inspector ignores a wrongly-authorized different Case and clears details o
  await tick();
  assert.equal(h.nodes.get("selection").hidden,true);
  assert.equal(h.nodes.get("cases").children.length,0);
+});
+
+test("applied native status/owner/freshness/order persist across pagination and Inspector reauthorization",async()=>{
+ const id=" exact-case-id ";
+ const h=harness([
+  {ok:true,data:{rows:[row(id,"Restricted")],next_cursor:"page-2"}},
+  {ok:true,data:{rows:[row(id,"Currently filtered")],next_cursor:"page-3"}},
+  {ok:true,data:{rows:[row("later","Elsewhere")],next_cursor:""}},
+  {ok:true,data:{case:{id:"later",title:"Allowed after new authorization",status:"review"}}}
+ ]);
+ await tick();
+ h.nodes.get("query").value="Case Title";
+ h.nodes.get("case-status").value="review";
+ h.nodes.get("case-owner").value="analyst-a";
+ h.nodes.get("case-freshness").value="available";
+ h.nodes.get("case-sort").value="updated_at:desc";
+ h.nodes.get("search").events.get("submit")({preventDefault(){}});
+ await tick();
+ assert.equal(h.requests[1].uri,
+   "/case-queue?limit=25&q=Case+Title&status=review&owner=analyst-a&freshness=available&sort=updated_at%3Adesc");
+ h.nodes.get("next").events.get("click")();
+ await tick();
+ assert.match(h.requests[2].uri,/cursor=page-3/);
+ assert.match(h.requests[2].uri,/status=review/);
+ assert.match(h.requests[2].uri,/sort=updated_at%3Adesc/);
+ // A user can edit controls but NOT apply them: Inspector must continue
+ // checking exact prior filtered page, not an unsubmitted different scope.
+ h.nodes.get("case-status").value="secret-unsubmitted";
+ h.nodes.get("case-sort").value="title:asc";
+ const inspect=h.nodes.get("cases").children[0].children[0].children[0];
+ inspect.events.get("click")();
+ await tick();
+ assert.match(h.requests[3].uri,/inspect_case=later/);
+ assert.match(h.requests[3].uri,/status=review/);
+ assert.match(h.requests[3].uri,/sort=updated_at%3Adesc/);
+ assert.doesNotMatch(h.requests[3].uri,/secret-unsubmitted|sort=title/);
+ assert.doesNotMatch(h.requests[3].uri,/tenant|permission|access_decision|bearer/);
+});
+test("filter reset clears every applied native field and revokes old page and selected detail",async()=>{
+ const h=harness([
+  {ok:true,data:{rows:[row("a","Sensitive")],next_cursor:"old-page"}},
+  {ok:true,data:{rows:[row("b","Filtered")],next_cursor:"new-page"}},
+  {ok:true,data:{case:{id:"b",title:"Private selected details"}}},
+  {ok:true,data:{rows:[],next_cursor:""}}
+ ]);
+ await tick();
+ h.nodes.get("case-owner").value="analyst-a";
+ h.nodes.get("case-status").value="review";
+ h.nodes.get("case-sort").value="title:asc";
+ h.nodes.get("search").events.get("submit")({preventDefault(){}});
+ await tick();
+ h.nodes.get("cases").children[0].children[0].children[0].events.get("click")();
+ await tick();
+ assert.equal(h.nodes.get("selection").hidden,false);
+ h.nodes.get("clear").events.get("click")();
+ await tick();
+ assert.equal(h.nodes.get("selection").hidden,true);
+ assert.equal(h.nodes.get("selection-title").textContent,"");
+ assert.equal(h.nodes.get("case-status").value,"");
+ assert.equal(h.nodes.get("case-owner").value,"");
+ assert.equal(h.nodes.get("case-freshness").value,"");
+ assert.equal(h.nodes.get("case-sort").value,"");
+ assert.equal(h.requests[3].uri,"/case-queue?limit=25");
+ assert.equal(h.nodes.get("next").disabled,true);
 });

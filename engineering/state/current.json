@@ -17,9 +17,9 @@
     "phase_title": "Scaled product implementation program bootstrap"
   },
   "execution": {
-    "active_work_unit": "E10-INV-101R-SELECT",
+    "active_work_unit": "E10-INV-101S-FILTERS",
     "preferred_next_unit": null,
-    "selection_rule": "2026-10-19: Verified GitHub #148 Q opt-in read-only browser HEAD ab997eb3... with engineering-kernel run 39315546287 SUCCESS; prior Q ChatGPT L2 task executed, native APPROVED not evidenced. New R connects Q row to already implemented P native inspect_case under current host ACL, code/manifest published on child PR draft. R IMPLEMENTED only: require exact-head CI and one independent L2; do not promote full CAP-INV-101, alter audited parent SHAs or treat any draft as merged."
+    "selection_rule": "2026-10-19: GitHub PR #149 R exact HEAD c73f05b16a72af97c9845cbf4e4624baf9052c9f has engineering-kernel run 39318491676 SUCCESS; execution cache formerly said R CI pending and is stale. R remains IMPLEMENTED, draft and unmerged with independent L2 status not locally evidenced. Canonical CAP-INV-101 filtered+sorted Queue server already implemented; new S child connects existing status/owner/freshness/sort to native browser, maintaining a shared last-applied query snapshot across paged Queue GET and independently reauthorized Inspector. S IMPLEMENTED awaiting exact-head GitHub CI/L2, not product accepted or merged."
   },
   "reconciliation": {
     "required_on_resume": true,

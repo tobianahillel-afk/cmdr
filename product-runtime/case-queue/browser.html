@@ -14,7 +14,12 @@
 <header><h1 id="title">Case Queue</h1><p>Read-only, currently authorized Cases. No assignment, export or mutation.</p></header>
 <form id="search" aria-label="Search accessible Cases">
 <label for="query">Search Cases</label>
-<div class="search"><input id="query" name="q" type="search" maxlength="256" autocomplete="off" placeholder="Title, ID or owner"><button type="submit">Search</button><button id="clear" type="button">Clear</button></div>
+<div class="search"><input id="query" name="q" type="search" maxlength="256" autocomplete="off" placeholder="Title, ID or owner">
+<label for="case-status">Case status</label><input id="case-status" name="status" type="text" maxlength="128" autocomplete="off" placeholder="Status (exact)">
+<label for="case-owner">Case owner</label><input id="case-owner" name="owner" type="text" maxlength="128" autocomplete="off" placeholder="Owner (exact)">
+<label for="case-freshness">Freshness</label><select id="case-freshness" name="freshness"><option value="">Any freshness</option><option value="available">Available</option><option value="stale">Stale</option><option value="partial">Partial</option></select>
+<label for="case-sort">Order</label><select id="case-sort" name="sort"><option value="">Default order</option><option value="updated_at:desc">Recently updated</option><option value="updated_at:asc">Oldest updated</option><option value="title:asc">Title A–Z</option><option value="title:desc">Title Z–A</option><option value="status:asc">Status A–Z</option><option value="owner:asc">Owner A–Z</option></select>
+<button type="submit">Apply filters</button><button id="clear" type="button">Clear</button></div>
 </form>
 <section aria-label="Case results">
 <p id="scope" class="muted"></p>
