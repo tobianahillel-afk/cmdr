@@ -2186,3 +2186,80 @@ test("mixed temporal context with a foreign or forged event fails closed",async(
     assert.match(f["local-search-status"].textContent,/Aucun résultat partiel/);
   }
 });
+
+test("CAP-INV-007 groups only completed owner-authorized SearchJob hits and keeps selection ephemeral",async()=>{
+  const wazuh="local-jsonl-entry-"+"a".repeat(64);
+  const generic="local-jsonl-entry-"+"b".repeat(64);
+  const env=boot((url,options)=>{
+    assert.equal(url.pathname,"/demo-local-search");
+    assert.equal(url.search,"","source scope and user query must stay out of URLs");
+    assert.equal(options.method,"POST");
+    return {ok:true,async json(){return {
+      format:"cmdr-local-jsonl-event-search-v1",synthetic:true,case_id:"case-disk",
+      job:{ID:"organized-authorized-job",State:"completed",AuditTrail:[{},{},{}],
+        ResultRefs:[
+          {Source:"normalized-jsonl-authorized-import",Ref:wazuh},
+          {Source:"normalized-jsonl-authorized-import",Ref:generic}
+        ]},
+      search_hits:[{entry_id:wazuh,rule_id:"5710",agent_id:"007"}]
+    }}};
+  });
+  const f=env.fields;
+  f["local-search-family"].value="all";
+  f["local-search-field"].value="source_ref";
+  f["local-search-value"].value="local-jsonl-source-";
+  f["local-search-from"].value="2026-10-17T09:59:00";
+  f["local-search-to"].value="2026-10-17T10:03:00";
+  f["local-search-run"].handlers.click();
+  await flush();await flush();
+  assert.equal(env.requests.length,1);
+  assert.match(f["local-search-workspace-status"].textContent,/1 Wazuh, 1 JSONL/);
+  assert.equal(f["local-search-results"].children.length,1);
+  const rows=f["local-search-results"].children[0].children;
+  assert.equal(rows.length,2);
+  assert.equal(rows[0].children[0].textContent,wazuh);
+  assert.equal(rows[0].children[2].textContent," — Wazuh");
+  assert.equal(rows[1].children[2].textContent," — JSONL");
+  const controls=f["local-search-workspace-actions"].children;
+  assert.equal(controls.length,2);
+  assert.equal(controls[0].disabled,true);
+  assert.equal(controls[1].disabled,true);
+  const selection=rows[0].children[1];
+  selection.checked=true;
+  selection.handlers.change();
+  assert.match(f["local-search-workspace-status"].textContent,/1 sélectionné/);
+  assert.equal(controls[1].disabled,false);
+  controls[0].handlers.click();
+  assert.match(f["local-search-workspace-status"].textContent,/1 épinglé/);
+  selection.checked=false; selection.handlers.change();
+  assert.equal(controls[1].disabled,true);
+  f["local-search-field"].handlers.change();
+  assert.equal(f["local-search-results"].children.length,0);
+  assert.equal(f["local-search-workspace-actions"].children.length,0);
+  assert.match(f["local-search-workspace-status"].textContent,/Aucun résultat à organiser/);
+  // A formerly rendered checkbox is NOT a future authority.
+  selection.checked=true; selection.handlers.change();
+  assert.equal(f["local-search-workspace-actions"].children.length,0);
+});
+
+test("CAP-INV-007 refuses Wazuh grouping metadata for a result absent from the completed Job",async()=>{
+  const good="local-jsonl-entry-"+"a".repeat(64);
+  const denied="local-jsonl-entry-"+"f".repeat(64);
+  const env=boot(()=>({ok:true,async json(){return {
+    format:"cmdr-local-jsonl-event-search-v1",synthetic:true,case_id:"case-disk",
+    job:{ID:"invalid-group-job",State:"completed",AuditTrail:[{},{},{}],
+      ResultRefs:[{Source:"normalized-jsonl-authorized-import",Ref:good}]},
+    search_hits:[{entry_id:denied,rule_id:"5710",agent_id:"007"}]
+  }}}));
+  const f=env.fields;
+  f["local-search-family"].value="all";
+  f["local-search-field"].value="source_ref";
+  f["local-search-value"].value="local-jsonl-source-";
+  f["local-search-from"].value="2026-10-17T09:59:00";
+  f["local-search-to"].value="2026-10-17T10:03:00";
+  f["local-search-run"].handlers.click();
+  await flush();await flush();
+  assert.equal(f["local-search-results"].children.length,0);
+  assert.equal(f["local-search-workspace-actions"].children.length,0);
+  assert.match(f["local-search-status"].textContent,/Aucun résultat partiel/);
+});
