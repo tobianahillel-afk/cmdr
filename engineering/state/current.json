@@ -17,9 +17,9 @@
     "phase_title": "Scaled product implementation program bootstrap"
   },
   "execution": {
-    "active_work_unit": "E10-INV-101S-FILTERS",
+    "active_work_unit": "E10-INV-101T-WORKSPACE",
     "preferred_next_unit": null,
-    "selection_rule": "2026-10-19: GitHub PR #149 R exact HEAD c73f05b16a72af97c9845cbf4e4624baf9052c9f has engineering-kernel run 39318491676 SUCCESS; execution cache formerly said R CI pending and is stale. R remains IMPLEMENTED, draft and unmerged with independent L2 status not locally evidenced. Canonical CAP-INV-101 filtered+sorted Queue server already implemented; new S child connects existing status/owner/freshness/sort to native browser, maintaining a shared last-applied query snapshot across paged Queue GET and independently reauthorized Inspector. S IMPLEMENTED awaiting exact-head GitHub CI/L2, not product accepted or merged."
+    "selection_rule": "2026-10-19: parent PR #150 exact SHA a5034c3dfb6ae23a9fa61725e7d9057277db72fe engineering-kernel 39320552192 SUCCESS; no READY nodes after E10-INV-101S. Canonical CAP-INV-101 §17/25 native browser lacked server-authorized Workspace handoff+return despite J/K/N backend. Created bounded child T under existing engineering epic E10-INV-101, same code owner, added browser handoff and POST return reauthorization. T IMPLEMENTED on child branch awaiting exact-head CI and independent L2; NOT VERIFIED/accepted/merged, actual full Workspace UI excluded."
   },
   "reconciliation": {
     "required_on_resume": true,
