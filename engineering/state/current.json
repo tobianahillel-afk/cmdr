@@ -17,9 +17,9 @@
     "phase_title": "Scaled product implementation program bootstrap"
   },
   "execution": {
-    "active_work_unit": "E10-DFIR-780A-INTEGRATION",
+    "active_work_unit": "E10-INV-007A-WORKSPACE",
     "preferred_next_unit": null,
-    "selection_rule": "When no READY work unit exists, derive one bounded canonical functional unit from actual GitHub evidence and admissible dependencies; do not repeat implemented integration candidates or claim native merge/approval."
+    "selection_rule": "First READY canonical unit after reconciliation; E10-INV-007A-WORKSPACE is IMPLEMENTED only until exact SHA CI and independent L2. No class-2 result mutation is authorized by this increment."
   },
   "reconciliation": {
     "required_on_resume": true,
