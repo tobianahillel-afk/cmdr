@@ -1,0 +1,127 @@
+{
+  "schema_version": 2,
+  "id": "E10-INV-101S-FILTERS",
+  "title": "Expose canonical read-only Case Queue filters/sorting in native browser and preserve applied-page Inspector authorization",
+  "type": "task",
+  "parent": "E10-INV-101",
+  "goal": "Make the existing owner-authorized native Case Queue status/owner/freshness filters and allowed sort usable from the opt-in browser; keep search, pagination, and independently reauthorized Inspector selection bound to the same last submitted filter/sort snapshot, without another backend search engine or security model.",
+  "depends_on": [
+    "E10-INV-101R-SELECT"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-101"
+    ],
+    "requirements": [
+      "REQ-PROD-014",
+      "REQ-PROD-020",
+      "REQ-UX-001",
+      "REQ-UX-002",
+      "REQ-UX-003"
+    ],
+    "screens": [
+      "INV-CAS-001"
+    ],
+    "permissions": [
+      "perm.investigate.case.read"
+    ],
+    "open_decisions": [],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/case.md"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/pagination-filtering-sorting.md",
+      "cmdr-product-spec/17-implementation-contracts/frontend-state-contract.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/case-queue/browser.js",
+    "product-runtime/case-queue/browser.html",
+    "product-runtime/case-queue/browser.css",
+    "product-runtime/case-queue/browser.test.cjs",
+    "product-runtime/case-queue/README.md",
+    "work/lots/E10-INV-101S-FILTERS/**",
+    "work/graph.json",
+    "engineering/state/current.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/investigation-timeline/**",
+    "product-runtime/event-search/**",
+    "tools/cmdr-dev/**"
+  ],
+  "invariants": [
+    "Status, owner, freshness and sort are client-side presentation controls passed verbatim only to EXISTING first-party GET /case-queue query allowlist; server's per-object Case/Incident/Finding authorization and Saved View sanitization remain sole authority.",
+    "On Search/Apply, capture one immutable applied query/filter/sort snapshot; use exactly that snapshot for current cursor page and independent exact-ID Inspector GET until next submit or Clear.",
+    "Changing filter input without submitting never changes the current page ACL or selected-case reauthorization query; submit/clear/pagehide abort and clear sensitive selection.",
+    "No tenant/environment/permission, Saved View snapshot, Case mutation, export, speculative client-side result filtering, new index or full Shared Inspector duplication."
+  ],
+  "security_properties": [
+    "Current server host independently reauthorizes each page, filters/sorts server side, and separately reauthorizes Inspect under identical applied q/status/owner/freshness/sort and cursor.",
+    "Denied/stale search or inspector request wipes protected rows/details; apply/reset invalidate previous page cursor, selected details, in-flight requests and prior trusted state.",
+    "Inputs are bounded and only exact existing server-supported filter/sort names are emitted; no scope or permission selector; inert textContent remains sole sink."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Opt-in same-origin host-mounted static browser with no changed persistence or Case schema",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Stop using NewAuthorizedQueueBrowserHandler and use existing native authorized Queue HTTP handler",
+    "verification": [
+      "Existing GET Case Queue and POST return routes remain available",
+      "No data persisted in browser or backend"
+    ]
+  },
+  "inputs": [
+    "Canonical CAP-INV-101 §§3/8/11/12/17/25 requires permission-aware Case Queue search, filters, sort and Inspector selection.",
+    "Existing server-side authorized filter/sort engine E10-INV-101I-FILTERS and pagination E10-INV-101M-PAGE already tested, with current opt-in browser/Inspector in parent PR #149 frozen SHA c73f05b16a72af97c9845cbf4e4624baf9052c9f."
+  ],
+  "outputs": [
+    "A native accessible Apply filters control for literal status, owner, freshness and allowed sort, consumed by the already trusted server GET API with no new filtering engine.",
+    "Search/page/Inspect all share last applied filter snapshot; reset clears these controls, selection, and cursor; denied pages cannot retain inaccessible Case data."
+  ],
+  "acceptance_tests": [
+    "Node DOM actual browser script test: Apply status/owner/freshness/sort produces native server query with exact allowlisted names, and next cursor remains bound to that projection.",
+    "Node DOM test: changing a filter input without submitting cannot change authorization context of Inspector GET; exactly old applied controls and exact Case ID/cursor transmitted.",
+    "Node DOM test: Clear purges all controls, cursor, page and selected sensitive data; existing denied/revoked Inspector and no HTML injection tests still pass.",
+    "Exact-head GitHub engineering-kernel mandatory CHK-MANIFESTS, CHK-CASE-QUEUE-CONTRACT and CHK-SECURITY-TESTS >=90%, no waiver."
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "Filter change causes the same single existing reauthorized Queue request; inspect causes one current independently reauthorized request; pagination remains 25 Case rows, backend existing 5000 candidate bound.",
+    "metrics": [
+      "No additional network fetch until Apply/Clear",
+      "One existing projection request per applied filter or cursor change",
+      "One independent source-authorized Inspect request on explicit click"
+    ]
+  },
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-RUNTIME-DEPS",
+    "CHK-SECURITY-TESTS"
+  ],
+  "definition_of_ready": [
+    "Parent R browser and existing server I filters/sort and M page were implemented on frozen SHA and had exact-head CI pass; product maintains native read-only Class-0 scope.",
+    "No production IAM or full Shared Inspector required for a bounded user-applied filter and sort journey."
+  ],
+  "definition_of_done": [
+    "Commit coherent tested UI filter/sort path, publish manifest/handoff and exact CI result on a child draft PR with base/head tracked.",
+    "One independent read-only L2 for new browser/Inspector authorization-boundary integration if stable, no claim of CAP-INV-101 full acceptance or merge."
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 4,
+    "estimated_net_loc": 125,
+    "production_files": 3,
+    "net_production_loc": 72,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}
