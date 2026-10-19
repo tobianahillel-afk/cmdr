@@ -216,7 +216,9 @@ test("browser Workspace handoff reauthorizes exact Case and POST return rechecks
   {ok:true,data:{screen_id:"INV-CAS-001",case_id:"case-a",return_token:"opaque-state-only"}},
   {ok:true,data:{origin:"case-queue",selected_case_id:"case-a",
    page_limit:25,page_cursor:"",search_query:"",filters:[],sort:[],scroll_offset:21}},
-  {ok:true,data:{rows:[row("case-a","Freshly authorized Case A")]}}
+  {ok:true,data:{rows:[row("case-a","Freshly authorized Case A")]}},
+  {ok:true,data:{case:{id:"case-a",title:"Independently reauthorized selected Case",
+   status:"review",owner:"analyst-a"}}}
  ]);
  h.window.scrollY=21;
  h.window.scrollTo=(x,y)=>{h.window.lastScroll=[x,y]};
@@ -243,6 +245,10 @@ test("browser Workspace handoff reauthorizes exact Case and POST return rechecks
  assert.equal(h.nodes.get("workspace-handoff").hidden,true);
  assert.equal(h.nodes.get("workspace-case").textContent,"");
  assert.equal(h.nodes.get("cases").children[0].children[0].textContent,"Freshly authorized Case A — case-a");
+ assert.match(h.requests[4].uri,/^\/case-queue\?limit=25&inspect_case=case-a$/);
+ assert.equal(h.nodes.get("selection").hidden,false);
+ assert.equal(h.nodes.get("selection-id").textContent,"case-a");
+ assert.equal(h.nodes.get("selection-title").textContent,"Independently reauthorized selected Case");
  assert.equal(h.window.lastScroll[0],0);
  assert.equal(h.window.lastScroll[1],21);
 });
@@ -309,7 +315,8 @@ test("Go-normalized case filters still restore a live browser page without widen
    page_limit:25,page_cursor:"",search_query:"",
    filters:[{field:"status",values:["review"]},{field:"owner",values:["analyst-a"]}],
    sort:[],scroll_offset:0}},
-  {ok:true,data:{rows:[row("case-a","Current owner authorized")]}}
+  {ok:true,data:{rows:[row("case-a","Current owner authorized")]}},
+  {ok:true,data:{case:{id:"case-a",title:"Authorized after return",status:"review"}}}
  ]);
  await tick();
  h.nodes.get("case-status").value="Review";
@@ -324,4 +331,53 @@ test("Go-normalized case filters still restore a live browser page without widen
  assert.equal(h.nodes.get("cases").children[0].children[0].textContent,"Current owner authorized — case-a");
  assert.match(h.requests[4].uri,/status=Review/);
  assert.match(h.requests[4].uri,/owner=Analyst-A/);
+ assert.match(h.requests[5].uri,/inspect_case=case-a/);
+ assert.match(h.requests[5].uri,/status=Review/);
+ assert.match(h.requests[5].uri,/owner=Analyst-A/);
+ assert.equal(h.nodes.get("selection").hidden,false);
+ assert.equal(h.nodes.get("selection-title").textContent,"Authorized after return");
+});
+
+test("return cannot restore a Case selection that disappeared from freshly authorized page",async()=>{
+ const h=harness([
+  {ok:true,data:{rows:[row("case-a","Previously allowed")]}},
+  {ok:true,data:{screen_id:"INV-CAS-001",case_id:"case-a",return_token:"inert-token"}},
+  {ok:true,data:{origin:"case-queue",selected_case_id:"case-a",page_limit:25,
+   page_cursor:"",search_query:"",filters:[],sort:[],scroll_offset:19}},
+  {ok:true,data:{rows:[row("case-b","Still authorized but different Case")]}}
+ ]);
+ await tick();
+ h.nodes.get("cases").children[0].children[0].children[1].events.get("click")();
+ await tick();
+ h.nodes.get("workspace-return").events.get("click")();
+ await tick();await tick();await tick();
+ assert.equal(h.nodes.get("cases").children.length,0);
+ assert.equal(h.nodes.get("selection").hidden,true);
+ assert.equal(h.nodes.get("workspace-handoff").hidden,true);
+ assert.equal(h.nodes.get("selection-id").textContent,"");
+ assert.match(h.nodes.get("status").textContent,/denied or stale/);
+ assert.equal(h.requests.length,4); // no Inspector GET on absent Case
+});
+test("return rechecks current Case source authorization; a revoked Inspector refuses selection and clears page",async()=>{
+ const id=" exact opaque Case ";
+ const h=harness([
+  {ok:true,data:{rows:[row(id,"Original Case")]}},
+  {ok:true,data:{screen_id:"INV-CAS-001",case_id:id,return_token:"transient-only"}},
+  {ok:true,data:{origin:"case-queue",selected_case_id:id,page_limit:25,
+   page_cursor:"",search_query:"",filters:[],sort:[],scroll_offset:0}},
+  {ok:true,data:{rows:[row(id,"Still listed")]}},
+  {ok:false,data:null}
+ ]);
+ await tick();
+ h.nodes.get("cases").children[0].children[0].children[1].events.get("click")();
+ await tick();
+ h.nodes.get("workspace-return").events.get("click")();
+ await tick();await tick();await tick();
+ assert.match(h.requests[4].uri,/inspect_case=+exact+opaque+Case+/);
+ assert.equal(h.requests[4].options.credentials,"same-origin");
+ assert.equal(h.nodes.get("selection").hidden,true);
+ assert.equal(h.nodes.get("workspace-handoff").hidden,true);
+ assert.equal(h.nodes.get("cases").children.length,0);
+ assert.equal(h.nodes.get("selection-title").textContent,"");
+ assert.match(h.nodes.get("status").textContent,/denied or stale/);
 });
