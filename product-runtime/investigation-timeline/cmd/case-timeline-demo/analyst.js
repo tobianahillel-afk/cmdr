@@ -1780,7 +1780,7 @@
     const pageOffset = values.get("offset") || "0";
     const from = values.has("from") ? localTimestamp(values.get("from")) : "";
     const to = values.has("to") ? localTimestamp(values.get("to")) : "";
-    if (!id || id.length > 1024 || id.trim() !== id || id === "*" ||
+    if (!id || id.length > 1024 || !id.trim() || id === "*" ||
         !["", "observed", "inferred", "user-action", "decision", "response"].includes(selectedKind) ||
         query.length > 96 || query.trim() !== query ||
         size !== String(limit) || !/^(0|[1-9]\d*)$/.test(pageOffset) ||
