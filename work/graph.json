@@ -1880,6 +1880,17 @@
       ],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": []
+    },
+    {
+      "id": "E10-INV-110G-SELECTOR-FIDELITY",
+      "title": "Preserve exact authorized Case picker identities through Timeline, Search Job and comparison",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-INV-110F-SELECTOR"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": []
     }
   ]
 }
