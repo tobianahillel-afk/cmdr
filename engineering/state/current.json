@@ -17,9 +17,9 @@
     "phase_title": "Scaled product implementation program bootstrap"
   },
   "execution": {
-    "active_work_unit": "E10-INV-008B-COMPARE",
+    "active_work_unit": "E10-INV-110G-SELECTOR-FIDELITY",
     "preferred_next_unit": null,
-    "selection_rule": "New CAP-INV-008 Class-0 in-memory run comparison is IMPLEMENTED candidate only on a child of frozen PR #131; parent E10-INV-008A remains unverified (89.30%/90 mandatory security coverage). No READY release, verify exact HEAD CI, one independent L2 and parent approvals before advancement. OPEN-015 prevents Shared Trace storage."
+    "selection_rule": "R2 exact Case-selector browser compatibility, implemented on child of CI-green but unmerged PR #134. Backend accepts distinct opaque owner IDs with surrounding spaces; old browser trim silently opened another Case. Child source+tests published; verify this child's exact-HEAD Linux/Node/macOS/Windows and mandatory engineering security CI. Parent #134 is CI GREEN but independent L2/native approvals and PR #36 ancestry remain required; CAP-INV-110/101/002/008 production not accepted. Do not confuse earlier cached #132 89.30% failure with #134 92.31% green."
   },
   "reconciliation": {
     "required_on_resume": true,
