@@ -48,6 +48,7 @@ func TestCaseDiscoveryDoesNotLeakPartialCatalogAfterLateACLFailure(t *testing.T)
 					case "unknown-decision":
 						return "unrecognized-policy-outcome", nil
 					}
+					return "allow", nil
 				}), catalog)
 			if err != nil {
 				t.Fatal(err)
