@@ -32,6 +32,113 @@
   let cursor = "", history = [], generation = 0, controller = null;
   let selectionGeneration = 0, selectionController = null, selectionTrigger = null;
   const limit = 25;
+  // A Workspace handoff is transient in-memory navigation state, never a
+  // credential, durable bookmark, browser URL or authorization decision.
+  const workspace = el("workspace-handoff");
+  const workspaceStatus = el("workspace-status"), workspaceReturn = el("workspace-return");
+  let workspaceToken = "", workspaceCase = "", workspaceController = null;
+  let workspaceGeneration = 0;
+  function clearWorkspace() {
+    ++workspaceGeneration;
+    if (workspaceController) workspaceController.abort();
+    workspaceController = null;
+    workspaceToken = workspaceCase = "";
+    workspace.hidden = true;
+    el("workspace-case").textContent = "";
+    workspaceStatus.textContent = "";
+  }
+  async function openWorkspace(id) {
+    clearSelection();
+    clearWorkspace();
+    const currentWorkspace = workspaceGeneration, currentPage = generation;
+    workspaceController = new AbortController();
+    workspaceStatus.textContent = "Rechecking Case Workspace access…";
+    const offset = Number.isSafeInteger(window.scrollY) && window.scrollY >= 0
+      ? Math.min(window.scrollY,10000000) : 0;
+    const args = queueParams({open_case:id,cursor,scroll:String(offset)});
+    try {
+      const response = await fetch("/case-queue?" + args.toString(), {
+        credentials:"same-origin",cache:"no-store",redirect:"error",
+        referrerPolicy:"no-referrer",signal:workspaceController.signal
+      });
+      if (currentWorkspace !== workspaceGeneration || currentPage !== generation) return;
+      if (!response.ok) throw new Error("Case handoff refused");
+      const handoff = await response.json();
+      if (currentWorkspace !== workspaceGeneration || currentPage !== generation) return;
+      if (!handoff || handoff.screen_id !== "INV-CAS-001" ||
+          handoff.case_id !== id || typeof handoff.return_token !== "string" ||
+          !handoff.return_token || handoff.return_token.length > 16384) {
+        throw new Error("invalid current Case Workspace handoff");
+      }
+      workspaceToken = handoff.return_token;
+      workspaceCase = id;
+      clearRows();
+      first.disabled = next.disabled = true;
+      status.textContent = "Transient Case Workspace handoff; use Return to recheck current Queue access.";
+      el("workspace-case").textContent = id;
+      workspaceStatus.textContent = "Read-only navigation context. Full Case Workspace UI is not hosted here.";
+      workspace.hidden = false;
+      workspaceReturn.focus();
+    } catch (_) {
+      if (currentWorkspace !== workspaceGeneration || currentPage !== generation) return;
+      clearWorkspace();
+      clearRows();
+      first.disabled = next.disabled = true;
+      status.textContent = "Case Workspace handoff unavailable; refresh the authorized Queue.";
+    }
+  }
+  async function returnFromWorkspace() {
+    if (!workspaceToken || workspace.hidden) return;
+    const token = workspaceToken, caseID = workspaceCase;
+    const oldCursor = cursor, oldApplied = {...applied};
+    const current = ++workspaceGeneration;
+    if (workspaceController) workspaceController.abort();
+    workspaceController = new AbortController();
+    workspaceStatus.textContent = "Reauthorizing current Case Queue return…";
+    try {
+      const response = await fetch("/case-queue/return", {
+        method:"POST",headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({return_token:token}),
+        credentials:"same-origin",cache:"no-store",redirect:"error",
+        referrerPolicy:"no-referrer",signal:workspaceController.signal
+      });
+      if (current !== workspaceGeneration) return;
+      if (!response.ok) throw new Error("Case return denied");
+      const returned = await response.json();
+      if (current !== workspaceGeneration) return;
+      if (!returned || returned.origin !== "case-queue" ||
+          returned.selected_case_id !== caseID ||
+          returned.page_limit !== limit ||
+          (returned.page_cursor || "") !== oldCursor ||
+          returned.search_query !== oldApplied.q ||
+          !Number.isSafeInteger(returned.scroll_offset) ||
+          returned.scroll_offset < 0 || returned.scroll_offset > 10000000 ||
+          !Array.isArray(returned.filters) || !Array.isArray(returned.sort)) {
+        throw new Error("stale Case Queue return");
+      }
+      const actual = Object.fromEntries(returned.filters.map(f => [f.field,f.values]));
+      for (const key of ["status","owner","freshness"]) {
+        if (oldApplied[key] !== (actual[key] && actual[key][0] || "")) {
+          throw new Error("returned Queue filters differ");
+        }
+      }
+      const sort = returned.sort.map(x => x.field + ":" + x.direction).join(",");
+      if (sort !== oldApplied.sort) throw new Error("returned Queue sorting differs");
+      clearWorkspace();
+      // POST validates the old page, but a NEW GET must still independently
+      // reauthorize it before any Case is displayed or the scroll restored.
+      await load(oldCursor);
+      if (workspaceGeneration !== current + 1 || status.textContent.includes("unavailable")) return;
+      if (typeof window.scrollTo === "function") window.scrollTo(0,returned.scroll_offset);
+    } catch (_) {
+      if (current !== workspaceGeneration) return;
+      clearWorkspace();
+      clearRows();
+      first.disabled = next.disabled = true;
+      status.textContent = "Case Queue return denied or stale. Apply filters to reload access.";
+    }
+  }
+  workspaceReturn.addEventListener("click", () => { void returnFromWorkspace(); });
 
   function clearRows() {
     tbody.replaceChildren();
@@ -131,6 +238,11 @@
       inspect.textContent = "Inspect";
       inspect.addEventListener("click", () => inspectCase(row.case.id, inspect));
       tr.children[0].appendChild(inspect);
+      const open = document.createElement("button");
+      open.type = "button";
+      open.textContent = "Open workspace handoff";
+      open.addEventListener("click", () => { void openWorkspace(row.case.id); });
+      tr.children[0].appendChild(open);
       addCell(tr, row.case.status);
       addCell(tr, row.case.owner);
       addCell(tr, row.stale ? "Stale" : row.partial ? "Partial" : row.case.freshness);
@@ -177,12 +289,14 @@
   }
   search.addEventListener("submit", event => {
     event.preventDefault();
+    clearWorkspace();
     applied = currentControls();
     history = [];
     cursor = "";
     load();
   });
   el("clear").addEventListener("click", () => {
+    clearWorkspace();
     query.value = "";
     caseStatus.value = caseOwner.value = "";
     caseFreshness.value = caseSort.value = "";
@@ -195,16 +309,19 @@
   next.addEventListener("click", () => {
     const candidate = next.dataset.cursor;
     if (!candidate || next.disabled) return;
+    clearWorkspace();
     history.push(cursor);
     cursor = candidate;
     load(cursor);
   });
   first.addEventListener("click", () => {
+    clearWorkspace();
     history = [];
     cursor = "";
     load();
   });
   window.addEventListener("pagehide", () => {
+    clearWorkspace();
     clearSelection();
     ++generation;
     if (controller) controller.abort();
