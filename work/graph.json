@@ -1882,7 +1882,7 @@
       "unlocks": []
     },
     {
-      "id": "E10-INV-110G-SELECTOR-FIDELITY",
+      "id": "E10-INV-110G-EXACT",
       "title": "Preserve exact authorized Case picker identities through Timeline, Search Job and comparison",
       "type": "task",
       "status": "IMPLEMENTED",
