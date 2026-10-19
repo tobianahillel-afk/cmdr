@@ -1,0 +1,24 @@
+:root {color-scheme:light dark;font:16px/1.5 system-ui,sans-serif;--surface:Canvas;--ink:CanvasText;--outline:LinkText;--line:GrayText}
+* {box-sizing:border-box}
+body {margin:0;background:var(--surface);color:var(--ink)}
+main {max-width:1000px;margin:0 auto;padding:1.25rem}
+header {border-bottom:1px solid var(--line);margin-bottom:1.5rem}
+h1 {margin:0}
+p {max-width:70ch}
+label {display:block;font-weight:600;margin-bottom:.5rem}
+.search,.pager {display:flex;gap:.75rem;flex-wrap:wrap;align-items:center}
+input {flex:1;min-width:12rem;padding:.6rem;font:inherit}
+button {padding:.6rem .9rem;font:inherit;cursor:pointer}
+button:disabled {cursor:default;opacity:.55}
+button:focus-visible,input:focus-visible,a:focus-visible {outline:2px solid var(--outline);outline-offset:2px}
+.table-scroll {overflow-x:auto}
+table {width:100%;border-collapse:collapse;text-align:left}
+caption {text-align:left;font-weight:600;padding:.5rem 0}
+th,td {border-bottom:1px solid var(--line);padding:.7rem .4rem;vertical-align:top}
+th {white-space:nowrap}
+td:first-child {min-width:12rem;overflow-wrap:anywhere}
+.muted {opacity:.78}
+.pager {margin-top:1rem}
+.skip {position:absolute;left:-9999px}
+.skip:focus {left:1rem;top:1rem;background:var(--surface);padding:.5rem}
+@media(max-width:650px){main{padding:.8rem}th,td{padding:.5rem .3rem}body{font-size:.94rem}}
