@@ -132,6 +132,7 @@ var knownBenchmarkHandlerKeys = map[string]bool{
 	"builtin-saved-query-assets-projection-v1":                       true,
 	"builtin-saved-query-assets-handoff-v1":                          true,
 	"builtin-case-queue-projection-v1":                               true,
+	"builtin-command-work-queue-projection-v1": true,
 	"builtin-case-queue-saved-view-v1":                               true,
 	"builtin-case-queue-handoff-v1":                                  true,
 	"builtin-investigation-timeline-projection-v1":                   true,
@@ -451,6 +452,17 @@ type benchmarkSampleHandler func() (BenchmarkSample, error)
 
 func prepareBenchmarkHandler(root string, workload BenchmarkWorkloadDefinition) (benchmarkSampleHandler, func(), error) {
 	switch workload.HandlerKey {
+	case "builtin-command-work-queue-projection-v1":
+		probe, cleanup, err := prepareCommandWorkQueueProbe(root)
+		if err != nil { return nil, func(){}, err }
+		return func() (BenchmarkSample,error) {
+			observation, err := probe.run(2000)
+			if err != nil { return BenchmarkSample{}, err }
+			return BenchmarkSample{Measurements: []BenchmarkMeasurement{{
+				Kind: "latency", Unit: "ns", Value: observation.NSPerOperation,
+			}}}, nil
+		}, cleanup
+
 	case "builtin-case-queue-projection-v1", "builtin-case-queue-saved-view-v1", "builtin-case-queue-handoff-v1":
 		operation := strings.TrimSuffix(strings.TrimPrefix(workload.HandlerKey, "builtin-case-queue-"), "-v1")
 		probe, cleanup, err := prepareCaseQueueProbe(root)
