@@ -93,6 +93,10 @@ const (
 	savedQueryAssetsSecurityModuleIdentity       = "github.com/tobianahillel-afk/cmdr/product-runtime/saved-query-assets"
 	savedQueryAssetsAuthorizationTestRegexp      = "^TestProjectMatchesPredeclaredContractFixtures$/(^asset-access-denied-is-rejected$|^query-access-denied-is-rejected$)"
 	savedQueryAssetsTenantTestRegexp             = "^TestProjectMatchesPredeclaredContractFixtures$/(^missing-tenant-is-rejected$|^wildcard-tenant-is-rejected$|^cross-tenant-asset-is-rejected$|^cross-tenant-query-is-rejected$|^cross-tenant-source-is-rejected$)"
+	commandWorkQueueSecurityRuntimeRoot         = "product-runtime/work-queue"
+	commandWorkQueueSecurityModuleIdentity     = "github.com/tobianahillel-afk/cmdr/product-runtime/work-queue"
+	commandWorkQueueAuthorizationTestRegexp    = "^TestCanonicalSixViewsWithRealAuthorization$|^TestReadOnlyQueueFailsClosedForMissingScopeViewAndProvider$"
+	commandWorkQueueTenantTestRegexp           = "^TestReadOnlyQueueFailsClosedForMissingScopeViewAndProvider$|^TestCanonicalSixViewsWithRealAuthorization$"
 	caseQueueSecurityRuntimeRoot                 = "product-runtime/case-queue"
 	caseQueueSecurityModuleIdentity              = "github.com/tobianahillel-afk/cmdr/product-runtime/case-queue"
 	caseQueueAuthorizationTestRegexp             = "^TestProjectMatchesPredeclaredContractFixtures$/^permission-filtered-case-is-hidden$"
@@ -148,6 +152,12 @@ func runtimeSecurityAdapters() map[string]runtimeSecurityAdapter {
 			ModuleIdentity:         savedQueryAssetsSecurityModuleIdentity,
 			AuthorizationTestRegex: savedQueryAssetsAuthorizationTestRegexp,
 			TenantTestRegex:        savedQueryAssetsTenantTestRegexp,
+		},
+		"command-work-queue-runtime": {
+			BoundaryID: "command-work-queue-runtime", RuntimeRoot: commandWorkQueueSecurityRuntimeRoot, RuntimeKind: "go",
+			ModuleIdentity:         commandWorkQueueSecurityModuleIdentity,
+			AuthorizationTestRegex: commandWorkQueueAuthorizationTestRegexp,
+			TenantTestRegex:        commandWorkQueueTenantTestRegexp,
 		},
 		caseQueueRuntimeBoundaryID: {
 			BoundaryID: caseQueueRuntimeBoundaryID, RuntimeRoot: caseQueueSecurityRuntimeRoot, RuntimeKind: "go",
