@@ -1840,10 +1840,12 @@
         throw new Error("Malformed Case catalogue");
       }
       for (const id of result.cases) {
-        // Option.textContent is inert even if an owner-supplied ID has markup.
+        // Only the visual label is escaped: whitespace-significant owner IDs
+        // must remain distinguishable in native select controls. Option.value
+        // is the unchanged server-issued identity used for every authorization.
         const option = document.createElement("option");
         option.value = id;
-        option.textContent = id;
+        option.textContent = JSON.stringify(id).replace(/ /g, "\\u0020");
         caseOptions.add(option);
       }
       caseOptions.disabled = result.cases.length === 0;
