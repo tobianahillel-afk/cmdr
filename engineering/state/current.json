@@ -17,9 +17,9 @@
     "phase_title": "Scaled product implementation program bootstrap"
   },
   "execution": {
-    "active_work_unit": "E10-INV-101M-PAGE",
+    "active_work_unit": "E10-INV-101N-PAGED-RETURN",
     "preferred_next_unit": null,
-    "selection_rule": "GitHub reconciled 2026-10-19: #143 E10-INV-101L-VIEW frozen exact HEAD d30771735029bd21207357b0966c1ac0ccad7d9b, kernel run 39272411656 SUCCESS; one-shot independent L2 executed but report inaccessible; no native APPROVED or merge. Canonical CAP-INV-101 Case Queue read-only listing already has authenticated Case/Incident/Finding ACL, search/filter/sort/Shared Saved Views and Workspace return, but 5000-row native HTTP GET had no pagination and could exceed 4MiB output. New bounded E10-INV-101M-PAGE child of L (IMPLEMENTED), optional 1..100 page, stale-digest cursor, full ACL revalidation, original first-party ProjectWithSavedViewFallback reused. Graph node IMPLEMENTED pending exact-head security/kernel, L2 and GitHub integration. Parallel #138 local demo Case lookup has mandatory security failure 89.34%, is NOT merged and not a prerequisite; large #36/#2 and other PRs remain DRAFT, main unchanged. No production IAM, durable data source or acceptance claim."
+    "selection_rule": "Reconciled 2026-10-19: #144 exact HEAD 5051c7e1b9444fc5e35e818c9fabffe4f9ccda2c, engineering-kernel run 39301206887 SUCCESS incl 90% changed-security floor. Parent E10-INV-101M-PAGE IMPLEMENTED, L2/native approval inaccessible, PR DRAFT. CAP-INV-101 §§17/25 requires page/view/selection/scroll restoration, but #144 forbade limit/cursor with open_case. E10-INV-101N-PAGED-RETURN is the bounded first-party HTTP Queue->Case Workspace->POST return integration using original Case, SavedView and cursor owner revalidation. This new lot stays IMPLEMENTED pending exact-head GitHub CI, independent L2 and required native approvals. No new IAM, persistence, mutation, product acceptance or merge; #36/#2 and parent stack remain DRAFT, main docs-only."
   },
   "reconciliation": {
     "required_on_resume": true,
