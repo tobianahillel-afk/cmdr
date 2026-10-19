@@ -49,7 +49,8 @@
     "engineering/performance/benchmark-policy.json",
     "tools/cmdr-dev/performance_registry.go",
     "tools/cmdr-dev/performance_benchmark.go",
-    "tools/cmdr-dev/performance_command_work_queue.go"
+    "tools/cmdr-dev/performance_command_work_queue.go",
+    "tools/cmdr-dev/security_tests.go"
   ],
   "forbidden_paths": [
     "cmdr-product-spec/**",
@@ -93,7 +94,8 @@
     "Negative tests foreign tenant, denied object, invalid view/scope, provider errors, incomplete/duplicate data, unknown SLA",
     "Unique architecture path registration, security-critical scope registration and exact HEAD GitHub Go CI",
     "Explicit handoff distinguishing isolated tested slice from canonical product completion",
-    "On-demand real Command Work Queue benchmark with explicit Go probe, existing benchmark runner and unchanged 90% security floor."
+    "On-demand real Command Work Queue benchmark with explicit Go probe, existing benchmark runner and unchanged 90% security floor.",
+    "Security test evidence adapter reuses real bounded Go module tests, no invented security PASS before exact-head CI."
   ],
   "acceptance_tests": [
     "Each of six views resolves correct owner-authorized Incident/Task IDs, and hidden foreign/denied IDs never appear.",
@@ -128,8 +130,8 @@
   ],
   "complexity": {
     "primary_components": 2,
-    "estimated_files_changed": 8,
-    "estimated_net_loc": 390,
+    "estimated_files_changed": 9,
+    "estimated_net_loc": 430,
     "production_files": 6,
     "net_production_loc": 350,
     "bounded_contexts": 1,
