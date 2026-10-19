@@ -2048,6 +2048,19 @@
         "E10-INV-101Q-BROWSER"
       ],
       "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-INV-101S-FILTERS"
+      ]
+    },
+    {
+      "id": "E10-INV-101S-FILTERS",
+      "title": "Apply owner-authorized native Case Queue filters and sorting across browser pagination and Inspector",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-INV-101R-SELECT"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
       "unlocks": []
     }
   ]
