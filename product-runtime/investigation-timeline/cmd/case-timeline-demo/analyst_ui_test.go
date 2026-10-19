@@ -1,12 +1,17 @@
 package main
 
 import (
+	"bytes"
+	"context"
 	"encoding/json"
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"strings"
 	"testing"
+
+	search "github.com/tobianahillel-afk/cmdr/product-runtime/event-search"
 )
 
 func TestLocalAnalystViewerAssetsAreIsolated(t *testing.T) {
@@ -219,5 +224,109 @@ func TestAnalystReturnContextControlsNeverStoreBearer(t *testing.T) {
 	}
 	for _, prohibited := range []string{"localStorage", "sessionStorage", "document.cookie", "history.replaceState"} {
 		if strings.Contains(string(js), prohibited) { t.Fatalf("persistent authority state introduced: %s", prohibited) }
+	}
+}
+
+
+func TestExactOwnerCaseIDSurvivesRealPickerTimelineSearchAndSourceOpen(t *testing.T) {
+	// This is one complete first-party owner-authorized contract journey,
+	// not a second UI parser: Case IDs are opaque, including outer spaces.
+	const selected = " forensic-case-on-disk "
+	const normal = "forensic-case-on-disk"
+	data, err := loadDemoSnapshot(snapshotFixture(t))
+	if err != nil { t.Fatal(err) }
+	found := false
+	for _, c := range data.Cases {
+		if c.ID != normal { continue }
+		copyCase := c
+		copyCase.ID = selected
+		copyCase.EntryIDs = nil
+		data.Cases = append(data.Cases, copyCase)
+		found = true
+		break
+	}
+	if !found { t.Fatal("fixture lacks first Case") }
+	// Import into ONLY the whitespace-distinct Case. If any layer silently
+	// trims the selected ID, the Search Job must NOT find these events.
+	raw := []byte("{\"id\":\"opaque-owner-identity\",\"timestamp\":\"2026-10-17T10:00:00Z\",\"message\":\"Unusual PowerShell execution\"}\\n")
+	importedData, err := importLocalEvents(context.Background(), data, "analyst-a", selected, raw)
+	if err != nil { t.Fatalf("selected exact-Case import failed: %v", err) }
+	ids := make(map[string]struct{})
+	for _, entry := range importedData.Entries {
+		if entry.CaseID == selected && entry.Value.Provenance == "operator-local-jsonl" {
+			ids[entry.Value.ID] = struct{}{}
+		}
+	}
+	if len(ids) != 1 { t.Fatalf("expected one isolated imported source: %d", len(ids)) }
+	owner, err := newDemoHandlerWithData(testBearer, "analyst-a", importedData)
+	if err != nil { t.Fatalf("owner rejected distinct Case IDs: %v", err) }
+	handler := newDemoLocalJSONLSearchHandler(testBearer, "analyst-a", selected, importedData, ids, owner)
+	server := httptest.NewServer(handler)
+	defer server.Close()
+
+	status, catalog := requestDemo(t, server, "/demo-cases", testBearer)
+	var choices struct { Cases []string `json:"cases"` }
+	if status != http.StatusOK || json.Unmarshal([]byte(catalog), &choices) != nil {
+		t.Fatalf("owner-authorized picker unavailable: %d %s", status, catalog)
+	}
+	seen := make(map[string]bool)
+	for _, id := range choices.Cases { seen[id] = true }
+	if !seen[normal] || !seen[selected] {
+		t.Fatalf("picker aliased or removed authorized opaque ID: %+v", choices.Cases)
+	}
+	for _, id := range []string{normal, selected} {
+		code, timeline := requestDemo(t, server, "/case-timeline?case_id="+url.QueryEscape(id), testBearer)
+		if code != http.StatusOK {
+			t.Fatalf("owner Timeline refused selected valid Case %q: %d", id, code)
+		}
+		hasImported := strings.Contains(timeline, "local-jsonl-entry-")
+		if hasImported != (id == selected) {
+			t.Fatalf("Timeline crossed exact Case identity %q, event present=%v", id, hasImported)
+		}
+	}
+	query := func(caseID string) *httptest.ResponseRecorder {
+		t.Helper()
+		body, _ := json.Marshal(map[string]string{
+			"case_id": caseID, "value": "powershell",
+			"from": "2026-10-17T09:59:00Z",
+			"to": "2026-10-17T10:01:00Z",
+		})
+		req := httptest.NewRequest(http.MethodPost, "/demo-local-search", bytes.NewReader(body))
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", "Bearer "+testBearer)
+		out := httptest.NewRecorder()
+		handler.ServeHTTP(out, req)
+		return out
+	}
+	out := query(selected)
+	var job struct {
+		CaseID string `json:"case_id"`
+		Job search.SearchJob `json:"job"`
+	}
+	if out.Code != http.StatusOK || json.Unmarshal(out.Body.Bytes(), &job) != nil ||
+		job.CaseID != selected || job.Job.State != search.JobCompleted ||
+		len(job.Job.ResultRefs) != 1 {
+		t.Fatalf("exact selected Case search did not complete: %d %s", out.Code, out.Body.String())
+	}
+	ref := job.Job.ResultRefs[0].Ref
+	if _, ok := ids[ref]; !ok || strings.Contains(out.Body.String(), "Unusual PowerShell execution") {
+		t.Fatalf("Search Job leaked unauthorized source or raw preview: %+v", job.Job)
+	}
+	if denied := query(normal); denied.Code == http.StatusOK {
+		t.Fatal("Search Job silently normalized selected Case to a different accessible Case")
+	}
+	source := httptest.NewRequest(http.MethodGet,
+		"/demo-source-open?case_id="+url.QueryEscape(selected)+"&entry_id="+url.QueryEscape(ref), nil)
+	source.Header.Set("Authorization", "Bearer "+testBearer)
+	opened := httptest.NewRecorder()
+	handler.ServeHTTP(opened, source)
+	if opened.Code != http.StatusOK {
+		t.Fatalf("exact selected Case source could not be reauthorized: %d", opened.Code)
+	}
+	source.URL.RawQuery = "case_id="+url.QueryEscape(normal)+"&entry_id="+url.QueryEscape(ref)
+	notOwned := httptest.NewRecorder()
+	handler.ServeHTTP(notOwned, source)
+	if notOwned.Code == http.StatusOK || strings.Contains(notOwned.Body.String(), "Unusual PowerShell") {
+		t.Fatal("wrong Case selector reopened source from another authorized Case")
 	}
 }
