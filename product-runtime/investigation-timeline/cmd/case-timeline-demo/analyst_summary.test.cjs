@@ -72,7 +72,7 @@ function boot(fetchMock, locationSearch = "") {
   };
   vm.runInNewContext(source, ctx);
   fields.token.value = "ephemeral-token";
-  fields["case-id"].value = "case-disk";
+  if (!fields["case-id"].value) fields["case-id"].value = "case-disk";
   return { fields, requests, downloads };
 }
 const flush = () => new Promise(resolve => setImmediate(resolve));
