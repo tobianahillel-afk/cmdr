@@ -2558,8 +2558,8 @@ test("Case picker preserves exact opaque owner Case IDs through Timeline and Sea
   await flush(); await flush();
   const list = f["case-options"];
   assert.equal(list.disabled, false);
-  assert.equal(list.children.length, 2);
-  assert.equal(list.children[1].value, selected);
+  assert.equal(list.children.length, 3);
+  assert.equal(list.children[2].value, selected);
   list.value = selected;
   list.handlers.change();
   assert.equal(f["case-id"].value, selected);
