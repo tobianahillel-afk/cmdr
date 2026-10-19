@@ -41,6 +41,7 @@
   "allowed_paths": [
     "product-runtime/investigation-timeline/cmd/case-timeline-demo/analyst.js",
     "product-runtime/investigation-timeline/cmd/case-timeline-demo/analyst_summary.test.cjs",
+    "product-runtime/investigation-timeline/cmd/case-timeline-demo/analyst_ui_test.go",
     "work/lots/E10-INV-110G-EXACT/**",
     "work/graph.json",
     "engineering/state/current.json"
@@ -76,18 +77,21 @@
   "inputs": [
     "Canonical CAP-INV-110 Case and Timeline navigation and CAP-INV-101 Case picker transitions.",
     "Existing backend validHTTPCaseSelector accepts valid owner-issued IDs with nonblank surrounding spaces; client trim() previously silently selected a different ID.",
-    "Previously independently integrated and CI-green PR #134 preserves owner authentication and transient CAP-INV-008 comparison."
+    "Previously independently integrated and CI-green PR #134 preserves owner authentication and transient CAP-INV-008 comparison.",
+    "Existing first-party Go analyst UI asset security test used brittle literal marker `option.textContent = id`; replace only that marker with the equally inert unambiguous JSON escaped visual textContent contract while preserving option.value opaque wire identity."
   ],
   "outputs": [
     "Exact Case ID string preserved through Case picker → Timeline GET and Search Job POST; no silent aliasing.",
     "Two Case IDs differing by trailing spaces remain valid distinct Case choices in the local comparator.",
-    "Browser regression tests, exact-HEAD cross-OS Actions, bounded handoff documenting partial synthetic nature."
+    "Browser regression tests, exact-HEAD cross-OS Actions, bounded handoff documenting partial synthetic nature.",
+    "Case selector dropdown renders whitespace-significant owner IDs unambiguously; matching Go UI static contract test is updated within this task, no backend authorization change."
   ],
   "acceptance_tests": [
     "Case discovery with both 'case-disk' and ' case-disk ' allows opening the exact selected original ID without silently changing it.",
     "Executing an authorized completed normalized Search Job submits exactly the selected owner Case ID; moving to the other ID invalidates all stale results and provenance.",
     "A two-Case comparison retains 'case-disk' and 'case-disk ' as separate owner selections.",
-    "Full Linux Go/Node browser and macOS/Windows Go suites and mandatory unchanged security coverage gate on exact SHA."
+    "Full Linux Go/Node browser and macOS/Windows Go suites and mandatory unchanged security coverage gate on exact SHA.",
+    "Go asset contract accepts the first-party dropdown rendering `option.textContent = JSON.stringify(id).replace(/ /g, \"\\\\u0020\")` and still rejects raw HTML injection or switching to client-authorized source lookup; Node tests prove both visible distinct labels and byte-exact option values."
   ],
   "performance_budget": {
     "applicable": false,
@@ -111,7 +115,7 @@
   ],
   "complexity": {
     "primary_components": 1,
-    "estimated_files_changed": 2,
+    "estimated_files_changed": 3,
     "estimated_net_loc": 35,
     "production_files": 1,
     "net_production_loc": 4,
