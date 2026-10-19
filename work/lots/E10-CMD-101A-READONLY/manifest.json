@@ -43,13 +43,18 @@
     "work/lots/E10-CMD-101A-READONLY/**",
     "work/lots/E10-CMD-101/**",
     "work/graph.json",
-    "engineering/state/current.json"
+    "engineering/state/current.json",
+    "engineering/performance/performance-policy.json",
+    "engineering/performance/performance-registry.json",
+    "engineering/performance/benchmark-policy.json",
+    "tools/cmdr-dev/performance_registry.go",
+    "tools/cmdr-dev/performance_benchmark.go",
+    "tools/cmdr-dev/performance_command_work_queue.go"
   ],
   "forbidden_paths": [
     "cmdr-product-spec/**",
     "product-runtime/case-queue/**",
-    "product-runtime/investigation-timeline/**",
-    "tools/cmdr-dev/**"
+    "product-runtime/investigation-timeline/**"
   ],
   "invariants": [
     "Exactly six Command system view keys: all, incidents, tasks, unassigned, sla-risk, my-work; no route per view or legacy Team Load.",
@@ -79,14 +84,16 @@
     "Canonical CAP-CMD-101 full specification §§1-27 and Command Saved Views catalogue",
     "Canonical Incident/Task owner distinction, tenant and permission contracts",
     "Git parent frozen PR #36 foundation HEAD ea1770b48a4bc1b2e850a7ffab15d5839f9e9e49",
-    "No existing Command Work Queue executable runtime in inspected foundation tree"
+    "No existing Command Work Queue executable runtime in inspected foundation tree",
+    "Registered new runtime must provide a real executable benchmark workload, not reuse unrelated Investigate Case Queue measurements."
   ],
   "outputs": [
     "Dependency-free first-party Go projection accepting a host Owner List+CanRead interface for Incident/Task",
     "Six system keys on one projection, stable ordering and bounded first-page results; no API/GUI",
     "Negative tests foreign tenant, denied object, invalid view/scope, provider errors, incomplete/duplicate data, unknown SLA",
     "Unique architecture path registration, security-critical scope registration and exact HEAD GitHub Go CI",
-    "Explicit handoff distinguishing isolated tested slice from canonical product completion"
+    "Explicit handoff distinguishing isolated tested slice from canonical product completion",
+    "On-demand real Command Work Queue benchmark with explicit Go probe, existing benchmark runner and unchanged 90% security floor."
   ],
   "acceptance_tests": [
     "Each of six views resolves correct owner-authorized Incident/Task IDs, and hidden foreign/denied IDs never appear.",
@@ -108,7 +115,8 @@
     "CHK-COMPLEXITY",
     "CHK-ARCHITECTURE",
     "CHK-RUNTIME-DEPS",
-    "CHK-SECURITY-TESTS"
+    "CHK-SECURITY-TESTS",
+    "CHK-PERFORMANCE-REGISTRY"
   ],
   "definition_of_ready": [
     "E10-SCALE-005B VERIFIED; canonical CAP-CMD-101 defined/planned with no active OPEN blockers; read-only class-0 subset does not require owner mutation decisions.",
@@ -120,10 +128,10 @@
   ],
   "complexity": {
     "primary_components": 2,
-    "estimated_files_changed": 3,
-    "estimated_net_loc": 230,
-    "production_files": 2,
-    "net_production_loc": 190,
+    "estimated_files_changed": 8,
+    "estimated_net_loc": 390,
+    "production_files": 6,
+    "net_production_loc": 350,
     "bounded_contexts": 1,
     "independent_migrations": 0,
     "distinct_security_models": 1,
