@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/http"
 	"sort"
-	"unicode/utf8"
 )
 
 // CaseListCatalog provides candidate Case IDs from a trusted owner provider.
@@ -60,7 +59,7 @@ func NewCaseDiscoveryHTTPHandler(sessions CaseTimelineSessionResolver, checker A
 		seen := make(map[string]bool, len(ids))
 		used := len(scope.Tenant) + len(scope.Environment)
 		for _, id := range ids {
-			if invalidScope(id) || len(id) > maxHTTPCaseIDBytes || !utf8.ValidString(id) ||
+			if !validHTTPCaseSelector(id) ||
 				seen[id] || len(id) > MaxInputBytes-used {
 				writeCaseTimelineError(w, http.StatusNotFound)
 				return
