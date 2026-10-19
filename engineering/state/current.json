@@ -23,7 +23,6 @@
   },
   "reconciliation": {
     "required_on_resume": true,
-    "recorded_state_is_authoritative": false,
-    "last_verified_context": "2026-10-19: PR136 original behavior SHA 7fea... exact tests, later documentation SHA 724..., latest GitHub actions must be rechecked"
+    "recorded_state_is_authoritative": false
   }
 }
