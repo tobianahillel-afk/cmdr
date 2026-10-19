@@ -118,3 +118,36 @@ Optional `GET /case-queue?limit=1..100` pages the SAME existing server-authorize
 The former Queue pagination has now been integrated with the **same existing** Case Workspace handoff and return engine. A selected Case from a bounded currently authorized page may use `GET /case-queue?limit=2&cursor=<opaque>&sort=title:asc&open_case=CASE_ID&scroll=91`. The selected Case must be on exactly that page; its placement or page cursor grants **no permission**. The normal first-party Case/Incident/Finding owner checks and current host Shared Saved View apply before both the open and the independent `POST /case-queue/return`.
 
 The transient `ReturnState` includes optional `page_limit` and `page_cursor`, alongside existing Case, filters, sort, scroll and saved-view version. On return the SAME current owner-authorized projection and cursor fingerprint are checked again. Revocation, metadata or Saved View changes that invalidate the page cause generic fail-closed instead of restoring a stale selection. Old unpaged clients and return tokens remain compatible. No token is authorization or a durable snapshot, and no production IAM/provider/UI was introduced. See `work/lots/E10-INV-101N-RETURN/HANDOFF.md`.
+
+## Native Command Incident → authorized Case Queue selection (E10-INV-101O-INCIDENT)
+
+The canonical CAP-INV-101 §17 Command Incident transition can now select the
+already projected, **currently authorized** linked parent with
+`GET /case-queue?incident_id=INCIDENT_ID`. The `incident_id` value is an
+opaque, **exact** identity: uppercase/lowercase and whitespace are meaningful.
+It does not grant a Case or Command Incident permission, choose a tenant or
+modify either object. The current injected host authenticates the session,
+independently reauthorizes each candidate Case and its Command-owned Incident,
+then the SAME `ProjectWithSavedViewFallback` applies this extra selector
+only to the Incident context that survived the owner ACL and optional source
+availability check. A denied or unavailable Incident never matches; the
+projection does not reveal its original identifier.
+
+This optional selector composes with the existing `q/status/owner/freshness/sort`,
+host-selected Shared Saved View, `limit/cursor`, and native
+`open_case/scroll` navigation. The existing short-lived return token retains
+the opaque Incident selector alongside the selected page. An independent
+`POST /case-queue/return` rechecks current Case **and Incident** permissions,
+Shared View and the original paginated projection before restoring context.
+Changing or revoking rights fails closed without partial Case or Incident
+source metadata.
+
+**Boundary:** the current synthetic CaseSnapshot contains **one optional
+IncidentContext**. This implements a bounded linkage projection only, *not*
+the complete canonical Case `linked-incidents` many-to-many relation, a
+Command relationship resolver, production host-side object provider, or a
+deployed Incident Detail link. The host must independently authenticate the
+Command Incident and authorize its current projection; merely supplying an
+`incident_id` string is not proof of any relationship or read grant.
+No Case/Incident mutation, Export Job, assignment, provider storage, new
+Saved View engine, third-party dependency or paid API.
