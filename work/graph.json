@@ -1842,11 +1842,11 @@
       ],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": [
-        "E10-INV-008A-RUN-PROVENANCE"
+        "E10-INV-008A-PROVENANCE"
       ]
     },
     {
-      "id": "E10-INV-008A-RUN-PROVENANCE",
+      "id": "E10-INV-008A-PROVENANCE",
       "title": "Expose completed authorized Search Job provenance as read-only local projection",
       "type": "lot",
       "status": "IMPLEMENTED",
