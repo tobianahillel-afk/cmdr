@@ -20,7 +20,7 @@ const ids = [
   "wazuh-search-to", "wazuh-search-run", "wazuh-search-status", "wazuh-search-results",
   "wazuh-search-bursts",
   "wazuh-replay-save", "wazuh-replay-file",
-  "local-search-field", "local-search-family", "local-search-value", "local-search-from", "local-search-to", "local-search-run", "local-search-status", "local-search-results",
+  "local-search-field", "local-search-family", "local-search-value", "local-search-from", "local-search-to", "local-search-run", "local-search-status", "local-search-results", "local-search-workspace-status", "local-search-workspace-actions",
   "comparison-trace-actions", "comparison-trace-results"
 ];
 function node() {
