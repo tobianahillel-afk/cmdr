@@ -42,7 +42,8 @@
     "product-runtime/investigation-timeline/cmd/case-timeline-demo/analyst_summary.test.cjs",
     "work/lots/E10-INV-008A-RUN-PROVENANCE/**",
     "work/graph.json",
-    "engineering/state/current.json"
+    "engineering/state/current.json",
+    "product-runtime/investigation-timeline/cmd/case-timeline-demo/analyst_return.test.cjs"
   ],
   "forbidden_paths": [
     "cmdr-product-spec/**",
@@ -73,12 +74,14 @@
   },
   "inputs": [
     "Full CAP-INV-008 canonical fiche and Shared SearchJob type.",
-    "Completed authorized Event Search Job receipt in existing CAP-INV-007 local workspace."
+    "Completed authorized Event Search Job receipt in existing CAP-INV-007 local workspace.",
+    "Existing independent Case source navigation browser return test harness must include the same DOM elements as the analyst UI."
   ],
   "outputs": [
     "Transient provenance panel from completed authorized run with explicit unknown fields.",
     "Fail-closed browser tests for scope changes, partial run metadata and invalid SearchJob.",
-    "Bounded GitHub handoff with exact CI and dependencies."
+    "Bounded GitHub handoff with exact CI and dependencies.",
+    "Existing Case return-navigation browser tests remain executable with provenance view present."
   ],
   "acceptance_tests": [
     "A completed owner-authorized SearchJob shows RunID, QueryVersion, UTC interval, only counts of sources/failures and audit events, without additional HTTP/source requests.",
