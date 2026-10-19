@@ -1996,6 +1996,19 @@
         "E10-INV-101M-PAGE"
       ],
       "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-INV-101O-INCIDENT"
+      ]
+    },
+    {
+      "id": "E10-INV-101O-INCIDENT",
+      "title": "Filter native Case Queue by independently authorized Command Incident and preserve navigation",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-INV-101N-RETURN"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
       "unlocks": []
     }
   ]
