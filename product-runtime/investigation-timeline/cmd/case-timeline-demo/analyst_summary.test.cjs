@@ -2276,7 +2276,12 @@ test("CAP-INV-007 selected-result inspection reauthorizes typed source and denie
     if (url.pathname==="/case-source-navigation") return {ok:!revoked,async json(){
       return {status:"ready",kind:"telemetry-event",object_id:"owner-verified-event",
         return_is_authority:false,return_case_id:"case-disk",
-        return_entry_id:url.searchParams.get("entry_id"),return_query:"case_id=case-disk"};
+        return_entry_id:url.searchParams.get("entry_id"),
+        return_query:(()=>{
+          const selection=new URLSearchParams(url.searchParams);
+          selection.delete("entry_id");
+          return selection.toString();
+        })()};
     }};
     if (url.pathname==="/demo-source-open") return {ok:true,async json(){return {
       status:"ready",synthetic:true,kind:"telemetry-event",
