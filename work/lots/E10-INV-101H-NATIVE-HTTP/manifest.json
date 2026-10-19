@@ -1,0 +1,127 @@
+{
+  "schema_version": 2,
+  "id": "E10-INV-101H-NATIVE-HTTP",
+  "title": "Expose existing read-only Case Queue through authenticated first-party server projection",
+  "type": "task",
+  "parent": "E10-INV-101",
+  "goal": "Make the native CAP-INV-101 Case Queue projection consumable as an authenticated, server-authorized Class-0 HTTP read without trusting provider-supplied access flags or selecting production IAM/storage/Saved View backends.",
+  "depends_on": [
+    "E10-INV-101F"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-101"
+    ],
+    "requirements": [
+      "REQ-PROD-014",
+      "REQ-PROD-020"
+    ],
+    "screens": [
+      "INV-CAS-001"
+    ],
+    "permissions": [
+      "perm.investigate.case.read"
+    ],
+    "open_decisions": [],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/pagination-filtering-sorting.md",
+      "cmdr-product-spec/17-implementation-contracts/error-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/case.md",
+      "cmdr-product-spec/05-domain-model/objects/incident.md",
+      "cmdr-product-spec/05-domain-model/objects/finding.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/case-queue/http.go",
+    "product-runtime/case-queue/http_test.go",
+    "product-runtime/case-queue/README.md",
+    "work/lots/E10-INV-101H-NATIVE-HTTP/**",
+    "work/graph.json",
+    "engineering/state/current.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/investigation-timeline/**",
+    "product-runtime/event-search/**",
+    "tools/cmdr-dev/**"
+  ],
+  "invariants": [
+    "Principal/tenant/environment scope is derived only from an authenticated host session, never the client, URL or input provider metadata.",
+    "Case, optional Incident and Finding data are independently permission checked server side; nested denied metadata never reaches query, projection or response.",
+    "The original first-party Case Queue projector is the only search/sort logic; request supports only one bounded literal q filter with no Case mutation, assignment, Saved View persistence or export.",
+    "Production identity provider, durable Case catalog, rate limiting, TLS and audit logging remain injected host responsibilities; this is not production deployment."
+  ],
+  "security_properties": [
+    "Cross-tenant provider candidates reject the entire response; denied Cases and nested context are stripped before projection, including denial counts.",
+    "Unknown owner decisions and provider errors fail closed with generic messages; no partial output.",
+    "Responses are no-store, Vary Authorization, JSON-encoded and capped; only GET, no client-provided scope, membership or ACL."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Read-only first-party HTTP adapter with host-supplied session, Case owner provider and authorizer; no canonical state mutation or persistence.",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Revert optional native HTTP handler; existing standalone Case Queue projection and Timeline demo unaffected.",
+    "verification": [
+      "Project and ProjectWithSavedViewFallback unchanged",
+      "No Case mutation or Saved View storage side effects"
+    ]
+  },
+  "inputs": [
+    "E10-INV-101F verified bounded read-only projection foundation",
+    "CAP-INV-101 canonical requirements for permission-filtered Case list and Class-0 search",
+    "Existing product-runtime/case-queue projection.go/types.go/saved_view.go, first-party server authorization patterns"
+  ],
+  "outputs": [
+    "Native Case Queue GET adapter using server-injected session/candidate/authorization interfaces",
+    "Exact per-Case and nested Incident/Finding read checks before existing Case Queue projection",
+    "Go HTTP integration tests against forged decisions, denied objects, foreign tenants and malformed client requests"
+  ],
+  "acceptance_tests": [
+    "Authorized GET with literal q returns only matching, server-authorized Case rows, without disclosure of denied Cases/Incidents/Findings or their counts.",
+    "Provider-supplied AccessDecision cannot grant access to a Case or nested context; exact scope cannot be overridden through requests.",
+    "Wrong method, client-supplied tenant/ACL, invalid query, absent session, owner failure or cross-tenant candidate fail closed without partial data.",
+    "Go tests and exact-head required engineering CI run; distinguish code/test, L2, GitHub approval, integration and production."
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "One bounded <=5000 candidate provider pass with <=1 object authorization per Case and per nested reference; native projection does bounded deterministic sorting; maximum JSON response 4 MiB.",
+    "metrics": [
+      "<=5000 candidates; <=4MiB response; <=256 UTF-8 bytes literal query",
+      "Linear per-object auth checks plus existing native sorting"
+    ]
+  },
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-RUNTIME-DEPS",
+    "CHK-SECURITY-TESTS"
+  ],
+  "definition_of_ready": [
+    "E10-INV-101F VERIFIED in current GitHub graph",
+    "CAP-INV-101 Class-0 authorized read and search independently implementable despite OPEN-013 lifecycle mutation",
+    "Host server provides session, provider and resource read permission decisions; no production IAM provider selected in this lot"
+  ],
+  "definition_of_done": [
+    "First-party native HTTP read-only Case projection with object- and nested-source ACL enforced without new search engine",
+    "Behavioral HTTP tests include authorization, tenant, nested-denial, malformed query, no leakage or mutation",
+    "Exact-head CI evidence and bounded L2 handoff published; code is IMPLEMENTED only until gates and approvals"
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 6,
+    "estimated_net_loc": 240,
+    "production_files": 1,
+    "net_production_loc": 173,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}
