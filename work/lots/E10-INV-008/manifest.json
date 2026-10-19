@@ -1,0 +1,108 @@
+{
+  "schema_version": 2,
+  "id": "E10-INV-008",
+  "title": "Deliver bounded CAP-INV-008 Search and Hunt Provenance projections under Shared Trace ownership",
+  "type": "epic",
+  "goal": "Stage native Search/Hunt provenance under Investigate semantics while reusing existing Shared Search Job, Trace and Event owner, starting with an authorized read-only local run projection; no Trace persistence or OPEN-015 decision.",
+  "depends_on": [
+    "E10-INV-002G",
+    "E10-INV-110E"
+  ],
+  "parent": "",
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-008",
+      "CAP-INV-002",
+      "CAP-INV-004"
+    ],
+    "requirements": [
+      "REQ-PROD-014",
+      "REQ-PROD-020",
+      "REQ-AI-002"
+    ],
+    "screens": [],
+    "permissions": [],
+    "open_decisions": [
+      "OPEN-015"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/frontend-state-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/search-job.md",
+      "cmdr-product-spec/05-domain-model/objects/telemetry-event.md"
+    ]
+  },
+  "allowed_paths": [
+    "work/lots/E10-INV-008/**",
+    "work/lots/E10-INV-008A-PROVENANCE/**",
+    "work/graph.json",
+    "engineering/state/current.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/**",
+    "tools/cmdr-dev/**"
+  ],
+  "invariants": [
+    "Investigate defines provenance semantics; Search Job/Telemetry Event and eventual Trace/Activity Stream remain Shared owned.",
+    "An epic is a container, not a completed runtime, acceptance or full CAP-INV-008 deliverable.",
+    "Do not persist Trace or change OPEN-015; metadata missing from Shared SearchJob must be explicitly unavailable."
+  ],
+  "security_properties": [
+    "Never show foreign Case or stale SearchJob run metadata, raw previews, credentials or hidden source identifiers.",
+    "Only data from an already completed, server-authorized Search Job can appear in transient provenance."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Read-only UI stage with no persistent state or schema.",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Revert bounded read-only provenance UI stage without changing Event Search backend.",
+    "verification": [
+      "Existing authenticated Search Job and source ACL remain unchanged."
+    ]
+  },
+  "inputs": [
+    "Canonical CAP-INV-008 full fiche and Shared-owned first-party SearchJob.",
+    "Existing transient Class-0 Search Job workspace, verified runtime dependencies and OPEN-015 limitations."
+  ],
+  "outputs": [
+    "E10-INV-008A-PROVENANCE bounded lot with independent exact-sha browser proof.",
+    "Later Shared-owned Trace persistence and audit hook work only under accepted product authority."
+  ],
+  "acceptance_tests": [
+    "Every executed lot uses validated manifest and exact-head CI with unchanged security floor.",
+    "Epic remains DECOMPOSED until complete canonical CAP-INV-008 obligations, approvals and acceptance."
+  ],
+  "performance_budget": {
+    "applicable": false,
+    "rationale": "No executable behavior in epic.",
+    "metrics": []
+  },
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-SECURITY-TESTS"
+  ],
+  "definition_of_ready": [
+    "Existing first-party completed Search Job and source owner runtime exist."
+  ],
+  "definition_of_done": [
+    "All product capability acceptance conditions and retention/redaction policies are resolved under canonical owners."
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 0,
+    "estimated_net_loc": 0,
+    "production_files": 0,
+    "net_production_loc": 0,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 0,
+    "separately_testable_behaviors": 1
+  }
+}

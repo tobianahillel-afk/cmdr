@@ -43,6 +43,7 @@
   const localSearchResults = document.getElementById("local-search-results");
   const localWorkspaceStatus = document.getElementById("local-search-workspace-status");
   const localWorkspaceActions = document.getElementById("local-search-workspace-actions");
+  const localSearchProvenance = document.getElementById("local-search-provenance");
   let localSearchRevision = 0;
   let localSearchRequest = null;
   function clearLocalSearch() {
@@ -54,6 +55,7 @@
     localWorkspaceActions.replaceChildren();
     localWorkspaceStatus.textContent = "Aucun résultat à organiser.";
     localSearchStatus.textContent = "Aucune recherche JSONL exécutée.";
+    localSearchProvenance.textContent = "Aucune provenance de Search Job consultable.";
   }
   async function runLocalSearch() {
     clearLocalSearch();
@@ -304,6 +306,35 @@
         if (!current() || selected.size !== 1) return;
         openSource([...selected][0], true); // always reauthorizes Case and source
       });
+      // CAP-INV-008 Class-0: show ONLY provenance already supplied by this
+      // completed owner-authorized Shared Search Job. Never infer missing
+      // actor, transformations, vendor or historical source details.
+      const p = job.Provenance;
+      const bounded = value => typeof value === "string" && value.length > 0 &&
+        value.length <= 128 ? value : "indisponible";
+      const utc = value => {
+        if (typeof value !== "string" || value.length > 48) return "indisponible";
+        const date = new Date(value);
+        return Number.isFinite(date.getTime()) ? date.toISOString() : "indisponible";
+      };
+      const versions = bounded(p?.QueryVersion);
+      const runID = bounded(job.RunID);
+      const fromUTC = utc(p?.TimeStart), toUTC = utc(p?.TimeEnd);
+      const sourceCount = Array.isArray(p?.Sources) && p.Sources.length <= 500 ?
+        String(p.Sources.length) : "indisponible";
+      const failures = Array.isArray(job.FailedSources) &&
+        job.FailedSources.length <= 500 ? String(job.FailedSources.length) : "indisponible";
+      const incomplete = [runID, versions, fromUTC, toUTC, sourceCount, failures]
+        .includes("indisponible");
+      const provenanceSummary = "CAP-INV-008 — provenance du Search Job autorisé : " +
+        "run " + runID + ", version Query " + versions +
+        ", période UTC [" + fromUTC + " ; " + toUTC + "], " +
+        "sources déclarées " + sourceCount + ", sources en échec " + failures +
+        ", événements d'audit du Job " + job.AuditTrail.length +
+        ". Auteur, transformations, automatisation et liens Case : non fournis par ce run. " +
+        (incomplete ? "Provenance partielle : champs indisponibles explicites." :
+          "Provenance de run consultable, sans attestation de complétude canonique.") +
+        " Consultation locale éphémère uniquement, pas de Trace Shared persistée.";
       // Publish only after the ENTIRE SearchJob and correlated lead
       // membership was validated. No persistent annotation or Case link.
       localSearchResults.replaceChildren();
@@ -312,6 +343,7 @@
       localWorkspaceActions.replaceChildren();
       localWorkspaceActions.append(pinButton, openSelected);
       updateWorkspace();
+      localSearchProvenance.textContent = provenanceSummary;
       localSearchStatus.textContent = "Event Search Job " + job.ID + " terminé : " +
         job.ResultRefs.length + " résultat(s) autorisé(s). Ouvrir revérifie les droits.";
     } catch {
@@ -319,6 +351,7 @@
         localSearchResults.replaceChildren();
         localWorkspaceActions.replaceChildren();
         localWorkspaceStatus.textContent = "Aucun résultat à organiser.";
+        localSearchProvenance.textContent = "Aucune provenance de Search Job consultable.";
         localSearchStatus.textContent = "Recherche refusée ou trop volumineuse. Aucun résultat partiel.";
       }
     } finally {

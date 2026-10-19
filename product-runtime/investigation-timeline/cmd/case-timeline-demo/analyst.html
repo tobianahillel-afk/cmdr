@@ -110,6 +110,11 @@
         <p id="local-search-workspace-status" role="status" aria-live="polite">Aucun résultat à organiser.</p>
         <div id="local-search-workspace-actions" class="analysis-actions"></div>
       </section>
+      <section aria-labelledby="local-provenance-title">
+        <h3 id="local-provenance-title">Provenance de cette recherche (CAP-INV-008, lecture seule)</h3>
+        <p class="intro">Affiche uniquement les métadonnées autorisées fournies par le Search Job terminé : run, version de Query, fenêtre temporelle, nombre de sources et erreurs déclarées. Une valeur absente reste indisponible ; aucune source, auteur, transformation ou activité non fournie n’est inventée. Ce résumé temporaire n’est ni une Trace Shared persistée ni une chaîne de conservation.</p>
+        <p id="local-search-provenance" role="status" aria-live="polite">Aucune provenance de Search Job consultable.</p>
+      </section>
       <p class="intro">Le texte ou l'identifiant et le jeton passent dans le corps d'une requête POST authentifiée, jamais dans l'URL. Maximum 500 aperçus candidats et 200 événements correspondants ; au-delà, échec sans résultat partiel. Chaque événement nécessite une nouvelle ouverture de source autorisée. Aucun stockage, IAM de production ni recherche dans des logs bruts.</p>
     </section>
     <section aria-labelledby="wazuh-title">

@@ -1830,6 +1830,32 @@
       ],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": []
+    },
+    {
+      "id": "E10-INV-008",
+      "title": "Canonical CAP-INV-008 Search and Hunt Provenance bounded delivery",
+      "type": "epic",
+      "status": "DECOMPOSED",
+      "depends_on": [
+        "E10-INV-002G",
+        "E10-INV-110E"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-008A-PROVENANCE"
+      ]
+    },
+    {
+      "id": "E10-INV-008A-PROVENANCE",
+      "title": "Expose completed authorized Search Job provenance as read-only local projection",
+      "type": "lot",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-INV-002G",
+        "E10-INV-110E"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": []
     }
   ]
 }
