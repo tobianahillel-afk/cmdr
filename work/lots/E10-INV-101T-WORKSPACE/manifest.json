@@ -1,0 +1,128 @@
+{
+  "schema_version": 2,
+  "id": "E10-INV-101T-WORKSPACE",
+  "title": "Use first-party authorized Case Workspace handoff and revalidated return from native Case Queue browser",
+  "type": "task",
+  "parent": "E10-INV-101",
+  "goal": "Connect existing first-party server Workspace handoff and POST return to a bounded native browser interaction, preserving currently applied filters/page, checking the exact Case independently, retaining the transient token only in JS memory and obtaining a fresh authorized page before redisplaying data.",
+  "depends_on": [
+    "E10-INV-101S-FILTERS"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-101"
+    ],
+    "requirements": [
+      "REQ-PROD-014",
+      "REQ-PROD-020",
+      "REQ-UX-001",
+      "REQ-UX-002",
+      "REQ-UX-003"
+    ],
+    "screens": [
+      "INV-CAS-001"
+    ],
+    "permissions": [
+      "perm.investigate.case.read"
+    ],
+    "open_decisions": [],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/case.md"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/pagination-filtering-sorting.md",
+      "cmdr-product-spec/17-implementation-contracts/frontend-state-contract.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/case-queue/browser.js",
+    "product-runtime/case-queue/browser.html",
+    "product-runtime/case-queue/browser.css",
+    "product-runtime/case-queue/browser.test.cjs",
+    "product-runtime/case-queue/README.md",
+    "work/lots/E10-INV-101T-WORKSPACE/**",
+    "work/graph.json",
+    "engineering/state/current.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/investigation-timeline/**",
+    "product-runtime/event-search/**",
+    "tools/cmdr-dev/**"
+  ],
+  "invariants": [
+    "CAP-INV-101 Case Queue → Case Workspace Class-0 handoff uses ONLY existing first-party GET /case-queue?open_case and POST /case-queue/return with host-authenticated per-object Case/Incident/Finding and Saved View permissions.",
+    "Untrusted opaque return token exists ONLY in volatile JS memory; never URL, local/session storage, logs, cookies or persistent Case mutation.",
+    "Previously applied query, status/owner/freshness/sort, exact Case ID and page cursor are bound to opening and revalidating return; old Case data is cleared on navigation or failure; fresh GET needed before redisplay.",
+    "Full Case Workspace is NOT hosted here; this opt-in read-only context handoff cannot masquerade as actual Case Workspace, a Shared Inspector or grant of authorization."
+  ],
+  "security_properties": [
+    "Server reauthorizes Case and nested sources for open and return independently, including page cursor and tenant/environment; client's old row is never authority.",
+    "Fail-closed mismatched Case ID or screen, malformed token, rejected POST, stale filtering or unauthorized cursor: no stale data rendered.",
+    "Only transient in-memory return token sent via same-origin no-store POST JSON body; never a query parameter. Host remains responsible for cookie CSRF, IAM, audit and TLS."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Opt-in same-origin host-mounted static browser with no changed persistence or Case schema",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Disable opt-in workspace handoff buttons and retain previous browser GET filter/list/Inspector; backend first-party J/K/N unchanged",
+    "verification": [
+      "Existing native authorized Queue and Inspector flows remain available",
+      "No return token or Case data persisted"
+    ]
+  },
+  "inputs": [
+    "CAP-INV-101 §17/25 Case Queue → Case Workspace → exact filtered Queue return is not yet linked from native browser, while existing backend E10-INV-101J/K/N already authorizes handoff and return.",
+    "Existing E10-INV-101S browser applied snapshot q/status/owner/freshness/sort and cursor-bound Case page with independently reauthorized Inspector on frozen PR #150 exact SHA a5034c3dfb6ae23a9fa61725e7d9057277db72fe."
+  ],
+  "outputs": [
+    "Native read-only Open workspace handoff control calling existing server GET open_case with exactly current applied filtered page, and bounded explicit transient context view.",
+    "Return control using existing POST return_token, client assertion of matching expected Case/projection and fresh server-authorized Queue GET before returning to the visible page.",
+    "Clear volatile state on denied/mismatched/stale requests, filter changes, pagination and pagehide; no new owner or data store."
+  ],
+  "acceptance_tests": [
+    "Node DOM test executes actual browser.js: exact Case handoff request, volatile token NOT in URL, POST /case-queue/return JSON-only, fresh GET and original scroll restoration.",
+    "Node DOM test checks denial/mismatched Case/changed return projection wipes all sensitive Case rows without partial output.",
+    "Existing Node browser filtering, pagination and Inspector security tests remain green on exact-head engineering-kernel CHK-CASE-QUEUE-CONTRACT and CHK-SECURITY-TESTS unchanged >=90%; host Go HTTP/J/K/N tests retained.",
+    "Any production Case Workspace UI or Shared Inspector remains explicitly NOT implemented or accepted."
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "One existing authenticated GET handoff, one POST return reauthorization and one independent fresh Queue GET, no polling/extra runtime/index.",
+    "metrics": [
+      "One first-party GET per handoff",
+      "One first-party POST and one new authorized Queue GET per return",
+      "Existing 25-row bounded page/current 5000 owner candidates"
+    ]
+  },
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-RUNTIME-DEPS",
+    "CHK-SECURITY-TESTS"
+  ],
+  "definition_of_ready": [
+    "E10-INV-101S IMPLEMENTED on PR #150 exact HEAD a5034c3dfb6ae23a9fa61725e7d9057277db72fe with engineering-kernel 39320552192 SUCCESS; J/K/N existing first-party server handoff/return contracts already tested.",
+    "Bounded adapter confined to native browser one read-only context and transient state; host-side authentication/CSRF and full Workspace UI remain separately owned."
+  ],
+  "definition_of_done": [
+    "Commit coherent native browser handoff/return UI and behavior tests, publish manifest and handoff with exact CI/evidence on child draft PR.",
+    "One independent read-only L2 for meaningful browser↔Workspace return security integration if stable; no full product acceptance or merge claim."
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 4,
+    "estimated_net_loc": 180,
+    "production_files": 2,
+    "net_production_loc": 140,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

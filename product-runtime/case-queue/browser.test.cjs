@@ -24,9 +24,11 @@ function harness(replies) {
   "case-status","case-owner","case-freshness","case-sort",
   "selection","selection-status","selection-close","selection-title","selection-id",
   "selection-status-value","selection-owner","selection-updated","selection-freshness",
-  "selection-next-action"])
+  "selection-next-action","workspace-handoff","workspace-status","workspace-return",
+  "workspace-case"])
   nodes.set(id,makeNode(id));
  nodes.get("selection").hidden=true;
+ nodes.get("workspace-handoff").hidden=true;
  const requests=[];
  const fetch=async(uri,options)=>{
   requests.push({uri,options});
@@ -206,4 +208,120 @@ test("filter reset clears every applied native field and revokes old page and se
  assert.equal(h.nodes.get("case-sort").value,"");
  assert.equal(h.requests[3].uri,"/case-queue?limit=25");
  assert.equal(h.nodes.get("next").disabled,true);
+});
+
+test("browser Workspace handoff reauthorizes exact Case and POST return rechecks the original Queue page",async()=>{
+ const h=harness([
+  {ok:true,data:{rows:[row("case-a","Sensitive Case A")]}},
+  {ok:true,data:{screen_id:"INV-CAS-001",case_id:"case-a",return_token:"opaque-state-only"}},
+  {ok:true,data:{origin:"case-queue",selected_case_id:"case-a",
+   page_limit:25,page_cursor:"",search_query:"",filters:[],sort:[],scroll_offset:21}},
+  {ok:true,data:{rows:[row("case-a","Freshly authorized Case A")]}}
+ ]);
+ h.window.scrollY=21;
+ h.window.scrollTo=(x,y)=>{h.window.lastScroll=[x,y]};
+ await tick();
+ const rowNode=h.nodes.get("cases").children[0];
+ const open=rowNode.children[0].children[1];
+ assert.equal(open.textContent,"Open workspace handoff");
+ open.events.get("click")();
+ await tick();
+ assert.match(h.requests[1].uri,/^\/case-queue\?limit=25&open_case=case-a&scroll=21$/);
+ assert.equal(h.requests[1].options.credentials,"same-origin");
+ assert.equal(h.nodes.get("workspace-handoff").hidden,false);
+ assert.equal(h.nodes.get("workspace-case").textContent,"case-a");
+ assert.equal(h.nodes.get("cases").children.length,0);
+ assert.equal(h.nodes.get("workspace-return").focusCount,1);
+ h.nodes.get("workspace-return").events.get("click")();
+ await tick();await tick();
+ assert.equal(h.requests[2].uri,"/case-queue/return");
+ assert.equal(h.requests[2].options.method,"POST");
+ assert.equal(h.requests[2].options.headers["Content-Type"],"application/json");
+ assert.deepEqual(JSON.parse(h.requests[2].options.body),{return_token:"opaque-state-only"});
+ assert.doesNotMatch(h.requests.map(x=>x.uri).join("|"),/opaque-state-only|return_token=|bearer|tenant=/);
+ assert.equal(h.requests[3].uri,"/case-queue?limit=25");
+ assert.equal(h.nodes.get("workspace-handoff").hidden,true);
+ assert.equal(h.nodes.get("workspace-case").textContent,"");
+ assert.equal(h.nodes.get("cases").children[0].children[0].textContent,"Freshly authorized Case A — case-a");
+ assert.equal(h.window.lastScroll[0],0);
+ assert.equal(h.window.lastScroll[1],21);
+});
+test("Case Workspace handoff denial or wrong Case never retains old sensitive rows",async()=>{
+ const h=harness([
+  {ok:true,data:{rows:[row("case-a","Sensitive A")]}},
+  {ok:true,data:{screen_id:"INV-CAS-001",case_id:"different-case",return_token:"invalid"}},
+ ]);
+ await tick();
+ h.nodes.get("cases").children[0].children[0].children[1].events.get("click")();
+ await tick();
+ assert.equal(h.nodes.get("cases").children.length,0);
+ assert.equal(h.nodes.get("workspace-handoff").hidden,true);
+ assert.equal(h.nodes.get("workspace-case").textContent,"");
+ assert.match(h.nodes.get("status").textContent,/handoff unavailable/);
+});
+test("return denial drops transient state and never redisplays stale Case",async()=>{
+ const h=harness([
+  {ok:true,data:{rows:[row("case-a","Sensitive A")]}},
+  {ok:true,data:{screen_id:"INV-CAS-001",case_id:"case-a",return_token:"unsigned-state"}},
+  {ok:false,data:null}
+ ]);
+ await tick();
+ h.nodes.get("cases").children[0].children[0].children[1].events.get("click")();
+ await tick();
+ h.nodes.get("workspace-return").events.get("click")();
+ await tick();await tick();
+ assert.equal(h.nodes.get("cases").children.length,0);
+ assert.equal(h.nodes.get("workspace-handoff").hidden,true);
+ assert.match(h.nodes.get("status").textContent,/return denied/);
+ assert.equal(h.requests.length,3);
+});
+test("Workspace handoff preserves applied filtered page and rejects a changed returned projection",async()=>{
+ const h=harness([
+  {ok:true,data:{rows:[row("case-a","Initial")]}},
+  {ok:true,data:{rows:[row("case-b","Filtered")],next_cursor:"next-filtered"}},
+  {ok:true,data:{screen_id:"INV-CAS-001",case_id:"case-b",return_token:"opaque-2"}},
+  {ok:true,data:{origin:"case-queue",selected_case_id:"case-b",
+   page_limit:25,page_cursor:"",search_query:"search-value",
+   filters:[{field:"status",values:["wrong-status"]}],sort:[],scroll_offset:0}}
+ ]);
+ await tick();
+ h.nodes.get("query").value="search-value";
+ h.nodes.get("case-status").value="review";
+ h.nodes.get("search").events.get("submit")({preventDefault(){}});
+ await tick();
+ h.nodes.get("cases").children[0].children[0].children[1].events.get("click")();
+ await tick();
+ assert.match(h.requests[2].uri,/q=search-value&status=review&open_case=case-b/);
+ h.nodes.get("workspace-return").events.get("click")();
+ await tick();await tick();
+ assert.equal(h.nodes.get("cases").children.length,0);
+ assert.equal(h.nodes.get("workspace-handoff").hidden,true);
+ assert.match(h.nodes.get("status").textContent,/return denied/);
+ assert.equal(h.requests.length,4);
+});
+
+test("Go-normalized case filters still restore a live browser page without widening access",async()=>{
+ const h=harness([
+  {ok:true,data:{rows:[row("case-a","Initial")]}},
+  {ok:true,data:{rows:[row("case-a","Filtered")]}},
+  {ok:true,data:{screen_id:"INV-CAS-001",case_id:"case-a",return_token:"nonce-nonauthorizing"}},
+  {ok:true,data:{origin:"case-queue",selected_case_id:"case-a",
+   page_limit:25,page_cursor:"",search_query:"",
+   filters:[{field:"status",values:["review"]},{field:"owner",values:["analyst-a"]}],
+   sort:[],scroll_offset:0}},
+  {ok:true,data:{rows:[row("case-a","Current owner authorized")]}}
+ ]);
+ await tick();
+ h.nodes.get("case-status").value="Review";
+ h.nodes.get("case-owner").value="Analyst-A";
+ h.nodes.get("search").events.get("submit")({preventDefault(){}});
+ await tick();
+ h.nodes.get("cases").children[0].children[0].children[1].events.get("click")();
+ await tick();
+ h.nodes.get("workspace-return").events.get("click")();
+ await tick();await tick();
+ assert.equal(h.nodes.get("workspace-handoff").hidden,true);
+ assert.equal(h.nodes.get("cases").children[0].children[0].textContent,"Current owner authorized — case-a");
+ assert.match(h.requests[4].uri,/status=Review/);
+ assert.match(h.requests[4].uri,/owner=Analyst-A/);
 });

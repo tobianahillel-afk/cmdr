@@ -232,3 +232,32 @@ keyboard/drawer model and product integration remain separately owned/absent.
 Case Workspace navigation and production hosting are also not delivered.
 See `work/lots/E10-INV-101R-SELECT/HANDOFF.md`; PR is stacked and DRAFT,
 not merged to main and not evidence of full CAP-INV-101 acceptance.
+
+
+## Opt-in native browser Workspace handoff and reauthorized return (E10-INV-101T-WORKSPACE)
+
+The existing native authenticated Case Queue browser can now consume the
+first-party **GET `/case-queue?open_case=EXACT_CASE_ID&scroll=...`** route for a
+currently selected, authorized 25-row page with the last submitted
+q/status/owner/freshness/sort and opaque cursor. It only accepts a handoff
+for the same exact selected Case with `screen_id=INV-CAS-001`. A bounded
+read-only **navigation context** replaces the old page display; the real
+Case Workspace UI **is not hosted or implemented** by this minimal browser.
+
+The server's **unsigned, non-authorizing return token** stays solely in
+volatile JavaScript memory, never URL, storage, cookie or a persistent data
+record. Explicit Return makes the existing same-origin **POST
+`/case-queue/return`** with just `return_token` in the JSON body. The
+first-party Go endpoint independently reauthenticates the current
+Case/Incident/Finding owners, Shared Saved View, filters and page cursor.
+The browser checks the returned selected Case, page and applied query and
+only after that success fetches the authorized Queue page AGAIN before
+displaying rows and restoring the bounded scroll position. Stale/denied/
+mismatched responses purge previous sensitive rows, selection and token.
+Changing filters/page or leaving the page destroys the volatile handoff.
+
+This is a **real tested owner-authorized transport and return loop**, not
+a complete Case Workspace, a Shared Inspector, production IAM/CSRF/TLS,
+assignment, export, or a full CAP-INV-101 delivery. The host remains
+responsible for browser session security and a proper Workspace consumer.
+See `work/lots/E10-INV-101T-WORKSPACE/{manifest.json,HANDOFF.md}`.

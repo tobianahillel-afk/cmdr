@@ -45,6 +45,13 @@
 </dl>
 <p class="muted">Selection is reauthorized on each request and does not grant workspace access. The Shared Inspector component and Case Workspace UI are separate product integrations.</p>
 </section>
+<section id="workspace-handoff" class="selection" aria-label="Transient Case Workspace handoff" hidden>
+<div class="selection-heading"><h2>Case Workspace — navigation context only</h2>
+<button id="workspace-return" type="button">Return to authorized Queue</button></div>
+<p id="workspace-status" role="status" aria-live="polite"></p>
+<dl><dt>Selected Case</dt><dd id="workspace-case"></dd><dt>Destination</dt><dd>INV-CAS-001</dd></dl>
+<p class="muted">The full Case Workspace is not hosted by this browser. The transient return state stays in memory, and returning requires fresh server authorization.</p>
+</section>
 <p class="muted">Case and Incident permissions are checked by the server on every page request. A page is not a persistent evidence snapshot.</p>
 </main>
 </body></html>
