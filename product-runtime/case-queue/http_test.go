@@ -282,7 +282,7 @@ func TestNativeQueueHTTPFiltersAndSortOnlyAuthorizedCases(t *testing.T) {
 	second.Status="review"
 	second.Owner="analyst-a"
 	second.UpdatedAt="2026-10-19T09:00:00Z"
-	hidden:=nativeCase("c-secret","TOP-SECRET matching title")
+	hidden:=nativeCase("c-secret","TOP-SECRET response case")
 	hidden.Status="review"
 	hidden.Owner="analyst-a"
 	other:=nativeCase("c-30","Unrelated case")
