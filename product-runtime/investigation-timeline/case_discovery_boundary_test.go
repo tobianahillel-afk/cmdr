@@ -6,6 +6,7 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"reflect"
 	"strings"
 	"testing"
@@ -139,5 +140,50 @@ func TestCaseDiscoveryRevocationDuringEnumerationFailsClosed(t *testing.T) {
 	if result.Code != http.StatusNotFound ||
 		strings.Contains(result.Body.String(), "case-one") {
 		t.Fatalf("revocation leaked partial Case catalogue: %d %s", result.Code, result.Body.String())
+	}
+}
+
+func TestCasePickerNeverPublishesSelectorRejectedByTimeline(t *testing.T) {
+	// A trusted owner catalog can hold a malformed Case ID. Permission
+	// checks alone must not advertise an ID that the Timeline HTTP boundary
+	// cannot open. Reject the entire catalog before even enumerating ACLs.
+	for _, invalid := range []string{
+		"case-one\n", "case-one\r", "case-one\x00",
+	} {
+		t.Run(strings.ReplaceAll(strings.ReplaceAll(invalid, "\n", "-LF"), "\r", "-CR"), func(t *testing.T) {
+			checks := 0
+			checker := caseDiscoveryCheckerFunc(func(context.Context, AccessRequest) (string, error) {
+				checks++
+				return "allow", nil
+			})
+			handler, err := NewCaseDiscoveryHTTPHandler(timelineHTTPSession{}, checker,
+				caseDiscoveryCatalogFunc(func(context.Context, Scope) ([]string, error) {
+					return []string{"case-one", invalid}, nil
+				}))
+			if err != nil {
+				t.Fatal(err)
+			}
+			discovery := caseDiscoveryGet(handler, "Bearer analyst-a")
+			if discovery.Code != http.StatusNotFound || checks != 0 ||
+				discovery.Body.String() != "{\"error\":\"request-unavailable\"}\n" {
+				t.Fatalf("Case picker leaked an unusable selector: HTTP=%d checks=%d body=%q",
+					discovery.Code, checks, discovery.Body.String())
+			}
+			timelineHandler, _ := httpWorkspaceFixture(t)
+			direct := httpWorkspaceGet(timelineHandler,
+				"/case-timeline?case_id="+url.QueryEscape(invalid), "Bearer analyst-a", nil)
+			if direct.Code != http.StatusBadRequest {
+				t.Fatalf("Timeline accepted picker-rejected selector %q: %d", invalid, direct.Code)
+			}
+		})
+	}
+	// The normal authorized Case remains both discoverable and openable.
+	handler, store := httpWorkspaceFixture(t)
+	if response := httpWorkspaceGet(handler,
+		"/case-timeline?case_id=case-one", "Bearer analyst-a", nil); response.Code != http.StatusOK {
+		t.Fatalf("valid Case stopped being openable: HTTP %d", response.Code)
+	}
+	if store.caseChecks == 0 {
+		t.Fatal("valid Case bypassed owner authorization")
 	}
 }
