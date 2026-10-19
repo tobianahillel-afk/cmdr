@@ -2061,6 +2061,19 @@
         "E10-INV-101R-SELECT"
       ],
       "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-INV-101T-WORKSPACE"
+      ]
+    },
+    {
+      "id": "E10-INV-101T-WORKSPACE",
+      "title": "Connect native Case browser Workspace handoff to reauthorized Queue return",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-INV-101S-FILTERS"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
       "unlocks": []
     }
   ]
