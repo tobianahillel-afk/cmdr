@@ -2564,7 +2564,7 @@ test("Case picker preserves exact opaque owner Case IDs through Timeline and Sea
   list.handlers.change();
   assert.equal(f["case-id"].value, selected);
 
-  f.load.handlers.click();
+  f.query.handlers.submit({ preventDefault() {} });
   await flush(); await flush();
   assert.equal(env.requests.filter(r => r.url.pathname === "/case-timeline").length, 1);
 
