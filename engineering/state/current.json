@@ -17,9 +17,9 @@
     "phase_title": "Scaled product implementation program bootstrap"
   },
   "execution": {
-    "active_work_unit": "E10-INV-101N-RETURN",
+    "active_work_unit": "E10-INV-101O-INCIDENT",
     "preferred_next_unit": null,
-    "selection_rule": "Reconciled 2026-10-19: #144 exact HEAD 5051c7e1b9444fc5e35e818c9fabffe4f9ccda2c, engineering-kernel run 39301206887 SUCCESS incl 90% changed-security floor. Parent E10-INV-101M-PAGE IMPLEMENTED, L2/native approval inaccessible, PR DRAFT. CAP-INV-101 §§17/25 requires page/view/selection/scroll restoration, but #144 forbade limit/cursor with open_case. E10-INV-101N-RETURN is the bounded first-party HTTP Queue->Case Workspace->POST return integration using original Case, SavedView and cursor owner revalidation. This new lot stays IMPLEMENTED pending exact-head GitHub CI, independent L2 and required native approvals. No new IAM, persistence, mutation, product acceptance or merge; #36/#2 and parent stack remain DRAFT, main docs-only."
+    "selection_rule": "2026-10-19 reconciled: PR #145 HEAD d31c326a785134e06b86fa79c9d8701d0a287a27 exact-head engineering-kernel run 39305417608 SUCCESS, but remains DRAFT, L2/native approval not established. CAP-INV-101 §17 Command Incident->linked Cases has no native Incident ID selector even though current Case/Incident source owner checks and Queue pagination/return exist. E10-INV-101O-INCIDENT implements bounded exact opaque Incident filter on the one currently projected ACL-authorized IncidentContext, preserving existing Saved View and page/workspace return. New child branch/PR CI pending; status IMPLEMENTED only, all parent PRs and main unmerged, no canonical many-to-many relation service or production IAM. Do not select future work from this cache without GitHub reconciliation."
   },
   "reconciliation": {
     "required_on_resume": true,

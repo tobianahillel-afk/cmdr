@@ -145,7 +145,7 @@ func (h nativeQueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 		var err error
 		parameters, err = url.ParseQuery(r.URL.RawQuery)
-		if err != nil || len(parameters) > 9 {
+		if err != nil || len(parameters) > 10 {
 			queueError(w, http.StatusBadRequest)
 			return
 		}
@@ -163,7 +163,7 @@ func (h nativeQueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// happens first; nothing here selects a tenant or confers permissions.
 	for name, values := range parameters {
 		literalLimit := 256
-		if name == "open_case" { literalLimit = 1024 }
+		if name == "open_case" || name == "incident_id" { literalLimit = 1024 }
 		if len(values) != 1 || !validQueueLiteral(values[0], literalLimit) {
 			queueError(w, http.StatusBadRequest)
 			return
@@ -199,6 +199,15 @@ func (h nativeQueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			pageCursor = value
+		case "incident_id":
+			// Navigation from Command Incident Detail is an exact link
+			// selector, not a scope or a new permission. The projector
+			// sees only independently authorized Incident snapshots.
+			if strings.TrimSpace(value) == "" {
+				queueError(w, http.StatusBadRequest)
+				return
+			}
+			filters = append(filters, Filter{Field: name, Values: []string{value}})
 		case "status", "owner", "freshness":
 			if len(value) > 128 || strings.TrimSpace(value) == "" {
 				queueError(w, http.StatusBadRequest)

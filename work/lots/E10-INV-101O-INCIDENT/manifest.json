@@ -1,0 +1,126 @@
+{
+  "schema_version": 2,
+  "id": "E10-INV-101O-INCIDENT",
+  "title": "Navigate from an authorized Command Incident to its visible Case Queue projection",
+  "type": "task",
+  "parent": "E10-INV-101",
+  "goal": "Expose the current single, independently authorized Command Incident projection as an exact Case Queue filter and preserve it across paged Case Workspace navigation/return; do not implement a Command relation service.",
+  "depends_on": [
+    "E10-INV-101N-RETURN"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-101"
+    ],
+    "requirements": [
+      "REQ-PROD-014",
+      "REQ-PROD-020"
+    ],
+    "screens": [
+      "INV-CAS-001"
+    ],
+    "permissions": [
+      "perm.investigate.case.read",
+      "perm.command.incident.read"
+    ],
+    "open_decisions": [],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/pagination-filtering-sorting.md",
+      "cmdr-product-spec/17-implementation-contracts/saved-view-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/case.md",
+      "cmdr-product-spec/05-domain-model/objects/incident.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/case-queue/projection.go",
+    "product-runtime/case-queue/http.go",
+    "product-runtime/case-queue/http_incident_link_test.go",
+    "product-runtime/case-queue/README.md",
+    "work/lots/E10-INV-101O-INCIDENT/**",
+    "work/graph.json",
+    "engineering/state/current.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/investigation-timeline/**",
+    "product-runtime/event-search/**",
+    "tools/cmdr-dev/**"
+  ],
+  "invariants": [
+    "An Incident filter matches only the exact opaque identity of a Command Incident projection independently authorized for the selected current Case; a case with an unauthorized/missing Incident projection is not a match.",
+    "Current first-party Queue Saved View, sorted filtering, pagination, selected-page handoff and return tokens remain one engine, with independent authorization on all requests.",
+    "Incident IDs are opaque identifiers and must not be trimmed, case-folded, used to establish tenant/environment or treated as authorization.",
+    "This bounds to the currently projected single IncidentContext; no assertion that all canonical Case linked-incidents are enumerated, no Command relation provider or mutation."
+  ],
+  "security_properties": [
+    "Every returned Case and linked Incident must pass the original server-side Case and Incident object-read checks, including after ACL changes.",
+    "Missing, cross-tenant or access-denied Incident context cannot disclose its identity via source matching, list, counts or return state.",
+    "Malformed/duplicate/unknown query controls fail before the session provider; the untrusted incident_id selects neither scope nor permissions."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Optional HTTP filter reusing read-only first-party projection, no durable schema change.",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Remove opt-in incident_id filter; old Queue, page and Workspace open/return remain available.",
+    "verification": [
+      "Legacy Queue GET/open/POST unaffected",
+      "No state or object mutation"
+    ]
+  },
+  "inputs": [
+    "CAP-INV-101 section 17: Command Incident -> related Cases in Queue or Workspace.",
+    "Existing first-party Queue projection supports current independently authorized single optional IncidentContext but native HTTP cannot constrain Cases to a selected Incident ID.",
+    "Parent PR #145 frozen HEAD d31c326a785134e06b86fa79c9d8701d0a287a27, engineering-kernel run 39305417608 SUCCESS; PR and upstream draft, L2 report not verified."
+  ],
+  "outputs": [
+    "Optional GET /case-queue?incident_id=opaque returns only Case rows whose independently authorized visible IncidentContext has exactly that opaque ID.",
+    "The existing Queue page cursor, Workspace handoff and POST return preserve and re-authorize selected Incident-linked filter as presentation only.",
+    "Same behavior with host-owned Shared Saved View selection when supplied, without new Command relationship engine."
+  ],
+  "acceptance_tests": [
+    "Real Go httptest with multiple Cases, incident owner ACL separately allow/deny and Case ACL allow/deny: only Cases with exact linked Incident IDs visible, no denied metadata and no casefold ID alias.",
+    "Native incident-filtered pagination then Case Workspace open and POST return restore exact incident_id selector, sort, cursor, scroll and selection; revocation of incident rights refuses stale return.",
+    "Strict query duplicate/injected controls rejected before owner/session; original Queue HTTP tests, saved views, paging, security checks remain green."
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "One existing <=5000 owner candidate authorization and first-party projection, no new traversal or query engine.",
+    "metrics": [
+      "<=5000 candidates per request",
+      "<=100 rows per page",
+      "no additional full projection pass beyond existing handoff/paging"
+    ]
+  },
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-RUNTIME-DEPS",
+    "CHK-SECURITY-TESTS"
+  ],
+  "definition_of_ready": [
+    "PR #145 E10-INV-101N-RETURN code IMPLEMENTED, exact-head engineering-kernel SUCCESS; no mutation or OPEN-013 decision required.",
+    "One read-only current authorized Command Incident projection match, not all canonical linked-incidents relationships."
+  ],
+  "definition_of_done": [
+    "Exact-base/head committed, real Go integration tests and CI evidence; record actual status without full CAP acceptance.",
+    "L2 independent and GitHub-native approvals distinguished from green CI. No merge while parents draft or mandatory checks unresolved."
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 7,
+    "estimated_net_loc": 50,
+    "production_files": 2,
+    "net_production_loc": 30,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}
