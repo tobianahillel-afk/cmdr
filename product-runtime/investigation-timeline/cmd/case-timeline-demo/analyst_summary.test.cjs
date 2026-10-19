@@ -2524,3 +2524,82 @@ test("CAP-INV-008 refuses partial run comparisons after denied Search Job and pr
   assert.equal(f["local-search-results"].children.length,0);
   assert.equal(env.requests.length,3);
 });
+
+test("Case picker preserves exact opaque owner Case IDs through Timeline and Search Job", async () => {
+  // The first-party Go owner accepts non-empty valid selectors including
+  // surrounding spaces; they are not an alias to the trimmed Case ID.
+  const selected = " case-disk ";
+  const authorizedRef = "local-jsonl-entry-" + "a".repeat(64);
+  const env = boot((url, options) => {
+    if (url.pathname === "/demo-cases") {
+      assert.equal(options.headers.Authorization, "Bearer ephemeral-token");
+      return { ok: true, async json() { return { cases: ["case-disk", selected] }; } };
+    }
+    if (url.pathname === "/case-timeline") {
+      assert.equal(url.searchParams.get("case_id"), selected,
+        "opening a Case from the picker must never silently open its trimmed sibling");
+      return page(Number(url.searchParams.get("offset")), 1);
+    }
+    if (url.pathname === "/demo-local-search") {
+      assert.equal(options.method, "POST");
+      assert.equal(JSON.parse(options.body).case_id, selected,
+        "SearchJob must carry the exact previously authorized Case selector");
+      return { ok: true, async json() { return {
+        format: "cmdr-local-jsonl-event-search-v1",
+        synthetic: true, case_id: selected,
+        job: { ID: "job-exact-case", State: "completed", AuditTrail: [{}, {}, {}],
+          ResultRefs: [{ Source: "normalized-jsonl-authorized-import", Ref: authorizedRef }] }
+      }; } };
+    }
+    throw Error("unexpected route " + url.pathname);
+  });
+  const f = env.fields;
+  f.discover.handlers.click();
+  await flush(); await flush();
+  const list = f["case-options"];
+  assert.equal(list.disabled, false);
+  assert.equal(list.children.length, 2);
+  assert.equal(list.children[1].value, selected);
+  list.value = selected;
+  list.handlers.change();
+  assert.equal(f["case-id"].value, selected);
+
+  f.load.handlers.click();
+  await flush(); await flush();
+  assert.equal(env.requests.filter(r => r.url.pathname === "/case-timeline").length, 1);
+
+  f["local-search-field"].value = "preview";
+  f["local-search-value"].value = "authentication";
+  f["local-search-from"].value = "2026-10-17T10:00:00";
+  f["local-search-to"].value = "2026-10-17T10:05:00";
+  f["local-search-run"].handlers.click();
+  await flush(); await flush();
+  assert.match(f["local-search-status"].textContent, /job-exact-case terminé/);
+  assert.equal(env.requests.filter(r => r.url.pathname === "/demo-local-search").length, 1);
+
+  // Changing to the other valid Case is a security-scope transition, even
+  // though the only difference is whitespace around its opaque identity.
+  list.value = "case-disk";
+  list.handlers.change();
+  assert.equal(f["case-id"].value, "case-disk");
+  assert.equal(f["local-search-results"].children.length, 0);
+  assert.match(f["local-search-provenance"].textContent, /Aucune provenance/);
+});
+
+test("two-Case triage keeps target owner ID distinct from whitespace alias", async () => {
+  const left = "case-disk";
+  const right = "case-disk ";
+  const env = boot((url) => {
+    assert.equal(url.pathname, "/case-timeline");
+    const id = url.searchParams.get("case_id");
+    assert.ok(id === left || id === right, "the compare route must not fabricate a normalized Case");
+    return page(Number(url.searchParams.get("offset")), 1);
+  });
+  env.fields["compare-case"].value = right;
+  env.fields.compare.handlers.click();
+  await flush(); await flush();
+  const used = env.requests.filter(r => r.url.pathname === "/case-timeline")
+    .map(r => r.url.searchParams.get("case_id"));
+  assert.ok(used.includes(left) && used.includes(right),
+    "independently authorized Cases may have distinct whitespace-significant IDs");
+});
