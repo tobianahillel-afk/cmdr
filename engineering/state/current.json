@@ -17,9 +17,9 @@
     "phase_title": "Scaled product implementation program bootstrap"
   },
   "execution": {
-    "active_work_unit": "E10-INV-101P-INSPECT",
+    "active_work_unit": "E10-INV-101Q-BROWSER",
     "preferred_next_unit": null,
-    "selection_rule": "2026-10-19: canonical CAP-INV-101 §17 Queue→Inspector data projection missing on verified PR #146; E10-INV-101P-INSPECT implements server-authorized inspect_case over same filtered/paged Case Queue, no new owner/IAM/UI. Branch is child of immutable PR #146 HEAD 6a7a265b473def439d19f2a43bc381feac6256df. Work status IMPLEMENTED only; exact HEAD CI pending at state-cache update and L2/native approval not established. Parent stack and main remain draft/unmerged; reconcile GitHub before choosing next unit."
+    "selection_rule": "2026-10-19: CAP-INV-101 native API #147 exact HEAD b989d5d1284b8e7b8370021019a49b042d346d7e had engineering-kernel #39311482545 SUCCESS (state cache incorrectly said pending); #147 IMPLEMENTED, parent still DRAFT/nonmerged, independent L2 already executed but no native APPROVED. New E10-INV-101Q-BROWSER materially consumes the same first-party authorized Queue projection through an opt-in same-origin read-only UI. Code/manifest published on a child branch. Only IMPLEMENTED until exact-head CI/L2 and integration review; do not promote full CAP-INV-101 or assume ancestors merged."
   },
   "reconciliation": {
     "required_on_resume": true,
