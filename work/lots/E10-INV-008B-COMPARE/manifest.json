@@ -1,0 +1,126 @@
+{
+  "schema_version": 2,
+  "id": "E10-INV-008B-COMPARE",
+  "title": "Compare two individually authorized completed Search Job run summaries in memory",
+  "type": "lot",
+  "goal": "After a completed first-party owner-authorized Search Job, let the analyst pin bounded provenance metadata for an in-memory reference, run a distinct authorized search for the same Case/session, and compare counts, Query versions and UTC scopes without persisting a Trace, bearer, source name or event reference.",
+  "depends_on": [
+    "E10-INV-008A-PROVENANCE"
+  ],
+  "parent": "E10-INV-008",
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-008",
+      "CAP-INV-002",
+      "CAP-INV-004",
+      "CAP-INV-007"
+    ],
+    "requirements": [
+      "REQ-PROD-014",
+      "REQ-PROD-020",
+      "REQ-AI-002"
+    ],
+    "screens": [],
+    "permissions": [],
+    "open_decisions": [
+      "OPEN-015",
+      "OPEN-013"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/frontend-state-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/search-job.md",
+      "cmdr-product-spec/05-domain-model/objects/telemetry-event.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/investigation-timeline/cmd/case-timeline-demo/analyst.html",
+    "product-runtime/investigation-timeline/cmd/case-timeline-demo/analyst.js",
+    "product-runtime/investigation-timeline/cmd/case-timeline-demo/analyst_summary.test.cjs",
+    "product-runtime/investigation-timeline/cmd/case-timeline-demo/analyst_return.test.cjs",
+    "work/lots/E10-INV-008B-COMPARE/**",
+    "work/graph.json",
+    "engineering/state/current.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/event-search/**",
+    "tools/cmdr-dev/**"
+  ],
+  "invariants": [
+    "Both compared runs must originate from the existing completed first-party owner-authorized Search Job; the second run never borrows the first run's source authority.",
+    "Store only bounded numeric aggregates and safe Job metadata in ephemeral JS memory; no raw result refs, source names, bearer, event payload, audit body or new fetch.",
+    "Missing metadata is explicitly unavailable; never claim causal change, actor, historical integrity, Shared Trace or accepted canonical CAP-INV-008.",
+    "OPEN-015 and OPEN-013 remain unresolved. Browser placement remains a synthetic lab boundary."
+  ],
+  "security_properties": [
+    "The comparison baseline is destroyed on token/Case/Timeline context change or any denied/invalid Search Job.",
+    "A second Job can only compare against the same Case and owner-scope revision and must have different RunID.",
+    "No additional source requests, credential retention or browser persistent storage; no partial comparison after failure."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Ephemeral browser-only provenance projection, no new database or audit event.",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Remove optional ephemeral baseline button and diff panel; retain CAP-INV-008A single-run provenance unchanged.",
+    "verification": [
+      "Existing source-authorized Event Search and CAP-INV-007 result workspace tests continue unchanged."
+    ]
+  },
+  "inputs": [
+    "Already owner-authorized completed Event Search Job from the transient CAP-INV-008A first-party browser.",
+    "Operator explicitly pins safe bounded run metadata and executes a second owner-authorized completed job in the same Case and bearer scope.",
+    "Canonical CAP-INV-008 Class-0 run comparison semantics and canonical Shared Search Job type."
+  ],
+  "outputs": [
+    "A deterministic two-run transient difference of counts, Query version and UTC scope, never a persisted Trace.",
+    "Browser tests showing two real completed authorized Job responses and cleanup on bearer/Case/denied second Job.",
+    "Traceable exact SHA GitHub CI status and independent material L2 handoff."
+  ],
+  "acceptance_tests": [
+    "Two successively completed owner-authorized Search Jobs produce an in-memory summary difference of result counts, source/error/audit counts and Query/UTC metadata.",
+    "Missing source or failure metadata produces unavailable rather than zero; never retain raw labels/ref IDs in comparison.",
+    "Rotating bearer/Case or rejecting malformed/foreign second Job clears prior baseline and publishes no partial comparison.",
+    "Run exact HEAD runtime and security CI without waiving mandatory coverage."
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "O(1) bounded provenance metadata and count comparison; no new remote query beyond an operator-requested Search Job.",
+    "metrics": [
+      "O(1) comparison; at most two records in ephemeral provenance state.",
+      "No extra source dereference or HTTP endpoint."
+    ]
+  },
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-RUNTIME-DEPS",
+    "CHK-SECURITY-TESTS"
+  ],
+  "definition_of_ready": [
+    "Engineering source CAP-INV-008A is IMPLEMENTED on frozen parent SHA but not VERIFIED; this bounded extension is only a development candidate, never a release-ready unit until the parent 90% security gate passes.",
+    "Class-0 Compare runs is explicitly canonical, uses pre-existing Job and temporary browser state only, and does not require OPEN-015 storage.",
+    "Expected production change is limited to the existing one Search Job UI context and 2 executable files."
+  ],
+  "definition_of_done": [
+    "Real browser behavior test two different completed authorized runs in same scope, missing metadata and no secret/ref disclosure.",
+    "Bearer/Case changes and malformed second Job discard comparison; no additional network/source requests.",
+    "Exact HEAD Linux Go+Node/macOS/Windows and mandatory unchanged 90% engineering security gate reported, independent L2 review when published."
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 2,
+    "estimated_net_loc": 90,
+    "production_files": 2,
+    "net_production_loc": 82,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 0,
+    "separately_testable_behaviors": 1
+  }
+}
