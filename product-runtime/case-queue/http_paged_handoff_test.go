@@ -62,7 +62,7 @@ func TestNativePagedQueueOpenAndReturnKeepsCurrentAuthorizedPage(t *testing.T) {
 		len(state.Sort)!=1 || state.Sort[0].Field!="title" {
 		t.Fatalf("round trip lost source page, selection, filters or scroll: %+v",state)
 	}
-	if aclCalls!=20 { // five actual HTTP operations * all four source ACL checks
+	if aclCalls!=16 { // four successful HTTP operations * four source ACL checks
 		t.Fatalf("some paged open/return skipped a current Case ACL pass: %d",aclCalls)
 	}
 	for _,v:=range []string{"private-case","HIDDEN-DENIED-CASE","Bearer operator"} {
