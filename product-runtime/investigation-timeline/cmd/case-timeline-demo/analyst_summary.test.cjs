@@ -20,7 +20,7 @@ const ids = [
   "wazuh-search-to", "wazuh-search-run", "wazuh-search-status", "wazuh-search-results",
   "wazuh-search-bursts",
   "wazuh-replay-save", "wazuh-replay-file",
-  "local-search-field", "local-search-family", "local-search-value", "local-search-from", "local-search-to", "local-search-run", "local-search-status", "local-search-results", "local-search-workspace-status", "local-search-workspace-actions",
+  "local-search-field", "local-search-family", "local-search-value", "local-search-from", "local-search-to", "local-search-run", "local-search-status", "local-search-results", "local-search-workspace-status", "local-search-workspace-actions", "local-search-provenance",
   "comparison-trace-actions", "comparison-trace-results"
 ];
 function node() {
@@ -2351,4 +2351,82 @@ test("CAP-INV-007 selected-result inspection reauthorizes typed source and denie
   await flush();
   assert.equal(env.requests.length,4,"stale selected results must not reopen after bearer rotation");
   assert.equal(f["local-search-workspace-actions"].children.length,0);
+});
+
+test("CAP-INV-008 renders only completed authorized Search Job provenance and clears it on scope change", async () => {
+  const ref = "local-jsonl-entry-"+"a".repeat(64);
+  const env = boot((url,options) => {
+    assert.equal(url.pathname, "/demo-local-search");
+    assert.equal(url.search, "", "Query, tokens and provenance never enter URLs");
+    assert.equal(options.method, "POST");
+    return {ok:true,async json(){return {
+      format:"cmdr-local-jsonl-event-search-v1", synthetic:true, case_id:"case-disk",
+      job:{
+        ID:"owner-authorized-job",RunID:"stable-run-123",State:"completed",
+        AuditTrail:[{Action:"search-job.create"},{Action:"search-job.start"},{Action:"search-job.finish"}],
+        ResultRefs:[{Source:"normalized-jsonl-authorized-import",Ref:ref}],
+        FailedSources:[],
+        Provenance:{
+          QueryVersion:"normalized-jsonl-rendered-literal-v1",
+          TimeStart:"2026-10-17T09:59:00Z",
+          TimeEnd:"2026-10-17T10:03:00Z",
+          Sources:["private-sensitive-source-label"]
+        }
+      }
+    }}};
+  });
+  const f=env.fields;
+  f["local-search-family"].value="all";
+  f["local-search-field"].value="source_ref";
+  f["local-search-value"].value="local-jsonl-source-";
+  f["local-search-from"].value="2026-10-17T09:59:00";
+  f["local-search-to"].value="2026-10-17T10:03:00";
+  f["local-search-run"].handlers.click();
+  await flush();await flush();
+  const view=f["local-search-provenance"].textContent;
+  assert.match(view,/CAP-INV-008/);
+  assert.match(view,/stable-run-123/);
+  assert.match(view,/normalized-jsonl-rendered-literal-v1/);
+  assert.match(view,/2026-10-17T09:59:00.000Z/);
+  assert.match(view,/sources déclarées 1/);
+  assert.match(view,/sources en échec 0/);
+  assert.match(view,/événements d.audit du Job 3/);
+  assert.match(view,/Auteur, transformations, automatisation et liens Case : non fournis/);
+  for (const secret of ["ephemeral-token","private-sensitive-source-label",ref]) {
+    assert.equal(view.includes(secret),false,"provenance exposed raw/ref/credential");
+  }
+  assert.equal(env.requests.length,1,"provenance must not issue additional source or Trace fetches");
+  f["local-search-value"].value="different";
+  f["local-search-value"].handlers.input();
+  assert.match(f["local-search-provenance"].textContent,/Aucune provenance/);
+  f["token"].value="new-session";
+  f["token"].handlers.input();
+  assert.match(f["local-search-provenance"].textContent,/Aucune provenance/);
+});
+
+test("CAP-INV-008 missing provenance stays explicitly partial and invalid Job publishes no trace",async()=>{
+  const id="local-jsonl-entry-"+"b".repeat(64);
+  let foreign=false;
+  const env=boot(()=>({ok:true,async json(){return {
+    format:"cmdr-local-jsonl-event-search-v1",synthetic:true,case_id:"case-disk",
+    job:{ID:"partially-described-run",State:"completed",AuditTrail:[{},{},{}],
+      ResultRefs:[{Source:"normalized-jsonl-authorized-import",
+        Ref:foreign?"local-jsonl-entry-foreign":id}]}
+  }}}));
+  const f=env.fields;
+  f["local-search-family"].value="all";
+  f["local-search-field"].value="source_ref";
+  f["local-search-value"].value="local-jsonl-source-";
+  f["local-search-from"].value="2026-10-17T09:59:00";
+  f["local-search-to"].value="2026-10-17T10:03:00";
+  f["local-search-run"].handlers.click();
+  await flush();await flush();
+  assert.match(f["local-search-provenance"].textContent,/Provenance partielle/);
+  assert.match(f["local-search-provenance"].textContent,/indisponible/);
+  assert.equal(f["local-search-provenance"].textContent.includes("ephemeral-token"),false);
+  foreign=true;
+  f["local-search-run"].handlers.click();
+  await flush();await flush();
+  assert.match(f["local-search-provenance"].textContent,/Aucune provenance/);
+  assert.equal(f["local-search-results"].children.length,0);
 });
