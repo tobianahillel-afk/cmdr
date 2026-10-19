@@ -137,7 +137,7 @@ func TestNativeQueueHTTPFailsClosedOnUntrustedScopeAndOwnerFailure(t *testing.T)
 	}
 	for _,raw:=range []string{
 		"/case-queue?tenant=other", "/case-queue?q=one&q=two",
-		"/case-queue?q=%00", "/case-queue?q=%0A", "/case-queue?q=abc&owner=admin",
+		"/case-queue?q=%00", "/case-queue?q=%0A", "/case-queue?q=abc&access_decision=allow",
 		"/case-queue?q="+strings.Repeat("x",257),
 	} {
 		p:=queueProviderFunc(func(context.Context,QueueScope)([]CaseSnapshot,error){t.Fatal("untrusted request reached provider");return nil,nil})
