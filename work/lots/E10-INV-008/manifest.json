@@ -36,7 +36,7 @@
   },
   "allowed_paths": [
     "work/lots/E10-INV-008/**",
-    "work/lots/E10-INV-008A-RUN-PROVENANCE/**",
+    "work/lots/E10-INV-008A-PROVENANCE/**",
     "work/graph.json",
     "engineering/state/current.json"
   ],
@@ -70,7 +70,7 @@
     "Existing transient Class-0 Search Job workspace, verified runtime dependencies and OPEN-015 limitations."
   ],
   "outputs": [
-    "E10-INV-008A-RUN-PROVENANCE bounded lot with independent exact-sha browser proof.",
+    "E10-INV-008A-PROVENANCE bounded lot with independent exact-sha browser proof.",
     "Later Shared-owned Trace persistence and audit hook work only under accepted product authority."
   ],
   "acceptance_tests": [
