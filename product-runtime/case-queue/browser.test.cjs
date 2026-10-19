@@ -373,7 +373,7 @@ test("return rechecks current Case source authorization; a revoked Inspector ref
  await tick();
  h.nodes.get("workspace-return").events.get("click")();
  await tick();await tick();await tick();
- assert.match(h.requests[4].uri,/inspect_case=+exact+opaque+Case+/);
+ assert.match(h.requests[4].uri,/inspect_case=\+exact\+opaque\+Case\+/);
  assert.equal(h.requests[4].options.credentials,"same-origin");
  assert.equal(h.nodes.get("selection").hidden,true);
  assert.equal(h.nodes.get("workspace-handoff").hidden,true);
