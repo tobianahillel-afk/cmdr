@@ -2009,6 +2009,19 @@
         "E10-INV-101N-RETURN"
       ],
       "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-INV-101P-INSPECT"
+      ]
+    },
+    {
+      "id": "E10-INV-101P-INSPECT",
+      "title": "Inspect current independently authorized Case Queue row without Workspace handoff",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-INV-101O-INCIDENT"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
       "unlocks": []
     }
   ]
