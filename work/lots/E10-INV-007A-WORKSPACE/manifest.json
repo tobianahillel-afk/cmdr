@@ -8,7 +8,7 @@
     "E10-INV-002G",
     "E10-INV-110E"
   ],
-  "parent": "",
+  "parent": "E10-INV-007",
   "product_refs": {
     "capabilities": [
       "CAP-INV-007",
