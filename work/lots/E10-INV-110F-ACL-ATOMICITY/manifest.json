@@ -1,0 +1,123 @@
+{
+  "schema_version": 2,
+  "id": "E10-INV-110F-ACL-ATOMICITY",
+  "title": "Verify all-or-nothing authorized Case discovery under late ACL provider failure",
+  "type": "task",
+  "goal": "Close a material read-only Case discovery authorization verification gap: a late second-Case AccessChecker error, invalid decision or cancellation must not publish a partially authorized Case catalog or private ID.",
+  "parent": "E10-INV-110",
+  "depends_on": [
+    "E10-INV-110E"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-110"
+    ],
+    "requirements": [
+      "REQ-PROD-014",
+      "REQ-PROD-018"
+    ],
+    "screens": [
+      "INV-TIM-001"
+    ],
+    "permissions": [],
+    "open_decisions": [
+      "OPEN-013"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/error-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/case.md",
+      "cmdr-product-spec/05-domain-model/objects/timeline-entry.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/investigation-timeline/case_discovery_atomic_acl_test.go",
+    "work/lots/E10-INV-110F-ACL-ATOMICITY/**",
+    "work/graph.json",
+    "engineering/state/current.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "tools/cmdr-dev/**",
+    "product-runtime/investigation-timeline/cmd/**"
+  ],
+  "invariants": [
+    "Case discovery is a read-only Class-0 projection of server-owned Case refs under CAP-INV-110; Shared owns Timeline Entry and event sources.",
+    "Catalog enumeration alone conveys no permission; each Case requires its own trusted server-derived Case read check.",
+    "An operational failure after an earlier allowed Case must not emit even a partial successful list or provider diagnostic.",
+    "No new persistence, IAM provider, Case mutation, Trace, source export, or OPEN-013 decision."
+  ],
+  "security_properties": [
+    "Never disclose any Case ID from an earlier allow when a later ACL provider returns an error or unrecognized decision.",
+    "An authenticated request-derived context revoked during subsequent Case authorization must fail before response disclosure.",
+    "AccessRequest must carry server-derived tenant/environment and bind CaseID to ObjectID and the canonical Case read permission."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Behavioral regression-only validation of existing read-only Case discovery; no runtime schema or persistent state.",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Remove only additional Case discovery adversarial integration tests; do not change existing authorization code.",
+    "verification": [
+      "Existing Case/Timeline/source owner authorization remains untouched.",
+      "The mandatory 90% security gate remains unchanged."
+    ]
+  },
+  "inputs": [
+    "Full canonical CAP-INV-110 fiche and Cases-and-Evidence owner model.",
+    "Existing read-only Case discovery HTTP handler, session resolver and AccessChecker contracts.",
+    "Observed exact-head global security coverage gap on PR #131: 89.30% below mandatory 90.00%, including uncovered Case discovery late-failure branches."
+  ],
+  "outputs": [
+    "Server-side Case discovery tests with late provider failure/unknown outcome and request-derived cancellation after first allowed Case.",
+    "No partial Case IDs or sensitive ACL diagnostic in any denial response.",
+    "Exact-head GitHub Actions results and non-fabricated handoff."
+  ],
+  "acceptance_tests": [
+    "When first Case access is allowed and second Case provider fails, discovery returns generic 404 with no first Case leak.",
+    "When second Case provider returns an unrecognized decision, discovery fails atomically rather than treating it as allow or skip.",
+    "When authenticated request context cancels inside the second Case ACL check, discovery emits no authorized Case list.",
+    "All Case permissions use server-derived tenant/environment and exact CaseID/ObjectID binding.",
+    "Exact-head Linux Go+Node, macOS and Windows runtime CI; unchanged mandatory security coverage >=90 and negative authorization/tenant gates."
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "Retain bounded existing Case catalog size; new tests use two Cases and add no runtime work.",
+    "metrics": [
+      "No new production allocations or additional permission checks per discovered Case.",
+      "Existing MaxEntries and total selector budget unchanged."
+    ]
+  },
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-RUNTIME-DEPS",
+    "CHK-SECURITY-TESTS"
+  ],
+  "definition_of_ready": [
+    "E10-INV-110E VERIFIED owner/runtime foundation exists.",
+    "Real late ACL failure branches identified in GitHub Actions security coverage diagnostics.",
+    "Test-only contribution scoped to CAP-INV-110, no new product contract or provider implementation."
+  ],
+  "definition_of_done": [
+    "Published real integration tests verify atomic refusal after a permitted first Case.",
+    "Exact published HEAD has all mandatory CI passed including unmodified 90% security floor, or stays blocked with explicit evidence.",
+    "Recoverable GitHub handoff without production/acceptance claim."
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 1,
+    "estimated_net_loc": 0,
+    "production_files": 0,
+    "net_production_loc": 0,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 0,
+    "separately_testable_behaviors": 1
+  }
+}
