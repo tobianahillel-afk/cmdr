@@ -152,6 +152,7 @@ func (h nativeQueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	query := ""
 	openCase := ""
+	inspectCase := ""
 	scrollOffset := 0
 	scrollProvided := false
 	pageLimit := 0
@@ -163,7 +164,7 @@ func (h nativeQueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// happens first; nothing here selects a tenant or confers permissions.
 	for name, values := range parameters {
 		literalLimit := 256
-		if name == "open_case" || name == "incident_id" { literalLimit = 1024 }
+		if name == "open_case" || name == "inspect_case" || name == "incident_id" { literalLimit = 1024 }
 		if len(values) != 1 || !validQueueLiteral(values[0], literalLimit) {
 			queueError(w, http.StatusBadRequest)
 			return
@@ -176,6 +177,12 @@ func (h nativeQueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			openCase = value // opaque ID; leading/trailing spaces are significant
+		case "inspect_case":
+			if strings.TrimSpace(value) == "" {
+				queueError(w, http.StatusBadRequest)
+				return
+			}
+			inspectCase = value // exact opaque ID; selected only from current authorized Queue rows
 		case "scroll":
 			parsed, err := strconv.Atoi(value)
 			if err != nil || parsed < 0 || parsed > maxReturnScroll {
@@ -228,6 +235,7 @@ func (h nativeQueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	if (scrollProvided && openCase == "") ||
+		(openCase != "" && inspectCase != "") ||
 		(pageCursor != "" && pageLimit == 0) {
 		queueError(w, http.StatusBadRequest)
 		return
@@ -347,6 +355,31 @@ func (h nativeQueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		response, err = json.Marshal(restored)
+	} else if inspectCase != "" {
+		// Shared Inspector selection consumes the SAME currently authorized
+		// Queue row as listing. It is read-only: no new owner, ACL, source
+		// traversal, Case mutation or UI implementation.
+		visible := result.Projection
+		if pageLimit != 0 {
+			page, pageErr := paginateQueueProjection(visible, pageLimit, pageCursor, currentView)
+			if pageErr != nil {
+				queueError(w, http.StatusNotFound)
+				return
+			}
+			visible = page.Projection
+		}
+		found := false
+		for _, row := range visible.Rows {
+			if row.Case.ID == inspectCase {
+				response, err = json.Marshal(row)
+				found = true
+				break
+			}
+		}
+		if !found {
+			queueError(w, http.StatusNotFound)
+			return
+		}
 	} else if openCase != "" {
 		// Reuse the existing CAP-INV-101 Class-0 handoff engine. It checks
 		// selection visibility AFTER current server ACL, filters and freshness.
