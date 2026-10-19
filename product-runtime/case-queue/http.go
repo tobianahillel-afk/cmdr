@@ -219,8 +219,7 @@ func (h nativeQueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	if (scrollProvided && openCase == "") ||
-		(pageCursor != "" && pageLimit == 0) ||
-		(pageLimit != 0 && openCase != "") {
+		(pageCursor != "" && pageLimit == 0) {
 		queueError(w, http.StatusBadRequest)
 		return
 	}
@@ -343,7 +342,8 @@ func (h nativeQueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		// Reuse the existing CAP-INV-101 Class-0 handoff engine. It checks
 		// selection visibility AFTER current server ACL, filters and freshness.
 		// The token is presentation state, not a credential or a signed grant.
-		handoff := OpenCaseWorkspace(in, openCase, scrollOffset, OriginCaseQueue)
+		handoff := openCaseWorkspaceWithPage(in, openCase, scrollOffset,
+			OriginCaseQueue, pageLimit, pageCursor)
 		if !handoff.Allowed || handoff.Handoff == nil {
 			queueError(w, http.StatusNotFound)
 			return
