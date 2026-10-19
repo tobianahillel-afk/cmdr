@@ -248,7 +248,7 @@ func TestExactOwnerCaseIDSurvivesRealPickerTimelineSearchAndSourceOpen(t *testin
 	if !found { t.Fatal("fixture lacks first Case") }
 	// Import into ONLY the whitespace-distinct Case. If any layer silently
 	// trims the selected ID, the Search Job must NOT find these events.
-	raw := []byte("{\"id\":\"opaque-owner-identity\",\"timestamp\":\"2026-10-17T10:00:00Z\",\"message\":\"Unusual PowerShell execution\"}\\n")
+	raw := []byte("{\"id\":\"opaque-owner-identity\",\"timestamp\":\"2026-10-17T10:00:00Z\",\"message\":\"Unusual PowerShell execution\"}\n")
 	importedData, err := importLocalEvents(context.Background(), data, "analyst-a", selected, raw)
 	if err != nil { t.Fatalf("selected exact-Case import failed: %v", err) }
 	ids := make(map[string]struct{})
