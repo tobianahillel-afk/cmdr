@@ -1914,6 +1914,17 @@
       ],
       "dependency_terminal_state": "IMPLEMENTED",
       "unlocks": []
+    },
+    {
+      "id": "E10-INV-101G-LOOKUP",
+      "title": "Literal search within owner-authorized Case Queue selections",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-INV-101F"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": []
     }
   ]
 }

@@ -17,9 +17,9 @@
     "phase_title": "Scaled product implementation program bootstrap"
   },
   "execution": {
-    "active_work_unit": "E10-INV-110H-BOOT",
+    "active_work_unit": "E10-INV-101G-LOOKUP",
     "preferred_next_unit": null,
-    "selection_rule": "GitHub reconciled 2026-10-19: E10-INV-110H-BOOT IMPLEMENTED child of E10-INV-110, consuming E10-INV-110G-EXACT IMPLEMENTED; PR child of frozen #136 SHA a0be908a5712ae24ec6c0ee6e791648058f9995b. Correct shared Case HTTP selector predicate now reused by local startup; meaningful Case-selection security invariant, exact-head required CI and L2 not yet accepted. Parent #36 DRAFT (763 commits,871 changed files), main bc1ec59e5e79ccbaba291e2984b0eb7d5e54129c. See work/lots/E10-INV-110H-BOOT/HANDOFF.md. No READY inferred and no production IAM/custody claimed."
+    "selection_rule": "GitHub-reconciled 2026-10-19: E10-INV-101G-LOOKUP records an IMPLEMENTED but NOT VERIFIED local Case Queue Class-0 literal lookup, correctly under E10-INV-101 and verified prerequisite E10-INV-101F; source code is an operator-local CAP-INV-110 browser integration adapter, NOT native Case Queue or production IAM. PR #138 DRAFT based on frozen PR #137 SHA b98fac7334985fb028651ff946b86f170cb048eb; required exact-HEAD runtime/engineering CI and L2 remain independent acceptance gates. Previous E10-INV-110H-BOOT remains IMPLEMENTED, not VERIFIED. main bc1ec59e5e79ccbaba291e2984b0eb7d5e54129c; #36 DRAFT 763 commits/871 files. No other READY derived; do not claim full CAP-INV-101 delivery. See work/lots/E10-INV-101G-LOOKUP/HANDOFF.md."
   },
   "reconciliation": {
     "required_on_resume": true,

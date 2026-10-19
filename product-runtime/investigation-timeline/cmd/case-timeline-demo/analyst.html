@@ -27,6 +27,9 @@
       <div class="field">
         <label for="case-options">Mes Cases accessibles</label>
         <button id="discover" type="button">Afficher mes Cases</button>
+        <label for="case-pick-filter">Rechercher un Case dans ma liste autorisée</label>
+        <input id="case-pick-filter" type="search" maxlength="96" autocomplete="off" spellcheck="false"
+               placeholder="Identifiant exact ou fragment" aria-describedby="case-discovery-status" disabled>
         <select id="case-options" aria-label="Sélectionner un Case autorisé" disabled>
           <option value="">Aucun Case chargé</option>
         </select>

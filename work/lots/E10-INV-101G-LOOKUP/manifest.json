@@ -1,0 +1,126 @@
+{
+  "schema_version": 2,
+  "id": "E10-INV-101G-LOOKUP",
+  "title": "Filter only owner-authorized Case IDs in synthetic Case Queue picker",
+  "type": "task",
+  "parent": "E10-INV-101",
+  "goal": "Let analysts find a Case within a large server-authorized Case list without re-requesting data, creating a new Case authority, or altering opaque owner-issued Case IDs.",
+  "depends_on": [
+    "E10-INV-101F"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-101",
+      "CAP-INV-110"
+    ],
+    "requirements": [
+      "REQ-PROD-014",
+      "REQ-PROD-020"
+    ],
+    "screens": [
+      "INV-CAS-001",
+      "INV-TIM-001"
+    ],
+    "permissions": [
+      "perm.investigate.case.read"
+    ],
+    "open_decisions": [],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/frontend-state-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/screen-routing-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/case.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/investigation-timeline/cmd/case-timeline-demo/analyst.html",
+    "product-runtime/investigation-timeline/cmd/case-timeline-demo/analyst.js",
+    "product-runtime/investigation-timeline/cmd/case-timeline-demo/analyst_summary.test.cjs",
+    "work/lots/E10-INV-101G-LOOKUP/**",
+    "work/graph.json",
+    "engineering/state/current.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/investigation-timeline/case_discovery.go",
+    "product-runtime/investigation-timeline/case_http.go",
+    "product-runtime/event-search/**",
+    "tools/cmdr-dev/**"
+  ],
+  "invariants": [
+    "Case owner remains Investigate; first-party server Case discovery provides the only allowed candidate list.",
+    "Only exact, already server-authorized Case IDs may be indexed; no normalization, aliasing or client permission decisions.",
+    "Filtering the selector must not change the current Case investigation, create a server request, issue a token, or reveal unapproved Case metadata.",
+    "A changed session/bearer or failed/malformed discovery clears every cached selector. No mutation, persistence, Saved View authority, source export or production IAM."
+  ],
+  "security_properties": [
+    "Case catalog remains owner-authorized, same-tenant/environment, fail-closed.",
+    "Client search cannot turn a denied Case, malformed payload or prior-session selector into a Case option.",
+    "Opaque Case IDs with meaningful whitespace are never trimmed; choosing a displayed option transports the original exact value."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Read-only session-ephemeral Case picker enhancement with no canonical Case schema, backend or durable storage change.",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Revert this optional selector filtering in the synthetic browser without changing first-party Case discovery or Timeline endpoints.",
+    "verification": [
+      "Original discovery still lists all authorized Cases and picks exact Case IDs",
+      "Denied Case data and changed bearer still invalidate cached selector choices"
+    ]
+  },
+  "inputs": [
+    "E10-INV-101F verified bounded Case Queue runtime ownership and Case read requirements",
+    "CAP-INV-101 canonical search/filter and Case Queue-to-workspace transition, excluding final Saved Views and lifecycle mutations",
+    "Existing authorized GET /demo-cases Case picker backed by first-party Case discovery and HTTP Case owner, plus exact-ID selection in PR #137"
+  ],
+  "outputs": [
+    "New local literal-ID search input beside the Case picker in synthetic analyst.html",
+    "Bounded ephemeral authorized Case list filtered without extra HTTP requests; exact-case identity and session invalidation preserved",
+    "Node behavior tests and exact-head GitHub Actions on Linux Go+Node, macOS Go, Windows Go; separate required security gate"
+  ],
+  "acceptance_tests": [
+    "After a successful owner-authorized catalog response, literal substring selects only authorized IDs and preserves whitespace-distinct Case selectors.",
+    "Filtering never generates another network call and never silently changes the current Case; user must explicitly choose a result.",
+    "Bearer revocation/in-flight stale response and denied/malformed responses leave zero cached authorized options and disabled filter.",
+    "Exact-head runtime and mandatory engineering CI checks are reported independently, without claiming full Case Queue or production acceptance."
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "Client-only bounded O(N) pass over at most 5,000 explicitly authorized Case IDs per input; no source fetch or backend filter.",
+    "metrics": [
+      "<=5000 authorized IDs, each <=1024 units; no additional Case discovery request per filter change"
+    ]
+  },
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-RUNTIME-DEPS",
+    "CHK-SECURITY-TESTS"
+  ],
+  "definition_of_ready": [
+    "E10-INV-101F is VERIFIED in current GitHub work graph",
+    "First-party owner GET /demo-cases filters unauthorized Candidates prior to response; no OPEN decision needed for local Class-0 filter",
+    "Temporary demo picker is an integration adapter, not the permanent Case Queue owner, and only listed allowed paths are modified"
+  ],
+  "definition_of_done": [
+    "One deterministic session-ephemeral Case filter is integrated into the analyst's actual Case selection workflow",
+    "No normalization, authority expansion, hidden network request or stale-token result; Node tests prove boundaries",
+    "Exact-head GitHub Actions checked and one distinct risk-based read-only L2 requested if material, with CI, merge and review states separate"
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 3,
+    "estimated_net_loc": 60,
+    "production_files": 2,
+    "net_production_loc": 42,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 0,
+    "separately_testable_behaviors": 1
+  }
+}

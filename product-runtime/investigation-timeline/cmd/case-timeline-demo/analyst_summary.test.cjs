@@ -8,7 +8,7 @@ const { test } = require("node:test");
 
 const source = fs.readFileSync(path.join(__dirname, "analyst.js"), "utf8");
 const ids = [
-  "query", "token", "case-id", "kind", "search", "case-options", "discover",
+  "query", "token", "case-id", "kind", "search", "case-options", "case-pick-filter", "discover",
   "case-discovery-status", "from", "to", "entries", "summary", "message",
   "page", "previous", "next", "load", "source-detail", "source-status",
   "return-to-case", "copy-return-link", "analyze", "analysis", "analysis-actions", "download-report",
@@ -2646,4 +2646,76 @@ test("two-Case triage keeps target owner ID distinct from whitespace alias", asy
     .map(r => r.url.searchParams.get("case_id"));
   assert.ok(used.includes(left) && used.includes(right),
     "independently authorized Cases may have distinct whitespace-significant IDs");
+});
+
+test("CAP-INV-101 literal Case lookup filters only owner-authorized selectors and preserves exact identity",async()=>{
+  const env=boot((url,opts)=>{
+    assert.equal(url.pathname,"/demo-cases");
+    assert.equal(opts.headers.Authorization,"Bearer ephemeral-token");
+    return {ok:true,async json(){return {
+      cases:["case-disk"," case-disk ","case-other"]
+    }}};
+  });
+  const f=env.fields;
+  f.discover.handlers.click();
+  await flush();
+  assert.equal(env.requests.length,1);
+  assert.equal(f["case-pick-filter"].disabled,false);
+  assert.equal(f["case-options"].disabled,false);
+  assert.match(f["case-discovery-status"].textContent,/3 autorisé/);
+  f["case-pick-filter"].value=" case-disk ";
+  f["case-pick-filter"].handlers.input();
+  assert.equal(env.requests.length,1,"local Case filter must not issue more HTTP requests");
+  assert.equal(f["case-options"].children.length,2);
+  assert.equal(f["case-options"].children[1].value," case-disk ");
+  assert.equal(f["case-options"].children[1].textContent.includes("\\u0020"),true,
+    "visible labels must distinguish whitespace-significant owner IDs");
+  f["case-options"].value=" case-disk ";
+  f["case-options"].handlers.change();
+  assert.equal(f["case-id"].value," case-disk ",
+    "Case selection must retain exact owner-issued ID through Timeline and SearchJob");
+  f["case-pick-filter"].value="does-not-exist";
+  f["case-pick-filter"].handlers.input();
+  assert.equal(f["case-options"].disabled,true);
+  assert.equal(f["case-options"].children.length,1);
+  assert.equal(f["case-id"].value," case-disk ",
+    "filtering is not authority and must never silently replace the active Case");
+  assert.equal(env.requests.length,1);
+});
+
+test("CAP-INV-101 Case search invalidates all authorized IDs on bearer change and late replies",async()=>{
+  let resolve;
+  const pending=new Promise(r=>{resolve=r;});
+  const env=boot((url,opts)=>pending);
+  const f=env.fields;
+  f.discover.handlers.click();
+  assert.equal(env.requests.length,1);
+  f.token.value="different-principal";
+  f.token.handlers.input();
+  assert.equal(f["case-pick-filter"].disabled,true);
+  assert.equal(f["case-options"].disabled,true);
+  resolve({ok:true,async json(){return {cases:["case-forbidden-old-bearer"]}}});
+  await flush();await flush();
+  assert.equal(f["case-options"].children.length,1);
+  assert.equal(f["case-pick-filter"].disabled,true);
+  assert.equal(f["case-discovery-status"].textContent.includes("case-forbidden"),false);
+  f["case-pick-filter"].value="case-forbidden";
+  f["case-pick-filter"].handlers.input();
+  assert.equal(env.requests.length,1,"revoked cached Case selectors must not be re-used");
+});
+
+test("CAP-INV-101 Case search never indexes denied or invalid Case discovery results",async()=>{
+  for(const response of [
+    {ok:false,async json(){return {cases:["private-denied"]}}},
+    {ok:true,async json(){return {cases:["case-a",null]}}},
+    {ok:true,async json(){return {cases:["case-a","x".repeat(1025)]}}}
+  ]) {
+    const env=boot(()=>response);
+    env.fields.discover.handlers.click();
+    await flush();
+    assert.equal(env.fields["case-pick-filter"].disabled,true);
+    assert.equal(env.fields["case-options"].disabled,true);
+    assert.equal(env.fields["case-options"].children.length,1);
+    assert.match(env.fields["case-discovery-status"].textContent,/Catalogue indisponible/);
+  }
 });

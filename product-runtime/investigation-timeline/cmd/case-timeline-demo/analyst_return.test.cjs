@@ -21,7 +21,7 @@ function node(tag = "div") {
 
 function boot(search = "", navigationQuery, denySource = false) {
   const ids = [
-    "query", "token", "case-id", "kind", "search", "case-options",
+    "query", "token", "case-id", "kind", "search", "case-options", "case-pick-filter",
     "discover", "case-discovery-status", "from", "to", "entries",
     "summary", "message", "page", "previous", "next", "load",
     "source-detail", "source-status", "return-to-case", "copy-return-link",
