@@ -41,6 +41,8 @@
   const localSearchRun = document.getElementById("local-search-run");
   const localSearchStatus = document.getElementById("local-search-status");
   const localSearchResults = document.getElementById("local-search-results");
+  const localWorkspaceStatus = document.getElementById("local-search-workspace-status");
+  const localWorkspaceActions = document.getElementById("local-search-workspace-actions");
   let localSearchRevision = 0;
   let localSearchRequest = null;
   function clearLocalSearch() {
@@ -49,6 +51,8 @@
     localSearchRequest = null;
     localSearchRun.disabled = false;
     localSearchResults.replaceChildren();
+    localWorkspaceActions.replaceChildren();
+    localWorkspaceStatus.textContent = "Aucun résultat à organiser.";
     localSearchStatus.textContent = "Aucune recherche JSONL exécutée.";
   }
   async function runLocalSearch() {
@@ -104,16 +108,71 @@
           job.ID.length === 0 || !Array.isArray(job.AuditTrail) ||
           job.AuditTrail.length < 3 || !Array.isArray(job.ResultRefs) ||
           job.ResultRefs.length > 200) throw Error("Incomplete authorized SearchJob");
+      // CAP-INV-007 Class-0 organization: only references returned by this
+      // completed, owner-authorized Job may enter the ephemeral workspace.
+      // Wazuh grouping uses source-owned metadata that is a strict subset of
+      // the completed Job, never a user-supplied source/permission claim.
+      const wazuhIDs = new Set();
+      if (receipt.search_hits !== undefined) {
+        if (!Array.isArray(receipt.search_hits) ||
+            receipt.search_hits.length > job.ResultRefs.length) {
+          throw Error("Untrusted SearchJob grouping metadata");
+        }
+        const authorized = new Set(job.ResultRefs.map(ref => ref.Ref));
+        for (const hit of receipt.search_hits) {
+          if (!hit || typeof hit.entry_id !== "string" ||
+              !authorized.has(hit.entry_id) || wazuhIDs.has(hit.entry_id)) {
+            throw Error("Foreign Wazuh source metadata in SearchJob");
+          }
+          wazuhIDs.add(hit.entry_id);
+        }
+      }
+      const selected = new Set(), pinned = new Set();
+      const current = () => searchRevision === localSearchRevision &&
+        selectedRevision === revision && token.value === bearer &&
+        caseID.value.trim() === selectedCase &&
+        localSearchValue.value === literal &&
+        (localSearchField.value || "preview") === selectedField &&
+        (localSearchFamily.value || "all") === selectedFamily &&
+        localSearchFrom.value === fromText && localSearchTo.value === toText;
+      let groupWazuh = 0, groupGeneric = 0;
+      const pinButton = document.createElement("button");
+      pinButton.type = "button";
+      pinButton.textContent = "Épingler la sélection dans ce Search Job";
+      const openSelected = document.createElement("button");
+      openSelected.type = "button";
+      openSelected.textContent = "Inspecter l'unique résultat sélectionné";
+      const updateWorkspace = () => {
+        pinButton.disabled = selected.size === 0;
+        openSelected.disabled = selected.size !== 1;
+        localWorkspaceStatus.textContent = "Search Job " + job.ID +
+          " : " + job.ResultRefs.length + " résultat(s) accessibles (" +
+          groupWazuh + " Wazuh, " + groupGeneric + " JSONL), " +
+          selected.size + " sélectionné(s), " + pinned.size +
+          " épinglé(s) temporairement. Pas de mutation du Case.";
+      };
       const seen = new Set(), list = document.createElement("ol");
       for (const ref of job.ResultRefs) {
         if (!ref || ref.Source !== "normalized-jsonl-authorized-import" ||
             typeof ref.Ref !== "string" || !/^local-jsonl-entry-[a-f0-9]{64}$/.test(ref.Ref) ||
             seen.has(ref.Ref)) throw Error("Foreign normalized event result");
         seen.add(ref.Ref);
+        const isWazuh = wazuhIDs.has(ref.Ref);
+        if (isWazuh) groupWazuh++; else groupGeneric++;
         const item = document.createElement("li");
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.checked = false;
+        checkbox.addEventListener("change", () => {
+          if (!current()) return;
+          if (checkbox.checked) selected.add(ref.Ref);
+          else selected.delete(ref.Ref);
+          updateWorkspace();
+        });
+        item.append(checkbox);
         const button = document.createElement("button");
         button.type = "button";
-        button.textContent = ref.Ref;
+        button.textContent = (isWazuh ? "Wazuh — " : "JSONL — ") + ref.Ref;
         button.addEventListener("click", () => {
           if (searchRevision !== localSearchRevision ||
               selectedRevision !== revision || token.value !== bearer ||
@@ -233,14 +292,30 @@
           leads.append(item);
         }
       }
+      pinButton.addEventListener("click", () => {
+        if (!current()) return;
+        for (const ref of selected) pinned.add(ref);
+        updateWorkspace();
+      });
+      openSelected.addEventListener("click", () => {
+        if (!current() || selected.size !== 1) return;
+        openSource([...selected][0]); // always reauthorizes Case and source
+      });
+      // Publish only after the ENTIRE SearchJob and correlated lead
+      // membership was validated. No persistent annotation or Case link.
       localSearchResults.replaceChildren();
       localSearchResults.append(list);
       if (leads.children.length > 0) localSearchResults.append(leads);
+      localWorkspaceActions.replaceChildren();
+      localWorkspaceActions.append(pinButton, openSelected);
+      updateWorkspace();
       localSearchStatus.textContent = "Event Search Job " + job.ID + " terminé : " +
         job.ResultRefs.length + " résultat(s) autorisé(s). Ouvrir revérifie les droits.";
     } catch {
       if (searchRevision === localSearchRevision) {
         localSearchResults.replaceChildren();
+        localWorkspaceActions.replaceChildren();
+        localWorkspaceStatus.textContent = "Aucun résultat à organiser.";
         localSearchStatus.textContent = "Recherche refusée ou trop volumineuse. Aucun résultat partiel.";
       }
     } finally {
