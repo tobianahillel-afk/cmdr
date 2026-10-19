@@ -19,7 +19,7 @@
   "execution": {
     "active_work_unit": "E10-INV-110G-EXACT",
     "preferred_next_unit": null,
-    "selection_rule": "R2 exact Case-selector browser compatibility, implemented on child of CI-green but unmerged PR #134. Backend accepts distinct opaque owner IDs with surrounding spaces; old browser trim silently opened another Case. Child source+tests published; verify this child's exact-HEAD Linux/Node/macOS/Windows and mandatory engineering security CI. Parent #134 is CI GREEN but independent L2/native approvals and PR #36 ancestry remain required; CAP-INV-110/101/002/008 production not accepted. Do not confuse earlier cached #132 89.30% failure with #134 92.31% green."
+    "selection_rule": "GitHub reconciliation 2026-10-19: E10-INV-110G-EXACT remains IMPLEMENTED, not VERIFIED/ACCEPTED. PR #135 stays DRAFT on CI-green but unmerged PR #134. Exact owner-issued Case IDs with meaningful whitespace are now preserved in browser picker, Timeline and SearchJob AND represented unambiguously as escaped visual picker labels; one focused Node owner-navigation test exercises actual exact selected identity and context invalidation. Original #135 HEAD 269598e441fc0cf3e1f7ef8c4fc91b1819e4c7a9: runtime SUCCESS, engineering-kernel FAILURE 89.30% < mandatory 90.00%. Source/test+handoff changes after that SHA require independent exact-new-HEAD GitHub Actions evidence, never transfer old green or red to new SHA. No READY node is recorded; first resolve the mandatory Go security coverage failure via risk-based design, not repetitive test variants, then native approvals and ancestor #36/#132/#134 dependencies. CAP-INV-110/101/002/008 production NOT accepted."
   },
   "reconciliation": {
     "required_on_resume": true,
