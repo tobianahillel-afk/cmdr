@@ -2430,3 +2430,97 @@ test("CAP-INV-008 missing provenance stays explicitly partial and invalid Job pu
   assert.match(f["local-search-provenance"].textContent,/Aucune provenance/);
   assert.equal(f["local-search-results"].children.length,0);
 });
+
+test("CAP-INV-008 compares two separately authorized Search Jobs in one Case with no extra source requests",async()=>{
+  let n=0;
+  const ref1="local-jsonl-entry-"+"a".repeat(64);
+  const ref2="local-jsonl-entry-"+"b".repeat(64);
+  const env=boot((url,options)=>{
+    assert.equal(url.pathname,"/demo-local-search");
+    assert.equal(url.search,"");
+    assert.equal(options.method,"POST");
+    n++;
+    return {ok:true,async json(){return {
+      format:"cmdr-local-jsonl-event-search-v1",synthetic:true,case_id:"case-disk",
+      job:{
+        ID:"job-"+n,RunID:"authorized-run-"+n,State:"completed",
+        AuditTrail:Array.from({length:n+2},(_,i)=>({Action:"audit-"+i})),
+        ResultRefs:[{Source:"normalized-jsonl-authorized-import",Ref:ref1},
+          ...(n===2?[{Source:"normalized-jsonl-authorized-import",Ref:ref2}]:[])],
+        FailedSources:n===2?["private-failed-source"]:[],
+        Provenance:{QueryVersion:"query-version-"+n,
+          TimeStart:"2026-10-17T09:59:00Z",TimeEnd:"2026-10-17T10:03:00Z",
+          Sources:n===2?["secret-feed-1","secret-feed-2"]:["secret-feed-1"]}
+      }
+    }}};
+  });
+  const f=env.fields;
+  f["local-search-family"].value="all";
+  f["local-search-field"].value="source_ref";
+  f["local-search-value"].value="local-jsonl-source-";
+  f["local-search-from"].value="2026-10-17T09:59:00";
+  f["local-search-to"].value="2026-10-17T10:03:00";
+  f["local-search-run"].handlers.click();
+  await flush();await flush();
+  assert.equal(n,1);
+  const pin=f["local-search-compare-baseline"];
+  assert.equal(pin.disabled,false);
+  pin.handlers.click();
+  assert.match(f["local-search-compare-status"].textContent,/Référence éphémère mémorisée/);
+  f["local-search-value"].value="local-jsonl-entry-";
+  f["local-search-value"].handlers.input();
+  assert.match(f["local-search-compare-status"].textContent,/Référence précédente conservée/);
+  f["local-search-run"].handlers.click();
+  await flush();await flush();
+  assert.equal(n,2,"run comparison must not add any additional HTTP request");
+  const view=f["local-search-compare-status"].textContent;
+  for (const expression of [/CAP-INV-008/,/query-version-1/,/query-version-2/,
+    /écart résultats 1/,/sources déclarées 1/,/sources en échec 1/,
+    /événements d.audit 1/,/pas de causalité/]) {
+    assert.match(view,expression);
+  }
+  for(const sensitive of ["ephemeral-token","private-failed-source","secret-feed-1",
+    "secret-feed-2",ref1,ref2]) {
+    assert.equal(view.includes(sensitive),false,"run diff disclosed source payload or bearer");
+  }
+  // A new bearer invalidates BOTH past baselines and current comparisons.
+  f.token.value="another-authenticated-session";
+  f.token.handlers.input();
+  assert.match(f["local-search-compare-status"].textContent,/Aucune comparaison/);
+  assert.equal(pin.disabled,true);
+});
+
+test("CAP-INV-008 refuses partial run comparisons after denied Search Job and preserves unknown counts",async()=>{
+  let n=0;
+  const id="local-jsonl-entry-"+"c".repeat(64);
+  let deny=false;
+  const env=boot(()=>{
+    n++;
+    return {ok:true,async json(){return {
+      format:"cmdr-local-jsonl-event-search-v1",synthetic:true,case_id:"case-disk",
+      job:{ID:"job-"+n,RunID:"run-"+n,State:"completed",
+        AuditTrail:[{},{},{}],
+        ResultRefs:[{Source:"normalized-jsonl-authorized-import",
+          Ref:deny?"unauthorized-event":id}],
+        Provenance:{QueryVersion:"v"+n,TimeStart:"2026-10-17T10:00:00Z",
+          TimeEnd:"2026-10-17T10:10:00Z"}}
+    }}};
+  });
+  const f=env.fields;
+  f["local-search-family"].value="all";
+  f["local-search-field"].value="source_ref";
+  f["local-search-value"].value="local-jsonl-source-";
+  f["local-search-from"].value="2026-10-17T09:59:00";
+  f["local-search-to"].value="2026-10-17T10:03:00";
+  f["local-search-run"].handlers.click();await flush();await flush();
+  f["local-search-compare-baseline"].handlers.click();
+  f["local-search-run"].handlers.click();await flush();await flush();
+  assert.match(f["local-search-compare-status"].textContent,/sources déclarées indisponible/);
+  assert.match(f["local-search-compare-status"].textContent,/sources en échec indisponible/);
+  deny=true;
+  f["local-search-run"].handlers.click();await flush();await flush();
+  assert.match(f["local-search-compare-status"].textContent,/Aucune comparaison/);
+  assert.equal(f["local-search-compare-baseline"].disabled,true);
+  assert.equal(f["local-search-results"].children.length,0);
+  assert.equal(env.requests.length,3);
+});
