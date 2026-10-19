@@ -12,6 +12,14 @@ import (
 
 const maxHTTPCaseIDBytes = 1024
 
+// The Case picker and Case Timeline must apply identical selector rules.
+// Candidate Case IDs come from an owner provider, not from an HTTP request,
+// but must remain safe, reopenable HTTP selectors after authorization.
+func validHTTPCaseSelector(id string) bool {
+	return !invalidScope(id) && len(id) <= maxHTTPCaseIDBytes &&
+		utf8.ValidString(id) && !strings.ContainsAny(id, "\x00\r\n")
+}
+
 // CaseTimelineSessionResolver authenticates a request at the server boundary.
 // It must return a context derived from the request carrying the verified
 // principal, plus the server-derived tenant/environment; not browser headers.
@@ -67,8 +75,7 @@ func (h *CaseTimelineHTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Reque
 		writeCaseTimelineError(w, http.StatusBadRequest)
 		return
 	}
-	if invalidScope(caseID) || len(caseID) > maxHTTPCaseIDBytes ||
-		!utf8.ValidString(caseID) || strings.ContainsAny(caseID, "\x00\r\n") {
+	if !validHTTPCaseSelector(caseID) {
 		writeCaseTimelineError(w, http.StatusBadRequest)
 		return
 	}
