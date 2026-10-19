@@ -1,0 +1,120 @@
+{
+  "schema_version": 2,
+  "id": "E10-INV-002H-REVOCATION",
+  "title": "Prevent partial Event Search results when a second source is revoked during a completed Case hunt",
+  "type": "task",
+  "parent": "E10-INV-002",
+  "goal": "Verify the actual first-party Event Search Job refuses the entire response when an in-window but nonmatching source is revoked, or the request is cancelled, after an earlier authorized result. Close a real source-auth fail-closed coverage gap without changing product semantics or bypassing mandatory runtime coverage.",
+  "depends_on": [
+    "E10-INV-002G",
+    "E10-INV-110E"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-002",
+      "CAP-INV-110"
+    ],
+    "requirements": [
+      "REQ-PROD-014",
+      "REQ-PROD-018",
+      "REQ-PROD-019"
+    ],
+    "screens": [
+      "INV-TIM-001"
+    ],
+    "permissions": [
+      "perm.investigate.case.read"
+    ],
+    "open_decisions": [],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/case.md",
+      "cmdr-product-spec/05-domain-model/objects/telemetry-event.md",
+      "cmdr-product-spec/05-domain-model/objects/search-job.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/investigation-timeline/cmd/case-timeline-demo/normalized_search_revocation_integration_test.go",
+    "work/lots/E10-INV-002H-REVOCATION/**",
+    "work/graph.json",
+    "engineering/state/current.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/event-search/**",
+    "product-runtime/investigation-timeline/cmd/case-timeline-demo/normalized_search.go",
+    "tools/cmdr-dev/**"
+  ],
+  "invariants": [
+    "An owner-authorized earlier Search Job hit is never serialized if any subsequent in-window imported source becomes unavailable.",
+    "An unrelated nonmatching imported source must STILL undergo owner typed-source authorization before family/text filtering.",
+    "No partial first-party results, source IDs, raw preview or bearer on failed/cancelled request.",
+    "No weakening of mandatory security coverage floor or change to existing Case, Timeline or SearchJob schemas."
+  ],
+  "security_properties": [
+    "Server owner reauthorizes every relevant candidate, not the browser or client payload.",
+    "Test a real completed first-party successful source hunt as positive control.",
+    "Revoked source and cancelled request must return no Search Job or partial result."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Only regression test and explicit handoff, no runtime contract, persistence or schema change.",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Remove only the new integration regression test; existing first-party source validation and checks remain.",
+    "verification": [
+      "Previously successful runtime Go+Node and cross-OS tests still run."
+    ]
+  },
+  "inputs": [
+    "CAP-INV-002 canonical source-specific permission enforcement",
+    "Existing Case/Timeline owner and normalized offline imported-event first-party Event Search Job",
+    "Changed-security-critical runtime Go coverage fallback on PR #135 is 89.30% under unchanged mandatory 90%."
+  ],
+  "outputs": [
+    "A real two-event, in-window Search Job with an earlier match and later benign non-match.",
+    "Source owner revocation or request cancellation at the second typed-source opening denies the ENTIRE Job; no partial ref leakage.",
+    "Exact GitHub SHA and CI evidence, distinguishing functional gate vs release gate."
+  ],
+  "acceptance_tests": [
+    "Positive-control actual POST /demo-local-search returns exactly one previously owner-authorized result.",
+    "When the second, nonmatching source is revoked during the same request, the HTTP search fails and discloses no prior hit or metadata.",
+    "When context is cancelled during second source resolution, the HTTP search fails without partially completed Job.",
+    "linux Go/Node and macOS/Windows runtime CI and 90% security coverage checked without waiver."
+  ],
+  "performance_budget": {
+    "applicable": false,
+    "rationale": "No runtime behavior changed, one bounded deterministic two-event regression."
+  },
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-RUNTIME-DEPS",
+    "CHK-SECURITY-TESTS"
+  ],
+  "definition_of_ready": [
+    "Canonical Class-0 Search Job must remain permission-aware and source-scoped; parent E10-INV-002G and E10-INV-110E were marked VERIFIED; no OPEN decision is assumed resolved.",
+    "Explicit new engineering unit rather than reclassifying E10-INV-110G frontend selector or altering its frozen SHA.",
+    "Existing owner services and test fixtures suffice, no new production interfaces."
+  ],
+  "definition_of_done": [
+    "A real first-party Search Job suite documents the revocation and cancellation property.",
+    "PR is published as draft based on frozen #135 and all exact-head required checks read.",
+    "Unit is never marked VERIFIED or parent accepted with mandatory coverage below 90% or outstanding native approvals."
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 1,
+    "estimated_net_loc": 0,
+    "production_files": 0,
+    "net_production_loc": 0,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 0,
+    "separately_testable_behaviors": 1
+  }
+}
