@@ -1,0 +1,126 @@
+{
+  "schema_version": 2,
+  "id": "E10-INV-008A-RUN-PROVENANCE",
+  "title": "Display read-only owner-authorized completed Search Job provenance and explicit gaps",
+  "type": "lot",
+  "goal": "Expose a bounded read-only run provenance projection (RunID, QueryVersion, UTC period, source/failure counts, audit count, missing evidence) from the same completed owner-authorized Search Job powering CAP-INV-007 transient workspace, with no new Trace persistence or source reads.",
+  "depends_on": [
+    "E10-INV-002G",
+    "E10-INV-110E"
+  ],
+  "parent": "E10-INV-008",
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-008",
+      "CAP-INV-002",
+      "CAP-INV-004",
+      "CAP-INV-007"
+    ],
+    "requirements": [
+      "REQ-PROD-014",
+      "REQ-PROD-020",
+      "REQ-AI-002"
+    ],
+    "screens": [],
+    "permissions": [],
+    "open_decisions": [
+      "OPEN-015",
+      "OPEN-013"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/frontend-state-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/search-job.md",
+      "cmdr-product-spec/05-domain-model/objects/telemetry-event.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/investigation-timeline/cmd/case-timeline-demo/analyst.html",
+    "product-runtime/investigation-timeline/cmd/case-timeline-demo/analyst.js",
+    "product-runtime/investigation-timeline/cmd/case-timeline-demo/analyst_summary.test.cjs",
+    "work/lots/E10-INV-008A-RUN-PROVENANCE/**",
+    "work/graph.json",
+    "engineering/state/current.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/event-search/**",
+    "tools/cmdr-dev/**"
+  ],
+  "invariants": [
+    "CAP-INV-008 semantics belong to Investigate; Search Job/Telemetry and canonical Trace remain Shared-owned; do not create a parallel provenance engine.",
+    "Only the exact already completed first-party owner-authorized SearchJob may feed the browser; no additional private source dereference or credential persistence.",
+    "Missing origin author, automation/tool calls, transformations, Case links and version fields must display as unavailable, not be invented.",
+    "OPEN-015 forbids claiming persistent Trace, and OPEN-013 remains untouched."
+  ],
+  "security_properties": [
+    "Display only bounded safe run metadata and source/failure counts, not raw source labels, previews, token, tenant identifiers or event IDs.",
+    "A new Case/bearer/query/filter invalidates the displayed provenance; rejected or malformed SearchJob never leaves a partial provenance panel.",
+    "All actual Case/source permission reauthorization remains server-owned, unchanged."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Ephemeral browser-only provenance projection, no new database or audit event.",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Remove read-only provenance panel while keeping Class-0 workspace and source navigation unchanged.",
+    "verification": [
+      "Existing CAP-INV-007 browser tests and first-party Go runtime unchanged."
+    ]
+  },
+  "inputs": [
+    "Full CAP-INV-008 canonical fiche and Shared SearchJob type.",
+    "Completed authorized Event Search Job receipt in existing CAP-INV-007 local workspace."
+  ],
+  "outputs": [
+    "Transient provenance panel from completed authorized run with explicit unknown fields.",
+    "Fail-closed browser tests for scope changes, partial run metadata and invalid SearchJob.",
+    "Bounded GitHub handoff with exact CI and dependencies."
+  ],
+  "acceptance_tests": [
+    "A completed owner-authorized SearchJob shows RunID, QueryVersion, UTC interval, only counts of sources/failures and audit events, without additional HTTP/source requests.",
+    "A missing provenance field remains explicitly unavailable; never fabricate actor, automation, transformation, links or full trace.",
+    "Changing bearer, Case or search criteria clears provenance; invalid or foreign SearchJob never publishes partial provenance.",
+    "Exact-head Linux Node+Go, macOS/Windows Go and mandatory engineering-kernel unchanged 90% floor are independently checked."
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "At most 200 first-party search results; projection is constant time plus bounded Sources/FailedSources array length checks.",
+    "metrics": [
+      "No additional HTTP requests.",
+      "No persistence or source enumeration.",
+      "O(1) displayed metadata."
+    ]
+  },
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-RUNTIME-DEPS",
+    "CHK-SECURITY-TESTS"
+  ],
+  "definition_of_ready": [
+    "CAP-INV-008 Class-0 read-only view permitted and first-party Search Job owner available.",
+    "OPEN-015 prevents only storage/retention, which is formally excluded.",
+    "Reuse existing ephemeral result browser; no new service."
+  ],
+  "definition_of_done": [
+    "Browser tests prove authorized completed run, partial provenance, no source metadata leakage and stale invalidation.",
+    "Exact published HEAD CI and independent L2 status recorded without falsely elevating full CAP.",
+    "Prior Go security coverage remains mandatory, no waiver."
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 2,
+    "estimated_net_loc": 75,
+    "production_files": 2,
+    "net_production_loc": 72,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 0,
+    "separately_testable_behaviors": 1
+  }
+}
