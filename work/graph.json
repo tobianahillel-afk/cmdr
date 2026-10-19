@@ -2074,6 +2074,19 @@
         "E10-INV-101S-FILTERS"
       ],
       "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-INV-101U-SELECTION"
+      ]
+    },
+    {
+      "id": "E10-INV-101U-SELECTION",
+      "title": "Restore server-authorized selected Case after current Workspace Queue return",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-INV-101T-WORKSPACE"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
       "unlocks": []
     }
   ]

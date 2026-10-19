@@ -128,14 +128,28 @@
       const sort = returned.sort.map(x => x.field + ":" + x.direction).join(",");
       if (sort !== oldApplied.sort) throw new Error("returned Queue sorting differs");
       clearWorkspace();
-      // POST validates the old page, but a NEW GET must still independently
-      // reauthorize it before any Case is displayed or the scroll restored.
-      await load(oldCursor);
-      if (workspaceGeneration !== current + 1 || status.textContent.includes("unavailable")) return;
+      // The POST alone is not an authorization decision for the displayed
+      // selection. Re-fetch the original page, then independently re-inspect
+      // the exact currently visible Case before restoring its selection.
+      const restoredRows = await load(oldCursor);
+      if (workspaceGeneration !== current + 1) return;
+      const selectedIndex = restoredRows && restoredRows.findIndex(
+        row => row && row.case && row.case.id === caseID);
+      if (selectedIndex === null || selectedIndex < 0) {
+        throw new Error("returned Case is no longer on the authorized page");
+      }
+      const trigger = tbody.children[selectedIndex].children[0].children[0];
+      const inspected = await inspectCase(caseID, trigger);
+      if (workspaceGeneration !== current + 1) return;
+      if (!inspected) throw new Error("returned Case selection no longer authorized");
       if (typeof window.scrollTo === "function") window.scrollTo(0,returned.scroll_offset);
     } catch (_) {
-      if (current !== workspaceGeneration) return;
+      // After a successful POST, clearWorkspace() invalidated the transient
+      // token exactly once. Failures in the fresh page/Inspector steps still
+      // MUST clear private rows; only a newer independent navigation wins.
+      if (current !== workspaceGeneration && current + 1 !== workspaceGeneration) return;
       clearWorkspace();
+      clearSelection();
       clearRows();
       first.disabled = next.disabled = true;
       status.textContent = "Case Queue return denied or stale. Apply filters to reload access.";
@@ -203,10 +217,12 @@
       selected.hidden = false;
       selectionTrigger = trigger;
       selectedClose.focus();
+      return true;
     } catch (_) {
       if (currentSelection !== selectionGeneration || currentPage !== generation) return;
       clearSelection();
       selectedStatus.textContent = "Case selection unavailable or permission changed.";
+      return false;
     }
   }
   selectedClose.addEventListener("click", () => {
@@ -280,6 +296,7 @@
       const data = await reply.json();
       if (current !== generation) return;
       render(data);
+      return data.rows;
     } catch (err) {
       if (current !== generation) return;
       clearRows();
@@ -288,6 +305,7 @@
       first.disabled = next.disabled = true;
       page.textContent = "Page 1";
       status.textContent = "Case Queue unavailable. Retry your search; no old Case data is displayed.";
+      return null;
     }
   }
   search.addEventListener("submit", event => {

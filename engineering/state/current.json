@@ -17,9 +17,9 @@
     "phase_title": "Scaled product implementation program bootstrap"
   },
   "execution": {
-    "active_work_unit": "E10-INV-101T-WORKSPACE",
+    "active_work_unit": "E10-INV-101U-SELECTION",
     "preferred_next_unit": null,
-    "selection_rule": "2026-10-19: parent PR #150 exact SHA a5034c3dfb6ae23a9fa61725e7d9057277db72fe engineering-kernel 39320552192 SUCCESS; no READY nodes after E10-INV-101S. Canonical CAP-INV-101 §17/25 native browser lacked server-authorized Workspace handoff+return despite J/K/N backend. Created bounded child T under existing engineering epic E10-INV-101, same code owner, added browser handoff and POST return reauthorization. T IMPLEMENTED on child branch awaiting exact-head CI and independent L2; NOT VERIFIED/accepted/merged, actual full Workspace UI excluded."
+    "selection_rule": "2026-10-19: CAP-INV-101 §25 exact selected Case restoration was not delivered by parent T despite exact-head CI success run 39323528195. Child U implements bounded GET return page + independent current Inspector GET before restoring selection. U IMPLEMENTED on fresh child branch, exact HEAD CI and independent L2 still required, no product acceptance or merge. Long draft PR stack unresolved; do not select further Queue micro-units while these gates remain pending."
   },
   "reconciliation": {
     "required_on_resume": true,
