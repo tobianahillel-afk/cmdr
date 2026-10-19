@@ -26,6 +26,20 @@
 <button id="next" type="button" disabled>Next page</button>
 </nav>
 </section>
+<section id="selection" class="selection" aria-label="Current authorized Case selection" hidden>
+<div class="selection-heading"><h2>Case details — read-only</h2><button id="selection-close" type="button">Close details</button></div>
+<p id="selection-status" role="status" aria-live="polite"></p>
+<dl>
+<dt>Case</dt><dd id="selection-title"></dd>
+<dt>Exact Case ID</dt><dd id="selection-id"></dd>
+<dt>Status</dt><dd id="selection-status-value"></dd>
+<dt>Owner</dt><dd id="selection-owner"></dd>
+<dt>Freshness</dt><dd id="selection-freshness"></dd>
+<dt>Last updated</dt><dd id="selection-updated"></dd>
+<dt>Next action</dt><dd id="selection-next-action"></dd>
+</dl>
+<p class="muted">Selection is reauthorized on each request and does not grant workspace access. The Shared Inspector component and Case Workspace UI are separate product integrations.</p>
+</section>
 <p class="muted">Case and Incident permissions are checked by the server on every page request. A page is not a persistent evidence snapshot.</p>
 </main>
 </body></html>

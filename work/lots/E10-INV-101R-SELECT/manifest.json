@@ -1,0 +1,129 @@
+{
+  "schema_version": 2,
+  "id": "E10-INV-101R-SELECT",
+  "title": "Connect native browser Case selection to existing independently authorized Inspector row",
+  "type": "task",
+  "parent": "E10-INV-101",
+  "goal": "Allow a Case Analyst to select a currently visible Case in the opt-in Case Queue browser, reauthorize it through the existing first-party inspect_case endpoint on the exact current filtered/paged projection, display a minimal read-only selection summary and restore source focus without cloning Shared Inspector or granting Workspace permissions.",
+  "depends_on": [
+    "E10-INV-101Q-BROWSER"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-101"
+    ],
+    "requirements": [
+      "REQ-PROD-014",
+      "REQ-PROD-020",
+      "REQ-UX-002",
+      "REQ-UX-003",
+      "REQ-UX-004"
+    ],
+    "screens": [
+      "INV-CAS-001"
+    ],
+    "permissions": [
+      "perm.investigate.case.read"
+    ],
+    "open_decisions": [],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/case.md"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/pagination-filtering-sorting.md",
+      "cmdr-product-spec/17-implementation-contracts/frontend-state-contract.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/case-queue/browser.js",
+    "product-runtime/case-queue/browser.html",
+    "product-runtime/case-queue/browser.css",
+    "product-runtime/case-queue/browser.test.cjs",
+    "product-runtime/case-queue/README.md",
+    "work/lots/E10-INV-101R-SELECT/**",
+    "work/graph.json",
+    "engineering/state/current.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/investigation-timeline/**",
+    "product-runtime/event-search/**",
+    "tools/cmdr-dev/**"
+  ],
+  "invariants": [
+    "Each visual selection rechecks the current authenticated host via GET /case-queue?inspect_case=EXACT_ID including current q/limit/cursor; no client-side ACL or alternate owner.",
+    "Server first-party Case/Incident/Finding ACL determines selection; rejected/mismatched response displays no previously selected data, no partial Case preview.",
+    "Only inert textContent of a bounded subset of the newly authorized Case row is displayed. No raw Incident/Finding/source preview, bearer, policy or tenant-selection control.",
+    "Changing search/page, denial, or pagehide invalidates in-flight selections; close/Escape returns focus to the original current row when still present.",
+    "This is a read-only selection context not the canonical Shared Inspector visual component, Case Workspace route, assignment, export, Saved View editing or production IAM."
+  ],
+  "security_properties": [
+    "A successful list row is not authority for Inspector; perform a separate server reauthorization with exact opaque ID and current cursor/filter.",
+    "Reject a returned Inspector row with a different Case ID or invalid shape; never display metadata from an unauthorized response.",
+    "Clear selection on page/filter changes, deny/error and pagehide, including pending requests, without retaining source details.",
+    "Client never accepts a tenant/environment/permission selector or stores a bearer token."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Opt-in same-origin host-mounted static browser with no changed persistence or Case schema",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Stop using NewAuthorizedQueueBrowserHandler and use existing native authorized Queue HTTP handler",
+    "verification": [
+      "Existing GET Case Queue and POST return routes remain available",
+      "No data persisted in browser or backend"
+    ]
+  },
+  "inputs": [
+    "Existing native first-party GET inspect_case Class-0 projection in PR #147 and opt-in Queue browser from PR #148; both owner-authorized, parent R is NOT main.",
+    "Canonical CAP-INV-101 §17, Shared Inspector anatomy and keyboard contract; Shared owns final reusable Inspector UI and host owns current IAM/session."
+  ],
+  "outputs": [
+    "A per-row read-only Inspect action using current query/page and exact Case ID, current reauthorized first-party Case response, minimal accessible text summary.",
+    "Closing selection with button or Escape returns keyboard focus without clearing Queue search/page; filtering, paging, denial or navigation purges selection."
+  ],
+  "acceptance_tests": [
+    "Node DOM tests: exact opaque Case with significant spaces is sent unchanged, freshly authorized response displayed with inert textContent and keyboard focus restored.",
+    "Node tests: server-denied inspection or response with different Case ID does not show previous selection; page navigation purges selection and responses.",
+    "Existing Go owner HTTP tests cover source-specific revocation, current page cursor and per-object ACL; no new backend provider or external dependency.",
+    "Exact-head engineering-kernel includes required CHK-MANIFESTS, CHK-CASE-QUEUE-CONTRACT, CHK-SECURITY-TESTS without threshold waiver."
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "Only explicit per-row user action causes one additional first-party owner-authorized request; no background polling; same bounded 25-row page and candidate limit.",
+    "metrics": [
+      "0 extra requests during normal pagination until click",
+      "1 reauthorization per explicit selection",
+      "No additional network/case search engine"
+    ]
+  },
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-RUNTIME-DEPS",
+    "CHK-SECURITY-TESTS"
+  ],
+  "definition_of_ready": [
+    "Parent Q browser and P native inspect_case handler are already implemented on immutable HEAD; no Shared Inspector final UI is claimed.",
+    "Single reader principal's browser is authenticated by current host cookie/session and server ACL, not by selected Case ID."
+  ],
+  "definition_of_done": [
+    "Published new bounded task and code on child of PR #148; exact CI/commits documented; one independent L2 when material and verifiable.",
+    "No native merge pending ancestors and no full CAP-INV-101 product acceptance claimed."
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 4,
+    "estimated_net_loc": 160,
+    "production_files": 3,
+    "net_production_loc": 135,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

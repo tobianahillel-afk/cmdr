@@ -211,3 +211,24 @@ The separate engineering manifest and acceptance are at
 `work/lots/E10-INV-101Q-BROWSER/manifest.json`. Parent #147 and all earlier
 ancestor PRs remain draft/unmerged, and this child must pass its own SHA-matched
 CI plus L2/native approvals before merging.
+
+## Native Case Queue read-only Case selection (E10-INV-101R-SELECT)
+
+The opt-in first-party Queue browser now shows an **Inspect** trigger on a currently
+server-authorized Case row. Clicking makes an **independent**, same-origin
+`GET /case-queue?limit=25&inspect_case=EXACT_CASE_ID` request (with the
+current literal `q` and optional `cursor`) through the *existing* server
+`inspect_case` route. The Queue server independently authorizes the current
+session, tenant, Case/Incident/Finding sources, current Shared Saved View and
+page before selecting a row; an old rendered row is **not authorization**.
+The browser refuses different returned Case IDs, populates only inert
+`textContent` of minimal Case fields, clears private details after deny/stale
+request/page change and restores focus on close/Escape. No mutation, polling,
+new IAM, second source owner or external dependencies.
+
+The small selected-Case summary is **not the Shared Inspector component**.
+The canonical Shared Inspector's full interaction, responsive resizing,
+keyboard/drawer model and product integration remain separately owned/absent.
+Case Workspace navigation and production hosting are also not delivered.
+See `work/lots/E10-INV-101R-SELECT/HANDOFF.md`; PR is stacked and DRAFT,
+not merged to main and not evidence of full CAP-INV-101 acceptance.

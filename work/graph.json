@@ -2035,6 +2035,19 @@
         "E10-INV-101P-INSPECT"
       ],
       "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-INV-101R-SELECT"
+      ]
+    },
+    {
+      "id": "E10-INV-101R-SELECT",
+      "title": "Connect native browser Case selection to independently reauthorized Inspector row",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-INV-101Q-BROWSER"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
       "unlocks": []
     }
   ]

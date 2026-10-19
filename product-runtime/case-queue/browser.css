@@ -22,3 +22,14 @@ td:first-child {min-width:12rem;overflow-wrap:anywhere}
 .skip {position:absolute;left:-9999px}
 .skip:focus {left:1rem;top:1rem;background:var(--surface);padding:.5rem}
 @media(max-width:650px){main{padding:.8rem}th,td{padding:.5rem .3rem}body{font-size:.94rem}}
+
+td button {display:block;margin-top:.35rem}
+.selection {margin-top:1.5rem;border:1px solid var(--line);padding:1rem;border-radius:.4rem;max-width:100%}
+.selection[hidden] {display:none}
+.selection-heading {display:flex;justify-content:space-between;gap:.75rem;align-items:start}
+.selection-heading h2 {margin:0;font-size:1.2rem}
+.selection dl {display:grid;grid-template-columns:minmax(6rem,1fr) 3fr;gap:.4rem 1rem}
+.selection dt {font-weight:600}
+.selection dd {margin:0;overflow-wrap:anywhere}
+.selection button:focus-visible,td button:focus-visible {outline:2px solid var(--outline);outline-offset:2px}
+@media(max-width:650px){.selection dl{grid-template-columns:1fr}.selection{min-height:30vh}}

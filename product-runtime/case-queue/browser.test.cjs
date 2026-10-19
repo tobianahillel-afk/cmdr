@@ -20,8 +20,12 @@ function harness(replies) {
   elements.push(node);
   return node;
  }
- for(const id of ["cases","status","scope","prev","next","page","search","query","clear"])
+ for(const id of ["cases","status","scope","prev","next","page","search","query","clear",
+  "selection","selection-status","selection-close","selection-title","selection-id",
+  "selection-status-value","selection-owner","selection-updated","selection-freshness",
+  "selection-next-action"])
   nodes.set(id,makeNode(id));
+ nodes.get("selection").hidden=true;
  const requests=[];
  const fetch=async(uri,options)=>{
   requests.push({uri,options});
@@ -80,5 +84,61 @@ test("query stays client filter only and pagehide erases Case list",async()=>{
  await tick();
  assert.equal(h.requests[1].uri,"/case-queue?limit=25&q=hostile%3C%3E%26");
  h.window.events.get("pagehide")();
+ assert.equal(h.nodes.get("cases").children.length,0);
+});
+
+test("Inspect performs an independent server-authorized GET with exact opaque Case ID and restores focus",async()=>{
+ const caseID=" case-a ";
+ const h=harness([{ok:true,data:{rows:[row(caseID,"Current Case")],tenant_ref:"tenant-a"}},
+  {ok:true,data:{case:{id:caseID,title:"<b>secure title</b>",owner:"analyst-a",
+   status:"review",freshness:"available",updated_at:"2026-10-19T12:05:00Z",
+   next_action:"Investigate"},partial:false,stale:false}}]);
+ await tick();
+ const button=h.nodes.get("cases").children[0].children[0].children[0];
+ assert.equal(button.textContent,"Inspect");
+ button.events.get("click")();
+ await tick();
+ assert.match(h.requests[1].uri,/^\/case-queue\?limit=25&inspect_case=/);
+ assert.match(h.requests[1].uri,/inspect_case=\+case-a\+/);
+ assert.equal(h.requests[1].options.credentials,"same-origin");
+ assert.equal(h.requests[1].options.cache,"no-store");
+ assert.equal(h.nodes.get("selection").hidden,false);
+ assert.equal(h.nodes.get("selection-id").textContent,caseID);
+ assert.equal(h.nodes.get("selection-title").textContent,"<b>secure title</b>");
+ assert.equal(h.nodes.get("selection-close").focusCount,1);
+ h.window.events.get("keydown")({key:"Escape",preventDefault(){}});
+ assert.equal(h.nodes.get("selection").hidden,true);
+ assert.equal(button.focusCount,1);
+ assert.equal(h.nodes.get("selection-id").textContent,"");
+});
+test("denied independent Inspector request never reuses previously visible selection",async()=>{
+ const h=harness([
+  {ok:true,data:{rows:[row("case-a","Visible"),row("case-b","Hidden")]}},
+  {ok:true,data:{case:{id:"case-a",title:"Sensitive Case A",owner:"analyst-a"}}},
+  {ok:false,data:null}
+ ]);
+ await tick();
+ const rows=h.nodes.get("cases").children;
+ rows[0].children[0].children[0].events.get("click")();
+ await tick();
+ assert.equal(h.nodes.get("selection-title").textContent,"Sensitive Case A");
+ rows[1].children[0].children[0].events.get("click")();
+ await tick();
+ assert.equal(h.nodes.get("selection").hidden,true);
+ assert.equal(h.nodes.get("selection-title").textContent,"");
+ assert.match(h.nodes.get("selection-status").textContent,/permission changed/);
+});
+test("Inspector ignores a wrongly-authorized different Case and clears details on navigation",async()=>{
+ const h=harness([{ok:true,data:{rows:[row("case-a","Allowed")],next_cursor:"cursor-1"}},
+  {ok:true,data:{case:{id:"case-other",title:"Other Case"}}},
+  {ok:true,data:{rows:[]}}]);
+ await tick();
+ h.nodes.get("cases").children[0].children[0].children[0].events.get("click")();
+ await tick();
+ assert.equal(h.nodes.get("selection").hidden,true);
+ assert.equal(h.nodes.get("selection-title").textContent,"");
+ h.nodes.get("next").events.get("click")();
+ await tick();
+ assert.equal(h.nodes.get("selection").hidden,true);
  assert.equal(h.nodes.get("cases").children.length,0);
 });
