@@ -10,14 +10,14 @@ import (
 
 func TestCommandQueueProbeExecutesActualAuthorizedProjection(t *testing.T) {
 	var output bytes.Buffer
-	if err := run([]string{"-iterations", "400", "-operation", "projection", "-mode", "latency"}, &output); err != nil {
+	if err := run([]string{"-iterations", "10000", "-operation", "projection", "-mode", "latency"}, &output); err != nil {
 		t.Fatalf("in-process Command projection failed: %v", err)
 	}
 	var receipt observation
 	if err := json.Unmarshal(output.Bytes(), &receipt); err != nil {
 		t.Fatalf("non-JSON performance receipt: %v", err)
 	}
-	if receipt.Operation != "projection" || receipt.Mode != "latency" || receipt.Operations != 400 ||
+	if receipt.Operation != "projection" || receipt.Mode != "latency" || receipt.Operations != 10000 ||
 		receipt.ElapsedNS <= 0 || receipt.NSPerOperation <= 0 {
 		t.Fatalf("invalid measured Command runtime: %+v", receipt)
 	}
@@ -32,6 +32,8 @@ func TestCommandQueueProbeRejectsUnsupportedModesBeforeReceipt(t *testing.T) {
 		{"-iterations", "not-an-integer"},
 		{"-mode", "resource"},
 		{"-mode", "resource", "-memory-limit-mib", "1"},
+		{"-mode", "resource", "-memory-limit-mib", "8193"},
+		{"-mode", "resource", "-memory-limit-mib", "128", "-operation", "saved-view"},
 		{"-mode", "latency", "-memory-limit-mib", "128"},
 		{"-operation", "saved-view"},
 		{"-operation", "projection", "unexpected-position"},
@@ -68,4 +70,10 @@ func TestCommandQueueResourceProbeMeasuresRealProjectionHeap(t *testing.T) {
 		sample.PeakHeapBytes>128*1024*1024 || sample.ElapsedNS<=0 {
 		t.Fatalf("Command probe did not actually record bounded runtime heap/allocations: %+v",sample)
 	}
+}
+
+func TestCommandQueueResourceProbeDoesNotReturnPartialReceiptOnSinkFailure(t *testing.T) {
+	err:=run([]string{"-mode","resource","-memory-limit-mib","128",
+		"-iterations","10000"},unavailableReceiptWriter{})
+	if err==nil {t.Fatal("failed to reject unavailable sensitive benchmark result sink")}
 }
