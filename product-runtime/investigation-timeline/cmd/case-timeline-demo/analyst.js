@@ -7,6 +7,9 @@
   const form = document.getElementById("query");
   const token = document.getElementById("token");
   const caseID = document.getElementById("case-id");
+  // Case identifiers are opaque, owner-issued selectors. Never normalize
+  // their bytes: "case-a" and "case-a " may be DISTINCT authorized Cases,
+  // and trimming would silently pivot investigations to the wrong owner.
   const kind = document.getElementById("kind");
   const search = document.getElementById("search");
   const caseOptions = document.getElementById("case-options");
@@ -85,7 +88,7 @@
   async function runLocalSearch() {
     clearLocalSearch();
     const bearer = token.value;
-    const selectedCase = caseID.value.trim();
+    const selectedCase = caseID.value;
     const literal = localSearchValue.value;
     const selectedField = localSearchField.value || "preview";
     const selectedFamily = localSearchFamily.value || "all";
@@ -124,7 +127,7 @@
       const receipt = await response.json();
       if (controller.signal.aborted || searchRevision !== localSearchRevision ||
           selectedRevision !== revision || token.value !== bearer ||
-          caseID.value.trim() !== selectedCase || localSearchValue.value !== literal ||
+          caseID.value !== selectedCase || localSearchValue.value !== literal ||
           (localSearchField.value || "preview") !== selectedField ||
           (localSearchFamily.value || "all") !== selectedFamily ||
           localSearchFrom.value !== fromText || localSearchTo.value !== toText) return;
@@ -157,7 +160,7 @@
       const selected = new Set(), pinned = new Set();
       const current = () => searchRevision === localSearchRevision &&
         selectedRevision === revision && token.value === bearer &&
-        caseID.value.trim() === selectedCase &&
+        caseID.value === selectedCase &&
         localSearchValue.value === literal &&
         (localSearchField.value || "preview") === selectedField &&
         (localSearchFamily.value || "all") === selectedFamily &&
@@ -202,7 +205,7 @@
         button.addEventListener("click", () => {
           if (searchRevision !== localSearchRevision ||
               selectedRevision !== revision || token.value !== bearer ||
-              caseID.value.trim() !== selectedCase) return;
+              caseID.value !== selectedCase) return;
           openSource(ref.Ref, true); // triggers fresh Case/navigation/typed-source checks
         });
         item.append(button);
@@ -252,7 +255,7 @@
             button.addEventListener("click", () => {
               if (searchRevision !== localSearchRevision ||
                   selectedRevision !== revision || token.value !== bearer ||
-                  caseID.value.trim() !== selectedCase) return;
+                  caseID.value !== selectedCase) return;
               openSource(ref, true); // fresh independent Case + typed-source ACL
             });
             item.append(button);
@@ -314,7 +317,7 @@
             button.addEventListener("click", () => {
               if (searchRevision !== localSearchRevision ||
                   selectedRevision !== revision || token.value !== bearer ||
-                  caseID.value.trim() !== selectedCase) return;
+                  caseID.value !== selectedCase) return;
               openSource(nearby.entry_id, true);
             });
             item.append(button);
@@ -442,7 +445,7 @@
   }
   async function loadWazuhCohorts() {
     const bearer = token.value;
-    const selectedCase = caseID.value.trim();
+    const selectedCase = caseID.value;
     clearWazuh();
     if (!bearer || !selectedCase) {
       wazuhStatus.textContent = "Sélectionnez un Case et son jeton temporaire.";
@@ -465,7 +468,7 @@
       const data = await response.json();
       if (controller.signal.aborted || currentRevision !== wazuhRevision ||
           currentSelection !== revision || token.value !== bearer ||
-          caseID.value.trim() !== selectedCase) return;
+          caseID.value !== selectedCase) return;
       if (!data || data.format !== "cmdr-local-wazuh4-case-triage-v1" ||
           data.synthetic !== true || !Number.isSafeInteger(data.imported_entries) ||
           data.imported_entries < 1 || data.imported_entries > 5000 ||
@@ -563,7 +566,7 @@
   // server-owned Case/Timeline/typed-source traversal before returning IDs.
   async function loadWazuhDrilldown(selector, value, requestedOffset = 0, secondValue = "") {
     const bearer = token.value;
-    const selectedCase = caseID.value.trim();
+    const selectedCase = caseID.value;
     if (!bearer || !selectedCase || !/^[0-9]{1,16}$/.test(value) ||
         !["agent_id", "rule_id", "agent_rule"].includes(selector) ||
         (selector === "agent_rule" ? !/^[0-9]{1,16}$/.test(secondValue) : secondValue !== "") ||
@@ -594,7 +597,7 @@
       if (controller.signal.aborted || wazuhRequest !== controller ||
           selectedRevision !== wazuhRevision ||
           caseRevision !== revision || token.value !== bearer ||
-          caseID.value.trim() !== selectedCase) return;
+          caseID.value !== selectedCase) return;
       if (!data || data.format !== "cmdr-local-wazuh4-drilldown-v1" ||
           data.synthetic !== true || data.selector !== selector ||
           data.value !== value ||
@@ -634,7 +637,7 @@
         button.addEventListener("click", () => {
           if (controller.signal.aborted || selectedRevision !== wazuhRevision ||
               caseRevision !== revision || token.value !== bearer ||
-              caseID.value.trim() !== selectedCase) return;
+              caseID.value !== selectedCase) return;
           openSource(entry.id); // existing authoritative navigation ACL chain
         });
         item.append(button);
@@ -679,7 +682,7 @@
   async function runWazuhSearch() {
     clearWazuhSearch();
     const bearer = token.value;
-    const selectedCase = caseID.value.trim();
+    const selectedCase = caseID.value;
     const selectedField = wazuhSearchField.value;
     const selectedValue = wazuhSearchValue.value;
     const fromText = wazuhSearchFrom.value;
@@ -731,7 +734,7 @@
       if (!response.ok) throw Error("Search Job denied or unavailable");
       const receipt = await response.json();
       if (controller.signal.aborted || selectedRevision !== wazuhSearchRevision ||
-          caseRevision !== revision || token.value !== bearer || caseID.value.trim() !== selectedCase ||
+          caseRevision !== revision || token.value !== bearer || caseID.value !== selectedCase ||
           wazuhSearchField.value !== selectedField || wazuhSearchValue.value !== selectedValue ||
           wazuhSearchFrom.value !== fromText || wazuhSearchTo.value !== toText) return;
       const job = receipt?.job;
@@ -832,7 +835,7 @@
           button.addEventListener("click", () => {
             if (selectedRevision !== wazuhSearchRevision ||
                 caseRevision !== revision || token.value !== bearer ||
-                caseID.value.trim() !== selectedCase) return;
+                caseID.value !== selectedCase) return;
             openSource(id);
           });
           item.append(button);
@@ -852,7 +855,7 @@
         button.addEventListener("click", () => {
           if (selectedRevision !== wazuhSearchRevision ||
               caseRevision !== revision || token.value !== bearer ||
-              caseID.value.trim() !== selectedCase) return;
+              caseID.value !== selectedCase) return;
           openSource(hit.ref);
         });
         item.append(button);
@@ -898,7 +901,7 @@
   // reauthorizes current Case, Timeline and typed source permissions.
   wazuhReplaySave.addEventListener("click", () => {
     const prepared = preparedWazuhReplay;
-    if (!prepared || !token.value || caseID.value.trim() !== prepared.case_id ||
+    if (!prepared || !token.value || caseID.value !== prepared.case_id ||
         wazuhSearchField.value !== prepared.selector ||
         wazuhSearchValue.value !== prepared.value ||
         new Date(wazuhSearchFrom.value).toISOString() !== prepared.from ||
@@ -942,7 +945,7 @@
   wazuhReplayFile.addEventListener("change", async () => {
     clearWazuhSearch();
     const inputFile = wazuhReplayFile.files?.[0];
-    const selectedCase = caseID.value.trim();
+    const selectedCase = caseID.value;
     const bearer = token.value;
     const currentRevision = revision;
     const currentSearchRevision = wazuhSearchRevision;
@@ -956,7 +959,7 @@
     try {
       const raw = await inputFile.text();
       if (revision !== currentRevision || wazuhSearchRevision !== currentSearchRevision ||
-          caseID.value.trim() !== selectedCase || token.value !== bearer) return;
+          caseID.value !== selectedCase || token.value !== bearer) return;
       if (typeof raw !== "string" || raw.length > 8192) throw Error("invalid local file");
       const saved = JSON.parse(raw);
       if (!saved || saved.format !== "cmdr-local-wazuh4-query-replay-v1" ||
@@ -1088,7 +1091,7 @@
   // changing totals and never display a partial summary as definitive.
   async function analyzeAuthorizedCase() {
     const bearer = token.value;
-    const selectedCase = caseID.value.trim();
+    const selectedCase = caseID.value;
     const selectedWindow = readWindow();
     const selectedKind = kind.value;
     const selectedSearch = search.value.trim();
@@ -1275,14 +1278,14 @@
         traceButton.addEventListener("click", () => {
           if (currentRevision !== analysisRevision ||
               currentSelection !== revision || controller.signal.aborted ||
-              token.value !== bearer || caseID.value.trim() !== selectedCase) return;
+              token.value !== bearer || caseID.value !== selectedCase) return;
           // The sequence is a local view of already returned authorized rows.
           // Any opened source is reauthorized via the existing owner routes.
           const tracePageSize = 25;
           function renderTrace(start) {
             if (currentRevision !== analysisRevision ||
                 currentSelection !== revision || controller.signal.aborted ||
-                token.value !== bearer || caseID.value.trim() !== selectedCase) return;
+                token.value !== bearer || caseID.value !== selectedCase) return;
             traceResults.replaceChildren();
             const end = Math.min(start + tracePageSize, source.rows.length);
             traceResults.textContent = "Séquence de source (ordre des pages autorisées) : " +
@@ -1299,7 +1302,7 @@
               open.addEventListener("click", () => {
                 if (currentRevision !== analysisRevision ||
                     currentSelection !== revision || controller.signal.aborted ||
-                    token.value !== bearer || caseID.value.trim() !== selectedCase) return;
+                    token.value !== bearer || caseID.value !== selectedCase) return;
                 openSource(row.id);
               });
               item.append(open);
@@ -1340,8 +1343,8 @@
   // Compare two fully reauthorized Case timelines, without an extra API,
   // frontend trust decision, owner-source read or unscoped search index.
   async function compareAuthorizedCases() {
-    const selectedCase = caseID.value.trim();
-    const otherCase = compareCase.value.trim();
+    const selectedCase = caseID.value;
+    const otherCase = compareCase.value;
     const bearer = token.value;
     const windowSelection = readWindow();
     clearComparison();
@@ -1612,8 +1615,8 @@
           button.addEventListener("click", () => {
             if (controller.signal.aborted || compareRevision !== activeComparison ||
                 revision !== activeSelection || token.value !== bearer ||
-                caseID.value.trim() !== selectedCase ||
-                compareCase.value.trim() !== otherCase) return;
+                caseID.value !== selectedCase ||
+                compareCase.value !== otherCase) return;
             clearComparison();
             if (target.id !== selectedCase) {
               caseID.value = target.id;
@@ -1633,8 +1636,8 @@
         trace.addEventListener("click", () => {
           if (controller.signal.aborted || compareRevision !== activeComparison ||
               revision !== activeSelection || token.value !== bearer ||
-              caseID.value.trim() !== selectedCase ||
-              compareCase.value.trim() !== otherCase) return;
+              caseID.value !== selectedCase ||
+              compareCase.value !== otherCase) return;
           const chronological = [...group.rows].sort((a, b) => {
             const aTime = a.uncertain ? null : Date.parse(a.time);
             const bTime = b.uncertain ? null : Date.parse(b.time);
@@ -1649,8 +1652,8 @@
           function renderCrossCase(start) {
             if (controller.signal.aborted || compareRevision !== activeComparison ||
                 revision !== activeSelection || token.value !== bearer ||
-                caseID.value.trim() !== selectedCase ||
-                compareCase.value.trim() !== otherCase) return;
+                caseID.value !== selectedCase ||
+                compareCase.value !== otherCase) return;
             comparisonTraceResults.replaceChildren();
             const end = Math.min(start + pageSize, chronological.length);
             comparisonTraceResults.textContent = "Source commune : " + label +
@@ -1669,8 +1672,8 @@
               open.addEventListener("click", () => {
                 if (controller.signal.aborted || compareRevision !== activeComparison ||
                     revision !== activeSelection || token.value !== bearer ||
-                    caseID.value.trim() !== selectedCase ||
-                    compareCase.value.trim() !== otherCase) return;
+                    caseID.value !== selectedCase ||
+                    compareCase.value !== otherCase) return;
                 clearComparison();
                 if (row.caseID !== selectedCase) {
                   caseID.value = row.caseID;
@@ -1716,7 +1719,7 @@
           button.addEventListener("click", () => {
             if (controller.signal.aborted || compareRevision !== activeComparison ||
                 revision !== activeSelection || token.value !== bearer ||
-                caseID.value.trim() !== selectedCase || compareCase.value.trim() !== otherCase) return;
+                caseID.value !== selectedCase || compareCase.value !== otherCase) return;
             // A pivot is a UI selector only; fetchPage reauthorizes all records.
             clearComparison();
             caseID.value = target.id;
@@ -1901,8 +1904,8 @@
     const snap = preparedProximity;
     proximityResults.replaceChildren();
     if (!snap || snap.comparison !== compareRevision || snap.selection !== revision ||
-        snap.bearer !== token.value || caseID.value.trim() !== snap.left ||
-        compareCase.value.trim() !== snap.right) {
+        snap.bearer !== token.value || caseID.value !== snap.left ||
+        compareCase.value !== snap.right) {
       proximityResults.textContent = "Comparaison expirée ; rechargez les deux Cases.";
       return;
     }
@@ -1930,10 +1933,10 @@
         button.textContent = target.label + " : " + target.entry.id.slice(0, 120);
         button.addEventListener("click", () => {
           if (snap.comparison !== compareRevision || snap.selection !== revision ||
-              snap.bearer !== token.value || caseID.value.trim() !== snap.left ||
-              compareCase.value.trim() !== snap.right) return;
+              snap.bearer !== token.value || caseID.value !== snap.left ||
+              compareCase.value !== snap.right) return;
           clearComparison();
-          if (caseID.value.trim() !== target.case) {
+          if (caseID.value !== target.case) {
             caseID.value = target.case;
             caseID.dispatchEvent(new Event("input", { bubbles: true }));
           }
@@ -2044,7 +2047,7 @@
     sourceOpenedFromCompletedSearch = false;
     sourceDetail.hidden = true;
     returnToCase.disabled = true;
-    const selectedCase = caseID.value.trim();
+    const selectedCase = caseID.value;
     const bearer = token.value;
     // The completed Event Search Job has its own independent search criteria.
     // A stale/invalid *Timeline* filter must not prevent an otherwise
@@ -2155,7 +2158,7 @@
       return;
     }
     const secret = token.value;
-    const selectedCase = caseID.value.trim();
+    const selectedCase = caseID.value;
     if (!secret || !selectedCase) {
       clearResults("Aucune donnée affichée");
       message.textContent = "Saisir le jeton temporaire et l’identifiant du Case.";
@@ -2240,8 +2243,8 @@
     const receipt = preparedComparison;
     if (!receipt || receipt.comparison !== compareRevision ||
         receipt.selection !== revision || !token.value ||
-        caseID.value.trim() !== receipt.left ||
-        compareCase.value.trim() !== receipt.right) return;
+        caseID.value !== receipt.left ||
+        compareCase.value !== receipt.right) return;
     let objectURL = null;
     try {
       const blob = new Blob([receipt.serialized], { type: "application/json" });
@@ -2260,8 +2263,8 @@
     const receipt = preparedCrossEvents;
     if (!receipt || receipt.comparison !== compareRevision ||
         receipt.selection !== revision || token.value !== receipt.bearer ||
-        caseID.value.trim() !== receipt.left ||
-        compareCase.value.trim() !== receipt.right) return;
+        caseID.value !== receipt.left ||
+        compareCase.value !== receipt.right) return;
     let objectURL = null;
     try {
       const blob = new Blob([receipt.serialized], { type: "application/json" });
@@ -2281,7 +2284,7 @@
     const receipt = preparedReport;
     if (!receipt || receipt.revision !== analysisRevision ||
         receipt.selection !== revision || !token.value ||
-        caseID.value.trim() !== receipt.caseID) return;
+        caseID.value !== receipt.caseID) return;
     let objectURL = null;
     try {
       const blob = new Blob([receipt.serialized], { type: "application/json" });
