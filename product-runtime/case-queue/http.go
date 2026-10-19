@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"io"
+	"mime"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -60,20 +62,66 @@ func (h nativeQueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("X-Content-Type-Options", "nosniff")
 	w.Header().Set("Referrer-Policy", "no-referrer")
 	w.Header().Set("Vary", "Authorization")
-	if r.Method != http.MethodGet {
-		w.Header().Set("Allow", http.MethodGet)
+	// Return state contains Case IDs, tenant and analyst filters. Receive it
+	// via POST JSON, never a GET URL, browser history or server query logs.
+	restoring := r.URL != nil && r.URL.Path == "/case-queue/return"
+	if (restoring && r.Method != http.MethodPost) ||
+		(!restoring && r.Method != http.MethodGet) {
+		if restoring { w.Header().Set("Allow", http.MethodPost) } else { w.Header().Set("Allow", http.MethodGet) }
 		queueError(w, http.StatusMethodNotAllowed)
 		return
 	}
-	if r.URL == nil || r.Body != nil && r.Body != http.NoBody ||
-		len(r.TransferEncoding) != 0 || len(r.URL.RawQuery) > 4096 {
+	if r.URL == nil {
 		queueError(w, http.StatusBadRequest)
 		return
 	}
-	parameters, err := url.ParseQuery(r.URL.RawQuery)
-	if err != nil || len(parameters) > 7 {
-		queueError(w, http.StatusBadRequest)
-		return
+	var returnToken string
+	var parameters url.Values
+	if restoring {
+		mediaType, _, err := mime.ParseMediaType(r.Header.Get("Content-Type"))
+		if err != nil || mediaType != "application/json" || r.URL.RawQuery != "" ||
+			r.Body == nil {
+			queueError(w, http.StatusBadRequest)
+			return
+		}
+		const maxReturnBody = maxReturnTokenBytes*2 + 128
+		body, err := io.ReadAll(io.LimitReader(r.Body, maxReturnBody+1))
+		if err != nil || len(body) == 0 || len(body) > maxReturnBody {
+			queueError(w, http.StatusBadRequest)
+			return
+		}
+		// A token must be the ONLY key, exactly once. In particular no
+		// client-supplied owner, tenant or permission field is allowed.
+		decoder := json.NewDecoder(strings.NewReader(string(body)))
+		start, err := decoder.Token()
+		if err != nil || start != json.Delim('{') || !decoder.More() {
+			queueError(w, http.StatusBadRequest)
+			return
+		}
+		key, err := decoder.Token()
+		if err != nil || key != "return_token" ||
+			decoder.Decode(&returnToken) != nil || decoder.More() {
+			queueError(w, http.StatusBadRequest)
+			return
+		}
+		end, err := decoder.Token()
+		if err != nil || end != json.Delim('}') || decoder.Decode(new(any)) != io.EOF ||
+			returnToken == "" || len(returnToken) > maxReturnTokenBytes*2 {
+			queueError(w, http.StatusBadRequest)
+			return
+		}
+	} else {
+		if r.Body != nil && r.Body != http.NoBody ||
+			len(r.TransferEncoding) != 0 || len(r.URL.RawQuery) > 4096 {
+			queueError(w, http.StatusBadRequest)
+			return
+		}
+		var err error
+		parameters, err = url.ParseQuery(r.URL.RawQuery)
+		if err != nil || len(parameters) > 7 {
+			queueError(w, http.StatusBadRequest)
+			return
+		}
 	}
 	query := ""
 	openCase := ""
@@ -220,7 +268,17 @@ func (h nativeQueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var response []byte
-	if openCase != "" {
+	if restoring {
+		// This routine checks the *current* scoped and independently
+		// authorized owner, tenant, environment, view and Case visibility.
+		// The decoded token NEVER grants permission to a Case.
+		restored, code := RestoreCaseQueue(returnToken, in)
+		if code != ErrorNone {
+			queueError(w, http.StatusNotFound)
+			return
+		}
+		response, err = json.Marshal(restored)
+	} else if openCase != "" {
 		// Reuse the existing CAP-INV-101 Class-0 handoff engine. It checks
 		// selection visibility AFTER current server ACL, filters and freshness.
 		// The token is presentation state, not a credential or a signed grant.
