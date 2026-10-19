@@ -170,3 +170,105 @@ func TestNativeQueueHTTPRejectsUnrelatedMethodsAndMissingAuthorities(t *testing.
 		}
 	}
 }
+
+func TestNativeQueueHTTPRejectsPartialOrCrossScopedContextAtomically(t *testing.T) {
+	base:=nativeCase("case-a","Permitted Case")
+	base.Incident=&IncidentContext{ID:"incident-a",TenantRef:"tenant-a",
+		AccessDecision:"allow",State:"available",Priority:"P2"}
+	base.Findings=[]FindingContext{{ID:"finding-a",CaseID:"case-a",TenantRef:"tenant-a",
+		AccessDecision:"allow",State:"available",Status:"review"}}
+	session:=queueSessionFunc(func(r *http.Request)(context.Context,QueueScope,error){
+		return r.Context(),QueueScope{Tenant:"tenant-a",Environment:"prod"},nil
+	})
+	for _,tc:=range []struct {
+		name string
+		change func(*CaseSnapshot)
+		denyKind string
+		ownerErr bool
+		expect int
+	}{
+		{"allow independently authorized Incident and Finding",nil,"",false,200},
+		{"Incident belongs to foreign tenant",func(c *CaseSnapshot){c.Incident.TenantRef="tenant-b"},"",false,404},
+		{"Incident identifier missing",func(c *CaseSnapshot){c.Incident.ID=""},"",false,404},
+		{"Incident permission infrastructure failed",nil,"incident",true,404},
+		{"Finding belongs to foreign tenant",func(c *CaseSnapshot){c.Findings[0].TenantRef="tenant-b"},"",false,404},
+		{"Finding linked to another Case",func(c *CaseSnapshot){c.Findings[0].CaseID="case-b"},"",false,404},
+		{"Finding identifier missing",func(c *CaseSnapshot){c.Findings[0].ID=""},"",false,404},
+		{"Finding permission infrastructure failed",nil,"finding",true,404},
+		{"Failed native projection returns generic deny",func(c *CaseSnapshot){c.HumanID=""},"",false,404},
+	} {
+		t.Run(tc.name,func(t *testing.T){
+			c:=base
+			inc:=*base.Incident
+			c.Incident=&inc
+			c.Findings=append([]FindingContext(nil),base.Findings...)
+			if tc.change!=nil {tc.change(&c)}
+			p:=queueProviderFunc(func(context.Context,QueueScope)([]CaseSnapshot,error){
+				return []CaseSnapshot{c},nil
+			})
+			a:=queueAccessFunc(func(_ context.Context,_ QueueScope,kind,id string)(string,error){
+				if kind==tc.denyKind && tc.ownerErr {
+					return "",errors.New("owner read outage")
+				}
+				return "allow",nil
+			})
+			h,err:=NewAuthorizedQueueHTTPHandler(session,p,a)
+			if err!=nil {t.Fatal(err)}
+			got:=getQueue(h,"/case-queue")
+			if got.Code!=tc.expect {t.Fatalf("HTTP %d expected %d: %q",got.Code,tc.expect,got.Body.String())}
+			if tc.expect==200 {
+				var projected Projection
+				if err:=json.Unmarshal(got.Body.Bytes(),&projected);err!=nil {t.Fatal(err)}
+				if len(projected.Rows)!=1 || projected.Rows[0].Case.Incident==nil ||
+					len(projected.Rows[0].Case.Findings)!=1 {
+					t.Fatalf("authorized nested Case context missing: %+v",projected)
+				}
+			} else if strings.Contains(got.Body.String(),"case-a") ||
+				strings.Contains(got.Body.String(),"incident-a") ||
+				strings.Contains(got.Body.String(),"finding-a") {
+				t.Fatalf("incomplete authorization leaked partial Case: %q",got.Body.String())
+			}
+		})
+	}
+}
+
+func TestNativeQueueHTTPFailsClosedOnProviderLimitsAndCancellation(t *testing.T) {
+	session:=queueSessionFunc(func(r *http.Request)(context.Context,QueueScope,error){
+		return r.Context(),QueueScope{Tenant:"tenant-a",Environment:"prod"},nil
+	})
+	auth:=queueAccessFunc(func(context.Context,QueueScope,string,string)(string,error){return "allow",nil})
+	for _,tc:=range []struct {
+		name string
+		provider queueProviderFunc
+		want int
+	}{
+		{"provider failure",func(context.Context,QueueScope)([]CaseSnapshot,error){return nil,errors.New("db unavailable")},404},
+		{"unbounded candidate response",func(context.Context,QueueScope)([]CaseSnapshot,error){return make([]CaseSnapshot,5001),nil},404},
+		{"empty queue",func(context.Context,QueueScope)([]CaseSnapshot,error){return nil,nil},200},
+		{"response limit",func(context.Context,QueueScope)([]CaseSnapshot,error){
+			c:=nativeCase("oversized","Very large Case")
+			c.Title=strings.Repeat("private",650000)
+			return []CaseSnapshot{c},nil
+		},503},
+	} {
+		t.Run(tc.name,func(t *testing.T) {
+			h,_:=NewAuthorizedQueueHTTPHandler(session,tc.provider,auth)
+			got:=getQueue(h,"/case-queue")
+			if got.Code!=tc.want {t.Fatalf("HTTP %d want %d",got.Code,tc.want)}
+			if tc.want!=200 && (strings.Contains(got.Body.String(),"private") ||
+				strings.Contains(got.Body.String(),"db unavailable")) {
+				t.Fatal("provider failure leaked internal or oversized data")
+			}
+		})
+	}
+	// The request may be cancelled before the session is even resolved;
+	// neither the Case provider nor any permission check may execute.
+	p:=queueProviderFunc(func(context.Context,QueueScope)([]CaseSnapshot,error){t.Fatal("cancelled request reached provider");return nil,nil})
+	h,_:=NewAuthorizedQueueHTTPHandler(session,p,auth)
+	req:=httptest.NewRequest(http.MethodGet,"/case-queue",nil)
+	ctx,cancel:=context.WithCancel(req.Context())
+	cancel()
+	got:=httptest.NewRecorder()
+	h.ServeHTTP(got,req.WithContext(ctx))
+	if got.Code!=http.StatusServiceUnavailable {t.Fatalf("cancelled read returned HTTP %d",got.Code)}
+}
