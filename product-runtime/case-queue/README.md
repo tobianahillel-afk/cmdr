@@ -182,3 +182,32 @@ NOT implemented here. The host still owns IAM, Case/Incident/Finding
 providers, TLS, CSRF, audit, rate limiting, and a real deployed frontend.
 Existing `open_case`, saved view, paging, and POST return interfaces are
 not modified. See `work/lots/E10-INV-101P-INSPECT/HANDOFF.md`.
+
+## Opt-in native read-only Case Queue browser (E10-INV-101Q-BROWSER)
+
+A host already supplying real authenticated Queue sessions, current Case candidates,
+independent Case/Incident/Finding object-read authorization, and optionally a
+trusted Shared Saved View provider can mount
+`NewAuthorizedQueueBrowserHandler(sessions, cases, access, views)`. It serves
+the SAME first-party `GET /case-queue` and `POST /case-queue/return` handler
+plus public static `GET /case-queue/ui`, `ui.js`, and `ui.css` assets. Assets
+contain **no Case data, source IDs, tenant, bearer or authorization claims**.
+
+The bounded browser displays currently server-authorized Cases, optional literal
+search and revocation-safe 25-row cursor paging; a revoked/failed request clears
+any previously displayed private rows. All dynamic data are assigned as inert
+`textContent`, never executable HTML. Assets are no-store and subject to a
+restrictive same-origin CSP, without paid API or external UI libraries.
+The host must mount it on the same origin and provide a trusted session mechanism
+usable by browser requests (for example a host-managed HttpOnly session cookie);
+**no bearer-token injection or client-selected tenant permission** is offered.
+
+This is **only a minimal read-only queue presentation**, not the canonical
+Shared Inspector visual component/focus workflow or final Case Queue product UI.
+No mutation, assignment, export, Saved View management, production IAM/TLS/audit,
+or live Incident integration is claimed. A future Shared Inspector consumer may
+use PR #147's `inspect_case` read projection without cloning its component.
+The separate engineering manifest and acceptance are at
+`work/lots/E10-INV-101Q-BROWSER/manifest.json`. Parent #147 and all earlier
+ancestor PRs remain draft/unmerged, and this child must pass its own SHA-matched
+CI plus L2/native approvals before merging.

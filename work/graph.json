@@ -2022,6 +2022,19 @@
         "E10-INV-101O-INCIDENT"
       ],
       "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-INV-101Q-BROWSER"
+      ]
+    },
+    {
+      "id": "E10-INV-101Q-BROWSER",
+      "title": "Expose native first-party authorized Case Queue through opt-in read-only browser",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-INV-101P-INSPECT"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
       "unlocks": []
     }
   ]

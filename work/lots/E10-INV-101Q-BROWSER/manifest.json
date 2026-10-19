@@ -1,0 +1,131 @@
+{
+  "schema_version": 2,
+  "id": "E10-INV-101Q-BROWSER",
+  "title": "Expose an opt-in first-party read-only Case Queue browser over authorized Queue HTTP",
+  "type": "task",
+  "parent": "E10-INV-101",
+  "goal": "Make already-authorized CAP-INV-101 native Queue list, search and pagination visible in an accessible same-origin browser without implementing Shared Inspector, a second owner model or Case mutation.",
+  "depends_on": [
+    "E10-INV-101P-INSPECT"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-101"
+    ],
+    "requirements": [
+      "REQ-PROD-014",
+      "REQ-PROD-020",
+      "REQ-UX-001",
+      "REQ-UX-002",
+      "REQ-UX-003"
+    ],
+    "screens": [
+      "INV-CAS-001"
+    ],
+    "permissions": [
+      "perm.investigate.case.read"
+    ],
+    "open_decisions": [],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/case.md"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/pagination-filtering-sorting.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/case-queue/browser.go",
+    "product-runtime/case-queue/browser.html",
+    "product-runtime/case-queue/browser.js",
+    "product-runtime/case-queue/browser.css",
+    "product-runtime/case-queue/browser_test.go",
+    "product-runtime/case-queue/browser.test.cjs",
+    "product-runtime/case-queue/browser_node_test.go",
+    "product-runtime/case-queue/README.md",
+    "work/lots/E10-INV-101Q-BROWSER/**",
+    "work/graph.json",
+    "engineering/state/current.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/investigation-timeline/**",
+    "product-runtime/event-search/**",
+    "tools/cmdr-dev/**"
+  ],
+  "invariants": [
+    "Only the current server-host-authorized Case Queue GET projection supplies rows, tenant and environment; browser never creates or supplies scope or per-object permissions.",
+    "No raw HTML injection from Case data; render cells only via textContent, no external dependency or listener token in browser assets.",
+    "Host injects current authenticated session, Case candidates and independent per-Case/Incident/Finding read authorizer.",
+    "Serve read-only no-store same-origin static assets with restrictive Content-Security-Policy, never a Case response on arbitrary asset routes.",
+    "Presentation is bounded to list/search/page and freshness; Shared Inspector UI, Workspace hosting, Saved View management, Case mutations, export and production IAM are excluded."
+  ],
+  "security_properties": [
+    "No denied Case or nested sources may appear in current authorized API listing even if provider-supplied AccessDecision says allow.",
+    "Any unauthenticated API request is rejected; UI assets contain zero tenant/Case/bearer material.",
+    "A stale or denied page response clears previously rendered Case rows; no partial data cache or cross-tenant persistence.",
+    "Unsafe static UI path, method or query fails before owner provider is invoked."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Opt-in same-origin host-mounted static browser with no changed persistence or Case schema",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Stop using NewAuthorizedQueueBrowserHandler and use existing native authorized Queue HTTP handler",
+    "verification": [
+      "Existing GET Case Queue and POST return routes remain available",
+      "No data persisted in browser or backend"
+    ]
+  },
+  "inputs": [
+    "CAP-INV-101 §§3/11/15/16/17/21/25, Queue Shell composition and focus/selection Shared design authority.",
+    "Git parent frozen PR #147 HEAD b989d5d1284b8e7b8370021019a49b042d346d7e; engineering-kernel run 39311482545 SUCCESS; parent still DRAFT/IMPLEMENTED, L2 separate already executed."
+  ],
+  "outputs": [
+    "Opt-in GET /case-queue/ui with only local same-origin CSS and JS; query text search and cursor paging driven by authorized /case-queue JSON.",
+    "Accessible read-only Case list with status, owner, freshness, update time and current trusted host-reported scope; no Inspector clone."
+  ],
+  "acceptance_tests": [
+    "Go httptest proves UI assets no-store/CSP with no leaked Case IDs, denied and unauthenticated Case API responses, current independent source ACL.",
+    "Invalid static routes/methods/queries are rejected without session/provider invocation.",
+    "Existing native Case Queue filtering/paging/Saved View/return tests pass unchanged; no new packages or API spend.",
+    "Node browser DOM mock exercises inert textContent, cursor page advance, same-origin-only fetch, denied-page purge and pagehide cleanup; invoked from Go test when Node is installed."
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "Reuse existing <=5000 candidate owner pass and 25-row UI page. No separate search engine.",
+    "metrics": [
+      "UI page size 25",
+      "No new permission checks or provider traversals beyond existing native handler",
+      "No polling/automatic refresh"
+    ]
+  },
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-RUNTIME-DEPS",
+    "CHK-SECURITY-TESTS"
+  ],
+  "definition_of_ready": [
+    "CAP-INV-101 Class-0 read-only Queue is implemented in parent #147, no mutation required.",
+    "Browser static assets only; host must furnish real session and object ACL at runtime."
+  ],
+  "definition_of_done": [
+    "Publish exact source/base/HEAD and Go native HTTP behavioral tests, verify SHA-specific CI.",
+    "Only one independent read-only L2 for material UI/API integration, do not merge draft ancestor stacks or claim full Shared Inspector UI."
+  ],
+  "complexity": {
+    "primary_components": 2,
+    "estimated_files_changed": 8,
+    "estimated_net_loc": 350,
+    "production_files": 4,
+    "net_production_loc": 320,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

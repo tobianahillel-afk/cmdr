@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<title>CMDR — Case Queue (read-only)</title>
+<link rel="stylesheet" href="/case-queue/ui.css">
+<script src="/case-queue/ui.js" defer></script>
+</head>
+<body>
+<a class="skip" href="#queue">Skip to Cases</a>
+<main id="queue" aria-labelledby="title">
+<header><h1 id="title">Case Queue</h1><p>Read-only, currently authorized Cases. No assignment, export or mutation.</p></header>
+<form id="search" aria-label="Search accessible Cases">
+<label for="query">Search Cases</label>
+<div class="search"><input id="query" name="q" type="search" maxlength="256" autocomplete="off" placeholder="Title, ID or owner"><button type="submit">Search</button><button id="clear" type="button">Clear</button></div>
+</form>
+<section aria-label="Case results">
+<p id="scope" class="muted"></p>
+<p id="status" role="status" aria-live="polite">Loading authorized Cases…</p>
+<div class="table-scroll"><table><caption>Currently accessible Cases</caption><thead><tr><th scope="col">Case</th><th scope="col">Status</th><th scope="col">Owner</th><th scope="col">Freshness</th><th scope="col">Updated (UTC)</th></tr></thead><tbody id="cases"></tbody></table></div>
+<nav class="pager" aria-label="Case Queue pagination">
+<button id="prev" type="button" disabled>First page</button>
+<span id="page" aria-live="polite">Page 1</span>
+<button id="next" type="button" disabled>Next page</button>
+</nav>
+</section>
+<p class="muted">Case and Incident permissions are checked by the server on every page request. A page is not a persistent evidence snapshot.</p>
+</main>
+</body></html>
