@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"runtime"
 	"time"
 
 	queue "github.com/tobianahillel-afk/cmdr/product-runtime/work-queue"
@@ -27,6 +28,8 @@ type observation struct {
 	Operations int `json:"operations"`
 	ElapsedNS int64 `json:"elapsed_ns"`
 	NSPerOperation float64 `json:"ns_per_operation"`
+	PeakHeapBytes uint64 `json:"peak_heap_bytes,omitempty"`
+	TotalAllocationBytes uint64 `json:"total_allocation_bytes,omitempty"`
 }
 var sink queue.Result
 func run(args []string, out io.Writer) error {
@@ -35,8 +38,10 @@ func run(args []string, out io.Writer) error {
 	n:=fs.Int("iterations",10000,"operations")
 	mode:=fs.String("mode","latency","mode")
 	op:=fs.String("operation","projection","operation")
+	memoryMiB:=fs.Int("memory-limit-mib",0,"resource-mode heap limit")
 	if err:=fs.Parse(args);err!=nil{return err}
-	if fs.NArg()!=0||*n<1||*n>100000||*mode!="latency"||*op!="projection"{
+	if fs.NArg()!=0||*n<1||*n>100000||(*mode!="latency"&&*mode!="resource")||*op!="projection" ||
+		(*mode=="resource"&&(*memoryMiB<64||*memoryMiB>8192)) || (*mode=="latency"&&*memoryMiB!=0){
 		return fmt.Errorf("unsupported performance operation, mode or iteration count")
 	}
 	req:=queue.Request{Principal:"analyst",Tenant:"perf-tenant",Environment:"perf-env",View:queue.All}
@@ -49,13 +54,40 @@ func run(args []string, out io.Writer) error {
 		return nil
 	}
 	if err:=perform();err!=nil{return err}
+	var before runtime.MemStats
+	if *mode=="resource" {
+		runtime.GC()
+		runtime.ReadMemStats(&before)
+	}
+	peak:=before.HeapAlloc
 	started:=time.Now()
-	for i:=0;i<*n;i++ {if err:=perform();err!=nil{return err}}
+	for i:=0;i<*n;i++ {
+		if err:=perform();err!=nil{return err}
+		if *mode=="resource" && i%64==0 {
+			var sample runtime.MemStats
+			runtime.ReadMemStats(&sample)
+			if sample.HeapAlloc>peak {peak=sample.HeapAlloc}
+		}
+	}
 	elapsed:=time.Since(started)
 	if elapsed<=0{return fmt.Errorf("unmeasured Command projection")}
-	return json.NewEncoder(out).Encode(observation{
+	receipt:=observation{
 		Operation:*op,Mode:*mode,Operations:*n,
 		ElapsedNS:elapsed.Nanoseconds(),NSPerOperation:float64(elapsed.Nanoseconds())/float64(*n),
-	})
+	}
+	if *mode=="resource" {
+		var after runtime.MemStats
+		runtime.ReadMemStats(&after)
+		if after.HeapAlloc>peak {peak=after.HeapAlloc}
+		if peak>uint64(*memoryMiB)*1024*1024 {
+			return fmt.Errorf("Command queue probe exceeded heap budget")
+		}
+		receipt.PeakHeapBytes=peak
+		receipt.TotalAllocationBytes=after.TotalAlloc-before.TotalAlloc
+		if receipt.PeakHeapBytes==0 || receipt.TotalAllocationBytes==0 {
+			return fmt.Errorf("Command queue resource observation unavailable")
+		}
+	}
+	return json.NewEncoder(out).Encode(receipt)
 }
 func main(){if err:=run(os.Args[1:],os.Stdout);err!=nil{fmt.Fprintln(os.Stderr,err);os.Exit(2)}}
