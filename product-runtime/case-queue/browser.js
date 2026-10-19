@@ -31,7 +31,7 @@
         throw new Error("invalid authorized Case row");
       }
       const tr = document.createElement("tr");
-      addCell(tr, row.case.human_id || row.case.id);
+      addCell(tr, row.case.title + " — " + (row.case.human_id || row.case.id));
       addCell(tr, row.case.status);
       addCell(tr, row.case.owner);
       addCell(tr, row.stale ? "Stale" : row.partial ? "Partial" : row.case.freshness);
