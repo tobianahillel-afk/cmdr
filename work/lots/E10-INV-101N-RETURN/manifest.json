@@ -1,0 +1,125 @@
+{
+  "schema_version": 2,
+  "id": "E10-INV-101N-RETURN",
+  "title": "Restore native Case Queue page when returning from authorized Case Workspace",
+  "type": "task",
+  "parent": "E10-INV-101",
+  "goal": "Allow a Case on a nonfirst native HTTP Queue page to open the already existing Case Workspace and safely restore its same authorized page, filters, scroll and selection on return.",
+  "depends_on": [
+    "E10-INV-101M-PAGE"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-101"
+    ],
+    "requirements": [
+      "REQ-PROD-014",
+      "REQ-PROD-020"
+    ],
+    "screens": [
+      "INV-CAS-001"
+    ],
+    "permissions": [
+      "perm.investigate.case.read"
+    ],
+    "open_decisions": [],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/pagination-filtering-sorting.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/saved-view-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/case.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/case-queue/http.go",
+    "product-runtime/case-queue/handoff.go",
+    "product-runtime/case-queue/http_paged_handoff_test.go",
+    "product-runtime/case-queue/README.md",
+    "work/lots/E10-INV-101N-RETURN/**",
+    "work/graph.json",
+    "engineering/state/current.json",
+    "product-runtime/case-queue/http_pagination_test.go"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "tools/cmdr-dev/**",
+    "product-runtime/investigation-timeline/**"
+  ],
+  "invariants": [
+    "A paged Case handoff is allowed only if selected Case belongs to the current fully authorized and filtered Queue page; original unpaged Case handoff remains unchanged.",
+    "Both GET Case open and POST Queue return re-authorize the current Case/Incident/Finding owner graph and current trusted Shared Saved View; page cursor is presentation state, not authorization.",
+    "Restore must fail closed if selected page is stale, tampered, hidden, changed or Case ACL revoked, and return no partial Case or source info.",
+    "The existing ProjectWithSavedViewFallback, OpenCaseWorkspace/RestoreCaseQueue, pagination helper are reused; no new search/permission/persistence engine."
+  ],
+  "security_properties": [
+    "A cursor cannot select a Case outside its present authorized page.",
+    "Second-page return rechecks current authorized list and original cursor digest before exposing state.",
+    "Invalid query controls rejected before the session provider; returned opaque token never includes raw source previews."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Backward compatible optional native Queue page navigation fields; no stored object mutation.",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Revert opt-in page-context open/restore extension and keep already working read-only pagination and unpaged Case handoff.",
+    "verification": [
+      "Old Queue tests unchanged",
+      "No saved data written"
+    ]
+  },
+  "inputs": [
+    "CAP-INV-101 §§17/25 requires restored filter/scroll/selection on return from Case Workspace.",
+    "Existing parent #144 implementation of limit/cursor refuses `open_case` on paginated Queue; subsequent return token stores no page position.",
+    "Parent PR #144 immutable SHA 5051c7e1b9444fc5e35e818c9fabffe4f9ccda2c exact-head CI 39301206887 SUCCESS; L2 pending/inaccessible and parent DRAFT."
+  ],
+  "outputs": [
+    "Native GET with limit+cursor+open_case returns existing WorkspaceHandoff only for selected Case on that authorized page.",
+    "Native POST return includes current page context (limit/cursor) and rejects stale projection or ACL changes.",
+    "Prior unpaged GET/open/return and cursor paging preserved."
+  ],
+  "acceptance_tests": [
+    "Go httptest: first page and second page; open Case C from second page, POST returns exactly same Case, scroll, sort, page size/cursor with independent current authorization on both calls.",
+    "Opening Case C from first page or Case A with second-page cursor denied; source ACL revocation or changed Case projection prevents stale page restore.",
+    "Malformed/forged/tenant-injecting and duplicated query controls fail closed before provider; original Queue and Workspace behavior remain green.",
+    "Exact-head engineering-kernel mandatory 90% changed-security floor and independent read-only L2 are required; no merge until approvals."
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "Reuse the already existing <=5000 candidate authorization and projection pipeline, including current page fingerprint; no durable cross-request snapshot or new index.",
+    "metrics": [
+      "At most 100 rows per response",
+      "Full Case candidate and nested ACLs per request",
+      "Current one existing projection, an additional page fingerprint for navigation/return"
+    ]
+  },
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-RUNTIME-DEPS",
+    "CHK-SECURITY-TESTS"
+  ],
+  "definition_of_ready": [
+    "Parent E10-INV-101M-PAGE IMPLEMENTED with exact-head engineering-kernel SUCCESS (not merged), no OPEN-013 mutation required.",
+    "One read-only Class-0 navigation behavior, limited to existing native Case Queue and workspace return context."
+  ],
+  "definition_of_done": [
+    "Published exact base/head, code, behavioral Go tests and handoff with required CI recorded.",
+    "Status IMPLEMENTED only until independent L2 and native GitHub approvals, no full CAP-INV-101 or production claim."
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 9,
+    "estimated_net_loc": 115,
+    "production_files": 2,
+    "net_production_loc": 75,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

@@ -37,6 +37,9 @@ type ReturnState struct {
 	SavedViewID      string     `json:"saved_view_id"`
 	SavedViewVersion string     `json:"saved_view_version"`
 	ViewDirty        bool       `json:"view_dirty"`
+	// Optional transient page location, never a grant or persistent snapshot.
+	PageLimit        int        `json:"page_limit,omitempty"`
+	PageCursor       string     `json:"page_cursor,omitempty"`
 }
 
 // WorkspaceHandoff is a read-only transition. Neither it nor its return token
@@ -112,6 +115,13 @@ func viewReference(tenant string, view *SavedView) (string, string, ErrorCode) {
 // OpenCaseWorkspace validates the full current projection before emitting any
 // transition. Selection is checked AFTER access control, filters and Saved View.
 func OpenCaseWorkspace(in Input, selectedCaseID string, scroll int, origin string) HandoffResult {
+	return openCaseWorkspaceWithPage(in, selectedCaseID, scroll, origin, 0, "")
+}
+
+// Reuse the same authorized handoff engine for a Case selected from one
+// visible Queue page. A paging cursor is presentation state, never authority.
+func openCaseWorkspaceWithPage(in Input, selectedCaseID string, scroll int,
+	origin string, limit int, cursor string) HandoffResult {
 	rejected := func(code ErrorCode) HandoffResult {
 		return HandoffResult{ErrorCode: code, AuditRequired: true}
 	}
@@ -123,7 +133,18 @@ func OpenCaseWorkspace(in Input, selectedCaseID string, scroll int, origin strin
 	if !projection.Allowed || projection.Projection == nil {
 		return rejected(projection.ErrorCode)
 	}
-	row, code := visibleRow(projection.Projection, selectedCaseID)
+	if limit == 0 && cursor != "" {
+		return rejected(ErrorInvalidHandoffState)
+	}
+	visibleProjection := projection.Projection
+	if limit != 0 {
+		page, err := paginateQueueProjection(projection.Projection, limit, cursor, in.SavedView)
+		if err != nil {
+			return rejected(ErrorInvalidHandoffState)
+		}
+		visibleProjection = page.Projection
+	}
+	row, code := visibleRow(visibleProjection, selectedCaseID)
 	if code != ErrorNone {
 		return rejected(code)
 	}
@@ -143,7 +164,7 @@ func OpenCaseWorkspace(in Input, selectedCaseID string, scroll int, origin strin
 		TenantRef: in.TenantRef, EnvironmentRef: in.EnvironmentRef, Origin: origin,
 		SelectedCaseID: row.Case.ID, ScrollOffset: scroll, SearchQuery: in.SearchQuery,
 		Filters: filters, Sort: sortSpecs, SavedViewID: id, SavedViewVersion: version,
-		ViewDirty: in.ViewDirty,
+		ViewDirty: in.ViewDirty, PageLimit: limit, PageCursor: cursor,
 	}
 	payload, err := json.Marshal(returnEnvelope{Version: returnTokenVersion, State: state})
 	if err != nil || len(payload) > maxReturnTokenBytes {
@@ -208,7 +229,23 @@ func RestoreCaseQueue(token string, current Input) (ReturnState, ErrorCode) {
 	if !projection.Allowed || projection.Projection == nil {
 		return fail(projection.ErrorCode)
 	}
-	if _, code = visibleRow(projection.Projection, state.SelectedCaseID); code != ErrorNone {
+	// For an opened page, revalidate both the complete current authorized
+	// projection and the specific original page before restoring selection.
+	// Revoked sources, edited row contents or Shared View changes cause
+	// pagination to fail closed rather than silently jump to another page.
+	visibleProjection := projection.Projection
+	if state.PageLimit == 0 && state.PageCursor != "" {
+		return fail(ErrorInvalidHandoffState)
+	}
+	if state.PageLimit != 0 {
+		page, err := paginateQueueProjection(projection.Projection,
+			state.PageLimit, state.PageCursor, current.SavedView)
+		if err != nil {
+			return fail(ErrorInvalidHandoffState)
+		}
+		visibleProjection = page.Projection
+	}
+	if _, code = visibleRow(visibleProjection, state.SelectedCaseID); code != ErrorNone {
 		return fail(code)
 	}
 	state.Filters, state.Sort = filters, sortSpecs
