@@ -1983,6 +1983,19 @@
         "E10-INV-101L-VIEW"
       ],
       "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-INV-101N-PAGED-RETURN"
+      ]
+    },
+    {
+      "id": "E10-INV-101N-PAGED-RETURN",
+      "title": "Restore an authorized native Queue page after Case Workspace navigation",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-INV-101M-PAGE"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
       "unlocks": []
     }
   ]
