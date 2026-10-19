@@ -149,8 +149,8 @@ test("applied native status/owner/freshness/order persist across pagination and 
  const h=harness([
   {ok:true,data:{rows:[row(id,"Restricted")],next_cursor:"page-2"}},
   {ok:true,data:{rows:[row(id,"Currently filtered")],next_cursor:"page-3"}},
-  {ok:true,data:{case:{id,title:"Allowed after new authorization",status:"review"}}},
-  {ok:true,data:{rows:[row("later","Elsewhere")]}}
+  {ok:true,data:{rows:[row("later","Elsewhere")],next_cursor:""}},
+  {ok:true,data:{case:{id:"later",title:"Allowed after new authorization",status:"review"}}}
  ]);
  await tick();
  h.nodes.get("query").value="Case Title";
