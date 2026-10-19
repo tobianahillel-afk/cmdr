@@ -350,7 +350,7 @@ func (h nativeQueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 		response, err = json.Marshal(handoff.Handoff)
 	} else if pageLimit != 0 {
-		page, pageErr := paginateQueueProjection(result.Projection, pageLimit, pageCursor)
+		page, pageErr := paginateQueueProjection(result.Projection, pageLimit, pageCursor, currentView)
 		if pageErr != nil {
 			queueError(w, http.StatusNotFound)
 			return
