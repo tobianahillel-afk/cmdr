@@ -1,0 +1,116 @@
+{
+  "schema_version": 2,
+  "id": "E10-INV-110F-SELECTOR",
+  "title": "Keep authorized Case picker selectors reopenable in Investigation Timeline",
+  "type": "task",
+  "parent": "E10-INV-110",
+  "goal": "Close the read-only Case Queue -> Investigation Timeline selector trust-boundary mismatch. Reuse one Case ID predicate so no authorized catalog entry may be published if the destination Timeline HTTP handler must reject it.",
+  "depends_on": [
+    "E10-INV-110E"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-110",
+      "CAP-INV-101"
+    ],
+    "requirements": [
+      "REQ-PROD-014",
+      "REQ-PROD-018",
+      "REQ-PROD-020"
+    ],
+    "screens": [
+      "INV-TIM-001",
+      "INV-CAS-001"
+    ],
+    "permissions": [
+      "perm.investigate.case.read"
+    ],
+    "open_decisions": [],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/screen-routing-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/case.md",
+      "cmdr-product-spec/05-domain-model/objects/timeline-entry.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/investigation-timeline/case_http.go",
+    "product-runtime/investigation-timeline/case_discovery.go",
+    "product-runtime/investigation-timeline/case_discovery_boundary_test.go",
+    "work/lots/E10-INV-110F-SELECTOR/**",
+    "work/graph.json",
+    "engineering/state/current.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/event-search/**",
+    "tools/cmdr-dev/**"
+  ],
+  "invariants": [
+    "No Case catalog candidate may appear in a discovery response if the same ID would fail the Case Timeline HTTP selector boundary.",
+    "Case and source read authorization remain separately enforced by the existing first-party owner checker.",
+    "No new IAM, Case mutation, database, source exposure or provenance semantics."
+  ],
+  "security_properties": [
+    "Reject NUL/CR/LF owner-catalog Case identifiers with the same canonical predicate as direct Timeline selection.",
+    "Fail closed before any candidate Case ACL enumeration or partially authorized Case list is serialized."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Read-only HTTP selection consistency; no persisted canonical object changes.",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Revert the shared selector reuse without changing canonical owner ACLs.",
+    "verification": [
+      "Canonical read-only picker and Timeline behaviors unaffected for ordinary Case IDs."
+    ]
+  },
+  "inputs": [
+    "Existing source-owned Case discovery and Timeline GET paths.",
+    "Canonical CAP-INV-110 navigation and CAP-INV-101 Case opening contract."
+  ],
+  "outputs": [
+    "One common selector predicate reused by picker and Timeline.",
+    "Behavioral tests that malformed provider IDs produce generic errors without partial enumeration."
+  ],
+  "acceptance_tests": [
+    "Authorized Case remains openable and owner checks still run.",
+    "NUL, CR and LF in any Case candidate block all picker results and do not invoke ACL checks.",
+    "Direct Timeline HTTP refuses identical invalid IDs.",
+    "Exact SHA mandatory Actions verified before any integration."
+  ],
+  "performance_budget": {
+    "applicable": false,
+    "rationale": "One O(n) bounded Case ID validation at an existing authorization boundary; no new data traversal."
+  },
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-RUNTIME-DEPS",
+    "CHK-SECURITY-TESTS"
+  ],
+  "definition_of_ready": [
+    "Existing E10-INV-110E verified in engineering foundation graph; this is an independent bounded read-only security compatibility fix.",
+    "Frozen PR #36 base is not mutated."
+  ],
+  "definition_of_done": [
+    "Code published on child branch with exact SHA and no mutable parent.",
+    "Negative and authorized positive paths verified by GitHub Actions, no required gate waived.",
+    "Security and integration limitations handed off, unit not claimed production accepted."
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 2,
+    "estimated_net_loc": 18,
+    "production_files": 2,
+    "net_production_loc": 10,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 0,
+    "separately_testable_behaviors": 1
+  }
+}
