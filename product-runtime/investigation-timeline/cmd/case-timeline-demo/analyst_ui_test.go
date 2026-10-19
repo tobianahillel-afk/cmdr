@@ -138,7 +138,8 @@ func TestAnalystCaseDiscoveryUiUsesSafeAuthorizedFlow(t *testing.T) {
 		if !strings.Contains(string(html), marker) { t.Fatalf("missing case chooser: %s", marker) }
 	}
 	for _, marker := range []string{`new URL("/demo-cases"`, `headers: { Authorization: "Bearer " + bearer }`,
-		`credentials: "omit"`, `option.textContent = id`, `new AbortController()`,
+		`credentials: "omit"`, `option.value = id`,
+		`option.textContent = JSON.stringify(id).replace(/ /g, "\\u0020")`, `new AbortController()`,
 		`currentRevision !== discoveryRevision`, `if (field === token)`,
 		`caseID.dispatchEvent(new Event("input"`} {
 		if !strings.Contains(string(js), marker) { t.Fatalf("missing case discovery security behavior: %s", marker) }
