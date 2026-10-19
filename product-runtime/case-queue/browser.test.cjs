@@ -47,14 +47,14 @@ test("only current authorized rows render as inert text and pagination never sen
  assert.equal(h.nodes.get("cases").children.length,1);
  assert.equal(h.nodes.get("status").textContent,"1 currently accessible Cases on this page.");
  assert.equal(h.nodes.get("cases").children[0].children.length,5);
- assert.equal(h.nodes.get("cases").children[0].children[0].textContent,"case-a");
+ assert.equal(h.nodes.get("cases").children[0].children[0].textContent,dangerous+" — case-a");
  assert.equal(h.requests[0].uri,"/case-queue?limit=25");
  assert.equal(h.requests[0].options.credentials,"same-origin");
  assert.equal(h.requests[0].options.cache,"no-store");
  assert.equal(h.nodes.get("scope").textContent,"tenant-a / prod");
  h.nodes.get("next").events.get("click")();
  await tick();
- assert.equal(h.nodes.get("cases").children[0].children[0].textContent,"case-b");
+ assert.equal(h.nodes.get("cases").children[0].children[0].textContent,"Case B — case-b");
  assert.match(h.requests[1].uri,/cursor=next-a/);
  assert.doesNotMatch(h.requests[1].uri,/tenant|permission|access_decision|bearer/);
  assert.equal(h.nodes.get("page").textContent,"Page 2");
