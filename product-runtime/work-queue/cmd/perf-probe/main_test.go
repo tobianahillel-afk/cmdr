@@ -31,6 +31,8 @@ func TestCommandQueueProbeRejectsUnsupportedModesBeforeReceipt(t *testing.T) {
 		{"-iterations", "100001"},
 		{"-iterations", "not-an-integer"},
 		{"-mode", "resource"},
+		{"-mode", "resource", "-memory-limit-mib", "1"},
+		{"-mode", "latency", "-memory-limit-mib", "128"},
 		{"-operation", "saved-view"},
 		{"-operation", "projection", "unexpected-position"},
 		{"-invalid-option"},
@@ -51,5 +53,19 @@ var _ io.Writer = unavailableReceiptWriter{}
 func TestCommandQueueProbeSurfacesReceiptFailure(t *testing.T) {
 	if err := run([]string{"-iterations", "1"}, unavailableReceiptWriter{}); err == nil {
 		t.Fatal("failed to report unusable benchmark receipt sink")
+	}
+}
+
+func TestCommandQueueResourceProbeMeasuresRealProjectionHeap(t *testing.T) {
+	var output bytes.Buffer
+	if err:=run([]string{"-iterations","1000","-operation","projection","-mode","resource","-memory-limit-mib","128"},&output);err!=nil {
+		t.Fatalf("Command resource probe failed: %v",err)
+	}
+	var sample observation
+	if err:=json.Unmarshal(output.Bytes(),&sample);err!=nil {t.Fatal(err)}
+	if sample.Mode!="resource" || sample.Operation!="projection" || sample.Operations!=1000 ||
+		sample.PeakHeapBytes==0 || sample.TotalAllocationBytes==0 ||
+		sample.PeakHeapBytes>128*1024*1024 || sample.ElapsedNS<=0 {
+		t.Fatalf("Command probe did not actually record bounded runtime heap/allocations: %+v",sample)
 	}
 }
