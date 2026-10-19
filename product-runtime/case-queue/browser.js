@@ -25,7 +25,7 @@
     ++selectionGeneration;
     if (selectionController) selectionController.abort();
     selectionController = null;
-    selection.hidden = true;
+    selected.hidden = true;
     selectionTrigger = null;
     for (const id of ["selection-title", "selection-id", "selection-status-value",
       "selection-owner", "selection-updated", "selection-freshness",
@@ -72,7 +72,7 @@
         el(name).textContent = String(value ?? "Unavailable");
       }
       selectedStatus.textContent = "Current Case authorization verified. Read-only selection.";
-      selection.hidden = false;
+      selected.hidden = false;
       selectionTrigger = trigger;
       selectedClose.focus();
     } catch (_) {
@@ -87,7 +87,7 @@
     if (trigger && trigger.isConnected !== false) trigger.focus();
   });
   window.addEventListener("keydown", event => {
-    if (event.key === "Escape" && !selection.hidden) {
+    if (event.key === "Escape" && !selected.hidden) {
       event.preventDefault();
       const trigger = selectionTrigger;
       clearSelection();
