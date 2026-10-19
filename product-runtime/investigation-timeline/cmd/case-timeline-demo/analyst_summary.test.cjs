@@ -2302,10 +2302,23 @@ test("CAP-INV-007 selected-result inspection reauthorizes typed source and denie
   check.checked=true;check.handlers.change();
   const inspect=f["local-search-workspace-actions"].children[1];
   assert.equal(inspect.disabled,false);
+  // The unrelated Timeline selection can be invalid or restrictive while
+  // the separately authorized completed Search Job has valid references.
+  // Do not reinterpret its source navigation with the Timeline's filters.
+  f["from"].value="not-a-valid-timeline-date";
+  f["kind"].value="inferred";
+  f.search.value="unrelated timeline keyword";
   inspect.handlers.click();
   await flush();await flush();
   assert.deepEqual(env.requests.map(request=>request.url.pathname),
     ["/demo-local-search","/case-source-navigation","/demo-source-open"]);
+  const navigation=env.requests[1].url;
+  assert.equal(navigation.searchParams.get("case_id"),"case-disk");
+  assert.equal(navigation.searchParams.get("entry_id"),id);
+  assert.equal(navigation.searchParams.has("kind"),false);
+  assert.equal(navigation.searchParams.has("q"),false);
+  assert.equal(navigation.searchParams.has("from"),false);
+  assert.equal(navigation.searchParams.has("to"),false);
   assert.equal(env.requests[2].url.searchParams.get("entry_id"),id);
   assert.equal(env.requests[2].options.headers.Authorization,"Bearer ephemeral-token");
   assert.equal(env.requests[2].url.href.includes("ephemeral-token"),false);
