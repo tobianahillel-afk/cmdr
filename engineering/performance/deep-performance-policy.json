@@ -278,6 +278,25 @@
       "concurrency": 1,
       "iterations": 10000,
       "rationale": "Preimplementation on-demand resource gate; cannot pass or emit a measurement before a real tested synthetic Timeline workload exists."
+    },
+    {
+      "id": "PERF-DEEP-COMMAND-WORK-QUEUE-PROJECTION",
+      "performance_target_id": "PERF-TGT-COMMAND-WORK-QUEUE-PROJECTION",
+      "kind": "resource",
+      "handler_key": "builtin-command-work-queue-projection-v1",
+      "stages": [
+        "on-demand"
+      ],
+      "trigger_paths": [
+        "product-runtime/work-queue/**",
+        "tools/cmdr-dev/performance_command_work_queue.go"
+      ],
+      "duration_seconds": 0,
+      "timeout_seconds": 30,
+      "memory_limit_mib": 128,
+      "concurrency": 1,
+      "iterations": 1000,
+      "rationale": "Executable on-demand heap/allocation sample of the actual bounded first-party Command Incident/Task projection using its own Go probe. No live host ACL provider, Shared Saved View engine or production latency/memory SLO is claimed."
     }
   ]
 }
