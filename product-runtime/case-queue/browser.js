@@ -6,6 +6,27 @@
   const tbody = el("cases"), status = el("status"), scope = el("scope");
   const first = el("prev"), next = el("next"), page = el("page");
   const search = el("search"), query = el("query");
+  const caseStatus = el("case-status"), caseOwner = el("case-owner");
+  const caseFreshness = el("case-freshness"), caseSort = el("case-sort");
+  // Applied server query is committed only by form submission. An unsubmitted
+  // edit must NEVER change the ACL/page against which Inspect is reauthorized.
+  let applied = {q:"",status:"",owner:"",freshness:"",sort:""};
+  function currentControls() {
+    return {q:query.value.trim().slice(0,256),
+      status:caseStatus.value.trim().slice(0,128),
+      owner:caseOwner.value.trim().slice(0,128),
+      freshness:caseFreshness.value,sort:caseSort.value};
+  }
+  function queueParams(extra = {}) {
+    const args = new URLSearchParams({limit:String(limit)});
+    for (const [name, value] of Object.entries(applied)) {
+      if (value) args.set(name,value);
+    }
+    for (const [name, value] of Object.entries(extra)) {
+      if (value) args.set(name,value);
+    }
+    return args;
+  }
   const selected = el("selection"), selectedStatus = el("selection-status");
   const selectedClose = el("selection-close");
   let cursor = "", history = [], generation = 0, controller = null;
@@ -40,10 +61,7 @@
     const currentPage = generation;
     selectionController = new AbortController();
     selectedStatus.textContent = "Rechecking Case access…";
-    const args = new URLSearchParams({limit:String(limit),inspect_case:id});
-    const term = query.value.trim();
-    if (term) args.set("q",term.slice(0,256));
-    if (cursor) args.set("cursor",cursor);
+    const args = queueParams({inspect_case:id,cursor});
     try {
       const response = await fetch("/case-queue?" + args.toString(), {
         credentials:"same-origin",cache:"no-store",redirect:"error",
@@ -136,10 +154,7 @@
     clearRows(); // never keep old private Case data after a new auth attempt
     status.textContent = "Checking current Case permissions…";
     first.disabled = next.disabled = true;
-    const args = new URLSearchParams({ limit: String(limit) });
-    const term = query.value.trim();
-    if (term) args.set("q", term.slice(0, 256));
-    if (requestCursor) args.set("cursor", requestCursor);
+    const args = queueParams({cursor:requestCursor});
     try {
       const reply = await fetch("/case-queue?" + args.toString(), {
         credentials: "same-origin", cache: "no-store", redirect: "error",
@@ -162,12 +177,16 @@
   }
   search.addEventListener("submit", event => {
     event.preventDefault();
+    applied = currentControls();
     history = [];
     cursor = "";
     load();
   });
   el("clear").addEventListener("click", () => {
     query.value = "";
+    caseStatus.value = caseOwner.value = "";
+    caseFreshness.value = caseSort.value = "";
+    applied = currentControls();
     history = [];
     cursor = "";
     load();
