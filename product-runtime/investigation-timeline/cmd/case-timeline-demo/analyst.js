@@ -925,6 +925,9 @@
   let sourceRevision = 0;
   let sourceRequest = null;
   let returnLinkURL = null;
+  // Search Job result inspection belongs to the transient result workspace,
+  // not to the independently filtered Case Timeline panel.
+  let sourceOpenedFromCompletedSearch = false;
   let restoreOffsetOnSubmit = false;
   let restoredRange = null;
 
@@ -1872,6 +1875,7 @@
 
   function clearSource() {
     ++sourceRevision;
+    sourceOpenedFromCompletedSearch = false;
     returnLinkURL = null;
     copyReturnLink.disabled = true;
     if (sourceRequest) sourceRequest.abort();
@@ -1949,6 +1953,7 @@
   async function openSource(entryID, fromCompletedSearchJob = false) {
     const currentRevision = ++sourceRevision;
     if (sourceRequest) sourceRequest.abort();
+    sourceOpenedFromCompletedSearch = false;
     sourceDetail.hidden = true;
     returnToCase.disabled = true;
     const selectedCase = caseID.value.trim();
@@ -2039,6 +2044,7 @@
       addLine(sourceDetail, "Aperçu propriétaire synthétique :", owner.preview || "Aucun aperçu disponible");
       addLine(sourceDetail, "Ouverture :", "source vérifiée par le propriétaire à l’ouverture ; démonstration locale, aucune donnée réelle.");
       sourceDetail.hidden = false;
+      sourceOpenedFromCompletedSearch = fromCompletedSearchJob;
       returnToCase.disabled = false;
       sourceStatus.textContent = "Objet synthétique ouvert après une nouvelle vérification côté serveur.";
     } catch {
@@ -2125,8 +2131,12 @@
   });
 
   returnToCase.addEventListener("click", () => {
+    // The local Search Job workspace remains on this very page. Do not
+    // execute a new, unrelated Timeline query or destroy its selection:
+    // only an explicit new Search Job may reset this transient workspace.
+    const fromSearch = sourceOpenedFromCompletedSearch;
     clearSource();
-    fetchPage(); // reauthorize the Case and Timeline; keep current filters and offset
+    if (!fromSearch) fetchPage(); // Timeline origin keeps its own existing return
   });
   analyze.addEventListener("click", analyzeAuthorizedCase);
   compareButton.addEventListener("click", compareAuthorizedCases);
