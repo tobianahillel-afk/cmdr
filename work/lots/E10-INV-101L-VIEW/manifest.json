@@ -1,0 +1,131 @@
+{
+  "schema_version": 2,
+  "id": "E10-INV-101L-VIEW",
+  "title": "Apply the current server-authorized Shared Saved View in native Case Queue HTTP",
+  "type": "task",
+  "parent": "E10-INV-101",
+  "goal": "Bind a server-resolved, versioned, permission-rechecked Shared Saved View to the existing native owner-authorized Case Queue GET -> Workspace handoff -> POST return workflow without inventing view storage or a second projector.",
+  "depends_on": [
+    "E10-INV-101K-RETURN"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-101"
+    ],
+    "requirements": [
+      "REQ-PROD-014",
+      "REQ-PROD-020",
+      "REQ-OBJ-011",
+      "REQ-UX-009"
+    ],
+    "screens": [
+      "INV-CAS-001"
+    ],
+    "permissions": [
+      "perm.investigate.case.read"
+    ],
+    "open_decisions": [],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/saved-view-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/pagination-filtering-sorting.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/case.md",
+      "cmdr-product-spec/05-domain-model/objects/incident.md",
+      "cmdr-product-spec/05-domain-model/objects/finding.md",
+      "cmdr-product-spec/05-domain-model/objects/saved-view.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/case-queue/http.go",
+    "product-runtime/case-queue/http_saved_view_test.go",
+    "product-runtime/case-queue/README.md",
+    "work/lots/E10-INV-101L-VIEW/**",
+    "work/graph.json",
+    "engineering/state/current.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/investigation-timeline/**",
+    "product-runtime/event-search/**",
+    "tools/cmdr-dev/**"
+  ],
+  "invariants": [
+    "Only the authenticated host's Shared Capabilities provider supplies the selected view and per-element permission decisions; client URL/body and Case candidates may never grant or choose a view.",
+    "One existing native ProjectWithSavedViewFallback and RestoreCaseQueue implementation applies and revalidates the sanitized view on GET open and POST return.",
+    "Tenant/environment and Case/Incident/Finding object-read are checked on every request; denied saved-view fields/filters/sort never appear in output.",
+    "No Shared persistence or mutation, IAM implementation, Case assignment/export, host TLS/CSRF decisions or new third-party runtime dependencies."
+  ],
+  "security_properties": [
+    "Host supplies a trusted Shared Saved View snapshot with authoritative per-element AccessDecision resolved under the current authenticated tenant/environment.",
+    "Cross-tenant or invalid saved view is rejected with generic error; a denied view falls back only to unconfigured default on fresh GET.",
+    "POST return resolves the current view again and rejects a saved-view version/revocation mismatch without treating an old token as authority.",
+    "Client-supplied view_id/tenant/saved_view JSON is not admitted by the native HTTP boundary."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Read-only adapter; Shared Saved View is not persisted or mutated.",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Drop optional Shared constructor and adapter; keep original default Queue GET/open/return and immutable Saved View runtime.",
+    "verification": [
+      "Original default Queue HTTP tests continue",
+      "No Case or Shared Saved View mutation"
+    ]
+  },
+  "inputs": [
+    "Canonical CAP-INV-101 full §8/12/17/25 and Shared Saved Views (cmdr-product-spec/12-shared-capabilities/saved-views.md) require permission-safe read-only application without taking Shared ownership.",
+    "Frozen Git parent PR #142 SHA a41bbcf6b2ac40f366b17c29f9bd1c573d7ce6ff, E10-INV-101K-RETURN IMPLEMENTED with exact engineering CI SUCCESS, L2 already scheduled/executed but report inaccessible.",
+    "Existing E10-INV-101C-VIEW VERIFIED provides ApplySavedView/ProjectWithSavedViewFallback and E10-INV-101D-HANDOFF VERIFIED provides RestoreCaseQueue; host native HTTP from H/J/K already exists."
+  ],
+  "outputs": [
+    "Opt-in first-party native HTTP handler accepts a host Shared view resolver, not any client-selected view ID.",
+    "GET Case Queue projects only approved Shared fields/filters/sort; GET open Case and POST return each reload and reauthorize the selected view and reject changes.",
+    "Legacy Queue host constructor without Shared provider remains compatible, and denied view current GET uses existing default fallback."
+  ],
+  "acceptance_tests": [
+    "Trusted Shared view with allowed status filter and denied field/filter yields only allowed Case and fields over native GET; no denied field name, filter value, Case metadata or count leaks.",
+    "GET open_case -> POST return preserves view ID/version and selection/scroll, with fresh Shared authorization on every request.",
+    "Revoked view or updated view version between open and return fails closed with no Case ID or token returned; denied view fresh GET falls back safely.",
+    "Foreign/invalid/erroring Shared provider responses fail closed, client view_id rejected before providers, legacy constructor continues default view.",
+    "Exact HEAD mandatory engineering-kernel CHK-SECURITY-TESTS and required checks succeed; independent one-shot read-only L2, native reviewer approval and Git merge remain separate."
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "One extra bounded trusted Shared read per HTTP request, reuse existing projection pass over <=5000 authorized candidates, no network/storage call owned by Case Queue",
+    "metrics": [
+      "One Shared view resolved per GET/open/POST return",
+      "No duplicate Saved View filter/sort implementation",
+      "No increase in <=4MiB JSON output and candidate 5000 limit"
+    ]
+  },
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-RUNTIME-DEPS",
+    "CHK-SECURITY-TESTS"
+  ],
+  "definition_of_ready": [
+    "E10-INV-101C-VIEW and D-HANDOFF VERIFIED; native HTTP K-RETURN IMPLEMENTED on frozen green parent; new Shared integration is optional and host-supplied read-only.",
+    "CAP-INV-101 Saved View Class-0 use is canonically defined; OPEN-013 applies to Case mutations, which are excluded. Shared is canonical owner."
+  ],
+  "definition_of_done": [
+    "Source, behavioral Go tests, handoff, graph state IMPLEMENTED, exact-head CI and independent L2 documented.",
+    "No VERIFIED/ACCEPTED promotion without independent review, native approvals and required integration checks."
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 6,
+    "estimated_net_loc": 120,
+    "production_files": 1,
+    "net_production_loc": 42,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}
