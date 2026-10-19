@@ -13,6 +13,7 @@
   const kind = document.getElementById("kind");
   const search = document.getElementById("search");
   const caseOptions = document.getElementById("case-options");
+  const casePickFilter = document.getElementById("case-pick-filter");
   const discover = document.getElementById("discover");
   const discoveryStatus = document.getElementById("case-discovery-status");
   const fromInput = document.getElementById("from");
@@ -1801,11 +1802,40 @@
     message.textContent = "Sélection de retour restaurée. Saisissez le jeton temporaire, puis chargez ; tous les accès seront revérifiés.";
   }
 
+  // CAP-INV-101: only the completed, owner-authorized Case discovery result
+  // may enter this transient client-side search index. Filtering never grants
+  // Case authority, issues another HTTP request or alters the active Case.
+  let authorizedCaseIDs = [];
   function clearCaseChoices() {
+    authorizedCaseIDs = [];
     caseOptions.replaceChildren();
     caseOptions.add(new Option("Aucun Case chargé", ""));
+    caseOptions.value = "";
     caseOptions.disabled = true;
+    casePickFilter.value = "";
+    casePickFilter.disabled = true;
     discoveryStatus.textContent = "";
+  }
+
+  function showAuthorizedCaseFilter() {
+    const prior = caseOptions.value;
+    const fragment = casePickFilter.value;
+    // Case IDs are opaque and byte-distinct. No trim, case folding, aliasing
+    // or interpretation of the operator's literal substring.
+    const matches = authorizedCaseIDs.filter(id => id.includes(fragment));
+    caseOptions.replaceChildren();
+    caseOptions.add(new Option(matches.length ? "Choisir un Case autorisé" :
+      "Aucun Case correspondant", ""));
+    for (const id of matches) {
+      const option = document.createElement("option");
+      option.value = id;
+      option.textContent = JSON.stringify(id).replace(/ /g, "\\u0020");
+      caseOptions.add(option);
+    }
+    caseOptions.value = matches.includes(prior) ? prior : "";
+    caseOptions.disabled = matches.length === 0;
+    discoveryStatus.textContent = matches.length + " Case(s) correspondant(s) sur " +
+      authorizedCaseIDs.length + " autorisé(s). Filtrage local, sans requête supplémentaire.";
   }
 
   async function discoverCases() {
@@ -1839,17 +1869,9 @@
             id.length > 1024)) {
         throw new Error("Malformed Case catalogue");
       }
-      for (const id of result.cases) {
-        // Only the visual label is escaped: whitespace-significant owner IDs
-        // must remain distinguishable in native select controls. Option.value
-        // is the unchanged server-issued identity used for every authorization.
-        const option = document.createElement("option");
-        option.value = id;
-        option.textContent = JSON.stringify(id).replace(/ /g, "\\u0020");
-        caseOptions.add(option);
-      }
-      caseOptions.disabled = result.cases.length === 0;
-      discoveryStatus.textContent = result.cases.length + " Case(s) accessibles.";
+      authorizedCaseIDs = result.cases.slice();
+      casePickFilter.disabled = authorizedCaseIDs.length === 0;
+      showAuthorizedCaseFilter();
     } catch {
       if (currentRevision !== discoveryRevision) return;
       clearCaseChoices();
@@ -2304,6 +2326,9 @@
     }
   });
   discover.addEventListener("click", discoverCases);
+  casePickFilter.addEventListener("input", () => {
+    if (!casePickFilter.disabled) showAuthorizedCaseFilter();
+  });
   caseOptions.addEventListener("change", () => {
     if (!caseOptions.value) return;
     caseID.value = caseOptions.value;
