@@ -174,8 +174,8 @@ func TestNativeCasePagesRejectInvalidOrForgedRequestsBeforeProviders(t *testing.
 		"/case-queue?limit=-1", "/case-queue?limit=NaN",
 		"/case-queue?cursor=abc", "/case-queue?limit=1&limit=2",
 		"/case-queue?limit=1&cursor=", "/case-queue?limit=1&cursor=%00",
-		"/case-queue?limit=1&open_case=case-a",
-		"/case-queue?limit=1&cursor=abc&open_case=case-a",
+		"/case-queue?cursor=abc&open_case=case-a",
+		"/case-queue?limit=1&open_case=case-a&scroll=-1",
 		"/case-queue?limit=1&sort=not_allowed:asc",
 		"/case-queue?limit=1&tenant=tenant-b",
 	} {
