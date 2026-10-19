@@ -1903,6 +1903,17 @@
       ],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": []
+    },
+    {
+      "id": "E10-INV-110H-STARTUP-SELECTOR",
+      "title": "Fail closed on invalid owner Case selectors before synthetic viewer startup",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-INV-110G-EXACT"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": []
     }
   ]
 }
