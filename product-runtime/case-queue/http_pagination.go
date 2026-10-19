@@ -25,9 +25,12 @@ type queuePageResponse struct {
 	NextCursor string `json:"next_cursor,omitempty"`
 }
 
-func queueProjectionDigest(p *Projection) (string, error) {
+func queueProjectionDigest(p *Projection, view *SavedView) (string, error) {
 	var h hash.Hash = sha256.New()
-	if err := json.NewEncoder(h).Encode(p); err != nil {
+	if err := json.NewEncoder(h).Encode(struct {
+		Projection *Projection `json:"projection"`
+		CurrentView *SavedView `json:"current_view"`
+	}{Projection: p, CurrentView: view}); err != nil {
 		return "", err
 	}
 	return hex.EncodeToString(h.Sum(nil)), nil
@@ -38,11 +41,11 @@ func queueProjectionDigest(p *Projection) (string, error) {
 // Shared Saved View effects; any change invalidates the previous cursor.
 // A forged cursor can at most change an offset within the current authorized
 // rows; neither its offset nor digest is treated as authority.
-func paginateQueueProjection(p *Projection, limit int, opaque string) (queuePageResponse, error) {
+func paginateQueueProjection(p *Projection, limit int, opaque string, view *SavedView) (queuePageResponse, error) {
 	if p == nil || limit < 1 || limit > 100 {
 		return queuePageResponse{}, errors.New("invalid Case Queue page")
 	}
-	digest, err := queueProjectionDigest(p)
+	digest, err := queueProjectionDigest(p, view)
 	if err != nil {
 		return queuePageResponse{}, err
 	}
