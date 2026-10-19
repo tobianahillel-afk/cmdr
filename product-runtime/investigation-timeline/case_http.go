@@ -15,10 +15,15 @@ const maxHTTPCaseIDBytes = 1024
 // The Case picker and Case Timeline must apply identical selector rules.
 // Candidate Case IDs come from an owner provider, not from an HTTP request,
 // but must remain safe, reopenable HTTP selectors after authorization.
-func validHTTPCaseSelector(id string) bool {
+// ValidHTTPCaseSelector is the single first-party predicate shared by
+// Case picker, Timeline HTTP and the local Case viewer bootstrap.
+// It preserves opaque, whitespace-distinct owner IDs without normalization.
+func ValidHTTPCaseSelector(id string) bool {
 	return !invalidScope(id) && len(id) <= maxHTTPCaseIDBytes &&
 		utf8.ValidString(id) && !strings.ContainsAny(id, "\x00\r\n")
 }
+
+func validHTTPCaseSelector(id string) bool { return ValidHTTPCaseSelector(id) }
 
 // CaseTimelineSessionResolver authenticates a request at the server boundary.
 // It must return a context derived from the request carrying the verified
