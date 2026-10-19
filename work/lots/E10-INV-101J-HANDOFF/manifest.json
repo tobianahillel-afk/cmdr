@@ -1,0 +1,126 @@
+{
+  "schema_version": 2,
+  "id": "E10-INV-101J-HANDOFF",
+  "title": "Integrate server-authorized native Case Queue selection with existing Case Workspace handoff",
+  "type": "task",
+  "parent": "E10-INV-101",
+  "goal": "Expose CAP-INV-101 Class-0 Case Queue -> INV-CAS-001 navigation through the native owner-authorized HTTP projection, reusing OpenCaseWorkspace and RestoreCaseQueue without new Case or authorization semantics.",
+  "depends_on": [
+    "E10-INV-101I-FILTERS"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-101"
+    ],
+    "requirements": [
+      "REQ-PROD-014",
+      "REQ-PROD-020"
+    ],
+    "screens": [
+      "INV-CAS-001"
+    ],
+    "permissions": [
+      "perm.investigate.case.read"
+    ],
+    "open_decisions": [],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/pagination-filtering-sorting.md",
+      "cmdr-product-spec/17-implementation-contracts/error-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/case.md",
+      "cmdr-product-spec/05-domain-model/objects/incident.md",
+      "cmdr-product-spec/05-domain-model/objects/finding.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/case-queue/http.go",
+    "product-runtime/case-queue/http_handoff_test.go",
+    "product-runtime/case-queue/README.md",
+    "work/lots/E10-INV-101J-HANDOFF/**",
+    "work/graph.json",
+    "engineering/state/current.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/investigation-timeline/**",
+    "product-runtime/event-search/**",
+    "tools/cmdr-dev/**"
+  ],
+  "invariants": [
+    "Existing native Queue session/provider/object authorization remains the only owner of authorization; no client-selected tenant, environment, Saved View, privilege or origin.",
+    "OpenCaseWorkspace is the existing first-party transition engine; it reprojects the same authorized candidate graph and refuses denied, filtered, missing or stale Case IDs.",
+    "An opaque URL-decoded Case ID remains byte-exact, and ReturnToken is presentation state only. RestoreCaseQueue must recheck current Case/read and view state; never treat the token as authorization.",
+    "No new Case mutation, export, incident Task ownership, production IAM or durable queue/provider introduced."
+  ],
+  "security_properties": [
+    "HTTP selection is parsed as a single bounded literal; malformed, unexpected or duplicate params and orphaned/invalid scroll fail before session/provider access.",
+    "Server filters every Case and independently authorizes Incident/Finding before the first-party selection; denied Case IDs/titles never returned.",
+    "Stale Cases and Cases filtered out by the current query are not eligible for navigation, including existing token return state.",
+    "Preserve no-store, no-referrer, authorization vary, response caps and generic errors."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Read-only navigation response only; no migration, IAM or storage change.",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Revert optional HTTP open_case/scroll branch; preserve existing native Queue listing/filter/sort and all first-party handoff semantics.",
+    "verification": [
+      "Original GET projection and all prior tests remain unchanged",
+      "No stored Case, token, Saved View or authorization changes"
+    ]
+  },
+  "inputs": [
+    "E10-INV-101F verified read-only Case Queue projection and E10-INV-101D-HANDOFF verified canonical first-party OpenCaseWorkspace/RestoreCaseQueue engine.",
+    "E10-INV-101I-FILTERS implemented native HTTP filter/sort on frozen parent SHA 030b06748d0c0d646e3f95b1e67e12631e73321b with engineering-kernel run 39253620402 SUCCESS (not accepted; L2 pending)."
+  ],
+  "outputs": [
+    "Native Class-0 GET Case selection returns the existing WorkspaceHandoff for precisely one currently owner-authorized filter-visible non-stale Case.",
+    "Behavioral Go HTTP tests prove authorized navigation/restoration, denied/stale/filtered response fail-closed and early invalid query rejection."
+  ],
+  "acceptance_tests": [
+    "Selecting accessible Case from a filtered native Queue preserves exact opaque ID, filters, sort and scroll in the existing handoff return token; RestoreCaseQueue reauthorizes.",
+    "Case filtered out, stale, denied or missing cannot return a navigation token; changing current Case permission blocks token restoration.",
+    "Unknown, duplicate, malformed, tenant/permission/origin override, invalid scroll rejected before any provider or auth call.",
+    "Legacy query-only GET remains a normal authorized projection, with exact-head mandatory security CI and independent review recorded."
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "No new data collection. Bounded <=5000 owner candidate list and existing native sorting/projection, with one additional in-memory first-party handoff projection only when opening selected Case.",
+    "metrics": [
+      "Single <=1024-byte opaque Case selection and bounded scroll; <=4096 raw query bytes, <=7 unique keys",
+      "No additional provider or owner authorization pass after original full server ACL scan",
+      "One extra bounded in-memory projector pass for selected Case only"
+    ]
+  },
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-RUNTIME-DEPS",
+    "CHK-SECURITY-TESTS"
+  ],
+  "definition_of_ready": [
+    "E10-INV-101D-HANDOFF and E10-INV-101F VERIFIED, native HTTP filters E10-INV-101I-FILTERS IMPLEMENTED with exact SHA engineering CI SUCCESS; child remains unaccepted until independent L2.",
+    "Class-0 read-only Case Queue-to-Workspace transition is canonically defined and does not depend on OPEN-013 Case mutation nor final screen columns."
+  ],
+  "definition_of_done": [
+    "Native HTTP handler exposes existing first-party WorkspaceHandoff for exact server authorized queue selection.",
+    "Go HTTP tests prove the full Case authorization, denied/stale/filtered and restored token behavior, exact-head CI.",
+    "Graph remains IMPLEMENTED until L2/required gate and GitHub integration are independently demonstrated; parent audited SHA unchanged."
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 6,
+    "estimated_net_loc": 90,
+    "production_files": 1,
+    "net_production_loc": 47,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}
