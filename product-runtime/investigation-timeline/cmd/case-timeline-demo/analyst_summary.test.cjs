@@ -2263,3 +2263,62 @@ test("CAP-INV-007 refuses Wazuh grouping metadata for a result absent from the c
   assert.equal(f["local-search-workspace-actions"].children.length,0);
   assert.match(f["local-search-status"].textContent,/Aucun résultat partiel/);
 });
+
+test("CAP-INV-007 selected-result inspection reauthorizes typed source and denies revoked or stale controls",async()=>{
+  const id="local-jsonl-entry-"+"a".repeat(64);
+  let revoked=false;
+  const env=boot((url,options)=>{
+    if (url.pathname==="/demo-local-search") return {ok:true,async json(){return {
+      format:"cmdr-local-jsonl-event-search-v1",synthetic:true,case_id:"case-disk",
+      job:{ID:"source-open-authorized-job",State:"completed",AuditTrail:[{},{},{}],
+        ResultRefs:[{Source:"normalized-jsonl-authorized-import",Ref:id}]}
+    }}};
+    if (url.pathname==="/case-source-navigation") return {ok:!revoked,async json(){
+      return {status:"ready",kind:"telemetry-event",object_id:"owner-verified-event",
+        return_is_authority:false,return_case_id:"case-disk",
+        return_entry_id:url.searchParams.get("entry_id"),return_query:"case_id=case-disk"};
+    }};
+    if (url.pathname==="/demo-source-open") return {ok:true,async json(){return {
+      status:"ready",synthetic:true,kind:"telemetry-event",
+      case_id:"case-disk",entry_id:url.searchParams.get("entry_id"),
+      object_id:"owner-verified-event",preview:"Sensitive source preview only after owner checks"
+    }}};
+    throw Error("Unexpected endpoint "+url.pathname);
+  });
+  const f=env.fields;
+  f["local-search-family"].value="all";
+  f["local-search-field"].value="source_ref";
+  f["local-search-value"].value="local-jsonl-source-";
+  f["local-search-from"].value="2026-10-17T09:59:00";
+  f["local-search-to"].value="2026-10-17T10:03:00";
+  f["local-search-run"].handlers.click();
+  await flush();await flush();
+  const check=f["local-search-results"].children[0].children[0].children[1];
+  check.checked=true;check.handlers.change();
+  const inspect=f["local-search-workspace-actions"].children[1];
+  assert.equal(inspect.disabled,false);
+  inspect.handlers.click();
+  await flush();await flush();
+  assert.deepEqual(env.requests.map(request=>request.url.pathname),
+    ["/demo-local-search","/case-source-navigation","/demo-source-open"]);
+  assert.equal(env.requests[2].url.searchParams.get("entry_id"),id);
+  assert.equal(env.requests[2].options.headers.Authorization,"Bearer ephemeral-token");
+  assert.equal(env.requests[2].url.href.includes("ephemeral-token"),false);
+  assert.equal(f["source-detail"].hidden,false);
+
+  // This same ref is not durable authority: the next click must go back
+  // to the source owner and may be denied independently after revocation.
+  revoked=true;
+  inspect.handlers.click();
+  await flush();await flush();
+  assert.equal(env.requests.length,4);
+  assert.equal(env.requests[3].url.pathname,"/case-source-navigation");
+  assert.equal(f["source-detail"].hidden,true);
+  assert.equal(f["copy-return-link"].disabled,true);
+  f["token"].value="revoked-token";
+  f["token"].handlers.input();
+  inspect.handlers.click();
+  await flush();
+  assert.equal(env.requests.length,4,"stale selected results must not reopen after bearer rotation");
+  assert.equal(f["local-search-workspace-actions"].children.length,0);
+});
