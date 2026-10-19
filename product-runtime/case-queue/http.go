@@ -145,7 +145,7 @@ func (h nativeQueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 		var err error
 		parameters, err = url.ParseQuery(r.URL.RawQuery)
-		if err != nil || len(parameters) > 7 {
+		if err != nil || len(parameters) > 9 {
 			queueError(w, http.StatusBadRequest)
 			return
 		}
@@ -154,6 +154,8 @@ func (h nativeQueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	openCase := ""
 	scrollOffset := 0
 	scrollProvided := false
+	pageLimit := 0
+	pageCursor := ""
 	var filters []Filter
 	var sortSpecs []SortSpec
 	// Only literal, single-valued queue controls reach the existing
@@ -184,6 +186,19 @@ func (h nativeQueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			scrollOffset = parsed
 		case "q":
 			query = value
+		case "limit":
+			parsed, err := strconv.Atoi(value)
+			if err != nil || parsed < 1 || parsed > 100 {
+				queueError(w, http.StatusBadRequest)
+				return
+			}
+			pageLimit = parsed
+		case "cursor":
+			if value == "" {
+				queueError(w, http.StatusBadRequest)
+				return
+			}
+			pageCursor = value
 		case "status", "owner", "freshness":
 			if len(value) > 128 || strings.TrimSpace(value) == "" {
 				queueError(w, http.StatusBadRequest)
@@ -203,7 +218,9 @@ func (h nativeQueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	if scrollProvided && openCase == "" {
+	if (scrollProvided && openCase == "") ||
+		(pageCursor != "" && pageLimit == 0) ||
+		(pageLimit != 0 && openCase != "") {
 		queueError(w, http.StatusBadRequest)
 		return
 	}
@@ -332,6 +349,13 @@ func (h nativeQueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		response, err = json.Marshal(handoff.Handoff)
+	} else if pageLimit != 0 {
+		page, pageErr := paginateQueueProjection(result.Projection, pageLimit, pageCursor)
+		if pageErr != nil {
+			queueError(w, http.StatusNotFound)
+			return
+		}
+		response, err = json.Marshal(page)
 	} else {
 		response, err = json.Marshal(result.Projection)
 	}
