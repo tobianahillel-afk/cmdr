@@ -17,9 +17,9 @@
     "phase_title": "Scaled product implementation program bootstrap"
   },
   "execution": {
-    "active_work_unit": "E10-INV-101O-INCIDENT",
+    "active_work_unit": "E10-INV-101P-INSPECT",
     "preferred_next_unit": null,
-    "selection_rule": "2026-10-19 reconciled: PR #145 HEAD d31c326a785134e06b86fa79c9d8701d0a287a27 exact-head engineering-kernel run 39305417608 SUCCESS, but remains DRAFT, L2/native approval not established. CAP-INV-101 §17 Command Incident->linked Cases has no native Incident ID selector even though current Case/Incident source owner checks and Queue pagination/return exist. E10-INV-101O-INCIDENT implements bounded exact opaque Incident filter on the one currently projected ACL-authorized IncidentContext, preserving existing Saved View and page/workspace return. New child branch/PR CI pending; status IMPLEMENTED only, all parent PRs and main unmerged, no canonical many-to-many relation service or production IAM. Do not select future work from this cache without GitHub reconciliation."
+    "selection_rule": "2026-10-19: canonical CAP-INV-101 §17 Queue→Inspector data projection missing on verified PR #146; E10-INV-101P-INSPECT implements server-authorized inspect_case over same filtered/paged Case Queue, no new owner/IAM/UI. Branch is child of immutable PR #146 HEAD 6a7a265b473def439d19f2a43bc381feac6256df. Work status IMPLEMENTED only; exact HEAD CI pending at state-cache update and L2/native approval not established. Parent stack and main remain draft/unmerged; reconcile GitHub before choosing next unit."
   },
   "reconciliation": {
     "required_on_resume": true,
