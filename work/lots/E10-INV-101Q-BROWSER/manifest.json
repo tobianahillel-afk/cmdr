@@ -41,6 +41,8 @@
     "product-runtime/case-queue/browser.js",
     "product-runtime/case-queue/browser.css",
     "product-runtime/case-queue/browser_test.go",
+    "product-runtime/case-queue/browser.test.cjs",
+    "product-runtime/case-queue/browser_node_test.go",
     "product-runtime/case-queue/README.md",
     "work/lots/E10-INV-101Q-BROWSER/**",
     "work/graph.json",
@@ -88,7 +90,8 @@
   "acceptance_tests": [
     "Go httptest proves UI assets no-store/CSP with no leaked Case IDs, denied and unauthenticated Case API responses, current independent source ACL.",
     "Invalid static routes/methods/queries are rejected without session/provider invocation.",
-    "Existing native Case Queue filtering/paging/Saved View/return tests pass unchanged; no new packages or API spend."
+    "Existing native Case Queue filtering/paging/Saved View/return tests pass unchanged; no new packages or API spend.",
+    "Node browser DOM mock exercises inert textContent, cursor page advance, same-origin-only fetch, denied-page purge and pagehide cleanup; invoked from Go test when Node is installed."
   ],
   "performance_budget": {
     "applicable": true,
@@ -116,7 +119,7 @@
   ],
   "complexity": {
     "primary_components": 2,
-    "estimated_files_changed": 6,
+    "estimated_files_changed": 8,
     "estimated_net_loc": 350,
     "production_files": 4,
     "net_production_loc": 320,
