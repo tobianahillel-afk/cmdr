@@ -32,7 +32,8 @@ func TestNormalizedSearchRejectsMidFlightSourceRevocationWithoutPartialJob(t *te
 		imported[entry.Value.ID] = struct{}{}
 	}
 	if len(imported) != 2 { t.Fatalf("expected two distinct imported owner entries, got %d", len(imported)) }
-	const token = "private-ephemeral-analyst-token"
+	token, err := randomBearer()
+	if err != nil { t.Fatal(err) }
 	base, err := newDemoHandlerWithData(token, "analyst-a", data)
 	if err != nil { t.Fatal(err) }
 	payload, err := json.Marshal(map[string]string{
