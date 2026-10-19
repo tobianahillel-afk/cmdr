@@ -53,3 +53,26 @@ This is an integration **contract and runtime**, not a production deployment: ac
 The native host-mounted GET adapter now exposes the **existing** Case Queue projection's literal `status`, `owner`, `freshness` filters and deterministic read-only sorting, without a second search/sort engine. Examples: `?q=response&status=review&owner=analyst-a&freshness=available&sort=updated_at:desc` or `?sort=title:asc`. Up to one value per key, valid UTF-8, no controls, bounded values, strict existing field and direction allowlists. The Case owner provider and independent server-side Case/Incident/Finding checks run **before** query matching and sorting; forbidden Case identities and counts are not returned. Client-supplied tenant, environment, permissions, membership, authorization, Saved View and unknown parameters fail closed.
 
 This remains an injected **native Class-0 read**; no production identity service or candidate provider is provided, no live Case Queue UI or Saved View storage, no cursor pagination, mutation, TLS deployment or signed permission attestation. The original Go Project function owns the field/filter/sort semantics and tie-breakers. See `work/lots/E10-INV-101I-FILTERS/HANDOFF.md` for exact evidence, exclusions, ownership and Git/CI status. Parent #139 remains L2-frozen and is not automatically accepted by this child.
+
+## Native authorized Case Workspace navigation (E10-INV-101J-HANDOFF)
+
+The existing Class-0 authenticated Case Queue GET endpoint also accepts an optional
+`open_case=EXACT_OPAQUE_CASE_ID` and optional `scroll=NONNEGATIVE_INTEGER` (bounded
+by the existing handoff limit), alongside the **same** `q/status/owner/freshness/sort`
+projection controls. A successful selection returns the existing
+`WorkspaceHandoff` JSON pointing to `INV-CAS-001` and carrying a transient,
+**unsigned, non-authorizing** navigation return token. The existing
+`OpenCaseWorkspace` engine confirms that the Case remains visible after the
+current authenticated server-side Case/Incident/Finding authorization, current
+filters, and stale checks. The same existing `RestoreCaseQueue` engine must
+re-authorize upon return; a serialized token is never a grant. The source
+Case ID is preserved byte-for-byte (including distinct leading/trailing spaces)
+after standard URL decoding. Request query values and size remain bounded;
+an unrecognized tenant/permission/origin key, malformed scroll or unpaired
+scroll fails before contacting any authority.
+
+Without `open_case`, the original queue projection response remains unchanged.
+This is **navigation state only**, not a launched workspace, production UI, Case
+assignment, durable Saved View, or Case lifecycle mutation. The host still
+owns IAM/session issuance, HTTP deployment/TLS/rate limiting/audit and Case
+providers. Do not store or use the return token as authorization.
