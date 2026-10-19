@@ -98,3 +98,66 @@ func TestNativeQueueBrowserConstructorRequiresOwner(t *testing.T) {
   t.Fatal("browser without first-party Case/tenant/session ACL accepted")
  }
 }
+
+func TestNativeQueueBrowserUsesTrustedSharedSavedViewWithoutClientScope(t *testing.T) {
+ review:=nativeCase("case-review","Allowed investigation")
+ review.Status="review"
+ hidden:=nativeCase("case-hidden","HIDDEN-DUE-TO-SHARED-VIEW")
+ viewsCalled:=0
+ sessions:=queueSessionFunc(func(r *http.Request)(context.Context,QueueScope,error) {
+  if r.Header.Get("Authorization")!="Bearer operator" {return nil,QueueScope{},errors.New("denied")}
+  return r.Context(),QueueScope{Tenant:"tenant-a",Environment:"prod"},nil
+ })
+ provider:=queueProviderFunc(func(context.Context,QueueScope)([]CaseSnapshot,error) {
+  return []CaseSnapshot{review,hidden},nil
+ })
+ acl:=queueAccessFunc(func(context.Context,QueueScope,string,string)(string,error) {
+  return "allow",nil
+ })
+ shared:=queueSavedViewFunc(func(_ context.Context, scope QueueScope)(*SavedView,error) {
+  viewsCalled++
+  if scope.Tenant!="tenant-a" || scope.Environment!="prod" {t.Fatal("browser overrode trusted scope")}
+  return &SavedView{
+   ID:"review-only",TenantRef:scope.Tenant,Version:"1",AccessDecision:"allow",
+   Filters:[]SavedViewFilter{
+    {Field:"status",Values:[]string{"review"},AccessDecision:"allow"},
+    {Field:"owner",Values:[]string{"HIDDEN-SOURCE"},AccessDecision:"deny"},
+   },
+  },nil
+ })
+ h,err:=NewAuthorizedQueueBrowserHandler(sessions,provider,acl,shared)
+ if err!=nil {t.Fatal(err)}
+ asset:=getQueue(h,"/case-queue/ui")
+ if asset.Code!=http.StatusOK || viewsCalled!=0 {t.Fatal("static HTML inspected private Saved View")}
+ response:=getQueue(h,"/case-queue?limit=25")
+ if response.Code!=http.StatusOK || !strings.Contains(response.Body.String(),"case-review") ||
+  strings.Contains(response.Body.String(),"case-hidden") ||
+  strings.Contains(response.Body.String(),"HIDDEN-DUE-TO-SHARED-VIEW") ||
+  viewsCalled!=1 {
+  t.Fatalf("browser did not apply fresh trusted Shared filtering: %d %s",response.Code,response.Body.String())
+ }
+ // An attacker cannot forge a different tenant or a Saved View through URL.
+ denied:=getQueue(h,"/case-queue?limit=25&tenant=other")
+ if denied.Code!=http.StatusBadRequest || viewsCalled!=1 {
+  t.Fatalf("browser accepted authority query: %d",denied.Code)
+ }
+}
+func TestNativeQueueBrowserRejectsMissingURLBeforeOwner(t *testing.T) {
+ called:=false
+ s:=queueSessionFunc(func(r *http.Request)(context.Context,QueueScope,error){
+  called=true;return nil,QueueScope{},errors.New("unexpected")
+ })
+ p:=queueProviderFunc(func(context.Context,QueueScope)([]CaseSnapshot,error){
+  called=true;return nil,nil
+ })
+ a:=queueAccessFunc(func(context.Context,QueueScope,string,string)(string,error){
+  called=true;return "allow",nil
+ })
+ h,err:=NewAuthorizedQueueBrowserHandler(s,p,a,nil)
+ if err!=nil {t.Fatal(err)}
+ req:=httptest.NewRequest("GET","/case-queue/ui",nil)
+ req.URL=nil
+ out:=httptest.NewRecorder()
+ h.ServeHTTP(out,req)
+ if out.Code!=http.StatusNotFound || called {t.Fatal("malformed route reached tenant owner")}
+}
