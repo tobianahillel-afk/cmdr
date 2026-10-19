@@ -176,7 +176,7 @@
           if (searchRevision !== localSearchRevision ||
               selectedRevision !== revision || token.value !== bearer ||
               caseID.value.trim() !== selectedCase) return;
-          openSource(ref.Ref); // triggers fresh Case/navigation/typed-source checks
+          openSource(ref.Ref, true); // triggers fresh Case/navigation/typed-source checks
         });
         item.append(button);
         item.append(checkbox);
@@ -226,7 +226,7 @@
               if (searchRevision !== localSearchRevision ||
                   selectedRevision !== revision || token.value !== bearer ||
                   caseID.value.trim() !== selectedCase) return;
-              openSource(ref); // fresh independent Case + typed-source ACL
+              openSource(ref, true); // fresh independent Case + typed-source ACL
             });
             item.append(button);
           }
@@ -288,7 +288,7 @@
               if (searchRevision !== localSearchRevision ||
                   selectedRevision !== revision || token.value !== bearer ||
                   caseID.value.trim() !== selectedCase) return;
-              openSource(nearby.entry_id);
+              openSource(nearby.entry_id, true);
             });
             item.append(button);
           }
@@ -302,7 +302,7 @@
       });
       openSelected.addEventListener("click", () => {
         if (!current() || selected.size !== 1) return;
-        openSource([...selected][0]); // always reauthorizes Case and source
+        openSource([...selected][0], true); // always reauthorizes Case and source
       });
       // Publish only after the ENTIRE SearchJob and correlated lead
       // membership was validated. No persistent annotation or Case link.
@@ -1946,14 +1946,18 @@
   }
 
 
-  async function openSource(entryID) {
+  async function openSource(entryID, fromCompletedSearchJob = false) {
     const currentRevision = ++sourceRevision;
     if (sourceRequest) sourceRequest.abort();
     sourceDetail.hidden = true;
     returnToCase.disabled = true;
     const selectedCase = caseID.value.trim();
     const bearer = token.value;
-    const windowSelection = readWindow();
+    // The completed Event Search Job has its own independent search criteria.
+    // A stale/invalid *Timeline* filter must not prevent an otherwise
+    // authorized Search Job hit from reaching fresh source-owner checks.
+    // Do not borrow the Timeline return-selection for this source action.
+    const windowSelection = fromCompletedSearchJob ? { from: "", to: "" } : readWindow();
     if (!selectedCase || !bearer || !windowSelection) {
       sourceStatus.textContent = "Sélection incomplète.";
       return;
@@ -1967,8 +1971,8 @@
       url.searchParams.set("entry_id", entryID);
       url.searchParams.set("limit", String(limit));
       url.searchParams.set("offset", String(offset));
-      if (kind.value) url.searchParams.set("kind", kind.value);
-      if (search.value.trim()) url.searchParams.set("q", search.value.trim());
+      if (!fromCompletedSearchJob && kind.value) url.searchParams.set("kind", kind.value);
+      if (!fromCompletedSearchJob && search.value.trim()) url.searchParams.set("q", search.value.trim());
       if (windowSelection.from) url.searchParams.set("from", windowSelection.from);
       if (windowSelection.to) url.searchParams.set("to", windowSelection.to);
       const response = await fetch(url, {
