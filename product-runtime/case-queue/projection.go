@@ -7,7 +7,7 @@ import (
 )
 
 var allowedFilterFields = map[string]bool{
-	"status": true, "owner": true, "incident_priority": true, "finding_status": true, "freshness": true,
+	"status": true, "owner": true, "incident_priority": true, "incident_id": true, "finding_status": true, "freshness": true,
 }
 
 var allowedSortFields = map[string]bool{
@@ -361,10 +361,16 @@ func validateFilters(filters []Filter) ([]Filter, ErrorCode) {
 		}
 		copyFilter := Filter{Field: filter.Field, Values: make([]string, 0, len(filter.Values))}
 		for _, value := range filter.Values {
-			value = strings.TrimSpace(value)
-			if value == "" {
-				return nil, ErrorEmptyFilterValue
+			if filter.Field == "incident_id" {
+				// Command Incident identity is opaque, not lower-cased search text.
+				if strings.TrimSpace(value) == "" || !validQueueLiteral(value, 1024) {
+					return nil, ErrorEmptyFilterValue
+				}
+				copyFilter.Values = append(copyFilter.Values, value)
+				continue
 			}
+			value = strings.TrimSpace(value)
+			if value == "" { return nil, ErrorEmptyFilterValue }
 			copyFilter.Values = append(copyFilter.Values, strings.ToLower(value))
 		}
 		out = append(out, copyFilter)
@@ -429,6 +435,15 @@ func matchesFilters(row evaluatedRow, filters []Filter) bool {
 			matched = containsNormalized(filter.Values, row.row.Case.Owner)
 		case "incident_priority":
 			matched = containsNormalized(filter.Values, row.row.IncidentPriority)
+		case "incident_id":
+			// Only the already permission-checked Command Incident projection
+			// is eligible. An inaccessible parent is never a match.
+			for _, id := range filter.Values {
+				if row.row.Case.Incident != nil && row.row.Case.Incident.ID == id {
+					matched = true
+					break
+				}
+			}
 		case "finding_status":
 			for _, status := range row.row.FindingStatuses {
 				if containsNormalized(filter.Values, status) {
