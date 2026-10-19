@@ -461,7 +461,7 @@ func prepareBenchmarkHandler(root string, workload BenchmarkWorkloadDefinition) 
 			return BenchmarkSample{Measurements: []BenchmarkMeasurement{{
 				Kind: "latency", Unit: "ns", Value: observation.NSPerOperation,
 			}}}, nil
-		}, cleanup
+		}, cleanup, nil
 
 	case "builtin-case-queue-projection-v1", "builtin-case-queue-saved-view-v1", "builtin-case-queue-handoff-v1":
 		operation := strings.TrimSuffix(strings.TrimPrefix(workload.HandlerKey, "builtin-case-queue-"), "-v1")
