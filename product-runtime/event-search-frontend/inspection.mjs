@@ -59,7 +59,7 @@ export function normalizeInspection(input, request) {
   }
   if (!STATES.has(input.state)) fail("invalid-event-state");
   if (!record(input.source) || !ref(input.source.sourceRef) ||
-      !record(input.parser)) fail("invalid-provenance");
+      !text(input.source.dataSourceRef ?? "", 256) || !record(input.parser)) fail("invalid-provenance");
   for (const key of ["parserRef", "version", "status"]) {
     if (!text(input.parser[key] ?? "", 256)) fail("invalid-parser");
   }
@@ -123,7 +123,7 @@ export function createEventInspectionJourney({ searchController, transport, onVi
       now.job?.correlationId === start.job.correlationId &&
       now.job?.tenantRef === start.job.tenantRef &&
       now.job?.environmentRef === start.job.environmentRef &&
-      now.shellState?.kind !== "permission-denied" &&
+      !["permission-denied", "loading", "error", "offline"].includes(now.shellState?.kind) &&
       now.resultWindow?.rows.some((row) => row.ref === start.row.ref && row.source === start.row.source);
   }
 
@@ -135,7 +135,7 @@ export function createEventInspectionJourney({ searchController, transport, onVi
         !ref(snapshot.job.runId) || !ref(snapshot.job.correlationId) ||
         snapshot.job.tenantRef !== scope.tenantId ||
         snapshot.job.environmentRef !== scope.environmentId ||
-        snapshot.shellState?.kind === "permission-denied") fail("not-authorized-result");
+        ["permission-denied", "loading", "error", "offline"].includes(snapshot.shellState?.kind)) fail("not-authorized-result");
     abort?.abort();
     const generation = ++sequence;
     const control = new AbortController();
