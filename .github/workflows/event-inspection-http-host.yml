@@ -60,6 +60,12 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: go test -run '^$' -bench '^BenchmarkAuthorizedInspectionHTTP$' -benchmem -count=3 -benchtime=100x ./...
 
+      - name: Install engineering Go toolchain for deep audit
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e
+        with:
+          go-version-file: tools/cmdr-dev/go.mod
+          cache: false
       - name: Exercise registered real on-demand host deep-load target
         if: matrix.os == 'ubuntu-latest'
         working-directory: tools/cmdr-dev
