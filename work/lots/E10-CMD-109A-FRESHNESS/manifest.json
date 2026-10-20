@@ -1,0 +1,131 @@
+{
+  "schema_version": 2,
+  "id": "E10-CMD-109A-FRESHNESS",
+  "title": "Surface authoritative source freshness and degradation in the already authorized Command Work Queue",
+  "type": "task",
+  "parent": "E10-CMD-109",
+  "goal": "Implement bounded Class-0 per-item source freshness and view degradation from explicit versioned owner metadata, without inventing staleness thresholds or mutating source objects.",
+  "depends_on": [
+    "E10-SCALE-005B"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-CMD-109",
+      "CAP-CMD-101"
+    ],
+    "requirements": [
+      "REQ-PROD-005",
+      "REQ-PROD-008",
+      "REQ-PROD-013",
+      "REQ-UX-005"
+    ],
+    "screens": [],
+    "permissions": [
+      "perm.command.read",
+      "perm.command.incident.read"
+    ],
+    "open_decisions": [],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/incident.md",
+      "cmdr-product-spec/05-domain-model/objects/task.md"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/pagination-filtering-sorting.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/work-queue/freshness.go",
+    "product-runtime/work-queue/freshness_test.go",
+    "product-runtime/work-queue/queue.go",
+    "product-runtime/work-queue/html.go",
+    "work/lots/E10-CMD-109A-FRESHNESS/**",
+    "work/graph.json",
+    "engineering/state/current.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/investigation-timeline/**",
+    "product-runtime/case-queue/**",
+    "tools/cmdr-dev/**"
+  ],
+  "invariants": [
+    "Read-only Command Incident/Task source freshness only after the original first-party Owner.CanRead checks in Project and tenant/environment verification.",
+    "Owner-supplied source health, observed UTC timestamp, and EXPLICIT versioned aging/stale thresholds; no hardcoded universal time policy or use of Incident UpdatedAt as source observation time.",
+    "Unversioned/absent/future-clock policy yields unknown, source-unavailable/partial are explicit owner states and do not imply guessed freshness.",
+    "Only items accepted into the current canonical view/status filter may contribute source-degradation diagnostics; six views, 50 displayed rows, and one GET route unchanged.",
+    "Absent optional owner freshness metadata preserves preexisting JSON row field set and no new host IAM, Shared Saved Views, data store, network endpoint, paid service or unsafe mutation."
+  ],
+  "security_properties": [
+    "Do not surface any source metadata until owner authorization for the exact Incident/Task; denied or foreign tenants never leak owner source IDs.",
+    "Validate owner source labels and policy version at the boundary; reject malformed authoritative metadata before any result is returned.",
+    "HTML escapes source names and policy fields with html/template and continues no-store/CSP; no new JavaScript.",
+    "A missing freshness policy cannot produce current/stale from guessed thresholds and a degraded item outside filter cannot degrade the selected view."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Optional owner metadata and omitempty JSON field, no persisted schema or mutation.",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Remove optional SourceFreshness/Row.Freshness, freshness.go and read-only HTML freshness cell while keeping all CAP-CMD-101 queue views/selection.",
+    "verification": [
+      "Old work queue JSON remains unchanged for providers without source metadata.",
+      "No additional provider calls."
+    ]
+  },
+  "inputs": [
+    "Canonical CAP-CMD-109 full §§1–27 and CAP-CMD-101 full §§1–27, module README and Incident/Task canonical ownership.",
+    "Existing first-party trusted Owner.List/CanRead work-queue Project, six views/sort/status/selected context (frozen PR #163 HEAD b5e71280e2af3960cf63f45fea92a71cff557a68).",
+    "Host source metadata optional; host source policy version and thresholds authoritative. Other Shared/Settings health and background Jobs remain separate."
+  ],
+  "outputs": [
+    "An authorized owner-source freshness projection with explicit state, source, observed_at and optional policy version, rendered in existing Work Queue HTML and opt-in per-row JSON only when metadata is present.",
+    "Explicit partial-sources diagnostic for actually displayed source-unavailable or partial items; no clock-derived state without host policy."
+  ],
+  "acceptance_tests": [
+    "For owner-allowed Incident/Task, versioned 60/120-second example policy yields current/aging/stale with deterministic relative event times; no policy or future source clock yields unknown.",
+    "Explicit source-unavailable or partial health is displayed in selected view and changes view state to partial-sources; filtered-out source outage does not degrade unrelated view.",
+    "Denial/cross-tenant owner rows expose no source IDs; malformed authorized owner metadata fails before response.",
+    "Browser contextual escaping for malicious authorized source name, legacy metadata-free JSON unchanged, six views/status/sort/selection remain operational.",
+    "Exact HEAD command-work-queue-runtime multi-OS and mandatory engineering-kernel checks, one independent read-only L2 after material delivery."
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "No new owner requests: one O(1) age calculation and bounded metadata projection per already authorized row, <=5000 input, <=50 displayed.",
+    "metrics": [
+      "No extra Owner.List/CanRead calls.",
+      "Single UTC now per queue projection.",
+      "One bounded freshness state evaluation per authorized Item."
+    ]
+  },
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-RUNTIME-DEPS",
+    "CHK-SECURITY-TESTS"
+  ],
+  "definition_of_ready": [
+    "E10-SCALE-005B VERIFIED in work graph, Command module CAP-CMD-109 is canonically defined; explicit host policy optional and missing policy remains unknown.",
+    "Independent CAP-CMD-109 ownership; reuses CAP-CMD-101 read-only route and security without claiming its full acceptance or making Shared health/policy decisions.",
+    "Frozen git parent #163 final SHA b5e71280e2af3960cf63f45fea92a71cff557a68; two workflows SUCCESS but L2 report unavailable; do not change frozen ancestor."
+  ],
+  "definition_of_done": [
+    "Source/time/policy freshness statuses and degraded view behavior in Command Work Queue, implemented in one bounded task under new Command freshness epic.",
+    "Exact HEAD runtime/engineering CI verified, single independent read-only L2 scheduled only once for material newly exposed source metadata.",
+    "No production provider SLA contract, definitive tenant thresholds, follow-up jobs, Incident Detail, Shared Saved Views, approval or merge claimed."
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 3,
+    "estimated_net_loc": 125,
+    "production_files": 3,
+    "net_production_loc": 125,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}
