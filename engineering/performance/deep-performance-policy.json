@@ -282,7 +282,7 @@
     {
       "id": "PERF-DEEP-EVENT-INSPECTION-HOST",
       "performance_target_id": "PERF-TGT-EVENT-INSPECTION-HOST-UPSTREAM-PROJECTION",
-      "kind": "load",
+      "kind": "resource",
       "handler_key": "builtin-event-inspection-host-http-v1",
       "stages": [
         "on-demand"
@@ -295,7 +295,7 @@
       "memory_limit_mib": 256,
       "concurrency": 1,
       "iterations": 100,
-      "rationale": "On-demand real local httptest HTTP request throughput and per-request Go allocations from the first-party BenchmarkAuthorizedInspectionHTTP, with stubbed Search/Telemetry owners. Measures adapter serialization plus existing Project; excludes real host IAM, network, source retrieval, query engine and production SLO. No heap-peak observation is asserted by Go benchmark output."
+      "rationale": "On-demand actual first-party local httptest HTTP benchmark; measured allocations B/op, calls per second and ns/op under synthetic authorized Search/Telemetry stubs. No peak-heap evidence is provided by go test -benchmem and no peak-heap or network/production SLO claim is made."
     }
   ]
 }
