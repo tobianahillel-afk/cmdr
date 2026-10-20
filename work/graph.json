@@ -1815,6 +1815,17 @@
       ],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": []
+    },
+    {
+      "id": "E10-CMD-101B-HOST-ROUTE",
+      "title": "Integrate one authenticated host-owned HTTP entry for all six Command system Work Queue views",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-CMD-101A-READONLY"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": []
     }
   ]
 }
