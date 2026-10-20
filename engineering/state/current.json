@@ -17,9 +17,9 @@
     "phase_title": "Scaled product implementation program bootstrap"
   },
   "execution": {
-    "active_work_unit": "E10-INV-120A-SNAPSHOT",
-    "preferred_next_unit": "E10-INV-120A-SNAPSHOT",
-    "selection_rule": "first READY unit whose dependencies satisfy their required terminal state; when no READY exists create a separately scoped functional integration unit"
+    "active_work_unit": null,
+    "preferred_next_unit": null,
+    "selection_rule": "Reconciled 2026-10-20: E10-INV-120A-SNAPSHOT has existing runtime and successful exact-head CI on foundation PR #36, now IMPLEMENTED but NOT accepted/merged. No remaining verified READY task in this branch work graph. Re-evaluate canonical priorities and all current open PRs before materializing the next bounded unit; Command CAP-CMD-101 and SAST blockers live on independent later draft PRs, not on this frozen foundation SHA."
   },
   "reconciliation": {
     "required_on_resume": true,
