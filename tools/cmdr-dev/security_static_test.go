@@ -2,8 +2,8 @@ package main
 
 import (
 	"encoding/json"
-	"path/filepath"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -127,21 +127,27 @@ func TestGoSecurityModuleRootsFollowReviewedGoRuntimeAdapters(t *testing.T) {
 func TestGosecProcessingErrorsIdentifyOnlySafeExistingRepoPaths(t *testing.T) {
 	root := t.TempDir()
 	module := filepath.Join(root, "tools", "cmdr-dev")
-	if err := os.MkdirAll(module, 0700); err != nil { t.Fatal(err) }
+	if err := os.MkdirAll(module, 0700); err != nil {
+		t.Fatal(err)
+	}
 	allowed := filepath.Join(module, "current.go")
-	if err := os.WriteFile(allowed, []byte("package main\n"), 0600); err != nil { t.Fatal(err) }
+	if err := os.WriteFile(allowed, []byte("package main\n"), 0600); err != nil {
+		t.Fatal(err)
+	}
 	report := map[string]any{
 		"Golang errors": map[string]any{
-			allowed: []map[string]any{{"error":"secret compiler diagnostic with credentials"}},
-			filepath.Join(root, "..", "foreign-private.go"): []map[string]any{{"error":"outside repo"}},
-			"../../leak.go": []map[string]any{{"error":"outside relative"}},
-			"missing.go": []map[string]any{{"error":"nonexistent source"}},
-			"arbitrary-package": []map[string]any{{"error":"not a Go file"}},
+			allowed: []map[string]any{{"error": "secret compiler diagnostic with credentials"}},
+			filepath.Join(root, "..", "foreign-private.go"): []map[string]any{{"error": "outside repo"}},
+			"../../leak.go":     []map[string]any{{"error": "outside relative"}},
+			"missing.go":        []map[string]any{{"error": "nonexistent source"}},
+			"arbitrary-package": []map[string]any{{"error": "not a Go file"}},
 		},
 		"Issues": []any{},
 	}
 	raw, err := json.Marshal(report)
-	if err != nil { t.Fatal(err) }
+	if err != nil {
+		t.Fatal(err)
+	}
 	summary, err := parseGosecReport(root, module, raw)
 	if err == nil || summary.FindingCount != 0 {
 		t.Fatalf("processing error must still block: %v %+v", err, summary)
@@ -152,8 +158,8 @@ func TestGosecProcessingErrorsIdentifyOnlySafeExistingRepoPaths(t *testing.T) {
 		t.Fatalf("processing error failed to identify repository-local Go path: %s", out)
 	}
 	for _, forbidden := range []string{
-		"credentials","secret compiler","foreign-private.go","leak.go",
-		"missing.go","arbitrary-package", root,
+		"credentials", "secret compiler", "foreign-private.go", "leak.go",
+		"missing.go", "arbitrary-package", root,
 	} {
 		if strings.Contains(out, forbidden) {
 			t.Fatalf("SAST processing error leaked raw path or compiler details: %s", out)
@@ -162,10 +168,12 @@ func TestGosecProcessingErrorsIdentifyOnlySafeExistingRepoPaths(t *testing.T) {
 	// An analyzer that returns only package-load errors without a safe local
 	// .go path MUST continue blocking, but report no attacker-supplied key.
 	report["Golang errors"] = map[string]any{
-		"/outside/private/secret-package": []map[string]any{{"error":"secrets"}},
+		"/outside/private/secret-package": []map[string]any{{"error": "secrets"}},
 	}
 	raw, err = json.Marshal(report)
-	if err != nil { t.Fatal(err) }
+	if err != nil {
+		t.Fatal(err)
+	}
 	_, err = parseGosecReport(root, module, raw)
 	if err == nil || !strings.Contains(err.Error(), "source paths unavailable") ||
 		strings.Contains(err.Error(), "secret-package") {
