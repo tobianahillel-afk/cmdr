@@ -17,9 +17,9 @@
     "phase_title": "Scaled product implementation program bootstrap"
   },
   "execution": {
-    "active_work_unit": "E10-CMD-101D-STATUS",
+    "active_work_unit": "E10-CMD-101E-SORT",
     "preferred_next_unit": null,
-    "selection_rule": "2026-10-20 bounded canonical CAP-CMD-101 manual exact status filter selected after reading full §§1-27, existing Command six view catalogue, Shared Saved Views ownership and required scope/permissions contracts. E10-CMD-101C-HTML was IMPLEMENTED with exact HEAD #160 command-work-queue-runtime + engineering-kernel SUCCESS, separate L2 task executed but report not accessible. This child D-STATUS is coded on immutable #160 SHA, graph IMPLEMENTED not VERIFIED/ACCEPTED. Exact head CI and independent L2 not yet proven; new agent must check GitHub. Parent epic DECOMPOSED; full filters, custom sorting, Shared persistence/Inspector, production host IAM and massive draft ancestry remain outstanding. No READY successor is declared."
+    "selection_rule": "2026-10-20 CAP-CMD-101 §§1–27 confirms Class-0 manual deterministic sorting. Reconciled parent #161 frozen SHA 2bc24c784b61ffc6c8b97fb81588ec02a84b4c59, runtime run 39360531352 SUCCESS and engineering-kernel run 39360531799 SUCCESS; #161 graph IMPLEMENTED but PR DRAFT/UNMERGED/L2 report not accessible. Selected a bounded child of existing Command epic E10-CMD-101 for exact oldest/newest sorting by already owned UpdatedAt on ONE host-authorized six-view route. This branch records only IMPLEMENTED until exact-head CI and L2 evidence; no READY successor declared, Shared Saved View persistence, Inspector, real production IAM, final virtualized columns, ancestor #36/#2 integration still absent."
   },
   "reconciliation": {
     "required_on_resume": true,
