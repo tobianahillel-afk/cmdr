@@ -1,25 +1,31 @@
 package main
 
 import (
-	"strings"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
 func fixtureGitHead(t *testing.T, root string, args ...string) string {
 	t.Helper()
 	out, err := exec.Command("git", append([]string{"-C", root}, args...)...).CombinedOutput()
-	if err != nil { t.Fatalf("git %v: %s: %v", args, out, err) }
+	if err != nil {
+		t.Fatalf("git %v: %s: %v", args, out, err)
+	}
 	return string(out)
 }
 
 func writePivotFixture(t *testing.T, root, name, value string) {
 	t.Helper()
 	path := filepath.Join(root, "product-runtime", "event-inspection", name)
-	if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil { t.Fatal(err) }
-	if err := os.WriteFile(path, []byte(value), 0644); err != nil { t.Fatal(err) }
+	if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(path, []byte(value), 0644); err != nil {
+		t.Fatal(err)
+	}
 }
 
 func TestPivotRuntimeFollowupGateFailClosedForExtraOrUnreviewedCoreFiles(t *testing.T) {
@@ -53,7 +59,9 @@ func TestPivotRuntimeFollowupGateFailClosedForExtraOrUnreviewedCoreFiles(t *test
 	// A source which did not change after the verified commit is accepted
 	// without any new snapshot or tampering with historical evidence.
 	unchanged, err := validateEventInspectionRuntimeUnchangedOrReverified(root, head, head)
-	if err != nil || !unchanged { t.Fatalf("identical runtime snapshot rejected: unchanged=%v err=%v", unchanged, err) }
+	if err != nil || !unchanged {
+		t.Fatalf("identical runtime snapshot rejected: unchanged=%v err=%v", unchanged, err)
+	}
 }
 
 func testTrimGitSHAForPivot(s string) string {
