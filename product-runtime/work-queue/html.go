@@ -25,22 +25,26 @@ var queuePage = template.Must(template.New("command-work-queue").Parse(`<!doctyp
 <input id="queue-status" name="status" type="text" maxlength="64" value="{{.StatusFilter}}">
 <label for="queue-owner">Responsable exact (facultatif)</label>
 <input id="queue-owner" name="owner" type="text" maxlength="128" value="{{.OwnerFilter}}">
+<label for="queue-group">Regrouper les éléments autorisés</label>
+<select id="queue-group" name="group"><option value=""{{if eq .GroupBy ""}} selected{{end}}>Sans regroupement</option><option value="type"{{if eq .GroupBy "type"}} selected{{end}}>Par type</option><option value="status"{{if eq .GroupBy "status"}} selected{{end}}>Par état</option></select>
 <label for="queue-sort">Ordre chronologique</label>
 <select id="queue-sort" name="sort"><option value="newest"{{if ne .SortOrder "oldest"}} selected{{end}}>Plus récents</option><option value="oldest"{{if eq .SortOrder "oldest"}} selected{{end}}>Plus anciens</option></select>
 <button type="submit">Appliquer / effacer la sélection</button>
 </form>
 {{if .StatusFilter}}<p>Filtre d’état actif : {{.StatusFilter}}</p>{{end}}
 {{if .OwnerFilter}}<p>Filtre de responsable actif : {{.OwnerFilter}}</p>{{end}}
+{{if .GroupBy}}<p>Regroupement actif : {{.GroupBy}}. Groupes ordonnés par clé et chronologie conservée dans chaque groupe. Chaque page répète son premier titre de groupe.</p>{{end}}
 <p role="status">État : {{.State}}</p>
 {{if .Diagnostics}}<ul aria-label="Limites de la projection">{{range .Diagnostics}}<li>{{.}}</li>{{end}}</ul>{{end}}
 {{if .ViewFreshness}}<p aria-label="Fraîcheur de la vue autorisée">Fraîcheur de la vue autorisée ({{.ViewFreshness.Total}} éléments) : {{.ViewFreshness.Current}} actuels, {{.ViewFreshness.Aging}} vieillissants, {{.ViewFreshness.Stale}} périmés, {{.ViewFreshness.Partial}} partiels, {{.ViewFreshness.Unavailable}} sources indisponibles, {{.ViewFreshness.Unknown}} inconnus. Décompte du filtre et de la vue autorisés, toutes pages confondues ; aucune fraîcheur déduite sans politique source.</p>{{end}}
 {{if .Rows}}
 <table><caption>Éléments autorisés — page courante (50 maximum)</caption>
 <thead><tr><th scope="col">Type</th><th scope="col">Identifiant</th><th scope="col">Responsable</th><th scope="col">État</th><th scope="col">Mis à jour (UTC)</th><th scope="col">Fraîcheur source</th><th scope="col">Contexte</th></tr></thead>
-<tbody>{{range .LinkedRows}}<tr><td>{{.Kind}}</td><th scope="row">{{.ID}}</th><td>{{.Owner}}</td><td>{{.Status}}</td><td>{{.UpdatedAt}}</td><td>{{if .Freshness}}{{.Freshness.State}} — {{.Freshness.Source}}{{if .Freshness.ObservedAt}} · {{.Freshness.ObservedAt}}{{end}}{{if .Freshness.PolicyVersion}} · policy {{.Freshness.PolicyVersion}}{{end}}{{else}}unknown — source non fournie{{end}}</td><td><form method="get" action="/command/work-queue">
+<tbody>{{range .LinkedRows}}{{if .GroupStart}}<tr><th colspan="7" scope="colgroup">{{.GroupLabel}}</th></tr>{{end}}<tr><td>{{.Kind}}</td><th scope="row">{{.ID}}</th><td>{{.Owner}}</td><td>{{.Status}}</td><td>{{.UpdatedAt}}</td><td>{{if .Freshness}}{{.Freshness.State}} — {{.Freshness.Source}}{{if .Freshness.ObservedAt}} · {{.Freshness.ObservedAt}}{{end}}{{if .Freshness.PolicyVersion}} · policy {{.Freshness.PolicyVersion}}{{end}}{{else}}unknown — source non fournie{{end}}</td><td><form method="get" action="/command/work-queue">
 <input type="hidden" name="view" value="{{$.Current}}">
 {{if $.StatusFilter}}<input type="hidden" name="status" value="{{$.StatusFilter}}">{{end}}
 {{if $.OwnerFilter}}<input type="hidden" name="owner" value="{{$.OwnerFilter}}">{{end}}
+{{if $.GroupBy}}<input type="hidden" name="group" value="{{$.GroupBy}}">{{end}}
 {{if $.SortOrder}}<input type="hidden" name="sort" value="{{$.SortOrder}}">{{end}}
 {{if $.CurrentCursor}}<input type="hidden" name="cursor" value="{{$.CurrentCursor}}">{{end}}
 <button type="submit" name="selected" value="{{.SelectionToken}}">Sélectionner</button>
@@ -66,6 +70,8 @@ type queuePageView struct {
 type queueSelectionRow struct {
 	Row
 	SelectionToken string
+	GroupStart bool
+	GroupLabel string
 }
 
 type factorLine struct {
@@ -105,13 +111,25 @@ func renderQueuePage(result Result) ([]byte, error) {
 		if result.OwnerFilter != "" {
 			href += "&owner="+url.QueryEscape(result.OwnerFilter)
 		}
+		if result.GroupBy != "" {
+			href += "&group="+url.QueryEscape(result.GroupBy)
+		}
 		views = append(views, queuePageView{Key:key, Label:labels[i], Selected:key==result.View, Href:href})
 	}
 	linked := make([]queueSelectionRow, 0, len(result.Rows))
-	for _, row := range result.Rows {
+	previousGroup := ""
+	for i, row := range result.Rows {
+		group := ""
+		switch result.GroupBy {
+		case "type": group = string(row.Kind)
+		case "status": group = row.Status
+		}
 		linked = append(linked, queueSelectionRow{
 			Row: row, SelectionToken: string(row.Kind)+":"+row.ID,
+			GroupStart: result.GroupBy != "" && (i == 0 || group != previousGroup),
+			GroupLabel: group,
 		})
+		previousGroup = group
 	}
 	firstPageHref := "/command/work-queue?view="+url.QueryEscape(string(result.View))
 	if result.StatusFilter != "" {
@@ -122,6 +140,9 @@ func renderQueuePage(result Result) ([]byte, error) {
 	}
 	if result.OwnerFilter != "" {
 		firstPageHref += "&owner="+url.QueryEscape(result.OwnerFilter)
+	}
+	if result.GroupBy != "" {
+		firstPageHref += "&group="+url.QueryEscape(result.GroupBy)
 	}
 	nextPageHref := ""
 	if result.NextCursor != "" {
