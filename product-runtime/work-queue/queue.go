@@ -42,7 +42,9 @@ type Item struct {
 	Tenant       string
 	Environment  string
 	Owner        string
-	Followers    []string
+	Followers    []string // legacy first-party follower projection; retained for existing hosts
+	Contributors []string // owner-sourced operational contributors (CAP-CMD-103)
+	Watchers     []string // owner-sourced observers; neither field grants read permission
 	Status       string
 	UpdatedAt    string
 	SLAAtRisk    *bool // nil: unavailable from the authoritative policy source
@@ -211,10 +213,18 @@ func Project(ctx context.Context, owner Owner, req Request) (Result, error) {
 		case Unassigned:
 			accept = item.Owner == ""
 		case MyWork:
+			// Membership is a display predicate ONLY. Owner.CanRead already
+			// independently granted object access before this branch.
 			accept = item.Owner == req.Principal
-			for _, follower := range item.Followers {
-				if follower == req.Principal {
-					accept = true
+			if !accept {
+				for _, principals := range [][]string{item.Contributors, item.Watchers, item.Followers} {
+					for _, member := range principals {
+						if member == req.Principal {
+							accept = true
+							break
+						}
+					}
+					if accept { break }
 				}
 			}
 		case SLARisk:

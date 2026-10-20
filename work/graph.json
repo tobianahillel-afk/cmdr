@@ -2009,6 +2009,19 @@
         "E10-CMD-101K-OWNERFILTER"
       ],
       "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-CMD-101M-MYWORK"
+      ]
+    },
+    {
+      "id": "E10-CMD-101M-MYWORK",
+      "title": "Project contributor/watch roles into owner-authorized Command My Work",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-CMD-101L-GROUP"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
       "unlocks": []
     }
   ]
