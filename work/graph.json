@@ -2058,6 +2058,30 @@
       ],
       "dependency_terminal_state": "IMPLEMENTED",
       "unlocks": []
+    },
+    {
+      "id": "E10-CMD-103",
+      "title": "Implement Command CAP-CMD-103 operational vs canonical owner distinction",
+      "type": "epic",
+      "status": "DECOMPOSED",
+      "depends_on": [
+        "E10-SCALE-005B"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-CMD-103A-READONLY"
+      ]
+    },
+    {
+      "id": "E10-CMD-103A-READONLY",
+      "title": "Inspect independently authorized canonical product owner for selected Command item",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-CMD-101M-MYWORK"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": []
     }
   ]
 }

@@ -17,9 +17,9 @@
     "phase_title": "Scaled product implementation program bootstrap"
   },
   "execution": {
-    "active_work_unit": "E10-CMD-105B-EXPLAIN",
+    "active_work_unit": "E10-CMD-103A-READONLY",
     "preferred_next_unit": null,
-    "selection_rule": "2026-10-20: canonical CAP-CMD-105 §§3,11,15 and 20 require source/calendar/paused state explanation, while PR #174 delivered selected-only authorized status/version/due. E10-CMD-105B-EXPLAIN is one bounded Class-0 read-only extension under E10-CMD-105, depends on A IMPLEMENTED with SHA-exact source CI successful, no OPEN-013 Class-2 permission or policy invention. Git parent PR #174 frozen SHA b1238eb29e3e51dade0166e93de9819f5e3ba334 is not engineering epic; verify exact current HEAD Actions and keep draft/unmerged until all parents/native approvals."
+    "selection_rule": "2026-10-20: PR #175 E10-CMD-105B-EXPLAIN is IMPLEMENTED with exact SHA 391e4b13ddde572d47a756590bd09bc036495e0b and two successful Actions; 0 READY recorded. CAP-CMD-103 §§1–27 distinguishes source-authorized Ownership Register canonical product owner from Command operational owner; add bounded Class-0 inspection under E10-CMD-103 epic after E10-CMD-101M-MYWORK IMPLEMENTED, while OPEN-013 blocks Class-2 changes. PR #175 is only Git parent, not engineering owner. Draft/unmerged upstream #2/#36 plus Command stack require native approval and cumulative CI; no accepted product claim."
   },
   "reconciliation": {
     "required_on_resume": true,
