@@ -17,9 +17,9 @@
     "phase_title": "Scaled product implementation program bootstrap"
   },
   "execution": {
-    "active_work_unit": "E10-CMD-101M-MYWORK",
+    "active_work_unit": "E10-CMD-105A-READONLY",
     "preferred_next_unit": null,
-    "selection_rule": "2026-10-20: a bounded read-only CAP-CMD-101 My Work membership gap (actual owner, contributors, watchers, legacy followers after per-object CanRead) is implemented under existing Command epic E10-CMD-101, consuming CAP-CMD-103 source relations without Class-2 writes. Parent Git PR #172 frozen SHA 705447943328c6edbeec95cb1a6b0a2760ebce64 is NOT the engineering parent. Child work published; exact-HEAD CI, independent L2 and upstream native approvals must be checked. All PRs remain DRAFT/unmerged until explicitly verified. No READY successor assumed."
+    "selection_rule": "2026-10-20: canonical CAP-CMD-105 read-only operational SLA inspection (current selected Incident/Task) selected after latest PR #173 CAP-CMD-101 My Work achieved exact-HEAD CI success. New Command epic E10-CMD-105 and child task added, reusing CAP-CMD-101 selection, separately host-authorized policy adapter and same route; OPEN-013 Class-2 SLA writes excluded. Git parent PR #173 SHA 89a092bade8b2137732ac5da8583a1d321249549 remains frozen and is NOT engineering parent. Child is published as DRAFT; review exact-HEAD CI, L2, and native approvals before any merge; next READY successor must be determined from canonical obligations."
   },
   "reconciliation": {
     "required_on_resume": true,
