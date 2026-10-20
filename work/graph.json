@@ -1878,6 +1878,30 @@
       ],
       "dependency_terminal_state": "IMPLEMENTED",
       "unlocks": []
+    },
+    {
+      "id": "E10-CMD-109",
+      "title": "Implement canonical Command Work Freshness and Staleness",
+      "type": "epic",
+      "status": "DECOMPOSED",
+      "depends_on": [
+        "E10-SCALE-005B"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-CMD-109A-FRESHNESS"
+      ]
+    },
+    {
+      "id": "E10-CMD-109A-FRESHNESS",
+      "title": "Project authorized, owner-sourced per-item freshness in existing Command Work Queue",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-SCALE-005B"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": []
     }
   ]
 }
