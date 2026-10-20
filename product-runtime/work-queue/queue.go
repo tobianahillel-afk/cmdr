@@ -101,6 +101,8 @@ type Result struct {
 	Selected *Row `json:"selected,omitempty"`
 	// Selected-only CAP-CMD-104 class-0 coordination factors.
 	SelectedFactors *AuthorizedFactors `json:"selected_factors,omitempty"`
+	// Present only if at least one authorized matching item has host freshness.
+	ViewFreshness *ViewFreshness `json:"view_freshness,omitempty"`
 }
 
 var (
@@ -245,6 +247,26 @@ func Project(ctx context.Context, owner Owner, req Request) (Result, error) {
 	if partialSLA || partialSourceFreshness {
 		result.State = "partial-sources"
 	}
+	// Summarize the full freshly authorized, post-view/filter cohort,
+	// not merely the visible 50-row page. The current-page cursor must
+	// still validate before any JSON/HTML result is returned.
+	viewFreshness := ViewFreshness{Total:len(selected)}
+	hasOwnerMetadata := false
+	for _, item := range selected {
+		if item.row.Freshness == nil {
+			viewFreshness.Unknown++
+			continue
+		}
+		hasOwnerMetadata = true
+		switch item.row.Freshness.State {
+		case "current": viewFreshness.Current++
+		case "aging": viewFreshness.Aging++
+		case "stale": viewFreshness.Stale++
+		case "partial": viewFreshness.Partial++
+		case "source-unavailable": viewFreshness.Unavailable++
+		default: viewFreshness.Unknown++
+		}
+	}
 	if partialSLA {
 		result.Diagnostics = append(result.Diagnostics, "sla-policy-unavailable")
 	}
@@ -258,6 +280,9 @@ func Project(ctx context.Context, owner Owner, req Request) (Result, error) {
 	page, next, previousCursor, hasPrevious, err := authorizedQueuePage(req, authorized)
 	if err != nil { return empty, err }
 	result.Rows = page
+	if hasOwnerMetadata {
+		result.ViewFreshness = &viewFreshness
+	}
 	// req.Cursor is merely a hint until authorizedQueuePage returns nil.
 	// Only after this point may the opaque token be used in native HTML
 	// navigation controls; stale/revoked/foreign cursors returned ErrCursor.
