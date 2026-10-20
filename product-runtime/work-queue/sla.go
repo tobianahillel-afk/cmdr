@@ -18,6 +18,11 @@ type AuthorizedSLA struct {
 	ObservedAt string `json:"observed_at,omitempty"`
 	DueAt string `json:"due_at,omitempty"`
 	RemainingSeconds *int64 `json:"remaining_seconds,omitempty"`
+	// These details are source-authorized explanations, not pause permissions
+	// or a locally implemented SLA policy/calendar engine.
+	CalendarSource string `json:"calendar_source,omitempty"`
+	PausedAt string `json:"paused_at,omitempty"`
+	PauseReason string `json:"pause_reason,omitempty"`
 }
 
 // SLAOwner is an optional trusted host adapter distinct from the Incident /
@@ -39,13 +44,14 @@ func validateAuthorizedSLA(value *AuthorizedSLA) (*AuthorizedSLA,error) {
 	}
 	for _, field := range []struct{v string;max int}{
 		{value.PolicySource,128},{value.PolicyVersion,96},
+		{value.CalendarSource,128},{value.PauseReason,256},
 	} {
 		if len(field.v)>field.max || !utf8.ValidString(field.v) ||
 			(field.v!="" && (invalidScope(field.v) || strings.TrimSpace(field.v)!=field.v)) {
 			return nil,errSLA
 		}
 	}
-	for _, stamp := range []string{value.ObservedAt,value.DueAt} {
+	for _, stamp := range []string{value.ObservedAt,value.DueAt,value.PausedAt} {
 		if stamp=="" { continue }
 		if len(stamp)>48 || strings.TrimSpace(stamp)!=stamp {
 			return nil,errSLA
@@ -67,6 +73,18 @@ func validateAuthorizedSLA(value *AuthorizedSLA) (*AuthorizedSLA,error) {
 	}
 	if value.State=="unknown" || value.State=="not-applicable" {
 		if value.RemainingSeconds != nil { return nil,errSLA }
+	}
+	// The host alone owns pause authorization and source history; never
+	// fabricate a reason or silently expose paused metadata for a state
+	// that is not paused. Incomplete paused state is explicitly unknown.
+	if value.State!="paused" && (value.PausedAt!="" || value.PauseReason!="") {
+		return nil,errSLA
+	}
+	if value.PausedAt!="" {
+		start,err:=time.Parse(time.RFC3339Nano,value.PausedAt)
+		if err!=nil { return nil,errSLA }
+		observed,err:=time.Parse(time.RFC3339Nano,value.ObservedAt)
+		if err!=nil || start.After(observed) { return nil,errSLA }
 	}
 	return value,nil
 }
