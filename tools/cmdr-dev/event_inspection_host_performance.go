@@ -35,10 +35,11 @@ func measureEventInspectionHostLoad(ctx context.Context, root string, target Dee
 			continue
 		}
 		ops, e1 := strconv.ParseInt(fields[1], 10, 64)
+		unsignedOps, e5 := strconv.ParseUint(fields[1], 10, 64)
 		ns, e2 := strconv.ParseFloat(fields[2], 64)
 		bytesPerOp, e3 := strconv.ParseUint(fields[4], 10, 64)
 		allocationsPerOp, e4 := strconv.ParseUint(fields[6], 10, 64)
-		if e1 != nil || e2 != nil || e3 != nil || e4 != nil || ops != int64(target.Iterations) ||
+		if e1 != nil || e2 != nil || e3 != nil || e4 != nil || e5 != nil || ops != int64(target.Iterations) ||
 			ns <= 0 || ns > 1e12 || bytesPerOp > 1<<28 || allocationsPerOp > 1<<20 {
 			return DeepPerformanceObservation{}, fmt.Errorf("invalid authorized HTTP benchmark measurement")
 		}
@@ -47,7 +48,7 @@ func measureEventInspectionHostLoad(ctx context.Context, root string, target Dee
 			DurationMS:           int64(durationNS / float64(time.Millisecond)),
 			Operations:           ops,
 			ThroughputOpsPerSec:  1e9 / ns,
-			TotalAllocationBytes: uint64(ops) * bytesPerOp,
+			TotalAllocationBytes: unsignedOps * bytesPerOp,
 			// Go benchmark reports B/op but not process peak heap; do not fabricate it.
 		}, nil
 	}
