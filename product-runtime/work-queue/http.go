@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+	"net/url"
 )
 
 // SessionScope is trusted identity resolved by the host. HTTP query strings,
@@ -45,7 +46,11 @@ func NewHTTPHandler(sessions SessionResolver, owner Owner) http.Handler {
 		}
 		// Do not accept client-supplied principal, tenant, environment or
 		// arbitrary filter DSL at this first bounded system-view boundary.
-		values := r.URL.Query()
+		values, queryErr := url.ParseQuery(r.URL.RawQuery)
+		if queryErr != nil {
+			http.Error(w, "invalid work queue query", http.StatusBadRequest)
+			return
+		}
 		for key, entries := range values {
 			if key != "view" || len(entries) != 1 {
 				http.Error(w, "unsupported work queue query", http.StatusBadRequest)
