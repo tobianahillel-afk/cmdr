@@ -33,6 +33,13 @@ type observation struct {
 }
 var sink queue.Result
 func run(args []string, out io.Writer) error {
+	return runWithOwner(args, out, syntheticOwner{})
+}
+
+// runWithOwner keeps the production CLI bound to the fixed synthetic owner.
+// Tests can instead prove that a denied or failed owner never produces a
+// misleading performance receipt, including under resource measurement.
+func runWithOwner(args []string, out io.Writer, owner queue.Owner) error {
 	fs:=flag.NewFlagSet("command-work-queue-perf",flag.ContinueOnError)
 	fs.SetOutput(io.Discard)
 	n:=fs.Int("iterations",10000,"operations")
@@ -43,7 +50,6 @@ func run(args []string, out io.Writer) error {
 		return fmt.Errorf("unsupported performance operation, mode or iteration count")
 	}
 	req:=queue.Request{Principal:"analyst",Tenant:"perf-tenant",Environment:"perf-env",View:queue.All}
-	owner:=syntheticOwner{}
 	perform:=func()error{
 		result,err:=queue.Project(context.Background(),owner,req)
 		if err!=nil{return err}
