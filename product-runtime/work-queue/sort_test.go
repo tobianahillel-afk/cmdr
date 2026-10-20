@@ -3,6 +3,7 @@ package workqueue
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
@@ -126,7 +127,7 @@ func TestWorkQueueOldestFirstPageAppliesSortBeforeBound(t *testing.T) {
 	owner.items = nil
 	owner.allowed = map[string]bool{}
 	for i := 0; i < 65; i++ {
-		id := string(rune('A'+i)) + "-task"
+		id := fmt.Sprintf("task-%03d", i)
 		owner.items = append(owner.items, Item{
 			Kind: Task, ID: id, Tenant: "t1", Environment: "e1",
 			Status: "open", UpdatedAt: "2026-10-19T09:00:00Z",
