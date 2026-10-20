@@ -100,7 +100,7 @@ func TestCommandWorkQueueCursorReauthDeniesRevokedOrChangedOwnerState(t *testing
 	// even if its numeric position would still contain authorized rows.
 	o.allowed["Task:task-070"]=false
 	o.calls=nil
-	var req=Request
+	var req Request
 	req=request(Tasks)
 	req.Cursor=cursor
 	result,err:=Project(context.Background(),o,req)
