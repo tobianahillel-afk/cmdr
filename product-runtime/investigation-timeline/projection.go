@@ -51,6 +51,9 @@ type ProjectedEntry struct {
 	Provenance    string `json:"provenance"`
 	Version       int    `json:"version"`
 	Supersedes    string `json:"supersedes"`
+	// Computed only from independently authorized visible successor entries.
+	// False is omitted: missing/denied successors are never inferred.
+	Superseded    bool   `json:"superseded,omitempty"`
 }
 
 type Result struct {
@@ -149,8 +152,10 @@ func Project(input Input) Result {
 	}
 	// A visible version must not disclose an inaccessible predecessor ID.
 	visibleVersions := make(map[string]int, len(rows))
-	for _, row := range rows {
+	visiblePositions := make(map[string]int, len(rows))
+	for i, row := range rows {
 		visibleVersions[row.entry.ID] = row.entry.Version
+		visiblePositions[row.entry.ID] = i
 	}
 	for i := range rows {
 		previous := rows[i].entry.Supersedes
@@ -168,6 +173,10 @@ func Project(input Input) Result {
 		if version >= rows[i].entry.Version {
 			return deny
 		}
+		// The successor has already passed Case/Entry/source authorization.
+		// Mark only that visible predecessor, without guessing about hidden
+		// versions, inventing a correction, or exposing another source ID.
+		rows[visiblePositions[previous]].entry.Superseded = true
 	}
 	// Each visible ID is unique (enforced above) and is the final sort key.
 	// This makes the comparison a strict total order even when two entries
