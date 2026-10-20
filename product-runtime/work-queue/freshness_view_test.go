@@ -95,9 +95,9 @@ func TestViewFreshnessDegradedAndUnknownStatesRemainDistinct(t *testing.T) {
 	html:=testQueueRequestHTML(handler,http.MethodGet,"/command/work-queue?view=all")
 	// The per-row table MUST legitimately show authorized sources; only
 	// the NEW view-level summary must contain aggregate integers.
-	prefix,rest:=strings.Cut(html.Body.String(),"<p aria-label=\"Fraîcheur de la vue autorisée\">")
-	summary,found:=strings.Cut(rest,"</p>")
-	if html.Code!=200 || !prefix || !found ||
+	_,rest,present:=strings.Cut(html.Body.String(),"<p aria-label=\"Fraîcheur de la vue autorisée\">")
+	summary,_,found:=strings.Cut(rest,"</p>")
+	if html.Code!=200 || !present || !found ||
 		!strings.Contains(summary,"3 éléments") ||
 		strings.Contains(summary,"source-INC") ||
 		strings.Contains(summary,"source-TASK") {
