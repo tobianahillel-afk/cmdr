@@ -17,9 +17,9 @@
     "phase_title": "Scaled product implementation program bootstrap"
   },
   "execution": {
-    "active_work_unit": "E10-CMD-101F-SELECTION",
+    "active_work_unit": "E10-CMD-109A-FRESHNESS",
     "preferred_next_unit": null,
-    "selection_rule": "2026-10-20: no READY nodes after immutable E10-CMD-101E-SORT parent PR #162 SHA 502c7e8398c194d320ea234902cceaabd274d234 (command runtime 39366010942 and engineering kernel 39366010979 SUCCESS, L2 report not confirmed). Canonical CAP-CMD-101 §§3,11,12,16/17,25 allows a bounded Class-0 selected context for currently visible owner-authorized Incident/Task on the existing six-view GET route. Materialized child of Command epic E10-CMD-101; status IMPLEMENTED only; exact-head CI and L2 pending until separately verified. No READY successor asserted. Larger Shared Saved View, Inspector, host IAM and ancestor draft PR #36/#2 remain unmerged/absent."
+    "selection_rule": "2026-10-20: graph on canonical PR #163 has zero READY; materialized independent canonically owned CAP-CMD-109 freshness epic E10-CMD-109 / task E10-CMD-109A-FRESHNESS, using verified E10-SCALE-005B dependency and Command-owned work-queue code. Parent Git PR #163 SHA b5e71280e2af3960cf63f45fea92a71cff557a68 is frozen under separate L2; it is NOT the engineering/product parent. Source freshness is optional host-authoritative metadata and versioned policy; no invented stale thresholds, prod IAM, Shared health, durable storage or acceptance claimed. This node is IMPLEMENTED only until exact-head CI and independent review. Ancestor PR #36/#2 remain draft/unmerged; cache non-authoritative and must be reconciled on resume."
   },
   "reconciliation": {
     "required_on_resume": true,
