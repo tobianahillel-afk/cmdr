@@ -1787,7 +1787,6 @@
       "title": "Expose source-authorized superseded Timeline Entry state in existing Case HTTP projection",
       "type": "task",
       "status": "READY",
-      "parent": "E10-INV-110",
       "depends_on": [
         "E10-INV-110E"
       ],
