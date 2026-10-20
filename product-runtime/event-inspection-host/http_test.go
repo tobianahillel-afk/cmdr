@@ -257,3 +257,20 @@ func TestMalformedAndRevokedSourceNeverPublishesPreviousData(t *testing.T) {
 	w := doRequest(t, h, standardRequest())
 	if w.Code != http.StatusNotFound || strings.Contains(w.Body.String(), "192.0.2.4") { t.Fatal(w.Code, w.Body.String()) }
 }
+
+func BenchmarkAuthorizedInspectionHTTP(b *testing.B) {
+	s, search, event := standardOwners()
+	h, err := NewHandler(s, search, event)
+	if err != nil { b.Fatal(err) }
+	data, err := json.Marshal(standardRequest())
+	if err != nil { b.Fatal(err) }
+	b.ReportAllocs()
+	b.ResetTimer()
+	for n := 0; n < b.N; n++ {
+		r := httptest.NewRequest(http.MethodPost, route, bytes.NewReader(data))
+		r.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
+		h.ServeHTTP(w, r)
+		if w.Code != http.StatusOK { b.Fatalf("benchmark unexpectedly denied Event: %d", w.Code) }
+	}
+}
