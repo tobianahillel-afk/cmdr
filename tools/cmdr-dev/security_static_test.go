@@ -180,3 +180,32 @@ func TestGosecProcessingErrorsIdentifyOnlySafeExistingRepoPaths(t *testing.T) {
 		t.Fatalf("unresolved gosec processing error not safely fail-closed: %v", err)
 	}
 }
+
+func TestGosecProcessingKindsNeverEchoUntrustedErrorMessage(t *testing.T) {
+	cases := []struct {
+		diagnostic string
+		want string
+	}{
+		{"undefined: PersonalSecretToken", "unresolved-symbol"},
+		{"could not import private.example/vendor-token", "dependency-import"},
+		{"syntax error: expected semicolon near SECRET", "syntax-or-parser"},
+		{"panic in analyzer when visiting user data", "analyzer-failure"},
+		{"failed to load sensitive package", "package-load"},
+		{"credentials=super-secret-password unknown", "unclassified"},
+	}
+	for _, tc := range cases {
+		raw, err := json.Marshal(map[string]string{"error": tc.diagnostic})
+		if err != nil {
+			t.Fatal(err)
+		}
+		kinds := safeGosecProcessingKinds(map[string][]json.RawMessage{
+			"something.go": {json.RawMessage(raw)},
+		})
+		if len(kinds) != 1 || kinds[0] != tc.want {
+			t.Fatalf("unexpected safe classification for %q: %v", tc.want, kinds)
+		}
+		if strings.Contains(strings.Join(kinds, ","), "secret") {
+			t.Fatal("raw gosec diagnostic escaped through safe kind")
+		}
+	}
+}
