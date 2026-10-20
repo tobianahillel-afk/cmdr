@@ -50,7 +50,9 @@
     "work/lots/E10-INV-004G-HOST/**",
     "work/graph.json",
     "engineering/architecture/boundaries.json",
-    "engineering/performance/performance-registry.json"
+    "engineering/performance/performance-registry.json",
+    "engineering/security/runtime-security-policy.json",
+    "tools/cmdr-dev/security_tests.go"
   ],
   "forbidden_paths": [
     "cmdr-product-spec/**",
@@ -97,14 +99,16 @@
     "Server response compatible with JS Inspector normalization: lowerCamel source/parser/enrichments; independent raw/rendered variants",
     "HTTP httptest security matrix including host spoof, source redaction, denied raw, malformed requests, wrong Event and partial stale provenance",
     "Exact-HEAD cross-platform CI evidence, with explicit exclusion of real host and production",
-    "Separate registered host boundary with explicit local-only Go dependency on immutable event-inspection-runtime; on-demand benchmark target measures ONLY the upstream in-process projector; no HTTP SLO"
+    "Separate registered host boundary with explicit local-only Go dependency on immutable event-inspection-runtime; on-demand benchmark target measures ONLY the upstream in-process projector; no HTTP SLO",
+    "MANDATORY measured security adapter for event-inspection-http-host-runtime: new host Go security coverage and independently executed Search authorization/Tenant isolation tests"
   ],
   "acceptance_tests": [
     "Positive real HTTP request passes server-source authorization chain and returns browser-compatible read-only projection",
     "Denial at Search stage never invokes Telemetry owner; owner/identity mismatch yields generic denied and zero protected bytes",
     "Raw and rendered independent; denied raw causes zero leakage of source-owned raw-derived secret",
     "Invalid Event origin/provenance, malformed/oversize JSON, unsupported method/content-type fail closed",
-    "Go race/test/vet and host coverage >=90% on exact commit; full adaptive engineering checks required separately"
+    "Go race/test/vet and host coverage >=90% on exact commit; full adaptive engineering checks required separately",
+    "Global CHK-SECURITY-TESTS must measure new host coverage above unchanged mandatory 90% changed-critical floor and execute both host negative tests"
   ],
   "required_checks": [
     "adaptive engineering-kernel",
@@ -136,7 +140,7 @@
   },
   "complexity": {
     "primary_components": 2,
-    "estimated_files_changed": 8,
+    "estimated_files_changed": 10,
     "estimated_net_loc": 340,
     "production_files": 2,
     "net_production_loc": 298,
