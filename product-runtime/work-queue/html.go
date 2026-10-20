@@ -26,16 +26,22 @@ var queuePage = template.Must(template.New("command-work-queue").Parse(`<!doctyp
 <label for="queue-sort">Ordre chronologique</label>
 <select id="queue-sort" name="sort"><option value="newest"{{if ne .SortOrder "oldest"}} selected{{end}}>Plus récents</option><option value="oldest"{{if eq .SortOrder "oldest"}} selected{{end}}>Plus anciens</option></select>
 <button type="submit">Appliquer / effacer la sélection</button>
+</form>
 {{if .StatusFilter}}<p>Filtre actif : {{.StatusFilter}}</p>{{end}}
 <p role="status">État : {{.State}}</p>
 {{if .Diagnostics}}<ul aria-label="Limites de la projection">{{range .Diagnostics}}<li>{{.}}</li>{{end}}</ul>{{end}}
 {{if .Rows}}
 <table><caption>Éléments autorisés — première page (50 maximum)</caption>
 <thead><tr><th scope="col">Type</th><th scope="col">Identifiant</th><th scope="col">Responsable</th><th scope="col">État</th><th scope="col">Mis à jour (UTC)</th><th scope="col">Fraîcheur source</th><th scope="col">Contexte</th></tr></thead>
-<tbody>{{range .LinkedRows}}<tr><td>{{.Kind}}</td><th scope="row">{{.ID}}</th><td>{{.Owner}}</td><td>{{.Status}}</td><td>{{.UpdatedAt}}</td><td>{{if .Freshness}}{{.Freshness.State}} — {{.Freshness.Source}}{{if .Freshness.ObservedAt}} · {{.Freshness.ObservedAt}}{{end}}{{if .Freshness.PolicyVersion}} · policy {{.Freshness.PolicyVersion}}{{end}}{{else}}unknown — source non fournie{{end}}</td><td><button type="submit" name="selected" value="{{.SelectionToken}}">Sélectionner</button></td></tr>{{end}}</tbody>
+<tbody>{{range .LinkedRows}}<tr><td>{{.Kind}}</td><th scope="row">{{.ID}}</th><td>{{.Owner}}</td><td>{{.Status}}</td><td>{{.UpdatedAt}}</td><td>{{if .Freshness}}{{.Freshness.State}} — {{.Freshness.Source}}{{if .Freshness.ObservedAt}} · {{.Freshness.ObservedAt}}{{end}}{{if .Freshness.PolicyVersion}} · policy {{.Freshness.PolicyVersion}}{{end}}{{else}}unknown — source non fournie{{end}}</td><td><form method="get" action="/command/work-queue">
+<input type="hidden" name="view" value="{{$.Current}}">
+{{if $.StatusFilter}}<input type="hidden" name="status" value="{{$.StatusFilter}}">{{end}}
+{{if $.SortOrder}}<input type="hidden" name="sort" value="{{$.SortOrder}}">{{end}}
+{{if $.CurrentCursor}}<input type="hidden" name="cursor" value="{{$.CurrentCursor}}">{{end}}
+<button type="submit" name="selected" value="{{.SelectionToken}}">Sélectionner</button>
+</form></td></tr>{{end}}</tbody>
 </table>
 {{else}}<p>Aucun élément autorisé dans cette vue.</p>{{end}}
-</form>
 <nav aria-label="Pagination de la Work Queue">
 {{if .HasPrevious}}<a href="{{.PreviousPageHref}}">Page précédente</a> <a href="{{.FirstPageHref}}">Première page</a>{{end}}
 {{if .NextCursor}}<a href="{{.NextPageHref}}">Page suivante</a>{{end}}
@@ -55,7 +61,7 @@ type queueSelectionRow struct {
 	SelectionToken string
 }
 
-func renderQueuePage(result Result) ([]byte, error) {
+func renderQueuePage(result Result, currentCursor string) ([]byte, error) {
 	labels := [...]string{"Tout", "Incidents", "Tâches", "Non assignés", "Risque SLA", "Mon travail"}
 	views := make([]queuePageView, 0, len(SystemViews))
 	for i, key := range SystemViews {
@@ -95,10 +101,11 @@ func renderQueuePage(result Result) ([]byte, error) {
 		Current View
 		Views []queuePageView
 		LinkedRows []queueSelectionRow
+		CurrentCursor string
 		FirstPageHref string
 		PreviousPageHref string
 		NextPageHref string
-	}{Result:result, Current:result.View, Views:views, LinkedRows:linked,
+	}{Result:result, Current:result.View, Views:views, LinkedRows:linked, CurrentCursor:currentCursor,
 		FirstPageHref:firstPageHref, PreviousPageHref:previousPageHref, NextPageHref:nextPageHref})
 	if err != nil { return nil, err }
 	return out.Bytes(), nil
