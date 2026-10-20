@@ -1924,11 +1924,11 @@
       ],
       "dependency_terminal_state": "IMPLEMENTED",
       "unlocks": [
-        "E10-CMD-101I-PAGED-SELECTION"
+        "E10-CMD-101I-SELECTION"
       ]
     },
     {
-      "id": "E10-CMD-101I-PAGED-SELECTION",
+      "id": "E10-CMD-101I-SELECTION",
       "title": "Preserve current authorized Work Queue page when selecting a visible Incident or Task",
       "type": "task",
       "status": "READY",
