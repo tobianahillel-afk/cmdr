@@ -52,7 +52,8 @@
     "engineering/architecture/boundaries.json",
     "engineering/performance/performance-registry.json",
     "engineering/security/runtime-security-policy.json",
-    "tools/cmdr-dev/security_tests.go"
+    "tools/cmdr-dev/security_tests.go",
+    "tools/cmdr-dev/security_tests_test.go"
   ],
   "forbidden_paths": [
     "cmdr-product-spec/**",
@@ -100,7 +101,8 @@
     "HTTP httptest security matrix including host spoof, source redaction, denied raw, malformed requests, wrong Event and partial stale provenance",
     "Exact-HEAD cross-platform CI evidence, with explicit exclusion of real host and production",
     "Separate registered host boundary with explicit local-only Go dependency on immutable event-inspection-runtime; on-demand benchmark target measures ONLY the upstream in-process projector; no HTTP SLO",
-    "MANDATORY measured security adapter for event-inspection-http-host-runtime: new host Go security coverage and independently executed Search authorization/Tenant isolation tests"
+    "MANDATORY measured security adapter for event-inspection-http-host-runtime: new host Go security coverage and independently executed Search authorization/Tenant isolation tests",
+    "Engineering unit tests assert all nine explicitly registered runtime security evidence adapters, including the new HTTP host; existing mandatory adapters unchanged"
   ],
   "acceptance_tests": [
     "Positive real HTTP request passes server-source authorization chain and returns browser-compatible read-only projection",
