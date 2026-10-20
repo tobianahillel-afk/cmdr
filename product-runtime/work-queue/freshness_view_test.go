@@ -93,10 +93,15 @@ func TestViewFreshnessDegradedAndUnknownStatesRemainDistinct(t *testing.T) {
 	}
 	handler:=NewHTTPHandler(trustedHost(),owner)
 	html:=testQueueRequestHTML(handler,http.MethodGet,"/command/work-queue?view=all")
-	if html.Code!=200 || !strings.Contains(html.Body.String(),"Fraîcheur de la vue autorisée") ||
-		!strings.Contains(html.Body.String(),"3 éléments") ||
-		strings.Contains(html.Body.String(),"source-INC") {
-		t.Fatalf("authorized view summary absent or exposed row source in header: %d %q",html.Code,html.Body.String())
+	// The per-row table MUST legitimately show authorized sources; only
+	// the NEW view-level summary must contain aggregate integers.
+	prefix,rest:=strings.Cut(html.Body.String(),"<p aria-label=\"Fraîcheur de la vue autorisée\">")
+	summary,found:=strings.Cut(rest,"</p>")
+	if html.Code!=200 || !prefix || !found ||
+		!strings.Contains(summary,"3 éléments") ||
+		strings.Contains(summary,"source-INC") ||
+		strings.Contains(summary,"source-TASK") {
+		t.Fatalf("authorized freshness aggregate missing or exposing owner labels: %d %q",html.Code,summary)
 	}
 }
 
