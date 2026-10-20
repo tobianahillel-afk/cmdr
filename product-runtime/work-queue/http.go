@@ -195,6 +195,22 @@ func NewHTTPHandler(sessions SessionResolver, owner Owner) http.Handler {
 				}
 			}
 			result.SelectedFactors = &factors
+			// Object authorization does not imply contractual SLA access.
+			// The optional host adapter independently authorizes its source;
+			// no client can request a policy or choose its tenant.
+			if slaOwner, ok := owner.(SLAOwner); ok {
+				sla, err := slaOwner.ReadAuthorizedSLA(r.Context(),scope.Principal,
+					scope.Tenant,scope.Environment,result.Selected.Kind,result.Selected.ID)
+				if err != nil {
+					http.Error(w,"SLA source unavailable",http.StatusServiceUnavailable)
+					return
+				}
+				result.SelectedSLA,err=validateAuthorizedSLA(sla)
+				if err != nil {
+					http.Error(w,"SLA source unavailable",http.StatusServiceUnavailable)
+					return
+				}
+			}
 		}
 		w.Header().Set("Vary", "Accept")
 		if strings.Contains(r.Header.Get("Accept"), "text/html") {
