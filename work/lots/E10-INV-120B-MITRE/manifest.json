@@ -4,7 +4,7 @@
   "title": "Source-backed Wazuh ATT&CK technique cohorts after independently authorized local Case traversal",
   "type": "task",
   "parent": "E10-INV-110",
-  "goal": "Expose bounded, deterministic MITRE ATT&CK technique attribution present on real-shaped offline Wazuh 4.x alerts.json, but only after existing loopback Case/Timeline/typed-source owner authorization; no inference, new ACL, storage, query engine or mutation.",
+  "goal": "Expose bounded, deterministic MITRE ATT&CK technique attribution present on real-shaped offline Wazuh 4.x alerts.json, but only after existing loopback Case/Timeline/typed-source owner authorization; no inference, new ACL, storage, query engine or mutation. Complete the existing read-only analyst loopback Wazuh cohort screen so the source-backed labels are actually inspectable by an analyst, not hidden inside JSON.",
   "depends_on": [
     "E10-INV-110E"
   ],
@@ -38,7 +38,10 @@
     "product-runtime/investigation-timeline/cmd/case-timeline-demo/wazuh_levels.go",
     "product-runtime/investigation-timeline/cmd/case-timeline-demo/wazuh_mitre_cohorts_test.go",
     "work/lots/E10-INV-120B-MITRE/**",
-    "work/graph.json"
+    "work/graph.json",
+    "product-runtime/investigation-timeline/cmd/case-timeline-demo/analyst.js",
+    "product-runtime/investigation-timeline/cmd/case-timeline-demo/analyst.html",
+    "product-runtime/investigation-timeline/cmd/case-timeline-demo/analyst_summary.test.cjs"
   ],
   "forbidden_paths": [
     "cmdr-product-spec/**",
@@ -53,7 +56,8 @@
     "Preserve existing JSON receipt format and fields; add at most 10 source technique cohorts with separate unmapped and distinct counts",
     "An alert may have several source technique IDs; duplicates within an alert must not multiply that alert, across tags counts may overlap",
     "Never output alert IDs, hostnames, full_log, source raw previews, tokens, or invented technique names",
-    "Do not modify #186 frozen L2 source, #185, PR #36 baseline, main or canonical docs"
+    "Do not modify #186 frozen L2 source, #185, PR #36 baseline, main or canonical docs",
+    "Browser displays technique cohorts as source-claimed metadata only via textContent; no HTML interpolation, no unsupported technique-specific drilldown endpoint"
   ],
   "security_properties": [
     "No new third-party dependency, provider, listener, permission namespace, source adapter, mutation or production claim",
@@ -81,7 +85,8 @@
   "outputs": [
     "Offline Wazuh 4.x authorized Case triage JSON includes `distinct_technique_ids`, `unmapped_technique_alerts`, `top_techniques` with bounded technique IDs, counts, highest known Wazuh severity",
     "Shared existing authenticated local /demo-wazuh-cohorts route serializes same additive receipt; no new route or browser UI claimed",
-    "Structured tests with on-disk Wazuh samples, two-Case owner snapshot, denied principal, metadata injection rejection, tag multiplicity, top-ten deterministic ties"
+    "Structured tests with on-disk Wazuh samples, two-Case owner snapshot, denied principal, metadata injection rejection, tag multiplicity, top-ten deterministic ties",
+    "Existing ephemeral bearer-authenticated loopback analyst Wazuh panel displays the already-authorized ATT&CK labels as non-inferential read-only text, without a new source-authority or unsupported technique drilldown"
   ],
   "acceptance_tests": [
     "Existing runDemoCLI -wazuh-alerts -triage-import returns correct technique counts after full owner-authorized traversal",
@@ -90,7 +95,8 @@
     "No Wazuh rule.mitre.id -> unmapped technique alert, no invented classification",
     "Malformed technique IDs/over 16 per alert/nonnumeric JSON wrong type denied without partial bytes",
     "Unprivileged principal or foreign Case yields no authorized receipt; raw alert IDs, hosts and secrets not returned",
-    "Full original Timeline Go and Node tests run on exact candidate commit; mandatory changed-security-critical coverage floor unchanged"
+    "Full original Timeline Go and Node tests run on exact candidate commit; mandatory changed-security-critical coverage floor unchanged",
+    "Existing Node 24 analyst browser exercises authorized technique metadata display, malicious labels fail-closed, legacy receipt compatible and stale/denied response emits no partial source content"
   ],
   "required_checks": [
     "CHK-MANIFESTS",
@@ -118,11 +124,11 @@
     "metrics": []
   },
   "complexity": {
-    "primary_components": 1,
-    "estimated_files_changed": 2,
-    "estimated_net_loc": 145,
-    "production_files": 1,
-    "net_production_loc": 95,
+    "primary_components": 2,
+    "estimated_files_changed": 4,
+    "estimated_net_loc": 190,
+    "production_files": 3,
+    "net_production_loc": 120,
     "bounded_contexts": 1,
     "independent_migrations": 0,
     "distinct_security_models": 1,
