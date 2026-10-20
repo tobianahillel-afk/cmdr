@@ -185,6 +185,25 @@ type payload struct {
 	Text   string `json:"text,omitempty"`
 }
 
+type browserSource struct {
+	SourceRef     string `json:"sourceRef"`
+	DataSourceRef string `json:"dataSourceRef"`
+}
+
+type browserParser struct {
+	ParserRef string `json:"parserRef"`
+	Version   string `json:"version"`
+	Status    string `json:"status"`
+}
+
+type browserEnrichment struct {
+	Producer  string            `json:"producer"`
+	Version   string            `json:"version"`
+	Freshness string            `json:"freshness"`
+	Stale     bool              `json:"stale"`
+	Values    map[string]string `json:"values"`
+}
+
 type browserProjection struct {
 	Kind                string                            `json:"kind"`
 	TenantRef           string                            `json:"tenantRef"`
@@ -192,13 +211,13 @@ type browserProjection struct {
 	EventRef            string                            `json:"eventRef"`
 	CorrelationID       string                            `json:"correlationId"`
 	State               inspection.EventState             `json:"state"`
-	Source              inspection.SourceMetadata        `json:"source"`
-	Parser              inspection.ParserMetadata        `json:"parser"`
+	Source              browserSource                     `json:"source"`
+	Parser              browserParser                     `json:"parser"`
 	SourceFields        map[string]string                 `json:"sourceFields"`
 	NormalizedFields    map[string]string                 `json:"normalizedFields"`
 	RawDerivedSensitive map[string]string                 `json:"rawDerivedSensitive,omitempty"`
 	MissingFields       []string                          `json:"missingFields"`
-	Enrichments         []inspection.ProjectionEnrichment `json:"enrichments"`
+	Enrichments         []browserEnrichment               `json:"enrichments"`
 	Raw                 payload                            `json:"raw"`
 	Rendered            payload                            `json:"rendered"`
 }
@@ -207,9 +226,11 @@ func toBrowserProjection(p inspection.Projection, raw, rendered inspection.Acces
 	result := browserProjection{
 		Kind: "inspection", TenantRef: p.TenantRef, EnvironmentRef: p.EnvironmentRef,
 		EventRef: p.EventRef, CorrelationID: p.CorrelationID, State: p.State,
-		Source: p.Source, Parser: p.Parser, SourceFields: p.SourceFields,
+		Source: browserSource{SourceRef: p.Source.SourceRef, DataSourceRef: p.Source.DataSourceRef},
+		Parser: browserParser{ParserRef: p.Parser.ParserRef, Version: p.Parser.Version, Status: p.Parser.Status},
+		SourceFields: p.SourceFields,
 		NormalizedFields: p.NormalizedFields, RawDerivedSensitive: p.RawDerivedSensitive,
-		MissingFields: p.MissingFields, Enrichments: p.Enrichments,
+		MissingFields: p.MissingFields, Enrichments: make([]browserEnrichment, 0, len(p.Enrichments)),
 		Raw: payload{Access: "denied"}, Rendered: payload{Access: "denied"},
 	}
 	if !validRef(p.Source.SourceRef) || !boundedFields(p.SourceFields) ||
@@ -225,6 +246,10 @@ func toBrowserProjection(p inspection.Projection, raw, rendered inspection.Acces
 			!boundedText(e.Freshness, 256) || !boundedFields(e.Values) {
 			return browserProjection{}, false
 		}
+		result.Enrichments = append(result.Enrichments, browserEnrichment{
+			Producer: e.Producer, Version: e.Version, Freshness: e.Freshness,
+			Stale: e.Stale, Values: e.Values,
+		})
 	}
 	if raw == inspection.AccessAllow {
 		if !utf8.Valid(p.RawPayload) || len(p.RawPayload) > 65536 { return browserProjection{}, false }
