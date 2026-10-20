@@ -54,3 +54,21 @@ func TestCommandWorkQueueProbeCleanupPreservesUnexpectedFile(t *testing.T) {
 		t.Fatalf("nonempty private directory was removed: %v", err)
 	}
 }
+
+func TestCommandWorkQueueProbeCleanupCannotFollowWorkspaceSymlink(t *testing.T) {
+	workspace := t.TempDir()
+	outside := t.TempDir()
+	privateFile := filepath.Join(outside, "command-work-queue-perf")
+	if err := os.WriteFile(privateFile, []byte("unrelated external evidence"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	tempName := filepath.Join(workspace, ".cmdr-command-work-queue-perf-replaced")
+	if err := os.Symlink(outside, tempName); err != nil {
+		t.Skipf("directory symlink creation unavailable: %v", err)
+	}
+	cleanupCommandWorkQueueProbe(workspace, filepath.Join(tempName, "command-work-queue-perf"), tempName)
+	data, err := os.ReadFile(privateFile)
+	if err != nil || string(data) != "unrelated external evidence" {
+		t.Fatalf("cleanup escaped workspace root through substituted symlink: %v", err)
+	}
+}
