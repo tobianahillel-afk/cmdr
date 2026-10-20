@@ -17,9 +17,9 @@
     "phase_title": "Scaled product implementation program bootstrap"
   },
   "execution": {
-    "active_work_unit": null,
+    "active_work_unit": "E10-INV-120A-SNAPSHOT",
     "preferred_next_unit": null,
-    "selection_rule": "Reconciled 2026-10-20: E10-INV-120A-SNAPSHOT has existing runtime and successful exact-head CI on foundation PR #36, now IMPLEMENTED but NOT accepted/merged. No remaining verified READY task in this branch work graph. Re-evaluate canonical priorities and all current open PRs before materializing the next bounded unit; Command CAP-CMD-101 and SAST blockers live on independent later draft PRs, not on this frozen foundation SHA."
+    "selection_rule": "The active_work_unit is the attribution for this reconciliation commit ONLY, not a READY recommendation. E10-INV-120A-SNAPSHOT is IMPLEMENTED on frozen PR #36, NOT VERIFIED or merged. preferred_next_unit=null because no other graph node is safely READY; recompute from canonical obligations and GitHub PRs, do not use stale READY cache. Separate Command CAP-CMD-101/SAST issues reside on draft PRs #153-155."
   },
   "reconciliation": {
     "required_on_resume": true,
