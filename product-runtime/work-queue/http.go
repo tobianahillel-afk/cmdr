@@ -54,7 +54,7 @@ func NewHTTPHandler(sessions SessionResolver, owner Owner) http.Handler {
 			return
 		}
 		for key, entries := range values {
-			if (key != "view" && key != "status" && key != "sort" && key != "selected") || len(entries) != 1 {
+			if (key != "view" && key != "status" && key != "sort" && key != "selected" && key != "cursor") || len(entries) != 1 {
 				http.Error(w, "unsupported work queue query", http.StatusBadRequest)
 				return
 			}
@@ -100,6 +100,21 @@ func NewHTTPHandler(sessions SessionResolver, owner Owner) http.Handler {
 				return
 			}
 		}
+		// Reject malformed cursors before host sessions or owner data are read.
+		// Correctly formatted but stale/foreign cursors get one generic 404
+		// only AFTER the current full owner authorization is recomputed.
+		pageCursor := ""
+		if entries, ok := values["cursor"]; ok {
+			pageCursor = entries[0]
+			if pageCursor == "" {
+				http.Error(w, "invalid work queue cursor", http.StatusBadRequest)
+				return
+			}
+			if _, err := decodeQueueCursor(pageCursor); err != nil {
+				http.Error(w, "invalid work queue cursor", http.StatusBadRequest)
+				return
+			}
+		}
 		scope, err := sessions.ResolveSession(r.Context(), r)
 		if err != nil || invalidScope(scope.Principal) ||
 			invalidScope(scope.Tenant) || invalidScope(scope.Environment) {
@@ -109,10 +124,12 @@ func NewHTTPHandler(sessions SessionResolver, owner Owner) http.Handler {
 		result, err := Project(r.Context(), owner, Request{
 			Principal: scope.Principal, Tenant: scope.Tenant,
 			Environment: scope.Environment, View: view, StatusFilter: status,
-			SortOrder: sortOrder,
+			SortOrder: sortOrder, Cursor: pageCursor,
 		})
 		if err != nil {
-			if err == ErrView || err == ErrScope {
+			if err == ErrCursor {
+				http.NotFound(w, r)
+			} else if err == ErrView || err == ErrScope {
 				http.Error(w, "invalid work queue selection", http.StatusBadRequest)
 			} else {
 				// Provider failures, missing metadata or revoked ACLs never
