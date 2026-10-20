@@ -8,7 +8,6 @@
   "depends_on": [
     "E10-CMD-105A-READONLY"
   ],
-  "dependency_terminal_state": "IMPLEMENTED",
   "product_refs": {
     "capabilities": [
       "CAP-CMD-105",
