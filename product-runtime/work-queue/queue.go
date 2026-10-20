@@ -91,6 +91,10 @@ type Result struct {
 	NextCursor string `json:"next_cursor,omitempty"`
 	PreviousCursor string `json:"previous_cursor,omitempty"`
 	HasPrevious bool `json:"has_previous,omitempty"`
+	// Internal HTML-only current-page position. Populated exclusively after
+	// the full owner-authorized cursor hash check, never from raw HTTP input.
+	// It must not extend the public JSON projection contract.
+	CurrentCursor string `json:"-"`
 	// Selected is returned ONLY by the authenticated HTTP route, and only
 	// for an item reauthorized and present in its currently visible page.
 	// No selected field is serialized for legacy/unselected projections.
@@ -252,6 +256,10 @@ func Project(ctx context.Context, owner Owner, req Request) (Result, error) {
 	page, next, previousCursor, hasPrevious, err := authorizedQueuePage(req, authorized)
 	if err != nil { return empty, err }
 	result.Rows = page
+	// req.Cursor is merely a hint until authorizedQueuePage returns nil.
+	// Only after this point may the opaque token be used in native HTML
+	// navigation controls; stale/revoked/foreign cursors returned ErrCursor.
+	result.CurrentCursor = req.Cursor
 	result.NextCursor = next
 	result.PreviousCursor = previousCursor
 	result.HasPrevious = hasPrevious
