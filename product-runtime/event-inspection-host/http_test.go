@@ -28,12 +28,23 @@ type testSearch struct {
 	err error
 	calls int
 	last Request
+	pivotAllowed bool
+	pivotErr error
+	pivotCalls int
 }
 func (s *testSearch) CanInspectSearchResult(_ context.Context, scope Session, req Request) (bool, error) {
 	s.calls++
 	s.last = req
 	if scope.Principal != "analyst" { return false, nil }
 	return s.allowed, s.err
+}
+
+func (s *testSearch) CanDraftPivot(_ context.Context, scope Session, req Request, field, value string) (bool, error) {
+	s.pivotCalls++
+	if scope.Principal != "analyst" || req.TenantRef != scope.Tenant || field == "" {
+		return false, nil
+	}
+	return s.pivotAllowed, s.pivotErr
 }
 
 type testEvent struct {
@@ -66,7 +77,7 @@ func standardEvent() inspection.Event {
 
 func standardOwners() (*testSession, *testSearch, *testEvent) {
 	return &testSession{scope: Session{Principal: "analyst", Tenant: "tenant-a", Environment: "prod"}},
-		&testSearch{allowed: true},
+		&testSearch{allowed: true, pivotAllowed: true},
 		&testEvent{owned: AuthorizedEvent{
 			Allowed: true, Event: standardEvent(),
 			RawDecision: inspection.AccessDeny, RenderDecision: inspection.AccessAllow,
@@ -94,7 +105,7 @@ func doRaw(h http.Handler, method, path, contentType string, data []byte) *httpt
 }
 func newTestHandler(t *testing.T, s *testSession, search *testSearch, event *testEvent) http.Handler {
 	t.Helper()
-	h, err := NewHandler(s, search, event)
+	h, err := NewHandlerWithPivotAuthorizer(s, search, event, search)
 	if err != nil { t.Fatal(err) }
 	return h
 }
