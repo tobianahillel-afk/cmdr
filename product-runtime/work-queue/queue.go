@@ -84,6 +84,10 @@ type Result struct {
 	Rows         []Row    `json:"rows"`
 	StatusFilter string   `json:"status_filter,omitempty"`
 	SortOrder string `json:"sort,omitempty"`
+	// Selected is returned ONLY by the authenticated HTTP route, and only
+	// for an item reauthorized and present in its currently visible page.
+	// No selected field is serialized for legacy/unselected projections.
+	Selected *Row `json:"selected,omitempty"`
 }
 
 var (

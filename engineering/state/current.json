@@ -17,9 +17,9 @@
     "phase_title": "Scaled product implementation program bootstrap"
   },
   "execution": {
-    "active_work_unit": "E10-CMD-101E-SORT",
+    "active_work_unit": "E10-CMD-101F-SELECTION",
     "preferred_next_unit": null,
-    "selection_rule": "2026-10-20 CAP-CMD-101 §§1–27 confirms Class-0 manual deterministic sorting. Reconciled parent #161 frozen SHA 2bc24c784b61ffc6c8b97fb81588ec02a84b4c59, runtime run 39360531352 SUCCESS and engineering-kernel run 39360531799 SUCCESS; #161 graph IMPLEMENTED but PR DRAFT/UNMERGED/L2 report not accessible. Selected a bounded child of existing Command epic E10-CMD-101 for exact oldest/newest sorting by already owned UpdatedAt on ONE host-authorized six-view route. This branch records only IMPLEMENTED until exact-head CI and L2 evidence; no READY successor declared, Shared Saved View persistence, Inspector, real production IAM, final virtualized columns, ancestor #36/#2 integration still absent."
+    "selection_rule": "2026-10-20: no READY nodes after immutable E10-CMD-101E-SORT parent PR #162 SHA 502c7e8398c194d320ea234902cceaabd274d234 (command runtime 39366010942 and engineering kernel 39366010979 SUCCESS, L2 report not confirmed). Canonical CAP-CMD-101 §§3,11,12,16/17,25 allows a bounded Class-0 selected context for currently visible owner-authorized Incident/Task on the existing six-view GET route. Materialized child of Command epic E10-CMD-101; status IMPLEMENTED only; exact-head CI and L2 pending until separately verified. No READY successor asserted. Larger Shared Saved View, Inspector, host IAM and ancestor draft PR #36/#2 remain unmerged/absent."
   },
   "reconciliation": {
     "required_on_resume": true,
