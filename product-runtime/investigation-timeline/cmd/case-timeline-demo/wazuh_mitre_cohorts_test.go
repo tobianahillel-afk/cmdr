@@ -5,6 +5,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"net/http/httptest"
 	"strings"
 	"testing"
 )
@@ -101,6 +103,57 @@ func TestWazuhMITRETechniqueTopTenDeterministicAcrossSourceOrder(t *testing.T) {
 		if technique.TechniqueID != fmt.Sprintf("T%04d", 1000+i) ||
 			technique.Count != 1 || technique.HighestKnownRuleLevel != nil {
 			t.Fatalf("missing level invented or technique order unstable: %+v", got.TopTechniques)
+		}
+	}
+}
+
+
+func TestWazuhMITRECohortsCrossExistingAuthenticatedLoopbackHTTP(t *testing.T) {
+	owner := twoCaseComparisonSnapshot(t)
+	alerts := writeJSONLEvents(t,
+		"{\"id\":\"sensitive-source-id\",\"timestamp\":\"2026-10-01T10:00:00Z\",\"agent\":{\"id\":\"001\",\"name\":\"private-host\"},\"rule\":{\"id\":\"5710\",\"level\":5,\"description\":\"private-preview\",\"mitre\":{\"id\":[\"T1059.001\"]}}}\n")
+	data, imported, raw, err := prepareWazuh4CaseWithRaw(context.Background(), "analyst-a", owner, "case-a", alerts)
+	if err != nil {
+		t.Fatal(err)
+	}
+	token := strings.Repeat("a", 64)
+	base, err := newDemoHandlerWithData(token, "analyst-a", data)
+	if err != nil {
+		t.Fatal(err)
+	}
+	handler := newDemoWazuhCohortHandler(token, "analyst-a", "case-a", data, imported, raw, base)
+	get := func(bearer, caseID string) *httptest.ResponseRecorder {
+		t.Helper()
+		req := httptest.NewRequest(http.MethodGet, "/demo-wazuh-cohorts?case_id="+caseID, nil)
+		if bearer != "" {
+			req.Header.Set("Authorization", "Bearer "+bearer)
+		}
+		out := httptest.NewRecorder()
+		handler.ServeHTTP(out, req)
+		return out
+	}
+	good := get(token, "case-a")
+	if good.Code != http.StatusOK {
+		t.Fatalf("owner-authorized technique route rejected: %d %q", good.Code, good.Body.String())
+	}
+	var receipt wazuhRuleTriageReceipt
+	if err := json.Unmarshal(good.Body.Bytes(), &receipt); err != nil {
+		t.Fatal(err)
+	}
+	if receipt.DistinctTechniqueIDs != 1 || receipt.UnmappedTechniqueAlerts != 0 ||
+		len(receipt.TopTechniques) != 1 || receipt.TopTechniques[0].TechniqueID != "T1059.001" ||
+		receipt.TopTechniques[0].Count != 1 || receipt.TopTechniques[0].HighestKnownRuleLevel == nil ||
+		*receipt.TopTechniques[0].HighestKnownRuleLevel != 5 {
+		t.Fatalf("authorized HTTP omitted source ATT&CK metadata: %+v", receipt)
+	}
+	for _, secret := range []string{"sensitive-source-id", "private-host", "private-preview"} {
+		if strings.Contains(good.Body.String(), secret) {
+			t.Fatalf("sensitive raw Wazuh source exposed by technique aggregation: %q", secret)
+		}
+	}
+	for _, denied := range []*httptest.ResponseRecorder{get("", "case-a"), get(token, "case-b")} {
+		if denied.Code == http.StatusOK || strings.Contains(denied.Body.String(), "T1059") {
+			t.Fatalf("denied principal/Case exposed source ATT&CK data: %d %q", denied.Code, denied.Body.String())
 		}
 	}
 }
