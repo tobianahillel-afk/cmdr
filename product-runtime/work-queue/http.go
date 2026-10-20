@@ -155,7 +155,7 @@ func NewHTTPHandler(sessions SessionResolver, owner Owner) http.Handler {
 		}
 		w.Header().Set("Vary", "Accept")
 		if strings.Contains(r.Header.Get("Accept"), "text/html") {
-			page, err := renderQueuePage(result)
+			page, err := renderQueuePage(result, pageCursor)
 			if err != nil {
 				http.Error(w, "work queue unavailable", http.StatusServiceUnavailable)
 				return
