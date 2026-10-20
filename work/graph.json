@@ -1802,6 +1802,19 @@
         "E10-INV-004C-PIVOT"
       ],
       "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-INV-004J-PIVOTFIX"
+      ]
+    },
+    {
+      "id": "E10-INV-004J-PIVOTFIX",
+      "title": "Close pivot HTTP L2 R2 authorization, provenance ambiguity and size-consistency defects",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-INV-004I-PIVOTHTTP"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
       "unlocks": []
     }
   ]
