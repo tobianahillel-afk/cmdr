@@ -1,0 +1,127 @@
+{
+  "schema_version": 2,
+  "id": "E10-CMD-105B-EXPLAIN",
+  "title": "Explain authorized operational SLA calendar and active pause source evidence in selected Command work item",
+  "type": "task",
+  "parent": "E10-CMD-105",
+  "goal": "Complete a bounded Class-0 CAP-CMD-105 source-owned SLA explanation by exposing optional calendar source, active paused time and pause reason in the existing selected work-item JSON/native HTML, with independent host source authorization; no policy inference or Class-2 operation.",
+  "depends_on": [
+    "E10-CMD-105A-READONLY"
+  ],
+  "dependency_terminal_state": "IMPLEMENTED",
+  "product_refs": {
+    "capabilities": [
+      "CAP-CMD-105",
+      "CAP-CMD-101"
+    ],
+    "requirements": [
+      "REQ-PROD-005",
+      "REQ-PROD-013",
+      "REQ-PROD-053",
+      "REQ-OBJ-012"
+    ],
+    "screens": [],
+    "permissions": [
+      "perm.command.read",
+      "perm.command.incident.read"
+    ],
+    "open_decisions": [
+      "OPEN-013"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/incident.md",
+      "cmdr-product-spec/05-domain-model/objects/task.md"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/work-queue/sla.go",
+    "product-runtime/work-queue/html.go",
+    "product-runtime/work-queue/sla_explanation_test.go",
+    "work/lots/E10-CMD-105B-EXPLAIN/**",
+    "work/graph.json",
+    "engineering/state/current.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "tools/cmdr-dev/**",
+    "product-runtime/case-queue/**"
+  ],
+  "invariants": [
+    "Canonical product CAP-CMD-105 Command operational SLA, CAP-CMD-101 selected Work Queue consumer; SLA policy/calendar and source data remain owned by independently authorized host adapter.",
+    "Git parent PR #174 frozen b1238eb29e3e51dade0166e93de9819f5e3ba334 is NOT engineering parent E10-CMD-105.",
+    "Class-0 source-reported calendar and pause history only. OPEN-013 Class-2 pause/resume/create follow-up explicitly excluded.",
+    "No invented default calendar, source policy duration, SLA threshold, pause justification, eligibility or new Customer object.",
+    "Same GET /command/work-queue, same selected and owner-authorized single item, no new authorization model."
+  ],
+  "security_properties": [
+    "Source calendar and pause reason only come from independently source-authorizing SLAOwner called AFTER host session and current-page selection ACL.",
+    "Invalid contradictory or injected source claim fails generic 503 with no selected item/provenance body; HTML template escapes source text.",
+    "No selected work item => no extra SLA adapter call; zero cross-tenant/foreign source lookups."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Additive optional source-reported metadata on existing read-only selected SLA projection; no schema/storage mutation.",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Drop optional source metadata and HTML display while preserving prior CAP-CMD-105A state and host contract.",
+    "verification": [
+      "Parent Work Queue six-view and source-authorized SLA tests still pass."
+    ]
+  },
+  "inputs": [
+    "Canonical CAP-CMD-105 §§1–27 §11 explain calendar/pause, §12 Class-0/2, §15 partial/missing and §20 provenance; CAP-CMD-101 §§1–27, module README, ADR-0008 and OPEN-013.",
+    "Host-authorized selected-only SLA in PR #174 SHA b1238eb29e3e51dade0166e93de9819f5e3ba334, both exact-HEAD workflows SUCCESS, L2 pending and PR still draft."
+  ],
+  "outputs": [
+    "Source-authorized CalendarSource, PausedAt and PauseReason as optional read-only fields on existing AuthorizedSLA, selected item JSON and escaped native HTML.",
+    "Missing source fields explicitly unknown, contradictory paused metadata refused, no Class-2 writes or new policy provider."
+  ],
+  "acceptance_tests": [
+    "A selected current-page owner-authorized Incident/Task renders source-declared calendar and paused source reason/time, including safe escaping of untrusted HTML-shaped text, in existing JSON and HTML.",
+    "Missing pause source details explicitly unknown, not fabricated.",
+    "Healthy/unknown/breached claim cannot carry paused history; future/bad timestamp, control characters and oversized text reject generic 503 with no selected object body.",
+    "Unselected listing, denied or foreign Case item never invokes SLAOwner.",
+    "Exact-SHA command-work-queue-runtime Go Linux/macOS/Windows and unchanged mandatory engineering-kernel security, architecture and SAST gates must pass before merge."
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "Only optional metadata fields on the existing single selected SLAOwner lookup; zero extra owner/provider calls or secondary work queue traversal.",
+    "metrics": [
+      "At most one SLAOwner call per selected request.",
+      "No source lookups for unselected or denied item; no new pagination traversal."
+    ]
+  },
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-RUNTIME-DEPS",
+    "CHK-SECURITY-TESTS"
+  ],
+  "definition_of_ready": [
+    "Source parent E10-CMD-105A is IMPLEMENTED, not accepted, but exact PR #174 SHA has verified three-OS command-work-queue-runtime and mandatory engineering-kernel SUCCESS; child depends ONLY on prior Class-0 implementation, not production approval.",
+    "Canonical CAP-CMD-105 §11 requires explaining source/calendar/paused state; no requirement for OPEN-013 Class-2 authority to display an independently authorized historical explanation.",
+    "One bounded Command context, no migration, no runtime dependency or new separate trust model."
+  ],
+  "definition_of_done": [
+    "GitHub publishes additive source-owned fields, HTML and behavior tests with traceable graph/current/manifest and notes.",
+    "Exact HEAD CI functional and engineering mandatory 90% changed-security floor successful and one independently scheduled read-only L2 if material, otherwise pending.",
+    "No claim full CAP-CMD-105 acceptance, production policy engine, native GitHub APPROVED or merged parent."
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 2,
+    "estimated_net_loc": 55,
+    "production_files": 2,
+    "net_production_loc": 40,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 0,
+    "separately_testable_behaviors": 1
+  }
+}
