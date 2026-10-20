@@ -1,0 +1,131 @@
+{
+  "schema_version": 2,
+  "id": "E10-INV-120B-MITRE",
+  "title": "Source-backed Wazuh ATT&CK technique cohorts after independently authorized local Case traversal",
+  "type": "task",
+  "parent": "E10-INV-110",
+  "goal": "Expose bounded, deterministic MITRE ATT&CK technique attribution present on real-shaped offline Wazuh 4.x alerts.json, but only after existing loopback Case/Timeline/typed-source owner authorization; no inference, new ACL, storage, query engine or mutation.",
+  "depends_on": [
+    "E10-INV-110E"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-110"
+    ],
+    "requirements": [
+      "REQ-PROD-014",
+      "REQ-PROD-018"
+    ],
+    "screens": [
+      "INV-TIM-001"
+    ],
+    "permissions": [
+      "perm.shared-capabilities.timeline-entry.read"
+    ],
+    "open_decisions": [
+      "OPEN-013"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/case.md",
+      "cmdr-product-spec/05-domain-model/objects/timeline-entry.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/investigation-timeline/cmd/case-timeline-demo/wazuh_levels.go",
+    "product-runtime/investigation-timeline/cmd/case-timeline-demo/wazuh_mitre_cohorts_test.go",
+    "work/lots/E10-INV-120B-MITRE/**",
+    "work/graph.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/investigation-timeline/memory_provider.go",
+    "product-runtime/investigation-timeline/http.go",
+    "product-runtime/investigation-timeline/cmd/case-timeline-demo/snapshot.go"
+  ],
+  "invariants": [
+    "Existing offline operator-controlled source bytes only, canonical Wazuh 4.x rule.mitre.id technique labels, no model-inferred technique",
+    "The source of truth for read permission remains the existing synthetic in-memory Case and typed-source owner; label is never an ACL, proof of exploitation, or verified Finding/Evidence",
+    "All technique values are counted only inside already-authorized collectDemoCaseTriageWithObserver callback, after Case/Timeline/typed-source access; do not count hidden or denied events",
+    "Preserve existing JSON receipt format and fields; add at most 10 source technique cohorts with separate unmapped and distinct counts",
+    "An alert may have several source technique IDs; duplicates within an alert must not multiply that alert, across tags counts may overlap",
+    "Never output alert IDs, hostnames, full_log, source raw previews, tokens, or invented technique names",
+    "Do not modify #186 frozen L2 source, #185, PR #36 baseline, main or canonical docs"
+  ],
+  "security_properties": [
+    "No new third-party dependency, provider, listener, permission namespace, source adapter, mutation or production claim",
+    "Fail closed and output zero bytes on malformed/oversized technique labels, denied principal or incomplete typed-source traversal",
+    "Technique ID restricted to Tdddd or Tdddd.ddd ASCII; at most 16 labels per Wazuh alert; no path/URL/html/script labels",
+    "Bounded by existing 8 MiB local file and <=5000 import events; no raw source data in receipt"
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Additive field to bounded read-only offline triage JSON output",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Revert source technique aggregation and new tests; original offline Wazuh triage JSON remains unmodified",
+    "verification": [
+      "No mutation of operator source files",
+      "Original Wazuh agent/rule/time window and Level aggregations still function"
+    ]
+  },
+  "inputs": [
+    "CAP-INV-110 source attribution and distinction between observed vs inference",
+    "Existing E10-INV-110E VERIFIED read-only Timeline ownership chain",
+    "Existing authored but graph-READY E10-INV-120A-SNAPSHOT demo source `wazuh_levels.go` and `writeDemoWazuh4RuleTriageWithData`, not a production integration"
+  ],
+  "outputs": [
+    "Offline Wazuh 4.x authorized Case triage JSON includes `distinct_technique_ids`, `unmapped_technique_alerts`, `top_techniques` with bounded technique IDs, counts, highest known Wazuh severity",
+    "Shared existing authenticated local /demo-wazuh-cohorts route serializes same additive receipt; no new route or browser UI claimed",
+    "Structured tests with on-disk Wazuh samples, two-Case owner snapshot, denied principal, metadata injection rejection, tag multiplicity, top-ten deterministic ties"
+  ],
+  "acceptance_tests": [
+    "Existing runDemoCLI -wazuh-alerts -triage-import returns correct technique counts after full owner-authorized traversal",
+    "Two technique tags on one alert count once per tag, repeated label only once on same alert; other alert can increment tag count",
+    "Source rule.level optional and 0 is known, nil is unknown; no invented max for unknown severity",
+    "No Wazuh rule.mitre.id -> unmapped technique alert, no invented classification",
+    "Malformed technique IDs/over 16 per alert/nonnumeric JSON wrong type denied without partial bytes",
+    "Unprivileged principal or foreign Case yields no authorized receipt; raw alert IDs, hosts and secrets not returned",
+    "Full original Timeline Go and Node tests run on exact candidate commit; mandatory changed-security-critical coverage floor unchanged"
+  ],
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-RUNTIME-DEPS",
+    "CHK-SECURITY-TESTS",
+    "CHK-SAST-GO",
+    "investigation-timeline-runtime cross-platform"
+  ],
+  "definition_of_ready": [
+    "E10-INV-110E VERIFIED and existing source-backed analyst timeline read-only Go code available on frozen foundation #36",
+    "OPEN-013 Class-2 mutations excluded, no production IAM selected",
+    "One bounded read-only analyst aggregate independently testable"
+  ],
+  "definition_of_done": [
+    "Demonstrable authorized Wazuh disk-to-Case-to-Timeline-to-technique-cohort execution; true origin and uncertainty clearly labeled",
+    "Exact SHA Go and Node CI and engineering kernel security gates passed",
+    "Graph task records only IMPLEMENTED, no full capability VERIFIED/ACCEPTED or production claim",
+    "No L2 duplication per minor additive analytics field unless independent review detects material risk"
+  ],
+  "performance_budget": {
+    "applicable": false,
+    "rationale": "Existing bounded offline 5000 Wazuh alerts, <=16 source labels each, O(n + k log k) technique counts; no production SLO or performance proof",
+    "metrics": []
+  },
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 2,
+    "estimated_net_loc": 145,
+    "production_files": 1,
+    "net_production_loc": 95,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}
