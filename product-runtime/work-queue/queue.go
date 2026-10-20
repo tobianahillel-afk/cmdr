@@ -172,9 +172,6 @@ func Project(ctx context.Context, owner Owner, req Request) (Result, error) {
 		if err != nil {
 			return empty, ErrIncomplete
 		}
-		if freshness != nil && (freshness.State == "source-unavailable" || freshness.State == "partial") {
-			partialSourceFreshness = true
-		}
 		t, err := time.Parse(time.RFC3339Nano, item.UpdatedAt)
 		if err != nil || t.IsZero() {
 			return empty, ErrIncomplete
@@ -204,6 +201,9 @@ func Project(ctx context.Context, owner Owner, req Request) (Result, error) {
 			}
 		}
 		if accept && (req.StatusFilter == "" || item.Status == req.StatusFilter) {
+			if freshness != nil && (freshness.State == "source-unavailable" || freshness.State == "partial") {
+				partialSourceFreshness = true
+			}
 			selected = append(selected, candidate{
 				row: Row{Kind: item.Kind, ID: item.ID, Owner: item.Owner, Status: item.Status, UpdatedAt: item.UpdatedAt, Freshness: freshness},
 				updated: t,
