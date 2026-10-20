@@ -66,6 +66,8 @@ type Request struct {
 	// Read-only chronological order. Blank preserves the original newest-first
 	// presentation; no arbitrary client sort column or Shared view schema.
 	SortOrder string
+	// Cursor is an untrusted, non-authorizing hint for a later authorized page.
+	Cursor string
 }
 
 type Row struct {
@@ -86,6 +88,8 @@ type Result struct {
 	Rows         []Row    `json:"rows"`
 	StatusFilter string   `json:"status_filter,omitempty"`
 	SortOrder string `json:"sort,omitempty"`
+	NextCursor string `json:"next_cursor,omitempty"`
+	HasPrevious bool `json:"has_previous,omitempty"`
 	// Selected is returned ONLY by the authenticated HTTP route, and only
 	// for an item reauthorized and present in its currently visible page.
 	// No selected field is serialized for legacy/unselected projections.
@@ -119,6 +123,9 @@ func Project(ctx context.Context, owner Owner, req Request) (Result, error) {
 	}
 	if req.SortOrder != "" && req.SortOrder != "newest" && req.SortOrder != "oldest" {
 		return empty, ErrView
+	}
+	if _, err := decodeQueueCursor(req.Cursor); err != nil {
+		return empty, ErrCursor
 	}
 	switch req.View {
 	case All, Incidents, Tasks, Unassigned, SLARisk, MyWork:
@@ -237,14 +244,17 @@ func Project(ctx context.Context, owner Owner, req Request) (Result, error) {
 	if partialSourceFreshness {
 		result.Diagnostics = append(result.Diagnostics, "work-source-degraded")
 	}
-	// Initial bounded slice. Stable cursor/page retrieval and custom Shared
-	// Saved View evaluation are separately owned future integration work.
-	if len(selected) > 50 {
-		selected = selected[:50]
-		result.Diagnostics = append(result.Diagnostics, "first-page-only")
-	}
-	for _, item := range selected {
-		result.Rows = append(result.Rows, item.row)
+	// A later page must be reconstructed from the newly authorized full
+	// bounded projection. A stale/revoked cursor fails without partial rows.
+	authorized := make([]Row, 0, len(selected))
+	for _, item := range selected { authorized = append(authorized, item.row) }
+	page, next, previous, err := authorizedQueuePage(req, authorized)
+	if err != nil { return empty, err }
+	result.Rows = page
+	result.NextCursor = next
+	result.HasPrevious = previous
+	if next != "" {
+		result.Diagnostics = append(result.Diagnostics, "more-authorized-pages")
 	}
 	return result, nil
 }
