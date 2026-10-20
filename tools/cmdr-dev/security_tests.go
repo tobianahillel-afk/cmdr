@@ -142,11 +142,11 @@ func runtimeSecurityAdapters() map[string]runtimeSecurityAdapter {
 			TenantTestRegex:        eventInspectionTenantTestRegexp,
 		},
 		"event-inspection-http-host-runtime": {
-			BoundaryID: "event-inspection-http-host-runtime",
+			BoundaryID:  "event-inspection-http-host-runtime",
 			RuntimeRoot: eventInspectionHostSecurityRuntimeRoot, RuntimeKind: "go",
-			ModuleIdentity: eventInspectionHostSecurityModuleIdentity,
+			ModuleIdentity:         eventInspectionHostSecurityModuleIdentity,
 			AuthorizationTestRegex: eventInspectionHostAuthorizationTestRegexp,
-			TenantTestRegex: eventInspectionHostTenantTestRegexp,
+			TenantTestRegex:        eventInspectionHostTenantTestRegexp,
 		},
 
 		huntManagementRuntimeBoundaryID: {
