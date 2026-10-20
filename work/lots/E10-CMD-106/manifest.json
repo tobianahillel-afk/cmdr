@@ -41,7 +41,7 @@
   },
   "allowed_paths": [
     "work/lots/E10-CMD-106/**",
-    "work/lots/E10-CMD-106A-LINKED-CASES/**",
+    "work/lots/E10-CMD-106A-CASELINKS/**",
     "work/graph.json",
     "engineering/state/current.json"
   ],
@@ -72,7 +72,7 @@
     "Full CAP-CMD-106 §§1–27, Incident/Case objects and Shared Object Linking Service contract, CAP-CMD-101 selected current-page behavior."
   ],
   "outputs": [
-    "E10-CMD-106A-LINKED-CASES bounded Class-0 read-only source projection, no linked Case mutations."
+    "E10-CMD-106A-CASELINKS bounded Class-0 read-only source projection, no linked Case mutations."
   ],
   "acceptance_tests": [
     "Only authorized Incident current-page selected row may request individually Investigate-authorized existing Case link refs.",
