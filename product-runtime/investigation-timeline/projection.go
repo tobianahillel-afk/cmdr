@@ -53,7 +53,7 @@ type ProjectedEntry struct {
 	Supersedes    string `json:"supersedes"`
 	// Computed only from independently authorized visible successor entries.
 	// False is omitted: missing/denied successors are never inferred.
-	Superseded    bool   `json:"superseded,omitempty"`
+	Superseded bool `json:"superseded,omitempty"`
 }
 
 type Result struct {
