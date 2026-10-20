@@ -278,6 +278,24 @@
       "concurrency": 1,
       "iterations": 10000,
       "rationale": "Preimplementation on-demand resource gate; cannot pass or emit a measurement before a real tested synthetic Timeline workload exists."
+    },
+    {
+      "id": "PERF-DEEP-EVENT-INSPECTION-HOST",
+      "performance_target_id": "PERF-TGT-EVENT-INSPECTION-HOST-UPSTREAM-PROJECTION",
+      "kind": "load",
+      "handler_key": "builtin-event-inspection-host-http-v1",
+      "stages": [
+        "on-demand"
+      ],
+      "trigger_paths": [
+        "product-runtime/event-inspection-host/**"
+      ],
+      "duration_seconds": 0,
+      "timeout_seconds": 90,
+      "memory_limit_mib": 256,
+      "concurrency": 1,
+      "iterations": 100,
+      "rationale": "On-demand real local httptest HTTP request throughput and per-request Go allocations from the first-party BenchmarkAuthorizedInspectionHTTP, with stubbed Search/Telemetry owners. Measures adapter serialization plus existing Project; excludes real host IAM, network, source retrieval, query engine and production SLO. No heap-peak observation is asserted by Go benchmark output."
     }
   ]
 }
