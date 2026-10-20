@@ -36,6 +36,7 @@
     ]
   },
   "allowed_paths": [
+    "product-runtime/work-queue/queue.go",
     "product-runtime/work-queue/http.go",
     "product-runtime/work-queue/html.go",
     "product-runtime/work-queue/pagination_selection_test.go",
@@ -53,7 +54,8 @@
     "Single first-party GET /command/work-queue route; six views unchanged.",
     "Manual filter/sort submission deliberately resets first page. Each row's separate read-only selection GET carries the currently authorized page cursor and current view/status/sort.",
     "Selection ID is a hint only: new host session and complete current Owner.List/Owner.CanRead before selection; denied, revoked, off-page and stale cursor always fail generically without row data.",
-    "No new authorization engine, Trusted Base, external UI or DB. Git parent PR #166 is not work parent."
+    "No new authorization engine, Trusted Base, external UI or DB. Git parent PR #166 is not work parent.",
+    "Opaque page cursor is added to Result's private (json:-) presentation field only after Project's complete owner authorization and cursor digest validation; HTTP never feeds raw cursor directly to template."
   ],
   "security_properties": [
     "All row selection navigation revalidates tenant/environment/principal through host session and each in-scope owner item.",
@@ -113,10 +115,10 @@
   ],
   "complexity": {
     "primary_components": 1,
-    "estimated_files_changed": 2,
-    "estimated_net_loc": 45,
-    "production_files": 2,
-    "net_production_loc": 45,
+    "estimated_files_changed": 3,
+    "estimated_net_loc": 55,
+    "production_files": 3,
+    "net_production_loc": 55,
     "bounded_contexts": 1,
     "independent_migrations": 0,
     "distinct_security_models": 1,
