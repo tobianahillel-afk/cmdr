@@ -216,6 +216,10 @@ export function renderEventInspection(document, mount, current) {
       }
       section.append(group);
     }
+    const missing = make("section");
+    missing.append(make("h3", "Missing fields"));
+    for (const name of p.missingFields) missing.append(make("p", name));
+    section.append(missing);
     for (const enrichment of p.enrichments) {
       const group = make("section");
       group.append(make("h3", `Enrichment: ${enrichment.producer}@${enrichment.version} (${enrichment.freshness})`));
