@@ -1,0 +1,125 @@
+{
+  "schema_version": 2,
+  "id": "E10-CMD-101K-OWNER-FILTER",
+  "title": "Filter authorized Command Work Queue by exact responsible owner with cursor-safe native navigation",
+  "type": "task",
+  "parent": "E10-CMD-101",
+  "goal": "Provide a bounded Class-0 exact owner filter on the existing single six-view Work Queue; preserve server-side Incident/Task ACLs, status/SLA/freshness semantics and revocation-safe pagination.",
+  "depends_on": [
+    "E10-CMD-101J-DIAGNOSTICS"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-CMD-101"
+    ],
+    "requirements": [
+      "REQ-OBJ-001",
+      "REQ-OBJ-012",
+      "REQ-PROD-013",
+      "REQ-UX-008",
+      "REQ-UX-009"
+    ],
+    "screens": [],
+    "permissions": [
+      "perm.command.read",
+      "perm.command.incident.read"
+    ],
+    "open_decisions": [],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/incident.md",
+      "cmdr-product-spec/05-domain-model/objects/task.md"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/pagination-filtering-sorting.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/work-queue/queue.go",
+    "product-runtime/work-queue/http.go",
+    "product-runtime/work-queue/html.go",
+    "product-runtime/work-queue/pagination.go",
+    "product-runtime/work-queue/owner_filter_test.go",
+    "work/lots/E10-CMD-101K-OWNER-FILTER/**",
+    "work/graph.json",
+    "engineering/state/current.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "tools/cmdr-dev/**",
+    "product-runtime/investigation-timeline/**",
+    "product-runtime/case-queue/**"
+  ],
+  "invariants": [
+    "Only the current host-Session principal/tenant/environment and per-object Owner.CanRead grant visibility; owner parameter is never authentication or assignment mutation.",
+    "Apply the literal owner equality after authorization, before SLA-risk diagnostics and source freshness for an excluded item; no inaccessible item influences counts, warnings or result.",
+    "Keep exactly the existing six system views, one host-owned route and Class-0 status/order/cursor navigation; no additional provider reads or external dependencies.",
+    "Cursor digest includes owner filter and current authorized rows, so changing owner scope or revoking a row invalidates prior pagination.",
+    "OPEN-013 Class-2 assignment and ownership changes remain excluded; the source owner string is only a read-only filter."
+  ],
+  "security_properties": [
+    "Untrusted owner query parameter bounded to 128 bytes, UTF-8 and no controls, rejected before host session and owner calls.",
+    "Never project a denied or cross-tenant Item; empty/unknown selection does not reveal candidate identities.",
+    "HTML uses native escaping and url.QueryEscape; selection and pagination always reauthorize on new requests."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Opt-in query parameter/response field; legacy requests and existing source schema unchanged.",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Remove optional owner filter while preserving earlier status filter and stable cursor behavior.",
+    "verification": [
+      "Legacy six-view, sorting, paging, source freshness and filtered SLA regressions all remain valid."
+    ]
+  },
+  "inputs": [
+    "Read AGENTS.md and AI_START_HERE.md, official CAP-CMD-101 all 27 sections, Command Incident/Task objects and permission/pagination contracts; current source 170 HEAD d7ac9d3c4141c186722862a383dcb3e97e9d9f10, both exact-HEAD GitHub Actions SUCCESS.",
+    "E10-CMD-101J-DIAGNOSTICS already IMPLEMENTED in graph and PR #170 remains DRAFT with parent #169 frozen; no unapproved canonical action required."
+  ],
+  "outputs": [
+    "Existing Command GET /command/work-queue accepts optional owner=exact-value and filters currently readable responsible-owner Incident/Task rows in all six views, preserving exact status/order.",
+    "Native HTML form/links and selected-item controls preserve the owner filter across views/cursor pages and reset cursor when filter edited.",
+    "No out-of-owner SLA unavailable warning or source freshness failure; correctly maintain warnings from included authorized items."
+  ],
+  "acceptance_tests": [
+    "Owner 'analyst' SLA-risk/status group ignores authorized other-owner missing SLA and denied foreign/secret objects; owner 'other' preserves relevant unknown SLA warning; no changed permissions.",
+    "Navigate first and second owner-filtered pages of 75 readable Tasks, select the 70th item on page two with same filter and authorized cursor; changing owner scope or revoking its ACL yields generic 404 and no result.",
+    "Reject invalid, duplicate and oversized owner query before session; preserve HTML encoding and no source previews; keep legacy no-owner behavior.",
+    "Run Command Go runtime Linux/macOS/Windows and engineering-kernel unchanged mandatory changed security critical >=90% plus SAST; do not claim acceptance from an open PR."
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "One exact string equality per already owner-authorized bounded work item; no extra Owner.List or CanRead calls; pagination digest includes single filter string.",
+    "metrics": [
+      "<=5000 owner candidates, <=50 visible rows/page, no new sources or per-item queries."
+    ]
+  },
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-RUNTIME-DEPS",
+    "CHK-SECURITY-TESTS"
+  ],
+  "definition_of_ready": [
+    "E10-CMD-101J-DIAGNOSTICS IMPLEMENTED and latest parent #170 exact-head Command and engineering Actions SUCCESS.",
+    "Canonical CAP-CMD-101 includes filtering; owner is already present on Command first-party Item/Row; this Class-0 read-only projection does not depend on OPEN-013."
+  ],
+  "definition_of_done": [
+    "Published code, one behavior-focused regression suite and exact-head GitHub Actions with owner safety verified.",
+    "Mark only E10-CMD-101K-OWNER-FILTER IMPLEMENTED in graph, not CAP-CMD-101 accepted/production; parent chain still unmerged. One distinct risk-based read-only L2 if stable."
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 4,
+    "estimated_net_loc": 100,
+    "production_files": 4,
+    "net_production_loc": 100,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}
