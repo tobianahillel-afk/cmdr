@@ -201,7 +201,9 @@ func TestUnknownUnboundedAndNonPostRequestsAreRejectedPreAuth(t *testing.T) {
 
 func TestInvalidProviderFieldsAndPayloadCannotEscapeInError(t *testing.T) {
 	for _, scenario := range []string{"unsafe-source", "prototype-field", "huge-field", "invalid-utf8",
-		"too-large-raw", "derived-as-source", "missing-parser-provenance"} {
+		"too-large-raw", "derived-as-source", "missing-parser-provenance",
+		"too-many-source-fields", "too-many-enrichments", "too-many-missing-fields",
+		"invalid-raw-utf8", "too-large-rendered", "invalid-field-in-enrichment", "invalid-access-decision"} {
 		t.Run(scenario, func(t *testing.T) {
 			s, search, e := standardOwners()
 			switch scenario {
@@ -214,6 +216,21 @@ func TestInvalidProviderFieldsAndPayloadCannotEscapeInError(t *testing.T) {
 				e.owned.Event.RawPayload = bytes.Repeat([]byte("x"), 65537)
 			case "derived-as-source": e.owned.Event.Enrichments[0].PresentedAsSource = true
 			case "missing-parser-provenance": e.owned.Event.Enrichments[0].Producer = ""
+			case "too-many-source-fields":
+				for i := 0; i < 257; i++ { e.owned.Event.SourceFields["source.field."+string(rune('A'+i%26))+string(rune('A'+i/26))] = "a" }
+			case "too-many-enrichments":
+				e.owned.Event.Enrichments = make([]inspection.EventEnrichment, 65)
+			case "too-many-missing-fields":
+				e.owned.Event.MissingFields = make([]string, 257)
+			case "invalid-raw-utf8":
+				e.owned.RawDecision = inspection.AccessAllow
+				e.owned.Event.RawPayload = []byte{0xff}
+			case "too-large-rendered":
+				e.owned.Event.RenderedPayload = bytes.Repeat([]byte("r"), 65537)
+			case "invalid-field-in-enrichment":
+				e.owned.Event.Enrichments[0].Values["__proto__"] = "disallowed"
+			case "invalid-access-decision":
+				e.owned.RawDecision = inspection.AccessDecision("maybe")
 			}
 			w := doRequest(t, newTestHandler(t, s, search, e), standardRequest())
 			if w.Code != http.StatusNotFound || strings.Contains(w.Body.String(), "RAW-PRIVATE-STRING") {
