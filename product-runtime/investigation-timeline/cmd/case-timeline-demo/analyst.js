@@ -110,6 +110,7 @@
             top.some(a => !a || !validTechnique(a.technique_id) ||
               !Number.isSafeInteger(a.count) || a.count < 1 || a.count > mapped ||
               !validLevel(a.highest_known_rule_level)) ||
+            new Set(top.map(a => a.technique_id)).size !== top.length ||
             top.some((a, i) => i > 0 &&
               (a.count > top[i - 1].count ||
                (a.count === top[i - 1].count && a.technique_id <= top[i - 1].technique_id))) ||
