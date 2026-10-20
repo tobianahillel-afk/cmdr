@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"unicode/utf8"
 )
 
 // SessionScope is trusted identity resolved by the host. HTTP query strings,
@@ -53,7 +54,7 @@ func NewHTTPHandler(sessions SessionResolver, owner Owner) http.Handler {
 			return
 		}
 		for key, entries := range values {
-			if (key != "view" && key != "status" && key != "sort") || len(entries) != 1 {
+			if (key != "view" && key != "status" && key != "sort" && key != "selected") || len(entries) != 1 {
 				http.Error(w, "unsupported work queue query", http.StatusBadRequest)
 				return
 			}
@@ -86,6 +87,19 @@ func NewHTTPHandler(sessions SessionResolver, owner Owner) http.Handler {
 				return
 			}
 		}
+		// The selection token is an object ID hint, NEVER authority. Validate
+		// it before session/owner access and resolve it only against the
+		// current, fully authorized, post-filter bounded visible result.
+		selection := ""
+		if entries, ok := values["selected"]; ok {
+			selection = entries[0]
+			kind, id, parsed := strings.Cut(selection, ":")
+			if !parsed || (kind != string(Incident) && kind != string(Task)) ||
+				len(id) > 256 || !utf8.ValidString(id) || invalidScope(id) {
+				http.Error(w, "invalid work queue selection", http.StatusBadRequest)
+				return
+			}
+		}
 		scope, err := sessions.ResolveSession(r.Context(), r)
 		if err != nil || invalidScope(scope.Principal) ||
 			invalidScope(scope.Tenant) || invalidScope(scope.Environment) {
@@ -106,6 +120,21 @@ func NewHTTPHandler(sessions SessionResolver, owner Owner) http.Handler {
 				http.Error(w, "work queue unavailable", http.StatusServiceUnavailable)
 			}
 			return
+		}
+		if selection != "" {
+			for i := range result.Rows {
+				row := &result.Rows[i]
+				if string(row.Kind)+":"+row.ID == selection {
+					result.Selected = row
+					break
+				}
+			}
+			if result.Selected == nil {
+				// Identical response whether an ID is nonexistent, denied,
+				// outside the current filter or beyond the visible page.
+				http.NotFound(w, r)
+				return
+			}
 		}
 		w.Header().Set("Vary", "Accept")
 		if strings.Contains(r.Header.Get("Accept"), "text/html") {
