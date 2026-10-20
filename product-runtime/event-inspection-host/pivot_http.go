@@ -94,15 +94,32 @@ func (h *handler) servePivot(w http.ResponseWriter, r *http.Request) {
 		unavailable(w, http.StatusServiceUnavailable)
 		return
 	}
-	ctx, projected, _, authorized := h.authorizedInspection(r, q.Request)
+	// Legacy read-only hosts do not silently acquire pivot rights.
+	if nilAuthority(h.pivot) {
+		unavailable(w, http.StatusNotFound)
+		return
+	}
+	ctx, projected, owned, session, authorized := h.authorizedInspection(r, q.Request)
 	if !authorized {
 		unavailable(w, http.StatusNotFound)
 		return
 	}
-	// The server has independently projected *only* the Telemetry owner's
-	// field-authorized source/normalized/raw-derived/enriched maps. The core
-	// additionally enforces exact map-key presence and selected value match.
-	// No client "valueAuthorized" or arbitrary return-origin is accepted.
+	// Use EXACTLY the existing Inspector projection bounds, including maps,
+	// enrichments and raw/rendered content. Pivot must never copy a value
+	// that the regular Inspector would reject as oversized or malformed.
+	_, visible := toBrowserProjection(*projected.Projection, owned.RawDecision, owned.RenderDecision)
+	if !visible || !validField(q.Field) || !boundedText(q.Value, 4096) ||
+		!unambiguousPivotOrigin(projected.Projection, q.Field, q.Value) {
+		unavailable(w, http.StatusNotFound)
+		return
+	}
+	// This action-specific host decision must be independent of Event.read.
+	// A readable field alone is NOT permission to copy it into a Query draft.
+	allowed, err := h.pivot.CanDraftPivot(ctx, session, q.Request, q.Field, q.Value)
+	if err != nil || !allowed || ctx.Err() != nil || r.Context().Err() != nil {
+		unavailable(w, http.StatusNotFound)
+		return
+	}
 	result := inspection.PreparePivot(projected.Projection, inspection.PivotSelection{
 		Field: q.Field, Value: q.Value, ValuePresent: q.ValuePresent,
 		ValueAuthorized: true, TimeStart: q.TimeStart, TimeEnd: q.TimeEnd,
@@ -137,4 +154,25 @@ func (h *handler) servePivot(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusOK)
 	_, _ = w.Write(append(data, '\n'))
+}
+
+// Reject ambiguous field/value provenance instead of pretending that the
+// first matching map is authoritative. The core's deterministic origin
+// precedence is appropriate only when exactly one origin matches.
+func unambiguousPivotOrigin(p *inspection.Projection, field, value string) bool {
+	if p == nil {
+		return false
+	}
+	count := 0
+	for _, fields := range []map[string]string{p.SourceFields, p.NormalizedFields, p.RawDerivedSensitive} {
+		if presentValue, exists := fields[field]; exists && presentValue == value {
+			count++
+		}
+	}
+	for _, enrichment := range p.Enrichments {
+		if presentValue, exists := enrichment.Values[field]; exists && presentValue == value {
+			count++
+		}
+	}
+	return count == 1
 }
