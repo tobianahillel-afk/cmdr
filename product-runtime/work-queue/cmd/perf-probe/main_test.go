@@ -121,3 +121,33 @@ func TestMeasuredCommandProbeRejectsUnverifiedOwnerEvidence(t *testing.T) {
 		t.Fatalf("nil owner published a false performance measurement: %v %q", err, output.String())
 	}
 }
+
+
+// Benchmark authorization must remain valid THROUGHOUT the measurement.
+// Passing an initial warm-up projection cannot be used as authority after a
+// second owner read revokes an Incident. No partial success receipt is valid.
+type revokingProbeOwner struct { reads int }
+
+func (o *revokingProbeOwner) List(ctx context.Context, tenant, env string) ([]queue.Item, error) {
+	return (syntheticOwner{}).List(ctx, tenant, env)
+}
+func (o *revokingProbeOwner) CanRead(ctx context.Context, principal, tenant, env string, kind queue.Kind, id string) (bool, error) {
+	o.reads++
+	if o.reads > 1 {
+		return false, nil
+	}
+	return (syntheticOwner{}).CanRead(ctx, principal, tenant, env, kind, id)
+}
+func TestCommandBenchmarkRevocationDuringSamplingFailsWithoutReceipt(t *testing.T) {
+	for _, mode := range []string{"latency", "resource"} {
+		t.Run(mode, func(t *testing.T) {
+			owner := &revokingProbeOwner{}
+			var output bytes.Buffer
+			err := runWithOwner([]string{"-iterations","100","-mode",mode}, &output, owner)
+			if err == nil || output.Len() != 0 || owner.reads < 2 {
+				t.Fatalf("revocation after successful warm-up must abort benchmark: err=%v reads=%d output=%q",
+					err, owner.reads, output.String())
+			}
+		})
+	}
+}
