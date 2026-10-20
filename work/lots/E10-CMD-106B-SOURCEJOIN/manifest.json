@@ -1,0 +1,129 @@
+{
+  "schema_version": 2,
+  "id": "E10-CMD-106B-SOURCEJOIN",
+  "title": "Join independently authorized existing Incident-Case relations and Investigate Case status",
+  "type": "task",
+  "parent": "E10-CMD-106",
+  "goal": "Complete Class-0 CAP-CMD-106 existing linked Case source projection by composing independent Shared Object Linking and Investigate Case source owners for one selected Command Incident, without inferred grants, writes or synthetic relationships.",
+  "depends_on": [
+    "E10-CMD-106A-CASELINKS"
+  ],
+  "dependency_terminal_state": "IMPLEMENTED",
+  "product_refs": {
+    "capabilities": [
+      "CAP-CMD-106",
+      "CAP-CMD-101"
+    ],
+    "requirements": [
+      "REQ-OBJ-001",
+      "REQ-PROD-003",
+      "REQ-PROD-008",
+      "REQ-PROD-013",
+      "REQ-SEC-001"
+    ],
+    "screens": [
+      "CMD-IWQ-006"
+    ],
+    "permissions": [
+      "perm.command.incident.read",
+      "perm.investigate.case.read"
+    ],
+    "open_decisions": [
+      "OPEN-013"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/incident.md",
+      "cmdr-product-spec/05-domain-model/objects/case.md"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/12-shared-capabilities/object-linking-service.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/work-queue/linked_cases_join.go",
+    "product-runtime/work-queue/linked_cases_join_test.go",
+    "work/lots/E10-CMD-106B-SOURCEJOIN/**",
+    "work/graph.json",
+    "engineering/state/current.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "tools/cmdr-dev/**",
+    "product-runtime/investigation-timeline/**",
+    "product-runtime/case-queue/**",
+    "product-runtime/work-queue/http.go",
+    "product-runtime/work-queue/html.go"
+  ],
+  "invariants": [
+    "Command only consumes existing authorized Incident→Case references; Shared link owner and Investigate Case owner retain independent permissions and data authority.",
+    "One selected Incident Class-0 existing route only; no link create/open navigation, no inferred Case access from Incident, no unauthorized status or provenance.",
+    "Git base PR #177 is source ancestry only; canonical parent E10-CMD-106 is distinct."
+  ],
+  "security_properties": [
+    "Shared authorizes each returned relation and Investigate separately authorizes every returned Case in identical principal/tenant/environment scope.",
+    "Malformed/duplicate/>16 link refs rejected before contacting Investigate; denied/absent Case omitted indistinguishably; cross-scope or invalid status aborts without partial output.",
+    "If any source errors the existing Command HTTP route returns generic 503; nil provider means unknown not empty. No raw source content or client-sourced ACLs."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Additive host-side authorized source composition; existing HTTP/HTML interfaces unchanged.",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Remove optional LinkedCaseOwnerJoin and host wiring; retain #177 projection, same route and source contracts.",
+    "verification": [
+      "Existing linked_cases_test.go stays passing"
+    ]
+  },
+  "inputs": [
+    "CAP-CMD-106 §§5,8-11,15-19,21,25, OPEN-013 and Shared Object Linking/Case owner rules.",
+    "Parent PR #177 SHA 18ce1473c715e082ef7c0931e91cfb7deb94a08b, command-work-queue-runtime+engineering-kernel success, still draft/L2 not accepted."
+  ],
+  "outputs": [
+    "One narrow source-join implementation of existing LinkedCasesOwner interface that retrieves authorized relation cohort then individually authorized Case statuses with explicit same-scope checks.",
+    "Behavioral tests via current Work Queue GET and hostile/denied/missing source fixtures; no production host adapter claimed."
+  ],
+  "acceptance_tests": [
+    "Current selected authorized Incident requests Shared links once, then each Investigate Case independently; authorized visible Cases appear and denied Case is omitted.",
+    "No calls for unselected, Task, denied/foreign Case; >16/duplicate/invalid relations fail before any Case source lookup; cross-tenant/environment/ID/status return generic error with no metadata.",
+    "One Case source failing after previous succeeds cannot emit a partial Command HTTP response; unknown versus empty semantics preserved.",
+    "Go/Node command-work-queue-runtime and mandatory engineering-kernel security checks PASS on exact GitHub HEAD."
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "One owner read for existing selected Incident and <=16 individual Case owner reads; no source calls on unselected work items.",
+    "metrics": [
+      "At most one Shared link read and 16 individual Investigate Case reads per selected authorized Incident",
+      "No second full Work Queue scan or new route"
+    ]
+  },
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-RUNTIME-DEPS",
+    "CHK-SECURITY-TESTS"
+  ],
+  "definition_of_ready": [
+    "Existing #177 selected Incident and optional LinkedCasesOwner source interface are code-implemented and exact HEAD functional/engineering CI green; no accepted production host adapter exists.",
+    "OPEN-013 blocks Class-2 creation/link mutation only, not Class-0 join of existing independently readable links/Cases.",
+    "One bounded Command Work Queue read-only context, no migration and no new security authority or third-party dependency."
+  ],
+  "definition_of_done": [
+    "Published first-party source join with independent ACL source contracts and fail-closed integration tests proven on CI exact SHA.",
+    "L2 independent and product acceptance remain separate; upstream PR stack remains draft/nonmerged, so no production claim."
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 2,
+    "estimated_net_loc": 115,
+    "production_files": 1,
+    "net_production_loc": 100,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 0,
+    "separately_testable_behaviors": 1
+  }
+}
