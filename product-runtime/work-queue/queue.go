@@ -62,6 +62,9 @@ type Request struct {
 	View        View
 	// Optional exact owner-provided status filter (Class-0 read-only).
 	StatusFilter string
+	// Read-only chronological order. Blank preserves the original newest-first
+	// presentation; no arbitrary client sort column or Shared view schema.
+	SortOrder string
 }
 
 type Row struct {
@@ -80,6 +83,7 @@ type Result struct {
 	Diagnostics  []string `json:"diagnostics"`
 	Rows         []Row    `json:"rows"`
 	StatusFilter string   `json:"status_filter,omitempty"`
+	SortOrder string `json:"sort,omitempty"`
 }
 
 var (
@@ -105,6 +109,9 @@ func Project(ctx context.Context, owner Owner, req Request) (Result, error) {
 	// wildcard, column permissions, or client-supplied authorization scope.
 	if len(req.StatusFilter) > 64 ||
 		(req.StatusFilter != "" && (invalidScope(req.StatusFilter) || !utf8.ValidString(req.StatusFilter))) {
+		return empty, ErrView
+	}
+	if req.SortOrder != "" && req.SortOrder != "newest" && req.SortOrder != "oldest" {
 		return empty, ErrView
 	}
 	switch req.View {
@@ -188,6 +195,9 @@ func Project(ctx context.Context, owner Owner, req Request) (Result, error) {
 	}
 	sort.Slice(selected, func(i, j int) bool {
 		if !selected[i].updated.Equal(selected[j].updated) {
+			if req.SortOrder == "oldest" {
+				return selected[i].updated.Before(selected[j].updated)
+			}
 			return selected[i].updated.After(selected[j].updated)
 		}
 		if selected[i].row.Kind != selected[j].row.Kind {
@@ -197,7 +207,7 @@ func Project(ctx context.Context, owner Owner, req Request) (Result, error) {
 	})
 	result := Result{View: req.View, Tenant: req.Tenant, Environment: req.Environment,
 		State: "ready", Rows: make([]Row, 0, len(selected)), Diagnostics: []string{},
-		StatusFilter: req.StatusFilter}
+		StatusFilter: req.StatusFilter, SortOrder: req.SortOrder}
 	if len(selected) == 0 {
 		result.State = "no-authorized-items"
 	}
