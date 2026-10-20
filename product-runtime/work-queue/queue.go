@@ -256,7 +256,7 @@ func Project(ctx context.Context, owner Owner, req Request) (Result, error) {
 	result.PreviousCursor = previousCursor
 	result.HasPrevious = hasPrevious
 	if next != "" {
-		if previous {
+		if hasPrevious {
 			result.Diagnostics = append(result.Diagnostics, "more-authorized-pages")
 		} else {
 			// Preserve the established first-page diagnostic for existing
