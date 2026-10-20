@@ -25,9 +25,7 @@
       "perm.command.read",
       "perm.command.incident.read"
     ],
-    "open_decisions": [
-      "OPEN-013"
-    ],
+    "open_decisions": [],
     "canonical_objects": [
       "cmdr-product-spec/05-domain-model/objects/incident.md",
       "cmdr-product-spec/05-domain-model/objects/task.md"
@@ -105,7 +103,8 @@
   ],
   "definition_of_ready": [
     "E10-CMD-101I-SELECTION IMPLEMENTED; inherited Code Owner and tenant/ACL context unchanged, frozen Git parent #169 exact-head runtime+engineering SUCCESS.",
-    "No OPEN decision is needed for a Class-0 diagnostic-filter correctness fix; OPEN-013 prohibits only deferred Class-2 mutations."
+    "No OPEN decision is needed for a Class-0 diagnostic-filter correctness fix; OPEN-013 prohibits only deferred Class-2 mutations.",
+    "The open OPEN-013 decision is referenced only for explicitly excluded Class-2 operations; no product governance decision is made."
   ],
   "definition_of_done": [
     "Correction and owner-authorized filter regression included in a bounded PR with exact HEAD CI; only E10-CMD-101J-SLA-FILTER IMPLEMENTED.",
