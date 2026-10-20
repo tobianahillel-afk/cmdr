@@ -218,7 +218,13 @@ func runGoSAST(root string) (SASTSummary, error) {
 		}
 		if scanErr != nil {
 			combined.ScanRoot = strings.Join(labels, ",")
-			return combined, scanErr
+			rel, relErr := filepath.Rel(root, moduleRoot)
+			if relErr != nil {
+				return combined, scanErr
+			}
+			// A reviewed module path is repository metadata, not a gosec
+			// error body. Never expose raw analyzer diagnostics in CI.
+			return combined, fmt.Errorf("Go SAST module %s: %w", filepath.ToSlash(rel), scanErr)
 		}
 	}
 	combined.ScanRoot = strings.Join(labels, ",")
@@ -268,6 +274,89 @@ func runGoSASTModule(root, moduleRoot string) (SASTSummary, error) {
 	return parseGosecReport(root, moduleRoot, data)
 }
 
+// sanitizedGosecProcessingPaths reports only existing repository-local Go
+// paths so a failing SAST root can be investigated without publishing source,
+// compiler diagnostics, absolute workspace names or attacker-controlled keys.
+// The processing ERROR is never ignored: missing safe paths remain blocking.
+func sanitizedGosecProcessingPaths(root, moduleRoot string, problems map[string][]json.RawMessage) []string {
+	var paths []string
+	for raw, details := range problems {
+		if len(details) == 0 || !strings.HasSuffix(raw, ".go") {
+			continue
+		}
+		path, err := normalizeSecurityToolPath(root, moduleRoot, raw)
+		if err != nil || !strings.HasSuffix(path, ".go") {
+			continue
+		}
+		// Reject nonexistent or nonregular paths. gosec JSON may refer to
+		// package names, transient temp paths or paths outside the repo.
+		fi, err := os.Lstat(filepath.Join(root, filepath.FromSlash(path)))
+		if err != nil || !fi.Mode().IsRegular() {
+			continue
+		}
+		paths = append(paths, path)
+	}
+	sort.Strings(paths)
+	unique := paths[:0]
+	for _, path := range paths {
+		if len(unique) == 0 || unique[len(unique)-1] != path {
+			unique = append(unique, path)
+		}
+	}
+	paths = unique
+	if len(paths) > 4 {
+		paths = paths[:4]
+	}
+	return paths
+}
+
+// Only a fixed vocabulary of Go package-loader problems may leave the
+// analyzer boundary. Raw compiler/analyzer messages can contain sensitive
+// paths, source fragments or attacker-controlled identifiers.
+func safeGosecProcessingKinds(problems map[string][]json.RawMessage) []string {
+	found := map[string]bool{}
+	for _, messages := range problems {
+		for _, raw := range messages {
+			var decoded struct {
+				Error string `json:"error"`
+			}
+			if json.Unmarshal(raw, &decoded) != nil {
+				found["unclassified"] = true
+				continue
+			}
+			msg := strings.ToLower(decoded.Error)
+			switch {
+			case strings.Contains(msg, "undefined:") ||
+				strings.Contains(msg, "undeclared name") ||
+				strings.Contains(msg, "not declared"):
+				found["unresolved-symbol"] = true
+			case strings.Contains(msg, "could not import") ||
+				strings.Contains(msg, "cannot find module") ||
+				strings.Contains(msg, "no required module"):
+				found["dependency-import"] = true
+			case strings.Contains(msg, "syntax error") ||
+				strings.Contains(msg, "expected "):
+				found["syntax-or-parser"] = true
+			case strings.Contains(msg, "panic") ||
+				strings.Contains(msg, "analysis failure"):
+				found["analyzer-failure"] = true
+			case strings.Contains(msg, "no go files") ||
+				strings.Contains(msg, "cannot load") ||
+				strings.Contains(msg, "failed to load"):
+				found["package-load"] = true
+			default:
+				found["unclassified"] = true
+			}
+		}
+	}
+	kinds := make([]string, 0, len(found))
+	for kind := range found {
+		kinds = append(kinds, kind)
+	}
+	sort.Strings(kinds)
+	return kinds
+}
+
 func parseGosecReport(root, moduleRoot string, data []byte) (SASTSummary, error) {
 	var report gosecJSONReport
 	if err := json.Unmarshal(data, &report); err != nil {
@@ -278,7 +367,17 @@ func parseGosecReport(root, moduleRoot string, data []byte) (SASTSummary, error)
 		errorCount += len(values)
 	}
 	if errorCount > 0 {
-		return SASTSummary{}, fmt.Errorf("gosec reported %d processing error(s); details withheld from CI evidence", errorCount)
+		// gosec may report a package load or type-check error instead of a
+		// vulnerability. Failing closed is essential, but an entirely opaque
+		// failure made affected Go modules impossible to locate. Emit only
+		// normalized in-repository Go source paths (bounded), never the raw
+		// compiler error, source line, external path or analyzer payload.
+		paths := sanitizedGosecProcessingPaths(root, moduleRoot, report.Errors)
+		kinds := strings.Join(safeGosecProcessingKinds(report.Errors), ",")
+		if len(paths) == 0 {
+			return SASTSummary{}, fmt.Errorf("gosec reported %d processing error(s), kind=%s; source paths unavailable; details withheld", errorCount, kinds)
+		}
+		return SASTSummary{}, fmt.Errorf("gosec reported %d processing error(s), kind=%s at %s; details withheld", errorCount, kinds, strings.Join(paths, ","))
 	}
 	relRoot, err := filepath.Rel(root, moduleRoot)
 	if err != nil {
