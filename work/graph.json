@@ -2023,6 +2023,30 @@
       ],
       "dependency_terminal_state": "IMPLEMENTED",
       "unlocks": []
+    },
+    {
+      "id": "E10-CMD-105",
+      "title": "Implement canonical Command-owned SLA Tracking CAP-CMD-105 in bounded read-only and future Class-2 units",
+      "type": "epic",
+      "status": "DECOMPOSED",
+      "depends_on": [
+        "E10-SCALE-005B"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-CMD-105A-READONLY"
+      ]
+    },
+    {
+      "id": "E10-CMD-105A-READONLY",
+      "title": "Read source-authorized SLA status and policy provenance on selected Incident/Task",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-CMD-101F-SELECTION"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": []
     }
   ]
 }
