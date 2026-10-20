@@ -1996,6 +1996,19 @@
         "E10-CMD-101J-DIAGNOSTICS"
       ],
       "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-CMD-101L-GROUP"
+      ]
+    },
+    {
+      "id": "E10-CMD-101L-GROUP",
+      "title": "Group the owner-authorized Command Work Queue by existing type or status before cursor pagination",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-CMD-101K-OWNERFILTER"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
       "unlocks": []
     }
   ]
