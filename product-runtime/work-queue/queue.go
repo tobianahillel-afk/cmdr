@@ -89,6 +89,7 @@ type Result struct {
 	StatusFilter string   `json:"status_filter,omitempty"`
 	SortOrder string `json:"sort,omitempty"`
 	NextCursor string `json:"next_cursor,omitempty"`
+	PreviousCursor string `json:"previous_cursor,omitempty"`
 	HasPrevious bool `json:"has_previous,omitempty"`
 	// Selected is returned ONLY by the authenticated HTTP route, and only
 	// for an item reauthorized and present in its currently visible page.
@@ -248,11 +249,12 @@ func Project(ctx context.Context, owner Owner, req Request) (Result, error) {
 	// bounded projection. A stale/revoked cursor fails without partial rows.
 	authorized := make([]Row, 0, len(selected))
 	for _, item := range selected { authorized = append(authorized, item.row) }
-	page, next, previous, err := authorizedQueuePage(req, authorized)
+	page, next, previousCursor, hasPrevious, err := authorizedQueuePage(req, authorized)
 	if err != nil { return empty, err }
 	result.Rows = page
 	result.NextCursor = next
-	result.HasPrevious = previous
+	result.PreviousCursor = previousCursor
+	result.HasPrevious = hasPrevious
 	if next != "" {
 		if previous {
 			result.Diagnostics = append(result.Diagnostics, "more-authorized-pages")
