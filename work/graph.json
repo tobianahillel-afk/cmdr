@@ -1774,7 +1774,7 @@
       "id": "E10-INV-120A-SNAPSHOT",
       "title": "Integrate an operator-provided durable Case snapshot into the authenticated loopback analyst journey",
       "type": "task",
-      "status": "READY",
+      "status": "IMPLEMENTED",
       "depends_on": [
         "E10-INV-110E"
       ],
