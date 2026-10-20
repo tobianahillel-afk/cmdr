@@ -218,7 +218,11 @@ func runGoSAST(root string) (SASTSummary, error) {
 		}
 		if scanErr != nil {
 			combined.ScanRoot = strings.Join(labels, ",")
-			return combined, scanErr
+			rel, relErr := filepath.Rel(root, moduleRoot)
+			if relErr != nil { return combined, scanErr }
+			// A reviewed module path is repository metadata, not a gosec
+			// error body. Never expose raw analyzer diagnostics in CI.
+			return combined, fmt.Errorf("Go SAST module %s: %w", filepath.ToSlash(rel), scanErr)
 		}
 	}
 	combined.ScanRoot = strings.Join(labels, ",")
@@ -268,6 +272,36 @@ func runGoSASTModule(root, moduleRoot string) (SASTSummary, error) {
 	return parseGosecReport(root, moduleRoot, data)
 }
 
+// sanitizedGosecProcessingPaths reports only existing repository-local Go
+// paths so a failing SAST root can be investigated without publishing source,
+// compiler diagnostics, absolute workspace names or attacker-controlled keys.
+// The processing ERROR is never ignored: missing safe paths remain blocking.
+func sanitizedGosecProcessingPaths(root, moduleRoot string, problems map[string][]json.RawMessage) []string {
+	var paths []string
+	for raw, details := range problems {
+		if len(details) == 0 || !strings.HasSuffix(raw, ".go") {
+			continue
+		}
+		path, err := normalizeSecurityToolPath(root, moduleRoot, raw)
+		if err != nil || !strings.HasSuffix(path, ".go") {
+			continue
+		}
+		// Reject nonexistent or nonregular paths. gosec JSON may refer to
+		// package names, transient temp paths or paths outside the repo.
+		fi, err := os.Lstat(filepath.Join(root, filepath.FromSlash(path)))
+		if err != nil || !fi.Mode().IsRegular() {
+			continue
+		}
+		paths = append(paths, path)
+	}
+	sort.Strings(paths)
+	paths = dedupeStrings(paths)
+	if len(paths) > 4 {
+		paths = paths[:4]
+	}
+	return paths
+}
+
 func parseGosecReport(root, moduleRoot string, data []byte) (SASTSummary, error) {
 	var report gosecJSONReport
 	if err := json.Unmarshal(data, &report); err != nil {
@@ -278,7 +312,16 @@ func parseGosecReport(root, moduleRoot string, data []byte) (SASTSummary, error)
 		errorCount += len(values)
 	}
 	if errorCount > 0 {
-		return SASTSummary{}, fmt.Errorf("gosec reported %d processing error(s); details withheld from CI evidence", errorCount)
+		// gosec may report a package load or type-check error instead of a
+		// vulnerability. Failing closed is essential, but an entirely opaque
+		// failure made affected Go modules impossible to locate. Emit only
+		// normalized in-repository Go source paths (bounded), never the raw
+		// compiler error, source line, external path or analyzer payload.
+		paths := sanitizedGosecProcessingPaths(root, moduleRoot, report.Errors)
+		if len(paths) == 0 {
+			return SASTSummary{}, fmt.Errorf("gosec reported %d processing error(s); source paths unavailable; details withheld", errorCount)
+		}
+		return SASTSummary{}, fmt.Errorf("gosec reported %d processing error(s) at %s; details withheld", errorCount, strings.Join(paths, ","))
 	}
 	relRoot, err := filepath.Rel(root, moduleRoot)
 	if err != nil {
