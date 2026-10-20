@@ -17,9 +17,9 @@
     "phase_title": "Scaled product implementation program bootstrap"
   },
   "execution": {
-    "active_work_unit": "E10-CMD-101A-READONLY",
+    "active_work_unit": "E10-CMD-101B-HOST-ROUTE",
     "preferred_next_unit": null,
-    "selection_rule": "2026-10-20 GitHub reconciliation: historical E10-INV-120A-SNAPSHOT READY cache is invalid; exact PR #36 runtime/CI evidence proves IMPLEMENTED only, not VERIFIED/accepted. Equivalent change was independently published on sibling PR #156 but NOT merged into this Command branch. Active E10-CMD-101A-READONLY remains IMPLEMENTED on draft Command stack with #157 SAST success, not product ACCEPTED. No READY unit in this branch. Next work requires canonical CAP/owner-based scoped selection and checks; no automatic re-run of old snapshot or assumption that sibling PR #156, Command/Investigate stack, or #36 was merged."
+    "selection_rule": "2026-10-20 canonical CAP-CMD-101 next bounded Class-0 integration: one Command host-session HTTP route over existing Project, independent task B under E10-CMD-101. Prior A remains IMPLEMENTED, not accepted; historical E10-INV-120A-SNAPSHOT reconciled IMPLEMENTED via integration parent PR #158 using sibling PR #156 evidence. No READY unit left after B; next select from canonical obligations and fresh GitHub. This cache is not authoritative; exact SHA CI/L2 and native approvals required."
   },
   "reconciliation": {
     "required_on_resume": true,
