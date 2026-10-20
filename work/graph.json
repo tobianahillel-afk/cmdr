@@ -2112,7 +2112,6 @@
       "title": "Compose existing Shared authorized Incident Case links with independently authorized Investigate Case status",
       "type": "task",
       "status": "IMPLEMENTED",
-      "parent": "E10-CMD-106",
       "depends_on": [
         "E10-CMD-106A-CASELINKS"
       ],
