@@ -279,6 +279,14 @@ func runGoSASTModule(root, moduleRoot string) (SASTSummary, error) {
 // compiler diagnostics, absolute workspace names or attacker-controlled keys.
 // The processing ERROR is never ignored: missing safe paths remain blocking.
 func sanitizedGosecProcessingPaths(root, moduleRoot string, problems map[string][]json.RawMessage) []string {
+	// gosec error paths are untrusted even when their spelling looks local.
+	// Resolve candidate file metadata through an opened workspace root so
+	// symlink traversal cannot escape the repository during inspection.
+	workspace, err := os.OpenRoot(root)
+	if err != nil {
+		return nil
+	}
+	defer workspace.Close()
 	var paths []string
 	for raw, details := range problems {
 		if len(details) == 0 || !strings.HasSuffix(raw, ".go") {
@@ -290,7 +298,7 @@ func sanitizedGosecProcessingPaths(root, moduleRoot string, problems map[string]
 		}
 		// Reject nonexistent or nonregular paths. gosec JSON may refer to
 		// package names, transient temp paths or paths outside the repo.
-		fi, err := os.Lstat(filepath.Join(root, filepath.FromSlash(path)))
+		fi, err := workspace.Lstat(filepath.FromSlash(path))
 		if err != nil || !fi.Mode().IsRegular() {
 			continue
 		}
