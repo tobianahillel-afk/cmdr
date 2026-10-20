@@ -1804,6 +1804,18 @@
       ],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": []
+    },
+    {
+      "id": "E4-SEC-002B-DIAGNOSTICS",
+      "title": "Localize Go SAST processing errors without disclosing analyzer payloads",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "parent": "E4-SEC-002B",
+      "depends_on": [
+        "E4-SEC-002B-ACTIVATE"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": []
     }
   ]
 }
