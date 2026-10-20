@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - "product-runtime/event-inspection-host/**"
+      - "product-runtime/event-inspection/**"
       - "tools/cmdr-dev/security_tests.go"
       - "engineering/security/runtime-security-policy.json"
       - "work/lots/E10-INV-004G-HOST/**"
@@ -42,6 +43,16 @@ jobs:
           cache: false
       - name: Run full Event Inspection and new HTTP host tests
         run: go test -count=1 ./...
+      - name: Test reviewed Event Inspection core including pivot presence regression
+        working-directory: product-runtime/event-inspection
+        run: go test -count=1 ./...
+      - name: Vet Event Inspection core
+        working-directory: product-runtime/event-inspection
+        run: go vet ./...
+      - name: Race-check Event Inspection pivot core
+        if: matrix.os == 'ubuntu-latest'
+        working-directory: product-runtime/event-inspection
+        run: go test -race -count=1 ./...
       - name: Vet Event Inspection and HTTP adapter
         run: go vet ./...
       - name: Exercise HTTP host data boundaries under Go race detector
