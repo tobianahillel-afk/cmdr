@@ -25,12 +25,15 @@ func prepareCommandWorkQueueProbe(root string) (commandWorkQueueProbe, func(), e
 	if err != nil {
 		return commandWorkQueueProbe{}, func() {}, err
 	}
-	cleanup := func() { _ = os.RemoveAll(dir) } // #nosec G703 - created below checked repository root
 	name := "command-work-queue-perf"
 	if runtime.GOOS == "windows" {
 		name += ".exe"
 	}
 	binary := filepath.Join(dir, name)
+	// Go build produces one named binary in this private temporary
+	// directory. Delete only that file and then the empty directory:
+	// recursive removal can traverse unanticipated build artifacts.
+	cleanup := func() { cleanupCommandWorkQueueProbe(root, binary, dir) }
 	if _, err := runPerformanceProcess(moduleRoot, "go", "build", "-trimpath", "-o", binary, "./cmd/perf-probe"); err != nil {
 		cleanup()
 		return commandWorkQueueProbe{}, func() {}, fmt.Errorf("build Command queue probe: %w", err)
@@ -94,4 +97,26 @@ func (p commandWorkQueueProbe) runResource(iterations, memoryLimitMiB int) (Deep
 		Operations:           int64(sample.Operations),
 		ThroughputOpsPerSec:  float64(sample.Operations) * 1e9 / float64(sample.ElapsedNS),
 	}, nil
+}
+
+func cleanupCommandWorkQueueProbe(repoRoot, binary, dir string) {
+	// Bind every cleanup operation to the originally selected workspace
+	// directory. Root rejects symlinks escaping the workspace, even when
+	// another process alters names between these operations.
+	workspace, err := os.OpenRoot(repoRoot)
+	if err != nil {
+		return
+	}
+	defer workspace.Close()
+	tempName := filepath.Base(dir)
+	privateDir, err := workspace.OpenRoot(tempName)
+	if err != nil {
+		return
+	}
+	// Only the exact build artifact created by the first-party Go probe is
+	// removed. Never walk or recursively erase unexpected entries.
+	_ = privateDir.Remove(filepath.Base(binary))
+	_ = privateDir.Close()
+	// Removing the parent succeeds only if it is empty.
+	_ = workspace.Remove(tempName)
 }
