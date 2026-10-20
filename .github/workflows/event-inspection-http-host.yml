@@ -3,7 +3,7 @@ name: Event Inspection authorized HTTP host
 on:
   pull_request:
     paths:
-      - "product-runtime/event-inspection-host-host/**"
+      - "product-runtime/event-inspection-host/**"
       - "work/lots/E10-INV-004G-HOST/**"
       - ".github/workflows/event-inspection-http-host.yml"
   workflow_dispatch:
@@ -36,7 +36,7 @@ jobs:
       - name: Install pinned Go from module
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e
         with:
-          go-version-file: product-runtime/event-inspection-host-host/go.mod
+          go-version-file: product-runtime/event-inspection-host/go.mod
           cache: false
       - name: Run full Event Inspection and new HTTP host tests
         run: go test -count=1 ./...
