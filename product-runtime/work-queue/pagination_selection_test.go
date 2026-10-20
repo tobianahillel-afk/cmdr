@@ -100,6 +100,9 @@ func TestNativeWorkQueueSelectsActualPageThreeRowWithFreshOwnerAuthorization(t *
 
 func TestNativeWorkQueuePageTwoSelectionAndFreshSortReset(t *testing.T) {
 	owner := largeAuthorizedQueue()
+	// Use a real timestamp difference, not the fixture's identical times,
+	// to distinguish current oldest order from a freshly selected newest order.
+	owner.items[122].UpdatedAt = "2026-10-21T09:00:00Z"
 	handler := NewHTTPHandler(trustedHost(),owner)
 	base := "/command/work-queue?view=tasks&status=open&sort=oldest"
 	first := fetchAuthorizedPage(t,handler,base)
