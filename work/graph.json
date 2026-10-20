@@ -1865,11 +1865,11 @@
       ],
       "dependency_terminal_state": "IMPLEMENTED",
       "unlocks": [
-        "E10-CMD-101F-ROW-SELECTION"
+        "E10-CMD-101F-SELECTION"
       ]
     },
     {
-      "id": "E10-CMD-101F-ROW-SELECTION",
+      "id": "E10-CMD-101F-SELECTION",
       "title": "Select current owner-authorized visible Incident/Task row on the canonical Command Work Queue route",
       "type": "task",
       "status": "IMPLEMENTED",
