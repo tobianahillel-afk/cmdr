@@ -99,6 +99,8 @@ type Result struct {
 	// for an item reauthorized and present in its currently visible page.
 	// No selected field is serialized for legacy/unselected projections.
 	Selected *Row `json:"selected,omitempty"`
+	// Selected-only CAP-CMD-104 class-0 coordination factors.
+	SelectedFactors *AuthorizedFactors `json:"selected_factors,omitempty"`
 }
 
 var (
