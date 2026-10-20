@@ -17,9 +17,9 @@
     "phase_title": "Scaled product implementation program bootstrap"
   },
   "execution": {
-    "active_work_unit": "E10-CMD-101B-HTTP",
+    "active_work_unit": "E10-CMD-101C-HTML",
     "preferred_next_unit": null,
-    "selection_rule": "2026-10-20 canonical CAP-CMD-101 next bounded Class-0 integration: one Command host-session HTTP route over existing Project, independent task B under E10-CMD-101. Prior A remains IMPLEMENTED, not accepted; historical E10-INV-120A-SNAPSHOT reconciled IMPLEMENTED via integration parent PR #158 using sibling PR #156 evidence. No READY unit left after B; next select from canonical obligations and fresh GitHub. This cache is not authoritative; exact SHA CI/L2 and native approvals required."
+    "selection_rule": "2026-10-20 selected canonical CAP-CMD-101 bounded native single-route HTML view on already IMPLEMENTED E10-CMD-101B-HTTP with two exact HEAD workflows SUCCESS. E10-CMD-101C-HTML code + manifest + graph written on independent child branch; status IMPLEMENTED only, exact-head CI and targeted L2 not yet proven. The existing engineering epic remains DECOMPOSED; Shared Saved Views, Inspector, persistence and production host IAM are not implemented. No additional READY node. Future selection requires canonical review and fresh GitHub reality; cached state is not authoritative."
   },
   "reconciliation": {
     "required_on_resume": true,
