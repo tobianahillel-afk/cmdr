@@ -94,7 +94,11 @@ func nilAuthority(v any) bool {
 }
 
 func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if r.URL != nil && r.URL.Path == pivotRoute {\n\t\th.servePivot(w, r)\n\t\treturn\n\t}\n\tw.Header().Set("Cache-Control", "no-store")
+	if r.URL != nil && r.URL.Path == pivotRoute {
+		h.servePivot(w, r)
+		return
+	}
+	w.Header().Set("Cache-Control", "no-store")
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.Header().Set("X-Content-Type-Options", "nosniff")
 	w.Header().Set("Referrer-Policy", "no-referrer")
