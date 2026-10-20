@@ -80,11 +80,21 @@
       "id": "event-inspection-runtime",
       "kind": "product-runtime",
       "roots": [
-        "product-runtime/event-inspection/**",
-        "product-runtime/event-inspection-host/**"
+        "product-runtime/event-inspection/**"
       ],
       "mutable_by_implementation": true,
       "may_depend_on": []
+    },
+    {
+      "id": "event-inspection-http-host-runtime",
+      "kind": "product-runtime",
+      "roots": [
+        "product-runtime/event-inspection-host/**"
+      ],
+      "mutable_by_implementation": true,
+      "may_depend_on": [
+        "event-inspection-runtime"
+      ]
     },
     {
       "id": "hunt-management-runtime",
