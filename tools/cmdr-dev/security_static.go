@@ -219,7 +219,9 @@ func runGoSAST(root string) (SASTSummary, error) {
 		if scanErr != nil {
 			combined.ScanRoot = strings.Join(labels, ",")
 			rel, relErr := filepath.Rel(root, moduleRoot)
-			if relErr != nil { return combined, scanErr }
+			if relErr != nil {
+				return combined, scanErr
+			}
 			// A reviewed module path is repository metadata, not a gosec
 			// error body. Never expose raw analyzer diagnostics in CI.
 			return combined, fmt.Errorf("Go SAST module %s: %w", filepath.ToSlash(rel), scanErr)
