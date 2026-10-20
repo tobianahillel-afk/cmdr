@@ -65,6 +65,9 @@ type Request struct {
 	StatusFilter string
 	// Exact responsible owner identifier (Class-0), applied after CanRead.
 	OwnerFilter string
+	// Optional Class-0 presentation grouping of already-authorized items.
+	// Supported exact keys are type and status; no new data source/ACL.
+	GroupBy string
 	// Read-only chronological order. Blank preserves the original newest-first
 	// presentation; no arbitrary client sort column or Shared view schema.
 	SortOrder string
@@ -90,6 +93,7 @@ type Result struct {
 	Rows         []Row    `json:"rows"`
 	StatusFilter string   `json:"status_filter,omitempty"`
 	OwnerFilter string `json:"owner_filter,omitempty"`
+	GroupBy string `json:"group_by,omitempty"`
 	SortOrder string `json:"sort,omitempty"`
 	NextCursor string `json:"next_cursor,omitempty"`
 	PreviousCursor string `json:"previous_cursor,omitempty"`
@@ -135,6 +139,9 @@ func Project(ctx context.Context, owner Owner, req Request) (Result, error) {
 	}
 	if len(req.OwnerFilter) > 128 || (req.OwnerFilter != "" &&
 		(invalidScope(req.OwnerFilter) || !utf8.ValidString(req.OwnerFilter))) {
+		return empty, ErrView
+	}
+	if req.GroupBy != "" && req.GroupBy != "type" && req.GroupBy != "status" {
 		return empty, ErrView
 	}
 	if req.SortOrder != "" && req.SortOrder != "newest" && req.SortOrder != "oldest" {
@@ -238,6 +245,16 @@ func Project(ctx context.Context, owner Owner, req Request) (Result, error) {
 		}
 	}
 	sort.Slice(selected, func(i, j int) bool {
+		// Group the FULL authorized filtered cohort before pagination.
+		// Chronology remains stable within a group, with kind/ID tie-breaks.
+		if req.GroupBy != "" {
+			groupKey := func(row Row) string {
+				if req.GroupBy == "type" { return string(row.Kind) }
+				return row.Status
+			}
+			left, right := groupKey(selected[i].row), groupKey(selected[j].row)
+			if left != right { return left < right }
+		}
 		if !selected[i].updated.Equal(selected[j].updated) {
 			if req.SortOrder == "oldest" {
 				return selected[i].updated.Before(selected[j].updated)
@@ -251,7 +268,7 @@ func Project(ctx context.Context, owner Owner, req Request) (Result, error) {
 	})
 	result := Result{View: req.View, Tenant: req.Tenant, Environment: req.Environment,
 		State: "ready", Rows: make([]Row, 0, len(selected)), Diagnostics: []string{},
-		StatusFilter: req.StatusFilter, OwnerFilter: req.OwnerFilter, SortOrder: req.SortOrder}
+		StatusFilter: req.StatusFilter, OwnerFilter: req.OwnerFilter, GroupBy: req.GroupBy, SortOrder: req.SortOrder}
 	if len(selected) == 0 {
 		result.State = "no-authorized-items"
 	}
