@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - "product-runtime/event-inspection/**"
+      - "engineering/implementation/event-inspection/fixtures.json"
       - ".github/workflows/cap-inv-004-integration.yml"
   workflow_dispatch:
 
