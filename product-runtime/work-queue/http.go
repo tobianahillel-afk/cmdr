@@ -53,7 +53,7 @@ func NewHTTPHandler(sessions SessionResolver, owner Owner) http.Handler {
 			return
 		}
 		for key, entries := range values {
-			if (key != "view" && key != "status") || len(entries) != 1 {
+			if (key != "view" && key != "status" && key != "sort") || len(entries) != 1 {
 				http.Error(w, "unsupported work queue query", http.StatusBadRequest)
 				return
 			}
@@ -76,6 +76,16 @@ func NewHTTPHandler(sessions SessionResolver, owner Owner) http.Handler {
 				return
 			}
 		}
+		// Only the two explicitly supported stable timestamp orders. Reject
+		// untrusted sort expressions before resolving an owner or its scope.
+		sortOrder := ""
+		if entries, ok := values["sort"]; ok {
+			sortOrder = entries[0]
+			if sortOrder != "newest" && sortOrder != "oldest" {
+				http.Error(w, "invalid work queue sort", http.StatusBadRequest)
+				return
+			}
+		}
 		scope, err := sessions.ResolveSession(r.Context(), r)
 		if err != nil || invalidScope(scope.Principal) ||
 			invalidScope(scope.Tenant) || invalidScope(scope.Environment) {
@@ -85,6 +95,7 @@ func NewHTTPHandler(sessions SessionResolver, owner Owner) http.Handler {
 		result, err := Project(r.Context(), owner, Request{
 			Principal: scope.Principal, Tenant: scope.Tenant,
 			Environment: scope.Environment, View: view, StatusFilter: status,
+			SortOrder: sortOrder,
 		})
 		if err != nil {
 			if err == ErrView || err == ErrScope {
