@@ -3,7 +3,7 @@ name: Event Inspection authorized HTTP host
 on:
   pull_request:
     paths:
-      - "product-runtime/event-inspection/**"
+      - "product-runtime/event-inspection-host-host/**"
       - "work/lots/E10-INV-004G-HOST/**"
       - ".github/workflows/event-inspection-http-host.yml"
   workflow_dispatch:
@@ -22,7 +22,7 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
     defaults:
       run:
-        working-directory: product-runtime/event-inspection
+        working-directory: product-runtime/event-inspection-host
     steps:
       - name: Checkout exact PR head
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
@@ -36,7 +36,7 @@ jobs:
       - name: Install pinned Go from module
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e
         with:
-          go-version-file: product-runtime/event-inspection/go.mod
+          go-version-file: product-runtime/event-inspection-host-host/go.mod
           cache: false
       - name: Run full Event Inspection and new HTTP host tests
         run: go test -count=1 ./...
@@ -49,7 +49,7 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         shell: bash
         run: |
-          go test -count=1 -covermode=atomic -coverprofile=host-coverage.out ./host
+          go test -count=1 -covermode=atomic -coverprofile=host-coverage.out ./...
           go tool cover -func=host-coverage.out
           pct="$(go tool cover -func=host-coverage.out | awk '/^total:/ {gsub(/%/,"",$3); print $3}')"
           awk -v coverage="$pct" 'BEGIN {exit !(coverage+0 >= 90)}'

@@ -45,10 +45,11 @@
     ]
   },
   "allowed_paths": [
-    "product-runtime/event-inspection/host/**",
+    "product-runtime/event-inspection-host/**",
     ".github/workflows/event-inspection-http-host.yml",
     "work/lots/E10-INV-004G-HOST/**",
-    "work/graph.json"
+    "work/graph.json",
+    "engineering/architecture/boundaries.json"
   ],
   "forbidden_paths": [
     "cmdr-product-spec/**",
@@ -94,7 +95,8 @@
     "New embeddable authorized HTTP handler composing distinct SessionResolver, SearchOwner, TelemetryOwner and existing eventinspection.Project",
     "Server response compatible with JS Inspector normalization: lowerCamel source/parser/enrichments; independent raw/rendered variants",
     "HTTP httptest security matrix including host spoof, source redaction, denied raw, malformed requests, wrong Event and partial stale provenance",
-    "Exact-HEAD cross-platform CI evidence, with explicit exclusion of real host and production"
+    "Exact-HEAD cross-platform CI evidence, with explicit exclusion of real host and production",
+    "Architecture boundary event-inspection-http-host-runtime depends only on existing verified event-inspection-runtime; no edits to original Go module"
   ],
   "acceptance_tests": [
     "Positive real HTTP request passes server-source authorization chain and returns browser-compatible read-only projection",
@@ -130,10 +132,10 @@
   },
   "complexity": {
     "primary_components": 2,
-    "estimated_files_changed": 6,
+    "estimated_files_changed": 8,
     "estimated_net_loc": 340,
-    "production_files": 1,
-    "net_production_loc": 295,
+    "production_files": 2,
+    "net_production_loc": 298,
     "bounded_contexts": 1,
     "independent_migrations": 0,
     "distinct_security_models": 1,

@@ -53,3 +53,7 @@ Actual GitHub Actions CI must be verified on the exact PR HEAD before
 calling this work technically proven. The L2 reviewer must separately
 inspect Search/Telemetry trust, per-field data classification and lack
 of an actual host provider; a green CI is not production acceptance.
+
+## Architecture-safe relocation
+
+The first implementation was staged as an in-tree subpackage. The enforced CHK-EVENT-INSPECTION-E2E correctly rejected touching a runtime whose pivot evidence was already frozen. The effective final diff therefore removes the proposed subpackage entirely and registers **a separate first-party runtime boundary** with an explicit local Go module replacement dependency on the unchanged Event Inspection projector. Original E10-INV-004B/C evidence and source blobs remain unchanged. No check threshold or accepted SHA was rewritten.
