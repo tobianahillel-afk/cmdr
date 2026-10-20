@@ -114,6 +114,8 @@ type Result struct {
 	SelectedSLA *AuthorizedSLA `json:"selected_sla,omitempty"`
 	// CAP-CMD-103: a separate independently authorized canonical register.
 	SelectedCanonicalOwnership *AuthorizedCanonicalOwnership `json:"selected_canonical_ownership,omitempty"`
+	// CAP-CMD-106 Class-0: only independently authorized linked Investigate Cases.
+	SelectedLinkedCases *AuthorizedLinkedCases `json:"selected_linked_cases,omitempty"`
 	// Present only if at least one authorized matching item has host freshness.
 	ViewFreshness *ViewFreshness `json:"view_freshness,omitempty"`
 }
