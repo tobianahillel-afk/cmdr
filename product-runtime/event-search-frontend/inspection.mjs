@@ -120,6 +120,9 @@ export function createEventInspectionJourney({ searchController, transport, onVi
   function validSearch(start) {
     const now = searchController.getView();
     return now.job?.jobId === start.job.jobId && now.job?.runId === start.job.runId &&
+      now.job?.correlationId === start.job.correlationId &&
+      now.job?.tenantRef === start.job.tenantRef &&
+      now.job?.environmentRef === start.job.environmentRef &&
       now.shellState?.kind !== "permission-denied" &&
       now.resultWindow?.rows.some((row) => row.ref === start.row.ref && row.source === start.row.source);
   }
