@@ -30,7 +30,7 @@ func TestPivotRuntimeFollowupGateFailClosedForExtraOrUnreviewedCoreFiles(t *test
 	writePivotFixture(t, root, "pivot.go", "package eventinspection\n")
 	fixtureGitHead(t, root, "add", ".")
 	fixtureGitHead(t, root, "commit", "-qm", "baseline")
-	old := stringTrim(fixtureGitHead(t, root, "rev-parse", "HEAD"))
+	old := testTrimGitSHAForPivot(fixtureGitHead(t, root, "rev-parse", "HEAD"))
 	// An opportunistic source edit outside the two-file allowlist must
 	// fail BEFORE any trusted/expensive compiler execution.
 	writePivotFixture(t, root, "pivot.go", "package eventinspection\n// untrusted patch\n")
@@ -38,7 +38,7 @@ func TestPivotRuntimeFollowupGateFailClosedForExtraOrUnreviewedCoreFiles(t *test
 	writePivotFixture(t, root, "extra.go", "package eventinspection\n")
 	fixtureGitHead(t, root, "add", ".")
 	fixtureGitHead(t, root, "commit", "-qm", "unverified runtime change")
-	head := stringTrim(fixtureGitHead(t, root, "rev-parse", "HEAD"))
+	head := testTrimGitSHAForPivot(fixtureGitHead(t, root, "rev-parse", "HEAD"))
 	if err := validateEventInspectionPivotFollowupProof(root, old, head); err == nil {
 		t.Fatal("extra unreviewed runtime source was permitted")
 	}
@@ -46,7 +46,7 @@ func TestPivotRuntimeFollowupGateFailClosedForExtraOrUnreviewedCoreFiles(t *test
 	// cannot masquerade as the independently reviewed PR #182 fix.
 	fixtureGitHead(t, root, "rm", "product-runtime/event-inspection/extra.go")
 	fixtureGitHead(t, root, "commit", "-qm", "two files but wrong source")
-	head = stringTrim(fixtureGitHead(t, root, "rev-parse", "HEAD"))
+	head = testTrimGitSHAForPivot(fixtureGitHead(t, root, "rev-parse", "HEAD"))
 	if err := validateEventInspectionPivotFollowupProof(root, old, head); err == nil {
 		t.Fatal("unreviewed pivot.go content was permitted")
 	}
@@ -56,6 +56,6 @@ func TestPivotRuntimeFollowupGateFailClosedForExtraOrUnreviewedCoreFiles(t *test
 	if err != nil || !unchanged { t.Fatalf("identical runtime snapshot rejected: unchanged=%v err=%v", unchanged, err) }
 }
 
-func stringTrim(s string) string {
+func testTrimGitSHAForPivot(s string) string {
 	return strings.TrimSpace(s)
 }
