@@ -49,7 +49,8 @@
     ".github/workflows/event-inspection-http-host.yml",
     "work/lots/E10-INV-004G-HOST/**",
     "work/graph.json",
-    "engineering/architecture/boundaries.json"
+    "engineering/architecture/boundaries.json",
+    "engineering/performance/performance-registry.json"
   ],
   "forbidden_paths": [
     "cmdr-product-spec/**",
@@ -96,7 +97,7 @@
     "Server response compatible with JS Inspector normalization: lowerCamel source/parser/enrichments; independent raw/rendered variants",
     "HTTP httptest security matrix including host spoof, source redaction, denied raw, malformed requests, wrong Event and partial stale provenance",
     "Exact-HEAD cross-platform CI evidence, with explicit exclusion of real host and production",
-    "Second distinct source root under existing architecture owner event-inspection-runtime; local-only Go dependency on verified projector; no edits to original module"
+    "Separate registered host boundary with explicit local-only Go dependency on immutable event-inspection-runtime; on-demand benchmark target measures ONLY the upstream in-process projector; no HTTP SLO"
   ],
   "acceptance_tests": [
     "Positive real HTTP request passes server-source authorization chain and returns browser-compatible read-only projection",
@@ -126,9 +127,12 @@
     "Exact-SHA CI and security checks completed; L2 review separate for material owner boundary"
   ],
   "performance_budget": {
-    "applicable": false,
-    "rationale": "In-process httptest transport contract only; live event source, latency and SLO not selected",
-    "metrics": []
+    "applicable": true,
+    "rationale": "Register existing projector p95 only on-demand; run synthetic HTTP httptest benchmark for mean ns/op, no network, provider or production SLO",
+    "metrics": [
+      "source projector p95 <=1 ms, on-demand only (not HTTP latency)",
+      "synthetic local HTTP adapter BenchmarkAuthorizedInspectionHTTP reports mean ns/op/allocs without invented p95"
+    ]
   },
   "complexity": {
     "primary_components": 2,
