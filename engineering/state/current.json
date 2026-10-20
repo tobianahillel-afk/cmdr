@@ -17,9 +17,9 @@
     "phase_title": "Scaled product implementation program bootstrap"
   },
   "execution": {
-    "active_work_unit": "E10-CMD-109B-VIEW",
+    "active_work_unit": "E10-CMD-101J-SLA-FILTER",
     "preferred_next_unit": null,
-    "selection_rule": "2026-10-20: CAP-CMD-109 Class-0 source freshness view aggregate implemented on child PR of frozen #168, NOT MERGED OR canonically ACCEPTED. Full authorized filtered cohorts (including cursor pages) summarized without inventing thresholds. Next READY none; exact SHA CI and independent L2 required. OPEN-013 Class-2 mutations excluded. main documentary only; #2/#36 and stacked PR approvals/merge remain blocked."
+    "selection_rule": "2026-10-20: bounded Class-0 CAP-CMD-101 filtered SLA-risk diagnostic regression fixed on new child of frozen PR #169, source SLA policy still CAP-CMD-105. E10-CMD-101J-SLA-FILTER IMPLEMENTED subject to exact HEAD CI and approvals; no READY node inferred, no CAP accepted. OPEN-013 Class-2 mutations excluded. Parent #169 L2 executed in separate context, report not accessible; parents #2/#36 and stacked PRs DRAFT/unmerged, main documentary only. Recompute after CI/L2."
   },
   "reconciliation": {
     "required_on_resume": true,
