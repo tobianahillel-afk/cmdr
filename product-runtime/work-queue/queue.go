@@ -211,7 +211,11 @@ func Project(ctx context.Context, owner Owner, req Request) (Result, error) {
 			}
 		case SLARisk:
 			if item.SLAAtRisk == nil {
-				partialSLA = true
+				// Missing SLA policy degrades only the CURRENT status-filtered
+				// cohort. A filtered-out item cannot make this view partial.
+				if req.StatusFilter == "" || item.Status == req.StatusFilter {
+					partialSLA = true
+				}
 			} else {
 				accept = *item.SLAAtRisk
 			}
