@@ -30,6 +30,7 @@ var queuePage = template.Must(template.New("command-work-queue").Parse(`<!doctyp
 {{if .StatusFilter}}<p>Filtre actif : {{.StatusFilter}}</p>{{end}}
 <p role="status">État : {{.State}}</p>
 {{if .Diagnostics}}<ul aria-label="Limites de la projection">{{range .Diagnostics}}<li>{{.}}</li>{{end}}</ul>{{end}}
+{{if .ViewFreshness}}<p aria-label="Fraîcheur de la vue autorisée">Fraîcheur de la vue autorisée ({{.ViewFreshness.Total}} éléments) : {{.ViewFreshness.Current}} actuels, {{.ViewFreshness.Aging}} vieillissants, {{.ViewFreshness.Stale}} périmés, {{.ViewFreshness.Partial}} partiels, {{.ViewFreshness.Unavailable}} sources indisponibles, {{.ViewFreshness.Unknown}} inconnus. Décompte du filtre et de la vue autorisés, toutes pages confondues ; aucune fraîcheur déduite sans politique source.</p>{{end}}
 {{if .Rows}}
 <table><caption>Éléments autorisés — page courante (50 maximum)</caption>
 <thead><tr><th scope="col">Type</th><th scope="col">Identifiant</th><th scope="col">Responsable</th><th scope="col">État</th><th scope="col">Mis à jour (UTC)</th><th scope="col">Fraîcheur source</th><th scope="col">Contexte</th></tr></thead>
