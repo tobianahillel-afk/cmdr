@@ -1,0 +1,135 @@
+{
+  "schema_version": 2,
+  "id": "E10-CMD-101F-ROW-SELECTION",
+  "title": "Select a currently authorized visible Incident/Task row without changing the canonical Command Work Queue route",
+  "type": "task",
+  "parent": "E10-CMD-101",
+  "goal": "Deliver CAP-CMD-101 Class-0 row selection and limited owner-authorized selected context on the existing Command route. Preserve current view/status/sort, prevent denied or off-page object disclosure and do not create an Inspector, Incident Detail provider, mutation or Saved View.",
+  "depends_on": [
+    "E10-CMD-101E-SORT"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-CMD-101"
+    ],
+    "requirements": [
+      "REQ-OBJ-001",
+      "REQ-OBJ-012",
+      "REQ-PROD-013",
+      "REQ-UX-005",
+      "REQ-UX-008",
+      "REQ-UX-009"
+    ],
+    "screens": [],
+    "permissions": [
+      "perm.command.read",
+      "perm.command.incident.read"
+    ],
+    "open_decisions": [],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/incident.md",
+      "cmdr-product-spec/05-domain-model/objects/task.md"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/pagination-filtering-sorting.md",
+      "cmdr-product-spec/03-design-system/patterns/selection-and-inspection.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/work-queue/queue.go",
+    "product-runtime/work-queue/http.go",
+    "product-runtime/work-queue/html.go",
+    "product-runtime/work-queue/selection_test.go",
+    "work/lots/E10-CMD-101F-ROW-SELECTION/**",
+    "work/graph.json",
+    "engineering/state/current.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/case-queue/**",
+    "product-runtime/investigation-timeline/**",
+    "tools/cmdr-dev/**"
+  ],
+  "invariants": [
+    "One existing GET /command/work-queue route, six canonical views; selected=Kind:ID is only an untrusted selection hint, never a permission or second route.",
+    "Only after resolving fresh SessionScope and Project's full Owner.CanRead checks, select an exact row in the currently authorized filtered/sorted first 50 rows; unavailable/denied/out-of-page selectors all return generic 404 with zero row data.",
+    "HTML uses a same-route GET button per visible row within the existing status/sort form and retains view/status/sort on selection; six view links retain filters/sort, selection is cleared on a different view.",
+    "Without a selector, JSON projection remains unchanged, including the absence of selected field; selection includes only a previously authorized Row and never canonical Incident Detail/Inspector or source link content.",
+    "No new Owner.List or CanRead calls, no arbitrary object lookup, Saved View persistence, unsafe action, new route, external API or new product runtime dependencies."
+  ],
+  "security_properties": [
+    "Bad/repeated/overlong/control or invalid UTF-8 selected tokens and scope injection rejected before session/owner access.",
+    "All current object ACL/tenant/environment checks precede selector resolution; denied or off-page object IDs reveal no metadata or separate authorization oracle.",
+    "Selections are forgotten across independent requests and cannot be used to skip future authorization or page limits.",
+    "HTML contextual escaping from html/template, no-store, nosniff, CSP form-action self/frame blocked; no scripts.",
+    "On revoked owner or session, no selected object or partial response is returned."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Opt-in read-only selected parameter and omitempty response field; no stored schema change.",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Remove selected parameter parsing, optional Result.Selected and row form buttons while retaining parent Work Queue sort/status behavior.",
+    "verification": [
+      "Existing six views and same route remain readable",
+      "No extra owner calls or Saved View mutations"
+    ]
+  },
+  "inputs": [
+    "Canonical CAP-CMD-101 §§1–27 and 03-design-system pattern selection-and-inspection, with ownership of Incident/Task in Command and Inspector in Design System.",
+    "Parent E10-CMD-101E-SORT on immutable SHA 502c7e8398c194d320ea234902cceaabd274d234; runtime run 39366010942 SUCCESS and engineering-kernel run 39366010979 SUCCESS. L2 parent separately pending.",
+    "Existing Go Work Queue Project, SessionResolver/Owner, bounded first 50 rows and same-route native HTML GET form."
+  ],
+  "outputs": [
+    "Opt-in selected Row JSON field emitted only after fresh ACL and exact current page match; unselected JSON remains backward-compatible.",
+    "Accessible same-form row-selection action with selected context containing only already-authorized row fields; current view/filter/sort retained.",
+    "No actual Incident Detail or Inspector; no selected persistent state nor linking to Case/Run."
+  ],
+  "acceptance_tests": [
+    "Request selecting an authorized visible Task in a filtered oldest-first view gives exactly that Row, while Project calls Owner.List once and CanRead once per in-scope candidate.",
+    "Select denied/foreign/wrong view or status/off-page item: generic 404 with no object data; session/owner errors still yield no partial response.",
+    "Invalid/duplicate/overlong/UTF-8/control selection fails 400 before session or owner; unsupported client-scope filters still rejected.",
+    "HTML selection button remains on one existing GET route, safely escapes malicious IDs, preserves view/filter/sort, and adds no extra system views or new Inspector.",
+    "Legacy requests keep original JSON field set; complete Linux/macOS/Windows Go runtime CI and mandatory unchanged security/complexity checks on final SHA."
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "Reuse existing fully authorized 50-row bounded slice after one Project; selection scans at most 50 already rendered rows, no additional provider calls.",
+    "metrics": [
+      "One Owner.List per request and existing CanRead per in-scope record",
+      "O(50) local selection scan with no additional sort or network action",
+      "50 displayed rows and 5000 owner candidate bound unchanged"
+    ]
+  },
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-RUNTIME-DEPS",
+    "CHK-SECURITY-TESTS"
+  ],
+  "definition_of_ready": [
+    "Parent E10-CMD-101E-SORT is graph IMPLEMENTED at immutable PR #162 SHA 502c7e8398c194d320ea234902cceaabd274d234; both exact-head required workflows SUCCESS, unmerged and L2 awaiting accessible report.",
+    "Canonical CAP-CMD-101 explicitly permits Class-0 item selection; all data shown comes from already owner-authorized current visible row; no new object/detail/Inspector provider needed.",
+    "One bounded Command owner behavior; pending Shared Saved View and final Inspector decisions explicitly excluded."
+  ],
+  "definition_of_done": [
+    "One child PR with actual secure same-route selection of authorized visible Incidents/Tasks, exact-head Go multi-OS and engineering-kernel checks.",
+    "Record graph as IMPLEMENTED only; independent read-only L2 once for material selection trust boundary, not per commit.",
+    "Unresolved selection beyond 50 rows, Inspector, Incident Detail, persistent views, real IAM and ancestor #36/#2 merges remain unclaimed."
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 3,
+    "estimated_net_loc": 85,
+    "production_files": 3,
+    "net_production_loc": 75,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}
