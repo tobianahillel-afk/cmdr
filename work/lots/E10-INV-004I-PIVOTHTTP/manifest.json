@@ -51,7 +51,8 @@
     "work/graph.json",
     "work/lots/E10-INV-004I-PIVOTHTTP/**",
     "tools/cmdr-dev/event_inspection_e2e.go",
-    "tools/cmdr-dev/event_inspection_e2e_test.go"
+    "tools/cmdr-dev/event_inspection_e2e_test.go",
+    "tools/cmdr-dev/event_inspection_followup_test.go"
   ],
   "forbidden_paths": [
     "cmdr-product-spec/**",
@@ -103,7 +104,8 @@
     "Wrong tenant/environment/Job, fabricated field, query mutation, extra JSON property and invalid time range all denied without raw metadata",
     "Existing POST /investigate/event-inspection remains backward compatible",
     "Existing core and new host tests, go vet, Linux race and mandatory CI checks all run on exact HEAD",
-    "Global CHK-EVENT-INSPECTION-E2E revalidates the exact two approved #182 core delta blobs and runs both new pivot-presence regression tests; any extra changed core file or blob mismatch fails closed"
+    "Global CHK-EVENT-INSPECTION-E2E revalidates the exact two approved #182 core delta blobs and runs both new pivot-presence regression tests; any extra changed core file or blob mismatch fails closed",
+    "Security unit regression initializes an isolated Git repo and proves both unexpected core paths and tampered pivot source blobs fail closed, while unchanged verified SHA remains acceptable"
   ],
   "required_checks": [
     "adaptive engineering-kernel",
@@ -137,7 +139,7 @@
   },
   "complexity": {
     "primary_components": 3,
-    "estimated_files_changed": 6,
+    "estimated_files_changed": 7,
     "estimated_net_loc": 340,
     "production_files": 4,
     "net_production_loc": 280,
