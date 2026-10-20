@@ -117,5 +117,13 @@
     "verification": [
       "Existing six-view unselected JSON and ACL tests remain passing"
     ]
+  },
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "One existing bounded <=5000 Owner.List/CanRead traversal per queue request, plus at most ONE selected-item factor read from the host; no new sorting, pagination pass or external source calls from the runtime.",
+    "metrics": [
+      "At most one ReadAuthorizedFactors call for one selected currently authorized row, never for unselected, denied or off-page.",
+      "Preserve current <=50 visible rows and <=5000 owner candidate bound."
+    ]
   }
 }
