@@ -2116,6 +2116,19 @@
         "E10-CMD-106A-CASELINKS"
       ],
       "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-CMD-106C-FRESHNESS"
+      ]
+    },
+    {
+      "id": "E10-CMD-106C-FRESHNESS",
+      "title": "Show source-observed freshness and date of independently authorized linked Investigate Case status",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-CMD-106B-SOURCEJOIN"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
       "unlocks": []
     }
   ]
