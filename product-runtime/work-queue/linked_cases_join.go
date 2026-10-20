@@ -2,7 +2,6 @@ package workqueue
 
 import (
 	"context"
-	"errors"
 )
 
 // AuthorizedIncidentCaseReferences is the Shared Object Linking owner's
@@ -87,7 +86,7 @@ func (j LinkedCaseOwnerJoin) ReadAuthorizedLinkedCases(ctx context.Context, prin
 	// Do not reveal partial authorized results if even one returned source
 	// record is inconsistent, malformed or outside its original scope.
 	if _,err:=validateLinkedCases(authorized);err!=nil {
-		return nil,errors.Join(errLinkedCases,err)
+		return nil,errLinkedCases
 	}
 	return authorized,nil
 }
