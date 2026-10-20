@@ -212,6 +212,25 @@ func NewHTTPHandler(sessions SessionResolver, owner Owner) http.Handler {
 				}
 			}
 		}
+		if result.Selected != nil {
+			// An Incident/Task's owner is not permission to inspect the
+			// canonical Ownership Register or Settings identity projections.
+			if registry, ok := owner.(CanonicalOwnershipOwner); ok {
+				claimed, err := registry.ReadAuthorizedCanonicalOwnership(r.Context(),
+					scope.Principal, scope.Tenant, scope.Environment,
+					result.Selected.Kind, result.Selected.ID)
+				if err != nil {
+					http.Error(w, "canonical ownership unavailable", http.StatusServiceUnavailable)
+					return
+				}
+				result.SelectedCanonicalOwnership, err = validateAuthorizedCanonicalOwnership(claimed)
+				if err != nil {
+					http.Error(w, "canonical ownership unavailable", http.StatusServiceUnavailable)
+					return
+				}
+			}
+		}
+
 		w.Header().Set("Vary", "Accept")
 		if strings.Contains(r.Header.Get("Accept"), "text/html") {
 			page, err := renderQueuePage(result)
