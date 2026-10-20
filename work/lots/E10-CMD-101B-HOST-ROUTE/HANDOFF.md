@@ -1,0 +1,19 @@
+# E10-CMD-101B-HOST-ROUTE — Command six-view HTTP integration
+
+## Four owners
+- **Canonical:** CAP-CMD-101 §§1–27 / Command Unified Work Queue, six exact keys from `06-command/modules/incidents-and-work-queue/saved-views.md`; Command owns meaning and Incident/Task, Shared owns saved-view data and final Inspector.
+- **Engineering:** pre-existing epic `E10-CMD-101`, new bounded task `E10-CMD-101B-HOST-ROUTE` depending on `E10-CMD-101A-READONLY` IMPLEMENTED (NOT accepted). Follows the repository complexity policy: one new runtime handler, one test file, no migration.
+- **Code:** `product-runtime/work-queue/http.go`, `http_test.go`, reuses unchanged `queue.go` `Project` and its exact owner authorization instead of recreating a queue engine. No framework or paid API.
+- **Git:** new child branch of integration PR #158; #158 itself is child of frozen security/SAST PR #157, whose exact HEAD engineering CI run 39352904407 SUCCESS. Neither PR #156 sibling nor any ancestor is merged or modified.
+
+## Canonical gap → bounded behavior → non-goals
+Previously the Command read-only Go `Project` could compute six views over operator-owned objects but no HTTP integration existed. Now a host may opt in to **one** first-party `GET /command/work-queue?view=KEY` handler using a host-owned `SessionResolver`. Missing view defaults to canonical `all`; `team-load` and separate per-view routes do not exist. Every call resolves principal/tenant/environment from the trusted host, not client query or headers, then calls `Project`, which rechecks each Incident/Task with first-party `Owner.CanRead` before producing rows. Every response is no-store and type-safe JSON, no HTML. Host/session denial, invalid scope, missing Owner, invalid method/path/query/duplicate view, provider failure/revocation return no owner rows. The existing 5000 candidate / 50 first-page bound, SLA partial indication, six view state and stable ordering remain unchanged.
+
+**This does NOT implement production session authentication/cookies/TLS, CSRF policy, Shared Saved View persistence/application/versioning/column permission, dynamic filters/virtualization, final native UI, Inspector, linked Case/Decision/Run projection, assignment/incident mutation, full CAP-CMD-101 or production deployment.** The host MUST implement a trustworthy session resolver and authoritative Owner in order to use this handler; the sample tests supply synthetic host contracts only. Absent host connection, the runtime remains an isolated, opt-in tested integration component.
+
+## Required proof and handoff
+Tests invoke the *real* Go `http.Handler` for all six view keys plus default All and assert server-side current owner ACL, current scope, no foreign/denied items and secure output headers. Unknown/duplicate view, client principal/tenant/environment/filter injection, malformed URL escape, Team Load, non-GET and extra paths denied. Host rejected/missing identity, nil owner, provider authorization or list failure give no partial rows. Existing queue tests retain first-page bound, negative ACL, SLA partial, source data validation and performance probes.
+
+Run exact-head GitHub Actions `command-work-queue-runtime` Linux/Windows/macOS (actual workflow name may be `command-work-queue`) plus mandatory `engineering-kernel`: SAST processing errors, `CHK-SECURITY-TESTS` changed critical security coverage **>=90%**, architecture, manifest, runtime dependency and deep performance checks remain mandatory. **No waiver, no merge if any required check fails.**
+
+One targeted independent **READ-ONLY** L2 is justified because this adds a material host session→Command owner HTTP trust boundary. L2 must use exact parent/head SHAs, inspect existing `Project` owner authorization and canonical route/Shared boundaries, report R0–R4 with evidence, without code writes or native GitHub review. Do not schedule duplicate L2 for parent state-only #158.
