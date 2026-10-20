@@ -125,6 +125,31 @@ test("raw denial strips raw-derived content, rejects forged raw and keeps render
   assert.equal(visible.includes("sensitive"), false);
   assert.equal(visible.includes("intel-engine@1"), true);
   assert.equal(visible.includes("192.0.2.10"), true);
+  assert.equal(visible.includes("Missing fields"), true);
+  assert.equal(visible.includes("network.server.ip"), true);
+});
+
+test("raw-only authorized inspection never invents rendered or raw-derived values", async () => {
+  const controller = await initializedSearch();
+  const journey = createEventInspectionJourney({
+    searchController: controller,
+    transport: { async inspect() {
+      return inspection({ raw: { access: "allowed", text: "raw-safe" },
+        rendered: { access: "denied" },
+        rawDerivedSensitive: { "raw.trace": "raw-only-value" },
+      });
+    } },
+  });
+  const result = await journey.open(context, "event-1");
+  assert.equal(result.kind, "inspected");
+  assert.equal(result.inspection.raw.text, "raw-safe");
+  assert.equal(result.inspection.rendered.access, "denied");
+  const mount = new FakeElement("div");
+  renderEventInspection(new FakeDocument(), mount, result);
+  const visible = allText(mount).join(" ");
+  assert.equal(visible.includes("raw-only-value"), true);
+  assert.equal(visible.includes("Rendered unavailable"), true);
+  assert.equal(visible.includes("safe rendered"), false);
 });
 
 test("hostile source fields and stale authorized results do not create HTML or leak stale projection", async () => {
@@ -142,7 +167,6 @@ test("hostile source fields and stale authorized results do not create HTML or l
   assert.equal(allText(mount).some(x => x.includes(hostile)), true);
   assert.equal(allNodes(mount).some(x => x.tagName === "img"), false);
   assert.equal(allNodes(mount).some(x => x.tagName === "script"), false);
-  controller.getView().resultWindow.rows[0].ref === "event-1";
   journey.close();
   const reset = journey.getView();
   renderEventInspection(new FakeDocument(), mount, reset);
