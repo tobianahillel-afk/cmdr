@@ -19,12 +19,7 @@
       "REQ-UX-008",
       "REQ-UX-009"
     ],
-    "screens": [
-      "CMD-IWQ-001",
-      "CMD-IWQ-002",
-      "CMD-IWQ-003",
-      "CMD-IWQ-004"
-    ],
+    "screens": [],
     "permissions": [
       "perm.command.read",
       "perm.command.incident.read"
