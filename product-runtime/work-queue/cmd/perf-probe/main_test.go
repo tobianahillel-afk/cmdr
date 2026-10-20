@@ -5,6 +5,9 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"context"
+
+	queue "github.com/tobianahillel-afk/cmdr/product-runtime/work-queue"
 	"testing"
 )
 
@@ -72,4 +75,49 @@ func TestCommandQueueResourceProbeMeasuresRealProjectionHeap(t *testing.T) {
 func TestCommandQueueResourceProbeDoesNotReturnPartialReceiptOnSinkFailure(t *testing.T) {
 	err:=run([]string{"-mode","resource","-iterations","100000"},unavailableReceiptWriter{})
 	if err==nil {t.Fatal("failed to reject unavailable sensitive benchmark result sink")}
+}
+
+ 
+// The benchmark receipt is security-relevant evidence: a missing permission,
+// revoked Incident, or failed owner must NEVER be presented as a measured,
+// authorized Command projection. The regular CLI cannot choose its owner;
+// this test-only seam exercises actual queue.Project failures.
+type failingProbeOwner struct { mode string }
+
+func (o failingProbeOwner) List(ctx context.Context, tenant, env string) ([]queue.Item, error) {
+	if o.mode == "owner-unavailable" { return nil, errors.New("Incident/Task source is offline") }
+	return (syntheticOwner{}).List(ctx, tenant, env)
+}
+
+func (o failingProbeOwner) CanRead(ctx context.Context, principal, tenant, env string, kind queue.Kind, id string) (bool, error) {
+	switch o.mode {
+	case "permission-backend-failed":
+		return false, errors.New("current principal authorization unavailable")
+	case "permission-revoked":
+		return false, nil
+	default:
+		return (syntheticOwner{}).CanRead(ctx, principal, tenant, env, kind, id)
+	}
+}
+
+func TestMeasuredCommandProbeRejectsUnverifiedOwnerEvidence(t *testing.T) {
+	for _, mode := range []string{"latency", "resource"} {
+		for _, cause := range []string{
+			"owner-unavailable", "permission-backend-failed", "permission-revoked",
+		} {
+			t.Run(mode+"/"+cause, func(t *testing.T) {
+				var output bytes.Buffer
+				err := runWithOwner([]string{"-mode", mode, "-iterations", "3"}, &output, failingProbeOwner{mode:cause})
+				if err == nil || output.Len() != 0 {
+					t.Fatalf("incomplete or unauthorized benchmark was reported as a success: %v %q", err, output.String())
+				}
+			})
+		}
+	}
+	// A missing host-side authority is not interchangeable with an
+	// unconditional synthetic Allow; the runtime itself must refuse it.
+	var output bytes.Buffer
+	if err := runWithOwner([]string{"-iterations", "3"}, &output, nil); err == nil || output.Len() != 0 {
+		t.Fatalf("nil owner published a false performance measurement: %v %q", err, output.String())
+	}
 }
