@@ -31,12 +31,12 @@ var queuePage = template.Must(template.New("command-work-queue").Parse(`<!doctyp
 {{if .Diagnostics}}<ul aria-label="Limites de la projection">{{range .Diagnostics}}<li>{{.}}</li>{{end}}</ul>{{end}}
 {{if .Rows}}
 <table><caption>Éléments autorisés — première page (50 maximum)</caption>
-<thead><tr><th scope="col">Type</th><th scope="col">Identifiant</th><th scope="col">Responsable</th><th scope="col">État</th><th scope="col">Mis à jour (UTC)</th><th scope="col">Contexte</th></tr></thead>
-<tbody>{{range .LinkedRows}}<tr><td>{{.Kind}}</td><th scope="row">{{.ID}}</th><td>{{.Owner}}</td><td>{{.Status}}</td><td>{{.UpdatedAt}}</td><td><button type="submit" name="selected" value="{{.SelectionToken}}">Sélectionner</button></td></tr>{{end}}</tbody>
+<thead><tr><th scope="col">Type</th><th scope="col">Identifiant</th><th scope="col">Responsable</th><th scope="col">État</th><th scope="col">Mis à jour (UTC)</th><th scope="col">Fraîcheur source</th><th scope="col">Contexte</th></tr></thead>
+<tbody>{{range .LinkedRows}}<tr><td>{{.Kind}}</td><th scope="row">{{.ID}}</th><td>{{.Owner}}</td><td>{{.Status}}</td><td>{{.UpdatedAt}}</td><td>{{if .Freshness}}{{.Freshness.State}} — {{.Freshness.Source}}{{if .Freshness.ObservedAt}} · {{.Freshness.ObservedAt}}{{end}}{{if .Freshness.PolicyVersion}} · policy {{.Freshness.PolicyVersion}}{{end}}{{else}}unknown — source non fournie{{end}}</td><td><button type="submit" name="selected" value="{{.SelectionToken}}">Sélectionner</button></td></tr>{{end}}</tbody>
 </table>
 {{else}}<p>Aucun élément autorisé dans cette vue.</p>{{end}}
 </form>
-{{if .Selected}}<section aria-label="Contexte sélectionné"><h3>Élément sélectionné</h3><p>{{.Selected.Kind}} — {{.Selected.ID}}</p><p>Responsable : {{.Selected.Owner}} · État : {{.Selected.Status}} · Mis à jour : {{.Selected.UpdatedAt}}</p><p>Cette projection est en lecture seule ; le détail et l’Inspector restent des capacités distinctes.</p></section>{{end}}
+{{if .Selected}}<section aria-label="Contexte sélectionné"><h3>Élément sélectionné</h3><p>{{.Selected.Kind}} — {{.Selected.ID}}</p><p>Responsable : {{.Selected.Owner}} · État : {{.Selected.Status}} · Mis à jour : {{.Selected.UpdatedAt}}</p><p>Fraîcheur de la source : {{if .Selected.Freshness}}{{.Selected.Freshness.State}} — {{.Selected.Freshness.Source}}{{if .Selected.Freshness.ObservedAt}} · {{.Selected.Freshness.ObservedAt}}{{end}}{{if .Selected.Freshness.PolicyVersion}} · policy {{.Selected.Freshness.PolicyVersion}}{{end}}{{else}}unknown — source non fournie{{end}}</p><p>Cette projection est en lecture seule ; le détail et l’Inspector restent des capacités distinctes.</p></section>{{end}}
 </main></body></html>`))
 
 type queuePageView struct {
