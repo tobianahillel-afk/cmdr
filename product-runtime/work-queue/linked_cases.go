@@ -4,6 +4,7 @@ import (
  "context"
  "errors"
  "strings"
+ "time"
  "unicode/utf8"
 )
 
@@ -20,6 +21,12 @@ type LinkedCaseSummary struct {
  Status string `json:"status"`
  LinkSource string `json:"link_source"`
  LinkVersion string `json:"link_version,omitempty"`
+ // These fields come ONLY from the independently authorized Investigate
+ // Case source, not from Shared link metadata or the Command Incident.
+ StatusSource string `json:"status_source,omitempty"`
+ StatusVersion string `json:"status_version,omitempty"`
+ StatusObservedAt string `json:"status_observed_at,omitempty"`
+ StatusFreshness string `json:"status_freshness,omitempty"`
 }
 
 // LinkedCasesOwner is a trusted HOST boundary. The host MUST check BOTH
@@ -41,6 +48,8 @@ func validateLinkedCases(value *AuthorizedLinkedCases) (*AuthorizedLinkedCases, 
    {item.CaseID,256,true},
    {item.LinkSource,128,true},
    {item.LinkVersion,96,false},
+   {item.StatusSource,128,false},
+   {item.StatusVersion,96,false},
   }{
    if (field.required && field.s=="") || len(field.s)>field.max ||
     !utf8.ValidString(field.s) ||
@@ -50,6 +59,25 @@ func validateLinkedCases(value *AuthorizedLinkedCases) (*AuthorizedLinkedCases, 
   }
   switch item.Status {
   case "intake","triage","investigating","awaiting-input","review","completed","archived","unknown":
+  default: return nil,errLinkedCases
+  }
+  if item.StatusObservedAt!="" {
+   if len(item.StatusObservedAt)>64 || !utf8.ValidString(item.StatusObservedAt) ||
+      strings.TrimSpace(item.StatusObservedAt)!=item.StatusObservedAt {
+     return nil,errLinkedCases
+   }
+   if _,err:=time.Parse(time.RFC3339Nano,item.StatusObservedAt);err!=nil {
+     return nil,errLinkedCases
+   }
+  }
+  switch item.StatusFreshness {
+  case "", "unknown":
+  case "current", "stale", "partial":
+   // A positive source-state assertion without source identity and
+   // observation time would mislead an Incident Commander.
+   if item.StatusSource=="" || item.StatusObservedAt=="" {
+    return nil,errLinkedCases
+   }
   default: return nil,errLinkedCases
   }
   if seen[item.CaseID] { return nil,errLinkedCases }
