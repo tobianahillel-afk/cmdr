@@ -23,7 +23,9 @@ var queuePage = template.Must(template.New("command-work-queue").Parse(`<!doctyp
 <input type="hidden" name="view" value="{{.Current}}">
 <label for="queue-status">État exact (Incident ou Task)</label>
 <input id="queue-status" name="status" type="text" maxlength="64" value="{{.StatusFilter}}">
-<button type="submit">Filtrer</button>
+<label for="queue-sort">Ordre chronologique</label>
+<select id="queue-sort" name="sort"><option value="newest"{{if ne .SortOrder "oldest"}} selected{{end}}>Plus récents</option><option value="oldest"{{if eq .SortOrder "oldest"}} selected{{end}}>Plus anciens</option></select>
+<button type="submit">Appliquer</button>
 </form>
 {{if .StatusFilter}}<p>Filtre actif : {{.StatusFilter}}</p>{{end}}
 <p role="status">État : {{.State}}</p>
@@ -50,6 +52,9 @@ func renderQueuePage(result Result) ([]byte, error) {
 		href := "/command/work-queue?view="+url.QueryEscape(string(key))
 		if result.StatusFilter != "" {
 			href += "&status="+url.QueryEscape(result.StatusFilter)
+		}
+		if result.SortOrder != "" {
+			href += "&sort="+url.QueryEscape(result.SortOrder)
 		}
 		views = append(views, queuePageView{Key:key, Label:labels[i], Selected:key==result.View, Href:href})
 	}
