@@ -61,7 +61,7 @@ type queueSelectionRow struct {
 	SelectionToken string
 }
 
-func renderQueuePage(result Result, currentCursor string) ([]byte, error) {
+func renderQueuePage(result Result) ([]byte, error) {
 	labels := [...]string{"Tout", "Incidents", "Tâches", "Non assignés", "Risque SLA", "Mon travail"}
 	views := make([]queuePageView, 0, len(SystemViews))
 	for i, key := range SystemViews {
@@ -101,11 +101,10 @@ func renderQueuePage(result Result, currentCursor string) ([]byte, error) {
 		Current View
 		Views []queuePageView
 		LinkedRows []queueSelectionRow
-		CurrentCursor string
 		FirstPageHref string
 		PreviousPageHref string
 		NextPageHref string
-	}{Result:result, Current:result.View, Views:views, LinkedRows:linked, CurrentCursor:currentCursor,
+	}{Result:result, Current:result.View, Views:views, LinkedRows:linked,
 		FirstPageHref:firstPageHref, PreviousPageHref:previousPageHref, NextPageHref:nextPageHref})
 	if err != nil { return nil, err }
 	return out.Bytes(), nil
