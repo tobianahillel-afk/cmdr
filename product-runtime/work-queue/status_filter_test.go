@@ -63,7 +63,7 @@ func TestCommandStatusFilterOneRouteJSONAndHTMLNavigation(t *testing.T) {
 	if html.Code!=200 || strings.Count(body,"/command/work-queue?view=")!=6 ||
 		strings.Count(body,"status=open")!=6 ||
 		!strings.Contains(body,"value=\"open\"") ||
-		!strings.Contains(body,"<form method=\"get\" action=\"/command/work-queue\"") || {
+		!strings.Contains(body,"<form method=\"get\" action=\"/command/work-queue\"") {
 		t.Fatalf("filter not preserved in single-route browser: %d %q",html.Code,body)
 	}
 	if !strings.Contains(html.Header().Get("Content-Security-Policy"),"form-action 'self'") ||
