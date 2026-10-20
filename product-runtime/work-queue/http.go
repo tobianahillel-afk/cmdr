@@ -54,7 +54,7 @@ func NewHTTPHandler(sessions SessionResolver, owner Owner) http.Handler {
 			return
 		}
 		for key, entries := range values {
-			if (key != "view" && key != "status" && key != "owner" && key != "sort" && key != "selected" && key != "cursor") || len(entries) != 1 {
+			if (key != "view" && key != "status" && key != "owner" && key != "group" && key != "sort" && key != "selected" && key != "cursor") || len(entries) != 1 {
 				http.Error(w, "unsupported work queue query", http.StatusBadRequest)
 				return
 			}
@@ -85,6 +85,16 @@ func NewHTTPHandler(sessions SessionResolver, owner Owner) http.Handler {
 			if len(ownerFilter) > 128 || (ownerFilter != "" &&
 				(invalidScope(ownerFilter) || !utf8.ValidString(ownerFilter))) {
 				http.Error(w, "invalid work queue owner", http.StatusBadRequest)
+				return
+			}
+		}
+		// Grouping is a first-party, non-authorizing presentation choice.
+		// Validate before resolving a session or contacting object owners.
+		group := ""
+		if entries, ok := values["group"]; ok {
+			group = entries[0]
+			if group != "type" && group != "status" {
+				http.Error(w, "invalid work queue grouping", http.StatusBadRequest)
 				return
 			}
 		}
@@ -135,7 +145,7 @@ func NewHTTPHandler(sessions SessionResolver, owner Owner) http.Handler {
 		result, err := Project(r.Context(), owner, Request{
 			Principal: scope.Principal, Tenant: scope.Tenant,
 			Environment: scope.Environment, View: view, StatusFilter: status,
-			OwnerFilter: ownerFilter,
+			OwnerFilter: ownerFilter, GroupBy: group,
 			SortOrder: sortOrder, Cursor: pageCursor,
 		})
 		if err != nil {
