@@ -1,0 +1,144 @@
+{
+  "schema_version": 2,
+  "id": "E10-INV-004I-PIVOTHTTP",
+  "title": "Prepare Search-owned read-only pivot draft through existing authorized Inspector HTTP host",
+  "type": "task",
+  "parent": "E10-INV-004",
+  "goal": "Integrate the already implemented CAP-INV-004 pivot draft into the server-authorized CAP-INV-002 Search result flow, reusing original Project/PreparePivot and source-identical PR #182 presence fix. A field must exist in the independently authorized projection; return origin must not be client-controlled. No query execution or mutations.",
+  "depends_on": [
+    "E10-INV-004G-HOST",
+    "E10-INV-004C-PIVOT"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-004",
+      "CAP-INV-002"
+    ],
+    "requirements": [
+      "REQ-PROD-002",
+      "REQ-PROD-005",
+      "REQ-PROD-008",
+      "REQ-PROD-014",
+      "REQ-PROD-045"
+    ],
+    "screens": [],
+    "permissions": [
+      "perm.shared-capabilities.telemetry-event.read"
+    ],
+    "open_decisions": [
+      "OPEN-013",
+      "OPEN-014"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/audit-event-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/cross-product-context-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/telemetry-event.md",
+      "cmdr-product-spec/05-domain-model/objects/search-job.md",
+      "cmdr-product-spec/05-domain-model/objects/query.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/event-inspection-host/http.go",
+    "product-runtime/event-inspection-host/pivot_http.go",
+    "product-runtime/event-inspection-host/pivot_http_test.go",
+    "product-runtime/event-inspection/pivot.go",
+    "product-runtime/event-inspection/pivot_presence_test.go",
+    ".github/workflows/event-inspection-http-host.yml",
+    "work/graph.json",
+    "work/lots/E10-INV-004I-PIVOTHTTP/**"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/event-search-frontend/**",
+    "product-runtime/event-inspection/projection.go",
+    "product-runtime/event-inspection-host/go.mod"
+  ],
+  "invariants": [
+    "Source-identical blobs pivot.go and pivot_presence_test.go imported from immutable PR #182 SHA 82eab4cade8e20763f80509c560f61971001b7ec; no modification of #181/#182/#184/#185 or their audited SHAs",
+    "Same host SessionResolver + SearchOwner + TelemetryOwner independently reauthorize principal, tenant, environment, Search Job/run, Event.read and field classification on every POST",
+    "Only values exactly present in server-projected authorized fields generate an unexecuted CAP-INV-002 Query draft; raw denial excludes raw-derived-sensitive",
+    "Return origin is a server-chosen constant event-search, never arbitrary untrusted request input; time range is analyst-supplied and must parse but not executed as a new search",
+    "A pivot draft is not a saved Query, Search Job, Evidence, Artifact, Case linkage or production operation"
+  ],
+  "security_properties": [
+    "Fail closed if client supplies arbitrary authorizations, sensitive fields, unknown returnOrigin, tenant/env mismatch, removed Job, malformed query, valuePresent missing, missing empty-valued map key or invalid time range",
+    "Preserve existing Event Inspector GET/POST compatibility, no second authorization engine and no source classifications derived from HTTP client",
+    "The real host must provide IAM, field redaction, trustworthy Search/Telemetry owners, audit persistence and TLS/CSRF; current interfaces remain synthetic tests and do not prove production"
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Only a read-only draft response; no persistence or schema change",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Revert the branch and retain immutable upstream PR #182 fix and #184 host",
+    "verification": [
+      "Existing Inspector HTTP JSON and tests remain unchanged",
+      "No historical SHA rewritten"
+    ]
+  },
+  "inputs": [
+    "Existing CAP-INV-004 canonical action Pivoter Class-0 and transition to CAP-INV-002",
+    "Frozen #184 HTTP host and #182 presence-fix patch, both source commit SHA verified",
+    "Existing shared 3-owner host authorization and Go Project/PreparePivot"
+  ],
+  "outputs": [
+    "New fixed POST /investigate/event-inspection/pivot on the existing handler, not a new product or authorization owner",
+    "A bounded Query draft with authorized field value, source/enrichment provenance, time range, Event Job/run/correlation, server-derived return origin",
+    "Host checks both raw denial and true map membership including legitimate present empty values",
+    "Exact-HEAD Linux/macOS/Windows host + core module tests including race and existing global engineering security gates"
+  ],
+  "acceptance_tests": [
+    "A read-authorized Search Job + Event source field produces a canonical CAP-INV-002 pivot draft; no search execution",
+    "Missing field with value empty yields 404; present empty value still accepted",
+    "Raw-derived-sensitive field blocked when raw denied; allowed only if independently owner-authorized",
+    "Wrong tenant/environment/Job, fabricated field, query mutation, extra JSON property and invalid time range all denied without raw metadata",
+    "Existing POST /investigate/event-inspection remains backward compatible",
+    "Existing core and new host tests, go vet, Linux race and mandatory CI checks all run on exact HEAD"
+  ],
+  "required_checks": [
+    "adaptive engineering-kernel",
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-BOUNDARY-EDGES",
+    "CHK-SECURITY-TESTS",
+    "CHK-SAST-GO",
+    "CHK-SCA-GO",
+    "cross-platform host and core Go tests, vet, race"
+  ],
+  "definition_of_ready": [
+    "CAP-INV-004 read-only pivot draft is canonical and OPEN-013/014 class-2 mutations excluded",
+    "G-HOST exact published #184 SHA 239ad0950f35a283e8611baf599a652966822dcb is IMPLEMENTED and validated with CI, not merged",
+    "Source-identical #182 SHA 82eab4cade8e20763f80509c560f61971001b7ec presence fix available"
+  ],
+  "definition_of_done": [
+    "Handler returns a real owner-checked draft for a selected Event",
+    "Existing and new host+core tests verified on exact GitHub SHA",
+    "No prohibited path modified, L2 conditional on material new boundary risk; no GitHub native approved claim"
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "Bounded <=8192-byte request, one Search owner and one Telemetry owner lookup and one in-memory Project+PreparePivot; synthetic benchmark only",
+    "metrics": [
+      "fixed 8 KiB input",
+      "at most one Search and one Telemetry owner read",
+      "no production latency claim"
+    ]
+  },
+  "complexity": {
+    "primary_components": 2,
+    "estimated_files_changed": 4,
+    "estimated_net_loc": 245,
+    "production_files": 3,
+    "net_production_loc": 180,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}
