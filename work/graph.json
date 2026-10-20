@@ -1786,7 +1786,7 @@
       "id": "E10-INV-110F-SUPERSESSION",
       "title": "Expose source-authorized superseded Timeline Entry state in existing Case HTTP projection",
       "type": "task",
-      "status": "READY",
+      "status": "IMPLEMENTED",
       "depends_on": [
         "E10-INV-110E"
       ],
