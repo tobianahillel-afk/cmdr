@@ -3,6 +3,7 @@ package workqueue
 import (
 	"bytes"
 	"html/template"
+	"net/url"
 )
 
 // The browser is a second representation of the SAME server-authorized
@@ -14,10 +15,17 @@ var queuePage = template.Must(template.New("command-work-queue").Parse(`<!doctyp
 <body>
 <header><h1>Work Queue</h1><p>Tenant : {{.Tenant}} — Environnement : {{.Environment}}</p></header>
 <nav aria-label="Vues système">
-{{range .Views}}<a href="/command/work-queue?view={{.Key}}"{{if .Selected}} aria-current="page"{{end}}>{{.Label}}</a> {{end}}
+{{range .Views}}<a href="{{.Href}}"{{if .Selected}} aria-current="page"{{end}}>{{.Label}}</a> {{end}}
 </nav>
 <main>
 <h2>Vue : {{.Current}}</h2>
+<form method="get" action="/command/work-queue">
+<input type="hidden" name="view" value="{{.Current}}">
+<label for="queue-status">État exact (Incident ou Task)</label>
+<input id="queue-status" name="status" type="text" maxlength="64" value="{{.StatusFilter}}">
+<button type="submit">Filtrer</button>
+</form>
+{{if .StatusFilter}}<p>Filtre actif : {{.StatusFilter}}</p>{{end}}
 <p role="status">État : {{.State}}</p>
 {{if .Diagnostics}}<ul aria-label="Limites de la projection">{{range .Diagnostics}}<li>{{.}}</li>{{end}}</ul>{{end}}
 {{if .Rows}}
@@ -32,13 +40,18 @@ type queuePageView struct {
 	Key View
 	Label string
 	Selected bool
+	Href string
 }
 
 func renderQueuePage(result Result) ([]byte, error) {
 	labels := [...]string{"Tout", "Incidents", "Tâches", "Non assignés", "Risque SLA", "Mon travail"}
 	views := make([]queuePageView, 0, len(SystemViews))
 	for i, key := range SystemViews {
-		views = append(views, queuePageView{Key:key, Label:labels[i], Selected:key==result.View})
+		href := "/command/work-queue?view="+url.QueryEscape(string(key))
+		if result.StatusFilter != "" {
+			href += "&status="+url.QueryEscape(result.StatusFilter)
+		}
+		views = append(views, queuePageView{Key:key, Label:labels[i], Selected:key==result.View, Href:href})
 	}
 	var out bytes.Buffer
 	err := queuePage.Execute(&out, struct {

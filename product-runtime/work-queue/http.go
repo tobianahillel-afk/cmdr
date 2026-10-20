@@ -53,7 +53,7 @@ func NewHTTPHandler(sessions SessionResolver, owner Owner) http.Handler {
 			return
 		}
 		for key, entries := range values {
-			if key != "view" || len(entries) != 1 {
+			if (key != "view" && key != "status") || len(entries) != 1 {
 				http.Error(w, "unsupported work queue query", http.StatusBadRequest)
 				return
 			}
@@ -66,6 +66,16 @@ func NewHTTPHandler(sessions SessionResolver, owner Owner) http.Handler {
 			}
 			view = View(entries[0])
 		}
+		// Status is only a literal read-only projection filter; it never
+		// selects principal, tenant, environment, or a Saved View owner.
+		status := ""
+		if entries, ok := values["status"]; ok {
+			status = entries[0]
+			if len(status) > 64 || (status != "" && invalidScope(status)) {
+				http.Error(w, "invalid work queue status", http.StatusBadRequest)
+				return
+			}
+		}
 		scope, err := sessions.ResolveSession(r.Context(), r)
 		if err != nil || invalidScope(scope.Principal) ||
 			invalidScope(scope.Tenant) || invalidScope(scope.Environment) {
@@ -74,7 +84,7 @@ func NewHTTPHandler(sessions SessionResolver, owner Owner) http.Handler {
 		}
 		result, err := Project(r.Context(), owner, Request{
 			Principal: scope.Principal, Tenant: scope.Tenant,
-			Environment: scope.Environment, View: view,
+			Environment: scope.Environment, View: view, StatusFilter: status,
 		})
 		if err != nil {
 			if err == ErrView || err == ErrScope {
@@ -96,7 +106,7 @@ func NewHTTPHandler(sessions SessionResolver, owner Owner) http.Handler {
 			// Navigation is a fresh request to this SAME canonical route:
 			// the trusted host session and each object ACL are re-evaluated.
 			// No client-side script, externally loaded resource or unsafe HTML.
-			w.Header().Set("Content-Security-Policy", "default-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'")
+			w.Header().Set("Content-Security-Policy", "default-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'")
 			w.Header().Set("Referrer-Policy", "no-referrer")
 			w.Header().Set("X-Frame-Options", "DENY")
 			w.Header().Set("Content-Type", "text/html; charset=utf-8")

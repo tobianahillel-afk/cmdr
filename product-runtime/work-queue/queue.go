@@ -8,6 +8,7 @@ import (
 	"sort"
 	"strings"
 	"time"
+	"unicode/utf8"
 )
 
 type Kind string
@@ -59,6 +60,8 @@ type Request struct {
 	Tenant      string
 	Environment string
 	View        View
+	// Optional exact owner-provided status filter (Class-0 read-only).
+	StatusFilter string
 }
 
 type Row struct {
@@ -76,6 +79,7 @@ type Result struct {
 	State        string   `json:"state"`
 	Diagnostics  []string `json:"diagnostics"`
 	Rows         []Row    `json:"rows"`
+	StatusFilter string   `json:"status_filter,omitempty"`
 }
 
 var (
@@ -96,6 +100,12 @@ func Project(ctx context.Context, owner Owner, req Request) (Result, error) {
 	}
 	if invalidScope(req.Principal) || invalidScope(req.Tenant) || invalidScope(req.Environment) {
 		return empty, ErrScope
+	}
+	// Only exact, bounded owner status values are accepted. No query DSL,
+	// wildcard, column permissions, or client-supplied authorization scope.
+	if len(req.StatusFilter) > 64 ||
+		(req.StatusFilter != "" && (invalidScope(req.StatusFilter) || !utf8.ValidString(req.StatusFilter))) {
+		return empty, ErrView
 	}
 	switch req.View {
 	case All, Incidents, Tasks, Unassigned, SLARisk, MyWork:
@@ -169,7 +179,7 @@ func Project(ctx context.Context, owner Owner, req Request) (Result, error) {
 				accept = *item.SLAAtRisk
 			}
 		}
-		if accept {
+		if accept && (req.StatusFilter == "" || item.Status == req.StatusFilter) {
 			selected = append(selected, candidate{
 				row: Row{Kind: item.Kind, ID: item.ID, Owner: item.Owner, Status: item.Status, UpdatedAt: item.UpdatedAt},
 				updated: t,
@@ -186,7 +196,8 @@ func Project(ctx context.Context, owner Owner, req Request) (Result, error) {
 		return selected[i].row.ID < selected[j].row.ID
 	})
 	result := Result{View: req.View, Tenant: req.Tenant, Environment: req.Environment,
-		State: "ready", Rows: make([]Row, 0, len(selected)), Diagnostics: []string{}}
+		State: "ready", Rows: make([]Row, 0, len(selected)), Diagnostics: []string{},
+		StatusFilter: req.StatusFilter}
 	if len(selected) == 0 {
 		result.State = "no-authorized-items"
 	}

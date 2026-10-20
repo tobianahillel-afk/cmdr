@@ -17,9 +17,9 @@
     "phase_title": "Scaled product implementation program bootstrap"
   },
   "execution": {
-    "active_work_unit": "E10-CMD-101C-HTML",
+    "active_work_unit": "E10-CMD-101D-STATUS",
     "preferred_next_unit": null,
-    "selection_rule": "2026-10-20 selected canonical CAP-CMD-101 bounded native single-route HTML view on already IMPLEMENTED E10-CMD-101B-HTTP with two exact HEAD workflows SUCCESS. E10-CMD-101C-HTML code + manifest + graph written on independent child branch; status IMPLEMENTED only, exact-head CI and targeted L2 not yet proven. The existing engineering epic remains DECOMPOSED; Shared Saved Views, Inspector, persistence and production host IAM are not implemented. No additional READY node. Future selection requires canonical review and fresh GitHub reality; cached state is not authoritative."
+    "selection_rule": "2026-10-20 bounded canonical CAP-CMD-101 manual exact status filter selected after reading full §§1-27, existing Command six view catalogue, Shared Saved Views ownership and required scope/permissions contracts. E10-CMD-101C-HTML was IMPLEMENTED with exact HEAD #160 command-work-queue-runtime + engineering-kernel SUCCESS, separate L2 task executed but report not accessible. This child D-STATUS is coded on immutable #160 SHA, graph IMPLEMENTED not VERIFIED/ACCEPTED. Exact head CI and independent L2 not yet proven; new agent must check GitHub. Parent epic DECOMPOSED; full filters, custom sorting, Shared persistence/Inspector, production host IAM and massive draft ancestry remain outstanding. No READY successor is declared."
   },
   "reconciliation": {
     "required_on_resume": true,
