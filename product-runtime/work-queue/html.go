@@ -25,17 +25,18 @@ var queuePage = template.Must(template.New("command-work-queue").Parse(`<!doctyp
 <input id="queue-status" name="status" type="text" maxlength="64" value="{{.StatusFilter}}">
 <label for="queue-sort">Ordre chronologique</label>
 <select id="queue-sort" name="sort"><option value="newest"{{if ne .SortOrder "oldest"}} selected{{end}}>Plus récents</option><option value="oldest"{{if eq .SortOrder "oldest"}} selected{{end}}>Plus anciens</option></select>
-<button type="submit">Appliquer</button>
-</form>
+<button type="submit">Appliquer / effacer la sélection</button>
 {{if .StatusFilter}}<p>Filtre actif : {{.StatusFilter}}</p>{{end}}
 <p role="status">État : {{.State}}</p>
 {{if .Diagnostics}}<ul aria-label="Limites de la projection">{{range .Diagnostics}}<li>{{.}}</li>{{end}}</ul>{{end}}
 {{if .Rows}}
 <table><caption>Éléments autorisés — première page (50 maximum)</caption>
-<thead><tr><th scope="col">Type</th><th scope="col">Identifiant</th><th scope="col">Responsable</th><th scope="col">État</th><th scope="col">Mis à jour (UTC)</th></tr></thead>
-<tbody>{{range .Rows}}<tr><td>{{.Kind}}</td><th scope="row">{{.ID}}</th><td>{{.Owner}}</td><td>{{.Status}}</td><td>{{.UpdatedAt}}</td></tr>{{end}}</tbody>
+<thead><tr><th scope="col">Type</th><th scope="col">Identifiant</th><th scope="col">Responsable</th><th scope="col">État</th><th scope="col">Mis à jour (UTC)</th><th scope="col">Contexte</th></tr></thead>
+<tbody>{{range .LinkedRows}}<tr><td>{{.Kind}}</td><th scope="row">{{.ID}}</th><td>{{.Owner}}</td><td>{{.Status}}</td><td>{{.UpdatedAt}}</td><td><button type="submit" name="selected" value="{{.SelectionToken}}">Sélectionner</button></td></tr>{{end}}</tbody>
 </table>
 {{else}}<p>Aucun élément autorisé dans cette vue.</p>{{end}}
+</form>
+{{if .Selected}}<section aria-label="Contexte sélectionné"><h3>Élément sélectionné</h3><p>{{.Selected.Kind}} — {{.Selected.ID}}</p><p>Responsable : {{.Selected.Owner}} · État : {{.Selected.Status}} · Mis à jour : {{.Selected.UpdatedAt}}</p><p>Cette projection est en lecture seule ; le détail et l’Inspector restent des capacités distinctes.</p></section>{{end}}
 </main></body></html>`))
 
 type queuePageView struct {
@@ -43,6 +44,11 @@ type queuePageView struct {
 	Label string
 	Selected bool
 	Href string
+}
+
+type queueSelectionRow struct {
+	Row
+	SelectionToken string
 }
 
 func renderQueuePage(result Result) ([]byte, error) {
@@ -58,12 +64,19 @@ func renderQueuePage(result Result) ([]byte, error) {
 		}
 		views = append(views, queuePageView{Key:key, Label:labels[i], Selected:key==result.View, Href:href})
 	}
+	linked := make([]queueSelectionRow, 0, len(result.Rows))
+	for _, row := range result.Rows {
+		linked = append(linked, queueSelectionRow{
+			Row: row, SelectionToken: string(row.Kind)+":"+row.ID,
+		})
+	}
 	var out bytes.Buffer
 	err := queuePage.Execute(&out, struct {
 		Result
 		Current View
 		Views []queuePageView
-	}{Result:result, Current:result.View, Views:views})
+		LinkedRows []queueSelectionRow
+	}{Result:result, Current:result.View, Views:views, LinkedRows:linked})
 	if err != nil { return nil, err }
 	return out.Bytes(), nil
 }
