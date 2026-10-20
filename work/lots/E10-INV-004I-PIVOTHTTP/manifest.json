@@ -49,7 +49,9 @@
     "product-runtime/event-inspection/pivot_presence_test.go",
     ".github/workflows/event-inspection-http-host.yml",
     "work/graph.json",
-    "work/lots/E10-INV-004I-PIVOTHTTP/**"
+    "work/lots/E10-INV-004I-PIVOTHTTP/**",
+    "tools/cmdr-dev/event_inspection_e2e.go",
+    "tools/cmdr-dev/event_inspection_e2e_test.go"
   ],
   "forbidden_paths": [
     "cmdr-product-spec/**",
@@ -62,7 +64,8 @@
     "Same host SessionResolver + SearchOwner + TelemetryOwner independently reauthorize principal, tenant, environment, Search Job/run, Event.read and field classification on every POST",
     "Only values exactly present in server-projected authorized fields generate an unexecuted CAP-INV-002 Query draft; raw denial excludes raw-derived-sensitive",
     "Return origin is a server-chosen constant event-search, never arbitrary untrusted request input; time range is analyst-supplied and must parse but not executed as a new search",
-    "A pivot draft is not a saved Query, Search Job, Evidence, Artifact, Case linkage or production operation"
+    "A pivot draft is not a saved Query, Search Job, Evidence, Artifact, Case linkage or production operation",
+    "The historical pivot/runtime attestation is not rewritten or called unchanged on a modified source: the E2E audit reports RuntimeUnchangedSincePivot=false only for the exact revalidated two-file amendment"
   ],
   "security_properties": [
     "Fail closed if client supplies arbitrary authorizations, sensitive fields, unknown returnOrigin, tenant/env mismatch, removed Job, malformed query, valuePresent missing, missing empty-valued map key or invalid time range",
@@ -90,7 +93,8 @@
     "New fixed POST /investigate/event-inspection/pivot on the existing handler, not a new product or authorization owner",
     "A bounded Query draft with authorized field value, source/enrichment provenance, time range, Event Job/run/correlation, server-derived return origin",
     "Host checks both raw denial and true map membership including legitimate present empty values",
-    "Exact-HEAD Linux/macOS/Windows host + core module tests including race and existing global engineering security gates"
+    "Exact-HEAD Linux/macOS/Windows host + core module tests including race and existing global engineering security gates",
+    "Additional strict E2E revalidation branch: source-identical PR #182 pivot.go + pivot_presence_test.go ONLY, known blob hashes, and fresh targeted Go security tests, while historical E10-INV-004C verified SHA and reports stay immutable"
   ],
   "acceptance_tests": [
     "A read-authorized Search Job + Event source field produces a canonical CAP-INV-002 pivot draft; no search execution",
@@ -98,7 +102,8 @@
     "Raw-derived-sensitive field blocked when raw denied; allowed only if independently owner-authorized",
     "Wrong tenant/environment/Job, fabricated field, query mutation, extra JSON property and invalid time range all denied without raw metadata",
     "Existing POST /investigate/event-inspection remains backward compatible",
-    "Existing core and new host tests, go vet, Linux race and mandatory CI checks all run on exact HEAD"
+    "Existing core and new host tests, go vet, Linux race and mandatory CI checks all run on exact HEAD",
+    "Global CHK-EVENT-INSPECTION-E2E revalidates the exact two approved #182 core delta blobs and runs both new pivot-presence regression tests; any extra changed core file or blob mismatch fails closed"
   ],
   "required_checks": [
     "adaptive engineering-kernel",
@@ -131,11 +136,11 @@
     ]
   },
   "complexity": {
-    "primary_components": 2,
-    "estimated_files_changed": 4,
-    "estimated_net_loc": 245,
-    "production_files": 3,
-    "net_production_loc": 180,
+    "primary_components": 3,
+    "estimated_files_changed": 6,
+    "estimated_net_loc": 340,
+    "production_files": 4,
+    "net_production_loc": 280,
     "bounded_contexts": 1,
     "independent_migrations": 0,
     "distinct_security_models": 1,
