@@ -57,7 +57,8 @@ var queuePage = template.Must(template.New("command-work-queue").Parse(`<!doctyp
 </nav>
 {{if .Selected}}<section aria-label="Contexte sélectionné"><h3>Élément sélectionné</h3><p>{{.Selected.Kind}} — {{.Selected.ID}}</p><p>Responsable : {{.Selected.Owner}} · État : {{.Selected.Status}} · Mis à jour : {{.Selected.UpdatedAt}}</p><p>Fraîcheur de la source : {{if .Selected.Freshness}}{{.Selected.Freshness.State}} — {{.Selected.Freshness.Source}}{{if .Selected.Freshness.ObservedAt}} · {{.Selected.Freshness.ObservedAt}}{{end}}{{if .Selected.Freshness.PolicyVersion}} · policy {{.Selected.Freshness.PolicyVersion}}{{end}}{{else}}unknown — source non fournie{{end}}</p><h4>Dimensions de coordination (lecture seule)</h4><dl>
 {{range .FactorLines}}<dt>{{.Name}}</dt><dd>{{.Value}}{{if .Source}} — {{.Source}}{{end}}{{if .ObservedAt}} · {{.ObservedAt}}{{end}}</dd>{{end}}
-</dl><p>Valeur inconnue : source absente ou non autorisée ; aucune priorité n’est calculée automatiquement. L’Inspector complet reste une capacité distincte.</p></section>{{end}}
+</dl><p>Valeur inconnue : source absente ou non autorisée ; aucune priorité n’est calculée automatiquement. L’Inspector complet reste une capacité distincte.</p><h4>SLA opérationnel (lecture seule)</h4>
+<p aria-label="Suivi SLA autorisé">{{if .SelectedSLA}}État : {{.SelectedSLA.State}}{{if .SelectedSLA.PolicySource}} · source : {{.SelectedSLA.PolicySource}}{{end}}{{if .SelectedSLA.PolicyVersion}} · version : {{.SelectedSLA.PolicyVersion}}{{end}}{{if .SelectedSLA.DueAt}} · échéance : {{.SelectedSLA.DueAt}}{{end}}{{if .SelectedSLA.RemainingSeconds}} · restant (secondes) : {{.SelectedSLA.RemainingSeconds}}{{end}}{{if .SelectedSLA.ObservedAt}} · observé : {{.SelectedSLA.ObservedAt}}{{end}}{{else}}unknown — aucun SLA autorisé fourni{{end}}. Aucun seuil ni droit de pause n’est déduit localement.</p></section>{{end}}
 </main></body></html>`))
 
 type queuePageView struct {
