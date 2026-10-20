@@ -1,0 +1,102 @@
+{
+  "schema_version": 2,
+  "id": "E10-CMD-109",
+  "title": "Canonical Command Work Freshness and Staleness integration",
+  "type": "epic",
+  "parent": "",
+  "goal": "Implement CAP-CMD-109 progressively under Command owner; source health and policy remain with upstream source/Shared owners; never guess defaults or claim full staleness capability from a read-only slice.",
+  "depends_on": [
+    "E10-SCALE-005B"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-CMD-109",
+      "CAP-CMD-101"
+    ],
+    "requirements": [
+      "REQ-PROD-005",
+      "REQ-PROD-008",
+      "REQ-PROD-013",
+      "REQ-UX-005"
+    ],
+    "screens": [],
+    "permissions": [
+      "perm.command.read"
+    ],
+    "open_decisions": [],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/incident.md",
+      "cmdr-product-spec/05-domain-model/objects/task.md"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md"
+    ]
+  },
+  "allowed_paths": [
+    "work/lots/E10-CMD-109/**",
+    "work/lots/E10-CMD-109A-FRESHNESS/**",
+    "work/graph.json",
+    "engineering/state/current.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**"
+  ],
+  "invariants": [
+    "Command interprets only source-owned time/health and explicitly versioned policy inputs; Shared owns external health, background jobs and global freshness standards.",
+    "First Class-0 child only; no claim of incident/Task lifecycle, follow-up Task creation, acknowledgement, refresh job or production IAM."
+  ],
+  "security_properties": [
+    "No source metadata without current tenant/environment and object Owner.CanRead.",
+    "Untrusted clock, missing policy or unavailable source never silently implies current."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Planning container only; first child is read-only.",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Revert unaccepted child implementation while preserving existing Command Work Queue.",
+    "verification": [
+      "Canonical CAP-CMD-109 unchanged.",
+      "No source objects mutated."
+    ]
+  },
+  "inputs": [
+    "CAP-CMD-109 canonical complete, Command module, CAP-CMD-101 consume-only boundary, source/health ownership."
+  ],
+  "outputs": [
+    "E10-CMD-109A-FRESHNESS small read-only optional owner-sourced freshness projection, further Shared/host/source integration later."
+  ],
+  "acceptance_tests": [
+    "Child has independently verified behavior and security checks.",
+    "Epic stays DECOMPOSED until full CAP-CMD-109 and production owner integrations accepted."
+  ],
+  "performance_budget": {
+    "applicable": false,
+    "rationale": "Epic plans separately bounded tasks."
+  },
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-SECURITY-TESTS"
+  ],
+  "definition_of_ready": [
+    "CAP-CMD-109 has a canonical Command owner and E10-SCALE-005B is graph VERIFIED."
+  ],
+  "definition_of_done": [
+    "All CAP-CMD-109 source/time/health/tenant policy, safe refresh/follow-up and cross-product integration obligations validated by canonical authority, not inferred from first Class-0 projection."
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 0,
+    "estimated_net_loc": 0,
+    "production_files": 0,
+    "net_production_loc": 0,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 0,
+    "separately_testable_behaviors": 1
+  }
+}
