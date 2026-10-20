@@ -4,6 +4,8 @@ on:
   pull_request:
     paths:
       - "product-runtime/event-inspection-host/**"
+      - "tools/cmdr-dev/security_tests.go"
+      - "engineering/security/runtime-security-policy.json"
       - "work/lots/E10-INV-004G-HOST/**"
       - ".github/workflows/event-inspection-http-host.yml"
   workflow_dispatch:
