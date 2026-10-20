@@ -17,9 +17,9 @@
     "phase_title": "Scaled product implementation program bootstrap"
   },
   "execution": {
-    "active_work_unit": "E10-CMD-101I-PAGED-SELECTION",
+    "active_work_unit": "E10-CMD-101I-SELECTION",
     "preferred_next_unit": null,
-    "selection_rule": "2026-10-20: graph E10-CMD-101H-RETURN IMPLEMENTED and PR #166 exact SHA 47ecdc1809769624ea1f37a4710336f48ba96301 both Actions green. Reconciled stale active cache. Native form selected beyond page 1 loses current cursor -> 404, CAP-CMD-101 section 17 context retention. New task E10-CMD-101I-PAGED-SELECTION is READY in child of frozen #166 SHA, under canonical E10-CMD-101 epic. Fix actual browser route while preserving owner authorization and filter-reset semantics; verify CI and independent L2. Parent still DRAFT; no product acceptance."
+    "selection_rule": "2026-10-20: graph E10-CMD-101H-RETURN IMPLEMENTED and PR #166 exact SHA 47ecdc1809769624ea1f37a4710336f48ba96301 both Actions green. Reconciled stale active cache. Native form selected beyond page 1 loses current cursor -> 404, CAP-CMD-101 section 17 context retention. New task E10-CMD-101I-SELECTION is READY in child of frozen #166 SHA, under canonical E10-CMD-101 epic. Fix actual browser route while preserving owner authorization and filter-reset semantics; verify CI and independent L2. Parent still DRAFT; no product acceptance."
   },
   "reconciliation": {
     "required_on_resume": true,
