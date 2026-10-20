@@ -99,9 +99,7 @@ func wazuhRuleLevels(raw []byte, caseID string) (map[string]wazuhRuleLevel, erro
 			Rule struct {
 				Level *int   `json:"level"`
 				ID    string `json:"id"`
-			MITRE struct {
-				ID []string `json:"id"`
-			} `json:"mitre"`
+			MITRE json.RawMessage `json:"mitre"`
 			} `json:"rule"`
 		}
 		if err := json.Unmarshal(line, &alert); err != nil {
@@ -113,13 +111,35 @@ func wazuhRuleLevels(raw []byte, caseID string) (map[string]wazuhRuleLevel, erro
 			return nil, errors.New("duplicate Wazuh rule identity")
 		}
 		level := wazuhRuleLevel{RuleID: alert.Rule.ID, AgentID: alert.Agent.ID}
-		// Source ATT&CK annotations are untrusted metadata, not IAM or
-		// proof that a technique occurred. Deduplicate within each alert.
-		if len(alert.Rule.MITRE.ID) > 16 {
+		// Metadata is untrusted. Missing MITRE/id is an unknown label state,
+		// while an explicitly null/non-array field is malformed, not "no labels".
+		// Preserve this distinction before access-authorized aggregation.
+		var labels []string
+		if len(alert.Rule.MITRE) != 0 {
+			if bytes.Equal(bytes.TrimSpace(alert.Rule.MITRE), []byte("null")) {
+				return nil, errors.New("null Wazuh ATT&CK metadata")
+			}
+			var mitre struct {
+				ID json.RawMessage `json:"id"`
+			}
+			if err := json.Unmarshal(alert.Rule.MITRE, &mitre); err != nil {
+				return nil, errors.New("invalid Wazuh ATT&CK metadata")
+			}
+			if len(mitre.ID) != 0 {
+				if bytes.Equal(bytes.TrimSpace(mitre.ID), []byte("null")) {
+					return nil, errors.New("null Wazuh ATT&CK technique list")
+				}
+				if err := json.Unmarshal(mitre.ID, &labels); err != nil {
+					return nil, errors.New("invalid Wazuh ATT&CK technique list")
+				}
+			}
+		}
+		// An alert can have several source labels, counted at most once each.
+		if len(labels) > 16 {
 			return nil, errors.New("too many Wazuh technique labels")
 		}
-		seen := make(map[string]bool, len(alert.Rule.MITRE.ID))
-		for _, technique := range alert.Rule.MITRE.ID {
+		seen := make(map[string]bool, len(labels))
+		for _, technique := range labels {
 			if !validWazuhTechniqueID(technique) {
 				return nil, errors.New("invalid Wazuh ATT&CK technique label")
 			}
