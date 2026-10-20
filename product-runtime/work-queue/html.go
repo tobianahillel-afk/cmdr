@@ -46,7 +46,9 @@ var queuePage = template.Must(template.New("command-work-queue").Parse(`<!doctyp
 {{if .HasPrevious}}<a href="{{.PreviousPageHref}}">Page précédente</a> <a href="{{.FirstPageHref}}">Première page</a>{{end}}
 {{if .NextCursor}}<a href="{{.NextPageHref}}">Page suivante</a>{{end}}
 </nav>
-{{if .Selected}}<section aria-label="Contexte sélectionné"><h3>Élément sélectionné</h3><p>{{.Selected.Kind}} — {{.Selected.ID}}</p><p>Responsable : {{.Selected.Owner}} · État : {{.Selected.Status}} · Mis à jour : {{.Selected.UpdatedAt}}</p><p>Fraîcheur de la source : {{if .Selected.Freshness}}{{.Selected.Freshness.State}} — {{.Selected.Freshness.Source}}{{if .Selected.Freshness.ObservedAt}} · {{.Selected.Freshness.ObservedAt}}{{end}}{{if .Selected.Freshness.PolicyVersion}} · policy {{.Selected.Freshness.PolicyVersion}}{{end}}{{else}}unknown — source non fournie{{end}}</p><p>Cette projection est en lecture seule ; le détail et l’Inspector restent des capacités distinctes.</p></section>{{end}}
+{{if .Selected}}<section aria-label="Contexte sélectionné"><h3>Élément sélectionné</h3><p>{{.Selected.Kind}} — {{.Selected.ID}}</p><p>Responsable : {{.Selected.Owner}} · État : {{.Selected.Status}} · Mis à jour : {{.Selected.UpdatedAt}}</p><p>Fraîcheur de la source : {{if .Selected.Freshness}}{{.Selected.Freshness.State}} — {{.Selected.Freshness.Source}}{{if .Selected.Freshness.ObservedAt}} · {{.Selected.Freshness.ObservedAt}}{{end}}{{if .Selected.Freshness.PolicyVersion}} · policy {{.Selected.Freshness.PolicyVersion}}{{end}}{{else}}unknown — source non fournie{{end}}</p><h4>Dimensions de coordination (lecture seule)</h4><dl>
+{{range .FactorLines}}<dt>{{.Name}}</dt><dd>{{.Value}}{{if .Source}} — {{.Source}}{{end}}{{if .ObservedAt}} · {{.ObservedAt}}{{end}}</dd>{{end}}
+</dl><p>Valeur inconnue : source absente ou non autorisée ; aucune priorité n’est calculée automatiquement. L’Inspector complet reste une capacité distincte.</p></section>{{end}}
 </main></body></html>`))
 
 type queuePageView struct {
@@ -59,6 +61,29 @@ type queuePageView struct {
 type queueSelectionRow struct {
 	Row
 	SelectionToken string
+}
+
+type factorLine struct {
+	Name string
+	Value string
+	Source string
+	ObservedAt string
+}
+
+func selectedFactorLines(f *AuthorizedFactors) []factorLine {
+	var d AuthorizedFactors
+	if f != nil { d = *f }
+	names := [...]string{"Priorité", "Sévérité", "Urgence", "Impact", "Confiance", "Risque SLA"}
+	values := [...] *Dimension{d.Priority, d.Severity, d.Urgency, d.Impact, d.Confidence, d.SLARisk}
+	lines := make([]factorLine,0,len(names))
+	for i,dim := range values {
+		line := factorLine{Name:names[i],Value:"inconnue"}
+		if dim != nil {
+			line.Value, line.Source, line.ObservedAt = dim.Value,dim.Source,dim.ObservedAt
+		}
+		lines=append(lines,line)
+	}
+	return lines
 }
 
 func renderQueuePage(result Result) ([]byte, error) {
@@ -104,8 +129,10 @@ func renderQueuePage(result Result) ([]byte, error) {
 		FirstPageHref string
 		PreviousPageHref string
 		NextPageHref string
+		FactorLines []factorLine
 	}{Result:result, Current:result.View, Views:views, LinkedRows:linked,
-		FirstPageHref:firstPageHref, PreviousPageHref:previousPageHref, NextPageHref:nextPageHref})
+		FirstPageHref:firstPageHref, PreviousPageHref:previousPageHref, NextPageHref:nextPageHref,
+		FactorLines:selectedFactorLines(result.SelectedFactors)})
 	if err != nil { return nil, err }
 	return out.Bytes(), nil
 }

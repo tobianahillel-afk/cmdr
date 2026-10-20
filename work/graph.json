@@ -1937,6 +1937,30 @@
       ],
       "dependency_terminal_state": "IMPLEMENTED",
       "unlocks": []
+    },
+    {
+      "id": "E10-CMD-104",
+      "title": "Deliver Command-owned Priority and Severity Coordination CAP-CMD-104",
+      "type": "epic",
+      "status": "DECOMPOSED",
+      "depends_on": [
+        "E10-SCALE-005B"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-CMD-104A-READONLY"
+      ]
+    },
+    {
+      "id": "E10-CMD-104A-READONLY",
+      "title": "Inspect six independently source-authorized coordination dimensions of selected Command work items",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-CMD-101I-SELECTION"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": []
     }
   ]
 }

@@ -153,6 +153,27 @@ func NewHTTPHandler(sessions SessionResolver, owner Owner) http.Handler {
 				return
 			}
 		}
+		if result.Selected != nil {
+			// Only AFTER the session, the full owner projection and the
+			// current-page selection have been independently authorized.
+			// The optional host adapter must authorize each source factor;
+			// no client-selected factor or scope is trusted.
+			factors := AuthorizedFactors{}
+			if source, ok := owner.(FactorsOwner); ok {
+				fetched, err := source.ReadAuthorizedFactors(r.Context(), scope.Principal,
+					scope.Tenant, scope.Environment, result.Selected.Kind, result.Selected.ID)
+				if err != nil {
+					http.Error(w, "coordination factors unavailable", http.StatusServiceUnavailable)
+					return
+				}
+				factors, err = validateAuthorizedFactors(fetched)
+				if err != nil {
+					http.Error(w, "coordination factors unavailable", http.StatusServiceUnavailable)
+					return
+				}
+			}
+			result.SelectedFactors = &factors
+		}
 		w.Header().Set("Vary", "Accept")
 		if strings.Contains(r.Header.Get("Accept"), "text/html") {
 			page, err := renderQueuePage(result)
