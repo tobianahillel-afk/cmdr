@@ -16,3 +16,17 @@ Explicitly unresolved/out of scope here:
 - Saved Search implementation;
 - persisted result model;
 - production Search SLO.
+
+## Investigate Event Search -> Event Inspection read-only journey (E10-INV-004F-JOURNEY)
+
+`inspection.mjs` composes the **existing** Event Search controller with a separate `transport.inspect(request, {signal})` supplied by a host. Its input must be an already server-authorized CAP-INV-004 Event Inspection projection, **not** a browser-computed access decision. The journey opens only a selected result from the currently visible authorized Search Job, binds Tenant/environment/Event/job/run/correlation, rejects a mismatched response and cancels or discards stale inspections. It displays source/normalized/raw-derived/enrichment provenance and raw/rendered separately with native `textContent` sinks, then returns to the exact prior Search state and result window if the source Job remains current.
+
+The browser module **does not** execute the Go inspector core, provide a live Event resolver, authenticate the principal, classify sensitive normalized/enrichment fields, select a search engine, run a PivotDraft, or perform Case/Artifact/Evidence mutations. The Go `product-runtime/event-inspection` core and Shared/Settings authorities are unchanged. Before a real deployment, the backend host must independently reauthorize each Event, tenant, environment, raw/rendered classification, source and requested field, and return a safe projection. This is a tested first-party frontend composition, **not** complete source-to-UI production integration.
+
+Run the existing full frontend suite with `npm test` (Node 24); the isolated exact-HEAD workflow is `.github/workflows/event-search-inspector-journey.yml`. The cross-capability manifest is `work/lots/E10-INV-004F-JOURNEY/manifest.json` and the original engineering foundation remains PR #36 DRAFT.
+
+## Live local browser -> Go HTTP handshake (E10-INV-004H-HTTPBRIDGE)
+
+`createInspectionHTTPTransport()` in `inspection-http.mjs` binds the previously backend-neutral Journey to the existing first-party Go POST `/investigate/event-inspection`, with a fixed same-origin endpoint, POST JSON, explicit cache/redirect controls, AbortSignal and bounded response. `inspection-http.test.mjs` executes the actual HTTP request to a Go host listening only on loopback with independently scoped synthetic Search/Telemetry owner interfaces and a per-test bearer. It verifies authorized Search row -> server permission -> Inspection -> same Search result window as well as wrong bearer/tenant/raw denial/oversize. `npm test` runs it together with all previously published first-party frontend regressions.
+
+The Go host and JS frontend are actually connected **only in this synthetic end-to-end test**. A deployment must supply real authentication, both independent owner adapters, source classification, CSRF protections, TLS, audit sink and actual browser hosting; none are implemented by the fixture or proven in production. Avoid treating this bridge as a generic URL-fetcher or an IAM framework.

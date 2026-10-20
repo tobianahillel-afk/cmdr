@@ -1791,6 +1791,18 @@
       ],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": []
+    },
+    {
+      "id": "E10-INV-004H-HTTPBRIDGE",
+      "title": "Connect actual browser Fetch POST to authorized Event Inspection Go HTTP host",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-INV-004G-HOST",
+        "E10-INV-002G"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": []
     }
   ]
 }
