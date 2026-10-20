@@ -1931,7 +1931,7 @@
       "id": "E10-CMD-101I-SELECTION",
       "title": "Preserve current authorized Work Queue page when selecting a visible Incident or Task",
       "type": "task",
-      "status": "READY",
+      "status": "IMPLEMENTED",
       "depends_on": [
         "E10-CMD-101H-RETURN"
       ],
