@@ -17,9 +17,9 @@
     "phase_title": "Scaled product implementation program bootstrap"
   },
   "execution": {
-    "active_work_unit": "E10-CMD-104A-READONLY",
+    "active_work_unit": "E10-CMD-109B-VIEW",
     "preferred_next_unit": null,
-    "selection_rule": "2026-10-20: selected CAP-CMD-104 independent Class-0 six-factor inspection after E10-CMD-101I-SELECTION IMPLEMENTED on PR #167. New E10-CMD-104A-READONLY has code/manifest under Command owned work-queue and graph status IMPLEMENTED, NOT canonically ACCEPTED/merged; no automatic next READY. Exact final CI and independent L2 must be checked; mutations blocked by OPEN-013. The main branch remains documentary only and foundation #36 plus downstream Command stack remain draft."
+    "selection_rule": "2026-10-20: CAP-CMD-109 Class-0 source freshness view aggregate implemented on child PR of frozen #168, NOT MERGED OR canonically ACCEPTED. Full authorized filtered cohorts (including cursor pages) summarized without inventing thresholds. Next READY none; exact SHA CI and independent L2 required. OPEN-013 Class-2 mutations excluded. main documentary only; #2/#36 and stacked PR approvals/merge remain blocked."
   },
   "reconciliation": {
     "required_on_resume": true,

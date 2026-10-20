@@ -81,3 +81,16 @@ func sourceFreshness(value *SourceFreshness, now time.Time) (*FreshnessProjectio
 	}
 	return result, nil
 }
+
+// ViewFreshness is an aggregate of ONLY the current authorized system-view
+// rows after the selected status filter, including authorized later pages.
+// It never includes denied/cross-tenant objects or claims a global threshold.
+type ViewFreshness struct {
+	Total int `json:"total"`
+	Current int `json:"current"`
+	Aging int `json:"aging"`
+	Stale int `json:"stale"`
+	Unknown int `json:"unknown"`
+	Partial int `json:"partial"`
+	Unavailable int `json:"source_unavailable"`
+}

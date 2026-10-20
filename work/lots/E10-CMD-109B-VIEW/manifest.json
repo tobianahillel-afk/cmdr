@@ -1,0 +1,129 @@
+{
+  "schema_version": 2,
+  "id": "E10-CMD-109B-VIEW",
+  "title": "Summarize authoritative source freshness across the fully authorized Command Work Queue view",
+  "type": "task",
+  "parent": "E10-CMD-109",
+  "goal": "Provide one Class-0 whole-view freshness inventory of authorized, filtered Incident/Task rows across pages, reusing CAP-CMD-109A owner source policy and CAP-CMD-101's existing single route and permission projection.",
+  "depends_on": [
+    "E10-CMD-109A-FRESHNESS",
+    "E10-CMD-101G-PAGE"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-CMD-109",
+      "CAP-CMD-101"
+    ],
+    "requirements": [
+      "REQ-PROD-005",
+      "REQ-PROD-008",
+      "REQ-PROD-013",
+      "REQ-UX-005"
+    ],
+    "screens": [],
+    "permissions": [
+      "perm.command.read",
+      "perm.command.incident.read"
+    ],
+    "open_decisions": [],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/incident.md",
+      "cmdr-product-spec/05-domain-model/objects/task.md"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/pagination-filtering-sorting.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/work-queue/freshness.go",
+    "product-runtime/work-queue/queue.go",
+    "product-runtime/work-queue/html.go",
+    "product-runtime/work-queue/freshness_view_test.go",
+    "work/lots/E10-CMD-109B-VIEW/**",
+    "work/graph.json",
+    "engineering/state/current.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "tools/cmdr-dev/**",
+    "product-runtime/investigation-timeline/**",
+    "product-runtime/case-queue/**"
+  ],
+  "invariants": [
+    "Only rows AFTER per-Item Owner.CanRead AND canonical view/status filter contribute; foreign/denied/filtered-out items never affect counts.",
+    "Aggregate all authorized matching rows across paginated view, not just the displayed 50; a revoked/stale cursor returns no counts or rows.",
+    "Host-owned source policy and observed_at determine current/aging/stale, never Command UpdatedAt nor invented thresholds.",
+    "No freshness metadata anywhere in the cohort => omit new view_freshness JSON, preserving legacy clients. Missing metadata among otherwise supplied values => unknown, not current.",
+    "No extra source/provider reads, mutation, Shared policy duplication, new route, IAM model or external libraries."
+  ],
+  "security_properties": [
+    "All source data authorized by existing Project owner CanRead before aggregation; no new metadata of hidden source providers.",
+    "Changed authorization or stale cursor is checked before publishing aggregate; no partial counts/rows on permission errors.",
+    "Native existing html/template, CSP and no-store; only non-sensitive authorized aggregate integers added."
+  ],
+  "inputs": [
+    "Canonical CAP-CMD-109 full §§1–27 and CAP-CMD-101 full §§1–27, Command module, Incident/Task owners, and existing CAP-CMD-109A source freshness engine.",
+    "Frozen parent #168 HEAD 40ee320eeaac44847f9a5c088f91ff451030a21e on #167, exact-head Command Go/Linux/macOS/Windows and engineering kernel both SUCCESS.",
+    "Existing Command source metadata only; no new owner-policy threshold decision."
+  ],
+  "outputs": [
+    "Read-only filtered and scoped view_freshness summary with total/current/aging/stale/partial/source_unavailable/unknown for entire authorized cursor cohort, omitted if no authoritative source metadata.",
+    "Same summary in existing native single-route Command Work Queue HTML, without a new page or provider.",
+    "Go integration tests for exact scopes, cross-page stable aggregate, cursor revocation, filtered-out denied sources, partial/unknown and legacy JSON."
+  ],
+  "acceptance_tests": [
+    "Different authorized Incident/Task source ages and unavailable metadata yield exact full-view counts without inventing a threshold.",
+    "A page 2 view reports the same authorized full-view summary as page 1 until a current owner revocation invalidates its cursor.",
+    "A source outage of a denied, other-tenant or filtered-out item changes no visible summary or diagnostic; corrupted metadata fails closed.",
+    "Owner with no source freshness preserves JSON field set; HTML renders authorized counts without new endpoint."
+  ],
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-RUNTIME-DEPS",
+    "CHK-SECURITY-TESTS"
+  ],
+  "definition_of_ready": [
+    "Existing CAP-CMD-109A-FRESHNESS task IMPLEMENTED in graph, single Go owner freshness projector reusable; CAP-CMD-101G-PAGE task IMPLEMENTED and revocation-safe authorized paging integrated.",
+    "Canonical Class-0 freshness view projection does not depend on OPEN-013 mutations or definitive new tenant thresholds.",
+    "Frozen Git parent PR #168 40ee320eeaac44847f9a5c088f91ff451030a21e has exact-head Command runtime and engineering-kernel success, though ancestors remain unmerged."
+  ],
+  "definition_of_done": [
+    "Actual authorized whole-view freshness summary visible on existing Work Queue route and independently tested in exact-head GitHub CI.",
+    "Mark only E10-CMD-109B-VIEW IMPLEMENTED, not CAP-CMD-109 ACCEPTED or production delivered; L2 on stable material integration in read-only independent context.",
+    "No claim that ancestor PRs have native approvals/merged, or that product SLA/refresh jobs are implemented."
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 3,
+    "estimated_net_loc": 90,
+    "production_files": 3,
+    "net_production_loc": 90,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  },
+  "migration": {
+    "required": false,
+    "rationale": "JSON opt-in field omitted when no authoritative freshness; existing single HTTP route and item source data unchanged.",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Remove optional ViewFreshness summary and native HTML status while retaining CAP-CMD-109A per-item freshness and queue paging.",
+    "verification": [
+      "Existing JSON/HTML and six system views with no provider metadata remain unchanged."
+    ]
+  },
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "One O(n) pass over <=5000 already authorized filtered candidates; zero extra owner calls and no new network/provider loads.",
+    "metrics": [
+      "<=5000 bounded matched candidates, existing 50 rows/page unchanged.",
+      "Same total counts across reauthorized cursor pages; one pass over already materialized authorized candidates."
+    ]
+  }
+}

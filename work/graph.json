@@ -1901,7 +1901,9 @@
         "E10-SCALE-005B"
       ],
       "dependency_terminal_state": "VERIFIED",
-      "unlocks": []
+      "unlocks": [
+        "E10-CMD-109B-VIEW"
+      ]
     },
     {
       "id": "E10-CMD-101G-PAGE",
@@ -1958,6 +1960,18 @@
       "status": "IMPLEMENTED",
       "depends_on": [
         "E10-CMD-101I-SELECTION"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": []
+    },
+    {
+      "id": "E10-CMD-109B-VIEW",
+      "title": "Summarize only authorized filtered whole-view source freshness across Command cursor pages",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-CMD-109A-FRESHNESS",
+        "E10-CMD-101G-PAGE"
       ],
       "dependency_terminal_state": "IMPLEMENTED",
       "unlocks": []
