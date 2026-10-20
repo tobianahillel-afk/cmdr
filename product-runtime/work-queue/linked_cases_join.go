@@ -31,6 +31,12 @@ type AuthorizedCaseIdentity struct {
 	Tenant string
 	Environment string
 	Status string
+	// Owner-supplied status observation. An absent source/observation is
+	// UNKNOWN, never inferred as fresh from the Command link or now().
+	StatusSource string
+	StatusVersion string
+	StatusObservedAt string
+	StatusFreshness string
 }
 
 type InvestigateCaseIdentityOwner interface {
@@ -81,6 +87,10 @@ func (j LinkedCaseOwnerJoin) ReadAuthorizedLinkedCases(ctx context.Context, prin
 			return nil,errLinkedCases
 		}
 		link.Status=c.Status // NEVER infer Investigate status from the link
+		link.StatusSource=c.StatusSource
+		link.StatusVersion=c.StatusVersion
+		link.StatusObservedAt=c.StatusObservedAt
+		link.StatusFreshness=c.StatusFreshness
 		authorized.Cases=append(authorized.Cases,link)
 	}
 	// Do not reveal partial authorized results if even one returned source
