@@ -2106,6 +2106,17 @@
       ],
       "dependency_terminal_state": "IMPLEMENTED",
       "unlocks": []
+    },
+    {
+      "id": "E10-CMD-106B-SOURCEJOIN",
+      "title": "Compose existing Shared authorized Incident Case links with independently authorized Investigate Case status",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-CMD-106A-CASELINKS"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": []
     }
   ]
 }

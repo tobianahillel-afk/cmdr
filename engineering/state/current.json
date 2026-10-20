@@ -17,9 +17,9 @@
     "phase_title": "Scaled product implementation program bootstrap"
   },
   "execution": {
-    "active_work_unit": "E10-CMD-106A-CASELINKS",
+    "active_work_unit": "E10-CMD-106B-SOURCEJOIN",
     "preferred_next_unit": null,
-    "selection_rule": "2026-10-20: last Command PR #176 E10-CMD-103A-READONLY at 415aba77758540673a4c78fd8f7694e300ac1a04 is IMPLEMENTED with exact-head two successful Actions, but still DRAFT and L2/native approvals pending. Work graph had 0 READY. Canonical CAP-CMD-106 §§1–27 and Incident/Case + Shared Object Linking distinguish safe Class-0 viewing of existing independently authorized linked Cases from OPEN-013-blocked Class-2 creation and mutation. New E10-CMD-106A-CASELINKS task parent E10-CMD-106, dependency E10-CMD-101I-SELECTION IMPLEMENTED; Git base frozen #176 only source ancestry. This branch's code is IMPLEMENTED but not VERIFIED, ACCEPTED, merged or production until exact-head CI and independent L2 evidence. No actual production Object Linking/Investigate source adapter is supplied."
+    "selection_rule": "2026-10-20: no READY nodes on current Command #177 exact head; parent E10-CMD-106A-CASELINKS implemented with exact-head green command and engineering workflows but still DRAFT/L2 unaccepted. Canonical CAP-CMD-106 and Shared Object Linking/Investigate Case ownership require independent authorization, not a merged Command-owned case authority. New E10-CMD-106B-SOURCEJOIN is a Class-0 host composition (Shared link owner + Investigate Case owner) based on frozen PR #177 source ancestry only. Work unit status IMPLEMENTED describes published code only; awaiting exact-HEAD GitHub CI, independent L2, merge and acceptance. OPEN-013 continues to block Class-2 changes; no concrete production host adapters provided."
   },
   "reconciliation": {
     "required_on_resume": true,
