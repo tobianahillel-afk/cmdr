@@ -25,12 +25,15 @@ func prepareCommandWorkQueueProbe(root string) (commandWorkQueueProbe, func(), e
 	if err != nil {
 		return commandWorkQueueProbe{}, func() {}, err
 	}
-	cleanup := func() { _ = os.RemoveAll(dir) } // #nosec G703 - created below checked repository root
 	name := "command-work-queue-perf"
 	if runtime.GOOS == "windows" {
 		name += ".exe"
 	}
 	binary := filepath.Join(dir, name)
+	// Go build produces one named binary in this private temporary
+	// directory. Delete only that file and then the empty directory:
+	// recursive removal can traverse unanticipated build artifacts.
+	cleanup := func() { cleanupCommandWorkQueueProbe(binary, dir) }
 	if _, err := runPerformanceProcess(moduleRoot, "go", "build", "-trimpath", "-o", binary, "./cmd/perf-probe"); err != nil {
 		cleanup()
 		return commandWorkQueueProbe{}, func() {}, fmt.Errorf("build Command queue probe: %w", err)
@@ -94,4 +97,12 @@ func (p commandWorkQueueProbe) runResource(iterations, memoryLimitMiB int) (Deep
 		Operations:           int64(sample.Operations),
 		ThroughputOpsPerSec:  float64(sample.Operations) * 1e9 / float64(sample.ElapsedNS),
 	}, nil
+}
+
+func cleanupCommandWorkQueueProbe(binary, dir string) {
+	// os.Remove does not recursively delete files left by other processes.
+	// A nonempty dir is intentionally retained instead of removing unknown
+	// files from a workspace that may be concurrently modified.
+	_ = os.Remove(binary)
+	_ = os.Remove(dir)
 }
