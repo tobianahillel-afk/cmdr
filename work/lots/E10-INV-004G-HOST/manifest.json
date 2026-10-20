@@ -53,7 +53,10 @@
     "engineering/performance/performance-registry.json",
     "engineering/security/runtime-security-policy.json",
     "tools/cmdr-dev/security_tests.go",
-    "tools/cmdr-dev/security_tests_test.go"
+    "tools/cmdr-dev/security_tests_test.go",
+    "engineering/performance/deep-performance-policy.json",
+    "tools/cmdr-dev/deep_performance.go",
+    "tools/cmdr-dev/event_inspection_host_performance.go"
   ],
   "forbidden_paths": [
     "cmdr-product-spec/**",
@@ -102,7 +105,8 @@
     "Exact-HEAD cross-platform CI evidence, with explicit exclusion of real host and production",
     "Separate registered host boundary with explicit local-only Go dependency on immutable event-inspection-runtime; on-demand benchmark target measures ONLY the upstream in-process projector; no HTTP SLO",
     "MANDATORY measured security adapter for event-inspection-http-host-runtime: new host Go security coverage and independently executed Search authorization/Tenant isolation tests",
-    "Engineering unit tests assert all nine explicitly registered runtime security evidence adapters, including the new HTTP host; existing mandatory adapters unchanged"
+    "Engineering unit tests assert all nine explicitly registered runtime security evidence adapters, including the new HTTP host; existing mandatory adapters unchanged",
+    "On-demand deep load target executes actual Go httptest BenchmarkAuthorizedInspectionHTTP and reports measured ops/sec and allocation B/op, not fabricated peak heap or network p95."
   ],
   "acceptance_tests": [
     "Positive real HTTP request passes server-source authorization chain and returns browser-compatible read-only projection",
@@ -121,7 +125,8 @@
     "CHK-BOUNDARY-EDGES",
     "CHK-SECURITY-TESTS",
     "CHK-SAST-GO",
-    "CHK-SCA-GO"
+    "CHK-SCA-GO",
+    "CHK-DEEP-PERFORMANCE"
   ],
   "definition_of_ready": [
     "E10-INV-004E VERIFIED in foundation graph",
@@ -142,8 +147,8 @@
   },
   "complexity": {
     "primary_components": 2,
-    "estimated_files_changed": 10,
-    "estimated_net_loc": 340,
+    "estimated_files_changed": 13,
+    "estimated_net_loc": 390,
     "production_files": 2,
     "net_production_loc": 298,
     "bounded_contexts": 1,
