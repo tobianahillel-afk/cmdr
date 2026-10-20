@@ -72,9 +72,9 @@ func sourceFreshness(value *SourceFreshness, now time.Time) (*FreshnessProjectio
 		return result, nil // future or inconsistent source clock is unknown
 	}
 	age := now.Sub(observed)
-	if age >= time.Duration(value.StaleAfterSeconds)*time.Second {
+	if age.Seconds() >= float64(value.StaleAfterSeconds) {
 		result.State = "stale"
-	} else if age >= time.Duration(value.AgingAfterSeconds)*time.Second {
+	} else if age.Seconds() >= float64(value.AgingAfterSeconds) {
 		result.State = "aging"
 	} else {
 		result.State = "current"
