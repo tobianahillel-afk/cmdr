@@ -31,7 +31,7 @@ var queuePage = template.Must(template.New("command-work-queue").Parse(`<!doctyp
 <p role="status">État : {{.State}}</p>
 {{if .Diagnostics}}<ul aria-label="Limites de la projection">{{range .Diagnostics}}<li>{{.}}</li>{{end}}</ul>{{end}}
 {{if .Rows}}
-<table><caption>Éléments autorisés — première page (50 maximum)</caption>
+<table><caption>Éléments autorisés — page courante (50 maximum)</caption>
 <thead><tr><th scope="col">Type</th><th scope="col">Identifiant</th><th scope="col">Responsable</th><th scope="col">État</th><th scope="col">Mis à jour (UTC)</th><th scope="col">Fraîcheur source</th><th scope="col">Contexte</th></tr></thead>
 <tbody>{{range .LinkedRows}}<tr><td>{{.Kind}}</td><th scope="row">{{.ID}}</th><td>{{.Owner}}</td><td>{{.Status}}</td><td>{{.UpdatedAt}}</td><td>{{if .Freshness}}{{.Freshness.State}} — {{.Freshness.Source}}{{if .Freshness.ObservedAt}} · {{.Freshness.ObservedAt}}{{end}}{{if .Freshness.PolicyVersion}} · policy {{.Freshness.PolicyVersion}}{{end}}{{else}}unknown — source non fournie{{end}}</td><td><form method="get" action="/command/work-queue">
 <input type="hidden" name="view" value="{{$.Current}}">
