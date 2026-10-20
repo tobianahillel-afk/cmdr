@@ -112,6 +112,8 @@ type Result struct {
 	SelectedFactors *AuthorizedFactors `json:"selected_factors,omitempty"`
 	// Selected-only CAP-CMD-105 read-only source-owned SLA; absent means unknown.
 	SelectedSLA *AuthorizedSLA `json:"selected_sla,omitempty"`
+	// CAP-CMD-103: a separate independently authorized canonical register.
+	SelectedCanonicalOwnership *AuthorizedCanonicalOwnership `json:"selected_canonical_ownership,omitempty"`
 	// Present only if at least one authorized matching item has host freshness.
 	ViewFreshness *ViewFreshness `json:"view_freshness,omitempty"`
 }
