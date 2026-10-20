@@ -114,6 +114,7 @@ var knownDeepPerformanceHandlerKeys = map[string]bool{
 	"builtin-saved-query-assets-projection-preimplementation-v1":     true,
 	"builtin-saved-query-assets-handoff-preimplementation-v1":        true,
 	"builtin-case-queue-projection-v1":                               true,
+	"builtin-command-work-queue-projection-v1":                       true,
 	"builtin-case-queue-saved-view-v1":                               true,
 	"builtin-case-queue-handoff-v1":                                  true,
 	"builtin-investigation-timeline-projection-v1":                   true,
@@ -416,6 +417,27 @@ func executeDeepPerformanceTargetWithHandler(
 }
 
 func runDeepPerformanceHandler(ctx context.Context, root string, target DeepPerformanceTarget) (DeepPerformanceObservation, error) {
+	if target.HandlerKey == "builtin-command-work-queue-projection-v1" {
+		if err := ctx.Err(); err != nil {
+			return DeepPerformanceObservation{}, err
+		}
+		if target.Kind != "resource" {
+			return DeepPerformanceObservation{}, fmt.Errorf("Command Work Queue supports only resource deep probe")
+		}
+		probe, cleanup, err := prepareCommandWorkQueueProbe(root)
+		if err != nil {
+			return DeepPerformanceObservation{}, err
+		}
+		defer cleanup()
+		observation, err := probe.runResource(target.Iterations, target.MemoryLimitMiB)
+		if err != nil {
+			return DeepPerformanceObservation{}, err
+		}
+		if err := ctx.Err(); err != nil {
+			return DeepPerformanceObservation{}, err
+		}
+		return observation, nil
+	}
 	if strings.HasPrefix(target.HandlerKey, "builtin-case-queue-") && strings.HasSuffix(target.HandlerKey, "-v1") {
 		if err := ctx.Err(); err != nil {
 			return DeepPerformanceObservation{}, err

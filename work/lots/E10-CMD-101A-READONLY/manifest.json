@@ -51,7 +51,10 @@
     "tools/cmdr-dev/performance_benchmark.go",
     "tools/cmdr-dev/performance_command_work_queue.go",
     "tools/cmdr-dev/security_tests.go",
-    "tools/cmdr-dev/security_tests_test.go"
+    "tools/cmdr-dev/security_tests_test.go",
+    "engineering/performance/deep-performance-policy.json",
+    "tools/cmdr-dev/deep_performance.go",
+    "tools/cmdr-dev/deep_performance_test.go"
   ],
   "forbidden_paths": [
     "cmdr-product-spec/**",
@@ -96,14 +99,16 @@
     "Unique architecture path registration, security-critical scope registration and exact HEAD GitHub Go CI",
     "Explicit handoff distinguishing isolated tested slice from canonical product completion",
     "On-demand real Command Work Queue benchmark with explicit Go probe, existing benchmark runner and unchanged 90% security floor.",
-    "Security test evidence adapter reuses real bounded Go module tests, no invented security PASS before exact-head CI."
+    "Security test evidence adapter reuses real bounded Go module tests, no invented security PASS before exact-head CI.",
+    "On-demand Command-owned deep resource target registered for existing Work Queue projection; actual first-party Go probe reports sampled heap and allocations, not metadata or other products."
   ],
   "acceptance_tests": [
     "Each of six views resolves correct owner-authorized Incident/Task IDs, and hidden foreign/denied IDs never appear.",
     "Unknown view including deprecated team-load, missing tenant/env/principal, bad owner metadata and authorization backend errors fail closed.",
     "SLA risk without authoritative policy is partial-sources, not complete; first page <=50 is deterministic.",
     "GitHub command-work-queue workflow succeeds on Linux, Windows, macOS; engineering-kernel required checks on exact SHA, mandatory 90% changed-security coverage unchanged.",
-    "No assignment, export, Task/Incident mutation, Saved View storage or product acceptance claim."
+    "No assignment, export, Task/Incident mutation, Saved View storage or product acceptance claim.",
+    "Existing mandatory CHK-DEEP-PERFORMANCE policy coverage passes without waiver; executable Command Work Queue deep resource probe produces measured heap/allocations under its own resource target."
   ],
   "performance_budget": {
     "applicable": true,
@@ -131,9 +136,9 @@
   ],
   "complexity": {
     "primary_components": 2,
-    "estimated_files_changed": 9,
+    "estimated_files_changed": 11,
     "estimated_net_loc": 430,
-    "production_files": 6,
+    "production_files": 8,
     "net_production_loc": 350,
     "bounded_contexts": 1,
     "independent_migrations": 0,
