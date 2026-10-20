@@ -254,7 +254,13 @@ func Project(ctx context.Context, owner Owner, req Request) (Result, error) {
 	result.NextCursor = next
 	result.HasPrevious = previous
 	if next != "" {
-		result.Diagnostics = append(result.Diagnostics, "more-authorized-pages")
+		if previous {
+			result.Diagnostics = append(result.Diagnostics, "more-authorized-pages")
+		} else {
+			// Preserve the established first-page diagnostic for existing
+			// clients; the opt-in cursor now makes later pages available.
+			result.Diagnostics = append(result.Diagnostics, "first-page-only")
+		}
 	}
 	return result, nil
 }
