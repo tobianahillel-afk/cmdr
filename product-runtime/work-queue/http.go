@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/url"
+	"strings"
 )
 
 // SessionScope is trusted identity resolved by the host. HTTP query strings,
@@ -83,6 +84,24 @@ func NewHTTPHandler(sessions SessionResolver, owner Owner) http.Handler {
 				// disclose any partial permitted/denied rows or IDs.
 				http.Error(w, "work queue unavailable", http.StatusServiceUnavailable)
 			}
+			return
+		}
+		w.Header().Set("Vary", "Accept")
+		if strings.Contains(r.Header.Get("Accept"), "text/html") {
+			page, err := renderQueuePage(result)
+			if err != nil {
+				http.Error(w, "work queue unavailable", http.StatusServiceUnavailable)
+				return
+			}
+			// Navigation is a fresh request to this SAME canonical route:
+			// the trusted host session and each object ACL are re-evaluated.
+			// No client-side script, externally loaded resource or unsafe HTML.
+			w.Header().Set("Content-Security-Policy", "default-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'")
+			w.Header().Set("Referrer-Policy", "no-referrer")
+			w.Header().Set("X-Frame-Options", "DENY")
+			w.Header().Set("Content-Type", "text/html; charset=utf-8")
+			w.WriteHeader(http.StatusOK)
+			_, _ = w.Write(page)
 			return
 		}
 		encoded, err := json.Marshal(result)

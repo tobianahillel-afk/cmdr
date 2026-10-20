@@ -1825,6 +1825,19 @@
         "E10-CMD-101A-READONLY"
       ],
       "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-CMD-101C-HTML"
+      ]
+    },
+    {
+      "id": "E10-CMD-101C-HTML",
+      "title": "Render canonical six-view Command Work Queue through the existing authorized route in a native read-only browser",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-CMD-101B-HTTP"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
       "unlocks": []
     }
   ]
