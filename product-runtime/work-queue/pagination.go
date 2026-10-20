@@ -56,10 +56,10 @@ func decodeQueueCursor(raw string) (queuePageCursor, error) {
 	return cursor, nil
 }
 
-func authorizedQueuePage(req Request, all []Row) ([]Row, string, bool, error) {
+func authorizedQueuePage(req Request, all []Row) ([]Row, string, string, bool, error) {
 	cursor, err := decodeQueueCursor(req.Cursor)
 	if err != nil {
-		return nil, "", false, err
+		return nil, "", "", false, err
 	}
 	// A hash is a revision check only. Recomputing it over all currently
 	// authorized rows prevents stale/revoked pagination from rendering any row.
@@ -74,13 +74,13 @@ func authorizedQueuePage(req Request, all []Row) ([]Row, string, bool, error) {
 		Rows []Row `json:"rows"`
 	}{req.Principal, req.Tenant, req.Environment, req.View, req.StatusFilter, req.SortOrder, all})
 	if err != nil {
-		return nil, "", false, ErrIncomplete
+		return nil, "", "", false, ErrIncomplete
 	}
 	digest := sha256.Sum256(scope)
 	currentDigest := hex.EncodeToString(digest[:])
 	start := cursor.Start
 	if req.Cursor != "" && (cursor.Digest != currentDigest || start >= len(all)) {
-		return nil, "", false, ErrCursor
+		return nil, "", "", false, ErrCursor
 	}
 	stop := start + queuePageSize
 	if stop > len(all) {
@@ -89,11 +89,22 @@ func authorizedQueuePage(req Request, all []Row) ([]Row, string, bool, error) {
 	page := all[start:stop]
 	next := ""
 	if stop < len(all) {
-		payload, err := json.Marshal(queuePageCursor{Version: 1, Start: stop, Digest: currentDigest})
-		if err != nil {
-			return nil, "", false, ErrIncomplete
-		}
-		next = base64.RawURLEncoding.EncodeToString(payload)
+		next, err = encodeQueueCursor(stop, currentDigest)
+		if err != nil { return nil, "", "", false, ErrIncomplete }
 	}
-	return page, next, start > 0, nil
+	// A previous-page token is ONLY a navigation hint. Page 2 goes back
+	// directly to the original first-page URL (no token); later pages carry
+	// an earlier offset over the same freshly authorized projection.
+	previous := ""
+	if start > queuePageSize {
+		previous, err = encodeQueueCursor(start-queuePageSize, currentDigest)
+		if err != nil { return nil, "", "", false, ErrIncomplete }
+	}
+	return page, next, previous, start > 0, nil
+}
+
+func encodeQueueCursor(start int, digest string) (string, error) {
+	payload, err := json.Marshal(queuePageCursor{Version: 1, Start: start, Digest: digest})
+	if err != nil { return "", err }
+	return base64.RawURLEncoding.EncodeToString(payload), nil
 }
