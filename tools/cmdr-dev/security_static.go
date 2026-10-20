@@ -295,7 +295,13 @@ func sanitizedGosecProcessingPaths(root, moduleRoot string, problems map[string]
 		paths = append(paths, path)
 	}
 	sort.Strings(paths)
-	paths = dedupeStrings(paths)
+	unique := paths[:0]
+	for _, path := range paths {
+		if len(unique) == 0 || unique[len(unique)-1] != path {
+			unique = append(unique, path)
+		}
+	}
+	paths = unique
 	if len(paths) > 4 {
 		paths = paths[:4]
 	}
