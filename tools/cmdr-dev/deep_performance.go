@@ -110,6 +110,7 @@ var knownDeepPerformanceHandlerKeys = map[string]bool{
 	"builtin-event-search-orchestration-v1":                          true,
 	"builtin-event-search-frontend-state-v1":                         true,
 	"builtin-event-inspection-preimplementation-v1":                  true,
+	"builtin-event-inspection-host-http-v1":                          true,
 	"builtin-hunt-management-preimplementation-v1":                   true,
 	"builtin-saved-query-assets-projection-preimplementation-v1":     true,
 	"builtin-saved-query-assets-handoff-preimplementation-v1":        true,
@@ -416,6 +417,9 @@ func executeDeepPerformanceTargetWithHandler(
 }
 
 func runDeepPerformanceHandler(ctx context.Context, root string, target DeepPerformanceTarget) (DeepPerformanceObservation, error) {
+	if target.HandlerKey == "builtin-event-inspection-host-http-v1" {
+		return measureEventInspectionHostLoad(ctx, root, target)
+	}
 	if strings.HasPrefix(target.HandlerKey, "builtin-case-queue-") && strings.HasSuffix(target.HandlerKey, "-v1") {
 		if err := ctx.Err(); err != nil {
 			return DeepPerformanceObservation{}, err
