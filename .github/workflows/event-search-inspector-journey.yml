@@ -4,7 +4,7 @@ on:
   pull_request:
     paths:
       - "product-runtime/event-search-frontend/**"
-      - "work/lots/E10-INV-004F-SEARCH-JOURNEY/**"
+      - "work/lots/E10-INV-004F-JOURNEY/**"
       - ".github/workflows/event-search-inspector-journey.yml"
   workflow_dispatch:
 

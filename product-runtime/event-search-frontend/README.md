@@ -17,10 +17,10 @@ Explicitly unresolved/out of scope here:
 - persisted result model;
 - production Search SLO.
 
-## Investigate Event Search -> Event Inspection read-only journey (E10-INV-004F-SEARCH-JOURNEY)
+## Investigate Event Search -> Event Inspection read-only journey (E10-INV-004F-JOURNEY)
 
 `inspection.mjs` composes the **existing** Event Search controller with a separate `transport.inspect(request, {signal})` supplied by a host. Its input must be an already server-authorized CAP-INV-004 Event Inspection projection, **not** a browser-computed access decision. The journey opens only a selected result from the currently visible authorized Search Job, binds Tenant/environment/Event/job/run/correlation, rejects a mismatched response and cancels or discards stale inspections. It displays source/normalized/raw-derived/enrichment provenance and raw/rendered separately with native `textContent` sinks, then returns to the exact prior Search state and result window if the source Job remains current.
 
 The browser module **does not** execute the Go inspector core, provide a live Event resolver, authenticate the principal, classify sensitive normalized/enrichment fields, select a search engine, run a PivotDraft, or perform Case/Artifact/Evidence mutations. The Go `product-runtime/event-inspection` core and Shared/Settings authorities are unchanged. Before a real deployment, the backend host must independently reauthorize each Event, tenant, environment, raw/rendered classification, source and requested field, and return a safe projection. This is a tested first-party frontend composition, **not** complete source-to-UI production integration.
 
-Run the existing full frontend suite with `npm test` (Node 24); the isolated exact-HEAD workflow is `.github/workflows/event-search-inspector-journey.yml`. The cross-capability manifest is `work/lots/E10-INV-004F-SEARCH-JOURNEY/manifest.json` and the original engineering foundation remains PR #36 DRAFT.
+Run the existing full frontend suite with `npm test` (Node 24); the isolated exact-HEAD workflow is `.github/workflows/event-search-inspector-journey.yml`. The cross-capability manifest is `work/lots/E10-INV-004F-JOURNEY/manifest.json` and the original engineering foundation remains PR #36 DRAFT.

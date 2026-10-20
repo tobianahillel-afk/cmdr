@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "id": "E10-INV-004F-SEARCH-JOURNEY",
+  "id": "E10-INV-004F-JOURNEY",
   "title": "Connect authorized Event Search selection to read-only Event Inspection and safe return",
   "type": "task",
   "parent": "E10-SCALE-003",
@@ -47,7 +47,7 @@
   "allowed_paths": [
     "product-runtime/event-search-frontend/**",
     ".github/workflows/event-search-inspector-journey.yml",
-    "work/lots/E10-INV-004F-SEARCH-JOURNEY/**",
+    "work/lots/E10-INV-004F-JOURNEY/**",
     "work/graph.json"
   ],
   "forbidden_paths": [
