@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
+	"io"
 	"strings"
 )
 
@@ -39,7 +40,11 @@ func decodeQueueCursor(raw string) (queuePageCursor, error) {
 	}
 	dec := json.NewDecoder(strings.NewReader(string(bytes)))
 	dec.DisallowUnknownFields()
-	if err := dec.Decode(&cursor); err != nil || dec.Decode(new(any)) == nil {
+	if err := dec.Decode(&cursor); err != nil {
+		return queuePageCursor{}, ErrCursor
+	}
+	var trailing any
+	if dec.Decode(&trailing) != io.EOF {
 		return queuePageCursor{}, ErrCursor
 	}
 	digest, err := hex.DecodeString(cursor.Digest)
