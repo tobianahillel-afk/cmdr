@@ -1,0 +1,142 @@
+{
+  "schema_version": 2,
+  "id": "E10-INV-004G-HOST",
+  "title": "Bind authoritative Search+Telemetry owners to read-only Event Inspection HTTP",
+  "type": "task",
+  "parent": "E10-INV-004",
+  "goal": "Offer an embeddable first-party HTTP handler returning the canonical CAP-INV-004 projection to the existing browser transport shape, only after independently server-verified session, Search Job selection and telemetry/raw/rendered authorization.",
+  "depends_on": [
+    "E10-INV-004E"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-004",
+      "CAP-INV-002"
+    ],
+    "requirements": [
+      "REQ-PROD-002",
+      "REQ-PROD-005",
+      "REQ-PROD-008",
+      "REQ-PROD-014",
+      "REQ-PROD-045"
+    ],
+    "screens": [],
+    "permissions": [
+      "perm.shared-capabilities.telemetry-event.read"
+    ],
+    "open_decisions": [
+      "OPEN-013",
+      "OPEN-014"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/audit-event-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/error-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/correlation-identifiers.md",
+      "cmdr-product-spec/17-implementation-contracts/cross-product-context-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/telemetry-event.md",
+      "cmdr-product-spec/05-domain-model/objects/parser.md",
+      "cmdr-product-spec/05-domain-model/objects/data-source.md",
+      "cmdr-product-spec/05-domain-model/objects/query.md",
+      "cmdr-product-spec/05-domain-model/objects/search-job.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/event-inspection/host/**",
+    ".github/workflows/event-inspection-http-host.yml",
+    "work/lots/E10-INV-004G-HOST/**",
+    "work/graph.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/event-inspection/pivot.go",
+    "product-runtime/event-inspection/projection.go",
+    "product-runtime/event-search-frontend/**"
+  ],
+  "invariants": [
+    "Read-only single-Event inspection only; no Case/Artifact/Evidence link, export, mutation, pivot execution, new parser/index/IAM engine, storage or supplier selection",
+    "Host session supplies principal tenant environment; POST JSON is only a selector, never permissions or decision inputs",
+    "Existing first-party Event Inspection Project performs core read permission and raw/rendered separation; do not duplicate that engine",
+    "Search owner independently verifies selected Event membership in authorized Job/run; Telemetry owner independently verifies Event/tenant/environment, read and per-field classification",
+    "Only the already redacted field set from the Telemetry owner may be projected; host must deliver production identity, authorization, audit, TLS, CSRF protection and source adapters",
+    "No direct edit to reviewed PR #181,#182,#183 or their branches; no production readiness claims"
+  ],
+  "security_properties": [
+    "Fail-closed if host session unavailable or tenant/environment mismatch; never infer client permission from eventRef/sourceHint",
+    "Deny before telemetry access if Search selection not independently authorized",
+    "Deny if Telemetry owner refuses or returns wrong EventRef/tenant or invalid raw/rendered decisions",
+    "Raw denied produces no raw bytes and no raw-derived sensitive field values; rendered may independently remain allowed",
+    "Malformed, unbounded, cross-scope, stale, canceled or unknown requests never receive protected partial results",
+    "No permissive CORS; content-type is application/json; no-store, nosniff; no client-supplied session source"
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Host-injected read-only HTTP adapter; no schema or persistence",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Revert bounded host adapter while retaining existing Event Inspection core and all reviewed PR snapshots",
+    "verification": [
+      "Canonical specs unchanged",
+      "Event Inspection core module tests unchanged",
+      "No class-2 or production IAM claim"
+    ]
+  },
+  "inputs": [
+    "CAP-INV-004/002 full canonical read-only transition and Shared Telemetry Event ownership",
+    "Verified E10-INV-004E Go projector on foundation #36",
+    "Existing frontend inspection transport schema on isolated #183 (not modified)"
+  ],
+  "outputs": [
+    "New embeddable authorized HTTP handler composing distinct SessionResolver, SearchOwner, TelemetryOwner and existing eventinspection.Project",
+    "Server response compatible with JS Inspector normalization: lowerCamel source/parser/enrichments; independent raw/rendered variants",
+    "HTTP httptest security matrix including host spoof, source redaction, denied raw, malformed requests, wrong Event and partial stale provenance",
+    "Exact-HEAD cross-platform CI evidence, with explicit exclusion of real host and production"
+  ],
+  "acceptance_tests": [
+    "Positive real HTTP request passes server-source authorization chain and returns browser-compatible read-only projection",
+    "Denial at Search stage never invokes Telemetry owner; owner/identity mismatch yields generic denied and zero protected bytes",
+    "Raw and rendered independent; denied raw causes zero leakage of source-owned raw-derived secret",
+    "Invalid Event origin/provenance, malformed/oversize JSON, unsupported method/content-type fail closed",
+    "Go race/test/vet and host coverage >=90% on exact commit; full adaptive engineering checks required separately"
+  ],
+  "required_checks": [
+    "adaptive engineering-kernel",
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-RUNTIME-DEPS",
+    "CHK-BOUNDARY-EDGES",
+    "CHK-SECURITY-TESTS",
+    "CHK-SAST-GO",
+    "CHK-SCA-GO"
+  ],
+  "definition_of_ready": [
+    "E10-INV-004E VERIFIED in foundation graph",
+    "Authorization provider contracts independent and read-only; no Class-2 mutation required"
+  ],
+  "definition_of_done": [
+    "Publish handler and tests on GitHub in authorized paths",
+    "Node schema parity demonstrated by canonical field names and direct regression",
+    "Exact-SHA CI and security checks completed; L2 review separate for material owner boundary"
+  ],
+  "performance_budget": {
+    "applicable": false,
+    "rationale": "In-process httptest transport contract only; live event source, latency and SLO not selected",
+    "metrics": []
+  },
+  "complexity": {
+    "primary_components": 2,
+    "estimated_files_changed": 6,
+    "estimated_net_loc": 340,
+    "production_files": 1,
+    "net_production_loc": 295,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}
