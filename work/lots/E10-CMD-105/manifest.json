@@ -1,0 +1,108 @@
+{
+  "schema_version": 2,
+  "id": "E10-CMD-105",
+  "title": "Implement canonical Command SLA Tracking CAP-CMD-105 in bounded read-only and future mutation units",
+  "type": "epic",
+  "parent": "",
+  "goal": "Implement CAP-CMD-105 progressively under Command operational SLA owner while preserving external deployment/contract policy source and OPEN-013 Class-2 decisions; the first unit is only owner-authorized Class-0 SLA inspection on selected work item.",
+  "depends_on": [
+    "E10-SCALE-005B"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-CMD-105",
+      "CAP-CMD-101"
+    ],
+    "requirements": [
+      "REQ-PROD-005",
+      "REQ-PROD-013",
+      "REQ-PROD-053",
+      "REQ-OBJ-012"
+    ],
+    "screens": [],
+    "permissions": [
+      "perm.command.read",
+      "perm.command.incident.read"
+    ],
+    "open_decisions": [
+      "OPEN-013"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/incident.md",
+      "cmdr-product-spec/05-domain-model/objects/task.md"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md"
+    ]
+  },
+  "allowed_paths": [
+    "work/lots/E10-CMD-105/**",
+    "work/lots/E10-CMD-105A-READONLY/**",
+    "work/graph.json",
+    "engineering/state/current.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**"
+  ],
+  "invariants": [
+    "Command owns operational Incident/Task SLA projection, external tenant/customer policy retains source ownership under validated ADR-0008.",
+    "Class-2 pause/resume/follow-up and audit are NOT decided by read-only inspection; OPEN-013 remains open.",
+    "The epic is a non-executable decomposition container; one read-only sublot does not establish capability acceptance or production readiness."
+  ],
+  "security_properties": [
+    "No tenant/environment widening from Customer or policy references.",
+    "SLA source and object owner permissions remain independent; no client-derived grants.",
+    "No mutation of Incident, Task, policy or contract from read-only work."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Planning container only; no canonical object schema or provider migration.",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Remove only unaccepted child runtime without altering canonical contracts or prior Command releases.",
+    "verification": [
+      "All prior Command first-party six-view Work Queue tests continue running."
+    ]
+  },
+  "inputs": [
+    "Complete canonical CAP-CMD-105 and CAP-CMD-101, Command module, ADR-0008 contractual vs operational SLA split and OPEN-013.",
+    "Existing first-party Command queue six views, selected owner-authorized row and host sessions."
+  ],
+  "outputs": [
+    "E10-CMD-105A-READONLY selected-only authorized operational SLA projection as one independently bounded child.",
+    "Further SLA owner/policy calculation, Class-2 pause/resume/audit and production deployment remain separately scoped, NOT claimed implemented."
+  ],
+  "acceptance_tests": [
+    "Child tests, CI and source authorization separately from full epic and native approvals.",
+    "Epic stays DECOMPOSED until canonical obligations accepted."
+  ],
+  "performance_budget": {
+    "applicable": false,
+    "rationale": "Non-executable engineering epic container."
+  },
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-SECURITY-TESTS"
+  ],
+  "definition_of_ready": [
+    "E10-SCALE-005B is VERIFIED; CAP-CMD-105 has canonical Command owner and Class-0 inspection allowed even while Class-2 OPEN-013 remains unresolved."
+  ],
+  "definition_of_done": [
+    "All CAP-CMD-105 canonical SLA source/policy/calendar, tenancy, due/remaining, pause/resume, provenance/audit and source owner integrations demonstrably accepted; no assumption from first Class-0 slice."
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 0,
+    "estimated_net_loc": 0,
+    "production_files": 0,
+    "net_production_loc": 0,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 0,
+    "separately_testable_behaviors": 1
+  }
+}

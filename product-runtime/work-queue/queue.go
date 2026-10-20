@@ -110,6 +110,8 @@ type Result struct {
 	Selected *Row `json:"selected,omitempty"`
 	// Selected-only CAP-CMD-104 class-0 coordination factors.
 	SelectedFactors *AuthorizedFactors `json:"selected_factors,omitempty"`
+	// Selected-only CAP-CMD-105 read-only source-owned SLA; absent means unknown.
+	SelectedSLA *AuthorizedSLA `json:"selected_sla,omitempty"`
 	// Present only if at least one authorized matching item has host freshness.
 	ViewFreshness *ViewFreshness `json:"view_freshness,omitempty"`
 }
