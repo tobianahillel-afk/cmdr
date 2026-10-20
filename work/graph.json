@@ -1986,6 +1986,17 @@
       ],
       "dependency_terminal_state": "IMPLEMENTED",
       "unlocks": []
+    },
+    {
+      "id": "E10-CMD-101K-OWNERFILTER",
+      "title": "Filter authorized Command Work Queue by exact responsible owner with safe page navigation",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-CMD-101J-DIAGNOSTICS"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": []
     }
   ]
 }

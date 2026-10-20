@@ -70,9 +70,10 @@ func authorizedQueuePage(req Request, all []Row) ([]Row, string, string, bool, e
 		Environment string `json:"environment"`
 		View View `json:"view"`
 		Status string `json:"status"`
+		Owner string `json:"owner"`
 		Sort string `json:"sort"`
 		Rows []Row `json:"rows"`
-	}{req.Principal, req.Tenant, req.Environment, req.View, req.StatusFilter, req.SortOrder, all})
+	}{req.Principal, req.Tenant, req.Environment, req.View, req.StatusFilter, req.OwnerFilter, req.SortOrder, all})
 	if err != nil {
 		return nil, "", "", false, ErrIncomplete
 	}

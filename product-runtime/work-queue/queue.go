@@ -63,6 +63,8 @@ type Request struct {
 	View        View
 	// Optional exact owner-provided status filter (Class-0 read-only).
 	StatusFilter string
+	// Exact responsible owner identifier (Class-0), applied after CanRead.
+	OwnerFilter string
 	// Read-only chronological order. Blank preserves the original newest-first
 	// presentation; no arbitrary client sort column or Shared view schema.
 	SortOrder string
@@ -87,6 +89,7 @@ type Result struct {
 	Diagnostics  []string `json:"diagnostics"`
 	Rows         []Row    `json:"rows"`
 	StatusFilter string   `json:"status_filter,omitempty"`
+	OwnerFilter string `json:"owner_filter,omitempty"`
 	SortOrder string `json:"sort,omitempty"`
 	NextCursor string `json:"next_cursor,omitempty"`
 	PreviousCursor string `json:"previous_cursor,omitempty"`
@@ -128,6 +131,10 @@ func Project(ctx context.Context, owner Owner, req Request) (Result, error) {
 	// wildcard, column permissions, or client-supplied authorization scope.
 	if len(req.StatusFilter) > 64 ||
 		(req.StatusFilter != "" && (invalidScope(req.StatusFilter) || !utf8.ValidString(req.StatusFilter))) {
+		return empty, ErrView
+	}
+	if len(req.OwnerFilter) > 128 || (req.OwnerFilter != "" &&
+		(invalidScope(req.OwnerFilter) || !utf8.ValidString(req.OwnerFilter))) {
 		return empty, ErrView
 	}
 	if req.SortOrder != "" && req.SortOrder != "newest" && req.SortOrder != "oldest" {
@@ -182,12 +189,6 @@ func Project(ctx context.Context, owner Owner, req Request) (Result, error) {
 		if !allowed {
 			continue
 		}
-		// Source freshness is projected only after the owner's CanRead check.
-		// Unknown policy/source metadata never masquerades as current.
-		freshness, err := sourceFreshness(item.SourceFreshness, now)
-		if err != nil {
-			return empty, ErrIncomplete
-		}
 		t, err := time.Parse(time.RFC3339Nano, item.UpdatedAt)
 		if err != nil || t.IsZero() {
 			return empty, ErrIncomplete
@@ -213,14 +214,20 @@ func Project(ctx context.Context, owner Owner, req Request) (Result, error) {
 			if item.SLAAtRisk == nil {
 				// Missing SLA policy degrades only the CURRENT status-filtered
 				// cohort. A filtered-out item cannot make this view partial.
-				if req.StatusFilter == "" || item.Status == req.StatusFilter {
+				if (req.StatusFilter == "" || item.Status == req.StatusFilter) &&
+					(req.OwnerFilter == "" || item.Owner == req.OwnerFilter) {
 					partialSLA = true
 				}
 			} else {
 				accept = *item.SLAAtRisk
 			}
 		}
-		if accept && (req.StatusFilter == "" || item.Status == req.StatusFilter) {
+		if accept && (req.StatusFilter == "" || item.Status == req.StatusFilter) &&
+			(req.OwnerFilter == "" || item.Owner == req.OwnerFilter) {
+			// An excluded owner cannot degrade the visible freshness or
+			// cause a fatal source-metadata validation error.
+			freshness, err := sourceFreshness(item.SourceFreshness, now)
+			if err != nil { return empty, ErrIncomplete }
 			if freshness != nil && (freshness.State == "source-unavailable" || freshness.State == "partial") {
 				partialSourceFreshness = true
 			}
@@ -244,7 +251,7 @@ func Project(ctx context.Context, owner Owner, req Request) (Result, error) {
 	})
 	result := Result{View: req.View, Tenant: req.Tenant, Environment: req.Environment,
 		State: "ready", Rows: make([]Row, 0, len(selected)), Diagnostics: []string{},
-		StatusFilter: req.StatusFilter, SortOrder: req.SortOrder}
+		StatusFilter: req.StatusFilter, OwnerFilter: req.OwnerFilter, SortOrder: req.SortOrder}
 	if len(selected) == 0 {
 		result.State = "no-authorized-items"
 	}
