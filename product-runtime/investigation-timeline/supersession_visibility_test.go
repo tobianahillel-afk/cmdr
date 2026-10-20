@@ -23,7 +23,7 @@ func supersessionFixture() Input {
 func TestSupersessionVisibilityOnlyFromAuthorizedSuccessors(t *testing.T) {
 	for _, tc := range []struct {
 		name, permission, tenant string
-		wantHistorical bool
+		wantHistorical           bool
 	}{
 		{"authorized", "allow", "tenant-a", true},
 		{"denied", "deny", "tenant-a", false},
