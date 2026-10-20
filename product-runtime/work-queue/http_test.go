@@ -74,6 +74,7 @@ func TestCommandRouteNeverTrustsClientScopeOrUnrecognizedView(t *testing.T) {
 		"/command/work-queue?principal=admin",
 		"/command/work-queue?environment=e2",
 		"/command/work-queue?filter=secret",
+		"/command/work-queue?view=%XX",
 	} {
 		sessions:=trustedHost()
 		owner:=fixture()
