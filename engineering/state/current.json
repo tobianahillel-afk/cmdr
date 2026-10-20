@@ -17,9 +17,9 @@
     "phase_title": "Scaled product implementation program bootstrap"
   },
   "execution": {
-    "active_work_unit": "E10-CMD-101G-PAGE",
+    "active_work_unit": "E10-CMD-101H-RETURN",
     "preferred_next_unit": null,
-    "selection_rule": "2026-10-20: CAP-CMD-101 canonical gap: current Command Work Queue had 5000 authorized candidates but could display only first 50. Materialized E10-CMD-101G-PAGE under existing epic E10-CMD-101, dependency 101F IMPLEMENTED; new branch descended from frozen PR #164 head 75981f08712978cf5f0555cad7639f37b3439486 (Git parent is NOT business parent). Implements bounded 50-row per-page cursor tied to freshly authorized owner projection and same HTTP/browser route. SHA/CI must be rechecked after commits. Parent #164 L2 executed separately but report unavailable, ancestors #36/#2 draft; no merge or full CAP acceptance claimed."
+    "selection_rule": "2026-10-20: CAP-CMD-101 canonical exact context return gap after PR #165 forward-only pagination (first-page reset). New engineering task E10-CMD-101H-RETURN under existing E10-CMD-101 epic depends on already IMPLEMENTED 101G; child branch starts from frozen PR #165 SHA fbdfefe9a19d1fc6693e7e53b2649c59a2c18284. Adds single existing-owner previous cursor plus native link, same fresh authorization and bounded context. Check exact-head CI and independent L2 before merge; all parents still draft. No full CAP acceptance."
   },
   "reconciliation": {
     "required_on_resume": true,

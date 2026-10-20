@@ -1,0 +1,129 @@
+{
+  "schema_version": 2,
+  "id": "E10-CMD-101H-RETURN",
+  "title": "Restore the previous authorized Work Queue page without resetting the analyst's position",
+  "type": "task",
+  "parent": "E10-CMD-101",
+  "goal": "Complete bounded bidirectional navigation for existing native CAP-CMD-101 six-view Work Queue, preserving manual filters and chronological sort while reauthorizing every page.",
+  "depends_on": [
+    "E10-CMD-101G-PAGE"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-CMD-101"
+    ],
+    "requirements": [
+      "REQ-OBJ-001",
+      "REQ-OBJ-012",
+      "REQ-PROD-013",
+      "REQ-UX-008",
+      "REQ-UX-009"
+    ],
+    "screens": [],
+    "permissions": [
+      "perm.command.read",
+      "perm.command.incident.read"
+    ],
+    "open_decisions": [],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/incident.md",
+      "cmdr-product-spec/05-domain-model/objects/task.md"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/pagination-filtering-sorting.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/work-queue/pagination.go",
+    "product-runtime/work-queue/queue.go",
+    "product-runtime/work-queue/html.go",
+    "product-runtime/work-queue/pagination_return_test.go",
+    "work/lots/E10-CMD-101H-RETURN/**",
+    "work/graph.json",
+    "engineering/state/current.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/case-queue/**",
+    "product-runtime/investigation-timeline/**",
+    "tools/cmdr-dev/**"
+  ],
+  "invariants": [
+    "One canonical GET /command/work-queue, same six Command system views, no separate page or new route.",
+    "Every page is recalculated with a fresh host session and full bounded Owner.List and Owner.CanRead for each in-scope Incident and Task before any cursor is accepted.",
+    "Previous cursor is derived from the same authorized page digest and tenant/environment/principal/view/status/sort as the existing next cursor; no new ACL model, raw IDs or source contents are encoded.",
+    "Page 2 goes back to the first page without a fabricated start=0 cursor; subsequent pages link to the immediately preceding 50 rows, not an unrelated or stale snapshot.",
+    "Per-page selection remains limited to freshly authorized visible rows; revoked/stale cursor is denied generically with no partial results.",
+    "Base PR #165 HEAD fbdfefe9a19d1fc6693e7e53b2649c59a2c18284 is frozen; Git parent is not engineering parent."
+  ],
+  "security_properties": [
+    "No consumer receives permissions from a cursor; each request performs server authorization anew.",
+    "After an ACL or scope change, a previous-page token has exactly the same revocation and generic 404 behavior as a next-page token.",
+    "No access to cross-tenant owner identifiers, no denied source row or owner value in cursors, HTML links or results."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Backward-compatible optional previous_cursor JSON field and native previous-page link; no DB, new request flags or persisted schema.",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Remove optional previous_cursor and prior-page link while retaining existing forward cursor and permissions.",
+    "verification": [
+      "Forward 50-row pagination, filters/sort and selection preserve existing tests",
+      "No new host Owner calls or route"
+    ]
+  },
+  "inputs": [
+    "Canonical CAP-CMD-101 §§3,11,16,17,21,25; Incident and Task object ownership, canonical pagination, tenant and permission contracts.",
+    "Verified GitHub PR #165 HEAD fbdfefe9a19d1fc6693e7e53b2649c59a2c18284, 12 commits, exact-head CI both success, parent task E10-CMD-101G-PAGE IMPLEMENTED.",
+    "Existing first-party authorizedQueuePage and native Work Queue HTML; no final Shared cursor standard is claimed."
+  ],
+  "outputs": [
+    "From page N>=3, return to exact page N-1 with same authorized filtered/sorted row projection; from page 2 return to original first page.",
+    "Safe native previous/first/next links and optional previous_cursor response with unchanged per-request owner ACL."
+  ],
+  "acceptance_tests": [
+    "Three-page 123 authorized, denied and foreign Task fixture round trip 50→50→23→50→50, accurate indices and no cross-tenant CanRead.",
+    "Fresh owner session and 124 in-scope owner ACL checks for each visited page; stale previous token denied after revocation.",
+    "Native prior-page href preserves view/status/sort and escapes URL/context; selecting off-page or revoked row remains denied through existing tests.",
+    "Exact SHA Linux/macOS/Windows work-queue and engineering-kernel CI gates including mandatory changed-security critical 90%."
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "No extra owner reads beyond one existing O(n) bounded per-page full owner projection plus SHA256; at most 5000 candidates, 50 returned.",
+    "metrics": [
+      "One owner.List and same per-object CanRead on every page",
+      "No extra digest pass or external service",
+      "At most 50 displayed rows"
+    ]
+  },
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-RUNTIME-DEPS",
+    "CHK-SECURITY-TESTS"
+  ],
+  "definition_of_ready": [
+    "Existing E10-CMD-101G-PAGE graph IMPLEMENTED and exact-head CI verified; all earlier SHAs frozen.",
+    "Owned by CAP-CMD-101 epic E10-CMD-101 and product-runtime/work-queue, one bounded context and read-only class-0 behavior."
+  ],
+  "definition_of_done": [
+    "Real prior-page navigation functional in JSON/native HTML while preserving revocation, filtering and sort invariants.",
+    "Exact GitHub security and runtime CI verified, independent read-only L2 requested for material authorization/navigation change, no parent SHA mutation.",
+    "Only this task IMPLEMENTED, no full CAP acceptance/merge/production claim."
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 3,
+    "estimated_net_loc": 65,
+    "production_files": 3,
+    "net_production_loc": 65,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

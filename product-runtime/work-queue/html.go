@@ -37,7 +37,7 @@ var queuePage = template.Must(template.New("command-work-queue").Parse(`<!doctyp
 {{else}}<p>Aucun élément autorisé dans cette vue.</p>{{end}}
 </form>
 <nav aria-label="Pagination de la Work Queue">
-{{if .HasPrevious}}<a href="{{.FirstPageHref}}">Première page</a>{{end}}
+{{if .HasPrevious}}<a href="{{.PreviousPageHref}}">Page précédente</a> <a href="{{.FirstPageHref}}">Première page</a>{{end}}
 {{if .NextCursor}}<a href="{{.NextPageHref}}">Page suivante</a>{{end}}
 </nav>
 {{if .Selected}}<section aria-label="Contexte sélectionné"><h3>Élément sélectionné</h3><p>{{.Selected.Kind}} — {{.Selected.ID}}</p><p>Responsable : {{.Selected.Owner}} · État : {{.Selected.Status}} · Mis à jour : {{.Selected.UpdatedAt}}</p><p>Fraîcheur de la source : {{if .Selected.Freshness}}{{.Selected.Freshness.State}} — {{.Selected.Freshness.Source}}{{if .Selected.Freshness.ObservedAt}} · {{.Selected.Freshness.ObservedAt}}{{end}}{{if .Selected.Freshness.PolicyVersion}} · policy {{.Selected.Freshness.PolicyVersion}}{{end}}{{else}}unknown — source non fournie{{end}}</p><p>Cette projection est en lecture seule ; le détail et l’Inspector restent des capacités distinctes.</p></section>{{end}}
@@ -85,6 +85,10 @@ func renderQueuePage(result Result) ([]byte, error) {
 	if result.NextCursor != "" {
 		nextPageHref = firstPageHref+"&cursor="+url.QueryEscape(result.NextCursor)
 	}
+	previousPageHref := firstPageHref
+	if result.PreviousCursor != "" {
+		previousPageHref = firstPageHref+"&cursor="+url.QueryEscape(result.PreviousCursor)
+	}
 	var out bytes.Buffer
 	err := queuePage.Execute(&out, struct {
 		Result
@@ -92,9 +96,10 @@ func renderQueuePage(result Result) ([]byte, error) {
 		Views []queuePageView
 		LinkedRows []queueSelectionRow
 		FirstPageHref string
+		PreviousPageHref string
 		NextPageHref string
 	}{Result:result, Current:result.View, Views:views, LinkedRows:linked,
-		FirstPageHref:firstPageHref, NextPageHref:nextPageHref})
+		FirstPageHref:firstPageHref, PreviousPageHref:previousPageHref, NextPageHref:nextPageHref})
 	if err != nil { return nil, err }
 	return out.Bytes(), nil
 }
