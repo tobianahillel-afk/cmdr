@@ -231,6 +231,26 @@ func NewHTTPHandler(sessions SessionResolver, owner Owner) http.Handler {
 			}
 		}
 
+		// Canonical CAP-CMD-106: inspect existing links ONLY for a currently
+		// selected, Command-authorized Incident. The host separately verifies
+		// each link and Investigate Case read ACL for the current session.
+		// A Task selection cannot request Incident/Case relations.
+		if result.Selected != nil && result.Selected.Kind == Incident {
+			if links, ok := owner.(LinkedCasesOwner); ok {
+				claimed, err := links.ReadAuthorizedLinkedCases(r.Context(),
+					scope.Principal, scope.Tenant, scope.Environment, result.Selected.ID)
+				if err != nil {
+					http.Error(w, "linked Cases unavailable", http.StatusServiceUnavailable)
+					return
+				}
+				result.SelectedLinkedCases, err = validateLinkedCases(claimed)
+				if err != nil {
+					http.Error(w, "linked Cases unavailable", http.StatusServiceUnavailable)
+					return
+				}
+			}
+		}
+
 		w.Header().Set("Vary", "Accept")
 		if strings.Contains(r.Header.Get("Accept"), "text/html") {
 			page, err := renderQueuePage(result)

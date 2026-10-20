@@ -17,9 +17,9 @@
     "phase_title": "Scaled product implementation program bootstrap"
   },
   "execution": {
-    "active_work_unit": "E10-CMD-103A-READONLY",
+    "active_work_unit": "E10-CMD-106A-CASELINKS",
     "preferred_next_unit": null,
-    "selection_rule": "2026-10-20: PR #175 E10-CMD-105B-EXPLAIN is IMPLEMENTED with exact SHA 391e4b13ddde572d47a756590bd09bc036495e0b and two successful Actions; 0 READY recorded. CAP-CMD-103 §§1–27 distinguishes source-authorized Ownership Register canonical product owner from Command operational owner; add bounded Class-0 inspection under E10-CMD-103 epic after E10-CMD-101M-MYWORK IMPLEMENTED, while OPEN-013 blocks Class-2 changes. PR #175 is only Git parent, not engineering owner. Draft/unmerged upstream #2/#36 plus Command stack require native approval and cumulative CI; no accepted product claim."
+    "selection_rule": "2026-10-20: last Command PR #176 E10-CMD-103A-READONLY at 415aba77758540673a4c78fd8f7694e300ac1a04 is IMPLEMENTED with exact-head two successful Actions, but still DRAFT and L2/native approvals pending. Work graph had 0 READY. Canonical CAP-CMD-106 §§1–27 and Incident/Case + Shared Object Linking distinguish safe Class-0 viewing of existing independently authorized linked Cases from OPEN-013-blocked Class-2 creation and mutation. New E10-CMD-106A-CASELINKS task parent E10-CMD-106, dependency E10-CMD-101I-SELECTION IMPLEMENTED; Git base frozen #176 only source ancestry. This branch's code is IMPLEMENTED but not VERIFIED, ACCEPTED, merged or production until exact-head CI and independent L2 evidence. No actual production Object Linking/Investigate source adapter is supplied."
   },
   "reconciliation": {
     "required_on_resume": true,

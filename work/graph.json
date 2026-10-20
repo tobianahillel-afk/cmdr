@@ -2082,6 +2082,30 @@
       ],
       "dependency_terminal_state": "IMPLEMENTED",
       "unlocks": []
+    },
+    {
+      "id": "E10-CMD-106",
+      "title": "Deliver Command CAP-CMD-106 authorized existing Investigate Case link inspection",
+      "type": "epic",
+      "status": "DECOMPOSED",
+      "depends_on": [
+        "E10-SCALE-005B"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-CMD-106A-CASELINKS"
+      ]
+    },
+    {
+      "id": "E10-CMD-106A-CASELINKS",
+      "title": "Inspect independently source-authorized existing Investigate Cases of selected Command Incident",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-CMD-101I-SELECTION"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": []
     }
   ]
 }
