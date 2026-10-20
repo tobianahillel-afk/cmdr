@@ -1,0 +1,108 @@
+{
+  "schema_version": 2,
+  "id": "E10-CMD-106",
+  "title": "Integrate Command-owned Incident Coordination CAP-CMD-106 with independently source-authorized Investigate Case projections",
+  "type": "epic",
+  "parent": "",
+  "goal": "Deliver CAP-CMD-106 progressively, starting with Class-0 inspection of existing authorized Investigate-owned Case links for selected Command Incident; Class-2 creation/linking/state changes remain blocked under OPEN-013.",
+  "depends_on": [
+    "E10-SCALE-005B"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-CMD-106",
+      "CAP-CMD-101"
+    ],
+    "requirements": [
+      "REQ-OBJ-001",
+      "REQ-PROD-003",
+      "REQ-PROD-008",
+      "REQ-PROD-013",
+      "REQ-SEC-001"
+    ],
+    "screens": [
+      "CMD-IWQ-006"
+    ],
+    "permissions": [
+      "perm.command.incident.read",
+      "perm.investigate.case.read"
+    ],
+    "open_decisions": [
+      "OPEN-013"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/incident.md",
+      "cmdr-product-spec/05-domain-model/objects/case.md"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md"
+    ]
+  },
+  "allowed_paths": [
+    "work/lots/E10-CMD-106/**",
+    "work/lots/E10-CMD-106A-LINKED-CASES/**",
+    "work/graph.json",
+    "engineering/state/current.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**"
+  ],
+  "invariants": [
+    "Incident remains Command-owned; linked Case remains Investigate-owned; relationship is sourced in Shared Object Linking Service.",
+    "Incident read permission does not grant linked Case read permission; independent host checks both link and each Case.",
+    "No Class-2 Incident/Case creation, linking, mutation, navigation token, or Govern action while OPEN-013 remains open."
+  ],
+  "security_properties": [
+    "Selected Incident only after full host session and per-item authorization; deny before any link source call.",
+    "Never list inaccessible Case names/IDs or infer Case access from work item ownership."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Non-executable bounded planning epic; read-only selected runtime projection only",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Remove unaccepted read-only child without mutating canonical products",
+    "verification": [
+      "Previous Command Work Queue CI"
+    ]
+  },
+  "inputs": [
+    "Full CAP-CMD-106 §§1–27, Incident/Case objects and Shared Object Linking Service contract, CAP-CMD-101 selected current-page behavior."
+  ],
+  "outputs": [
+    "E10-CMD-106A-LINKED-CASES bounded Class-0 read-only source projection, no linked Case mutations."
+  ],
+  "acceptance_tests": [
+    "Only authorized Incident current-page selected row may request individually Investigate-authorized existing Case link refs.",
+    "No source cross-tenant leak, host claim errors generic fail closed; no mutation or new route."
+  ],
+  "performance_budget": {
+    "applicable": false,
+    "rationale": "Epic is a decomposition container."
+  },
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-SECURITY-TESTS"
+  ],
+  "definition_of_ready": [
+    "E10-SCALE-005B is VERIFIED; Class-0 existing link inspection does not require OPEN-013 mutation decision."
+  ],
+  "definition_of_done": [
+    "Only accepted/merged integration and required source-owner production evidence may satisfy overall CAP; epic not ACCEPTED from child."
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 0,
+    "estimated_net_loc": 0,
+    "production_files": 0,
+    "net_production_loc": 0,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 0,
+    "separately_testable_behaviors": 1
+  }
+}
