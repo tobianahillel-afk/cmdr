@@ -17,7 +17,7 @@ func TestCommandWorkQueueProbeCleanupOnlyRemovesOwnedArtifact(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	cleanupCommandWorkQueueProbe(binary, privateDir)
+	cleanupCommandWorkQueueProbe(tempDir, binary, privateDir)
 	if _, err := os.Lstat(binary); !os.IsNotExist(err) {
 		t.Fatalf("expected owned probe binary removed, got %v", err)
 	}
@@ -25,11 +25,12 @@ func TestCommandWorkQueueProbeCleanupOnlyRemovesOwnedArtifact(t *testing.T) {
 		t.Fatalf("expected empty temporary directory removed, got %v", err)
 	}
 	// Cleanup is safe if the build failed before producing a binary.
-	cleanupCommandWorkQueueProbe(binary, privateDir)
+	cleanupCommandWorkQueueProbe(tempDir, binary, privateDir)
 }
 
 func TestCommandWorkQueueProbeCleanupPreservesUnexpectedFile(t *testing.T) {
-	privateDir, err := os.MkdirTemp(t.TempDir(), ".cmdr-command-work-queue-perf-")
+	workspace := t.TempDir()
+	privateDir, err := os.MkdirTemp(workspace, ".cmdr-command-work-queue-perf-")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -41,7 +42,7 @@ func TestCommandWorkQueueProbeCleanupPreservesUnexpectedFile(t *testing.T) {
 	if err := os.WriteFile(other, []byte("unrelated data must remain"), 0600); err != nil {
 		t.Fatal(err)
 	}
-	cleanupCommandWorkQueueProbe(binary, privateDir)
+	cleanupCommandWorkQueueProbe(workspace, binary, privateDir)
 	if _, err := os.Lstat(binary); !os.IsNotExist(err) {
 		t.Fatalf("owned binary not removed: %v", err)
 	}
