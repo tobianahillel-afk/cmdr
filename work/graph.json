@@ -1851,6 +1851,19 @@
         "E10-CMD-101C-HTML"
       ],
       "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-CMD-101E-SORT"
+      ]
+    },
+    {
+      "id": "E10-CMD-101E-SORT",
+      "title": "Apply manual newest/oldest updated-at sorting to the six authorized Command Work Queue views",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-CMD-101D-STATUS"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
       "unlocks": []
     }
   ]
