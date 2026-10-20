@@ -17,9 +17,9 @@
     "phase_title": "Scaled product implementation program bootstrap"
   },
   "execution": {
-    "active_work_unit": "E10-CMD-109A-FRESHNESS",
+    "active_work_unit": "E10-CMD-101G-PAGE",
     "preferred_next_unit": null,
-    "selection_rule": "2026-10-20: graph on canonical PR #163 has zero READY; materialized independent canonically owned CAP-CMD-109 freshness epic E10-CMD-109 / task E10-CMD-109A-FRESHNESS, using verified E10-SCALE-005B dependency and Command-owned work-queue code. Parent Git PR #163 SHA b5e71280e2af3960cf63f45fea92a71cff557a68 is frozen under separate L2; it is NOT the engineering/product parent. Source freshness is optional host-authoritative metadata and versioned policy; no invented stale thresholds, prod IAM, Shared health, durable storage or acceptance claimed. This node is IMPLEMENTED only until exact-head CI and independent review. Ancestor PR #36/#2 remain draft/unmerged; cache non-authoritative and must be reconciled on resume."
+    "selection_rule": "2026-10-20: CAP-CMD-101 canonical gap: current Command Work Queue had 5000 authorized candidates but could display only first 50. Materialized E10-CMD-101G-PAGE under existing epic E10-CMD-101, dependency 101F IMPLEMENTED; new branch descended from frozen PR #164 head 75981f08712978cf5f0555cad7639f37b3439486 (Git parent is NOT business parent). Implements bounded 50-row per-page cursor tied to freshly authorized owner projection and same HTTP/browser route. SHA/CI must be rechecked after commits. Parent #164 L2 executed separately but report unavailable, ancestors #36/#2 draft; no merge or full CAP acceptance claimed."
   },
   "reconciliation": {
     "required_on_resume": true,
