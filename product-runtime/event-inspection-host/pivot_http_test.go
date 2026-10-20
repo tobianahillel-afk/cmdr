@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http/httptest"
 	"net/http"
 	"strings"
@@ -232,6 +233,105 @@ func TestHTTPPivotCancellationAndOwnerFailureNeverReturnDraft(t *testing.T) {
 			if status != http.StatusNotFound || strings.Contains(body, "secret") ||
 				strings.Contains(body, "192.0.2.4") || strings.Contains(body, "draft") {
 				t.Fatalf("source failure exposed information: %d %s", status, body)
+			}
+		})
+	}
+}
+
+
+func TestHTTPPivotRequiresDistinctHostActionGrant(t *testing.T) {
+	s, search, event := standardOwners()
+	legacy, err := NewHandler(s, search, event)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if status, body := pivotRequest(t, legacy, nil); status != http.StatusNotFound || strings.Contains(body, "fieldOrigin") {
+		t.Fatalf("read-only handler created pivot without permission: %d %s", status, body)
+	}
+	if w := doRequest(t, legacy, standardRequest()); w.Code != http.StatusOK {
+		t.Fatalf("legacy Inspector read unexpectedly blocked: %d", w.Code)
+	}
+	if _, err := NewHandlerWithPivotAuthorizer(s, search, event, nil); err == nil {
+		t.Fatal("missing action authority accepted")
+	}
+	h := newTestHandler(t, s, search, event)
+	search.pivotAllowed = false
+	if status, body := pivotRequest(t, h, nil); status != http.StatusNotFound || strings.Contains(body, "fieldOrigin") {
+		t.Fatalf("Search.read incorrectly became pivot permission: %d %s", status, body)
+	}
+	search.pivotAllowed = true
+	search.pivotErr = errors.New("host action unavailable")
+	if status, _ := pivotRequest(t, h, nil); status != http.StatusNotFound {
+		t.Fatalf("pivot error not denied: %d", status)
+	}
+	search.pivotErr = nil
+	if status, _ := pivotRequest(t, h, nil); status != http.StatusOK {
+		t.Fatalf("explicit action grant not honored: %d", status)
+	}
+	if search.pivotCalls != 3 {
+		t.Fatalf("action permission never independently consulted: calls=%d", search.pivotCalls)
+	}
+}
+
+func TestHTTPPivotRejectsAmbiguousFieldOrigin(t *testing.T) {
+	s, search, event := standardOwners()
+	h := newTestHandler(t, s, search, event)
+	// A source value and a normalized field with an identical key/value
+	// are both visible. No arbitrary first-match provenance is legitimate.
+	event.owned.Event.NormalizedFields["source.ip"] = "192.0.2.4"
+	if status, body := pivotRequest(t, h, nil); status != http.StatusNotFound || strings.Contains(body, "source") {
+		t.Fatalf("ambiguous source/normalized pivot fabricated provenance: %d %s", status, body)
+	}
+	delete(event.owned.Event.NormalizedFields, "source.ip")
+	if status, body := pivotRequest(t, h, nil); status != http.StatusOK ||
+		parsed(t, []byte(body))["fieldOrigin"] != "source" {
+		t.Fatalf("unique authorized field refused: %d %s", status, body)
+	}
+	event.owned.Event.Enrichments = append(event.owned.Event.Enrichments,
+		inspection.EventEnrichment{Producer: "detector-b", Version: "v1",
+			Values: map[string]string{"risk.score": "72"}})
+	if status, body := pivotRequest(t, h, func(q map[string]any) {
+		q["field"], q["value"] = "risk.score", "72"
+	}); status != http.StatusNotFound || strings.Contains(body, "detector") {
+		t.Fatalf("two enrichment producers were attributed arbitrarily: %d %s", status, body)
+	}
+}
+
+func TestHTTPPivotCannotCopyFieldsRejectedByInspectorBounds(t *testing.T) {
+	for _, tc := range []struct {
+		name string
+		mutate func(*testEvent, map[string]any)
+	}{
+		{"large-selected-value", func(e *testEvent, q map[string]any) {
+			e.owned.Event.SourceFields["source.ip"] = strings.Repeat("a", 4097)
+			q["value"] = strings.Repeat("a", 4097)
+		}},
+		{"large-unrelated-field", func(e *testEvent, _ map[string]any) {
+			e.owned.Event.NormalizedFields["test.large"] = strings.Repeat("b", 4097)
+		}},
+		{"too-many-source-fields", func(e *testEvent, _ map[string]any) {
+			for i := 0; i < 260; i++ {
+				e.owned.Event.SourceFields[fmt.Sprintf("src.%d", i)] = "x"
+			}
+		}},
+		{"large-owner-allowed-raw", func(e *testEvent, _ map[string]any) {
+			e.owned.RawDecision = inspection.AccessAllow
+			e.owned.Event.RawPayload = []byte(strings.Repeat("X", 65537))
+		}},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			s, search, event := standardOwners()
+			h := newTestHandler(t, s, search, event)
+			q := map[string]any{}
+			tc.mutate(event, q)
+			status, body := pivotRequest(t, h, func(to map[string]any) {
+				for k, v := range q { to[k] = v }
+			})
+			if status != http.StatusNotFound || strings.Contains(body, "fieldOrigin") {
+				t.Fatalf("pivot bypassed shared Inspector bounds: %d %s", status, body)
+			}
+			if search.pivotCalls != 0 {
+				t.Fatal("invalid projection crossed action authority before validation")
 			}
 		})
 	}

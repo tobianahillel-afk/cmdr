@@ -1,0 +1,128 @@
+{
+  "schema_version": 2,
+  "id": "E10-INV-004J-PIVOTFIX",
+  "title": "Close independent L2 R2 risks on CAP-INV-004 pivot HTTP drafts",
+  "type": "task",
+  "parent": "E10-INV-004",
+  "goal": "Preserve authorized Event Inspector read behavior while making pivot draft a distinct host-authorized action, rejecting ambiguous multi-origin source provenance and applying the same Inspector payload/field bounds.",
+  "depends_on": [
+    "E10-INV-004I-PIVOTHTTP"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-004",
+      "CAP-INV-002"
+    ],
+    "requirements": [
+      "REQ-PROD-002",
+      "REQ-PROD-005",
+      "REQ-PROD-008"
+    ],
+    "screens": [],
+    "permissions": [
+      "perm.shared-capabilities.telemetry-event.read"
+    ],
+    "open_decisions": [
+      "OPEN-013",
+      "OPEN-014"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/audit-event-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/telemetry-event.md",
+      "cmdr-product-spec/05-domain-model/objects/search-job.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/event-inspection-host/http.go",
+    "product-runtime/event-inspection-host/http_test.go",
+    "product-runtime/event-inspection-host/pivot_http.go",
+    "product-runtime/event-inspection-host/pivot_http_test.go",
+    "work/graph.json",
+    "work/lots/E10-INV-004J-PIVOTFIX/**"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/event-inspection/**",
+    "product-runtime/event-search-frontend/**",
+    "tools/cmdr-dev/**"
+  ],
+  "invariants": [
+    "Original frozen #186 SHA 7514699e66b1c5fe27a448539ca5bd39aa855cb5 is not modified; correction is a separate stacked PR.",
+    "Host-provided pivot permission is DISTINCT from Event.read or visible value, is checked per action after independent Search/Telemetry owner checks, and fail-closed if not configured.",
+    "No second policy engine: host injects existing trusted capability permission decision, never from request JSON.",
+    "Reject ambiguous same field-value mapped to more than one origin rather than invent first-match provenance.",
+    "Reuse existing Inspector serialization validation for all field maps, enrichment counts and raw/rendered payload; selected value <=4096 bytes.",
+    "Do not persist or execute a Query; no new IAM backend or client-controlled return context."
+  ],
+  "security_properties": [
+    "Pivot endpoint never returns draft on missing/denied/failing pivot-specific authorization; existing Inspector POST remains readable.",
+    "Raw-denied data is not promoted; no ambiguous field origin or oversized value escapes as pivot.",
+    "No raw payload, tenant metadata or source-field leak on 404."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Read-only host constructor opt-in and validation; no data migration",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Revert correction PR; original core and source owner unchanged",
+    "verification": [
+      "Frozen #186 intact",
+      "Inspector read unchanged"
+    ]
+  },
+  "inputs": [
+    "Independent L2 #186 CHANGES_REQUIRED findings F-01 R2 ambiguous provenance, F-02 R2 pivot permission distinct from read, F-03 R2 Inspector/Pivot bounds mismatch",
+    "Frozen owner-authorized Go HTTP runtime #186 and source-identical corrected core from #182"
+  ],
+  "outputs": [
+    "Optional explicit PivotAuthorizer host injection, default NewHandler pivots fail closed but reads remain supported",
+    "Ambiguous same field/value origin is rejected before copy",
+    "Shared browser projection bounds enforced on pivot"
+  ],
+  "acceptance_tests": [
+    "Legacy NewHandler without pivot authority denies pivot but preserves read.",
+    "Action-specific provider deny/error blocks draft even when Search and Telemetry reads succeed; allow then succeeds.",
+    "Multiple matching origins (source+normalized, two enrichment producers) rejected with no arbitrary origin.",
+    "Value >4096 or owner projection maps violating Inspector bounds reject pivot without a partial result.",
+    "Original host/core regression plus engineering security gates and cross-platform CI success on exact HEAD."
+  ],
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-RUNTIME-DEPS",
+    "CHK-SECURITY-TESTS",
+    "CHK-SAST-GO",
+    "CHK-SCA-GO",
+    "event-inspection-http-host workflow"
+  ],
+  "definition_of_ready": [
+    "Parent I IMPLEMENTED, distinct actions available for host integration, no change to frozen PR"
+  ],
+  "definition_of_done": [
+    "Source-backed host explicitly checks pivot action and provenance before producing draft",
+    "No mandatory security gate softened, exact SHA CI green and independent review when material",
+    "No acceptance/production claim before merge and native approvals"
+  ],
+  "performance_budget": {
+    "applicable": false,
+    "rationale": "Bounded existing 8KiB request, one extra host permission check, O(64*256) maximum field-origin inspection; no production SLO",
+    "metrics": []
+  },
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 4,
+    "estimated_net_loc": 165,
+    "production_files": 2,
+    "net_production_loc": 90,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}
