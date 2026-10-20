@@ -23,12 +23,9 @@
     "screens": [],
     "permissions": [
       "perm.command.read",
-      "perm.command.incident.read",
-      "authoritative factor-source read permissions"
+      "perm.command.incident.read"
     ],
-    "open_decisions": [
-      "OPEN-013 (mutation only; explicitly excluded)"
-    ],
+    "open_decisions": [],
     "canonical_objects": [
       "cmdr-product-spec/05-domain-model/objects/incident.md",
       "cmdr-product-spec/05-domain-model/objects/task.md"
