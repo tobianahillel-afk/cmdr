@@ -94,7 +94,7 @@ func nilAuthority(v any) bool {
 }
 
 func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Cache-Control", "no-store")
+	if r.URL != nil && r.URL.Path == pivotRoute {\n\t\th.servePivot(w, r)\n\t\treturn\n\t}\n\tw.Header().Set("Cache-Control", "no-store")
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.Header().Set("X-Content-Type-Options", "nosniff")
 	w.Header().Set("Referrer-Policy", "no-referrer")
@@ -135,32 +135,8 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		unavailable(w, http.StatusServiceUnavailable)
 		return
 	}
-	ctx, session, err := h.sessions.ResolveInspectionSession(r)
-	if err != nil || ctx == nil || ctx.Err() != nil || !validRef(session.Principal) ||
-		!validRef(session.Tenant) || !validRef(session.Environment) ||
-		session.Tenant != query.TenantRef || session.Environment != query.EnvironmentRef {
-		unavailable(w, http.StatusNotFound)
-		return
-	}
-	// Authorization is source-owned. The query and sourceHint never grant access.
-	allowed, err := h.search.CanInspectSearchResult(ctx, session, query)
-	if err != nil || !allowed || ctx.Err() != nil || r.Context().Err() != nil {
-		unavailable(w, http.StatusNotFound)
-		return
-	}
-	owned, err := h.events.ReadAuthorizedInspectionEvent(ctx, session, query)
-	if err != nil || !owned.Allowed || ctx.Err() != nil || r.Context().Err() != nil ||
-		owned.Event.Ref != query.EventRef || owned.Event.TenantRef != session.Tenant {
-		unavailable(w, http.StatusNotFound)
-		return
-	}
-	result := inspection.Project(inspection.Input{
-		TenantRef: session.Tenant, AuthorizedTenants: []string{session.Tenant},
-		EnvironmentRef: session.Environment, Permissions: []string{inspection.PermissionTelemetryRead},
-		RawAccessDecision: owned.RawDecision, RenderedAccessDecision: owned.RenderDecision,
-		CorrelationID: query.CorrelationID, Event: owned.Event,
-	})
-	if !result.Allowed || result.Projection == nil {
+	ctx, result, owned, authorized := h.authorizedInspection(r, query)
+	if !authorized {
 		unavailable(w, http.StatusNotFound)
 		return
 	}
@@ -176,6 +152,38 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusOK)
 	_, _ = w.Write(append(data, '\n'))
+}
+
+// authorizedInspection enforces host session, selected Search Job and Telemetry
+// Event boundaries for every read-only Inspector route; no request-supplied
+// permission or raw-field classification enters this trust boundary.
+func (h *handler) authorizedInspection(r *http.Request, query Request) (context.Context, inspection.Result, AuthorizedEvent, bool) {
+	ctx, session, err := h.sessions.ResolveInspectionSession(r)
+	if err != nil || ctx == nil || ctx.Err() != nil || !validRef(session.Principal) ||
+		!validRef(session.Tenant) || !validRef(session.Environment) ||
+		session.Tenant != query.TenantRef || session.Environment != query.EnvironmentRef {
+		return nil, inspection.Result{}, AuthorizedEvent{}, false
+	}
+	// Authorization is source-owned. The query and sourceHint never grant access.
+	allowed, err := h.search.CanInspectSearchResult(ctx, session, query)
+	if err != nil || !allowed || ctx.Err() != nil || r.Context().Err() != nil {
+		return nil, inspection.Result{}, AuthorizedEvent{}, false
+	}
+	owned, err := h.events.ReadAuthorizedInspectionEvent(ctx, session, query)
+	if err != nil || !owned.Allowed || ctx.Err() != nil || r.Context().Err() != nil ||
+		owned.Event.Ref != query.EventRef || owned.Event.TenantRef != session.Tenant {
+		return nil, inspection.Result{}, AuthorizedEvent{}, false
+	}
+	result := inspection.Project(inspection.Input{
+		TenantRef: session.Tenant, AuthorizedTenants: []string{session.Tenant},
+		EnvironmentRef: session.Environment, Permissions: []string{inspection.PermissionTelemetryRead},
+		RawAccessDecision: owned.RawDecision, RenderedAccessDecision: owned.RenderDecision,
+		CorrelationID: query.CorrelationID, Event: owned.Event,
+	})
+	if !result.Allowed || result.Projection == nil {
+		return nil, inspection.Result{}, AuthorizedEvent{}, false
+	}
+	return ctx, result, owned, true
 }
 
 func validRef(s string) bool { return opaqueRef.MatchString(s) }
