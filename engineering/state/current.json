@@ -17,7 +17,7 @@
     "phase_title": "Scaled product implementation program bootstrap"
   },
   "execution": {
-    "active_work_unit": "E10-CMD-101K-OWNER-FILTER",
+    "active_work_unit": "E10-CMD-101K-OWNERFILTER",
     "preferred_next_unit": null,
     "selection_rule": "2026-10-20: reconciled #170 d7ac9d3c4141c186722862a383dcb3e97e9d9f10 (exact-head command-work-queue-runtime and engineering-kernel SUCCESS; #170 DRAFT, source owner/Command runtime synthetic). CAP-CMD-101 §11/§25 includes manual filtering: the Class-0 exact responsible-owner filter is implemented as a bounded child of E10-CMD-101J-DIAGNOSTICS within E10-CMD-101 epic; code and manifest written. Status IMPLEMENTED only until exact-head checks, one independent material L2 and required GitHub approvals. CAP-CMD-101 remains incomplete/unaccepted, OPEN-013 mutation excluded. main documentary; parent #36 and long stack DRAFT. No additional READY node inferred; recompute from canonical and Git after this SHA CI."
   },
