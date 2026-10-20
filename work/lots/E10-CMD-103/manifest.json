@@ -1,0 +1,108 @@
+{
+  "schema_version": 2,
+  "id": "E10-CMD-103",
+  "title": "Integrate canonical operational ownership distinctions for CAP-CMD-103",
+  "type": "epic",
+  "parent": "",
+  "goal": "Deliver CAP-CMD-103 progressively: independently source-authorized product owner read-only first, then Class-2 ownership transitions only after OPEN-013 authority and audit contracts are decided.",
+  "depends_on": [
+    "E10-SCALE-005B"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-CMD-103",
+      "CAP-CMD-101",
+      "CAP-CMD-102"
+    ],
+    "requirements": [
+      "REQ-PROD-006",
+      "REQ-PROD-009",
+      "REQ-PROD-013",
+      "REQ-OBJ-001"
+    ],
+    "screens": [],
+    "permissions": [
+      "perm.command.read"
+    ],
+    "open_decisions": [
+      "OPEN-013"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/incident.md",
+      "cmdr-product-spec/05-domain-model/objects/task.md"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md"
+    ]
+  },
+  "allowed_paths": [
+    "work/lots/E10-CMD-103/**",
+    "work/lots/E10-CMD-103A-READONLY/**",
+    "work/graph.json",
+    "engineering/state/current.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**"
+  ],
+  "invariants": [
+    "Command Incident/Task operational owner is separate from canonical product Ownership Register owner.",
+    "Principal/Team identity resolution remains Settings-owned; work item CanRead does not grant Ownership Register rights.",
+    "OPEN-013 Class-2 assign/accept/watcher mutations and full history/audit are not implemented."
+  ],
+  "security_properties": [
+    "No product owner data without selected current-page separately authorized register projection.",
+    "No transfer of rights from product ownership or operational selection.",
+    "No product canonical ownership guessed from object Kind alone."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Planning parent; no schema or data mutation.",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Drop unaccepted child projection and preserve existing six-view queue.",
+    "verification": [
+      "All prior Work Queue tests continue."
+    ]
+  },
+  "inputs": [
+    "Full canonical CAP-CMD-103 §§1–27, CAP-CMD-101, CAP-CMD-102, module README, Ownership Register/Platform Settings role split, tenant and permission contracts, OPEN-013.",
+    "Existing command Work Queue selected-row owner on upstream PR #175, exact CI success."
+  ],
+  "outputs": [
+    "First bounded E10-CMD-103A-READONLY without owner mutation.",
+    "Further Class-2 ownership history/assignment transitions only after accepted authority decisions."
+  ],
+  "acceptance_tests": [
+    "Child source authorization and immutable selected-only projection independently verified.",
+    "Parent epic not marked CAP accepted from one bounded child."
+  ],
+  "performance_budget": {
+    "applicable": false,
+    "rationale": "Non-executable decomposition container."
+  },
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-SECURITY-TESTS"
+  ],
+  "definition_of_ready": [
+    "E10-SCALE-005B verified; read-only inspection is Class 0 and OPEN-013 only blocks Class 2."
+  ],
+  "definition_of_done": [
+    "Canonical ownership source and identity distinction accepted with full history, permissions and audit, separately from child implementation."
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 0,
+    "estimated_net_loc": 0,
+    "production_files": 0,
+    "net_production_loc": 0,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 0,
+    "separately_testable_behaviors": 1
+  }
+}
