@@ -54,7 +54,7 @@ func NewHTTPHandler(sessions SessionResolver, owner Owner) http.Handler {
 			return
 		}
 		for key, entries := range values {
-			if (key != "view" && key != "status" && key != "sort" && key != "selected" && key != "cursor") || len(entries) != 1 {
+			if (key != "view" && key != "status" && key != "owner" && key != "sort" && key != "selected" && key != "cursor") || len(entries) != 1 {
 				http.Error(w, "unsupported work queue query", http.StatusBadRequest)
 				return
 			}
@@ -74,6 +74,17 @@ func NewHTTPHandler(sessions SessionResolver, owner Owner) http.Handler {
 			status = entries[0]
 			if len(status) > 64 || (status != "" && invalidScope(status)) {
 				http.Error(w, "invalid work queue status", http.StatusBadRequest)
+				return
+			}
+		}
+		// Owner is an exact post-authorization presentation filter, never
+		// a session identity, a permission grant, or an assignment mutation.
+		ownerFilter := ""
+		if entries, ok := values["owner"]; ok {
+			ownerFilter = entries[0]
+			if len(ownerFilter) > 128 || (ownerFilter != "" &&
+				(invalidScope(ownerFilter) || !utf8.ValidString(ownerFilter))) {
+				http.Error(w, "invalid work queue owner", http.StatusBadRequest)
 				return
 			}
 		}
@@ -124,6 +135,7 @@ func NewHTTPHandler(sessions SessionResolver, owner Owner) http.Handler {
 		result, err := Project(r.Context(), owner, Request{
 			Principal: scope.Principal, Tenant: scope.Tenant,
 			Environment: scope.Environment, View: view, StatusFilter: status,
+			OwnerFilter: ownerFilter,
 			SortOrder: sortOrder, Cursor: pageCursor,
 		})
 		if err != nil {
