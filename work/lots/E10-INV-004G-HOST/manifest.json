@@ -96,7 +96,7 @@
     "Server response compatible with JS Inspector normalization: lowerCamel source/parser/enrichments; independent raw/rendered variants",
     "HTTP httptest security matrix including host spoof, source redaction, denied raw, malformed requests, wrong Event and partial stale provenance",
     "Exact-HEAD cross-platform CI evidence, with explicit exclusion of real host and production",
-    "Architecture boundary event-inspection-http-host-runtime depends only on existing verified event-inspection-runtime; no edits to original Go module"
+    "Second distinct source root under existing architecture owner event-inspection-runtime; local-only Go dependency on verified projector; no edits to original module"
   ],
   "acceptance_tests": [
     "Positive real HTTP request passes server-source authorization chain and returns browser-compatible read-only projection",
