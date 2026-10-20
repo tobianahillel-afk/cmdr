@@ -46,6 +46,7 @@ type Item struct {
 	Status       string
 	UpdatedAt    string
 	SLAAtRisk    *bool // nil: unavailable from the authoritative policy source
+	SourceFreshness *SourceFreshness // optional, host-owned metadata; never client scope
 }
 
 // Owner is an authoritative host adapter, NOT a client authorization flag.
@@ -73,6 +74,7 @@ type Row struct {
 	Owner     string `json:"owner,omitempty"`
 	Status    string `json:"status,omitempty"`
 	UpdatedAt string `json:"updated_at"`
+	Freshness *FreshnessProjection `json:"freshness,omitempty"`
 }
 
 type Result struct {
@@ -137,6 +139,8 @@ func Project(ctx context.Context, owner Owner, req Request) (Result, error) {
 	var selected []candidate
 	seen := map[string]bool{}
 	partialSLA := false
+	partialSourceFreshness := false
+	now := time.Now().UTC()
 	for _, item := range items {
 		if ctx.Err() != nil {
 			return empty, ErrOwner
@@ -161,6 +165,15 @@ func Project(ctx context.Context, owner Owner, req Request) (Result, error) {
 		}
 		if !allowed {
 			continue
+		}
+		// Source freshness is projected only after the owner's CanRead check.
+		// Unknown policy/source metadata never masquerades as current.
+		freshness, err := sourceFreshness(item.SourceFreshness, now)
+		if err != nil {
+			return empty, ErrIncomplete
+		}
+		if freshness != nil && (freshness.State == "source-unavailable" || freshness.State == "partial") {
+			partialSourceFreshness = true
 		}
 		t, err := time.Parse(time.RFC3339Nano, item.UpdatedAt)
 		if err != nil || t.IsZero() {
@@ -192,7 +205,7 @@ func Project(ctx context.Context, owner Owner, req Request) (Result, error) {
 		}
 		if accept && (req.StatusFilter == "" || item.Status == req.StatusFilter) {
 			selected = append(selected, candidate{
-				row: Row{Kind: item.Kind, ID: item.ID, Owner: item.Owner, Status: item.Status, UpdatedAt: item.UpdatedAt},
+				row: Row{Kind: item.Kind, ID: item.ID, Owner: item.Owner, Status: item.Status, UpdatedAt: item.UpdatedAt, Freshness: freshness},
 				updated: t,
 			})
 		}
@@ -215,9 +228,14 @@ func Project(ctx context.Context, owner Owner, req Request) (Result, error) {
 	if len(selected) == 0 {
 		result.State = "no-authorized-items"
 	}
-	if partialSLA {
+	if partialSLA || partialSourceFreshness {
 		result.State = "partial-sources"
-		result.Diagnostics = []string{"sla-policy-unavailable"}
+	}
+	if partialSLA {
+		result.Diagnostics = append(result.Diagnostics, "sla-policy-unavailable")
+	}
+	if partialSourceFreshness {
+		result.Diagnostics = append(result.Diagnostics, "work-source-degraded")
 	}
 	// Initial bounded slice. Stable cursor/page retrieval and custom Shared
 	// Saved View evaluation are separately owned future integration work.
