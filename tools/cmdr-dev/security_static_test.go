@@ -184,7 +184,7 @@ func TestGosecProcessingErrorsIdentifyOnlySafeExistingRepoPaths(t *testing.T) {
 func TestGosecProcessingKindsNeverEchoUntrustedErrorMessage(t *testing.T) {
 	cases := []struct {
 		diagnostic string
-		want string
+		want       string
 	}{
 		{"undefined: PersonalSecretToken", "unresolved-symbol"},
 		{"could not import private.example/vendor-token", "dependency-import"},
