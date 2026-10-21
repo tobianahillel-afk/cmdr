@@ -1,6 +1,7 @@
 package investigationtimeline
 
 import (
+	"bytes"
 	"encoding/json"
 	"net/http"
 	"net/url"
@@ -79,18 +80,26 @@ func (s *memoryTimelineProvider) sourcePreviewHandler() http.Handler {
 			writeCaseTimelineError(w, http.StatusNotFound)
 			return
 		}
-		payload := struct {
-			Status    string `json:"status"`
-			CaseID    string `json:"case_id"`
-			EntryID   string `json:"entry_id"`
-			Kind      string `json:"kind"`
-			ObjectID  string `json:"object_id"`
-			Preview   string `json:"preview"`
-			Synthetic bool   `json:"synthetic"`
-		}{
+		payload := sourcePreviewResponse{
 			Status: "ready", CaseID: caseID, EntryID: entryID,
 			Kind: draft.Kind, ObjectID: draft.ObjectID,
 			Preview: owner.Preview, Synthetic: true,
+		}
+		// Content negotiation is deliberately AFTER the entire existing
+		// owner chain. HTML has no route, scope, IAM or data-source bypass.
+		if acceptsSourcePreviewHTML(r.Header.Get("Accept")) {
+			var page bytes.Buffer
+			if err := renderSourcePreviewHTML(&page, payload); err != nil ||
+				ctx.Err() != nil || r.Context().Err() != nil {
+				writeCaseTimelineError(w, http.StatusServiceUnavailable)
+				return
+			}
+			w.Header().Set("Content-Type", "text/html; charset=utf-8")
+			w.Header().Set("Content-Security-Policy", "default-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'")
+			w.Header().Set("Vary", "Authorization, Accept")
+			w.WriteHeader(http.StatusOK)
+			_, _ = w.Write(page.Bytes())
+			return
 		}
 		encoded, err := json.Marshal(payload)
 		if err != nil {
