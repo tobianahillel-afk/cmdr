@@ -166,11 +166,11 @@ func runtimeSecurityAdapters() map[string]runtimeSecurityAdapter {
 			TenantTestRegex:        caseQueueTenantTestRegexp,
 		},
 		"command-investigate-host-runtime": {
-			BoundaryID: "command-investigate-host-runtime",
+			BoundaryID:  "command-investigate-host-runtime",
 			RuntimeRoot: "product-runtime/command-investigate-host", RuntimeKind: "go",
-			ModuleIdentity: "github.com/tobianahillel-afk/cmdr/product-runtime/command-investigate-host",
+			ModuleIdentity:         "github.com/tobianahillel-afk/cmdr/product-runtime/command-investigate-host",
 			AuthorizationTestRegex: "^TestRealSameOriginCommandToInvestigateNavigationIndependentlyReauthorizes$|^TestSameOriginHostRoutesFailClosedWithoutGrantingOrRedirecting$",
-			TenantTestRegex: "^TestRealSameOriginCommandToInvestigateNavigationIndependentlyReauthorizes$|^TestSameOriginHostRoutesFailClosedWithoutGrantingOrRedirecting$",
+			TenantTestRegex:        "^TestRealSameOriginCommandToInvestigateNavigationIndependentlyReauthorizes$|^TestSameOriginHostRoutesFailClosedWithoutGrantingOrRedirecting$",
 		},
 		"investigation-timeline-runtime": {
 			BoundaryID: "investigation-timeline-runtime", RuntimeRoot: investigationTimelineSecurityRuntimeRoot, RuntimeKind: "go",
