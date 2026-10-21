@@ -1,0 +1,133 @@
+{
+  "schema_version": 2,
+  "id": "E10-INV-110N-SOURCEHTML-BROWSER",
+  "title": "Serve owner-authorized Timeline source previews as safe HTML in the actual Incident-to-Case local browser",
+  "type": "task",
+  "parent": "E10-INV-110",
+  "goal": "Close the functional gap on the runnable Incident→Case→source browser path: the endpoint opened in the browser still returned JSON. Integrate existing source-identical safe HTML rendering and stronger owner identity checks from independent PR #204 into the pre-existing source-open host in PR #203; preserve both original PR SHAs and full JSON compatibility.",
+  "depends_on": [
+    "E10-INV-110L-SOURCEOPEN"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-110",
+      "CAP-CMD-106"
+    ],
+    "requirements": [
+      "REQ-PROD-014",
+      "REQ-PROD-018"
+    ],
+    "screens": [
+      "INV-TIM-001"
+    ],
+    "permissions": [
+      "perm.shared-capabilities.timeline-entry.read"
+    ],
+    "open_decisions": [
+      "OPEN-013"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/cross-product-context-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/case.md",
+      "cmdr-product-spec/05-domain-model/objects/timeline-entry.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/investigation-timeline/memory_source_preview.go",
+    "product-runtime/investigation-timeline/memory_source_preview_html.go",
+    "product-runtime/investigation-timeline/memory_source_preview_html_test.go",
+    "product-runtime/command-investigate-host/cmd/local-browser/main_test.go",
+    "work/lots/E10-INV-110N-SOURCEHTML-BROWSER/**",
+    "work/graph.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/investigation-timeline/memory_provider.go",
+    "product-runtime/command-investigate-host/host.go",
+    "product-runtime/command-investigate-host/cmd/local-browser/main.go"
+  ],
+  "invariants": [
+    "The existing host authenticates with independent synthetic loopback Basic principals and independently rechecks Investigate Case, Timeline Entry and typed source-owner read on every browser source click.",
+    "New rendered HTML comes only from an already authorized owner-derived sourcePreviewResponse, never browser permissions, sourceRef, principal, redirect or untrusted Case URL.",
+    "Strengthen final sink source owner identity checks including canonical reference/kind/objectID/tenant/environment/Case; never weaken authorized JSON behavior.",
+    "Native browser Accept text/html gives escaped presentation, strict CSP, no-store and fixed safe Case return URL; application/json still returns unchanged source JSON.",
+    "Source #204 HTML code copied by byte-identical Git blobs; its original SHA and PR #203 SHA remain immutable. Only new integration candidate is modified.",
+    "No source mutation, Evidence custody, audit storage, real IAM or production deployment. Unsafe/denied/canceled request yields no protected preview.",
+    "Do not change Go toolchain or disable reachable-vulnerability SCA; take modern, already green #203 chain as the Git parent."
+  ],
+  "security_properties": [
+    "Host's Command-only principal must never acquire Investigate source.read; anonymous/wrong Case/Entry/raw-reference parameter rejected without content in HTML and JSON.",
+    "Avoid script, dangerous links and cache or referer leaks via html/template CSP default-src none, frame none, tokenless return URL, no-store and no-referrer.",
+    "Validate owner reference against the independently authorized visible Entry at response time; no identity ambiguity even with a corrupt synthetic owner registry.",
+    "Cross-source and cross-tenant denials are indistinguishable from missing sources."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Presentation on existing fixed GET /demo-source-open, no persistent schema change.",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Revert this child integration, restore JSON-only source opens while retaining upstream #203 source-link path and Git history.",
+    "verification": [
+      "JSON source API exact fields unchanged",
+      "No unsafe HTML enabled by rollback"
+    ]
+  },
+  "inputs": [
+    "Frozen source #203 exact Git HEAD 2df1209b0695f53537f23f7e03697e0e643c3698 (real loopback runnable browser)",
+    "Frozen source #204 exact Git HEAD e469648e73b56173744b38e8b550e3e3e2343dd5 (safe source HTML and strict identity source blobs)",
+    "CAP-INV-110 §12/17/21 Class-0 open source/return and source-object ownership contracts"
+  ],
+  "outputs": [
+    "Read-only browser Incident→Case Timeline→source preview rendered as HTML on the existing route, with independent owner read and safe return navigation",
+    "Source-identical #204 HTML/core security tests plus actual #203 loopback HTTP browser end-to-end for HTML/JSON positive and both-format negative authorization",
+    "Reconciled integration path without changing frozen #203/#204, inherited modern Go/SCA gate from #203"
+  ],
+  "acceptance_tests": [
+    "Actual first-party Go httptest starts the runnable loopback front door, follows authorized Incident→Case source URL with native Accept:text/html and sees escaped preview plus no-store/CSP",
+    "Same URL with Accept:application/json still returns original JSON and no HTML",
+    "Anonymous, Command-only, foreign Case/Entry, forged sourceRef or invalid Basic password receive no protected preview in either Accept mode",
+    "Corrupt canonical source object identity/reference denied; source HTML/JSON is not partially emitted after cancellation",
+    "CI on exact HEAD passes 3 platforms, Go race/vet, engineering kernel SAST/SCA including govulncheck. Security failure must not be waived."
+  ],
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-SECURITY-TESTS",
+    "CHK-SAST-GO",
+    "CHK-SCA-GO",
+    "command-investigate-readonly-host",
+    "investigation-timeline-runtime"
+  ],
+  "definition_of_ready": [
+    "#203 existing source-open route and runnable browser IMPLEMENTED/CI green and immutable",
+    "#204 source HTML code and individual Go tests available, original standalone #204 kernel failure is not ignored or imported as approval",
+    "Canon CAP-INV-110 Class-0 read/open/return scope and dependency E10-INV-110L-SOURCEOPEN IMPLEMENTED"
+  ],
+  "definition_of_done": [
+    "Actual native browser-like HTTP path returns HTML safely with preserved JSON and access denials",
+    "Full exact HEAD CI and independent targeted L2 risk review of the cross-host integration completed",
+    "No native GitHub reviewer approval/merge/production claims prior to proof"
+  ],
+  "performance_budget": {
+    "applicable": false,
+    "rationale": "Bounded in-process existing source preview, one html/template render, no external IO or changed performance-critical structure.",
+    "metrics": []
+  },
+  "complexity": {
+    "primary_components": 2,
+    "estimated_files_changed": 3,
+    "estimated_net_loc": 70,
+    "production_files": 2,
+    "net_production_loc": 0,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}
