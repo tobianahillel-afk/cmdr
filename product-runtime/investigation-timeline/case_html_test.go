@@ -126,7 +126,7 @@ func TestCaseHTMLTemplateEscapesAllSourceControlledFields(t *testing.T) {
 	out := w.String()
 	if strings.Contains(out, invalid) ||
 		strings.Contains(out, "<script") ||
-		strings.Contains(out, "src=x") ||
+		strings.Contains(out, "<img src=") ||
 		!strings.Contains(out, "&lt;img") ||
 		!strings.Contains(out, "Incertitude") {
 		t.Fatalf("template interpolated source-controlled HTML: %s", out)
