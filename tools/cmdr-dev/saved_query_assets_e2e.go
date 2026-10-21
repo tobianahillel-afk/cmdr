@@ -210,7 +210,8 @@ func runSavedQueryAssetsE2EAudit(root, _ string, state CurrentState) (SavedQuery
 	if err != nil {
 		return SavedQueryAssetsE2EAuditSummary{}, err
 	}
-	if err := validateSavedQueryAssetsRuntimeUnchanged(root, handoffProgress.FinalValidatedHead, currentHead); err != nil {
+	runtimeUnchanged, err := reverifyPinnedGoToolchainTransition(root, handoffProgress.FinalValidatedHead, currentHead, savedQueryAssetsRuntimeDirectory)
+	if err != nil {
 		return SavedQueryAssetsE2EAuditSummary{}, err
 	}
 	adversarial, err := runSavedQueryAssetsAdversarialRuntimeTests(root)
@@ -264,7 +265,7 @@ func runSavedQueryAssetsE2EAudit(root, _ string, state CurrentState) (SavedQuery
 		SCAActionableFindings: runtime.RuntimeObservation.SCAActionableFindings + handoffProgress.HandoffObservation.SCAActionableFindings,
 		ProjectionP95MS:       projectionObserved, ProjectionBudgetMS: projectionBudget,
 		HandoffP95MS: handoffObserved, HandoffBudgetMS: handoffBudget,
-		RuntimeUnchangedSinceVerification: true,
+		RuntimeUnchangedSinceVerification: runtimeUnchanged,
 		BlockingOpenDecisions:             len(closure.BlockingOpenDecisions),
 		Limitations:                       len(closure.Limitations),
 		ProductionReadinessClaim:          closure.ProductionReadinessClaim,
@@ -370,28 +371,6 @@ func validateSavedQueryAssetsClosureHandoff(handoff SavedQueryAssetsClosureHando
 	}
 	if len(handoff.NextConditions) < 5 {
 		return fmt.Errorf("Saved Query Assets handoff requires at least five explicit next conditions")
-	}
-	return nil
-}
-
-func validateSavedQueryAssetsRuntimeUnchanged(root, evidenceHead, currentHead string) error {
-	evidenceHead, err := validateFullCommitID(evidenceHead)
-	if err != nil {
-		return fmt.Errorf("Saved Query Assets handoff evidence head: %w", err)
-	}
-	currentHead, err = validateFullCommitID(currentHead)
-	if err != nil {
-		return fmt.Errorf("current source head: %w", err)
-	}
-	if err := ensureGitAncestor(root, evidenceHead, currentHead); err != nil {
-		return fmt.Errorf("Saved Query Assets runtime evidence ancestry: %w", err)
-	}
-	cmd := exec.Command("git", "-C", root, "diff", "--quiet", evidenceHead, currentHead, "--", savedQueryAssetsRuntimeDirectory) // #nosec G204,G702 -- executable/path fixed; commit args validated full hex IDs.
-	if err := cmd.Run(); err != nil {
-		if exitErr, ok := err.(*exec.ExitError); ok && exitErr.ExitCode() == 1 {
-			return fmt.Errorf("Saved Query Assets runtime changed after verified handoff evidence; fresh runtime proof is required")
-		}
-		return fmt.Errorf("compare Saved Query Assets runtime against verified handoff evidence: %w", err)
 	}
 	return nil
 }
