@@ -45,7 +45,8 @@
     "product-runtime/command-investigate-host/cmd/local-browser/incident_detail_test.go",
     "work/lots/E10-CMD-106L-ALERTSRC/**",
     "work/graph.json",
-    "engineering/state/current.json"
+    "engineering/state/current.json",
+    "product-runtime/command-investigate-host/cmd/local-browser/incident_alert_origin_owner_test.go"
   ],
   "forbidden_paths": [
     "cmdr-product-spec/**",
@@ -92,7 +93,8 @@
     "Wrong tenant/env/Incident link, duplicated/bad Alert IDs, malformed owner source/status/provenance/time or source failure abort without leaking prior authorized page content",
     "One denied Alert among authorized references is omitted without disclosing its reference, while authorized Alert stays visible",
     "Legacy owner without either optional interface remains functional, with explicit unavailable source message",
-    "Existing Work Queue, Incident Detail and same-origin host tests plus GitHub Actions on exact SHA pass; all obligatory security and statement coverage gates retained"
+    "Existing Work Queue, Incident Detail and same-origin host tests plus GitHub Actions on exact SHA pass; all obligatory security and statement coverage gates retained",
+    "Direct synthetic adapters prove a readable Incident cannot expose related Alert to Incident-only commander, unknown principal, foreign tenant/environment, unexpected Alert or canceled read"
   ],
   "required_checks": [
     "CHK-MANIFESTS",
