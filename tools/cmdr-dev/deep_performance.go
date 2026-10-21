@@ -115,6 +115,7 @@ var knownDeepPerformanceHandlerKeys = map[string]bool{
 	"builtin-saved-query-assets-handoff-preimplementation-v1":        true,
 	"builtin-case-queue-projection-v1":                               true,
 	"builtin-command-work-queue-projection-v1":                       true,
+	"builtin-command-investigate-routing-v1":                         true,
 	"builtin-case-queue-saved-view-v1":                               true,
 	"builtin-case-queue-handoff-v1":                                  true,
 	"builtin-investigation-timeline-projection-v1":                   true,
@@ -417,6 +418,9 @@ func executeDeepPerformanceTargetWithHandler(
 }
 
 func runDeepPerformanceHandler(ctx context.Context, root string, target DeepPerformanceTarget) (DeepPerformanceObservation, error) {
+	if target.HandlerKey == "builtin-command-investigate-routing-v1" {
+		return runCommandInvestigateRoutingDeep(ctx, root, target)
+	}
 	if target.HandlerKey == "builtin-command-work-queue-projection-v1" {
 		if err := ctx.Err(); err != nil {
 			return DeepPerformanceObservation{}, err
