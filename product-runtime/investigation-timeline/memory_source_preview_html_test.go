@@ -1,6 +1,7 @@
 package investigationtimeline
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -205,5 +206,49 @@ func TestSourceHTMLRejectsRequestWithoutURLAndKeepsSourceSecret(t *testing.T) {
 	if w.Code != http.StatusBadRequest || strings.Contains(w.Body.String(), "object-a") ||
 		strings.Contains(w.Body.String(), "<html") {
 		t.Fatalf("missing-URL HTML source accepted or disclosed: %d %s", w.Code, w.Body.String())
+	}
+}
+
+func TestAuthorizedSourcePresentationRefusesLateCancellationWithoutPartialHTMLOrJSON(t *testing.T) {
+	// Simulate cancellation at the boundary between a completed, authorized
+	// source owner read and the response. Neither representation may emit
+	// the already-verified source bytes after its request has been canceled.
+	payload := sourcePreviewResponse{
+		Status: "ready", CaseID: "case-a", EntryID: "entry-a",
+		Kind: "telemetry-event", ObjectID: "object-a",
+		Preview: "PRIVATE_SOURCE_BYTES", Synthetic: true,
+	}
+	for _, tc := range []struct {
+		name, accept string
+		cancelOwner, cancelRequest bool
+	}{
+		{"HTML-owner-cancel", "text/html", true, false},
+		{"JSON-owner-cancel", "application/json", true, false},
+		{"HTML-request-cancel", "text/html", false, true},
+		{"JSON-request-cancel", "application/json", false, true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			req := httptest.NewRequest(http.MethodGet, "/demo-source-open?case_id=case-a&entry_id=entry-a", nil)
+			req.Header.Set("Accept", tc.accept)
+			ctx, cancel := context.WithCancel(context.Background())
+			defer cancel()
+			if tc.cancelOwner {
+				cancel()
+			}
+			if tc.cancelRequest {
+				reqCtx, cancelRequest := context.WithCancel(req.Context())
+				cancelRequest()
+				req = req.WithContext(reqCtx)
+			}
+			w := httptest.NewRecorder()
+			writeAuthorizedSourcePreview(w, req, ctx, payload)
+			if w.Code != http.StatusServiceUnavailable ||
+				strings.Contains(w.Body.String(), "PRIVATE_SOURCE_BYTES") ||
+				strings.Contains(w.Body.String(), "<html") ||
+				strings.Contains(w.Body.String(), "object-a") {
+				t.Fatalf("cancelled owner or request released authorized data: code=%d body=%s",
+					w.Code, w.Body.String())
+			}
+		})
 	}
 }
