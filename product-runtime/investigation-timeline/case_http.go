@@ -1,6 +1,7 @@
 package investigationtimeline
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -95,6 +96,26 @@ func (h *CaseTimelineHTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Reque
 	result = selectAuthorizedTimeline(result, selection)
 	if r.Context().Err() != nil || ctx.Err() != nil {
 		writeCaseTimelineError(w, http.StatusServiceUnavailable)
+		return
+	}
+	// Browser navigation from Command uses the same authorized Case route.
+	// HTML changes only the representation, never the owner, scope or rights.
+	// JSON clients and the existing API schema are preserved unchanged.
+	if wantsTimelineHTML(r.Header.Get("Accept")) {
+		var rendered bytes.Buffer
+		if err := renderTimelineHTML(&rendered, query, caseID, selection, result); err != nil {
+			writeCaseTimelineError(w, http.StatusServiceUnavailable)
+			return
+		}
+		if r.Context().Err() != nil || ctx.Err() != nil {
+			writeCaseTimelineError(w, http.StatusServiceUnavailable)
+			return
+		}
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		w.Header().Set("Content-Security-Policy", "default-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'")
+		w.Header().Set("Referrer-Policy", "no-referrer")
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write(rendered.Bytes())
 		return
 	}
 	// Only authorized, already filtered entries may be counted or paged.
