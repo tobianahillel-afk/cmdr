@@ -51,7 +51,11 @@
     "product-runtime/investigation-timeline/memory_source_preview.go",
     "product-runtime/command-investigate-host/cmd/local-browser/incident_return_test.go",
     "work/graph.json",
-    "work/lots/E10-CMD-106H-RETURN/**"
+    "work/lots/E10-CMD-106H-RETURN/**",
+    "product-runtime/work-queue/linked_case_navigation_test.go",
+    "product-runtime/command-investigate-host/case_html_navigation_test.go",
+    "product-runtime/command-investigate-host/host_test.go",
+    "product-runtime/command-investigate-host/timeline_corrections_test.go"
   ],
   "forbidden_paths": [
     "cmdr-product-spec/**",
@@ -101,7 +105,8 @@
     "Full browser-style HTTP journey goes from selected Incident to independently authorized Case, source, back to same timeline page, and back to freshly authorized selected Incident",
     "Invalid/multiple/forged/overlong origin IDs, foreign Case, foreign endpoint, wrong owner, and JSON-origin hint must deny without partial content",
     "Original Case page source filters/page preserved through optional origin; legacy no-origin Case/source links unchanged",
-    "Mandatory Timeline, Work Queue/Command host and Engineering CI pass on the exact candidate SHA, with no lowered guards"
+    "Mandatory Timeline, Work Queue/Command host and Engineering CI pass on the exact candidate SHA, with no lowered guards",
+    "Legacy first-party Work Queue and Command host tests validate exact encoded Case+Incident HTML link while original strict JSON-originless client requests retain full old assertions and access boundary."
   ],
   "required_checks": [
     "CHK-MANIFESTS",
@@ -131,7 +136,7 @@
   },
   "complexity": {
     "primary_components": 2,
-    "estimated_files_changed": 5,
+    "estimated_files_changed": 9,
     "estimated_net_loc": 200,
     "production_files": 5,
     "net_production_loc": 100,
