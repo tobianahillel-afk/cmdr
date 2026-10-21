@@ -2238,7 +2238,8 @@
       ],
       "dependency_terminal_state": "IMPLEMENTED",
       "unlocks": [
-        "E10-CMD-106G-LOCALBROWSER"
+        "E10-CMD-106G-LOCALBROWSER",
+        "E10-INV-110L-SOURCEOPEN"
       ]
     },
     {
@@ -2249,6 +2250,20 @@
       "depends_on": [
         "E10-CMD-106F-TIMELINE",
         "E10-INV-110K-HTMLFILTER"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-INV-110L-SOURCEOPEN"
+      ]
+    },
+    {
+      "id": "E10-INV-110L-SOURCEOPEN",
+      "title": "Open independently authorized Timeline Entry source in same-origin Command-linked local browser",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-INV-110K-HTMLFILTER",
+        "E10-CMD-106G-LOCALBROWSER"
       ],
       "dependency_terminal_state": "IMPLEMENTED",
       "unlocks": []
