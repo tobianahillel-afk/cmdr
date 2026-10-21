@@ -1,0 +1,137 @@
+{
+  "schema_version": 2,
+  "id": "E10-CMD-106K-OVERVIEW",
+  "title": "Render owner-authorized canonical Incident headline, severity, priority and impact on existing Command Incident Detail",
+  "type": "task",
+  "parent": "E10-CMD-106",
+  "goal": "Complete the read-only business header of the existing authenticated Class-0 Incident Detail using one optional Command-owned projection. No invented data, unauthorized source metadata, mutation or new route.",
+  "depends_on": [
+    "E10-CMD-106J-DETAILREAD"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-CMD-106",
+      "CAP-CMD-101"
+    ],
+    "requirements": [
+      "REQ-OBJ-001",
+      "REQ-PROD-013",
+      "REQ-SEC-001"
+    ],
+    "screens": [
+      "CMD-IWQ-006"
+    ],
+    "permissions": [
+      "perm.command.incident.read"
+    ],
+    "open_decisions": [
+      "OPEN-013"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/incident.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/work-queue/incident_overview.go",
+    "product-runtime/work-queue/incident_detail.go",
+    "product-runtime/work-queue/incident_overview_test.go",
+    "product-runtime/command-investigate-host/cmd/local-browser/main.go",
+    "product-runtime/command-investigate-host/cmd/local-browser/incident_detail_test.go",
+    "work/lots/E10-CMD-106K-OVERVIEW/**",
+    "work/graph.json",
+    "engineering/state/current.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/work-queue/queue.go",
+    "product-runtime/work-queue/selected_context.go",
+    "product-runtime/investigation-timeline/**",
+    "product-runtime/command-investigate-host/host.go"
+  ],
+  "invariants": [
+    "The selected Incident must be reauthorized through existing Command SessionResolver+Owner.List/CanRead+Project before any optional canonical overview source lookup.",
+    "The new optional IncidentOverviewOwner is a Command host implementation, not client-provided field values, scope or permission; it must reauthorize principal, tenant, environment and incident, then provide source provenance.",
+    "Returned Incident ID, tenant and environment must match the already authenticated selection; title/priority/severity/business impact are optional and never inferred from status/factors/SLA or Case rights.",
+    "Any invalid source provenance, malformed UTF-8/control field, excessive source text, source failure or revoked Incident fails without emitting partial HTML or confidential values.",
+    "Missing optional source is shown explicitly as unavailable with no invented business fields, preserving existing backward compatible local hosts.",
+    "No mutations, source writes, export, Incident transition, new permission namespace, Govern action or production acceptance; current Work Queue and Investigate Case handlers retain original behavior."
+  ],
+  "security_properties": [
+    "No unauthenticated or cross-tenant Incident ID may be used to fetch the optional source; input ID remains presentation-only.",
+    "No raw/secret source content is copied; only independently owner-authorized canonical header fields with ID, tenant, environment, version, source and observation time.",
+    "html/template escapes source-provided text and strict CSP/no-store/no-referrer remain intact.",
+    "Synthetic loopback demo exposes overview only for analyst principal while Command-only commander may see base Incident but no optional overview."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Additive optional read-only HTML projection, no stored schema changes or new endpoint",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Revert overview module, optional demo owner implementation and HTML template insertion; preexisting Incident Detail stays readable",
+    "verification": [
+      "Old owner without optional interface still serves partial Detail",
+      "Original Incident→Case→return navigation remains unchanged"
+    ]
+  },
+  "inputs": [
+    "Existing #209 Incident Detail selected Command owner read, canonical OBJ-INCIDENT title/priority/severity/business-impact",
+    "Existing first-party local loopback synthetic host and trusted Command demo sessions"
+  ],
+  "outputs": [
+    "Selected Incident Detail shows actual Command-owner authorized title/priority/severity/business-impact and source provenance when available",
+    "Unavailable or intentionally withheld owner produces partial view with unknown values, preserving independent Case owner permissions",
+    "Exact source authorization, failure and HTML injection regression tests including actual local HTTP synthetic browser"
+  ],
+  "acceptance_tests": [
+    "Selected owner-authorized Incident on third Work Queue page displays correct canonical business attributes and provenance",
+    "Missing optional source or missing individual fields displays explicit partial/unknown and never guesses",
+    "Owner-revoked, wrong Incident, tenant, environment, failed/stale source, malformed observation time or sensitive text rejects without partial HTML",
+    "Safe escaping prevents owner title from becoming HTML or script; no CSP or caching relaxation",
+    "Run original Command Work Queue and same-origin host suites on Linux, Windows, macOS and global engineering/security checks on exact head"
+  ],
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-RUNTIME-DEPS",
+    "CHK-SECURITY-TESTS",
+    "CHK-SAST-GO",
+    "CHK-SCA-GO",
+    "work-queue-runtime",
+    "command-investigate-host"
+  ],
+  "definition_of_ready": [
+    "Canonical CAP-CMD-106 and OBJ-INCIDENT prescribe title, priority, severity and business impact read, and #209 real Class-0 detail has explicitly missing fields",
+    "Parent E10-CMD-106J-DETAILREAD is IMPLEMENTED on frozen #209 head; no production IAM decision is assumed",
+    "Source trust boundary remains the Command owner, not the browser or linked Investigate Case"
+  ],
+  "definition_of_done": [
+    "Source-authorized read-only detail visible in local browser, with correct unknown state when denied/unavailable",
+    "Exact commit Linux/macOS/Windows Go tests/vet/race and mandatory security checks SUCCESS",
+    "No source parent reviewed SHA changed, no merge or native GitHub approval falsely claimed"
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "One additional optional owner lookup only after existing bounded at-most 5000 full owner checks; no extra auth engine or indexed storage; production SLO not asserted.",
+    "metrics": [
+      "at most one optional Command overview owner lookup per allowed detail request",
+      "no more than one additional Go renderer field group"
+    ]
+  },
+  "complexity": {
+    "primary_components": 2,
+    "estimated_files_changed": 3,
+    "estimated_net_loc": 150,
+    "production_files": 3,
+    "net_production_loc": 130,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}
