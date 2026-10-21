@@ -30,7 +30,9 @@
     "product-runtime/event-inspection/go.mod",
     "product-runtime/event-search/go.mod",
     "product-runtime/hunt-management/go.mod",
-    "product-runtime/saved-query-assets/go.mod"
+    "product-runtime/saved-query-assets/go.mod",
+    "tools/cmdr-dev/event_inspection_e2e.go",
+    "tools/cmdr-dev/event_inspection_toolchain_test.go"
   ],
   "forbidden_paths": [
     "cmdr-product-spec/**",
@@ -43,7 +45,8 @@
     "Malformed/missing IDs remain a blocking generic identifier-unavailable error",
     "No product data, Go toolchain version or dependency changed blindly without exact finding",
     "All nine repo Go module go directives use official Go 1.26.10 fixed crypto/x509 stdlib version; all workflows whose setup-go uses go-version-file inherit patched compiler; do not change package APIs, binary logic, runtime authorization or source data.",
-    "No claim GO-2026-6809 resolved until exact candidate GitHub SCA and full relevant cross-platform Go workflows pass; no go.sum or dependency version changes unless reproducible tests require them."
+    "No claim GO-2026-6809 resolved until exact candidate GitHub SCA and full relevant cross-platform Go workflows pass; no go.sum or dependency version changes unless reproducible tests require them.",
+    "No arbitrary waiver of CHK-EVENT-INSPECTION-E2E: permit only exact original/patched go.mod blob pair, no other Event Inspection file path diff, run fresh full module tests and vet, preserve all original 13 adversarial tests and performance checks."
   ],
   "security_properties": [
     "Never echo private import/module path, package, receiver, function, source, traces, URLs or arbitrary OSV text",
@@ -68,7 +71,8 @@
   "outputs": [
     "Strictly validated public advisory reference in failed SCA CI on exact HEAD, or identifier-unavailable; actionable module remediation can then be scoped to verified OSV",
     "Unit tests prove identity redaction and no change to fail-closed classification",
-    "Nine exact Go go.mod declarations raised to 1.26.10; engineering-kernel and all runtime workflows should now build/reassess with fixed standard library without modifying product Go source."
+    "Nine exact Go go.mod declarations raised to 1.26.10; engineering-kernel and all runtime workflows should now build/reassess with fixed standard library without modifying product Go source.",
+    "Mandatory Event Inspection E2E source drift gate now permits only the exact two documented Go 1.26.8 -> 1.26.10 go.mod blob SHAs, requires actual go test ./... and go vet ./... under patched local compiler; all other source changes fail closed; original historical VERIFIED SHA stays immutable and runtime_unchanged_since_pivot=false."
   ],
   "acceptance_tests": [
     "parseGovulncheckStream still returns error and actionable count for a reachable OSV, now safe identifier",
@@ -77,7 +81,9 @@
     "Exact-head engineering kernel failure reports only safe public advisory ID; vulnerability remains block until actual fix",
     "All nine existing go.mod paths contain go 1.26.10 and no pre-1.26.10 go directives remain in registered runtime modules.",
     "Go vulnerability scanner no longer reports reachable GO-2026-6809 on exact HEAD; SCA stays mandatory and fails on other actionable findings.",
-    "Command runtime Linux/macOS/Windows and engineering kernel exact HEAD CI pass after patch, including existing defensive tests."
+    "Command runtime Linux/macOS/Windows and engineering kernel exact HEAD CI pass after patch, including existing defensive tests.",
+    "Source identity gate accepts unchanged original runtime or single exact Go 1.26.10 go.mod delta but rejects different Go version or extra source file in isolated test Git repository",
+    "On exact candidate SHA CHK-EVENT-INSPECTION-E2E outputs PASS with runtime_unchanged_since_pivot=false; all historical evidence unmodified and mandatory SCA remains enforced."
   ],
   "required_checks": [
     "CHK-SCA-GO",
@@ -106,10 +112,10 @@
   },
   "complexity": {
     "primary_components": 1,
-    "estimated_files_changed": 11,
-    "estimated_net_loc": 48,
-    "production_files": 10,
-    "net_production_loc": 43,
+    "estimated_files_changed": 12,
+    "estimated_net_loc": 190,
+    "production_files": 11,
+    "net_production_loc": 145,
     "bounded_contexts": 1,
     "independent_migrations": 0,
     "distinct_security_models": 1,
