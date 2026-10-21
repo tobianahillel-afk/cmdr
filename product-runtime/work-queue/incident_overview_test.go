@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"net/http"
+	"net/http/httptest"
 	"strings"
 	"testing"
 )
@@ -198,5 +199,87 @@ func TestIncidentOverviewReadRejectsCancellationEvenIfSourceIgnoresContext(t *te
 	_, err = readAuthorizedIncidentOverview(context.Background(), owner, trustedHost().scope, "inc-100")
 	if err == nil || strings.Contains(err.Error(), "SENSITIVE") {
 		t.Fatalf("internal owner error exposed: %v", err)
+	}
+}
+
+
+type interruptedFactorsOwner struct {
+	*fakeOwner
+	fail bool
+	cancel context.CancelFunc
+	calls int
+}
+
+func (o *interruptedFactorsOwner) ReadAuthorizedFactors(
+	_ context.Context, principal, tenant, environment string, kind Kind, id string,
+) (AuthorizedFactors, error) {
+	o.calls++
+	if principal != "analyst" || tenant != "t1" || environment != "e1" ||
+		kind != Incident || id != "inc-100" {
+		return AuthorizedFactors{}, errors.New("unauthorized factors source request")
+	}
+	if o.fail {
+		return AuthorizedFactors{}, errors.New("PRIVATE-FACTOR-SOURCE-ERROR")
+	}
+	if o.cancel != nil {
+		o.cancel()
+	}
+	return AuthorizedFactors{}, nil
+}
+
+func TestIncidentDetailRouteAndCanceledClientFailBeforeOwnerRead(t *testing.T) {
+	owner, sessions := deepReturnOwner(), trustedHost()
+	h := NewIncidentDetailHTTPHandler(sessions, owner)
+	wrong := detailGET(h, "/command/incident-other?incident=inc-100")
+	if wrong.Code != http.StatusNotFound || sessions.calls != 0 || len(owner.calls) != 0 {
+		t.Fatalf("wrong route reached owner or session: %d", wrong.Code)
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	req := httptest.NewRequest(http.MethodGet, "/command/incident-detail?incident=inc-100", nil).WithContext(ctx)
+	req.Header.Set("Accept", "text/html")
+	rec := httptest.NewRecorder()
+	h.ServeHTTP(rec, req)
+	if rec.Code != http.StatusServiceUnavailable || sessions.calls != 0 ||
+		len(owner.calls) != 0 || strings.Contains(rec.Body.String(), "inc-100") {
+		t.Fatalf("canceled detail read reached authority: %d %q", rec.Code, rec.Body.String())
+	}
+}
+
+func TestIncidentDetailIndependentCoordinationFailureDoesNotRenderBusinessHeader(t *testing.T) {
+	o := &interruptedFactorsOwner{fakeOwner: deepReturnOwner(), fail: true}
+	rec := detailGET(NewIncidentDetailHTTPHandler(trustedHost(), o),
+		"/command/incident-detail?incident=inc-100")
+	if rec.Code != http.StatusServiceUnavailable || o.calls != 1 ||
+		strings.Contains(rec.Body.String(), "PRIVATE") ||
+		strings.Contains(rec.Body.String(), "Incident Detail — aperçu") {
+		t.Fatalf("coordination owner failure emitted partial dossier: %d %q", rec.Code, rec.Body.String())
+	}
+}
+
+func TestIncidentDetailCancellationAfterAuthorizedFactorsNeverRendersHTML(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	o := &interruptedFactorsOwner{fakeOwner: deepReturnOwner(), cancel: cancel}
+	req := httptest.NewRequest(http.MethodGet, "/command/incident-detail?incident=inc-100", nil).WithContext(ctx)
+	req.Header.Set("Accept", "text/html")
+	rec := httptest.NewRecorder()
+	NewIncidentDetailHTTPHandler(trustedHost(), o).ServeHTTP(rec, req)
+	if rec.Code != http.StatusServiceUnavailable || o.calls != 1 ||
+		strings.Contains(rec.Body.String(), "Incident Detail — aperçu") ||
+		strings.Contains(rec.Body.String(), "inc-100") {
+		t.Fatalf("cancellation after authorized source returned exposed partial HTML: %d %q", rec.Code, rec.Body.String())
+	}
+}
+
+func TestIncidentDetailOwnerReadErrorDoesNotReturnSelectedIncident(t *testing.T) {
+	o := deepReturnOwner()
+	o.errRead = true
+	result := detailGET(NewIncidentDetailHTTPHandler(trustedHost(), o),
+		"/command/incident-detail?incident=inc-100")
+	if result.Code != http.StatusServiceUnavailable ||
+		strings.Contains(result.Body.String(), "inc-100") ||
+		strings.Contains(result.Body.String(), "Incident Detail — aperçu") {
+		t.Fatalf("owner CanRead error exposed selected incident: %d %q", result.Code, result.Body.String())
 	}
 }
