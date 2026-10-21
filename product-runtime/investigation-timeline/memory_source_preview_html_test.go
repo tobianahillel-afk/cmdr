@@ -219,7 +219,7 @@ func TestAuthorizedSourcePresentationRefusesLateCancellationWithoutPartialHTMLOr
 		Preview: "PRIVATE_SOURCE_BYTES", Synthetic: true,
 	}
 	for _, tc := range []struct {
-		name, accept string
+		name, accept               string
 		cancelOwner, cancelRequest bool
 	}{
 		{"HTML-owner-cancel", "text/html", true, false},
