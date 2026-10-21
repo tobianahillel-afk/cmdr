@@ -1492,7 +1492,26 @@ test("Wazuh malicious or internally inconsistent ATT&CK source cohorts fail clos
     { distinct_technique_ids: 0 },
     { unmapped_technique_alerts: 2 },
     { top_techniques: null },
-    { top_techniques: undefined }
+    { top_techniques: undefined },
+    // The aggregate is source-owned but a malformed transport response must
+    // never publish duplicate labels or impossible counts to an analyst.
+    { distinct_technique_ids: 2, top_techniques: [
+      { technique_id: "T1059", count: 1 }, { technique_id: "T1059", count: 1 }
+    ] },
+    { imported_entries: 2, unmapped_technique_alerts: 2 },
+    { imported_entries: 3, distinct_technique_ids: 1, top_techniques: [
+      { technique_id: "T1059", count: 2 }
+    ] },
+    { imported_entries: 1, distinct_technique_ids: 2, top_techniques: [
+      { technique_id: "T1078", count: 1 }, { technique_id: "T1059", count: 1 }
+    ] },
+    { imported_entries: 2, distinct_technique_ids: 2, top_techniques: [
+      { technique_id: "T1059", count: 1 }, { technique_id: "T1078", count: 2 }
+    ] },
+    { distinct_technique_ids: 17, top_techniques: Array.from({ length: 10 },
+      (_, i) => ({ technique_id: "T" + (1000 + i), count: 1 })) },
+    // An imported alert with no mapped tags cannot produce any top technique.
+    { unmapped_technique_alerts: 1 }
   ];
   for (const extra of malformed) {
     const env = boot(() => ({ ok: true, async json() { return { ...baseline, ...extra }; } }));
@@ -1503,6 +1522,27 @@ test("Wazuh malicious or internally inconsistent ATT&CK source cohorts fail clos
     assert.doesNotMatch(env.fields["wazuh-status"].textContent, /T1059|<img>|1 alerte\(s\) Wazuh importée/);
     assert.equal(env.fields["wazuh-actions"].children.length, 0);
   }
+});
+
+
+test("Wazuh ATT&CK UI accepts overlapping counts but never treats them as distinct alerts", async () => {
+  const env = boot(() => ({ ok: true, async json() { return {
+    format: "cmdr-local-wazuh4-case-triage-v1", synthetic: true,
+    imported_entries: 2, top_agents: [], top_rules: [],
+    distinct_technique_ids: 2, unmapped_technique_alerts: 0,
+    top_techniques: [
+      { technique_id: "T1059", count: 2, highest_known_rule_level: 9 },
+      { technique_id: "T1078", count: 2 }
+    ]
+  }; } }));
+  env.fields["wazuh-cohorts"].handlers.click();
+  await flush();
+  await flush();
+  const status = env.fields["wazuh-status"].textContent;
+  assert.match(status, /T1059 : 2 alerte\(s\)/);
+  assert.match(status, /T1078 : 2 alerte\(s\)/);
+  assert.match(status, /2 alerte\(s\) Wazuh importée\(s\)/);
+  assert.doesNotMatch(status, /indisponible|refusé/);
 });
 
 test("Wazuh ATT&CK cohorts remain invisible when the Case selection changes before HTTP completes", async () => {
