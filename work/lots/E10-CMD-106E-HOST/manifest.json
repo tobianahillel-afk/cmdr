@@ -53,7 +53,9 @@
     "engineering/security/runtime-security-policy.json",
     "work/lots/E10-CMD-106E-HOST/**",
     "work/graph.json",
-    "engineering/performance/performance-registry.json"
+    "engineering/performance/performance-registry.json",
+    "engineering/performance/performance-policy.json",
+    "tools/cmdr-dev/performance_registry.go"
   ],
   "forbidden_paths": [
     "cmdr-product-spec/**",
@@ -69,7 +71,8 @@
     "A user with Command Incident.read but without Investigate Case.read can see only an independently allowed Case ID link, not its Timeline entries nor underlying source metadata.",
     "All additional source output belongs to the original handlers, never to this router; no new Case owner, persisted object, mutation endpoint, Class-2 operation or production deployment.",
     "Existing Go 1.26.10 work-queue and investigation-timeline module boundaries are reused through pinned local replaces; do not introduce external runtime dependencies or paid APIs.",
-    "Existing #195 and #197 SHA remain frozen and unchanged; this new branch descends #197 only as Git parent, not business parent."
+    "Existing #195 and #197 SHA remain frozen and unchanged; this new branch descends #197 only as Git parent, not business parent.",
+    "Performance workload identity is registered in both strict engineering validator and policy, without a waiver and without claiming a measured production SLO."
   ],
   "security_properties": [
     "Fail closed if either required handler is missing; unsupported paths cannot reach an owner adapter.",
@@ -136,10 +139,10 @@
   },
   "complexity": {
     "primary_components": 1,
-    "estimated_files_changed": 4,
+    "estimated_files_changed": 6,
     "estimated_net_loc": 90,
-    "production_files": 2,
-    "net_production_loc": 80,
+    "production_files": 3,
+    "net_production_loc": 100,
     "bounded_contexts": 1,
     "independent_migrations": 0,
     "distinct_security_models": 1,
