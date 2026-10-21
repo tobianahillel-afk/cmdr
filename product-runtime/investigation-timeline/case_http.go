@@ -62,6 +62,17 @@ func (h *CaseTimelineHTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Reque
 		writeCaseTimelineError(w, http.StatusBadRequest)
 		return
 	}
+	// A browser GET filter form transmits empty optional controls. Interpret
+	// those controls as omitted ONLY for HTML, without relaxing the strict
+	// JSON API selector parser or silently accepting unknown/duplicate keys.
+	// This happens before permission lookup and changes presentation only.
+	if wantsTimelineHTML(r.Header.Get("Accept")) {
+		for _, key := range []string{"kind", "q", "from", "to"} {
+			if values := query[key]; len(values) == 1 && values[0] == "" {
+				delete(query, key)
+			}
+		}
+	}
 	caseID := query.Get("case_id")
 	selection, valid := parseTimelineReadSelection(query)
 	if !valid {
@@ -112,7 +123,7 @@ func (h *CaseTimelineHTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Reque
 			return
 		}
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		w.Header().Set("Content-Security-Policy", "default-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'")
+		w.Header().Set("Content-Security-Policy", "default-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'")
 		w.Header().Set("Referrer-Policy", "no-referrer")
 		w.WriteHeader(http.StatusOK)
 		_, _ = w.Write(rendered.Bytes())

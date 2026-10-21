@@ -2223,6 +2223,19 @@
         "E10-CMD-106F-TIMELINE"
       ],
       "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-INV-110K-HTMLFILTER"
+      ]
+    },
+    {
+      "id": "E10-INV-110K-HTMLFILTER",
+      "title": "Apply existing owner-authorized Case Timeline filters through interactive HTML GET form",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-INV-110J-CASEHTML"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
       "unlocks": []
     }
   ]

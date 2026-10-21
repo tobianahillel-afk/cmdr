@@ -26,6 +26,29 @@ var timelineHTMLTemplate = template.Must(template.New("case-timeline-html").Pars
 <p>Case : {{.CaseID}}</p>
 <p role="status">État autorisé : {{.Result.Status}}. Les sources peuvent être partielles ou manquantes. Les périodes à horloge incertaine ne prouvent aucun ordre causal.</p>
 <p>Éléments autorisés après filtres : {{.Result.Page.TotalVisible}}. Affichage : {{.Result.Page.Limit}} lignes maximum. La chronologie est réévaluée avec les permissions serveur à chaque requête ; la pagination n'est pas un instantané transactionnel.</p>
+<form method="get" action="/case-timeline" aria-label="Filtrer les entrées autorisées">
+<input type="hidden" name="case_id" value="{{.CaseID}}">
+<label for="timeline-kind">Type</label>
+<select id="timeline-kind" name="kind">
+<option value="">Tous les types</option>
+<option value="observed" {{if eq .Kind "observed"}}selected{{end}}>Observé</option>
+<option value="inferred" {{if eq .Kind "inferred"}}selected{{end}}>Inféré</option>
+<option value="user-action" {{if eq .Kind "user-action"}}selected{{end}}>Action utilisateur</option>
+<option value="decision" {{if eq .Kind "decision"}}selected{{end}}>Décision</option>
+<option value="response" {{if eq .Kind "response"}}selected{{end}}>Réponse</option>
+</select>
+<label for="timeline-search">Rechercher dans les champs autorisés (identifiant, source et provenance)</label>
+<input id="timeline-search" name="q" type="search" maxlength="96" value="{{.Query}}">
+<label for="timeline-from">Début inclus (RFC3339, ex. 2026-10-21T10:00:00Z)</label>
+<input id="timeline-from" name="from" type="text" maxlength="35" value="{{.From}}" placeholder="2026-10-21T10:00:00Z">
+<label for="timeline-to">Fin exclue (RFC3339)</label>
+<input id="timeline-to" name="to" type="text" maxlength="35" value="{{.To}}" placeholder="2026-10-21T11:00:00Z">
+<label for="timeline-limit">Entrées par page (1 à 200)</label>
+<input id="timeline-limit" name="limit" type="number" min="1" max="200" required value="{{.Result.Page.Limit}}">
+<button type="submit">Appliquer les filtres autorisés</button>
+<a href="{{.ResetURL}}">Réinitialiser les filtres</a>
+</form>
+<p>Les filtres ne changent jamais les permissions : seuls les événements et métadonnées déjà autorisés sont recherchés. Les horaires incertains restent signalés et ne prouvent aucun ordre causal.</p>
 {{if .Result.Entries}}
 <table>
 <caption>Timeline Entry autorisées, lecture seule</caption>
@@ -56,6 +79,11 @@ var timelineHTMLTemplate = template.Must(template.New("case-timeline-html").Pars
 
 type timelineHTMLView struct {
 	CaseID      string
+	Kind        string
+	Query       string
+	From        string
+	To          string
+	ResetURL    string
 	Result      timelinePagedHTTPResult
 	HasPrevious bool
 	HasNext     bool
@@ -106,6 +134,9 @@ func renderTimelineHTML(w io.Writer, values url.Values, caseID string, selection
 	page := paginateAuthorizedTimeline(authorized, selection)
 	view := timelineHTMLView{
 		CaseID: caseID, Result: page,
+		Kind: values.Get("kind"), Query: values.Get("q"),
+		From: values.Get("from"), To: values.Get("to"),
+		ResetURL:    timelineHTMLPageURL(url.Values{"case_id": {caseID}}, page.Page.Limit, 0),
 		HasPrevious: selection.offset > 0,
 		HasNext:     page.Page.HasMore,
 	}
