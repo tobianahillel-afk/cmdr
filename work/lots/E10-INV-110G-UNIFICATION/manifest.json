@@ -116,5 +116,10 @@
     "independent_migrations": 0,
     "distinct_security_models": 1,
     "separately_testable_behaviors": 1
+  },
+  "performance_budget": {
+    "applicable": false,
+    "rationale": "Source-identical consolidation of two existing read-only bounded Timeline behaviors, no new request path or algorithm; performance obligations and benchmarks remain those of both parent work units.",
+    "metrics": []
   }
 }
