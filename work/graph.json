@@ -1767,7 +1767,8 @@
       ],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": [
-        "E10-INV-120A-SNAPSHOT"
+        "E10-INV-120A-SNAPSHOT",
+        "E10-INV-110F-SUPERSESSION"
       ]
     },
     {
@@ -2178,6 +2179,33 @@
       "depends_on": [
         "E10-CMD-106D-NAVIGATION",
         "E10-INV-110E"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-CMD-106F-TIMELINE"
+      ]
+    },
+    {
+      "id": "E10-INV-110F-SUPERSESSION",
+      "title": "Expose source-authorized superseded Timeline Entry state in existing Case HTTP projection",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-INV-110E"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-CMD-106F-TIMELINE"
+      ]
+    },
+    {
+      "id": "E10-CMD-106F-TIMELINE",
+      "title": "Integrate source-authorized corrections into the existing Command Incident linked Case HTTP navigation",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-CMD-106E-HOST",
+        "E10-INV-110F-SUPERSESSION"
       ],
       "dependency_terminal_state": "IMPLEMENTED",
       "unlocks": []
