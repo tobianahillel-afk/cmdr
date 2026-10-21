@@ -1,0 +1,143 @@
+{
+  "schema_version": 2,
+  "id": "E10-CMD-106H-RETURN",
+  "title": "Return from authorized Investigate Case Timeline and source to the originally selected Command Incident",
+  "type": "task",
+  "parent": "E10-CMD-106",
+  "goal": "Close CAP-CMD-106 §17/§25 Class-0 Incident→Investigate→Incident navigation in the already runnable first-party local browser, without creating an authorization bridge, mutation, redirect, source store, new route or paid API.",
+  "depends_on": [
+    "E10-CMD-106G-LOCALBROWSER",
+    "E10-INV-110O-RETURNCTX"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-CMD-106",
+      "CAP-INV-110",
+      "CAP-CMD-101"
+    ],
+    "requirements": [
+      "REQ-PROD-013",
+      "REQ-PROD-014",
+      "REQ-SEC-001"
+    ],
+    "screens": [
+      "INV-TIM-001"
+    ],
+    "permissions": [
+      "perm.command.incident.read",
+      "perm.investigate.case.read",
+      "perm.shared-capabilities.timeline-entry.read"
+    ],
+    "open_decisions": [
+      "OPEN-013"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/cross-product-context-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/incident.md",
+      "cmdr-product-spec/05-domain-model/objects/case.md",
+      "cmdr-product-spec/05-domain-model/objects/timeline-entry.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/work-queue/html.go",
+    "product-runtime/investigation-timeline/incident_return.go",
+    "product-runtime/investigation-timeline/incident_return_test.go",
+    "product-runtime/investigation-timeline/case_http.go",
+    "product-runtime/investigation-timeline/case_html.go",
+    "product-runtime/investigation-timeline/memory_source_preview.go",
+    "product-runtime/command-investigate-host/cmd/local-browser/incident_return_test.go",
+    "work/graph.json",
+    "work/lots/E10-CMD-106H-RETURN/**"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/command-investigate-host/host.go",
+    "product-runtime/command-investigate-host/cmd/local-browser/main.go",
+    "product-runtime/investigation-timeline/memory_provider.go",
+    "product-runtime/investigation-timeline/memory_source_preview_html.go"
+  ],
+  "invariants": [
+    "The Command Incident ID originates in a Command-authorized selected Incident link, but after HTTP roundtrips is UNTRUSTED presentation-only navigation data; it does not authorize Case, Timeline Entry or source read.",
+    "Case Timeline keeps checking its own trusted host session, Case, Timeline Entry and typed source owner on EVERY read; source preview independently checks owner.read and the source object identity.",
+    "Returning to /command/work-queue?view=incidents&selected=Incident:... triggers the existing Command session and owner read checks; no permission or scope transferred from Investigate.",
+    "Accept origin_incident ONLY on explicit text/html Case Timeline requests, absent from JSON legacy API and all permission/tenant/source owner query selection.",
+    "Source return_to URL allows only same Case /case-timeline path with one strictly bounded optional incident ID; no host, scheme, fragment, duplicate keys or extra permissions.",
+    "The link is fixed same-origin path constructed with url.Values; no arbitrary external URL, redirect, referer credential, raw sourceRef or inherited owner decision.",
+    "Preserve prior selection/pagination filters and synthetic local browser behavior without modifying prior review SHA #206 or any parent."
+  ],
+  "security_properties": [
+    "invalid origin UTF8/control/whitespace/empty/multivalue/over128 and any owner-scope query parameter rejected before Case/source presentation",
+    "Replay of navigation on commander-only principal grants only previously independently authorized Command Incident, never Case or source",
+    "No effect to JSON API, source JSON, existing historic local Case/browser links without origin, raw source availability or original partial/unknown Timeline states"
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Only optional HTML navigation query and links; no stored schema or mutable data",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Revert this child branch and return to parent #206 browser Back behavior; source and Case content unchanged",
+    "verification": [
+      "Existing Command selected Incident and Case links still work",
+      "Existing source→Timeline return without origin still works",
+      "JSON source and Timeline APIs unchanged"
+    ]
+  },
+  "inputs": [
+    "Existing CAP-CMD-106 Command owner-authorized selected Incident with independently allowed Investigate Case link",
+    "Existing #206 runnable local HTTP browser and reauthorized source HTML/Timeline return"
+  ],
+  "outputs": [
+    "Case Timeline HTML displays a single fixed Command Incident selection return link when safe origin is supplied; pagination retains this hint",
+    "Owner-authorized source HTML return carries the same inert Incident ID back to Case; Case provides an explicit Command return even after source view",
+    "Real HTTP test traverses Incident/Case/source/Timeline/Incident with separate synthetic owner decisions and fails closed for commander-only Case access"
+  ],
+  "acceptance_tests": [
+    "Command selected Incident link carries only opaque encoded selected Incident ID and currently authorized Case ID; never bearer/tenant/permission",
+    "Full browser-style HTTP journey goes from selected Incident to independently authorized Case, source, back to same timeline page, and back to freshly authorized selected Incident",
+    "Invalid/multiple/forged/overlong origin IDs, foreign Case, foreign endpoint, wrong owner, and JSON-origin hint must deny without partial content",
+    "Original Case page source filters/page preserved through optional origin; legacy no-origin Case/source links unchanged",
+    "Mandatory Timeline, Work Queue/Command host and Engineering CI pass on the exact candidate SHA, with no lowered guards"
+  ],
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-SECURITY-TESTS",
+    "CHK-SAST-GO",
+    "CHK-SCA-GO",
+    "investigation-timeline-runtime",
+    "command-investigate-readonly-host",
+    "work-queue-runtime"
+  ],
+  "definition_of_ready": [
+    "E10-INV-110O-RETURNCTX source return Class-0 is already implemented and CI-green on PR #206, but DRAFT and unmerged",
+    "E10-CMD-106G-LOCALBROWSER existing authorized local browser, no production IAM claimed",
+    "No OPEN decision required for read-only same-origin navigation"
+  ],
+  "definition_of_done": [
+    "Authorized end-to-end local HTTP flow returns to same selected Command Incident without rights reuse",
+    "Tests prove old JSON unchanged, destination reauth and malformed origin denial; exact SHA Go/Node/race/vet/security checks pass",
+    "Material cross-product trust-boundary delta has independent L2 or L2_À_PLANIFIER if unavailable; no native approval or production claim"
+  ],
+  "performance_budget": {
+    "applicable": false,
+    "rationale": "Only <=128-byte opaque Incident hint and URL parse/Encode on original bounded in-process handlers; no extra source owner I/O, no production SLO.",
+    "metrics": []
+  },
+  "complexity": {
+    "primary_components": 2,
+    "estimated_files_changed": 5,
+    "estimated_net_loc": 200,
+    "production_files": 5,
+    "net_production_loc": 100,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}
