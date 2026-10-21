@@ -89,6 +89,14 @@ func TestWazuhMITREDrilldownUsesExistingAuthorizedPagedSourceRoute(t *testing.T)
 		"/demo-wazuh-drilldown?case_id=case-a&technique_id=T1059.01",
 		"/demo-wazuh-drilldown?case_id=case-b&technique_id=T1059.001",
 		"/demo-wazuh-drilldown?case_id=case-a&technique_id=T1059.001&offset=1",
+		// url.URL.Query silently omitted these invalid pairs and could
+		// otherwise accept the remaining valid technique selector.
+		"/demo-wazuh-drilldown?case_id=case-a&technique_id=T1059.001&ignored=%ZZ",
+		"/demo-wazuh-drilldown?case_id=case-a&technique_id=T1059.001&offset=%ZZ",
+		"/demo-wazuh-drilldown?case_id=case-a&technique_id=T1059.001&case_id=%ZZ",
+		"/demo-wazuh-drilldown?case_id=case-a&technique_id=T1059.001&ignored=x;y",
+		"/demo-wazuh-drilldown?case_id=case-a&technique_id=T1059.001&ignored=%",
+
 	} {
 		got := query(path, token)
 		if got.Code != http.StatusNotFound || strings.Contains(got.Body.String(), "T1059") {

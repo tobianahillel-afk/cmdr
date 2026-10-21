@@ -7,6 +7,7 @@ import (
 	"errors"
 	"io"
 	"net/http"
+	"net/url"
 	"strconv"
 
 	timeline "github.com/tobianahillel-afk/cmdr/product-runtime/investigation-timeline"
@@ -119,7 +120,13 @@ func writeDemoWazuhDrilldownFilteredPage(ctx context.Context, principal string, 
 }
 
 func serveDemoWazuhDrilldown(w http.ResponseWriter, r *http.Request, principal string, data timeline.MemoryTimelineData, imported int, raw []byte, caseID string) {
-	query := r.URL.Query()
+	// URL.Query() silently drops invalid query pairs (e.g. unknown=%ZZ).
+	// Reject malformed syntax before trusting the remaining selection.
+	query, err := url.ParseQuery(r.URL.RawQuery)
+	if err != nil {
+		http.NotFound(w, r)
+		return
+	}
 	if len(query["case_id"]) != 1 || query.Get("case_id") != caseID {
 		http.NotFound(w, r)
 		return

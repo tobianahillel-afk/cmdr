@@ -1208,7 +1208,7 @@ test("Wazuh cohort drilldown opens a real authorized event through the existing 
       return { format: "cmdr-local-wazuh4-drilldown-v1", synthetic: true,
         selector: url.searchParams.has("agent_id") ? "agent_id" : "rule_id",
         value: url.searchParams.get("agent_id") || url.searchParams.get("rule_id"),
-        total_matches: 1, entries: [{
+        total_matches: 1, offset: 0, has_more: false, entries: [{
           id: "local-jsonl-entry-abcdef", kind: "observed",
           source_time: "2026-10-01T10:00:00Z", time_uncertain: false
         }] };
@@ -1629,4 +1629,44 @@ test("Wazuh MITRE technique forged HTTP drilldown response leaves no partial Eve
   await flush(); await flush();
   assert.equal(env.fields["wazuh-events"].children.length, 0);
   assert.doesNotMatch(env.fields["wazuh-events"].textContent, /PRIVATE-DENIED/);
+});
+
+
+test("Wazuh drilldown transport requires matching offset and has_more before rendering any Event", async () => {
+  const badPages = [
+    { offset: undefined, has_more: false },
+    { offset: 0, has_more: undefined },
+    { offset: "0", has_more: false },
+    { offset: 25, has_more: false },
+    { offset: 0, has_more: "false" },
+    { offset: 0, has_more: true }
+  ];
+  for (const forged of badPages) {
+    const env = boot(url => {
+      if (url.pathname === "/demo-wazuh-cohorts") return { ok: true, async json() { return {
+        format: "cmdr-local-wazuh4-case-triage-v1", synthetic: true,
+        imported_entries: 1,
+        top_agents: [], top_rules: [],
+        distinct_technique_ids: 1, unmapped_technique_alerts: 0,
+        top_techniques: [{ technique_id: "T1059.001", count: 1 }]
+      }; } };
+      if (url.pathname === "/demo-wazuh-drilldown") return { ok: true, async json() { return {
+        format: "cmdr-local-wazuh4-drilldown-v1", synthetic: true,
+        selector: "technique_id", value: "T1059.001",
+        total_matches: 1, ...forged,
+        entries: [{
+          id: "PRIVATE-FORGED-EVENT", kind: "observed",
+          source_time: "2026-10-01T10:00:00Z", time_uncertain: false
+        }]
+      }; } };
+      throw Error("unexpected endpoint");
+    });
+    env.fields["wazuh-cohorts"].handlers.click();
+    await flush(); await flush();
+    env.fields["wazuh-actions"].children[0].handlers.click();
+    await flush(); await flush();
+    assert.equal(env.fields["wazuh-events"].children.length, 0);
+    assert.doesNotMatch(env.fields["wazuh-events"].textContent, /PRIVATE-FORGED-EVENT/);
+    assert.equal(env.fields["wazuh-next"].disabled, true);
+  }
 });
