@@ -2463,6 +2463,70 @@
       ],
       "dependency_terminal_state": "IMPLEMENTED",
       "unlocks": []
+    },
+    {
+      "id": "E10-INV-004G-HOST",
+      "title": "Bind independently authorized Search and Telemetry owners to read-only Event Inspection HTTP",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-INV-004E"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": []
+    },
+    {
+      "id": "E10-INV-004I-PIVOTHTTP",
+      "title": "Provide server-authorized, provenance-preserving read-only Event Search pivot drafts",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-INV-004G-HOST",
+        "E10-INV-004C-PIVOT"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-INV-004J-PIVOTFIX"
+      ]
+    },
+    {
+      "id": "E10-INV-004J-PIVOTFIX",
+      "title": "Close pivot HTTP L2 R2 authorization, provenance ambiguity and size-consistency defects",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-INV-004I-PIVOTHTTP"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-INV-004K-BROWSERPIVOT"
+      ]
+    },
+    {
+      "id": "E10-INV-004H-HTTPBRIDGE",
+      "title": "Compose selected Event Search result with real loopback Go Inspector HTTP host",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-INV-004G-HOST",
+        "E10-INV-002G"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-INV-004K-BROWSERPIVOT"
+      ]
+    },
+    {
+      "id": "E10-INV-004K-BROWSERPIVOT",
+      "title": "Complete client-selected Inspector field to host-authorized read-only Search pivot draft journey",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-INV-004H-HTTPBRIDGE",
+        "E10-INV-004J-PIVOTFIX"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": []
     }
   ]
 }

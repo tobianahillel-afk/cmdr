@@ -16,6 +16,7 @@ const (
 	eventInspectionPivotProgressPath   = "work/lots/E10-INV-004C-PIVOT/PROGRESS.json"
 	eventInspectionHandoffPath         = "engineering/implementation/event-inspection/bounded-handoff.json"
 	eventInspectionRuntimeDirectory    = "product-runtime/event-inspection"
+	eventInspectionToolchainModPath    = "product-runtime/event-inspection/go.mod"
 )
 
 var eventInspectionAdversarialTests = []string{
@@ -190,7 +191,7 @@ func runEventInspectionE2EAudit(root, _ string, state CurrentState) (EventInspec
 	if err != nil {
 		return EventInspectionE2EAuditSummary{}, err
 	}
-	runtimeUnchanged, err := reverifyPinnedGoToolchainTransition(root, pivot.FinalValidatedHead, currentHead, eventInspectionRuntimeDirectory)
+	runtimeUnchanged, err := validateEventInspectionRuntimeUnchangedOrReverified(root, pivot.FinalValidatedHead, currentHead)
 	if err != nil {
 		return EventInspectionE2EAuditSummary{}, err
 	}
@@ -320,15 +321,90 @@ func validateEventInspectionHandoff(handoff EventInspectionClosureHandoff) error
 	return nil
 }
 
-const (
-	eventInspectionToolchainModPath = "product-runtime/event-inspection/go.mod"
-	eventInspectionOriginalModBlob  = "a2b90dca906b971f167a9108b6436bf9580a82e7"
-	eventInspectionPatchedModBlob   = "9f45d10c3e854581bb835f326a8d3a5572dcea1f"
-)
+// Historic pivot evidence remains immutable. Later runtime amendments must either
+// leave the old verified runtime byte-identical or present narrow, reproducible
+// source-identity and fresh executable proof for the exact approved patch.
+func validateEventInspectionRuntimeUnchangedOrReverified(root, evidenceHead, currentHead string) (bool, error) {
+	evidenceHead, err := validateFullCommitID(evidenceHead)
+	if err != nil {
+		return false, fmt.Errorf("Event Inspection pivot evidence head: %w", err)
+	}
+	currentHead, err = validateFullCommitID(currentHead)
+	if err != nil {
+		return false, fmt.Errorf("current source head: %w", err)
+	}
+	if err := ensureGitAncestor(root, evidenceHead, currentHead); err != nil {
+		return false, fmt.Errorf("Event Inspection pivot evidence ancestry: %w", err)
+	}
+	cmd := exec.Command("git", "-C", root, "diff", "--quiet", evidenceHead, currentHead, "--", eventInspectionRuntimeDirectory) // #nosec G204,G702 -- full validated commit IDs, fixed executable and path.
+	if err := cmd.Run(); err == nil {
+		return true, nil
+	} else if exitErr, ok := err.(*exec.ExitError); !ok || exitErr.ExitCode() != 1 {
+		return false, fmt.Errorf("compare Event Inspection runtime against pivot evidence: %w", err)
+	}
+	if err := validateEventInspectionPivotFollowupProof(root, evidenceHead, currentHead); err != nil {
+		return false, fmt.Errorf("Event Inspection runtime changed after verified pivot evidence; fresh runtime proof is required: %w", err)
+	}
+	return false, nil // History stays VERIFIED at the old source; new patch is a separate reverified candidate.
+}
 
-// validateEventInspectionRuntimeSourceDelta distinguishes immutable historical
-// runtime evidence from an EXACT, separately approved stdlib security upgrade.
-// Any executable source change, other module declaration, or altered byte fails.
+func validateEventInspectionPivotFollowupProof(root, oldCommit, currentCommit string) error {
+	// Strict reviewed three-file intersection: #182 presence fix plus #196
+	// Go 1.26.10 stdlib patch. Historical pivot evidence is never rewritten.
+	// A changed executable source, extra module, or unapproved compiler fails.
+	approved := map[string]string{
+		"product-runtime/event-inspection/pivot.go":               "938b1d4ae090e2a4080604d8b7d155f24bec69de",
+		"product-runtime/event-inspection/pivot_presence_test.go": "736a2b0a85dd3219e77cdd9aae6b8320f8a0bd53",
+		"product-runtime/event-inspection/go.mod":                 "9f45d10c3e854581bb835f326a8d3a5572dcea1f",
+	}
+	diff := exec.Command("git", "-C", root, "diff", "--name-only", oldCommit, currentCommit, "--", eventInspectionRuntimeDirectory) // #nosec G204,G702 -- validated full commit SHA and fixed runtime path.
+	out, err := diff.Output()
+	if err != nil {
+		return fmt.Errorf("inspect source delta: %w", err)
+	}
+	paths := strings.Fields(strings.TrimSpace(string(out)))
+	if len(paths) != len(approved) {
+		return fmt.Errorf("unverified runtime delta: expected exactly three independently approved pivot/toolchain files, got %v", paths)
+	}
+	for _, path := range paths {
+		want, ok := approved[path]
+		if !ok {
+			return fmt.Errorf("unverified runtime delta path %s", path)
+		}
+		blob := exec.Command("git", "-C", root, "rev-parse", "--verify", currentCommit+":"+path) // #nosec G204,G702 -- full commit SHA validated, path exact allowlist.
+		got, err := blob.Output()
+		if err != nil || strings.TrimSpace(string(got)) != want {
+			return fmt.Errorf("runtime patch blob differs from source-reviewed #182 or #196 for %s", path)
+		}
+		if path == "product-runtime/event-inspection/go.mod" {
+			original := exec.Command("git", "-C", root, "rev-parse", "--verify", oldCommit+":"+path) // #nosec G204,G702 -- validated SHA, static path.
+			originalBlob, err := original.Output()
+			if err != nil || strings.TrimSpace(string(originalBlob)) != "a2b90dca906b971f167a9108b6436bf9580a82e7" {
+				return fmt.Errorf("historical Go module is not the reviewed Go 1.26.8 source")
+			}
+		}
+	}
+	dir, err := resolveRepoPath(root, eventInspectionRuntimeDirectory, false)
+	if err != nil {
+		return err
+	}
+	for _, args := range [][]string{
+		{"test", "-count=1", "./..."},
+		{"vet", "./..."},
+	} {
+		fresh := exec.Command("go", args...) // #nosec G204 -- fixed executable and static go command list.
+		fresh.Dir = dir
+		fresh.Env = append(os.Environ(), "GOTOOLCHAIN=local")
+		if _, err := fresh.CombinedOutput(); err != nil {
+			return fmt.Errorf("fresh reviewed pivot/toolchain validation failed: %w", err)
+		}
+	}
+	return nil
+}
+
+// Keep the independently reviewed toolchain-only proof available to negative
+// regression tests, while the live Event Inspection closure requires both
+// approved pivot sources and the compiler patch together.
 func validateEventInspectionRuntimeSourceDelta(root, evidenceHead, currentHead string) (bool, error) {
 	return checkPinnedGoToolchainDelta(root, evidenceHead, currentHead, eventInspectionRuntimeDirectory)
 }
