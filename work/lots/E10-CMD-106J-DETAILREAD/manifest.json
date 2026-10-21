@@ -1,0 +1,146 @@
+{
+  "schema_version": 2,
+  "id": "E10-CMD-106J-DETAILREAD",
+  "title": "Open a dedicated owner-authorized read-only Incident Detail from Command Work Queue",
+  "type": "task",
+  "parent": "E10-CMD-106",
+  "goal": "Deliver one genuinely navigable, dedicated Class-0 Incident Detail HTML slice for an already authorized Command Incident, including off-page deep links and independently owner-authorized coordination source fields/Cases. Explicitly partial: no edit, mutations, Action Request, Incident Detail full acceptance or production IAM.",
+  "depends_on": [
+    "E10-CMD-106I-DEEPRETURN",
+    "E10-CMD-106G-LOCALBROWSER"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-CMD-106",
+      "CAP-CMD-101",
+      "CAP-INV-110"
+    ],
+    "requirements": [
+      "REQ-PROD-013",
+      "REQ-PROD-014",
+      "REQ-SEC-001"
+    ],
+    "screens": [
+      "CMD-IWQ-006"
+    ],
+    "permissions": [
+      "perm.command.incident.read",
+      "perm.investigate.case.read"
+    ],
+    "open_decisions": [
+      "OPEN-013"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/cross-product-context-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/incident.md",
+      "cmdr-product-spec/05-domain-model/objects/case.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/work-queue/selected_context.go",
+    "product-runtime/work-queue/incident_detail.go",
+    "product-runtime/work-queue/incident_detail_test.go",
+    "product-runtime/work-queue/http.go",
+    "product-runtime/work-queue/html.go",
+    "product-runtime/command-investigate-host/host.go",
+    "product-runtime/command-investigate-host/cmd/local-browser/main.go",
+    "product-runtime/command-investigate-host/cmd/local-browser/incident_detail_test.go",
+    "work/graph.json",
+    "engineering/state/current.json",
+    "work/lots/E10-CMD-106J-DETAILREAD/**"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/work-queue/queue.go",
+    "product-runtime/work-queue/pagination.go",
+    "product-runtime/investigation-timeline/**",
+    "product-runtime/command-investigate-host/cmd/local-browser/incident_return_test.go"
+  ],
+  "invariants": [
+    "No object access via an ID alone: Project enumerates and CanRead-authorizes current <=5000 same tenant/env objects and then finds the exact requested Incident using existing FocusSelection, preserving off-page deep link behavior.",
+    "Read-only Incident Detail never issues a mutation, Case creation, Govern Action Request, export, new permission, or new source/trust assertion.",
+    "Use exactly the SAME selected-sources permission logic as Work Queue; factoring it into a helper preserves optional independently authorized factors/SLA/canonical ownership/linked Cases and fail-closed error behavior.",
+    "A Command Incident reader cannot infer any linked Case or Investigate timeline it lacks rights to read. Navigating to Case always requires a new independently authorized request.",
+    "A disclosed Incident's source freshness/status and missing fields remain truthful; no invented title, risk, next action, dedup or response decision.",
+    "Strict GET-only, one query key, HTML-only, no user-selected principal/tenant/env; no raw source ID, secret or credential in href.",
+    "All canonical product specs, #208 reviewed SHA and base PRs remain immutable; child branch created from exact #208 head."
+  ],
+  "security_properties": [
+    "Host session resolution and Owner.CanRead every read; revoked/missing/off-tenant incidents uniformly return 404 without content or identifiers.",
+    "Optional factor, SLA, canonical registry and Case link adapters are each independently source-authorized and validated before HTML is emitted.",
+    "html/template auto-escapes all owner data; CSP prohibits scripts/forms/frames, no-store/no-referrer/nosniff; browser re-resolves scope upon return/navigation.",
+    "No production provider trust, CSRF/TLS deployment, durable audit, source data collection or conditional mutation is claimed."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Read-only UI and optional same-origin routing; no database or source schema change.",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Revert dedicated incident_detail handler, selected_context extraction, one link and optional host route; original Work Queue/Case routes remain.",
+    "verification": [
+      "Existing Work Queue JSON and HTML tests remain unchanged",
+      "Old two-handler host NewHandler constructor remains valid"
+    ]
+  },
+  "inputs": [
+    "CAP-CMD-106 Incident Coordination §17,§25 and screen CMD-IWQ-006 §3,§7,§15,§22/26",
+    "CAP-CMD-101 Work Queue selection and existing owner-authorized source facets",
+    "E10-CMD-106I-DEEPRETURN IMPLEMENTED on source #208; separate L2 still pending at branch creation, not automatically accepted"
+  ],
+  "outputs": [
+    "Dedicated `GET /command/incident-detail?incident=...` HTML read-only page in existing local command-investigate-host with authorized owner/state/freshness/source factors/SLA/linked Investigate Cases.",
+    "A new selected Incident detail link from existing Work Queue screen, and a return link using freshly authorized Command Work Queue deep selection.",
+    "One shared `enrichSelectedResult` owner read implementation for original Work Queue and new Incident Detail, not a duplicated authorization engine.",
+    "Reproducible Go HTTP and real localhost browser navigation tests including off-page success and revocation/denial."
+  ],
+  "acceptance_tests": [
+    "A previously authorized Incident beyond first queue page opens its own HTML detail after every current in-scope owner ACL has been re-evaluated.",
+    "Revoked or nonexistent ID fails generic 404 with no Incident/Case details; malformed/foreign/unexpected query rejected before session or owner.",
+    "Original Work Queue selection and JSON response semantics unchanged, including optional factors/SLA/linked sources.",
+    "Local synthetic analyst follows Work Queue→Incident Detail→Case Timeline→authorized return; Command-only principal reads permitted Incident but not linked Case.",
+    "GET-only/HTML-only, no form or script; response headers cache/CSP/Referrer safe, zero credential in URL.",
+    "Relevant Go tests/race/vet/CI and unchanged engineering mandatory checks pass on EXACT PR HEAD; separate L2 required before acceptance."
+  ],
+  "required_checks": [
+    "command-work-queue-runtime",
+    "command-investigate-readonly-host",
+    "investigation-timeline-runtime",
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-SECURITY-TESTS",
+    "CHK-SAST-GO",
+    "CHK-SCA-GO"
+  ],
+  "definition_of_ready": [
+    "Source #208 E10-CMD-106I-DEEPRETURN is IMPLEMENTED with exact-SHA CI 4/4 green but pending independent L2/merge",
+    "Existing Work Queue first-party Project+source owners and Command Investigate host exist and are verified at source SHA",
+    "Only Class-0 bounded read-only Incident Detail is included; OPEN-013 mutation remains blocked"
+  ],
+  "definition_of_done": [
+    "Real local analyst can open a dedicated Incident detail and return without gaining linked Case rights",
+    "Exact head CI and risk-based L2 are published; approved merges and production remain separate obligations",
+    "No new third-party runtime dependency or weakened access gate"
+  ],
+  "performance_budget": {
+    "applicable": false,
+    "rationale": "One fresh bounded <=5000 Work Queue authorization pass and one existing selected-source owner projection; no additional source engine. No production SLO.",
+    "metrics": []
+  },
+  "complexity": {
+    "primary_components": 2,
+    "estimated_files_changed": 6,
+    "estimated_net_loc": 225,
+    "production_files": 6,
+    "net_production_loc": 190,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}
