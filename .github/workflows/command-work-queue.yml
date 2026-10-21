@@ -32,6 +32,12 @@ jobs:
       - name: Test canonical Command Work Queue and isolation
         working-directory: product-runtime/work-queue
         run: go test -count=1 ./...
+      - name: Report actual Go statement coverage per function (diagnostic only)
+        if: matrix.os == 'ubuntu-latest'
+        working-directory: product-runtime/work-queue
+        run: |
+          go test -count=1 -covermode=atomic -coverprofile=coverage.out ./...
+          go tool cover -func=coverage.out
       - name: Static analysis
         working-directory: product-runtime/work-queue
         run: go vet ./...
