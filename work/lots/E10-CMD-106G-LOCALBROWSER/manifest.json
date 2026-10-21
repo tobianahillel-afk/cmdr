@@ -55,7 +55,8 @@
     "Never bind non-loopback; reject non-loopback Host header, require a newly generated high entropy Basic password on every execution and do not place credentials in URLs or cookies",
     "Host-authenticated principal is evaluated independently by each product owner and each per-object source owner, never forwarded as implicit Command permission",
     "Demo data are explicitly synthetic and immutable; no real tenant, production IAM, paid API, persistence or mutation, OPEN-013 remains out of scope",
-    "Never mistake a local Basic challenge on HTTP loopback for production security; owner must supply IAM, HTTPS, CSRF protection and real authoritative data for deployment"
+    "Never mistake a local Basic challenge on HTTP loopback for production security; owner must supply IAM, HTTPS, CSRF protection and real authoritative data for deployment",
+    "If console output of fresh Basic credentials fails, close the allocated listener and refuse startup; never expose a service that the operator cannot authenticate to."
   ],
   "security_properties": [
     "32 bytes cryptographic random per role; constant time comparison; fail closed if entropy missing",
@@ -81,13 +82,15 @@
   "outputs": [
     "go run ./cmd/local-browser starts real 127.0.0.1 ephemeral HTTP server, displays one-time credentials and URL, supports actual browser Basic challenge",
     "Following same-origin Incident Case link renders source-authorized Case Timeline HTML with supersession, filters and pages, no manually injected Authorization header",
-    "Negative live HTTP Basic principal/source denial and DNS rebinding Host tests"
+    "Negative live HTTP Basic principal/source denial and DNS rebinding Host tests",
+    "Graceful SIGINT/SIGTERM cancellation closes the loopback HTTP server without unhandled exit."
   ],
   "acceptance_tests": [
     "A real loopback HTTP client authenticates as analyst and follows actual selected Incident-linked Case into owner-authorized Timeline HTML; source v1 is marked superseded by v2 and filters work",
     "Commander with separate valid credentials can access Incident but not Investigate Case, even if URL is manually supplied; invalid/missing Basic secret denied",
     "Host header spoof, unsupported/remote origin and unsupported path denied; no Basic credentials in links; no-store and no-referrer preserved",
-    "Go host+subcommand tests/vet/race and full mandatory engineering kernel pass on exact candidate SHA"
+    "Go host+subcommand tests/vet/race and full mandatory engineering kernel pass on exact candidate SHA",
+    "Inject a failing entropy source, duplicate analyst/commander secrets, refused listen socket, and failed console writer; assert no running HTTP server and no credential leak."
   ],
   "definition_of_ready": [
     "Existing 201 source of tested same-origin Go and Case HTML filter handlers at frozen SHA dc714668f4e50deeb92057dc89a0c5911d104893",
@@ -115,9 +118,9 @@
   "complexity": {
     "primary_components": 1,
     "estimated_files_changed": 2,
-    "estimated_net_loc": 310,
+    "estimated_net_loc": 340,
     "production_files": 1,
-    "net_production_loc": 190,
+    "net_production_loc": 255,
     "bounded_contexts": 1,
     "independent_migrations": 0,
     "distinct_security_models": 1,
