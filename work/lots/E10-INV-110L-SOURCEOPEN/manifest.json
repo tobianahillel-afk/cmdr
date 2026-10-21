@@ -1,0 +1,130 @@
+{
+  "schema_version": 2,
+  "id": "E10-INV-110L-SOURCEOPEN",
+  "title": "Navigate from an authorized Case Timeline row to its separately reauthorized local source preview",
+  "type": "task",
+  "parent": "E10-INV-110",
+  "goal": "Complete the canonical Class-0 Timeline open-source transition for the existing runnable Incident→Case Timeline loopback browser by routing the pre-existing owner-checked synthetic source preview. Display links only for explicit trusted host opt-in, preserve source ACL and original browser history; no new owner, source engine or persistence.",
+  "depends_on": [
+    "E10-INV-110K-HTMLFILTER",
+    "E10-CMD-106G-LOCALBROWSER"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-110",
+      "CAP-CMD-106"
+    ],
+    "requirements": [
+      "REQ-PROD-014",
+      "REQ-PROD-018"
+    ],
+    "screens": [
+      "INV-TIM-001"
+    ],
+    "permissions": [
+      "perm.shared-capabilities.timeline-entry.read"
+    ],
+    "open_decisions": [
+      "OPEN-013"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/case.md",
+      "cmdr-product-spec/05-domain-model/objects/timeline-entry.md"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/cross-product-context-contract.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/investigation-timeline/source_link_context.go",
+    "product-runtime/investigation-timeline/case_html.go",
+    "product-runtime/investigation-timeline/case_http.go",
+    "product-runtime/investigation-timeline/source_link_context_test.go",
+    "product-runtime/command-investigate-host/cmd/local-browser/main.go",
+    "product-runtime/command-investigate-host/cmd/local-browser/main_test.go",
+    "work/graph.json",
+    "work/lots/E10-INV-110L-SOURCEOPEN/**"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/investigation-timeline/memory_source_preview.go",
+    "product-runtime/investigation-timeline/memory_provider.go",
+    "product-runtime/work-queue/**",
+    "product-runtime/command-investigate-host/host.go"
+  ],
+  "invariants": [
+    "Existing Investigate Case, Timeline Entry and typed-source owner authority remain the only source of read permissions; browser link is not an authorization token",
+    "Only an explicitly trusted server wrapping the already-authorized Timeline handler may opt into source links; default generic timeline HTTP keeps existing HTML and JSON behavior",
+    "Links carry only Case ID and already-authorized Entry ID in fixed relative URL /demo-source-open; never raw source reference, permission, principal, tenant, environment, host, Basic secret, arbitrary redirect or user-selected URL",
+    "Source preview route delegates unchanged to existing memory owner OpenSource handler, which independently rechecks session, Case, Timeline, linked source identity and atomic source access",
+    "No writes, audit persistence, new source, export, production IAM, remote listener, query engine or Class-2 mutation"
+  ],
+  "security_properties": [
+    "A forged direct source URL never elevates Command-only, anonymous or foreign Case/entry/source identity; errors reveal no private preview",
+    "Template-escaped, URL-encoded fixed relative link avoids HTML injection, URL or query mutation; the source URL cannot be supplied by an HTTP parameter",
+    "Opt-in marker lives in trusted Go request context only, and only applies to HTML; legacy JSON unchanged, Cache-Control no-store on both routes",
+    "No HTML source preview is invented; existing authenticated source handler returns bounded JSON synthetic preview and native browser back restores prior Timeline URL"
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Additive optional server-authorized presentation and local loopback route only, no persistent schema change",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Revert opt-in link and standalone demo route; existing Incident/Timeline handlers and direct Case JSON remain identical",
+    "verification": [
+      "Existing SourceOpen handler unchanged",
+      "Old Case HTML without host opt-in remains unchanged"
+    ]
+  },
+  "inputs": [
+    "CAP-INV-110 §12 Open Source Class-0 transition and §17 source-owner return context",
+    "Existing MemoryTimelineHTTPHandlers.OpenSource and independent DraftCaseSourceNavigation plus source ACL",
+    "Frozen PR #202 local TCP4 browser Host guard and separate Basic principal authorities; synthetic 2-role fixture only"
+  ],
+  "outputs": [
+    "Runnable Case Timeline HTML links to existing /demo-source-open only on explicitly opted-in loopback host, by Case/Entry ID",
+    "Source-open request rechecks all permissions server side and exposes bounded existing synthetic preview JSON; browser Back preserves previous Case filters/page",
+    "No new source permission engine, third-party dependency, token, redirect, data storage or production claim"
+  ],
+  "acceptance_tests": [
+    "Real localhost HTTP from Command Incident to Case Timeline HTML shows source open link for visible authorized Event",
+    "Following fixed link to existing source owner JSON returns exactly the independently allowed preview, source kind and object identity",
+    "Direct source URL without bearer/with commander bearer/foreign Case/Entry returns denied without preview or source ID",
+    "Generic unopted Case Timeline HTML and legacy JSON do not expose the local demo link",
+    "XSS hostile IDs URL-escaped and never interpreted as HTML or extra query authority; browser back uses existing previously-filtered Case link",
+    "Linux/macOS/Windows CI, Go tests race/vet, security kernel all success on exact SHA before review"
+  ],
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-SECURITY-TESTS",
+    "CHK-SAST-GO",
+    "investigation-timeline-runtime",
+    "command-investigate-readonly-host"
+  ],
+  "definition_of_ready": [
+    "Existing independent CAP-INV-110 source preview route already verified in source-owned memory provider",
+    "E10-CMD-106G-LOCALBROWSER and E10-INV-110K-HTMLFILTER IMPLEMENTED under frozen PR #202",
+    "No OPEN decision is needed for Class-0 source read"
+  ],
+  "definition_of_done": [
+    "Real local browser can open authorized source from Timeline via same-origin link and owner-checked route",
+    "Denied source and malformed URL fail closed, all original routes maintain compatibility",
+    "GitHub exact HEAD CI success and independent L2 for material owner navigation; no native approval/merge/production claimed"
+  ],
+  "complexity": {
+    "primary_components": 2,
+    "estimated_files_changed": 4,
+    "estimated_net_loc": 95,
+    "production_files": 4,
+    "net_production_loc": 95,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}
