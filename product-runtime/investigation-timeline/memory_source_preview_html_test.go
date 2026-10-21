@@ -136,7 +136,7 @@ func TestSourcePreviewNegotiationDoesNotPromoteDisabledHTML(t *testing.T) {
 func sourceOwnerWithIndependentIdentityCopies() *memoryTimelineProvider {
 	data := memorySourcePreviewFixture()
 	s := &memoryTimelineProvider{
-		authenticate: func(*http.Request) (string, error) { return "analyst-a", nil },
+		authenticate:  func(*http.Request) (string, error) { return "analyst-a", nil }
 		principals:    make(map[string]MemoryTimelinePrincipal),
 		cases:         make(map[string]MemoryTimelineCase),
 		entries:       make(map[string]MemoryTimelineEntry),
@@ -164,12 +164,15 @@ func sourceOwnerWithIndependentIdentityCopies() *memoryTimelineProvider {
 func TestSourceHTMLRechecksCanonicalOwnerIdentityAfterSourceNavigation(t *testing.T) {
 	key := memorySourceObjectKey{caseID: "case-a", kind: "telemetry-event", objectID: "object-a"}
 	for _, tc := range []struct {
-		name string
+		name   string
 		change func(*SourceOwnerIdentity)
 	}{
 		{"tenant-swapped", func(v *SourceOwnerIdentity) { v.Tenant = "tenant-b" }},
 		{"environment-swapped", func(v *SourceOwnerIdentity) { v.Environment = "foreign-env" }},
 		{"case-swapped", func(v *SourceOwnerIdentity) { v.CaseID = "case-b" }},
+		{"kind-swapped", func(v *SourceOwnerIdentity) { v.Kind = "evidence" }},
+		{"object-swapped", func(v *SourceOwnerIdentity) { v.ObjectID = "forged-object" }},
+		{"reference-swapped", func(v *SourceOwnerIdentity) { v.Reference = "forged-source" }},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			// Simulate an inconsistent owner snapshot, while its original
