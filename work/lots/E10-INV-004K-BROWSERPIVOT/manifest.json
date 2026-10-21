@@ -1,0 +1,152 @@
+{
+  "schema_version": 2,
+  "id": "E10-INV-004K-BROWSERPIVOT",
+  "title": "Compose real local Event Search → Inspection → separately authorized Pivot Query draft → Search return",
+  "type": "task",
+  "parent": "E10-INV-004",
+  "goal": "Deliver one meaningful bounded analyst journey reusing the source-identical browser-to-Go Inspection bridge from immutable #185 and the L2-corrected host action authorization from #189. A selected authorized Event field prepares a read-only CAP-INV-002 Query draft with validated provenance and restored Search context; never execute/persist a Query.",
+  "depends_on": [
+    "E10-INV-004H-HTTPBRIDGE",
+    "E10-INV-004J-PIVOTFIX"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-002",
+      "CAP-INV-004"
+    ],
+    "requirements": [
+      "REQ-PROD-002",
+      "REQ-PROD-005",
+      "REQ-PROD-008",
+      "REQ-PROD-014"
+    ],
+    "screens": [
+      "INV-EVS-001"
+    ],
+    "permissions": [
+      "perm.shared-capabilities.telemetry-event.read"
+    ],
+    "open_decisions": [
+      "OPEN-013",
+      "OPEN-014"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/frontend-state-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/cross-product-context-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/audit-event-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/telemetry-event.md",
+      "cmdr-product-spec/05-domain-model/objects/search-job.md",
+      "cmdr-product-spec/05-domain-model/objects/query.md",
+      "cmdr-product-spec/05-domain-model/objects/parser.md",
+      "cmdr-product-spec/05-domain-model/objects/data-source.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/event-search-frontend/inspection.mjs",
+    "product-runtime/event-search-frontend/inspection.test.mjs",
+    "product-runtime/event-search-frontend/inspection-http.mjs",
+    "product-runtime/event-search-frontend/inspection-http.test.mjs",
+    "product-runtime/event-search-frontend/package.json",
+    "product-runtime/event-inspection-host/testdata/fixture/main.go",
+    ".github/workflows/event-inspection-browser-http-integration.yml",
+    "work/graph.json",
+    "work/lots/E10-INV-004H-HTTPBRIDGE/**",
+    "work/lots/E10-INV-004K-BROWSERPIVOT/**"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/event-inspection/**",
+    "product-runtime/event-inspection-host/http.go",
+    "product-runtime/event-inspection-host/pivot_http.go",
+    "product-runtime/event-search/**"
+  ],
+  "invariants": [
+    "Preserve historical #185 SHA d1544e255b9d595357c3f6ed2c2cf23a270f247a and #189 SHA 0393782e75f8a94705ea8f5256421f96715c02c0; only new integration branch changes.",
+    "Seven immutable source blobs from #185 imported with identical Git object hashes before extension; no alternate HTTP/IAM/pivot engine.",
+    "Search job/tenant/environment/event/source/correlation context is sourced from the currently visible authorized Search row; browser never grants access.",
+    "The Go host independently checks SessionResolver, SearchOwner, TelemetryOwner and distinct PivotAuthorizer before returning only an unexecuted pivot draft.",
+    "Browser validates draft job/run/event/time/field/value/provenance/return origin against currently authorized Inspector and Search result; only one visible field origin and raw/field action guards.",
+    "Every HTTP action uses fixed same-origin relative paths, POST, no-store, redirects denied, strict JSON and <=2MiB UTF8 stream; no URL supplied by client.",
+    "OPEN-013/014 Class-2 mutations and Query execution not implemented; no production provider, IAM, audit persistence or TLS deployment claims."
+  ],
+  "security_properties": [
+    "No silent pivot on mere Event.read, no copied raw-derived field if raw denied, no source label spoof accepted into draft.",
+    "Stale/cancelled/browsed-away Search/Inspector response never presents a draft; same Search window restored only if authorized job remains current.",
+    "A failed or 404 pivot causes generic unavailable view without returning sensitive backend error details.",
+    "Native DOM uses textContent for both Inspector and draft; pivot buttons are opt-in and only for unique already visible field-value origins."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "New browser journey action and synthetic host fixture only; no persistent object/schema or executed action.",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Revert K integration only. Independent #185 Inspector and #189 host remain unchanged and reviewable.",
+    "verification": [
+      "Existing HTTP inspection and browser Search flow remain independently exercised",
+      "No historical SHA or canonical contract altered"
+    ]
+  },
+  "inputs": [
+    "CAP-INV-004 §12 Pivoter Class-0 and §17 Inspector→Event Search return",
+    "CAP-INV-002 Query draft scope, no automatic Query execution",
+    "Existing Go host corrected action-specific trust in #189, immutable #185 Node bridge copied in one commit"
+  ],
+  "outputs": [
+    "An actual user-selected field from the existing Inspector becomes a server-revalidated, unexecuted Query draft with source provenance/time/return context.",
+    "Original frontend JavaScript and Go fixture are connected through actual Node fetch to Go HTTP with distinct synthetic host PivotAuthorizer.",
+    "Existing Inspector source information and return to identical Search window remain available, including action denied and stale route cancellation.",
+    "Exact-SHA three-platform Go and Node frontend tests, bounded transport and compulsory engineering-kernel checks."
+  ],
+  "acceptance_tests": [
+    "Actual loopback Go host permits `source.ip` pivot only with distinct host-authorized action; correctly binds Search Job, Event, tenant, time and origin; no Query execution.",
+    "A different visible enrichment is denied by independent PivotAuthorizer and does not reveal raw secret or partial draft.",
+    "A raw-denied `secret.token` is not a pivot option; forged host pivot field origin or return context is rejected client-side.",
+    "Concurrent/cancelled pivot after return to Search yields superseded and cannot restore previously drafted data.",
+    "Prior Go Inspector HTTP and full Node Event Search suites pass on same exact integration SHA.",
+    "Mandatory security, coverage, formatting, architecture and manifest CI verified before L2 and any merge."
+  ],
+  "required_checks": [
+    "adaptive engineering-kernel",
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-RUNTIME-DEPS",
+    "CHK-SECURITY-TESTS",
+    "Event Search to Event Inspection live local HTTP integration",
+    "Event Inspection authorized HTTP host"
+  ],
+  "definition_of_ready": [
+    "Existing source H browser bridge immutable #185 and fixed pivot host J immutable #189 are code published with exact SHA CI, but their PRs remain DRAFT and not product accepted.",
+    "All permissions remain host-controlled; Class-2 and actual Query execution explicitly excluded."
+  ],
+  "definition_of_done": [
+    "A selected Inspector field produces a response-verified Query draft through real Go HTTP fixture with denial and stale tests",
+    "Exact-SHA CI mandatory checks PASS with no lowered security floor",
+    "Reviewable bounded branch and L2 material integration context, no main/production acceptance claim."
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "One existing authorized inspection HTTP request and one optional action-specific pivot draft request; fixed <=2MiB response; synthetic local not production SLO.",
+    "metrics": [
+      "one additional POST only when analyst explicitly selects a field",
+      "fixed 2MiB read ceiling and 4096-byte selected field cap server-side",
+      "no background execution, writes or paid APIs"
+    ]
+  },
+  "complexity": {
+    "primary_components": 2,
+    "estimated_files_changed": 5,
+    "estimated_net_loc": 300,
+    "production_files": 2,
+    "net_production_loc": 210,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}
