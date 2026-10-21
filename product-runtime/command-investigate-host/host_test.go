@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"runtime"
 	"strings"
 	"testing"
 
@@ -233,4 +234,47 @@ func BenchmarkSameOriginRouteDispatch(b *testing.B) {
 			b.Fatal("routing failed")
 		}
 	}
+}
+
+
+// BenchmarkSameOriginRouteResource measures the REAL existing two-route
+// first-party dispatcher, not IAM/provider/network. The deep gate runs this
+// benchmark in a separate Go process under a memory-limit hint and checks
+// peak heap and allocation bytes, not just the earlier ns/op smoke benchmark.
+func BenchmarkSameOriginRouteResource(b *testing.B) {
+	host, err := NewHandler(
+		http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) { w.WriteHeader(http.StatusOK) }),
+		http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) { w.WriteHeader(http.StatusOK) }),
+	)
+	if err != nil {
+		b.Fatal(err)
+	}
+	req := httptest.NewRequest(http.MethodGet, "/case-timeline?case_id=case-a", nil)
+	var before, current, after runtime.MemStats
+	runtime.GC()
+	runtime.ReadMemStats(&before)
+	peakHeap := before.HeapAlloc
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		out := httptest.NewRecorder()
+		host.ServeHTTP(out, req)
+		if out.Code != http.StatusOK {
+			b.Fatal("read-only host did not dispatch")
+		}
+		runtime.ReadMemStats(&current)
+		if current.HeapAlloc > peakHeap {
+			peakHeap = current.HeapAlloc
+		}
+	}
+	b.StopTimer()
+	runtime.ReadMemStats(&after)
+	if after.HeapAlloc > peakHeap {
+		peakHeap = after.HeapAlloc
+	}
+	if after.TotalAlloc < before.TotalAlloc {
+		b.Fatal("Go total allocation counter rolled back")
+	}
+	b.ReportMetric(float64(peakHeap), "peakheap-B")
+	b.ReportMetric(float64(after.TotalAlloc-before.TotalAlloc), "totalalloc-B")
 }
