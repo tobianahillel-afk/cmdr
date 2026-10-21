@@ -43,7 +43,8 @@
     "product-runtime/command-investigate-host/cmd/local-browser/incident_detail_test.go",
     "work/lots/E10-CMD-106K-OVERVIEW/**",
     "work/graph.json",
-    "engineering/state/current.json"
+    "engineering/state/current.json",
+    "product-runtime/command-investigate-host/cmd/local-browser/incident_overview_owner_test.go"
   ],
   "forbidden_paths": [
     "cmdr-product-spec/**",
@@ -92,7 +93,8 @@
     "Missing optional source or missing individual fields displays explicit partial/unknown and never guesses",
     "Owner-revoked, wrong Incident, tenant, environment, failed/stale source, malformed observation time or sensitive text rejects without partial HTML",
     "Safe escaping prevents owner title from becoming HTML or script; no CSP or caching relaxation",
-    "Run original Command Work Queue and same-origin host suites on Linux, Windows, macOS and global engineering/security checks on exact head"
+    "Run original Command Work Queue and same-origin host suites on Linux, Windows, macOS and global engineering/security checks on exact head",
+    "Synthetic owner direct tests cover per-request cancellation, correct authorized metadata, distinct Command-only principal denial, wrong tenant/environment/Incident and unknown identity without any optional source data"
   ],
   "required_checks": [
     "CHK-MANIFESTS",
