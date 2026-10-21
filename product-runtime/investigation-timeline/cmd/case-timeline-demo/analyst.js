@@ -141,13 +141,15 @@
         "\nDonnées locales synthétiques, sans preuve de causalité.";
       for (const [selector, cohorts] of [
         ["agent_id", data.top_agents.map(a => a.agent_id)],
-        ["rule_id", data.top_rules.map(a => a.rule_id)]
+        ["rule_id", data.top_rules.map(a => a.rule_id)],
+        ["technique_id", hasTechniques ? data.top_techniques.map(a => a.technique_id) : []]
       ]) {
         for (const value of cohorts) {
           const button = document.createElement("button");
           button.type = "button";
           button.textContent = "Voir les événements Wazuh — " +
-            (selector === "agent_id" ? "agent " : "règle ") + value;
+            (selector === "agent_id" ? "agent " :
+              selector === "rule_id" ? "règle " : "technique ATT&CK non vérifiée ") + value;
           button.addEventListener("click", () => loadWazuhDrilldown(selector, value));
           wazuhActions.append(button);
         }
@@ -188,8 +190,10 @@
   async function loadWazuhDrilldown(selector, value, requestedOffset = 0, secondValue = "") {
     const bearer = token.value;
     const selectedCase = caseID.value.trim();
-    if (!bearer || !selectedCase || !/^[0-9]{1,16}$/.test(value) ||
-        !["agent_id", "rule_id", "agent_rule"].includes(selector) ||
+    if (!bearer || !selectedCase ||
+        (selector === "technique_id" ?
+          !/^T[0-9]{4}(?:\.[0-9]{3})?$/.test(value) : !/^[0-9]{1,16}$/.test(value)) ||
+        !["agent_id", "rule_id", "agent_rule", "technique_id"].includes(selector) ||
         (selector === "agent_rule" ? !/^[0-9]{1,16}$/.test(secondValue) : secondValue !== "") ||
         !Number.isInteger(requestedOffset) || requestedOffset < 0 ||
         requestedOffset > 5000 || requestedOffset % 25 !== 0) return;
@@ -205,7 +209,8 @@
     try {
       const url = new URL("/demo-wazuh-drilldown", window.location.origin);
       url.searchParams.set("case_id", selectedCase);
-      url.searchParams.set(selector === "rule_id" ? "rule_id" : "agent_id", value);
+      url.searchParams.set(selector === "rule_id" ? "rule_id" :
+        selector === "technique_id" ? "technique_id" : "agent_id", value);
       if (selector === "agent_rule") url.searchParams.set("rule_id", secondValue);
       url.searchParams.set("offset", String(requestedOffset));
       const response = await fetch(url, {
