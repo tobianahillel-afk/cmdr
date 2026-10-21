@@ -2253,7 +2253,8 @@
       ],
       "dependency_terminal_state": "IMPLEMENTED",
       "unlocks": [
-        "E10-INV-110L-SOURCEOPEN"
+        "E10-INV-110L-SOURCEOPEN",
+        "E10-CMD-106H-RETURN"
       ]
     },
     {
@@ -2288,6 +2289,20 @@
       "status": "IMPLEMENTED",
       "depends_on": [
         "E10-INV-110N-SOURCEHTML"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-CMD-106H-RETURN"
+      ]
+    },
+    {
+      "id": "E10-CMD-106H-RETURN",
+      "title": "Restore authorized Command Incident selection after Case/Timeline/source navigation",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-CMD-106G-LOCALBROWSER",
+        "E10-INV-110O-RETURNCTX"
       ],
       "dependency_terminal_state": "IMPLEMENTED",
       "unlocks": []

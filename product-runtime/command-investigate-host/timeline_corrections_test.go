@@ -18,8 +18,9 @@ func TestCommandCaseNavigationRendersOnlyAuthorizedTimelineCorrectionState(t *te
 		"/command/work-queue?view=incidents&selected=Incident:incident-a",
 		"Bearer analyst", "text/html")
 	link := "/case-timeline?case_id=" + url.QueryEscape("case-a")
+	originLink := link + "&origin_incident=incident-a"
 	if start.Code != http.StatusOK ||
-		!strings.Contains(html.UnescapeString(start.Body.String()), "href=\""+link+"\"") ||
+		!strings.Contains(html.UnescapeString(start.Body.String()), "href=\""+originLink+"\"") ||
 		commandOwner.lookups != 1 {
 		t.Fatalf("source-authorized Command link unavailable: code=%d lookups=%d", start.Code, commandOwner.lookups)
 	}
