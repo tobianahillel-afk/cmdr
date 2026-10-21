@@ -190,7 +190,8 @@ func runEventInspectionE2EAudit(root, _ string, state CurrentState) (EventInspec
 	if err != nil {
 		return EventInspectionE2EAuditSummary{}, err
 	}
-	if err := validateEventInspectionRuntimeUnchanged(root, pivot.FinalValidatedHead, currentHead); err != nil {
+	runtimeUnchanged, err := validateEventInspectionRuntimeReverified(root, pivot.FinalValidatedHead, currentHead)
+	if err != nil {
 		return EventInspectionE2EAuditSummary{}, err
 	}
 	adversarial, err := runEventInspectionAdversarialRuntimeTests(root)
@@ -242,7 +243,7 @@ func runEventInspectionE2EAudit(root, _ string, state CurrentState) (EventInspec
 		SCAActionableFindings: runtime.StaticSecurity.ActionableFindings + pivot.StaticSecurity.ActionableFindings,
 		ProjectionP95MS:       projectionObserved, ProjectionBudgetMS: projectionBudget,
 		PivotP95MS: pivotObserved, PivotBudgetMS: pivotBudget,
-		RuntimeUnchangedSincePivot: true, BlockingOpenDecisions: len(handoff.BlockingOpenDecisions),
+		RuntimeUnchangedSincePivot: runtimeUnchanged, BlockingOpenDecisions: len(handoff.BlockingOpenDecisions),
 		Limitations: len(handoff.Limitations), ProductionReadinessClaim: handoff.ProductionReadinessClaim,
 		FullCapabilityClaim: handoff.FullCapabilityCompletionClaim, Status: "PASS",
 	}, nil
@@ -319,26 +320,76 @@ func validateEventInspectionHandoff(handoff EventInspectionClosureHandoff) error
 	return nil
 }
 
-func validateEventInspectionRuntimeUnchanged(root, evidenceHead, currentHead string) error {
+const (
+	eventInspectionToolchainModPath  = "product-runtime/event-inspection/go.mod"
+	eventInspectionOriginalModBlob = "a2b90dca906b971f167a9108b6436bf9580a82e7"
+	eventInspectionPatchedModBlob  = "9f45d10c3e854581bb835f326a8d3a5572dcea1f"
+)
+
+// validateEventInspectionRuntimeSourceDelta distinguishes immutable historical
+// runtime evidence from an EXACT, separately approved stdlib security upgrade.
+// Any executable source change, other module declaration, or altered byte fails.
+func validateEventInspectionRuntimeSourceDelta(root, evidenceHead, currentHead string) (bool, error) {
 	evidenceHead, err := validateFullCommitID(evidenceHead)
 	if err != nil {
-		return fmt.Errorf("Event Inspection pivot evidence head: %w", err)
+		return false, fmt.Errorf("Event Inspection pivot evidence head: %w", err)
 	}
 	currentHead, err = validateFullCommitID(currentHead)
 	if err != nil {
-		return fmt.Errorf("current source head: %w", err)
+		return false, fmt.Errorf("current source head: %w", err)
 	}
 	if err := ensureGitAncestor(root, evidenceHead, currentHead); err != nil {
-		return fmt.Errorf("Event Inspection pivot evidence ancestry: %w", err)
+		return false, fmt.Errorf("Event Inspection pivot evidence ancestry: %w", err)
 	}
-	cmd := exec.Command("git", "-C", root, "diff", "--quiet", evidenceHead, currentHead, "--", eventInspectionRuntimeDirectory) // #nosec G204,G702 -- executable/path fixed; commit arguments validated full hex IDs.
-	if err := cmd.Run(); err != nil {
-		if exitErr, ok := err.(*exec.ExitError); ok && exitErr.ExitCode() == 1 {
-			return fmt.Errorf("Event Inspection runtime changed after verified pivot evidence; fresh runtime proof is required")
+	diff := exec.Command("git", "-C", root, "diff", "--name-only", evidenceHead, currentHead, "--", eventInspectionRuntimeDirectory) // #nosec G204,G702 -- validated commit IDs and fixed path.
+	out, err := diff.Output()
+	if err != nil {
+		return false, fmt.Errorf("compare Event Inspection runtime: %w", err)
+	}
+	paths := strings.Fields(strings.TrimSpace(string(out)))
+	if len(paths) == 0 {
+		return true, nil
+	}
+	if len(paths) != 1 || paths[0] != eventInspectionToolchainModPath {
+		return false, fmt.Errorf("Event Inspection executable runtime changed outside the approved single-file toolchain update; fresh full runtime review required")
+	}
+	for _, item := range []struct{ revision, expected string }{
+		{evidenceHead, eventInspectionOriginalModBlob},
+		{currentHead, eventInspectionPatchedModBlob},
+	} {
+		cmd := exec.Command("git", "-C", root, "rev-parse", "--verify", item.revision+":"+eventInspectionToolchainModPath) // #nosec G204,G702 -- full validated SHA plus fixed source path.
+		blob, err := cmd.Output()
+		if err != nil || strings.TrimSpace(string(blob)) != item.expected {
+			return false, fmt.Errorf("Event Inspection Go toolchain upgrade does not match the independently identified fixed Go 1.26.10 module declaration")
 		}
-		return fmt.Errorf("compare Event Inspection runtime against pivot evidence: %w", err)
 	}
-	return nil
+	return false, nil
+}
+
+func validateEventInspectionRuntimeReverified(root, evidenceHead, currentHead string) (bool, error) {
+	unchanged, err := validateEventInspectionRuntimeSourceDelta(root, evidenceHead, currentHead)
+	if err != nil || unchanged {
+		return unchanged, err
+	}
+	// This is not a waiver of the original evidence. The *changed* Go runtime
+	// must independently pass the entire module suite and static vet under the
+	// patched CI-selected Go compiler, in addition to mandatory global SCA.
+	dir, err := resolveRepoPath(root, eventInspectionRuntimeDirectory, false)
+	if err != nil {
+		return false, err
+	}
+	for _, args := range [][]string{
+		{"test", "-count=1", "./..."},
+		{"vet", "./..."},
+	} {
+		cmd := exec.Command("go", args...) // #nosec G204 -- executable and argument alternatives fixed in source.
+		cmd.Dir = dir
+		cmd.Env = append(os.Environ(), "GOTOOLCHAIN=local")
+		if output, err := cmd.CombinedOutput(); err != nil {
+			return false, fmt.Errorf("Event Inspection approved toolchain transition failed fresh module verification: %w: %s", err, strings.TrimSpace(string(output)))
+		}
+	}
+	return false, nil // Never claim old VERIFIED runtime is byte-identical.
 }
 
 func runEventInspectionAdversarialRuntimeTests(root string) (EventInspectionAdversarialSummary, error) {
