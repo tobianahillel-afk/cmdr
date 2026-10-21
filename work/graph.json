@@ -1827,6 +1827,19 @@
         "E10-INV-120C-MITREFIX"
       ],
       "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-INV-110H-UIJOIN"
+      ]
+    },
+    {
+      "id": "E10-INV-110H-UIJOIN",
+      "title": "Render owner-authorized superseded versions in combined Wazuh Timeline analyst view",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-INV-110G-UNIFICATION"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
       "unlocks": []
     }
   ]

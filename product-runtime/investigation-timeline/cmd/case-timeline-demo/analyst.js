@@ -1280,13 +1280,16 @@
         data.page.offset !== offset || data.entries.length > limit) {
       throw new Error("Malformed authorized timeline response");
     }
+    // Supersession is a source-owned read-only projection. Validate the whole
+    // authorized page before rendering so no malformed row causes partial DOM.
+    if (data.entries.some(event => !event || typeof event.id !== "string" ||
+        typeof event.kind !== "string" ||
+        typeof event.source_time !== "string" ||
+        (event.superseded !== undefined && typeof event.superseded !== "boolean"))) {
+      throw new Error("Malformed authorized timeline entry");
+    }
     entries.replaceChildren();
     for (const event of data.entries) {
-      if (!event || typeof event.id !== "string" ||
-          typeof event.kind !== "string" ||
-          typeof event.source_time !== "string") {
-        throw new Error("Malformed timeline entry");
-      }
       const item = document.createElement("li");
       if (event.kind === "inferred") item.className = "inferred";
       const name = document.createElement("h3");
@@ -1301,6 +1304,9 @@
       addLine(item, "Provenance :", event.provenance ?? "—");
       addLine(item, "Version :", event.version ?? "—");
       if (event.supersedes) addLine(item, "Remplace :", event.supersedes);
+      if (event.superseded === true) {
+        addLine(item, "État :", "Remplacée (version ultérieure autorisée visible)");
+      }
       const open = document.createElement("button");
       open.type = "button";
       open.textContent = "Vérifier la destination de la source";

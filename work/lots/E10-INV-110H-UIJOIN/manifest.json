@@ -1,0 +1,123 @@
+{
+  "schema_version": 2,
+  "id": "E10-INV-110H-UIJOIN",
+  "title": "Show owner-authorized Timeline supersession in the already unified Case/Wazuh analyst viewer",
+  "type": "task",
+  "parent": "E10-INV-110",
+  "goal": "Complete one existing Case Timeline read-only analyst journey by selectively integrating the later #188 supersession browser delta on top of #191's already combined corrected Wazuh/MITRE and Timeline Go tree, without touching the independently audited #188 or #191 commits.",
+  "depends_on": [
+    "E10-INV-110G-UNIFICATION"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-110"
+    ],
+    "requirements": [
+      "REQ-PROD-014",
+      "REQ-PROD-018"
+    ],
+    "screens": [
+      "INV-TIM-001"
+    ],
+    "permissions": [
+      "perm.shared-capabilities.timeline-entry.read"
+    ],
+    "open_decisions": [
+      "OPEN-013"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/case.md",
+      "cmdr-product-spec/05-domain-model/objects/timeline-entry.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/investigation-timeline/cmd/case-timeline-demo/analyst.js",
+    "product-runtime/investigation-timeline/cmd/case-timeline-demo/analyst_return.test.cjs",
+    "work/lots/E10-INV-110H-UIJOIN/**",
+    "work/graph.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/investigation-timeline/projection.go",
+    "product-runtime/investigation-timeline/cmd/case-timeline-demo/wazuh_levels.go",
+    "product-runtime/investigation-timeline/cmd/case-timeline-demo/analyst_summary.test.cjs"
+  ],
+  "invariants": [
+    "Reuse source-owner-authorized `superseded` optional boolean already provided by existing CAP-INV-110 /case-timeline Go projection; no front-end privilege escalation or hidden successor ID inferred.",
+    "Add text-only display `Remplacée (version ultérieure autorisée visible)` only on exact true; no false/current guarantee on omitted/false and no source/open behavior or Class-2 correction invoked.",
+    "Preserve MITRE Wazuh 4.x browser source-claim labels, strict null guards, top-ten/count consistency and original agent/rule functionality copied in #191 from #190; do not overwrite `analyst.js` wholesale from #188.",
+    "Validate entire Case timeline entry page before any DOM writing; malformed supersession or malformed later row cannot leave partially rendered sensitive data.",
+    "Keep frozen PR #188 HEAD 07827f8f2e4b4c511fc009ab2a398e6c9840233f and PR #191 HEAD b49dcaf5fa22bd07254f6786ec3514f527e6b179 byte-unchanged and their independent L2 histories intact."
+  ],
+  "security_properties": [
+    "Only received authorized server projection influences visible status; trust remains source owner/Case/Timeline Go and server bearer, not a client claim of access.",
+    "Unknown, denied or invisible successor is not deduced; display no definitive `Courante` status.",
+    "No new server route, IAM policy, MITRE parser, source storage, export, Evidence or mutation; no paid API or third-party runtime dependency."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Read-only analyst DOM addition consumes existing optional JSON field and leaves all persisted records intact.",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Revert isolated UI and test changes in this candidate; keep #191 merged-in-Go and Wazuh behavior untouched.",
+    "verification": [
+      "Existing authorized Case timeline /case-timeline JSON remains unchanged",
+      "Wazuh MITRE source-cohort browser suite stays functional"
+    ]
+  },
+  "inputs": [
+    "Existing CAP-INV-110 canonical Timeline old-versus-new visible correction obligation.",
+    "PR #191 immutable source HEAD b49dcaf5fa22bd07254f6786ec3514f527e6b179, integrated corrected Wazuh and exact backend Go supersession from older #188.",
+    "PR #188 immutable source HEAD 07827f8f2e4b4c511fc009ab2a398e6c9840233f, last 3 UI tests and status semantics."
+  ],
+  "outputs": [
+    "The same existing bearer-authenticated local Case viewer renders authorized supersession together with existing Wazuh MITRE source cohorts, without another service.",
+    "Node browser tests for visible and absent status, invalid/mixed-row atomic rejection; existing Timeline Go and MITRE tests retained."
+  ],
+  "acceptance_tests": [
+    "Old visible version with owner-visible successor displays superseded notice, but current/latest version and legacy omitted bool do not imply definitive current status.",
+    "Nonboolean superseded field fails closed before rendering any entry, including if an otherwise valid row precedes malformed row.",
+    "Exactly the existing source navigation action remains; no new navigational authority or private successor ID is invented.",
+    "Go/Node Timeline suite, race, vet, three OS workflow and engineering-kernel mandatory checks pass on the final exact GitHub SHA.",
+    "Review conflicts and open L2 findings from #188, #190, #191; no automatic ACCEPTED or mainline merge."
+  ],
+  "required_checks": [
+    "investigation-timeline-runtime",
+    "engineering-kernel",
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-SECURITY-TESTS",
+    "CHK-SAST-GO"
+  ],
+  "definition_of_ready": [
+    "PR #191 has source-preserving compatible Go supersession and MITRE UI code with exact-SHA CI success, but still only DRAFT and independently reviewed.",
+    "PR #188 later browser changes are compatible/additive without modifying Wazuh branches."
+  ],
+  "definition_of_done": [
+    "Browser consumes real existing optional Go source-owned boolean from unchanged integration base, verified on exact SHA.",
+    "CI on complete combined candidate and review of any material integrated trust delta.",
+    "Documented Git trace and no native review/merge/production claim."
+  ],
+  "performance_budget": {
+    "applicable": false,
+    "rationale": "One O(N) prevalidation of already bounded <=200 currently authorized Case page entries, no extra requests nor server computation; existing limits remain.",
+    "metrics": []
+  },
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 2,
+    "estimated_net_loc": 35,
+    "production_files": 1,
+    "net_production_loc": 18,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}
