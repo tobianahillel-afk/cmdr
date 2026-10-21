@@ -23,6 +23,8 @@ type sourcePreviewResponse struct {
 	ObjectID  string `json:"object_id"`
 	Preview   string `json:"preview"`
 	Synthetic bool   `json:"synthetic"`
+	// The server validates a same-Case return URL; not part of the JSON API.
+	ReturnURL string `json:"-"`
 }
 
 // A native browser sends text/html as the first Accept preference. A JSON
@@ -59,8 +61,8 @@ var sourcePreviewHTMLTemplate = template.Must(template.New("source-preview").Par
 <h2>Prévisualisation autorisée</h2>
 <pre>{{.Preview}}</pre>
 <p>Pour retrouver la même page, les filtres et la position, utilisez le bouton Retour du navigateur.
-Ce lien rouvre la chronologie en réévaluant les autorisations et réinitialise les filtres.</p>
-<p><a href="/case-timeline?case_id={{urlquery .CaseID}}">Retour à la chronologie du Case</a></p>
+Ce lien restaure la page et les filtres autorisés de départ, en réévaluant les permissions. Sans contexte de retour, la vue du Case est réinitialisée.</p>
+<p><a href="{{.ReturnURL}}">Retour à la chronologie du Case</a></p>
 </main></body></html>`))
 
 func renderSourcePreviewHTML(out io.Writer, result sourcePreviewResponse) error {

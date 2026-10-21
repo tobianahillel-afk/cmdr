@@ -67,7 +67,7 @@ var timelineHTMLTemplate = template.Must(template.New("case-timeline-html").Func
 <td>{{.SourceRef}}</td><td>{{.Provenance}}</td><td>{{.Version}}</td>
 <td>{{if .Superseded}}Remplacée (une version ultérieure autorisée est visible){{else}}Non déterminé (aucun successeur autorisé visible dans cette lecture){{end}}</td>
 <td>{{if .Supersedes}}{{.Supersedes}}{{else}}—{{end}}</td>
-{{if $.SourceLinks}}<td><a href="{{sourceURL $.CaseID .ID}}">Ouvrir la source (nouvelle autorisation)</a></td>{{end}}
+{{if $.SourceLinks}}<td><a href="{{sourceURL $.CaseID .ID $.ReturnURL}}">Ouvrir la source (nouvelle autorisation)</a></td>{{end}}
 </tr>{{end}}</tbody>
 </table>
 {{else}}<p>Aucune entrée autorisée visible avec ces filtres.</p>{{end}}
@@ -88,6 +88,7 @@ type timelineHTMLView struct {
 	From        string
 	To          string
 	ResetURL    string
+	ReturnURL   string
 	SourceLinks bool
 	Result      timelinePagedHTTPResult
 	HasPrevious bool
@@ -121,8 +122,11 @@ func wantsTimelineHTML(accept string) bool {
 // in an HTML link; the same server authorization runs on every new page.
 // Only the fixed loopback source-open route is ever emitted. Both selectors
 // are opaque identifiers already authorized in the displayed Case projection.
-func localSourceOpenURL(caseID, entryID string) string {
+func localSourceOpenURL(caseID, entryID string, returnURLs ...string) string {
 	q := url.Values{"case_id": {caseID}, "entry_id": {entryID}}
+	if len(returnURLs) != 0 && returnURLs[0] != "" {
+		q.Set("return_to", returnURLs[0])
+	}
 	return "/demo-source-open?" + q.Encode()
 }
 
@@ -150,6 +154,7 @@ func renderTimelineHTML(w io.Writer, values url.Values, caseID string, selection
 		Kind:        values.Get("kind"), Query: values.Get("q"),
 		From: values.Get("from"), To: values.Get("to"),
 		ResetURL:    timelineHTMLPageURL(url.Values{"case_id": {caseID}}, page.Page.Limit, 0),
+		ReturnURL:   timelineHTMLPageURL(values, page.Page.Limit, selection.offset),
 		HasPrevious: selection.offset > 0,
 		HasNext:     page.Page.HasMore,
 	}
