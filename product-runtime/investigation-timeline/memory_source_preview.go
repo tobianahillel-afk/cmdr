@@ -23,8 +23,12 @@ func validatedSourceReturnURL(raw, caseID string) (string, bool) {
 		return "", false
 	}
 	values, err := url.ParseQuery(destination.RawQuery)
-	if err != nil || len(values) == 0 || len(values) > 7 ||
+	if err != nil || len(values) == 0 || len(values) > 8 ||
 		len(values["case_id"]) != 1 || values.Get("case_id") != caseID {
+		return "", false
+	}
+	origin, valid := extractIncidentOrigin(values)
+	if !valid || len(values) > 7 {
 		return "", false
 	}
 	selection, ok := parseTimelineReadSelection(values)
@@ -34,6 +38,9 @@ func validatedSourceReturnURL(raw, caseID string) (string, bool) {
 	if !selection.paged {
 		// The producing Timeline view always supplies a bounded page.
 		return "", false
+	}
+	if origin != "" {
+		values.Set("origin_incident", origin)
 	}
 	return timelineHTMLPageURL(values, selection.limit, selection.offset), true
 }
