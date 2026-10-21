@@ -1,0 +1,227 @@
+package main
+
+import (
+	"context"
+	"encoding/hex"
+	"errors"
+	"html"
+	"io"
+	"net/http"
+	"net/http/httptest"
+	"regexp"
+	"strings"
+	"testing"
+	"time"
+)
+
+func demoRequest(t *testing.T, client *http.Client, base, path, role, secret, accept string) *http.Response {
+	t.Helper()
+	req, err := http.NewRequest(http.MethodGet, base+path, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if role != "" {
+		req.SetBasicAuth(role, secret)
+	}
+	if accept != "" {
+		req.Header.Set("Accept", accept)
+	}
+	resp, err := client.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return resp
+}
+
+func demoBody(t *testing.T, resp *http.Response) string {
+	t.Helper()
+	defer resp.Body.Close()
+	contents, err := io.ReadAll(io.LimitReader(resp.Body, 50000))
+	if err != nil {
+		t.Fatal(err)
+	}
+	return string(contents)
+}
+
+func TestLocalBrowserDemonstratesRealIncidentToCaseHTMLAndFilters(t *testing.T) {
+	secrets, err := newDemoSecrets()
+	if err != nil || !secrets.valid() {
+		t.Fatalf("secure secrets failed: %v", err)
+	}
+	if _, err := hex.DecodeString(secrets.analyst); err != nil {
+		t.Fatal(err)
+	}
+	if secrets.analyst == secrets.commander || len(secrets.commander) != 64 {
+		t.Fatal("secrets not separately randomized")
+	}
+	app, err := newLocalDemoHandler(secrets)
+	if err != nil {
+		t.Fatal(err)
+	}
+	server := httptest.NewServer(app)
+	defer server.Close()
+	client := server.Client()
+	incidentPath := "/command/work-queue?view=incidents&selected=Incident:incident-a"
+	start := demoRequest(t, client, server.URL, incidentPath, "analyst", secrets.analyst, "text/html")
+	page := demoBody(t, start)
+	if start.StatusCode != http.StatusOK || !strings.Contains(page, "incident-a") ||
+		!strings.Contains(html.UnescapeString(page), "case_id=case-a") ||
+		!strings.Contains(page, "investigating") {
+		t.Fatalf("selected Incident and independent Case link absent: %d %s", start.StatusCode, page)
+	}
+	if strings.Contains(page, secrets.analyst) || strings.Contains(page, secrets.commander) {
+		t.Fatal("secret exposed in authorized HTML")
+	}
+	casePath := "/case-timeline?case_id=case-a&limit=1&offset=0"
+	first := demoRequest(t, client, server.URL, casePath, "analyst", secrets.analyst, "text/html")
+	firstPage := demoBody(t, first)
+	if first.StatusCode != http.StatusOK || !strings.Contains(firstPage, "event-v1") ||
+		!strings.Contains(firstPage, "Remplacée") || strings.Contains(firstPage, "event-v2</th>") ||
+		!strings.Contains(first.Header.Get("Content-Security-Policy"), "form-action 'self'") {
+		t.Fatalf("real Case HTML page failed: %d %s", first.StatusCode, firstPage)
+	}
+	next := regexp.MustCompile(`rel="next" href="([^"]+)"`).FindStringSubmatch(firstPage)
+	if len(next) != 2 {
+		t.Fatalf("missing next authorized page: %s", firstPage)
+	}
+	second := demoRequest(t, client, server.URL, html.UnescapeString(next[1]), "analyst", secrets.analyst, "text/html")
+	secondPage := demoBody(t, second)
+	if second.StatusCode != http.StatusOK || !strings.Contains(secondPage, "event-v2") ||
+		!strings.Contains(secondPage, "event-v1") || !strings.Contains(secondPage, "Non déterminé") {
+		t.Fatalf("followed authorized version navigation failed: %d %s", second.StatusCode, secondPage)
+	}
+	filter := demoRequest(t, client, server.URL, "/case-timeline?case_id=case-a&kind=observed&q=event-v1&from=&to=&limit=1", "analyst", secrets.analyst, "text/html")
+	filterPage := demoBody(t, filter)
+	if filter.StatusCode != http.StatusOK || !strings.Contains(filterPage, "event-v1") ||
+		strings.Contains(filterPage, "event-v2</th>") || !strings.Contains(filterPage, "Réinitialiser les filtres") {
+		t.Fatalf("native browser filters did not run: %d %s", filter.StatusCode, filterPage)
+	}
+	jsonRead := demoRequest(t, client, server.URL, "/case-timeline?case_id=case-a", "analyst", secrets.analyst, "application/json")
+	jsonBody := demoBody(t, jsonRead)
+	if jsonRead.StatusCode != http.StatusOK || !strings.Contains(jsonBody, "\"superseded\":true") {
+		t.Fatalf("original JSON read regressed: %d %s", jsonRead.StatusCode, jsonBody)
+	}
+}
+
+func TestLocalBrowserRejectsCommanderCaseAndHostSpoofing(t *testing.T) {
+	secrets, err := newDemoSecrets()
+	if err != nil {
+		t.Fatal(err)
+	}
+	app, err := newLocalDemoHandler(secrets)
+	if err != nil {
+		t.Fatal(err)
+	}
+	s := httptest.NewServer(app)
+	defer s.Close()
+	for _, tc := range []struct {
+		path, role, secret string
+		want int
+	}{
+		{"/command/work-queue?selected=Incident:incident-a", "", "", http.StatusUnauthorized},
+		{"/command/work-queue?selected=Incident:incident-a", "analyst", "wrong", http.StatusUnauthorized},
+		{"/command/work-queue?selected=Incident:incident-a", "commander", secrets.commander, http.StatusOK},
+		{"/case-timeline?case_id=case-a", "commander", secrets.commander, http.StatusNotFound},
+		{"/case-timeline?case_id=case-a", "analyst", secrets.analyst, http.StatusOK},
+		{"/case-timeline?case_id=case-a&tenant=synthetic-tenant", "analyst", secrets.analyst, http.StatusBadRequest},
+		{"/unknown", "analyst", secrets.analyst, http.StatusNotFound},
+	} {
+		resp := demoRequest(t, s.Client(), s.URL, tc.path, tc.role, tc.secret, "text/html")
+		body := demoBody(t, resp)
+		if resp.StatusCode != tc.want {
+			t.Fatalf("access not correctly isolated: %s %s -> %d want %d: %s", tc.role, tc.path, resp.StatusCode, tc.want, body)
+		}
+		if resp.Header.Get("Cache-Control") != "no-store" {
+			t.Fatalf("response cacheable on %s", tc.path)
+		}
+		if resp.StatusCode == http.StatusUnauthorized &&
+			!strings.Contains(resp.Header.Get("WWW-Authenticate"), "Basic ") {
+			t.Fatal("native browser cannot authenticate via challenge")
+		}
+		if resp.StatusCode != http.StatusOK && (strings.Contains(body, "event-v1") ||
+			strings.Contains(body, "source-v2")) {
+			t.Fatalf("denied response exposed source: %s", body)
+		}
+	}
+	req, err := http.NewRequest(http.MethodGet, s.URL+"/case-timeline?case_id=case-a", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.SetBasicAuth("analyst", secrets.analyst)
+	req.Host = "attacker.example:8080"
+	resp, err := s.Client().Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	_ = demoBody(t, resp)
+	if resp.StatusCode != http.StatusForbidden {
+		t.Fatalf("host header rebinding was accepted: %d", resp.StatusCode)
+	}
+	for _, value := range []string{"attacker.example:8080", "[::1]:8080", "localhost:8080", "127.0.0.2:8080", ""} {
+		if isLoopbackHost(value) {
+			t.Fatalf("unexpected non-canonical host accepted: %q", value)
+		}
+	}
+	if !isLoopbackHost("127.0.0.1:8080") {
+		t.Fatal("loopback listener Host rejected")
+	}
+	for _, bad := range []demoSecrets{{}, {analyst: secrets.analyst, commander: secrets.analyst}} {
+		if _, err := newLocalDemoHandler(bad); err == nil {
+			t.Fatalf("invalid credentials accepted: %+v", bad)
+		}
+	}
+}
+
+type testServerIntro struct {
+	values chan string
+}
+
+func (w testServerIntro) Write(p []byte) (int, error) {
+	w.values <- string(p)
+	return len(p), nil
+}
+
+func TestLocalBrowserCanActuallyStartAndStopOnLoopback(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	output := testServerIntro{values: make(chan string, 1)}
+	finished := make(chan error, 1)
+	go func() { finished <- runLocalBrowser(ctx, output) }()
+	var notice string
+	select {
+	case notice = <-output.values:
+	case err := <-finished:
+		t.Fatalf("local browser failed before listening: %v", err)
+	case <-time.After(15 * time.Second):
+		t.Fatal("loopback listener did not start")
+	}
+	matches := regexp.MustCompile(`URL: (http://127[.]0[.]0[.]1:[0-9]+/[^\n]+)`).FindStringSubmatch(notice)
+	credentials := regexp.MustCompile(`Analyst: analyst / ([a-f0-9]{64})`).FindStringSubmatch(notice)
+	if len(matches) != 2 || len(credentials) != 2 ||
+		strings.Contains(matches[1], credentials[1]) {
+		t.Fatalf("listener did not announce a scoped URL and separate local secret: %q", notice)
+	}
+	req, err := http.NewRequest(http.MethodGet, matches[1], nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.SetBasicAuth("analyst", credentials[1])
+	client := &http.Client{Timeout: 5 * time.Second}
+	resp, err := client.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	body := demoBody(t, resp)
+	if resp.StatusCode != http.StatusOK || !strings.Contains(body, "incident-a") {
+		t.Fatalf("running listener did not render real Incident: %d %s", resp.StatusCode, body)
+	}
+	cancel()
+	select {
+	case err = <-finished:
+		if err != nil && !errors.Is(err, http.ErrServerClosed) {
+			t.Fatalf("clean signal stop failed: %v", err)
+		}
+	case <-time.After(10 * time.Second):
+		t.Fatal("local listener did not stop after cancellation")
+	}
+}
