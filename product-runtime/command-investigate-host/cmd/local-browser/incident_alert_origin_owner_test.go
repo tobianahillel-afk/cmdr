@@ -33,7 +33,7 @@ func TestSyntheticIncidentAlertLinkAndSourceAreSeparatelyAuthorized(t *testing.T
 			}
 			wantLink := tc.principal == "analyst" && tc.tenant == demoTenant &&
 				tc.environment == demoEnvironment && tc.incident == "incident-a"
-			if (len(links) != 0) == wantLink {
+			if (len(links) != 0) != wantLink {
 				t.Fatalf("unauthorized relation exposed: %+v", links)
 			}
 			// This second check is deliberately independent: even a trusted
