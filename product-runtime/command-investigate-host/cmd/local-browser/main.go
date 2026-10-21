@@ -223,7 +223,13 @@ func newLocalDemoHandler(secrets demoSecrets) (http.Handler, error) {
 }
 
 func runLocalBrowser(ctx context.Context, out io.Writer) error {
-	secrets, err := newDemoSecrets()
+	return runLocalBrowserFromEntropy(ctx, out, rand.Reader)
+}
+
+// Production always supplies the OS cryptographic source; a test can supply
+// a failing reader to prove that no listener starts without safe credentials.
+func runLocalBrowserFromEntropy(ctx context.Context, out io.Writer, entropy io.Reader) error {
+	secrets, err := demoSecretsFrom(entropy)
 	if err != nil {
 		return fmt.Errorf("generate local credentials: %w", err)
 	}
