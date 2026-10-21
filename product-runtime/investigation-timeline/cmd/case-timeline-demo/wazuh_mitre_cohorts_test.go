@@ -61,7 +61,7 @@ func TestWazuhMITRETechniqueRejectsMalformedOrExcessiveSourceLabels(t *testing.T
 	bad := []string{
 		"[\"T12\"]", "[\"TA0001\"]", "[\"T1059.12\"]",
 		"[\"T1059.0000\"]", "[\"t1059\"]", "[\"T1059<script>\"]",
-		"[\"T1059\",17]", "\"T1059\"",
+		"[\"T1059\",17]", "\"T1059\"", "null", "{}", "true", "0",
 		"[" + strings.Repeat("\"T1059\",", 16) + "\"T1078\"]",
 	}
 	for _, labels := range bad {
@@ -76,6 +76,48 @@ func TestWazuhMITRETechniqueRejectsMalformedOrExcessiveSourceLabels(t *testing.T
 				t.Fatalf("invalid ATT&CK labels accepted or partial output: %v / %q", err, out.String())
 			}
 		})
+	}
+}
+
+// Explicit JSON null is not the same as absent Wazuh source metadata.
+// Fail before emitting any authorized-looking partial Case receipt.
+func TestWazuhMITREExplicitNullAndMalformedObjectsFailClosed(t *testing.T) {
+	owner := twoCaseComparisonSnapshot(t)
+	for _, metadata := range []string{
+		"null", "[]", "42", "\"T1059\"", "{\"id\":null}",
+		"{\"id\":{\"unexpected\":true}}",
+	} {
+		t.Run(metadata, func(t *testing.T) {
+			alerts := writeJSONLEvents(t,
+				"{\"id\":\"bad-metadata\",\"timestamp\":\"2026-10-01T10:00:00Z\",\"rule\":{\"id\":\"5710\",\"level\":7,\"description\":\"source-preview\",\"mitre\":"+
+					metadata+"}}\n",
+			)
+			// Exercise the MITRE parser itself, rather than treating an earlier
+			// generic Wazuh import rejection as proof of this source rule.
+			if _, err := wazuhRuleLevels([]byte("{\"id\":\"bad-metadata\",\"rule\":{\"id\":\"5710\",\"mitre\":"+metadata+"}}\n"), "case-a"); err == nil {
+				t.Fatalf("MITRE parser accepted malformed source metadata %s", metadata)
+			}
+			var receipt bytes.Buffer
+			err := writeDemoWazuh4Triage(context.Background(), "analyst-a", owner, "case-a", alerts, &receipt)
+			if err == nil || receipt.Len() != 0 {
+				t.Fatalf("malformed MITRE object published receipt: %v / %q", err, receipt.String())
+			}
+		})
+	}
+	// A missing optional MITRE object remains a normal unmapped alert.
+	alerts := writeJSONLEvents(t,
+		"{\"id\":\"unmapped\",\"timestamp\":\"2026-10-01T10:00:00Z\",\"rule\":{\"id\":\"5710\",\"level\":0,\"description\":\"source-preview\"}}\n",
+	)
+	var receipt bytes.Buffer
+	if err := writeDemoWazuh4Triage(context.Background(), "analyst-a", owner, "case-a", alerts, &receipt); err != nil {
+		t.Fatal(err)
+	}
+	var got wazuhRuleTriageReceipt
+	if err := json.Unmarshal(receipt.Bytes(), &got); err != nil {
+		t.Fatal(err)
+	}
+	if got.ImportedEntries != 1 || got.UnmappedTechniqueAlerts != 1 || got.DistinctTechniqueIDs != 0 {
+		t.Fatalf("missing metadata invented a source technique: %+v", got)
 	}
 }
 
@@ -107,6 +149,28 @@ func TestWazuhMITRETechniqueTopTenDeterministicAcrossSourceOrder(t *testing.T) {
 	}
 }
 
+
+// Exercise the documented source import limits without a timing-based flaky
+// assertion. This is a parser-scale test, not production SIEM throughput proof.
+func TestWazuhMITREMetadataBoundedAt5000AlertsWith16SourceLabels(t *testing.T) {
+	const labels = "[\"T1000\",\"T1001\",\"T1002\",\"T1003\",\"T1004\",\"T1005\",\"T1006\",\"T1007\",\"T1008\",\"T1009\",\"T1010\",\"T1011\",\"T1012\",\"T1013\",\"T1014\",\"T1015\"]"
+	var source strings.Builder
+	for i := 0; i < 5000; i++ {
+		fmt.Fprintf(&source, "{\"id\":\"bounded-%d\",\"rule\":{\"id\":\"5710\",\"level\":0,\"mitre\":{\"id\":%s}}}\n", i, labels)
+	}
+	if source.Len() > 8<<20 {
+		t.Fatalf("bounded source unexpectedly exceeds 8 MiB: %d", source.Len())
+	}
+	result, err := wazuhRuleLevels([]byte(source.String()), "case-a")
+	if err != nil || len(result) != 5000 {
+		t.Fatalf("bounded source was not parsed: entries=%d err=%v", len(result), err)
+	}
+	for _, level := range result {
+		if len(level.MITREIDs) != 16 || !level.Known || level.Level != 0 {
+			t.Fatalf("source labels or known zero rule severity dropped: %+v", level)
+		}
+	}
+}
 
 func TestWazuhMITRECohortsCrossExistingAuthenticatedLoopbackHTTP(t *testing.T) {
 	owner := twoCaseComparisonSnapshot(t)
