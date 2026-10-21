@@ -52,7 +52,8 @@
     "engineering/architecture/boundaries.json",
     "engineering/security/runtime-security-policy.json",
     "work/lots/E10-CMD-106E-HOST/**",
-    "work/graph.json"
+    "work/graph.json",
+    "engineering/performance/performance-registry.json"
   ],
   "forbidden_paths": [
     "cmdr-product-spec/**",
@@ -97,7 +98,8 @@
   "outputs": [
     "New embeddable NewHandler(Command http.Handler, Timeline http.Handler) reuses the two existing read-only services on one origin, with route isolation and no extra IAM decisions.",
     "Cross-module Go httptest follows a real Case link rendered by Command into the real Timeline HTTP handler and demonstrates independent source checks, including a Command-only reader denied at destination.",
-    "Cross-platform Go CI on exact commit, Linux race, go vet, gofmt, 90% host statement coverage and mandatory engineering-security gate."
+    "Cross-platform Go CI on exact commit, Linux race, go vet, gofmt, 90% host statement coverage and mandatory engineering-security gate.",
+    "Provisional on-demand engineering performance registry entry, explicitly unmeasured for live IAM and network."
   ],
   "acceptance_tests": [
     "Actual selected Incident HTML contains same-origin /case-timeline?case_id=Case ID with no tenant or token.",
