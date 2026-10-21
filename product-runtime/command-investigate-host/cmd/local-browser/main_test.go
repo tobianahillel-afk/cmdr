@@ -13,6 +13,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	queue "github.com/tobianahillel-afk/cmdr/product-runtime/work-queue"
 )
 
 func demoRequest(t *testing.T, client *http.Client, base, path, role, secret, accept string) *http.Response {
