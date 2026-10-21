@@ -59,7 +59,11 @@
     "tools/cmdr-dev/security_tests.go",
     "tools/cmdr-dev/security_tests_test.go",
     "tools/cmdr-dev/performance_benchmark.go",
-    "engineering/performance/benchmark-policy.json"
+    "engineering/performance/benchmark-policy.json",
+    "engineering/performance/deep-performance-policy.json",
+    "tools/cmdr-dev/deep_performance.go",
+    "tools/cmdr-dev/performance_command_investigate_deep.go",
+    "tools/cmdr-dev/performance_command_investigate_deep_test.go"
   ],
   "forbidden_paths": [
     "cmdr-product-spec/**",
@@ -76,7 +80,7 @@
     "Existing Go 1.26.10 work-queue and investigation-timeline module boundaries are reused through pinned local replaces; do not introduce external runtime dependencies or paid APIs.",
     "Existing #195 and #197 SHA remain frozen and unchanged; this new branch descends #197 only as Git parent, not business parent.",
     "Performance workload identity is registered in both strict engineering validator and policy, without a waiver and without claiming a measured production SLO.",
-    "The sole approved engineering-tool file is tools/cmdr-dev/performance_registry.go to register one strict workload; no other tools/cmdr-dev path belongs to allowed_paths."
+    "Only the explicitly enumerated engineering-tool files may be changed: host routing benchmark adapter, strict deep-policy validation and measured source-specific security checks. No generic waiver or policy broadening is permitted."
   ],
   "security_properties": [
     "Fail closed if either required handler is missing; unsupported paths cannot reach an owner adapter.",
@@ -108,7 +112,8 @@
     "Cross-platform Go CI on exact commit, Linux race, go vet, gofmt, 90% host statement coverage and mandatory engineering-security gate.",
     "Provisional on-demand engineering performance registry entry, explicitly unmeasured for live IAM and network.",
     "Strict changed-security-critical evidence adapter for the new host boundary with fresh Go coverage and authorization/tenant negative tests; no automatic source-owner trust grant.",
-    "Measured on-demand routing benchmark policy and executable workload using Go testing.B against the actual NewHandler implementation; provider/IAM latency explicitly excluded."
+    "Measured on-demand routing benchmark policy and executable workload using Go testing.B against the actual NewHandler implementation; provider/IAM latency explicitly excluded.",
+    "One real bounded Go subprocess deep resource target for the existing same-origin routing benchmark: 250 measured operations, peak Go heap and total allocations, 512 MiB soft memory hint and 180-second cap, explicitly excluding IAM/provider/network."
   ],
   "acceptance_tests": [
     "Actual selected Incident HTML contains same-origin /case-timeline?case_id=Case ID with no tenant or token.",
@@ -119,7 +124,9 @@
     "Exact GitHub SHA validates Go compile/unit/race/vet/coverage on Linux, Windows, macOS and engineering schema/security checks.",
     "Global CHK-SECURITY-TESTS executes measured host Go coverage and negative tests on exact SHA, no unmeasured boundary or altered coverage thresholds.",
     "The strict security adapter registry unit test expects exactly 10 registered adapters including command-investigate-host-runtime; no implicit adapter is permitted.",
-    "The performance benchmark registry has one measured first-party routing workload and the strict validator still rejects unknown or duplicated workload keys."
+    "The performance benchmark registry has one measured first-party routing workload and the strict validator still rejects unknown or duplicated workload keys.",
+    "CHK-DEEP-PERFORMANCE validates the matching product-runtime deep target, known executable first-party handler and exact valid on-demand scope; malformed/missing benchmark resource metrics fail closed.",
+    "Actual Go routing deep benchmark emits positive ns/op, peakheap-B and totalalloc-B data from real NewHandler dispatch, distinct from synthetic production IAM."
   ],
   "required_checks": [
     "CHK-MANIFESTS",
@@ -139,7 +146,8 @@
   "definition_of_done": [
     "Both existing real Go handlers mounted under a single origin and tested through a selected Incident Case link without rights transfer.",
     "GitHub exact-head CI for new module and mandatory engineering kernel SUCCESS, no security gate relaxed.",
-    "Second-party L2 review scoped to new host trust boundary and changed cross-module contract, no production or native-approved claim."
+    "Second-party L2 review scoped to new host trust boundary and changed cross-module contract, no production or native-approved claim.",
+    "Deep-performance target fully registered and exact-HEAD kernel PASS without deleting/waiving a required check or misrepresenting unmeasured provider latency."
   ],
   "performance_budget": {
     "applicable": false,
@@ -149,9 +157,9 @@
   "complexity": {
     "primary_components": 1,
     "estimated_files_changed": 9,
-    "estimated_net_loc": 90,
-    "production_files": 5,
-    "net_production_loc": 200,
+    "estimated_net_loc": 350,
+    "production_files": 7,
+    "net_production_loc": 300,
     "bounded_contexts": 1,
     "independent_migrations": 0,
     "distinct_security_models": 1,
