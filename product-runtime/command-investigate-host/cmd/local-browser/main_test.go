@@ -395,3 +395,62 @@ func TestLocalBrowserRefusesFailedOperatingSystemEntropyBeforeListening(t *testi
 		t.Fatalf("identical role credentials started local server: %v output=%q", err, output.String())
 	}
 }
+
+
+func TestLocalBrowserCaseTimelineOpensOnlyFreshlyAuthorizedSource(t *testing.T) {
+	secrets, err := newDemoSecrets()
+	if err != nil {
+		t.Fatal(err)
+	}
+	app, err := newLocalDemoHandler(secrets)
+	if err != nil {
+		t.Fatal(err)
+	}
+	server := httptest.NewServer(app)
+	defer server.Close()
+	client := server.Client()
+	timelinePath := "/case-timeline?case_id=case-a&kind=observed&limit=1&offset=0"
+	first := demoRequest(t, client, server.URL, timelinePath, "analyst", secrets.analyst, "text/html")
+	page := demoBody(t, first)
+	if first.StatusCode != http.StatusOK {
+		t.Fatalf("authorized Case page unavailable: %d %s", first.StatusCode, page)
+	}
+	urls := regexp.MustCompile(`href="(/demo-source-open\\?[^"]+)"`).FindStringSubmatch(page)
+	if len(urls) != 2 {
+		t.Fatalf("trusted host did not expose existing source handler: %s", page)
+	}
+	sourcePath := html.UnescapeString(urls[1])
+	if sourcePath != "/demo-source-open?case_id=case-a&entry_id=event-v1" ||
+		strings.Contains(sourcePath, "source-v1") || strings.Contains(sourcePath, secrets.analyst) {
+		t.Fatalf("client acquired source selector or credential: %q", sourcePath)
+	}
+	opened := demoRequest(t, client, server.URL, sourcePath, "analyst", secrets.analyst, "text/html")
+	preview := demoBody(t, opened)
+	if opened.StatusCode != http.StatusOK || !strings.Contains(preview, "original observed event") ||
+		!strings.Contains(preview, "\"object_id\":\"object-v1\"") ||
+		!strings.Contains(preview, "\"synthetic\":true") ||
+		opened.Header.Get("Cache-Control") != "no-store" {
+		t.Fatalf("same-origin source owner failed to re-authorize: status=%d %s", opened.StatusCode, preview)
+	}
+	// A browser's Back action restores the original validated Case URL,
+	// including the specific authorized filter and pagination selection.
+	back := demoRequest(t, client, server.URL, timelinePath, "analyst", secrets.analyst, "text/html")
+	if back.StatusCode != http.StatusOK || !strings.Contains(demoBody(t, back), "event-v1") {
+		t.Fatal("returning to the Case's same filtered page failed")
+	}
+	for _, tc := range []struct{ role, password, path string }{
+		{"", "", sourcePath},
+		{"commander", secrets.commander, sourcePath},
+		{"analyst", secrets.analyst, "/demo-source-open?case_id=case-b&entry_id=event-v1"},
+		{"analyst", secrets.analyst, "/demo-source-open?case_id=case-a&entry_id=not-visible"},
+		{"analyst", secrets.analyst, sourcePath + "&source_ref=source-v1"},
+		{"analyst", "wrong-credential", sourcePath},
+	} {
+		result := demoRequest(t, client, server.URL, tc.path, tc.role, tc.password, "application/json")
+		body := demoBody(t, result)
+		if result.StatusCode == http.StatusOK ||
+			strings.Contains(body, "object-v1") || strings.Contains(body, "original observed event") {
+			t.Fatalf("source URL bypassed owner checks: role=%q status=%d body=%q", tc.role, result.StatusCode, body)
+		}
+	}
+}
