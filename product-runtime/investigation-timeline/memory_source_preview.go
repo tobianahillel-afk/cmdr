@@ -7,6 +7,37 @@ import (
 	"unicode/utf8"
 )
 
+// validatedSourceReturnURL accepts only a canonical, same-Case Timeline
+// read selection. It is a navigation hint, never a delegated capability:
+// clicking it always reruns the destination's authorization chain.
+func validatedSourceReturnURL(raw, caseID string) (string, bool) {
+	if raw == "" || len(raw) > 2048 || strings.Contains(raw, "#") {
+		return "", false
+	}
+	destination, err := url.Parse(raw)
+	if err != nil || destination.IsAbs() || destination.Host != "" ||
+		destination.User != nil || destination.Opaque != "" ||
+		destination.Path != "/case-timeline" ||
+		destination.EscapedPath() != "/case-timeline" ||
+		destination.Fragment != "" || destination.ForceQuery {
+		return "", false
+	}
+	values, err := url.ParseQuery(destination.RawQuery)
+	if err != nil || len(values) == 0 || len(values) > 7 ||
+		len(values["case_id"]) != 1 || values.Get("case_id") != caseID {
+		return "", false
+	}
+	selection, ok := parseTimelineReadSelection(values)
+	if !ok {
+		return "", false
+	}
+	if !selection.paged {
+		// The producing Timeline view always supplies a bounded page.
+		return "", false
+	}
+	return timelineHTMLPageURL(values, selection.limit, selection.offset), true
+}
+
 // sourcePreviewHandler opens a synthetic owner-owned source from a selected
 // Timeline Entry. It deliberately is NOT a production source API: the owner
 // snapshot and its preview are static, in memory, and have no persistence.
@@ -28,7 +59,9 @@ func (s *memoryTimelineProvider) sourcePreviewHandler() http.Handler {
 			return
 		}
 		query, err := url.ParseQuery(r.URL.RawQuery)
-		if err != nil || len(query) != 2 || len(query["case_id"]) != 1 || len(query["entry_id"]) != 1 {
+		if err != nil || (len(query) != 2 && len(query) != 3) ||
+			len(query["case_id"]) != 1 || len(query["entry_id"]) != 1 ||
+			(len(query) == 3 && len(query["return_to"]) != 1) {
 			writeCaseTimelineError(w, http.StatusBadRequest)
 			return
 		}
@@ -39,6 +72,17 @@ func (s *memoryTimelineProvider) sourcePreviewHandler() http.Handler {
 			strings.ContainsAny(caseID+entryID, "\x00\r\n") {
 			writeCaseTimelineError(w, http.StatusBadRequest)
 			return
+		}
+		// Navigation data only. No principal, scope, source reference or
+		// permission is ever taken from the optional return target.
+		returnURL := "/case-timeline?" + (url.Values{"case_id": {caseID}}).Encode()
+		if values := query["return_to"]; len(values) != 0 {
+			var ok bool
+			returnURL, ok = validatedSourceReturnURL(values[0], caseID)
+			if !ok {
+				writeCaseTimelineError(w, http.StatusBadRequest)
+				return
+			}
 		}
 		if r.Context().Err() != nil {
 			writeCaseTimelineError(w, http.StatusServiceUnavailable)
@@ -83,7 +127,7 @@ func (s *memoryTimelineProvider) sourcePreviewHandler() http.Handler {
 		payload := sourcePreviewResponse{
 			Status: "ready", CaseID: caseID, EntryID: entryID,
 			Kind: draft.Kind, ObjectID: draft.ObjectID,
-			Preview: owner.Preview, Synthetic: true,
+			Preview: owner.Preview, Synthetic: true, ReturnURL: returnURL,
 		}
 		// Presentation is separate from the source-owner trust decision.
 		writeAuthorizedSourcePreview(w, r, ctx, payload)
