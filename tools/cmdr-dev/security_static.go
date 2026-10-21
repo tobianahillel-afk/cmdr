@@ -17,7 +17,7 @@ import (
 
 const (
 	developmentToolRegistryPath = "engineering/security/development-tools.json"
-	engineeringGoVersion        = "1.26.8"
+	engineeringGoVersion        = "1.26.10"
 	gosecModule                 = "github.com/securego/gosec/v2/cmd/gosec"
 	gosecVersion                = "v2.28.0"
 	govulncheckModule           = "golang.org/x/vuln/cmd/govulncheck"
@@ -593,9 +593,47 @@ func parseGovulncheckStream(data []byte) (SCASummary, error) {
 	})
 	summary.ActionableFindings = len(summary.Findings)
 	if summary.ActionableFindings > 0 {
-		return summary, fmt.Errorf("govulncheck blocked: %d reachable known vulnerability finding(s)", summary.ActionableFindings)
+		// OSV identifiers are public advisory references, not scanner output.
+		// Never echo untrusted module paths, symbols, traces, source or URLs.
+		return summary, fmt.Errorf("govulncheck blocked: %d reachable known vulnerability finding(s); public advisory IDs: %s", summary.ActionableFindings, safeGoVulnAdvisoryIDs(summary.Findings))
 	}
 	return summary, nil
+}
+
+// safeGoVulnAdvisoryIDs shows only strictly validated public GO advisory IDs.
+// A malformed or unavailable ID must not weaken the mandatory SCA failure.
+func safeGoVulnAdvisoryIDs(findings []SCAFinding) string {
+	ids := make([]string, 0, min(4, len(findings)))
+	seen := map[string]bool{}
+	for _, f := range findings {
+		id := f.OSV
+		if len(id) < 12 || len(id) > 20 || !strings.HasPrefix(id, "GO-") || id[7] != '-' {
+			continue
+		}
+		valid := true
+		for i := 3; i < len(id); i++ {
+			if i == 7 {
+				continue
+			}
+			if id[i] < '0' || id[i] > '9' {
+				valid = false
+				break
+			}
+		}
+		if !valid || seen[id] {
+			continue
+		}
+		seen[id] = true
+		ids = append(ids, id)
+	}
+	if len(ids) == 0 {
+		return "identifier-unavailable"
+	}
+	sort.Strings(ids)
+	if len(ids) > 4 {
+		ids = ids[:4]
+	}
+	return strings.Join(ids, ",")
 }
 
 func sastFindingFingerprint(ruleID, path, code string) string {

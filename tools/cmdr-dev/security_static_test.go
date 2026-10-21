@@ -58,6 +58,40 @@ func TestParseGovulncheckReachableFindingHasExactIdentity(t *testing.T) {
 	}
 }
 
+func TestGoSCAReportsOnlyValidatedPublicAdvisoryIDsAndStillBlocks(t *testing.T) {
+	stream := strings.Join([]string{
+		`{"config":{"protocol_version":"v1.0.0","scanner_name":"govulncheck"}}`,
+		`{"SBOM":{"modules":[{"path":"private.example/credentials","version":"v1.2.3"}]}}`,
+		`{"finding":{"osv":"GO-2099-0001","trace":[{"module":"private.example/credentials","package":"secret/source","function":"secretAccessToken"}]}}`,
+	}, "\n")
+	summary, err := parseGovulncheckStream([]byte(stream))
+	if err == nil || summary.ActionableFindings != 1 || !strings.Contains(err.Error(), "GO-2099-0001") {
+		t.Fatalf("reachable OSV not safely actionable: %#v %v", summary, err)
+	}
+	for _, secret := range []string{"credentials", "secretAccessToken", "secret/source", "private.example"} {
+		if strings.Contains(err.Error(), secret) {
+			t.Fatalf("unsafe scanner identity disclosed: %q", err)
+		}
+	}
+}
+
+func TestGoSCARejectsMalformedAdvisoryOutputWithoutWaiver(t *testing.T) {
+	got := safeGoVulnAdvisoryIDs([]SCAFinding{
+		{OSV: "GO-2099-0002"},
+		{OSV: "GO-2099-0002"},
+		{OSV: "GO-2099-0001"},
+		{OSV: "GO-2099-0003\\npassword=123"},
+		{OSV: "CVE-2099-1234 private-source"},
+		{OSV: "GO-2099-9999<script>"},
+	})
+	if got != "GO-2099-0001,GO-2099-0002" {
+		t.Fatalf("unvalidated advisory data made it to CI output: %q", got)
+	}
+	if safeGoVulnAdvisoryIDs([]SCAFinding{{OSV: "GO-2099-A"}, {OSV: "GHSA-secret"}}) != "identifier-unavailable" {
+		t.Fatal("missing public advisory must remain safely redacted")
+	}
+}
+
 func TestParseGovulncheckUsesSBOMVersionAndDeduplicates(t *testing.T) {
 	stream := strings.Join([]string{
 		`{"config":{"protocol_version":"v1.0.0","scanner_name":"govulncheck"}}`,
