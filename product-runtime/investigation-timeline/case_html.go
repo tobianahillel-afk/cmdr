@@ -93,8 +93,8 @@ type timelineHTMLView struct {
 	ResetURL          string
 	ReturnURL         string
 	IncidentReturnURL string
-	OriginIncident     string
-	DetailReturn       bool
+	OriginIncident    string
+	DetailReturn      bool
 	SourceLinks       bool
 	Result            timelinePagedHTTPResult
 	HasPrevious       bool
