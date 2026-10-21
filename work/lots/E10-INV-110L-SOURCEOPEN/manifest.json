@@ -126,5 +126,10 @@
     "independent_migrations": 0,
     "distinct_security_models": 1,
     "separately_testable_behaviors": 1
+  },
+  "performance_budget": {
+    "applicable": false,
+    "rationale": "This increment reuses already bounded first-party source-open HTTP authorization, only adds an explicit trusted-host HTML link and routing to the preexisting synthetic owner handler; no new performance target or production latency is claimed.",
+    "metrics": []
   }
 }
