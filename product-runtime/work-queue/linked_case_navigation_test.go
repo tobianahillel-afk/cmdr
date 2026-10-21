@@ -50,7 +50,9 @@ func TestLinkedCaseNavigationOnlyForIndependentlyAuthorizedSelectedIncident(t *t
         t.Fatalf("Case navigation missing or improperly encoded: %s", markup)
     }
     parsed, err := url.Parse(wantLink)
-    if err != nil { t.Fatal(err) }
+    if err != nil {
+        t.Fatal(err)
+    }
     if parsed.Path != "/case-timeline" || len(parsed.Query()) != 1 ||
         parsed.Query().Get("case_id") != "case-allowed&tenant=forged#x" {
         t.Fatalf("unsafe Case destination query: %v", parsed)
@@ -63,7 +65,9 @@ func TestLinkedCaseNavigationOnlyForIndependentlyAuthorizedSelectedIncident(t *t
     }
     var projection Result
     jsonResult := testQueueRequest(h,http.MethodGet,"/command/work-queue?view=incidents&selected=Incident:inc-a")
-    if err := json.Unmarshal(jsonResult.Body.Bytes(), &projection); err != nil { t.Fatal(err) }
+    if err := json.Unmarshal(jsonResult.Body.Bytes(), &projection); err != nil {
+        t.Fatal(err)
+    }
     if projection.SelectedLinkedCases == nil || len(projection.SelectedLinkedCases.Cases) != 1 {
         t.Fatalf("legacy read-only JSON changed: %+v", projection.SelectedLinkedCases)
     }
