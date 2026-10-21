@@ -140,9 +140,9 @@ func TestRealSameOriginCommandToInvestigateNavigationIndependentlyReauthorizes(t
 		t.Fatalf("actual Case destination unavailable: %d %s", caseRead.Code, caseRead.Body.String())
 	}
 	var body struct {
-		Status string `json:"status"`
+		Status  string `json:"status"`
 		Entries []struct {
-			ID string `json:"id"`
+			ID   string `json:"id"`
 			Kind string `json:"kind"`
 		} `json:"entries"`
 	}
