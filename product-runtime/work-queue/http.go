@@ -190,80 +190,11 @@ func NewHTTPHandler(sessions SessionResolver, owner Owner) http.Handler {
 				return
 			}
 		}
-		if result.Selected != nil {
-			// Only AFTER the session, the full owner projection and the
-			// current-page selection have been independently authorized.
-			// The optional host adapter must authorize each source factor;
-			// no client-selected factor or scope is trusted.
-			factors := AuthorizedFactors{}
-			if source, ok := owner.(FactorsOwner); ok {
-				fetched, err := source.ReadAuthorizedFactors(r.Context(), scope.Principal,
-					scope.Tenant, scope.Environment, result.Selected.Kind, result.Selected.ID)
-				if err != nil {
-					http.Error(w, "coordination factors unavailable", http.StatusServiceUnavailable)
-					return
-				}
-				factors, err = validateAuthorizedFactors(fetched)
-				if err != nil {
-					http.Error(w, "coordination factors unavailable", http.StatusServiceUnavailable)
-					return
-				}
-			}
-			result.SelectedFactors = &factors
-			// Object authorization does not imply contractual SLA access.
-			// The optional host adapter independently authorizes its source;
-			// no client can request a policy or choose its tenant.
-			if slaOwner, ok := owner.(SLAOwner); ok {
-				sla, err := slaOwner.ReadAuthorizedSLA(r.Context(),scope.Principal,
-					scope.Tenant,scope.Environment,result.Selected.Kind,result.Selected.ID)
-				if err != nil {
-					http.Error(w,"SLA source unavailable",http.StatusServiceUnavailable)
-					return
-				}
-				result.SelectedSLA,err=validateAuthorizedSLA(sla)
-				if err != nil {
-					http.Error(w,"SLA source unavailable",http.StatusServiceUnavailable)
-					return
-				}
-			}
-		}
-		if result.Selected != nil {
-			// An Incident/Task's owner is not permission to inspect the
-			// canonical Ownership Register or Settings identity projections.
-			if registry, ok := owner.(CanonicalOwnershipOwner); ok {
-				claimed, err := registry.ReadAuthorizedCanonicalOwnership(r.Context(),
-					scope.Principal, scope.Tenant, scope.Environment,
-					result.Selected.Kind, result.Selected.ID)
-				if err != nil {
-					http.Error(w, "canonical ownership unavailable", http.StatusServiceUnavailable)
-					return
-				}
-				result.SelectedCanonicalOwnership, err = validateAuthorizedCanonicalOwnership(claimed)
-				if err != nil {
-					http.Error(w, "canonical ownership unavailable", http.StatusServiceUnavailable)
-					return
-				}
-			}
-		}
-
-		// Canonical CAP-CMD-106: inspect existing links ONLY for a currently
-		// selected, Command-authorized Incident. The host separately verifies
-		// each link and Investigate Case read ACL for the current session.
-		// A Task selection cannot request Incident/Case relations.
-		if result.Selected != nil && result.Selected.Kind == Incident {
-			if links, ok := owner.(LinkedCasesOwner); ok {
-				claimed, err := links.ReadAuthorizedLinkedCases(r.Context(),
-					scope.Principal, scope.Tenant, scope.Environment, result.Selected.ID)
-				if err != nil {
-					http.Error(w, "linked Cases unavailable", http.StatusServiceUnavailable)
-					return
-				}
-				result.SelectedLinkedCases, err = validateLinkedCases(claimed)
-				if err != nil {
-					http.Error(w, "linked Cases unavailable", http.StatusServiceUnavailable)
-					return
-				}
-			}
+		// The Work Queue and Incident Detail share source-specific authorization.
+		// This call may fail closed before ANY part of the selected object is rendered.
+		if err := enrichSelectedResult(r.Context(), owner, scope, &result); err != nil {
+			http.Error(w, err.Error(), http.StatusServiceUnavailable)
+			return
 		}
 
 		w.Header().Set("Vary", "Accept")
