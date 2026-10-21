@@ -55,7 +55,8 @@
     "work/graph.json",
     "engineering/performance/performance-registry.json",
     "engineering/performance/performance-policy.json",
-    "tools/cmdr-dev/performance_registry.go"
+    "tools/cmdr-dev/performance_registry.go",
+    "tools/cmdr-dev/security_tests.go"
   ],
   "forbidden_paths": [
     "cmdr-product-spec/**",
@@ -102,7 +103,8 @@
     "New embeddable NewHandler(Command http.Handler, Timeline http.Handler) reuses the two existing read-only services on one origin, with route isolation and no extra IAM decisions.",
     "Cross-module Go httptest follows a real Case link rendered by Command into the real Timeline HTTP handler and demonstrates independent source checks, including a Command-only reader denied at destination.",
     "Cross-platform Go CI on exact commit, Linux race, go vet, gofmt, 90% host statement coverage and mandatory engineering-security gate.",
-    "Provisional on-demand engineering performance registry entry, explicitly unmeasured for live IAM and network."
+    "Provisional on-demand engineering performance registry entry, explicitly unmeasured for live IAM and network.",
+    "Strict changed-security-critical evidence adapter for the new host boundary with fresh Go coverage and authorization/tenant negative tests; no automatic source-owner trust grant."
   ],
   "acceptance_tests": [
     "Actual selected Incident HTML contains same-origin /case-timeline?case_id=Case ID with no tenant or token.",
@@ -110,7 +112,8 @@
     "A second principal with identical Command Incident read rights but no Investigate Case read rights receives no protected Case/Entry/source content at destination.",
     "Anonymous, wrong token, invalid Case query, invalid path, mutation and nil handler fail closed.",
     "Existing individual handlers remain unchanged; cross-tenant/session privileges not transferable.",
-    "Exact GitHub SHA validates Go compile/unit/race/vet/coverage on Linux, Windows, macOS and engineering schema/security checks."
+    "Exact GitHub SHA validates Go compile/unit/race/vet/coverage on Linux, Windows, macOS and engineering schema/security checks.",
+    "Global CHK-SECURITY-TESTS executes measured host Go coverage and negative tests on exact SHA, no unmeasured boundary or altered coverage thresholds."
   ],
   "required_checks": [
     "CHK-MANIFESTS",
@@ -139,10 +142,10 @@
   },
   "complexity": {
     "primary_components": 1,
-    "estimated_files_changed": 6,
+    "estimated_files_changed": 7,
     "estimated_net_loc": 90,
-    "production_files": 3,
-    "net_production_loc": 100,
+    "production_files": 4,
+    "net_production_loc": 140,
     "bounded_contexts": 1,
     "independent_migrations": 0,
     "distinct_security_models": 1,
