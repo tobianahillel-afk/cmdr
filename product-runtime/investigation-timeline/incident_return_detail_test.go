@@ -8,10 +8,10 @@ import (
 
 func TestIncidentDetailReturnHintIsStrictAndDistinctFromLegacyQueue(t *testing.T) {
 	cases := []struct {
-		query string
+		query      string
 		wantOrigin string
 		wantDetail bool
-		ok bool
+		ok         bool
 	}{
 		{"case_id=case-a&origin_incident=inc-a&origin_view=detail", "inc-a", true, true},
 		{"case_id=case-a&origin_incident=inc-a", "inc-a", false, true},
