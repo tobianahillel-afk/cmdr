@@ -57,7 +57,8 @@
     "An alert may have several source technique IDs; duplicates within an alert must not multiply that alert, across tags counts may overlap",
     "Never output alert IDs, hostnames, full_log, source raw previews, tokens, or invented technique names",
     "Do not modify #186 frozen L2 source, #185, PR #36 baseline, main or canonical docs",
-    "Browser displays technique cohorts as source-claimed metadata only via textContent; no HTML interpolation, no unsupported technique-specific drilldown endpoint"
+    "Browser displays technique cohorts as source-claimed metadata only via textContent; no HTML interpolation, no unsupported technique-specific drilldown endpoint",
+    "Do not change #187 and #216 reviewed source SHA; exact Git blobs for the five production/test UI/Go paths are re-used without semantic changes"
   ],
   "security_properties": [
     "No new third-party dependency, provider, listener, permission namespace, source adapter, mutation or production claim",
@@ -80,13 +81,15 @@
   "inputs": [
     "CAP-INV-110 source attribution and distinction between observed vs inference",
     "Existing E10-INV-110E VERIFIED read-only Timeline ownership chain",
-    "Existing authored but graph-READY E10-INV-120A-SNAPSHOT demo source `wazuh_levels.go` and `writeDemoWazuh4RuleTriageWithData`, not a production integration"
+    "Existing authored but graph-READY E10-INV-120A-SNAPSHOT demo source `wazuh_levels.go` and `writeDemoWazuh4RuleTriageWithData`, not a production integration",
+    "Exact source-identical implementation and tests from standalone PR #187 head 53544c2a65f66324d004d48427b07493f7ac2d9e on top of Command–Investigate integration PR #216 head f92fd57b8e9504cbc0cadc19ffab1fdba75c5844; both original SHA frozen"
   ],
   "outputs": [
     "Offline Wazuh 4.x authorized Case triage JSON includes `distinct_technique_ids`, `unmapped_technique_alerts`, `top_techniques` with bounded technique IDs, counts, highest known Wazuh severity",
     "Shared existing authenticated local /demo-wazuh-cohorts route serializes same additive receipt; no new route or browser UI claimed",
     "Structured tests with on-disk Wazuh samples, two-Case owner snapshot, denied principal, metadata injection rejection, tag multiplicity, top-ten deterministic ties",
-    "Existing ephemeral bearer-authenticated loopback analyst Wazuh panel displays the already-authorized ATT&CK labels as non-inferential read-only text, without a new source-authority or unsupported technique drilldown"
+    "Existing ephemeral bearer-authenticated loopback analyst Wazuh panel displays the already-authorized ATT&CK labels as non-inferential read-only text, without a new source-authority or unsupported technique drilldown",
+    "Source-backed Wazuh MITRE cohorts and analyst render coexist in the same Git tree as Command→Incident→Case→Timeline work; no claim that Wazuh remote sources are mounted on Command local-browser host"
   ],
   "acceptance_tests": [
     "Existing runDemoCLI -wazuh-alerts -triage-import returns correct technique counts after full owner-authorized traversal",
@@ -96,7 +99,8 @@
     "Malformed technique IDs/over 16 per alert/nonnumeric JSON wrong type denied without partial bytes",
     "Unprivileged principal or foreign Case yields no authorized receipt; raw alert IDs, hosts and secrets not returned",
     "Full original Timeline Go and Node tests run on exact candidate commit; mandatory changed-security-critical coverage floor unchanged",
-    "Existing Node 24 analyst browser exercises authorized technique metadata display, malicious labels fail-closed, legacy receipt compatible and stale/denied response emits no partial source content"
+    "Existing Node 24 analyst browser exercises authorized technique metadata display, malicious labels fail-closed, legacy receipt compatible and stale/denied response emits no partial source content",
+    "Full Timeline Go/Node and Command–Investigate host pipelines plus mandatory engineering kernel run on consolidated SHA"
   ],
   "required_checks": [
     "CHK-MANIFESTS",
