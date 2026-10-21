@@ -66,6 +66,7 @@ Ce lien rouvre la chronologie en réévaluant les autorisations et réinitialise
 func renderSourcePreviewHTML(out io.Writer, result sourcePreviewResponse) error {
 	return sourcePreviewHTMLTemplate.Execute(out, result)
 }
+
 // writeAuthorizedSourcePreview handles only presentation of a caller-verified
 // result. Authentication, Case/Entry permission, typed source identity and
 // owner.read were already checked in sourcePreviewHandler, not in this helper.
