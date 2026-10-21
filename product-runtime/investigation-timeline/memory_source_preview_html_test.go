@@ -116,19 +116,91 @@ func TestSourcePreviewHTMLNeverRevealsDeniedOrForeignOwner(t *testing.T) {
 
 func TestSourcePreviewNegotiationDoesNotPromoteDisabledHTML(t *testing.T) {
 	cases := map[string]bool{
-		"text/html,application/json": true,
+		"text/html,application/json":       true,
 		"text/html;q=0.8,application/json": true,
-		"text/html; q=0": false,
-		"text/html; q=NaN": false,
-		"text/html; q=2": false,
-		"application/json, text/html": false,
-		"application/xhtml+xml": false,
-		"text/htmlmalformed": false,
-		"": false,
+		"text/html; q=0":                   false,
+		"text/html; q=NaN":                 false,
+		"text/html; q=2":                   false,
+		"application/json, text/html":      false,
+		"application/xhtml+xml":            false,
+		"text/htmlmalformed":               false,
+		"":                                 false,
 	}
 	for header, expected := range cases {
 		if got := acceptsSourcePreviewHTML(header); got != expected {
 			t.Errorf("Accept %q selected HTML=%v, expected %v", header, got, expected)
 		}
+	}
+}
+
+func sourceOwnerWithIndependentIdentityCopies() *memoryTimelineProvider {
+	data := memorySourcePreviewFixture()
+	s := &memoryTimelineProvider{
+		authenticate: func(*http.Request) (string, error) { return "analyst-a", nil },
+		principals:    make(map[string]MemoryTimelinePrincipal),
+		cases:         make(map[string]MemoryTimelineCase),
+		entries:       make(map[string]MemoryTimelineEntry),
+		sources:       make(map[string]MemoryTimelineSource),
+		sourceObjects: make(map[memorySourceObjectKey]MemoryTimelineSource),
+	}
+	for _, p := range data.Principals {
+		s.principals[p.ID] = p
+	}
+	for _, item := range data.Cases {
+		s.cases[item.ID] = item
+	}
+	for _, item := range data.Entries {
+		s.entries[item.Value.ID] = item
+	}
+	for _, src := range data.Sources {
+		s.sources[src.Identity.Reference] = src
+		key := memorySourceObjectKey{caseID: src.Identity.CaseID,
+			kind: src.Identity.Kind, objectID: src.Identity.ObjectID}
+		s.sourceObjects[key] = src
+	}
+	return s
+}
+
+func TestSourceHTMLRechecksCanonicalOwnerIdentityAfterSourceNavigation(t *testing.T) {
+	key := memorySourceObjectKey{caseID: "case-a", kind: "telemetry-event", objectID: "object-a"}
+	for _, tc := range []struct {
+		name string
+		change func(*SourceOwnerIdentity)
+	}{
+		{"tenant-swapped", func(v *SourceOwnerIdentity) { v.Tenant = "tenant-b" }},
+		{"environment-swapped", func(v *SourceOwnerIdentity) { v.Environment = "foreign-env" }},
+		{"case-swapped", func(v *SourceOwnerIdentity) { v.CaseID = "case-b" }},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			// Simulate an inconsistent owner snapshot, while its original
+			// source-reference mapping still resolves and is readable.
+			// The destination's second identity check must deny HTML.
+			s := sourceOwnerWithIndependentIdentityCopies()
+			forged := s.sourceObjects[key]
+			tc.change(&forged.Identity)
+			s.sourceObjects[key] = forged
+			r := sourcePreviewHTMLRequest(t, s.sourcePreviewHandler(),
+				"/demo-source-open?case_id=case-a&entry_id=entry-a",
+				"", "text/html")
+			if r.Code != http.StatusNotFound || strings.Contains(r.Body.String(), "<html") ||
+				strings.Contains(r.Body.String(), "Authorized synthetic DNS record") ||
+				strings.Contains(r.Body.String(), "object-a") {
+				t.Fatalf("inconsistent source owner identity was disclosed: %d %s",
+					r.Code, r.Body.String())
+			}
+		})
+	}
+}
+
+func TestSourceHTMLRejectsRequestWithoutURLAndKeepsSourceSecret(t *testing.T) {
+	s := sourceOwnerWithIndependentIdentityCopies()
+	req := httptest.NewRequest(http.MethodGet, "/demo-source-open?case_id=case-a&entry_id=entry-a", nil)
+	req.URL = nil
+	req.Header.Set("Accept", "text/html")
+	w := httptest.NewRecorder()
+	s.sourcePreviewHandler().ServeHTTP(w, req)
+	if w.Code != http.StatusBadRequest || strings.Contains(w.Body.String(), "object-a") ||
+		strings.Contains(w.Body.String(), "<html") {
+		t.Fatalf("missing-URL HTML source accepted or disclosed: %d %s", w.Code, w.Body.String())
 	}
 }
