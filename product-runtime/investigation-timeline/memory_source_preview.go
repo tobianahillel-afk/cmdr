@@ -63,7 +63,9 @@ func (s *memoryTimelineProvider) sourcePreviewHandler() http.Handler {
 		key := memorySourceObjectKey{caseID: caseID, kind: draft.Kind, objectID: draft.ObjectID}
 		owner, present := s.sourceObjects[key]
 		if !present || owner.Identity.Tenant != scope.Tenant ||
-			owner.Identity.Environment != scope.Environment || owner.Identity.CaseID != caseID {
+			owner.Identity.Environment != scope.Environment || owner.Identity.CaseID != caseID ||
+			owner.Identity.Kind != draft.Kind || owner.Identity.ObjectID != draft.ObjectID ||
+			owner.Identity.Reference != s.entries[entryID].Value.SourceRef {
 			writeCaseTimelineError(w, http.StatusNotFound)
 			return
 		}
