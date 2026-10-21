@@ -269,7 +269,7 @@ func TestParsePilotCoverageProfileRejectsForeignModule(t *testing.T) {
 
 func TestRuntimeSecurityAdaptersAreExplicitForKnownRuntimes(t *testing.T) {
 	adapters := runtimeSecurityAdapters()
-	for _, id := range []string{pilotRuntimeBoundaryID, eventSearchRuntimeBoundaryID, eventInspectionRuntimeBoundaryID, huntManagementRuntimeBoundaryID, savedQueryAssetsRuntimeBoundaryID, caseQueueRuntimeBoundaryID, "command-work-queue-runtime", "investigation-timeline-runtime", "command-investigate-host-runtime"} {
+	for _, id := range []string{pilotRuntimeBoundaryID, eventSearchRuntimeBoundaryID, eventInspectionRuntimeBoundaryID, "event-inspection-http-host-runtime", huntManagementRuntimeBoundaryID, savedQueryAssetsRuntimeBoundaryID, caseQueueRuntimeBoundaryID, "command-work-queue-runtime", "investigation-timeline-runtime", "command-investigate-host-runtime"} {
 		adapter, ok := adapters[id]
 		if !ok {
 			t.Fatalf("missing explicit runtime security adapter %s", id)

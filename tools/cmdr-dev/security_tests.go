@@ -110,6 +110,13 @@ const (
 	eventSearchFrontendTenantTestRegexp          = "^(tenant-mismatch-is-rejected|tenant-wildcard-is-rejected|transport-tenant-mismatch-fails-closed)$"
 )
 
+const (
+	eventInspectionHostSecurityRuntimeRoot    = "product-runtime/event-inspection-host"
+	eventInspectionHostSecurityModuleIdentity = "github.com/tobianahillel-afk/cmdr/product-runtime/event-inspection-host"
+	eventInspectionHostAuthorizationTestRegexp = "^TestDeniedSearchNeverCallsTelemetryAndDenialsAreGeneric$"
+	eventInspectionHostTenantTestRegexp       = "^TestSessionScopeIsNeverTakenFromClient$"
+)
+
 type runtimeSecurityAdapter struct {
 	BoundaryID             string
 	RuntimeRoot            string
@@ -140,6 +147,12 @@ func runtimeSecurityAdapters() map[string]runtimeSecurityAdapter {
 			ModuleIdentity:         eventInspectionSecurityModuleIdentity,
 			AuthorizationTestRegex: eventInspectionAuthorizationTestRegexp,
 			TenantTestRegex:        eventInspectionTenantTestRegexp,
+		},
+		"event-inspection-http-host-runtime": {
+			BoundaryID: "event-inspection-http-host-runtime", RuntimeRoot: eventInspectionHostSecurityRuntimeRoot, RuntimeKind: "go",
+			ModuleIdentity:         eventInspectionHostSecurityModuleIdentity,
+			AuthorizationTestRegex: eventInspectionHostAuthorizationTestRegexp,
+			TenantTestRegex:        eventInspectionHostTenantTestRegexp,
 		},
 		huntManagementRuntimeBoundaryID: {
 			BoundaryID: huntManagementRuntimeBoundaryID, RuntimeRoot: huntManagementSecurityRuntimeRoot, RuntimeKind: "go",
