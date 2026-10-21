@@ -35,6 +35,10 @@ var incidentDetailPage = template.Must(template.New("incident-detail").Parse(`<!
 {{if .AlertOrigins}}
 <ul>{{range .AlertOrigins}}<li>Alert {{.ID}} · sévérité {{if .Severity}}{{.Severity}}{{else}}inconnue{{end}} · état {{if .Status}}{{.Status}}{{else}}inconnu{{end}} · disposition {{if .Disposition}}{{.Disposition}}{{else}}inconnue{{end}} · source {{.SourceRef}} · version {{.SourceVersion}} · observée {{.ObservedAt}}</li>{{end}}</ul>
 {{else}}<p>Origine Alert non disponible ou non autorisée. Aucune association n’est déduite de l’Incident.</p>{{end}}
+<h2>Tasks Command liées — lecture réautorisée (aucune modification)</h2>
+{{if .LinkedTasks}}
+<ul>{{range .LinkedTasks}}<li>Task {{.ID}} · responsable {{if .Owner}}{{.Owner}}{{else}}inconnu{{end}} · état {{if .Status}}{{.Status}}{{else}}inconnu{{end}} · mise à jour source {{.UpdatedAt}}</li>{{end}}</ul>
+{{else}}<p>Tasks liées indisponibles ou non autorisées. Ne pas en déduire qu'aucune Task n'existe.</p>{{end}}
 <h2>Résultats Govern liés — lecture indépendante (aucune action)</h2>
 {{if .GovernResults}}
 <ul>{{range .GovernResults}}<li>Result {{.ID}} · Response Run {{.RunID}} · état Govern {{if .Lifecycle}}{{.Lifecycle}}{{else}}inconnu{{end}} · outcome {{if .Outcome}}{{.Outcome}}{{else}}inconnu{{end}} · vérification {{if .Verification}}{{.Verification}}{{else}}non renseignée{{end}} · risque résiduel {{if .ResidualRisk}}{{.ResidualRisk}}{{else}}non renseigné{{end}} · provenance {{.SourceRef}} version {{.SourceVersion}} · créé {{.CreatedAt}}</li>{{end}}</ul>
@@ -53,6 +57,7 @@ type incidentDetailView struct {
 	Factors []factorLine
 	Overview *AuthorizedIncidentOverview
 	AlertOrigins []AuthorizedIncidentAlert
+	LinkedTasks []AuthorizedIncidentTask
 	GovernResults []AuthorizedGovernResult
 	ReturnHref string
 }
@@ -162,6 +167,13 @@ func NewIncidentDetailHTTPHandlerWithResults(sessions SessionResolver, owner Own
 			http.Error(w, "incident alert origin unavailable", http.StatusServiceUnavailable)
 			return
 		}
+		// Command owns Task projections, but Incident.read and relation.read
+		// cannot grant Task.read; each linked Task is checked independently.
+		linkedTasks, err := readAuthorizedIncidentTasks(r.Context(), owner, scope, id)
+		if err != nil {
+			http.Error(w, "incident tasks unavailable", http.StatusServiceUnavailable)
+			return
+		}
 		// The link is not permission. The Govern owner must approve every
 		// Result.read, revalidate its identity and return only bounded fields.
 		governResults, err := readAuthorizedIncidentGovernResults(r.Context(),
@@ -173,6 +185,7 @@ func NewIncidentDetailHTTPHandlerWithResults(sessions SessionResolver, owner Own
 		data := incidentDetailView{Result: result,
 			Overview: overview,
 			AlertOrigins: alertOrigins,
+			LinkedTasks: linkedTasks,
 			GovernResults: governResults,
 			Factors: selectedFactorLines(result.SelectedFactors),
 			ReturnHref: "/command/work-queue?restore=1&selected=" + url.QueryEscape("Incident:"+id) + "&view=incidents",
