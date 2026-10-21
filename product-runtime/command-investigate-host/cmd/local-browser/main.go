@@ -123,6 +123,8 @@ func (demoCommandOwner) ReadAuthorizedIncidentOverview(ctx context.Context, prin
 		Title: "Suspicious authentication sequence (synthetic)",
 		Priority: "high", Severity: "medium",
 		BusinessImpact: "Identity triage required, business effect unconfirmed",
+		NextAction: "Validate the identity alert against authorized source events (synthetic)",
+		NextActionDueAt: "2026-10-21T04:00:00Z",
 		SourceRef: "synthetic-command-incident-owner", SourceVersion: "v1",
 		ObservedAt: "2026-10-21T02:00:00Z",
 	}, nil

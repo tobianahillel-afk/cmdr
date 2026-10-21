@@ -12,20 +12,22 @@ import (
 // Incident mutation or a client-supplied permission. Every non-nil response
 // must independently match the authenticated Incident and its source scope.
 type AuthorizedIncidentOverview struct {
-	IncidentID    string
-	Tenant        string
-	Environment   string
-	Title         string
-	Priority      string
-	Severity      string
-	BusinessImpact string
-	SourceRef     string
-	SourceVersion string
-	ObservedAt    string
+	IncidentID      string
+	Tenant          string
+	Environment     string
+	Title           string
+	Priority        string
+	Severity        string
+	BusinessImpact  string
+	NextAction      string
+	NextActionDueAt string
+	SourceRef       string
+	SourceVersion   string
+	ObservedAt      string
 }
 
 // IncidentOverviewOwner is optional. Absence means "source unavailable", never
-// a fabricated title, priority, severity or impact. This source does not grant
+// a fabricated title, priority, severity, impact or next action. It does not grant
 // Case, Evidence, Alert, Response Run or export rights.
 type IncidentOverviewOwner interface {
 	ReadAuthorizedIncidentOverview(ctx context.Context, principal, tenant, environment, incidentID string) (*AuthorizedIncidentOverview, error)
@@ -53,12 +55,25 @@ func validateIncidentOverview(raw *AuthorizedIncidentOverview, scope SessionScop
 		!validOverviewText(raw.Title, 256) ||
 		!validOverviewText(raw.Priority, 64) ||
 		!validOverviewText(raw.Severity, 64) ||
-		!validOverviewText(raw.BusinessImpact, 512) {
+		!validOverviewText(raw.BusinessImpact, 512) ||
+		!validOverviewText(raw.NextAction, 256) {
 		return nil, errIncidentOverview
 	}
 	observed, err := time.Parse(time.RFC3339Nano, raw.ObservedAt)
 	if err != nil || observed.IsZero() {
 		return nil, errIncidentOverview
+	}
+	// Due time belongs to the independently authorized Command source. A
+	// missing due time is unknown, never a promise that no deadline exists.
+	// A due date without an action is an inconsistent partial source.
+	if raw.NextActionDueAt != "" {
+		if raw.NextAction == "" || !validOverviewText(raw.NextActionDueAt, 64) {
+			return nil, errIncidentOverview
+		}
+		due, err := time.Parse(time.RFC3339Nano, raw.NextActionDueAt)
+		if err != nil || due.IsZero() {
+			return nil, errIncidentOverview
+		}
 	}
 	copyValue := *raw
 	return &copyValue, nil

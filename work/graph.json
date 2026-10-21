@@ -2386,6 +2386,19 @@
         "E10-INV-110O-RETURNCTX"
       ],
       "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-CMD-106O-NEXTACTION"
+      ]
+    },
+    {
+      "id": "E10-CMD-106O-NEXTACTION",
+      "title": "Display owner-authorized Command Incident next action and due time in existing read-only Incident Detail",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-CMD-106N-DETAILRETURN"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
       "unlocks": []
     }
   ]

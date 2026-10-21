@@ -24,8 +24,9 @@ var incidentDetailPage = template.Must(template.New("incident-detail").Parse(`<!
 <p>Titre : {{if .Overview.Title}}{{.Overview.Title}}{{else}}inconnu — non fourni{{end}}</p>
 <p>Priorité : {{if .Overview.Priority}}{{.Overview.Priority}}{{else}}inconnue — non fournie{{end}} · Sévérité : {{if .Overview.Severity}}{{.Overview.Severity}}{{else}}inconnue — non fournie{{end}}</p>
 <p>Impact métier : {{if .Overview.BusinessImpact}}{{.Overview.BusinessImpact}}{{else}}inconnu — non fourni{{end}}</p>
+<p>Prochaine action Command : {{if .Overview.NextAction}}{{.Overview.NextAction}}{{else}}inconnue — non fournie{{end}}{{if .Overview.NextAction}} · échéance : {{if .Overview.NextActionDueAt}}{{.Overview.NextActionDueAt}}{{else}}non précisée{{end}}{{end}}</p>
 <p>Provenance Command : {{.Overview.SourceRef}} · version {{.Overview.SourceVersion}} · observé {{.Overview.ObservedAt}}</p>
-{{else}}<p>Informations métier indisponibles : aucune projection Incident autorisée fournie. Ne pas déduire titre, priorité, sévérité ni impact.</p>{{end}}
+{{else}}<p>Informations métier indisponibles : aucune projection Incident autorisée fournie. Ne pas déduire titre, priorité, sévérité, impact ni prochaine action.</p>{{end}}
 <h2>Coordination et informations indépendamment autorisées</h2>
 <dl>{{range .Factors}}<dt>{{.Name}}</dt><dd>{{.Value}}{{if .Source}} · {{.Source}}{{end}}{{if .ObservedAt}} · {{.ObservedAt}}{{end}}</dd>{{end}}</dl>
 <p>SLA : {{if .SelectedSLA}}{{.SelectedSLA.State}}{{if .SelectedSLA.PolicySource}} · source {{.SelectedSLA.PolicySource}}{{end}}{{else}}inconnu — source SLA indisponible ou non autorisée{{end}}</p>
@@ -42,7 +43,7 @@ var incidentDetailPage = template.Must(template.New("incident-detail").Parse(`<!
 {{if .SelectedLinkedCases}}{{if .SelectedLinkedCases.Cases}}
 <ul>{{range .SelectedLinkedCases.Cases}}<li>Case {{.CaseID}} — {{.Status}} · <a href="/case-timeline?case_id={{urlquery .CaseID}}&amp;origin_incident={{urlquery $.Selected.ID}}&amp;origin_view=detail" rel="noreferrer">Ouvrir le Case (autorisation distincte)</a></li>{{end}}</ul>
 {{else}}<p>Aucun Case autorisé visible.</p>{{end}}{{else}}<p>Relations inconnues — source de liaison non fournie.</p>{{end}}
-<p>Statut du dossier : partiel. Décision attendue, prochaines actions et autres objets Govern non fournis par cet adaptateur ; aucune valeur n’est inventée.</p>
+<p>Statut du dossier : partiel. Décisions et actions de modification non disponibles, autres objets Govern non fournis par cet adaptateur ; aucune valeur n’est inventée.</p>
 <nav aria-label="Retour à la Work Queue"><a href="{{.ReturnHref}}">Retour à l’Incident dans la Work Queue (nouvelle autorisation)</a></nav>
 <p>Aucune action de modification, d’export ou de réponse n’est accessible depuis cette vue.</p>
 </main></body></html>`))
