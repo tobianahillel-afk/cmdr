@@ -159,7 +159,6 @@ func TestCaseHTMLRespectsExistingAuthorizedKindFilter(t *testing.T) {
 	}
 }
 
-
 func TestCaseHTMLFiltersAreUsableThroughExistingAuthorizedGET(t *testing.T) {
 	h, _ := httpWorkspaceFixture(t)
 	// Exactly what a native HTML GET form transmits when the optional
