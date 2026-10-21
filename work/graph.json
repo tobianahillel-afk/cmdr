@@ -1767,7 +1767,8 @@
       ],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": [
-        "E10-INV-120A-SNAPSHOT"
+        "E10-INV-120A-SNAPSHOT",
+        "E10-INV-110F-SUPERSESSION"
       ]
     },
     {
@@ -1801,6 +1802,29 @@
       "status": "IMPLEMENTED",
       "depends_on": [
         "E10-INV-120B-MITRE"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": []
+    },
+    {
+      "id": "E10-INV-110F-SUPERSESSION",
+      "title": "Expose source-authorized superseded Timeline Entry state in existing Case HTTP projection",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-INV-110E"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": []
+    },
+    {
+      "id": "E10-INV-110G-UNIFICATION",
+      "title": "Unify owner-visible Timeline corrections with source-authorized Wazuh MITRE cohorts",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-INV-110F-SUPERSESSION",
+        "E10-INV-120C-MITREFIX"
       ],
       "dependency_terminal_state": "IMPLEMENTED",
       "unlocks": []
