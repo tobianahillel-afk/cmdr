@@ -44,7 +44,8 @@
     "work/lots/E10-CMD-106K-OVERVIEW/**",
     "work/graph.json",
     "engineering/state/current.json",
-    "product-runtime/command-investigate-host/cmd/local-browser/incident_overview_owner_test.go"
+    "product-runtime/command-investigate-host/cmd/local-browser/incident_overview_owner_test.go",
+    ".github/workflows/command-work-queue.yml"
   ],
   "forbidden_paths": [
     "cmdr-product-spec/**",
@@ -86,7 +87,8 @@
   "outputs": [
     "Selected Incident Detail shows actual Command-owner authorized title/priority/severity/business-impact and source provenance when available",
     "Unavailable or intentionally withheld owner produces partial view with unknown values, preserving independent Case owner permissions",
-    "Exact source authorization, failure and HTML injection regression tests including actual local HTTP synthetic browser"
+    "Exact source authorization, failure and HTML injection regression tests including actual local HTTP synthetic browser",
+    "Workflow diagnostic reports actual per-function Go statement coverage; it does not modify or waive any security gate"
   ],
   "acceptance_tests": [
     "Selected owner-authorized Incident on third Work Queue page displays correct canonical business attributes and provenance",
