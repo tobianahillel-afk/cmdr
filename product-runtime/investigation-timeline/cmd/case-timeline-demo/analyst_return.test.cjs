@@ -233,7 +233,7 @@ test("analyst shows owner-authorized superseded history without claiming hidden 
   assert.equal(env.fields.entries.children.length, 2);
   assert.match(nodeText(env.fields.entries.children[0]), /État : Remplacée \(version ultérieure autorisée visible\)/);
   assert.doesNotMatch(nodeText(env.fields.entries.children[1]), /Remplacée/);
-  assert.match(nodeText(env.fields.entries.children[1]), /Remplace : historical-v1/);
+  assert.match(nodeText(env.fields.entries.children[1]), /Remplace :\\s+historical-v1/);
   assert.equal(env.fields.entries.children[0].children.filter(x => x.tag === "button").length, 1);
 });
 
