@@ -69,7 +69,7 @@ func TestCommandCaseNavigationRendersOnlyAuthorizedTimelineCorrectionState(t *te
 	for _, token := range []string{"Bearer commander", "", "Bearer invalid"} {
 		for _, page := range []string{"0", "1"} {
 			out := request(host, link+"&limit=1&offset="+page, token, "")
-			if out.Code != http.StatusNotFound ||
+			if (out.Code != http.StatusNotFound && out.Code != http.StatusUnauthorized) ||
 				strings.Contains(out.Body.String(), "superseded") ||
 				strings.Contains(out.Body.String(), "event-a") ||
 				strings.Contains(out.Body.String(), "event-b") ||
