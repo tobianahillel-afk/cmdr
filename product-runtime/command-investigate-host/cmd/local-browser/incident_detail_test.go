@@ -44,6 +44,9 @@ func TestLocalBrowserIncidentDetailUsesFreshCommandAndIndependentCaseOwners(t *t
 		!strings.Contains(page, "Suspicious authentication sequence (synthetic)") ||
 		!strings.Contains(page, "high") || !strings.Contains(page, "medium") ||
 		!strings.Contains(page, "Identity triage required") ||
+		!strings.Contains(page, "Prochaine action Command") ||
+		!strings.Contains(page, "Validate the identity alert against authorized source events (synthetic)") ||
+		!strings.Contains(page, "échéance : 2026-10-21T04:00:00Z") ||
 		!strings.Contains(page, "synthetic-command-incident-owner") ||
 		!strings.Contains(page, "Alert alert-a") ||
 		!strings.Contains(page, "synthetic-command-alert-owner") ||
@@ -73,6 +76,7 @@ func TestLocalBrowserIncidentDetailUsesFreshCommandAndIndependentCaseOwners(t *t
 	if commandOnly.StatusCode != http.StatusOK || strings.Contains(body, "case_id=case-a") ||
 		strings.Contains(body, "event-v1") || strings.Contains(body, "source-v1") ||
 		strings.Contains(body, "Suspicious authentication sequence") ||
+		strings.Contains(body, "Validate the identity alert") ||
 		strings.Contains(body, "alert-a") || strings.Contains(body, "synthetic-command-alert-owner") ||
 		strings.Contains(body, "result-a") || strings.Contains(body, "synthetic-govern-result-owner") ||
 		!strings.Contains(body, "Informations métier indisponibles") {
