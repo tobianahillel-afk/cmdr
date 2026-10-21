@@ -2142,7 +2142,9 @@
         "E10-CMD-106C-FRESHNESS"
       ],
       "dependency_terminal_state": "IMPLEMENTED",
-      "unlocks": []
+      "unlocks": [
+        "E10-CMD-106E-HOST"
+      ]
     },
     {
       "id": "E4-SEC-002B-SCAID",
@@ -2164,6 +2166,18 @@
       "status": "IMPLEMENTED",
       "depends_on": [
         "E4-SEC-002B-SCAID"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": []
+    },
+    {
+      "id": "E10-CMD-106E-HOST",
+      "title": "Wire source-authorized Command Incident linked Case navigation into the existing Investigate Timeline GET handler",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-CMD-106D-NAVIGATION",
+        "E10-INV-110E"
       ],
       "dependency_terminal_state": "IMPLEMENTED",
       "unlocks": []
