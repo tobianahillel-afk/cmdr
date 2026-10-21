@@ -22,6 +22,7 @@ func commandIncidentReturnURL(id string) string {
 	query := url.Values{
 		"view":     {"incidents"},
 		"selected": {"Incident:" + id},
+		"restore":  {"1"},
 	}
 	return "/command/work-queue?" + query.Encode()
 }

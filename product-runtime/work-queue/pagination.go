@@ -56,10 +56,10 @@ func decodeQueueCursor(raw string) (queuePageCursor, error) {
 	return cursor, nil
 }
 
-func authorizedQueuePage(req Request, all []Row) ([]Row, string, string, bool, error) {
+func authorizedQueuePage(req Request, all []Row) ([]Row, string, string, bool, string, error) {
 	cursor, err := decodeQueueCursor(req.Cursor)
 	if err != nil {
-		return nil, "", "", false, err
+		return nil, "", "", false, "", err
 	}
 	// A hash is a revision check only. Recomputing it over all currently
 	// authorized rows prevents stale/revoked pagination from rendering any row.
@@ -76,13 +76,36 @@ func authorizedQueuePage(req Request, all []Row) ([]Row, string, string, bool, e
 		Rows []Row `json:"rows"`
 	}{req.Principal, req.Tenant, req.Environment, req.View, req.StatusFilter, req.OwnerFilter, req.GroupBy, req.SortOrder, all})
 	if err != nil {
-		return nil, "", "", false, ErrIncomplete
+		return nil, "", "", false, "", ErrIncomplete
 	}
 	digest := sha256.Sum256(scope)
 	currentDigest := hex.EncodeToString(digest[:])
 	start := cursor.Start
 	if req.Cursor != "" && (cursor.Digest != currentDigest || start >= len(all)) {
-		return nil, "", "", false, ErrCursor
+		return nil, "", "", false, "", ErrCursor
+	}
+	// A returning Incident is an untrusted *location hint*, not an ACL.
+	// Find it only inside the complete freshly CanRead-authorized cohort.
+	// Explicit cursor requests never enter this branch.
+	if req.FocusSelection != "" {
+		index := -1
+		for i, row := range all {
+			if string(row.Kind)+":"+row.ID == req.FocusSelection {
+				index = i
+				break
+			}
+		}
+		if index < 0 {
+			return nil, "", "", false, "", ErrCursor
+		}
+		start = (index / queuePageSize) * queuePageSize
+	}
+	current := req.Cursor
+	if req.FocusSelection != "" && start > 0 {
+		current, err = encodeQueueCursor(start, currentDigest)
+		if err != nil {
+			return nil, "", "", false, "", ErrIncomplete
+		}
 	}
 	stop := start + queuePageSize
 	if stop > len(all) {
@@ -92,7 +115,7 @@ func authorizedQueuePage(req Request, all []Row) ([]Row, string, string, bool, e
 	next := ""
 	if stop < len(all) {
 		next, err = encodeQueueCursor(stop, currentDigest)
-		if err != nil { return nil, "", "", false, ErrIncomplete }
+		if err != nil { return nil, "", "", false, "", ErrIncomplete }
 	}
 	// A previous-page token is ONLY a navigation hint. Page 2 goes back
 	// directly to the original first-page URL (no token); later pages carry
@@ -100,9 +123,9 @@ func authorizedQueuePage(req Request, all []Row) ([]Row, string, string, bool, e
 	previous := ""
 	if start > queuePageSize {
 		previous, err = encodeQueueCursor(start-queuePageSize, currentDigest)
-		if err != nil { return nil, "", "", false, ErrIncomplete }
+		if err != nil { return nil, "", "", false, "", ErrIncomplete }
 	}
-	return page, next, previous, start > 0, nil
+	return page, next, previous, start > 0, current, nil
 }
 
 func encodeQueueCursor(start int, digest string) (string, error) {

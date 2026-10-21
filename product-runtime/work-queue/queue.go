@@ -75,6 +75,9 @@ type Request struct {
 	SortOrder string
 	// Cursor is an untrusted, non-authorizing hint for a later authorized page.
 	Cursor string
+	// HTML Incident return only: locate a selected Incident on its freshly
+	// owner-authorized page without turning a client hint into access rights.
+	FocusSelection string
 }
 
 type Row struct {
@@ -157,6 +160,13 @@ func Project(ctx context.Context, owner Owner, req Request) (Result, error) {
 	}
 	if _, err := decodeQueueCursor(req.Cursor); err != nil {
 		return empty, ErrCursor
+	}
+	if req.FocusSelection != "" {
+		kind, id, ok := strings.Cut(req.FocusSelection, ":")
+		if !ok || kind != string(Incident) || len(id) > 128 ||
+			invalidScope(id) || !utf8.ValidString(id) || req.Cursor != "" {
+			return empty, ErrView
+		}
 	}
 	switch req.View {
 	case All, Incidents, Tasks, Unassigned, SLARisk, MyWork:
@@ -321,7 +331,7 @@ func Project(ctx context.Context, owner Owner, req Request) (Result, error) {
 	// bounded projection. A stale/revoked cursor fails without partial rows.
 	authorized := make([]Row, 0, len(selected))
 	for _, item := range selected { authorized = append(authorized, item.row) }
-	page, next, previousCursor, hasPrevious, err := authorizedQueuePage(req, authorized)
+	page, next, previousCursor, hasPrevious, currentCursor, err := authorizedQueuePage(req, authorized)
 	if err != nil { return empty, err }
 	result.Rows = page
 	if hasOwnerMetadata {
@@ -330,7 +340,7 @@ func Project(ctx context.Context, owner Owner, req Request) (Result, error) {
 	// req.Cursor is merely a hint until authorizedQueuePage returns nil.
 	// Only after this point may the opaque token be used in native HTML
 	// navigation controls; stale/revoked/foreign cursors returned ErrCursor.
-	result.CurrentCursor = req.Cursor
+	result.CurrentCursor = currentCursor
 	result.NextCursor = next
 	result.PreviousCursor = previousCursor
 	result.HasPrevious = hasPrevious

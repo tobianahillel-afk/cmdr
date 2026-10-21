@@ -17,9 +17,9 @@
     "phase_title": "Scaled product implementation program bootstrap"
   },
   "execution": {
-    "active_work_unit": "E10-CMD-106C-FRESHNESS",
+    "active_work_unit": "E10-CMD-106I-DEEPRETURN",
     "preferred_next_unit": null,
-    "selection_rule": "2026-10-20: no READY units in current Command work graph. Frozen parent E10-CMD-106B-SOURCEJOIN PR #178 SHA f4ac42195fed1286837f5ff2b2818878c7fad28f has exact-HEAD green Go/engineering CI; prior L2 one-shot executed, report unavailable here, no native acceptance/merge. Canonical CAP-CMD-106 §15 and CAP-CMD-101 §15 require source/date for stale selected Case status; new bounded Class-0 E10-CMD-106C-FRESHNESS publishes optional Investigate-only status observation/source/version/freshness on existing work queue route, with strict fail-closed trust checks. State IMPLEMENTED means source published, not VERIFIED/ACCEPTED; CI/L2/new PR and all upstream draft merges must be checked. OPEN-013 continues to block Class-2 mutations; no production host adapter."
+    "selection_rule": "2026-10-21: no READY units in currently reviewed #207 Command work graph; new bounded child E10-CMD-106I-DEEPRETURN under E10-CMD-106 closes a real off-page Incident return defect (Case→Work Queue picked only first 50); source published in a separate Draft descendant of frozen PR #207, exact SHA tests/L2 and all ancestor approvals required before any acceptance; OPEN-013 mutating transitions remain blocked. Source of truth is GitHub, do not promote IMPLEMENTED to VERIFIED from tests alone."
   },
   "reconciliation": {
     "required_on_resume": true,

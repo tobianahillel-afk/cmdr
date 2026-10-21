@@ -62,7 +62,7 @@ func TestLocalBrowserIncidentCaseSourceTimelineIncidentRoundTrip(t *testing.T) {
 	}
 	commandReturn := localBrowserLink(t, caseHTML,
 		`href="(/command/work-queue[?][^"]+)" rel="noreferrer">Retour`)
-	if commandReturn != "/command/work-queue?selected=Incident%3Aincident-a&view=incidents" {
+	if commandReturn != "/command/work-queue?restore=1&selected=Incident%3Aincident-a&view=incidents" {
 		t.Fatalf("untrusted return origin altered destination: %q", commandReturn)
 	}
 	sourceURL := localBrowserLink(t, caseHTML, `href="(/demo-source-open[?][^"]+)"`)

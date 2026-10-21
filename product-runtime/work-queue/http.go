@@ -54,7 +54,7 @@ func NewHTTPHandler(sessions SessionResolver, owner Owner) http.Handler {
 			return
 		}
 		for key, entries := range values {
-			if (key != "view" && key != "status" && key != "owner" && key != "group" && key != "sort" && key != "selected" && key != "cursor") || len(entries) != 1 {
+			if (key != "view" && key != "status" && key != "owner" && key != "group" && key != "sort" && key != "selected" && key != "cursor" && key != "restore") || len(entries) != 1 {
 				http.Error(w, "unsupported work queue query", http.StatusBadRequest)
 				return
 			}
@@ -136,6 +136,21 @@ func NewHTTPHandler(sessions SessionResolver, owner Owner) http.Handler {
 				return
 			}
 		}
+		// Return from an independently authorized Investigate Case may locate
+		// an older Incident on its CURRENTLY authorized Work Queue page.
+		// Strictly opt-in HTML presentation; JSON and ordinary row selection
+		// retain the existing explicit-cursor and page-bound semantics.
+		focusSelection := ""
+		if values["restore"] != nil {
+			if values["restore"][0] != "1" || selection == "" ||
+				!strings.HasPrefix(selection, "Incident:") || view != Incidents ||
+				pageCursor != "" || len(values) != 3 ||
+				!strings.Contains(r.Header.Get("Accept"), "text/html") {
+				http.Error(w, "invalid incident return context", http.StatusBadRequest)
+				return
+			}
+			focusSelection = selection
+		}
 		scope, err := sessions.ResolveSession(r.Context(), r)
 		if err != nil || invalidScope(scope.Principal) ||
 			invalidScope(scope.Tenant) || invalidScope(scope.Environment) {
@@ -146,7 +161,7 @@ func NewHTTPHandler(sessions SessionResolver, owner Owner) http.Handler {
 			Principal: scope.Principal, Tenant: scope.Tenant,
 			Environment: scope.Environment, View: view, StatusFilter: status,
 			OwnerFilter: ownerFilter, GroupBy: group,
-			SortOrder: sortOrder, Cursor: pageCursor,
+			SortOrder: sortOrder, Cursor: pageCursor, FocusSelection: focusSelection,
 		})
 		if err != nil {
 			if err == ErrCursor {
