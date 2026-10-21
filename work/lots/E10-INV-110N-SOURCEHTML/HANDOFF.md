@@ -1,4 +1,4 @@
-# E10-INV-110N-SOURCEHTML-BROWSER — runnable authorized source HTML
+# E10-INV-110N-SOURCEHTML — runnable authorized source HTML
 
 Canonical Investigate `CAP-INV-110` §12 (Class-0 read/open source), §17 (return context), §21 (separate destination permission) with Command CAP-CMD-106 as the originating Incident navigation consumer. Investigate owns the selected Case, Shared owns Timeline Entry and source identities, and the typed destination source owner decides source.read. Engineering existing epic E10-INV-110, independent N child depends on E10-INV-110L-SOURCEOPEN IMPLEMENTED. Code remains the existing `product-runtime/investigation-timeline` Go source handler and `product-runtime/command-investigate-host/cmd/local-browser` test. Git base PR #203 `2df1209b0695f53537f23f7e03697e0e643c3698`, distinct from business owner; no parent branch rewritten.
 

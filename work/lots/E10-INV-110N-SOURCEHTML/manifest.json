@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "id": "E10-INV-110N-SOURCEHTML-BROWSER",
+  "id": "E10-INV-110N-SOURCEHTML",
   "title": "Serve owner-authorized Timeline source previews as safe HTML in the actual Incident-to-Case local browser",
   "type": "task",
   "parent": "E10-INV-110",
@@ -41,7 +41,7 @@
     "product-runtime/investigation-timeline/memory_source_preview_html.go",
     "product-runtime/investigation-timeline/memory_source_preview_html_test.go",
     "product-runtime/command-investigate-host/cmd/local-browser/main_test.go",
-    "work/lots/E10-INV-110N-SOURCEHTML-BROWSER/**",
+    "work/lots/E10-INV-110N-SOURCEHTML/**",
     "work/graph.json"
   ],
   "forbidden_paths": [
