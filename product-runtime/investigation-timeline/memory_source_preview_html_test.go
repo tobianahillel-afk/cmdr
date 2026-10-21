@@ -136,7 +136,7 @@ func TestSourcePreviewNegotiationDoesNotPromoteDisabledHTML(t *testing.T) {
 func sourceOwnerWithIndependentIdentityCopies() *memoryTimelineProvider {
 	data := memorySourcePreviewFixture()
 	s := &memoryTimelineProvider{
-		authenticate:  func(*http.Request) (string, error) { return "analyst-a", nil }
+		authenticate:  func(*http.Request) (string, error) { return "analyst-a", nil },
 		principals:    make(map[string]MemoryTimelinePrincipal),
 		cases:         make(map[string]MemoryTimelineCase),
 		entries:       make(map[string]MemoryTimelineEntry),
