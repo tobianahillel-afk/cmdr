@@ -76,6 +76,7 @@ var timelineHTMLTemplate = template.Must(template.New("case-timeline-html").Func
 {{if .HasPrevious}}<a rel="prev" href="{{.PreviousURL}}">Page précédente</a>{{end}}
 {{if .HasNext}}<a rel="next" href="{{.NextURL}}">Page suivante</a>{{end}}
 </nav>
+{{if .IncidentReturnURL}}<p><a href="{{.IncidentReturnURL}}" rel="noreferrer">Retour à l'Incident sélectionné dans Command (autorisation revérifiée)</a>. Ce lien ne transfère aucun droit sur l'Incident.</p>{{end}}
 <p>Ce tableau est une représentation des entrées déjà autorisées. Un statut absent ne prouve pas qu'aucune correction masquée n'existe. La consultation d'un objet source exige un contrôle de permission distinct : les références source ci-dessus ne sont pas des liens donnant accès.</p>
 </main>
 </body>
@@ -89,6 +90,7 @@ type timelineHTMLView struct {
 	To          string
 	ResetURL    string
 	ReturnURL   string
+	IncidentReturnURL string
 	SourceLinks bool
 	Result      timelinePagedHTTPResult
 	HasPrevious bool
@@ -157,6 +159,9 @@ func renderTimelineHTML(w io.Writer, values url.Values, caseID string, selection
 		ReturnURL:   timelineHTMLPageURL(values, page.Page.Limit, selection.offset),
 		HasPrevious: selection.offset > 0,
 		HasNext:     page.Page.HasMore,
+	}
+	if incident := values.Get("origin_incident"); validIncidentReturnID(incident) {
+		view.IncidentReturnURL = commandIncidentReturnURL(incident)
 	}
 	if view.HasPrevious {
 		view.PreviousURL = timelineHTMLPageURL(values, selection.limit, max(0, selection.offset-selection.limit))
