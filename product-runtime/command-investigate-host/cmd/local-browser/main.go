@@ -227,16 +227,25 @@ func runLocalBrowser(ctx context.Context, out io.Writer) error {
 	if err != nil {
 		return fmt.Errorf("generate local credentials: %w", err)
 	}
+	return serveDemo(ctx, out, secrets, net.Listen)
+}
+
+// Keep startup failures observable and prevent serving when the operator
+// cannot receive the freshly generated, ephemeral authentication secrets.
+func serveDemo(ctx context.Context, out io.Writer, secrets demoSecrets,
+	listen func(string, string) (net.Listener, error)) error {
 	app, err := newLocalDemoHandler(secrets)
 	if err != nil {
 		return err
 	}
-	listener, err := net.Listen("tcp4", "127.0.0.1:0")
+	listener, err := listen("tcp4", "127.0.0.1:0")
 	if err != nil {
 		return err
 	}
 	defer listener.Close()
-	fmt.Fprintf(out, "CMDR SYNTHETIC LOCAL DEMO — NOT PRODUCTION\nURL: http://%s/command/work-queue?view=incidents&selected=Incident:incident-a\nAnalyst: analyst / %s\nCommander (no Case permission): commander / %s\nStop: Ctrl+C\n", listener.Addr(), secrets.analyst, secrets.commander)
+	if _, err := fmt.Fprintf(out, "CMDR SYNTHETIC LOCAL DEMO — NOT PRODUCTION\nURL: http://%s/command/work-queue?view=incidents&selected=Incident:incident-a\nAnalyst: analyst / %s\nCommander (no Case permission): commander / %s\nStop: Ctrl+C\n", listener.Addr(), secrets.analyst, secrets.commander); err != nil {
+		return fmt.Errorf("cannot announce temporary local credentials: %w", err)
+	}
 	server := &http.Server{Handler: app, ReadHeaderTimeout: 5 * time.Second,
 		ReadTimeout: 20 * time.Second, WriteTimeout: 20 * time.Second,
 		IdleTimeout: 30 * time.Second, MaxHeaderBytes: 8192}
