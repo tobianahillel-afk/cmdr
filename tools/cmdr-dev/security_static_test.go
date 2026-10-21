@@ -87,7 +87,7 @@ func TestGoSCARejectsMalformedAdvisoryOutputWithoutWaiver(t *testing.T) {
 	if got != "GO-2099-0001,GO-2099-0002" {
 		t.Fatalf("unvalidated advisory data made it to CI output: %q", got)
 	}
-	if safeGoVulnAdvisoryIDs([]SCAFinding{{OSV:"GO-2099-A"},{OSV:"GHSA-secret"}}) != "identifier-unavailable" {
+	if safeGoVulnAdvisoryIDs([]SCAFinding{{OSV: "GO-2099-A"}, {OSV: "GHSA-secret"}}) != "identifier-unavailable" {
 		t.Fatal("missing public advisory must remain safely redacted")
 	}
 }
