@@ -164,11 +164,11 @@ func syntheticTimeline() timeline.MemoryTimelineData {
 			{Identity: timeline.SourceOwnerIdentity{Reference: "source-v1",
 				ObjectID: "object-v1", Kind: "telemetry-event",
 				Tenant: demoTenant, Environment: demoEnvironment, CaseID: "case-a"},
-				Readers: []string{"analyst"}, Preview: "Synthetic source: original observed event, version 1 (not production evidence)"}},
+				Readers: []string{"analyst"}, Preview: "Synthetic source: original observed event, version 1 (not production evidence)"},
 			{Identity: timeline.SourceOwnerIdentity{Reference: "source-v2",
 				ObjectID: "object-v2", Kind: "telemetry-event",
 				Tenant: demoTenant, Environment: demoEnvironment, CaseID: "case-a"},
-				Readers: []string{"analyst"}, Preview: "Synthetic source: corrected observed event, version 2 (not production evidence)"}},
+				Readers: []string{"analyst"}, Preview: "Synthetic source: corrected observed event, version 2 (not production evidence)"},
 		},
 	}
 }
