@@ -2153,6 +2153,19 @@
         "E4-SEC-002B-ACTIVATE"
       ],
       "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E4-SEC-002B-E2EREVAL"
+      ]
+    },
+    {
+      "id": "E4-SEC-002B-E2EREVAL",
+      "title": "Reverify exact Go 1.26.10 source module update in four historical E2E attestations",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E4-SEC-002B-SCAID"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
       "unlocks": []
     }
   ]
