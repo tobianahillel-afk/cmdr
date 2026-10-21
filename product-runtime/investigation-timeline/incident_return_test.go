@@ -23,7 +23,8 @@ func TestCaseIncidentReturnContextHonorsHTMLAndSourceSecurity(t *testing.T) {
 	parsed, err := url.Parse(html.UnescapeString(link[1]))
 	if err != nil || parsed.Path != "/command/work-queue" ||
 		parsed.Query().Get("selected") != "Incident:incident-1" ||
-		parsed.Query().Get("view") != "incidents" || len(parsed.Query()) != 2 {
+		parsed.Query().Get("view") != "incidents" ||
+		parsed.Query().Get("restore") != "1" || len(parsed.Query()) != 3 {
 		t.Fatalf("Command destination is not a single fixed owner route: %v, %v", parsed, err)
 	}
 	// All Case pagination URLs must preserve inert origin, not the credentials.
