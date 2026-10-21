@@ -135,9 +135,9 @@ func TestCaseHTMLTemplateEscapesAllSourceControlledFields(t *testing.T) {
 	// manufacture a second-origin destination or extra hidden authority.
 	q := timelineHTMLPageURL(url.Values{
 		"case_id": {"case-one"},
-		"q": {"a&permission=allow"},
-		"limit": {"50"},
-		"offset": {"999"},
+		"q":       {"a&permission=allow"},
+		"limit":   {"50"},
+		"offset":  {"999"},
 	}, 50, 50)
 	if strings.Contains(q, "&permission=allow") ||
 		!strings.HasPrefix(q, "/case-timeline?") ||
