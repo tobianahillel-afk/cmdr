@@ -34,11 +34,15 @@ var incidentDetailPage = template.Must(template.New("incident-detail").Parse(`<!
 {{if .AlertOrigins}}
 <ul>{{range .AlertOrigins}}<li>Alert {{.ID}} · sévérité {{if .Severity}}{{.Severity}}{{else}}inconnue{{end}} · état {{if .Status}}{{.Status}}{{else}}inconnu{{end}} · disposition {{if .Disposition}}{{.Disposition}}{{else}}inconnue{{end}} · source {{.SourceRef}} · version {{.SourceVersion}} · observée {{.ObservedAt}}</li>{{end}}</ul>
 {{else}}<p>Origine Alert non disponible ou non autorisée. Aucune association n’est déduite de l’Incident.</p>{{end}}
+<h2>Résultats Govern liés — lecture indépendante (aucune action)</h2>
+{{if .GovernResults}}
+<ul>{{range .GovernResults}}<li>Result {{.ID}} · Response Run {{.RunID}} · état Govern {{if .Lifecycle}}{{.Lifecycle}}{{else}}inconnu{{end}} · outcome {{if .Outcome}}{{.Outcome}}{{else}}inconnu{{end}} · vérification {{if .Verification}}{{.Verification}}{{else}}non renseignée{{end}} · risque résiduel {{if .ResidualRisk}}{{.ResidualRisk}}{{else}}non renseigné{{end}} · provenance {{.SourceRef}} version {{.SourceVersion}} · créé {{.CreatedAt}}</li>{{end}}</ul>
+{{else}}<p>Result Govern non disponible ou non autorisé. Aucun succès ni risque résiduel n’est déduit.</p>{{end}}
 <h2>Investigations liées (lecture seule)</h2>
 {{if .SelectedLinkedCases}}{{if .SelectedLinkedCases.Cases}}
 <ul>{{range .SelectedLinkedCases.Cases}}<li>Case {{.CaseID}} — {{.Status}} · <a href="/case-timeline?case_id={{urlquery .CaseID}}&amp;origin_incident={{urlquery $.Selected.ID}}" rel="noreferrer">Ouvrir le Case (autorisation distincte)</a></li>{{end}}</ul>
 {{else}}<p>Aucun Case autorisé visible.</p>{{end}}{{else}}<p>Relations inconnues — source de liaison non fournie.</p>{{end}}
-<p>Statut du dossier : partiel. Alert, décision attendue, prochaines actions et objets Govern non fournis par cet adaptateur ; aucune valeur n’est inventée.</p>
+<p>Statut du dossier : partiel. Décision attendue, prochaines actions et autres objets Govern non fournis par cet adaptateur ; aucune valeur n’est inventée.</p>
 <nav aria-label="Retour à la Work Queue"><a href="{{.ReturnHref}}">Retour à l’Incident dans la Work Queue (nouvelle autorisation)</a></nav>
 <p>Aucune action de modification, d’export ou de réponse n’est accessible depuis cette vue.</p>
 </main></body></html>`))
@@ -48,6 +52,7 @@ type incidentDetailView struct {
 	Factors []factorLine
 	Overview *AuthorizedIncidentOverview
 	AlertOrigins []AuthorizedIncidentAlert
+	GovernResults []AuthorizedGovernResult
 	ReturnHref string
 }
 
@@ -55,6 +60,14 @@ type incidentDetailView struct {
 // Incident route. It delegates all owner decisions and optional data-source
 // permissions to the SAME Project and enrichSelectedResult as Work Queue.
 func NewIncidentDetailHTTPHandler(sessions SessionResolver, owner Owner) http.Handler {
+	return NewIncidentDetailHTTPHandlerWithResults(sessions, owner, nil, nil)
+}
+
+// NewIncidentDetailHTTPHandlerWithResults injects the Shared link reader and
+// Govern Result.read owner separately. A Command Incident grant is never
+// used as permission to inspect Govern's source object.
+func NewIncidentDetailHTTPHandlerWithResults(sessions SessionResolver, owner Owner,
+	links IncidentResultReferencesOwner, govern GovernResultOwner) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Cache-Control", "no-store")
 		w.Header().Set("Referrer-Policy", "no-referrer")
@@ -148,9 +161,18 @@ func NewIncidentDetailHTTPHandler(sessions SessionResolver, owner Owner) http.Ha
 			http.Error(w, "incident alert origin unavailable", http.StatusServiceUnavailable)
 			return
 		}
+		// The link is not permission. The Govern owner must approve every
+		// Result.read, revalidate its identity and return only bounded fields.
+		governResults, err := readAuthorizedIncidentGovernResults(r.Context(),
+			links, govern, scope, id)
+		if err != nil {
+			http.Error(w, "incident result source unavailable", http.StatusServiceUnavailable)
+			return
+		}
 		data := incidentDetailView{Result: result,
 			Overview: overview,
 			AlertOrigins: alertOrigins,
+			GovernResults: governResults,
 			Factors: selectedFactorLines(result.SelectedFactors),
 			ReturnHref: "/command/work-queue?restore=1&selected=" + url.QueryEscape("Incident:"+id) + "&view=incidents",
 		}
