@@ -34,15 +34,18 @@ type demoSecrets struct {
 }
 
 func newDemoSecrets() (demoSecrets, error) {
-	one := make([]byte, 32)
-	two := make([]byte, 32)
-	if _, err := rand.Read(one); err != nil {
+	return demoSecretsFrom(rand.Reader)
+}
+
+// A short/unavailable system entropy source must refuse startup, never
+// silently produce fixed or low-entropy demonstration credentials.
+func demoSecretsFrom(source io.Reader) (demoSecrets, error) {
+	nonce := make([]byte, 64)
+	if _, err := io.ReadFull(source, nonce); err != nil {
 		return demoSecrets{}, err
 	}
-	if _, err := rand.Read(two); err != nil {
-		return demoSecrets{}, err
-	}
-	return demoSecrets{analyst: hex.EncodeToString(one), commander: hex.EncodeToString(two)}, nil
+	return demoSecrets{analyst: hex.EncodeToString(nonce[:32]),
+		commander: hex.EncodeToString(nonce[32:])}, nil
 }
 
 func (s demoSecrets) valid() bool {
