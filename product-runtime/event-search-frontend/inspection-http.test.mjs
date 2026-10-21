@@ -116,6 +116,12 @@ test("real Node fetch to Go authorized HTTP host opens and returns to identical 
   const serverDraft = await transport.draftPivot(probeRequest);
   assert.equal(serverDraft.kind, "pivot-draft", JSON.stringify(serverDraft));
   assert.equal(normalizePivotDraft(serverDraft, probeRequest, inspected.inspection).fieldOrigin, "source");
+  const nanosecondForgery = structuredClone(serverDraft);
+  nanosecondForgery.timeRange.end = "2026-10-20T12:00:00.000000001Z";
+  assert.throws(
+    () => normalizePivotDraft(nanosecondForgery, probeRequest, inspected.inspection),
+    /invalid-pivot-draft/,
+  );
   const pivot = await journey.draftPivot("source.ip", "192.0.2.4");
   assert.equal(pivot.kind, "inspected");
   assert.equal(pivot.pivotDraft.kind, "pivot-draft");
