@@ -348,11 +348,13 @@ func validateEventInspectionRuntimeUnchangedOrReverified(root, evidenceHead, cur
 }
 
 func validateEventInspectionPivotFollowupProof(root, oldCommit, currentCommit string) error {
-	// This is not a general waiver: exactly two path deltas, byte-identical to
-	// reviewed PR #182, AND fresh execution of its security regression tests.
+	// Strict reviewed three-file intersection: #182 presence fix plus #196
+	// Go 1.26.10 stdlib patch. Historical pivot evidence is never rewritten.
+	// A changed executable source, extra module, or unapproved compiler fails.
 	approved := map[string]string{
 		"product-runtime/event-inspection/pivot.go":               "938b1d4ae090e2a4080604d8b7d155f24bec69de",
 		"product-runtime/event-inspection/pivot_presence_test.go": "736a2b0a85dd3219e77cdd9aae6b8320f8a0bd53",
+		"product-runtime/event-inspection/go.mod":                   "9f45d10c3e854581bb835f326a8d3a5572dcea1f",
 	}
 	diff := exec.Command("git", "-C", root, "diff", "--name-only", oldCommit, currentCommit, "--", eventInspectionRuntimeDirectory) // #nosec G204,G702 -- validated full commit SHA and fixed runtime path.
 	out, err := diff.Output()
@@ -361,7 +363,7 @@ func validateEventInspectionPivotFollowupProof(root, oldCommit, currentCommit st
 	}
 	paths := strings.Fields(strings.TrimSpace(string(out)))
 	if len(paths) != len(approved) {
-		return fmt.Errorf("unverified runtime delta: expected exactly two approved pivot files, got %v", paths)
+		return fmt.Errorf("unverified runtime delta: expected exactly three independently approved pivot/toolchain files, got %v", paths)
 	}
 	for _, path := range paths {
 		want, ok := approved[path]
@@ -371,20 +373,39 @@ func validateEventInspectionPivotFollowupProof(root, oldCommit, currentCommit st
 		blob := exec.Command("git", "-C", root, "rev-parse", "--verify", currentCommit+":"+path) // #nosec G204,G702 -- full commit SHA validated, path exact allowlist.
 		got, err := blob.Output()
 		if err != nil || strings.TrimSpace(string(got)) != want {
-			return fmt.Errorf("runtime patch blob differs from source-reviewed PR #182 for %s", path)
+			return fmt.Errorf("runtime patch blob differs from source-reviewed #182 or #196 for %s", path)
+		}
+		if path == "product-runtime/event-inspection/go.mod" {
+			original := exec.Command("git", "-C", root, "rev-parse", "--verify", oldCommit+":"+path) // #nosec G204,G702 -- validated SHA, static path.
+			originalBlob, err := original.Output()
+			if err != nil || strings.TrimSpace(string(originalBlob)) != "a2b90dca906b971f167a9108b6436bf9580a82e7" {
+				return fmt.Errorf("historical Go module is not the reviewed Go 1.26.8 source")
+			}
 		}
 	}
 	dir, err := resolveRepoPath(root, eventInspectionRuntimeDirectory, false)
 	if err != nil {
 		return err
 	}
-	fresh := exec.Command("go", "test", "-count=1", "-run", "^(TestPreparePivotRejectsMissingEmptyValuedField|TestPreparePivotAllowsPresentEmptyValuedField)$", ".") // #nosec G204 -- fixed executable, fixed test pattern.
-	fresh.Dir = dir
-	fresh.Env = append(os.Environ(), "GOTOOLCHAIN=local")
-	if output, err := fresh.CombinedOutput(); err != nil {
-		return fmt.Errorf("fresh pivot-presence regression proof failed: %s: %w", strings.TrimSpace(string(output)), err)
+	for _, args := range [][]string{
+		{"test", "-count=1", "./..."},
+		{"vet", "./..."},
+	} {
+		fresh := exec.Command("go", args...) // #nosec G204 -- fixed executable and static go command list.
+		fresh.Dir = dir
+		fresh.Env = append(os.Environ(), "GOTOOLCHAIN=local")
+		if _, err := fresh.CombinedOutput(); err != nil {
+			return fmt.Errorf("fresh reviewed pivot/toolchain validation failed: %w", err)
+		}
 	}
 	return nil
+}
+
+// Keep the independently reviewed toolchain-only proof available to negative
+// regression tests, while the live Event Inspection closure requires both
+// approved pivot sources and the compiler patch together.
+func validateEventInspectionRuntimeSourceDelta(root, evidenceHead, currentHead string) (bool, error) {
+	return checkPinnedGoToolchainDelta(root, evidenceHead, currentHead, eventInspectionRuntimeDirectory)
 }
 
 func runEventInspectionAdversarialRuntimeTests(root string) (EventInspectionAdversarialSummary, error) {
