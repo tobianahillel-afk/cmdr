@@ -316,6 +316,24 @@
       "concurrency": 1,
       "iterations": 250,
       "rationale": "Bounded Go 1.26.10 standard-library benchmark of the actual already-authorized host's in-process two-route dispatch. Fresh subprocess enforces a Go heap GOMEMLIMIT hint, reports its observed peak Go heap, total allocation bytes and real route operations. Excludes code compilation from benchmark samples, owner/IAM/provider latency, TLS, network and production SLO; memory hint is a soft Go runtime limit and the observed peak is separately validated."
+    },
+    {
+      "id": "PERF-DEEP-EVENT-INSPECTION-HOST",
+      "performance_target_id": "PERF-TGT-EVENT-INSPECTION-HOST-UPSTREAM-PROJECTION",
+      "kind": "resource",
+      "handler_key": "builtin-event-inspection-host-http-v1",
+      "stages": [
+        "on-demand"
+      ],
+      "trigger_paths": [
+        "product-runtime/event-inspection-host/**"
+      ],
+      "duration_seconds": 0,
+      "timeout_seconds": 90,
+      "memory_limit_mib": 256,
+      "concurrency": 1,
+      "iterations": 100,
+      "rationale": "On-demand actual first-party local httptest HTTP benchmark; measured allocations B/op, calls per second and ns/op under synthetic authorized Search/Telemetry stubs. No peak-heap evidence is provided by go test -benchmem and no peak-heap or network/production SLO claim is made."
     }
   ]
 }

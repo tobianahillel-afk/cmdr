@@ -53,8 +53,11 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          # The root context-envelope library is consumed; its separate
+          # CPU-clock perf-probe package is unrelated to these HTTP journeys
+          # and exhibits zero-duration timing on some Windows CI clocks.
+          (cd product-runtime/context-envelope && go test -count=1 . && go vet ./...)
           for mod in \
-            product-runtime/context-envelope \
             product-runtime/event-search \
             product-runtime/event-inspection \
             product-runtime/event-inspection-host \
@@ -70,6 +73,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          (cd product-runtime/context-envelope && go test -count=1 ./...)
           (cd product-runtime/event-search-frontend && npm test)
           (cd product-runtime/investigation-timeline/cmd/case-timeline-demo && node --test analyst_return.test.cjs analyst_summary.test.cjs)
       - name: Race-check both independently authorized HTTP paths on same tree

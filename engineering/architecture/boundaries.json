@@ -141,6 +141,17 @@
         "command-work-queue-runtime",
         "investigation-timeline-runtime"
       ]
+    },
+    {
+      "id": "event-inspection-http-host-runtime",
+      "kind": "product-runtime",
+      "roots": [
+        "product-runtime/event-inspection-host/**"
+      ],
+      "mutable_by_implementation": true,
+      "may_depend_on": [
+        "event-inspection-runtime"
+      ]
     }
   ]
 }

@@ -499,6 +499,34 @@
         }
       ],
       "rationale": "Provisional on-demand engineering budget for a bounded local composition; NOT a measured SLO or performance check outcome. No production IAM/provider available; representative owner latency and p95 request benchmark are deferred until integration benchmark fixture exists."
+    },
+    {
+      "id": "PERF-TGT-EVENT-INSPECTION-HOST-UPSTREAM-PROJECTION",
+      "scope_kind": "product-runtime",
+      "boundary_id": "event-inspection-http-host-runtime",
+      "owner_path": "product-runtime/event-inspection-host/**",
+      "workload_key": "event-inspection-projection-v1",
+      "workload_description": "Existing first-party eventinspection.Project core, also invoked by this authorized HTTP adapter. Its existing in-process projector probe is reused. This does NOT measure HTTP transport, authorization owner latency, telemetry lookup, network or production SLO. A separate synthetic host httptest benchmark reports local HTTP mean ns/op only.",
+      "environment_id": "PERF-ENV-GITHUB-UBUNTU-SHARED",
+      "stages": [
+        "on-demand"
+      ],
+      "trigger_paths": [
+        "product-runtime/event-inspection-host/**",
+        "engineering/performance/performance-registry.json"
+      ],
+      "metrics": [
+        {
+          "id": "upstream-projection-p95-latency",
+          "kind": "latency",
+          "unit": "ms",
+          "aggregation": "p95",
+          "comparator": "upper-bound",
+          "budget": 1,
+          "max_relative_regression_percent": 0
+        }
+      ],
+      "rationale": "Reuses the verified existing 1 ms coarse in-process projector budget for the upstream projection only; the host has no invented HTTP p95/network provider SLO and is separately assessed with a synthetic Go benchmark."
     }
   ]
 }
