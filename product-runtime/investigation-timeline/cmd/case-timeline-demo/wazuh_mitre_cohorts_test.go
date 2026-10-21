@@ -145,6 +145,28 @@ func TestWazuhMITRETechniqueTopTenDeterministicAcrossSourceOrder(t *testing.T) {
 }
 
 
+// Exercise the documented source import limits without a timing-based flaky
+// assertion. This is a parser-scale test, not production SIEM throughput proof.
+func TestWazuhMITREMetadataBoundedAt5000AlertsWith16SourceLabels(t *testing.T) {
+	const labels = "[\"T1000\",\"T1001\",\"T1002\",\"T1003\",\"T1004\",\"T1005\",\"T1006\",\"T1007\",\"T1008\",\"T1009\",\"T1010\",\"T1011\",\"T1012\",\"T1013\",\"T1014\",\"T1015\"]"
+	var source strings.Builder
+	for i := 0; i < 5000; i++ {
+		fmt.Fprintf(&source, "{\"id\":\"bounded-%d\",\"rule\":{\"id\":\"5710\",\"level\":0,\"mitre\":{\"id\":%s}}}\n", i, labels)
+	}
+	if source.Len() > 8<<20 {
+		t.Fatalf("bounded source unexpectedly exceeds 8 MiB: %d", source.Len())
+	}
+	result, err := wazuhRuleLevels([]byte(source.String()), "case-a")
+	if err != nil || len(result) != 5000 {
+		t.Fatalf("bounded source was not parsed: entries=%d err=%v", len(result), err)
+	}
+	for _, level := range result {
+		if len(level.MITREIDs) != 16 || !level.Known || level.Level != 0 {
+			t.Fatalf("source labels or known zero rule severity dropped: %+v", level)
+		}
+	}
+}
+
 func TestWazuhMITRECohortsCrossExistingAuthenticatedLoopbackHTTP(t *testing.T) {
 	owner := twoCaseComparisonSnapshot(t)
 	alerts := writeJSONLEvents(t,
