@@ -13,7 +13,12 @@ import (
 // The canonical owner-checked Case Timeline read also has a browser
 // representation. This template is not an independent permissions engine;
 // it receives only already-authorized and bounded ProjectedEntry values.
-var timelineHTMLTemplate = template.Must(template.New("case-timeline-html").Parse(`<!doctype html>
+var timelineHTMLTemplate = template.Must(template.New("case-timeline-html").Funcs(template.FuncMap{
+	"sourceURL": func(caseID, entryID string) string {
+		q := url.Values{"case_id": {caseID}, "entry_id": {entryID}}
+		return "/demo-source-open?" + q.Encode()
+	},
+}).Parse(`<!doctype html>
 <html lang="fr">
 <head>
 <meta charset="utf-8">
@@ -56,7 +61,7 @@ var timelineHTMLTemplate = template.Must(template.New("case-timeline-html").Pars
 <th scope="col">Identifiant</th><th scope="col">Type</th><th scope="col">Heure source</th>
 <th scope="col">Fuseau</th><th scope="col">Fiabilité temporelle</th>
 <th scope="col">Source</th><th scope="col">Provenance</th><th scope="col">Version</th>
-<th scope="col">État de remplacement</th><th scope="col">Version précédente autorisée</th>
+<th scope="col">État de remplacement</th><th scope="col">Version précédente autorisée</th>{{if $.SourceLinks}}<th scope="col">Source autorisée</th>{{end}}
 </tr></thead>
 <tbody>{{range .Result.Entries}}
 <tr>
@@ -65,9 +70,11 @@ var timelineHTMLTemplate = template.Must(template.New("case-timeline-html").Pars
 <td>{{.SourceRef}}</td><td>{{.Provenance}}</td><td>{{.Version}}</td>
 <td>{{if .Superseded}}Remplacée (une version ultérieure autorisée est visible){{else}}Non déterminé (aucun successeur autorisé visible dans cette lecture){{end}}</td>
 <td>{{if .Supersedes}}{{.Supersedes}}{{else}}—{{end}}</td>
+{{if $.SourceLinks}}<td><a href="{{sourceURL $.CaseID .ID}}">Ouvrir la source (nouvelle autorisation)</a></td>{{end}}
 </tr>{{end}}</tbody>
 </table>
 {{else}}<p>Aucune entrée autorisée visible avec ces filtres.</p>{{end}}
+{{if .SourceLinks}}<p>La source est relue et autorisée séparément à chaque ouverture. Pour revenir à la même page et aux mêmes filtres de Case, utiliser le retour du navigateur.</p>{{end}}
 <nav aria-label="Pagination des entrées autorisées">
 {{if .HasPrevious}}<a rel="prev" href="{{.PreviousURL}}">Page précédente</a>{{end}}
 {{if .HasNext}}<a rel="next" href="{{.NextURL}}">Page suivante</a>{{end}}
@@ -84,6 +91,7 @@ type timelineHTMLView struct {
 	From        string
 	To          string
 	ResetURL    string
+	SourceLinks bool
 	Result      timelinePagedHTTPResult
 	HasPrevious bool
 	HasNext     bool
@@ -126,7 +134,7 @@ func timelineHTMLPageURL(values url.Values, limit, offset int) string {
 	return "/case-timeline?" + q.Encode()
 }
 
-func renderTimelineHTML(w io.Writer, values url.Values, caseID string, selection timelineReadSelection, authorized Result) error {
+func renderTimelineHTML(w io.Writer, values url.Values, caseID string, selection timelineReadSelection, authorized Result, sourceLinks ...bool) error {
 	if !selection.paged {
 		selection.paged = true
 		selection.limit = 50
@@ -134,6 +142,7 @@ func renderTimelineHTML(w io.Writer, values url.Values, caseID string, selection
 	page := paginateAuthorizedTimeline(authorized, selection)
 	view := timelineHTMLView{
 		CaseID: caseID, Result: page,
+		SourceLinks: len(sourceLinks) != 0 && sourceLinks[0],
 		Kind: values.Get("kind"), Query: values.Get("q"),
 		From: values.Get("from"), To: values.Get("to"),
 		ResetURL:    timelineHTMLPageURL(url.Values{"case_id": {caseID}}, page.Page.Limit, 0),
