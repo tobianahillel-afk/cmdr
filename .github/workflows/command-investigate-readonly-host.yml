@@ -1,0 +1,71 @@
+name: command-investigate-readonly-host
+
+on:
+  pull_request:
+    paths:
+      - "product-runtime/command-investigate-host/**"
+      - "product-runtime/work-queue/**"
+      - "product-runtime/investigation-timeline/**"
+      - ".github/workflows/command-investigate-readonly-host.yml"
+  push:
+    branches:
+      - "engineering/autonomous-development-foundation"
+    paths:
+      - "product-runtime/command-investigate-host/**"
+      - "product-runtime/work-queue/**"
+      - "product-runtime/investigation-timeline/**"
+      - ".github/workflows/command-investigate-readonly-host.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: command-investigate-readonly-host-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  host:
+    name: Same-origin Command and Investigate read (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - name: Checkout exact source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up approved Go toolchain
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: product-runtime/command-investigate-host/go.mod
+          cache: false
+      - name: Exercise real two-route HTTP navigation and denial
+        working-directory: product-runtime/command-investigate-host
+        run: go test -count=1 ./...
+      - name: Vet same-origin host and synthetic owners
+        working-directory: product-runtime/command-investigate-host
+        run: go vet ./...
+      - name: Race-check real route integration on Linux
+        if: matrix.os == 'ubuntu-latest'
+        working-directory: product-runtime/command-investigate-host
+        run: go test -race -count=1 ./...
+      - name: Require at least 90 percent statement coverage on Linux
+        if: matrix.os == 'ubuntu-latest'
+        working-directory: product-runtime/command-investigate-host
+        shell: bash
+        run: |
+          set -euo pipefail
+          go test -count=1 -coverprofile=coverage.out -covermode=atomic ./...
+          go tool cover -func=coverage.out
+          pct="$(go tool cover -func=coverage.out | awk '/^total:/ {gsub(/%/, "", $3); print $3}')"
+          awk -v value="$pct" 'BEGIN {exit !(value + 0 >= 90)}'
+      - name: Enforce gofmt on first-party composition
+        working-directory: product-runtime/command-investigate-host
+        shell: bash
+        run: |
+          set -euo pipefail
+          files="$(gofmt -l host.go host_test.go)"
+          test -z "$files" || { echo "Unformatted: $files" >&2; exit 1; }
