@@ -17,9 +17,9 @@
     "phase_title": "Scaled product implementation program bootstrap"
   },
   "execution": {
-    "active_work_unit": "E10-CMD-106J-DETAILREAD",
+    "active_work_unit": "E10-CMD-106K-OVERVIEW",
     "preferred_next_unit": null,
-    "selection_rule": "Latest E10-CMD-106J-DETAILREAD is a bounded separately published Class-0 Incident Detail screen candidate, linked to E10-CMD-106I-DEEPRETURN IMPLEMENTED but frozen in PR #208 L2; source #209 must pass exact HEAD CI and independent review before any integration. Other graph READY none, and historic source acceptance/merge not asserted."
+    "selection_rule": "Command Incident Detail canonical headline source-authorized read K is IMPLEMENTED on its own unreviewed draft branch based on frozen #209; no READY remaining in branch graph, exact SHA CI and independent L2 must be checked; upstream PRs and main are not merged or accepted. Next independent work requires canonical gap and dependency re-selection."
   },
   "reconciliation": {
     "required_on_resume": true,
