@@ -297,6 +297,25 @@
       "concurrency": 1,
       "iterations": 1000,
       "rationale": "Executable on-demand heap/allocation sample of the actual bounded first-party Command Incident/Task projection using its own Go probe. No live host ACL provider, Shared Saved View engine or production latency/memory SLO is claimed."
+    },
+    {
+      "id": "PERF-DEEP-COMMAND-INVESTIGATE-HOST",
+      "performance_target_id": "PERF-TGT-COMMAND-INVESTIGATE-HOST",
+      "kind": "resource",
+      "handler_key": "builtin-command-investigate-routing-v1",
+      "stages": [
+        "on-demand"
+      ],
+      "trigger_paths": [
+        "product-runtime/command-investigate-host/**",
+        "tools/cmdr-dev/performance_command_investigate_deep.go"
+      ],
+      "duration_seconds": 0,
+      "timeout_seconds": 180,
+      "memory_limit_mib": 512,
+      "concurrency": 1,
+      "iterations": 250,
+      "rationale": "Bounded Go 1.26.10 standard-library benchmark of the actual already-authorized host's in-process two-route dispatch. Fresh subprocess enforces a Go heap GOMEMLIMIT hint, reports its observed peak Go heap, total allocation bytes and real route operations. Excludes code compilation from benchmark samples, owner/IAM/provider latency, TLS, network and production SLO; memory hint is a soft Go runtime limit and the observed peak is separately validated."
     }
   ]
 }

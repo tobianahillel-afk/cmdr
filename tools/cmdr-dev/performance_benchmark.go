@@ -133,6 +133,7 @@ var knownBenchmarkHandlerKeys = map[string]bool{
 	"builtin-saved-query-assets-handoff-v1":                          true,
 	"builtin-case-queue-projection-v1":                               true,
 	"builtin-command-work-queue-projection-v1":                       true,
+	"builtin-command-investigate-routing-v1":                         true,
 	"builtin-case-queue-saved-view-v1":                               true,
 	"builtin-case-queue-handoff-v1":                                  true,
 	"builtin-investigation-timeline-projection-v1":                   true,
@@ -452,6 +453,36 @@ type benchmarkSampleHandler func() (BenchmarkSample, error)
 
 func prepareBenchmarkHandler(root string, workload BenchmarkWorkloadDefinition) (benchmarkSampleHandler, func(), error) {
 	switch workload.HandlerKey {
+	case "builtin-command-investigate-routing-v1":
+		// Measure actual first-party routing, excluding source/provider I/O.
+		// The Go benchmark reports ns/op with compilation outside the timed
+		// loop; a separate process isolates each sampled measurement.
+		moduleRoot, err := resolveRepoPath(root, "product-runtime/command-investigate-host", false)
+		if err != nil {
+			return nil, func() {}, err
+		}
+		return func() (BenchmarkSample, error) {
+			out, err := runPerformanceProcess(moduleRoot, "go", "test", "-run", "^$",
+				"-bench", "^BenchmarkSameOriginRouteDispatch$", "-benchtime=200x", "-count=1", ".")
+			if err != nil {
+				return BenchmarkSample{}, err
+			}
+			for _, line := range strings.Split(out, "\n") {
+				columns := strings.Fields(line)
+				if len(columns) < 4 || !strings.HasPrefix(columns[0], "BenchmarkSameOriginRouteDispatch-") ||
+					columns[3] != "ns/op" {
+					continue
+				}
+				ns, err := strconv.ParseFloat(columns[2], 64)
+				if err != nil || ns <= 0 || math.IsInf(ns, 0) || math.IsNaN(ns) {
+					return BenchmarkSample{}, fmt.Errorf("invalid same-origin routing benchmark measurement")
+				}
+				return BenchmarkSample{Measurements: []BenchmarkMeasurement{{
+					Kind: "latency", Unit: "ns", Value: ns,
+				}}}, nil
+			}
+			return BenchmarkSample{}, fmt.Errorf("real same-origin routing benchmark missing from Go output")
+		}, func() {}, nil
 	case "builtin-command-work-queue-projection-v1":
 		probe, cleanup, err := prepareCommandWorkQueueProbe(root)
 		if err != nil {
