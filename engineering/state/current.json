@@ -18,8 +18,8 @@
   },
   "execution": {
     "active_work_unit": "E10-INV-120A-SNAPSHOT",
-    "preferred_next_unit": "E10-INV-120A-SNAPSHOT",
-    "selection_rule": "first READY unit whose dependencies satisfy their required terminal state; when no READY exists create a separately scoped functional integration unit"
+    "preferred_next_unit": null,
+    "selection_rule": "E10-INV-120A-SNAPSHOT is IMPLEMENTED (not VERIFIED or merged), according to immutable source evidence from PR #156. There is no safely READY graph unit; choose an independently scoped functional lot after reconciling existing GitHub PRs and canonical product obligations."
   },
   "reconciliation": {
     "required_on_resume": true,

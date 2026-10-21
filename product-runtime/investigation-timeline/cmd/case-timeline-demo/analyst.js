@@ -389,6 +389,7 @@
     const counts = Object.fromEntries(kinds.map(value => [value, 0]));
     const seen = new Set();
     const bySource = new Map();
+    const authorizedVersions = new Map();
     const certainTimes = [];
     let expectedTotal = null;
     let uncertain = 0;
@@ -431,10 +432,22 @@
           if (!entry || typeof entry.id !== "string" || !entry.id ||
               seen.has(entry.id) || !kinds.includes(entry.kind) ||
               typeof entry.time_uncertain !== "boolean" ||
-              typeof entry.source_ref !== "string" || !entry.source_ref) {
+              typeof entry.source_ref !== "string" || !entry.source_ref ||
+              (entry.supersedes !== undefined &&
+                (typeof entry.supersedes !== "string" || entry.supersedes.length > 1024)) ||
+              (entry.superseded !== undefined && typeof entry.superseded !== "boolean") ||
+              (entry.version !== undefined &&
+                (!Number.isSafeInteger(entry.version) || entry.version < 1))) {
             throw new Error("Invalid authorized timeline entry");
           }
           seen.add(entry.id);
+          authorizedVersions.set(entry.id, {
+            id: entry.id, version: entry.version,
+            supersedes: entry.supersedes || "",
+            superseded: entry.superseded === true,
+            kind: entry.kind, sourceRef: entry.source_ref,
+            time: entry.source_time, uncertain: entry.time_uncertain
+          });
           counts[entry.kind]++;
           if (entry.time_uncertain) {
             uncertain++;
@@ -464,6 +477,25 @@
         }
       }
       if (currentRevision !== analysisRevision || currentSelection !== revision) return;
+      // Compare only predecessor and successor in this SAME already
+      // authorized cohort. Hidden, filtered or revoked versions are never
+      // fetched by ID or inferred from superseded=true alone.
+      const visibleCorrections = [];
+      for (const newer of authorizedVersions.values()) {
+        if (!newer.supersedes) continue;
+        const older = authorizedVersions.get(newer.supersedes);
+        if (!older) continue;
+        if (!Number.isSafeInteger(newer.version) ||
+            !Number.isSafeInteger(older.version) ||
+            newer.version <= older.version ||
+            !older.superseded) {
+          throw new Error("Inconsistent visible version provenance");
+        }
+        visibleCorrections.push({ older, newer });
+      }
+      visibleCorrections.sort((a, b) =>
+        a.older.id.localeCompare(b.older.id) ||
+        a.newer.id.localeCompare(b.newer.id));
       const ranked = [...bySource.values()].sort((a, b) =>
         b.count - a.count || (a.ref < b.ref ? -1 : a.ref > b.ref ? 1 : 0));
       // The HTTP pages may contain same-time observations and inferred
@@ -493,10 +525,51 @@
         ". Sources présentes : " + ranked.length +
         (topSources.length ? " · Principales références : " +
           topSources.join(" · ") : "") +
-        ". Regroupement par référence, pas une preuve de causalité. " +
+        ". Corrections comparables entre versions toutes deux autorisées : " +
+        visibleCorrections.length + " (seulement dans la sélection filtrée, sans conclure sur les versions masquées). " +
+        "Regroupement par référence, pas une preuve de causalité. " +
         "Un écart entre événements visibles ne démontre jamais l'absence d'activité " +
         "(données masquées, non collectées ou horodatages incertains). " +
         "Synthèse locale à l'instant de lecture ; les pages ne sont pas transactionnelles.";
+      // Version comparisons are a read-only analyst action on source-owned,
+      // independently authorized entries. Source-open always reauthorizes.
+      for (const { older, newer } of visibleCorrections.slice(0, 10)) {
+        const label = value => value.length > 96 ? value.slice(0, 96) + "…" : value;
+        const button = document.createElement("button");
+        button.type = "button";
+        button.textContent = "Comparer versions autorisées : " +
+          label(older.id) + " → " + label(newer.id);
+        button.addEventListener("click", () => {
+          if (currentRevision !== analysisRevision ||
+              currentSelection !== revision || controller.signal.aborted ||
+              token.value !== bearer || caseID.value.trim() !== selectedCase ||
+              kind.value !== selectedKind || search.value.trim() !== selectedSearch) return;
+          traceResults.replaceChildren();
+          traceResults.textContent =
+            "Comparaison locale non transactionnelle de deux versions visibles. " +
+            "Aucune mutation ; ouvrir chaque source impose une nouvelle autorisation.";
+          const list = document.createElement("ol");
+          for (const row of [older, newer]) {
+            const item = document.createElement("li");
+            const open = document.createElement("button");
+            open.type = "button";
+            open.textContent = "Ouvrir " + label(row.id) + " · version " + row.version +
+              " · " + row.kind + " · source " + label(row.sourceRef) +
+              " · " + row.time + (row.uncertain ? " (horodatage incertain)" : "");
+            open.addEventListener("click", () => {
+              if (currentRevision !== analysisRevision ||
+                  currentSelection !== revision || controller.signal.aborted ||
+                  token.value !== bearer || caseID.value.trim() !== selectedCase ||
+                  kind.value !== selectedKind || search.value.trim() !== selectedSearch) return;
+              openSource(row.id);
+            });
+            item.append(open);
+            list.append(item);
+          }
+          traceResults.append(list);
+        });
+        analysisActions.append(button);
+      }
       // Only a bounded aggregate is prepared for explicit local download:
       // no bearer, no hidden entries, no raw event rows, no URLs or owner preview.
       // This is an unsigned, nontransactional demo summary, not a legal

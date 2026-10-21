@@ -1561,3 +1561,87 @@ test("Wazuh ATT&CK cohorts remain invisible when the Case selection changes befo
   await flush();
   assert.doesNotMatch(env.fields["wazuh-status"].textContent, /T1059/);
 });
+
+
+test("analyst compares both source-authorized correction versions across paginated Case reads", async () => {
+  const env = boot(url => {
+    const offset = Number(url.searchParams.get("offset"));
+    const original = page(offset, 201);
+    return { ok: true, async json() {
+      const value = await original.json();
+      if (offset === 0) Object.assign(value.entries[0], {
+        id: "version-older", version: 1, superseded: true,
+        supersedes: "", source_ref: "source-a"
+      });
+      if (offset === 200) Object.assign(value.entries[0], {
+        id: "version-newer", version: 2,
+        supersedes: "version-older", source_ref: "source-b"
+      });
+      return value;
+    } };
+  });
+  env.fields.analyze.handlers.click();
+  await flush();
+  await flush();
+  assert.equal(env.requests.length, 2);
+  assert.match(env.fields.analysis.textContent, /Corrections comparables entre versions toutes deux autorisées : 1/);
+  const compare = env.fields["analysis-actions"].children.find(
+    item => item.textContent.startsWith("Comparer versions autorisées : "));
+  assert.ok(compare, "real authorized comparison must be user-selectable");
+  assert.match(compare.textContent, /version-older.*version-newer/);
+  compare.handlers.click();
+  assert.match(env.fields["trace-results"].textContent, /Comparaison locale non transactionnelle/);
+  const pair = env.fields["trace-results"].children[0].children;
+  assert.equal(pair.length, 2);
+  assert.match(pair[0].children[0].textContent, /version-older.*version 1/);
+  assert.match(pair[1].children[0].textContent, /version-newer.*version 2/);
+  // Changing Case revokes even an already-built local comparison.
+  env.fields["case-id"].value = "foreign-case";
+  env.fields["case-id"].handlers.input();
+  compare.handlers.click();
+  assert.doesNotMatch(env.fields["trace-results"].textContent, /version-older|version-newer/);
+});
+
+test("superseded source with hidden successor never manufactures a version comparison", async () => {
+  const env = boot(url => {
+    const original = page(Number(url.searchParams.get("offset")), 1);
+    return { ok: true, async json() {
+      const value = await original.json();
+      Object.assign(value.entries[0], { id: "visible-old", version: 1, superseded: true });
+      return value;
+    } };
+  });
+  env.fields.analyze.handlers.click();
+  await flush();
+  await flush();
+  assert.match(env.fields.analysis.textContent, /Corrections comparables entre versions toutes deux autorisées : 0/);
+  assert.equal(env.fields["analysis-actions"].children.filter(
+    x => x.textContent.startsWith("Comparer versions autorisées : ")).length, 0);
+});
+
+test("malformed or contradictory correction claims fail closed before summary or comparison", async () => {
+  for (const variant of [
+    { superseded: "true" },
+    { supersedes: { injected: true } },
+    { version: -1 },
+    { supersedes: "event-0", version: 1, superseded: true }
+  ]) {
+    const env = boot(url => {
+      const original = page(Number(url.searchParams.get("offset")), 2);
+      return { ok: true, async json() {
+        const value = await original.json();
+        if (variant.supersedes === "event-0") {
+          Object.assign(value.entries[0], { superseded: true });
+          Object.assign(value.entries[1], variant);
+        } else Object.assign(value.entries[0], variant);
+        return value;
+      } };
+    });
+    env.fields.analyze.handlers.click();
+    await flush();
+    await flush();
+    assert.match(env.fields.analysis.textContent, /Aucun total partiel/);
+    assert.equal(env.fields["analysis-actions"].children.length, 0);
+    assert.equal(env.fields["download-report"].disabled, true);
+  }
+});

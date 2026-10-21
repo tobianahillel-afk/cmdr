@@ -1775,7 +1775,7 @@
       "id": "E10-INV-120A-SNAPSHOT",
       "title": "Integrate an operator-provided durable Case snapshot into the authenticated loopback analyst journey",
       "type": "task",
-      "status": "READY",
+      "status": "IMPLEMENTED",
       "depends_on": [
         "E10-INV-110E"
       ],
@@ -1838,6 +1838,17 @@
       "status": "IMPLEMENTED",
       "depends_on": [
         "E10-INV-110G-UNIFICATION"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": []
+    },
+    {
+      "id": "E10-INV-110I-VERSIONCMP",
+      "title": "Compare independently source-authorized Timeline Entry correction versions across existing Case pages",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-INV-110H-UIJOIN"
       ],
       "dependency_terminal_state": "IMPLEMENTED",
       "unlocks": []
