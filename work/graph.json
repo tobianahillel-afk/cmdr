@@ -1803,6 +1803,18 @@
       ],
       "dependency_terminal_state": "IMPLEMENTED",
       "unlocks": []
+    },
+    {
+      "id": "E10-INV-004I-PIVOTHTTP",
+      "title": "Provide server-authorized, provenance-preserving read-only Event Search pivot drafts",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-INV-004G-HOST",
+        "E10-INV-004C-PIVOT"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": []
     }
   ]
 }

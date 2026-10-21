@@ -190,7 +190,8 @@ func runEventInspectionE2EAudit(root, _ string, state CurrentState) (EventInspec
 	if err != nil {
 		return EventInspectionE2EAuditSummary{}, err
 	}
-	if err := validateEventInspectionRuntimeUnchanged(root, pivot.FinalValidatedHead, currentHead); err != nil {
+	runtimeUnchanged, err := validateEventInspectionRuntimeUnchangedOrReverified(root, pivot.FinalValidatedHead, currentHead)
+	if err != nil {
 		return EventInspectionE2EAuditSummary{}, err
 	}
 	adversarial, err := runEventInspectionAdversarialRuntimeTests(root)
@@ -242,7 +243,7 @@ func runEventInspectionE2EAudit(root, _ string, state CurrentState) (EventInspec
 		SCAActionableFindings: runtime.StaticSecurity.ActionableFindings + pivot.StaticSecurity.ActionableFindings,
 		ProjectionP95MS:       projectionObserved, ProjectionBudgetMS: projectionBudget,
 		PivotP95MS: pivotObserved, PivotBudgetMS: pivotBudget,
-		RuntimeUnchangedSincePivot: true, BlockingOpenDecisions: len(handoff.BlockingOpenDecisions),
+		RuntimeUnchangedSincePivot: runtimeUnchanged, BlockingOpenDecisions: len(handoff.BlockingOpenDecisions),
 		Limitations: len(handoff.Limitations), ProductionReadinessClaim: handoff.ProductionReadinessClaim,
 		FullCapabilityClaim: handoff.FullCapabilityCompletionClaim, Status: "PASS",
 	}, nil
@@ -319,24 +320,69 @@ func validateEventInspectionHandoff(handoff EventInspectionClosureHandoff) error
 	return nil
 }
 
-func validateEventInspectionRuntimeUnchanged(root, evidenceHead, currentHead string) error {
+// Historic pivot evidence remains immutable. Later runtime amendments must either
+// leave the old verified runtime byte-identical or present narrow, reproducible
+// source-identity and fresh executable proof for the exact approved patch.
+func validateEventInspectionRuntimeUnchangedOrReverified(root, evidenceHead, currentHead string) (bool, error) {
 	evidenceHead, err := validateFullCommitID(evidenceHead)
 	if err != nil {
-		return fmt.Errorf("Event Inspection pivot evidence head: %w", err)
+		return false, fmt.Errorf("Event Inspection pivot evidence head: %w", err)
 	}
 	currentHead, err = validateFullCommitID(currentHead)
 	if err != nil {
-		return fmt.Errorf("current source head: %w", err)
+		return false, fmt.Errorf("current source head: %w", err)
 	}
 	if err := ensureGitAncestor(root, evidenceHead, currentHead); err != nil {
-		return fmt.Errorf("Event Inspection pivot evidence ancestry: %w", err)
+		return false, fmt.Errorf("Event Inspection pivot evidence ancestry: %w", err)
 	}
-	cmd := exec.Command("git", "-C", root, "diff", "--quiet", evidenceHead, currentHead, "--", eventInspectionRuntimeDirectory) // #nosec G204,G702 -- executable/path fixed; commit arguments validated full hex IDs.
-	if err := cmd.Run(); err != nil {
-		if exitErr, ok := err.(*exec.ExitError); ok && exitErr.ExitCode() == 1 {
-			return fmt.Errorf("Event Inspection runtime changed after verified pivot evidence; fresh runtime proof is required")
+	cmd := exec.Command("git", "-C", root, "diff", "--quiet", evidenceHead, currentHead, "--", eventInspectionRuntimeDirectory) // #nosec G204,G702 -- full validated commit IDs, fixed executable and path.
+	if err := cmd.Run(); err == nil {
+		return true, nil
+	} else if exitErr, ok := err.(*exec.ExitError); !ok || exitErr.ExitCode() != 1 {
+		return false, fmt.Errorf("compare Event Inspection runtime against pivot evidence: %w", err)
+	}
+	if err := validateEventInspectionPivotFollowupProof(root, evidenceHead, currentHead); err != nil {
+		return false, fmt.Errorf("Event Inspection runtime changed after verified pivot evidence; fresh runtime proof is required: %w", err)
+	}
+	return false, nil // History stays VERIFIED at the old source; new patch is a separate reverified candidate.
+}
+
+func validateEventInspectionPivotFollowupProof(root, oldCommit, currentCommit string) error {
+	// This is not a general waiver: exactly two path deltas, byte-identical to
+	// reviewed PR #182, AND fresh execution of its security regression tests.
+	approved := map[string]string{
+		"product-runtime/event-inspection/pivot.go":               "938b1d4ae090e2a4080604d8b7d155f24bec69de",
+		"product-runtime/event-inspection/pivot_presence_test.go": "736a2b0a85dd3219e77cdd9aae6b8320f8a0bd53",
+	}
+	diff := exec.Command("git", "-C", root, "diff", "--name-only", oldCommit, currentCommit, "--", eventInspectionRuntimeDirectory) // #nosec G204,G702 -- validated full commit SHA and fixed runtime path.
+	out, err := diff.Output()
+	if err != nil {
+		return fmt.Errorf("inspect source delta: %w", err)
+	}
+	paths := strings.Fields(strings.TrimSpace(string(out)))
+	if len(paths) != len(approved) {
+		return fmt.Errorf("unverified runtime delta: expected exactly two approved pivot files, got %v", paths)
+	}
+	for _, path := range paths {
+		want, ok := approved[path]
+		if !ok {
+			return fmt.Errorf("unverified runtime delta path %s", path)
 		}
-		return fmt.Errorf("compare Event Inspection runtime against pivot evidence: %w", err)
+		blob := exec.Command("git", "-C", root, "rev-parse", "--verify", currentCommit+":"+path) // #nosec G204,G702 -- full commit SHA validated, path exact allowlist.
+		got, err := blob.Output()
+		if err != nil || strings.TrimSpace(string(got)) != want {
+			return fmt.Errorf("runtime patch blob differs from source-reviewed PR #182 for %s", path)
+		}
+	}
+	dir, err := resolveRepoPath(root, eventInspectionRuntimeDirectory, false)
+	if err != nil {
+		return err
+	}
+	fresh := exec.Command("go", "test", "-count=1", "-run", "^(TestPreparePivotRejectsMissingEmptyValuedField|TestPreparePivotAllowsPresentEmptyValuedField)$", ".") // #nosec G204 -- fixed executable, fixed test pattern.
+	fresh.Dir = dir
+	fresh.Env = append(os.Environ(), "GOTOOLCHAIN=local")
+	if output, err := fresh.CombinedOutput(); err != nil {
+		return fmt.Errorf("fresh pivot-presence regression proof failed: %s: %w", strings.TrimSpace(string(output)), err)
 	}
 	return nil
 }
