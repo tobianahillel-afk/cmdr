@@ -19,7 +19,7 @@ function node(tag = "div") {
   };
 }
 
-function boot(search = "", navigationQuery, denySource = false) {
+function boot(search = "", navigationQuery, denySource = false, timelineOverride) {
   const ids = [
     "query", "token", "case-id", "kind", "search", "case-options",
     "discover", "case-discovery-status", "from", "to", "entries",
@@ -60,13 +60,13 @@ function boot(search = "", navigationQuery, denySource = false) {
           async json() {
             return {
               status: "allow",
-              page: { total_visible: 1, has_more: false, offset },
-              entries: offset > 0 ? [] : [{
+              page: { total_visible: timelineOverride?.length ?? 1, has_more: false, offset },
+              entries: offset > 0 ? [] : (timelineOverride ?? [{
                 id: "event-new", kind: "observed",
                 source_time: "2026-10-01T11:00:00Z",
                 source_ref: "demo-telemetry-a", provenance: "synthetic-telemetry",
                 version: 2
-              }]
+              }])
             };
           }
         };
@@ -206,6 +206,11 @@ test("denied owner opening cannot be treated as a ready source draft", async () 
   assert.equal(env.fields["return-to-case"].disabled, true);
   assert.deepEqual(env.copied, []);
 });
+
+function nodeText(node) {
+  return String(node?.textContent ?? "") + " " +
+    (node?.children ?? []).map(nodeText).join(" ");
+}
 
 test("analyst shows owner-authorized superseded history without claiming hidden versions", async () => {
   const rows = [
