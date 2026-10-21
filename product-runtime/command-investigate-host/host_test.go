@@ -59,6 +59,10 @@ func (o *testIncidentOwner) ReadAuthorizedLinkedCases(_ context.Context, princip
 }
 
 func combinedTestHost(t *testing.T) (http.Handler, *testIncidentOwner) {
+	return combinedTestHostWithHistory(t, false)
+}
+
+func combinedTestHostWithHistory(t *testing.T, withHistory bool) (http.Handler, *testIncidentOwner) {
 	t.Helper()
 	owner := &testIncidentOwner{}
 	command := queue.NewHTTPHandler(testCommandSession{}, owner)
@@ -95,6 +99,23 @@ func combinedTestHost(t *testing.T) (http.Handler, *testIncidentOwner) {
 				Tenant: "t1", Environment: "prod", CaseID: "case-a"},
 			Readers: []string{"analyst-a"},
 		}},
+	}
+	if withHistory {
+		data.Cases[0].EntryIDs = append(data.Cases[0].EntryIDs, "event-b")
+		data.Entries = append(data.Entries, timeline.MemoryTimelineEntry{
+			CaseID: "case-a",
+			Value: timeline.Entry{ID: "event-b", Tenant: "t1", Kind: "observed",
+				SourceTime: "2026-10-21T02:06:00Z", Timezone: "+00:00",
+				SourceRef: "source-b", Provenance: "telemetry", Version: 2,
+				Supersedes: "event-a", SourcePermission: "allow"},
+			Readers: []string{"analyst-a"},
+		})
+		data.Sources = append(data.Sources, timeline.MemoryTimelineSource{
+			Identity: timeline.SourceOwnerIdentity{Reference: "source-b",
+				ObjectID: "event-owner-b", Kind: "telemetry-event",
+				Tenant: "t1", Environment: "prod", CaseID: "case-a"},
+			Readers: []string{"analyst-a"},
+		})
 	}
 	receiver, err := timeline.NewMemoryCaseTimelineHTTPHandler(auth, data)
 	if err != nil {
