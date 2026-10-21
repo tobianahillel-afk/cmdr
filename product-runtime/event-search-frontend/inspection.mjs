@@ -119,6 +119,24 @@ function pivotOrigins(inspected, field, value) {
   return result;
 }
 
+// Go normalizes RFC3339 UTC dates ("Z"), while JS commonly serializes
+// the same instant with ".000Z". Compare exact nanoseconds, not text or
+// lossy millisecond-only Date objects; never widen the chosen Search range.
+const RFC3339_TIME = /^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})(?:\.(\d{1,9}))?(Z|[+-]\d{2}:\d{2})$/u;
+function exactInstant(value) {
+  if (!text(value, 64)) return null;
+  const parts = RFC3339_TIME.exec(value);
+  if (!parts) return null;
+  const seconds = Date.parse(parts[1] + parts[3]);
+  if (!Number.isFinite(seconds)) return null;
+  const fraction = BigInt((parts[2] ?? "").padEnd(9, "0") || "0");
+  return BigInt(seconds) * 1_000_000n + fraction;
+}
+function sameInstant(first, second) {
+  const left = exactInstant(first);
+  return left !== null && left === exactInstant(second);
+}
+
 // A draft is not a Query execution or permission token. Trust remains on Go.
 export function normalizePivotDraft(input, request, inspected) {
   if (!record(input) || input.kind !== "pivot-draft" ||
@@ -126,8 +144,8 @@ export function normalizePivotDraft(input, request, inspected) {
       !FIELD.test(input.field ?? "") || input.field !== request.field ||
       !text(input.value) || input.value !== request.value ||
       input.jobId !== request.jobId || input.runId !== request.runId ||
-      input.timeRange?.start !== request.timeStart ||
-      input.timeRange?.end !== request.timeEnd) fail("invalid-pivot-draft");
+      !sameInstant(input.timeRange?.start, request.timeStart) ||
+      !sameInstant(input.timeRange?.end, request.timeEnd)) fail("invalid-pivot-draft");
   for (const key of ["tenantRef", "environmentRef", "eventRef", "correlationId"]) {
     if (input[key] !== request[key]) fail("pivot-scope-mismatch");
   }
