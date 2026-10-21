@@ -17,9 +17,9 @@
     "phase_title": "Scaled product implementation program bootstrap"
   },
   "execution": {
-    "active_work_unit": "E10-CMD-106K-OVERVIEW",
+    "active_work_unit": "E10-CMD-106L-ALERTSRC",
     "preferred_next_unit": null,
-    "selection_rule": "Command Incident Detail canonical headline source-authorized read K is IMPLEMENTED on its own unreviewed draft branch based on frozen #209; no READY remaining in branch graph, exact SHA CI and independent L2 must be checked; upstream PRs and main are not merged or accepted. Next independent work requires canonical gap and dependency re-selection."
+    "selection_rule": "Bounded Class-0 Incident upstream Alert provenance child L implemented in own DRAFT branch after K; dependencies K implemented not merged, no READY on this branch; exact SHA CI, independent L2, upstream integration/approvals must be verified before acceptance."
   },
   "reconciliation": {
     "required_on_resume": true,

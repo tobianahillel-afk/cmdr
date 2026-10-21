@@ -30,6 +30,10 @@ var incidentDetailPage = template.Must(template.New("incident-detail").Parse(`<!
 <dl>{{range .Factors}}<dt>{{.Name}}</dt><dd>{{.Value}}{{if .Source}} · {{.Source}}{{end}}{{if .ObservedAt}} · {{.ObservedAt}}{{end}}</dd>{{end}}</dl>
 <p>SLA : {{if .SelectedSLA}}{{.SelectedSLA.State}}{{if .SelectedSLA.PolicySource}} · source {{.SelectedSLA.PolicySource}}{{end}}{{else}}inconnu — source SLA indisponible ou non autorisée{{end}}</p>
 <p>Propriétaire canonique : {{if .SelectedCanonicalOwnership}}{{if .SelectedCanonicalOwnership.ProductOwner}}{{.SelectedCanonicalOwnership.ProductOwner}}{{else}}inconnu{{end}}{{else}}non fourni{{end}}</p>
+<h2>Alertes d'origine — sources Command autorisées (lecture seule)</h2>
+{{if .AlertOrigins}}
+<ul>{{range .AlertOrigins}}<li>Alert {{.ID}} · sévérité {{if .Severity}}{{.Severity}}{{else}}inconnue{{end}} · état {{if .Status}}{{.Status}}{{else}}inconnu{{end}} · disposition {{if .Disposition}}{{.Disposition}}{{else}}inconnue{{end}} · source {{.SourceRef}} · version {{.SourceVersion}} · observée {{.ObservedAt}}</li>{{end}}</ul>
+{{else}}<p>Origine Alert non disponible ou non autorisée. Aucune association n’est déduite de l’Incident.</p>{{end}}
 <h2>Investigations liées (lecture seule)</h2>
 {{if .SelectedLinkedCases}}{{if .SelectedLinkedCases.Cases}}
 <ul>{{range .SelectedLinkedCases.Cases}}<li>Case {{.CaseID}} — {{.Status}} · <a href="/case-timeline?case_id={{urlquery .CaseID}}&amp;origin_incident={{urlquery $.Selected.ID}}" rel="noreferrer">Ouvrir le Case (autorisation distincte)</a></li>{{end}}</ul>
@@ -43,6 +47,7 @@ type incidentDetailView struct {
 	Result
 	Factors []factorLine
 	Overview *AuthorizedIncidentOverview
+	AlertOrigins []AuthorizedIncidentAlert
 	ReturnHref string
 }
 
@@ -136,8 +141,16 @@ func NewIncidentDetailHTTPHandler(sessions SessionResolver, owner Owner) http.Ha
 			http.Error(w, "incident detail unavailable", http.StatusServiceUnavailable)
 			return
 		}
+		// Incident.read alone cannot reveal any Alert: recheck relation scope,
+		// then independently authorize every Alert.read before HTML output.
+		alertOrigins, err := readAuthorizedIncidentAlertOrigins(r.Context(), owner, scope, id)
+		if err != nil {
+			http.Error(w, "incident alert origin unavailable", http.StatusServiceUnavailable)
+			return
+		}
 		data := incidentDetailView{Result: result,
 			Overview: overview,
+			AlertOrigins: alertOrigins,
 			Factors: selectedFactorLines(result.SelectedFactors),
 			ReturnHref: "/command/work-queue?restore=1&selected=" + url.QueryEscape("Incident:"+id) + "&view=incidents",
 		}

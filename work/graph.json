@@ -2345,6 +2345,19 @@
         "E10-CMD-106J-DETAILREAD"
       ],
       "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-CMD-106L-ALERTSRC"
+      ]
+    },
+    {
+      "id": "E10-CMD-106L-ALERTSRC",
+      "title": "Independently authorized Alert origin in read-only Incident Detail",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-CMD-106K-OVERVIEW"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
       "unlocks": []
     }
   ]
