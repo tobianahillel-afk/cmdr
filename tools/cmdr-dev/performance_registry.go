@@ -136,6 +136,7 @@ var knownPerformanceWorkloadKeys = map[string]bool{
 	"saved-query-assets-handoff-v1":               true,
 	"case-queue-projection-v1":                    true,
 	"command-work-queue-in-process-projection-v1": true,
+	"command-investigate-same-origin-routing-v1":   true,
 	"case-queue-saved-view-v1":                    true,
 	"case-queue-handoff-v1":                       true,
 	"investigation-timeline-projection-v1":        true,
