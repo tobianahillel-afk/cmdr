@@ -214,3 +214,23 @@ func TestHostRejectsNilOrUnroutableRequestWithoutInvokingOwners(t *testing.T) {
 		t.Fatalf("missing URL reached a trusted owner: %d, %d", w.Code, owner.lookups)
 	}
 }
+
+func BenchmarkSameOriginRouteDispatch(b *testing.B) {
+	host, err := NewHandler(
+		http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) { w.WriteHeader(http.StatusOK) }),
+		http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) { w.WriteHeader(http.StatusOK) }),
+	)
+	if err != nil {
+		b.Fatal(err)
+	}
+	req := httptest.NewRequest(http.MethodGet, "/case-timeline?case_id=case-a", nil)
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		out := httptest.NewRecorder()
+		host.ServeHTTP(out, req)
+		if out.Code != http.StatusOK {
+			b.Fatal("routing failed")
+		}
+	}
+}
