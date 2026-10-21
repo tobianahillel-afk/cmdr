@@ -19,7 +19,7 @@ func TestIncidentNextActionShownOnlyFromTrustedCommandOverview(t *testing.T) {
 	if detail.Code != http.StatusOK || owner.calls != 1 ||
 		!strings.Contains(content, "Prochaine action Command") ||
 		!strings.Contains(content, "&lt;script&gt;") ||
-		!strings.Contains(content, "2026-10-21T04:00:00+02:00") ||
+		!strings.Contains(content, "2026-10-21T04:00:00&#43;02:00") ||
 		strings.Contains(content, "<script>") {
 		t.Fatalf("authorized next action not safely presented: %d %s", detail.Code, content)
 	}
