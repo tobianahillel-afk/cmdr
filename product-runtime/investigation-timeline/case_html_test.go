@@ -158,3 +158,92 @@ func TestCaseHTMLRespectsExistingAuthorizedKindFilter(t *testing.T) {
 		t.Fatalf("authorized filter lost supersession: %d %s", page.Code, page.Body.String())
 	}
 }
+
+
+func TestCaseHTMLFiltersAreUsableThroughExistingAuthorizedGET(t *testing.T) {
+	h, _ := httpWorkspaceFixture(t)
+	// Exactly what a native HTML GET form transmits when the optional
+	// controls are blank. JSON clients remain strict about those values.
+	view := httpWorkspaceGet(h, "/case-timeline?case_id=case-one&kind=inferred&q=entry-old&from=&to=&limit=1",
+		"Bearer analyst-a", map[string]string{"Accept": "text/html"})
+	if view.Code != http.StatusOK {
+		t.Fatalf("source-authorized GET form rejected: %d %s", view.Code, view.Body.String())
+	}
+	body := view.Body.String()
+	for _, expected := range []string{
+		"<form method=\"get\" action=\"/case-timeline\"",
+		"name=\"case_id\" value=\"case-one\"",
+		"name=\"kind\"",
+		"<option value=\"inferred\" selected>",
+		"name=\"q\" type=\"search\" maxlength=\"96\" value=\"entry-old\"",
+		"name=\"limit\" type=\"number\" min=\"1\" max=\"200\" required value=\"1\"",
+		"entry-old", "Remplacée", "Réinitialiser les filtres",
+	} {
+		if !strings.Contains(body, expected) {
+			t.Fatalf("missing native authorized filter %q: %s", expected, body)
+		}
+	}
+	if strings.Contains(body, "entry-new</th>") ||
+		strings.Contains(body, "name=\"offset\"") ||
+		strings.Contains(body, "Bearer ") ||
+		strings.Contains(body, "name=\"tenant\"") ||
+		!strings.Contains(view.Header().Get("Content-Security-Policy"), "form-action 'self'") ||
+		!strings.Contains(view.Header().Get("Content-Security-Policy"), "default-src 'none'") {
+		t.Fatalf("filter form transfers authority or bypasses read-only CSP: %s", body)
+	}
+	// Submitting a new query resets pagination because offset is not
+	// forwarded by the form; it does not grant new source visibility.
+	fresh := httpWorkspaceGet(h, "/case-timeline?case_id=case-one&kind=&q=entry&from=&to=&limit=1",
+		"Bearer analyst-a", map[string]string{"Accept": "text/html"})
+	if fresh.Code != http.StatusOK || !strings.Contains(fresh.Body.String(), "rel=\"next\"") ||
+		!strings.Contains(fresh.Body.String(), "q=entry") {
+		t.Fatalf("native filter did not create a paginated authorized response: %d %s", fresh.Code, fresh.Body.String())
+	}
+}
+
+func TestCaseHTMLFiltersPreserveStrictAPIAndRejectHostileInput(t *testing.T) {
+	h, _ := httpWorkspaceFixture(t)
+	for _, raw := range []string{
+		"/case-timeline?case_id=case-one&q=&limit=1",
+		"/case-timeline?case_id=case-one&kind=&limit=1",
+	} {
+		original := httpWorkspaceGet(h, raw, "Bearer analyst-a", map[string]string{"Accept": "application/json"})
+		if original.Code != http.StatusBadRequest {
+			t.Fatalf("existing JSON API accepted invalid empty selector: %s status=%d", raw, original.Code)
+		}
+	}
+	for _, raw := range []string{
+		"/case-timeline?case_id=case-one&kind=forged&q=&limit=1",
+		"/case-timeline?case_id=case-one&kind=&q=x&q=&limit=1",
+		"/case-timeline?case_id=case-one&kind=&q=&limit=201",
+		"/case-timeline?case_id=case-one&from=2026-10-21T10%3A00%3A00Z&to=2026-10-21T09%3A00%3A00Z&limit=1",
+	} {
+		denied := httpWorkspaceGet(h, raw, "Bearer analyst-a", map[string]string{"Accept": "text/html"})
+		if denied.Code != http.StatusBadRequest ||
+			strings.Contains(denied.Body.String(), "<!doctype html>") ||
+			strings.Contains(denied.Body.String(), "entry-old") {
+			t.Fatalf("malformed selector gained HTML data: %s status=%d body=%s", raw, denied.Code, denied.Body.String())
+		}
+	}
+}
+
+func TestCaseHTMLFilterEscapesRequestControlledValuesAndDoesNotGrantCaseRead(t *testing.T) {
+	h, _ := httpWorkspaceFixture(t)
+	// html/template escapes even a syntactically legal query containing HTML
+	// metacharacters; no additional client JavaScript is introduced.
+	q := url.QueryEscape("<img src=x onerror=alert(1)>")
+	target := "/case-timeline?case_id=case-one&q=" + q + "&kind=&from=&to=&limit=50"
+	ok := httpWorkspaceGet(h, target, "Bearer analyst-a", map[string]string{"Accept": "text/html"})
+	if ok.Code != http.StatusOK || strings.Contains(ok.Body.String(), "<img src=x") ||
+		!strings.Contains(ok.Body.String(), "&lt;img") {
+		t.Fatalf("untrusted filter value rendered as HTML: %d %s", ok.Code, ok.Body.String())
+	}
+	for _, token := range []string{"", "Bearer invalid", "Bearer commander"} {
+		denied := httpWorkspaceGet(h, target, token, map[string]string{"Accept": "text/html"})
+		if denied.Code == http.StatusOK || strings.Contains(denied.Body.String(), "<form") ||
+			strings.Contains(denied.Body.String(), "case-one") ||
+			strings.Contains(denied.Body.String(), "entry-old") {
+			t.Fatalf("HTML filter promoted unauthorized principal: %d %s", denied.Code, denied.Body.String())
+		}
+	}
+}
