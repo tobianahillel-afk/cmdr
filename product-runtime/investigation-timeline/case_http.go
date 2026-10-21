@@ -97,6 +97,23 @@ func (h *CaseTimelineHTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Reque
 		writeCaseTimelineError(w, http.StatusServiceUnavailable)
 		return
 	}
+	// The same owner-authorized projection can be viewed in a browser via
+	// a bounded, escaped HTML representation. Existing JSON consumers never
+	// enter this branch and keep their exact wire contract.
+	if acceptsTimelineHTML(r.Header.Get("Accept")) {
+		markup, err := renderAuthorizedTimelineHTML(caseID, result, selection, query)
+		if err != nil {
+			writeCaseTimelineError(w, http.StatusServiceUnavailable)
+			return
+		}
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		w.Header().Set("Content-Security-Policy", "default-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'")
+		w.Header().Set("X-Frame-Options", "DENY")
+		w.Header().Set("Referrer-Policy", "no-referrer")
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write(markup)
+		return
+	}
 	// Only authorized, already filtered entries may be counted or paged.
 	// The non-paged response shape stays backward compatible.
 	var response any = result
