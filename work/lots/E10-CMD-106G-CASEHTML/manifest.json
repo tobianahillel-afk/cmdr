@@ -1,0 +1,152 @@
+{
+  "schema_version": 2,
+  "id": "E10-CMD-106G-CASEHTML",
+  "title": "Present independently authorized Investigate Case chronology as bounded human-readable HTML after Command Incident navigation",
+  "type": "task",
+  "parent": "E10-CMD-106",
+  "goal": "Complete the already-working same-origin Command Incident linked-Case navigation by rendering source-authorized CAP-INV-110 Timeline entries, provenance and correction states as an accessible HTML view rather than raw JSON; preserve every JSON client's contract and independent source ownership.",
+  "depends_on": [
+    "E10-CMD-106F-TIMELINE",
+    "E10-INV-110F-SUPERSESSION"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-CMD-106",
+      "CAP-CMD-101",
+      "CAP-INV-110"
+    ],
+    "requirements": [
+      "REQ-PROD-014",
+      "REQ-PROD-018",
+      "REQ-SEC-001"
+    ],
+    "screens": [
+      "CMD-IWQ-006",
+      "INV-TIM-001"
+    ],
+    "permissions": [
+      "perm.command.incident.read",
+      "perm.investigate.case.read",
+      "perm.shared-capabilities.timeline-entry.read"
+    ],
+    "open_decisions": [
+      "OPEN-013"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/incident.md",
+      "cmdr-product-spec/05-domain-model/objects/case.md",
+      "cmdr-product-spec/05-domain-model/objects/timeline-entry.md"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/12-shared-capabilities/object-linking-service.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/investigation-timeline/case_http.go",
+    "product-runtime/investigation-timeline/case_html.go",
+    "product-runtime/investigation-timeline/case_html_test.go",
+    "product-runtime/command-investigate-host/case_html_journey_test.go",
+    "work/lots/E10-CMD-106G-CASEHTML/**",
+    "work/graph.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/work-queue/**",
+    "product-runtime/command-investigate-host/host.go",
+    "product-runtime/investigation-timeline/projection.go",
+    "product-runtime/investigation-timeline/memory_provider.go",
+    "product-runtime/investigation-timeline/go.mod"
+  ],
+  "invariants": [
+    "Only existing GET /case-timeline is used, no new trusted SessionResolver or provider, permission, read/write operation, or destination route.",
+    "HTML rendering occurs AFTER the full independent Investigate Case, Timeline Entry and typed-source authorization for exactly the same Result consumed by JSON clients.",
+    "Command Incident and Shared linked-Case navigation alone NEVER authorizes Investigate Case; HTTP errors remain generic and contain no forbidden Case/Entry/source metadata.",
+    "Browser Accept text/html gets strictly <=200 visible entries; default HTML page <=50; JSON clients retain original unpaged/paged wire bytes.",
+    "Only owner-authorized source fields and superseded boolean are text-escaped by Go html/template, never injected into unsafe JS or marked verified observation.",
+    "Unknown/missing successor flag is NOT presented as current; corrected predecessor and successor remain distinct across pages; next-page links preserve only previously syntactically validated Case/query selectors.",
+    "Browser navigation to Work Queue is an optional re-authorized destination, NOT restoration of exact Incident selection; OPEN-013 Class-2 mutations excluded.",
+    "Current base #199 exact SHA remains immutable for existing independent L2 and old command/investigate/case rights remain separate."
+  ],
+  "security_properties": [
+    "No HTML is rendered for denied, invalid, anonymous, cross-environment, or foreign Case, even if Command link is visible.",
+    "Content Security Policy default-src none, no scripts, referrer-policy no-referrer, X-Frame-Options DENY, no-store and nosniff on authorized HTML.",
+    "Source, timestamps, provenance, source ref, Case selector, pagination links are escaped and never raw HTML; scripts are not executed.",
+    "No hidden/off-page entries are rendered; counts refer only to authorized, filtered entries; paging never assumes transactionally stable event set.",
+    "Accept application/json or absent keeps existing JSON semantics, including JSON errors for malformed/denied requests."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "A bounded HTML representation of an existing read-only authorized JSON endpoint. No persistent schema, owner, or API route changes.",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Remove case_html.go and content negotiation branch; existing JSON and source-authorized navigation remain unchanged.",
+    "verification": [
+      "Original JSON with absent/explicit JSON Accept identical",
+      "Command/Investigate endpoints preserve authorization and status codes"
+    ]
+  },
+  "inputs": [
+    "CAP-CMD-106 and CAP-INV-110 navigation/read-only canonical transitions with independently authorized linked Cases.",
+    "PR #199 source SHA 18826ea501f040768c24dbc9b742000af0da8abd already composed two real Go HTTP handlers with separate synthetic IAM owner fixtures.",
+    "Existing CAP-INV-110 Project and CaseTimelineHTTPHandler returns authorized source/provenance and superseded status in JSON."
+  ],
+  "outputs": [
+    "Human-readable read-only Timeline page for browser Accept text/html with owner-authorized old/new version status, source provenance, time uncertainty and accessible pager.",
+    "Existing selected Incident links now navigate into a useful Case screen rather than raw JSON, under the same host; no new case entitlement.",
+    "Exact-HEAD Go root and cross-product host tests including browser Accept, HTML escape, forbidden source redaction, denied Command-only viewer, and JSON compatibility."
+  ],
+  "acceptance_tests": [
+    "Existing Work Queue selected Incident HTML link opens real GET /case-timeline Accept text/html and displays only its separately authorized Case timeline.",
+    "HTML first page shows old event superseded even when newer authorized successor on another page; next page includes authorized new version and original Supersedes.",
+    "Command-only principal, anonymous, bad session and foreign Case cannot receive HTML or protected event/source references.",
+    "Source-controlled HTML/JS tokens escape under html/template, content security headers are present, no inline scripts or unsupported source action invented.",
+    "Absent or application/json Accept yields source-identical existing JSON response.",
+    "Filters/paging preserve a validated selection and do not leak excluded or denied Case data; HTML default limited to 50 entries and explicit limit max 200.",
+    "Linux/macOS/Windows Go tests, Linux race, Go vet, exact-head engineering kernel security/architecture/complexity and source E2E gates all succeed without waiver."
+  ],
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-SECURITY-TESTS",
+    "CHK-SAST-GO",
+    "CHK-SCA-GO",
+    "investigation-timeline-runtime",
+    "command-investigate-readonly-host",
+    "engineering-kernel"
+  ],
+  "definition_of_ready": [
+    "E10-CMD-106F-TIMELINE implemented and CI green on exact #199 source; existing Go handlers compose independently and source-visible Timeline corrections supplied.",
+    "Read-only HTML response needs no OPEN-013 mutation or a new canonical product decision.",
+    "No frozen parent PR is edited; all work belongs to the new child branch."
+  ],
+  "definition_of_done": [
+    "Actual linked Incident to authorized human Timeline HTML can be exercised across the same Go host with source-negative tests.",
+    "Both timeline and cross-product host CI green on exact HEAD and required security/engineering gates pass.",
+    "L2 material cross-product browser/data exposure review distinct from author; merge blocked until parent and approver conditions.",
+    "No production identity provider, deployed browser, durable Case data or native approval asserted."
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "At most 200 HTML-rendered entries per request, with existing source-bound 5000-entry Project, no new provider calls; synthetic performance only, no production SLO.",
+    "metrics": [
+      "Page size <=200",
+      "default HTML page size 50",
+      "existing max 5000 authorized projected entries"
+    ]
+  },
+  "complexity": {
+    "primary_components": 2,
+    "estimated_files_changed": 3,
+    "estimated_net_loc": 180,
+    "production_files": 2,
+    "net_production_loc": 145,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}
