@@ -1,0 +1,98 @@
+{
+  "schema_version": 2,
+  "id": "E4-SEC-002B-SCAID",
+  "title": "Expose bounded public OSV IDs for actionable Go SCA failures without relaxing security",
+  "type": "task",
+  "parent": "E4-SEC-002B",
+  "goal": "Make an observed mandatory CHK-SCA-GO known reachable vulnerability actionable by exposing only strictly validated public GO advisory IDs, never untrusted govulncheck symbol, source path, trace, package/module URL or code, without changing the scan or pass/fail decision.",
+  "depends_on": [
+    "E4-SEC-002B-ACTIVATE"
+  ],
+  "product_refs": {
+    "capabilities": [],
+    "requirements": [],
+    "screens": [],
+    "permissions": [],
+    "open_decisions": [],
+    "implementation_contracts": [],
+    "canonical_objects": []
+  },
+  "allowed_paths": [
+    "tools/cmdr-dev/security_static.go",
+    "tools/cmdr-dev/security_static_test.go",
+    "work/graph.json",
+    "work/lots/E4-SEC-002B-SCAID/**"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/**",
+    ".github/workflows/**",
+    "engineering/security/security-gates.json"
+  ],
+  "invariants": [
+    "All reachable findings still cause CHK-SCA-GO FAILURE; no suppression, ignore list, baseline, severity downgrade, scanner parameter change or SCA scope reduction",
+    "Only public strict ASCII GO-YYYY-NNNN advisory identifiers, maximum four sorted unique labels, may enter error text; every other raw scanner datum stays private",
+    "Malformed/missing IDs remain a blocking generic identifier-unavailable error",
+    "No product data, Go toolchain version or dependency changed blindly without exact finding"
+  ],
+  "security_properties": [
+    "Never echo private import/module path, package, receiver, function, source, traces, URLs or arbitrary OSV text",
+    "No secrets or report content in CI diagnostics; original SAST and secret scanners remain unchanged"
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Engineering CLI diagnostic display only; no product runtime or schema.",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Restore generic blocked count without weakening SCA",
+    "verification": [
+      "CHK-SCA-GO still fails on reachable finding"
+    ]
+  },
+  "inputs": [
+    "Security owner E4-SEC-002B-ACTIVATE verified mandatory govulncheck-Go v1.8.0 pipeline",
+    "Current PR #195 SHA 6e5daab6d26662ecd2821d8d3c2f2bfefc1aa792 run 39528312160 CHK-SCA-GO FAILURE 1 reachable finding with withheld metadata"
+  ],
+  "outputs": [
+    "Strictly validated public advisory reference in failed SCA CI on exact HEAD, or identifier-unavailable; actionable module remediation can then be scoped to verified OSV",
+    "Unit tests prove identity redaction and no change to fail-closed classification"
+  ],
+  "acceptance_tests": [
+    "parseGovulncheckStream still returns error and actionable count for a reachable OSV, now safe identifier",
+    "Module path, private symbol, package, raw scanner output never appear in error",
+    "Malformed/missing labels never leak and never pass",
+    "Exact-head engineering kernel failure reports only safe public advisory ID; vulnerability remains block until actual fix"
+  ],
+  "required_checks": [
+    "CHK-SCA-GO",
+    "CHK-SAST-GO",
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-SECURITY-TESTS"
+  ],
+  "definition_of_ready": [
+    "Known SCA-blocking reachable finding at PR #195 exact SHA and no OSV in available logs",
+    "Existing E4-SEC-002B owner/verification contract available"
+  ],
+  "definition_of_done": [
+    "New diagnostics source+tests on correct engineering owner, verified exact SHA with no weakening of SCA",
+    "Identify actionable OSV and actual affected module/Go fix path before any product acceptance"
+  ],
+  "performance_budget": {
+    "applicable": false,
+    "rationale": "String formatting over already-bounded scanner findings in development tool",
+    "metrics": []
+  },
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 2,
+    "estimated_net_loc": 45,
+    "production_files": 1,
+    "net_production_loc": 39,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}
