@@ -68,10 +68,17 @@ type TelemetryOwner interface {
 	ReadAuthorizedInspectionEvent(context.Context, Session, Request) (AuthorizedEvent, error)
 }
 
+// PivotAuthorizer is a separate host-owned action permission. Read access
+// alone never authorizes copying a field into a new Search Query draft.
+type PivotAuthorizer interface {
+	CanDraftPivot(context.Context, Session, Request, string, string) (bool, error)
+}
+
 type handler struct {
 	sessions SessionResolver
 	search   SearchOwner
 	events   TelemetryOwner
+	pivot    PivotAuthorizer
 }
 
 func NewHandler(sessions SessionResolver, search SearchOwner, events TelemetryOwner) (http.Handler, error) {
@@ -79,6 +86,21 @@ func NewHandler(sessions SessionResolver, search SearchOwner, events TelemetryOw
 		return nil, errors.New("inspection host requires independent trusted authorities")
 	}
 	return &handler{sessions: sessions, search: search, events: events}, nil
+}
+
+// NewHandlerWithPivotAuthorizer explicitly enables the additional Class-0
+// pivot action only when the host provides an independent permission check.
+// Existing NewHandler remains read-only: its pivot endpoint fails closed.
+func NewHandlerWithPivotAuthorizer(sessions SessionResolver, search SearchOwner, events TelemetryOwner, pivot PivotAuthorizer) (http.Handler, error) {
+	if nilAuthority(pivot) {
+		return nil, errors.New("pivot draft requires a separate trusted action authority")
+	}
+	h, err := NewHandler(sessions, search, events)
+	if err != nil {
+		return nil, err
+	}
+	h.(*handler).pivot = pivot
+	return h, nil
 }
 
 func nilAuthority(v any) bool {
@@ -94,6 +116,10 @@ func nilAuthority(v any) bool {
 }
 
 func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	if r.URL != nil && r.URL.Path == pivotRoute {
+		h.servePivot(w, r)
+		return
+	}
 	w.Header().Set("Cache-Control", "no-store")
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.Header().Set("X-Content-Type-Options", "nosniff")
@@ -135,32 +161,8 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		unavailable(w, http.StatusServiceUnavailable)
 		return
 	}
-	ctx, session, err := h.sessions.ResolveInspectionSession(r)
-	if err != nil || ctx == nil || ctx.Err() != nil || !validRef(session.Principal) ||
-		!validRef(session.Tenant) || !validRef(session.Environment) ||
-		session.Tenant != query.TenantRef || session.Environment != query.EnvironmentRef {
-		unavailable(w, http.StatusNotFound)
-		return
-	}
-	// Authorization is source-owned. The query and sourceHint never grant access.
-	allowed, err := h.search.CanInspectSearchResult(ctx, session, query)
-	if err != nil || !allowed || ctx.Err() != nil || r.Context().Err() != nil {
-		unavailable(w, http.StatusNotFound)
-		return
-	}
-	owned, err := h.events.ReadAuthorizedInspectionEvent(ctx, session, query)
-	if err != nil || !owned.Allowed || ctx.Err() != nil || r.Context().Err() != nil ||
-		owned.Event.Ref != query.EventRef || owned.Event.TenantRef != session.Tenant {
-		unavailable(w, http.StatusNotFound)
-		return
-	}
-	result := inspection.Project(inspection.Input{
-		TenantRef: session.Tenant, AuthorizedTenants: []string{session.Tenant},
-		EnvironmentRef: session.Environment, Permissions: []string{inspection.PermissionTelemetryRead},
-		RawAccessDecision: owned.RawDecision, RenderedAccessDecision: owned.RenderDecision,
-		CorrelationID: query.CorrelationID, Event: owned.Event,
-	})
-	if !result.Allowed || result.Projection == nil {
+	ctx, result, owned, _, authorized := h.authorizedInspection(r, query)
+	if !authorized {
 		unavailable(w, http.StatusNotFound)
 		return
 	}
@@ -176,6 +178,38 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusOK)
 	_, _ = w.Write(append(data, '\n'))
+}
+
+// authorizedInspection enforces host session, selected Search Job and Telemetry
+// Event boundaries for every read-only Inspector route; no request-supplied
+// permission or raw-field classification enters this trust boundary.
+func (h *handler) authorizedInspection(r *http.Request, query Request) (context.Context, inspection.Result, AuthorizedEvent, Session, bool) {
+	ctx, session, err := h.sessions.ResolveInspectionSession(r)
+	if err != nil || ctx == nil || ctx.Err() != nil || !validRef(session.Principal) ||
+		!validRef(session.Tenant) || !validRef(session.Environment) ||
+		session.Tenant != query.TenantRef || session.Environment != query.EnvironmentRef {
+		return nil, inspection.Result{}, AuthorizedEvent{}, Session{}, false
+	}
+	// Authorization is source-owned. The query and sourceHint never grant access.
+	allowed, err := h.search.CanInspectSearchResult(ctx, session, query)
+	if err != nil || !allowed || ctx.Err() != nil || r.Context().Err() != nil {
+		return nil, inspection.Result{}, AuthorizedEvent{}, Session{}, false
+	}
+	owned, err := h.events.ReadAuthorizedInspectionEvent(ctx, session, query)
+	if err != nil || !owned.Allowed || ctx.Err() != nil || r.Context().Err() != nil ||
+		owned.Event.Ref != query.EventRef || owned.Event.TenantRef != session.Tenant {
+		return nil, inspection.Result{}, AuthorizedEvent{}, Session{}, false
+	}
+	result := inspection.Project(inspection.Input{
+		TenantRef: session.Tenant, AuthorizedTenants: []string{session.Tenant},
+		EnvironmentRef: session.Environment, Permissions: []string{inspection.PermissionTelemetryRead},
+		RawAccessDecision: owned.RawDecision, RenderedAccessDecision: owned.RenderDecision,
+		CorrelationID: query.CorrelationID, Event: owned.Event,
+	})
+	if !result.Allowed || result.Projection == nil {
+		return nil, inspection.Result{}, AuthorizedEvent{}, Session{}, false
+	}
+	return ctx, result, owned, session, true
 }
 
 func validRef(s string) bool { return opaqueRef.MatchString(s) }

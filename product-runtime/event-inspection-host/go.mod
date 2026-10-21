@@ -1,6 +1,6 @@
 module github.com/tobianahillel-afk/cmdr/product-runtime/event-inspection-host
 
-go 1.26.8
+go 1.26.10
 
 require github.com/tobianahillel-afk/cmdr/product-runtime/event-inspection v0.0.0
 
