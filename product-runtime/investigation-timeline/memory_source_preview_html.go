@@ -1,9 +1,13 @@
 package investigationtimeline
 
 import (
+	"bytes"
+	"context"
+	"encoding/json"
 	"html/template"
 	"io"
 	"mime"
+	"net/http"
 	"strconv"
 	"strings"
 )
@@ -61,4 +65,38 @@ Ce lien rouvre la chronologie en réévaluant les autorisations et réinitialise
 
 func renderSourcePreviewHTML(out io.Writer, result sourcePreviewResponse) error {
 	return sourcePreviewHTMLTemplate.Execute(out, result)
+}
+// writeAuthorizedSourcePreview handles only presentation of a caller-verified
+// result. Authentication, Case/Entry permission, typed source identity and
+// owner.read were already checked in sourcePreviewHandler, not in this helper.
+// Keeping serialization separate allows deterministic canceled-request checks.
+func writeAuthorizedSourcePreview(w http.ResponseWriter, r *http.Request,
+	ctx context.Context, payload sourcePreviewResponse) {
+	if ctx.Err() != nil || r.Context().Err() != nil {
+		writeCaseTimelineError(w, http.StatusServiceUnavailable)
+		return
+	}
+	// Content negotiation is deliberately AFTER the entire existing owner
+	// chain; switching Accept never grants an additional read right.
+	if acceptsSourcePreviewHTML(r.Header.Get("Accept")) {
+		var page bytes.Buffer
+		if err := renderSourcePreviewHTML(&page, payload); err != nil ||
+			ctx.Err() != nil || r.Context().Err() != nil {
+			writeCaseTimelineError(w, http.StatusServiceUnavailable)
+			return
+		}
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		w.Header().Set("Content-Security-Policy", "default-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'")
+		w.Header().Set("Vary", "Authorization, Accept")
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write(page.Bytes())
+		return
+	}
+	encoded, err := json.Marshal(payload)
+	if err != nil {
+		writeCaseTimelineError(w, http.StatusServiceUnavailable)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	_, _ = w.Write(append(encoded, '\n'))
 }
