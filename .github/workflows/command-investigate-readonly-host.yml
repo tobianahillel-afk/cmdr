@@ -62,6 +62,26 @@ jobs:
           go tool cover -func=coverage.out
           pct="$(go tool cover -func=coverage.out | awk '/^total:/ {gsub(/%/, "", $3); print $3}')"
           awk -v value="$pct" 'BEGIN {exit !(value + 0 >= 90)}'
+      - name: Measure bounded same-origin router resources on Linux
+        if: matrix.os == 'ubuntu-latest'
+        working-directory: product-runtime/command-investigate-host
+        run: go test -run '^
+        if: matrix.os == 'ubuntu-latest'
+        working-directory: product-runtime/command-investigate-host
+        shell: bash
+        run: |
+          set -euo pipefail
+          files="$(gofmt -l host.go host_test.go)"
+          test -z "$files" || { echo "Unformatted: $files" >&2; exit 1; }
+ -bench '^BenchmarkSameOriginRouteResource
+        if: matrix.os == 'ubuntu-latest'
+        working-directory: product-runtime/command-investigate-host
+        shell: bash
+        run: |
+          set -euo pipefail
+          files="$(gofmt -l host.go host_test.go)"
+          test -z "$files" || { echo "Unformatted: $files" >&2; exit 1; }
+ -benchtime=250x -benchmem -count=1 .
       - name: Enforce gofmt on first-party composition (Linux canonical checkout)
         if: matrix.os == 'ubuntu-latest'
         working-directory: product-runtime/command-investigate-host
