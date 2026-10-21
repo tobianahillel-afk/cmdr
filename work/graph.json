@@ -1815,6 +1815,34 @@
         "E10-INV-004I-PIVOTHTTP"
       ],
       "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-INV-004K-BROWSERPIVOT"
+      ]
+    },
+    {
+      "id": "E10-INV-004H-HTTPBRIDGE",
+      "title": "Compose selected Event Search result with real loopback Go Inspector HTTP host",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-INV-004G-HOST",
+        "E10-INV-002G"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-INV-004K-BROWSERPIVOT"
+      ]
+    },
+    {
+      "id": "E10-INV-004K-BROWSERPIVOT",
+      "title": "Complete client-selected Inspector field to host-authorized read-only Search pivot draft journey",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-INV-004H-HTTPBRIDGE",
+        "E10-INV-004J-PIVOTFIX"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
       "unlocks": []
     }
   ]
