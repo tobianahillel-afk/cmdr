@@ -2129,6 +2129,19 @@
         "E10-CMD-106B-SOURCEJOIN"
       ],
       "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-CMD-106D-NAVIGATION"
+      ]
+    },
+    {
+      "id": "E10-CMD-106D-NAVIGATION",
+      "title": "Navigate from independently authorized linked Investigate Cases to existing read-only Timeline endpoint",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-CMD-106C-FRESHNESS"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
       "unlocks": []
     }
   ]
