@@ -146,7 +146,13 @@ export function normalizePivotDraft(input, request, inspected) {
     correlationId: input.correlationId,
     sourceRef: input.sourceRef, dataSourceRef: input.dataSourceRef,
     timeRange: { start: input.timeRange.start, end: input.timeRange.end },
-    returnContext: { ...input.returnContext }, auditRequired: true,
+    returnContext: {
+      tenantRef: input.returnContext.tenantRef,
+      environmentRef: input.returnContext.environmentRef,
+      eventRef: input.returnContext.eventRef,
+      correlationId: input.returnContext.correlationId,
+      origin: "event-search",
+    }, auditRequired: true,
   });
 }
 
