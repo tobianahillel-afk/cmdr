@@ -1,0 +1,15 @@
+# E10-INV-110G-UNIFICATION — unified read-only Case Timeline candidate
+
+## Authority and provenance
+Product canonical CAP-INV-110 Investigation Timeline, Case Investigate owner, Timeline Entry Shared owner, typed-source authorizations retained. Engineering parent E10-INV-110; dependent pre-existing tasks E10-INV-110F-SUPERSESSION and E10-INV-120C-MITREFIX both IMPLEMENTED not VERIFIED. Git base PR #190 `e26000e77642f4113973b60c294c2921ac5aa9d2` (corrected MITRE source and browser), separate sibling source PR #188 `0ee5d5a9b1c5d3ea9c8a36ea79230d79150d4d72`. A Git parent is not a business parent.
+
+Four **identical Git blobs** replayed from PR #188: `product-runtime/investigation-timeline/projection.go` blob `2ae38b0aae8134661ebef33134cda988c8aa4cdd`, `supersession_visibility_test.go` blob `503cab8a7361e53f5d337fa367739a174a61ef55`, manifest blob `97d2e4ccccb4736a6e82e20a1342b10c72fb50bc`, HANDOFF blob `d13ea79739ba94ea96a10237494c7a730a4debba`. The exact source SHA for all four is immutable; PR #188 is untouched. No change to MITRE files or Wazuh parsing/browser from #190.
+
+## Concrete combined behavior
+On the same owner-authorized Case Timeline Go tree: older visible Timeline Entry reports optional `superseded: true` when a separately authorized, version-validated visible successor exists, before pagination/filtering. Another local Case/Wazuh analysis path still reads operator-provided Wazuh 4.x alerts, validates `rule.mitre.id` strictly (including null guard), and produces source-attributed MITRE alert cohorts on existing authenticated loopback endpoint and browser. No extra IAM permission, data provider, mutation, Case correction API, search engine or deduced ATT&CK technique is created. These two read behaviors coexist and share the same Case Timeline module build/test suite; no single E2E production system claimed.
+
+## Proof required on integration SHA
+Run exact-SHA `investigation-timeline-runtime` workflow (Go tests, race, vet, Node/browser, Linux/macOS/Windows) and `engineering-kernel` mandatory manifest, complexity, security, SAST gates. The original CI and independent L2 of #188/#190 are source evidence but not substituted for this unified SHA. Check merge base, changed file list, source blob IDs and graph diff. Prior one-time L2 on #188 executed but report is not GitHub native APPROVED. L2 of #190 was scheduled separately; inspect its findings before integrating. These obligations are independent of this new candidate's possible CI success.
+
+## Known blockers
+PR #2 (canonical specification), #36 (engineering foundation), #187, #188 and #190 are Draft/unmerged. No proven independent native GitHub approval or production provider. `E10-INV-120A-SNAPSHOT` remains READY in the original graph even though much of its demo code exists; do not silently set VERIFIED. OPEN-013 still blocks Class-2 corrections, and no real customer IAM, persisted Case/Evidence, remote Wazuh or performance SLO has been proven. This is a reviewable consolidation branch, not a mainline release.
