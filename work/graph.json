@@ -2305,6 +2305,19 @@
         "E10-INV-110O-RETURNCTX"
       ],
       "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-CMD-106I-DEEPRETURN"
+      ]
+    },
+    {
+      "id": "E10-CMD-106I-DEEPRETURN",
+      "title": "Restore authorized off-page selected Command Incident after Case/source return",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-CMD-106H-RETURN"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
       "unlocks": []
     }
   ]
