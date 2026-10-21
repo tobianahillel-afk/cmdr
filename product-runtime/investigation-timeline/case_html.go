@@ -122,10 +122,10 @@ func wantsTimelineHTML(accept string) bool {
 // in an HTML link; the same server authorization runs on every new page.
 // Only the fixed loopback source-open route is ever emitted. Both selectors
 // are opaque identifiers already authorized in the displayed Case projection.
-func localSourceOpenURL(caseID, entryID, returnURL string) string {
+func localSourceOpenURL(caseID, entryID string, returnURLs ...string) string {
 	q := url.Values{"case_id": {caseID}, "entry_id": {entryID}}
-	if returnURL != "" {
-		q.Set("return_to", returnURL)
+	if len(returnURLs) != 0 && returnURLs[0] != "" {
+		q.Set("return_to", returnURLs[0])
 	}
 	return "/demo-source-open?" + q.Encode()
 }
