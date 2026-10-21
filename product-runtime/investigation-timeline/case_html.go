@@ -14,10 +14,7 @@ import (
 // representation. This template is not an independent permissions engine;
 // it receives only already-authorized and bounded ProjectedEntry values.
 var timelineHTMLTemplate = template.Must(template.New("case-timeline-html").Funcs(template.FuncMap{
-	"sourceURL": func(caseID, entryID string) string {
-		q := url.Values{"case_id": {caseID}, "entry_id": {entryID}}
-		return "/demo-source-open?" + q.Encode()
-	},
+	"sourceURL": localSourceOpenURL,
 }).Parse(`<!doctype html>
 <html lang="fr">
 <head>
@@ -122,6 +119,13 @@ func wantsTimelineHTML(accept string) bool {
 
 // Copy only validated query keys. No principal, scope or permission travels
 // in an HTML link; the same server authorization runs on every new page.
+// Only the fixed loopback source-open route is ever emitted. Both selectors
+// are opaque identifiers already authorized in the displayed Case projection.
+func localSourceOpenURL(caseID, entryID string) string {
+	q := url.Values{"case_id": {caseID}, "entry_id": {entryID}}
+	return "/demo-source-open?" + q.Encode()
+}
+
 func timelineHTMLPageURL(values url.Values, limit, offset int) string {
 	q := make(url.Values, len(values)+2)
 	for k, entries := range values {
