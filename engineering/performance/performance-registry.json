@@ -471,6 +471,34 @@
         }
       ],
       "rationale": "On-demand engineering-only coarse ceiling until a representative CMDR Command data provider and measured performance probe exist; never claim a production SLO or benchmark pass from registry presence."
+    },
+    {
+      "id": "PERF-TGT-COMMAND-INVESTIGATE-HOST",
+      "scope_kind": "product-runtime",
+      "boundary_id": "command-investigate-host-runtime",
+      "owner_path": "product-runtime/command-investigate-host/**",
+      "workload_key": "command-investigate-same-origin-routing-v1",
+      "workload_description": "Two-route read-only in-process HTTP dispatch onto the already independently-authorized Command Work Queue and Investigate Case Timeline handlers; does not measure real IAM, databases, external providers, network, TLS, browser rendering or production latency.",
+      "environment_id": "PERF-ENV-GITHUB-UBUNTU-SHARED",
+      "stages": [
+        "on-demand"
+      ],
+      "trigger_paths": [
+        "product-runtime/command-investigate-host/**",
+        "engineering/performance/performance-registry.json"
+      ],
+      "metrics": [
+        {
+          "id": "same-origin-host-p95-latency",
+          "kind": "latency",
+          "unit": "ms",
+          "aggregation": "p95",
+          "comparator": "upper-bound",
+          "budget": 50,
+          "max_relative_regression_percent": 0
+        }
+      ],
+      "rationale": "Provisional on-demand engineering budget for a bounded local composition; NOT a measured SLO or performance check outcome. No production IAM/provider available; representative owner latency and p95 request benchmark are deferred until integration benchmark fixture exists."
     }
   ]
 }
