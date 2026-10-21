@@ -103,6 +103,53 @@ export function normalizeInspection(input, request) {
   });
 }
 
+// A chosen field must exist in the authorized visible Inspector projection.
+function pivotOrigins(inspected, field, value) {
+  const result = [];
+  for (const [name, values] of [["source", inspected.sourceFields],
+    ["normalized", inspected.normalizedFields],
+    ["raw-derived-sensitive", inspected.rawDerivedSensitive]]) {
+    if (Object.hasOwn(values, field) && values[field] === value) result.push(name);
+  }
+  for (const enrichment of inspected.enrichments) {
+    if (Object.hasOwn(enrichment.values, field) && enrichment.values[field] === value) {
+      result.push(`enrichment:${enrichment.producer}@${enrichment.version}`);
+    }
+  }
+  return result;
+}
+
+// A draft is not a Query execution or permission token. Trust remains on Go.
+export function normalizePivotDraft(input, request, inspected) {
+  if (!record(input) || input.kind !== "pivot-draft" ||
+      input.targetCapability !== "CAP-INV-002" || input.auditRequired !== true ||
+      !FIELD.test(input.field ?? "") || input.field !== request.field ||
+      !text(input.value) || input.value !== request.value ||
+      input.jobId !== request.jobId || input.runId !== request.runId ||
+      input.timeRange?.start !== request.timeStart ||
+      input.timeRange?.end !== request.timeEnd) fail("invalid-pivot-draft");
+  for (const key of ["tenantRef", "environmentRef", "eventRef", "correlationId"]) {
+    if (input[key] !== request[key]) fail("pivot-scope-mismatch");
+  }
+  if (!record(input.returnContext) || input.returnContext.origin !== "event-search" ||
+      ["tenantRef", "environmentRef", "eventRef", "correlationId"].some(
+        key => input.returnContext[key] !== request[key])) fail("invalid-pivot-return");
+  if (input.sourceRef !== inspected.source.sourceRef ||
+      input.dataSourceRef !== inspected.source.dataSourceRef) fail("invalid-pivot-source");
+  const origins = pivotOrigins(inspected, request.field, request.value);
+  if (origins.length !== 1 || origins[0] !== input.fieldOrigin) fail("ambiguous-pivot-provenance");
+  return immutable({
+    kind: "pivot-draft", targetCapability: input.targetCapability,
+    field: input.field, value: input.value, fieldOrigin: input.fieldOrigin,
+    tenantRef: input.tenantRef, environmentRef: input.environmentRef,
+    eventRef: input.eventRef, jobId: input.jobId, runId: input.runId,
+    correlationId: input.correlationId,
+    sourceRef: input.sourceRef, dataSourceRef: input.dataSourceRef,
+    timeRange: { start: input.timeRange.start, end: input.timeRange.end },
+    returnContext: { ...input.returnContext }, auditRequired: true,
+  });
+}
+
 export function createEventInspectionJourney({ searchController, transport, onView = () => {} }) {
   if (typeof searchController?.getView !== "function" || typeof transport?.inspect !== "function" ||
       typeof onView !== "function") fail("invalid-journey");
@@ -155,12 +202,45 @@ export function createEventInspectionJourney({ searchController, transport, onVi
       if (!validSearch(start)) return publish({ kind: "unavailable" });
       if (record(response) && response.kind === "permission-denied") return publish({ kind: "unavailable" });
       const inspected = normalizeInspection(response, request);
-      openedFrom = { start, searchState: scope, resultWindow: snapshot.resultWindow };
+      openedFrom = { start, request, searchState: scope, resultWindow: snapshot.resultWindow };
       return publish({ kind: "inspected", inspection: inspected });
     } catch {
       if (generation !== sequence || control.signal.aborted) return { kind: "superseded" };
       openedFrom = undefined;
       return publish({ kind: "unavailable" });
+    } finally {
+      if (generation === sequence) abort = undefined;
+    }
+  }
+
+  async function draftPivot(field, value) {
+    const prior = view;
+    const origin = openedFrom;
+    if (prior.kind !== "inspected" || !origin ||
+        typeof transport.draftPivot !== "function" ||
+        !FIELD.test(field ?? "") || !text(value) ||
+        pivotOrigins(prior.inspection, field, value).length !== 1 ||
+        !validSearch(origin.start)) fail("pivot-not-available");
+    const job = origin.start.job;
+    if (!text(job.timeStart, 64) || !text(job.timeEnd, 64)) fail("pivot-invalid-time");
+    abort?.abort();
+    const generation = ++sequence;
+    const control = new AbortController();
+    abort = control;
+    const request = immutable({
+      ...origin.request, field, value, valuePresent: true,
+      timeStart: job.timeStart, timeEnd: job.timeEnd,
+    });
+    publish({ ...prior, pivotStatus: "loading", pivotDraft: undefined });
+    try {
+      const response = await transport.draftPivot(request, { signal: control.signal });
+      if (generation !== sequence || control.signal.aborted) return { kind: "superseded" };
+      if (!validSearch(origin.start)) return publish({ kind: "unavailable" });
+      const draft = normalizePivotDraft(response, request, prior.inspection);
+      return publish({ kind: "inspected", inspection: prior.inspection, pivotDraft: draft });
+    } catch {
+      if (generation !== sequence || control.signal.aborted) return { kind: "superseded" };
+      return publish({ kind: "inspected", inspection: prior.inspection, pivotStatus: "unavailable" });
     } finally {
       if (generation === sequence) abort = undefined;
     }
@@ -185,12 +265,12 @@ export function createEventInspectionJourney({ searchController, transport, onVi
     return publish({ kind: "search" });
   }
 
-  return Object.freeze({ open, back, close, getView: () => view });
+  return Object.freeze({ open, draftPivot, back, close, getView: () => view });
 }
 
 // Render with native DOM text-only sinks. This is a view of server-authorized
 // content, never an authorization mechanism or a parser/decoding engine.
-export function renderEventInspection(document, mount, current) {
+export function renderEventInspection(document, mount, current, { onDraftPivot } = {}) {
   if (typeof document?.createElement !== "function" ||
       typeof mount?.replaceChildren !== "function") fail("invalid-dom");
   const make = (tag, value = "") => {
@@ -227,6 +307,29 @@ export function renderEventInspection(document, mount, current) {
         group.append(make("p", `${field}: ${value}`));
       }
       section.append(group);
+    }
+    if (typeof onDraftPivot === "function") {
+      const pivot = make("section");
+      pivot.append(make("h3", "Prepare an authorized, unexecuted Search pivot draft"));
+      const choices = [
+        ...Object.entries(p.sourceFields),
+        ...Object.entries(p.normalizedFields),
+        ...Object.entries(p.rawDerivedSensitive),
+        ...p.enrichments.flatMap(e => Object.entries(e.values)),
+      ];
+      for (const [field, value] of choices) {
+        if (pivotOrigins(p, field, value).length !== 1) continue;
+        const button = make("button", `Prepare pivot: ${field} = ${value}`);
+        button.type = "button";
+        button.addEventListener("click", () => onDraftPivot(field, value));
+        pivot.append(button);
+      }
+      section.append(pivot);
+    }
+    if (current.pivotDraft) {
+      section.append(make("p", `Read-only draft, not executed: ${current.pivotDraft.field} = ${current.pivotDraft.value} | origin ${current.pivotDraft.fieldOrigin}`));
+    } else if (current.pivotStatus === "unavailable") {
+      section.append(make("p", "Pivot draft unavailable; no search was executed"));
     }
     for (const [label, item] of [["Raw", p.raw], ["Rendered", p.rendered]]) {
       section.append(make("h3", label));
