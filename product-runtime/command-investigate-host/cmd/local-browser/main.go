@@ -128,6 +128,37 @@ func (demoCommandOwner) ReadAuthorizedIncidentOverview(ctx context.Context, prin
 	}, nil
 }
 
+// Demonstration-only linked source authority. A readable Incident does NOT
+// imply readable Alert. The relationship and the Alert are independently checked.
+func (demoCommandOwner) ReadAuthorizedIncidentAlertReferences(ctx context.Context, principal, tenant, environment, incidentID string) ([]queue.IncidentAlertReference, error) {
+	if ctx.Err() != nil {
+		return nil, errors.New("alert link source canceled")
+	}
+	if principal != "analyst" || tenant != demoTenant || environment != demoEnvironment || incidentID != "incident-a" {
+		return nil, nil
+	}
+	return []queue.IncidentAlertReference{{
+		IncidentID: incidentID, AlertID: "alert-a", Tenant: tenant, Environment: environment,
+	}}, nil
+}
+
+// The simulated Alert.read owner is narrower than Incident.read and rechecks
+// caller, tenant and environment on every request.
+func (demoCommandOwner) ReadAuthorizedIncidentAlert(ctx context.Context, principal, tenant, environment, alertID string) (*queue.AuthorizedIncidentAlert, error) {
+	if ctx.Err() != nil {
+		return nil, errors.New("alert source canceled")
+	}
+	if principal != "analyst" || tenant != demoTenant || environment != demoEnvironment || alertID != "alert-a" {
+		return nil, nil
+	}
+	return &queue.AuthorizedIncidentAlert{
+		ID: alertID, Tenant: tenant, Environment: environment,
+		Severity: "medium", Status: "triaged", Disposition: "linked",
+		SourceRef: "synthetic-command-alert-owner", SourceVersion: "v1",
+		ObservedAt: "2026-10-21T02:00:00Z",
+	}, nil
+}
+
 func (o demoCommandOwner) ReadAuthorizedLinkedCases(ctx context.Context, principal, tenant, environment, incidentID string) (*queue.AuthorizedLinkedCases, error) {
 	return o.linked.ReadAuthorizedLinkedCases(ctx, principal, tenant, environment, incidentID)
 }
