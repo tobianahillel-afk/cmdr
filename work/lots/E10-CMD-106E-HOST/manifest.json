@@ -1,0 +1,146 @@
+{
+  "schema_version": 2,
+  "id": "E10-CMD-106E-HOST",
+  "title": "Compose independently authorized Command Incident → Investigate Case Timeline on a single local HTTP origin",
+  "type": "task",
+  "parent": "E10-CMD-106",
+  "goal": "Make the existing independently authorized Command Work Queue linked-Case navigation of E10-CMD-106D actually traversable to the existing read-only Investigate Case Timeline handler within one server host, without transferring source permissions, adding IAM, claiming production or creating a second domain engine.",
+  "depends_on": [
+    "E10-CMD-106D-NAVIGATION",
+    "E10-INV-110E"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-CMD-106",
+      "CAP-CMD-101",
+      "CAP-INV-110"
+    ],
+    "requirements": [
+      "REQ-OBJ-001",
+      "REQ-PROD-003",
+      "REQ-PROD-008",
+      "REQ-PROD-013",
+      "REQ-PROD-014",
+      "REQ-SEC-001"
+    ],
+    "screens": [
+      "CMD-IWQ-006",
+      "INV-TIM-001"
+    ],
+    "permissions": [
+      "perm.command.incident.read",
+      "perm.investigate.case.read",
+      "perm.shared-capabilities.timeline-entry.read"
+    ],
+    "open_decisions": [
+      "OPEN-013"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/incident.md",
+      "cmdr-product-spec/05-domain-model/objects/case.md",
+      "cmdr-product-spec/05-domain-model/objects/timeline-entry.md"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/12-shared-capabilities/object-linking-service.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/command-investigate-host/**",
+    ".github/workflows/command-investigate-readonly-host.yml",
+    "engineering/architecture/boundaries.json",
+    "engineering/security/runtime-security-policy.json",
+    "work/lots/E10-CMD-106E-HOST/**",
+    "work/graph.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/work-queue/**",
+    "product-runtime/investigation-timeline/**",
+    "product-runtime/event-search/**",
+    "product-runtime/event-inspection/**",
+    "tools/cmdr-dev/**"
+  ],
+  "invariants": [
+    "The host routes only exact GET/POST requests under /command/work-queue and /case-timeline, delegating method enforcement to the two original domain handlers; no proxy/rewrite/auth token, no arbitrary URL, no redirect.",
+    "Command Incident CanRead and independently authorized Shared Object Linking + Investigate Case data produce only a navigation pointer. Each destination GET independently authenticates a new request and performs Investigate Case, Timeline Entry and typed-source checks; no permission transfer or trusted client scope.",
+    "A user with Command Incident.read but without Investigate Case.read can see only an independently allowed Case ID link, not its Timeline entries nor underlying source metadata.",
+    "All additional source output belongs to the original handlers, never to this router; no new Case owner, persisted object, mutation endpoint, Class-2 operation or production deployment.",
+    "Existing Go 1.26.10 work-queue and investigation-timeline module boundaries are reused through pinned local replaces; do not introduce external runtime dependencies or paid APIs.",
+    "Existing #195 and #197 SHA remain frozen and unchanged; this new branch descends #197 only as Git parent, not business parent."
+  ],
+  "security_properties": [
+    "Fail closed if either required handler is missing; unsupported paths cannot reach an owner adapter.",
+    "Preserve existing HTTP no-store and generic denied responses, prevent caching and referrer disclosure at the composition boundary.",
+    "No client-supplied tenant/environment, principal, permission or token is forwarded as authority; only pre-existing handlers perform their own scope authorization.",
+    "Source data returned by Timeline MUST NOT be available to a Command-only authorized principal; no implicit HTTP session role elevation."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Pure local same-origin read-only handler composition with no persistent records, schema or external side effects.",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Remove new host route composition module; leave both original Go handlers and HTML navigation references untouched.",
+    "verification": [
+      "Command Work Queue remains independently available",
+      "Investigate Case Timeline remains independently available",
+      "No object or data migration required"
+    ]
+  },
+  "inputs": [
+    "CAP-CMD-106 authorized cross-product links and E10-CMD-106D navigation pointer from already independently source-authorized linked Case",
+    "CAP-INV-110 owner-rechecked GET /case-timeline API from E10-INV-110E",
+    "Existing historical reviewed PR #195 SHA 6e5daab6d26662ecd2821d8d3c2f2bfefc1aa792, #197 security Go 1.26.10 SHA 87bcb604fd388d26f4919d5c6bb6c3c489528bda"
+  ],
+  "outputs": [
+    "New embeddable NewHandler(Command http.Handler, Timeline http.Handler) reuses the two existing read-only services on one origin, with route isolation and no extra IAM decisions.",
+    "Cross-module Go httptest follows a real Case link rendered by Command into the real Timeline HTTP handler and demonstrates independent source checks, including a Command-only reader denied at destination.",
+    "Cross-platform Go CI on exact commit, Linux race, go vet, gofmt, 90% host statement coverage and mandatory engineering-security gate."
+  ],
+  "acceptance_tests": [
+    "Actual selected Incident HTML contains same-origin /case-timeline?case_id=Case ID with no tenant or token.",
+    "Following that link through the same HTTP host returns source-authorized Case Timeline JSON for the valid Investigate reader.",
+    "A second principal with identical Command Incident read rights but no Investigate Case read rights receives no protected Case/Entry/source content at destination.",
+    "Anonymous, wrong token, invalid Case query, invalid path, mutation and nil handler fail closed.",
+    "Existing individual handlers remain unchanged; cross-tenant/session privileges not transferable.",
+    "Exact GitHub SHA validates Go compile/unit/race/vet/coverage on Linux, Windows, macOS and engineering schema/security checks."
+  ],
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-RUNTIME-DEPS",
+    "CHK-SECURITY-TESTS",
+    "CHK-SAST-GO",
+    "CHK-SCA-GO",
+    "command-investigate-readonly-host"
+  ],
+  "definition_of_ready": [
+    "CAP-CMD-106D navigation and CAP-INV-110E read-only Case Timeline host already IMPLEMENTED/VERIFIED, no OPEN-013 Class-2 operation needed.",
+    "Existing Go 1.26.10 module contracts and first-party read-only route constructors accessible.",
+    "No missing product decision to compose two already authorized GET handlers locally."
+  ],
+  "definition_of_done": [
+    "Both existing real Go handlers mounted under a single origin and tested through a selected Incident Case link without rights transfer.",
+    "GitHub exact-head CI for new module and mandatory engineering kernel SUCCESS, no security gate relaxed.",
+    "Second-party L2 review scoped to new host trust boundary and changed cross-module contract, no production or native-approved claim."
+  ],
+  "performance_budget": {
+    "applicable": false,
+    "rationale": "Bounded constant-time route dispatch only; existing Command/Case owner-query costs remain governed by their original module work units. No new production runtime SLO or comparable benchmark.",
+    "metrics": []
+  },
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 4,
+    "estimated_net_loc": 90,
+    "production_files": 2,
+    "net_production_loc": 80,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}
