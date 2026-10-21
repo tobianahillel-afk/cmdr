@@ -89,9 +89,14 @@ func TestWazuhMITREExplicitNullAndMalformedObjectsFailClosed(t *testing.T) {
 	} {
 		t.Run(metadata, func(t *testing.T) {
 			alerts := writeJSONLEvents(t,
-				"{\"id\":\"bad-metadata\",\"timestamp\":\"2026-10-01T10:00:00Z\",\"rule\":{\"id\":\"5710\",\"level\":7,\"mitre\":"+
+				"{\"id\":\"bad-metadata\",\"timestamp\":\"2026-10-01T10:00:00Z\",\"rule\":{\"id\":\"5710\",\"level\":7,\"description\":\"source-preview\",\"mitre\":"+
 					metadata+"}}\n",
 			)
+			// Exercise the MITRE parser itself, rather than treating an earlier
+			// generic Wazuh import rejection as proof of this source rule.
+			if _, err := wazuhRuleLevels([]byte("{\"id\":\"bad-metadata\",\"rule\":{\"id\":\"5710\",\"mitre\":"+metadata+"}}\n"), "case-a"); err == nil {
+				t.Fatalf("MITRE parser accepted malformed source metadata %s", metadata)
+			}
 			var receipt bytes.Buffer
 			err := writeDemoWazuh4Triage(context.Background(), "analyst-a", owner, "case-a", alerts, &receipt)
 			if err == nil || receipt.Len() != 0 {
@@ -101,7 +106,7 @@ func TestWazuhMITREExplicitNullAndMalformedObjectsFailClosed(t *testing.T) {
 	}
 	// A missing optional MITRE object remains a normal unmapped alert.
 	alerts := writeJSONLEvents(t,
-		"{\"id\":\"unmapped\",\"timestamp\":\"2026-10-01T10:00:00Z\",\"rule\":{\"id\":\"5710\",\"level\":0}}\n",
+		"{\"id\":\"unmapped\",\"timestamp\":\"2026-10-01T10:00:00Z\",\"rule\":{\"id\":\"5710\",\"level\":0,\"description\":\"source-preview\"}}\n",
 	)
 	var receipt bytes.Buffer
 	if err := writeDemoWazuh4Triage(context.Background(), "analyst-a", owner, "case-a", alerts, &receipt); err != nil {
