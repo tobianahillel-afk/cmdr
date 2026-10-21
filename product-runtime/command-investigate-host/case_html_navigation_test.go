@@ -16,12 +16,13 @@ func TestCommandLinkedCaseOpensActualOwnerAuthorizedHTMLTimeline(t *testing.T) {
 		"/command/work-queue?view=incidents&selected=Incident:incident-a",
 		"Bearer analyst", "text/html")
 	link := "/case-timeline?case_id=case-a"
+	originLink := link + "&origin_incident=incident-a"
 	if origin.Code != http.StatusOK ||
-		!strings.Contains(html.UnescapeString(origin.Body.String()), "href=\""+link+"\"") ||
+		!strings.Contains(html.UnescapeString(origin.Body.String()), "href=\""+originLink+"\"") ||
 		commandOwner.lookups != 1 {
 		t.Fatalf("Command did not expose an authorized linked Case: %d %s", origin.Code, origin.Body.String())
 	}
-	page := request(host, link+"&limit=1&offset=0", "Bearer analyst", "text/html")
+	page := request(host, originLink+"&limit=1&offset=0", "Bearer analyst", "text/html")
 	if page.Code != http.StatusOK || page.Header().Get("Content-Type") != "text/html; charset=utf-8" ||
 		!strings.Contains(page.Body.String(), "<h1>Chronologie du Case</h1>") ||
 		!strings.Contains(page.Body.String(), "event-a") ||
