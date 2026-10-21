@@ -98,15 +98,24 @@
       if (hasTechniques) {
         const validTechnique = value =>
           typeof value === "string" && /^T[0-9]{4}(?:\.[0-9]{3})?$/.test(value);
-        if (!Array.isArray(data.top_techniques) || data.top_techniques.length > 10 ||
-            !Number.isSafeInteger(data.distinct_technique_ids) ||
-            data.distinct_technique_ids < data.top_techniques.length ||
-            data.distinct_technique_ids > 80000 ||
+        const mapped = data.imported_entries - data.unmapped_technique_alerts;
+        const top = data.top_techniques;
+        if (!Array.isArray(top) ||
             !validCount(data.unmapped_technique_alerts) ||
             data.unmapped_technique_alerts > data.imported_entries ||
-            data.top_techniques.some(a => !a || !validTechnique(a.technique_id) ||
-              !validCount(a.count) || a.count < 1 || a.count > data.imported_entries ||
-              !validLevel(a.highest_known_rule_level))) {
+            !Number.isSafeInteger(data.distinct_technique_ids) ||
+            data.distinct_technique_ids < 0 ||
+            data.distinct_technique_ids > mapped * 16 ||
+            top.length !== Math.min(10, data.distinct_technique_ids) ||
+            top.some(a => !a || !validTechnique(a.technique_id) ||
+              !Number.isSafeInteger(a.count) || a.count < 1 || a.count > mapped ||
+              !validLevel(a.highest_known_rule_level)) ||
+            new Set(top.map(a => a.technique_id)).size !== top.length ||
+            top.some((a, i) => i > 0 &&
+              (a.count > top[i - 1].count ||
+               (a.count === top[i - 1].count && a.technique_id <= top[i - 1].technique_id))) ||
+            (data.distinct_technique_ids <= 10 &&
+             top.reduce((sum, a) => sum + a.count, 0) < mapped)) {
           throw Error("Invalid Wazuh ATT&CK source cohorts");
         }
       } else if (data.distinct_technique_ids !== undefined ||
