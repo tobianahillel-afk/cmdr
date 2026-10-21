@@ -9,6 +9,7 @@ import (
 	"io"
 	"net"
 	"net/http"
+	"net/url"
 	"net/http/httptest"
 	"regexp"
 	"strings"
@@ -420,12 +421,29 @@ func TestLocalBrowserCaseTimelineOpensOnlyFreshlyAuthorizedSource(t *testing.T) 
 		t.Fatalf("trusted host did not expose existing source handler: %s", page)
 	}
 	sourcePath := html.UnescapeString(urls[1])
-	if sourcePath != "/demo-source-open?case_id=case-a&entry_id=event-v1" ||
+	sourceLink, err := url.Parse(sourcePath)
+	if err != nil || sourceLink.Path != "/demo-source-open" ||
+		sourceLink.Query().Get("case_id") != "case-a" ||
+		sourceLink.Query().Get("entry_id") != "event-v1" ||
+		sourceLink.Query().Get("return_to") != timelinePath ||
+		len(sourceLink.Query()) != 3 ||
 		strings.Contains(sourcePath, "source-v1") || strings.Contains(sourcePath, secrets.analyst) {
-		t.Fatalf("client acquired source selector or credential: %q", sourcePath)
+		t.Fatalf("client acquired a source selector or unsafe return context: %q, err=%v", sourcePath, err)
 	}
 	opened := demoRequest(t, client, server.URL, sourcePath, "analyst", secrets.analyst, "text/html")
 	preview := demoBody(t, opened)
+	returnLinks := regexp.MustCompile(`href="(/case-timeline[?][^"]+)"`).FindStringSubmatch(preview)
+	if len(returnLinks) != 2 {
+		t.Fatalf("source HTML has no authenticated Case return: %s", preview)
+	}
+	returnPath := html.UnescapeString(returnLinks[1])
+	if returnPath != timelinePath {
+		t.Fatalf("browser source return lost the original permitted selection: got=%q want=%q", returnPath, timelinePath)
+	}
+	returned := demoRequest(t, client, server.URL, returnPath, "analyst", secrets.analyst, "text/html")
+	if returned.StatusCode != http.StatusOK || !strings.Contains(demoBody(t, returned), "event-v1") {
+		t.Fatal("source return failed to reauthorize original Case, filters and pagination")
+	}
 	if opened.StatusCode != http.StatusOK || !strings.Contains(preview, "original observed event") ||
 		!strings.Contains(preview, "Source de la chronologie") ||
 		!strings.Contains(preview, "object-v1") ||
