@@ -44,7 +44,7 @@ func TestLinkedCaseNavigationOnlyForIndependentlyAuthorizedSelectedIncident(t *t
     markup := html.UnescapeString(selected.Body.String())
     // The path MUST include URL-encoded query values: an untrusted source
     // Case ID with ampersand/hash cannot create a tenant or environment query.
-    wantLink := "/case-timeline?case_id=" + url.QueryEscape("case-allowed&tenant=forged#x")
+    wantLink := "/case-timeline?case_id=" + url.QueryEscape("case-allowed&tenant=forged#x") + "&origin_incident=" + url.QueryEscape("inc-a")
     if !strings.Contains(markup, "href=\""+wantLink+"\"") ||
         !strings.Contains(markup, "autorisation revérifiée à la destination") {
         t.Fatalf("Case navigation missing or improperly encoded: %s", markup)
@@ -53,7 +53,8 @@ func TestLinkedCaseNavigationOnlyForIndependentlyAuthorizedSelectedIncident(t *t
     if err != nil {
         t.Fatal(err)
     }
-    if parsed.Path != "/case-timeline" || len(parsed.Query()) != 1 ||
+    if parsed.Path != "/case-timeline" || len(parsed.Query()) != 2 ||
+        parsed.Query().Get("origin_incident") != "inc-a" ||
         parsed.Query().Get("case_id") != "case-allowed&tenant=forged#x" {
         t.Fatalf("unsafe Case destination query: %v", parsed)
     }
