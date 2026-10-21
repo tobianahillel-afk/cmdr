@@ -2426,6 +2426,17 @@
       ],
       "dependency_terminal_state": "IMPLEMENTED",
       "unlocks": []
+    },
+    {
+      "id": "E10-INV-120B-MITRE",
+      "title": "Owner-authorized local Wazuh ATT&CK source technique cohorts shown in analyst UI",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-INV-110E"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": []
     }
   ]
 }

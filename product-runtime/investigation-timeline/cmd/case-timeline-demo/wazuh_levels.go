@@ -21,6 +21,7 @@ type wazuhRuleLevel struct {
 	Known   bool
 	RuleID  string
 	AgentID string
+	MITREIDs []string
 }
 
 // Host/agent grouping is derived only from already authorized alert entries.
@@ -29,6 +30,14 @@ type wazuhAgentCount struct {
 	Count                 int    `json:"count"`
 	DistinctRuleIDs       int    `json:"distinct_rule_ids"`
 	HighestKnownRuleLevel *int   `json:"highest_known_rule_level,omitempty"`
+}
+
+// An ATT&CK technique label as claimed by authorized Wazuh rule metadata.
+// This is a source attribution, never a verified behavioral classification.
+type wazuhMITRETechniqueCount struct {
+	TechniqueID string `json:"technique_id"`
+	Count int `json:"count"`
+	HighestKnownRuleLevel *int `json:"highest_known_rule_level,omitempty"`
 }
 
 type wazuhLevelCount struct {
@@ -68,6 +77,9 @@ type wazuhRuleTriageReceipt struct {
 	DistinctAgentIDs int `json:"distinct_agent_ids"`
 	UnknownAgentIDs int `json:"unknown_agent_ids"`
 	TopAgents []wazuhAgentCount `json:"top_agents"`
+	DistinctTechniqueIDs int `json:"distinct_technique_ids"`
+	UnmappedTechniqueAlerts int `json:"unmapped_technique_alerts"`
+	TopTechniques []wazuhMITRETechniqueCount `json:"top_techniques"`
 	DistinctTimeWindows int `json:"distinct_time_windows"`
 	PeakWindows []wazuhAlertWindow `json:"peak_windows"`
 	UnplacedAlerts int `json:"unplaced_alerts"`
@@ -87,6 +99,9 @@ func wazuhRuleLevels(raw []byte, caseID string) (map[string]wazuhRuleLevel, erro
 			Rule struct {
 				Level *int   `json:"level"`
 				ID    string `json:"id"`
+			MITRE struct {
+				ID []string `json:"id"`
+			} `json:"mitre"`
 			} `json:"rule"`
 		}
 		if err := json.Unmarshal(line, &alert); err != nil {
@@ -98,6 +113,21 @@ func wazuhRuleLevels(raw []byte, caseID string) (map[string]wazuhRuleLevel, erro
 			return nil, errors.New("duplicate Wazuh rule identity")
 		}
 		level := wazuhRuleLevel{RuleID: alert.Rule.ID, AgentID: alert.Agent.ID}
+		// Source ATT&CK annotations are untrusted metadata, not IAM or
+		// proof that a technique occurred. Deduplicate within each alert.
+		if len(alert.Rule.MITRE.ID) > 16 {
+			return nil, errors.New("too many Wazuh technique labels")
+		}
+		seen := make(map[string]bool, len(alert.Rule.MITRE.ID))
+		for _, technique := range alert.Rule.MITRE.ID {
+			if !validWazuhTechniqueID(technique) {
+				return nil, errors.New("invalid Wazuh ATT&CK technique label")
+			}
+			if !seen[technique] {
+				seen[technique] = true
+				level.MITREIDs = append(level.MITREIDs, technique)
+			}
+		}
 		// Wazuh 4.x rule.id is a decimal string, not an ACL or alert ID.
 		// Restrict its width and alphabet before including it in a receipt.
 		if len(level.RuleID) > 16 {
@@ -127,6 +157,33 @@ func wazuhRuleLevels(raw []byte, caseID string) (map[string]wazuhRuleLevel, erro
 		result[entryID] = level
 	}
 	return result, nil
+}
+
+// Accept only canonical source labels T#### and T####.###, never arbitrary
+// descriptions, URLs, executable expressions or user-supplied permission IDs.
+func validWazuhTechniqueID(id string) bool {
+	if len(id) != 5 && len(id) != 9 {
+		return false
+	}
+	if id[0] != 'T' {
+		return false
+	}
+	for i := 1; i < 5; i++ {
+		if id[i] < '0' || id[i] > '9' {
+			return false
+		}
+	}
+	if len(id) == 9 {
+		if id[5] != '.' {
+			return false
+		}
+		for i := 6; i < 9; i++ {
+			if id[i] < '0' || id[i] > '9' {
+				return false
+			}
+		}
+	}
+	return true
 }
 
 // writeDemoWazuh4RuleTriage adds genuine source rule-level analysis to the
@@ -159,14 +216,30 @@ func writeDemoWazuh4RuleTriageWithData(ctx context.Context, principal string, me
 	windows := make(map[string]*wazuhAlertWindow)
 	rules := make(map[string]*wazuhRuleIDCount)
 	agents := make(map[string]*wazuhAgentCount)
+	techniques := make(map[string]*wazuhMITRETechniqueCount)
 	agentRules := make(map[string]map[string]bool)
-	visibleImported, unknown, unplaced, unknownRules, unknownAgents := 0, 0, 0, 0, 0
+	visibleImported, unknown, unplaced, unknownRules, unknownAgents, unmappedTechniques := 0, 0, 0, 0, 0, 0
 	receipt, err := collectDemoCaseTriageWithObserver(ctx, handler, token, intoCase, func(entry timeline.ProjectedEntry) error {
 		level, exists := levels[entry.ID]
 		if !exists {
 			return nil
 		}
 		visibleImported++
+		if len(level.MITREIDs) == 0 {
+			unmappedTechniques++
+		}
+		for _, techniqueID := range level.MITREIDs {
+			technique := techniques[techniqueID]
+			if technique == nil {
+				technique = &wazuhMITRETechniqueCount{TechniqueID: techniqueID}
+				techniques[techniqueID] = technique
+			}
+			technique.Count++
+			if level.Known && (technique.HighestKnownRuleLevel == nil || level.Level > *technique.HighestKnownRuleLevel) {
+				highest := level.Level
+				technique.HighestKnownRuleLevel = &highest
+			}
+		}
 		if level.Known {
 			counts[level.Level]++
 		} else {
@@ -298,6 +371,21 @@ func writeDemoWazuh4RuleTriageWithData(ctx context.Context, principal string, me
 	if len(topAgents) > 10 {
 		topAgents = topAgents[:10]
 	}
+	// A Wazuh alert may carry multiple ATT&CK labels, so technique counts
+	// are tag occurrences across visible alerts, not an exclusive partition.
+	topTechniques := make([]wazuhMITRETechniqueCount, 0, len(techniques))
+	for _, technique := range techniques {
+		topTechniques = append(topTechniques, *technique)
+	}
+	sort.Slice(topTechniques, func(i, j int) bool {
+		if topTechniques[i].Count != topTechniques[j].Count {
+			return topTechniques[i].Count > topTechniques[j].Count
+		}
+		return topTechniques[i].TechniqueID < topTechniques[j].TechniqueID
+	})
+	if len(topTechniques) > 10 {
+		topTechniques = topTechniques[:10]
+	}
 	histogram := make([]wazuhLevelCount, 0, len(keys))
 	for _, level := range keys {
 		histogram = append(histogram, wazuhLevelCount{Level: level, Count: counts[level]})
@@ -309,5 +397,6 @@ func writeDemoWazuh4RuleTriageWithData(ctx context.Context, principal string, me
 		DistinctRuleIDs: len(rules), UnknownRuleIDs: unknownRules, TopRules: topRules,
 		DistinctAgentIDs: len(agents), UnknownAgentIDs: unknownAgents, TopAgents: topAgents,
 		DistinctTimeWindows: len(windows), PeakWindows: peaks, UnplacedAlerts: unplaced,
+		DistinctTechniqueIDs: len(techniques), UnmappedTechniqueAlerts: unmappedTechniques, TopTechniques: topTechniques,
 	})
 }
