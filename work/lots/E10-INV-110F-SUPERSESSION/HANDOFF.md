@@ -18,3 +18,10 @@ The CAP-INV-110 canonical timeline requires corrections and superseded older ver
 ## Release evidence and handoff
 
 This document is committed as the audit handoff before CI. The PR must record exact candidate HEAD, changed files, mandatory engineering checks, `go test -race` and `go vet` as GitHub-visible evidence. No independent L2 review and no production acceptance have occurred at authoring; report their actual later statuses separately. A native independent GitHub APPROVED review, merged upstream `#36/#2`, real IAM/Shared Timeline source, correction permission/audit workflow and final analyst UI remain outside this bounded increment.
+
+
+## Existing local analyst UI now consumes the authorized state (same bounded lot)
+
+The existing `product-runtime/investigation-timeline/cmd/case-timeline-demo/analyst.js` read-only Case Timeline renders **État : Remplacée (version ultérieure autorisée visible)** only if the independently authorized HTTP projection explicitly provides `superseded: true`. It does not invent a `Courante` assertion for a missing/false field or show an inaccessible successor ID. The original source-open action reauthorizes the same Entry and typed source; there is no new endpoint or privilege. The optional field preserves legacy JSON compatibility; non-boolean and malformed source supersession metadata is rejected *before* rendering any entries. `analyst_return.test.cjs` verifies permitted supersession and legacy UI, rejects malformed values without partial output.
+
+The task manifest now explicitly allows these two JS/test files and keeps Go demo internals outside scope. Together with the existing Go projection/HTTP test, this is **one coherent read-only behavior, two components**, not a second Timeline engine, automatic correction, or an IAM bypass. Work-graph status is IMPLEMENTED, not VERIFIED, reviewed, merged, or production. Re-run and record exact-SHA CI after this handoff commit; historical workflow success does not cover later commits.
