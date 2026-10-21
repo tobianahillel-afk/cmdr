@@ -1,0 +1,120 @@
+{
+  "schema_version": 2,
+  "id": "E10-INV-110G-UNIFICATION",
+  "title": "Consolidated Case Timeline runtime with authorized supersession and corrected Wazuh ATT&CK labels",
+  "type": "task",
+  "parent": "E10-INV-110",
+  "goal": "Unify already implemented source-verified CAP-INV-110 read-only behaviors from two non-conflicting sibling Git histories in a single executable Go Timeline candidate; preserve exact reviewed content and evidence without another engine, premature production acceptance, or mainline merge.",
+  "depends_on": [
+    "E10-INV-110F-SUPERSESSION",
+    "E10-INV-120C-MITREFIX"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-110"
+    ],
+    "requirements": [
+      "REQ-PROD-014",
+      "REQ-PROD-018"
+    ],
+    "screens": [
+      "INV-TIM-001"
+    ],
+    "permissions": [
+      "perm.shared-capabilities.timeline-entry.read"
+    ],
+    "open_decisions": [
+      "OPEN-013"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/case.md",
+      "cmdr-product-spec/05-domain-model/objects/timeline-entry.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/investigation-timeline/projection.go",
+    "product-runtime/investigation-timeline/supersession_visibility_test.go",
+    "work/lots/E10-INV-110F-SUPERSESSION/**",
+    "work/lots/E10-INV-110G-UNIFICATION/**",
+    "work/graph.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/investigation-timeline/cmd/case-timeline-demo/**",
+    "product-runtime/investigation-timeline/memory_provider.go"
+  ],
+  "invariants": [
+    "Product owner Investigate CAP-INV-110; Shared owns Timeline Entry, authorizing sources retain identity; engineering parent E10-INV-110 distinct from Git parent PR #190.",
+    "Git parent PR #190 fixed SHA e26000e77642f4113973b60c294c2921ac5aa9d2; four source files identical Git blob SHA to PR #188 fixed SHA 0ee5d5a9b1c5d3ea9c8a36ea79230d79150d4d72; do not rewrite either audited SHA.",
+    "A superseded flag requires a successor already independently authorized in the same visible Case/Timeline source set; no inference from denied sources.",
+    "Wazuh metadata/parser and browser source-cohort validations from #190 are retained exactly; Wazuh MITRE source claim is not confirmed attacker behavior.",
+    "No new authorization engine, source connector, API route, workflow engine, mutation, persistence, Evidence or production claim.",
+    "Existing 120A-SNAPSHOT READY graph state remains historical and is not silently marked VERIFIED."
+  ],
+  "security_properties": [
+    "Case, tenant, environment, Timeline and typed source permissions remain host/owner-side before projection.",
+    "Supersession flag never exposes denied successor IDs; Wazuh raw alerts/labels still bounded by existing authorized source projection.",
+    "Integration does not transfer an independent L2 approval, native reviewer approval or CI between SHAs."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "No persisted schema or code migration: source-identical compositional branch and additive read-only JSON.",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Do not merge candidate; original separate PR #188 and #190 remain intact and independently reviewable.",
+    "verification": [
+      "#188 source blobs match",
+      "Existing #190 MITRE files retained",
+      "GitHub checks on exact integrated commit"
+    ]
+  },
+  "inputs": [
+    "Reviewed-in-isolation PR #188 exact 0ee5d5a9b1c5d3ea9c8a36ea79230d79150d4d72 with 3OS+kernel CI SUCCESS; prior ChatGPT L2 task executed, verdict still requires reconciliation.",
+    "Corrected Wazuh MITRE PR #190 exact e26000e77642f4113973b60c294c2921ac5aa9d2 with 3OS+kernel CI SUCCESS; L2 task scheduled, final verdict not presumed.",
+    "Canonical CAP-INV-110 timeline authorizes read-only visible supersession and source-aware Case investigation."
+  ],
+  "outputs": [
+    "One Git branch and PR where unchanged owner-visible supersession projection and corrected local Wazuh source-cohort workflow coexist in the same Go Timeline module.",
+    "Deterministic union of work graph tasks with sources retained, one small integration manifest and handoff, no duplicate functional engine."
+  ],
+  "acceptance_tests": [
+    "Combined Timeline Go module and Case demo tests including supersession, Wazuh null-source guard and source-cohort UI run on exact GitHub SHA.",
+    "Run full Linux race and Go vet, browser Node tests, cross-platform Go Actions and mandatory engineering kernel on the same commit.",
+    "Resolve any material L2 findings for #188 and #190 before marking integration accepted or merging.",
+    "No existing test/security gate relaxed, no auto-upgrade to VERIFIED/ACCEPTED."
+  ],
+  "required_checks": [
+    "investigation-timeline-runtime",
+    "engineering-kernel",
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-SECURITY-TESTS",
+    "CHK-SAST-GO"
+  ],
+  "definition_of_ready": [
+    "Existing #188 and #190 code independently implemented with passing exact-SHA CI; no cross-file code overlap other than work graph.",
+    "Reviews and approval are independent gates not yet presumed complete; candidate remains Draft."
+  ],
+  "definition_of_done": [
+    "One product runtime candidate checked on its integrated SHA",
+    "Both code provenances and source PRs intact",
+    "Required CI and any L2/security conditions satisfied before merge"
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 1,
+    "estimated_net_loc": 0,
+    "production_files": 1,
+    "net_production_loc": 0,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}
