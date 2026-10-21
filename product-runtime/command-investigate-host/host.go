@@ -12,9 +12,10 @@ import (
 // operable under one origin. The caller MUST construct both handlers with
 // independently trusted sessions and owner adapters. The router neither
 // authenticates nor promotes an Incident permission into a Case permission.
-func NewHandler(command, timeline http.Handler) (http.Handler, error) {
-	if command == nil || timeline == nil {
-		return nil, errors.New("both independently authorized read handlers are required")
+func NewHandler(command, timeline http.Handler, detail ...http.Handler) (http.Handler, error) {
+	if command == nil || timeline == nil || len(detail) > 1 ||
+		(len(detail) == 1 && detail[0] == nil) {
+		return nil, errors.New("independently authorized read handlers are required")
 	}
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Cache-Control", "no-store")
@@ -27,6 +28,12 @@ func NewHandler(command, timeline http.Handler) (http.Handler, error) {
 		switch r.URL.Path {
 		case "/command/work-queue":
 			command.ServeHTTP(w, r)
+		case "/command/incident-detail":
+			if len(detail) != 1 {
+				http.NotFound(w, r)
+				return
+			}
+			detail[0].ServeHTTP(w, r)
 		case "/case-timeline":
 			timeline.ServeHTTP(w, r)
 		default:

@@ -200,7 +200,8 @@ func newLocalDemoHandler(secrets demoSecrets) (http.Handler, error) {
 	if err != nil {
 		return nil, err
 	}
-	routes, err := host.NewHandler(command, timeline.WithLocalSourceLinks(investigate.Timeline))
+	details := queue.NewIncidentDetailHTTPHandler(demoCommandSessions{}, owner)
+	routes, err := host.NewHandler(command, timeline.WithLocalSourceLinks(investigate.Timeline), details)
 	if err != nil {
 		return nil, err
 	}
