@@ -47,7 +47,11 @@ func TestLocalBrowserIncidentDetailUsesFreshCommandAndIndependentCaseOwners(t *t
 		!strings.Contains(page, "synthetic-command-incident-owner") ||
 		!strings.Contains(page, "Alert alert-a") ||
 		!strings.Contains(page, "synthetic-command-alert-owner") ||
-		!strings.Contains(page, "triaged") {
+		!strings.Contains(page, "triaged") ||
+		!strings.Contains(page, "Result result-a") ||
+		!strings.Contains(page, "run-a") ||
+		!strings.Contains(page, "verification-failed") ||
+		!strings.Contains(page, "synthetic-govern-result-owner") {
 		t.Fatalf("real selected Incident Detail refused/unsafe: %d %s", detail.StatusCode, page)
 	}
 	back := demoRequest(t, client, s.URL,
@@ -70,6 +74,7 @@ func TestLocalBrowserIncidentDetailUsesFreshCommandAndIndependentCaseOwners(t *t
 		strings.Contains(body, "event-v1") || strings.Contains(body, "source-v1") ||
 		strings.Contains(body, "Suspicious authentication sequence") ||
 		strings.Contains(body, "alert-a") || strings.Contains(body, "synthetic-command-alert-owner") ||
+		strings.Contains(body, "result-a") || strings.Contains(body, "synthetic-govern-result-owner") ||
 		!strings.Contains(body, "Informations métier indisponibles") {
 		t.Fatalf("Command-only reader was promoted to Case permission: %d %s", commandOnly.StatusCode, body)
 	}
