@@ -57,7 +57,9 @@
     "engineering/performance/performance-policy.json",
     "tools/cmdr-dev/performance_registry.go",
     "tools/cmdr-dev/security_tests.go",
-    "tools/cmdr-dev/security_tests_test.go"
+    "tools/cmdr-dev/security_tests_test.go",
+    "tools/cmdr-dev/performance_benchmark.go",
+    "engineering/performance/benchmark-policy.json"
   ],
   "forbidden_paths": [
     "cmdr-product-spec/**",
@@ -105,7 +107,8 @@
     "Cross-module Go httptest follows a real Case link rendered by Command into the real Timeline HTTP handler and demonstrates independent source checks, including a Command-only reader denied at destination.",
     "Cross-platform Go CI on exact commit, Linux race, go vet, gofmt, 90% host statement coverage and mandatory engineering-security gate.",
     "Provisional on-demand engineering performance registry entry, explicitly unmeasured for live IAM and network.",
-    "Strict changed-security-critical evidence adapter for the new host boundary with fresh Go coverage and authorization/tenant negative tests; no automatic source-owner trust grant."
+    "Strict changed-security-critical evidence adapter for the new host boundary with fresh Go coverage and authorization/tenant negative tests; no automatic source-owner trust grant.",
+    "Measured on-demand routing benchmark policy and executable workload using Go testing.B against the actual NewHandler implementation; provider/IAM latency explicitly excluded."
   ],
   "acceptance_tests": [
     "Actual selected Incident HTML contains same-origin /case-timeline?case_id=Case ID with no tenant or token.",
@@ -115,7 +118,8 @@
     "Existing individual handlers remain unchanged; cross-tenant/session privileges not transferable.",
     "Exact GitHub SHA validates Go compile/unit/race/vet/coverage on Linux, Windows, macOS and engineering schema/security checks.",
     "Global CHK-SECURITY-TESTS executes measured host Go coverage and negative tests on exact SHA, no unmeasured boundary or altered coverage thresholds.",
-    "The strict security adapter registry unit test expects exactly 10 registered adapters including command-investigate-host-runtime; no implicit adapter is permitted."
+    "The strict security adapter registry unit test expects exactly 10 registered adapters including command-investigate-host-runtime; no implicit adapter is permitted.",
+    "The performance benchmark registry has one measured first-party routing workload and the strict validator still rejects unknown or duplicated workload keys."
   ],
   "required_checks": [
     "CHK-MANIFESTS",
@@ -144,10 +148,10 @@
   },
   "complexity": {
     "primary_components": 1,
-    "estimated_files_changed": 7,
+    "estimated_files_changed": 9,
     "estimated_net_loc": 90,
-    "production_files": 4,
-    "net_production_loc": 140,
+    "production_files": 5,
+    "net_production_loc": 200,
     "bounded_contexts": 1,
     "independent_migrations": 0,
     "distinct_security_models": 1,
