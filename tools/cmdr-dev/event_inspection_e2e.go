@@ -321,9 +321,9 @@ func validateEventInspectionHandoff(handoff EventInspectionClosureHandoff) error
 }
 
 const (
-	eventInspectionToolchainModPath  = "product-runtime/event-inspection/go.mod"
-	eventInspectionOriginalModBlob = "a2b90dca906b971f167a9108b6436bf9580a82e7"
-	eventInspectionPatchedModBlob  = "9f45d10c3e854581bb835f326a8d3a5572dcea1f"
+	eventInspectionToolchainModPath = "product-runtime/event-inspection/go.mod"
+	eventInspectionOriginalModBlob  = "a2b90dca906b971f167a9108b6436bf9580a82e7"
+	eventInspectionPatchedModBlob   = "9f45d10c3e854581bb835f326a8d3a5572dcea1f"
 )
 
 // validateEventInspectionRuntimeSourceDelta distinguishes immutable historical
