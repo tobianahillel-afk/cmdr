@@ -236,7 +236,6 @@ func BenchmarkSameOriginRouteDispatch(b *testing.B) {
 	}
 }
 
-
 // BenchmarkSameOriginRouteResource measures the REAL existing two-route
 // first-party dispatcher, not IAM/provider/network. The deep gate runs this
 // benchmark in a separate Go process under a memory-limit hint and checks
