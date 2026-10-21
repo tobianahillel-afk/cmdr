@@ -1,0 +1,123 @@
+{
+  "schema_version": 2,
+  "id": "E10-INV-110I-VERSIONCMP",
+  "title": "Compare source-authorized Timeline Entry versions across the existing paged Case analysis",
+  "type": "task",
+  "parent": "E10-INV-110",
+  "goal": "Provide a non-mutating analyst action for comparing source, type, version and time on two independently authorized Timeline Entry versions that are both present in an already authorized Case timeline result, including versions separated by HTTP pages. Retain source reauthorization before opening either entry.",
+  "depends_on": [
+    "E10-INV-110H-UIJOIN"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-110"
+    ],
+    "requirements": [
+      "REQ-PROD-014",
+      "REQ-PROD-018"
+    ],
+    "screens": [
+      "INV-TIM-001"
+    ],
+    "permissions": [
+      "perm.shared-capabilities.timeline-entry.read"
+    ],
+    "open_decisions": [
+      "OPEN-013"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/case.md",
+      "cmdr-product-spec/05-domain-model/objects/timeline-entry.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/investigation-timeline/cmd/case-timeline-demo/analyst.js",
+    "product-runtime/investigation-timeline/cmd/case-timeline-demo/analyst_summary.test.cjs",
+    "work/graph.json",
+    "engineering/state/current.json",
+    "work/lots/E10-INV-120A-SNAPSHOT/RECONCILIATION.json",
+    "work/lots/E10-INV-110I-VERSIONCMP/**"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/investigation-timeline/projection.go",
+    "product-runtime/investigation-timeline/cmd/case-timeline-demo/snapshot.go"
+  ],
+  "invariants": [
+    "A displayed correction relationship must have both linked versions in the SAME completed authorized paginated cohort, not merely a positive superseded claim or an inaccessible successor.",
+    "No extra backend endpoint, mutation, third-party library, source IAM/permission, export privilege or raw data access.",
+    "The browser validates version and supersession claims before writing a partial result; source opens always invoke existing reauthorizing Case/Entry/typed-source route.",
+    "No claim of a single canonical current version; no inference about a filtered, omitted or inaccessible newer revision.",
+    "Reconciliation of prior E10-INV-120A-SNAPSHOT READY uses source-identical Git blob from prior PR #156 and cannot promote the historical snapshot to VERIFIED/ACCEPTED."
+  ],
+  "security_properties": [
+    "No unauthorized entry ID ever fetched via guessed correction links; comparison only of rows already reauthorized by the server.",
+    "Changing Case/token/filter or canceling the request revokes existing browser selection before another source open.",
+    "DOM content is textContent and bounded user-visible IDs; opener sends the original selected Entry ID for server-side owner check."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "No persistent schema, owner or API change.",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Revert the JS comparison and its test; retain source-identical snapshot reconciliation separately.",
+    "verification": [
+      "No change to original Case HTTP route and server owners",
+      "Original Case summary, Wazuh and corrective status UI unaffected"
+    ]
+  },
+  "inputs": [
+    "Complete CAP-INV-110 canonical comparison and source permission contract",
+    "Preexisting Go Project superseded flag and source-owned Supersedes from H/ G and existing paginated Case HTTP",
+    "Immutable PR #156 cache-reconciliation evidence for stale READY snapshot"
+  ],
+  "outputs": [
+    "Read-only analyst-selected comparison of versions, type, source and time for co-visible authorized correction pairs, up to ten on existing summary actions.",
+    "Malformed or inconsistent provenance rejects entire summary; hidden successor never yields a guessed pair.",
+    "Source-identical reconciled snapshot proof reused without replaying its feature."
+  ],
+  "acceptance_tests": [
+    "Positive authorized versions split across two Case HTTP pages produce one compare action and two readable version summaries.",
+    "Hidden successor produces no version pair even if older row is superseded; no evidence about hidden correction assumed.",
+    "Malformed superseded/version/supersedes claims fail closed with no aggregate, download or action.",
+    "Case/token/filter changes invalidate comparisons; opening source preserves existing independent server ACL.",
+    "Exact candidate SHA cross-platform Node/Go/race/vet and engineering mandatory checks pass."
+  ],
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-SECURITY-TESTS",
+    "investigation-timeline-runtime"
+  ],
+  "definition_of_ready": [
+    "E10-INV-110H-UIJOIN IMPLEMENTED and exact parent Git SHA available, no modification of reviewed PR #193.",
+    "New behavior is a bounded class-0 comparison of preauthorized local Case data; class-2 correction and export excluded."
+  ],
+  "definition_of_done": [
+    "Full Case read and UI comparison tested on exact PR SHA, including denial and hidden revision regression.",
+    "Reconciliation evidence source-identical to #156, graph and cache truthful without false VERIFIED status.",
+    "No claim of main merge, independent L2 approval, real IAM or production."
+  ],
+  "performance_budget": {
+    "applicable": false,
+    "rationale": "Uses existing bounded <=5000 authorized Case entries; O(n) correction join and <=10 UI actions, no new network fetch.",
+    "metrics": []
+  },
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 2,
+    "estimated_net_loc": 90,
+    "production_files": 1,
+    "net_production_loc": 76,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}
