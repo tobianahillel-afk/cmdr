@@ -2210,7 +2210,8 @@
       ],
       "dependency_terminal_state": "IMPLEMENTED",
       "unlocks": [
-        "E10-INV-110J-CASEHTML"
+        "E10-INV-110J-CASEHTML",
+        "E10-CMD-106G-LOCALBROWSER"
       ]
     },
     {
@@ -2234,6 +2235,20 @@
       "status": "IMPLEMENTED",
       "depends_on": [
         "E10-INV-110J-CASEHTML"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-CMD-106G-LOCALBROWSER"
+      ]
+    },
+    {
+      "id": "E10-CMD-106G-LOCALBROWSER",
+      "title": "Run real loopback-only browser Command Incident -> independently authorized Case Timeline HTML",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-CMD-106F-TIMELINE",
+        "E10-INV-110K-HTMLFILTER"
       ],
       "dependency_terminal_state": "IMPLEMENTED",
       "unlocks": []
