@@ -2318,6 +2318,20 @@
         "E10-CMD-106H-RETURN"
       ],
       "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-CMD-106J-DETAILREAD"
+      ]
+    },
+    {
+      "id": "E10-CMD-106J-DETAILREAD",
+      "title": "Open owner-authorized read-only Incident Detail through existing Command host",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-CMD-106I-DEEPRETURN",
+        "E10-CMD-106G-LOCALBROWSER"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
       "unlocks": []
     }
   ]
