@@ -289,7 +289,7 @@ func TestRuntimeSecurityAdaptersAreExplicitForKnownRuntimes(t *testing.T) {
 		!containsString(frontend.TestFiles, "e2e.test.mjs") {
 		t.Fatalf("incomplete frontend runtime security adapter: %#v", frontend)
 	}
-	if len(adapters) != 10 {
+	if len(adapters) != 11 {
 		t.Fatalf("unexpected implicit runtime security adapters: %#v", adapters)
 	}
 }
