@@ -23,11 +23,11 @@ func validatedSourceReturnURL(raw, caseID string) (string, bool) {
 		return "", false
 	}
 	values, err := url.ParseQuery(destination.RawQuery)
-	if err != nil || len(values) == 0 || len(values) > 8 ||
+	if err != nil || len(values) == 0 || len(values) > 9 ||
 		len(values["case_id"]) != 1 || values.Get("case_id") != caseID {
 		return "", false
 	}
-	origin, valid := extractIncidentOrigin(values)
+	origin, detailReturn, valid := extractIncidentReturn(values)
 	if !valid || len(values) > 7 {
 		return "", false
 	}
@@ -41,6 +41,9 @@ func validatedSourceReturnURL(raw, caseID string) (string, bool) {
 	}
 	if origin != "" {
 		values.Set("origin_incident", origin)
+		if detailReturn {
+			values.Set("origin_view", "detail")
+		}
 	}
 	return timelineHTMLPageURL(values, selection.limit, selection.offset), true
 }

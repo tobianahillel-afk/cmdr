@@ -40,7 +40,7 @@ var incidentDetailPage = template.Must(template.New("incident-detail").Parse(`<!
 {{else}}<p>Result Govern non disponible ou non autorisé. Aucun succès ni risque résiduel n’est déduit.</p>{{end}}
 <h2>Investigations liées (lecture seule)</h2>
 {{if .SelectedLinkedCases}}{{if .SelectedLinkedCases.Cases}}
-<ul>{{range .SelectedLinkedCases.Cases}}<li>Case {{.CaseID}} — {{.Status}} · <a href="/case-timeline?case_id={{urlquery .CaseID}}&amp;origin_incident={{urlquery $.Selected.ID}}" rel="noreferrer">Ouvrir le Case (autorisation distincte)</a></li>{{end}}</ul>
+<ul>{{range .SelectedLinkedCases.Cases}}<li>Case {{.CaseID}} — {{.Status}} · <a href="/case-timeline?case_id={{urlquery .CaseID}}&amp;origin_incident={{urlquery $.Selected.ID}}&amp;origin_view=detail" rel="noreferrer">Ouvrir le Case (autorisation distincte)</a></li>{{end}}</ul>
 {{else}}<p>Aucun Case autorisé visible.</p>{{end}}{{else}}<p>Relations inconnues — source de liaison non fournie.</p>{{end}}
 <p>Statut du dossier : partiel. Décision attendue, prochaines actions et autres objets Govern non fournis par cet adaptateur ; aucune valeur n’est inventée.</p>
 <nav aria-label="Retour à la Work Queue"><a href="{{.ReturnHref}}">Retour à l’Incident dans la Work Queue (nouvelle autorisation)</a></nav>

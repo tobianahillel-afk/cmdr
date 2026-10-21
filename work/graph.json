@@ -2292,7 +2292,8 @@
       ],
       "dependency_terminal_state": "IMPLEMENTED",
       "unlocks": [
-        "E10-CMD-106H-RETURN"
+        "E10-CMD-106H-RETURN",
+        "E10-CMD-106N-DETAILRETURN"
       ]
     },
     {
@@ -2369,6 +2370,20 @@
       "status": "IMPLEMENTED",
       "depends_on": [
         "E10-CMD-106L-ALERTSRC"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-CMD-106N-DETAILRETURN"
+      ]
+    },
+    {
+      "id": "E10-CMD-106N-DETAILRETURN",
+      "title": "Restore source-authorized Incident Detail after Case/Timeline/source return",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-CMD-106M-RESULTREAD",
+        "E10-INV-110O-RETURNCTX"
       ],
       "dependency_terminal_state": "IMPLEMENTED",
       "unlocks": []

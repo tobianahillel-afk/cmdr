@@ -58,21 +58,21 @@ func (h *CaseTimelineHTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Reque
 		return
 	}
 	query, err := url.ParseQuery(r.URL.RawQuery)
-	if err != nil || len(query["case_id"]) != 1 || len(query) > 8 {
+	if err != nil || len(query["case_id"]) != 1 || len(query) > 9 {
 		writeCaseTimelineError(w, http.StatusBadRequest)
 		return
 	}
 	// A return hint never supplies permission, tenant, environment or source.
 	// The JSON API remains strict: only explicit HTML navigation accepts it.
 	htmlRequested := wantsTimelineHTML(r.Header.Get("Accept"))
-	origin := ""
-	if _, present := query["origin_incident"]; present {
+	origin, detailReturn := "", false
+	if _, incidentPresent := query["origin_incident"]; incidentPresent || len(query["origin_view"]) != 0 {
 		if !htmlRequested {
 			writeCaseTimelineError(w, http.StatusBadRequest)
 			return
 		}
 		var valid bool
-		origin, valid = extractIncidentOrigin(query)
+		origin, detailReturn, valid = extractIncidentReturn(query)
 		if !valid {
 			writeCaseTimelineError(w, http.StatusBadRequest)
 			return
@@ -136,6 +136,9 @@ func (h *CaseTimelineHTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Reque
 		if origin != "" {
 			// Only for authorized HTML pagination and source-return links.
 			query.Set("origin_incident", origin)
+			if detailReturn {
+				query.Set("origin_view", "detail")
+			}
 		}
 		var rendered bytes.Buffer
 		if err := renderTimelineHTML(&rendered, query, caseID, selection, result,

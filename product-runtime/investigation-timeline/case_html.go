@@ -30,6 +30,8 @@ var timelineHTMLTemplate = template.Must(template.New("case-timeline-html").Func
 <p>Éléments autorisés après filtres : {{.Result.Page.TotalVisible}}. Affichage : {{.Result.Page.Limit}} lignes maximum. La chronologie est réévaluée avec les permissions serveur à chaque requête ; la pagination n'est pas un instantané transactionnel.</p>
 <form method="get" action="/case-timeline" aria-label="Filtrer les entrées autorisées">
 <input type="hidden" name="case_id" value="{{.CaseID}}">
+{{if .OriginIncident}}<input type="hidden" name="origin_incident" value="{{.OriginIncident}}">{{end}}
+{{if .DetailReturn}}<input type="hidden" name="origin_view" value="detail">{{end}}
 <label for="timeline-kind">Type</label>
 <select id="timeline-kind" name="kind">
 <option value="">Tous les types</option>
@@ -76,7 +78,7 @@ var timelineHTMLTemplate = template.Must(template.New("case-timeline-html").Func
 {{if .HasPrevious}}<a rel="prev" href="{{.PreviousURL}}">Page précédente</a>{{end}}
 {{if .HasNext}}<a rel="next" href="{{.NextURL}}">Page suivante</a>{{end}}
 </nav>
-{{if .IncidentReturnURL}}<p><a href="{{.IncidentReturnURL}}" rel="noreferrer">Retour à l'Incident sélectionné dans Command (autorisation revérifiée)</a>. Ce lien ne transfère aucun droit sur l'Incident.</p>{{end}}
+{{if .IncidentReturnURL}}<p><a href="{{.IncidentReturnURL}}" rel="noreferrer">{{if .DetailReturn}}Retour à Incident Detail (autorisation Command revérifiée){{else}}Retour à l'Incident sélectionné dans la Work Queue (autorisation revérifiée){{end}}</a>. Ce lien ne transfère aucun droit sur l'Incident.</p>{{end}}
 <p>Ce tableau est une représentation des entrées déjà autorisées. Un statut absent ne prouve pas qu'aucune correction masquée n'existe. La consultation d'un objet source exige un contrôle de permission distinct : les références source ci-dessus ne sont pas des liens donnant accès.</p>
 </main>
 </body>
@@ -91,6 +93,8 @@ type timelineHTMLView struct {
 	ResetURL          string
 	ReturnURL         string
 	IncidentReturnURL string
+	OriginIncident    string
+	DetailReturn      bool
 	SourceLinks       bool
 	Result            timelinePagedHTTPResult
 	HasPrevious       bool
@@ -155,14 +159,21 @@ func renderTimelineHTML(w io.Writer, values url.Values, caseID string, selection
 		SourceLinks: len(sourceLinks) != 0 && sourceLinks[0],
 		Kind:        values.Get("kind"), Query: values.Get("q"),
 		From: values.Get("from"), To: values.Get("to"),
-		ResetURL:    timelineHTMLPageURL(url.Values{"case_id": {caseID}}, page.Page.Limit, 0),
 		ReturnURL:   timelineHTMLPageURL(values, page.Page.Limit, selection.offset),
 		HasPrevious: selection.offset > 0,
 		HasNext:     page.Page.HasMore,
 	}
+	resetValues := url.Values{"case_id": {caseID}}
 	if incident := values.Get("origin_incident"); validIncidentReturnID(incident) {
-		view.IncidentReturnURL = commandIncidentReturnURL(incident)
+		view.OriginIncident = incident
+		view.DetailReturn = values.Get("origin_view") == "detail"
+		view.IncidentReturnURL = commandIncidentReturnURL(incident, view.DetailReturn)
+		resetValues.Set("origin_incident", incident)
+		if view.DetailReturn {
+			resetValues.Set("origin_view", "detail")
+		}
 	}
+	view.ResetURL = timelineHTMLPageURL(resetValues, page.Page.Limit, 0)
 	if view.HasPrevious {
 		view.PreviousURL = timelineHTMLPageURL(values, selection.limit, max(0, selection.offset-selection.limit))
 	}
