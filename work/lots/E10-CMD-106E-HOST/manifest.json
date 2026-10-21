@@ -62,8 +62,7 @@
     "product-runtime/work-queue/**",
     "product-runtime/investigation-timeline/**",
     "product-runtime/event-search/**",
-    "product-runtime/event-inspection/**",
-    "tools/cmdr-dev/**"
+    "product-runtime/event-inspection/**"
   ],
   "invariants": [
     "The host routes only exact GET/POST requests under /command/work-queue and /case-timeline, delegating method enforcement to the two original domain handlers; no proxy/rewrite/auth token, no arbitrary URL, no redirect.",
@@ -72,7 +71,8 @@
     "All additional source output belongs to the original handlers, never to this router; no new Case owner, persisted object, mutation endpoint, Class-2 operation or production deployment.",
     "Existing Go 1.26.10 work-queue and investigation-timeline module boundaries are reused through pinned local replaces; do not introduce external runtime dependencies or paid APIs.",
     "Existing #195 and #197 SHA remain frozen and unchanged; this new branch descends #197 only as Git parent, not business parent.",
-    "Performance workload identity is registered in both strict engineering validator and policy, without a waiver and without claiming a measured production SLO."
+    "Performance workload identity is registered in both strict engineering validator and policy, without a waiver and without claiming a measured production SLO.",
+    "The sole approved engineering-tool file is tools/cmdr-dev/performance_registry.go to register one strict workload; no other tools/cmdr-dev path belongs to allowed_paths."
   ],
   "security_properties": [
     "Fail closed if either required handler is missing; unsupported paths cannot reach an owner adapter.",
