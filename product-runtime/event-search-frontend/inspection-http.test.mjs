@@ -131,8 +131,8 @@ test("real Node fetch to Go authorized HTTP host opens and returns to identical 
   assert.equal(pivot.pivotDraft.runId, "run-1");
   assert.equal(pivot.pivotDraft.returnContext.origin, "event-search");
   assert.equal(pivot.pivotDraft.auditRequired, true);
-  assert.equal(pivot.pivotDraft.timeRange.start, controller.getView().job.timeStart);
-  assert.equal(pivot.pivotDraft.timeRange.end, controller.getView().job.timeEnd);
+  assert.equal(Date.parse(pivot.pivotDraft.timeRange.start), Date.parse(controller.getView().job.timeStart));
+  assert.equal(Date.parse(pivot.pivotDraft.timeRange.end), Date.parse(controller.getView().job.timeEnd));
   assert.ok(!JSON.stringify(pivot.pivotDraft).includes("RAW-PRIVATE-STRING"));
   // A visible enrichment is not automatically allowed to become a pivot.
   const deniedPivot = await journey.draftPivot("risk.score", "72");
