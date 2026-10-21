@@ -114,7 +114,8 @@ func (h *CaseTimelineHTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Reque
 	// JSON clients and the existing API schema are preserved unchanged.
 	if wantsTimelineHTML(r.Header.Get("Accept")) {
 		var rendered bytes.Buffer
-		if err := renderTimelineHTML(&rendered, query, caseID, selection, result); err != nil {
+		if err := renderTimelineHTML(&rendered, query, caseID, selection, result,
+			r.Context().Value(sourceLinkContextKey{}) == true); err != nil {
 			writeCaseTimelineError(w, http.StatusServiceUnavailable)
 			return
 		}

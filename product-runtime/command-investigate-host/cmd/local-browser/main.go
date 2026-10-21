@@ -164,11 +164,11 @@ func syntheticTimeline() timeline.MemoryTimelineData {
 			{Identity: timeline.SourceOwnerIdentity{Reference: "source-v1",
 				ObjectID: "object-v1", Kind: "telemetry-event",
 				Tenant: demoTenant, Environment: demoEnvironment, CaseID: "case-a"},
-				Readers: []string{"analyst"}},
+				Readers: []string{"analyst"}, Preview: "Synthetic source: original observed event, version 1 (not production evidence)"},
 			{Identity: timeline.SourceOwnerIdentity{Reference: "source-v2",
 				ObjectID: "object-v2", Kind: "telemetry-event",
 				Tenant: demoTenant, Environment: demoEnvironment, CaseID: "case-a"},
-				Readers: []string{"analyst"}},
+				Readers: []string{"analyst"}, Preview: "Synthetic source: corrected observed event, version 2 (not production evidence)"},
 		},
 	}
 }
@@ -189,7 +189,7 @@ func newLocalDemoHandler(secrets demoSecrets) (http.Handler, error) {
 		Links: demoSharedLinks{}, Cases: demoInvestigateCaseOwner{},
 	}}
 	command := queue.NewHTTPHandler(demoCommandSessions{}, owner)
-	investigate, err := timeline.NewMemoryCaseTimelineHTTPHandler(
+	investigate, err := timeline.NewMemoryCaseTimelineHTTPHandlers(
 		func(r *http.Request) (string, error) {
 			principal := principalFromContext(r.Context())
 			if principal == "" {
@@ -200,7 +200,7 @@ func newLocalDemoHandler(secrets demoSecrets) (http.Handler, error) {
 	if err != nil {
 		return nil, err
 	}
-	routes, err := host.NewHandler(command, investigate)
+	routes, err := host.NewHandler(command, timeline.WithLocalSourceLinks(investigate.Timeline))
 	if err != nil {
 		return nil, err
 	}
@@ -218,7 +218,14 @@ func newLocalDemoHandler(secrets demoSecrets) (http.Handler, error) {
 			http.Error(w, "authentication required", http.StatusUnauthorized)
 			return
 		}
-		routes.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), demoPrincipalKey{}, principal)))
+		verified := r.WithContext(context.WithValue(r.Context(), demoPrincipalKey{}, principal))
+		if r.URL.Path == "/demo-source-open" {
+			// Existing memory owner rechecks Case, Entry, typed source and
+			// destination permission; no browser-provided sourceRef is trusted.
+			investigate.OpenSource.ServeHTTP(w, verified)
+			return
+		}
+		routes.ServeHTTP(w, verified)
 	}), nil
 }
 
