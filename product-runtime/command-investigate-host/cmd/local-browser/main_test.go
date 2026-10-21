@@ -415,7 +415,7 @@ func TestLocalBrowserCaseTimelineOpensOnlyFreshlyAuthorizedSource(t *testing.T) 
 	if first.StatusCode != http.StatusOK {
 		t.Fatalf("authorized Case page unavailable: %d %s", first.StatusCode, page)
 	}
-	urls := regexp.MustCompile(`href="(/demo-source-open\\?[^"]+)"`).FindStringSubmatch(page)
+	urls := regexp.MustCompile(`href="(/demo-source-open[?][^"]+)"`).FindStringSubmatch(page)
 	if len(urls) != 2 {
 		t.Fatalf("trusted host did not expose existing source handler: %s", page)
 	}
