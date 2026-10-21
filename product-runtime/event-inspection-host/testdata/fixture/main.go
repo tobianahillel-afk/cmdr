@@ -59,12 +59,21 @@ func (telemetryOwner) ReadAuthorizedInspectionEvent(_ context.Context, s host.Se
 	}, nil
 }
 
+// Synthetic action authority is deliberately separate from Event.read.
+type pivotOwner struct{}
+
+func (pivotOwner) CanDraftPivot(_ context.Context, s host.Session, q host.Request, field, value string) (bool, error) {
+	return s.Principal == "analyst" && s.Tenant == "tenant-a" &&
+		q.JobID == "job-1" && q.RunID == "run-1" && q.EventRef == "event-1" &&
+		field == "source.ip" && value == "192.0.2.4", nil
+}
+
 func main() {
 	token := os.Getenv("CMDR_TEST_BEARER")
 	if len(token) < 32 {
 		log.Fatal("synthetic bearer missing")
 	}
-	handler, err := host.NewHandler(sessions{token: token}, searchOwner{}, telemetryOwner{})
+	handler, err := host.NewHandlerWithPivotAuthorizer(sessions{token: token}, searchOwner{}, telemetryOwner{}, pivotOwner{})
 	if err != nil {
 		log.Fatal(err)
 	}
