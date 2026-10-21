@@ -1790,6 +1790,19 @@
         "E10-INV-110E"
       ],
       "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-120C-MITREFIX"
+      ]
+    },
+    {
+      "id": "E10-INV-120C-MITREFIX",
+      "title": "Correct source-null and browser ATT&CK cohort consistency identified by L2",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-INV-120B-MITRE"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
       "unlocks": []
     }
   ]
