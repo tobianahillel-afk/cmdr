@@ -2332,6 +2332,19 @@
         "E10-CMD-106G-LOCALBROWSER"
       ],
       "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-CMD-106K-OVERVIEW"
+      ]
+    },
+    {
+      "id": "E10-CMD-106K-OVERVIEW",
+      "title": "Read canonical Command Incident headline, priority, severity and impact in selected Incident Detail",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-CMD-106J-DETAILREAD"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
       "unlocks": []
     }
   ]
