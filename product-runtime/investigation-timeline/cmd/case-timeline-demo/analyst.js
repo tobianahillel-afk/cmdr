@@ -232,10 +232,9 @@
           data.total_matches < 0 || data.total_matches > 5000 ||
           !Array.isArray(data.entries) || data.entries.length > 25 ||
           data.entries.length !== Math.min(25, Math.max(0, data.total_matches - requestedOffset)) ||
-          (data.offset !== undefined && data.offset !== requestedOffset) ||
-          (data.has_more !== undefined &&
-            (typeof data.has_more !== "boolean" ||
-             data.has_more !== (requestedOffset + data.entries.length < data.total_matches))) ||
+          !Number.isSafeInteger(data.offset) || data.offset !== requestedOffset ||
+          typeof data.has_more !== "boolean" ||
+          data.has_more !== (requestedOffset + data.entries.length < data.total_matches) ||
           data.entries.some(e => !e || typeof e.id !== "string" ||
             e.id.length < 1 || e.id.length > 1024 ||
             !["observed", "inferred", "user-action", "decision", "response"].includes(e.kind) ||
