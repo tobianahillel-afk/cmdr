@@ -379,3 +379,19 @@ func TestLocalBrowserStartupRejectsBadSecretsListenerAndConsole(t *testing.T) {
 		t.Fatal("secret-unavailable startup left a reachable HTTP listener")
 	}
 }
+
+
+func TestLocalBrowserRefusesFailedOperatingSystemEntropyBeforeListening(t *testing.T) {
+	var output bytes.Buffer
+	err := runLocalBrowserFromEntropy(context.Background(), &output,
+		strings.NewReader("too-short"))
+	if err == nil || !strings.Contains(err.Error(), "generate local credentials") ||
+		output.Len() != 0 {
+		t.Fatalf("failed crypto source started/announced server: %v output=%q", err, output.String())
+	}
+	err = runLocalBrowserFromEntropy(context.Background(), &output,
+		bytes.NewReader(bytes.Repeat([]byte{42}, 64)))
+	if err == nil || output.Len() != 0 {
+		t.Fatalf("identical role credentials started local server: %v output=%q", err, output.String())
+	}
+}
