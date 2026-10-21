@@ -2412,6 +2412,19 @@
         "E10-CMD-106O-NEXTACTION"
       ],
       "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-CMD-106Q-TASKNAV"
+      ]
+    },
+    {
+      "id": "E10-CMD-106Q-TASKNAV",
+      "title": "Navigate independently authorized linked Tasks into one owner-rechecked Work Queue",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-CMD-106P-TASKLINKS"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
       "unlocks": []
     }
   ]

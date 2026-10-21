@@ -163,8 +163,10 @@ func Project(ctx context.Context, owner Owner, req Request) (Result, error) {
 	}
 	if req.FocusSelection != "" {
 		kind, id, ok := strings.Cut(req.FocusSelection, ":")
-		if !ok || kind != string(Incident) || len(id) > 128 ||
-			invalidScope(id) || !utf8.ValidString(id) || req.Cursor != "" {
+		if !ok || !((kind == string(Incident) && req.View == Incidents) ||
+			(kind == string(Task) && req.View == Tasks)) ||
+			len(id) > 128 || invalidScope(id) || !utf8.ValidString(id) ||
+			req.Cursor != "" {
 			return empty, ErrView
 		}
 	}

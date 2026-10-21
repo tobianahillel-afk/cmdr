@@ -60,6 +60,27 @@ func TestLocalBrowserIncidentDetailUsesFreshCommandAndIndependentCaseOwners(t *t
 		!strings.Contains(page, "synthetic-govern-result-owner") {
 		t.Fatalf("real selected Incident Detail refused/unsafe: %d %s", detail.StatusCode, page)
 	}
+	if !strings.Contains(page, "/command/work-queue?view=tasks&amp;selected=Task%3Atask-a&amp;restore=1") {
+		t.Fatalf("independently authorized linked Task is not navigable: %s", page)
+	}
+	taskLink := "/command/work-queue?view=tasks&selected=Task%3Atask-a&restore=1"
+	taskPage := demoRequest(t, client, s.URL, taskLink,
+		"analyst", secrets.analyst, "text/html")
+	taskBody := demoBody(t, taskPage)
+	if taskPage.StatusCode != http.StatusOK ||
+		!strings.Contains(taskBody, "Task — task-a") ||
+		!strings.Contains(taskBody, "in-progress") ||
+		strings.Contains(taskBody, secrets.analyst) ||
+		strings.Contains(taskBody, secrets.commander) {
+		t.Fatalf("linked Task did not traverse fresh canonical Queue ACL: %d %s", taskPage.StatusCode, taskBody)
+	}
+	deniedTask := demoRequest(t, client, s.URL, taskLink,
+		"commander", secrets.commander, "text/html")
+	deniedBody := demoBody(t, deniedTask)
+	if deniedTask.StatusCode != http.StatusNotFound ||
+		strings.Contains(deniedBody, "task-a") {
+		t.Fatalf("Incident permission was inherited as Task.read: %d %s", deniedTask.StatusCode, deniedBody)
+	}
 	back := demoRequest(t, client, s.URL,
 		"/command/work-queue?restore=1&selected=Incident%3Aincident-a&view=incidents",
 		"analyst", secrets.analyst, "text/html")

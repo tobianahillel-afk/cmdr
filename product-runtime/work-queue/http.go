@@ -136,14 +136,15 @@ func NewHTTPHandler(sessions SessionResolver, owner Owner) http.Handler {
 				return
 			}
 		}
-		// Return from an independently authorized Investigate Case may locate
-		// an older Incident on its CURRENTLY authorized Work Queue page.
-		// Strictly opt-in HTML presentation; JSON and ordinary row selection
-		// retain the existing explicit-cursor and page-bound semantics.
+		// A read-only return or linked Task navigation may locate an object
+		// on its CURRENTLY authorized Work Queue page. The hint is not an ACL.
+		// Strictly opt-in HTML; JSON and ordinary selection remain page-bound.
 		focusSelection := ""
 		if values["restore"] != nil {
-			if values["restore"][0] != "1" || selection == "" ||
-				!strings.HasPrefix(selection, "Incident:") || view != Incidents ||
+			selectionType, _, hasType := strings.Cut(selection, ":")
+			if values["restore"][0] != "1" || !hasType ||
+				!((selectionType == string(Incident) && view == Incidents) ||
+					(selectionType == string(Task) && view == Tasks)) ||
 				pageCursor != "" || len(values) != 3 ||
 				!strings.Contains(r.Header.Get("Accept"), "text/html") {
 				http.Error(w, "invalid incident return context", http.StatusBadRequest)

@@ -17,9 +17,9 @@
     "phase_title": "Scaled product implementation program bootstrap"
   },
   "execution": {
-    "active_work_unit": "E10-CMD-106P-TASKLINKS",
+    "active_work_unit": "E10-CMD-106Q-TASKNAV",
     "preferred_next_unit": null,
-    "selection_rule": "Task related read-only source implementation is in its own DRAFT PR; exact-sha CI, independent L2, native parent approvals and real source adapters remain required. No independent READY task on this branch."
+    "selection_rule": "Derived from canonical CAP-CMD-101 single Work Queue navigation: TASK link currently static in Incident Detail despite owner-authorized projection; this child reuses current read-only Task ACL, with exact-HEAD CI/L2 outstanding. #215 frozen unchanged; no independent READY after this bounded task."
   },
   "reconciliation": {
     "required_on_resume": true,
