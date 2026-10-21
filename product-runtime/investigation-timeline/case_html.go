@@ -147,7 +147,7 @@ func renderTimelineHTML(w io.Writer, values url.Values, caseID string, selection
 	view := timelineHTMLView{
 		CaseID: caseID, Result: page,
 		SourceLinks: len(sourceLinks) != 0 && sourceLinks[0],
-		Kind: values.Get("kind"), Query: values.Get("q"),
+		Kind:        values.Get("kind"), Query: values.Get("q"),
 		From: values.Get("from"), To: values.Get("to"),
 		ResetURL:    timelineHTMLPageURL(url.Values{"case_id": {caseID}}, page.Page.Limit, 0),
 		HasPrevious: selection.offset > 0,
