@@ -107,7 +107,7 @@ func renderTimelineHTML(w io.Writer, values url.Values, caseID string, selection
 	view := timelineHTMLView{
 		CaseID: caseID, Result: page,
 		HasPrevious: selection.offset > 0,
-		HasNext: page.Page.HasMore,
+		HasNext:     page.Page.HasMore,
 	}
 	if view.HasPrevious {
 		view.PreviousURL = timelineHTMLPageURL(values, selection.limit, max(0, selection.offset-selection.limit))
