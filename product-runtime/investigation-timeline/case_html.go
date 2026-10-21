@@ -83,20 +83,20 @@ var timelineHTMLTemplate = template.Must(template.New("case-timeline-html").Func
 </html>`))
 
 type timelineHTMLView struct {
-	CaseID      string
-	Kind        string
-	Query       string
-	From        string
-	To          string
-	ResetURL    string
-	ReturnURL   string
+	CaseID            string
+	Kind              string
+	Query             string
+	From              string
+	To                string
+	ResetURL          string
+	ReturnURL         string
 	IncidentReturnURL string
-	SourceLinks bool
-	Result      timelinePagedHTTPResult
-	HasPrevious bool
-	HasNext     bool
-	PreviousURL string
-	NextURL     string
+	SourceLinks       bool
+	Result            timelinePagedHTTPResult
+	HasPrevious       bool
+	HasNext           bool
+	PreviousURL       string
+	NextURL           string
 }
 
 // HTML is explicit content negotiation, not an authorization signal. A
