@@ -95,15 +95,44 @@ func (demoCommandOwner) List(_ context.Context, tenant, environment string) ([]q
 	if tenant != demoTenant || environment != demoEnvironment {
 		return nil, errors.New("scope unavailable")
 	}
-	return []queue.Item{{Kind: queue.Incident, ID: "incident-a",
-		Tenant: demoTenant, Environment: demoEnvironment,
-		Owner: "analyst", Status: "active", UpdatedAt: "2026-10-21T02:00:00Z"}}, nil
+	return []queue.Item{
+		{Kind: queue.Incident, ID: "incident-a", Tenant: demoTenant,
+			Environment: demoEnvironment, Owner: "analyst", Status: "active",
+			UpdatedAt: "2026-10-21T02:00:00Z"},
+		{Kind: queue.Task, ID: "task-a", Tenant: demoTenant,
+			Environment: demoEnvironment, Owner: "analyst", Status: "in-progress",
+			UpdatedAt: "2026-10-21T03:00:00Z"},
+	}, nil
 }
 
 func (demoCommandOwner) CanRead(_ context.Context, principal, tenant, environment string, kind queue.Kind, id string) (bool, error) {
-	return (principal == "analyst" || principal == "commander") &&
-		tenant == demoTenant && environment == demoEnvironment &&
-		kind == queue.Incident && id == "incident-a", nil
+	if tenant != demoTenant || environment != demoEnvironment {
+		return false, nil
+	}
+	switch kind {
+	case queue.Incident:
+		return (principal == "analyst" || principal == "commander") && id == "incident-a", nil
+	case queue.Task:
+		return principal == "analyst" && id == "task-a", nil
+	default:
+		return false, nil
+	}
+}
+
+// The reference grants no Task.read: the Command Task owner independently
+// checks every Task before any status/assignment appears in Incident Detail.
+func (demoCommandOwner) ReadAuthorizedIncidentTaskReferences(ctx context.Context, principal, tenant, environment, incidentID string) ([]queue.IncidentTaskReference, error) {
+	if ctx.Err() != nil {
+		return nil, errors.New("task relationship canceled")
+	}
+	if (principal != "analyst" && principal != "commander") ||
+		tenant != demoTenant || environment != demoEnvironment || incidentID != "incident-a" {
+		return nil, nil
+	}
+	return []queue.IncidentTaskReference{{
+		IncidentID: incidentID, TaskID: "task-a",
+		Tenant: tenant, Environment: environment,
+	}}, nil
 }
 
 // Demonstration-only Command owner, not browser-provided metadata. A Command
