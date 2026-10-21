@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"encoding/hex"
 	"errors"
@@ -223,5 +224,103 @@ func TestLocalBrowserCanActuallyStartAndStopOnLoopback(t *testing.T) {
 		}
 	case <-time.After(10 * time.Second):
 		t.Fatal("local listener did not stop after cancellation")
+	}
+}
+
+
+func TestLocalBrowserRefusesShortOrReusedEntropy(t *testing.T) {
+	for _, source := range []string{"", "short", strings.Repeat("x", 63)} {
+		if _, err := demoSecretsFrom(strings.NewReader(source)); err == nil {
+			t.Fatal("short entropy incorrectly yielded credentials")
+		}
+	}
+	// An accidental repeated 32-byte secret is denied before any session
+	// handler can be constructed; these bytes are never used in production.
+	repeated, err := demoSecretsFrom(bytes.NewReader(bytes.Repeat([]byte{0x5a}, 64)))
+	if err != nil || repeated.valid() {
+		t.Fatalf("weak pair accepted: err=%v", err)
+	}
+	if _, err := newLocalDemoHandler(repeated); err == nil {
+		t.Fatal("reused analyst and commander credentials were accepted")
+	}
+	safeInput := append(bytes.Repeat([]byte{0xa1}, 32), bytes.Repeat([]byte{0xb2}, 32)...)
+	separate, err := demoSecretsFrom(bytes.NewReader(safeInput))
+	if err != nil || !separate.valid() {
+		t.Fatalf("separately provided entropy unexpectedly refused: %v", err)
+	}
+}
+
+func TestLocalBrowserSyntheticOwnerScopeAndPrincipalFailClosed(t *testing.T) {
+	ctx := context.Background()
+	s := demoCommandSessions{}
+	if _, err := s.ResolveSession(ctx, nil); err == nil {
+		t.Fatal("Command accepted context without host-authenticated identity")
+	}
+	scope, err := s.ResolveSession(context.WithValue(ctx, demoPrincipalKey{}, "analyst"), nil)
+	if err != nil || scope.Principal != "analyst" || scope.Tenant != demoTenant {
+		t.Fatalf("host principal not bound to Command source scope: %+v %v", scope, err)
+	}
+	owner := demoCommandOwner{linked: queue.LinkedCaseOwnerJoin{
+		Links: demoSharedLinks{}, Cases: demoInvestigateCaseOwner{},
+	}}
+	if _, err := owner.List(ctx, "foreign-tenant", demoEnvironment); err == nil {
+		t.Fatal("foreign Command snapshot available")
+	}
+	for _, who := range []string{"", "not-analyst"} {
+		granted, err := owner.CanRead(ctx, who, demoTenant, demoEnvironment, queue.Incident, "incident-a")
+		if err != nil || granted {
+			t.Fatalf("unknown Command principal authorized: %q", who)
+		}
+	}
+	for _, bad := range []struct{ principal, tenant, environment, incident string }{
+		{"untrusted", demoTenant, demoEnvironment, "incident-a"},
+		{"analyst", "foreign", demoEnvironment, "incident-a"},
+		{"analyst", demoTenant, "prod", "incident-a"},
+		{"analyst", demoTenant, demoEnvironment, "other-incident"},
+	} {
+		_, err := (demoSharedLinks{}).ReadAuthorizedIncidentCaseReferences(ctx,
+			bad.principal, bad.tenant, bad.environment, bad.incident)
+		if err == nil {
+			t.Fatalf("Shared link authority accepted an invalid scope %+v", bad)
+		}
+	}
+	linked, err := owner.ReadAuthorizedLinkedCases(ctx, "commander", demoTenant,
+		demoEnvironment, "incident-a")
+	if err != nil || linked == nil || len(linked.Cases) != 0 {
+		t.Fatalf("Commander obtained Investigate Case owner data: %+v, %v", linked, err)
+	}
+	linked, err = owner.ReadAuthorizedLinkedCases(ctx, "analyst", demoTenant,
+		demoEnvironment, "incident-a")
+	if err != nil || linked == nil || len(linked.Cases) != 1 ||
+		linked.Cases[0].CaseID != "case-a" {
+		t.Fatalf("Case owner didn't independently grant analyst: %+v, %v", linked, err)
+	}
+	if c, err := (demoInvestigateCaseOwner{}).ReadAuthorizedCaseIdentity(ctx,
+		"commander", demoTenant, demoEnvironment, "case-a"); err != nil || c != nil {
+		t.Fatal("Command principal obtained Investigate Case identity")
+	}
+}
+
+func TestLocalBrowserCredentialAndHostInputsCannotBecomeAuthority(t *testing.T) {
+	s, err := newDemoSecrets()
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, tc := range []struct{ username, password, expected string }{
+		{"analyst", s.analyst, "analyst"},
+		{"commander", s.commander, "commander"},
+		{"analyst", s.commander, ""},
+		{"commander", s.analyst, ""},
+		{"administrator", s.analyst, ""},
+		{"analyst", "", ""},
+	} {
+		r := httptest.NewRequest(http.MethodGet, "/command/work-queue", nil)
+		r.SetBasicAuth(tc.username, tc.password)
+		if got := s.principal(r); got != tc.expected {
+			t.Fatalf("spoofed authentication %q resolved to %q", tc.username, got)
+		}
+	}
+	if s.principal(httptest.NewRequest(http.MethodGet, "/", nil)) != "" {
+		t.Fatal("unprovided credentials resolved to identity")
 	}
 }
