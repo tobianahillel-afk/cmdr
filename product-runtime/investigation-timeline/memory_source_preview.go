@@ -1,7 +1,6 @@
 package investigationtimeline
 
 import (
-	"encoding/json"
 	"net/http"
 	"net/url"
 	"strings"
@@ -62,7 +61,9 @@ func (s *memoryTimelineProvider) sourcePreviewHandler() http.Handler {
 		key := memorySourceObjectKey{caseID: caseID, kind: draft.Kind, objectID: draft.ObjectID}
 		owner, present := s.sourceObjects[key]
 		if !present || owner.Identity.Tenant != scope.Tenant ||
-			owner.Identity.Environment != scope.Environment || owner.Identity.CaseID != caseID {
+			owner.Identity.Environment != scope.Environment || owner.Identity.CaseID != caseID ||
+			owner.Identity.Kind != draft.Kind || owner.Identity.ObjectID != draft.ObjectID ||
+			owner.Identity.Reference != s.entries[entryID].Value.SourceRef {
 			writeCaseTimelineError(w, http.StatusNotFound)
 			return
 		}
@@ -79,25 +80,12 @@ func (s *memoryTimelineProvider) sourcePreviewHandler() http.Handler {
 			writeCaseTimelineError(w, http.StatusNotFound)
 			return
 		}
-		payload := struct {
-			Status    string `json:"status"`
-			CaseID    string `json:"case_id"`
-			EntryID   string `json:"entry_id"`
-			Kind      string `json:"kind"`
-			ObjectID  string `json:"object_id"`
-			Preview   string `json:"preview"`
-			Synthetic bool   `json:"synthetic"`
-		}{
+		payload := sourcePreviewResponse{
 			Status: "ready", CaseID: caseID, EntryID: entryID,
 			Kind: draft.Kind, ObjectID: draft.ObjectID,
 			Preview: owner.Preview, Synthetic: true,
 		}
-		encoded, err := json.Marshal(payload)
-		if err != nil {
-			writeCaseTimelineError(w, http.StatusServiceUnavailable)
-			return
-		}
-		w.WriteHeader(http.StatusOK)
-		_, _ = w.Write(append(encoded, '\n'))
+		// Presentation is separate from the source-owner trust decision.
+		writeAuthorizedSourcePreview(w, r, ctx, payload)
 	})
 }
