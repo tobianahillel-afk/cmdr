@@ -106,6 +106,28 @@ func (demoCommandOwner) CanRead(_ context.Context, principal, tenant, environmen
 		kind == queue.Incident && id == "incident-a", nil
 }
 
+// Demonstration-only Command owner, not browser-provided metadata. A Command
+// Incident reader may lack the narrower canonical overview projection.
+func (demoCommandOwner) ReadAuthorizedIncidentOverview(ctx context.Context, principal, tenant, environment, incidentID string) (*queue.AuthorizedIncidentOverview, error) {
+	if ctx.Err() != nil {
+		return nil, errors.New("source canceled")
+	}
+	if tenant != demoTenant || environment != demoEnvironment || incidentID != "incident-a" {
+		return nil, nil
+	}
+	if principal != "analyst" {
+		return nil, nil // independently withheld, even for a readable Incident
+	}
+	return &queue.AuthorizedIncidentOverview{
+		IncidentID: incidentID, Tenant: tenant, Environment: environment,
+		Title: "Suspicious authentication sequence (synthetic)",
+		Priority: "high", Severity: "medium",
+		BusinessImpact: "Identity triage required, business effect unconfirmed",
+		SourceRef: "synthetic-command-incident-owner", SourceVersion: "v1",
+		ObservedAt: "2026-10-21T02:00:00Z",
+	}, nil
+}
+
 func (o demoCommandOwner) ReadAuthorizedLinkedCases(ctx context.Context, principal, tenant, environment, incidentID string) (*queue.AuthorizedLinkedCases, error) {
 	return o.linked.ReadAuthorizedLinkedCases(ctx, principal, tenant, environment, incidentID)
 }

@@ -19,6 +19,13 @@ var incidentDetailPage = template.Must(template.New("incident-detail").Parse(`<!
 <main aria-label="Dossier Incident"><p><strong>Incident {{.Selected.ID}}</strong></p>
 <p>État : {{if .Selected.Status}}{{.Selected.Status}}{{else}}inconnu{{end}} · Responsable : {{if .Selected.Owner}}{{.Selected.Owner}}{{else}}inconnu{{end}} · Dernière mise à jour source : {{.Selected.UpdatedAt}}</p>
 <p>Fraîcheur : {{if .Selected.Freshness}}{{.Selected.Freshness.State}}{{if .Selected.Freshness.Source}} · {{.Selected.Freshness.Source}}{{end}}{{else}}inconnue — aucune politique source{{end}}</p>
+<h2>Informations métier de l'Incident (propriétaire Command)</h2>
+{{if .Overview}}
+<p>Titre : {{if .Overview.Title}}{{.Overview.Title}}{{else}}inconnu — non fourni{{end}}</p>
+<p>Priorité : {{if .Overview.Priority}}{{.Overview.Priority}}{{else}}inconnue — non fournie{{end}} · Sévérité : {{if .Overview.Severity}}{{.Overview.Severity}}{{else}}inconnue — non fournie{{end}}</p>
+<p>Impact métier : {{if .Overview.BusinessImpact}}{{.Overview.BusinessImpact}}{{else}}inconnu — non fourni{{end}}</p>
+<p>Provenance Command : {{.Overview.SourceRef}} · version {{.Overview.SourceVersion}} · observé {{.Overview.ObservedAt}}</p>
+{{else}}<p>Informations métier indisponibles : aucune projection Incident autorisée fournie. Ne pas déduire titre, priorité, sévérité ni impact.</p>{{end}}
 <h2>Coordination et informations indépendamment autorisées</h2>
 <dl>{{range .Factors}}<dt>{{.Name}}</dt><dd>{{.Value}}{{if .Source}} · {{.Source}}{{end}}{{if .ObservedAt}} · {{.ObservedAt}}{{end}}</dd>{{end}}</dl>
 <p>SLA : {{if .SelectedSLA}}{{.SelectedSLA.State}}{{if .SelectedSLA.PolicySource}} · source {{.SelectedSLA.PolicySource}}{{end}}{{else}}inconnu — source SLA indisponible ou non autorisée{{end}}</p>
@@ -27,7 +34,7 @@ var incidentDetailPage = template.Must(template.New("incident-detail").Parse(`<!
 {{if .SelectedLinkedCases}}{{if .SelectedLinkedCases.Cases}}
 <ul>{{range .SelectedLinkedCases.Cases}}<li>Case {{.CaseID}} — {{.Status}} · <a href="/case-timeline?case_id={{urlquery .CaseID}}&amp;origin_incident={{urlquery $.Selected.ID}}" rel="noreferrer">Ouvrir le Case (autorisation distincte)</a></li>{{end}}</ul>
 {{else}}<p>Aucun Case autorisé visible.</p>{{end}}{{else}}<p>Relations inconnues — source de liaison non fournie.</p>{{end}}
-<p>Statut du dossier : partiel. Titre source, Alert, décision attendue, prochaines actions et objets Govern non fournis par cet adaptateur ; aucune valeur n’est inventée.</p>
+<p>Statut du dossier : partiel. Alert, décision attendue, prochaines actions et objets Govern non fournis par cet adaptateur ; aucune valeur n’est inventée.</p>
 <nav aria-label="Retour à la Work Queue"><a href="{{.ReturnHref}}">Retour à l’Incident dans la Work Queue (nouvelle autorisation)</a></nav>
 <p>Aucune action de modification, d’export ou de réponse n’est accessible depuis cette vue.</p>
 </main></body></html>`))
@@ -35,6 +42,7 @@ var incidentDetailPage = template.Must(template.New("incident-detail").Parse(`<!
 type incidentDetailView struct {
 	Result
 	Factors []factorLine
+	Overview *AuthorizedIncidentOverview
 	ReturnHref string
 }
 
@@ -116,11 +124,20 @@ func NewIncidentDetailHTTPHandler(sessions SessionResolver, owner Owner) http.Ha
 			http.Error(w, err.Error(), http.StatusServiceUnavailable)
 			return
 		}
+		// The original Incident owner alone can release its canonical header.
+		// An unavailable optional provider produces an explicit partial view;
+		// a malformed or failed provider aborts before any HTML is emitted.
+		overview, err := readAuthorizedIncidentOverview(r.Context(), owner, scope, id)
+		if err != nil {
+			http.Error(w, "incident detail source unavailable", http.StatusServiceUnavailable)
+			return
+		}
 		if r.Context().Err() != nil {
 			http.Error(w, "incident detail unavailable", http.StatusServiceUnavailable)
 			return
 		}
 		data := incidentDetailView{Result: result,
+			Overview: overview,
 			Factors: selectedFactorLines(result.SelectedFactors),
 			ReturnHref: "/command/work-queue?restore=1&selected=" + url.QueryEscape("Incident:"+id) + "&view=incidents",
 		}

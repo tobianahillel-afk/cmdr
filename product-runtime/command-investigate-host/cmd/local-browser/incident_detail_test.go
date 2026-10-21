@@ -40,7 +40,11 @@ func TestLocalBrowserIncidentDetailUsesFreshCommandAndIndependentCaseOwners(t *t
 		!strings.Contains(page, "incident-a") || !strings.Contains(page, "case_id=case-a") ||
 		!strings.Contains(page, "restore=1") || strings.Contains(page, secrets.analyst) ||
 		strings.Contains(page, secrets.commander) ||
-		!strings.Contains(detail.Header.Get("Content-Security-Policy"), "form-action 'none'") {
+		!strings.Contains(detail.Header.Get("Content-Security-Policy"), "form-action 'none'") ||
+		!strings.Contains(page, "Suspicious authentication sequence (synthetic)") ||
+		!strings.Contains(page, "high") || !strings.Contains(page, "medium") ||
+		!strings.Contains(page, "Identity triage required") ||
+		!strings.Contains(page, "synthetic-command-incident-owner") {
 		t.Fatalf("real selected Incident Detail refused/unsafe: %d %s", detail.StatusCode, page)
 	}
 	back := demoRequest(t, client, s.URL,
@@ -60,7 +64,9 @@ func TestLocalBrowserIncidentDetailUsesFreshCommandAndIndependentCaseOwners(t *t
 		"commander", secrets.commander, "text/html")
 	body := demoBody(t, commandOnly)
 	if commandOnly.StatusCode != http.StatusOK || strings.Contains(body, "case_id=case-a") ||
-		strings.Contains(body, "event-v1") || strings.Contains(body, "source-v1") {
+		strings.Contains(body, "event-v1") || strings.Contains(body, "source-v1") ||
+		strings.Contains(body, "Suspicious authentication sequence") ||
+		!strings.Contains(body, "Informations métier indisponibles") {
 		t.Fatalf("Command-only reader was promoted to Case permission: %d %s", commandOnly.StatusCode, body)
 	}
 	for _, tc := range []struct{ path, role, secret string; want int }{
