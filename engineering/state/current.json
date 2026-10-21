@@ -17,9 +17,9 @@
     "phase_title": "Scaled product implementation program bootstrap"
   },
   "execution": {
-    "active_work_unit": "E10-CMD-106O-NEXTACTION",
+    "active_work_unit": "E10-CMD-106P-TASKLINKS",
     "preferred_next_unit": null,
-    "selection_rule": "New bounded read-only owner-sourced Incident next action display is IMPLEMENTED in a separate DRAFT PR; exact-head WorkQueue/Host/engineering CI, source-owner review and all parent native approvals still required. No independent READY in this branch."
+    "selection_rule": "Task related read-only source implementation is in its own DRAFT PR; exact-sha CI, independent L2, native parent approvals and real source adapters remain required. No independent READY task on this branch."
   },
   "reconciliation": {
     "required_on_resume": true,

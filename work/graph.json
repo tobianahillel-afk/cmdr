@@ -2399,6 +2399,19 @@
         "E10-CMD-106N-DETAILRETURN"
       ],
       "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-CMD-106P-TASKLINKS"
+      ]
+    },
+    {
+      "id": "E10-CMD-106P-TASKLINKS",
+      "title": "Independently reauthorize Command Task links in existing Incident Detail",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-CMD-106O-NEXTACTION"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
       "unlocks": []
     }
   ]
