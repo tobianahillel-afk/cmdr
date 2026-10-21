@@ -1,0 +1,135 @@
+{
+  "schema_version": 2,
+  "id": "E10-CMD-106L-ALERTSRC",
+  "title": "Show separately Alert.read-authorized Incident origin in existing read-only Incident Detail",
+  "type": "task",
+  "parent": "E10-CMD-106",
+  "goal": "Restore the canonical Incident upstream Alert triage source to the real Command Incident Detail, using two narrow server-authorized Command owners: relation owner and independent Alert.read owner. Show limited source provenance, no raw Signal/Event, no mutation or permission inheritance.",
+  "depends_on": [
+    "E10-CMD-106K-OVERVIEW"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-CMD-106",
+      "CAP-CMD-101"
+    ],
+    "requirements": [
+      "REQ-OBJ-001",
+      "REQ-PROD-013",
+      "REQ-SEC-001"
+    ],
+    "screens": [
+      "CMD-IWQ-006"
+    ],
+    "permissions": [
+      "perm.command.incident.read",
+      "perm.command.alert.read"
+    ],
+    "open_decisions": [
+      "OPEN-013"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/incident.md",
+      "cmdr-product-spec/05-domain-model/objects/alert.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/work-queue/incident_alert_origin.go",
+    "product-runtime/work-queue/incident_alert_origin_test.go",
+    "product-runtime/work-queue/incident_detail.go",
+    "product-runtime/command-investigate-host/cmd/local-browser/main.go",
+    "product-runtime/command-investigate-host/cmd/local-browser/incident_detail_test.go",
+    "work/lots/E10-CMD-106L-ALERTSRC/**",
+    "work/graph.json",
+    "engineering/state/current.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/investigation-timeline/**",
+    "product-runtime/command-investigate-host/host.go",
+    "product-runtime/work-queue/queue.go",
+    "product-runtime/work-queue/http.go"
+  ],
+  "invariants": [
+    "Command is owner of Incident and Alert; the Incident relationship is not an Alert.read grant. Incident.read is re-evaluated before any upstream link lookup.",
+    "IncidentAlertReferencesOwner returns only scoped relationship identifiers; independent IncidentAlertOwner must explicitly authorize perm.command.alert.read for principal, tenant, environment and each specific Alert, with null on denied.",
+    "An absent optional provider, absent relation or denied individual Alert produces a partial display, never a false assertion that source does not exist.",
+    "Every link and Alert owner response identity, source reference/version, bounded text and observation time must match authenticated Incident scope or fail the entire HTTP page before any HTML emits.",
+    "No raw Signal, Telemetry Event, Evidence, export, Case privilege transfer, mutation, extra route, paid dependency or production IAM."
+  ],
+  "security_properties": [
+    "Revalidate principal, tenant, environment and Incident/Alert binding on every read; limit source references to 20; require distinct per-alert permissions; deny duplicate links.",
+    "Source failures, canceled context or mismatched identities produce generic HTTP 503 without raw source output; a denied Alert is not included even by ID or count.",
+    "Only strict HTML template autoescape and existing CSP/no-store/referrer protections used."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Optional read-only HTML presentation; no storage or schema changes",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Remove optional Alert owner interfaces and Incident Detail display, retain prior incident overview and linked Case navigation",
+    "verification": [
+      "Original Incident Detail without Alert interfaces still renders Partial",
+      "Existing Command-only principal still cannot access Case or Alert"
+    ]
+  },
+  "inputs": [
+    "Existing source-authorized Incident Detail #209/#210 and Command owner, source-time context, immutable selected Incident",
+    "Canonical OBJ-ALERT and CMD-IWQ-006 read-only source requirement"
+  ],
+  "outputs": [
+    "One existing Incident Detail shows source Alert ID, source severity/status/disposition/provenance only if source owner independently allows Alert.read",
+    "Fail-closed bounded multi-source join with per-Alert isolation, nil/denied omissions and HTML escaping",
+    "Synthetic localhost Go HTTP tests exercising independent principal rights and regression behavior"
+  ],
+  "acceptance_tests": [
+    "Analyst who can read selected Incident and Alert sees actual source-origin fields in Detail; commander who can read Incident but not Alert sees no source ID or attributes",
+    "Wrong tenant/env/Incident link, duplicated/bad Alert IDs, malformed owner source/status/provenance/time or source failure abort without leaking prior authorized page content",
+    "One denied Alert among authorized references is omitted without disclosing its reference, while authorized Alert stays visible",
+    "Legacy owner without either optional interface remains functional, with explicit unavailable source message",
+    "Existing Work Queue, Incident Detail and same-origin host tests plus GitHub Actions on exact SHA pass; all obligatory security and statement coverage gates retained"
+  ],
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-SECURITY-TESTS",
+    "CHK-SAST-GO",
+    "CHK-SCA-GO",
+    "command-work-queue-runtime",
+    "command-investigate-readonly-host"
+  ],
+  "definition_of_ready": [
+    "K-OVERVIEW IMPLEMENTED on frozen reviewed PR #210 SHA 07900fa4c174f46a71a52debb3a93403faabd4c9; separate source read remains canonical but missing",
+    "Read-only Action Class 0 and OPEN-013 Class 2 excluded"
+  ],
+  "definition_of_done": [
+    "New independent owner source visible in actual localhost HTTP Incident Detail",
+    "Full Go tests/vet/race and engineering-kernel on exact SHA PASS",
+    "Independent L2 for new trust boundary before merge; no full Incident Detail or production acceptance claim"
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "Bounded <=20 source link reads per already-authorized Incident and no Signal/Alert raw reads; synthetic performance only",
+    "metrics": [
+      "<=20 owner-authorized referenced Alert lookups per request",
+      "No production SLO"
+    ]
+  },
+  "complexity": {
+    "primary_components": 2,
+    "estimated_files_changed": 3,
+    "estimated_net_loc": 275,
+    "production_files": 3,
+    "net_production_loc": 180,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}
