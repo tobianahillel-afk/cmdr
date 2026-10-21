@@ -2195,7 +2195,8 @@
       ],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": [
-        "E10-CMD-106F-TIMELINE"
+        "E10-CMD-106F-TIMELINE",
+        "E10-INV-110J-CASEHTML"
       ]
     },
     {
@@ -2206,6 +2207,20 @@
       "depends_on": [
         "E10-CMD-106E-HOST",
         "E10-INV-110F-SUPERSESSION"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-INV-110J-CASEHTML"
+      ]
+    },
+    {
+      "id": "E10-INV-110J-CASEHTML",
+      "title": "Provide HTML view of source-authorized Case Timeline in same-origin Command navigation",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-INV-110F-SUPERSESSION",
+        "E10-CMD-106F-TIMELINE"
       ],
       "dependency_terminal_state": "IMPLEMENTED",
       "unlocks": []
