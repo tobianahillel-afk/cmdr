@@ -2245,7 +2245,7 @@
       "id": "E10-CMD-106G-LOCALBROWSER",
       "title": "Run real loopback-only browser Command Incident -> independently authorized Case Timeline HTML",
       "type": "task",
-      "status": "READY",
+      "status": "IMPLEMENTED",
       "depends_on": [
         "E10-CMD-106F-TIMELINE",
         "E10-INV-110K-HTMLFILTER"
