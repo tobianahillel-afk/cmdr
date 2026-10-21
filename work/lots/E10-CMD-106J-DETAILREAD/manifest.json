@@ -51,7 +51,8 @@
     "product-runtime/command-investigate-host/cmd/local-browser/incident_detail_test.go",
     "work/graph.json",
     "engineering/state/current.json",
-    "work/lots/E10-CMD-106J-DETAILREAD/**"
+    "work/lots/E10-CMD-106J-DETAILREAD/**",
+    "product-runtime/command-investigate-host/incident_detail_host_test.go"
   ],
   "forbidden_paths": [
     "cmdr-product-spec/**",
@@ -104,7 +105,8 @@
     "Original Work Queue selection and JSON response semantics unchanged, including optional factors/SLA/linked sources.",
     "Local synthetic analyst follows Work Queue→Incident Detail→Case Timeline→authorized return; Command-only principal reads permitted Incident but not linked Case.",
     "GET-only/HTML-only, no form or script; response headers cache/CSP/Referrer safe, zero credential in URL.",
-    "Relevant Go tests/race/vet/CI and unchanged engineering mandatory checks pass on EXACT PR HEAD; separate L2 required before acceptance."
+    "Relevant Go tests/race/vet/CI and unchanged engineering mandatory checks pass on EXACT PR HEAD; separate L2 required before acceptance.",
+    "Optional host/detail routing rejects nil/ambiguous handlers, preserves two-handler legacy behavior, routes only exact fixed path and propagates independently authorized detail refusal"
   ],
   "required_checks": [
     "command-work-queue-runtime",
