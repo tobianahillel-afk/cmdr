@@ -78,7 +78,7 @@ var timelineHTMLTemplate = template.Must(template.New("case-timeline-html").Func
 {{if .HasPrevious}}<a rel="prev" href="{{.PreviousURL}}">Page précédente</a>{{end}}
 {{if .HasNext}}<a rel="next" href="{{.NextURL}}">Page suivante</a>{{end}}
 </nav>
-{{if .IncidentReturnURL}}<p><a href="{{.IncidentReturnURL}}" rel="noreferrer">Retour à l'Incident sélectionné dans Command (autorisation revérifiée)</a>. Ce lien ne transfère aucun droit sur l'Incident.</p>{{end}}
+{{if .IncidentReturnURL}}<p><a href="{{.IncidentReturnURL}}" rel="noreferrer">{{if .DetailReturn}}Retour à Incident Detail (autorisation Command revérifiée){{else}}Retour à l'Incident sélectionné dans la Work Queue (autorisation revérifiée){{end}}</a>. Ce lien ne transfère aucun droit sur l'Incident.</p>{{end}}
 <p>Ce tableau est une représentation des entrées déjà autorisées. Un statut absent ne prouve pas qu'aucune correction masquée n'existe. La consultation d'un objet source exige un contrôle de permission distinct : les références source ci-dessus ne sont pas des liens donnant accès.</p>
 </main>
 </body>
