@@ -7,6 +7,7 @@ import (
 	"errors"
 	"html"
 	"io"
+	"net"
 	"net/http"
 	"net/http/httptest"
 	"regexp"
@@ -324,5 +325,57 @@ func TestLocalBrowserCredentialAndHostInputsCannotBecomeAuthority(t *testing.T) 
 	}
 	if s.principal(httptest.NewRequest(http.MethodGet, "/", nil)) != "" {
 		t.Fatal("unprovided credentials resolved to identity")
+	}
+}
+
+type unavailableConsole struct{}
+
+func (unavailableConsole) Write(_ []byte) (int, error) {
+	return 0, errors.New("console unavailable")
+}
+
+func TestLocalBrowserStartupRejectsBadSecretsListenerAndConsole(t *testing.T) {
+	secrets, err := newDemoSecrets()
+	if err != nil {
+		t.Fatal(err)
+	}
+	listenCalls := 0
+	for _, invalid := range []demoSecrets{{}, {analyst: secrets.analyst, commander: secrets.analyst}} {
+		err := serveDemo(context.Background(), io.Discard, invalid,
+			func(_, _ string) (net.Listener, error) {
+				listenCalls++
+				return nil, errors.New("listener must not start")
+			})
+		if err == nil || listenCalls != 0 {
+			t.Fatalf("invalid secrets opened listener: %v, calls=%d", err, listenCalls)
+		}
+	}
+	err = serveDemo(context.Background(), io.Discard, secrets,
+		func(network, address string) (net.Listener, error) {
+			listenCalls++
+			if network != "tcp4" || address != "127.0.0.1:0" {
+				t.Fatalf("unexpected binding %q %q", network, address)
+			}
+			return nil, errors.New("loopback listener unavailable")
+		})
+	if err == nil || listenCalls != 1 {
+		t.Fatalf("failed TCP4 binding did not prevent startup: %v, calls=%d", err, listenCalls)
+	}
+
+	var listener net.Listener
+	err = serveDemo(context.Background(), unavailableConsole{}, secrets,
+		func(network, address string) (net.Listener, error) {
+			var listenErr error
+			listener, listenErr = net.Listen(network, address)
+			return listener, listenErr
+		})
+	if err == nil || !strings.Contains(err.Error(), "cannot announce") || listener == nil {
+		t.Fatalf("unable to print secret did not prevent serving: %v", err)
+	}
+	// A failed console write closes the allocated listener immediately.
+	conn, dialErr := net.DialTimeout("tcp4", listener.Addr().String(), 100*time.Millisecond)
+	if dialErr == nil {
+		_ = conn.Close()
+		t.Fatal("secret-unavailable startup left a reachable HTTP listener")
 	}
 }
