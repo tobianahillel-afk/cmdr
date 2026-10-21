@@ -16,6 +16,7 @@ const (
 	eventInspectionPivotProgressPath   = "work/lots/E10-INV-004C-PIVOT/PROGRESS.json"
 	eventInspectionHandoffPath         = "engineering/implementation/event-inspection/bounded-handoff.json"
 	eventInspectionRuntimeDirectory    = "product-runtime/event-inspection"
+	eventInspectionToolchainModPath    = "product-runtime/event-inspection/go.mod"
 )
 
 var eventInspectionAdversarialTests = []string{
