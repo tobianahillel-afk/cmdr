@@ -19,3 +19,13 @@ CAP-INV-110 defines source-authorized Case/Timeline navigation and investigation
 Go test exercises disk-backed 53 alerts, 27 two-page matching tag occurrences (duplicate labels on same alert count once), empty/forged scope, bearer absent, mixed agent/rule, duplicate ID, invalid label, bad offset, deny before leaking raw. Node tests exercise source-claimed button, exact same-origin `technique_id` query, bearer never in URL, authorized Event identities and denial when returned selector differs. The workflow is `investigation-timeline-runtime` plus all engineering mandatory checks on **the final SHA only**.
 
 This candidate is an additional Draft PR stacked *only because* #218 is frozen for independent L2; it does not make parent #218 or its long chain merged or production-ready. Do not start another task on this SHA before reviews/CI stabilize; promote integration and native independent approvals through the existing parent chain before merging. A ChatGPT L2 technical verdict is not native GitHub APPROVED.
+
+
+## Independent L2 R2 correction — strict transport parsing (separate descendant)
+Independent read-only review of immutable PR #219 HEAD `164019c252227f65048d292b33e699b2a275c18b` reported `CHANGES_REQUIRED`: `r.URL.Query()` silently drops invalid URL pairs, so an apparently valid selector with an additional malformed pair can pass the exact-key checks. Corrective branch `fix/e10-inv-120d-strict-wazuh-drilldown` starts from that frozen SHA without altering PR #219, its historical checks or product contracts.
+
+In `wazuh_drilldown.go`, the existing endpoint now uses standard-library `url.ParseQuery(r.URL.RawQuery)` and rejects parsing errors before interpreting any remaining selector. Tests cover invalid percent-escape in unknown fields, offset, duplicate Case and semicolon pairs; no source data is emitted.
+
+The nonblocking reviewer R3 observed that browser-side `offset`/`has_more` were optional. The same client now requires exact integer offset equal to the request and boolean has_more consistent with total count before rendering source Event IDs. New Node tests cover missing, mismatched and malformed metadata; existing valid mock is made protocol-compliant. Agent/rule/intersection/technique behavior otherwise unchanged, and source open reauthorizes Case/Timeline/typed sources.
+
+This is a targeted correction of the existing E10-INV-120D-TECHNAV task, not a new product capability, data owner, route, auth engine or dependency. New exact-HEAD CI and targeted independent L2 delta review are required. No native GitHub APPROVED, merge to main or production IAM/remote Wazuh provider is claimed.
