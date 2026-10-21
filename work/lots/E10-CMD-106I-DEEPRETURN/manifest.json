@@ -1,0 +1,143 @@
+{
+  "schema_version": 2,
+  "id": "E10-CMD-106I-DEEPRETURN",
+  "title": "Restore deep authorized Command Incident from Investigate across Work Queue pagination",
+  "type": "task",
+  "parent": "E10-CMD-106",
+  "goal": "Complete CAP-CMD-106 Class-0 Incident → Investigate → Incident return when the original Incident is not on the first 50 rows, using the existing owner-filtered Command Work Queue and its revision-bound cursor, never a new permission or separate Incident engine.",
+  "depends_on": [
+    "E10-CMD-106H-RETURN"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-CMD-106",
+      "CAP-CMD-101",
+      "CAP-INV-110"
+    ],
+    "requirements": [
+      "REQ-PROD-013",
+      "REQ-PROD-014",
+      "REQ-SEC-001"
+    ],
+    "screens": [
+      "CMD-IWQ-006",
+      "INV-TIM-001"
+    ],
+    "permissions": [
+      "perm.command.incident.read",
+      "perm.investigate.case.read"
+    ],
+    "open_decisions": [
+      "OPEN-013"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/cross-product-context-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/incident.md",
+      "cmdr-product-spec/05-domain-model/objects/case.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/work-queue/queue.go",
+    "product-runtime/work-queue/pagination.go",
+    "product-runtime/work-queue/http.go",
+    "product-runtime/work-queue/deep_return_test.go",
+    "product-runtime/investigation-timeline/incident_return.go",
+    "product-runtime/investigation-timeline/incident_return_test.go",
+    "product-runtime/command-investigate-host/cmd/local-browser/incident_return_test.go",
+    "work/graph.json",
+    "engineering/state/current.json",
+    "work/lots/E10-CMD-106I-DEEPRETURN/**"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/command-investigate-host/host.go",
+    "product-runtime/command-investigate-host/cmd/local-browser/main.go",
+    "product-runtime/work-queue/linked_cases_join.go",
+    "product-runtime/investigation-timeline/case_http.go"
+  ],
+  "invariants": [
+    "Return hint is untrusted browser navigation only; Command Owner.List and Owner.CanRead for every in-scope object are re-executed on each GET before looking for its ID.",
+    "Existing Work Queue selections remain page-bound and JSON selection contract remains unchanged. Only exact HTML GET view=incidents&selected=Incident:<id>&restore=1 with no other key or explicit cursor may perform source-authorized page lookup.",
+    "Restore finds the ID only among the FULL authorized/filtered/sorted bounded <=5000-row Command cohort, not raw owner IDs; if missing/revoked/foreign -> generic 404 with no data.",
+    "Restored third page has a freshly computed revision-bound cursor for normal next/previous HTML pagination; client cannot supply offset, pagination digest or permission.",
+    "No Incident/Case update, new auth engine, source IO, hidden information, class-2 operation, external URL, credential or production IAM.",
+    "Source PR #207 HEAD 5a3aa252e369d31f34d96989bd3e72c8e1c16dd6 and all upstream reviewed SHA remain immutable."
+  ],
+  "security_properties": [
+    "Fail closed on forged/duplicate/unknown restore, wrong view, Task selection, JSON Accept, explicit cursor, filters or unsafe ID before host session.",
+    "A formerly authorized Incident revoked by Command Owner cannot reappear because restore never trusts Case origin alone.",
+    "Incident selection must remain owner-authorized and same tenant/environment; cross product hint never grants Investigate Case rights."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Only read-only authorized page focus and optional HTML-only presentation query; no persisted data.",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Remove return focus hint and narrow Work Queue focus logic; legacy Case return resumes first-page-only behavior with no persisted change.",
+    "verification": [
+      "Legacy JSON queue selection remains strict",
+      "Normal native page three selection with explicit current cursor unaffected"
+    ]
+  },
+  "inputs": [
+    "Existing CAP-CMD-106 Command Incident and CAP-INV-110 authorized Class-0 navigation and source return on #207",
+    "Current Work Queue can paginate fully authorized 123+ rows, but selected Incident from Case return fails 404 if off the first 50."
+  ],
+  "outputs": [
+    "Original selected Incident returns correctly even if on page three; source-authorized same-origin Work Queue renders correct page, HTML selection, prev/next cursors.",
+    "Off-page selection without restore stays denied, API JSON unchanged, invalid restore fails before owner, revocation gives 404 with no leak."
+  ],
+  "acceptance_tests": [
+    "Normal no-restore selection of off-page Incident remains 404 (prior explicit cursor invariant).",
+    "HTML read-only restore deep Incident #100 succeeds only if the current Command Owner authorizes it after all 124 in-scope ACL decisions; returns its correct real page and cursor.",
+    "Revoking target access before return fails generic 404 and no stale content.",
+    "Restore in JSON or with Task, extra query keys, cursor or malformed token rejects 400 before owner lookup.",
+    "Original Case/source roundtrip points to single canonical relative Command route using restore=1 and still independently authorizes Incident.",
+    "Full Work Queue/Timeline/Command-investigate-host Go/race/vet and global engineering checks pass on exact head SHA."
+  ],
+  "required_checks": [
+    "work-queue-runtime",
+    "investigation-timeline-runtime",
+    "command-investigate-readonly-host",
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-SECURITY-TESTS",
+    "CHK-SAST-GO",
+    "CHK-SCA-GO"
+  ],
+  "definition_of_ready": [
+    "Parent #207 E10-CMD-106H-RETURN IMPLEMENTED, exact SHA CI 4/4 green, in draft pending independent review. No modification to parent L2 head.",
+    "Canonical CAP-CMD-106 Incident Detail return §17/§25 and screen CMD-IWQ-006 allow safe deep links; OPEN-013 mutations excluded."
+  ],
+  "definition_of_done": [
+    "End-to-end browser-style local synthetic Incident→Case→Source→Incident works for an off-page Incident without changing permission boundaries.",
+    "Exact head CI and no mandatory waiver; independent L2 on significant cross-product navigation when ready.",
+    "No merge nor CAP-wide acceptance unless upstream reviewed approvals/CI and ownership are separately met."
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "Reuse existing bounded O(N<=5000) source authorization and sorted page digest; one additional O(N) in-memory target lookup and cursor encoding, no new network/source query or production SLO.",
+    "metrics": [
+      "at most 5000 authorized items per read",
+      "no additional provider calls beyond existing Project owner List/CanRead",
+      "constant page size 50"
+    ]
+  },
+  "complexity": {
+    "primary_components": 2,
+    "estimated_files_changed": 4,
+    "estimated_net_loc": 115,
+    "production_files": 4,
+    "net_production_loc": 90,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}
