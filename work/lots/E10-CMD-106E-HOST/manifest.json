@@ -56,7 +56,8 @@
     "engineering/performance/performance-registry.json",
     "engineering/performance/performance-policy.json",
     "tools/cmdr-dev/performance_registry.go",
-    "tools/cmdr-dev/security_tests.go"
+    "tools/cmdr-dev/security_tests.go",
+    "tools/cmdr-dev/security_tests_test.go"
   ],
   "forbidden_paths": [
     "cmdr-product-spec/**",
@@ -113,7 +114,8 @@
     "Anonymous, wrong token, invalid Case query, invalid path, mutation and nil handler fail closed.",
     "Existing individual handlers remain unchanged; cross-tenant/session privileges not transferable.",
     "Exact GitHub SHA validates Go compile/unit/race/vet/coverage on Linux, Windows, macOS and engineering schema/security checks.",
-    "Global CHK-SECURITY-TESTS executes measured host Go coverage and negative tests on exact SHA, no unmeasured boundary or altered coverage thresholds."
+    "Global CHK-SECURITY-TESTS executes measured host Go coverage and negative tests on exact SHA, no unmeasured boundary or altered coverage thresholds.",
+    "The strict security adapter registry unit test expects exactly 10 registered adapters including command-investigate-host-runtime; no implicit adapter is permitted."
   ],
   "required_checks": [
     "CHK-MANIFESTS",
