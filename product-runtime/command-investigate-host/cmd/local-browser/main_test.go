@@ -427,10 +427,22 @@ func TestLocalBrowserCaseTimelineOpensOnlyFreshlyAuthorizedSource(t *testing.T) 
 	opened := demoRequest(t, client, server.URL, sourcePath, "analyst", secrets.analyst, "text/html")
 	preview := demoBody(t, opened)
 	if opened.StatusCode != http.StatusOK || !strings.Contains(preview, "original observed event") ||
-		!strings.Contains(preview, "\"object_id\":\"object-v1\"") ||
-		!strings.Contains(preview, "\"synthetic\":true") ||
-		opened.Header.Get("Cache-Control") != "no-store" {
-		t.Fatalf("same-origin source owner failed to re-authorize: status=%d %s", opened.StatusCode, preview)
+		!strings.Contains(preview, "Source de la chronologie") ||
+		!strings.Contains(preview, "object-v1") ||
+		!strings.Contains(preview, "Prévisualisation synthétique locale") ||
+		strings.Contains(preview, "source-v1") ||
+		strings.Contains(preview, secrets.analyst) ||
+		opened.Header.Get("Content-Type") != "text/html; charset=utf-8" ||
+		opened.Header.Get("Cache-Control") != "no-store" ||
+		!strings.Contains(opened.Header.Get("Content-Security-Policy"), "default-src 'none'") {
+		t.Fatalf("same-origin source owner HTML failed to re-authorize: status=%d %s", opened.StatusCode, preview)
+	}
+	jsonView := demoRequest(t, client, server.URL, sourcePath, "analyst", secrets.analyst, "application/json")
+	jsonPreview := demoBody(t, jsonView)
+	if jsonView.StatusCode != http.StatusOK || !strings.Contains(jsonPreview, "\"object_id\":\"object-v1\"") ||
+		!strings.Contains(jsonPreview, "\"synthetic\":true") ||
+		jsonView.Header.Get("Content-Type") != "application/json; charset=utf-8" {
+		t.Fatalf("original source JSON representation regressed: status=%d %s", jsonView.StatusCode, jsonPreview)
 	}
 	// A browser's Back action restores the original validated Case URL,
 	// including the specific authorized filter and pagination selection.
@@ -446,11 +458,14 @@ func TestLocalBrowserCaseTimelineOpensOnlyFreshlyAuthorizedSource(t *testing.T) 
 		{"analyst", secrets.analyst, sourcePath + "&source_ref=source-v1"},
 		{"analyst", "wrong-credential", sourcePath},
 	} {
-		result := demoRequest(t, client, server.URL, tc.path, tc.role, tc.password, "application/json")
-		body := demoBody(t, result)
-		if result.StatusCode == http.StatusOK ||
-			strings.Contains(body, "object-v1") || strings.Contains(body, "original observed event") {
-			t.Fatalf("source URL bypassed owner checks: role=%q status=%d body=%q", tc.role, result.StatusCode, body)
+		for _, accept := range []string{"application/json", "text/html"} {
+			result := demoRequest(t, client, server.URL, tc.path, tc.role, tc.password, accept)
+			body := demoBody(t, result)
+			if result.StatusCode == http.StatusOK ||
+				strings.Contains(body, "object-v1") || strings.Contains(body, "original observed event") {
+				t.Fatalf("source URL bypassed owner checks: role=%q accept=%q status=%d body=%q",
+					tc.role, accept, result.StatusCode, body)
+			}
 		}
 	}
 }
