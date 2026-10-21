@@ -2266,6 +2266,19 @@
         "E10-CMD-106G-LOCALBROWSER"
       ],
       "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-INV-110N-SOURCEHTML"
+      ]
+    },
+    {
+      "id": "E10-INV-110N-SOURCEHTML",
+      "title": "Show independently authorized source preview as safe HTML in runnable Incident->Case browser",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-INV-110L-SOURCEOPEN"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
       "unlocks": []
     }
   ]
