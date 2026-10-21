@@ -32,5 +32,5 @@ func NewHandler(command, timeline http.Handler) (http.Handler, error) {
 		default:
 			http.NotFound(w, r)
 		}
-	})
+	}), nil
 }
