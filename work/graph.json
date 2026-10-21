@@ -2358,6 +2358,19 @@
         "E10-CMD-106K-OVERVIEW"
       ],
       "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-CMD-106M-RESULTREAD"
+      ]
+    },
+    {
+      "id": "E10-CMD-106M-RESULTREAD",
+      "title": "Show independently Govern Result.read-authorized outcome in existing Command Incident Detail",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-CMD-106L-ALERTSRC"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
       "unlocks": []
     }
   ]
