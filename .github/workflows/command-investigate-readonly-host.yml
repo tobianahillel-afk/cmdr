@@ -62,7 +62,8 @@ jobs:
           go tool cover -func=coverage.out
           pct="$(go tool cover -func=coverage.out | awk '/^total:/ {gsub(/%/, "", $3); print $3}')"
           awk -v value="$pct" 'BEGIN {exit !(value + 0 >= 90)}'
-      - name: Enforce gofmt on first-party composition
+      - name: Enforce gofmt on first-party composition (Linux canonical checkout)
+        if: matrix.os == 'ubuntu-latest'
         working-directory: product-runtime/command-investigate-host
         shell: bash
         run: |
