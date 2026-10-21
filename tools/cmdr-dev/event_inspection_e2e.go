@@ -354,7 +354,7 @@ func validateEventInspectionPivotFollowupProof(root, oldCommit, currentCommit st
 	approved := map[string]string{
 		"product-runtime/event-inspection/pivot.go":               "938b1d4ae090e2a4080604d8b7d155f24bec69de",
 		"product-runtime/event-inspection/pivot_presence_test.go": "736a2b0a85dd3219e77cdd9aae6b8320f8a0bd53",
-		"product-runtime/event-inspection/go.mod":                   "9f45d10c3e854581bb835f326a8d3a5572dcea1f",
+		"product-runtime/event-inspection/go.mod":                 "9f45d10c3e854581bb835f326a8d3a5572dcea1f",
 	}
 	diff := exec.Command("git", "-C", root, "diff", "--name-only", oldCommit, currentCommit, "--", eventInspectionRuntimeDirectory) // #nosec G204,G702 -- validated full commit SHA and fixed runtime path.
 	out, err := diff.Output()
