@@ -61,6 +61,7 @@ func (telemetryOwner) ReadAuthorizedInspectionEvent(_ context.Context, s host.Se
 
 // Synthetic action authority is deliberately separate from Event.read.
 type pivotOwner struct{}
+
 func (pivotOwner) CanDraftPivot(_ context.Context, s host.Session, q host.Request, field, value string) (bool, error) {
 	return s.Principal == "analyst" && s.Tenant == "tenant-a" &&
 		q.JobID == "job-1" && q.RunID == "run-1" && q.EventRef == "event-1" &&
