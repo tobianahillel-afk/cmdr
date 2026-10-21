@@ -60,8 +60,9 @@ func writeDemoWazuhDrilldownPage(ctx context.Context, principal string, data tim
 // The intersection reuses exactly the same Case, Timeline and typed-source
 // authorization traversal. Wazuh agent/rule labels never grant permissions.
 func writeDemoWazuhDrilldownFilteredPage(ctx context.Context, principal string, data timeline.MemoryTimelineData, imported int, raw []byte, caseID, selector, value, secondValue string, offset int, output io.Writer) error {
-	if (selector != "agent_id" && selector != "rule_id" && selector != "agent_rule") ||
-		!validWazuhCohortID(value) ||
+	if (selector != "agent_id" && selector != "rule_id" && selector != "agent_rule" && selector != "technique_id") ||
+		(selector == "technique_id" && !validWazuhTechniqueID(value)) ||
+		(selector != "technique_id" && !validWazuhCohortID(value)) ||
 		(selector == "agent_rule" && !validWazuhCohortID(secondValue)) ||
 		(selector != "agent_rule" && secondValue != "") ||
 		offset < 0 || offset > 5000 || offset%wazuhDrilldownPageSize != 0 {
@@ -86,6 +87,16 @@ func writeDemoWazuhDrilldownFilteredPage(ctx context.Context, principal string, 
 		match := (selector == "agent_id" && metadata.AgentID == value) ||
 			(selector == "rule_id" && metadata.RuleID == value) ||
 			(selector == "agent_rule" && metadata.AgentID == value && metadata.RuleID == secondValue)
+		if selector == "technique_id" {
+			// Reuse the same source-level parser and already-authorized Timeline
+			// entry; an ATT&CK tag is merely a filter, never an entitlement.
+			for _, id := range metadata.MITREIDs {
+				if id == value {
+					match = true
+					break
+				}
+			}
+		}
 		if !match { return nil }
 		result.TotalMatches++
 		if result.TotalMatches > offset && len(result.Entries) < wazuhDrilldownPageSize {
@@ -115,13 +126,19 @@ func serveDemoWazuhDrilldown(w http.ResponseWriter, r *http.Request, principal s
 	}
 	agentValues, hasAgent := query["agent_id"]
 	ruleValues, hasRule := query["rule_id"]
-	if (!hasAgent && !hasRule) ||
+	techniqueValues, hasTechnique := query["technique_id"]
+	if (!hasAgent && !hasRule && !hasTechnique) ||
+		(hasTechnique && (hasAgent || hasRule || len(techniqueValues) != 1 ||
+			!validWazuhTechniqueID(techniqueValues[0]))) ||
 		(hasAgent && (len(agentValues) != 1 || !validWazuhCohortID(agentValues[0]))) ||
 		(hasRule && (len(ruleValues) != 1 || !validWazuhCohortID(ruleValues[0]))) {
 		http.NotFound(w, r)
 		return
 	}
 	selector, value, secondValue := "", "", ""
+	if hasTechnique {
+		selector, value = "technique_id", techniqueValues[0]
+	}
 	if hasAgent {
 		selector, value = "agent_id", agentValues[0]
 	}

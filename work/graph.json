@@ -2449,6 +2449,19 @@
         "E10-INV-120B-MITRE"
       ],
       "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-INV-120D-TECHNAV"
+      ]
+    },
+    {
+      "id": "E10-INV-120D-TECHNAV",
+      "title": "Open source-authorized Wazuh ATT&CK technique events via existing Case/Timeline drilldown",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-INV-120C-MITREFIX"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
       "unlocks": []
     }
   ]
