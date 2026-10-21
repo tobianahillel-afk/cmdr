@@ -55,12 +55,14 @@
     "The browser HTML representation is selected by explicit text/html first-preference with positive q; JSON API clients keep exact original response fields and statuses.",
     "Render using Go html/template and a fixed internal Case Timeline URL; URL includes only already authorized Case ID, no auth credential, raw sourceRef, arbitrary return URL or principal. Browser Back preserves precise history but the internal link resets filters and says so.",
     "No JavaScript, external CSS, iframe or unsafe-inline CSP; no-store, Authorization/Accept variance and no-referrer prevent disclosure through caches.",
-    "Parent #36 contains existing JSON owner and fixtures; new change lives on separate source branch, and PR #203 frozen SHA plus its L2 remain untouched."
+    "Parent #36 contains existing JSON owner and fixtures; new change lives on separate source branch, and PR #203 frozen SHA plus its L2 remain untouched.",
+    "The new HTML integration must retain and strengthen source identity checks; immutable owner constructors remain authoritative and separate source authorization is still mandatory."
   ],
   "security_properties": [
     "Anonymous, cross-tenant and independently denied source preview never renders HTML or returns protected object metadata.",
     "HTML autoescapes owner-supplied preview (including script-looking payloads) and ID fields, no injected links.",
-    "No new production source, authorization model, response run or evidence chain is claimed."
+    "No new production source, authorization model, response run or evidence chain is claimed.",
+    "At the final preview sink, independently revalidate the complete canonical source identity (reference, kind, object ID, tenant, environment, Case), even if the trusted owner snapshot is inconsistent with earlier resolver output."
   ],
   "migration": {
     "required": false,
@@ -88,7 +90,8 @@
     "Same request with application/json returns original JSON projection with same allowed source fields and no data changes.",
     "Malicious preview HTML is autoescaped, no script/style permitted in CSP, no secret or credential in body or href.",
     "Denied/anonymous/foreign source cannot be transformed into HTML or leak sensitive values by Accept spoof.",
-    "Unchanged full Go source module tests, race, vet, source handler coverage and exact SHA engineering gates succeed."
+    "Unchanged full Go source module tests, race, vet, source handler coverage and exact SHA engineering gates succeed.",
+    "Adversarial owner snapshots with post-navigation changed tenant, environment, Case, canonical sourceRef, owner kind or source object ID must fail closed with no HTML or source preview."
   ],
   "required_checks": [
     "investigation-timeline-runtime on exact SHA Linux/macOS/Windows",
