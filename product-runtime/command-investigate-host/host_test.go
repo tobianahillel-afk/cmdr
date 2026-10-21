@@ -149,7 +149,8 @@ func TestRealSameOriginCommandToInvestigateNavigationIndependentlyReauthorizes(t
 		t.Fatalf("Command read unavailable: %d %s", start.Code, start.Body.String())
 	}
 	link := "/case-timeline?case_id=" + url.QueryEscape("case-a")
-	if !strings.Contains(html.UnescapeString(start.Body.String()), "href=\""+link+"\"") {
+	originLink := link + "&origin_incident=incident-a"
+	if !strings.Contains(html.UnescapeString(start.Body.String()), "href=\""+originLink+"\"") {
 		t.Fatalf("authorized Case link not rendered in Command: %s", start.Body.String())
 	}
 	if owner.lookups != 1 {
