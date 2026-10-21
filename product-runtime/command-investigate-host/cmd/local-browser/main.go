@@ -175,6 +175,42 @@ func (demoSharedLinks) ReadAuthorizedIncidentCaseReferences(_ context.Context, p
 	}}}, nil
 }
 
+// The Shared synthetic link owner independently authorizes Incident→Result
+// relations; links do not confer Govern Result.read on the destination.
+func (demoSharedLinks) ReadAuthorizedIncidentResultReferences(ctx context.Context, principal, tenant, environment, incidentID string) ([]queue.IncidentResultReference, error) {
+	if ctx.Err() != nil {
+		return nil, errors.New("synthetic relation read canceled")
+	}
+	if principal != "analyst" || tenant != demoTenant || environment != demoEnvironment || incidentID != "incident-a" {
+		return nil, nil
+	}
+	return []queue.IncidentResultReference{{
+		IncidentID: incidentID, ResultID: "result-a",
+		Tenant: tenant, Environment: environment,
+	}}, nil
+}
+
+type demoGovernResultOwner struct{}
+
+// A separate synthetic Govern owner applies Result.read; neither Incident.read
+// nor an authorized Shared relation can release a Result to another principal.
+func (demoGovernResultOwner) ReadAuthorizedGovernResult(ctx context.Context, principal, tenant, environment, resultID string) (*queue.AuthorizedGovernResult, error) {
+	if ctx.Err() != nil {
+		return nil, errors.New("synthetic Govern source canceled")
+	}
+	if principal != "analyst" || tenant != demoTenant || environment != demoEnvironment || resultID != "result-a" {
+		return nil, nil
+	}
+	return &queue.AuthorizedGovernResult{
+		ID: resultID, Tenant: tenant, Environment: environment,
+		RunID: "run-a", Lifecycle: "finalized",
+		Outcome: "verification-failed", Verification: "failed",
+		ResidualRisk: "Identity control status unverified (synthetic)",
+		SourceRef: "synthetic-govern-result-owner",
+		SourceVersion: "v1", CreatedAt: "2026-10-21T02:10:00Z",
+	}, nil
+}
+
 type demoInvestigateCaseOwner struct{}
 
 func (demoInvestigateCaseOwner) ReadAuthorizedCaseIdentity(_ context.Context, principal, tenant, environment, id string) (*queue.AuthorizedCaseIdentity, error) {
@@ -253,7 +289,8 @@ func newLocalDemoHandler(secrets demoSecrets) (http.Handler, error) {
 	if err != nil {
 		return nil, err
 	}
-	details := queue.NewIncidentDetailHTTPHandler(demoCommandSessions{}, owner)
+	details := queue.NewIncidentDetailHTTPHandlerWithResults(demoCommandSessions{}, owner,
+		demoSharedLinks{}, demoGovernResultOwner{})
 	routes, err := host.NewHandler(command, timeline.WithLocalSourceLinks(investigate.Timeline), details)
 	if err != nil {
 		return nil, err
