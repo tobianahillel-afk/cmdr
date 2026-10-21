@@ -1473,7 +1473,7 @@ test("Wazuh source-attributed ATT&CK techniques appear in the same authorized an
   assert.match(text, /étiquette T1078 : 2 alerte\(s\), niveau maximum connu 0/);
   assert.match(text, /étiquette T1059 : 1 alerte\(s\), niveau maximum connu inconnu/);
   assert.match(text, /Alertes sans étiquette MITRE : 1/);
-  assert.equal(env.fields["wazuh-actions"].children.length, 0);
+  assert.equal(env.fields["wazuh-actions"].children.length, 3);
   assert.equal(env.requests.length, 1);
   assert.ok(!env.requests[0].url.href.includes("ephemeral-token"));
 });
@@ -1560,4 +1560,73 @@ test("Wazuh ATT&CK cohorts remain invisible when the Case selection changes befo
   await flush();
   await flush();
   assert.doesNotMatch(env.fields["wazuh-status"].textContent, /T1059/);
+});
+
+
+test("Wazuh MITRE technique selection uses original owner-reauthorized HTTP drilldown", async () => {
+  const env = boot((url, options) => {
+    assert.equal(options.headers.Authorization, "Bearer ephemeral-token");
+    if (url.pathname === "/demo-wazuh-cohorts") return { ok: true, async json() { return {
+      format: "cmdr-local-wazuh4-case-triage-v1", synthetic: true,
+      imported_entries: 2, top_agents: [], top_rules: [],
+      distinct_technique_ids: 1, unmapped_technique_alerts: 0,
+      top_techniques: [{ technique_id: "T1059.001", count: 2, highest_known_rule_level: 9 }]
+    }; } };
+    if (url.pathname === "/demo-wazuh-drilldown") return { ok: true, async json() { return {
+      format: "cmdr-local-wazuh4-drilldown-v1", synthetic: true,
+      selector: "technique_id", value: "T1059.001",
+      total_matches: 2, offset: 0, has_more: false,
+      entries: [
+        { id: "local-jsonl-entry-a", kind: "observed",
+          source_time: "2026-10-01T10:00:00Z", time_uncertain: false },
+        { id: "local-jsonl-entry-b", kind: "observed",
+          source_time: "2026-10-01T10:00:01Z", time_uncertain: false }
+      ]
+    }; } };
+    throw Error("unexpected destination " + url.pathname);
+  });
+  env.fields["wazuh-cohorts"].handlers.click();
+  await flush(); await flush();
+  const actions = env.fields["wazuh-actions"].children;
+  assert.equal(actions.length, 1);
+  assert.match(actions[0].textContent, /technique ATT&CK non vérifiée T1059\.001/);
+  actions[0].handlers.click();
+  await flush(); await flush();
+  const call = env.requests.find(r => r.url.pathname === "/demo-wazuh-drilldown");
+  assert.ok(call, "no server-side technique drilldown");
+  assert.equal(call.url.searchParams.get("technique_id"), "T1059.001");
+  assert.equal(call.url.searchParams.get("case_id"), "case-disk");
+  assert.equal(call.url.searchParams.get("agent_id"), null);
+  assert.equal(call.url.searchParams.get("rule_id"), null);
+  assert.equal(call.options.redirect, "error");
+  assert.equal(call.options.credentials, "omit");
+  assert.equal(call.options.headers.Authorization, "Bearer ephemeral-token");
+  assert.doesNotMatch(call.url.href, /ephemeral-token/);
+  const events = env.fields["wazuh-events"];
+  assert.equal(events.children.length, 1);
+  assert.equal(events.children[0].children.length, 2);
+});
+
+test("Wazuh MITRE technique forged HTTP drilldown response leaves no partial Event IDs", async () => {
+  const env = boot(url => {
+    if (url.pathname === "/demo-wazuh-cohorts") return { ok: true, async json() { return {
+      format: "cmdr-local-wazuh4-case-triage-v1", synthetic: true,
+      imported_entries: 1, top_agents: [], top_rules: [],
+      distinct_technique_ids: 1, unmapped_technique_alerts: 0,
+      top_techniques: [{ technique_id: "T1078", count: 1 }]
+    }; } };
+    if (url.pathname === "/demo-wazuh-drilldown") return { ok: true, async json() { return {
+      format: "cmdr-local-wazuh4-drilldown-v1", synthetic: true,
+      selector: "agent_id", value: "T1078",
+      total_matches: 1, entries: [{ id: "PRIVATE-DENIED", kind: "observed",
+        source_time: "2026-10-01T10:00:00Z", time_uncertain: false }]
+    }; } };
+    throw Error("unexpected endpoint");
+  });
+  env.fields["wazuh-cohorts"].handlers.click();
+  await flush(); await flush();
+  env.fields["wazuh-actions"].children[0].handlers.click();
+  await flush(); await flush();
+  assert.equal(env.fields["wazuh-events"].children.length, 0);
+  assert.doesNotMatch(env.fields["wazuh-events"].textContent, /PRIVATE-DENIED/);
 });
