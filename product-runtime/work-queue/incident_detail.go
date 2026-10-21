@@ -37,7 +37,7 @@ var incidentDetailPage = template.Must(template.New("incident-detail").Parse(`<!
 {{else}}<p>Origine Alert non disponible ou non autorisée. Aucune association n’est déduite de l’Incident.</p>{{end}}
 <h2>Tasks Command liées — lecture réautorisée (aucune modification)</h2>
 {{if .LinkedTasks}}
-<ul>{{range .LinkedTasks}}<li>Task {{.ID}} · responsable {{if .Owner}}{{.Owner}}{{else}}inconnu{{end}} · état {{if .Status}}{{.Status}}{{else}}inconnu{{end}} · mise à jour source {{.UpdatedAt}}</li>{{end}}</ul>
+<ul>{{range .LinkedTasks}}<li>Task {{.ID}} · responsable {{if .Owner}}{{.Owner}}{{else}}inconnu{{end}} · état {{if .Status}}{{.Status}}{{else}}inconnu{{end}} · mise à jour source {{.UpdatedAt}} · <a href="/command/work-queue?view=tasks&amp;selected=Task%3A{{urlquery .ID}}&amp;restore=1" rel="noreferrer">Ouvrir la Task dans la Work Queue (autorisation revérifiée)</a></li>{{end}}</ul>
 {{else}}<p>Tasks liées indisponibles ou non autorisées. Ne pas en déduire qu'aucune Task n'existe.</p>{{end}}
 <h2>Résultats Govern liés — lecture indépendante (aucune action)</h2>
 {{if .GovernResults}}
