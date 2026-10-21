@@ -16,9 +16,12 @@ func validIncidentReturnID(id string) bool {
 		strings.IndexFunc(id, unicode.IsControl) == -1
 }
 
-// The only return destination is Command's existing owner-authorized queue
-// selection route. The Command handler must recheck the Incident on every GET.
-func commandIncidentReturnURL(id string) string {
+// Only fixed Command routes are possible. The returned Incident is reauthorized
+// at the Command destination; neither hint is a permission or a relation proof.
+func commandIncidentReturnURL(id string, detail ...bool) string {
+	if len(detail) != 0 && detail[0] {
+		return "/command/incident-detail?" + (url.Values{"incident": {id}}).Encode()
+	}
 	query := url.Values{
 		"view":     {"incidents"},
 		"selected": {"Incident:" + id},
@@ -39,4 +42,23 @@ func extractIncidentOrigin(values url.Values) (string, bool) {
 	}
 	delete(values, "origin_incident")
 	return origins[0], true
+}
+
+// extractIncidentReturn accepts only the one optional "detail" destination
+// when an Incident origin is also present. Old Work Queue return links remain
+// supported. Both keys are removed before strict Case selector parsing.
+func extractIncidentReturn(values url.Values) (string, bool, bool) {
+	origin, valid := extractIncidentOrigin(values)
+	if !valid {
+		return "", false, false
+	}
+	view, present := values["origin_view"]
+	if !present {
+		return origin, false, true
+	}
+	if origin == "" || len(view) != 1 || view[0] != "detail" {
+		return "", false, false
+	}
+	delete(values, "origin_view")
+	return origin, true, true
 }
