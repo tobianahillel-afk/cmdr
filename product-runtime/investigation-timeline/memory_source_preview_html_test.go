@@ -252,3 +252,38 @@ func TestAuthorizedSourcePresentationRefusesLateCancellationWithoutPartialHTMLOr
 		})
 	}
 }
+
+type cancellationBetweenPreviewChecks struct {
+	context.Context
+	errChecks int
+}
+
+// A request can be canceled after owner validation but during template
+// execution. This deterministic context models that transition without
+// goroutines, sleeps or a flaky race against the HTTP response.
+func (c *cancellationBetweenPreviewChecks) Err() error {
+	c.errChecks++
+	if c.errChecks > 1 {
+		return context.Canceled
+	}
+	return nil
+}
+
+func TestAuthorizedSourceHTMLLateCancellationDoesNotEmitPartialPreview(t *testing.T) {
+	ctx := &cancellationBetweenPreviewChecks{Context: context.Background()}
+	req := httptest.NewRequest(http.MethodGet, "/demo-source-open?case_id=case-a&entry_id=entry-a", nil)
+	req.Header.Set("Accept", "text/html")
+	w := httptest.NewRecorder()
+	writeAuthorizedSourcePreview(w, req, ctx, sourcePreviewResponse{
+		Status: "ready", CaseID: "case-a", EntryID: "entry-a",
+		Kind: "telemetry-event", ObjectID: "object-a",
+		Preview: "PRIVATE_SOURCE_BYTES", Synthetic: true,
+	})
+	if ctx.errChecks != 2 || w.Code != http.StatusServiceUnavailable ||
+		strings.Contains(w.Body.String(), "PRIVATE_SOURCE_BYTES") ||
+		strings.Contains(w.Body.String(), "<html") ||
+		strings.Contains(w.Body.String(), "object-a") {
+		t.Fatalf("late cancellation during rendering leaked source: checks=%d code=%d body=%q",
+			ctx.errChecks, w.Code, w.Body.String())
+	}
+}
