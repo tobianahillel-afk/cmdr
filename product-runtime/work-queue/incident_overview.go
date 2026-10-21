@@ -19,6 +19,8 @@ type AuthorizedIncidentOverview struct {
 	Priority      string
 	Severity      string
 	BusinessImpact string
+	NextAction string
+	NextActionDueAt string
 	SourceRef     string
 	SourceVersion string
 	ObservedAt    string
@@ -53,12 +55,25 @@ func validateIncidentOverview(raw *AuthorizedIncidentOverview, scope SessionScop
 		!validOverviewText(raw.Title, 256) ||
 		!validOverviewText(raw.Priority, 64) ||
 		!validOverviewText(raw.Severity, 64) ||
-		!validOverviewText(raw.BusinessImpact, 512) {
+		!validOverviewText(raw.BusinessImpact, 512) ||
+		!validOverviewText(raw.NextAction, 256) {
 		return nil, errIncidentOverview
 	}
 	observed, err := time.Parse(time.RFC3339Nano, raw.ObservedAt)
 	if err != nil || observed.IsZero() {
 		return nil, errIncidentOverview
+	}
+	// Due time belongs to the independently authorized Command source. A
+	// missing due time is unknown, never a promise that no deadline exists.
+	// A due date without an action is an inconsistent partial source.
+	if raw.NextActionDueAt != "" {
+		if raw.NextAction == "" || !validOverviewText(raw.NextActionDueAt, 64) {
+			return nil, errIncidentOverview
+		}
+		due, err := time.Parse(time.RFC3339Nano, raw.NextActionDueAt)
+		if err != nil || due.IsZero() {
+			return nil, errIncidentOverview
+		}
 	}
 	copyValue := *raw
 	return &copyValue, nil
