@@ -58,7 +58,27 @@ func (h *CaseTimelineHTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Reque
 		return
 	}
 	query, err := url.ParseQuery(r.URL.RawQuery)
-	if err != nil || len(query["case_id"]) != 1 || len(query) > 7 {
+	if err != nil || len(query["case_id"]) != 1 || len(query) > 8 {
+		writeCaseTimelineError(w, http.StatusBadRequest)
+		return
+	}
+	// A return hint never supplies permission, tenant, environment or source.
+	// The JSON API remains strict: only explicit HTML navigation accepts it.
+	htmlRequested := wantsTimelineHTML(r.Header.Get("Accept"))
+	origin := ""
+	if _, present := query["origin_incident"]; present {
+		if !htmlRequested {
+			writeCaseTimelineError(w, http.StatusBadRequest)
+			return
+		}
+		var valid bool
+		origin, valid = extractIncidentOrigin(query)
+		if !valid {
+			writeCaseTimelineError(w, http.StatusBadRequest)
+			return
+		}
+	}
+	if len(query) > 7 {
 		writeCaseTimelineError(w, http.StatusBadRequest)
 		return
 	}
@@ -112,7 +132,11 @@ func (h *CaseTimelineHTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Reque
 	// Browser navigation from Command uses the same authorized Case route.
 	// HTML changes only the representation, never the owner, scope or rights.
 	// JSON clients and the existing API schema are preserved unchanged.
-	if wantsTimelineHTML(r.Header.Get("Accept")) {
+	if htmlRequested {
+		if origin != "" {
+			// Only for authorized HTML pagination and source-return links.
+			query.Set("origin_incident", origin)
+		}
 		var rendered bytes.Buffer
 		if err := renderTimelineHTML(&rendered, query, caseID, selection, result,
 			r.Context().Value(sourceLinkContextKey{}) == true); err != nil {
