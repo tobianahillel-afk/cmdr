@@ -8,7 +8,7 @@ import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 import { createEventSearchController } from "./integration.mjs";
-import { createEventInspectionJourney } from "./inspection.mjs";
+import { createEventInspectionJourney, normalizePivotDraft } from "./inspection.mjs";
 import { createInspectionHTTPTransport } from "./inspection-http.mjs";
 
 const exec = promisify(execFile);
@@ -107,6 +107,15 @@ test("real Node fetch to Go authorized HTTP host opens and returns to identical 
   assert.equal(inspected.inspection.rendered.text, "rendered authorized");
   assert.deepEqual(Object.keys(inspected.inspection.rawDerivedSensitive), []);
   assert.ok(!JSON.stringify(inspected).includes("RAW-PRIVATE-STRING"));
+  const probeRequest = {
+    tenantRef: "tenant-a", environmentRef: "prod", eventRef: "event-1",
+    correlationId: "corr-1", jobId: "job-1", runId: "run-1", sourceHint: "edr",
+    field: "source.ip", value: "192.0.2.4", valuePresent: true,
+    timeStart: controller.getView().job.timeStart, timeEnd: controller.getView().job.timeEnd,
+  };
+  const serverDraft = await transport.draftPivot(probeRequest);
+  assert.equal(serverDraft.kind, "pivot-draft", JSON.stringify(serverDraft));
+  assert.equal(normalizePivotDraft(serverDraft, probeRequest, inspected.inspection).fieldOrigin, "source");
   const pivot = await journey.draftPivot("source.ip", "192.0.2.4");
   assert.equal(pivot.kind, "inspected");
   assert.equal(pivot.pivotDraft.kind, "pivot-draft");
