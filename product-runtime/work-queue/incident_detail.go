@@ -71,7 +71,8 @@ func NewIncidentDetailHTTPHandler(sessions SessionResolver, owner Owner) http.Ha
 			return
 		}
 		id := query.Get("incident")
-		if len(id) == 0 || len(id) > 128 || !utf8.ValidString(id) || invalidScope(id) {
+		if len(id) == 0 || len(id) > 128 || !utf8.ValidString(id) ||
+			invalidScope(id) || strings.HasPrefix(id, "Task:") {
 			http.Error(w, "invalid incident detail selection", http.StatusBadRequest)
 			return
 		}
