@@ -141,7 +141,10 @@ func TestRealSameOriginCommandToInvestigateNavigationIndependentlyReauthorizes(t
 	}
 	var body struct {
 		Status string `json:"status"`
-		Entries []struct { ID string `json:"id"`; Kind string `json:"kind"` } `json:"entries"`
+		Entries []struct {
+			ID string `json:"id"`
+			Kind string `json:"kind"`
+		} `json:"entries"`
 	}
 	if err := json.Unmarshal(caseRead.Body.Bytes(), &body); err != nil ||
 		len(body.Entries) != 1 || body.Entries[0].ID != "event-a" ||
@@ -193,5 +196,21 @@ func TestSameOriginHostRoutesFailClosedWithoutGrantingOrRedirecting(t *testing.T
 	host.ServeHTTP(out, req)
 	if out.Code != http.StatusMethodNotAllowed {
 		t.Fatalf("mutation reached read-only host: %d", out.Code)
+	}
+}
+
+func TestHostRejectsNilOrUnroutableRequestWithoutInvokingOwners(t *testing.T) {
+	host, owner := combinedTestHost(t)
+	bad := httptest.NewRecorder()
+	host.ServeHTTP(bad, nil)
+	if bad.Code != http.StatusBadRequest {
+		t.Fatalf("nil HTTP request accepted: %d", bad.Code)
+	}
+	req := httptest.NewRequest(http.MethodGet, "/case-timeline?case_id=case-a", nil)
+	req.URL = nil
+	w := httptest.NewRecorder()
+	host.ServeHTTP(w, req)
+	if w.Code != http.StatusBadRequest || owner.lookups != 0 {
+		t.Fatalf("missing URL reached a trusted owner: %d, %d", w.Code, owner.lookups)
 	}
 }
