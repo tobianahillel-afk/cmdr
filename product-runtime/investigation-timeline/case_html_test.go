@@ -78,7 +78,7 @@ func TestCaseHTMLFailClosedAndJSONBackwardCompatibility(t *testing.T) {
 					!strings.Contains(response.Body.String(), "<table>") {
 					t.Fatal("browser did not receive HTML")
 				}
-				continue
+				return
 			}
 			if !strings.HasPrefix(response.Header().Get("Content-Type"), "application/json") {
 				t.Fatal("old JSON response content-type changed")
