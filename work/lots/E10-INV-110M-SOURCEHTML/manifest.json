@@ -1,0 +1,126 @@
+{
+  "schema_version": 2,
+  "id": "E10-INV-110M-SOURCEHTML",
+  "title": "Render already owner-authorized synthetic Timeline source previews as safe native browser HTML",
+  "type": "task",
+  "parent": "E10-INV-110",
+  "goal": "Complete the reusable Class-0 source-preview representation already available as authenticated JSON: HTML readers should see source type/owner ID/bounded preview and a safe Timeline link without an arbitrary sourceRef, JS, new IAM, or mutation. Remain independent of the frozen PR #203 source-link host L2.",
+  "depends_on": [
+    "E10-INV-110E"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-110"
+    ],
+    "requirements": [
+      "REQ-PROD-014",
+      "REQ-PROD-018"
+    ],
+    "screens": [
+      "INV-TIM-001"
+    ],
+    "permissions": [
+      "perm.shared-capabilities.timeline-entry.read"
+    ],
+    "open_decisions": [
+      "OPEN-013"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/cross-product-context-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/case.md",
+      "cmdr-product-spec/05-domain-model/objects/timeline-entry.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/investigation-timeline/memory_source_preview.go",
+    "product-runtime/investigation-timeline/memory_source_preview_html.go",
+    "product-runtime/investigation-timeline/memory_source_preview_html_test.go",
+    "work/graph.json",
+    "work/lots/E10-INV-110M-SOURCEHTML/**"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/investigation-timeline/memory_provider.go",
+    "product-runtime/investigation-timeline/case_http.go",
+    "product-runtime/command-investigate-host/**",
+    "product-runtime/investigation-timeline/cmd/**"
+  ],
+  "invariants": [
+    "The exact existing sourcePreviewHandler performs independent session, Case, Timeline Entry and typed source destination read authorization BEFORE selecting HTML or JSON representation.",
+    "HTML is only presentation of the same bounded projection as JSON (status/case/entry/kind/object/preview/synthetic), no client-provided authority/sourceRef/tenant/environment, no new endpoint, mutation or storage.",
+    "The browser HTML representation is selected by explicit text/html first-preference with positive q; JSON API clients keep exact original response fields and statuses.",
+    "Render using Go html/template and a fixed internal Case Timeline URL; URL includes only already authorized Case ID, no auth credential, raw sourceRef, arbitrary return URL or principal. Browser Back preserves precise history but the internal link resets filters and says so.",
+    "No JavaScript, external CSS, iframe or unsafe-inline CSP; no-store, Authorization/Accept variance and no-referrer prevent disclosure through caches.",
+    "Parent #36 contains existing JSON owner and fixtures; new change lives on separate source branch, and PR #203 frozen SHA plus its L2 remain untouched."
+  ],
+  "security_properties": [
+    "Anonymous, cross-tenant and independently denied source preview never renders HTML or returns protected object metadata.",
+    "HTML autoescapes owner-supplied preview (including script-looking payloads) and ID fields, no injected links.",
+    "No new production source, authorization model, response run or evidence chain is claimed."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Additive Accept-dependent presentation on existing synthetic read-only HTTP response, no persisted data or schema change.",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Revert new renderer and Accept branch, leaving existing source JSON handler and tests unchanged.",
+    "verification": [
+      "Legacy JSON receipt remains equivalent",
+      "Denied source stays denied"
+    ]
+  },
+  "inputs": [
+    "Existing verified E10-INV-110E source-owned Go projection and memory sourcePreviewHandler in foundation PR #36",
+    "Canonical CAP-INV-110 §12 open source, §17 navigation/return, §21 permission enforcement; no additional source backend required for a synthetic Class-0 read"
+  ],
+  "outputs": [
+    "Existing GET /demo-source-open returns server-rendered bounded HTML when a browser asks for text/html, with readable owner-checked source and strict CSP.",
+    "Original JSON remains for API clients; link to the same Case source owner read uses browser-safe URL and a clearly labeled filter-reset fallback.",
+    "HTTP Go tests exercise owner-authorized HTML, script-like preview escaping, anonymous/foreign/source-denied refusal, q=0 and original JSON."
+  ],
+  "acceptance_tests": [
+    "Authorized Case->Entry->typed source read with Accept:text/html returns semantic HTML with source preview, synthetic/provenance disclaimer and safe Case return link.",
+    "Same request with application/json returns original JSON projection with same allowed source fields and no data changes.",
+    "Malicious preview HTML is autoescaped, no script/style permitted in CSP, no secret or credential in body or href.",
+    "Denied/anonymous/foreign source cannot be transformed into HTML or leak sensitive values by Accept spoof.",
+    "Unchanged full Go source module tests, race, vet, source handler coverage and exact SHA engineering gates succeed."
+  ],
+  "required_checks": [
+    "investigation-timeline-runtime on exact SHA Linux/macOS/Windows",
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-SECURITY-TESTS",
+    "CHK-SAST-GO"
+  ],
+  "definition_of_ready": [
+    "E10-INV-110E VERIFIED source projection and bounded memory owner response exist in foundation #36",
+    "This branch does not modify the source/open host or L2-reviewed SHA of PR #203"
+  ],
+  "definition_of_done": [
+    "Successful HTML source preview and API compatibility under same owner permissions",
+    "Exact GitHub SHA Go/race/vet and required kernel CI PASS",
+    "No full CAP-INV-110 acceptance, no production IAM/storage or PR merge asserted"
+  ],
+  "performance_budget": {
+    "applicable": false,
+    "rationale": "Single html/template execution over already bounded <=2048-byte owner preview; no additional provider call, materialized response well below existing 8MiB source quota.",
+    "metrics": []
+  },
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 2,
+    "estimated_net_loc": 112,
+    "production_files": 2,
+    "net_production_loc": 105,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}
