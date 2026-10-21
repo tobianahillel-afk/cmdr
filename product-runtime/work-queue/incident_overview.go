@@ -12,22 +12,22 @@ import (
 // Incident mutation or a client-supplied permission. Every non-nil response
 // must independently match the authenticated Incident and its source scope.
 type AuthorizedIncidentOverview struct {
-	IncidentID    string
-	Tenant        string
-	Environment   string
-	Title         string
-	Priority      string
-	Severity      string
-	BusinessImpact string
-	NextAction string
+	IncidentID      string
+	Tenant          string
+	Environment     string
+	Title           string
+	Priority        string
+	Severity        string
+	BusinessImpact  string
+	NextAction      string
 	NextActionDueAt string
-	SourceRef     string
-	SourceVersion string
-	ObservedAt    string
+	SourceRef       string
+	SourceVersion   string
+	ObservedAt      string
 }
 
 // IncidentOverviewOwner is optional. Absence means "source unavailable", never
-// a fabricated title, priority, severity or impact. This source does not grant
+// a fabricated title, priority, severity, impact or next action. It does not grant
 // Case, Evidence, Alert, Response Run or export rights.
 type IncidentOverviewOwner interface {
 	ReadAuthorizedIncidentOverview(ctx context.Context, principal, tenant, environment, incidentID string) (*AuthorizedIncidentOverview, error)
