@@ -110,12 +110,10 @@ const (
 	eventSearchFrontendTenantTestRegexp          = "^(tenant-mismatch-is-rejected|tenant-wildcard-is-rejected|transport-tenant-mismatch-fails-closed)$"
 )
 
-const (
-	eventInspectionHostSecurityRuntimeRoot    = "product-runtime/event-inspection-host"
-	eventInspectionHostSecurityModuleIdentity = "github.com/tobianahillel-afk/cmdr/product-runtime/event-inspection-host"
-	eventInspectionHostAuthorizationTestRegexp = "^TestDeniedSearchNeverCallsTelemetryAndDenialsAreGeneric$"
-	eventInspectionHostTenantTestRegexp       = "^TestSessionScopeIsNeverTakenFromClient$"
-)
+const eventInspectionHostSecurityRuntimeRoot = "product-runtime/event-inspection-host"
+const eventInspectionHostSecurityModuleIdentity = "github.com/tobianahillel-afk/cmdr/product-runtime/event-inspection-host"
+const eventInspectionHostAuthorizationTestRegexp = "^TestDeniedSearchNeverCallsTelemetryAndDenialsAreGeneric$"
+const eventInspectionHostTenantTestRegexp = "^TestSessionScopeIsNeverTakenFromClient$"
 
 type runtimeSecurityAdapter struct {
 	BoundaryID             string
