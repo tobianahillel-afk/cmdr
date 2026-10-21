@@ -14,7 +14,9 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"os/signal"
 	"strings"
+	"syscall"
 	"time"
 
 	host "github.com/tobianahillel-afk/cmdr/product-runtime/command-investigate-host"
@@ -218,7 +220,7 @@ func newLocalDemoHandler(secrets demoSecrets) (http.Handler, error) {
 	}), nil
 }
 
-func runLocalBrowser(out io.Writer) error {
+func runLocalBrowser(ctx context.Context, out io.Writer) error {
 	secrets, err := newDemoSecrets()
 	if err != nil {
 		return fmt.Errorf("generate local credentials: %w", err)
@@ -236,11 +238,26 @@ func runLocalBrowser(out io.Writer) error {
 	server := &http.Server{Handler: app, ReadHeaderTimeout: 5 * time.Second,
 		ReadTimeout: 20 * time.Second, WriteTimeout: 20 * time.Second,
 		IdleTimeout: 30 * time.Second, MaxHeaderBytes: 8192}
-	return server.Serve(listener)
+	stopped := make(chan struct{})
+	go func() {
+		select {
+		case <-ctx.Done():
+			_ = server.Close()
+		case <-stopped:
+		}
+	}()
+	err = server.Serve(listener)
+	close(stopped)
+	if errors.Is(err, http.ErrServerClosed) && ctx.Err() != nil {
+		return nil
+	}
+	return err
 }
 
 func main() {
-	if err := runLocalBrowser(os.Stdout); err != nil {
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+	if err := runLocalBrowser(ctx, os.Stdout); err != nil {
 		fmt.Fprintln(os.Stderr, "CMDR local browser unavailable:", err)
 		os.Exit(1)
 	}
