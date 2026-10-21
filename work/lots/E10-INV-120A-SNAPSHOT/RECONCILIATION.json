@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "kind": "historical-execution-cache-reconciliation",
+  "work_unit": "E10-INV-120A-SNAPSHOT",
+  "canonical_capability": "CAP-INV-110",
+  "engineering_parent": "E10-INV-110",
+  "git_parent_pr": 36,
+  "baseline_commit": "ea1770b48a4bc1b2e850a7ffab15d5839f9e9e49",
+  "previous_graph_status": "READY",
+  "reconciled_graph_status": "IMPLEMENTED",
+  "reason": "Code and tests of the bounded operator-supplied local owner snapshot journey existed on the frozen foundation HEAD, yet graph and current cache still directed fresh agents to rebuild it.",
+  "proof": {
+    "implementation_paths": [
+      "product-runtime/investigation-timeline/cmd/case-timeline-demo/snapshot.go",
+      "product-runtime/investigation-timeline/cmd/case-timeline-demo/snapshot_listener_test.go",
+      "product-runtime/investigation-timeline/cmd/case-timeline-demo/snapshot_test.go",
+      "product-runtime/investigation-timeline/cmd/case-timeline-demo/snapshot_two_case_integration_test.go"
+    ],
+    "exact_head_ci": [
+      {
+        "workflow": "investigation-timeline-runtime",
+        "run_id": 39025622827,
+        "conclusion": "success",
+        "jobs": [
+          "runtime",
+          "Timeline and subprocess tests (windows-latest)",
+          "Timeline and subprocess tests (macos-latest)"
+        ]
+      },
+      {
+        "workflow": "engineering-kernel",
+        "run_id": 39025622815,
+        "conclusion": "success",
+        "jobs": [
+          "kernel"
+        ]
+      }
+    ]
+  },
+  "limits": [
+    "Existing tests on a frozen draft branch demonstrate implementation, not merged product acceptance.",
+    "No independent L2 result or native GitHub approval is asserted.",
+    "Canonical OPEN-013 remains unresolved; the local snapshot is NOT production IAM/persistence or custody.",
+    "Graph status intentionally IMPLEMENTED, NOT VERIFIED, because required review/acceptance evidence was not independently recovered.",
+    "Do not fold unrelated later Investigate/Command draft PRs into this unit based only on Git ancestry.",
+    "Current CI failure CHK-SAST-GO on separate PR #155 concerns tools/cmdr-dev/performance_command_work_queue.go; this reconciliation does not resolve it."
+  ],
+  "handoff": "Continue with a live canonical/PR/CI reconciliation; do not select the old E10-INV-120A READY cache. Materialize a new bounded capability only after checking dependency and architectural owner; merge nothing until checks and reviews pass."
+}
