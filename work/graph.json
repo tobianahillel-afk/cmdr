@@ -2143,6 +2143,17 @@
       ],
       "dependency_terminal_state": "IMPLEMENTED",
       "unlocks": []
+    },
+    {
+      "id": "E4-SEC-002B-SCAID",
+      "title": "Expose public Go advisory ID on blocking SCA findings without scanner waiver",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E4-SEC-002B-ACTIVATE"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": []
     }
   ]
 }
