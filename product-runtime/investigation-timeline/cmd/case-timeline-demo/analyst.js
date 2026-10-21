@@ -92,15 +92,43 @@
           !validCount(a.count) || !validLevel(a.highest_known_rule_level))) {
         throw Error("Invalid cohort values");
       }
+      // The optional additive source-cohort schema is absent in older snapshots.
+      // When present, validate the COMPLETE group before rendering anything.
+      const hasTechniques = data.top_techniques !== undefined;
+      if (hasTechniques) {
+        const validTechnique = value =>
+          typeof value === "string" && /^T[0-9]{4}(?:\.[0-9]{3})?$/.test(value);
+        if (!Array.isArray(data.top_techniques) || data.top_techniques.length > 10 ||
+            !Number.isSafeInteger(data.distinct_technique_ids) ||
+            data.distinct_technique_ids < data.top_techniques.length ||
+            data.distinct_technique_ids > 80000 ||
+            !validCount(data.unmapped_technique_alerts) ||
+            data.unmapped_technique_alerts > data.imported_entries ||
+            data.top_techniques.some(a => !a || !validTechnique(a.technique_id) ||
+              !validCount(a.count) || a.count < 1 || a.count > data.imported_entries ||
+              !validLevel(a.highest_known_rule_level))) {
+          throw Error("Invalid Wazuh ATT&CK source cohorts");
+        }
+      } else if (data.distinct_technique_ids !== undefined ||
+                 data.unmapped_technique_alerts !== undefined) {
+        throw Error("Partial Wazuh ATT&CK source cohorts");
+      }
       // Always use textContent: source labels are never interpreted as HTML.
       const agentLines = data.top_agents.map(a => "agent " + a.agent_id + " : " + a.count +
         " alerte(s), " + a.distinct_rule_ids + " règle(s), niveau maximum connu " +
         (a.highest_known_rule_level ?? "inconnu"));
       const ruleLines = data.top_rules.map(a => "règle " + a.rule_id + " : " + a.count +
         " alerte(s), niveau maximum connu " + (a.highest_known_rule_level ?? "inconnu"));
+      const techniqueLines = hasTechniques ? data.top_techniques.map(a =>
+        "étiquette " + a.technique_id + " : " + a.count +
+        " alerte(s), niveau maximum connu " + (a.highest_known_rule_level ?? "inconnu")) : [];
       wazuhStatus.textContent = data.imported_entries + " alerte(s) Wazuh importée(s) et autorisée(s)." +
         "\nAgents les plus touchés :\n" + (agentLines.join("\n") || "aucun agent connu") +
         "\nRègles les plus fréquentes :\n" + (ruleLines.join("\n") || "aucune règle connue") +
+        (hasTechniques ?
+          "\nÉtiquettes MITRE ATT&CK déclarées par Wazuh, non vérifiées :\n" +
+            (techniqueLines.join("\n") || "aucune étiquette connue") +
+            "\nAlertes sans étiquette MITRE : " + data.unmapped_technique_alerts : "") +
         "\nDonnées locales synthétiques, sans preuve de causalité.";
       for (const [selector, cohorts] of [
         ["agent_id", data.top_agents.map(a => a.agent_id)],
