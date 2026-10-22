@@ -19,7 +19,7 @@ function node(tag = "div") {
   };
 }
 
-function boot(search = "", navigationQuery, denySource = false) {
+function boot(search = "", navigationQuery, denySource = false, timelineOverride) {
   const ids = [
     "query", "token", "case-id", "kind", "search", "case-options",
     "discover", "case-discovery-status", "from", "to", "entries",
@@ -60,13 +60,13 @@ function boot(search = "", navigationQuery, denySource = false) {
           async json() {
             return {
               status: "allow",
-              page: { total_visible: 1, has_more: false, offset },
-              entries: offset > 0 ? [] : [{
+              page: { total_visible: timelineOverride?.length ?? 1, has_more: false, offset },
+              entries: offset > 0 ? [] : (timelineOverride ?? [{
                 id: "event-new", kind: "observed",
                 source_time: "2026-10-01T11:00:00Z",
                 source_ref: "demo-telemetry-a", provenance: "synthetic-telemetry",
                 version: 2
-              }]
+              }])
             };
           }
         };
@@ -205,4 +205,60 @@ test("denied owner opening cannot be treated as a ready source draft", async () 
   assert.equal(env.fields["copy-return-link"].disabled, true);
   assert.equal(env.fields["return-to-case"].disabled, true);
   assert.deepEqual(env.copied, []);
+});
+
+
+function nodeText(node) {
+  return String(node?.textContent ?? "") + " " +
+    (node?.children ?? []).map(nodeText).join(" ");
+}
+
+test("analyst shows owner-authorized superseded history without claiming hidden versions", async () => {
+  const rows = [
+    { id: "historical-v1", kind: "observed", source_time: "2026-10-01T10:00:00Z",
+      source_ref: "visible-source-a", provenance: "trusted-source", version: 1,
+      supersedes: "", superseded: true },
+    { id: "current-v2", kind: "observed", source_time: "2026-10-01T10:01:00Z",
+      source_ref: "visible-source-a", provenance: "trusted-source", version: 2,
+      supersedes: "historical-v1" }
+  ];
+  const env = boot("", undefined, false, rows);
+  env.fields.token.value = "ephemeral-value";
+  env.fields["case-id"].value = "case-a";
+  env.fields.query.handlers.submit({ preventDefault() {} });
+  await flush();
+  assert.equal(env.requests.length, 1);
+  assert.equal(env.requests[0].url.pathname, "/case-timeline");
+  assert.equal(env.requests[0].options.headers.Authorization, "Bearer ephemeral-value");
+  assert.equal(env.fields.entries.children.length, 2);
+  assert.match(nodeText(env.fields.entries.children[0]), /État :\s+Remplacée \(version ultérieure autorisée visible\)/);
+  assert.doesNotMatch(nodeText(env.fields.entries.children[1]), /Remplacée/);
+  assert.match(nodeText(env.fields.entries.children[1]), /Remplace :\s+historical-v1/);
+  assert.equal(env.fields.entries.children[0].children.filter(x => x.tag === "button").length, 1);
+});
+
+test("legacy authorized history has no unsupported current-version claim", async () => {
+  const env = boot();
+  env.fields.token.value = "ephemeral-value";
+  env.fields["case-id"].value = "case-a";
+  env.fields.query.handlers.submit({ preventDefault() {} });
+  await flush();
+  assert.equal(env.fields.entries.children.length, 1);
+  assert.doesNotMatch(nodeText(env.fields.entries.children[0]), /Remplacée|Courante/);
+});
+
+test("malformed source supersession flag fails closed before rendering any timeline entry", async () => {
+  for (const bad of ["true", 1, null, { value: true }]) {
+    const rows = [{ id: "secret-record", kind: "observed",
+      source_time: "2026-10-01T10:00:00Z", source_ref: "secret-source",
+      provenance: "secret-provenance", version: 1, superseded: bad }];
+    const env = boot("", undefined, false, rows);
+    env.fields.token.value = "ephemeral-value";
+    env.fields["case-id"].value = "case-a";
+    env.fields.query.handlers.submit({ preventDefault() {} });
+    await flush();
+    assert.equal(env.fields.entries.children.length, 0);
+    assert.doesNotMatch(nodeText(env.fields.entries), /secret-record|secret-source|secret-provenance/);
+    assert.match(env.fields.message.textContent, /Accès refusé|indisponible/);
+  }
 });

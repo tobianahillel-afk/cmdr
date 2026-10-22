@@ -1767,7 +1767,8 @@
       ],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": [
-        "E10-INV-120A-SNAPSHOT"
+        "E10-INV-120A-SNAPSHOT",
+        "E10-INV-110F-SUPERSESSION"
       ]
     },
     {
@@ -1775,6 +1776,17 @@
       "title": "Integrate an operator-provided durable Case snapshot into the authenticated loopback analyst journey",
       "type": "task",
       "status": "READY",
+      "depends_on": [
+        "E10-INV-110E"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": []
+    },
+    {
+      "id": "E10-INV-110F-SUPERSESSION",
+      "title": "Expose source-authorized superseded Timeline Entry state in existing Case HTTP projection",
+      "type": "task",
+      "status": "IMPLEMENTED",
       "depends_on": [
         "E10-INV-110E"
       ],

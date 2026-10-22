@@ -1243,6 +1243,12 @@
         data.page.offset !== offset || data.entries.length > limit) {
       throw new Error("Malformed authorized timeline response");
     }
+    // Supersession is a source-owner projection: never accept a client-like
+    // string/truthy flag or render part of an untrusted response.
+    if (data.entries.some(entry => !entry ||
+        (entry.superseded !== undefined && typeof entry.superseded !== "boolean"))) {
+      throw new Error("Malformed authorized supersession state");
+    }
     entries.replaceChildren();
     for (const event of data.entries) {
       if (!event || typeof event.id !== "string" ||
@@ -1264,6 +1270,9 @@
       addLine(item, "Provenance :", event.provenance ?? "—");
       addLine(item, "Version :", event.version ?? "—");
       if (event.supersedes) addLine(item, "Remplace :", event.supersedes);
+      if (event.superseded === true) {
+        addLine(item, "État :", "Remplacée (version ultérieure autorisée visible)");
+      }
       const open = document.createElement("button");
       open.type = "button";
       open.textContent = "Vérifier la destination de la source";
