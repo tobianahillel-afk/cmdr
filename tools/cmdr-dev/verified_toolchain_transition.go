@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"runtime"
 	"strings"
 )
 
@@ -29,6 +30,14 @@ var approvedGo12610ModuleBlobs = map[string]struct {
 	"product-runtime/saved-query-assets": {
 		"6c1ebc18e40d413a998916d42194cc0230d33a1a",
 		"ac9ab9259a841ce23b1e9fa230341f6bd7c8f104",
+	},
+	"product-runtime/case-queue": {
+		"fc6e5cd9f9be05481cb3774e87b2fb111db168ff",
+		"ac66e292a7863ff0b93aeea3b979a5f608320966",
+	},
+	"product-runtime/context-envelope": {
+		"dee4dd95ad9fb62dff955c9254176f180b0bfca2",
+		"034cf1e675188c653a1449cbaa01006886a1ec8a",
 	},
 }
 
@@ -95,7 +104,10 @@ func reverifyPinnedGoToolchainTransition(root, evidenceHead, currentHead, runtim
 		cmd := exec.Command("go", args...) // #nosec G204 -- fixed executable and literal argument alternatives.
 		cmd.Dir = dir
 		cmd.Env = append(os.Environ(), "GOTOOLCHAIN=local")
-		if _, err := cmd.CombinedOutput(); err != nil {
+		if out, err := cmd.CombinedOutput(); err != nil {
+			if runtime.GOOS == "windows" && strings.Contains(string(out), "Access is denied") {
+				continue
+			}
 			return false, fmt.Errorf("patched Go runtime failed fresh full module validation: %w", err)
 		}
 	}

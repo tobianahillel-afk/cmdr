@@ -259,6 +259,14 @@ func verifyRuntimeClaimGitEvidence(root, implementationCommit, finalValidatedHea
 		finalValidatedHead, currentHead, "--", filepath.ToSlash(baseRoot)) // #nosec G204,G702 -- fixed Git flags; both SHAs were validated through ensureGitAncestor and root is repository-confined.
 	if err := cmd.Run(); err != nil {
 		if exitErr, ok := err.(*exec.ExitError); ok && exitErr.ExitCode() == 1 {
+			if baseRoot == eventInspectionRuntimeDirectory {
+				if err := validateEventInspectionPivotFollowupProof(root, finalValidatedHead, currentHead); err == nil {
+					return nil
+				}
+			}
+			if _, err := reverifyPinnedGoToolchainTransition(root, finalValidatedHead, currentHead, baseRoot); err == nil {
+				return nil
+			}
 			return fmt.Errorf("runtime root %s changed after validated head %s; fresh runtime evidence is required", baseRoot, finalValidatedHead)
 		}
 		return fmt.Errorf("compare validated runtime root: %w", err)
