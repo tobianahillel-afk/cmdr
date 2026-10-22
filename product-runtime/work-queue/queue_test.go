@@ -145,31 +145,31 @@ func TestNoLeakOnIncompleteDuplicateOrOversizedOwnedProjection(t *testing.T) {
 }
 
 func TestDeniedMetadataAndDuplicatesDoNotChangeAuthorizedProjection(t *testing.T) {
- baselineOwner := fixture()
- baseline, err := Project(context.Background(), baselineOwner, request(All))
- if err != nil {
-  t.Fatalf("baseline: %v", err)
- }
- for _, tc := range []struct {
-  name string
-  mutate func(*fakeOwner)
- }{
-  {"denied-empty-updated-at", func(o *fakeOwner) { o.items[2].UpdatedAt = "" }},
-  {"denied-invalid-timestamp", func(o *fakeOwner) { o.items[2].UpdatedAt = "not-utc" }},
-  {"denied-duplicate", func(o *fakeOwner) { o.items = append(o.items, o.items[2]) }},
- } {
-  t.Run(tc.name, func(t *testing.T) {
-   o := fixture()
-   tc.mutate(o)
-   actual, err := Project(context.Background(), o, request(All))
-   if err != nil {
-    t.Fatalf("denied record affected valid data: %v", err)
-   }
-   if !reflect.DeepEqual(actual, baseline) {
-    t.Fatalf("denied record changed authorized results: %+v vs %+v", actual, baseline)
-   }
-  })
- }
+	baselineOwner := fixture()
+	baseline, err := Project(context.Background(), baselineOwner, request(All))
+	if err != nil {
+		t.Fatalf("baseline: %v", err)
+	}
+	for _, tc := range []struct {
+		name   string
+		mutate func(*fakeOwner)
+	}{
+		{"denied-empty-updated-at", func(o *fakeOwner) { o.items[3].UpdatedAt = "" }},
+		{"denied-invalid-timestamp", func(o *fakeOwner) { o.items[3].UpdatedAt = "not-utc" }},
+		{"denied-duplicate", func(o *fakeOwner) { o.items = append(o.items, o.items[3]) }},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			o := fixture()
+			tc.mutate(o)
+			actual, err := Project(context.Background(), o, request(All))
+			if err != nil {
+				t.Fatalf("denied record affected valid data: %v", err)
+			}
+			if !reflect.DeepEqual(actual, baseline) {
+				t.Fatalf("denied record changed authorized results: %+v vs %+v", actual, baseline)
+			}
+		})
+	}
 }
 
 func TestEmptyAndStableBoundedFirstPage(t *testing.T) {
