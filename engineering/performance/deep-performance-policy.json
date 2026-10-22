@@ -278,6 +278,26 @@
       "concurrency": 1,
       "iterations": 10000,
       "rationale": "Preimplementation on-demand resource gate; cannot pass or emit a measurement before a real tested synthetic Timeline workload exists."
+    },
+    {
+      "id": "PERF-DEEP-COMMAND-WORK-QUEUE-PROJECTION",
+      "performance_target_id": "PERF-TGT-COMMAND-WORK-QUEUE-PROJECTION",
+      "kind": "resource",
+      "handler_key": "builtin-command-work-queue-projection-v1",
+      "stages": [
+        "on-demand"
+      ],
+      "trigger_paths": [
+        "product-runtime/work-queue/**",
+        "engineering/performance/deep-performance-policy.json",
+        "engineering/performance/performance-registry.json"
+      ],
+      "duration_seconds": 0,
+      "timeout_seconds": 30,
+      "memory_limit_mib": 128,
+      "concurrency": 1,
+      "iterations": 10000,
+      "rationale": "Executable on-demand resource measurement of bounded Command Work Queue six-view projection using the Go runtime probe and synthetic authorized input. Excludes provider I/O, storage, UI and production SLO claims."
     }
   ]
 }

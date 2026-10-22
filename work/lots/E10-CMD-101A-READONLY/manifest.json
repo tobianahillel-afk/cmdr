@@ -50,6 +50,8 @@
     "tools/cmdr-dev/performance_registry.go",
     "tools/cmdr-dev/performance_benchmark.go",
     "tools/cmdr-dev/performance_command_work_queue.go",
+    "engineering/performance/deep-performance-policy.json",
+    "tools/cmdr-dev/deep_performance.go",
     "tools/cmdr-dev/security_tests.go",
     "tools/cmdr-dev/security_tests_test.go"
   ],

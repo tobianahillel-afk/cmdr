@@ -27,9 +27,9 @@ def main():
     go_cmd = shutil.which("go", path=env["PATH"]) or "go"
 
     # 1. Run unit tests
-    print("\n--- Step 1: Running unit and boundary tests (`go test -v -count=1 .`) ---")
+    print("\n--- Step 1: Running unit and boundary tests (`go test -v -count=1 ./...`) ---")
     res_test = subprocess.run(
-        [go_cmd, "test", "-v", "-count=1", "."],
+        [go_cmd, "test", "-v", "-count=1", "./..."],
         cwd=script_dir,
         env=env,
         capture_output=True,

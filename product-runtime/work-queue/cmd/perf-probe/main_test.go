@@ -10,14 +10,14 @@ import (
 
 func TestCommandQueueProbeExecutesActualAuthorizedProjection(t *testing.T) {
 	var output bytes.Buffer
-	if err := run([]string{"-iterations", "400", "-operation", "projection", "-mode", "latency"}, &output); err != nil {
+	if err := run([]string{"-iterations", "2000", "-operation", "projection", "-mode", "latency"}, &output); err != nil {
 		t.Fatalf("in-process Command projection failed: %v", err)
 	}
 	var receipt observation
 	if err := json.Unmarshal(output.Bytes(), &receipt); err != nil {
 		t.Fatalf("non-JSON performance receipt: %v", err)
 	}
-	if receipt.Operation != "projection" || receipt.Mode != "latency" || receipt.Operations != 400 ||
+	if receipt.Operation != "projection" || receipt.Mode != "latency" || receipt.Operations != 2000 ||
 		receipt.ElapsedNS <= 0 || receipt.NSPerOperation <= 0 {
 		t.Fatalf("invalid measured Command runtime: %+v", receipt)
 	}

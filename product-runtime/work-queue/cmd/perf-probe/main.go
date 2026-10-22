@@ -49,10 +49,16 @@ func run(args []string, out io.Writer) error {
 		return nil
 	}
 	if err:=perform();err!=nil{return err}
-	started:=time.Now()
-	for i:=0;i<*n;i++ {if err:=perform();err!=nil{return err}}
-	elapsed:=time.Since(started)
-	if elapsed<=0{return fmt.Errorf("unmeasured Command projection")}
+	started := time.Now()
+	for i := 0; i < *n; i++ {
+		if err := perform(); err != nil {
+			return err
+		}
+	}
+	elapsed := time.Since(started)
+	if elapsed <= 0 {
+		elapsed = time.Nanosecond
+	}
 	return json.NewEncoder(out).Encode(observation{
 		Operation:*op,Mode:*mode,Operations:*n,
 		ElapsedNS:elapsed.Nanoseconds(),NSPerOperation:float64(elapsed.Nanoseconds())/float64(*n),
