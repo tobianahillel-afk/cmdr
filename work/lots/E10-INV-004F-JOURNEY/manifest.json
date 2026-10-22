@@ -1,0 +1,141 @@
+{
+  "schema_version": 2,
+  "id": "E10-INV-004F-JOURNEY",
+  "title": "Connect authorized Event Search selection to read-only Event Inspection and safe return",
+  "type": "task",
+  "parent": "E10-SCALE-003",
+  "goal": "Provide a functional first-party browser journey that opens only a visible, server-authorized Event Search result for separate server-authorized CAP-INV-004 inspection, displays source/raw/rendered/enrichment provenance, and returns to its unchanged Search scope and result window, without claiming a live backend.",
+  "depends_on": [
+    "E10-INV-002G",
+    "E10-INV-004E"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-002",
+      "CAP-INV-004"
+    ],
+    "requirements": [
+      "REQ-PROD-002",
+      "REQ-PROD-005",
+      "REQ-PROD-008",
+      "REQ-PROD-014"
+    ],
+    "screens": [
+      "INV-EVS-001"
+    ],
+    "permissions": [
+      "perm.shared-capabilities.telemetry-event.read"
+    ],
+    "open_decisions": [
+      "OPEN-013",
+      "OPEN-014"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/frontend-state-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/cross-product-context-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/telemetry-event.md",
+      "cmdr-product-spec/05-domain-model/objects/query.md",
+      "cmdr-product-spec/05-domain-model/objects/search-job.md",
+      "cmdr-product-spec/05-domain-model/objects/parser.md",
+      "cmdr-product-spec/05-domain-model/objects/data-source.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/event-search-frontend/**",
+    ".github/workflows/event-search-inspector-journey.yml",
+    "work/lots/E10-INV-004F-JOURNEY/**",
+    "work/graph.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/event-inspection/**",
+    "product-runtime/event-search/**"
+  ],
+  "invariants": [
+    "Event Search source and job retain Shared ownership; Event Inspection core remains the sole source of server-approved projection",
+    "Frontend never accepts browser-supplied access decisions as authority; each open must call a server-authorized inspection transport",
+    "No raw-derived content when raw is denied; fields and enrichments visibly retain provenance; no HTML string execution",
+    "No Case link, Artifact/Evidence promotion, Search execution from a PivotDraft or OPEN-013/014 decision resolution",
+    "Do not change frozen PR #181/#182 or ancestor #36 commits; all new code stays on a separate feature branch"
+  ],
+  "security_properties": [
+    "Search result must exist within current authorized result window, with matching Tenant, environment, job/run/correlation",
+    "Server response must match requested scope, cannot put raw content in a denied variant and cannot declare raw-derived fields while raw is denied",
+    "No permission-denied or stale in-flight Event inspection may leave a protected previous view; return requires revalidation",
+    "Server-side identity, source-specific field classification, browser-to-host transport and real parser are not provided and remain mandatory external integration dependencies"
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Browser-only read-only state and presentation; no storage/migrations",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Revert one browser journey commit series; existing Search and Inspection cores stay untouched",
+    "verification": [
+      "Existing Event Search frontend tests still pass",
+      "No canonical model or runtime backend modified"
+    ]
+  },
+  "inputs": [
+    "CAP-INV-002 and CAP-INV-004 complete canonical specifications",
+    "Verified E10-INV-002G and E10-INV-004E bounded runtimes on #36, not proof of production",
+    "Accepted ENG-DEC-0001 first-party browser architecture and existing Event Search controller"
+  ],
+  "outputs": [
+    "First-party Event Search result-to-Inspector-to-return interaction",
+    "Explicit backend-neutral inspect transport with correlated scope and identity",
+    "Semantic text-only renderer with separate raw/rendered and labelled derived provenance",
+    "Node adversarial regressions for foreign scope, unavailable Event, protected raw, stale responses and text injection",
+    "CI evidence on exact feature HEAD (pending until observed)"
+  ],
+  "acceptance_tests": [
+    "Only an authorized selected Search result can initiate a server inspection request",
+    "Originating Tenant/environment/job/run/correlation preserved and checked against inspected response",
+    "Raw denied while rendered allowed stays visible without raw inference",
+    "Source/normalized/raw-derived/enrichment values retain distinct labels and stale provenance",
+    "Return retains Search query/scope and original result window only while same Search Job/correlation remains authorized",
+    "Invalid cross-scope response, stale Search Job, revocation, forged protected raw, script text fail closed",
+    "Existing Event Search frontend suite remains green with exact-SHA Node CI; adaptive engineering checks are separately required"
+  ],
+  "required_checks": [
+    "adaptive engineering-kernel",
+    "CHK-ARCHITECTURE",
+    "CHK-RUNTIME-DEPS",
+    "CHK-SECURITY-TESTS",
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY"
+  ],
+  "definition_of_ready": [
+    "E10-INV-002G and E10-INV-004E VERIFIED on source foundation branch",
+    "First-party browser decision ENG-DEC-0001 accepted",
+    "Explicit source-owner authorization remains externally enforced"
+  ],
+  "definition_of_done": [
+    "Actual exact-head Node UI suite SUCCESS and integration test covers selected Event Search -> inspected Event -> return",
+    "No blind raw/tenant provenance acceptance",
+    "Backend, IAM and end-to-end production status not claimed"
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "Browser update must remain lightweight with bounded field counts, no measured production performance claim",
+    "metrics": [
+      "inspector single Event <=256 visible fields per category, <=64 enrichments",
+      "no full-result rerender required for inspection return"
+    ]
+  },
+  "complexity": {
+    "primary_components": 2,
+    "estimated_files_changed": 6,
+    "estimated_net_loc": 300,
+    "production_files": 1,
+    "net_production_loc": 232,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

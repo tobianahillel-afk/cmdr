@@ -1780,6 +1780,18 @@
       ],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": []
+    },
+    {
+      "id": "E10-INV-004F-JOURNEY",
+      "title": "Connect source-authorized Event Search result to read-only Inspection and safe return",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-INV-002G",
+        "E10-INV-004E"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": []
     }
   ]
 }
