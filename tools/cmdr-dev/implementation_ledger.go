@@ -1,7 +1,9 @@
 package main
 
 import (
+	"errors"
 	"fmt"
+	"os"
 	"os/exec"
 	"path/filepath"
 	"sort"
@@ -58,6 +60,8 @@ type ImplementationLedgerClaim struct {
 	RuntimeRoot          string  `json:"runtime_root"`
 	ImplementationCommit string  `json:"implementation_commit"`
 	FinalValidatedHead   string  `json:"final_validated_head"`
+	SuccessorWorkUnit string `json:"successor_work_unit,omitempty"`
+	SuccessorValidatedHead string `json:"successor_validated_head,omitempty"`
 	CoveragePercent      float64 `json:"coverage_percent"`
 	SASTFindings         int     `json:"sast_findings"`
 	SCAActionable        int     `json:"sca_actionable_findings"`
@@ -151,7 +155,11 @@ func runImplementationLedgerAudit(root string, state CurrentState, graph WorkGra
 		if err != nil || finalHead != handoff.FinalValidatedHead {
 			return summary, fmt.Errorf("implementation handoff %s has invalid final validated head", entry.HandoffPath)
 		}
-		if err := verifyRuntimeClaimGitEvidence(root, implementationCommit, finalHead, entry.RuntimeRoot); err != nil {
+		successorWorkUnit, successorHead, err := resolveRuntimeSuccessorEvidence(root, graph, entry, manifest, finalHead)
+		if err != nil { return summary, fmt.Errorf("implementation handoff %s successor evidence: %w", entry.HandoffPath, err) }
+		validatedRootHead := finalHead
+		if successorHead != "" { validatedRootHead = successorHead }
+		if err := verifyRuntimeClaimGitEvidence(root, implementationCommit, validatedRootHead, entry.RuntimeRoot); err != nil {
 			return summary, fmt.Errorf("implementation handoff %s has stale or invalid Git evidence: %w", entry.HandoffPath, err)
 		}
 		if handoff.Evidence.PushRun < 1 || handoff.Evidence.PullRequestRun < 1 ||
@@ -185,6 +193,8 @@ func runImplementationLedgerAudit(root string, state CurrentState, graph WorkGra
 			RuntimeBoundary: entry.RuntimeBoundary, RuntimeRoot: entry.RuntimeRoot,
 			ImplementationCommit: handoff.ImplementationCommit,
 			FinalValidatedHead:   handoff.FinalValidatedHead,
+			SuccessorWorkUnit: successorWorkUnit,
+			SuccessorValidatedHead: successorHead,
 			CoveragePercent:      handoff.Evidence.GlobalCoveragePercent,
 			SASTFindings:         handoff.Evidence.SASTFindings,
 			SCAActionable:        handoff.Evidence.SCAActionableFindings,
@@ -234,6 +244,130 @@ func verifyRuntimeClaimGitEvidence(root, implementationCommit, finalValidatedHea
 		return fmt.Errorf("compare validated runtime root: %w", err)
 	}
 	return nil
+}
+
+
+// RuntimeSuccessorEvidence is an explicit additive proof beside the FROZEN
+// original handoff. An old validated SHA is NEVER silently moved or waived.
+type RuntimeSuccessorEvidence struct {
+ SchemaVersion int `json:"schema_version"`
+ PredecessorWorkUnit string `json:"predecessor_work_unit"`
+ SuccessorWorkUnit string `json:"successor_work_unit"`
+ ManifestPath string `json:"manifest_path"`
+ HandoffPath string `json:"handoff_path"`
+ AddedRuntimePaths []string `json:"added_runtime_paths"`
+}
+
+type RuntimeSuccessorHandoff struct {
+ SchemaVersion int `json:"schema_version"`
+ WorkUnit string `json:"work_unit"`
+ Result string `json:"result"`
+ FinalValidatedHead string `json:"final_validated_head"`
+ PullRequest int `json:"pull_request"`
+ Evidence struct {
+  PushRun int `json:"push_run"`
+  PullRequestRun int `json:"pull_request_run"`
+  PushP95MS float64 `json:"push_p95_ms"`
+  PullRequestP95MS float64 `json:"pull_request_p95_ms"`
+  AbsoluteBudgetMS float64 `json:"absolute_budget_ms"`
+  RuntimeGlobalCoveragePercent float64 `json:"runtime_global_coverage_percent"`
+  SASTFindings int `json:"sast_findings"`
+  SCAActionableFindings int `json:"sca_actionable_findings"`
+  CacheRecords int `json:"cache_records"`
+ } `json:"evidence"`
+ Rules []string `json:"rules"`
+ ProductSpecMutated bool `json:"product_spec_mutated"`
+ NextUnlocked []string `json:"next_unlocked"`
+}
+
+func resolveRuntimeSuccessorEvidence(root string, graph WorkGraph, entry ImplementationLedgerEntry, original WorkManifestV2, validatedHead string) (string,string,error) {
+ sidecar := filepath.ToSlash(filepath.Join(filepath.Dir(entry.ManifestPath), "RUNTIME-EVIDENCE-SUCCESSOR.json"))
+ if _,err := os.Stat(filepath.Join(root, filepath.FromSlash(sidecar))); err != nil {
+  if errors.Is(err,os.ErrNotExist) {return "","",nil}
+  return "","",fmt.Errorf("inspect successor sidecar: %w",err)
+ }
+ var proof RuntimeSuccessorEvidence
+ if err := decodeStrict(root,sidecar,&proof); err != nil {return "","",err}
+ if proof.SchemaVersion != 1 || proof.PredecessorWorkUnit != entry.WorkUnit ||
+    proof.SuccessorWorkUnit == "" || proof.SuccessorWorkUnit == entry.WorkUnit {
+  return "","",fmt.Errorf("invalid predecessor/successor for %s",sidecar)
+ }
+ for _,p := range []string{proof.ManifestPath,proof.HandoffPath} {
+  norm,err := normalizeChangedPaths([]string{p})
+  if err != nil || len(norm)!=1 || norm[0]!=p || !strings.HasPrefix(p,"work/lots/"+proof.SuccessorWorkUnit+"/") {
+   return "","",fmt.Errorf("invalid successor evidence path %q",p)
+  }
+ }
+ nodes := map[string]WorkNode{}
+ for _,node := range graph.Nodes {nodes[node.ID]=node}
+ node,ok := nodes[proof.SuccessorWorkUnit]
+ if !ok || node.Status!="VERIFIED" {return "","",fmt.Errorf("successor %s is not VERIFIED",proof.SuccessorWorkUnit)}
+ stack := append([]string(nil),node.DependsOn...)
+ visited := map[string]bool{}
+ found := false
+ for len(stack)>0 {
+  i:=len(stack)-1; id:=stack[i];stack=stack[:i]
+  if id==entry.WorkUnit {found=true;break}
+  if visited[id] {continue}
+  visited[id]=true
+  dep,ok:=nodes[id];if !ok {return "","",fmt.Errorf("unknown successor dependency %s",id)}
+  stack=append(stack,dep.DependsOn...)
+ }
+ if !found {return "","",fmt.Errorf("successor lacks recorded runtime dependency")}
+ manifest,err:=decodeWorkManifestV2(root,proof.ManifestPath);if err!=nil{return "","",err}
+ if manifest.ID!=proof.SuccessorWorkUnit || manifest.Parent!=original.Parent ||
+   !containsString(manifest.ProductRefs.Capabilities,entry.Capability) ||
+   !containsString(manifest.AllowedPaths,entry.RuntimeRoot) {
+  return "","",fmt.Errorf("successor capability, parent or runtime ownership mismatch")
+ }
+ var handoff RuntimeSuccessorHandoff
+ if err:=decodeStrict(root,proof.HandoffPath,&handoff);err!=nil{return "","",err}
+ head,err:=validateFullCommitID(handoff.FinalValidatedHead)
+ if err!=nil || head!=handoff.FinalValidatedHead || handoff.SchemaVersion!=1 ||
+    handoff.WorkUnit!=proof.SuccessorWorkUnit || handoff.Result!="VERIFIED" ||
+    handoff.ProductSpecMutated || handoff.PullRequest<1 ||
+    handoff.Evidence.PushRun<1 || handoff.Evidence.PullRequestRun<1 ||
+    handoff.Evidence.RuntimeGlobalCoveragePercent<80 ||
+    handoff.Evidence.AbsoluteBudgetMS<=0 ||
+    handoff.Evidence.PushP95MS<=0 || handoff.Evidence.PushP95MS>handoff.Evidence.AbsoluteBudgetMS ||
+    handoff.Evidence.PullRequestP95MS<=0 || handoff.Evidence.PullRequestP95MS>handoff.Evidence.AbsoluteBudgetMS ||
+    handoff.Evidence.SASTFindings!=0 || handoff.Evidence.SCAActionableFindings!=0 {
+  return "","",fmt.Errorf("successor handoff has insufficient verified run evidence")
+ }
+ if err:=ensureGitAncestor(root,validatedHead,head);err!=nil {
+  return "","",fmt.Errorf("successor is not a descendant of original validation: %w",err)
+ }
+ if err:=verifyOnlyRecordedRuntimeAdditions(root,validatedHead,head,entry.RuntimeRoot,proof.AddedRuntimePaths);err!=nil{return "","",err}
+ return proof.SuccessorWorkUnit,head,nil
+}
+
+// No changed/deleted original runtime file can be excused by this proof.
+// Only precisely listed new paths may be observed between the two Git trees.
+func verifyOnlyRecordedRuntimeAdditions(root,before,after,runtimeRoot string,paths []string) error {
+ base:=strings.TrimSuffix(runtimeRoot,"/**")
+ if len(paths)==0 || !strings.HasPrefix(base,"product-runtime/") {return fmt.Errorf("successor additions missing or unbounded")}
+ expected:=map[string]bool{}
+ for _,p:=range paths {
+  norm,err:=normalizeChangedPaths([]string{p})
+  if err!=nil || len(norm)!=1 || norm[0]!=p || !strings.HasPrefix(p,base+"/") || expected[p] {
+   return fmt.Errorf("invalid or duplicate successor path %q",p)
+  }
+  expected[p]=true
+ }
+ out,err:=exec.Command("git","-C",root,"diff","--no-ext-diff","--no-renames",
+  "--name-status",before,after,"--",filepath.ToSlash(base)).Output() // #nosec G204,G702 -- no shell, bounded Git SHAs and root.
+ if err!=nil{return fmt.Errorf("inspect successor Git diff: %w",err)}
+ actual:=map[string]bool{}
+ for _,line:=range strings.Split(strings.TrimSpace(string(out)),"\n") {
+  if line=="" {continue}
+  parts:=strings.SplitN(line,"\t",2)
+  if len(parts)!=2 || parts[0]!="A" || !expected[parts[1]] || actual[parts[1]] {
+   return fmt.Errorf("successor mutated or added an unrecorded runtime path: %q",line)
+  }
+  actual[parts[1]]=true
+ }
+ if len(actual)!=len(expected){return fmt.Errorf("successor added %d paths; proof listed %d",len(actual),len(expected))}
+ return nil
 }
 
 func buildCurrentObligationSet(root string, state CurrentState) (ObligationSet, error) {

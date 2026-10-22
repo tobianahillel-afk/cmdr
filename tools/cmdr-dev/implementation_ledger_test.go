@@ -187,3 +187,32 @@ func TestRuntimeLedgerGitProofRejectsUnverifiedRuntimeChange(t *testing.T) {
 		t.Fatal("runtime root path escape must fail")
 	}
 }
+
+func TestRuntimeSuccessorAdditiveProofRejectsAnyOldRuntimeMutation(t *testing.T) {
+ if _,err:=exec.LookPath("git");err!=nil{t.Skip("git unavailable")}
+ root:=t.TempDir()
+ runTestGit(t,root,"init")
+ runTestGit(t,root,"config","user.name","CMDR Test")
+ runTestGit(t,root,"config","user.email","cmdr-test@example.invalid")
+ writeTestFile(t,root,"product-runtime/context-envelope/envelope.go","package envelope\n")
+ runTestGit(t,root,"add",".")
+ runTestGit(t,root,"commit","-m","validated runtime")
+ before:=testGitOutput(t,root,"rev-parse","HEAD")
+ paths:=[]string{"product-runtime/context-envelope/cmd/perf-probe/main.go",
+  "product-runtime/context-envelope/cmd/perf-probe/main_test.go"}
+ for _,p:=range paths{writeTestFile(t,root,p,"package main\n")}
+ runTestGit(t,root,"add",".")
+ runTestGit(t,root,"commit","-m","verified additive performance probe")
+ successor:=testGitOutput(t,root,"rev-parse","HEAD")
+ const runtime="product-runtime/context-envelope/**"
+ if err:=verifyOnlyRecordedRuntimeAdditions(root,before,successor,runtime,paths);err!=nil{t.Fatal(err)}
+ if err:=verifyRuntimeClaimGitEvidence(root,before,successor,runtime);err!=nil{t.Fatal(err)}
+ if err:=verifyOnlyRecordedRuntimeAdditions(root,before,successor,runtime,paths[:1]);err==nil{t.Fatal("incomplete evidence passed")}
+ if err:=verifyOnlyRecordedRuntimeAdditions(root,before,successor,runtime,append(paths,paths[0]));err==nil{t.Fatal("duplicate path passed")}
+ if err:=verifyOnlyRecordedRuntimeAdditions(root,before,successor,runtime,[]string{"product-runtime/other/main.go"});err==nil{t.Fatal("external path passed")}
+ writeTestFile(t,root,"product-runtime/context-envelope/envelope.go","package envelope\n// tampered\n")
+ runTestGit(t,root,"add",".")
+ runTestGit(t,root,"commit","-m","unverified root change")
+ if err:=verifyRuntimeClaimGitEvidence(root,before,successor,runtime);err==nil{t.Fatal("post-successor mutation passed")}
+ if err:=verifyOnlyRecordedRuntimeAdditions(root,before,testGitOutput(t,root,"rev-parse","HEAD"),runtime,paths);err==nil{t.Fatal("original file mutation passed")}
+}
