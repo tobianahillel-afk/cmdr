@@ -18,8 +18,8 @@
   },
   "execution": {
     "active_work_unit": "E10-INV-120A-SNAPSHOT",
-    "preferred_next_unit": "E10-INV-120A-SNAPSHOT",
-    "selection_rule": "first READY unit whose dependencies satisfy their required terminal state; when no READY exists create a separately scoped functional integration unit"
+    "preferred_next_unit": null,
+    "selection_rule": "The active_work_unit is the attribution for this reconciliation commit ONLY, not a READY recommendation. E10-INV-120A-SNAPSHOT is IMPLEMENTED on frozen PR #36, NOT VERIFIED or merged. preferred_next_unit=null because no other graph node is safely READY; recompute from canonical obligations and GitHub PRs, do not use stale READY cache. Separate Command CAP-CMD-101/SAST issues reside on draft PRs #153-155."
   },
   "reconciliation": {
     "required_on_resume": true,
