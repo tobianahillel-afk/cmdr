@@ -181,8 +181,12 @@ export function createEventInspectionJourney({ searchController, transport, onVi
   let abort;
   let view = immutable({ kind: "search" });
   let openedFrom;
+  let retainedSearchStart;
 
-  function publish(next) {
+  function publish(next, authorizedSearchStart) {
+    // A cached Search result window is a view, never a durable grant. Preserve
+    // the exact original Search Job and selected row for per-read invalidation.
+    retainedSearchStart = next.kind === "search" && next.resultWindow ? authorizedSearchStart : undefined;
     view = immutable(next);
     onView(view);
     return view;
@@ -317,7 +321,7 @@ export function createEventInspectionJourney({ searchController, transport, onVi
     abort?.abort();
     abort = undefined;
     return publish({ kind: "search", searchState: origin.searchState,
-      resultWindow: origin.resultWindow, queryDraft: latest.pivotDraft });
+      resultWindow: origin.resultWindow, queryDraft: latest.pivotDraft }, origin.start);
   }
 
   // CAP-INV-004 §17 requires returning to the same Event after a pivot.
@@ -338,7 +342,7 @@ export function createEventInspectionJourney({ searchController, transport, onVi
     if (response.kind === "unavailable" && view === response &&
         sequence === generation && validSearch(origin.start)) {
       return publish({ kind: "search", searchState: origin.searchState,
-        resultWindow: origin.resultWindow, returnError: "event-unavailable" });
+        resultWindow: origin.resultWindow, returnError: "event-unavailable" }, origin.start);
     }
     return response;
   }
@@ -351,7 +355,7 @@ export function createEventInspectionJourney({ searchController, transport, onVi
     openedFrom = undefined;
     if (!previous || !validSearch(previous.start)) return publish({ kind: "unavailable" });
     return publish({ kind: "search", searchState: previous.searchState,
-      resultWindow: previous.resultWindow });
+      resultWindow: previous.resultWindow }, previous.start);
   }
 
   function close() {
@@ -367,6 +371,17 @@ export function createEventInspectionJourney({ searchController, transport, onVi
   // even when no pivot/open transport is currently pending. A renderer must
   // read the current journey view rather than retain a prior projection.
   function getView() {
+    // A draft-free Search view can still retain an authorized result window
+    // after the Inspector is closed or Event.read is denied. Revalidate that
+    // window on EVERY read, including after ordinary back() and failed return.
+    if (view.kind === "search" && view.resultWindow &&
+        (!retainedSearchStart || !validSearch(retainedSearchStart))) {
+      sequence += 1;
+      abort?.abort();
+      abort = undefined;
+      openedFrom = undefined;
+      return publish({ kind: "unavailable" });
+    }
     if ((view.kind === "inspected" || (view.kind === "search" && view.queryDraft)) &&
         (!openedFrom || !validSearch(openedFrom.start))) {
       sequence += 1;

@@ -83,6 +83,11 @@ test("real Event Search controller result opens authorized inspection and restor
   assert.equal(back.searchState.query, context.query);
   assert.equal(back.searchState.from, new Date(context.from).toISOString());
   assert.deepEqual(controller.getView(), initial);
+  await controller.execute(context, { correlationId: "corr-2", queryVersion: "query-1" });
+  const revoked = journey.getView();
+  assert.equal(revoked.kind, "unavailable", "back() must not retain a revoked Search result window");
+  assert.equal(revoked.resultWindow, undefined);
+  assert.equal(journey.getView(), revoked);
 });
 
 test("missing selected Event and forged scope fail closed before or after transport", async () => {
@@ -471,6 +476,13 @@ test("returning from a pivot draft cannot reuse an Inspector when host revokes E
   assert.ok(allText(mount).some(x => x.includes("Event unavailable")));
   assert.equal(allText(mount).join(" ").includes("safe rendered"), false);
   assert.equal(inspected, 2);
+  // A later Search revocation must clear this view even after the Event denial
+  // removed the pivot draft and the Inspector's openedFrom reference.
+  await controller.execute(context, { correlationId: "corr-2", queryVersion: "query-1" });
+  const revokedSearch = journey.getView();
+  assert.equal(revokedSearch.kind, "unavailable");
+  assert.equal(revokedSearch.resultWindow, undefined);
+  assert.equal(revokedSearch.returnError, undefined);
 });
 
 test("Search revocation during rejected Inspector return must not restore stale Search results", async () => {
