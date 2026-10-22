@@ -31,7 +31,7 @@ requirements:
 | CAP-CMD-102 | Work Assignment | Incident Commander | Incident/Task, Principal, Notification | Affecter (C2), prendre (C2), libérer (C2) | defined | planned | OPEN-013 |
 | CAP-CMD-103 | Operational Ownership | Incident Commander | Incident/Task, Team, Audit | owner (C2), contributeur (C2), watcher (C2) | defined | planned | OPEN-013 |
 | CAP-CMD-104 | Priority and Severity Coordination | SOC Analyst L2 | work item, source dimensions | inspecter (C0), priority/impact (C2) | defined | planned | OPEN-013 |
-| CAP-CMD-105 | SLA Tracking | SOC Analyst L1/L2 | work item, policy, Task | consulter (C0), pause/reprise (C2) | defined | planned | OPEN-006, OPEN-013 |
+| CAP-CMD-105 | SLA Tracking | SOC Analyst L1/L2 | work item, policy, Task | consulter (C0), pause/reprise (C2) | defined | planned | OPEN-013 |
 | CAP-CMD-106 | Incident Coordination | Incident Commander | Signal/Alert, Case/Finding, Govern objects | créer/coordonner (C2), ouvrir Case (C2) | defined | planned | OPEN-013 |
 | CAP-CMD-107 | Task Coordination | SOC Analyst | Task, source object | créer/modifier/lier (C2) | defined | planned | OPEN-013 |
 | CAP-CMD-108 | Bulk Coordination | Incident Commander | work items, views, export job | preview (C0), mutations limitées (C2) | defined | planned | OPEN-013 |
