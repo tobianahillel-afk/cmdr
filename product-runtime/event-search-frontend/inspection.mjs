@@ -320,6 +320,18 @@ export function createEventInspectionJourney({ searchController, transport, onVi
       resultWindow: origin.resultWindow, queryDraft: latest.pivotDraft });
   }
 
+  // CAP-INV-004 §17 requires returning to the same Event after a pivot.
+  // Never replay a cached Inspector projection: resolving the return calls the
+  // Telemetry owner again via the existing independently authorized host.
+  async function returnToInspectedEvent() {
+    const current = getView();
+    const origin = openedFrom;
+    if (current.kind !== "search" || !current.queryDraft || !origin ||
+        current.queryDraft.returnContext.eventRef !== origin.request.eventRef ||
+        !validSearch(origin.start)) fail("event-return-not-available");
+    return open(origin.searchState, origin.request.eventRef);
+  }
+
   function back() {
     sequence += 1;
     abort?.abort();
@@ -355,12 +367,14 @@ export function createEventInspectionJourney({ searchController, transport, onVi
     return view;
   }
 
-  return Object.freeze({ open, draftPivot, continuePivotInSearch, back, close, getView });
+  return Object.freeze({ open, draftPivot, continuePivotInSearch,
+    returnToInspectedEvent, back, close, getView });
 }
 
 // Render with native DOM text-only sinks. This is a view of server-authorized
 // content, never an authorization mechanism or a parser/decoding engine.
-export function renderEventInspection(document, mount, current, { onDraftPivot, onContinuePivotInSearch } = {}) {
+export function renderEventInspection(document, mount, current,
+  { onDraftPivot, onContinuePivotInSearch, onReturnToInspectedEvent } = {}) {
   if (typeof document?.createElement !== "function" ||
       typeof mount?.replaceChildren !== "function") fail("invalid-dom");
   const make = (tag, value = "") => {
@@ -438,6 +452,12 @@ export function renderEventInspection(document, mount, current, { onDraftPivot, 
     section.append(make("p", `Field: ${draft.field} = ${draft.value} | origin: ${draft.fieldOrigin}`));
     section.append(make("p", `Scope: ${draft.tenantRef} / ${draft.environmentRef} | period: ${draft.timeRange.start} — ${draft.timeRange.end}`));
     section.append(make("p", `Return Event: ${draft.returnContext.eventRef} | job/run: ${draft.jobId} / ${draft.runId}`));
+    if (typeof onReturnToInspectedEvent === "function") {
+      const action = make("button", "Return to inspected Event");
+      action.type = "button";
+      action.addEventListener("click", () => onReturnToInspectedEvent());
+      section.append(action);
+    }
   }
   mount.replaceChildren(section);
 }

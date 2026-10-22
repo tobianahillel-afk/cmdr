@@ -156,7 +156,12 @@ test("real Node fetch to Go authorized HTTP host opens and returns to identical 
   assert.equal(searchDraft.queryDraft.auditRequired, true);
   assert.equal(searchDraft.resultWindow, windowBefore);
   assert.equal(searchDraft.searchState.query, context.query);
-  assert.equal(journey.back().queryDraft, undefined);
+  // Actual Go host resolves fresh Event.read authorization for the return leg.
+  const inspectedAgain = await journey.returnToInspectedEvent();
+  assert.equal(inspectedAgain.kind, "inspected");
+  assert.equal(inspectedAgain.inspection.eventRef, "event-1");
+  assert.equal(inspectedAgain.pivotDraft, undefined);
+  assert.equal(journey.back().resultWindow, windowBefore);
 
   const wrongBearer = createInspectionHTTPTransport({ fetchImpl: realLocalFetch(endpoint, "wrong-bearer") });
   await assert.rejects(() => wrongBearer.inspect({

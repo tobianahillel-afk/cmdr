@@ -327,10 +327,11 @@ test("explicit Inspector-to-Search handoff reauthorizes the unexecuted pivot and
   const controller = await initializedSearch();
   const originalWindow = controller.getView().resultWindow;
   const transportCalls = [];
+  let inspectionCalls = 0;
   const journey = createEventInspectionJourney({
     searchController: controller,
     transport: {
-      async inspect() { return inspection(); },
+      async inspect() { inspectionCalls++; return inspection(); },
       async draftPivot(request) {
         transportCalls.push(request);
         return {
@@ -370,9 +371,25 @@ test("explicit Inspector-to-Search handoff reauthorizes the unexecuted pivot and
   assert.deepEqual(Object.keys(result).sort(),
     ["kind", "searchState", "resultWindow", "queryDraft"].sort());
   const searchPanel = new FakeElement("main");
-  renderEventInspection(new FakeDocument(), searchPanel, result);
+  let returned;
+  renderEventInspection(new FakeDocument(), searchPanel, result, {
+    onReturnToInspectedEvent() { returned = journey.returnToInspectedEvent(); },
+  });
   assert.ok(allText(searchPanel).some(x => x.includes("unexecuted Query draft")));
-  assert.equal(journey.back().queryDraft, undefined);
+  const returnAction = allNodes(searchPanel).find(node => node.tagName === "button" &&
+    node.textContent === "Return to inspected Event");
+  assert.ok(returnAction, "explicit return to the same Event");
+  returnAction.click();
+  const reinspected = await returned;
+  assert.equal(reinspected.kind, "inspected");
+  assert.equal(reinspected.inspection.eventRef, "event-1");
+  assert.equal(reinspected.pivotDraft, undefined, "old draft is not a grant for this inspection");
+  assert.equal(inspectionCalls, 2, "return MUST reauthorize against the Telemetry owner");
+  const restoredSearch = journey.back();
+  assert.equal(restoredSearch.kind, "search");
+  assert.equal(restoredSearch.resultWindow, originalWindow);
+  assert.equal(restoredSearch.searchState.query, context.query);
+  assert.equal(restoredSearch.queryDraft, undefined);
 });
 
 test("pivot handoff denied by the owner on reauthorization must not enter Event Search", async () => {
@@ -409,6 +426,43 @@ test("pivot handoff denied by the owner on reauthorization must not enter Event 
   assert.equal(rejected.pivotDraft, undefined);
   assert.equal(journey.getView().queryDraft, undefined);
   assert.equal(calls, 2);
+});
+
+test("returning from a pivot draft cannot reuse an Inspector when host revokes Event.read", async () => {
+  const controller = await initializedSearch();
+  let inspected = 0;
+  const journey = createEventInspectionJourney({
+    searchController: controller,
+    transport: {
+      async inspect() {
+        inspected++;
+        return inspected === 1 ? inspection() : { kind: "permission-denied" };
+      },
+      async draftPivot(request) {
+        return {
+          kind: "pivot-draft", targetCapability: "CAP-INV-002", auditRequired: true,
+          tenantRef: request.tenantRef, environmentRef: request.environmentRef,
+          eventRef: request.eventRef, correlationId: request.correlationId,
+          jobId: request.jobId, runId: request.runId,
+          timeRange: { start: request.timeStart, end: request.timeEnd },
+          field: request.field, value: request.value, fieldOrigin: "source",
+          sourceRef: "shared-source-1", dataSourceRef: "settings-source-1",
+          returnContext: { origin: "event-search", tenantRef: request.tenantRef,
+            environmentRef: request.environmentRef, eventRef: request.eventRef,
+            correlationId: request.correlationId },
+        };
+      },
+    },
+  });
+  await assert.rejects(() => journey.returnToInspectedEvent(), /event-return-not-available/);
+  await journey.open(context, "event-1");
+  await journey.draftPivot("source.ip", "192.0.2.10");
+  assert.equal((await journey.continuePivotInSearch()).kind, "search");
+  const denied = await journey.returnToInspectedEvent();
+  assert.equal(denied.kind, "unavailable");
+  assert.equal(journey.getView().inspection, undefined);
+  assert.equal(journey.getView().queryDraft, undefined);
+  assert.equal(inspected, 2);
 });
 
 test("revocation after entering Search with a draft removes the draft before next read", async () => {
