@@ -3,7 +3,7 @@
   "state_kind": "execution-cache",
   "product_spec": {
     "canonical_path": "cmdr-product-spec",
-    "baseline_commit": "99c3826cdcbc79bad51631cf6462450f92e012eb",
+    "baseline_commit": "82e630fce3a7f6236e03709116eca6dd0a1acd40",
     "documentary_status": "PASS",
     "runtime_implementation_claimed": false,
     "known_capabilities": 498,

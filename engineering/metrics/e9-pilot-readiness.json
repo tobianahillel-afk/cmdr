@@ -3,7 +3,7 @@
   "handoff_kind": "e9-end-to-end-pilot-readiness",
   "status": "READY_FOR_E9_PILOT_SCOPE_SELECTION",
   "engineering_head": "de735057a0215cfec8b9e7d36afc71ac70a03d44",
-  "product_spec_baseline": "99c3826cdcbc79bad51631cf6462450f92e012eb",
+  "product_spec_baseline": "82e630fce3a7f6236e03709116eca6dd0a1acd40",
   "canonical_pilot_plan": "cmdr-product-spec/18-roadmap-and-releases/pilot-plan.md",
   "canonical_pilot_plan_status": "draft",
   "ready_foundation": [
