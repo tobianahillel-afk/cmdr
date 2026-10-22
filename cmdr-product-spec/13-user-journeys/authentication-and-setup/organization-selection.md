@@ -40,7 +40,7 @@ Product Architecture.
 
 ## Permissions
 
-Les modifications suivent le modèle défini dans `../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
+Les modifications suivent le modèle défini dans `../../14-security-permissions-and-trust/permission-model.md` lorsque le document décrit une capacité exécutable.
 
 ## États
 
