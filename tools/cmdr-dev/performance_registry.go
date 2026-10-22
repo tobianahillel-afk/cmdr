@@ -124,21 +124,22 @@ var knownPerformanceStages = map[string]bool{
 }
 
 var knownPerformanceWorkloadKeys = map[string]bool{
-	"cmdr-dev-metadata-audit-v1":            true,
-	"pilot-context-projection-v1":           true,
-	"event-search-validation-v1":            true,
-	"event-search-orchestration-v1":         true,
-	"event-search-frontend-state-update-v1": true,
-	"event-inspection-projection-v1":        true,
-	"event-inspection-pivot-v1":             true,
-	"hunt-management-projection-v1":         true,
-	"saved-query-assets-projection-v1":      true,
-	"saved-query-assets-handoff-v1":         true,
-	"case-queue-projection-v1":              true,
-	"case-queue-saved-view-v1":              true,
-	"case-queue-handoff-v1":                 true,
-	"investigation-timeline-projection-v1":  true,
-	"investigation-timeline-navigation-v1":  true,
+	"cmdr-dev-metadata-audit-v1":                  true,
+	"pilot-context-projection-v1":                 true,
+	"event-search-validation-v1":                  true,
+	"event-search-orchestration-v1":               true,
+	"event-search-frontend-state-update-v1":       true,
+	"event-inspection-projection-v1":              true,
+	"event-inspection-pivot-v1":                   true,
+	"hunt-management-projection-v1":               true,
+	"saved-query-assets-projection-v1":            true,
+	"saved-query-assets-handoff-v1":               true,
+	"case-queue-projection-v1":                    true,
+	"command-work-queue-in-process-projection-v1": true,
+	"case-queue-saved-view-v1":                    true,
+	"case-queue-handoff-v1":                       true,
+	"investigation-timeline-projection-v1":        true,
+	"investigation-timeline-navigation-v1":        true,
 }
 
 func runPerformanceRegistryAudit(root string) (PerformanceRegistryAuditSummary, error) {

@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-CMD-101A-READONLY",
+  "result": "IMPLEMENTED",
+  "branch": "feat/e10-cmd-101a-readonly-queue",
+  "base_branch": "engineering/autonomous-development-foundation",
+  "evidence": {
+    "contract": "COMMAND-WORK-QUEUE-READONLY-CONTRACT-V1",
+    "runtime_state": "implemented",
+    "unit_tests": "PASS",
+    "fixtures": 10,
+    "runtime_dependencies": 0,
+    "cross_boundary_edges": 0,
+    "views": [
+      "all",
+      "incidents",
+      "tasks",
+      "unassigned",
+      "sla-risk",
+      "my-work"
+    ]
+  },
+  "invariants": [
+    "Exactly six Command system view keys: all, incidents, tasks, unassigned, sla-risk, my-work; no route per view or legacy Team Load.",
+    "Only Command Incident and Task owner data; linked Case/Decision/Run identities are excluded rather than permission-cloned.",
+    "Mandatory exact tenant and environment plus current host-side authorization per individual object before projecting fields; no client access boolean.",
+    "Missing/wildcard/invalid scope and unknown view fail closed before any owner read.",
+    "Foreign tenant/environment owner rows not reauthorized or rendered; denied object and provider failure yield zero privileged rows.",
+    "Unresolved SLA policy state is partial and never silently treated as safe.",
+    "At most 5000 provider candidates, 50 first-page rows with deterministic timestamp sorting; no unbounded projection.",
+    "Zero product third-party dependencies (DENY-BY-DEFAULT per AGENTS.md §3)."
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": []
+}

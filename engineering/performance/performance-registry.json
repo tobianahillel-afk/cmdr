@@ -443,6 +443,34 @@
         }
       ],
       "rationale": "Preimplementation-only local engineering ceiling, not a result or production SLO; handler explicitly fails closed until a real representative runtime probe is implemented."
+    },
+    {
+      "id": "PERF-TGT-COMMAND-WORK-QUEUE-PROJECTION",
+      "scope_kind": "product-runtime",
+      "boundary_id": "command-work-queue-runtime",
+      "owner_path": "product-runtime/work-queue/**",
+      "workload_key": "command-work-queue-in-process-projection-v1",
+      "workload_description": "Bounded first-party in-memory Command Incident/Task six-view read-only projection with at most 5000 candidates, current per-object owner callback, sorting, and first 50 rows. Provider I/O, backend latency, browser rendering and process startup are NOT measured by this engineering budget.",
+      "environment_id": "PERF-ENV-GITHUB-UBUNTU-SHARED",
+      "stages": [
+        "on-demand"
+      ],
+      "trigger_paths": [
+        "product-runtime/work-queue/**",
+        "engineering/performance/performance-registry.json"
+      ],
+      "metrics": [
+        {
+          "id": "projection-p95-latency",
+          "kind": "latency",
+          "unit": "ms",
+          "aggregation": "p95",
+          "comparator": "upper-bound",
+          "budget": 50,
+          "max_relative_regression_percent": 0
+        }
+      ],
+      "rationale": "On-demand engineering-only coarse ceiling until a representative CMDR Command data provider and measured performance probe exist; never claim a production SLO or benchmark pass from registry presence."
     }
   ]
 }

@@ -79,6 +79,7 @@
     "case-queue-saved-view-v1",
     "case-queue-handoff-v1",
     "investigation-timeline-projection-v1",
-    "investigation-timeline-navigation-v1"
+    "investigation-timeline-navigation-v1",
+    "command-work-queue-in-process-projection-v1"
   ]
 }
