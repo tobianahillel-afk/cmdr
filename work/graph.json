@@ -1780,6 +1780,17 @@
       ],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": []
+    },
+    {
+      "id": "E10-INV-120B-MITRE",
+      "title": "Aggregate source-claimed Wazuh MITRE technique IDs on authorized local Case timeline",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-INV-110E"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": []
     }
   ]
 }
