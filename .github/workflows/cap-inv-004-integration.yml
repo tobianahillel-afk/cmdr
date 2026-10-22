@@ -1,0 +1,50 @@
+name: CAP-INV-004 isolated Event Inspection integration
+
+on:
+  pull_request:
+    paths:
+      - "product-runtime/event-inspection/**"
+      - ".github/workflows/cap-inv-004-integration.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  event-inspection:
+    name: event-inspection (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    defaults:
+      run:
+        working-directory: product-runtime/event-inspection
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Verify exact candidate SHA checkout
+        shell: bash
+        run: |
+          expected="${{ github.event.pull_request.head.sha || github.sha }}"
+          actual="$(git rev-parse HEAD)"
+          test "$actual" = "$expected"
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e
+        with:
+          go-version-file: product-runtime/event-inspection/go.mod
+          cache: false
+      - name: First-party behavioral and isolation tests
+        run: go test -count=1 ./...
+      - name: Go static analysis
+        run: go vet ./...
+      - name: Race and bounded-module coverage (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: go test -race -coverprofile=coverage.out -covermode=atomic -count=1 ./...
+      - name: Enforce 90% bounded-module coverage (not the full engineering security gate)
+        if: matrix.os == 'ubuntu-latest'
+        shell: bash
+        run: |
+          go tool cover -func=coverage.out | awk '/^total:/ {gsub("%","",$3); print "bounded_module_coverage=" $3 "%"; if ($3+0 < 90) exit 1; found=1} END {if (!found) exit 1}'
