@@ -235,3 +235,18 @@ func TestEventSearchOrchestrationDeepHandlerExecutesRealRuntime(t *testing.T) {
 		})
 	}
 }
+
+func TestCommandQueueDeepHandlerMeasuresGoRuntime(t *testing.T) {
+	root, err := filepath.Abs(filepath.Join("..", ".."))
+	if err != nil {
+		t.Fatal(err)
+	}
+	target := DeepPerformanceTarget{ID: "PERF-DEEP-COMMAND-WORK-QUEUE-PROJECTION", PerformanceTargetID: "PERF-TGT-COMMAND-WORK-QUEUE-PROJECTION", Kind: "resource", HandlerKey: "builtin-command-work-queue-projection-v1", Stages: []string{"on-demand"}, TriggerPaths: []string{"product-runtime/work-queue/**"}, TimeoutSeconds: 30, MemoryLimitMiB: 128, Concurrency: 1, Iterations: 10000, Rationale: "bounded real synthetic owner projection"}
+	got, err := runDeepPerformanceHandler(context.Background(), root, target)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got.Operations < 10000 || got.PeakHeapBytes == 0 || got.TotalAllocationBytes == 0 || got.ThroughputOpsPerSec <= 0 {
+		t.Fatalf("incomplete deep Command observation: %#v", got)
+	}
+}

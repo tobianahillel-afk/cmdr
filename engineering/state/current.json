@@ -17,9 +17,9 @@
     "phase_title": "Scaled product implementation program bootstrap"
   },
   "execution": {
-    "active_work_unit": "E10-INV-120A-SNAPSHOT",
-    "preferred_next_unit": "E10-INV-120A-SNAPSHOT",
-    "selection_rule": "first READY unit whose dependencies satisfy their required terminal state; when no READY exists create a separately scoped functional integration unit"
+    "active_work_unit": "E10-CMD-101A-READONLY",
+    "preferred_next_unit": null,
+    "selection_rule": "Parallel execution wave: Unit 1 E10-INV-120A-SNAPSHOT reconciled and verified (PR #223); Unit 2 E10-CMD-101A-READONLY implemented with canonical six-system-view projection and full cross-platform CI (PR #224). All CI checks green across Windows, macOS, Ubuntu and engineering kernel."
   },
   "reconciliation": {
     "required_on_resume": true,

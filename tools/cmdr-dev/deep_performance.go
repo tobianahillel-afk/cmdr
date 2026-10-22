@@ -118,6 +118,7 @@ var knownDeepPerformanceHandlerKeys = map[string]bool{
 	"builtin-case-queue-handoff-v1":                                  true,
 	"builtin-investigation-timeline-projection-v1":                   true,
 	"builtin-investigation-timeline-navigation-preimplementation-v1": true,
+	"builtin-command-work-queue-projection-v1":                       true,
 }
 
 func runDeepPerformanceAudit(root, stage, changesFile, requestedTarget string) (DeepPerformanceAuditSummary, error) {
@@ -467,6 +468,33 @@ func runDeepPerformanceHandler(ctx context.Context, root string, target DeepPerf
 			Operations:           int64(observation.Operations),
 		}
 		result.ThroughputOpsPerSec = float64(observation.Operations) / (float64(observation.ElapsedNS) / float64(time.Second))
+		return result, nil
+	}
+	if target.HandlerKey == "builtin-command-work-queue-projection-v1" {
+		if err := ctx.Err(); err != nil {
+			return DeepPerformanceObservation{}, err
+		}
+		probe, cleanup, err := prepareCommandWorkQueueProbe(root)
+		if err != nil {
+			return DeepPerformanceObservation{}, err
+		}
+		defer cleanup()
+		observation, err := probe.runResource(target.Iterations, target.MemoryLimitMiB)
+		if err != nil {
+			return DeepPerformanceObservation{}, err
+		}
+		if err := ctx.Err(); err != nil {
+			return DeepPerformanceObservation{}, err
+		}
+		result := DeepPerformanceObservation{
+			DurationMS:           observation.ElapsedNS / int64(time.Millisecond),
+			PeakHeapBytes:        observation.PeakHeapBytes,
+			TotalAllocationBytes: observation.TotalAllocationBytes,
+			Operations:           int64(observation.Operations),
+		}
+		if observation.ElapsedNS > 0 {
+			result.ThroughputOpsPerSec = float64(observation.Operations) / (float64(observation.ElapsedNS) / float64(time.Second))
+		}
 		return result, nil
 	}
 	if target.HandlerKey == "builtin-investigation-timeline-navigation-preimplementation-v1" {

@@ -120,6 +120,15 @@
       ],
       "mutable_by_implementation": true,
       "may_depend_on": []
+    },
+    {
+      "id": "command-work-queue-runtime",
+      "kind": "product-runtime",
+      "roots": [
+        "product-runtime/work-queue/**"
+      ],
+      "mutable_by_implementation": true,
+      "may_depend_on": []
     }
   ]
 }
