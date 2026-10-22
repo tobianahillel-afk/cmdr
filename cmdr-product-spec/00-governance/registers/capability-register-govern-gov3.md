@@ -1,0 +1,38 @@
+---
+id: capability-register-govern-gov3
+domain: 00-governance
+status: draft
+owner: Product Architecture
+updated: 2026-08-09
+source-of-truth: registry-shard
+---
+# Capability Register — Govern GOV-3
+
+Parent: **Delivery Roadmap Phase 4 — Govern** (`roadmap-phase-4-govern`). Execution lot: **GOV-3 — Audit Trail, Response Metrics and Govern Closure**. GOV-3 is not a roadmap phase or Capability Specification Phase.
+
+| ID | Name | Module | Status | Delivery status | Delivery mode | Canonical file | Primary roles | Primary objects/concepts | Consumers | Requirements | OPEN | Dependencies | Last reviewed |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| CAP-GOV-034 | Govern Audit Trail Intake and Event Semantics | Audit Trail | draft | defined | planned | `08-govern/modules/audit-trail/capabilities/govern-audit-trail-intake-and-event-semantics.md` | Govern Auditor; Govern Reviewer | Govern Audit Event; source event refs | Audit reconstruction; metrics; closure | REQ-PROD-002,004,005,008,015,019,020; REQ-SEC-001,002 | OPEN-007/008/013/015/019 | GOV-1/GOV-2 provenance; Shared Trace/Activity; Settings/Security | 2026-08-09 |
+| CAP-GOV-035 | Decision, Approval and Authority Audit Reconstruction | Audit Trail | draft | defined | planned | `08-govern/modules/audit-trail/capabilities/decision-approval-and-authority-audit-reconstruction.md` | Govern Auditor; Security Reviewer | Action Request; Approval; Decision; Authority context | Audit review; metrics | REQ-PROD-004,008,015,020; REQ-SEC-001,002 | OPEN-007/013/015 | CAP-GOV-001..016/034/037/038 | 2026-08-09 |
+| CAP-GOV-036 | Response Run, Verification, Rollback and Result Audit Reconstruction | Audit Trail | draft | defined | planned | `08-govern/modules/audit-trail/capabilities/response-run-verification-rollback-and-result-audit-reconstruction.md` | Govern Auditor; Response/Verification Reviewer | Response Run; Verification; Rollback; Result | Audit review; Run metrics | REQ-PROD-002,004,005,008,015,016,020; REQ-OBJ-007; REQ-SEC-001,002 | OPEN-008/013/015 | CAP-GOV-015..034/037/038; runtime refs | 2026-08-09 |
+| CAP-GOV-037 | Audit Completeness, Integrity, Gap and Contradiction Assessment | Audit Trail | draft | defined | planned | `08-govern/modules/audit-trail/capabilities/audit-completeness-integrity-gap-and-contradiction-assessment.md` | Govern Auditor; Security/Compliance Reviewer | Audit Completeness Assessment; Audit Gap; Audit Contradiction | Audit review; trend/control health | REQ-PROD-002,005,008,019,020; REQ-SEC-001,002 | OPEN-008/013/019 | CAP-GOV-034..036; Settings retention; Security integrity | 2026-08-09 |
+| CAP-GOV-038 | Govern Audit Review, Search and Evidence Package Preparation | Audit Trail | draft | defined | planned | `08-govern/modules/audit-trail/capabilities/govern-audit-review-search-and-evidence-package-preparation.md` | Govern Auditor; Compliance Reviewer | Audit Review; Audit Evidence Package | Shared Reporting/Export; Investigate; closure | REQ-PROD-002,006,008,019,020; REQ-SEC-001,002 | OPEN-013/014/019 | CAP-GOV-034..037; Shared Search/Reporting/Export | 2026-08-09 |
+| CAP-GOV-039 | Policy, Exception and Emergency Governance Metrics | Response Metrics | draft | defined | planned | `08-govern/modules/response-metrics/capabilities/policy-exception-and-emergency-governance-metrics.md` | Govern Control Reviewer; Policy Reviewer | Policy Metric; Exception/Emergency observations | Trends; Reporting; improvement | REQ-PROD-004,005,015,019,020; REQ-SEC-001,002 | OPEN-013/019 | CAP-GOV-007/008/013/034/046/047; Shared Metrics | 2026-08-09 |
+| CAP-GOV-040 | Approval, Authority and Separation-of-Duties Metrics | Response Metrics | draft | defined | planned | `08-govern/modules/response-metrics/capabilities/approval-authority-and-separation-of-duties-metrics.md` | Govern Control Reviewer; Authority Reviewer | Approval Metric; Authority Metric; SoD observations | Trends; Security review; improvement | REQ-PROD-004,015,020; REQ-SEC-001,002 | OPEN-007/013 | CAP-GOV-009..013/034/046/047; Shared Metrics | 2026-08-09 |
+| CAP-GOV-041 | Decision Flow, Disposition and Timeliness Metrics | Response Metrics | draft | defined | planned | `08-govern/modules/response-metrics/capabilities/decision-flow-disposition-and-timeliness-metrics.md` | Govern Control Reviewer; Decision Reviewer | Decision Metric; flow durations | Trends; Reporting; improvement | REQ-PROD-004,005,008,015,020; REQ-SEC-001 | OPEN-013 | CAP-GOV-003/011/014..016/022/023; Shared Metrics | 2026-08-09 |
+| CAP-GOV-042 | Response Run Execution and Reliability Metrics | Response Metrics | draft | defined | planned | `08-govern/modules/response-metrics/capabilities/response-run-execution-and-reliability-metrics.md` | Govern Control Reviewer; Response Operator | Response Run Metric; reliability/partiality observations | Verification/outcome metrics; trends | REQ-PROD-002,005,008,015,016,020; REQ-OBJ-007 | OPEN-008/013/015 | CAP-GOV-017..027/034/043/044/046/047 | 2026-08-09 |
+| CAP-GOV-043 | Verification, Rollback and Recovery Metrics | Response Metrics | draft | defined | planned | `08-govern/modules/response-metrics/capabilities/verification-rollback-and-recovery-metrics.md` | Govern Control Reviewer; Verification/Rollback Reviewer | Verification Metric; Rollback Metric; Recovery Metric | Outcome metrics; trends; improvement | REQ-PROD-002,005,008,015,020; REQ-OBJ-007 | OPEN-008/013/015 | CAP-GOV-022/027..032/034/042/044/046/047 | 2026-08-09 |
+| CAP-GOV-044 | Response Outcome, Residual Risk and Effectiveness Metrics | Response Metrics | draft | defined | planned | `08-govern/modules/response-metrics/capabilities/response-outcome-residual-risk-and-effectiveness-metrics.md` | Govern Control Reviewer; Verification Reviewer | Result Metric; Residual Risk/Effectiveness observations | Trends; Command/Investigate feedback; improvement | REQ-PROD-002,005,008,015,020; REQ-OBJ-007 | OPEN-008/013/015 | CAP-GOV-029..034/042/043/046/047 | 2026-08-09 |
+| CAP-GOV-045 | Govern Queue, Ageing and Lifecycle Flow Metrics | Response Metrics | draft | defined | planned | `08-govern/modules/response-metrics/capabilities/govern-queue-ageing-and-lifecycle-flow-metrics.md` | Govern Coordinator; Control Reviewer | Flow Metric; Queue/Ageing observations | Trends; Govern operations; improvement | REQ-PROD-004,005,008,015,019,020; REQ-UX-008 | OPEN-010/013 | GOV-1/GOV-2 lifecycle; Shared Metrics | 2026-08-09 |
+| CAP-GOV-046 | Govern Trend, Comparison and Control Health Assessment | Response Metrics | draft | defined | planned | `08-govern/modules/response-metrics/capabilities/govern-trend-comparison-and-control-health-assessment.md` | Govern Control Reviewer; Govern Product Lead | Trend Assessment; Control Health Assessment | Improvement; Reporting; closure | REQ-PROD-002,005,006,015,019,020; REQ-SEC-001,002 | OPEN-008/013/019 | CAP-GOV-037/039..045/047; Shared Metrics/Reporting | 2026-08-09 |
+| CAP-GOV-047 | Govern Continuous Improvement, Closure and Provenance | Response Metrics | draft | defined | planned | `08-govern/modules/response-metrics/capabilities/govern-continuous-improvement-closure-and-provenance.md` | Govern Product Lead; QA and Traceability Lead | Continuous Improvement Package; Govern Closure Assessment | Roadmap/STATUS/owners | REQ-PROD-002,005,006,008,015,019,020; REQ-SEC-001,002 | OPEN-007/008/013/015/019 | CAP-GOV-001..046; governance/quality/roadmap | 2026-08-09 |
+
+## Checks
+- registered GOV-3 capabilities: **14**;
+- unique IDs: **14**;
+- range: **CAP-GOV-034..047**;
+- delivery status: **14 defined**;
+- delivery mode: **14 planned**;
+- missing owner/user/object/Requirement: **0**;
+- duplicate/recycled IDs: **0**;
+- GOV-1/GOV-2 IDs moved or renamed: **0**.
