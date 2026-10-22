@@ -458,11 +458,61 @@ test("returning from a pivot draft cannot reuse an Inspector when host revokes E
   await journey.open(context, "event-1");
   await journey.draftPivot("source.ip", "192.0.2.10");
   assert.equal((await journey.continuePivotInSearch()).kind, "search");
+  const initialWindow = controller.getView().resultWindow;
   const denied = await journey.returnToInspectedEvent();
-  assert.equal(denied.kind, "unavailable");
+  assert.equal(denied.kind, "search", "Event denial must not erase valid Search results");
+  assert.equal(denied.returnError, "event-unavailable");
+  assert.equal(denied.resultWindow, initialWindow);
+  assert.equal(denied.searchState.query, context.query);
   assert.equal(journey.getView().inspection, undefined);
   assert.equal(journey.getView().queryDraft, undefined);
+  const mount = new FakeElement("div");
+  renderEventInspection(new FakeDocument(), mount, denied);
+  assert.ok(allText(mount).some(x => x.includes("Event unavailable")));
+  assert.equal(allText(mount).join(" ").includes("safe rendered"), false);
   assert.equal(inspected, 2);
+});
+
+test("Search revocation during rejected Inspector return must not restore stale Search results", async () => {
+  const controller = await initializedSearch();
+  let call = 0;
+  let resolveReturn;
+  const journey = createEventInspectionJourney({
+    searchController: controller,
+    transport: {
+      async inspect() {
+        call++;
+        if (call === 1) return inspection();
+        return new Promise(resolve => { resolveReturn = resolve; });
+      },
+      async draftPivot(request) {
+        return {
+          kind: "pivot-draft", targetCapability: "CAP-INV-002", auditRequired: true,
+          tenantRef: request.tenantRef, environmentRef: request.environmentRef,
+          eventRef: request.eventRef, correlationId: request.correlationId,
+          jobId: request.jobId, runId: request.runId,
+          timeRange: { start: request.timeStart, end: request.timeEnd },
+          field: request.field, value: request.value, fieldOrigin: "source",
+          sourceRef: "shared-source-1", dataSourceRef: "settings-source-1",
+          returnContext: { origin: "event-search", tenantRef: request.tenantRef,
+            environmentRef: request.environmentRef, eventRef: request.eventRef,
+            correlationId: request.correlationId },
+        };
+      },
+    },
+  });
+  await journey.open(context, "event-1");
+  await journey.draftPivot("source.ip", "192.0.2.10");
+  await journey.continuePivotInSearch();
+  const pendingReturn = journey.returnToInspectedEvent();
+  assert.equal(typeof resolveReturn, "function");
+  await controller.execute(context, { correlationId: "corr-2", queryVersion: "query-1" });
+  resolveReturn({ kind: "permission-denied" });
+  const result = await pendingReturn;
+  assert.equal(result.kind, "unavailable", "revoked Search origin must stay inaccessible");
+  assert.equal(journey.getView().resultWindow, undefined);
+  assert.equal(journey.getView().inspection, undefined);
+  assert.equal(journey.getView().queryDraft, undefined);
 });
 
 test("revocation after entering Search with a draft removes the draft before next read", async () => {

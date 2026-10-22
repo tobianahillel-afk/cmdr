@@ -329,7 +329,18 @@ export function createEventInspectionJourney({ searchController, transport, onVi
     if (current.kind !== "search" || !current.queryDraft || !origin ||
         current.queryDraft.returnContext.eventRef !== origin.request.eventRef ||
         !validSearch(origin.start)) fail("event-return-not-available");
-    return open(origin.searchState, origin.request.eventRef);
+    // A missing/denied Event does not revoke an independently authorized
+    // Search Job. Restore the original Search result window, but drop the
+    // draft and all cached Inspector data. Never restore after Search revocation
+    // or after another navigation supersedes this request.
+    const generation = sequence + 1;
+    const response = await open(origin.searchState, origin.request.eventRef);
+    if (response.kind === "unavailable" && view === response &&
+        sequence === generation && validSearch(origin.start)) {
+      return publish({ kind: "search", searchState: origin.searchState,
+        resultWindow: origin.resultWindow, returnError: "event-unavailable" });
+    }
+    return response;
   }
 
   function back() {
@@ -458,6 +469,8 @@ export function renderEventInspection(document, mount, current,
       action.addEventListener("click", () => onReturnToInspectedEvent());
       section.append(action);
     }
+  } else if (current.kind === "search" && current.returnError === "event-unavailable") {
+    section.append(make("p", "Event unavailable; original authorized Search results preserved"));
   }
   mount.replaceChildren(section);
 }
