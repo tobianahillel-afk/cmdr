@@ -487,10 +487,10 @@ func runDeepPerformanceHandler(ctx context.Context, root string, target DeepPerf
 			return DeepPerformanceObservation{}, err
 		}
 		result := DeepPerformanceObservation{
-			DurationMS: observation.ElapsedNS / int64(time.Millisecond),
-			PeakHeapBytes: observation.PeakHeapBytes,
+			DurationMS:           observation.ElapsedNS / int64(time.Millisecond),
+			PeakHeapBytes:        observation.PeakHeapBytes,
 			TotalAllocationBytes: observation.TotalAllocationBytes,
-			Operations: int64(observation.Operations),
+			Operations:           int64(observation.Operations),
 		}
 		if observation.ElapsedNS > 0 {
 			result.ThroughputOpsPerSec = float64(observation.Operations) / (float64(observation.ElapsedNS) / float64(time.Second))
