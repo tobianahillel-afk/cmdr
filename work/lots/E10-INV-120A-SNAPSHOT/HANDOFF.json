@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-120A-SNAPSHOT",
+  "result": "IMPLEMENTED",
+  "canonical_capability": "CAP-INV-110",
+  "engineering_parent": "E10-INV-110",
+  "git_parent_pr": 36,
+  "reconciliation_pr": 156,
+  "baseline_commit": "ea1770b48a4bc1b2e850a7ffab15d5839f9e9e49",
+  "evidence": {
+    "implementation_paths": [
+      "product-runtime/investigation-timeline/cmd/case-timeline-demo/snapshot.go",
+      "product-runtime/investigation-timeline/cmd/case-timeline-demo/snapshot_listener_test.go",
+      "product-runtime/investigation-timeline/cmd/case-timeline-demo/snapshot_test.go",
+      "product-runtime/investigation-timeline/cmd/case-timeline-demo/snapshot_two_case_integration_test.go"
+    ],
+    "local_test_execution": {
+      "command": "node --test analyst_return.test.cjs analyst_summary.test.cjs",
+      "working_directory": "product-runtime/investigation-timeline/cmd/case-timeline-demo",
+      "total_tests": 53,
+      "passed_tests": 53,
+      "failed_tests": 0,
+      "skipped_tests": 0,
+      "status": "PASS"
+    },
+    "ci_evidence": [
+      {
+        "workflow": "investigation-timeline-runtime",
+        "run_id": 39025622827,
+        "conclusion": "success",
+        "jobs": [
+          "runtime",
+          "Timeline and subprocess tests (windows-latest)",
+          "Timeline and subprocess tests (macos-latest)"
+        ]
+      },
+      {
+        "workflow": "engineering-kernel",
+        "run_id": 39025622815,
+        "conclusion": "success",
+        "jobs": [
+          "kernel"
+        ]
+      }
+    ]
+  },
+  "rules": [
+    "Immutable operator-controlled local snapshot; no browser-selected file, no data mutation, no production IAM or Shared Timeline Engine ownership claim",
+    "Reuse existing validated in-memory Case/Timeline/source access chain; never take permissions from HTTP flags",
+    "Only loopback ephemeral-token synthetic host; OPEN-013 remains unresolved",
+    "Status marked IMPLEMENTED, NOT VERIFIED, pending independent L2 acceptance review and merge"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": []
+}
