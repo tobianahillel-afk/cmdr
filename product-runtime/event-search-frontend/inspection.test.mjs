@@ -307,13 +307,15 @@ test("explicit Inspector-to-Search handoff reauthorizes the unexecuted pivot and
   await journey.open(context, "event-1");
   assert.equal((await journey.draftPivot("source.ip", "192.0.2.10")).kind, "inspected");
   const surface = new FakeElement("main");
+  let continuation;
   renderEventInspection(new FakeDocument(), surface, journey.getView(), {
-    onContinuePivotInSearch() { void journey.continuePivotInSearch(); },
+    onContinuePivotInSearch() { continuation = journey.continuePivotInSearch(); },
   });
   const next = allNodes(surface).find(node => node.tagName === "button" &&
     node.textContent.includes("Continue with draft in Event Search"));
   assert.ok(next, "visible explicit handoff action");
-  const result = await journey.continuePivotInSearch();
+  next.click();
+  const result = await continuation;
   assert.equal(result.kind, "search");
   assert.equal(result.queryDraft.kind, "pivot-draft");
   assert.equal(result.queryDraft.fieldOrigin, "source");
@@ -402,8 +404,11 @@ class FakeDocument {
 class FakeElement {
   constructor(tag) {
     this.tagName = tag; this.children = []; this.textContent = "";
+    this.handlers = Object.create(null);
   }
   append(...children) { this.children.push(...children); }
+  addEventListener(event, handler) { this.handlers[event] = handler; }
+  click() { this.handlers.click?.(); }
   replaceChildren(...children) { this.children = [...children]; this.textContent = ""; }
 }
 function allNodes(node) {
