@@ -270,7 +270,10 @@
       }
       wazuhEvents.append(list);
     } catch {
-      if (selectedRevision === wazuhRevision) {
+      // A superseded or revoked request cannot clear a newer authorized page.
+      if (!controller.signal.aborted && wazuhRequest === controller &&
+          selectedRevision === wazuhRevision && caseRevision === revision &&
+          token.value === bearer && caseID.value.trim() === selectedCase) {
         wazuhEvents.replaceChildren();
         wazuhEvents.textContent = "Événements indisponibles ou droits modifiés. Aucun résultat partiel.";
         wazuhPrevious.disabled = true;
