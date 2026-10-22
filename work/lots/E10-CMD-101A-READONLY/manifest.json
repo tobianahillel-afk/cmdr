@@ -1,0 +1,143 @@
+{
+  "schema_version": 2,
+  "id": "E10-CMD-101A-READONLY",
+  "title": "First-party Command Work Queue read-only six-system-view projection",
+  "type": "task",
+  "parent": "E10-CMD-101",
+  "goal": "Implement an independently authorized one-tenant/one-environment Incident/Task projection for all six canonical Command system views, before shared Saved Views/pagination/production adapters.",
+  "depends_on": [
+    "E10-SCALE-005B"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-CMD-101"
+    ],
+    "requirements": [
+      "REQ-OBJ-001",
+      "REQ-OBJ-012",
+      "REQ-PROD-013",
+      "REQ-UX-008",
+      "REQ-UX-009"
+    ],
+    "screens": [],
+    "permissions": [
+      "perm.command.read",
+      "perm.command.incident.read"
+    ],
+    "open_decisions": [],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/incident.md",
+      "cmdr-product-spec/05-domain-model/objects/task.md"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/pagination-filtering-sorting.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/work-queue/**",
+    "engineering/architecture/boundaries.json",
+    "engineering/security/runtime-security-policy.json",
+    ".github/workflows/command-work-queue.yml",
+    "work/lots/E10-CMD-101A-READONLY/**",
+    "work/lots/E10-CMD-101/**",
+    "work/graph.json",
+    "engineering/state/current.json",
+    "engineering/performance/performance-policy.json",
+    "engineering/performance/performance-registry.json",
+    "engineering/performance/benchmark-policy.json",
+    "tools/cmdr-dev/performance_registry.go",
+    "tools/cmdr-dev/performance_benchmark.go",
+    "tools/cmdr-dev/performance_command_work_queue.go",
+    "tools/cmdr-dev/security_tests.go",
+    "tools/cmdr-dev/security_tests_test.go"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/case-queue/**",
+    "product-runtime/investigation-timeline/**"
+  ],
+  "invariants": [
+    "Exactly six Command system view keys: all, incidents, tasks, unassigned, sla-risk, my-work; no route per view or legacy Team Load.",
+    "Only Command Incident and Task owner data; linked Case/Decision/Run identities are excluded rather than permission-cloned.",
+    "Mandatory exact tenant and environment plus current host-side authorization per individual object before projecting fields; no client access boolean.",
+    "This slice owns no Shared Saved View persistence/versions, incident/task mutation, assignment, export, production IAM, provider or UI."
+  ],
+  "security_properties": [
+    "Missing/wildcard/invalid scope and unknown view fail before any owner read.",
+    "Foreign tenant/environment owner rows not reauthorized or rendered; denied object and provider failure yield zero privileged rows.",
+    "Unresolved SLA policy state is partial and never silently treated as safe.",
+    "At most 5000 provider candidates, 50 first-page rows with deterministic timestamp sorting; no unbounded projection."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "New independent read-only first-party Go module with no existing persisted data",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Do not use the new Command projection module; all existing Investigate runtimes and main remain unchanged",
+    "verification": [
+      "Existing product spec unchanged",
+      "All ancestor draft PR SHAs unchanged"
+    ]
+  },
+  "inputs": [
+    "Canonical CAP-CMD-101 full specification §§1-27 and Command Saved Views catalogue",
+    "Canonical Incident/Task owner distinction, tenant and permission contracts",
+    "Git parent frozen PR #36 foundation HEAD ea1770b48a4bc1b2e850a7ffab15d5839f9e9e49",
+    "No existing Command Work Queue executable runtime in inspected foundation tree",
+    "Registered new runtime must provide a real executable benchmark workload, not reuse unrelated Investigate Case Queue measurements."
+  ],
+  "outputs": [
+    "Dependency-free first-party Go projection accepting a host Owner List+CanRead interface for Incident/Task",
+    "Six system keys on one projection, stable ordering and bounded first-page results; no API/GUI",
+    "Negative tests foreign tenant, denied object, invalid view/scope, provider errors, incomplete/duplicate data, unknown SLA",
+    "Unique architecture path registration, security-critical scope registration and exact HEAD GitHub Go CI",
+    "Explicit handoff distinguishing isolated tested slice from canonical product completion",
+    "On-demand real Command Work Queue benchmark with explicit Go probe, existing benchmark runner and unchanged 90% security floor.",
+    "Security test evidence adapter reuses real bounded Go module tests, no invented security PASS before exact-head CI."
+  ],
+  "acceptance_tests": [
+    "Each of six views resolves correct owner-authorized Incident/Task IDs, and hidden foreign/denied IDs never appear.",
+    "Unknown view including deprecated team-load, missing tenant/env/principal, bad owner metadata and authorization backend errors fail closed.",
+    "SLA risk without authoritative policy is partial-sources, not complete; first page <=50 is deterministic.",
+    "GitHub command-work-queue workflow succeeds on Linux, Windows, macOS; engineering-kernel required checks on exact SHA, mandatory 90% changed-security coverage unchanged.",
+    "No assignment, export, Task/Incident mutation, Saved View storage or product acceptance claim."
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "In-memory owner list bounded at 5000 and first page 50, deterministic sort; no production latency SLO or repository adapter measured",
+    "metrics": [
+      "At most 5000 candidate owner rows and 50 projected rows",
+      "O(n log n) bound sorting of permitted candidates, no unbounded backend loops"
+    ]
+  },
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-RUNTIME-DEPS",
+    "CHK-SECURITY-TESTS",
+    "CHK-PERFORMANCE-REGISTRY"
+  ],
+  "definition_of_ready": [
+    "E10-SCALE-005B VERIFIED; canonical CAP-CMD-101 defined/planned with no active OPEN blockers; read-only class-0 subset does not require owner mutation decisions.",
+    "Unique new Command work queue runtime boundary, no competing existing runtime owner."
+  ],
+  "definition_of_done": [
+    "New branch and draft PR with exact SHA functional CI, architecture and negative security test evidence.",
+    "Material L2 once exact SHA stable; product remains contract/prototype until host adapter, Shared Saved Views and route/Inspector integration are real."
+  ],
+  "complexity": {
+    "primary_components": 2,
+    "estimated_files_changed": 9,
+    "estimated_net_loc": 430,
+    "production_files": 6,
+    "net_production_loc": 350,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

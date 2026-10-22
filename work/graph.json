@@ -1780,6 +1780,30 @@
       ],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": []
+    },
+    {
+      "id": "E10-CMD-101",
+      "title": "Deliver Command-owned Unified Work Queue CAP-CMD-101",
+      "type": "epic",
+      "status": "DECOMPOSED",
+      "depends_on": [
+        "E10-SCALE-005B"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-CMD-101A-READONLY"
+      ]
+    },
+    {
+      "id": "E10-CMD-101A-READONLY",
+      "title": "Project authorized Incident/Task six system Work Queue views",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-SCALE-005B"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": []
     }
   ]
 }

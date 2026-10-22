@@ -1,0 +1,37 @@
+name: command-work-queue-runtime
+
+on:
+  pull_request:
+    paths:
+      - "product-runtime/work-queue/**"
+      - ".github/workflows/command-work-queue.yml"
+  push:
+    branches:
+      - "feature/e10-cmd-101a-authorized-system-queue"
+    paths:
+      - "product-runtime/work-queue/**"
+      - ".github/workflows/command-work-queue.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  first-party-go:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: product-runtime/work-queue/go.mod
+          cache: false
+      - name: Test canonical Command Work Queue and isolation
+        working-directory: product-runtime/work-queue
+        run: go test -count=1 ./...
+      - name: Static analysis
+        working-directory: product-runtime/work-queue
+        run: go vet ./...

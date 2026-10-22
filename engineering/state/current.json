@@ -17,9 +17,9 @@
     "phase_title": "Scaled product implementation program bootstrap"
   },
   "execution": {
-    "active_work_unit": "E10-INV-120A-SNAPSHOT",
-    "preferred_next_unit": "E10-INV-120A-SNAPSHOT",
-    "selection_rule": "first READY unit whose dependencies satisfy their required terminal state; when no READY exists create a separately scoped functional integration unit"
+    "active_work_unit": "E10-CMD-101A-READONLY",
+    "preferred_next_unit": null,
+    "selection_rule": "2026-10-20 independent canonical CAP-CMD-101 six-view read-only Command work-queue slice after GitHub reconciliation; exact-head CI/L2 required. The historical E10-INV-120A-SNAPSHOT execution cache on the PR #36 parent is stale relative to later open Investiga​te PRs; do not rewrite ancestor or declare the separate Case Queue PR #152 merged. Child only IMPLEMENTED pending checks; future host provider/Shared Saved Views/UI requires distinct work units."
   },
   "reconciliation": {
     "required_on_resume": true,
