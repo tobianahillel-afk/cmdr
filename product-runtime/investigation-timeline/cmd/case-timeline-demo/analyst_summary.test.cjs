@@ -1446,3 +1446,48 @@ test("Wazuh intersection refuses mismatched server metadata without rendering en
   assert.equal(env.fields["wazuh-events"].children.length,0);
   assert.match(env.fields["wazuh-events"].textContent,/Aucun résultat partiel/);
 });
+
+test("late rejection of a superseded Wazuh drilldown cannot erase a newer authorized page", async () => {
+  let rejectFirst;
+  const first = new Promise((_, reject) => { rejectFirst = reject; });
+  const env = boot(url => {
+    if (url.pathname === "/demo-wazuh-cohorts") {
+      return { ok: true, async json() { return {
+        format: "cmdr-local-wazuh4-case-triage-v1", synthetic: true, imported_entries: 2,
+        top_agents: [
+          { agent_id: "001", count: 1, distinct_rule_ids: 1 },
+          { agent_id: "002", count: 1, distinct_rule_ids: 1 }
+        ],
+        top_rules: []
+      }; } };
+    }
+    if (url.pathname === "/demo-wazuh-drilldown") {
+      if (url.searchParams.get("agent_id") === "001") return first;
+      return { ok: true, async json() { return {
+        format: "cmdr-local-wazuh4-drilldown-v1", synthetic: true,
+        selector: "agent_id", value: "002", offset: 0, total_matches: 1, has_more: false,
+        entries: [{ id: "authorized-entry-2", kind: "observed",
+          source_time: "2026-10-01T10:00:00Z", time_uncertain: false }]
+      }; } };
+    }
+    throw Error("Unexpected route " + url.pathname);
+  });
+  env.fields["wazuh-cohorts"].handlers.click();
+  await flush(); await flush();
+  const actions = env.fields["wazuh-actions"].children;
+  assert.equal(actions.length, 2);
+  actions[0].handlers.click();
+  await flush();
+  actions[1].handlers.click();
+  await flush(); await flush();
+  assert.equal(env.requests.filter(x => x.url.pathname === "/demo-wazuh-drilldown").length, 2);
+  assert.equal(env.requests[1].options.signal.aborted, true);
+  assert.equal(env.fields["wazuh-events"].children.length, 1);
+  assert.match(env.fields["wazuh-events"].textContent, /1 événement\(s\) Wazuh autorisé/);
+  rejectFirst(new Error("late abort failure from superseded request"));
+  await flush(); await flush();
+  assert.equal(env.fields["wazuh-events"].children.length, 1);
+  assert.match(env.fields["wazuh-events"].textContent, /1 événement\(s\) Wazuh autorisé/);
+  assert.doesNotMatch(env.fields["wazuh-events"].textContent, /droits modifiés/);
+  assert.equal(env.fields["wazuh-next"].disabled, true);
+});
