@@ -489,7 +489,7 @@ test("pivot handoff denied by the owner on reauthorization must not enter Event 
   assert.equal(calls, 2);
 });
 
-test("returning from a pivot draft cannot reuse an Inspector when host revokes Event.read", async () => {
+test("ambiguous host denial cannot republish cached Search results after owner revocation", async () => {
   const controller = await initializedSearch();
   let inspected = 0;
   const journey = createEventInspectionJourney({
@@ -521,15 +521,18 @@ test("returning from a pivot draft cannot reuse an Inspector when host revokes E
   assert.equal((await journey.continuePivotInSearch()).kind, "search");
   const initialWindow = controller.getView().resultWindow;
   const denied = await journey.returnToInspectedEvent();
-  assert.equal(denied.kind, "search", "Event denial must not erase valid Search results");
+  assert.equal(denied.kind, "search", "caller query/scope may survive a generic 404");
   assert.equal(denied.returnError, "event-unavailable");
-  assert.equal(denied.resultWindow, initialWindow);
+  assert.equal(controller.getView().resultWindow, initialWindow,
+    "browser's Search cache is unchanged: this is NOT fresh owner authorization");
+  assert.equal(denied.resultWindow, undefined,
+    "must not republish protected rows when SearchOwner and EventOwner denials are indistinguishable");
   assert.equal(denied.searchState.query, context.query);
   assert.equal(journey.getView().inspection, undefined);
   assert.equal(journey.getView().queryDraft, undefined);
   const mount = new FakeElement("div");
   renderEventInspection(new FakeDocument(), mount, denied);
-  assert.ok(allText(mount).some(x => x.includes("Event unavailable")));
+  assert.ok(allText(mount).some(x => x.includes("Search results hidden pending fresh authorization")));
   assert.equal(allText(mount).join(" ").includes("safe rendered"), false);
   assert.equal(inspected, 2);
   // A later Search revocation must clear this view even after the Event denial

@@ -186,7 +186,8 @@ export function createEventInspectionJourney({ searchController, transport, onVi
   function publish(next, authorizedSearchStart) {
     // A cached Search result window is a view, never a durable grant. Preserve
     // the exact original Search Job and selected row for per-read invalidation.
-    retainedSearchStart = next.kind === "search" && next.resultWindow ? authorizedSearchStart : undefined;
+    retainedSearchStart = next.kind === "search" &&
+      (next.resultWindow || next.searchState) ? authorizedSearchStart : undefined;
     view = immutable(next);
     onView(view);
     return view;
@@ -346,8 +347,12 @@ export function createEventInspectionJourney({ searchController, transport, onVi
     const response = await open(origin.searchState, origin.request.eventRef);
     if (response.kind === "unavailable" && view === response &&
         sequence === generation && validSearch(origin.start)) {
+      // HTTP 404 deliberately conceals which owner rejected the request:
+      // SearchOwner, TelemetryOwner or the session. A stale browser Search
+      // snapshot cannot independently prove Search access still exists.
+      // Preserve only the caller's own query/scope, never protected rows.
       return publish({ kind: "search", searchState: origin.searchState,
-        resultWindow: origin.resultWindow, returnError: "event-unavailable" }, origin.start);
+        returnError: "event-unavailable" }, origin.start);
     }
     return response;
   }
@@ -376,10 +381,9 @@ export function createEventInspectionJourney({ searchController, transport, onVi
   // even when no pivot/open transport is currently pending. A renderer must
   // read the current journey view rather than retain a prior projection.
   function getView() {
-    // A draft-free Search view can still retain an authorized result window
-    // after the Inspector is closed or Event.read is denied. Revalidate that
-    // window on EVERY read, including after ordinary back() and failed return.
-    if (view.kind === "search" && view.resultWindow &&
+    // A Search view may retain only the caller-supplied context after an
+    // ambiguous owner denial. Invalidate even this shell on a changed job.
+    if (view.kind === "search" && (view.resultWindow || view.searchState) &&
         (!retainedSearchStart || !validSearch(retainedSearchStart))) {
       sequence += 1;
       abort?.abort();
@@ -490,7 +494,7 @@ export function renderEventInspection(document, mount, current,
       section.append(action);
     }
   } else if (current.kind === "search" && current.returnError === "event-unavailable") {
-    section.append(make("p", "Event unavailable; original authorized Search results preserved"));
+    section.append(make("p", "Event inspection unavailable; Search results hidden pending fresh authorization"));
   }
   mount.replaceChildren(section);
 }
