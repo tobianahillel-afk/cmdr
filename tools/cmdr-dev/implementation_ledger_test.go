@@ -234,3 +234,77 @@ func TestRuntimeSuccessorAdditiveProofRejectsAnyOldRuntimeMutation(t *testing.T)
 		t.Fatal("original file mutation passed")
 	}
 }
+
+func TestVerifyLedgerRuntimeEvidencePreservesOriginalAncestry(t *testing.T) {
+	if _, err := exec.LookPath("git"); err != nil {
+		t.Skip("git unavailable")
+	}
+	root := t.TempDir()
+	runTestGit(t, root, "init")
+	runTestGit(t, root, "config", "user.name", "CMDR Test")
+	runTestGit(t, root, "config", "user.email", "cmdr-test@example.invalid")
+	writeTestFile(t, root, "product-runtime/context-envelope/envelope.go", "package envelope\n")
+	runTestGit(t, root, "add", ".")
+	runTestGit(t, root, "commit", "-m", "implementation")
+	implementation := testGitOutput(t, root, "rev-parse", "HEAD")
+	writeTestFile(t, root, "engineering/validated.txt", "validated\n")
+	runTestGit(t, root, "add", ".")
+	runTestGit(t, root, "commit", "-m", "original validation")
+	originalValidation := testGitOutput(t, root, "rev-parse", "HEAD")
+	writeTestFile(t, root, "engineering/late-implementation.txt", "late\n")
+	runTestGit(t, root, "add", ".")
+	runTestGit(t, root, "commit", "-m", "later implementation")
+	laterImplementation := testGitOutput(t, root, "rev-parse", "HEAD")
+	writeTestFile(t, root, "engineering/successor.txt", "successor\n")
+	runTestGit(t, root, "add", ".")
+	runTestGit(t, root, "commit", "-m", "successor validation")
+	successor := testGitOutput(t, root, "rev-parse", "HEAD")
+	const runtimeRoot = "product-runtime/context-envelope/**"
+	if err := verifyLedgerRuntimeEvidence(root, implementation, originalValidation, successor, runtimeRoot); err != nil {
+		t.Fatalf("valid original chain should pass: %v", err)
+	}
+	if err := verifyLedgerRuntimeEvidence(root, laterImplementation, originalValidation, successor, runtimeRoot); err == nil || !strings.Contains(err.Error(), "original validation ancestry") {
+		t.Fatalf("implementation after original validation must fail despite later successor: %v", err)
+	}
+}
+
+func TestSuccessorGitAdditionsRejectSymlinksAndGitlinks(t *testing.T) {
+	if _, err := exec.LookPath("git"); err != nil {
+		t.Skip("git unavailable")
+	}
+	for _, mode := range []string{"120000", "160000"} {
+		t.Run(mode, func(t *testing.T) {
+			root := t.TempDir()
+			runTestGit(t, root, "init")
+			runTestGit(t, root, "config", "user.name", "CMDR Test")
+			runTestGit(t, root, "config", "user.email", "cmdr-test@example.invalid")
+			writeTestFile(t, root, "product-runtime/context-envelope/envelope.go", "package envelope\n")
+			runTestGit(t, root, "add", ".")
+			runTestGit(t, root, "commit", "-m", "original validated runtime")
+			before := testGitOutput(t, root, "rev-parse", "HEAD")
+			object := before
+			if mode == "120000" {
+				writeTestFile(t, root, "outside-reference.txt", "../../outside\n")
+				object = testGitOutput(t, root, "hash-object", "-w", "outside-reference.txt")
+			}
+			path := "product-runtime/context-envelope/cmd/added"
+			runTestGit(t, root, "update-index", "--add", "--cacheinfo", mode+","+object+","+path)
+			runTestGit(t, root, "commit", "-m", "forged successor addition")
+			after := testGitOutput(t, root, "rev-parse", "HEAD")
+			if err := verifyOnlyRecordedRuntimeAdditions(root, before, after, "product-runtime/context-envelope/**", []string{path}); err == nil || !strings.Contains(err.Error(), "ordinary Git file blob") {
+				t.Fatalf("successor must reject Git mode %s: %v", mode, err)
+			}
+		})
+	}
+}
+
+func TestEffectiveLedgerCoverageFollowsValidatedSuccessor(t *testing.T) {
+	if got := effectiveLedgerCoverage(95.24, nil); got != 95.24 {
+		t.Fatalf("predecessor coverage changed without successor: %v", got)
+	}
+	successor := &RuntimeSuccessorHandoff{}
+	successor.Evidence.RuntimeGlobalCoveragePercent = 90.35
+	if got := effectiveLedgerCoverage(95.24, successor); got != 90.35 {
+		t.Fatalf("successor coverage not used: %v", got)
+	}
+}

@@ -155,7 +155,7 @@ func runImplementationLedgerAudit(root string, state CurrentState, graph WorkGra
 		if err != nil || finalHead != handoff.FinalValidatedHead {
 			return summary, fmt.Errorf("implementation handoff %s has invalid final validated head", entry.HandoffPath)
 		}
-		successorWorkUnit, successorHead, err := resolveRuntimeSuccessorEvidence(root, graph, entry, manifest, finalHead)
+		successorWorkUnit, successorHead, successorHandoff, err := resolveRuntimeSuccessorEvidence(root, graph, entry, manifest, finalHead)
 		if err != nil {
 			return summary, fmt.Errorf("implementation handoff %s successor evidence: %w", entry.HandoffPath, err)
 		}
@@ -163,7 +163,7 @@ func runImplementationLedgerAudit(root string, state CurrentState, graph WorkGra
 		if successorHead != "" {
 			validatedRootHead = successorHead
 		}
-		if err := verifyRuntimeClaimGitEvidence(root, implementationCommit, validatedRootHead, entry.RuntimeRoot); err != nil {
+		if err := verifyLedgerRuntimeEvidence(root, implementationCommit, finalHead, validatedRootHead, entry.RuntimeRoot); err != nil {
 			return summary, fmt.Errorf("implementation handoff %s has stale or invalid Git evidence: %w", entry.HandoffPath, err)
 		}
 		if handoff.Evidence.PushRun < 1 || handoff.Evidence.PullRequestRun < 1 ||
@@ -199,7 +199,7 @@ func runImplementationLedgerAudit(root string, state CurrentState, graph WorkGra
 			FinalValidatedHead:     handoff.FinalValidatedHead,
 			SuccessorWorkUnit:      successorWorkUnit,
 			SuccessorValidatedHead: successorHead,
-			CoveragePercent:        handoff.Evidence.GlobalCoveragePercent,
+			CoveragePercent:        effectiveLedgerCoverage(handoff.Evidence.GlobalCoveragePercent, successorHandoff),
 			SASTFindings:           handoff.Evidence.SASTFindings,
 			SCAActionable:          handoff.Evidence.SCAActionableFindings,
 		})
@@ -212,6 +212,22 @@ func runImplementationLedgerAudit(root string, state CurrentState, graph WorkGra
 		return summary, fmt.Errorf("implementation ledger verification accounting mismatch")
 	}
 	return summary, nil
+}
+
+// verifyLedgerRuntimeEvidence preserves the original implementation-to-validation
+// order even if a later successor has its own, separately reviewed validation.
+func verifyLedgerRuntimeEvidence(root, implementationCommit, originalValidatedHead, latestValidatedHead, runtimeRoot string) error {
+	if err := ensureGitAncestor(root, implementationCommit, originalValidatedHead); err != nil {
+		return fmt.Errorf("implementation to original validation ancestry: %w", err)
+	}
+	return verifyRuntimeClaimGitEvidence(root, implementationCommit, latestValidatedHead, runtimeRoot)
+}
+
+func effectiveLedgerCoverage(original float64, successor *RuntimeSuccessorHandoff) float64 {
+	if successor == nil {
+		return original
+	}
+	return successor.Evidence.RuntimeGlobalCoveragePercent
 }
 
 // verifyRuntimeClaimGitEvidence rejects syntactically plausible SHA claims
@@ -283,26 +299,26 @@ type RuntimeSuccessorHandoff struct {
 	NextUnlocked       []string `json:"next_unlocked"`
 }
 
-func resolveRuntimeSuccessorEvidence(root string, graph WorkGraph, entry ImplementationLedgerEntry, original WorkManifestV2, validatedHead string) (string, string, error) {
+func resolveRuntimeSuccessorEvidence(root string, graph WorkGraph, entry ImplementationLedgerEntry, original WorkManifestV2, validatedHead string) (string, string, *RuntimeSuccessorHandoff, error) {
 	sidecar := filepath.ToSlash(filepath.Join(filepath.Dir(entry.ManifestPath), "RUNTIME-EVIDENCE-SUCCESSOR.json"))
 	if _, err := statRepoPath(root, filepath.FromSlash(sidecar)); err != nil {
 		if errors.Is(err, os.ErrNotExist) {
-			return "", "", nil
+			return "", "", nil, nil
 		}
-		return "", "", fmt.Errorf("inspect successor sidecar: %w", err)
+		return "", "", nil, fmt.Errorf("inspect successor sidecar: %w", err)
 	}
 	var proof RuntimeSuccessorEvidence
 	if err := decodeStrict(root, sidecar, &proof); err != nil {
-		return "", "", err
+		return "", "", nil, err
 	}
 	if proof.SchemaVersion != 1 || proof.PredecessorWorkUnit != entry.WorkUnit ||
 		proof.SuccessorWorkUnit == "" || proof.SuccessorWorkUnit == entry.WorkUnit {
-		return "", "", fmt.Errorf("invalid predecessor/successor for %s", sidecar)
+		return "", "", nil, fmt.Errorf("invalid predecessor/successor for %s", sidecar)
 	}
 	for _, p := range []string{proof.ManifestPath, proof.HandoffPath} {
 		norm, err := normalizeChangedPaths([]string{p})
 		if err != nil || len(norm) != 1 || norm[0] != p || !strings.HasPrefix(p, "work/lots/"+proof.SuccessorWorkUnit+"/") {
-			return "", "", fmt.Errorf("invalid successor evidence path %q", p)
+			return "", "", nil, fmt.Errorf("invalid successor evidence path %q", p)
 		}
 	}
 	nodes := map[string]WorkNode{}
@@ -311,7 +327,7 @@ func resolveRuntimeSuccessorEvidence(root string, graph WorkGraph, entry Impleme
 	}
 	node, ok := nodes[proof.SuccessorWorkUnit]
 	if !ok || node.Status != "VERIFIED" {
-		return "", "", fmt.Errorf("successor %s is not VERIFIED", proof.SuccessorWorkUnit)
+		return "", "", nil, fmt.Errorf("successor %s is not VERIFIED", proof.SuccessorWorkUnit)
 	}
 	stack := append([]string(nil), node.DependsOn...)
 	visited := map[string]bool{}
@@ -330,25 +346,25 @@ func resolveRuntimeSuccessorEvidence(root string, graph WorkGraph, entry Impleme
 		visited[id] = true
 		dep, ok := nodes[id]
 		if !ok {
-			return "", "", fmt.Errorf("unknown successor dependency %s", id)
+			return "", "", nil, fmt.Errorf("unknown successor dependency %s", id)
 		}
 		stack = append(stack, dep.DependsOn...)
 	}
 	if !found {
-		return "", "", fmt.Errorf("successor lacks recorded runtime dependency")
+		return "", "", nil, fmt.Errorf("successor lacks recorded runtime dependency")
 	}
 	manifest, err := decodeWorkManifestV2(root, proof.ManifestPath)
 	if err != nil {
-		return "", "", err
+		return "", "", nil, err
 	}
 	if manifest.ID != proof.SuccessorWorkUnit || manifest.Parent != original.Parent ||
 		!containsString(manifest.ProductRefs.Capabilities, entry.Capability) ||
 		!containsString(manifest.AllowedPaths, entry.RuntimeRoot) {
-		return "", "", fmt.Errorf("successor capability, parent or runtime ownership mismatch")
+		return "", "", nil, fmt.Errorf("successor capability, parent or runtime ownership mismatch")
 	}
 	var handoff RuntimeSuccessorHandoff
 	if err := decodeStrict(root, proof.HandoffPath, &handoff); err != nil {
-		return "", "", err
+		return "", "", nil, err
 	}
 	head, err := validateFullCommitID(handoff.FinalValidatedHead)
 	if err != nil || head != handoff.FinalValidatedHead || handoff.SchemaVersion != 1 ||
@@ -360,15 +376,15 @@ func resolveRuntimeSuccessorEvidence(root string, graph WorkGraph, entry Impleme
 		handoff.Evidence.PushP95MS <= 0 || handoff.Evidence.PushP95MS > handoff.Evidence.AbsoluteBudgetMS ||
 		handoff.Evidence.PullRequestP95MS <= 0 || handoff.Evidence.PullRequestP95MS > handoff.Evidence.AbsoluteBudgetMS ||
 		handoff.Evidence.SASTFindings != 0 || handoff.Evidence.SCAActionableFindings != 0 {
-		return "", "", fmt.Errorf("successor handoff has insufficient verified run evidence")
+		return "", "", nil, fmt.Errorf("successor handoff has insufficient verified run evidence")
 	}
 	if err := ensureGitAncestor(root, validatedHead, head); err != nil {
-		return "", "", fmt.Errorf("successor is not a descendant of original validation: %w", err)
+		return "", "", nil, fmt.Errorf("successor is not a descendant of original validation: %w", err)
 	}
 	if err := verifyOnlyRecordedRuntimeAdditions(root, validatedHead, head, entry.RuntimeRoot, proof.AddedRuntimePaths); err != nil {
-		return "", "", err
+		return "", "", nil, err
 	}
-	return proof.SuccessorWorkUnit, head, nil
+	return proof.SuccessorWorkUnit, head, &handoff, nil
 }
 
 // No changed/deleted original runtime file can be excused by this proof.
@@ -404,6 +420,34 @@ func verifyOnlyRecordedRuntimeAdditions(root, before, after, runtimeRoot string,
 	}
 	if len(actual) != len(expected) {
 		return fmt.Errorf("successor added %d paths; proof listed %d", len(actual), len(expected))
+	}
+	for path := range expected {
+		if err := verifySuccessorRegularBlob(root, after, path); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// Git name-status alone does not differentiate a file from an added symlink
+// (120000) or submodule/gitlink (160000). Bind every claimed addition to a
+// single regular blob in the exact successor tree.
+func verifySuccessorRegularBlob(root, commit, path string) error {
+	out, err := exec.Command("git", "-C", root, "ls-tree", "-z", "--full-tree", commit, "--", path).Output() // #nosec G204,G702 -- fixed Git argv, validated successor commit, normalized repository-relative path.
+	if err != nil {
+		return fmt.Errorf("inspect successor Git tree mode for %s: %w", path, err)
+	}
+	records := strings.Split(string(out), "\x00")
+	if len(records) != 2 || records[1] != "" {
+		return fmt.Errorf("successor path %s is not a unique tracked file", path)
+	}
+	entry := strings.SplitN(records[0], "\t", 2)
+	if len(entry) != 2 || entry[1] != path {
+		return fmt.Errorf("successor path %s does not resolve to an exact Git entry", path)
+	}
+	fields := strings.Fields(entry[0])
+	if len(fields) != 3 || fields[1] != "blob" || (fields[0] != "100644" && fields[0] != "100755") {
+		return fmt.Errorf("successor path %s is not an ordinary Git file blob", path)
 	}
 	return nil
 }
