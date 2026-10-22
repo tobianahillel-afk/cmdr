@@ -296,7 +296,22 @@ export function createEventInspectionJourney({ searchController, transport, onVi
     return publish({ kind: "search" });
   }
 
-  return Object.freeze({ open, draftPivot, back, close, getView: () => view });
+  // A previously displayed inspector must not be re-exported after its
+  // selected Search Job/run is revoked or replaced. Re-check on every read,
+  // even when no pivot/open transport is currently pending. A renderer must
+  // read the current journey view rather than retain a prior projection.
+  function getView() {
+    if (view.kind === "inspected" && (!openedFrom || !validSearch(openedFrom.start))) {
+      sequence += 1;
+      abort?.abort();
+      abort = undefined;
+      openedFrom = undefined;
+      return publish({ kind: "unavailable" });
+    }
+    return view;
+  }
+
+  return Object.freeze({ open, draftPivot, back, close, getView });
 }
 
 // Render with native DOM text-only sinks. This is a view of server-authorized

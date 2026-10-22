@@ -239,6 +239,46 @@ test("pivot transport denial retains only a still-authorized inspection", async 
   assert.equal(denied.pivotDraft, undefined);
 });
 
+test("reading an already-open Inspector after Search run replacement fails closed without a pivot", async () => {
+  const controller = await initializedSearch();
+  const published = [];
+  const journey = createEventInspectionJourney({
+    searchController: controller,
+    transport: { async inspect() { return inspection(); } },
+    onView(next) { published.push(next); },
+  });
+  assert.equal((await journey.open(context, "event-1")).kind, "inspected");
+  assert.equal(journey.getView().kind, "inspected");
+  await controller.execute(context, { correlationId: "corr-2", queryVersion: "query-1" });
+  const current = journey.getView();
+  assert.equal(current.kind, "unavailable");
+  assert.equal(current.inspection, undefined);
+  assert.equal(journey.getView(), current);
+  assert.equal(published.at(-1), current);
+  assert.equal(journey.back().kind, "unavailable");
+});
+
+test("reading a revoked Inspector during pending pivot aborts its stale response", async () => {
+  const controller = await initializedSearch();
+  let finish;
+  const pending = new Promise(resolve => { finish = resolve; });
+  const journey = createEventInspectionJourney({
+    searchController: controller,
+    transport: {
+      async inspect() { return inspection(); },
+      draftPivot() { return pending; },
+    },
+  });
+  assert.equal((await journey.open(context, "event-1")).kind, "inspected");
+  const pivot = journey.draftPivot("source.ip", "192.0.2.10");
+  assert.equal(journey.getView().pivotStatus, "loading");
+  await controller.execute(context, { correlationId: "corr-2", queryVersion: "query-1" });
+  assert.equal(journey.getView().kind, "unavailable");
+  finish({ kind: "pivot-draft" });
+  assert.equal((await pivot).kind, "superseded");
+  assert.equal(journey.getView().inspection, undefined);
+});
+
 class FakeDocument {
   createElement(tag) { return new FakeElement(tag); }
 }
