@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os/exec"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -150,6 +151,9 @@ func runImplementationLedgerAudit(root string, state CurrentState, graph WorkGra
 		if err != nil || finalHead != handoff.FinalValidatedHead {
 			return summary, fmt.Errorf("implementation handoff %s has invalid final validated head", entry.HandoffPath)
 		}
+		if err := verifyRuntimeClaimGitEvidence(root, implementationCommit, finalHead, entry.RuntimeRoot); err != nil {
+			return summary, fmt.Errorf("implementation handoff %s has stale or invalid Git evidence: %w", entry.HandoffPath, err)
+		}
 		if handoff.Evidence.PushRun < 1 || handoff.Evidence.PullRequestRun < 1 ||
 			handoff.Evidence.RuntimeFiles < 1 || handoff.Evidence.Fixtures < 1 ||
 			handoff.Evidence.NegativeFixtures < 1 ||
@@ -194,6 +198,42 @@ func runImplementationLedgerAudit(root string, state CurrentState, graph WorkGra
 		return summary, fmt.Errorf("implementation ledger verification accounting mismatch")
 	}
 	return summary, nil
+}
+
+// verifyRuntimeClaimGitEvidence rejects syntactically plausible SHA claims
+// unless both commits exist, are on the current ancestry, and the recorded
+// product-runtime boundary has not changed since the final validated head.
+// An old successful run is not evidence for newly added runtime files.
+func verifyRuntimeClaimGitEvidence(root, implementationCommit, finalValidatedHead, runtimeRoot string) error {
+	baseRoot := strings.TrimSuffix(runtimeRoot, "/**")
+	paths, err := normalizeChangedPaths([]string{baseRoot})
+	if err != nil || len(paths) != 1 || paths[0] != baseRoot ||
+		!strings.HasPrefix(baseRoot, "product-runtime/") || !strings.HasSuffix(runtimeRoot, "/**") {
+		return fmt.Errorf("invalid runtime claim root %q", runtimeRoot)
+	}
+	if err := ensureGitAncestor(root, implementationCommit, finalValidatedHead); err != nil {
+		return fmt.Errorf("implementation to validation ancestry: %w", err)
+	}
+	headOut, err := exec.Command("git", "-C", root, "rev-parse", "--verify", "HEAD").Output() // #nosec G204,G702 -- no shell, fixed Git command and repository root.
+	if err != nil {
+		return fmt.Errorf("resolve current Git HEAD: %w", err)
+	}
+	currentHead, err := validateFullCommitID(strings.TrimSpace(string(headOut)))
+	if err != nil {
+		return fmt.Errorf("current Git HEAD: %w", err)
+	}
+	if err := ensureGitAncestor(root, finalValidatedHead, currentHead); err != nil {
+		return fmt.Errorf("validated head to current HEAD ancestry: %w", err)
+	}
+	cmd := exec.Command("git", "-C", root, "diff", "--no-ext-diff", "--no-renames", "--quiet",
+		finalValidatedHead, currentHead, "--", filepath.ToSlash(baseRoot)) // #nosec G204,G702 -- fixed Git flags; both SHAs were validated through ensureGitAncestor and root is repository-confined.
+	if err := cmd.Run(); err != nil {
+		if exitErr, ok := err.(*exec.ExitError); ok && exitErr.ExitCode() == 1 {
+			return fmt.Errorf("runtime root %s changed after validated head %s; fresh runtime evidence is required", baseRoot, finalValidatedHead)
+		}
+		return fmt.Errorf("compare validated runtime root: %w", err)
+	}
+	return nil
 }
 
 func buildCurrentObligationSet(root string, state CurrentState) (ObligationSet, error) {

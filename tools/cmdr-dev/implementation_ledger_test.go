@@ -1,6 +1,10 @@
 package main
 
-import "testing"
+import (
+	"os/exec"
+	"strings"
+	"testing"
+)
 
 func TestValidateImplementationLedgerShape(t *testing.T) {
 	state := CurrentState{}
@@ -135,5 +139,51 @@ func TestImplementationLedgerRejectsDuplicateRuntimeBoundary(t *testing.T) {
 	}
 	if err := validateImplementationLedgerShape(ledger, state); err == nil {
 		t.Fatal("expected duplicate runtime boundary rejection")
+	}
+}
+
+func TestRuntimeLedgerGitProofRejectsUnverifiedRuntimeChange(t *testing.T) {
+	if _, err := exec.LookPath("git"); err != nil {
+		t.Skip("git not installed")
+	}
+	root := t.TempDir()
+	runTestGit(t, root, "init")
+	runTestGit(t, root, "config", "user.name", "CMDR Test")
+	runTestGit(t, root, "config", "user.email", "cmdr-test@example.invalid")
+	writeTestFile(t, root, "product-runtime/context-envelope/envelope.go", "package envelope\n")
+	runTestGit(t, root, "add", ".")
+	runTestGit(t, root, "commit", "-m", "bounded runtime implementation")
+	implementation := testGitOutput(t, root, "rev-parse", "HEAD")
+	writeTestFile(t, root, "engineering/unrelated.md", "unchanged runtime\n")
+	runTestGit(t, root, "add", ".")
+	runTestGit(t, root, "commit", "-m", "validated runtime plus engineering metadata")
+	validated := testGitOutput(t, root, "rev-parse", "HEAD")
+	const runtimeRoot = "product-runtime/context-envelope/**"
+	if err := verifyRuntimeClaimGitEvidence(root, implementation, validated, runtimeRoot); err != nil {
+		t.Fatalf("unchanged runtime should be verified: %v", err)
+	}
+	writeTestFile(t, root, "engineering/another.md", "still unchanged runtime\n")
+	runTestGit(t, root, "add", ".")
+	runTestGit(t, root, "commit", "-m", "non-runtime change")
+	if err := verifyRuntimeClaimGitEvidence(root, implementation, validated, runtimeRoot); err != nil {
+		t.Fatalf("unrelated changes must not revoke runtime evidence: %v", err)
+	}
+	writeTestFile(t, root, "product-runtime/context-envelope/cmd/perf-probe/main.go", "package main\n")
+	runTestGit(t, root, "add", ".")
+	runTestGit(t, root, "commit", "-m", "new executable runtime after validation")
+	if err := verifyRuntimeClaimGitEvidence(root, implementation, validated, runtimeRoot); err == nil || !strings.Contains(err.Error(), "fresh runtime evidence") {
+		t.Fatalf("post-validation runtime addition must invalidate old proof: %v", err)
+	}
+	if err := verifyRuntimeClaimGitEvidence(root, strings.Repeat("0", 39)+"a", validated, runtimeRoot); err == nil {
+		t.Fatal("fabricated existing-looking implementation SHA must fail")
+	}
+	if err := verifyRuntimeClaimGitEvidence(root, implementation, strings.Repeat("f", 40), runtimeRoot); err == nil {
+		t.Fatal("nonexistent final validated head must fail")
+	}
+	if err := verifyRuntimeClaimGitEvidence(root, validated, implementation, runtimeRoot); err == nil {
+		t.Fatal("reversed implementation/validation ancestry must fail")
+	}
+	if err := verifyRuntimeClaimGitEvidence(root, implementation, validated, "product-runtime/../escape/**"); err == nil {
+		t.Fatal("runtime root path escape must fail")
 	}
 }
