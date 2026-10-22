@@ -190,6 +190,55 @@ test("revocation during slow inspection prevents publication and back cannot res
   assert.equal(journey.getView().inspection, undefined);
 });
 
+test("revocation during a pending pivot never republishes an inspection, including on error", async (t) => {
+  for (const outcome of ["rejected", "resolved"]) {
+    await t.test(outcome, async () => {
+      const controller = await initializedSearch();
+      let finish, refuse;
+      const pending = new Promise((resolve, reject) => { finish = resolve; refuse = reject; });
+      const published = [];
+      const journey = createEventInspectionJourney({
+        searchController: controller,
+        transport: {
+          async inspect() { return inspection(); },
+          draftPivot() { return pending; },
+        },
+        onView(view) { published.push(view); },
+      });
+      assert.equal((await journey.open(context, "event-1")).kind, "inspected");
+      const inFlight = journey.draftPivot("source.ip", "192.0.2.10");
+      assert.equal(journey.getView().pivotStatus, "loading");
+      // A new Search run invalidates the original correlation and selected row.
+      await controller.execute(context, { correlationId: "corr-2", queryVersion: "query-1" });
+      if (outcome === "rejected") refuse(new Error("pivot unavailable"));
+      else finish({ kind: "pivot-draft" });
+      const outcomeView = await inFlight;
+      assert.equal(outcomeView.kind, "unavailable");
+      assert.equal(outcomeView.inspection, undefined);
+      assert.equal(journey.getView().inspection, undefined);
+      assert.equal(published.at(-1).kind, "unavailable");
+      assert.equal(journey.back().kind, "unavailable");
+      assert.equal(journey.getView().inspection, undefined);
+    });
+  }
+});
+
+test("pivot transport denial retains only a still-authorized inspection", async () => {
+  const controller = await initializedSearch();
+  const journey = createEventInspectionJourney({
+    searchController: controller,
+    transport: {
+      async inspect() { return inspection(); },
+      async draftPivot() { throw new Error("pivot action denied"); },
+    },
+  });
+  assert.equal((await journey.open(context, "event-1")).kind, "inspected");
+  const denied = await journey.draftPivot("source.ip", "192.0.2.10");
+  assert.equal(denied.kind, "inspected");
+  assert.equal(denied.pivotStatus, "unavailable");
+  assert.equal(denied.pivotDraft, undefined);
+});
+
 class FakeDocument {
   createElement(tag) { return new FakeElement(tag); }
 }

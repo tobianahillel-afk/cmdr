@@ -103,7 +103,7 @@
     "Exact-SHA three-platform Go and Node frontend tests, bounded transport and compulsory engineering-kernel checks."
   ],
   "acceptance_tests": [
-    "Actual loopback Go host permits `source.ip` pivot only with distinct host-authorized action; correctly binds Search Job, Event, tenant, time and origin; no Query execution.",
+    "Actual loopback Go host permits `source.ip` pivot only with distinct host-authorized action; binds Search Job, Event, tenant and origin, and preserves the client-supplied time range (syntactic validation only, no trusted Search Job interval comparison); no Query execution.",
     "A different visible enrichment is denied by independent PivotAuthorizer and does not reveal raw secret or partial draft.",
     "A raw-denied `secret.token` is not a pivot option; forged host pivot field origin or return context is rejected client-side.",
     "Concurrent/cancelled pivot after return to Search yields superseded and cannot restore previously drafted data.",

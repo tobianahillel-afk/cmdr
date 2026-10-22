@@ -30,7 +30,8 @@ func measureEventInspectionHostLoad(ctx context.Context, root string, target Dee
 	}
 	for _, line := range strings.Split(stdout.String(), "\n") {
 		fields := strings.Fields(line)
-		if len(fields) != 8 || !strings.HasPrefix(fields[0], "BenchmarkAuthorizedInspectionHTTP-") ||
+		if len(fields) != 8 ||
+			(fields[0] != "BenchmarkAuthorizedInspectionHTTP" && !strings.HasPrefix(fields[0], "BenchmarkAuthorizedInspectionHTTP-")) ||
 			fields[3] != "ns/op" || fields[5] != "B/op" || fields[7] != "allocs/op" {
 			continue
 		}

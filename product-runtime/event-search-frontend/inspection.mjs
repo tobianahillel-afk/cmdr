@@ -259,11 +259,18 @@ export function createEventInspectionJourney({ searchController, transport, onVi
     try {
       const response = await transport.draftPivot(request, { signal: control.signal });
       if (generation !== sequence || control.signal.aborted) return { kind: "superseded" };
-      if (!validSearch(origin.start)) return publish({ kind: "unavailable" });
+      if (!validSearch(origin.start)) {
+        openedFrom = undefined;
+        return publish({ kind: "unavailable" });
+      }
       const draft = normalizePivotDraft(response, request, prior.inspection);
       return publish({ kind: "inspected", inspection: prior.inspection, pivotDraft: draft });
     } catch {
       if (generation !== sequence || control.signal.aborted) return { kind: "superseded" };
+      if (!validSearch(origin.start)) {
+        openedFrom = undefined;
+        return publish({ kind: "unavailable" });
+      }
       return publish({ kind: "inspected", inspection: prior.inspection, pivotStatus: "unavailable" });
     } finally {
       if (generation === sequence) abort = undefined;
