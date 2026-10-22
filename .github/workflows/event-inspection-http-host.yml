@@ -1,0 +1,72 @@
+name: Event Inspection authorized HTTP host
+
+on:
+  pull_request:
+    paths:
+      - "product-runtime/event-inspection-host/**"
+      - "tools/cmdr-dev/security_tests.go"
+      - "engineering/security/runtime-security-policy.json"
+      - "work/lots/E10-INV-004G-HOST/**"
+      - ".github/workflows/event-inspection-http-host.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  inspection-host:
+    runs-on: ${{ matrix.os }}
+    name: inspection-host-${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    defaults:
+      run:
+        working-directory: product-runtime/event-inspection-host
+    steps:
+      - name: Checkout exact PR head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Verify actual HEAD SHA
+        shell: bash
+        run: |
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+      - name: Install pinned Go from module
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e
+        with:
+          go-version-file: product-runtime/event-inspection-host/go.mod
+          cache: false
+      - name: Run full Event Inspection and new HTTP host tests
+        run: go test -count=1 ./...
+      - name: Vet Event Inspection and HTTP adapter
+        run: go vet ./...
+      - name: Exercise HTTP host data boundaries under Go race detector
+        if: matrix.os == 'ubuntu-latest'
+        run: go test -race -count=1 ./...
+      - name: Measure HTTP host coverage without waiving security floors
+        if: matrix.os == 'ubuntu-latest'
+        shell: bash
+        run: |
+          go test -count=1 -covermode=atomic -coverprofile=host-coverage.out ./...
+          go tool cover -func=host-coverage.out
+          pct="$(go tool cover -func=host-coverage.out | awk '/^total:/ {gsub(/%/,"",$3); print $3}')"
+          awk -v coverage="$pct" 'BEGIN {exit !(coverage+0 >= 90)}'
+
+      - name: Benchmark synthetic authorized HTTP host overhead (no production SLO)
+        if: matrix.os == 'ubuntu-latest'
+        run: go test -run '^$' -bench '^BenchmarkAuthorizedInspectionHTTP$' -benchmem -count=3 -benchtime=100x ./...
+
+      - name: Install engineering Go toolchain for deep audit
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e
+        with:
+          go-version-file: tools/cmdr-dev/go.mod
+          cache: false
+      - name: Exercise registered real on-demand host deep-load target
+        if: matrix.os == 'ubuntu-latest'
+        working-directory: tools/cmdr-dev
+        run: go run . deep-performance-audit --root ../.. --stage on-demand --requested-performance-target PERF-DEEP-EVENT-INSPECTION-HOST --json

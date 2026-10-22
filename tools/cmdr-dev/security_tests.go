@@ -81,6 +81,10 @@ const (
 	eventSearchSecurityModuleIdentity            = "github.com/tobianahillel-afk/cmdr/product-runtime/event-search"
 	eventSearchAuthorizationTestRegexp           = "^TestValidateContractFixtures$/^permission-denied-masks-protected-data$"
 	eventSearchTenantTestRegexp                  = "^TestValidateContractFixtures$/(^missing-tenant-is-rejected$|^wildcard-tenant-is-rejected$|^cross-tenant-is-rejected$)"
+	eventInspectionHostSecurityRuntimeRoot       = "product-runtime/event-inspection-host"
+	eventInspectionHostSecurityModuleIdentity    = "github.com/tobianahillel-afk/cmdr/product-runtime/event-inspection-host"
+	eventInspectionHostAuthorizationTestRegexp   = "^TestDeniedSearchNeverCallsTelemetryAndDenialsAreGeneric$"
+	eventInspectionHostTenantTestRegexp          = "^TestSessionScopeIsNeverTakenFromClient$"
 	eventInspectionSecurityRuntimeRoot           = "product-runtime/event-inspection"
 	eventInspectionSecurityModuleIdentity        = "github.com/tobianahillel-afk/cmdr/product-runtime/event-inspection"
 	eventInspectionAuthorizationTestRegexp       = "^TestProjectMatchesPredeclaredContractFixtures$/^permission-denied-masks-projection$"
@@ -137,6 +141,14 @@ func runtimeSecurityAdapters() map[string]runtimeSecurityAdapter {
 			AuthorizationTestRegex: eventInspectionAuthorizationTestRegexp,
 			TenantTestRegex:        eventInspectionTenantTestRegexp,
 		},
+		"event-inspection-http-host-runtime": {
+			BoundaryID:  "event-inspection-http-host-runtime",
+			RuntimeRoot: eventInspectionHostSecurityRuntimeRoot, RuntimeKind: "go",
+			ModuleIdentity:         eventInspectionHostSecurityModuleIdentity,
+			AuthorizationTestRegex: eventInspectionHostAuthorizationTestRegexp,
+			TenantTestRegex:        eventInspectionHostTenantTestRegexp,
+		},
+
 		huntManagementRuntimeBoundaryID: {
 			BoundaryID: huntManagementRuntimeBoundaryID, RuntimeRoot: huntManagementSecurityRuntimeRoot, RuntimeKind: "go",
 			ModuleIdentity:         huntManagementSecurityModuleIdentity,
