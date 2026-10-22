@@ -17,7 +17,7 @@ import (
 
 const (
 	developmentToolRegistryPath = "engineering/security/development-tools.json"
-	engineeringGoVersion        = "1.26.8"
+	engineeringGoVersion        = "1.26.10"
 	gosecModule                 = "github.com/securego/gosec/v2/cmd/gosec"
 	gosecVersion                = "v2.28.0"
 	govulncheckModule           = "golang.org/x/vuln/cmd/govulncheck"

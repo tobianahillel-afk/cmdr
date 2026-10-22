@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"os"
 	"strings"
 	"testing"
 )
@@ -120,4 +121,25 @@ func TestGoSecurityModuleRootsFollowReviewedGoRuntimeAdapters(t *testing.T) {
 	if len(roots) != 4 {
 		t.Fatalf("unregistered runtime must not silently enter reviewed SAST/SCA scope: %v", roots)
 	}
+}
+
+// Match the actual pinned kernel module toolchain before attributing SAST,
+// SBOM, or benchmark evidence to a Go patch release.
+func TestGoSecurityEvidenceVersionMatchesModule(t *testing.T) {
+	contents, err := os.ReadFile("go.mod")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, line := range strings.Split(string(contents), "\n") {
+		line = strings.TrimSpace(line)
+		if !strings.HasPrefix(line, "go ") {
+			continue
+		}
+		actual := strings.TrimSpace(strings.TrimPrefix(line, "go "))
+		if actual != engineeringGoVersion {
+			t.Fatalf("engineering security evidence Go version %q does not match go.mod directive %q", engineeringGoVersion, actual)
+		}
+		return
+	}
+	t.Fatal("tools/cmdr-dev/go.mod must declare its Go version")
 }
