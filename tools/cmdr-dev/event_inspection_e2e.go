@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"runtime"
 	"sort"
 	"strings"
 )
@@ -396,10 +395,7 @@ func validateEventInspectionPivotFollowupProof(root, oldCommit, currentCommit st
 		fresh := exec.Command("go", args...) // #nosec G204 -- fixed executable and static go command list.
 		fresh.Dir = dir
 		fresh.Env = append(os.Environ(), "GOTOOLCHAIN=local")
-		if out, err := fresh.CombinedOutput(); err != nil {
-			if runtime.GOOS == "windows" && strings.Contains(string(out), "Access is denied") {
-				continue
-			}
+		if _, err := fresh.CombinedOutput(); err != nil {
 			return fmt.Errorf("fresh reviewed pivot/toolchain validation failed: %w", err)
 		}
 	}

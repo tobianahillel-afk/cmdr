@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"runtime"
 	"strings"
 )
 
@@ -104,10 +103,7 @@ func reverifyPinnedGoToolchainTransition(root, evidenceHead, currentHead, runtim
 		cmd := exec.Command("go", args...) // #nosec G204 -- fixed executable and literal argument alternatives.
 		cmd.Dir = dir
 		cmd.Env = append(os.Environ(), "GOTOOLCHAIN=local")
-		if out, err := cmd.CombinedOutput(); err != nil {
-			if runtime.GOOS == "windows" && strings.Contains(string(out), "Access is denied") {
-				continue
-			}
+		if _, err := cmd.CombinedOutput(); err != nil {
 			return false, fmt.Errorf("patched Go runtime failed fresh full module validation: %w", err)
 		}
 	}
