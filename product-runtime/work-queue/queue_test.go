@@ -34,12 +34,13 @@ func fixture() *fakeOwner {
 	return &fakeOwner{
 		items: []Item{
 			{Kind: Incident, ID: "inc-a", Tenant: "t1", Environment: "e1", Owner: "analyst", Status: "active", UpdatedAt: "2026-10-19T08:00:00Z", SLAAtRisk: enabled(true)},
-			{Kind: Task, ID: "task-b", Tenant: "t1", Environment: "e1", Followers: []string{"analyst"}, Status: "open", UpdatedAt: "2026-10-19T09:00:00Z", SLAAtRisk: enabled(false)},
+			{Kind: Task, ID: "task-b", Tenant: "t1", Environment: "e1", Watchers: []string{"analyst"}, Status: "open", UpdatedAt: "2026-10-19T09:00:00Z", SLAAtRisk: enabled(false)},
+			{Kind: Task, ID: "task-c", Tenant: "t1", Environment: "e1", Owner: "other", Contributors: []string{"analyst"}, Status: "open", UpdatedAt: "2026-10-19T08:30:00Z", SLAAtRisk: enabled(false)},
 			{Kind: Incident, ID: "inc-hidden", Tenant: "t1", Environment: "e1", Owner: "secret", Status: "secret", UpdatedAt: "2026-10-19T10:00:00Z", SLAAtRisk: enabled(true)},
 			{Kind: Task, ID: "task-no-sla", Tenant: "t1", Environment: "e1", Owner: "other", Status: "open", UpdatedAt: "2026-10-19T07:00:00Z"},
 			{Kind: Incident, ID: "foreign", Tenant: "t2", Environment: "e1", Status: "private", UpdatedAt: "2026-10-19T12:00:00Z"},
 		},
-		allowed: map[string]bool{"Incident:inc-a": true, "Task:task-b": true, "Task:task-no-sla": true},
+		allowed: map[string]bool{"Incident:inc-a": true, "Task:task-b": true, "Task:task-c": true, "Task:task-no-sla": true},
 	}
 }
 func request(view View) Request {
@@ -47,11 +48,11 @@ func request(view View) Request {
 }
 func TestCanonicalSixViewsWithRealAuthorization(t *testing.T) {
 	want := map[View][]string{
-		All:        {"task-b", "inc-a", "task-no-sla"},
+		All:        {"task-b", "task-c", "inc-a", "task-no-sla"},
 		Incidents:  {"inc-a"},
-		Tasks:      {"task-b", "task-no-sla"},
+		Tasks:      {"task-b", "task-c", "task-no-sla"},
 		Unassigned: {"task-b"},
-		MyWork:     {"task-b", "inc-a"},
+		MyWork:     {"task-b", "task-c", "inc-a"},
 		SLARisk:    {"inc-a"},
 	}
 	if len(SystemViews) != 6 {
@@ -142,6 +143,35 @@ func TestNoLeakOnIncompleteDuplicateOrOversizedOwnedProjection(t *testing.T) {
 		}
 	}
 }
+
+func TestDeniedMetadataAndDuplicatesDoNotChangeAuthorizedProjection(t *testing.T) {
+ baselineOwner := fixture()
+ baseline, err := Project(context.Background(), baselineOwner, request(All))
+ if err != nil {
+  t.Fatalf("baseline: %v", err)
+ }
+ for _, tc := range []struct {
+  name string
+  mutate func(*fakeOwner)
+ }{
+  {"denied-empty-updated-at", func(o *fakeOwner) { o.items[2].UpdatedAt = "" }},
+  {"denied-invalid-timestamp", func(o *fakeOwner) { o.items[2].UpdatedAt = "not-utc" }},
+  {"denied-duplicate", func(o *fakeOwner) { o.items = append(o.items, o.items[2]) }},
+ } {
+  t.Run(tc.name, func(t *testing.T) {
+   o := fixture()
+   tc.mutate(o)
+   actual, err := Project(context.Background(), o, request(All))
+   if err != nil {
+    t.Fatalf("denied record affected valid data: %v", err)
+   }
+   if !reflect.DeepEqual(actual, baseline) {
+    t.Fatalf("denied record changed authorized results: %+v vs %+v", actual, baseline)
+   }
+  })
+ }
+}
+
 func TestEmptyAndStableBoundedFirstPage(t *testing.T) {
 	o := fixture()
 	o.allowed = map[string]bool{}
