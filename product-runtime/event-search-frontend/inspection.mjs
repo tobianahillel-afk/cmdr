@@ -188,14 +188,33 @@ export function createEventInspectionJourney({ searchController, transport, onVi
     return view;
   }
 
+  // A repeated opaque job/run/correlation tuple is not by itself evidence
+  // that the originally authorized Search scope or selected projection survived.
+  // These browser checks are defense-in-depth; the server still owns all grants.
+  function sameSources(left, right) {
+    return Array.isArray(left) && Array.isArray(right) &&
+      left.length === right.length && left.every((source, index) => source === right[index]);
+  }
+
+  function matchesSearchScope(scope, job) {
+    return scope.from === job?.timeStart && scope.to === job?.timeEnd &&
+      sameSources(scope.sources, job?.sources);
+  }
+
   function validSearch(start) {
     const now = searchController.getView();
     return now.job?.jobId === start.job.jobId && now.job?.runId === start.job.runId &&
       now.job?.correlationId === start.job.correlationId &&
       now.job?.tenantRef === start.job.tenantRef &&
       now.job?.environmentRef === start.job.environmentRef &&
+      now.job?.timeStart === start.job.timeStart &&
+      now.job?.timeEnd === start.job.timeEnd &&
+      now.job?.queryVersion === start.job.queryVersion &&
+      sameSources(now.job?.sources, start.job.sources) &&
       !["permission-denied", "loading", "error", "offline"].includes(now.shellState?.kind) &&
-      now.resultWindow?.rows.some((row) => row.ref === start.row.ref && row.source === start.row.source);
+      now.resultWindow?.rows.some((row) => row.ref === start.row.ref &&
+        row.source === start.row.source && row.eventTime === start.row.eventTime &&
+        JSON.stringify(row.summary) === JSON.stringify(start.row.summary));
   }
 
   async function open(searchState, eventRef) {
@@ -206,6 +225,7 @@ export function createEventInspectionJourney({ searchController, transport, onVi
         !ref(snapshot.job.runId) || !ref(snapshot.job.correlationId) ||
         snapshot.job.tenantRef !== scope.tenantId ||
         snapshot.job.environmentRef !== scope.environmentId ||
+        !matchesSearchScope(scope, snapshot.job) ||
         ["permission-denied", "loading", "error", "offline"].includes(snapshot.shellState?.kind)) fail("not-authorized-result");
     abort?.abort();
     const generation = ++sequence;

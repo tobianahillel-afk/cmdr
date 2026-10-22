@@ -100,6 +100,50 @@ test("missing selected Event and forged scope fail closed before or after transp
   assert.equal(calls, 1);
 });
 
+test("Inspector opening rejects a caller-supplied time/source scope that differs from the actual Search Job", async () => {
+  const controller = await initializedSearch();
+  let inspectCalls = 0;
+  const journey = createEventInspectionJourney({
+    searchController: controller,
+    transport: { async inspect() { inspectCalls++; return inspection(); } },
+  });
+  for (const mismatched of [
+    { ...context, from: "2026-10-20T09:00:00Z" },
+    { ...context, to: "2026-10-20T13:00:00Z" },
+    { ...context, sources: ["edr", "firewall"] },
+  ]) {
+    await assert.rejects(() => journey.open(mismatched, "event-1"), /not-authorized-result/);
+  }
+  assert.equal(inspectCalls, 0, "no host call should be made for an inconsistent caller scope");
+  assert.equal(journey.getView().kind, "search");
+});
+
+test("Inspector rejects reused Search Job/run IDs after scope, version or result projection changes", async (t) => {
+  const scenarios = [
+    { label: "time", change: { ...context, from: "2026-10-20T09:00:00Z" }, version: "query-1" },
+    { label: "sources", change: { ...context, sources: ["edr", "firewall"] }, version: "query-1" },
+    { label: "version", change: context, version: "query-2" },
+  ];
+  for (const scenario of scenarios) {
+    await t.test(scenario.label, async () => {
+      const controller = await initializedSearch();
+      const journey = createEventInspectionJourney({
+        searchController: controller,
+        transport: { async inspect() { return inspection(); } },
+      });
+      assert.equal((await journey.open(context, "event-1")).kind, "inspected");
+      await controller.execute(scenario.change, { correlationId: "corr-1", queryVersion: scenario.version });
+      assert.equal(controller.getView().job.jobId, "job-1");
+      assert.equal(controller.getView().job.runId, "run-1");
+      assert.equal(controller.getView().job.correlationId, "corr-1");
+      const invalidated = journey.getView();
+      assert.equal(invalidated.kind, "unavailable");
+      assert.equal(invalidated.inspection, undefined);
+      assert.equal(journey.back().kind, "unavailable");
+    });
+  }
+});
+
 test("raw denial strips raw-derived content, rejects forged raw and keeps rendered accessible", async () => {
   const controller = await initializedSearch();
   const request = {
