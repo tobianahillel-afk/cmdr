@@ -285,7 +285,7 @@ type RuntimeSuccessorHandoff struct {
 
 func resolveRuntimeSuccessorEvidence(root string, graph WorkGraph, entry ImplementationLedgerEntry, original WorkManifestV2, validatedHead string) (string, string, error) {
 	sidecar := filepath.ToSlash(filepath.Join(filepath.Dir(entry.ManifestPath), "RUNTIME-EVIDENCE-SUCCESSOR.json"))
-	if _, err := os.Stat(filepath.Join(root, filepath.FromSlash(sidecar))); err != nil {
+	if _, err := statRepoPath(root, filepath.FromSlash(sidecar)); err != nil {
 		if errors.Is(err, os.ErrNotExist) {
 			return "", "", nil
 		}
