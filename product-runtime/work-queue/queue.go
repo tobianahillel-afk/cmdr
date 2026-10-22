@@ -36,15 +36,15 @@ var SystemViews = [...]View{All, Incidents, Tasks, Unassigned, SLARisk, MyWork}
 // Provider owns these attributes. Linked Case, Decision, Run and raw evidence
 // are intentionally absent: relationships never transfer authorization.
 type Item struct {
-	Kind         Kind
-	ID           string
-	Tenant       string
-	Environment  string
-	Owner        string
-	Followers    []string
-	Status       string
-	UpdatedAt    string
-	SLAAtRisk    *bool // nil: unavailable from the authoritative policy source
+	Kind        Kind
+	ID          string
+	Tenant      string
+	Environment string
+	Owner       string
+	Followers   []string
+	Status      string
+	UpdatedAt   string
+	SLAAtRisk   *bool // nil: unavailable from the authoritative policy source
 }
 
 // Owner is an authoritative host adapter, NOT a client authorization flag.
@@ -70,20 +70,20 @@ type Row struct {
 }
 
 type Result struct {
-	View         View     `json:"view"`
-	Tenant       string   `json:"tenant"`
-	Environment  string   `json:"environment"`
-	State        string   `json:"state"`
-	Diagnostics  []string `json:"diagnostics"`
-	Rows         []Row    `json:"rows"`
+	View        View     `json:"view"`
+	Tenant      string   `json:"tenant"`
+	Environment string   `json:"environment"`
+	State       string   `json:"state"`
+	Diagnostics []string `json:"diagnostics"`
+	Rows        []Row    `json:"rows"`
 }
 
 var (
-	ErrScope          = errors.New("work queue requires explicit principal, tenant and environment")
-	ErrView           = errors.New("unknown canonical Command system view")
-	ErrIncomplete     = errors.New("untrusted or incomplete work item owner data")
-	ErrOwner          = errors.New("work queue owner authorization unavailable")
-	ErrTooMany        = errors.New("work queue owner snapshot exceeds local bound")
+	ErrScope      = errors.New("work queue requires explicit principal, tenant and environment")
+	ErrView       = errors.New("unknown canonical Command system view")
+	ErrIncomplete = errors.New("untrusted or incomplete work item owner data")
+	ErrOwner      = errors.New("work queue owner authorization unavailable")
+	ErrTooMany    = errors.New("work queue owner snapshot exceeds local bound")
 )
 
 // Project is deliberately bounded and all-or-nothing for owner failures.
@@ -110,7 +110,7 @@ func Project(ctx context.Context, owner Owner, req Request) (Result, error) {
 		return empty, ErrTooMany
 	}
 	type candidate struct {
-		row Row
+		row     Row
 		updated time.Time
 	}
 	var selected []candidate
@@ -171,7 +171,7 @@ func Project(ctx context.Context, owner Owner, req Request) (Result, error) {
 		}
 		if accept {
 			selected = append(selected, candidate{
-				row: Row{Kind: item.Kind, ID: item.ID, Owner: item.Owner, Status: item.Status, UpdatedAt: item.UpdatedAt},
+				row:     Row{Kind: item.Kind, ID: item.ID, Owner: item.Owner, Status: item.Status, UpdatedAt: item.UpdatedAt},
 				updated: t,
 			})
 		}

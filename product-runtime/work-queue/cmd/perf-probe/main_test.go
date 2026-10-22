@@ -46,9 +46,11 @@ func TestCommandQueueProbeRejectsUnsupportedModesBeforeReceipt(t *testing.T) {
 }
 
 type unavailableReceiptWriter struct{}
+
 func (unavailableReceiptWriter) Write([]byte) (int, error) {
 	return 0, errors.New("operator evidence sink unavailable")
 }
+
 var _ io.Writer = unavailableReceiptWriter{}
 
 func TestCommandQueueProbeSurfacesReceiptFailure(t *testing.T) {
@@ -59,8 +61,14 @@ func TestCommandQueueProbeSurfacesReceiptFailure(t *testing.T) {
 
 func TestCommandQueueProbeResourceMeasuresGoHeap(t *testing.T) {
 	var out bytes.Buffer
-	if err:=run([]string{"-iterations","10000","-mode","resource","-memory-limit-mib","128"},&out);err!=nil{t.Fatal(err)}
+	if err := run([]string{"-iterations", "10000", "-mode", "resource", "-memory-limit-mib", "128"}, &out); err != nil {
+		t.Fatal(err)
+	}
 	var v observation
-	if err:=json.Unmarshal(out.Bytes(),&v);err!=nil{t.Fatal(err)}
-	if v.Mode!="resource"||v.Operations<10000||v.Operations>maxMeasuredOperations||v.ElapsedNS<=0||v.PeakHeapBytes==0||v.TotalAllocationBytes==0 {t.Fatalf("invalid resource measurement: %+v",v)}
+	if err := json.Unmarshal(out.Bytes(), &v); err != nil {
+		t.Fatal(err)
+	}
+	if v.Mode != "resource" || v.Operations < 10000 || v.Operations > maxMeasuredOperations || v.ElapsedNS <= 0 || v.PeakHeapBytes == 0 || v.TotalAllocationBytes == 0 {
+		t.Fatalf("invalid resource measurement: %+v", v)
+	}
 }
