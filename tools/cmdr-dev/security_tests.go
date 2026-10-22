@@ -155,6 +155,12 @@ func runtimeSecurityAdapters() map[string]runtimeSecurityAdapter {
 			AuthorizationTestRegex: caseQueueAuthorizationTestRegexp,
 			TenantTestRegex:        caseQueueTenantTestRegexp,
 		},
+		"case-search-workbench-integration": {
+			BoundaryID: "case-search-workbench-integration", RuntimeRoot: "product-runtime/case-search-workbench", RuntimeKind: "go",
+			ModuleIdentity:         "github.com/tobianahillel-afk/cmdr/product-runtime/case-search-workbench",
+			AuthorizationTestRegex: "^TestAuthorizedCaseSearchBoundsAndLeastPrivilege$",
+			TenantTestRegex:        "^TestCaseSearchJobCLIReadsActualSnapshotAndWritesNoPartialDenials$",
+		},
 		"investigation-timeline-runtime": {
 			BoundaryID: "investigation-timeline-runtime", RuntimeRoot: investigationTimelineSecurityRuntimeRoot, RuntimeKind: "go",
 			ModuleIdentity:         investigationTimelineSecurityModuleIdentity,

@@ -443,6 +443,34 @@
         }
       ],
       "rationale": "Preimplementation-only local engineering ceiling, not a result or production SLO; handler explicitly fails closed until a real representative runtime probe is implemented."
+    },
+    {
+      "id": "PERF-TGT-CASE-SEARCH-COMPOSITION-ORCHESTRATOR",
+      "scope_kind": "product-runtime",
+      "boundary_id": "case-search-workbench-integration",
+      "owner_path": "product-runtime/case-search-workbench/**",
+      "workload_key": "event-search-orchestration-v1",
+      "workload_description": "On-demand reuse of the existing first-party Event Search Job orchestrator benchmark as a COMPONENT-ONLY bound. This does not execute Case owner traversal, disk reading or source authorization and therefore cannot establish the integrated workbench latency.",
+      "environment_id": "PERF-ENV-GITHUB-UBUNTU-SHARED",
+      "stages": [
+        "on-demand"
+      ],
+      "trigger_paths": [
+        "product-runtime/case-search-workbench/**",
+        "engineering/performance/performance-registry.json"
+      ],
+      "metrics": [
+        {
+          "id": "orchestrator-component-p95-latency",
+          "kind": "latency",
+          "unit": "ms",
+          "aggregation": "p95",
+          "comparator": "upper-bound",
+          "budget": 5,
+          "max_relative_regression_percent": 0
+        }
+      ],
+      "rationale": "Registration required for a new product-runtime boundary. Only existing orchestration overhead can be measured with the current first-party probe; no full Case Search performance evidence or production SLO is claimed. E2E performance is unqualified until a representative integrated probe exists."
     }
   ]
 }

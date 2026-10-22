@@ -93,6 +93,17 @@
       "authorization_rationale": "CAP-INV-110 read-only Case and Shared Timeline Entry projection requires separately authorized access to each linked source. Denied events and context must not leak identity or content.",
       "tenant_isolation_required": true,
       "tenant_isolation_rationale": "CAP-INV-110 must fail closed on missing, wildcard, mismatched and cross-tenant Case/source/environment access without widening selected scope."
+    },
+    {
+      "boundary_id": "case-search-workbench-integration",
+      "owner": "E10-INV-130A-SEARCH-JOB",
+      "security_critical_paths": [
+        "product-runtime/case-search-workbench/**"
+      ],
+      "authorization_required": true,
+      "authorization_rationale": "This local integration accepts a selected synthetic Case and must prove that foreign/denied typed sources cannot enter Search Jobs or result references.",
+      "tenant_isolation_required": true,
+      "tenant_isolation_rationale": "A synthetic principal cannot search another tenant's Case, and the backend must independently re-check the current owner-authorized telemetry source set before job execution."
     }
   ]
 }

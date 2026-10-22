@@ -1,0 +1,61 @@
+name: case-search-workbench-integration
+
+on:
+  pull_request:
+    paths:
+      - "product-runtime/case-search-workbench/**"
+      - "product-runtime/event-search/**"
+      - "product-runtime/investigation-timeline/**"
+      - ".github/workflows/case-search-workbench-integration.yml"
+  push:
+    branches:
+      - "feature/e10-inv-130a-authorized-case-search-job"
+    paths:
+      - "product-runtime/case-search-workbench/**"
+      - "product-runtime/event-search/**"
+      - "product-runtime/investigation-timeline/**"
+      - ".github/workflows/case-search-workbench-integration.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  case-search:
+    name: Case Search + Timeline integration (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 12
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: product-runtime/case-search-workbench/go.mod
+          cache: false
+      - name: Verify real disk-to-Case-to-Search Job and isolation
+        working-directory: product-runtime/case-search-workbench
+        run: |
+          go test -count=1 ./...
+          go vet ./...
+      - name: Race-check integrated search
+        if: runner.os == 'Linux'
+        working-directory: product-runtime/case-search-workbench
+        run: go test -count=1 -race ./...
+      - name: Check formatting
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          set -euo pipefail
+          gofmt -d product-runtime/case-search-workbench/*.go
+          files="$(gofmt -l product-runtime/case-search-workbench/*.go)"
+          if [ -n "$files" ]; then
+            echo "Unformatted Go files: $files" >&2
+            exit 1
+          fi
