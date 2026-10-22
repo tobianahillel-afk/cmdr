@@ -2,8 +2,8 @@
   "schema_version": 1,
   "compiler_schema_version": 2,
   "spec_root": "cmdr-product-spec",
-  "product_spec_baseline_commit": "99c3826cdcbc79bad51631cf6462450f92e012eb",
-  "tree_digest": "a5f45351eba180d0edb734f33ecbeaabb7eceb7143305e201e207e8ae5a60d27",
+  "product_spec_baseline_commit": "82e630fce3a7f6236e03709116eca6dd0a1acd40",
+  "tree_digest": "d0c294eada6c71730a74c748f414c27d6c868938276b0dd7616cdb46ed31b6eb",
   "files": 1879,
   "active_canonical_documents": 1428
 }

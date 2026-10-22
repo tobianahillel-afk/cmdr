@@ -20,7 +20,7 @@ func TestCommandQueueProbeExecutesActualAuthorizedProjection(t *testing.T) {
 	if err := json.Unmarshal(output.Bytes(), &receipt); err != nil {
 		t.Fatalf("non-JSON performance receipt: %v", err)
 	}
-	if receipt.Operation != "projection" || receipt.Mode != "latency" || receipt.Operations != 10000 ||
+	if receipt.Operation != "projection" || receipt.Mode != "latency" || receipt.Operations < 10000 || receipt.Operations > 1_000_000 ||
 		receipt.ElapsedNS <= 0 || receipt.NSPerOperation <= 0 {
 		t.Fatalf("invalid measured Command runtime: %+v", receipt)
 	}
@@ -65,9 +65,9 @@ func TestCommandQueueResourceProbeMeasuresRealProjectionHeap(t *testing.T) {
 	}
 	var sample observation
 	if err:=json.Unmarshal(output.Bytes(),&sample);err!=nil {t.Fatal(err)}
-	if sample.Mode!="resource" || sample.Operation!="projection" || sample.Operations!=100000 ||
-		sample.PeakHeapBytes==0 || sample.TotalAllocationBytes==0 ||
-		sample.PeakHeapBytes>128*1024*1024 || sample.ElapsedNS<=0 {
+	if sample.Mode != "resource" || sample.Operation != "projection" || sample.Operations < 100000 || sample.Operations > 1_000_000 ||
+		sample.PeakHeapBytes == 0 || sample.TotalAllocationBytes == 0 ||
+		sample.PeakHeapBytes > 128*1024*1024 || sample.ElapsedNS <= 0 {
 		t.Fatalf("Command probe did not actually record bounded runtime heap/allocations: %+v",sample)
 	}
 }

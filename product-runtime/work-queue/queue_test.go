@@ -99,18 +99,78 @@ func TestNoLeakOnIncompleteDuplicateOrOversizedOwnedProjection(t *testing.T){
 		if err==nil||len(result.Rows)>0{t.Fatalf("invalid owner snapshot disclosed partial rows: %+v",result)}
 	}
 }
-func TestEmptyAndStableBoundedFirstPage(t *testing.T){
-	o:=fixture();o.allowed=map[string]bool{}
-	r,err:=Project(context.Background(),o,request(All))
-	if err!=nil||r.State!="no-authorized-items"||len(r.Rows)!=0{t.Fatalf("empty failed: %+v %v",r,err)}
-	o=fixture();o.items=o.items[:0];o.allowed=map[string]bool{}
-	for i:=0;i<80;i++{
-		id:=fmt.Sprintf("task-%03d",i)
-		o.items=append(o.items,Item{Kind:Task,ID:id,Tenant:"t1",Environment:"e1",UpdatedAt:"2026-10-19T09:00:00Z"})
-		o.allowed["Task:"+id]=true
+func TestDeniedMetadataAndDuplicatesDoNotChangeAuthorizedProjection(t *testing.T) {
+	baselineOwner := fixture()
+	baseline, err := Project(context.Background(), baselineOwner, request(All))
+	if err != nil {
+		t.Fatalf("baseline: %v", err)
 	}
-	a,err:=Project(context.Background(),o,request(Tasks))
-	if err!=nil||len(a.Rows)!=50||len(a.Diagnostics)!=1||a.Diagnostics[0]!="first-page-only"{t.Fatalf("first-page constraint broken %+v %v",a,err)}
-	b,err:=Project(context.Background(),o,request(Tasks))
-	if err!=nil||!reflect.DeepEqual(a.Rows,b.Rows){t.Fatal("sort is not deterministic")}
+	for _, tc := range []struct {
+		name   string
+		mutate func(*fakeOwner)
+	}{
+		{"denied-empty-updated-at", func(o *fakeOwner) { o.items[2].UpdatedAt = "" }},
+		{"denied-invalid-timestamp", func(o *fakeOwner) { o.items[2].UpdatedAt = "not-utc" }},
+		{"denied-duplicate", func(o *fakeOwner) { o.items = append(o.items, o.items[2]) }},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			o := fixture()
+			tc.mutate(o)
+			actual, err := Project(context.Background(), o, request(All))
+			if err != nil {
+				t.Fatalf("denied record affected valid data: %v", err)
+			}
+			if !reflect.DeepEqual(actual, baseline) {
+				t.Fatalf("denied record changed authorized results: %+v vs %+v", actual, baseline)
+			}
+		})
+	}
+}
+
+func TestMyWorkViewIncludesContributorsAndWatchers(t *testing.T) {
+	o := fixture()
+	o.items = append(o.items,
+		Item{Kind: Task, ID: "task-contrib", Tenant: "t1", Environment: "e1", Owner: "other", Contributors: []string{"analyst"}, Status: "open", UpdatedAt: "2026-10-19T08:30:00Z", SLAAtRisk: enabled(false)},
+		Item{Kind: Task, ID: "task-watch", Tenant: "t1", Environment: "e1", Owner: "other", Watchers: []string{"analyst"}, Status: "open", UpdatedAt: "2026-10-19T08:15:00Z", SLAAtRisk: enabled(false)},
+	)
+	o.allowed["Task:task-contrib"] = true
+	o.allowed["Task:task-watch"] = true
+	res, err := Project(context.Background(), o, request(MyWork))
+	if err != nil {
+		t.Fatalf("MyWork query failed: %v", err)
+	}
+	ids := map[string]bool{}
+	for _, row := range res.Rows {
+		ids[row.ID] = true
+	}
+	for _, id := range []string{"task-b", "inc-a", "task-contrib", "task-watch"} {
+		if !ids[id] {
+			t.Fatalf("missing expected MyWork item %s: %+v", id, res.Rows)
+		}
+	}
+}
+
+func TestEmptyAndStableBoundedFirstPage(t *testing.T) {
+	o := fixture()
+	o.allowed = map[string]bool{}
+	r, err := Project(context.Background(), o, request(All))
+	if err != nil || r.State != "no-authorized-items" || len(r.Rows) != 0 {
+		t.Fatalf("empty failed: %+v %v", r, err)
+	}
+	o = fixture()
+	o.items = o.items[:0]
+	o.allowed = map[string]bool{}
+	for i := 0; i < 80; i++ {
+		id := fmt.Sprintf("task-%03d", i)
+		o.items = append(o.items, Item{Kind: Task, ID: id, Tenant: "t1", Environment: "e1", UpdatedAt: "2026-10-19T09:00:00Z"})
+		o.allowed["Task:"+id] = true
+	}
+	a, err := Project(context.Background(), o, request(Tasks))
+	if err != nil || len(a.Rows) != 50 || len(a.Diagnostics) != 1 || a.Diagnostics[0] != "first-page-only" {
+		t.Fatalf("first-page constraint broken %+v %v", a, err)
+	}
+	b, err := Project(context.Background(), o, request(Tasks))
+	if err != nil || !reflect.DeepEqual(a.Rows, b.Rows) {
+		t.Fatal("sort is not deterministic")
+	}
 }

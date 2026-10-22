@@ -200,15 +200,12 @@ func Project(ctx context.Context, owner Owner, req Request) (Result, error) {
 		if item.Tenant != req.Tenant || item.Environment != req.Environment {
 			continue
 		}
-		if (item.Kind != Incident && item.Kind != Task) || invalidScope(item.ID) ||
-			strings.TrimSpace(item.UpdatedAt) == "" {
+		// Kind and ID identify the ACL target and must be valid before authorization.
+		// Never validate or deduplicate non-authoritative display metadata for
+		// denied items: doing so reveals their presence by changing the result.
+		if (item.Kind != Incident && item.Kind != Task) || invalidScope(item.ID) {
 			return empty, ErrIncomplete
 		}
-		key := string(item.Kind) + "\x00" + item.ID
-		if seen[key] {
-			return empty, ErrIncomplete
-		}
-		seen[key] = true
 		allowed, err := owner.CanRead(ctx, req.Principal, req.Tenant, req.Environment, item.Kind, item.ID)
 		if err != nil {
 			return empty, ErrOwner
@@ -216,6 +213,14 @@ func Project(ctx context.Context, owner Owner, req Request) (Result, error) {
 		if !allowed {
 			continue
 		}
+		if strings.TrimSpace(item.UpdatedAt) == "" {
+			return empty, ErrIncomplete
+		}
+		key := string(item.Kind) + "\x00" + item.ID
+		if seen[key] {
+			return empty, ErrIncomplete
+		}
+		seen[key] = true
 		t, err := time.Parse(time.RFC3339Nano, item.UpdatedAt)
 		if err != nil || t.IsZero() {
 			return empty, ErrIncomplete

@@ -53,7 +53,7 @@ func (p commandWorkQueueProbe) run(iterations int) (pilotProjectionProbeObservat
 	if err := json.Unmarshal([]byte(strings.TrimSpace(raw)), &sample); err != nil {
 		return sample, err
 	}
-	if sample.Operation != "projection" || sample.Mode != "latency" || sample.Operations != iterations ||
+	if sample.Operation != "projection" || sample.Mode != "latency" || sample.Operations < iterations || sample.Operations > 1_000_000 ||
 		sample.ElapsedNS <= 0 || sample.NSPerOperation <= 0 || math.IsNaN(sample.NSPerOperation) || math.IsInf(sample.NSPerOperation, 0) {
 		return sample, fmt.Errorf("invalid Command queue probe output")
 	}
@@ -85,7 +85,7 @@ func (p commandWorkQueueProbe) runResource(iterations, memoryLimitMiB int) (Deep
 	if err := json.Unmarshal([]byte(strings.TrimSpace(raw)), &sample); err != nil {
 		return DeepPerformanceObservation{}, err
 	}
-	if sample.Operation != "projection" || sample.Mode != "resource" || sample.Operations != iterations ||
+	if sample.Operation != "projection" || sample.Mode != "resource" || sample.Operations < iterations || sample.Operations > 1_000_000 ||
 		sample.ElapsedNS <= 0 || sample.PeakHeapBytes == 0 || sample.TotalAllocationBytes == 0 ||
 		sample.PeakHeapBytes > uint64(memoryLimitMiB)*1024*1024 {
 		return DeepPerformanceObservation{}, fmt.Errorf("invalid Command resource observation")

@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "ledger_kind": "verified-runtime-implementation-evidence",
-  "product_spec_baseline": "99c3826cdcbc79bad51631cf6462450f92e012eb",
+  "product_spec_baseline": "82e630fce3a7f6236e03709116eca6dd0a1acd40",
   "entries": [
     {
       "capability": "CAP-INV-002",

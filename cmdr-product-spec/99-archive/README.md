@@ -1,7 +1,7 @@
 ---
 id: archive-readme
 domain: 99-archive
-status: active
+status: draft
 owner: Product Architecture
 updated: 2026-08-03
 source-of-truth: non-normative

@@ -63,21 +63,40 @@ func runWithOwner(args []string, out io.Writer, owner queue.Owner) error {
 		runtime.GC()
 		runtime.ReadMemStats(&before)
 	}
-	peak:=before.HeapAlloc
-	started:=time.Now()
-	for i:=0;i<*n;i++ {
-		if err:=perform();err!=nil{return err}
-		if *mode=="resource" && i%64==0 {
-			var sample runtime.MemStats
-			runtime.ReadMemStats(&sample)
-			if sample.HeapAlloc>peak {peak=sample.HeapAlloc}
+	peak := before.HeapAlloc
+	const maxMeasuredOperations = 1_000_000
+	started := time.Now()
+	actual := 0
+	var elapsed time.Duration
+	for actual < maxMeasuredOperations {
+		batch := *n
+		if batch > maxMeasuredOperations-actual {
+			batch = maxMeasuredOperations - actual
+		}
+		for i := 0; i < batch; i++ {
+			if err := perform(); err != nil {
+				return err
+			}
+			if *mode == "resource" && (actual+i)%64 == 0 {
+				var sample runtime.MemStats
+				runtime.ReadMemStats(&sample)
+				if sample.HeapAlloc > peak {
+					peak = sample.HeapAlloc
+				}
+			}
+		}
+		actual += batch
+		elapsed = time.Since(started)
+		if elapsed > 0 {
+			break
 		}
 	}
-	elapsed:=time.Since(started)
-	if elapsed<=0{return fmt.Errorf("unmeasured Command projection")}
-	receipt:=observation{
-		Operation:*op,Mode:*mode,Operations:*n,
-		ElapsedNS:elapsed.Nanoseconds(),NSPerOperation:float64(elapsed.Nanoseconds())/float64(*n),
+	if elapsed <= 0 {
+		return fmt.Errorf("Command projection timer unresolved after %d actual operations", actual)
+	}
+	receipt := observation{
+		Operation: *op, Mode: *mode, Operations: actual,
+		ElapsedNS: elapsed.Nanoseconds(), NSPerOperation: float64(elapsed.Nanoseconds()) / float64(actual),
 	}
 	if *mode=="resource" {
 		var after runtime.MemStats

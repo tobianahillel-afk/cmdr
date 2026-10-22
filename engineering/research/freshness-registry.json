@@ -9,7 +9,7 @@
       "fresh_until": "2026-12-23",
       "freshness_rationale": "Class C frontend architecture is accepted against current browser-platform evidence and a representative CMDR benchmark, but the Web platform, security guidance and compared framework/toolchain landscape evolve quickly enough to require a quarterly review or immediate event-driven revalidation.",
       "snapshot": {
-        "product_spec_baseline": "99c3826cdcbc79bad51631cf6462450f92e012eb",
+        "product_spec_baseline": "82e630fce3a7f6236e03709116eca6dd0a1acd40",
         "decision": {
           "id": "ENG-DEC-0001",
           "sha256": "d05eb8c4fdffab6fc7a228a3aa1cbecc8d6de52f5186217d6e47b7c82df1d5fd"
