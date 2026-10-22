@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "work_unit": "E0-COVERAGE-001B",
+  "result": "VERIFIED",
+  "final_validated_head": "a61b08e4a73f3a8f73fa3ee23625cc4c3365afce",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 35784892131,
+    "pull_request_run": 35784896939,
+    "active_obligations": 971,
+    "registered_capabilities": 498,
+    "registered_requirements": 122,
+    "registered_screens": 56,
+    "registered_permissions": 186
+  },
+  "modeling_rules": [
+    "reference does not imply active implementation obligation",
+    "source Requirement identities are pinned to the original 122-entry Phase-0 catalog",
+    "capability and screen obligations require active registry membership and canonical owned source",
+    "unregistered references remain traceable for gap analysis"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": ["E0-COVERAGE-001C"]
+}

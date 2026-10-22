@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "work_unit": "E0-KERNEL-001",
+  "result": "VERIFIED",
+  "implementation_commit": "9013ddd0ea49b5bac4bdd1313eebb339e271fad8",
+  "validation_commit": "5da22028a16fe9f95e9506a16b6e9f5830e87c1e",
+  "pull_request": 36,
+  "validation": {
+    "push_run": 35776846504,
+    "pull_request_run": 35776871193,
+    "gofmt": "PASS",
+    "go_vet": "PASS",
+    "unit_tests": "PASS",
+    "bootstrap_doctor": "PASS",
+    "next_resolution": "PASS"
+  },
+  "third_party_go_dependencies": 0,
+  "product_spec_mutated": false,
+  "next_unlocked": ["E0-SPEC-001"]
+}

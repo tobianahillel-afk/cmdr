@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-002A-CONTRACT",
+  "status": "VERIFIED",
+  "final_validated_head": "32a3cea495c3256b73c40fcd3ac1a6fefe2c63ee",
+  "validation": {
+    "push_workflow_run": 36036370262,
+    "pull_request_workflow_run": 36036374407,
+    "result": "PASS",
+    "event_search_contract": "PASS",
+    "security_tests": "PASS",
+    "deep_security": "PASS",
+    "sast": "PASS",
+    "sca": "PASS",
+    "sbom": "PASS",
+    "implementation_ledger": "PASS",
+    "implementation_readiness": "PASS"
+  },
+  "contract": {
+    "id": "EVENT-SEARCH-EXECUTABLE-CONTRACT-V1",
+    "capability": "CAP-INV-002",
+    "runtime_state": "preimplementation",
+    "fixtures": 14,
+    "positive_fixtures": 3,
+    "negative_fixtures": 11,
+    "runtime_dependencies": 0,
+    "open_decision_exclusion": "OPEN-013 Case-link mutation remains excluded"
+  },
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-002B"
+  ]
+}

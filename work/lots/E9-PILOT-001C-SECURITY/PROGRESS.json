@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "work_unit": "E9-PILOT-001C-SECURITY",
+  "status": "VERIFIED",
+  "final_validated_head": "172c29048c412b0f23079184f2020484d6d86db4",
+  "validation": {
+    "push_run": 35988336675,
+    "pull_request_run": 35988341187,
+    "result": "PASS",
+    "coverage_status": "measured",
+    "global_coverage_percent": 95.24,
+    "global_floor_percent": 80,
+    "changed_floor_percent": 90,
+    "pull_request_changed_security_critical_scopes": 1,
+    "authorization_negative": "PASS",
+    "tenant_isolation_negative": "PASS",
+    "deep_security": "PASS"
+  },
+  "gates": {
+    "SEC-AUTH-NEG-001": "active:go-context-envelope-auth-negative-v1",
+    "SEC-TENANT-ISO-001": "active:go-context-envelope-tenant-iso-v1"
+  },
+  "static_security": {
+    "gosec_version": "v2.28.0",
+    "scan_roots": [
+      "product-runtime/context-envelope",
+      "tools/cmdr-dev"
+    ],
+    "findings": 0,
+    "govulncheck_version": "v1.8.0",
+    "modules": 4,
+    "informational_findings": 0,
+    "actionable_findings": 0
+  },
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E9-PILOT-001C-PERF"
+  ]
+}

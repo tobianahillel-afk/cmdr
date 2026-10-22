@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-005A-CONTRACT",
+  "result": "VERIFIED",
+  "final_validated_head": "5899ba1b92e2bf2f5ff60948c552986f4b674c5a",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 36404520592,
+    "pull_request_run": 36404525561,
+    "contract": "HUNT-WORKSPACE-READONLY-CONTRACT-V1",
+    "fixtures": 15,
+    "positive": 3,
+    "negative": 12,
+    "runtime_dependencies": 0
+  },
+  "rules": [
+    "runtime must remain provider-neutral and read-only",
+    "caller-owned workspace state is validated/projected but never persisted as a canonical Hunt",
+    "all object references remain typed, tenant-scoped and caller-access-decided",
+    "OPEN-013 prohibits class-2 mutation behavior"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-005B-RUNTIME"
+  ]
+}

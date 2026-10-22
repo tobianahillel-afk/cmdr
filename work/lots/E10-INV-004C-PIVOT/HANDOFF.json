@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-004C-PIVOT",
+  "result": "VERIFIED",
+  "final_validated_head": "ca95fd13ddf20d2a8937b2ed06929e5de6b4c40c",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 36356955530,
+    "pull_request_run": 36356957571,
+    "contract_status": "PASS",
+    "runtime_dependencies": 0,
+    "gosec_findings": 0,
+    "govulncheck_actionable_findings": 0,
+    "runtime_security_coverage_push_percent": 91.61,
+    "runtime_security_coverage_pr_percent": 91.66
+  },
+  "rules": [
+    "D-CLOSURE may validate security and performance but must not widen CAP-INV-004 runtime scope",
+    "OPEN-013 and OPEN-014 remain explicit blockers for class-2 mutations",
+    "no provider, parser engine, entity-resolution engine, storage engine or final query dialect may be selected",
+    "production-readiness and full-capability claims remain forbidden"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-004D-CLOSURE"
+  ]
+}

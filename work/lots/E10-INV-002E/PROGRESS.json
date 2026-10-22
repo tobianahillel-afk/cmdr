@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-002E",
+  "status": "VERIFIED",
+  "final_validated_head": "5ef7be61bb22e3d0b15b22529992a027b062b91c",
+  "validation": {
+    "push_workflow_run": 36063403266,
+    "pull_request_workflow_run": 36063408852,
+    "result": "PASS",
+    "selected_checks": 52,
+    "executed_checks": 45,
+    "preflight_satisfied": 7,
+    "decision_gates": "PASS",
+    "decision_freshness": "PASS",
+    "research": "PASS",
+    "sast": "PASS",
+    "sca": "PASS"
+  },
+  "decision": {
+    "id": "ENG-DEC-0001",
+    "status": "accepted",
+    "preferred_candidate": "CAND-NATIVE-WEB",
+    "research_packet": "RES-PKT-0001",
+    "validation": "DECVAL-0001",
+    "freshness": "FRESH-0001",
+    "candidates": 5,
+    "representative_benchmarks": 1,
+    "adversarial_reviews": 1,
+    "reusable": true
+  },
+  "benchmark": {
+    "id": "BENCH-0001",
+    "native_initial_p95_ms": 12.5,
+    "server_progressive_initial_p95_ms": 9.5,
+    "native_update_p95_ms": 0.7000000000116415,
+    "server_progressive_update_p95_ms": 9.799999999988358
+  },
+  "product_spec_mutated": false,
+  "ui_implemented": false,
+  "next_unlocked": [
+    "E10-INV-002F-BOUNDARY"
+  ]
+}

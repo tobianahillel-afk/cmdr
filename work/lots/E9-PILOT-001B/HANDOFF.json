@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "work_unit": "E9-PILOT-001B",
+  "result": "VERIFIED",
+  "final_validated_head": "2db2f554ae79c799a5e5531fa65c5bae6b6cb04d",
+  "pull_request": 36,
+  "evidence": {
+    "contract": "PILOT-CONTEXT-ENVELOPE-V1",
+    "fixtures": 11,
+    "negative_fixtures": 9,
+    "runtime_dependencies": 0,
+    "runtime_files": 1,
+    "security_status": "preimplementation",
+    "performance_targets": 1,
+    "performance_measurements": 0,
+    "push_run": 35982557784,
+    "pull_request_run": 35982562866
+  },
+  "rules": [
+    "runtime boundary is reserved and uniquely owned",
+    "security ownership is explicit before code",
+    "performance budget exists before code without fake measurement",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E9-PILOT-001C-RUNTIME"
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-004A-CONTRACT",
+  "status": "VERIFIED",
+  "final_validated_head": "ee4144181d3d27c4b97ebb177b1d2e4db6995cd9",
+  "validation": {
+    "push_workflow_run": 36142604364,
+    "pull_request_workflow_run": 36142610917,
+    "result": "PASS",
+    "event_inspection_contract": "PASS",
+    "security_tests": "PASS",
+    "deep_security": "PASS",
+    "sast": "PASS",
+    "sca": "PASS",
+    "secrets": "PASS",
+    "event_search_regression": "PASS",
+    "implementation_ledger": "PASS",
+    "implementation_readiness": "PASS"
+  },
+  "contract": {
+    "id": "EVENT-INSPECTION-READONLY-CONTRACT-V1",
+    "capability": "CAP-INV-004",
+    "runtime_state": "preimplementation",
+    "fixtures": 17,
+    "positive_fixtures": 4,
+    "negative_fixtures": 13,
+    "runtime_dependencies": 0,
+    "excluded_mutations": [
+      "Case-link under OPEN-013",
+      "Artifact proposal under OPEN-013/OPEN-014",
+      "Evidence candidate under OPEN-013/OPEN-014"
+    ]
+  },
+  "security_observation": {
+    "raw_denied_rendered_allowed": "PASS",
+    "raw_derived_sensitive_leakage": "FORBIDDEN",
+    "tenant_isolation": "PASS",
+    "derived_as_source": "FORBIDDEN",
+    "final_query_dialect_selected": false
+  },
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-004B-RUNTIME"
+  ]
+}

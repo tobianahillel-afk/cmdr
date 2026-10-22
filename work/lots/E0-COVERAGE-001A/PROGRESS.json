@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "work_unit": "E0-COVERAGE-001A",
+  "status": "VERIFIED",
+  "final_validated_head": "0bef3e6bf004e5e10e4e968881a35ec7d2e05da2",
+  "validation": {
+    "push_workflow_run": 35780815775,
+    "pull_request_workflow_run": 35780822821,
+    "result": "PASS",
+    "gofmt": "PASS",
+    "go_vet": "PASS",
+    "unit_tests": "PASS",
+    "spec_inventory": "PASS",
+    "spec_baseline": "PASS",
+    "coverage_graph_full_corpus": "PASS",
+    "doctor": "PASS",
+    "next_resolution": "PASS"
+  },
+  "graph_observation": {
+    "entities": 2315,
+    "edges": 14128,
+    "owned_capabilities": 498,
+    "reference_only_capabilities": 7,
+    "distinct_requirement_references": 128,
+    "distinct_open_decision_references": 19,
+    "distinct_permission_references": 209,
+    "owned_screens": 56,
+    "registered_active_screens": 56,
+    "reference_only_screens": 0
+  },
+  "reconciliation": {
+    "known_capabilities": 498,
+    "capability_match": true,
+    "known_active_screens": 56,
+    "active_screen_match": true,
+    "historical_or_reference_only_namespaces_are_not_counted_as_active": true
+  },
+  "product_spec_mutated": false,
+  "next_unlocked": ["E0-COVERAGE-001B"]
+}

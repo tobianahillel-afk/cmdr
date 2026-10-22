@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "work_unit": "E3-IMPACT-001A",
+  "status": "VERIFIED",
+  "final_validated_head": "92249a6770e8c9ef0997a5bcc21019ff55003673",
+  "validation": {
+    "push_workflow_run": 35795224673,
+    "pull_request_workflow_run": 35795228783,
+    "result": "PASS",
+    "check_catalog_audit": "PASS",
+    "unit_tests": "PASS",
+    "architecture_audit": "PASS",
+    "complexity_audit": "PASS",
+    "context_compilation": "PASS"
+  },
+  "catalog_observation": {
+    "checks": 16,
+    "mandatory": 16,
+    "always_on_pr": 7,
+    "cost_tiers": {"fast": 11, "standard": 5},
+    "prerequisite_edges": 16
+  },
+  "context_observation": {
+    "sources": 42,
+    "dependency_units": 12,
+    "bundle_digest": "38e2357e5616856e145ab4ea22de04d42eff7989a43a503db6de076044d8d9db"
+  },
+  "product_spec_mutated": false,
+  "next_unlocked": ["E3-IMPACT-001B"]
+}

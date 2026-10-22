@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-101D-HANDOFF",
+  "result": "VERIFIED",
+  "final_validated_head": "60a9f1581ce339d6ee592d4aa174a0e8b326f343",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 38295753593,
+    "pull_request_run": 38295758757,
+    "runtime": "case-queue-runtime",
+    "feature": "read-only Case Workspace handoff and return-state revalidation",
+    "security_critical_coverage_floor_percent": 90
+  },
+  "rules": [
+    "E-CLOSURE must compile measured full contract, coverage, security and performance evidence",
+    "no full capability or provider/UI implementation claim",
+    "product specification remains immutable",
+    "no Case/Incident/Saved View or Command/Govern mutation"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-101E-CLOSURE"
+  ]
+}

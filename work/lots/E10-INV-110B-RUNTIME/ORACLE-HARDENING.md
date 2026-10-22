@@ -1,0 +1,5 @@
+# E10-INV-110B — stronger synthetic benchmark oracles
+
+The first synthetic benchmark exercised 5,000 entries with identical timestamps and exclusively observed events. This increment replaces that unrealistically homogeneous fixture with reverse-chronological timestamps and alternating observed/inferred types. Both the Go `testing.B` benchmark and the registered on-demand executable now validate the **first/last output IDs** (and executable kind boundaries) on every measurement, rather than relying only on status and row count. These checks are still **synthetic functional sentinels**, not end-to-end authorization or production correctness.
+
+The historical benchmark evidence recorded for exact SHA `2c5efaa9ac819aacd2a6854108c852eebc1cc999` remains unchanged and **must not be reused as numerical results for this new workload or HEAD**. No new measured p95, RSS, real-source performance, SLO or baseline is asserted here. Workload selection reuses Go standard library/CMDR first-party probe; no indexing framework introduced. The next on-demand measurements need exact-SHA runs, checked logs, and separate verified evidence.

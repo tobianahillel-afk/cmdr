@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "work_unit": "E9-PILOT-001C-PERF",
+  "result": "VERIFIED",
+  "final_validated_head": "55e7d473a1f767b1e7bca0b44ad06259fd23389e",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 35991062649,
+    "pull_request_run": 35991067963,
+    "push_p95_ms": 0.00025389875,
+    "pull_request_p95_ms": 0.00035315945,
+    "absolute_budget_ms": 1,
+    "runtime_global_coverage_percent": 90.35,
+    "sast_findings": 0,
+    "sca_actionable_findings": 0,
+    "cache_records": 0
+  },
+  "rules": [
+    "shared CI makes an absolute latency claim only",
+    "no historical or relative baseline was fabricated",
+    "the real product-runtime Project implementation is measured through a standard-library-only probe",
+    "probe build and process startup time are excluded from the reported projection latency",
+    "deep/on-demand handler executes the same real runtime probe under bounded resources"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E9-PILOT-001D"
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "id": "E0-KERNEL-001",
+  "title": "Implement minimal cmdr-dev kernel",
+  "parent": "E0",
+  "goal": "Create a dependency-minimal CLI that can validate repository bootstrap state, report execution status and select the next executable work unit.",
+  "why_now": "A deterministic recovery and navigation primitive is required before larger autonomous-engineering features are built.",
+  "product_scope": {
+    "changes_product_behavior": false,
+    "canonical_product_spec_is_read_only": true
+  },
+  "depends_on": ["E0-BOOTSTRAP-001"],
+  "requires_reading": [
+    "AGENTS.md",
+    "AI_START_HERE.md",
+    "engineering/README.md",
+    "engineering/governance/source-authority.md",
+    "engineering/state/current.json",
+    "work/graph.json"
+  ],
+  "allowed_paths": [
+    "tools/cmdr-dev/**",
+    "engineering/state/**",
+    "work/graph.json",
+    "work/lots/E0-KERNEL-001/**"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**"
+  ],
+  "required_capabilities": ["doctor", "status", "next"],
+  "constraints": {
+    "third_party_runtime_dependencies": 0,
+    "preferred_implementation": "Go standard library only",
+    "network_required": false,
+    "must_be_cross_platform": true
+  },
+  "definition_of_ready": [
+    "bootstrap engineering authority exists",
+    "canonical current state exists",
+    "canonical work graph exists",
+    "E0-BOOTSTRAP-001 is IMPLEMENTED"
+  ],
+  "definition_of_done": [
+    "CLI parses canonical JSON state and graph",
+    "doctor detects malformed or inconsistent bootstrap state",
+    "status reports current phase and active/preferred work",
+    "next deterministically selects a READY executable node",
+    "unit tests cover core selection and validation behavior",
+    "no third-party runtime dependency is introduced"
+  ]
+}

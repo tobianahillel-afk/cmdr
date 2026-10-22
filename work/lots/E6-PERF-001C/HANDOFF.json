@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "work_unit": "E6-PERF-001C",
+  "result": "VERIFIED",
+  "final_validated_head": "95e4e653f37b643294789ad689f94fd631649952",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 35880049006,
+    "pull_request_run": 35880057306,
+    "check": "CHK-DEEP-PERFORMANCE",
+    "runtime_boundaries": 0,
+    "registered_targets": 0,
+    "selected_targets": 0,
+    "executed_targets": 0,
+    "status": "not-applicable"
+  },
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E6-PERF-001D"
+  ]
+}

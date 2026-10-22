@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-002C-PERF",
+  "status": "VERIFIED",
+  "final_validated_head": "e020da86445af74edbe5253ed16f14a4309a9c1d",
+  "validation": {
+    "push_workflow_run": 36048569283,
+    "pull_request_workflow_run": 36048576343,
+    "result": "PASS",
+    "performance_registry": "PASS",
+    "performance_benchmark": "PASS",
+    "deep_performance_policy": "PASS",
+    "security_tests": "PASS"
+  },
+  "performance": {
+    "environment": "PERF-ENV-GITHUB-UBUNTU-SHARED",
+    "target": "PERF-TGT-EVENT-SEARCH-ORCHESTRATION",
+    "metric": "orchestration-p95-latency",
+    "observed_ms": 0.0017169862,
+    "budget_ms": 1,
+    "absolute_pass": true,
+    "backend_execution_included": false,
+    "production_slo_claimed": false,
+    "validation_p95_ms": 0.0004333049
+  },
+  "deep_performance": {
+    "registered_targets": 3,
+    "policy_status": "risk-triggered-deep-validation",
+    "product_runtime_target_coverage": "complete"
+  },
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-002D"
+  ]
+}

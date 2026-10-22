@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-SCALE-006B",
+  "result": "VERIFIED",
+  "final_validated_head": "6715a6a80ab294d2a544fe71c14ce614f3b0648f",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 38834402675,
+    "pull_request_run": 38834408552,
+    "implementation_ledger_entries": 6,
+    "readiness_total": 498,
+    "readiness_implemented": 6,
+    "readiness_ready": 15,
+    "selected_capability": "CAP-INV-110",
+    "selection_policy": "reuse-first-v1",
+    "wave": "WAVE-CAP-INV-110-CORE-001",
+    "first_child": "E10-INV-110A-BOUNDARY",
+    "failures_corrected": [
+      "required epic outputs missing at bad3578eb",
+      "premature unregistered future runtime allowed path at 6f2c1108"
+    ]
+  },
+  "invariants": [
+    "CAP-INV-110 was source-backed READY and selected by reuse-first-v1 compiler",
+    "only bounded read-only immutable Timeline projection is planned; no runtime code or full capability claim",
+    "Shared Timeline Entry ownership remains unchanged; external source tenant permissions are re-evaluated",
+    "OPEN-013 class-2 mutations, final schema, persistence, export, replay and final UI remain excluded",
+    "unique runtime path ownership must be registered atomically by next READY boundary lot",
+    "CI successful on exact source snapshot; earlier failed snapshots remain preserved in GitHub Actions"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-110A-BOUNDARY"
+  ]
+}

@@ -1,0 +1,111 @@
+{
+  "schema_version": 2,
+  "id": "E10-SCALE-003B",
+  "title": "Select and materialize the next reuse-first capability wave",
+  "type": "task",
+  "parent": "E10-SCALE-003",
+  "goal": "Validate the fresh reuse-first-v1 selection of CAP-INV-005 against its canonical Hunt Management contract and materialize exactly one bounded implementation wave with realistic child sizing, without choosing unresolved implementation technology.",
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-005"
+    ],
+    "requirements": [],
+    "screens": [],
+    "permissions": [],
+    "open_decisions": [],
+    "implementation_contracts": [],
+    "canonical_objects": []
+  },
+  "depends_on": [
+    "E10-SCALE-003A"
+  ],
+  "allowed_paths": [
+    "engineering/implementation/**",
+    "engineering/state/**",
+    "work/graph.json",
+    "work/lots/E10-SCALE-003B/**",
+    "work/lots/E10-INV-005*/**",
+    "tools/cmdr-dev/**"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/**"
+  ],
+  "inputs": [
+    "VERIFIED E10-SCALE-003A readiness and wave-selection evidence",
+    "canonical CAP-INV-005 Hunt Management Product Spec contract",
+    "implementation ledger/readiness/wave compilers",
+    "reuse-first-v1 policy"
+  ],
+  "outputs": [
+    "fresh source-backed confirmation of CAP-INV-005 selection",
+    "bounded Hunt Management implementation-wave manifest",
+    "realistically sized E10-INV-005 child decomposition",
+    "one READY first implementation task"
+  ],
+  "invariants": [
+    "Product Spec remains read-only",
+    "product runtime code is not changed by scaling-control tasks",
+    "CAP-INV family preference does not imply runtime-boundary reuse",
+    "no technical provider, storage, query or UI choice is invented without source or decision evidence",
+    "blocked/proposed behavior remains excluded from the wave"
+  ],
+  "security_properties": [
+    "selected canonical capability path must resolve inside the read-only Product Spec",
+    "all permission, tenant, audit, provenance and OPEN-decision constraints found in the canonical contract must be preserved",
+    "wave decomposition must split any task exceeding complexity budgets"
+  ],
+  "acceptance_tests": [
+    "adaptive engineering-kernel remains green",
+    "implementation-wave still selects exactly CAP-INV-005",
+    "canonical Hunt Management capability file and referenced obligations resolve",
+    "all generated child manifests pass strict-v2 and complexity validation",
+    "one first child is READY and all later children are dependency-gated"
+  ],
+  "performance_budget": {
+    "applicable": false,
+    "rationale": "control-plane decomposition only; runtime budgets are compiled in capability child work before runtime implementation",
+    "metrics": []
+  },
+  "migration": {
+    "required": false,
+    "rationale": "no product runtime or persistent data is changed",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert the wave materialization without changing verified runtimes or the ledger",
+    "verification": [
+      "CAP-INV-004 remains ledger-backed",
+      "Product Spec baseline remains unchanged"
+    ]
+  },
+  "required_checks": [
+    "adaptive engineering-kernel",
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-IMPLEMENTATION-LEDGER",
+    "CHK-IMPLEMENTATION-READINESS",
+    "CHK-IMPLEMENTATION-WAVE"
+  ],
+  "definition_of_ready": [
+    "E10-SCALE-003A is VERIFIED",
+    "fresh wave compiler selects CAP-INV-005"
+  ],
+  "definition_of_done": [
+    "selection is exactly READY and source-backed",
+    "canonical Hunt Management capability contract is reflected in a bounded wave",
+    "child lots stay within complexity budgets",
+    "one next READY implementation task exists"
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 9,
+    "estimated_net_loc": 620,
+    "production_files": 0,
+    "net_production_loc": 0,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

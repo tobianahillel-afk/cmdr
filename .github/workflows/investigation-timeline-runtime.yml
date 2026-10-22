@@ -1,0 +1,104 @@
+name: investigation-timeline-runtime
+
+on:
+  pull_request:
+    paths:
+      - "product-runtime/investigation-timeline/**"
+      - "tools/cmdr-dev/security_tests.go"
+      - "tools/cmdr-dev/performance_timeline*.go"
+      - "tools/cmdr-dev/go.mod"
+      - ".github/workflows/investigation-timeline-runtime.yml"
+  push:
+    branches:
+      - "engineering/autonomous-development-foundation"
+    paths:
+      - "product-runtime/investigation-timeline/**"
+      - "tools/cmdr-dev/security_tests.go"
+      - "tools/cmdr-dev/performance_timeline*.go"
+      - "tools/cmdr-dev/go.mod"
+      - ".github/workflows/investigation-timeline-runtime.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: investigation-timeline-runtime-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  runtime:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: product-runtime/investigation-timeline/go.mod
+          cache: false
+      - name: Set up existing Node test runtime
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "24.21.0"
+      - name: Exercise local analyst Case, comparison, pivot and return journeys
+        working-directory: product-runtime/investigation-timeline/cmd/case-timeline-demo
+        run: node --test analyst_return.test.cjs analyst_summary.test.cjs
+      - name: Verify Timeline projection module
+        shell: bash
+        run: |
+          set -euo pipefail
+          (cd product-runtime/investigation-timeline && go test -count=1 -race ./...)
+          (cd product-runtime/investigation-timeline && go test -count=1 -covermode=atomic -coverprofile="$GITHUB_WORKSPACE/.timeline-coverage" ./...)
+          (cd product-runtime/investigation-timeline && go vet ./...)
+          (cd product-runtime/investigation-timeline && go tool cover -func="$GITHUB_WORKSPACE/.timeline-coverage")
+          echo "::group::Go formatting"
+          gofmt -d product-runtime/investigation-timeline/*.go
+          files="$(gofmt -l product-runtime/investigation-timeline/*.go)"
+          if [ -n "$files" ]; then
+            echo "Unformatted Timeline files: $files" >&2
+            exit 1
+          fi
+          echo "::endgroup::"
+
+      - name: Measure local synthetic Timeline projection
+        working-directory: product-runtime/investigation-timeline
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Go testing.B yields ns/op and allocs/op, not p95 or production SLOs.
+          go test -run '^$' -bench '^BenchmarkProject(500|5000)Entries$' -benchmem -count=3 -benchtime=100x .
+          # Synthetic Case / owner navigation benchmark (in-process only).
+          go test -run '^$' -bench '^BenchmarkAuthorizedCaseSourceNavigationHTTP$' -benchmem -count=3 -benchtime=100x .
+
+  portability:
+    name: Timeline and subprocess tests (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 18
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - macos-latest
+          - windows-latest
+    steps:
+      - name: Checkout exact source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up existing Go toolchain
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: tools/cmdr-dev/go.mod
+          cache: false
+      - name: Compile, test and vet Timeline projection on this OS
+        working-directory: product-runtime/investigation-timeline
+        run: |
+          go test -count=1 ./...
+          go vet ./...
+      - name: Verify native Timeline subprocess deadlines, descendants and bounds
+        working-directory: tools/cmdr-dev
+        run: |
+          go test -count=1 -run "^(TestTimelineProcessEnforcesChildDeadline|TestTimelineProcessCancelAndSuccess|TestTimelineProcessCancellationKillsDescendants|TestTimelineProcessBoundsStdoutAndStderr|TestTimelineBoundedWriterDoesNotBlockOnOverflow|TestTimelineProbeContextCancel)$" .

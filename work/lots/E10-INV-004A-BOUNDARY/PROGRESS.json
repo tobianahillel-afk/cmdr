@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-004A-BOUNDARY",
+  "status": "VERIFIED",
+  "final_validated_head": "1b583e79bf9297e05d0e0e86f4115e3fc20e8c0e",
+  "validation": {
+    "push_workflow_run": 36139678837,
+    "pull_request_workflow_run": 36139685980,
+    "result": "PASS",
+    "architecture": "PASS",
+    "runtime_dependencies": "PASS",
+    "boundary_edges": "PASS",
+    "security_tests": "PASS",
+    "performance_registry": "PASS",
+    "performance_benchmark": "PASS",
+    "deep_performance": "PASS"
+  },
+  "runtime_boundary": {
+    "id": "event-inspection-runtime",
+    "root": "product-runtime/event-inspection/**",
+    "implementation_state": "preimplementation",
+    "executable_product_files": 0,
+    "external_runtime_dependencies": 0
+  },
+  "security_observation": {
+    "runtime_boundaries": 4,
+    "registered_scopes": 4,
+    "coverage_status": "mixed",
+    "global_coverage_percent": 91.19,
+    "global_floor_percent": 80,
+    "changed_coverage_floor_percent": 90,
+    "authorization_required": 4,
+    "tenant_isolation_required": 4,
+    "event_inspection_claims_runtime_evidence": false
+  },
+  "performance_observation": {
+    "registered_targets": 6,
+    "runtime_boundaries": 4,
+    "runtime_targeted": 4,
+    "runtime_coverage_status": "complete",
+    "event_inspection_targets": [
+      "PERF-TGT-EVENT-INSPECTION-PROJECTION",
+      "PERF-TGT-EVENT-INSPECTION-PIVOT"
+    ],
+    "stage": "on-demand",
+    "selected_on_pr": 0,
+    "executed_on_pr": 0,
+    "deep_registered_targets": 6,
+    "deep_selected_on_pr": 0,
+    "deep_executed_on_pr": 0
+  },
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-004A-CONTRACT"
+  ]
+}

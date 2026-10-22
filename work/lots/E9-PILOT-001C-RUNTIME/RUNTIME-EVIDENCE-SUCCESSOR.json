@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "predecessor_work_unit": "E9-PILOT-001C-RUNTIME",
+  "successor_work_unit": "E9-PILOT-001C-PERF",
+  "manifest_path": "work/lots/E9-PILOT-001C-PERF/manifest.json",
+  "handoff_path": "work/lots/E9-PILOT-001C-PERF/HANDOFF.json",
+  "added_runtime_paths": [
+    "product-runtime/context-envelope/cmd/perf-probe/main.go",
+    "product-runtime/context-envelope/cmd/perf-probe/main_test.go"
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "work_unit": "E5-RES-001A",
+  "result": "VERIFIED",
+  "final_validated_head": "7d27a232dd6d201dcef81a1349813145e530e523",
+  "evidence": {
+    "push_run": 35855381873,
+    "pull_request_run": 35855386492,
+    "check": "CHK-DECISIONS",
+    "executor": "decision-registry-audit"
+  },
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E5-RES-001B"
+  ]
+}

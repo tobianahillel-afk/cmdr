@@ -1,0 +1,137 @@
+{
+  "schema_version": 2,
+  "parent": "E10-INV-110",
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-110"
+    ],
+    "requirements": [
+      "REQ-PROD-014",
+      "REQ-PROD-018"
+    ],
+    "screens": [
+      "INV-TIM-001"
+    ],
+    "permissions": [],
+    "open_decisions": [
+      "OPEN-013"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/error-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/correlation-identifiers.md",
+      "cmdr-product-spec/17-implementation-contracts/object-reference-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/frontend-state-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/cross-product-context-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/screen-routing-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/case.md",
+      "cmdr-product-spec/05-domain-model/objects/timeline-entry.md",
+      "cmdr-product-spec/05-domain-model/objects/telemetry-event.md",
+      "cmdr-product-spec/05-domain-model/objects/evidence.md"
+    ]
+  },
+  "forbidden_paths": [
+    "cmdr-product-spec/**"
+  ],
+  "invariants": [
+    "Product Spec immutable; CAP-INV-110 read-only projection only",
+    "Timeline Entry and Timeline Engine remain Shared-owned; Case Investigate-owned; Govern and Command objects remain owner-controlled",
+    "No observed event is inferred or upgraded from inference; corrected/superseded prior entries remain traceable",
+    "No write, new Timeline Entry schema, Case lifecycle, timeline correction, export backend, replay engine, vendor store, final UI or production SLO is invented",
+    "OPEN-013 applies to class-2 analytic contribution/correction and remains unresolved",
+    "product-runtime/investigation-timeline/** remains unclaimed until E10-INV-110A-BOUNDARY registers architecture ownership and upgrades this manifest scope in a separately verified atomic step."
+  ],
+  "security_properties": [
+    "require explicit tenant/environment and Case read authorization, deny on unknown scope",
+    "re-evaluate destination object access without revealing the content of denied Govern/Command/Evidence sources",
+    "missing timezone, clock skew, stale/partial source and permission-filtered entries must never be fabricated or silently upgraded",
+    "retain stable provenance, original timestamps, version, author/source and correction/supersession references in any permitted projection"
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "read-only provider-neutral bounded projection; no persistent schema migration authorized",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert only this scoped increment preserving verified previous runtimes",
+    "verification": [
+      "Product Spec unchanged",
+      "Timeline Entry ownership unchanged",
+      "no unverified full capability claim"
+    ]
+  },
+  "id": "E10-INV-110D-CLOSURE",
+  "title": "Verify Timeline adversarial security, performance and bounded exclusions",
+  "type": "task",
+  "goal": "Execute exact-head negative/security/race/coverage/performance validation and compile bounded closure evidence without any production readiness or full capability claim",
+  "depends_on": [
+    "E10-INV-110C-NAV"
+  ],
+  "allowed_paths": [
+    "engineering/implementation/investigation-timeline/**",
+    "engineering/security/**",
+    "engineering/performance/**",
+    "engineering/testing/**",
+    "engineering/state/**",
+    "work/graph.json",
+    "work/lots/E10-INV-110*/**",
+    "tools/cmdr-dev/**",
+    ".github/workflows/**",
+    "product-runtime/investigation-timeline/**"
+  ],
+  "inputs": [
+    "CAP-INV-110 Investigation Timeline canonical capability",
+    "Case and Shared-owned Timeline Entry canonical objects and permission models",
+    "E10-SCALE-006B source-backed reuse-first selection",
+    "verified predecessor E10-INV-110C-NAV before this task becomes READY"
+  ],
+  "outputs": [
+    "exact SHA and green CI trace for runtime",
+    "negative tenant/provenance/source/missing-time tests and measured coverage",
+    "representative in-process p95 and resource evidence without production SLO",
+    "explicit residual schema/mutation/export/streaming exclusions"
+  ],
+  "acceptance_tests": [
+    "minimum runtime coverage 80 percent and changed critical paths 90 percent",
+    "no unapproved product dependency, security scan findings or boundary edges",
+    "benchmarks representative and accurately scoped"
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "engineering-only bounded in-process projection probes; provider/network/production SLO unselected",
+    "metrics": [
+      "local bounded Timeline projection and navigation p95 benchmark, selected before runtime"
+    ]
+  },
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-RUNTIME-DEPS",
+    "CHK-BOUNDARY-EDGES",
+    "CHK-SECURITY-TESTS",
+    "CHK-PERFORMANCE-REGISTRY"
+  ],
+  "definition_of_ready": [
+    "E10-INV-110C-NAV is VERIFIED"
+  ],
+  "definition_of_done": [
+    "minimum runtime coverage 80 percent and changed critical paths 90 percent",
+    "no unapproved product dependency, security scan findings or boundary edges",
+    "benchmarks representative and accurately scoped"
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 7,
+    "estimated_net_loc": 380,
+    "production_files": 1,
+    "net_production_loc": 180,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

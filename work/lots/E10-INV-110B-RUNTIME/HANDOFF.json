@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-110B-RUNTIME",
+  "result": "VERIFIED",
+  "final_validated_head": "bbbc2c2823f85806b978c0eee69bc1a54401d102",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 38947654999,
+    "pr_run": 38947663898,
+    "timeline_push_run": 38947655039,
+    "timeline_pr_run": 38947664162,
+    "synthetic_runtime": true,
+    "host_injected_http": true,
+    "production_integration": false
+  },
+  "rules": [
+    "E10-INV-110C-NAV is READY only for read-only source-safe navigation/return-context draft; reauthorize destination at time of use",
+    "Do not treat the in-memory Case demo as authoritative persistent infrastructure",
+    "Maintain Shared Timeline Entry ownership and OPEN-013 unresolved",
+    "No native GitHub L2 approval or full CAP-INV-110 delivery is claimed"
+  ],
+  "next_unlocked": [
+    "E10-INV-110C-NAV"
+  ]
+}

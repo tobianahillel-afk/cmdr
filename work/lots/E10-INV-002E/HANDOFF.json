@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-002E",
+  "result": "VERIFIED",
+  "final_validated_head": "5ef7be61bb22e3d0b15b22529992a027b062b91c",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 36063403266,
+    "pull_request_run": 36063408852,
+    "decision": "ENG-DEC-0001",
+    "validation": "DECVAL-0001",
+    "benchmark": "BENCH-0001",
+    "adversarial": "ADV-0001",
+    "freshness": "FRESH-0001"
+  },
+  "selected_architecture": [
+    "first-party Web Platform ES modules",
+    "semantic native HTML by default",
+    "bounded incremental DOM updates",
+    "URL/History deep-link state",
+    "AbortController cancellation",
+    "zero third-party UI runtime by default"
+  ],
+  "exclusions": [
+    "OPEN-013 Case-link mutation",
+    "final query dialect",
+    "index/storage/provider",
+    "Saved Search behavior",
+    "production Search SLO"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-002F-BOUNDARY"
+  ]
+}

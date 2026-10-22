@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-002F-STATE",
+  "status": "VERIFIED",
+  "final_validated_head": "a06d579fded72a72d907c8db9bf9317fdc77c9e0",
+  "implementation": {
+    "commit": "2aed4b82f2d55177ef15f9f633c3c97eb4ea664a",
+    "description": "first-party deterministic Event Search deep-link state core"
+  },
+  "validation": {
+    "push_workflow_run": 36074352460,
+    "pull_request_workflow_run": 36074355377,
+    "result": "PASS",
+    "node_version": "24.21.0",
+    "runtime_dependencies": 0,
+    "security_test_audit": "PASS",
+    "architecture_audit": "PASS",
+    "manifest_validation": "PASS",
+    "complexity_audit": "PASS"
+  },
+  "frontend_security_adapter": {
+    "boundary": "event-search-frontend-runtime",
+    "runtime_kind": "node",
+    "test_file": "state.test.mjs",
+    "coverage_include": "state.mjs",
+    "line_coverage_floor_percent": 90,
+    "coverage_floor_enforced_by": "node --test --experimental-test-coverage --test-coverage-lines=90",
+    "authorization_negative_test": "authorization-state-cannot-be-deeplinked",
+    "tenant_negative_tests": [
+      "tenant-mismatch-is-rejected",
+      "tenant-wildcard-is-rejected"
+    ]
+  },
+  "behavioral_evidence": [
+    "deep-link serialization round-trips deterministically",
+    "refresh reconstruction preserves URL state",
+    "tenant wildcard and tenant/environment mismatches fail closed",
+    "authorization and transient client state are rejected from deep links",
+    "source wildcard is rejected",
+    "return path is constrained to the CMDR origin",
+    "filter prototype-pollution keys are rejected",
+    "query and filter values remain opaque"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-002F-SHELL"
+  ]
+}

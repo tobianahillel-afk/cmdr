@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "default_policy": "deny-unclassified-significant-decision",
+  "statuses": [
+    "proposed",
+    "researching",
+    "accepted",
+    "rejected",
+    "blocked-product",
+    "revisit-required",
+    "superseded"
+  ],
+  "product_boundaries": [
+    "engineering-only",
+    "product-open-decision",
+    "product-behavior",
+    "product-security-invariant"
+  ],
+  "risk_tags": [
+    "local-refactor",
+    "representation",
+    "serialization",
+    "cache",
+    "dependency",
+    "storage",
+    "indexing",
+    "performance",
+    "concurrency",
+    "architecture",
+    "security",
+    "algorithm",
+    "durability",
+    "reliability"
+  ],
+  "classes": [
+    {
+      "id": "A",
+      "record_required": false,
+      "current_external_research": "not-required",
+      "alternatives_required": false,
+      "benchmark_rule": "not-required",
+      "adversarial_review_required": false
+    },
+    {
+      "id": "B",
+      "record_required": true,
+      "current_external_research": "if-material-uncertainty",
+      "alternatives_required": true,
+      "benchmark_rule": "if-performance-sensitive",
+      "adversarial_review_required": false
+    },
+    {
+      "id": "C",
+      "record_required": true,
+      "current_external_research": "required",
+      "alternatives_required": true,
+      "benchmark_rule": "if-performance-sensitive",
+      "adversarial_review_required": true
+    }
+  ]
+}

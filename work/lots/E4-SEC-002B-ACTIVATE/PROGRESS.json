@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "work_unit": "E4-SEC-002B-ACTIVATE",
+  "status": "VERIFIED",
+  "final_validated_head": "1cb0c05272bdccef4df264292f6345436e8402ba",
+  "pre_activation_proof": {
+    "head": "0a1bc4c54a3e7509e29f188ab5e9da921688819b",
+    "push_run": 35845737139,
+    "pull_request_run": 35845742512,
+    "sast": {
+      "tool": "gosec",
+      "version": "v2.28.0",
+      "findings": 0
+    },
+    "sca": {
+      "tool": "govulncheck",
+      "version": "v1.8.0",
+      "modules": 2,
+      "informational": 0,
+      "actionable": 0,
+      "database": "https://vuln.go.dev"
+    }
+  },
+  "activation_proof": {
+    "head": "1cb0c05272bdccef4df264292f6345436e8402ba",
+    "push_run": 35849028333,
+    "pull_request_run": 35849033520,
+    "result": "PASS",
+    "security_gates": {
+      "total": 12,
+      "active": 3,
+      "specified": 3,
+      "deferred_runtime": 6
+    },
+    "sast": {
+      "findings": 0,
+      "implementation_key": "gosec-go-v1"
+    },
+    "sca": {
+      "modules": 2,
+      "informational": 0,
+      "actionable": 0,
+      "implementation_key": "govulncheck-go-v1"
+    }
+  },
+  "sast_baseline_required": false,
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E4-SEC-002C"
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "schema_version": 2,
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-002"
+    ],
+    "requirements": [
+      "REQ-PROD-005",
+      "REQ-PROD-010",
+      "REQ-PROD-011",
+      "REQ-PROD-014",
+      "REQ-PROD-045"
+    ],
+    "screens": [
+      "INV-EVS-001"
+    ],
+    "permissions": [
+      "perm.investigate.search.execute",
+      "perm.investigate.evidence.collect",
+      "perm.investigate.evidence.export"
+    ],
+    "open_decisions": [
+      "OPEN-013"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/frontend-state-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/search-query-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/audit-event-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/correlation-identifiers.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/query.md",
+      "cmdr-product-spec/05-domain-model/objects/search-job.md",
+      "cmdr-product-spec/05-domain-model/objects/telemetry-event.md"
+    ]
+  },
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/**"
+  ],
+  "invariants": [
+    "Product Spec remains read-only",
+    "this unit selects an engineering frontend architecture and does not implement the Event Search UI",
+    "the decision must not choose or imply a final query dialect, search index, storage engine or provider",
+    "OPEN-013 remains unresolved and Case-link behavior is not implemented or silently defaulted",
+    "the selected architecture must preserve backend-neutral Event Search contracts",
+    "no third-party product-runtime dependency is accepted without explicit source-backed review and decision evidence",
+    "CMDR-owned visual components and design behavior remain first-party even if build-time development tooling is used"
+  ],
+  "security_properties": [
+    "Class C current external research and adversarial falsification are mandatory",
+    "source code, telemetry and user data must not be sent to external services by the frontend runtime",
+    "XSS, DOM injection, CSP and Trusted Types compatibility must be evaluated explicitly",
+    "dependency and supply-chain surface must be minimized and measured",
+    "server-side authorization remains authoritative; frontend checks are never security boundaries"
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "engineering decision/evidence only; no product runtime or persistent state is changed",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert the decision/evidence records and leave Event Search UI implementation unopened",
+    "verification": [
+      "Product Spec baseline remains unchanged",
+      "bounded Event Search core remains VERIFIED",
+      "no frontend runtime boundary or dependency has been introduced"
+    ]
+  },
+  "id": "E10-INV-002E",
+  "title": "Research and select Event Search frontend runtime architecture",
+  "type": "task",
+  "parent": "E10-INV-002",
+  "goal": "Run a Class C evidence-backed technical decision for the backend-neutral Event Search frontend runtime before any UI implementation, comparing viable first-party/minimal-runtime architectures against framework alternatives under security, accessibility, performance, state/deep-link and supply-chain constraints.",
+  "depends_on": [
+    "E10-INV-002D"
+  ],
+  "allowed_paths": [
+    "engineering/decisions/**",
+    "engineering/research/**",
+    "engineering/performance/**",
+    "engineering/implementation/event-search/**",
+    "engineering/testing/**",
+    "work/lots/E10-INV-002E/**",
+    "engineering/state/**",
+    "work/graph.json",
+    "tools/cmdr-dev/**"
+  ],
+  "inputs": [
+    "VERIFIED bounded Event Search core and handoff",
+    "INV-EVS-001 frontend-state requirements",
+    "CMDR design-system ownership and no-heavy-external-runtime constraint",
+    "E5 research and technical decision engine"
+  ],
+  "outputs": [
+    "Class C engineering decision record for Event Search frontend runtime architecture",
+    "saturated current research packet covering all major solution families",
+    "candidate trade-off validation with explicit security/accessibility/performance/supply-chain evidence",
+    "representative benchmark or prototype evidence if required by the decision gate",
+    "adversarial review with no unresolved blocking finding before acceptance",
+    "freshness/revisit conditions suitable for later UI implementation"
+  ],
+  "acceptance_tests": [
+    "decision registry audit accepts the decision lifecycle state",
+    "research packet audit proves authoritative current evidence and saturation",
+    "decision gate audit proves at least two candidates and Class C adversarial review before acceptance",
+    "any performance-sensitive acceptance includes a representative CMDR benchmark",
+    "no Product Spec or product-runtime path is modified",
+    "the accepted decision does not silently resolve OPEN-013 or backend query/index/storage choices"
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "frontend architecture is performance-sensitive because Event Search must remain responsive over large result sets and frequent state updates",
+    "metrics": [
+      "representative initial render or state-update benchmark compares the preferred candidate with at least one alternative",
+      "bundle/runtime overhead is recorded for candidates where applicable",
+      "benchmark environment and workload are explicit and reproducible"
+    ]
+  },
+  "required_checks": [
+    "adaptive engineering-kernel",
+    "CHK-RESEARCH",
+    "CHK-DECISIONS",
+    "CHK-DECISION-GATES",
+    "CHK-DECISION-FRESHNESS",
+    "CHK-SAST-GO",
+    "CHK-SCA-GO"
+  ],
+  "definition_of_ready": [
+    "E10-INV-002D is VERIFIED",
+    "Event Search bounded core limitations and UI residual are explicit",
+    "no accepted frontend architecture decision already exists"
+  ],
+  "definition_of_done": [
+    "one Class C engineering-only frontend architecture decision is accepted",
+    "all declared major solution families have current source-backed evidence",
+    "representative performance evidence exists because the decision is performance-sensitive",
+    "the preferred candidate survives adversarial review with no blocking finding",
+    "decision freshness/revisit triggers are recorded",
+    "no Event Search UI implementation is performed in this task"
+  ],
+  "complexity": {
+    "primary_components": 2,
+    "estimated_files_changed": 8,
+    "estimated_net_loc": 520,
+    "production_files": 0,
+    "net_production_loc": 0,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

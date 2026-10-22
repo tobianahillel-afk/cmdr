@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "work_unit": "E3-IMPACT-001A",
+  "result": "VERIFIED",
+  "final_validated_head": "92249a6770e8c9ef0997a5bcc21019ff55003673",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 35795224673,
+    "pull_request_run": 35795228783,
+    "checks": 16,
+    "mandatory_checks": 16,
+    "always_on_pr": 7,
+    "fast_checks": 11,
+    "standard_checks": 5
+  },
+  "rules": [
+    "catalog entries select built-in executor keys rather than arbitrary shell commands",
+    "risk domains and cost tiers are closed enums",
+    "unknown executors and prerequisite cycles fail closed",
+    "mandatory checks remain explicit inputs to later selection"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": ["E3-IMPACT-001B"]
+}

@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-SCALE-005A",
+  "result": "VERIFIED",
+  "final_validated_head": "c3eb9fad9198d6f1042c578cd5e434bed383be8c",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 36495201254,
+    "pull_request_run": 36495206875,
+    "ledger_entries": 5,
+    "verified_claims": 5,
+    "readiness_implemented": 5,
+    "readiness_ready": 16,
+    "selected_capability": "CAP-INV-101",
+    "selected_canonical_file": "07-investigate/modules/cases-and-evidence/capabilities/case-queue.md"
+  },
+  "invariants": [
+    "CAP-INV-006 is represented by exactly one verified runtime implementation claim",
+    "ledger IMPLEMENTED means bounded verified runtime evidence rather than full capability completion",
+    "Product Spec remains read-only",
+    "verified product runtimes remain unchanged",
+    "next capability selection is compiler-derived under reuse-first-v1"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-SCALE-005B"
+  ]
+}

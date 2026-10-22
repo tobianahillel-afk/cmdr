@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-004D-CLOSURE",
+  "result": "VERIFIED",
+  "final_validated_head": "93ee2016ade0b219ae93b779d6a6279c09593be7",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 36397254887,
+    "pull_request_run": 36397262586,
+    "capability": "CAP-INV-004",
+    "contract": "EVENT-INSPECTION-READONLY-CONTRACT-V1",
+    "adversarial_tests": 13,
+    "runtime_coverage_percent": 91.47,
+    "projection_p95_ms": 0.000664297,
+    "pivot_p95_ms": 0.000604184,
+    "sast_findings": 0,
+    "sca_actionable_findings": 0,
+    "runtime_dependencies": 0
+  },
+  "limitations": [
+    "Case-link mutation remains blocked by OPEN-013",
+    "Artifact proposal and Evidence-candidate mutation remain blocked by OPEN-013/OPEN-014",
+    "parser and entity-resolution engines remain unselected",
+    "storage/provider remains unselected",
+    "query dialect remains undecided",
+    "dedicated final Event Inspector UI remains unclaimed",
+    "production Event Inspection SLO remains unclaimed"
+  ],
+  "production_readiness_claim": false,
+  "full_capability_completion_claim": false,
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-004E"
+  ]
+}

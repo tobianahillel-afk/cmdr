@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-SCALE-001",
+  "status": "VERIFIED",
+  "final_validated_head": "c2652cbc975cdd8769621443d7691d0e8c7f6475",
+  "children": {
+    "E10-SCALE-001A": "VERIFIED",
+    "E10-SCALE-001B": "VERIFIED",
+    "E10-SCALE-001C": "VERIFIED"
+  },
+  "implementation_program": {
+    "capabilities": 498,
+    "implemented": 1,
+    "ready": 20,
+    "blocked": 476,
+    "proposed": 1,
+    "first_wave": "WAVE-CAP-INV-002-CORE-001"
+  },
+  "product_spec_mutated": false,
+  "next_program_unit": "E10-INV-002A"
+}

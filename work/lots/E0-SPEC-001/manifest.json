@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "id": "E0-SPEC-001",
+  "title": "Implement product-spec inventory compiler",
+  "parent": "E0",
+  "goal": "Compile the canonical product specification into a deterministic machine-readable inventory without redefining product semantics.",
+  "why_now": "Autonomous planning and completeness checks require a generated index of canonical product obligations and references.",
+  "product_scope": {
+    "changes_product_behavior": false,
+    "canonical_product_spec_is_read_only": true
+  },
+  "depends_on": ["E0-KERNEL-001"],
+  "requires_reading": [
+    "AGENTS.md",
+    "AI_START_HERE.md",
+    "engineering/governance/source-authority.md",
+    "cmdr-product-spec/00-governance/source-of-truth-policy.md",
+    "cmdr-product-spec/17-implementation-contracts/README.md"
+  ],
+  "allowed_paths": [
+    "tools/cmdr-dev/**",
+    "engineering/spec-index/**",
+    "engineering/state/**",
+    "work/graph.json",
+    "work/lots/E0-SPEC-001/**",
+    ".github/workflows/engineering-kernel.yml"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**"
+  ],
+  "required_capabilities": [
+    "walk canonical product-spec deterministically",
+    "strictly inventory active markdown files and front-matter identity fields",
+    "extract known CMDR identifier references without treating prose as new product truth",
+    "detect duplicate canonical document ids",
+    "emit stable JSON inventory",
+    "support check mode that fails on stale generated inventory"
+  ],
+  "constraints": {
+    "third_party_runtime_dependencies": 0,
+    "network_required": false,
+    "canonical_spec_mutation": false
+  },
+  "definition_of_done": [
+    "inventory output is deterministic across identical trees",
+    "canonical source files remain unchanged",
+    "duplicate document ids are rejected",
+    "generated index records source path and source hash",
+    "tests cover front matter parsing, duplicate detection and deterministic ordering",
+    "CI verifies generated inventory is current"
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "id": "E0-COVERAGE-001A",
+  "title": "Build canonical product entity and reference graph",
+  "parent": "E0-COVERAGE-001",
+  "goal": "Convert the deterministic Product Spec inventory into typed canonical product entities and source-backed reference edges.",
+  "depends_on": ["E0-SPEC-001"],
+  "requires_reading": [
+    "AGENTS.md",
+    "engineering/governance/source-authority.md",
+    "engineering/spec-index/README.md",
+    "cmdr-product-spec/00-governance/source-of-truth-policy.md",
+    "cmdr-product-spec/06-command/modules/mission-control/capabilities/situation-overview.md",
+    "cmdr-product-spec/06-command/screen-capability-map.md",
+    "cmdr-product-spec/14-security-permissions-and-trust/permission-catalog.md",
+    "cmdr-product-spec/13-user-journeys/alert-to-incident.md"
+  ],
+  "allowed_paths": [
+    "tools/cmdr-dev/**",
+    "engineering/coverage/**",
+    "engineering/state/**",
+    "work/graph.json",
+    "work/lots/E0-COVERAGE-001*/**",
+    ".github/workflows/engineering-kernel.yml"
+  ],
+  "forbidden_paths": ["cmdr-product-spec/**"],
+  "required_entity_kinds": [
+    "capability",
+    "requirement",
+    "open-decision",
+    "permission",
+    "screen",
+    "journey",
+    "implementation-contract",
+    "canonical-object",
+    "document"
+  ],
+  "constraints": {
+    "no_semantic_invention": true,
+    "source_path_required_for_owned_entities": true,
+    "reference_edges_must_be_source_backed": true,
+    "third_party_runtime_dependencies": 0
+  },
+  "definition_of_done": [
+    "graph generation is deterministic",
+    "every graph entity records its source provenance or is explicitly reference-only",
+    "capabilities and screens are typed from canonical source metadata/path rules",
+    "references create source-backed edges without inventing ownership",
+    "graph contains no dangling source path",
+    "tests cover typing, reference-only entities and deterministic ordering",
+    "CI exercises graph generation on the full canonical corpus"
+  ]
+}

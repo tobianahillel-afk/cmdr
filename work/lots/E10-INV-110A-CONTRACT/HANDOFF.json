@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-110A-CONTRACT",
+  "result": "VERIFIED",
+  "final_validated_head": "5b4eb476371c6a3307126c73cfac3095d992018f",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 38836365651,
+    "pull_request_run": 38836371825,
+    "contract": "TIMELINE-READONLY-CONTRACT-V1",
+    "synthetic_fixtures": 18,
+    "schema_version": 1,
+    "static_oracle_tests": [
+      "TestTimelineContractFixturesAreIndependentSafeOracles",
+      "TestTimelineFixtureOracleRejectsMaskedObjectDisclosure"
+    ],
+    "product_runtime_executable": false,
+    "negative_runtime_test_claim": false,
+    "performance_measurement_claim": false
+  },
+  "rules": [
+    "Read-only bounded Investigation Timeline contract and synthetic oracle checks only, no executable product runtime",
+    "Tenant/environment and Case+Timeline Entry read are mandatory; conditional Evidence, Telemetry Event, Govern Decision and Command Incident reads require independent owner permission evidence",
+    "Fixture oracle checks are NOT end-to-end runtime semantics; implementation must pass independent behavior/negative/race/load tests in later lots",
+    "Canonical Timeline Entry schema, Shared Timeline Engine and OPEN-013 class-2 creation/correction remain untouched",
+    "Resource bounds 5000 entries/8MiB are provisional engineering design inputs, not production SLO or canonical caps",
+    "Observed/inferred/provenance/timezone/supersession requirements source-backed; implementation is pending"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-110B-RUNTIME"
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "work_unit": "E2-ARCH-001B",
+  "result": "VERIFIED",
+  "final_validated_head": "27226c62607f8aec088b53ae3e192306f027c972",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 35794192592,
+    "pull_request_run": 35794197917,
+    "runtime_boundaries": 0,
+    "runtime_dependencies": 0,
+    "unapproved_dependencies": 0,
+    "unsupported_manifests": 0
+  },
+  "rules": [
+    "third-party product-runtime dependencies are denied by default",
+    "Trusted Base exceptions require exact ecosystem/name/version matching",
+    "development-only dependencies are outside the product-runtime gate",
+    "unsupported package formats inside product-runtime boundaries fail closed"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": ["E2-ARCH-001C"]
+}

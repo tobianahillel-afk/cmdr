@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-SCALE-001C",
+  "result": "VERIFIED",
+  "final_validated_head": "c2652cbc975cdd8769621443d7691d0e8c7f6475",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 36013275624,
+    "pull_request_run": 36013281582,
+    "selected_capability": "CAP-INV-002",
+    "selected_ready_candidates": 20,
+    "wave": "WAVE-CAP-INV-002-CORE-001"
+  },
+  "rules": [
+    "only source-backed READY capability CAP-INV-002 enters the first wave",
+    "OPEN-013-dependent Case-link mutation is excluded rather than silently defaulted",
+    "runtime path ownership is deferred to E10-INV-002A so materialization does not claim an unregistered architecture boundary",
+    "query dialect, index, storage engine and provider remain unselected",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-002A"
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "work_unit": "E8-MET-001A",
+  "status": "VERIFIED",
+  "final_validated_head": "24025c95c9413ae161e70fdce8f86da1e1b1d6a5",
+  "validation": {
+    "push_workflow_run": 35919199165,
+    "pull_request_workflow_run": 35919206520,
+    "result": "PASS",
+    "metrics_registry_audit": "PASS",
+    "unit_tests": "PASS",
+    "sast": "PASS",
+    "sca": "PASS"
+  },
+  "registry_observation": {
+    "metrics": 10,
+    "optimization_eligible": 6,
+    "non_optimizable": 4,
+    "catalog_checks": 41
+  },
+  "invariants": [
+    "only efficiency metrics may be optimization eligible",
+    "safety-floor and quality-floor metrics cannot be optimization eligible",
+    "observations require exact registered source full Git SHA canonical UTC finite values and bounded evidence refs",
+    "no external telemetry endpoint or product-runtime instrumentation exists"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E8-MET-001B"
+  ]
+}

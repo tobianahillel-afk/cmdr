@@ -1,0 +1,97 @@
+{
+  "schema_version": 2,
+  "id": "E1-WORK-001B",
+  "title": "Enforce complexity budgets and mandatory split rules",
+  "type": "sublot",
+  "parent": "E1-WORK-001",
+  "goal": "Make work-unit sizing machine-checkable and block implementation-ready state when hard split triggers apply.",
+  "product_refs": {
+    "capabilities": [],
+    "requirements": [],
+    "screens": [],
+    "permissions": [],
+    "open_decisions": [],
+    "implementation_contracts": [],
+    "canonical_objects": []
+  },
+  "depends_on": [
+    "E1-WORK-001A"
+  ],
+  "allowed_paths": [
+    "tools/cmdr-dev/**",
+    "engineering/work/**",
+    "work/lots/E1-WORK-001B/**",
+    ".github/workflows/engineering-kernel.yml",
+    "engineering/state/**",
+    "work/graph.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**"
+  ],
+  "inputs": [
+    "validated work manifest v2",
+    "approved lot-sizing policy"
+  ],
+  "outputs": [
+    "complexity evaluator",
+    "soft-budget warnings",
+    "hard split decision",
+    "READY-state split guard"
+  ],
+  "invariants": [
+    "canonical Product Spec remains read-only",
+    "manifest validation must be deterministic"
+  ],
+  "security_properties": [
+    "manifest parsing rejects unknown fields",
+    "path authorization is explicit"
+  ],
+  "acceptance_tests": [
+    "go test ./...",
+    "cmdr-dev validate-manifests succeeds on repository manifests",
+    "cmdr-dev complexity-audit succeeds and blocks synthetic hard-limit violations in unit tests"
+  ],
+  "performance_budget": {
+    "applicable": false,
+    "rationale": "engineering control-plane operation; no product runtime performance claim",
+    "metrics": []
+  },
+  "migration": {
+    "required": false,
+    "rationale": "no product runtime persistent data migration",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert the work-engine commit",
+    "verification": [
+      "validate-manifests returns to the previous verified behavior"
+    ]
+  },
+  "required_checks": [
+    "gofmt",
+    "go vet ./...",
+    "go test ./...",
+    "cmdr-dev validate-manifests",
+    "cmdr-dev complexity-audit"
+  ],
+  "definition_of_ready": [
+    "dependencies satisfy their required terminal state",
+    "authorized paths and goal are explicit"
+  ],
+  "definition_of_done": [
+    "soft budgets and hard triggers are distinct",
+    "tests fixtures and generated code are excluded from production LOC",
+    "hard split prevents implementation-ready state"
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 5,
+    "estimated_net_loc": 350,
+    "production_files": 2,
+    "net_production_loc": 260,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 0,
+    "separately_testable_behaviors": 1
+  }
+}

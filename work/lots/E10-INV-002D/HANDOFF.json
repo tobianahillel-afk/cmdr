@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-002D",
+  "result": "VERIFIED",
+  "final_validated_head": "41d3bfba7d80d1264ded55cfba95bc6db9bf3e77",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 36057764845,
+    "pull_request_run": 36057772776,
+    "capability": "CAP-INV-002",
+    "screen": "INV-EVS-001",
+    "contract": "EVENT-SEARCH-EXECUTABLE-CONTRACT-V1",
+    "adversarial_tests": 9,
+    "runtime_coverage_percent": 91.87,
+    "validation_p95_ms": 0.000433305,
+    "orchestration_p95_ms": 0.001716986,
+    "sast_findings": 0,
+    "sca_actionable_findings": 0,
+    "runtime_dependencies": 0
+  },
+  "limitations": [
+    "UI remains outside this bounded core",
+    "Saved Search remains outside this bounded core",
+    "Case-link remains blocked by OPEN-013",
+    "query dialect remains undecided",
+    "search/index/storage/provider remains undecided",
+    "production Search SLO remains undecided",
+    "result persistence model remains undecided"
+  ],
+  "production_readiness_claim": false,
+  "full_capability_completion_claim": false,
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-002E"
+  ]
+}

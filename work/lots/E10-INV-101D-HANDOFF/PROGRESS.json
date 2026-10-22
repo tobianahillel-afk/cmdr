@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-101D-HANDOFF",
+  "status": "VERIFIED",
+  "final_validated_head": "60a9f1581ce339d6ee592d4aa174a0e8b326f343",
+  "validation": {
+    "push_workflow_run": 38295753593,
+    "pull_request_workflow_run": 38295758757,
+    "result": "PASS",
+    "runtime_security": "PASS",
+    "case_queue_contract": "PASS",
+    "adaptive_ci": "PASS"
+  },
+  "evidence": {
+    "runtime_path": "product-runtime/case-queue/handoff.go",
+    "test_path": "product-runtime/case-queue/handoff_test.go",
+    "contract": "CASE-QUEUE-READONLY-CONTRACT-V1",
+    "security_critical_coverage_floor_percent": 90,
+    "changed_security_critical_floor_passed": true
+  },
+  "invariants": [
+    "selected Case must remain readable and in filtered projection",
+    "stale/cross-tenant/denied Case fails closed",
+    "return token stores only safe bounded routing state",
+    "restoration rechecks current tenant, environment, Saved View and Case authorization",
+    "untrusted token never serves as authorization credential",
+    "OPEN-013 lifecycle/assignment mutation excluded",
+    "canonical product specification unchanged"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-101E-CLOSURE"
+  ]
+}

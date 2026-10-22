@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-005B-RUNTIME",
+  "status": "VERIFIED",
+  "final_validated_head": "65df48f8466367438fbf3bbb933025869317fa88",
+  "validation": {
+    "push_workflow_run": 36416181945,
+    "pull_request_workflow_run": 36416188857,
+    "result": "PASS",
+    "hunt_management_contract": "PASS",
+    "security_tests": "PASS",
+    "sast_go": "PASS",
+    "sca_go": "PASS",
+    "runtime_dependency_audit": "PASS",
+    "boundary_edge_audit": "PASS"
+  },
+  "runtime_observation": {
+    "contract": "HUNT-WORKSPACE-READONLY-CONTRACT-V1",
+    "runtime_state": "implemented",
+    "fixtures": 15,
+    "positive": 3,
+    "negative": 12,
+    "runtime_dependencies": 0,
+    "runtime_boundaries": 5,
+    "security_scopes": 5,
+    "global_runtime_coverage_percent": 91.84,
+    "global_coverage_floor_percent": 80,
+    "changed_security_floor_percent": 90,
+    "sast_findings": 0,
+    "sca_actionable_findings": 0
+  },
+  "invariants": [
+    "runtime is standard-library-only and read-only",
+    "no canonical Hunt object or final Hunt state machine exists",
+    "OPEN-013 class-2 mutation remains excluded",
+    "all denied/cross-tenant references fail closed",
+    "projection is deep-copy isolated",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-005C-CLOSURE"
+  ]
+}

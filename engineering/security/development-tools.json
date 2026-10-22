@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "tools": [
+    {
+      "id": "gosec",
+      "module": "github.com/securego/gosec/v2/cmd/gosec",
+      "version": "v2.28.0",
+      "commit": "9e75c0576c9878035d4221392108d458abe10fc3",
+      "license": "Apache-2.0",
+      "execution": "go run github.com/securego/gosec/v2/cmd/gosec@v2.28.0",
+      "data_policy": "source-local-only",
+      "network_policy": "network is used only to fetch the pinned open-source tool/module graph; source analysis remains local and AI/autofix features are disabled"
+    },
+    {
+      "id": "govulncheck",
+      "module": "golang.org/x/vuln/cmd/govulncheck",
+      "version": "v1.8.0",
+      "commit": "709015412431dd2b5b28a53c06c70bc02d49074c",
+      "license": "BSD-3-Clause",
+      "execution": "go run golang.org/x/vuln/cmd/govulncheck@v1.8.0 -json ./...",
+      "data_policy": "source-local-only",
+      "network_policy": "source code remains local; the official Go vulnerability database may receive module identity/version queries and tool/module downloads use the Go module infrastructure"
+    }
+  ]
+}

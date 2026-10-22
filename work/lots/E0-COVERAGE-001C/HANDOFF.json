@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "work_unit": "E0-COVERAGE-001C",
+  "result": "VERIFIED",
+  "final_validated_head": "78f7d47fb94ec21be0430f673747c918392ace0f",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 35785491455,
+    "pull_request_run": 35785496898,
+    "coverage_gap_count": 42
+  },
+  "interpretation": "The audit is report-only. Active capability and screen authority sets reconcile with owned canonical sources. Reference/catalog findings remain visible for later remediation or historical classification.",
+  "product_spec_mutated": false,
+  "next_unlocked": ["E1-WORK-001A"]
+}

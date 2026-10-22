@@ -1,0 +1,142 @@
+{
+  "schema_version": 2,
+  "id": "E10-SCALE-005B",
+  "title": "Select and materialize CAP-INV-101 bounded reuse-first capability wave",
+  "type": "task",
+  "parent": "E10-SCALE-005",
+  "goal": "Validate the fresh reuse-first-v1 selection of CAP-INV-101 against the canonical Case Queue contract and materialize exactly one bounded read-only queue implementation wave without performing Case lifecycle, assignment, export or Saved View mutations.",
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-101",
+      "CAP-INV-102"
+    ],
+    "requirements": [
+      "REQ-PROD-014",
+      "REQ-PROD-020"
+    ],
+    "screens": [
+      "INV-CAS-001"
+    ],
+    "permissions": [],
+    "open_decisions": [
+      "OPEN-013"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/error-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/correlation-identifiers.md",
+      "cmdr-product-spec/17-implementation-contracts/object-reference-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/pagination-filtering-sorting.md",
+      "cmdr-product-spec/17-implementation-contracts/saved-view-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/frontend-state-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/cross-product-context-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/screen-routing-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/case.md",
+      "cmdr-product-spec/05-domain-model/objects/incident.md",
+      "cmdr-product-spec/05-domain-model/objects/finding.md",
+      "cmdr-product-spec/05-domain-model/objects/saved-view.md"
+    ]
+  },
+  "depends_on": [
+    "E10-SCALE-005A"
+  ],
+  "allowed_paths": [
+    "engineering/implementation/**",
+    "engineering/state/**",
+    "work/graph.json",
+    "work/lots/E10-SCALE-005B/**",
+    "work/lots/E10-INV-*/**",
+    "tools/cmdr-dev/**"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/**"
+  ],
+  "inputs": [
+    "VERIFIED E10-SCALE-005A readiness and wave-selection evidence",
+    "canonical CAP-INV-101 Case Queue Product Spec contract",
+    "canonical Case, Incident, Finding and Shared Saved View objects",
+    "tenant, permission, pagination/filtering/sorting, Saved View, frontend-state and cross-product routing contracts",
+    "reuse-first-v1 policy"
+  ],
+  "outputs": [
+    "fresh source-backed confirmation of CAP-INV-101 selection",
+    "bounded read-only Case Queue implementation-wave manifest",
+    "realistically sized E10-INV-101 child decomposition",
+    "one READY first implementation task"
+  ],
+  "invariants": [
+    "Product Spec remains read-only",
+    "verified product runtime code is not changed by scaling-control tasks",
+    "CAP-INV family preference does not imply runtime-boundary reuse",
+    "Case remains Investigate-owned, Incident remains Command-owned and Saved View remains Shared-owned",
+    "Case Queue does not become the Command Work Queue and never owns Tasks, Decisions or Response Runs",
+    "OPEN-013 governed assignment/lifecycle mutations remain excluded",
+    "final columns, final Case state machine, export backend, provider, storage and final UI are not invented"
+  ],
+  "security_properties": [
+    "selected canonical capability path must resolve inside the read-only Product Spec",
+    "tenant scope and Case read permission evaluation are deny-by-default",
+    "Saved View application is permission-re-evaluated and cannot expose forbidden fields",
+    "cross-tenant Case, Incident, Finding and Saved View projections are rejected",
+    "wave decomposition must split any task exceeding complexity budgets"
+  ],
+  "acceptance_tests": [
+    "adaptive engineering-kernel remains green",
+    "implementation-wave still selects exactly CAP-INV-101",
+    "canonical Case Queue capability file and referenced obligations resolve",
+    "assignment/lifecycle/export and Saved View mutation remain explicitly excluded",
+    "all generated child manifests pass strict-v2 and complexity validation",
+    "one first child is READY and all later children are dependency-gated"
+  ],
+  "performance_budget": {
+    "applicable": false,
+    "rationale": "control-plane decomposition only; runtime budgets are compiled in the selected capability child work",
+    "metrics": []
+  },
+  "migration": {
+    "required": false,
+    "rationale": "no product runtime or persistent data is changed",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert wave materialization without changing verified runtimes or ledger entries",
+    "verification": [
+      "CAP-INV-006 remains ledger-backed",
+      "Product Spec baseline remains unchanged"
+    ]
+  },
+  "required_checks": [
+    "adaptive engineering-kernel",
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-IMPLEMENTATION-LEDGER",
+    "CHK-IMPLEMENTATION-READINESS",
+    "CHK-IMPLEMENTATION-WAVE"
+  ],
+  "definition_of_ready": [
+    "E10-SCALE-005A is VERIFIED",
+    "fresh wave compiler selects CAP-INV-101"
+  ],
+  "definition_of_done": [
+    "selection is exactly READY and source-backed",
+    "canonical CAP-INV-101 contract is reflected in a bounded read-only wave",
+    "OPEN-013 governed mutations remain excluded",
+    "child lots stay within complexity budgets",
+    "one next READY implementation task exists"
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 10,
+    "estimated_net_loc": 680,
+    "production_files": 0,
+    "net_production_loc": 0,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

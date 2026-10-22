@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "work_unit": "E3-IMPACT-002B",
+  "result": "VERIFIED",
+  "final_validated_head": "d37dbdceb24cec288df46918f635fc402fbadec0",
+  "pull_request": 36,
+  "evidence": {
+    "parity_push_run": 35798358793,
+    "parity_pr_run": 35798364603,
+    "rollout_adaptive_run": 35798577865,
+    "rollout_full_fallback_run": 35798578139,
+    "catalog_checks": 21,
+    "rollout_selected_checks": 21,
+    "rollout_executed_checks": 17,
+    "rollout_preflight_satisfied": 4
+  },
+  "rules": [
+    "ordinary engineering CI derives exact Git change evidence and executes only the prerequisite-closed selected plan",
+    "unknown or high-risk changes escalate to strict and execute every mandatory catalog check",
+    "executor keys are compiled and closed; plan/catalog data cannot inject commands",
+    "an independent static full-kernel workflow is retained as rollback/fallback evidence",
+    "CI workflow changes themselves are classified high risk and force strict validation"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E4-SEC-001A"
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "wave_id": "WAVE-CAP-INV-110-CORE-001",
+  "selection_policy": "reuse-first-v1",
+  "product_spec_baseline": "99c3826cdcbc79bad51631cf6462450f92e012eb",
+  "spec_tree_digest": "a5f45351eba180d0edb734f33ecbeaabb7eceb7143305e201e207e8ae5a60d27",
+  "readiness_snapshot": {
+    "total": 498,
+    "implemented": 6,
+    "ready": 15,
+    "blocked": 476,
+    "proposed": 1
+  },
+  "selected": {
+    "capability": "CAP-INV-110",
+    "name": "Investigation Timeline",
+    "canonical_file": "cmdr-product-spec/07-investigate/modules/cases-and-evidence/capabilities/investigation-timeline.md",
+    "screen": "INV-TIM-001"
+  },
+  "scope": {
+    "kind": "bounded-readonly-timeline-provenance-ordered-projection-and-handoff",
+    "included": [
+      "caller-authorized Case and Shared Timeline Entry snapshot projection, never creation",
+      "typed observed/inferred/user-action/decision/response rendered as source-declared types",
+      "stable timestamp ordering, explicit timezone/source/precision uncertainty",
+      "partial/stale/permission-filtered/missing-source diagnostics without leakage",
+      "supersession and correction references retained without mutation",
+      "immutable source navigation and Case return context"
+    ],
+    "excluded": [
+      "final Timeline Entry schema or Shared Timeline Engine ownership",
+      "analytic contribution, correction, supersession or relation write operations governed by OPEN-013",
+      "Case lifecycle, Govern Decision/Response and Command Incident mutation",
+      "technical replay, export engine, indexing/storage/retention/provider selection",
+      "streaming/scale engine, final frontend UI or production SLO/full capability claim"
+    ]
+  },
+  "runtime_intent": {
+    "root": "product-runtime/investigation-timeline/**",
+    "external_runtime_dependencies": "deny-by-default",
+    "language": "Go standard library first, pending per-lot technical decision where needed",
+    "ownership_note": "Investigate owns Case timeline selection/projection only; Shared owns Timeline Entry and Timeline Engine; external object permissions rechecked",
+    "path_claim": "deferred until E10-INV-110A-BOUNDARY"
+  },
+  "children": [
+    "E10-INV-110A-BOUNDARY",
+    "E10-INV-110A-CONTRACT",
+    "E10-INV-110B-RUNTIME",
+    "E10-INV-110C-NAV",
+    "E10-INV-110D-CLOSURE",
+    "E10-INV-110E"
+  ],
+  "status": "VERIFIED_MATERIALIZED",
+  "validation": {
+    "final_validated_head": "6715a6a80ab294d2a544fe71c14ce614f3b0648f",
+    "push_workflow_run": 38834402675,
+    "pull_request_workflow_run": 38834408552,
+    "result": "PASS"
+  }
+}

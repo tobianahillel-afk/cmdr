@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-006A-CONTRACT",
+  "status": "VERIFIED",
+  "final_validated_head": "0e3804417af8c994a588eab19aa9ca8d8c0cc180",
+  "validation": {
+    "push_workflow_run": 36471491750,
+    "pull_request_workflow_run": 36471497659,
+    "result": "PASS",
+    "saved_query_assets_contract_audit": "PASS",
+    "manifest_validation": "PASS",
+    "complexity_audit": "PASS",
+    "architecture_audit": "PASS",
+    "runtime_dependency_audit": "PASS",
+    "boundary_edge_audit": "PASS",
+    "security_test_audit": "PASS",
+    "performance_registry_audit": "PASS"
+  },
+  "contract_observation": {
+    "contract_id": "QUERY-ASSET-READONLY-CONTRACT-V1",
+    "capability": "CAP-INV-006",
+    "runtime_state": "preimplementation",
+    "fixtures": 18,
+    "positive": 5,
+    "negative": 13,
+    "incompatible": 2,
+    "stale": 1,
+    "runtime_dependencies": 0
+  },
+  "invariants": [
+    "no canonical Saved Search or Query Asset schema is invented",
+    "Query and Search Job ownership remain Shared",
+    "Saved View and Detection Rule remain separate concepts",
+    "OPEN-013 remains unresolved and all class-2 asset mutation is excluded",
+    "tenant/access/source/field prerequisites fail closed",
+    "compatibility diagnostics are deterministic and missing facts are never synthesized",
+    "Search Job creation/execution remains absent",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-006B-RUNTIME"
+  ]
+}

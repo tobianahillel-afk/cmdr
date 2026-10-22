@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-002F-INTEGRATION",
+  "status": "VERIFIED",
+  "final_validated_head": "fa4212a26ba1e7cb5b142e6cb74185a00bc96e07",
+  "implementation": {
+    "primary_commit": "1207eb33e4cefe2709c6888377d8374e23de673b",
+    "scope_hardening_commit": "1a9310a73e829f1932143613f777e82334c5055d",
+    "final_test_alignment_commit": "fa4212a26ba1e7cb5b142e6cb74185a00bc96e07"
+  },
+  "validation": {
+    "push_workflow_run": 36124224000,
+    "pull_request_workflow_run": 36124228584,
+    "result": "PASS",
+    "adaptive_tier": "strict",
+    "selected_checks": 52,
+    "executed_checks": 45,
+    "preflight_satisfied": 7
+  },
+  "verified_behaviors": [
+    "normalized execution request carries tenant/environment/time/source/query provenance but never client authorization claims",
+    "server permission denial is authoritative and cannot carry result projections",
+    "transport Search Job scope/correlation/query version must match the originating request",
+    "result and failed-source identities cannot widen beyond requested sources",
+    "AbortController cancellation prevents stale view mutation",
+    "new execution supersedes stale responses",
+    "retry requires a new job and run identity linked to the previous run",
+    "partial outcomes preserve valid authorized projections and identify failed sources with freshness/consequence evidence",
+    "raw transport errors are not reflected into the view"
+  ],
+  "exclusions": [
+    "final streaming transport remains unselected",
+    "Saved Search is not implemented",
+    "Case-link mutation remains excluded while OPEN-013 is unresolved",
+    "final query language/index/storage/provider remain unselected"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-002F-E2E"
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-002F-RESULTS",
+  "result": "VERIFIED",
+  "final_validated_head": "ea8038c0c025fb3c6bbe4e2d81606ba86bbf4e79",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 36123293340,
+    "pull_request_run": 36123297506,
+    "runtime_dependencies": 0,
+    "global_runtime_coverage_percent": 92.21,
+    "changed_coverage_floor_percent": 90,
+    "frontend_sources": [
+      "state.mjs",
+      "shell.mjs",
+      "results.mjs"
+    ],
+    "frontend_tests": [
+      "state.test.mjs",
+      "shell.test.mjs",
+      "results.test.mjs"
+    ]
+  },
+  "rules": [
+    "result projections are transient UI data and do not define a persisted result model",
+    "windowing is first-party and bounded without selecting final geometry or a third-party virtualizer",
+    "incremental updates preserve node identity and scroll position where non-destructive",
+    "no transport, Saved Search implementation or Case-link mutation is introduced",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-002F-INTEGRATION"
+  ]
+}

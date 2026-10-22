@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-110A-BOUNDARY",
+  "status": "VERIFIED",
+  "final_validated_head": "46ea2f2097683971bd40997e6d36cfe5cc8eea33",
+  "validation": {
+    "push_workflow_run": 38835472691,
+    "pull_request_workflow_run": 38835478040,
+    "result": "PASS",
+    "architecture_audit": "PASS",
+    "runtime_dependency_audit": "PASS",
+    "boundary_edge_audit": "PASS",
+    "security_test_audit": "PASS",
+    "performance_registry_audit": "PASS",
+    "deep_performance_policy": "PASS"
+  },
+  "evidence": {
+    "architecture_boundaries": 12,
+    "runtime_boundaries": 8,
+    "security_scopes": 8,
+    "performance_targets": 14,
+    "deep_performance_targets": 14,
+    "boundary_id": "investigation-timeline-runtime",
+    "preimplementation_runtime_files": [
+      "product-runtime/investigation-timeline/README.md"
+    ],
+    "new_performance_targets": [
+      "PERF-TGT-INV-TIMELINE-PROJECTION",
+      "PERF-TGT-INV-TIMELINE-NAVIGATION"
+    ],
+    "runtime_implementation_claimed": false
+  },
+  "invariants": [
+    "single first-party unique path claim; only README preimplementation marker",
+    "no product runtime executable Timeline code and no measured benchmarks or production SLO",
+    "case read, Shared Timeline Entry and cross-source permission obligations are registered, negative runtime tests not claimed passed",
+    "local performance and deep-resource handlers refuse synthetic preimplementation PASS",
+    "OPEN-013 remains OPEN, Shared Timeline Entry remains Shared-owned, case remains Investigate-owned",
+    "Product Spec baseline unchanged, no external runtime dependency added"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-110A-CONTRACT"
+  ]
+}

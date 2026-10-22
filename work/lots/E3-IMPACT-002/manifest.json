@@ -1,0 +1,103 @@
+{
+  "schema_version": 2,
+  "id": "E3-IMPACT-002",
+  "title": "Integrate risk-adaptive validation with CI change evidence",
+  "type": "epic",
+  "parent": "",
+  "goal": "Connect the verified planner to real GitHub change sets, prove it in shadow mode, then execute the selected closed plan without weakening safety.",
+  "product_refs": {
+    "capabilities": [],
+    "requirements": [],
+    "screens": [],
+    "permissions": [],
+    "open_decisions": [],
+    "implementation_contracts": [],
+    "canonical_objects": []
+  },
+  "depends_on": [
+    "E3-IMPACT-001C"
+  ],
+  "allowed_paths": [
+    "tools/cmdr-dev/**",
+    "engineering/testing/**",
+    ".github/workflows/engineering-kernel.yml",
+    "work/lots/E3-IMPACT-002*/**",
+    "engineering/state/**",
+    "work/graph.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**"
+  ],
+  "inputs": [
+    "verified E3 impact and validation-plan engine",
+    "GitHub push/pull_request event commit identities",
+    "strict check catalog"
+  ],
+  "outputs": [
+    "CI-derived change evidence",
+    "risk-adaptive validation execution evidence"
+  ],
+  "invariants": [
+    "Product Spec remains read-only",
+    "Git refs are data arguments and never shell-expanded as commands",
+    "unknown change evidence escalates rather than skips",
+    "full legacy kernel remains authoritative until adaptive execution parity is proven"
+  ],
+  "security_properties": [
+    "commit identities are validated before git use",
+    "selected executor keys remain closed and built-in",
+    "no arbitrary command execution from manifests or plan JSON"
+  ],
+  "acceptance_tests": [
+    "go test ./...",
+    "cmdr-dev validate-manifests succeeds",
+    "cmdr-dev architecture-audit succeeds",
+    "cmdr-dev complexity-audit succeeds"
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "CI adaptation exists to reduce repeated validation cost",
+    "metrics": [
+      "change-set derivation should be negligible compared with validation execution",
+      "adaptive runner must not run checks outside the selected prerequisite-closed plan"
+    ]
+  },
+  "migration": {
+    "required": false,
+    "rationale": "CI control-plane change only",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert adaptive CI integration and restore full legacy kernel execution",
+    "verification": [
+      "full engineering-kernel workflow remains green"
+    ]
+  },
+  "required_checks": [
+    "gofmt",
+    "go vet ./...",
+    "go test ./...",
+    "cmdr-dev validate-manifests",
+    "cmdr-dev architecture-audit",
+    "cmdr-dev complexity-audit"
+  ],
+  "definition_of_ready": [
+    "dependencies are VERIFIED",
+    "legacy full kernel is green"
+  ],
+  "definition_of_done": [
+    "E3-IMPACT-002A and E3-IMPACT-002B are VERIFIED",
+    "adaptive CI execution has explicit rollback to the full kernel"
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 8,
+    "estimated_net_loc": 650,
+    "production_files": 0,
+    "net_production_loc": 0,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

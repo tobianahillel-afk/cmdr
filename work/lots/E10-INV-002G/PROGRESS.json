@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-002G",
+  "status": "VERIFIED",
+  "final_validated_head": "d8e35a3222a471b1313303d7c9eceb5123e9e966",
+  "validation": {
+    "push_workflow_run": 36132724120,
+    "pull_request_workflow_run": 36132727798,
+    "result": "PASS",
+    "event_search_e2e_audit": "PASS",
+    "adaptive_kernel": "PASS",
+    "product_spec_baseline": "UNCHANGED"
+  },
+  "claim": {
+    "capability": "CAP-INV-002",
+    "work_unit": "E10-INV-002G",
+    "runtime_boundary": "event-search-runtime",
+    "runtime_root": "product-runtime/event-search/**",
+    "implementation_commit": "85fd15e49967d65994075089b81b6f6a662dba6e",
+    "contract": "EVENT-SEARCH-EXECUTABLE-CONTRACT-V1",
+    "fixtures": 14,
+    "negative_fixtures": 11,
+    "runtime_files": 9,
+    "runtime_dependencies": 0,
+    "cross_boundary_edges": 0,
+    "global_coverage_percent": 91.87,
+    "sast_findings": 0,
+    "sca_actionable_findings": 0
+  },
+  "interpretation": {
+    "runtime_implementation_verified": true,
+    "production_readiness_claim": false,
+    "full_capability_completion_claim": false,
+    "residual_open_decision": "OPEN-013",
+    "note": "IMPLEMENTED in the engineering ledger means verified runtime implementation evidence; it does not resolve excluded Product Spec behavior or claim production readiness."
+  },
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-SCALE-002A"
+  ]
+}

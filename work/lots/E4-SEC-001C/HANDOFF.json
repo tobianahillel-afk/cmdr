@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "work_unit": "E4-SEC-001C",
+  "result": "VERIFIED",
+  "final_validated_head": "57f685693af8011754c46222e71a4cb9982065e8",
+  "pull_request": 36,
+  "evidence": {
+    "push_run": 35853052409,
+    "pull_request_run": 35853053083,
+    "catalog_check": "CHK-SECURITY-TESTS",
+    "push_result": "runtime_boundaries=0 scopes=0 coverage_status=not-applicable global_floor=80 changed_floor=90 auth_required=0 tenant_required=0",
+    "pull_request_result": "runtime_boundaries=0 scopes=0 coverage_status=not-applicable global_floor=80 changed_floor=90 auth_required=0 tenant_required=0"
+  },
+  "rules": [
+    "no product-runtime boundary may exist without a registered runtime security scope",
+    "authorization and tenant-isolation requirements are explicit booleans with rationales",
+    "measured runtime evidence is commit-bound",
+    "80 percent global and 90 percent changed security-critical coverage floors are machine enforced",
+    "no-runtime state remains not-applicable"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E4-SEC-001D"
+  ]
+}
