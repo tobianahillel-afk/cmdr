@@ -149,6 +149,62 @@ test("Inspector rejects reused Search Job/run IDs after scope, version or result
   }
 });
 
+test("a changed Search window invalidates all retained rows even with identical job IDs and selected Event", async (t) => {
+  const selected = { ref: "event-1", eventTime: "2026-10-20T11:00:00Z",
+    source: "edr", summary: { severity: "high" } };
+  const withdrawn = { ref: "event-withdrawn", eventTime: "2026-10-20T11:10:00Z",
+    source: "edr", summary: { classification: "restricted" } };
+  for (const phase of ["while inspecting", "after returning to Search"]) {
+    await t.test(phase, async () => {
+      let executions = 0;
+      const controller = createEventSearchController({
+        expectedContext: { tenantId: "tenant-a", environmentId: "prod" },
+        transport: {
+          async execute(request) {
+            const projections = executions++ === 0 ? [selected, withdrawn] : [selected];
+            return {
+              kind: "job", jobId: "job-1", runId: "run-1", state: "completed",
+              tenantRef: request.tenantRef, environmentRef: request.environmentRef,
+              timeStart: request.timeStart, timeEnd: request.timeEnd,
+              sources: [...request.sources], correlationId: request.correlationId,
+              queryVersion: request.queryVersion,
+              resultRefs: projections.map(row => ({ source: row.source, ref: row.ref })),
+              failedSources: [], projections,
+            };
+          },
+          async retry() { throw new Error("not used"); },
+        },
+      });
+      const execution = { correlationId: "corr-1", queryVersion: "query-1" };
+      await controller.execute(context, execution);
+      const original = controller.getView();
+      assert.equal(original.resultWindow.rows.length, 2);
+      const journey = createEventInspectionJourney({
+        searchController: controller,
+        transport: { async inspect() { return inspection(); } },
+      });
+      assert.equal((await journey.open(context, "event-1")).kind, "inspected");
+      if (phase === "after returning to Search") {
+        assert.equal(journey.back().resultWindow, original.resultWindow);
+      }
+      // The selected Event and all opaque identifiers remain unchanged, yet
+      // a different Event disappears from the owner's freshly authorized view.
+      await controller.execute(context, execution);
+      const refreshed = controller.getView();
+      assert.equal(refreshed.job.jobId, original.job.jobId);
+      assert.equal(refreshed.job.runId, original.job.runId);
+      assert.equal(refreshed.job.correlationId, original.job.correlationId);
+      assert.deepEqual(refreshed.resultWindow.rows[0], original.resultWindow.rows[0]);
+      assert.equal(refreshed.resultWindow.rows.length, 1);
+      assert.notEqual(refreshed.resultWindow, original.resultWindow);
+      const result = phase === "while inspecting" ? journey.back() : journey.getView();
+      assert.equal(result.kind, "unavailable", "must not republish withdrawn Event");
+      assert.equal(result.resultWindow, undefined);
+      assert.equal(journey.getView().inspection, undefined);
+    });
+  }
+});
+
 test("raw denial strips raw-derived content, rejects forged raw and keeps rendered accessible", async () => {
   const controller = await initializedSearch();
   const request = {

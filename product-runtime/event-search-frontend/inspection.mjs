@@ -207,7 +207,12 @@ export function createEventInspectionJourney({ searchController, transport, onVi
 
   function validSearch(start) {
     const now = searchController.getView();
-    return now.job?.jobId === start.job.jobId && now.job?.runId === start.job.runId &&
+    // Reusing only the selected row is unsafe: other rows or paging metadata
+    // may have been revoked while the Event and opaque Job IDs stayed the same.
+    // Event Search publishes deeply frozen windows; identity proves this is
+    // precisely the authorized original window, not a regenerated projection.
+    return now.resultWindow === start.resultWindow &&
+      now.job?.jobId === start.job.jobId && now.job?.runId === start.job.runId &&
       now.job?.correlationId === start.job.correlationId &&
       now.job?.tenantRef === start.job.tenantRef &&
       now.job?.environmentRef === start.job.environmentRef &&
@@ -241,7 +246,7 @@ export function createEventInspectionJourney({ searchController, transport, onVi
       jobId: snapshot.job.jobId, runId: snapshot.job.runId,
       sourceHint: row.source,
     });
-    const start = { job: snapshot.job, row };
+    const start = { job: snapshot.job, row, resultWindow: snapshot.resultWindow };
     openedFrom = undefined;
     publish({ kind: "loading" });
     try {
