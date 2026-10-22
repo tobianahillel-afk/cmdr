@@ -479,7 +479,7 @@ func runDeepPerformanceHandler(ctx context.Context, root string, target DeepPerf
 			return DeepPerformanceObservation{}, err
 		}
 		defer cleanup()
-		observation, err := probe.run(target.Iterations)
+		observation, err := probe.runResource(target.Iterations, target.MemoryLimitMiB)
 		if err != nil {
 			return DeepPerformanceObservation{}, err
 		}
@@ -488,6 +488,8 @@ func runDeepPerformanceHandler(ctx context.Context, root string, target DeepPerf
 		}
 		result := DeepPerformanceObservation{
 			DurationMS: observation.ElapsedNS / int64(time.Millisecond),
+			PeakHeapBytes: observation.PeakHeapBytes,
+			TotalAllocationBytes: observation.TotalAllocationBytes,
 			Operations: int64(observation.Operations),
 		}
 		if observation.ElapsedNS > 0 {
