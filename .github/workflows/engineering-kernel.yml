@@ -5,6 +5,7 @@ on:
     paths:
       - "AGENTS.md"
       - "AI_START_HERE.md"
+      - "cmdr-product-spec/**"
       - "engineering/**"
       - "work/**"
       - "tools/cmdr-dev/**"
@@ -19,6 +20,7 @@ on:
     paths:
       - "AGENTS.md"
       - "AI_START_HERE.md"
+      - "cmdr-product-spec/**"
       - "engineering/**"
       - "work/**"
       - "tools/cmdr-dev/**"

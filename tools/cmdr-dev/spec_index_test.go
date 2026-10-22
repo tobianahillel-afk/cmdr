@@ -2,6 +2,7 @@ package main
 
 import (
 	"os"
+	"os/exec"
 	"path/filepath"
 	"reflect"
 	"strings"
@@ -103,6 +104,9 @@ func contains(values []string, target string) bool {
 }
 
 func TestRunSpecBaselineWriteAndCheck(t *testing.T) {
+	if _, err := exec.LookPath("git"); err != nil {
+		t.Skip("git not installed")
+	}
 	root := t.TempDir()
 	specRoot := filepath.Join(root, "cmdr-product-spec")
 	if err := os.MkdirAll(specRoot, 0o755); err != nil {
@@ -112,18 +116,50 @@ func TestRunSpecBaselineWriteAndCheck(t *testing.T) {
 	if err := os.WriteFile(filepath.Join(specRoot, "sample.md"), []byte(content), 0o600); err != nil {
 		t.Fatal(err)
 	}
+	runTestGit(t, root, "init")
+	runTestGit(t, root, "config", "user.name", "CMDR Test")
+	runTestGit(t, root, "config", "user.email", "cmdr-test@example.invalid")
+	runTestGit(t, root, "add", "cmdr-product-spec")
+	runTestGit(t, root, "commit", "-m", "canonical spec")
+	baselineCommit := testGitOutput(t, root, "rev-parse", "HEAD")
 	output := filepath.Join(root, "engineering", "spec-index", "baseline.json")
-	if _, err := runSpecBaseline(root, "cmdr-product-spec", "abc123", output, false); err != nil {
+	if _, err := runSpecBaseline(root, "cmdr-product-spec", baselineCommit, output, false); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := runSpecBaseline(root, "cmdr-product-spec", "abc123", output, true); err != nil {
+	if _, err := runSpecBaseline(root, "cmdr-product-spec", baselineCommit, output, true); err != nil {
 		t.Fatalf("expected fresh baseline: %v", err)
 	}
+	if _, err := runSpecBaseline(root, "cmdr-product-spec", "abc123", output, false); err == nil {
+		t.Fatal("an invalid commit must never certify a baseline")
+	}
+
+	// Unrelated engineering changes do not invalidate an unchanged Product Spec.
+	writeTestFile(t, root, "engineering-note.txt", "not product truth\n")
+	runTestGit(t, root, "add", "engineering-note.txt")
+	runTestGit(t, root, "commit", "-m", "independent engineering changes")
+	if _, err := runSpecBaseline(root, "cmdr-product-spec", baselineCommit, output, true); err != nil {
+		t.Fatalf("unchanged spec must remain bound to its canonical source: %v", err)
+	}
+
+	// A tracked edit must invalidate the previous commit binding in both
+	// write and check modes; regenerating JSON cannot launder a false SHA.
 	if err := os.WriteFile(filepath.Join(specRoot, "sample.md"), []byte(content+"changed\n"), 0o600); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := runSpecBaseline(root, "cmdr-product-spec", "abc123", output, true); err == nil {
+	if _, err := runSpecBaseline(root, "cmdr-product-spec", baselineCommit, output, false); err == nil {
+		t.Fatal("expected rejected baseline write for changed spec")
+	}
+	if _, err := runSpecBaseline(root, "cmdr-product-spec", baselineCommit, output, true); err == nil {
 		t.Fatal("expected stale baseline error")
+	}
+	if err := os.WriteFile(filepath.Join(specRoot, "sample.md"), []byte(content), 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	// Untracked spec Markdown must not be omitted from the recorded Git tree.
+	writeTestFile(t, root, "cmdr-product-spec/untracked.md", "---\nid: untracked\n---\n")
+	if _, err := runSpecBaseline(root, "cmdr-product-spec", baselineCommit, output, false); err == nil {
+		t.Fatal("an untracked canonical document cannot be attributed to the baseline commit")
 	}
 }
 

@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"regexp"
 	"sort"
@@ -368,9 +369,60 @@ func uniqueSorted(values []string) []string {
 	return out
 }
 
+// verifySpecBaselineSource binds the asserted Git commit to the exact
+// repository-visible canonical Markdown content. A syntactically valid SHA
+// must not be allowed to certify a different product specification tree.
+// Non-spec changes after the baseline commit are intentionally permitted.
+func verifySpecBaselineSource(root, specRel, baselineCommit string, inventory SpecInventory) error {
+	commit, err := validateFullCommitID(baselineCommit)
+	if err != nil || commit != baselineCommit {
+		return fmt.Errorf("invalid canonical product spec baseline commit %q", baselineCommit)
+	}
+	if err := ensureGitCommit(root, commit); err != nil {
+		return fmt.Errorf("resolve canonical product spec baseline commit: %w", err)
+	}
+
+	// Compare tracked content to the source commit, not merely to another
+	// locally generated baseline artifact. argv is fixed and specRel is
+	// repository-confined by buildSpecInventory/resolveRepoPath.
+	diff := exec.Command("git", "-C", root, "diff", "--no-ext-diff", "--quiet", commit, "--", filepath.ToSlash(specRel)) // #nosec G204,G702 -- no shell; verified exact commit and repo-confined spec root.
+	if err := diff.Run(); err != nil {
+		if exitErr, ok := err.(*exec.ExitError); ok && exitErr.ExitCode() == 1 {
+			return fmt.Errorf("canonical product spec content differs from baseline commit %s", commit)
+		}
+		return fmt.Errorf("verify canonical product spec content against baseline commit: %w", err)
+	}
+
+	// git diff excludes untracked files. Ensure the inventory's exact
+	// Markdown path set is also contained in the asserted Git commit.
+	list := exec.Command("git", "-C", root, "ls-tree", "-r", "-z", "--name-only", commit, "--", filepath.ToSlash(specRel)) // #nosec G204,G702 -- fixed executable/flags, exact commit and repo-confined path.
+	raw, err := list.Output()
+	if err != nil {
+		return fmt.Errorf("list canonical product spec files in baseline commit: %w", err)
+	}
+	expected := make(map[string]bool)
+	for _, name := range bytes.Split(raw, []byte{0}) {
+		if len(name) != 0 && strings.EqualFold(filepath.Ext(string(name)), ".md") {
+			expected[string(name)] = true
+		}
+	}
+	if len(expected) != len(inventory.Documents) {
+		return fmt.Errorf("canonical product spec Markdown file set differs from baseline commit %s: %d present, %d committed", commit, len(inventory.Documents), len(expected))
+	}
+	for _, doc := range inventory.Documents {
+		if !expected[doc.Path] {
+			return fmt.Errorf("canonical product spec document %s is absent from baseline commit %s", doc.Path, commit)
+		}
+	}
+	return nil
+}
+
 func runSpecBaseline(root, specRel, baselineCommit, output string, check bool) (SpecBaselineSummary, error) {
 	inventory, err := buildSpecInventory(root, specRel)
 	if err != nil {
+		return SpecBaselineSummary{}, err
+	}
+	if err := verifySpecBaselineSource(root, specRel, baselineCommit, inventory); err != nil {
 		return SpecBaselineSummary{}, err
 	}
 	activeCanonical := 0
