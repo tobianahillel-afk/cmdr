@@ -277,6 +277,29 @@ export function createEventInspectionJourney({ searchController, transport, onVi
     }
   }
 
+  // Crossing Inspector -> Event Search is an explicit user action. A previously
+  // authorized draft is not a permission token: obtain a fresh independently
+  // host-authorized pivot projection immediately before handing it to Search.
+  // The consumer receives structured draft data; it must never auto-execute
+  // a Query or treat this view as a Shared Query Engine authorization.
+  async function continuePivotInSearch() {
+    const current = getView();
+    const origin = openedFrom;
+    if (current.kind !== "inspected" || !current.pivotDraft || !origin ||
+        !validSearch(origin.start)) fail("pivot-not-available");
+    const latest = await draftPivot(current.pivotDraft.field, current.pivotDraft.value);
+    if (latest.kind !== "inspected" || !latest.pivotDraft) return latest;
+    const stillCurrent = getView();
+    if (stillCurrent !== latest || openedFrom !== origin || !validSearch(origin.start)) {
+      return stillCurrent.kind === "unavailable" ? stillCurrent : { kind: "superseded" };
+    }
+    sequence += 1;
+    abort?.abort();
+    abort = undefined;
+    return publish({ kind: "search", searchState: origin.searchState,
+      resultWindow: origin.resultWindow, queryDraft: latest.pivotDraft });
+  }
+
   function back() {
     sequence += 1;
     abort?.abort();
@@ -301,7 +324,8 @@ export function createEventInspectionJourney({ searchController, transport, onVi
   // even when no pivot/open transport is currently pending. A renderer must
   // read the current journey view rather than retain a prior projection.
   function getView() {
-    if (view.kind === "inspected" && (!openedFrom || !validSearch(openedFrom.start))) {
+    if ((view.kind === "inspected" || (view.kind === "search" && view.queryDraft)) &&
+        (!openedFrom || !validSearch(openedFrom.start))) {
       sequence += 1;
       abort?.abort();
       abort = undefined;
@@ -311,12 +335,12 @@ export function createEventInspectionJourney({ searchController, transport, onVi
     return view;
   }
 
-  return Object.freeze({ open, draftPivot, back, close, getView });
+  return Object.freeze({ open, draftPivot, continuePivotInSearch, back, close, getView });
 }
 
 // Render with native DOM text-only sinks. This is a view of server-authorized
 // content, never an authorization mechanism or a parser/decoding engine.
-export function renderEventInspection(document, mount, current, { onDraftPivot } = {}) {
+export function renderEventInspection(document, mount, current, { onDraftPivot, onContinuePivotInSearch } = {}) {
   if (typeof document?.createElement !== "function" ||
       typeof mount?.replaceChildren !== "function") fail("invalid-dom");
   const make = (tag, value = "") => {
@@ -326,6 +350,7 @@ export function renderEventInspection(document, mount, current, { onDraftPivot }
   };
   const section = make("section");
   const heading = make("h2", current.kind === "inspected" ? "Event inspection" :
+    current.kind === "search" ? "Event Search" :
     current.kind === "loading" ? "Loading event inspection" : "Event inspection unavailable");
   section.append(heading);
   if (current.kind === "inspected") {
@@ -374,6 +399,12 @@ export function renderEventInspection(document, mount, current, { onDraftPivot }
     }
     if (current.pivotDraft) {
       section.append(make("p", `Read-only draft, not executed: ${current.pivotDraft.field} = ${current.pivotDraft.value} | origin ${current.pivotDraft.fieldOrigin}`));
+      if (typeof onContinuePivotInSearch === "function") {
+        const action = make("button", "Continue with draft in Event Search");
+        action.type = "button";
+        action.addEventListener("click", () => onContinuePivotInSearch());
+        section.append(action);
+      }
     } else if (current.pivotStatus === "unavailable") {
       section.append(make("p", "Pivot draft unavailable; no search was executed"));
     }
@@ -381,6 +412,12 @@ export function renderEventInspection(document, mount, current, { onDraftPivot }
       section.append(make("h3", label));
       section.append(make("pre", item.access === "allowed" ? item.text : `${label} unavailable`));
     }
+  } else if (current.kind === "search" && current.queryDraft) {
+    const draft = current.queryDraft;
+    section.append(make("p", "Event Search — unexecuted Query draft; no Search Job created"));
+    section.append(make("p", `Field: ${draft.field} = ${draft.value} | origin: ${draft.fieldOrigin}`));
+    section.append(make("p", `Scope: ${draft.tenantRef} / ${draft.environmentRef} | period: ${draft.timeRange.start} — ${draft.timeRange.end}`));
+    section.append(make("p", `Return Event: ${draft.returnContext.eventRef} | job/run: ${draft.jobId} / ${draft.runId}`));
   }
   mount.replaceChildren(section);
 }

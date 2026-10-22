@@ -145,6 +145,19 @@ test("real Node fetch to Go authorized HTTP host opens and returns to identical 
   assert.equal(prior.kind, "search");
   assert.equal(prior.resultWindow, windowBefore);
 
+  // Real Node fetch -> Go handler reauthorizes a second time immediately before
+  // handing the read-only typed Query draft to the Search view.
+  assert.equal((await journey.open(context, "event-1")).kind, "inspected");
+  assert.equal((await journey.draftPivot("source.ip", "192.0.2.4")).kind, "inspected");
+  const searchDraft = await journey.continuePivotInSearch();
+  assert.equal(searchDraft.kind, "search");
+  assert.equal(searchDraft.queryDraft.kind, "pivot-draft");
+  assert.equal(searchDraft.queryDraft.returnContext.eventRef, "event-1");
+  assert.equal(searchDraft.queryDraft.auditRequired, true);
+  assert.equal(searchDraft.resultWindow, windowBefore);
+  assert.equal(searchDraft.searchState.query, context.query);
+  assert.equal(journey.back().queryDraft, undefined);
+
   const wrongBearer = createInspectionHTTPTransport({ fetchImpl: realLocalFetch(endpoint, "wrong-bearer") });
   await assert.rejects(() => wrongBearer.inspect({
     tenantRef: "tenant-a", environmentRef: "prod", eventRef: "event-1",

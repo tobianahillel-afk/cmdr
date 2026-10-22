@@ -279,6 +279,123 @@ test("reading a revoked Inspector during pending pivot aborts its stale response
   assert.equal(journey.getView().inspection, undefined);
 });
 
+test("explicit Inspector-to-Search handoff reauthorizes the unexecuted pivot and restores the original window", async () => {
+  const controller = await initializedSearch();
+  const originalWindow = controller.getView().resultWindow;
+  const transportCalls = [];
+  const journey = createEventInspectionJourney({
+    searchController: controller,
+    transport: {
+      async inspect() { return inspection(); },
+      async draftPivot(request) {
+        transportCalls.push(request);
+        return {
+          kind: "pivot-draft", targetCapability: "CAP-INV-002",
+          auditRequired: true, tenantRef: request.tenantRef,
+          environmentRef: request.environmentRef, eventRef: request.eventRef,
+          correlationId: request.correlationId, jobId: request.jobId,
+          runId: request.runId, timeRange: { start: request.timeStart, end: request.timeEnd },
+          field: request.field, value: request.value, fieldOrigin: "source",
+          sourceRef: "shared-source-1", dataSourceRef: "settings-source-1",
+          returnContext: { origin: "event-search", tenantRef: request.tenantRef,
+            environmentRef: request.environmentRef, eventRef: request.eventRef,
+            correlationId: request.correlationId },
+        };
+      },
+    },
+  });
+  await journey.open(context, "event-1");
+  assert.equal((await journey.draftPivot("source.ip", "192.0.2.10")).kind, "inspected");
+  const surface = new FakeElement("main");
+  renderEventInspection(new FakeDocument(), surface, journey.getView(), {
+    onContinuePivotInSearch() { void journey.continuePivotInSearch(); },
+  });
+  const next = allNodes(surface).find(node => node.tagName === "button" &&
+    node.textContent.includes("Continue with draft in Event Search"));
+  assert.ok(next, "visible explicit handoff action");
+  const result = await journey.continuePivotInSearch();
+  assert.equal(result.kind, "search");
+  assert.equal(result.queryDraft.kind, "pivot-draft");
+  assert.equal(result.queryDraft.fieldOrigin, "source");
+  assert.equal(result.queryDraft.returnContext.eventRef, "event-1");
+  assert.equal(result.resultWindow, originalWindow);
+  assert.equal(result.searchState.query, context.query);
+  assert.equal(transportCalls.length, 2, "a fresh host authorization is required at handoff");
+  assert.deepEqual(Object.keys(result).sort(),
+    ["kind", "searchState", "resultWindow", "queryDraft"].sort());
+  const searchPanel = new FakeElement("main");
+  renderEventInspection(new FakeDocument(), searchPanel, result);
+  assert.ok(allText(searchPanel).some(x => x.includes("unexecuted Query draft")));
+  assert.equal(journey.back().queryDraft, undefined);
+});
+
+test("pivot handoff denied by the owner on reauthorization must not enter Event Search", async () => {
+  const controller = await initializedSearch();
+  let calls = 0;
+  const journey = createEventInspectionJourney({
+    searchController: controller,
+    transport: {
+      async inspect() { return inspection(); },
+      async draftPivot(request) {
+        calls++;
+        if (calls === 2) throw new Error("pivot authorization revoked");
+        return {
+          kind: "pivot-draft", targetCapability: "CAP-INV-002", auditRequired: true,
+          tenantRef: request.tenantRef, environmentRef: request.environmentRef,
+          eventRef: request.eventRef, correlationId: request.correlationId,
+          jobId: request.jobId, runId: request.runId,
+          timeRange: { start: request.timeStart, end: request.timeEnd },
+          field: request.field, value: request.value, fieldOrigin: "source",
+          sourceRef: "shared-source-1", dataSourceRef: "settings-source-1",
+          returnContext: { origin: "event-search", tenantRef: request.tenantRef,
+            environmentRef: request.environmentRef, eventRef: request.eventRef,
+            correlationId: request.correlationId },
+        };
+      },
+    },
+  });
+  await journey.open(context, "event-1");
+  await assert.rejects(() => journey.continuePivotInSearch(), /pivot-not-available/);
+  assert.equal((await journey.draftPivot("source.ip", "192.0.2.10")).kind, "inspected");
+  const rejected = await journey.continuePivotInSearch();
+  assert.equal(rejected.kind, "inspected");
+  assert.equal(rejected.pivotStatus, "unavailable");
+  assert.equal(rejected.pivotDraft, undefined);
+  assert.equal(journey.getView().queryDraft, undefined);
+  assert.equal(calls, 2);
+});
+
+test("revocation after entering Search with a draft removes the draft before next read", async () => {
+  const controller = await initializedSearch();
+  const journey = createEventInspectionJourney({
+    searchController: controller,
+    transport: {
+      async inspect() { return inspection(); },
+      async draftPivot(request) {
+        return {
+          kind: "pivot-draft", targetCapability: "CAP-INV-002", auditRequired: true,
+          tenantRef: request.tenantRef, environmentRef: request.environmentRef,
+          eventRef: request.eventRef, correlationId: request.correlationId,
+          jobId: request.jobId, runId: request.runId,
+          timeRange: { start: request.timeStart, end: request.timeEnd },
+          field: request.field, value: request.value, fieldOrigin: "source",
+          sourceRef: "shared-source-1", dataSourceRef: "settings-source-1",
+          returnContext: { origin: "event-search", tenantRef: request.tenantRef,
+            environmentRef: request.environmentRef, eventRef: request.eventRef,
+            correlationId: request.correlationId },
+        };
+      },
+    },
+  });
+  await journey.open(context, "event-1");
+  await journey.draftPivot("source.ip", "192.0.2.10");
+  assert.equal((await journey.continuePivotInSearch()).kind, "search");
+  await controller.execute(context, { correlationId: "corr-2", queryVersion: "query-1" });
+  assert.equal(journey.getView().kind, "unavailable");
+  assert.equal(journey.getView().queryDraft, undefined);
+  assert.equal(journey.back().kind, "unavailable");
+});
+
 class FakeDocument {
   createElement(tag) { return new FakeElement(tag); }
 }
