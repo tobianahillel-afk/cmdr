@@ -169,7 +169,10 @@
         "product-runtime/case-search-workbench/**"
       ],
       "mutable_by_implementation": true,
-      "may_depend_on": []
+      "may_depend_on": [
+        "event-search-runtime",
+        "investigation-timeline-runtime"
+      ]
     }
   ]
 }
