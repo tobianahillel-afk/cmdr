@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-120C-MITREFIX",
+  "result": "VERIFIED",
+  "final_validated_head": "53544c2a65f66324d004d48427b07493f7ac2d9e",
+  "implementation_commit": "53544c2a65f66324d004d48427b07493f7ac2d9e",
+  "pull_request": 187,
+  "evidence": {
+    "title": "L2 R2 corrective \u2014 trusted source metadata and coherent browser Wazuh ATT&CK cohorts",
+    "goal": "Resolve two material reproducible R2 findings from independent L2 of E10-INV-120B-MITRE on frozen PR #187 without reimplementing the authorized Wazuh Case/Timeline workflow: reject explicit null/mistyped source metadata before the existing auth-limited receipt; reject browser technique counters/IDs inconsistent with source-authorized imported alert cohort.",
+    "implementation_paths": [
+      "product-runtime/investigation-timeline/cmd/case-timeline-demo/wazuh_levels.go",
+      "product-runtime/investigation-timeline/cmd/case-timeline-demo/wazuh_mitre_cohorts_test.go",
+      "product-runtime/investigation-timeline/cmd/case-timeline-demo/analyst.js",
+      "product-runtime/investigation-timeline/cmd/case-timeline-demo/analyst_summary.test.cjs",
+      "work/lots/E10-INV-120C-MITREFIX/**",
+      "work/graph.json"
+    ],
+    "outputs": [
+      "Authorized local Case/Timeline Wazuh metadata parser refuses explicit null or malformed MITRE objects/ID lists, while optional missing metadata yields an unmapped alert.",
+      "Existing local analyst browser rejects unique-ID, deterministic sort, top-ten completeness, unmapped count, mapped-count upper bounds and overlapping tag-count contradictions.",
+      "Tests derive from formerly accepted defective input, preserving valid overlapping tag counts and valid missing metadata.",
+      "One bounded 5000-alert \u00d7 16-label Go parsing stress test at existing source cap; no arbitrary latency threshold or production benchmark claim."
+    ],
+    "acceptance_tests": [
+      "Go Case/Timeline disk import rejects raw id null, mitre null, wrong scalar/object metadata, without a receipt or raw leakage.",
+      "Missing mitre data still returns untagged source diagnostic and does not invent a source technique.",
+      "Node analyst view rejects repeated IDs even when count differs, order/tie anomalies, nonexistent top-ten entries, impossible mapped alert vs tag counts and extra source metadata.",
+      "Node analyst view accepts legitimate multiple source labels on one alert, whose count sum can exceed imported alert count.",
+      "Existing Linux race, Go coverage+vet, Node UI and platform CI pass at exact HEAD, engineering mandatory security checks unchanged."
+    ],
+    "run_ids": []
+  },
+  "rules": [
+    "Product: CAP-INV-110 Investigation Timeline under Investigate Cases and Evidence. Case remains owned by Investigate; Timeline Entry and the read-only mechanism are Shared. Local Wazuh rule.mitre.id is source-provided metadata only, not a verified attack, Finding, Evidence, canonical permission, or new taxonomy owner.",
+    "Engineering: existing epic E10-INV-110; child E10-INV-120C-MITREFIX, explicitly after E10-INV-120B-MITRE IMPLEMENTED. Does NOT upgrade the separate stale E10-INV-120A-SNAPSHOT READY or claim complete CAP-INV-110 acceptance.",
+    "Code: existing Go first-party source parser wazuh_levels.go and local analyst analyst.js, with their existing Go/Node tests. No independent IAM, client-side enrichment engine, new route or storage.",
+    "Git: branch fix/e10-inv-120c-wazuh-mitre-consistency starts from reviewed PR #187 HEAD 53544c2a65f66324d004d48427b07493f7ac2d9e. Git parent is not engineering/product parent. Only this new branch may move; PR #187 and other audited SHAs remain immutable.",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-120D-TECHNAV"
+  ]
+}

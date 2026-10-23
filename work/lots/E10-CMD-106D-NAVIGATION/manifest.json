@@ -1,0 +1,130 @@
+{
+  "schema_version": 2,
+  "id": "E10-CMD-106D-NAVIGATION",
+  "title": "Navigate from a source-authorized Command Incident-linked Case to the existing read-only Investigate Case Timeline",
+  "type": "task",
+  "parent": "E10-CMD-106",
+  "goal": "Make already authorized linked Investigate Cases navigable from the single Command Work Queue selected Incident view via a fixed same-origin read-only Case Timeline URL. Reauthorization stays with the destination; no source permissions are conveyed in the link.",
+  "depends_on": [
+    "E10-CMD-106C-FRESHNESS"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-CMD-106",
+      "CAP-CMD-101",
+      "CAP-INV-110"
+    ],
+    "requirements": [
+      "REQ-OBJ-001",
+      "REQ-PROD-003",
+      "REQ-PROD-008",
+      "REQ-PROD-013",
+      "REQ-SEC-001"
+    ],
+    "screens": [
+      "CMD-IWQ-006",
+      "INV-TIM-001"
+    ],
+    "permissions": [
+      "perm.command.incident.read",
+      "perm.investigate.case.read"
+    ],
+    "open_decisions": [
+      "OPEN-013"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/incident.md",
+      "cmdr-product-spec/05-domain-model/objects/case.md"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/12-shared-capabilities/object-linking-service.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/work-queue/html.go",
+    "product-runtime/work-queue/linked_case_navigation_test.go",
+    "work/lots/E10-CMD-106D-NAVIGATION/**",
+    "work/graph.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "tools/cmdr-dev/**",
+    "product-runtime/investigation-timeline/**",
+    "product-runtime/work-queue/http.go",
+    "product-runtime/work-queue/linked_cases_join.go"
+  ],
+  "invariants": [
+    "Selected Incident must be Command-readable within current Work Queue page before owner lookups; Shared Object Linking and Investigate owner must independently allow each Case before a navigation target is shown.",
+    "Only existing trusted same-origin GET /case-timeline?case_id=... route is used; its host and Case/Timeline/typed-source owners MUST independently authenticate/authorize the destination request.",
+    "Never place tenant, environment, principal, permission, token, or return authorization in the URL.",
+    "Case ID is safely query-encoded by html/template urlquery before interpolation, never treated as HTML, arbitrary external redirect, JavaScript URL, or a source trust signal.",
+    "No new API, IAM adapter, source, mutation, persisted link, Class-2 operation, external integration or claim of automatic exact return."
+  ],
+  "security_properties": [
+    "No link when Shared link or Investigate Case is missing/denied; no source lookup for unselected Incident/Task/denied current page.",
+    "Source-generated Case ID containing query delimiter, hash or angle brackets cannot inject extra tenant params or HTML code.",
+    "Navigating URL is a non-authoritative pointer; destination may refuse or not be mounted, and no source data appears in the URL beyond ID already authorized."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Additive HTML navigation anchor, existing JSON contract and server authorization unchanged",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Remove link from selected Incident template; retain all Case and source-owned freshness fields",
+    "verification": [
+      "Previous HTML and JSON behavior restored",
+      "No owner or route state changed"
+    ]
+  },
+  "inputs": [
+    "CAP-CMD-106 §9,§11,§17,§21,§25 and CAP-CMD-101 §9,§11,§17; existing source-authorized LinkedCaseOwnerJoin of 106B and freshness of 106C",
+    "Canonical read-only Case Timeline existing fixed GET /case-timeline?case_id and its independent Case/Entry/source authorization (CAP-INV-110)"
+  ],
+  "outputs": [
+    "One clickable same-origin Case Timeline target per existing independently authorized selected Incident Case on the existing HTML route; no new server endpoint.",
+    "Go HTTP/HTML regression tests for URL escaping, denied source, unselected/Task, JSON backward compatibility."
+  ],
+  "acceptance_tests": [
+    "GET /command/work-queue?selected=Incident:inc-a HTML shows a fixed URL-encoded read-only Investigate navigation link for an independently source-authorized Case.",
+    "A hostile Case ID with & or # cannot add extra URL query parameters, leak tenant or change destination origin.",
+    "Denied/absent Case, unknown Shared links, Task/unselected Incident never show Case navigation.",
+    "The linked Case remains independently authorized at the destination: this module never issues authorization, and the receiving host must mount its existing /case-timeline and recheck Case/Timeline/typed-source permissions.",
+    "Existing selected Case JSON projection remains identical; exact SHA passes Go tests/race/vet and mandatory engineering gates."
+  ],
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-SECURITY-TESTS",
+    "CHK-SAST-GO",
+    "command-work-queue-runtime"
+  ],
+  "definition_of_ready": [
+    "Existing E10-CMD-106C-FRESHNESS IMPLEMENTED; Case link and Investigate owner join exist; first-party destination CaseTimelineHTTPHandler exists as independent route.",
+    "OPEN-013 Class-2 create/link/mutate excluded, no real production IAM/host/router guaranteed."
+  ],
+  "definition_of_done": [
+    "Read-only selected Case navigation appears as source-owned URL after existing independent auth.",
+    "Tests and CI GitHub exact SHA verified; no weaker authorization.",
+    "Handoff explicitly notes deployment/router and exact return context not implemented; no production claim."
+  ],
+  "performance_budget": {
+    "applicable": false,
+    "rationale": "At most sixteen links generated from the already authorized selected Incident Case projection; no new provider reads or network calls.",
+    "metrics": []
+  },
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 2,
+    "estimated_net_loc": 4,
+    "production_files": 1,
+    "net_production_loc": 1,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

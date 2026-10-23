@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-CMD-106L-ALERTSRC",
+  "result": "VERIFIED",
+  "final_validated_head": "07900fa4c174f46a71a52debb3a93403faabd4c9",
+  "implementation_commit": "07900fa4c174f46a71a52debb3a93403faabd4c9",
+  "pull_request": 210,
+  "evidence": {
+    "title": "Show separately Alert.read-authorized Incident origin in existing read-only Incident Detail",
+    "goal": "Restore the canonical Incident upstream Alert triage source to the real Command Incident Detail, using two narrow server-authorized Command owners: relation owner and independent Alert.read owner. Show limited source provenance, no raw Signal/Event, no mutation or permission inheritance.",
+    "implementation_paths": [
+      "product-runtime/work-queue/incident_alert_origin.go",
+      "product-runtime/work-queue/incident_alert_origin_test.go",
+      "product-runtime/work-queue/incident_detail.go",
+      "product-runtime/command-investigate-host/cmd/local-browser/main.go",
+      "product-runtime/command-investigate-host/cmd/local-browser/incident_detail_test.go",
+      "work/lots/E10-CMD-106L-ALERTSRC/**",
+      "work/graph.json",
+      "engineering/state/current.json",
+      "product-runtime/command-investigate-host/cmd/local-browser/incident_alert_origin_owner_test.go"
+    ],
+    "outputs": [
+      "One existing Incident Detail shows source Alert ID, source severity/status/disposition/provenance only if source owner independently allows Alert.read",
+      "Fail-closed bounded multi-source join with per-Alert isolation, nil/denied omissions and HTML escaping",
+      "Synthetic localhost Go HTTP tests exercising independent principal rights and regression behavior"
+    ],
+    "acceptance_tests": [
+      "Analyst who can read selected Incident and Alert sees actual source-origin fields in Detail; commander who can read Incident but not Alert sees no source ID or attributes",
+      "Wrong tenant/env/Incident link, duplicated/bad Alert IDs, malformed owner source/status/provenance/time or source failure abort without leaking prior authorized page content",
+      "One denied Alert among authorized references is omitted without disclosing its reference, while authorized Alert stays visible",
+      "Legacy owner without either optional interface remains functional, with explicit unavailable source message",
+      "Existing Work Queue, Incident Detail and same-origin host tests plus GitHub Actions on exact SHA pass; all obligatory security and statement coverage gates retained",
+      "Direct synthetic adapters prove a readable Incident cannot expose related Alert to Incident-only commander, unknown principal, foreign tenant/environment, unexpected Alert or canceled read"
+    ],
+    "run_ids": []
+  },
+  "rules": [
+    "Class-0 read-only implementation for E10-CMD-106L-ALERTSRC",
+    "Strict tenant isolation and permission checking",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-CMD-106M-RESULTREAD"
+  ]
+}

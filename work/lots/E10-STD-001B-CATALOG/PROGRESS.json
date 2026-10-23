@@ -1,0 +1,134 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-STD-001B-CATALOG",
+  "status": "IMPLEMENTED",
+  "implementation_commit": "da7a955169bc9294b1c0655b1fe2370383b0c7a8",
+  "final_validated_head": "da7a955169bc9294b1c0655b1fe2370383b0c7a8",
+  "pull_request": 222,
+  "ci_proofs": {
+    "total_checks": 18,
+    "passed_checks": 18,
+    "workflow_runs": [
+      {
+        "name": "CMDR corrected Command Case and Search Pivot joint-tree tests",
+        "run_id": 39899182250,
+        "status": "success"
+      },
+      {
+        "name": "Event Search to Event Inspection live local HTTP integration",
+        "run_id": 39899182225,
+        "status": "success"
+      },
+      {
+        "name": "command-investigate-readonly-host",
+        "run_id": 39899182235,
+        "status": "success"
+      },
+      {
+        "name": "command-work-queue-runtime",
+        "run_id": 39899182252,
+        "status": "success"
+      },
+      {
+        "name": "Event Inspection authorized HTTP host",
+        "run_id": 39899182330,
+        "status": "success"
+      },
+      {
+        "name": "investigation-timeline-runtime",
+        "run_id": 39899182283,
+        "status": "success"
+      },
+      {
+        "name": "engineering-kernel",
+        "run_id": 39899182256,
+        "status": "success"
+      }
+    ]
+  },
+  "validation": {
+    "manifest_validation": "PASS",
+    "architecture_audit": "PASS",
+    "doctor": "PASS",
+    "product_spec_diff": "PASS",
+    "node_tests": "PASS",
+    "go_vet": "PASS",
+    "ci_checks": "PASS",
+    "result": "PASS"
+  },
+  "evidence": {
+    "capability": "CAP-STD-001",
+    "secondary_capability": "CAP-STD-002",
+    "requirements": [
+      "REQ-PROD-006",
+      "REQ-PROD-016",
+      "REQ-OBJ-009"
+    ],
+    "contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/error-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/pagination-filtering-sorting.md"
+    ],
+    "operations": [
+      "browse",
+      "search",
+      "filter",
+      "group",
+      "open",
+      "inspect",
+      "clone-with-provenance",
+      "compare"
+    ],
+    "query_execution_class": "class_0_query_registry",
+    "tenant_enforcement": "strict_single_tenant_and_mssp_authorized_set",
+    "wildcard_querying_allowed": false,
+    "existence_oracle_prevention": true,
+    "pagination": "opaque_cursor_deterministic_sort",
+    "bounded_limits": {
+      "default": 25,
+      "min": 1,
+      "max": 100
+    },
+    "permission_filtering": "server_side_pre_authorization_and_redaction",
+    "supported_asset_kinds": [
+      "skill",
+      "workflow",
+      "automation-agent",
+      "agent-team",
+      "tool"
+    ],
+    "lifecycle_states": [
+      "draft",
+      "review",
+      "approved",
+      "published",
+      "deprecated",
+      "superseded"
+    ],
+    "functional_projection_states": [
+      "ready",
+      "partial",
+      "stale",
+      "permission-filtered"
+    ],
+    "owner_unknown_enforced": true,
+    "secret_reference_masking": "opaque_pointers_only",
+    "runtime_implementation_claimed": false,
+    "runtime_files_created": 0,
+    "production_loc_added": 0
+  },
+  "invariants": [
+    "Product Spec baseline 82e630fce3a7f6236e03709116eca6dd0a1acd40 unchanged (0 bytes diff)",
+    "Class 0 catalog query operations defined with zero execution actions (REQ-PROD-006)",
+    "Strict tenant scoping enforced under tenant-scope-contract.md with existence oracle leak prevention",
+    "Deterministic cursor-based pagination and bounded limits enforced under pagination-filtering-sorting.md",
+    "Server-side pre-authorization evaluation and dual-permission scheme resolution enforced",
+    "Standard error handling under error-contract.md with zero credential leakage",
+    "No runtime executable code added (production_files=0, net_production_loc=0)"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-STD-001C-RUNTIME"
+  ]
+}

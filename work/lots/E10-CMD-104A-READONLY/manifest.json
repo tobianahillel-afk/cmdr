@@ -1,0 +1,129 @@
+{
+  "schema_version": 2,
+  "id": "E10-CMD-104A-READONLY",
+  "title": "Inspect six independently source-authorized coordination factors on a selected Command work item",
+  "type": "task",
+  "parent": "E10-CMD-104",
+  "goal": "Implement CAP-CMD-104 Class-0 inspector of priority, severity, urgency, impact, confidence, and SLA risk on the existing selected authorized Incident/Task without conflation, inference or mutation.",
+  "depends_on": [
+    "E10-CMD-101I-SELECTION"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-CMD-104",
+      "CAP-CMD-101"
+    ],
+    "requirements": [
+      "REQ-PROD-005",
+      "REQ-PROD-013",
+      "REQ-PROD-021",
+      "REQ-UX-005",
+      "REQ-OBJ-001"
+    ],
+    "screens": [],
+    "permissions": [
+      "perm.command.read",
+      "perm.command.incident.read"
+    ],
+    "open_decisions": [],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/incident.md",
+      "cmdr-product-spec/05-domain-model/objects/task.md"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/work-queue/factors.go",
+    "product-runtime/work-queue/factors_test.go",
+    "product-runtime/work-queue/queue.go",
+    "product-runtime/work-queue/http.go",
+    "product-runtime/work-queue/html.go",
+    "work/lots/E10-CMD-104A-READONLY/**",
+    "work/graph.json",
+    "engineering/state/current.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "tools/cmdr-dev/**",
+    "product-runtime/case-queue/**",
+    "product-runtime/investigation-timeline/**"
+  ],
+  "invariants": [
+    "Exactly six separate owner-sourced factors, nil means unknown/not disclosed; never derive effective priority from technical severity.",
+    "No new Work Queue route or client-selected tenant/environment/permission; only selected already-reauthorized work item can request factors.",
+    "Optional host FactorsOwner must independently authorize each returned external source; unavailable factors are nil and no new rights flow from Incident selection.",
+    "Read-only; OPEN-013 Class-2 mutations of priority/impact and product IAM remain excluded.",
+    "Existing unselected queue rows, views, status, sort, cursor and selection remain backwards compatible."
+  ],
+  "security_properties": [
+    "Host session and every Command object ACL evaluated by existing Project prior to any factor resolution.",
+    "Denied/foreign/off-page object never invokes factor adapter or emits factor metadata.",
+    "Invalid factor source/value/time or host failure emits generic 503 with no partial authorized item data.",
+    "HTML uses html/template escaping and existing CSP/no-store headers."
+  ],
+  "inputs": [
+    "Full canonical CAP-CMD-104 §§1–27 and CAP-CMD-101 §§1–27; Command module ownership; Incident/Task objects; tenant/permission contracts; Shared Saved Views catalog",
+    "Frozen PR #167 HEAD 8260b1e65e61efe638cce44b5608e828e293f5b8; exact-head three-OS runtime and kernel SUCCESS",
+    "No current production factor data connector; bounded host adapter only, no fabricated source."
+  ],
+  "outputs": [
+    "Optional six distinct source-provenance coordination dimensions in selected JSON and native HTML, missing sources explicitly unknown.",
+    "Independent host source-factor authorization adapter; no mutation, scoring, export, new route or paid API.",
+    "Negative authorization and provenance/HTML tests plus exact-head CI."
+  ],
+  "acceptance_tests": [
+    "Selected Incident with severity critical but Command priority low retains both distinct values and source/time; no inferred reclassification.",
+    "Without factor provider: six unknown in selected HTML; unrelated unselected JSON unchanged.",
+    "Forbidden Incident/Task, foreign tenant, off-page or revoked object never calls source adapter.",
+    "Malformed factor metadata or source backend denial fails closed without partial response; HTML escapes attacker-controlled labels."
+  ],
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-RUNTIME-DEPS",
+    "CHK-SECURITY-TESTS"
+  ],
+  "definition_of_ready": [
+    "E10-CMD-101I-SELECTION IMPLEMENTED on frozen PR #167 and its exact-head CI verified successful.",
+    "CAP-CMD-104 read-only inspection Class 0 does not require resolving OPEN-013 mutation policy."
+  ],
+  "definition_of_done": [
+    "Actual selected-only six-dimension inspection behavior and source authorization isolation demonstrated on GitHub CI exact SHA.",
+    "Only E10-CMD-104A-READONLY task IMPLEMENTED, neither CAP-CMD-104 canonical acceptance nor main merge claimed.",
+    "One independent read-only L2 on materially new factor-owner security boundary."
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 4,
+    "estimated_net_loc": 130,
+    "production_files": 4,
+    "net_production_loc": 130,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  },
+  "migration": {
+    "required": false,
+    "rationale": "Only optional host projection on the already-authorized selected read-only route.",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Remove optional FactorsOwner and factors fields, retain existing selected context.",
+    "verification": [
+      "Existing six-view unselected JSON and ACL tests remain passing"
+    ]
+  },
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "One existing bounded <=5000 Owner.List/CanRead traversal per queue request, plus at most ONE selected-item factor read from the host; no new sorting, pagination pass or external source calls from the runtime.",
+    "metrics": [
+      "At most one ReadAuthorizedFactors call for one selected currently authorized row, never for unselected, denied or off-page.",
+      "Preserve current <=50 visible rows and <=5000 owner candidate bound."
+    ]
+  }
+}

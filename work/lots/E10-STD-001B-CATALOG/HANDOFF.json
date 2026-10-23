@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-STD-001B-CATALOG",
+  "result": "VERIFIED",
+  "implementation_commit": "da7a955169bc9294b1c0655b1fe2370383b0c7a8",
+  "final_validated_head": "da7a955169bc9294b1c0655b1fe2370383b0c7a8",
+  "pull_request": 222,
+  "ci_proofs": {
+    "total_checks": 18,
+    "passed_checks": 18,
+    "workflow_runs": [
+      {
+        "name": "CMDR corrected Command Case and Search Pivot joint-tree tests",
+        "run_id": 39899182250,
+        "status": "success"
+      },
+      {
+        "name": "Event Search to Event Inspection live local HTTP integration",
+        "run_id": 39899182225,
+        "status": "success"
+      },
+      {
+        "name": "command-investigate-readonly-host",
+        "run_id": 39899182235,
+        "status": "success"
+      },
+      {
+        "name": "command-work-queue-runtime",
+        "run_id": 39899182252,
+        "status": "success"
+      },
+      {
+        "name": "Event Inspection authorized HTTP host",
+        "run_id": 39899182330,
+        "status": "success"
+      },
+      {
+        "name": "investigation-timeline-runtime",
+        "run_id": 39899182283,
+        "status": "success"
+      },
+      {
+        "name": "engineering-kernel",
+        "run_id": 39899182256,
+        "status": "success"
+      }
+    ]
+  },
+  "evidence": {
+    "catalog_evidence_file": "work/lots/E10-STD-001B-CATALOG/CATALOG-EVIDENCE.md",
+    "capability": "CAP-STD-001",
+    "secondary_capability": "CAP-STD-002",
+    "requirements": [
+      "REQ-PROD-006",
+      "REQ-PROD-016",
+      "REQ-OBJ-009"
+    ],
+    "contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/error-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/pagination-filtering-sorting.md"
+    ],
+    "operations": [
+      "browse",
+      "search",
+      "filter",
+      "group",
+      "open",
+      "inspect",
+      "clone-with-provenance",
+      "compare"
+    ],
+    "execution_class": "class_0_query_registry",
+    "runtime_code_files": 0,
+    "production_loc": 0,
+    "validation_results": {
+      "manifest_validation": "201/201 manifests PASS",
+      "architecture_audit": "15/15 boundaries PASS (1466 path claims)",
+      "doctor": "PASS (healthy=true)",
+      "spec_diff": "0 bytes diff against 82e630fce3a7f6236e03709116eca6dd0a1acd40",
+      "node_test_suites": "143/143 tests PASS (61 timeline demo + 82 event-search frontend)",
+      "go_module_vet": "11/11 modules PASS"
+    }
+  },
+  "rules": [
+    "CMDR Studio library asset catalog registry core and query contracts defined under CAP-STD-001 and CAP-STD-002",
+    "Class 0 query operations defined: browse, search, filter, group, open, inspect, clone-with-provenance, compare",
+    "Zero execution actions permitted; visibility never conveys executability (REQ-PROD-006)",
+    "Strict single-tenant scoping and MSSP Authorized Tenant Set read-only aggregation enforced",
+    "Fail-closed isolation with elimination of existence oracle leaks",
+    "Cursor-based pagination with deterministic ordering and bounded limits (1-100) under pagination-filtering-sorting.md",
+    "Server-side pre-authorization evaluation and dual-permission scheme resolution",
+    "Asset kinds classified into skill, workflow, automation-agent, agent-team, tool",
+    "Lifecycle states mapped to functional states: ready, partial, stale, permission-filtered",
+    "Explicit owner unknown enforced when owner absent",
+    "Standard error envelope and zero credential leakage enforced under error-contract.md",
+    "Product Spec remains immutable (0 bytes diff)",
+    "Graph status updated to VERIFIED"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": []
+}

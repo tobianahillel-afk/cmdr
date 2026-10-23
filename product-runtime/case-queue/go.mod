@@ -1,3 +1,3 @@
 module github.com/tobianahillel-afk/cmdr/product-runtime/case-queue
 
-go 1.26.8
+go 1.26.10

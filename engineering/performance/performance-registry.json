@@ -443,6 +443,90 @@
         }
       ],
       "rationale": "Preimplementation-only local engineering ceiling, not a result or production SLO; handler explicitly fails closed until a real representative runtime probe is implemented."
+    },
+    {
+      "id": "PERF-TGT-COMMAND-WORK-QUEUE-PROJECTION",
+      "scope_kind": "product-runtime",
+      "boundary_id": "command-work-queue-runtime",
+      "owner_path": "product-runtime/work-queue/**",
+      "workload_key": "command-work-queue-in-process-projection-v1",
+      "workload_description": "Bounded first-party in-memory Command Incident/Task six-view read-only projection with at most 5000 candidates, current per-object owner callback, sorting, and first 50 rows. Provider I/O, backend latency, browser rendering and process startup are NOT measured by this engineering budget.",
+      "environment_id": "PERF-ENV-GITHUB-UBUNTU-SHARED",
+      "stages": [
+        "on-demand"
+      ],
+      "trigger_paths": [
+        "product-runtime/work-queue/**",
+        "engineering/performance/performance-registry.json"
+      ],
+      "metrics": [
+        {
+          "id": "projection-p95-latency",
+          "kind": "latency",
+          "unit": "ms",
+          "aggregation": "p95",
+          "comparator": "upper-bound",
+          "budget": 50,
+          "max_relative_regression_percent": 0
+        }
+      ],
+      "rationale": "On-demand engineering-only coarse ceiling until a representative CMDR Command data provider and measured performance probe exist; never claim a production SLO or benchmark pass from registry presence."
+    },
+    {
+      "id": "PERF-TGT-COMMAND-INVESTIGATE-HOST",
+      "scope_kind": "product-runtime",
+      "boundary_id": "command-investigate-host-runtime",
+      "owner_path": "product-runtime/command-investigate-host/**",
+      "workload_key": "command-investigate-same-origin-routing-v1",
+      "workload_description": "Two-route read-only in-process HTTP dispatch onto the already independently-authorized Command Work Queue and Investigate Case Timeline handlers; does not measure real IAM, databases, external providers, network, TLS, browser rendering or production latency.",
+      "environment_id": "PERF-ENV-GITHUB-UBUNTU-SHARED",
+      "stages": [
+        "on-demand"
+      ],
+      "trigger_paths": [
+        "product-runtime/command-investigate-host/**",
+        "engineering/performance/performance-registry.json"
+      ],
+      "metrics": [
+        {
+          "id": "same-origin-host-p95-latency",
+          "kind": "latency",
+          "unit": "ms",
+          "aggregation": "p95",
+          "comparator": "upper-bound",
+          "budget": 50,
+          "max_relative_regression_percent": 0
+        }
+      ],
+      "rationale": "Provisional on-demand engineering budget for a bounded local composition; NOT a measured SLO or performance check outcome. No production IAM/provider available; representative owner latency and p95 request benchmark are deferred until integration benchmark fixture exists."
+    },
+    {
+      "id": "PERF-TGT-EVENT-INSPECTION-HOST-UPSTREAM-PROJECTION",
+      "scope_kind": "product-runtime",
+      "boundary_id": "event-inspection-http-host-runtime",
+      "owner_path": "product-runtime/event-inspection-host/**",
+      "workload_key": "event-inspection-projection-v1",
+      "workload_description": "Existing first-party eventinspection.Project core, also invoked by this authorized HTTP adapter. Its existing in-process projector probe is reused. This does NOT measure HTTP transport, authorization owner latency, telemetry lookup, network or production SLO. A separate synthetic host httptest benchmark reports local HTTP mean ns/op only.",
+      "environment_id": "PERF-ENV-GITHUB-UBUNTU-SHARED",
+      "stages": [
+        "on-demand"
+      ],
+      "trigger_paths": [
+        "product-runtime/event-inspection-host/**",
+        "engineering/performance/performance-registry.json"
+      ],
+      "metrics": [
+        {
+          "id": "upstream-projection-p95-latency",
+          "kind": "latency",
+          "unit": "ms",
+          "aggregation": "p95",
+          "comparator": "upper-bound",
+          "budget": 1,
+          "max_relative_regression_percent": 0
+        }
+      ],
+      "rationale": "Reuses the verified existing 1 ms coarse in-process projector budget for the upstream projection only; the host has no invented HTTP p95/network provider SLO and is separately assessed with a synthetic Go benchmark."
     }
   ]
 }

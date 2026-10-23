@@ -93,6 +93,10 @@ const (
 	savedQueryAssetsSecurityModuleIdentity       = "github.com/tobianahillel-afk/cmdr/product-runtime/saved-query-assets"
 	savedQueryAssetsAuthorizationTestRegexp      = "^TestProjectMatchesPredeclaredContractFixtures$/(^asset-access-denied-is-rejected$|^query-access-denied-is-rejected$)"
 	savedQueryAssetsTenantTestRegexp             = "^TestProjectMatchesPredeclaredContractFixtures$/(^missing-tenant-is-rejected$|^wildcard-tenant-is-rejected$|^cross-tenant-asset-is-rejected$|^cross-tenant-query-is-rejected$|^cross-tenant-source-is-rejected$)"
+	commandWorkQueueSecurityRuntimeRoot          = "product-runtime/work-queue"
+	commandWorkQueueSecurityModuleIdentity       = "github.com/tobianahillel-afk/cmdr/product-runtime/work-queue"
+	commandWorkQueueAuthorizationTestRegexp      = "^TestCanonicalSixViewsWithRealAuthorization$|^TestReadOnlyQueueFailsClosedForMissingScopeViewAndProvider$"
+	commandWorkQueueTenantTestRegexp             = "^TestReadOnlyQueueFailsClosedForMissingScopeViewAndProvider$|^TestCanonicalSixViewsWithRealAuthorization$"
 	caseQueueSecurityRuntimeRoot                 = "product-runtime/case-queue"
 	caseQueueSecurityModuleIdentity              = "github.com/tobianahillel-afk/cmdr/product-runtime/case-queue"
 	caseQueueAuthorizationTestRegexp             = "^TestProjectMatchesPredeclaredContractFixtures$/^permission-filtered-case-is-hidden$"
@@ -105,6 +109,11 @@ const (
 	eventSearchFrontendAuthorizationTestRegexp   = "^(authorization-state-cannot-be-deeplinked|permission-denied-reveals-no-protected-content|permission-denied-outcome-clears-results-and-exposes-no-protected-projection)$"
 	eventSearchFrontendTenantTestRegexp          = "^(tenant-mismatch-is-rejected|tenant-wildcard-is-rejected|transport-tenant-mismatch-fails-closed)$"
 )
+
+const eventInspectionHostSecurityRuntimeRoot = "product-runtime/event-inspection-host"
+const eventInspectionHostSecurityModuleIdentity = "github.com/tobianahillel-afk/cmdr/product-runtime/event-inspection-host"
+const eventInspectionHostAuthorizationTestRegexp = "^TestDeniedSearchNeverCallsTelemetryAndDenialsAreGeneric$"
+const eventInspectionHostTenantTestRegexp = "^TestSessionScopeIsNeverTakenFromClient$"
 
 type runtimeSecurityAdapter struct {
 	BoundaryID             string
@@ -137,6 +146,12 @@ func runtimeSecurityAdapters() map[string]runtimeSecurityAdapter {
 			AuthorizationTestRegex: eventInspectionAuthorizationTestRegexp,
 			TenantTestRegex:        eventInspectionTenantTestRegexp,
 		},
+		"event-inspection-http-host-runtime": {
+			BoundaryID: "event-inspection-http-host-runtime", RuntimeRoot: eventInspectionHostSecurityRuntimeRoot, RuntimeKind: "go",
+			ModuleIdentity:         eventInspectionHostSecurityModuleIdentity,
+			AuthorizationTestRegex: eventInspectionHostAuthorizationTestRegexp,
+			TenantTestRegex:        eventInspectionHostTenantTestRegexp,
+		},
 		huntManagementRuntimeBoundaryID: {
 			BoundaryID: huntManagementRuntimeBoundaryID, RuntimeRoot: huntManagementSecurityRuntimeRoot, RuntimeKind: "go",
 			ModuleIdentity:         huntManagementSecurityModuleIdentity,
@@ -149,11 +164,24 @@ func runtimeSecurityAdapters() map[string]runtimeSecurityAdapter {
 			AuthorizationTestRegex: savedQueryAssetsAuthorizationTestRegexp,
 			TenantTestRegex:        savedQueryAssetsTenantTestRegexp,
 		},
+		"command-work-queue-runtime": {
+			BoundaryID: "command-work-queue-runtime", RuntimeRoot: commandWorkQueueSecurityRuntimeRoot, RuntimeKind: "go",
+			ModuleIdentity:         commandWorkQueueSecurityModuleIdentity,
+			AuthorizationTestRegex: commandWorkQueueAuthorizationTestRegexp,
+			TenantTestRegex:        commandWorkQueueTenantTestRegexp,
+		},
 		caseQueueRuntimeBoundaryID: {
 			BoundaryID: caseQueueRuntimeBoundaryID, RuntimeRoot: caseQueueSecurityRuntimeRoot, RuntimeKind: "go",
 			ModuleIdentity:         caseQueueSecurityModuleIdentity,
 			AuthorizationTestRegex: caseQueueAuthorizationTestRegexp,
 			TenantTestRegex:        caseQueueTenantTestRegexp,
+		},
+		"command-investigate-host-runtime": {
+			BoundaryID:  "command-investigate-host-runtime",
+			RuntimeRoot: "product-runtime/command-investigate-host", RuntimeKind: "go",
+			ModuleIdentity:         "github.com/tobianahillel-afk/cmdr/product-runtime/command-investigate-host",
+			AuthorizationTestRegex: "^TestRealSameOriginCommandToInvestigateNavigationIndependentlyReauthorizes$|^TestSameOriginHostRoutesFailClosedWithoutGrantingOrRedirecting$",
+			TenantTestRegex:        "^TestRealSameOriginCommandToInvestigateNavigationIndependentlyReauthorizes$|^TestSameOriginHostRoutesFailClosedWithoutGrantingOrRedirecting$",
 		},
 		"investigation-timeline-runtime": {
 			BoundaryID: "investigation-timeline-runtime", RuntimeRoot: investigationTimelineSecurityRuntimeRoot, RuntimeKind: "go",

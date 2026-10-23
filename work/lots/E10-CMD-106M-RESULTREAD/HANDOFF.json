@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-CMD-106M-RESULTREAD",
+  "result": "VERIFIED",
+  "final_validated_head": "aabdf107824bee9c3561ccce440586ac1670fa3d",
+  "implementation_commit": "aabdf107824bee9c3561ccce440586ac1670fa3d",
+  "pull_request": 211,
+  "evidence": {
+    "title": "Read independently authorized Govern Response Result in existing Command Incident Detail",
+    "goal": "Complete a bounded Class-0 Govern\u2192Command Result consumption in existing authenticated Incident Detail without mutating Incident, Run, Decision or Result. Shared owner authorizes Incident\u2192Result relation and Govern owner independently checks perm.govern.result.read before provenance/outcome/residual risk are displayed.",
+    "implementation_paths": [
+      "product-runtime/work-queue/incident_govern_result.go",
+      "product-runtime/work-queue/incident_govern_result_test.go",
+      "product-runtime/work-queue/incident_detail.go",
+      "product-runtime/command-investigate-host/cmd/local-browser/main.go",
+      "product-runtime/command-investigate-host/cmd/local-browser/incident_detail_test.go",
+      "product-runtime/command-investigate-host/cmd/local-browser/incident_govern_result_owner_test.go",
+      "work/lots/E10-CMD-106M-RESULTREAD/**",
+      "work/graph.json",
+      "engineering/state/current.json"
+    ],
+    "outputs": [
+      "The existing local Incident Detail now displays bounded Govern-authorized Result outcome, verification, residual risk, provenance and referenced Run ID",
+      "Source with denied Govern result is omitted without ID/count; absent provider yields explicitly partial Result unavailable state",
+      "Go handler tests for authorized/dropped Results, malicious identities, failures, revoked Incident, plus real localhost multi-principal HTTP browser tests"
+    ],
+    "acceptance_tests": [
+      "Visible incident and authorized Shared relation and Govern Result.read render Result ID, Run ID, lifecycle, outcome, verification, residual risk and source version; host escape prevents HTML injection",
+      "Readable Incident to commander without Govern grant renders no Result or ID, even if Shared relation exists; exact lookup is per-result",
+      "Malformed/refused/foreign/duplicated/too-many references or poisoned Result record abort whole output before HTML, while missing/denied individual Result is omitted",
+      "Legacy handler without optional sources keeps existing Incident/Alert/Case HTML and explicit partial unavailable state",
+      "Go runtime tests, race, vet, cross-platform host and engineering/security mandatory checks pass on exact candidate SHA"
+    ],
+    "run_ids": []
+  },
+  "rules": [
+    "Class-0 read-only implementation for E10-CMD-106M-RESULTREAD",
+    "Strict tenant isolation and permission checking",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-CMD-106N-DETAILRETURN"
+  ]
+}

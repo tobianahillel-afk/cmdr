@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-CMD-106G-LOCALBROWSER",
+  "result": "VERIFIED",
+  "final_validated_head": "dc714668f4e50deeb92057dc89a0c5911d104893",
+  "implementation_commit": "dc714668f4e50deeb92057dc89a0c5911d104893",
+  "pull_request": 201,
+  "evidence": {
+    "title": "Launch a real loopback-only browser for the existing owner-authorized Command Incident to Investigate Case Timeline journey",
+    "goal": "Replace test-only browser path with a runnable no-paid-API local first-party Go server mounting existing Command Work Queue and Investigate Case Timeline handlers, a minimal ephemeral browser Basic challenge, two independently checked synthetic owners and a visible corrected Case timeline. Real browser navigation; no network deployment, production identity provider or data source.",
+    "implementation_paths": [
+      "product-runtime/command-investigate-host/cmd/local-browser/**",
+      "work/graph.json",
+      "work/lots/E10-CMD-106G-LOCALBROWSER/**"
+    ],
+    "outputs": [
+      "go run ./cmd/local-browser starts real 127.0.0.1 ephemeral HTTP server, displays one-time credentials and URL, supports actual browser Basic challenge",
+      "Following same-origin Incident Case link renders source-authorized Case Timeline HTML with supersession, filters and pages, no manually injected Authorization header",
+      "Negative live HTTP Basic principal/source denial and DNS rebinding Host tests",
+      "Graceful SIGINT/SIGTERM cancellation closes the loopback HTTP server without unhandled exit."
+    ],
+    "acceptance_tests": [
+      "A real loopback HTTP client authenticates as analyst and follows actual selected Incident-linked Case into owner-authorized Timeline HTML; source v1 is marked superseded by v2 and filters work",
+      "Commander with separate valid credentials can access Incident but not Investigate Case, even if URL is manually supplied; invalid/missing Basic secret denied",
+      "Host header spoof, unsupported/remote origin and unsupported path denied; no Basic credentials in links; no-store and no-referrer preserved",
+      "Go host+subcommand tests/vet/race and full mandatory engineering kernel pass on exact candidate SHA",
+      "Inject a failing entropy source, duplicate analyst/commander secrets, refused listen socket, and failed console writer; assert no running HTTP server and no credential leak."
+    ],
+    "run_ids": []
+  },
+  "rules": [
+    "Class-0 read-only implementation for E10-CMD-106G-LOCALBROWSER",
+    "Strict tenant isolation and permission checking",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-110L-SOURCEOPEN",
+    "E10-CMD-106H-RETURN"
+  ]
+}

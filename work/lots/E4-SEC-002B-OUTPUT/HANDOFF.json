@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "work_unit": "E4-SEC-002B-OUTPUT",
+  "result": "VERIFIED",
+  "final_validated_head": "a3f7031772f004fc4c7b52163c0d962022f77aec",
+  "implementation_commit": "a4173ef925023e75f9a4bb39503d6ca32e54ee4e",
+  "pull_request": 36,
+  "evidence": {
+    "canonical_capability": "SEC-SAST-001",
+    "implementation_paths": [
+      "tools/cmdr-dev/repo_paths.go",
+      "tools/cmdr-dev/repo_paths_test.go"
+    ],
+    "ci_evidence": [
+      {
+        "workflow": "engineering-kernel",
+        "conclusion": "success"
+      }
+    ]
+  },
+  "rules": [
+    "Confine generated outputs and adaptive CI evidence to repository root",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E4-SEC-002B-READ"
+  ]
+}

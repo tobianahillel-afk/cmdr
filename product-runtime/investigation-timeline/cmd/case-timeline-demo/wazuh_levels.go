@@ -21,6 +21,18 @@ type wazuhRuleLevel struct {
 	Known   bool
 	RuleID  string
 	AgentID string
+	Feed    int // Server-assigned import ordinal; zero for the single-feed mode.
+	MITREIDs []string
+}
+
+// Co-occurrence describes an agent/rule pair observed on separate offline
+// operator feeds. It is not a causal correlation or evidence of compromise.
+type wazuhMultiFeedSignal struct {
+	AgentID               string `json:"agent_id"`
+	RuleID                string `json:"rule_id"`
+	AlertCount            int    `json:"alert_count"`
+	DistinctFeeds         int    `json:"distinct_feeds"`
+	HighestKnownRuleLevel *int   `json:"highest_known_rule_level,omitempty"`
 }
 
 // Host/agent grouping is derived only from already authorized alert entries.
@@ -29,6 +41,14 @@ type wazuhAgentCount struct {
 	Count                 int    `json:"count"`
 	DistinctRuleIDs       int    `json:"distinct_rule_ids"`
 	HighestKnownRuleLevel *int   `json:"highest_known_rule_level,omitempty"`
+}
+
+// An ATT&CK technique label as claimed by authorized Wazuh rule metadata.
+// This is a source attribution, never a verified behavioral classification.
+type wazuhMITRETechniqueCount struct {
+	TechniqueID string `json:"technique_id"`
+	Count int `json:"count"`
+	HighestKnownRuleLevel *int `json:"highest_known_rule_level,omitempty"`
 }
 
 type wazuhLevelCount struct {
@@ -68,6 +88,10 @@ type wazuhRuleTriageReceipt struct {
 	DistinctAgentIDs int `json:"distinct_agent_ids"`
 	UnknownAgentIDs int `json:"unknown_agent_ids"`
 	TopAgents []wazuhAgentCount `json:"top_agents"`
+	MultiFeedSignals []wazuhMultiFeedSignal `json:"multi_feed_signals,omitempty"`
+	DistinctTechniqueIDs int `json:"distinct_technique_ids"`
+	UnmappedTechniqueAlerts int `json:"unmapped_technique_alerts"`
+	TopTechniques []wazuhMITRETechniqueCount `json:"top_techniques"`
 	DistinctTimeWindows int `json:"distinct_time_windows"`
 	PeakWindows []wazuhAlertWindow `json:"peak_windows"`
 	UnplacedAlerts int `json:"unplaced_alerts"`
@@ -76,6 +100,12 @@ type wazuhRuleTriageReceipt struct {
 // This mapping is computed from the SAME bytes that were normalized and
 // imported into the Case; no second file open or independent ACL is introduced.
 func wazuhRuleLevels(raw []byte, caseID string) (map[string]wazuhRuleLevel, error) {
+	return wazuhRuleLevelsWithPrefix(raw, caseID, "")
+}
+
+// prefix is supplied only by the operator-side feed loader, never by
+// Wazuh input or an HTTP request. It matches the already-imported entry ID.
+func wazuhRuleLevelsWithPrefix(raw []byte, caseID, prefix string) (map[string]wazuhRuleLevel, error) {
 	result := make(map[string]wazuhRuleLevel)
 	for _, line := range bytes.Split(raw, []byte("\n")) {
 		if len(line) == 0 {
@@ -87,17 +117,55 @@ func wazuhRuleLevels(raw []byte, caseID string) (map[string]wazuhRuleLevel, erro
 			Rule struct {
 				Level *int   `json:"level"`
 				ID    string `json:"id"`
+			MITRE json.RawMessage `json:"mitre"`
 			} `json:"rule"`
 		}
 		if err := json.Unmarshal(line, &alert); err != nil {
 			return nil, errors.New("invalid Wazuh rule level metadata")
 		}
-		digest := sha256.Sum256([]byte(caseID + "\x00wazuh-" + alert.ID))
+		digest := sha256.Sum256([]byte(caseID + "\x00" + prefix + "wazuh-" + alert.ID))
 		entryID := fmt.Sprintf("local-jsonl-entry-%x", digest)
 		if _, exists := result[entryID]; exists {
 			return nil, errors.New("duplicate Wazuh rule identity")
 		}
 		level := wazuhRuleLevel{RuleID: alert.Rule.ID, AgentID: alert.Agent.ID}
+		// Metadata is untrusted. Missing MITRE/id is an unknown label state,
+		// while an explicitly null/non-array field is malformed, not "no labels".
+		// Preserve this distinction before access-authorized aggregation.
+		var labels []string
+		if len(alert.Rule.MITRE) != 0 {
+			if bytes.Equal(bytes.TrimSpace(alert.Rule.MITRE), []byte("null")) {
+				return nil, errors.New("null Wazuh ATT&CK metadata")
+			}
+			var mitre struct {
+				ID json.RawMessage `json:"id"`
+			}
+			if err := json.Unmarshal(alert.Rule.MITRE, &mitre); err != nil {
+				return nil, errors.New("invalid Wazuh ATT&CK metadata")
+			}
+			if len(mitre.ID) != 0 {
+				if bytes.Equal(bytes.TrimSpace(mitre.ID), []byte("null")) {
+					return nil, errors.New("null Wazuh ATT&CK technique list")
+				}
+				if err := json.Unmarshal(mitre.ID, &labels); err != nil {
+					return nil, errors.New("invalid Wazuh ATT&CK technique list")
+				}
+			}
+		}
+		// An alert can have several source labels, counted at most once each.
+		if len(labels) > 16 {
+			return nil, errors.New("too many Wazuh technique labels")
+		}
+		seen := make(map[string]bool, len(labels))
+		for _, technique := range labels {
+			if !validWazuhTechniqueID(technique) {
+				return nil, errors.New("invalid Wazuh ATT&CK technique label")
+			}
+			if !seen[technique] {
+				seen[technique] = true
+				level.MITREIDs = append(level.MITREIDs, technique)
+			}
+		}
 		// Wazuh 4.x rule.id is a decimal string, not an ACL or alert ID.
 		// Restrict its width and alphabet before including it in a receipt.
 		if len(level.RuleID) > 16 {
@@ -129,6 +197,33 @@ func wazuhRuleLevels(raw []byte, caseID string) (map[string]wazuhRuleLevel, erro
 	return result, nil
 }
 
+// Accept only canonical source labels T#### and T####.###, never arbitrary
+// descriptions, URLs, executable expressions or user-supplied permission IDs.
+func validWazuhTechniqueID(id string) bool {
+	if len(id) != 5 && len(id) != 9 {
+		return false
+	}
+	if id[0] != 'T' {
+		return false
+	}
+	for i := 1; i < 5; i++ {
+		if id[i] < '0' || id[i] > '9' {
+			return false
+		}
+	}
+	if len(id) == 9 {
+		if id[5] != '.' {
+			return false
+		}
+		for i := 6; i < 9; i++ {
+			if id[i] < '0' || id[i] > '9' {
+				return false
+			}
+		}
+	}
+	return true
+}
+
 // writeDemoWazuh4RuleTriage adds genuine source rule-level analysis to the
 // existing full authenticated Case/Timeline/typed-source pagination path.
 // Metadata is counted ONLY when its imported Timeline Entry is authorized.
@@ -147,6 +242,12 @@ func writeDemoWazuh4RuleTriageWithData(ctx context.Context, principal string, me
 	if err != nil {
 		return err
 	}
+	return writeDemoWazuh4RuleTriageWithLevels(ctx, principal, merged, imported, levels, intoCase, output)
+}
+
+// The single- and multi-feed paths share the same authenticated,
+// per-entry typed-source pagination and aggregate evaluator.
+func writeDemoWazuh4RuleTriageWithLevels(ctx context.Context, principal string, merged timeline.MemoryTimelineData, imported int, levels map[string]wazuhRuleLevel, intoCase string, output io.Writer) error {
 	token, err := randomBearer()
 	if err != nil {
 		return err
@@ -159,14 +260,49 @@ func writeDemoWazuh4RuleTriageWithData(ctx context.Context, principal string, me
 	windows := make(map[string]*wazuhAlertWindow)
 	rules := make(map[string]*wazuhRuleIDCount)
 	agents := make(map[string]*wazuhAgentCount)
+	techniques := make(map[string]*wazuhMITRETechniqueCount)
 	agentRules := make(map[string]map[string]bool)
-	visibleImported, unknown, unplaced, unknownRules, unknownAgents := 0, 0, 0, 0, 0
+	multiPairs := make(map[string]*wazuhMultiFeedSignal)
+	multiFeeds := make(map[string]map[int]bool)
+	visibleImported, unknown, unplaced, unknownRules, unknownAgents, unmappedTechniques := 0, 0, 0, 0, 0, 0
 	receipt, err := collectDemoCaseTriageWithObserver(ctx, handler, token, intoCase, func(entry timeline.ProjectedEntry) error {
 		level, exists := levels[entry.ID]
 		if !exists {
 			return nil
 		}
 		visibleImported++
+		// Join feed identity only after server-authorized typed-source traversal.
+		// Both IDs are validated decimal strings in wazuhRuleLevelsWithPrefix.
+		if level.Feed > 0 && level.AgentID != "" && level.RuleID != "" {
+			key := level.AgentID + "/" + level.RuleID
+			signal := multiPairs[key]
+			if signal == nil {
+				signal = &wazuhMultiFeedSignal{AgentID: level.AgentID, RuleID: level.RuleID}
+				multiPairs[key] = signal
+				multiFeeds[key] = make(map[int]bool)
+			}
+			signal.AlertCount++
+			multiFeeds[key][level.Feed] = true
+			if level.Known && (signal.HighestKnownRuleLevel == nil || level.Level > *signal.HighestKnownRuleLevel) {
+				maximum := level.Level
+				signal.HighestKnownRuleLevel = &maximum
+			}
+		}
+		if len(level.MITREIDs) == 0 {
+			unmappedTechniques++
+		}
+		for _, techniqueID := range level.MITREIDs {
+			technique := techniques[techniqueID]
+			if technique == nil {
+				technique = &wazuhMITRETechniqueCount{TechniqueID: techniqueID}
+				techniques[techniqueID] = technique
+			}
+			technique.Count++
+			if level.Known && (technique.HighestKnownRuleLevel == nil || level.Level > *technique.HighestKnownRuleLevel) {
+				highest := level.Level
+				technique.HighestKnownRuleLevel = &highest
+			}
+		}
 		if level.Known {
 			counts[level.Level]++
 		} else {
@@ -298,6 +434,46 @@ func writeDemoWazuh4RuleTriageWithData(ctx context.Context, principal string, me
 	if len(topAgents) > 10 {
 		topAgents = topAgents[:10]
 	}
+	// A signal requires independently imported observations in at least two
+	// distinct feeds; repeated alerts within one feed are not cross-feed.
+	multiSignals := make([]wazuhMultiFeedSignal, 0)
+	for key, signal := range multiPairs {
+		if len(multiFeeds[key]) < 2 {
+			continue
+		}
+		signal.DistinctFeeds = len(multiFeeds[key])
+		multiSignals = append(multiSignals, *signal)
+	}
+	sort.Slice(multiSignals, func(i, j int) bool {
+		if multiSignals[i].DistinctFeeds != multiSignals[j].DistinctFeeds {
+			return multiSignals[i].DistinctFeeds > multiSignals[j].DistinctFeeds
+		}
+		if multiSignals[i].AlertCount != multiSignals[j].AlertCount {
+			return multiSignals[i].AlertCount > multiSignals[j].AlertCount
+		}
+		if multiSignals[i].AgentID != multiSignals[j].AgentID {
+			return multiSignals[i].AgentID < multiSignals[j].AgentID
+		}
+		return multiSignals[i].RuleID < multiSignals[j].RuleID
+	})
+	if len(multiSignals) > 10 {
+		multiSignals = multiSignals[:10]
+	}
+	// A Wazuh alert may carry multiple ATT&CK labels, so technique counts
+	// are tag occurrences across visible alerts, not an exclusive partition.
+	topTechniques := make([]wazuhMITRETechniqueCount, 0, len(techniques))
+	for _, technique := range techniques {
+		topTechniques = append(topTechniques, *technique)
+	}
+	sort.Slice(topTechniques, func(i, j int) bool {
+		if topTechniques[i].Count != topTechniques[j].Count {
+			return topTechniques[i].Count > topTechniques[j].Count
+		}
+		return topTechniques[i].TechniqueID < topTechniques[j].TechniqueID
+	})
+	if len(topTechniques) > 10 {
+		topTechniques = topTechniques[:10]
+	}
 	histogram := make([]wazuhLevelCount, 0, len(keys))
 	for _, level := range keys {
 		histogram = append(histogram, wazuhLevelCount{Level: level, Count: counts[level]})
@@ -308,6 +484,8 @@ func writeDemoWazuh4RuleTriageWithData(ctx context.Context, principal string, me
 		RuleLevels: histogram, UnknownRuleLevels: unknown,
 		DistinctRuleIDs: len(rules), UnknownRuleIDs: unknownRules, TopRules: topRules,
 		DistinctAgentIDs: len(agents), UnknownAgentIDs: unknownAgents, TopAgents: topAgents,
+		MultiFeedSignals: multiSignals,
 		DistinctTimeWindows: len(windows), PeakWindows: peaks, UnplacedAlerts: unplaced,
+		DistinctTechniqueIDs: len(techniques), UnmappedTechniqueAlerts: unmappedTechniques, TopTechniques: topTechniques,
 	})
 }

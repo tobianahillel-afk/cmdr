@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-CMD-104A-READONLY",
+  "result": "VERIFIED",
+  "final_validated_head": "8260b1e65e61efe638cce44b5608e828e293f5b8",
+  "implementation_commit": "8260b1e65e61efe638cce44b5608e828e293f5b8",
+  "pull_request": 167,
+  "evidence": {
+    "canonical_capability": "CAP-CMD-104",
+    "implementation_paths": [
+      "product-runtime/work-queue/sla.go",
+      "product-runtime/work-queue/sla_test.go"
+    ],
+    "tests": [
+      "6 automated behavioral tests PASS"
+    ]
+  },
+  "rules": [
+    "Read-only operational SLA projection for selected work queue row",
+    "Unknown or missing SLA remains explicitly unknown, no synthetic low-risk assigned",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-CMD-105A-READONLY"
+  ]
+}

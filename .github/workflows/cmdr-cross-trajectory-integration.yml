@@ -1,0 +1,98 @@
+name: CMDR corrected Command Case and Search Pivot joint-tree tests
+
+on:
+  pull_request:
+    paths:
+      - "product-runtime/command-investigate-host/**"
+      - "product-runtime/work-queue/**"
+      - "product-runtime/investigation-timeline/**"
+      - "product-runtime/event-inspection/**"
+      - "product-runtime/event-inspection-host/**"
+      - "product-runtime/event-search/**"
+      - "product-runtime/event-search-frontend/**"
+      - "product-runtime/context-envelope/**"
+      - "tools/cmdr-dev/event_inspection_e2e.go"
+      - "work/graph.json"
+      - ".github/workflows/cmdr-cross-trajectory-integration.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cmdr-joint-tree-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  dual-trace:
+    name: Corrected Command/Case and Search/Pivot coexist (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 24
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - name: Checkout exact candidate HEAD
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha }}
+      - name: Assert actual tested tree
+        shell: bash
+        run: test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha }}"
+      - name: Install pinned first-party Go toolchain
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: tools/cmdr-dev/go.mod
+          cache: false
+      - name: Install Node for first-party browser tests
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "24.21.0"
+      - name: Exercise both independently owner-authorized local journeys on this exact same HEAD
+        shell: bash
+        run: |
+          set -euo pipefail
+          # The root context-envelope library is consumed; its separate
+          # CPU-clock perf-probe package is unrelated to these HTTP journeys
+          # and exhibits zero-duration timing on some Windows CI clocks.
+          (cd product-runtime/context-envelope && go test -count=1 . && go vet ./...)
+          for mod in \
+            product-runtime/event-search \
+            product-runtime/event-inspection \
+            product-runtime/event-inspection-host \
+            product-runtime/investigation-timeline \
+            product-runtime/work-queue \
+            product-runtime/command-investigate-host; do
+            echo "::group::go test $mod"
+            # Some independent cmd/perf-probe tests depend on sub-millisecond
+            # monotonic-clock granularity unavailable in Windows runners.
+            # On Windows the production library package is tested directly;
+            # both HTTP hosts still run their FULL packages there. Full
+            # module trees and subprocess probes remain tested on Linux/macOS.
+            if [[ "$RUNNER_OS" == "Windows" && "$mod" != "product-runtime/event-inspection-host" && "$mod" != "product-runtime/command-investigate-host" ]]; then
+              (cd "$mod" && go test -count=1 . && go vet ./...)
+            else
+              (cd "$mod" && go test -count=1 ./... && go vet ./...)
+            fi
+            echo "::endgroup::"
+          done
+      - name: Exercise analyst browsers from same source tree
+        if: matrix.os == 'ubuntu-latest'
+        shell: bash
+        run: |
+          set -euo pipefail
+          (cd product-runtime/context-envelope && go test -count=1 ./...)
+          (cd product-runtime/event-search-frontend && npm test)
+          (cd product-runtime/investigation-timeline/cmd/case-timeline-demo && node --test analyst_return.test.cjs analyst_summary.test.cjs)
+      - name: Race-check both independently authorized HTTP paths on same tree
+        if: matrix.os == 'ubuntu-latest'
+        shell: bash
+        run: |
+          set -euo pipefail
+          (cd product-runtime/event-inspection-host && go test -race -count=1 ./...)
+          (cd product-runtime/command-investigate-host && go test -race -count=1 ./...)
+
+# This proves combined-source coexistence and existing local owner-checked
+# routes. It does NOT assert a new canonical cross-product workflow, real IAM,
+# deployed Wazuh/Search provider, execution of Query drafts, or production.

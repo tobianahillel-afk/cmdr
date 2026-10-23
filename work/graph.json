@@ -6,7 +6,7 @@
       "id": "E0-BOOTSTRAP-001",
       "title": "Establish autonomous engineering foundation",
       "type": "lot",
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "depends_on": [],
       "unlocks": [
         "E0-KERNEL-001"
@@ -1767,18 +1767,815 @@
       ],
       "dependency_terminal_state": "VERIFIED",
       "unlocks": [
-        "E10-INV-120A-SNAPSHOT"
+        "E10-INV-120A-SNAPSHOT",
+        "E10-INV-110F-SUPERSESSION"
       ]
     },
     {
       "id": "E10-INV-120A-SNAPSHOT",
       "title": "Integrate an operator-provided durable Case snapshot into the authenticated loopback analyst journey",
       "type": "task",
-      "status": "READY",
+      "status": "VERIFIED",
       "depends_on": [
         "E10-INV-110E"
       ],
       "dependency_terminal_state": "VERIFIED",
+      "unlocks": []
+    },
+    {
+      "id": "E10-CMD-101",
+      "title": "Deliver Command-owned Unified Work Queue CAP-CMD-101",
+      "type": "epic",
+      "status": "DECOMPOSED",
+      "depends_on": [
+        "E10-SCALE-005B"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-CMD-101A-READONLY"
+      ]
+    },
+    {
+      "id": "E10-CMD-101A-READONLY",
+      "title": "Project authorized Incident/Task six system Work Queue views",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-SCALE-005B"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": []
+    },
+    {
+      "id": "E4-SEC-002B-DIAGNOSTICS",
+      "title": "Localize Go SAST processing errors without disclosing analyzer payloads",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E4-SEC-002B-ACTIVATE"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": []
+    },
+    {
+      "id": "E10-CMD-101B-HTTP",
+      "title": "Integrate one authenticated host-owned HTTP entry for all six Command system Work Queue views",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-CMD-101A-READONLY"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-CMD-101C-HTML"
+      ]
+    },
+    {
+      "id": "E10-CMD-101C-HTML",
+      "title": "Render canonical six-view Command Work Queue through the existing authorized route in a native read-only browser",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-CMD-101B-HTTP"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-CMD-101D-STATUS"
+      ]
+    },
+    {
+      "id": "E10-CMD-101D-STATUS",
+      "title": "Add exact bounded manual status filtering to six authorized Command Work Queue views",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-CMD-101C-HTML"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-CMD-101E-SORT"
+      ]
+    },
+    {
+      "id": "E10-CMD-101E-SORT",
+      "title": "Apply manual newest/oldest updated-at sorting to the six authorized Command Work Queue views",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-CMD-101D-STATUS"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-CMD-101F-SELECTION"
+      ]
+    },
+    {
+      "id": "E10-CMD-101F-SELECTION",
+      "title": "Select current owner-authorized visible Incident/Task row on the canonical Command Work Queue route",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-CMD-101E-SORT"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": []
+    },
+    {
+      "id": "E10-CMD-109",
+      "title": "Implement canonical Command Work Freshness and Staleness",
+      "type": "epic",
+      "status": "DECOMPOSED",
+      "depends_on": [
+        "E10-SCALE-005B"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-CMD-109A-FRESHNESS"
+      ]
+    },
+    {
+      "id": "E10-CMD-109A-FRESHNESS",
+      "title": "Project authorized, owner-sourced per-item freshness in existing Command Work Queue",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-SCALE-005B"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-CMD-109B-VIEW"
+      ]
+    },
+    {
+      "id": "E10-CMD-101G-PAGE",
+      "title": "Navigate revocation-safe authorized Command Work Queue pages",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-CMD-101F-SELECTION"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": []
+    },
+    {
+      "id": "E10-CMD-101H-RETURN",
+      "title": "Restore exact preceding Command Work Queue page with fresh owner authorization",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-CMD-101G-PAGE"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-CMD-101I-SELECTION"
+      ]
+    },
+    {
+      "id": "E10-CMD-101I-SELECTION",
+      "title": "Preserve current authorized Work Queue page when selecting a visible Incident or Task",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-CMD-101H-RETURN"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": []
+    },
+    {
+      "id": "E10-CMD-104",
+      "title": "Deliver Command-owned Priority and Severity Coordination CAP-CMD-104",
+      "type": "epic",
+      "status": "DECOMPOSED",
+      "depends_on": [
+        "E10-SCALE-005B"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-CMD-104A-READONLY"
+      ]
+    },
+    {
+      "id": "E10-CMD-104A-READONLY",
+      "title": "Inspect six independently source-authorized coordination dimensions of selected Command work items",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-CMD-101I-SELECTION"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": []
+    },
+    {
+      "id": "E10-CMD-109B-VIEW",
+      "title": "Summarize only authorized filtered whole-view source freshness across Command cursor pages",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-CMD-109A-FRESHNESS",
+        "E10-CMD-101G-PAGE"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": []
+    },
+    {
+      "id": "E10-CMD-101J-DIAGNOSTICS",
+      "title": "Keep SLA-risk partial diagnostics within the selected authorized status-filtered Work Queue",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-CMD-101I-SELECTION"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": []
+    },
+    {
+      "id": "E10-CMD-101K-OWNERFILTER",
+      "title": "Filter authorized Command Work Queue by exact responsible owner with safe page navigation",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-CMD-101J-DIAGNOSTICS"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-CMD-101L-GROUP"
+      ]
+    },
+    {
+      "id": "E10-CMD-101L-GROUP",
+      "title": "Group the owner-authorized Command Work Queue by existing type or status before cursor pagination",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-CMD-101K-OWNERFILTER"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-CMD-101M-MYWORK"
+      ]
+    },
+    {
+      "id": "E10-CMD-101M-MYWORK",
+      "title": "Project contributor/watch roles into owner-authorized Command My Work",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-CMD-101L-GROUP"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": []
+    },
+    {
+      "id": "E10-CMD-105",
+      "title": "Implement canonical Command-owned SLA Tracking CAP-CMD-105 in bounded read-only and future Class-2 units",
+      "type": "epic",
+      "status": "DECOMPOSED",
+      "depends_on": [
+        "E10-SCALE-005B"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-CMD-105A-READONLY"
+      ]
+    },
+    {
+      "id": "E10-CMD-105A-READONLY",
+      "title": "Read source-authorized SLA status and policy provenance on selected Incident/Task",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-CMD-101F-SELECTION"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": []
+    },
+    {
+      "id": "E10-CMD-105B-EXPLAIN",
+      "title": "Expose independent source-owned SLA calendar and pause explanation in selected Work Queue read-only",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-CMD-105A-READONLY"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": []
+    },
+    {
+      "id": "E10-CMD-103",
+      "title": "Implement Command CAP-CMD-103 operational vs canonical owner distinction",
+      "type": "epic",
+      "status": "DECOMPOSED",
+      "depends_on": [
+        "E10-SCALE-005B"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-CMD-103A-READONLY"
+      ]
+    },
+    {
+      "id": "E10-CMD-103A-READONLY",
+      "title": "Inspect independently authorized canonical product owner for selected Command item",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-CMD-101M-MYWORK"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": []
+    },
+    {
+      "id": "E10-CMD-106",
+      "title": "Deliver Command CAP-CMD-106 authorized existing Investigate Case link inspection",
+      "type": "epic",
+      "status": "DECOMPOSED",
+      "depends_on": [
+        "E10-SCALE-005B"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-CMD-106A-CASELINKS"
+      ]
+    },
+    {
+      "id": "E10-CMD-106A-CASELINKS",
+      "title": "Inspect independently source-authorized existing Investigate Cases of selected Command Incident",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-CMD-101I-SELECTION"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": []
+    },
+    {
+      "id": "E10-CMD-106B-SOURCEJOIN",
+      "title": "Compose existing Shared authorized Incident Case links with independently authorized Investigate Case status",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-CMD-106A-CASELINKS"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-CMD-106C-FRESHNESS"
+      ]
+    },
+    {
+      "id": "E10-CMD-106C-FRESHNESS",
+      "title": "Show source-observed freshness and date of independently authorized linked Investigate Case status",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-CMD-106B-SOURCEJOIN"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-CMD-106D-NAVIGATION"
+      ]
+    },
+    {
+      "id": "E10-CMD-106D-NAVIGATION",
+      "title": "Navigate from independently authorized linked Investigate Cases to existing read-only Timeline endpoint",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-CMD-106C-FRESHNESS"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-CMD-106E-HOST"
+      ]
+    },
+    {
+      "id": "E4-SEC-002B-SCAID",
+      "title": "Expose public Go advisory ID on blocking SCA findings without scanner waiver",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E4-SEC-002B-ACTIVATE"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E4-SEC-002B-E2EREVAL"
+      ]
+    },
+    {
+      "id": "E4-SEC-002B-E2EREVAL",
+      "title": "Reverify exact Go 1.26.10 source module update in four historical E2E attestations",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E4-SEC-002B-SCAID"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": []
+    },
+    {
+      "id": "E10-CMD-106E-HOST",
+      "title": "Wire source-authorized Command Incident linked Case navigation into the existing Investigate Timeline GET handler",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-CMD-106D-NAVIGATION",
+        "E10-INV-110E"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-CMD-106F-TIMELINE"
+      ]
+    },
+    {
+      "id": "E10-INV-110F-SUPERSESSION",
+      "title": "Expose source-authorized superseded Timeline Entry state in existing Case HTTP projection",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-INV-110E"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-CMD-106F-TIMELINE",
+        "E10-INV-110J-CASEHTML"
+      ]
+    },
+    {
+      "id": "E10-CMD-106F-TIMELINE",
+      "title": "Integrate source-authorized corrections into the existing Command Incident linked Case HTTP navigation",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-CMD-106E-HOST",
+        "E10-INV-110F-SUPERSESSION"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-INV-110J-CASEHTML",
+        "E10-CMD-106G-LOCALBROWSER"
+      ]
+    },
+    {
+      "id": "E10-INV-110J-CASEHTML",
+      "title": "Provide HTML view of source-authorized Case Timeline in same-origin Command navigation",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-INV-110F-SUPERSESSION",
+        "E10-CMD-106F-TIMELINE"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-INV-110K-HTMLFILTER"
+      ]
+    },
+    {
+      "id": "E10-INV-110K-HTMLFILTER",
+      "title": "Apply existing owner-authorized Case Timeline filters through interactive HTML GET form",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-INV-110J-CASEHTML"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-CMD-106G-LOCALBROWSER",
+        "E10-INV-110L-SOURCEOPEN"
+      ]
+    },
+    {
+      "id": "E10-CMD-106G-LOCALBROWSER",
+      "title": "Run real loopback-only browser Command Incident -> independently authorized Case Timeline HTML",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-CMD-106F-TIMELINE",
+        "E10-INV-110K-HTMLFILTER"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-INV-110L-SOURCEOPEN",
+        "E10-CMD-106H-RETURN"
+      ]
+    },
+    {
+      "id": "E10-INV-110L-SOURCEOPEN",
+      "title": "Open independently authorized Timeline Entry source in same-origin Command-linked local browser",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-INV-110K-HTMLFILTER",
+        "E10-CMD-106G-LOCALBROWSER"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-INV-110N-SOURCEHTML"
+      ]
+    },
+    {
+      "id": "E10-INV-110N-SOURCEHTML",
+      "title": "Show independently authorized source preview as safe HTML in runnable Incident->Case browser",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-INV-110L-SOURCEOPEN"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": []
+    },
+    {
+      "id": "E10-INV-110O-RETURNCTX",
+      "title": "Preserve selected Case timeline filters/page on authorized source open and return",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-INV-110N-SOURCEHTML"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-CMD-106H-RETURN",
+        "E10-CMD-106N-DETAILRETURN"
+      ]
+    },
+    {
+      "id": "E10-CMD-106H-RETURN",
+      "title": "Restore authorized Command Incident selection after Case/Timeline/source navigation",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-CMD-106G-LOCALBROWSER",
+        "E10-INV-110O-RETURNCTX"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-CMD-106I-DEEPRETURN"
+      ]
+    },
+    {
+      "id": "E10-CMD-106I-DEEPRETURN",
+      "title": "Restore authorized off-page selected Command Incident after Case/source return",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-CMD-106H-RETURN"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-CMD-106J-DETAILREAD"
+      ]
+    },
+    {
+      "id": "E10-CMD-106J-DETAILREAD",
+      "title": "Open owner-authorized read-only Incident Detail through existing Command host",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-CMD-106I-DEEPRETURN",
+        "E10-CMD-106G-LOCALBROWSER"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-CMD-106K-OVERVIEW"
+      ]
+    },
+    {
+      "id": "E10-CMD-106K-OVERVIEW",
+      "title": "Read canonical Command Incident headline, priority, severity and impact in selected Incident Detail",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-CMD-106J-DETAILREAD"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-CMD-106L-ALERTSRC"
+      ]
+    },
+    {
+      "id": "E10-CMD-106L-ALERTSRC",
+      "title": "Independently authorized Alert origin in read-only Incident Detail",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-CMD-106K-OVERVIEW"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-CMD-106M-RESULTREAD"
+      ]
+    },
+    {
+      "id": "E10-CMD-106M-RESULTREAD",
+      "title": "Show independently Govern Result.read-authorized outcome in existing Command Incident Detail",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-CMD-106L-ALERTSRC"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-CMD-106N-DETAILRETURN"
+      ]
+    },
+    {
+      "id": "E10-CMD-106N-DETAILRETURN",
+      "title": "Restore source-authorized Incident Detail after Case/Timeline/source return",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-CMD-106M-RESULTREAD",
+        "E10-INV-110O-RETURNCTX"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-CMD-106O-NEXTACTION"
+      ]
+    },
+    {
+      "id": "E10-CMD-106O-NEXTACTION",
+      "title": "Display owner-authorized Command Incident next action and due time in existing read-only Incident Detail",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-CMD-106N-DETAILRETURN"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-CMD-106P-TASKLINKS"
+      ]
+    },
+    {
+      "id": "E10-CMD-106P-TASKLINKS",
+      "title": "Independently reauthorize Command Task links in existing Incident Detail",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-CMD-106O-NEXTACTION"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-CMD-106Q-TASKNAV"
+      ]
+    },
+    {
+      "id": "E10-CMD-106Q-TASKNAV",
+      "title": "Navigate independently authorized linked Tasks into one owner-rechecked Work Queue",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-CMD-106P-TASKLINKS"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": []
+    },
+    {
+      "id": "E10-INV-120B-MITRE",
+      "title": "Owner-authorized local Wazuh ATT&CK source technique cohorts shown in analyst UI",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-INV-110E"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-INV-120C-MITREFIX"
+      ]
+    },
+    {
+      "id": "E10-INV-120C-MITREFIX",
+      "title": "Correct source-null and browser ATT&CK cohort consistency identified by L2",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-INV-120B-MITRE"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-INV-120D-TECHNAV"
+      ]
+    },
+    {
+      "id": "E10-INV-120D-TECHNAV",
+      "title": "Open source-authorized Wazuh ATT&CK technique events via existing Case/Timeline drilldown",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-INV-120C-MITREFIX"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": []
+    },
+    {
+      "id": "E10-INV-004G-HOST",
+      "title": "Bind independently authorized Search and Telemetry owners to read-only Event Inspection HTTP",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-INV-004E"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": []
+    },
+    {
+      "id": "E10-INV-004I-PIVOTHTTP",
+      "title": "Provide server-authorized, provenance-preserving read-only Event Search pivot drafts",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-INV-004G-HOST",
+        "E10-INV-004C-PIVOT"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-INV-004J-PIVOTFIX"
+      ]
+    },
+    {
+      "id": "E10-INV-004J-PIVOTFIX",
+      "title": "Close pivot HTTP L2 R2 authorization, provenance ambiguity and size-consistency defects",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-INV-004I-PIVOTHTTP"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-INV-004K-BROWSERPIVOT"
+      ]
+    },
+    {
+      "id": "E10-INV-004H-HTTPBRIDGE",
+      "title": "Compose selected Event Search result with real loopback Go Inspector HTTP host",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-INV-004G-HOST",
+        "E10-INV-002G"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-INV-004K-BROWSERPIVOT"
+      ]
+    },
+    {
+      "id": "E10-INV-004K-BROWSERPIVOT",
+      "title": "Complete client-selected Inspector field to host-authorized read-only Search pivot draft journey",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-INV-004H-HTTPBRIDGE",
+        "E10-INV-004J-PIVOTFIX"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": []
+    },
+    {
+      "id": "E10-SCALE-007",
+      "title": "Scale CMDR Studio library and asset catalog foundation (CAP-STD-001)",
+      "type": "epic",
+      "status": "DECOMPOSED",
+      "depends_on": [
+        "E10-CMD-106Q-TASKNAV",
+        "E10-INV-120A-SNAPSHOT"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": []
+    },
+    {
+      "id": "E10-STD-001A-BOUNDARY",
+      "title": "Define CMDR Studio library asset boundary and metadata contracts",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-CMD-106Q-TASKNAV",
+        "E10-INV-120A-SNAPSHOT"
+      ],
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-STD-001B-CATALOG"
+      ]
+    },
+    {
+      "id": "E10-STD-001B-CATALOG",
+      "title": "Define CMDR Studio library asset catalog and query registry",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-STD-001A-BOUNDARY"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-STD-001C-RUNTIME"
+      ]
+    },
+    {
+      "id": "E10-STD-001C-RUNTIME",
+      "title": "Studio Library and Asset Catalog Real Runtime Implementation",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-STD-001B-CATALOG"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
       "unlocks": []
     }
   ]

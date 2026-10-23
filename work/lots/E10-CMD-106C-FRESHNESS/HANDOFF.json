@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-CMD-106C-FRESHNESS",
+  "result": "VERIFIED",
+  "final_validated_head": "43d6632c2f0f2a86a97e825647f6f8e5b320681a",
+  "implementation_commit": "ff2134352da2d01bb968ef4fcfbdfd70a862524e",
+  "pull_request": 178,
+  "evidence": {
+    "canonical_capability": "CAP-CMD-106",
+    "implementation_paths": [
+      "product-runtime/work-queue/linked_cases_freshness_test.go",
+      "product-runtime/work-queue/linked_cases.go"
+    ]
+  },
+  "rules": [
+    "Expose status freshness timestamp for linked Investigate Cases",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-CMD-106D-NAVIGATION"
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-CMD-106D-NAVIGATION",
+  "result": "VERIFIED",
+  "final_validated_head": "42acd54cd3601f6ea02cd67bd62ae832eb682d28",
+  "implementation_commit": "42acd54cd3601f6ea02cd67bd62ae832eb682d28",
+  "pull_request": 195,
+  "evidence": {
+    "title": "Navigate from a source-authorized Command Incident-linked Case to the existing read-only Investigate Case Timeline",
+    "goal": "Make already authorized linked Investigate Cases navigable from the single Command Work Queue selected Incident view via a fixed same-origin read-only Case Timeline URL. Reauthorization stays with the destination; no source permissions are conveyed in the link.",
+    "implementation_paths": [
+      "product-runtime/work-queue/html.go",
+      "product-runtime/work-queue/linked_case_navigation_test.go",
+      "work/lots/E10-CMD-106D-NAVIGATION/**",
+      "work/graph.json"
+    ],
+    "outputs": [
+      "One clickable same-origin Case Timeline target per existing independently authorized selected Incident Case on the existing HTML route; no new server endpoint.",
+      "Go HTTP/HTML regression tests for URL escaping, denied source, unselected/Task, JSON backward compatibility."
+    ],
+    "acceptance_tests": [
+      "GET /command/work-queue?selected=Incident:inc-a HTML shows a fixed URL-encoded read-only Investigate navigation link for an independently source-authorized Case.",
+      "A hostile Case ID with & or # cannot add extra URL query parameters, leak tenant or change destination origin.",
+      "Denied/absent Case, unknown Shared links, Task/unselected Incident never show Case navigation.",
+      "The linked Case remains independently authorized at the destination: this module never issues authorization, and the receiving host must mount its existing /case-timeline and recheck Case/Timeline/typed-source permissions.",
+      "Existing selected Case JSON projection remains identical; exact SHA passes Go tests/race/vet and mandatory engineering gates."
+    ],
+    "run_ids": []
+  },
+  "rules": [
+    "Class-0 read-only implementation for E10-CMD-106D-NAVIGATION",
+    "Strict tenant isolation and permission checking",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-CMD-106E-HOST"
+  ]
+}

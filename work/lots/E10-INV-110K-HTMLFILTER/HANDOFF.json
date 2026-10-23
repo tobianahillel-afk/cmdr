@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-110K-HTMLFILTER",
+  "result": "VERIFIED",
+  "final_validated_head": "12f92a24ee0d0be0b4bd298f7baef577f5fcdbaa",
+  "implementation_commit": "12f92a24ee0d0be0b4bd298f7baef577f5fcdbaa",
+  "pull_request": 200,
+  "evidence": {
+    "title": "Make already-authorized Case Timeline filters operable from the actual same-origin HTML browser",
+    "goal": "Complete the CAP-INV-110 read/filter user journey: the previously delivered source-authorized Case HTML page had only a table and page links. Reuse its existing GET /case-timeline typed-owner authorization and RFC3339/time/kind/query parser to let an analyst submit and reset filters directly via an accessible, no-JavaScript GET form, without creating any new data read or permission.",
+    "implementation_paths": [
+      "product-runtime/investigation-timeline/case_html.go",
+      "product-runtime/investigation-timeline/case_http.go",
+      "product-runtime/investigation-timeline/case_html_test.go",
+      "work/graph.json",
+      "work/lots/E10-INV-110K-HTMLFILTER/**"
+    ],
+    "outputs": [
+      "An analyst can interactively submit Case Timeline type/authorized metadata search/RFC3339 range and 1..200 page size through HTML without JavaScript.",
+      "Exact authorized query echoed into escaped form fields; Reset link removes filters; paging carries only validated view selectors.",
+      "JSON original strict parser and existing Command owner handoff unchanged."
+    ],
+    "acceptance_tests": [
+      "Source-authorized Case HTML GET form accepts optional empty controls and renders only matching entries; preserves superseded/uncertain state.",
+      "One form submit resets offset, generates safe page continuation with active filters, and reset removes filters without token leakage.",
+      "Malformed/duplicate kinds/queries/range/page-size fail closed with no partial HTML; JSON API still rejects empty query/kind.",
+      "Hostile string filter is escaped; anonymous, foreign and insufficiently privileged Case cannot read the form or Timeline data.",
+      "Go race/vet and Timeline and cross-product Command HTTP plus engineering-kernel must pass on exact commit SHA."
+    ],
+    "run_ids": []
+  },
+  "rules": [
+    "Class-0 read-only implementation for E10-INV-110K-HTMLFILTER",
+    "Strict tenant isolation and permission checking",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-CMD-106G-LOCALBROWSER",
+    "E10-INV-110L-SOURCEOPEN"
+  ]
+}

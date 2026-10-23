@@ -371,7 +371,7 @@ func registryCanonicalPath(root, registryRel, id, column string) (string, error)
 		if len(cells) == 0 {
 			continue
 		}
-		if columnIndex < 0 && strings.EqualFold(strings.TrimSpace(cells[0]), "ID") || columnIndex < 0 && strings.EqualFold(strings.TrimSpace(cells[0]), "Permission") {
+		if columnIndex < 0 && (strings.EqualFold(strings.TrimSpace(cells[0]), "ID") || strings.EqualFold(strings.TrimSpace(cells[0]), "Capability ID") || strings.EqualFold(strings.TrimSpace(cells[0]), "Permission")) {
 			for i, cell := range cells {
 				if strings.EqualFold(strings.TrimSpace(cell), column) {
 					columnIndex = i

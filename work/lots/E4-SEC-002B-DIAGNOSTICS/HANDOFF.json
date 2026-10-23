@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "work_unit": "E4-SEC-002B-DIAGNOSTICS",
+  "result": "VERIFIED",
+  "final_validated_head": "7e199c5a7e5006d16bb230c68fd315cbf05655f2",
+  "implementation_commit": "fb2988df301d3d6e531d3c85f2f9dc6bbe22557f",
+  "pull_request": 155,
+  "evidence": {
+    "canonical_capability": "SEC-SAST-001",
+    "implementation_paths": [
+      "tools/cmdr-dev/security_static.go",
+      "tools/cmdr-dev/performance_command_work_queue.go"
+    ],
+    "ci_evidence": [
+      {
+        "workflow": "engineering-kernel",
+        "run_id": 39352275146,
+        "conclusion": "success"
+      }
+    ]
+  },
+  "rules": [
+    "Zero actionable SAST findings; no arbitrary suppression",
+    "Deep performance probe confinement and monotonic timing",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E4-SEC-002B-SCAID"
+  ]
+}

@@ -1,0 +1,124 @@
+{
+  "schema_version": 2,
+  "id": "E10-CMD-101B-HTTP",
+  "title": "Single host-authenticated HTTP system-view route for Command Unified Work Queue",
+  "type": "task",
+  "parent": "E10-CMD-101",
+  "goal": "Expose all six existing first-party Command Work Queue system views via one read-only HTTP GET path using a host-resolved current session and the existing owner ACL; no new view engine.",
+  "depends_on": [
+    "E10-CMD-101A-READONLY"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-CMD-101"
+    ],
+    "requirements": [
+      "REQ-OBJ-001",
+      "REQ-OBJ-012",
+      "REQ-PROD-013",
+      "REQ-UX-008",
+      "REQ-UX-009"
+    ],
+    "screens": [],
+    "permissions": [
+      "perm.command.read",
+      "perm.command.incident.read"
+    ],
+    "open_decisions": [],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/incident.md",
+      "cmdr-product-spec/05-domain-model/objects/task.md"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/work-queue/http.go",
+    "product-runtime/work-queue/http_test.go",
+    "work/lots/E10-CMD-101B-HTTP/**",
+    "work/graph.json",
+    "engineering/state/current.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/case-queue/**",
+    "product-runtime/investigation-timeline/**",
+    "tools/cmdr-dev/**"
+  ],
+  "invariants": [
+    "One GET /command/work-queue route, exact six existing views; `view` remains a parameter, not six routes.",
+    "Host resolves current principal, tenant, environment independently of all untrusted client query/header fields; existing Owner.CanRead checked per Incident/Task.",
+    "No Shared Saved View storage, client IAM, object mutation, linked Case/Decision/Run permission cloning or production claims."
+  ],
+  "security_properties": [
+    "Reject all client-selected scope and unknown/multiple view fields at the HTTP entry boundary.",
+    "Owner errors, revoked access and missing session must not produce partial data, object IDs or an authorization shortcut.",
+    "No response caching, no unsafe HTML, 5000 candidate/50 response bound inherited from existing first-party Project."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "An opt-in HTTP adapter over a previous nonpersistent read-only Go service",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Stop wiring the new opt-in HTTP handler; existing Work Queue projection remains unchanged",
+    "verification": [
+      "Host Owner/Session contract remains independent",
+      "No existing routes mutated"
+    ]
+  },
+  "inputs": [
+    "Canonical CAP-CMD-101 §§1-27; Command saved-views catalogue exact six views and route invariant",
+    "Existing Command-owned workqueue.Project first-party owner authorization, explicit open questions on Shared Saved Views and final workspace",
+    "Existing permission/tenant owner contracts, no valid host IAM provider in this draft"
+  ],
+  "outputs": [
+    "Go standard-library NewHTTPHandler accepting SessionResolver and existing Owner interfaces",
+    "GET /command/work-queue?view=... delivers six authorized existing view projections, GET absent view defaults All; no separate view routes",
+    "Host identity scope is never accepted from user query; no authenticated host → no data; host/provider access failure is all-or-nothing",
+    "Real HTTP tests for six view keys, no scope injection, missing identity, owner revocation, invalid method and route; CI and independent targeted L2"
+  ],
+  "acceptance_tests": [
+    "Existing six canonical Work Queue views are accessible through exactly one route using a trusted host-provided scope, with current owner ACL per item",
+    "No independent incident/tasks routes or revived team-load; query principal/tenant/environment and duplicated view rejected",
+    "Missing/revoked host identity and provider failure return no data or partial IDs",
+    "Exact SHA Linux, macOS, Windows Go unit tests and mandatory engineering kernel (including unchanged >=90% changed-security coverage) must succeed before any merger",
+    "No claim of production cookie/session, Shared Saved Views/Inspector, full queue workspace, persistence, assignment, paging or CAP acceptance"
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "Reuses already bounded first 5000 candidates/50 response Work Queue projection; this HTTP boundary adds only one JSON encoding",
+    "metrics": [
+      "At most 5000 owner candidates and 50 response rows",
+      "No unbounded new backend loop or external API calls"
+    ]
+  },
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-RUNTIME-DEPS",
+    "CHK-SECURITY-TESTS"
+  ],
+  "definition_of_ready": [
+    "E10-CMD-101A-READONLY IMPLEMENTED, explicit opt-in Class-0 read-only route, host SessionResolver and Owner boundaries clear; no decisions about Saved View writes assumed",
+    "Canonical CAP-CMD-101 exact six views and single route contract validated"
+  ],
+  "definition_of_done": [
+    "Separate PR with exact-head required CI and real six-view HTTP behavioral/deny tests; one independent L2 on material host authentication boundary",
+    "Remains IMPLEMENTED pending CI, independent review and native PR approvals; no product acceptance"
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 2,
+    "estimated_net_loc": 130,
+    "production_files": 1,
+    "net_production_loc": 95,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}
