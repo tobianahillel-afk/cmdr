@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-STD-001A-BOUNDARY",
+  "status": "IMPLEMENTED",
+  "final_validated_head": "8a9dfea847eb6b389445f00109fb8ab2504d189b",
+  "validation": {
+    "manifest_validation": "PASS",
+    "architecture_audit": "PASS",
+    "doctor": "PASS",
+    "product_spec_diff": "PASS",
+    "node_tests": "PASS",
+    "go_vet": "PASS",
+    "result": "PASS"
+  },
+  "evidence": {
+    "capability": "CAP-STD-001",
+    "secondary_capability": "CAP-STD-002",
+    "requirements": [
+      "REQ-PROD-006",
+      "REQ-PROD-016",
+      "REQ-OBJ-009"
+    ],
+    "contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/error-contract.md"
+    ],
+    "boundary_type": "control-plane-governance",
+    "class_projection": "class_0_inspect",
+    "execution_actions_permitted": 0,
+    "supported_asset_kinds": [
+      "skill",
+      "workflow",
+      "automation-agent",
+      "agent-team",
+      "tool"
+    ],
+    "lifecycle_states": [
+      "draft",
+      "review",
+      "approved",
+      "published",
+      "deprecated",
+      "superseded"
+    ],
+    "functional_projection_states": [
+      "ready",
+      "partial",
+      "stale",
+      "permission-filtered"
+    ],
+    "tenant_enforcement": "strict_single_tenant_and_mssp_authorized_set",
+    "wildcard_querying_allowed": false,
+    "owner_unknown_enforced": true,
+    "secret_reference_masking": "opaque_pointers_only",
+    "runtime_implementation_claimed": false,
+    "runtime_files_created": 0,
+    "production_loc_added": 0
+  },
+  "invariants": [
+    "Product Spec baseline 82e630fce3a7f6236e03709116eca6dd0a1acd40 unchanged (0 bytes diff)",
+    "Class 0 catalog projection controls established (browse, search, filter, inspect, open; zero execution actions)",
+    "Strict tenant scoping enforced under tenant-scope-contract.md; wildcard tenant querying strictly forbidden",
+    "Server-side pre-authorization and fail-closed permission evaluation enforced under permission-enforcement-contract.md",
+    "Standard error handling under error-contract.md with zero credential leakage",
+    "No runtime executable code added (production_files=0, net_production_loc=0)"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-STD-001B-CATALOG"
+  ]
+}

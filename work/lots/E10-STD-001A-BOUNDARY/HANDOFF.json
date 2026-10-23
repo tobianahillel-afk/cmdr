@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-STD-001A-BOUNDARY",
+  "result": "IMPLEMENTED",
+  "final_validated_head": "8a9dfea847eb6b389445f00109fb8ab2504d189b",
+  "evidence": {
+    "boundary_evidence_file": "work/lots/E10-STD-001A-BOUNDARY/BOUNDARY-EVIDENCE.md",
+    "capability": "CAP-STD-001",
+    "secondary_capability": "CAP-STD-002",
+    "requirements": [
+      "REQ-PROD-006",
+      "REQ-PROD-016",
+      "REQ-OBJ-009"
+    ],
+    "contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/error-contract.md"
+    ],
+    "execution_class": "class_0_inspect",
+    "runtime_code_files": 0,
+    "production_loc": 0,
+    "validation_results": {
+      "manifest_validation": "201/201 manifests PASS",
+      "architecture_audit": "15/15 boundaries PASS (1466 path claims)",
+      "doctor": "PASS (healthy=true)",
+      "spec_diff": "0 bytes diff against 82e630fce3a7f6236e03709116eca6dd0a1acd40",
+      "node_test_suites": "143/143 tests PASS (61 timeline demo + 82 event-search frontend)",
+      "go_module_vet": "11/11 modules PASS"
+    }
+  },
+  "rules": [
+    "CMDR Studio library asset boundary and metadata contracts defined under CAP-STD-001 and CAP-STD-002",
+    "Class 0 catalog projection controls established with zero execution actions",
+    "Strict single-tenant scoping and MSSP Authorized Tenant Set read-only aggregation enforced",
+    "Prohibition of wildcard tenant querying enforced fail-closed",
+    "Server-side pre-authorization evaluation and fail-closed permission enforcement defined",
+    "Visibility does not grant executability; perm.studio.* and legacy perm.cmdr-studio.* handled",
+    "Asset kinds classified into skill, workflow, automation-agent, agent-team, tool",
+    "Explicit owner unknown enforced when owner absent",
+    "Standard error envelope and zero credential leakage enforced",
+    "Product Spec remains immutable (0 bytes diff)",
+    "Unlocks E10-STD-001B-CATALOG"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-STD-001B-CATALOG"
+  ]
+}

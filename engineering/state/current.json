@@ -19,7 +19,7 @@
   "execution": {
     "active_work_unit": "E10-STD-001A-BOUNDARY",
     "preferred_next_unit": "E10-STD-001A-BOUNDARY",
-    "selection_rule": "Autonomous selection per AGENTS.md and reuse-first-v1 readiness algorithm: current perimeter (CAP-INV-110, CAP-CMD-101, CAP-CMD-106, E10-CMD-106Q-TASKNAV) fully verified with 18/18 green CI at HEAD 6eacb0dc. Next increment CAP-STD-001 (Studio Library and Asset Catalog) unlocked via E10-SCALE-007."
+    "selection_rule": "E10-STD-001A-BOUNDARY (Studio library asset boundary and metadata contracts) IMPLEMENTED under CAP-STD-001, CAP-STD-002, REQ-PROD-006, REQ-PROD-016, and REQ-OBJ-009; control-plane boundary established; unlocks E10-STD-001B-CATALOG."
   },
   "reconciliation": {
     "required_on_resume": true,
