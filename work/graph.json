@@ -2544,7 +2544,7 @@
       "id": "E10-STD-001A-BOUNDARY",
       "title": "Define CMDR Studio library asset boundary and metadata contracts",
       "type": "task",
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "depends_on": [
         "E10-CMD-106Q-TASKNAV",
         "E10-INV-120A-SNAPSHOT"
@@ -2558,7 +2558,7 @@
       "id": "E10-STD-001B-CATALOG",
       "title": "Define CMDR Studio library asset catalog and query registry",
       "type": "task",
-      "status": "DECOMPOSED",
+      "status": "READY",
       "depends_on": [
         "E10-STD-001A-BOUNDARY"
       ],

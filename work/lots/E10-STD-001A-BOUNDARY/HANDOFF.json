@@ -1,8 +1,51 @@
 {
   "schema_version": 1,
   "work_unit": "E10-STD-001A-BOUNDARY",
-  "result": "IMPLEMENTED",
-  "final_validated_head": "8a9dfea847eb6b389445f00109fb8ab2504d189b",
+  "result": "VERIFIED",
+  "implementation_commit": "4e7633b575dfc56b767fd43b1d7a041987c7aef4",
+  "final_validated_head": "4e7633b575dfc56b767fd43b1d7a041987c7aef4",
+  "pull_request": 222,
+  "ci_proofs": {
+    "total_checks": 18,
+    "passed_checks": 18,
+    "workflow_runs": [
+      {
+        "name": "Event Search to Event Inspection live local HTTP integration",
+        "run_id": 39896488048,
+        "status": "success"
+      },
+      {
+        "name": "Event Inspection authorized HTTP host",
+        "run_id": 39896487950,
+        "status": "success"
+      },
+      {
+        "name": "command-investigate-readonly-host",
+        "run_id": 39896487946,
+        "status": "success"
+      },
+      {
+        "name": "engineering-kernel",
+        "run_id": 39896487930,
+        "status": "success"
+      },
+      {
+        "name": "investigation-timeline-runtime",
+        "run_id": 39896487862,
+        "status": "success"
+      },
+      {
+        "name": "command-work-queue-runtime",
+        "run_id": 39896487832,
+        "status": "success"
+      },
+      {
+        "name": "CMDR corrected Command Case and Search Pivot joint-tree tests",
+        "run_id": 39896487778,
+        "status": "success"
+      }
+    ]
+  },
   "evidence": {
     "boundary_evidence_file": "work/lots/E10-STD-001A-BOUNDARY/BOUNDARY-EVIDENCE.md",
     "capability": "CAP-STD-001",
