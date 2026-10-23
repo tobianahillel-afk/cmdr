@@ -2558,7 +2558,7 @@
       "id": "E10-STD-001B-CATALOG",
       "title": "Define CMDR Studio library asset catalog and query registry",
       "type": "task",
-      "status": "READY",
+      "status": "IMPLEMENTED",
       "depends_on": [
         "E10-STD-001A-BOUNDARY"
       ],
