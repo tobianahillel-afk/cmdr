@@ -244,17 +244,18 @@ In strict conformance with `cmdr-product-spec/17-implementation-contracts/permis
 - Authorization decisions are evaluated on the server **prior** to projecting asset data.
 - Client headers, query parameters, or token assertions cannot override server-evaluated policy.
 
-### 6.2 Dual-Permission Namespace Resolution
-The registry resolves both canonical and legacy permission tokens identically:
+### 6.2 Canonical Permission Enforcement & Namespace Alignment
+The registry resolves permissions strictly against `cmdr-product-spec/14-security-permissions-and-trust/permission-catalog.md`. Hallucinated identifiers (such as `perm.studio.tool.read`) are prohibited:
 
-| Operation | Canonical Permission | Legacy Permission | Fail-Closed Error |
+| Operation | Canonical Permission | Legacy Alias Support | Fail-Closed Error |
 |---|---|---|---|
-| Catalog Query / Browse | `perm.studio.library.read` | `perm.cmdr-studio.library.read` | `permission-denied` |
+| Catalog Query / Browse | `perm.studio.library.read` | None | `permission-denied` |
+| Tool Contract Inspect | `perm.studio.library.read` | None | Redacted or `permission-filtered` (tools governed by library read) |
 | Skill Metadata Inspect | `perm.studio.skill.read` | `perm.cmdr-studio.skill.read` | Redacted or `permission-filtered` |
 | Workflow Metadata Inspect | `perm.studio.workflow.read` | `perm.cmdr-studio.workflow.read` | Redacted or `permission-filtered` |
 | Automation Agent Inspect | `perm.studio.automation-agent.read` | `perm.cmdr-studio.automation-agent.read` | Redacted or `permission-filtered` |
 | Agent Team Inspect | `perm.studio.agent-team.read` | `perm.cmdr-studio.agent-team.read` | Redacted or `permission-filtered` |
-| Tool Contract Inspect | `perm.studio.tool.read` | `perm.cmdr-studio.tool.read` | Redacted or `permission-filtered` |
+| Version Inspect | `perm.cmdr-studio.version.read` | None | Redacted or `permission-filtered` |
 
 ### 6.3 Projection Modes: Invisible vs Permission-Filtered
 1. **Catalog Browse/Search Listing**:

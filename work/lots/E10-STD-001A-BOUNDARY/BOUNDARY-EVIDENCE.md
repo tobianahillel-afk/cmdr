@@ -88,20 +88,23 @@ In conformance with `cmdr-product-spec/17-implementation-contracts/permission-en
   - Default: The asset is silently excluded from catalog listing to prevent metadata leakage.
   - Diagnostic / Explicit inspection: Projected as `permission-filtered` with all description, parameters, schema, and dependency details stripped.
 
-### 5.3 Dual-Permission Scheme Compatibility
-The boundary handles both canonical `perm.studio.*` permissions and legacy `perm.cmdr-studio.*` permissions:
+### 5.3 Canonical Permission Catalog Alignment (`permission-catalog.md`)
+The boundary strictly adheres to canonical permissions defined in `cmdr-product-spec/14-security-permissions-and-trust/permission-catalog.md`. No hallucinated permissions (such as `perm.studio.tool.read`) are permitted:
 
-| Asset Kind / Operation | Canonical Permission | Legacy Compatible Permission |
-|---|---|---|
-| Library Catalog Browse | `perm.studio.library.read` | `perm.cmdr-studio.library.read` |
-| Skill Read / Inspect | `perm.studio.skill.read` | `perm.cmdr-studio.skill.read` |
-| Skill Manage / Author | `perm.studio.skill.manage` | `perm.cmdr-studio.skill.manage` |
-| Workflow Read / Inspect | `perm.studio.workflow.read` | `perm.cmdr-studio.workflow.read` |
-| Workflow Manage / Author | `perm.studio.workflow.manage` | `perm.cmdr-studio.workflow.manage` |
-| Automation Agent Read | `perm.studio.automation-agent.read` | `perm.cmdr-studio.automation-agent.read` |
-| Automation Agent Manage | `perm.studio.automation-agent.manage` | `perm.cmdr-studio.automation-agent.manage` |
-| Version Inspect | `perm.cmdr-studio.version.read` | `perm.studio.version.read` |
-| Version Manage | `perm.cmdr-studio.version.manage` | `perm.studio.version.manage` |
+| Asset Kind / Operation | Canonical Permission | Legacy / Alias Support | Notes |
+|---|---|---|---|
+| Library Catalog Browse | `perm.studio.library.read` | None | Line 192 in catalog. Sole library read permission. |
+| Tool Contract Browse/Inspect | `perm.studio.library.read` | None | `tool` is not an atomic domain object in `05-domain-model/objects/`; governed by canonical library read. |
+| Skill Read / Inspect | `perm.studio.skill.read` | `perm.cmdr-studio.skill.read` | Line 196 in catalog. |
+| Skill Manage / Author | `perm.studio.skill.manage` | `perm.cmdr-studio.skill.manage` | Line 195 in catalog. |
+| Workflow Read / Inspect | `perm.studio.workflow.read` | `perm.cmdr-studio.workflow.read` | Line 198 in catalog. |
+| Workflow Manage / Author | `perm.studio.workflow.manage` | `perm.cmdr-studio.workflow.manage` | Line 197 in catalog. |
+| Automation Agent Read | `perm.studio.automation-agent.read` | `perm.cmdr-studio.automation-agent.read` | Line 185 in catalog. |
+| Automation Agent Manage | `perm.studio.automation-agent.manage` | `perm.cmdr-studio.automation-agent.manage` | Line 184 in catalog. |
+| Agent Team Read | `perm.studio.agent-team.read` | `perm.cmdr-studio.agent-team.read` | Line 179 in catalog. |
+| Agent Team Manage | `perm.studio.agent-team.manage` | `perm.cmdr-studio.agent-team.manage` | Line 178 in catalog. |
+| Version Inspect | `perm.cmdr-studio.version.read` | None | Line 28 in catalog (canonical under `cmdr-studio`). |
+| Version Manage | `perm.cmdr-studio.version.manage` | None | Line 27 in catalog (canonical under `cmdr-studio`). |
 
 ---
 

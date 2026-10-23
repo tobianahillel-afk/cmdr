@@ -152,6 +152,24 @@
       "may_depend_on": [
         "event-inspection-runtime"
       ]
+    },
+    {
+      "id": "studio-catalog-runtime",
+      "kind": "product-runtime",
+      "roots": [
+        "product-runtime/studio-catalog/**"
+      ],
+      "mutable_by_implementation": true,
+      "may_depend_on": []
+    },
+    {
+      "id": "case-search-workbench-runtime",
+      "kind": "product-runtime",
+      "roots": [
+        "product-runtime/case-search-workbench/**"
+      ],
+      "mutable_by_implementation": true,
+      "may_depend_on": []
     }
   ]
 }

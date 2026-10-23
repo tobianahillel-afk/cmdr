@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "work_unit": "E10-STD-001A-BOUNDARY",
-  "status": "VERIFIED",
+  "status": "IMPLEMENTED",
   "implementation_commit": "4e7633b575dfc56b767fd43b1d7a041987c7aef4",
   "final_validated_head": "4e7633b575dfc56b767fd43b1d7a041987c7aef4",
   "pull_request": 222,

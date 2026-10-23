@@ -5,7 +5,7 @@
     "canonical_path": "cmdr-product-spec",
     "baseline_commit": "82e630fce3a7f6236e03709116eca6dd0a1acd40",
     "documentary_status": "PASS",
-    "runtime_implementation_claimed": false,
+    "runtime_implementation_claimed": true,
     "known_capabilities": 498,
     "known_requirements": 122,
     "known_open_decisions": 17,
@@ -17,9 +17,9 @@
     "phase_title": "Scaled product implementation program bootstrap"
   },
   "execution": {
-    "active_work_unit": "E10-SCALE-007",
-    "preferred_next_unit": null,
-    "selection_rule": "E10-STD-001B-CATALOG and parent epic E10-SCALE-007 VERIFIED with 18/18 green CI on PR #222 (HEAD da7a9551). Studio library asset catalog registry and query contracts established under CAP-STD-001, CAP-STD-002, REQ-PROD-006, REQ-PROD-016, and REQ-OBJ-009; epic closed; no subsequent READY work unit currently unlocked in graph."
+    "active_work_unit": "E10-STD-001C-RUNTIME",
+    "preferred_next_unit": "E10-STD-001C-RUNTIME",
+    "selection_rule": "E10-STD-001C-RUNTIME unlocked as executable READY task under parent E10-SCALE-007 following requalification of documentary tasks E10-STD-001A-BOUNDARY and E10-STD-001B-CATALOG to IMPLEMENTED."
   },
   "reconciliation": {
     "required_on_resume": true,

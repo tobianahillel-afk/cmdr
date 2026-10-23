@@ -2532,7 +2532,7 @@
       "id": "E10-SCALE-007",
       "title": "Scale CMDR Studio library and asset catalog foundation (CAP-STD-001)",
       "type": "epic",
-      "status": "VERIFIED",
+      "status": "DECOMPOSED",
       "depends_on": [
         "E10-CMD-106Q-TASKNAV",
         "E10-INV-120A-SNAPSHOT"
@@ -2544,7 +2544,7 @@
       "id": "E10-STD-001A-BOUNDARY",
       "title": "Define CMDR Studio library asset boundary and metadata contracts",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "IMPLEMENTED",
       "depends_on": [
         "E10-CMD-106Q-TASKNAV",
         "E10-INV-120A-SNAPSHOT"
@@ -2558,11 +2558,24 @@
       "id": "E10-STD-001B-CATALOG",
       "title": "Define CMDR Studio library asset catalog and query registry",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "IMPLEMENTED",
       "depends_on": [
         "E10-STD-001A-BOUNDARY"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "IMPLEMENTED",
+      "unlocks": [
+        "E10-STD-001C-RUNTIME"
+      ]
+    },
+    {
+      "id": "E10-STD-001C-RUNTIME",
+      "title": "Studio Library and Asset Catalog Real Runtime Implementation",
+      "type": "task",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "E10-STD-001B-CATALOG"
+      ],
+      "dependency_terminal_state": "IMPLEMENTED",
       "unlocks": []
     }
   ]

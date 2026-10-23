@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "work_unit": "E10-STD-001B-CATALOG",
-  "status": "VERIFIED",
+  "status": "IMPLEMENTED",
   "implementation_commit": "da7a955169bc9294b1c0655b1fe2370383b0c7a8",
   "final_validated_head": "da7a955169bc9294b1c0655b1fe2370383b0c7a8",
   "pull_request": 222,
@@ -128,5 +128,7 @@
     "No runtime executable code added (production_files=0, net_production_loc=0)"
   ],
   "product_spec_mutated": false,
-  "next_unlocked": []
+  "next_unlocked": [
+    "E10-STD-001C-RUNTIME"
+  ]
 }

@@ -1,0 +1,126 @@
+{
+  "schema_version": 2,
+  "id": "E10-STD-001C-RUNTIME",
+  "title": "Studio Library and Asset Catalog Real Runtime Implementation",
+  "type": "task",
+  "parent": "E10-SCALE-007",
+  "goal": "Implement genuine, test-backed Go runtime for Studio Library and Asset Catalog (CAP-STD-001, CAP-STD-002) supporting 8 Class 0 operations with tenant isolation, opaque cursor pagination, and oracle-free permissions enforcement.",
+  "depends_on": [
+    "E10-STD-001B-CATALOG"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-STD-001",
+      "CAP-STD-002"
+    ],
+    "requirements": [
+      "REQ-PROD-006",
+      "REQ-PROD-016",
+      "REQ-OBJ-009"
+    ],
+    "screens": [],
+    "permissions": [
+      "perm.studio.library.read",
+      "perm.studio.skill.read",
+      "perm.studio.workflow.read",
+      "perm.studio.automation-agent.read",
+      "perm.studio.agent-team.read",
+      "perm.cmdr-studio.version.read"
+    ],
+    "open_decisions": [],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/error-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/pagination-filtering-sorting.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/skill.md",
+      "cmdr-product-spec/05-domain-model/objects/workflow.md",
+      "cmdr-product-spec/05-domain-model/objects/automation-agent.md",
+      "cmdr-product-spec/05-domain-model/objects/agent-team.md"
+    ]
+  },
+  "allowed_paths": [
+    "engineering/state/**",
+    "product-runtime/studio-catalog/**",
+    "work/graph.json",
+    "work/lots/E10-STD-001C-RUNTIME/**"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**"
+  ],
+  "invariants": [
+    "Product Spec baseline unchanged (0 bytes diff)",
+    "Class 0 operations strictly read-only; no implicit execution",
+    "Mandatory tenant scoping with existence oracle elimination",
+    "Zero third-party runtime dependencies (Go standard library only)"
+  ],
+  "security_properties": [
+    "server-side pre-authorization evaluation",
+    "fail-closed tenant isolation with uniform 404 for foreign tenant assets",
+    "zero credential leakage in metadata and error responses"
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "pure runtime projection library; no schema migration required",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert runtime module directory and registration",
+    "verification": [
+      "git diff clean",
+      "doctor passes"
+    ]
+  },
+  "inputs": [
+    "E10-STD-001B-CATALOG query registry and evidence contracts",
+    "CAP-STD-001 and CAP-STD-002 canonical specifications"
+  ],
+  "outputs": [
+    "product-runtime/studio-catalog Go module implementing 8 Class 0 operations",
+    "automated unit and integration test suites",
+    "deterministic validation evidence"
+  ],
+  "acceptance_tests": [
+    "all 8 Class 0 operations pass positive and negative test cases",
+    "cross-tenant asset queries return uniform 404 asset-not-found",
+    "unpermitted inspect returns permission-filtered redacted stub",
+    "zero external dependencies verified by dependency-audit"
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "in-memory projection and pagination latency must remain under 10ms",
+    "metrics": [
+      "p95_browse_latency < 10ms",
+      "memory_allocation < 1MB per query"
+    ]
+  },
+  "required_checks": [
+    "adaptive engineering-kernel",
+    "CHK-MANIFESTS",
+    "CHK-ARCHITECTURE",
+    "CHK-COMPLEXITY"
+  ],
+  "definition_of_ready": [
+    "E10-STD-001B-CATALOG is IMPLEMENTED",
+    "boundary studio-catalog-runtime registered in boundaries.json",
+    "SPEC_RECONCILIATION.md complete and approved"
+  ],
+  "definition_of_done": [
+    "real Go runtime implementing 8 Class 0 operations with automated tests",
+    "100% test pass rate with zero external dependencies",
+    "architecture-audit, validate-manifests, and doctor pass"
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 6,
+    "estimated_net_loc": 1500,
+    "production_files": 5,
+    "net_production_loc": 1357,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 8
+  }
+}
