@@ -1,47 +1,47 @@
 {
   "schema_version": 1,
   "work_unit": "E10-STD-001B-CATALOG",
-  "status": "IMPLEMENTED",
-  "implementation_commit": "7cb76e5f4829567931cebe39f29ceb323dbc04d6",
-  "final_validated_head": "7cb76e5f4829567931cebe39f29ceb323dbc04d6",
+  "status": "VERIFIED",
+  "implementation_commit": "da7a955169bc9294b1c0655b1fe2370383b0c7a8",
+  "final_validated_head": "da7a955169bc9294b1c0655b1fe2370383b0c7a8",
   "pull_request": 222,
   "ci_proofs": {
     "total_checks": 18,
     "passed_checks": 18,
     "workflow_runs": [
       {
-        "name": "Event Search to Event Inspection live local HTTP integration",
-        "run_id": 39896488048,
+        "name": "CMDR corrected Command Case and Search Pivot joint-tree tests",
+        "run_id": 39899182250,
         "status": "success"
       },
       {
-        "name": "Event Inspection authorized HTTP host",
-        "run_id": 39896487950,
+        "name": "Event Search to Event Inspection live local HTTP integration",
+        "run_id": 39899182225,
         "status": "success"
       },
       {
         "name": "command-investigate-readonly-host",
-        "run_id": 39896487946,
-        "status": "success"
-      },
-      {
-        "name": "engineering-kernel",
-        "run_id": 39896487930,
-        "status": "success"
-      },
-      {
-        "name": "investigation-timeline-runtime",
-        "run_id": 39896487862,
+        "run_id": 39899182235,
         "status": "success"
       },
       {
         "name": "command-work-queue-runtime",
-        "run_id": 39896487832,
+        "run_id": 39899182252,
         "status": "success"
       },
       {
-        "name": "CMDR corrected Command Case and Search Pivot joint-tree tests",
-        "run_id": 39896487778,
+        "name": "Event Inspection authorized HTTP host",
+        "run_id": 39899182330,
+        "status": "success"
+      },
+      {
+        "name": "investigation-timeline-runtime",
+        "run_id": 39899182283,
+        "status": "success"
+      },
+      {
+        "name": "engineering-kernel",
+        "run_id": 39899182256,
         "status": "success"
       }
     ]

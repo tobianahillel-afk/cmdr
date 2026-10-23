@@ -17,9 +17,9 @@
     "phase_title": "Scaled product implementation program bootstrap"
   },
   "execution": {
-    "active_work_unit": "E10-STD-001B-CATALOG",
-    "preferred_next_unit": "E10-STD-001B-CATALOG",
-    "selection_rule": "E10-STD-001A-BOUNDARY VERIFIED with 18/18 green CI on PR #222 (HEAD 4e7633b5). E10-STD-001B-CATALOG (Define CMDR Studio library asset catalog and query registry) unlocked to READY under CAP-STD-001, CAP-STD-002, REQ-PROD-006, REQ-PROD-016, and REQ-OBJ-009."
+    "active_work_unit": "E10-SCALE-007",
+    "preferred_next_unit": null,
+    "selection_rule": "E10-STD-001B-CATALOG and parent epic E10-SCALE-007 VERIFIED with 18/18 green CI on PR #222 (HEAD da7a9551). Studio library asset catalog registry and query contracts established under CAP-STD-001, CAP-STD-002, REQ-PROD-006, REQ-PROD-016, and REQ-OBJ-009; epic closed; no subsequent READY work unit currently unlocked in graph."
   },
   "reconciliation": {
     "required_on_resume": true,
