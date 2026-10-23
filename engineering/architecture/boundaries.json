@@ -155,7 +155,7 @@
     },
     {
       "id": "studio-catalog-runtime",
-      "kind": "product-runtime",
+      "kind": "product-module",
       "roots": [
         "product-runtime/studio-catalog/**"
       ],
@@ -164,7 +164,7 @@
     },
     {
       "id": "case-search-workbench-runtime",
-      "kind": "product-runtime",
+      "kind": "product-module",
       "roots": [
         "product-runtime/case-search-workbench/**"
       ],
