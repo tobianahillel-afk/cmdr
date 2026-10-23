@@ -21,7 +21,18 @@ type wazuhRuleLevel struct {
 	Known   bool
 	RuleID  string
 	AgentID string
+	Feed    int // Server-assigned import ordinal; zero for the single-feed mode.
 	MITREIDs []string
+}
+
+// Co-occurrence describes an agent/rule pair observed on separate offline
+// operator feeds. It is not a causal correlation or evidence of compromise.
+type wazuhMultiFeedSignal struct {
+	AgentID               string `json:"agent_id"`
+	RuleID                string `json:"rule_id"`
+	AlertCount            int    `json:"alert_count"`
+	DistinctFeeds         int    `json:"distinct_feeds"`
+	HighestKnownRuleLevel *int   `json:"highest_known_rule_level,omitempty"`
 }
 
 // Host/agent grouping is derived only from already authorized alert entries.
@@ -77,6 +88,7 @@ type wazuhRuleTriageReceipt struct {
 	DistinctAgentIDs int `json:"distinct_agent_ids"`
 	UnknownAgentIDs int `json:"unknown_agent_ids"`
 	TopAgents []wazuhAgentCount `json:"top_agents"`
+	MultiFeedSignals []wazuhMultiFeedSignal `json:"multi_feed_signals,omitempty"`
 	DistinctTechniqueIDs int `json:"distinct_technique_ids"`
 	UnmappedTechniqueAlerts int `json:"unmapped_technique_alerts"`
 	TopTechniques []wazuhMITRETechniqueCount `json:"top_techniques"`
@@ -88,6 +100,12 @@ type wazuhRuleTriageReceipt struct {
 // This mapping is computed from the SAME bytes that were normalized and
 // imported into the Case; no second file open or independent ACL is introduced.
 func wazuhRuleLevels(raw []byte, caseID string) (map[string]wazuhRuleLevel, error) {
+	return wazuhRuleLevelsWithPrefix(raw, caseID, "")
+}
+
+// prefix is supplied only by the operator-side feed loader, never by
+// Wazuh input or an HTTP request. It matches the already-imported entry ID.
+func wazuhRuleLevelsWithPrefix(raw []byte, caseID, prefix string) (map[string]wazuhRuleLevel, error) {
 	result := make(map[string]wazuhRuleLevel)
 	for _, line := range bytes.Split(raw, []byte("\n")) {
 		if len(line) == 0 {
@@ -105,7 +123,7 @@ func wazuhRuleLevels(raw []byte, caseID string) (map[string]wazuhRuleLevel, erro
 		if err := json.Unmarshal(line, &alert); err != nil {
 			return nil, errors.New("invalid Wazuh rule level metadata")
 		}
-		digest := sha256.Sum256([]byte(caseID + "\x00wazuh-" + alert.ID))
+		digest := sha256.Sum256([]byte(caseID + "\x00" + prefix + "wazuh-" + alert.ID))
 		entryID := fmt.Sprintf("local-jsonl-entry-%x", digest)
 		if _, exists := result[entryID]; exists {
 			return nil, errors.New("duplicate Wazuh rule identity")
@@ -224,6 +242,12 @@ func writeDemoWazuh4RuleTriageWithData(ctx context.Context, principal string, me
 	if err != nil {
 		return err
 	}
+	return writeDemoWazuh4RuleTriageWithLevels(ctx, principal, merged, imported, levels, intoCase, output)
+}
+
+// The single- and multi-feed paths share the same authenticated,
+// per-entry typed-source pagination and aggregate evaluator.
+func writeDemoWazuh4RuleTriageWithLevels(ctx context.Context, principal string, merged timeline.MemoryTimelineData, imported int, levels map[string]wazuhRuleLevel, intoCase string, output io.Writer) error {
 	token, err := randomBearer()
 	if err != nil {
 		return err
@@ -238,6 +262,8 @@ func writeDemoWazuh4RuleTriageWithData(ctx context.Context, principal string, me
 	agents := make(map[string]*wazuhAgentCount)
 	techniques := make(map[string]*wazuhMITRETechniqueCount)
 	agentRules := make(map[string]map[string]bool)
+	multiPairs := make(map[string]*wazuhMultiFeedSignal)
+	multiFeeds := make(map[string]map[int]bool)
 	visibleImported, unknown, unplaced, unknownRules, unknownAgents, unmappedTechniques := 0, 0, 0, 0, 0, 0
 	receipt, err := collectDemoCaseTriageWithObserver(ctx, handler, token, intoCase, func(entry timeline.ProjectedEntry) error {
 		level, exists := levels[entry.ID]
@@ -245,6 +271,23 @@ func writeDemoWazuh4RuleTriageWithData(ctx context.Context, principal string, me
 			return nil
 		}
 		visibleImported++
+		// Join feed identity only after server-authorized typed-source traversal.
+		// Both IDs are validated decimal strings in wazuhRuleLevelsWithPrefix.
+		if level.Feed > 0 && level.AgentID != "" && level.RuleID != "" {
+			key := level.AgentID + "/" + level.RuleID
+			signal := multiPairs[key]
+			if signal == nil {
+				signal = &wazuhMultiFeedSignal{AgentID: level.AgentID, RuleID: level.RuleID}
+				multiPairs[key] = signal
+				multiFeeds[key] = make(map[int]bool)
+			}
+			signal.AlertCount++
+			multiFeeds[key][level.Feed] = true
+			if level.Known && (signal.HighestKnownRuleLevel == nil || level.Level > *signal.HighestKnownRuleLevel) {
+				maximum := level.Level
+				signal.HighestKnownRuleLevel = &maximum
+			}
+		}
 		if len(level.MITREIDs) == 0 {
 			unmappedTechniques++
 		}
@@ -391,6 +434,31 @@ func writeDemoWazuh4RuleTriageWithData(ctx context.Context, principal string, me
 	if len(topAgents) > 10 {
 		topAgents = topAgents[:10]
 	}
+	// A signal requires independently imported observations in at least two
+	// distinct feeds; repeated alerts within one feed are not cross-feed.
+	multiSignals := make([]wazuhMultiFeedSignal, 0)
+	for key, signal := range multiPairs {
+		if len(multiFeeds[key]) < 2 {
+			continue
+		}
+		signal.DistinctFeeds = len(multiFeeds[key])
+		multiSignals = append(multiSignals, *signal)
+	}
+	sort.Slice(multiSignals, func(i, j int) bool {
+		if multiSignals[i].DistinctFeeds != multiSignals[j].DistinctFeeds {
+			return multiSignals[i].DistinctFeeds > multiSignals[j].DistinctFeeds
+		}
+		if multiSignals[i].AlertCount != multiSignals[j].AlertCount {
+			return multiSignals[i].AlertCount > multiSignals[j].AlertCount
+		}
+		if multiSignals[i].AgentID != multiSignals[j].AgentID {
+			return multiSignals[i].AgentID < multiSignals[j].AgentID
+		}
+		return multiSignals[i].RuleID < multiSignals[j].RuleID
+	})
+	if len(multiSignals) > 10 {
+		multiSignals = multiSignals[:10]
+	}
 	// A Wazuh alert may carry multiple ATT&CK labels, so technique counts
 	// are tag occurrences across visible alerts, not an exclusive partition.
 	topTechniques := make([]wazuhMITRETechniqueCount, 0, len(techniques))
@@ -416,6 +484,7 @@ func writeDemoWazuh4RuleTriageWithData(ctx context.Context, principal string, me
 		RuleLevels: histogram, UnknownRuleLevels: unknown,
 		DistinctRuleIDs: len(rules), UnknownRuleIDs: unknownRules, TopRules: topRules,
 		DistinctAgentIDs: len(agents), UnknownAgentIDs: unknownAgents, TopAgents: topAgents,
+		MultiFeedSignals: multiSignals,
 		DistinctTimeWindows: len(windows), PeakWindows: peaks, UnplacedAlerts: unplaced,
 		DistinctTechniqueIDs: len(techniques), UnmappedTechniqueAlerts: unmappedTechniques, TopTechniques: topTechniques,
 	})
