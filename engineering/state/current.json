@@ -17,9 +17,9 @@
     "phase_title": "Scaled product implementation program bootstrap"
   },
   "execution": {
-    "active_work_unit": "E10-CMD-106Q-TASKNAV",
-    "preferred_next_unit": null,
-    "selection_rule": "Derived from canonical CAP-CMD-101 single Work Queue navigation: TASK link currently static in Incident Detail despite owner-authorized projection; this child reuses current read-only Task ACL, with exact-HEAD CI/L2 outstanding. #215 frozen unchanged; no independent READY after this bounded task."
+    "active_work_unit": "E10-STD-001A-BOUNDARY",
+    "preferred_next_unit": "E10-STD-001A-BOUNDARY",
+    "selection_rule": "Autonomous selection per AGENTS.md and reuse-first-v1 readiness algorithm: current perimeter (CAP-INV-110, CAP-CMD-101, CAP-CMD-106, E10-CMD-106Q-TASKNAV) fully verified with 18/18 green CI at HEAD 6eacb0dc. Next increment CAP-STD-001 (Studio Library and Asset Catalog) unlocked via E10-SCALE-007."
   },
   "reconciliation": {
     "required_on_resume": true,
