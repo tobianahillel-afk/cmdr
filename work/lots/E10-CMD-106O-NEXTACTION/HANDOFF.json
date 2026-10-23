@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-CMD-106O-NEXTACTION",
+  "result": "VERIFIED",
+  "final_validated_head": "048d4cfbf48aaeabef661073ebfd671bb584d84d",
+  "implementation_commit": "048d4cfbf48aaeabef661073ebfd671bb584d84d",
+  "pull_request": 213,
+  "evidence": {
+    "title": "Display trusted Command Incident next action and optional due time in existing read-only Incident Detail",
+    "goal": "Fill CAP-CMD-106's explicitly required coordination/next-action read gap in the already implemented local Incident Detail. Reuse existing optional IncidentOverviewOwner, strictly revalidate returned scoped source, label missing actions unknown and never execute a Class-2 action.",
+    "implementation_paths": [
+      "product-runtime/work-queue/incident_overview.go",
+      "product-runtime/work-queue/incident_detail.go",
+      "product-runtime/work-queue/incident_next_action_test.go",
+      "product-runtime/command-investigate-host/cmd/local-browser/main.go",
+      "product-runtime/command-investigate-host/cmd/local-browser/incident_detail_test.go",
+      "work/lots/E10-CMD-106O-NEXTACTION/**",
+      "work/graph.json",
+      "engineering/state/current.json"
+    ],
+    "outputs": [
+      "Existing Incident Detail now displays Command-authorized NextAction, optional due time and clear unknown fallback.",
+      "Existing synthetic loopback browser exercises authorized next action, full scope denial and no leak for Command-only principal.",
+      "Targeted Go unit/security and existing cross-platform Work Queue + Host full suite on exact candidate commit."
+    ],
+    "acceptance_tests": [
+      "Authorized Incident owner returned action visible in existing HTML route; HTML XSS payload escaped.",
+      "Missing action/due/source remains unknown; due-only/invalid time/oversize/control/invalid UTF8/cross-scope fields abort with no partial source HTML.",
+      "Revoked Incident and Commander lacking overview fields cannot read action despite other Incident access.",
+      "Real local browser GET validates independent principal visibility under Basic demo, and previous Case/Result navigation remains unchanged.",
+      "Work Queue and cross-product Host workflows plus mandatory engineering security gates complete SUCCESS on exact SHA."
+    ],
+    "run_ids": []
+  },
+  "rules": [
+    "Class-0 read-only implementation for E10-CMD-106O-NEXTACTION",
+    "Strict tenant isolation and permission checking",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-CMD-106P-TASKLINKS"
+  ]
+}

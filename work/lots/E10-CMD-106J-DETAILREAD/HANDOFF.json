@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-CMD-106J-DETAILREAD",
+  "result": "VERIFIED",
+  "final_validated_head": "9e47e83a85c603903fdc0829cf6f06ac1aade82b",
+  "implementation_commit": "9e47e83a85c603903fdc0829cf6f06ac1aade82b",
+  "pull_request": 208,
+  "evidence": {
+    "title": "Open a dedicated owner-authorized read-only Incident Detail from Command Work Queue",
+    "goal": "Deliver one genuinely navigable, dedicated Class-0 Incident Detail HTML slice for an already authorized Command Incident, including off-page deep links and independently owner-authorized coordination source fields/Cases. Explicitly partial: no edit, mutations, Action Request, Incident Detail full acceptance or production IAM.",
+    "implementation_paths": [
+      "product-runtime/work-queue/selected_context.go",
+      "product-runtime/work-queue/incident_detail.go",
+      "product-runtime/work-queue/incident_detail_test.go",
+      "product-runtime/work-queue/http.go",
+      "product-runtime/work-queue/html.go",
+      "product-runtime/command-investigate-host/host.go",
+      "product-runtime/command-investigate-host/cmd/local-browser/main.go",
+      "product-runtime/command-investigate-host/cmd/local-browser/incident_detail_test.go",
+      "work/graph.json",
+      "engineering/state/current.json",
+      "work/lots/E10-CMD-106J-DETAILREAD/**",
+      "product-runtime/command-investigate-host/incident_detail_host_test.go"
+    ],
+    "outputs": [
+      "Dedicated `GET /command/incident-detail?incident=...` HTML read-only page in existing local command-investigate-host with authorized owner/state/freshness/source factors/SLA/linked Investigate Cases.",
+      "A new selected Incident detail link from existing Work Queue screen, and a return link using freshly authorized Command Work Queue deep selection.",
+      "One shared `enrichSelectedResult` owner read implementation for original Work Queue and new Incident Detail, not a duplicated authorization engine.",
+      "Reproducible Go HTTP and real localhost browser navigation tests including off-page success and revocation/denial."
+    ],
+    "acceptance_tests": [
+      "A previously authorized Incident beyond first queue page opens its own HTML detail after every current in-scope owner ACL has been re-evaluated.",
+      "Revoked or nonexistent ID fails generic 404 with no Incident/Case details; malformed/foreign/unexpected query rejected before session or owner.",
+      "Original Work Queue selection and JSON response semantics unchanged, including optional factors/SLA/linked sources.",
+      "Local synthetic analyst follows Work Queue\u2192Incident Detail\u2192Case Timeline\u2192authorized return; Command-only principal reads permitted Incident but not linked Case.",
+      "GET-only/HTML-only, no form or script; response headers cache/CSP/Referrer safe, zero credential in URL.",
+      "Relevant Go tests/race/vet/CI and unchanged engineering mandatory checks pass on EXACT PR HEAD; separate L2 required before acceptance.",
+      "Optional host/detail routing rejects nil/ambiguous handlers, preserves two-handler legacy behavior, routes only exact fixed path and propagates independently authorized detail refusal"
+    ],
+    "run_ids": []
+  },
+  "rules": [
+    "Product: Command CAP-CMD-106 Incident Coordination, Command CAP-CMD-101 read-only selection and linked destination CAP-INV-110 Investigate; Shared owns Timeline Entry/links, owners retain source rights.",
+    "Engineering: existing E10-CMD-106 epic, child J; depends I-DEEPRETURN IMPLEMENTED (not accepted), G-LOCALBROWSER IMPLEMENTED; OPEN-013 Class-2 actions excluded.",
+    "Code: first-party Go Work Queue Project owner-checked projector and enrichSelectedResult shared source-owner validator for both original Work Queue and new detail; independent source owner authorizations. Optional same-origin host route; synthetic Basic loopback demo is explicitly not prod IAM.",
+    "Git: branch feature/e10-cmd-106j-incident-detail-readonly based on frozen #208 SHA 9e47e83a85c603903fdc0829cf6f06ac1aade82b. PR #208 SHA and L2 are NEVER changed by this branch; Git parent #208 is NOT business parent.",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-CMD-106K-OVERVIEW"
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-004J-PIVOTFIX",
+  "result": "VERIFIED",
+  "final_validated_head": "7514699e66b1c5fe27a448539ca5bd39aa855cb5",
+  "implementation_commit": "7514699e66b1c5fe27a448539ca5bd39aa855cb5",
+  "pull_request": 186,
+  "evidence": {
+    "title": "Close independent L2 R2 risks on CAP-INV-004 pivot HTTP drafts",
+    "goal": "Preserve authorized Event Inspector read behavior while making pivot draft a distinct host-authorized action, rejecting ambiguous multi-origin source provenance and applying the same Inspector payload/field bounds.",
+    "implementation_paths": [
+      "product-runtime/event-inspection-host/http.go",
+      "product-runtime/event-inspection-host/http_test.go",
+      "product-runtime/event-inspection-host/pivot_http.go",
+      "product-runtime/event-inspection-host/pivot_http_test.go",
+      "work/graph.json",
+      "work/lots/E10-INV-004J-PIVOTFIX/**"
+    ],
+    "outputs": [
+      "Optional explicit PivotAuthorizer host injection, default NewHandler pivots fail closed but reads remain supported",
+      "Ambiguous same field/value origin is rejected before copy",
+      "Shared browser projection bounds enforced on pivot"
+    ],
+    "acceptance_tests": [
+      "Legacy NewHandler without pivot authority denies pivot but preserves read.",
+      "Action-specific provider deny/error blocks draft even when Search and Telemetry reads succeed; allow then succeeds.",
+      "Multiple matching origins (source+normalized, two enrichment producers) rejected with no arbitrary origin.",
+      "Value >4096 or owner projection maps violating Inspector bounds reject pivot without a partial result.",
+      "Original host/core regression plus engineering security gates and cross-platform CI success on exact HEAD."
+    ],
+    "run_ids": []
+  },
+  "rules": [
+    "Old NewHandler still supports POST /investigate/event-inspection but no longer *grants a pivot* merely because the Event and its source projection may be read. The pivot URL fails closed if no independently supplied PivotAuthorizer. Hosts explicitly opt in with NewHandlerWithPivotAuthorizer(sessions, searchOwner, telemetryOwner, pivotActionAuthorizer); an authentic host must check principal, tenant/environment, Search Job/run and field-specific *copy/pivot* action. It may reuse a host IAM source, but cannot infer pivot permission from read. A synthetic Search owner mock implements the separate action permission for tests; this is not deployed IAM or a real security policy.",
+    "The original trusted SessionResolver, SearchOwner and TelemetryOwner chain still reauthorizes the selected Event before the action check. Original Project + PreparePivot code is reused. The action authorizer is called only after existing Inspector-wide map/enrichment/raw/rendered payload validation and uniqueness of selected field+value provenance.",
+    "A field/value appearing in two visible source maps or in two enrichment producers is rejected rather than reporting the arbitrary first map. A single exact origin is allowed; missing map keys, denied raw-derived map and wrong value remain denied.",
+    "Reuse original toBrowserProjection to apply all existing Inspector field/key/value, enrichments, missing fields, raw/rendered payload bounds before attempting draft preparation; selected value is capped to 4096 bytes. The host does not request a second source or use client flags to choose authority.",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-004K-BROWSERPIVOT"
+  ]
+}

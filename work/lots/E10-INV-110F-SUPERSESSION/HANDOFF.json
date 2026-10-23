@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-110F-SUPERSESSION",
+  "result": "VERIFIED",
+  "final_validated_head": "ea1770b48a4bc1b2e850a7ffab15d5839f9e9e49",
+  "implementation_commit": "ea1770b48a4bc1b2e850a7ffab15d5839f9e9e49",
+  "pull_request": 187,
+  "evidence": {
+    "title": "Expose source-authorized superseded Timeline Entry status through the existing Case HTTP read",
+    "goal": "Mark an older authorized Case Timeline Entry non-current when and only when another authorized visible version supersedes it, reusing the existing read-only owner projection and HTTP route. No mutation, owner transfer, or new data source.",
+    "implementation_paths": [
+      "product-runtime/investigation-timeline/projection.go",
+      "product-runtime/investigation-timeline/supersession_visibility_test.go",
+      "work/lots/E10-INV-110F-SUPERSESSION/**",
+      "work/graph.json"
+    ],
+    "outputs": [
+      "Authorized superseded predecessors are explicitly flagged in the existing Case Timeline JSON response, including paginated and filtered reads without a new endpoint.",
+      "Positive and denied-source Go projection/HTTP regression proof, preserving original version links and limiting inference."
+    ],
+    "acceptance_tests": [
+      "Source-authorized version1 and version2 where version2 supersedes version1 must mark only version1 as superseded.",
+      "Multi-hop authorized version chain marks all old nodes without manufacturing a single canonical successor.",
+      "Denied, missing and foreign successor must never change the visible predecessor flag or disclose its ID.",
+      "Explicit HTTP request with Case bearer shows boolean for predecessor even when newer entry is on another authorized page; invalid/revoked Case denied.",
+      "Existing Go tests and relevant GitHub Actions succeed on the exact SHA, no claims of production auth."
+    ],
+    "run_ids": []
+  },
+  "rules": [
+    "Product: CAP-INV-110 Investigation Timeline read, Case belongs Investigate, Timeline Entry and source lineage remain Shared/typed source owners. No new ownership or mutation of Timeline Entry.",
+    "Engineering: existing E10-INV-110 epic, independent E10-INV-110F-SUPERSESSION child of VERIFIED E10-INV-110E. Other READY E10-INV-120A-SNAPSHOT is a separately recorded broad, stale and already implemented-in-parts path; do not rewrite its history, auto-verify it or conflate this work with it.",
+    "Code: existing Go first-party product-runtime/investigation-timeline/projection.go and bounded regression test. Uses existing in-process case/catalog/source adapters, existing /case-timeline JSON, no extra provider, route, dependency or persisted data.",
+    "Git: branch feature/e10-inv-110f-visible-supersession from PR #36 frozen head ea1770b48a4bc1b2e850a7ffab15d5839f9e9e49, independent of DRAFT PR #187 Wazuh HEAD 53544c2a65f66324d004d48427b07493f7ac2d9e. Zero changes in PR #187 paths or SHA; the relation is git ancestry, not product parenthood.",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-CMD-106F-TIMELINE",
+    "E10-INV-110J-CASEHTML"
+  ]
+}

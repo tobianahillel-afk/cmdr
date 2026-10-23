@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-004G-HOST",
+  "result": "VERIFIED",
+  "final_validated_head": "4e45d6251b9e83296be4b46c2ef0033fa293cf92",
+  "implementation_commit": "4e45d6251b9e83296be4b46c2ef0033fa293cf92",
+  "pull_request": 181,
+  "evidence": {
+    "title": "Bind authoritative Search+Telemetry owners to read-only Event Inspection HTTP",
+    "goal": "Offer an embeddable first-party HTTP handler returning the canonical CAP-INV-004 projection to the existing browser transport shape, only after independently server-verified session, Search Job selection and telemetry/raw/rendered authorization.",
+    "implementation_paths": [
+      "product-runtime/event-inspection-host/**",
+      ".github/workflows/event-inspection-http-host.yml",
+      "work/lots/E10-INV-004G-HOST/**",
+      "work/graph.json",
+      "engineering/architecture/boundaries.json",
+      "engineering/performance/performance-registry.json",
+      "engineering/security/runtime-security-policy.json",
+      "tools/cmdr-dev/security_tests.go",
+      "tools/cmdr-dev/security_tests_test.go",
+      "engineering/performance/deep-performance-policy.json",
+      "tools/cmdr-dev/deep_performance.go",
+      "tools/cmdr-dev/event_inspection_host_performance.go"
+    ],
+    "outputs": [
+      "New embeddable authorized HTTP handler composing distinct SessionResolver, SearchOwner, TelemetryOwner and existing eventinspection.Project",
+      "Server response compatible with JS Inspector normalization: lowerCamel source/parser/enrichments; independent raw/rendered variants",
+      "HTTP httptest security matrix including host spoof, source redaction, denied raw, malformed requests, wrong Event and partial stale provenance",
+      "Exact-HEAD cross-platform CI evidence, with explicit exclusion of real host and production",
+      "Separate registered host boundary with explicit local-only Go dependency on immutable event-inspection-runtime; on-demand benchmark target measures ONLY the upstream in-process projector; no HTTP SLO",
+      "MANDATORY measured security adapter for event-inspection-http-host-runtime: new host Go security coverage and independently executed Search authorization/Tenant isolation tests",
+      "Engineering unit tests assert all nine explicitly registered runtime security evidence adapters, including the new HTTP host; existing mandatory adapters unchanged",
+      "On-demand deep load target executes actual Go httptest BenchmarkAuthorizedInspectionHTTP and reports measured ops/sec and allocation B/op, not fabricated peak heap or network p95."
+    ],
+    "acceptance_tests": [
+      "Positive real HTTP request passes server-source authorization chain and returns browser-compatible read-only projection",
+      "Denial at Search stage never invokes Telemetry owner; owner/identity mismatch yields generic denied and zero protected bytes",
+      "Raw and rendered independent; denied raw causes zero leakage of source-owned raw-derived secret",
+      "Invalid Event origin/provenance, malformed/oversize JSON, unsupported method/content-type fail closed",
+      "Go race/test/vet and host coverage >=90% on exact commit; full adaptive engineering checks required separately",
+      "Global CHK-SECURITY-TESTS must measure new host coverage above unchanged mandatory 90% changed-critical floor and execute both host negative tests"
+    ],
+    "run_ids": []
+  },
+  "rules": [
+    "Go httptest exercises the actual handler, session/Search/Telemetry",
+    "Tested providers are synthetic host stubs; this does not supply",
+    "Real production rights must be resolved at source by independent owner",
+    "Raw/rendered HTTP transport currently permits bounded UTF-8 text only",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": []
+}

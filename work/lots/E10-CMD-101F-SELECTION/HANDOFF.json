@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-CMD-101F-SELECTION",
+  "result": "VERIFIED",
+  "final_validated_head": "502c7e8398c194d320ea234902cceaabd274d234",
+  "implementation_commit": "502c7e8398c194d320ea234902cceaabd274d234",
+  "pull_request": 162,
+  "evidence": {
+    "title": "Select a currently authorized visible Incident/Task row without changing the canonical Command Work Queue route",
+    "goal": "Deliver CAP-CMD-101 Class-0 row selection and limited owner-authorized selected context on the existing Command route. Preserve current view/status/sort, prevent denied or off-page object disclosure and do not create an Inspector, Incident Detail provider, mutation or Saved View.",
+    "implementation_paths": [
+      "product-runtime/work-queue/queue.go",
+      "product-runtime/work-queue/http.go",
+      "product-runtime/work-queue/html.go",
+      "product-runtime/work-queue/selection_test.go",
+      "work/lots/E10-CMD-101F-SELECTION/**",
+      "work/graph.json",
+      "engineering/state/current.json"
+    ],
+    "outputs": [
+      "Opt-in selected Row JSON field emitted only after fresh ACL and exact current page match; unselected JSON remains backward-compatible.",
+      "Accessible same-form row-selection action with selected context containing only already-authorized row fields; current view/filter/sort retained.",
+      "No actual Incident Detail or Inspector; no selected persistent state nor linking to Case/Run."
+    ],
+    "acceptance_tests": [
+      "Request selecting an authorized visible Task in a filtered oldest-first view gives exactly that Row, while Project calls Owner.List once and CanRead once per in-scope candidate.",
+      "Select denied/foreign/wrong view or status/off-page item: generic 404 with no object data; session/owner errors still yield no partial response.",
+      "Invalid/duplicate/overlong/UTF-8/control selection fails 400 before session or owner; unsupported client-scope filters still rejected.",
+      "HTML selection button remains on one existing GET route, safely escapes malicious IDs, preserves view/filter/sort, and adds no extra system views or new Inspector.",
+      "Legacy requests keep original JSON field set; complete Linux/macOS/Windows Go runtime CI and mandatory unchanged security/complexity checks on final SHA."
+    ],
+    "run_ids": [
+      39366010942,
+      39366010979
+    ]
+  },
+  "rules": [
+    "Class-0 read-only implementation for E10-CMD-101F-SELECTION",
+    "Strict tenant isolation and permission checking",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": []
+}

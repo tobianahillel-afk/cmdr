@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-CMD-105A-READONLY",
+  "result": "VERIFIED",
+  "final_validated_head": "89a092bade8b2137732ac5da8583a1d321249549",
+  "implementation_commit": "89a092bade8b2137732ac5da8583a1d321249549",
+  "pull_request": 173,
+  "evidence": {
+    "canonical_capability": "CAP-CMD-105",
+    "implementation_paths": [
+      "product-runtime/work-queue/sla.go",
+      "product-runtime/work-queue/sla_test.go"
+    ]
+  },
+  "rules": [
+    "Read-only operational SLA state and versioning inspection",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-CMD-105B-EXPLAIN"
+  ]
+}

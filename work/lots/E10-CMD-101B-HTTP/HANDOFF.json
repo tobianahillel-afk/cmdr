@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-CMD-101B-HTTP",
+  "result": "VERIFIED",
+  "final_validated_head": "81cdd5ab5501869e06180a56aa1377820ad2667d",
+  "implementation_commit": "81cdd5ab5501869e06180a56aa1377820ad2667d",
+  "pull_request": 156,
+  "evidence": {
+    "title": "Single host-authenticated HTTP system-view route for Command Unified Work Queue",
+    "goal": "Expose all six existing first-party Command Work Queue system views via one read-only HTTP GET path using a host-resolved current session and the existing owner ACL; no new view engine.",
+    "implementation_paths": [
+      "product-runtime/work-queue/http.go",
+      "product-runtime/work-queue/http_test.go",
+      "work/lots/E10-CMD-101B-HTTP/**",
+      "work/graph.json",
+      "engineering/state/current.json"
+    ],
+    "outputs": [
+      "Go standard-library NewHTTPHandler accepting SessionResolver and existing Owner interfaces",
+      "GET /command/work-queue?view=... delivers six authorized existing view projections, GET absent view defaults All; no separate view routes",
+      "Host identity scope is never accepted from user query; no authenticated host \u2192 no data; host/provider access failure is all-or-nothing",
+      "Real HTTP tests for six view keys, no scope injection, missing identity, owner revocation, invalid method and route; CI and independent targeted L2"
+    ],
+    "acceptance_tests": [
+      "Existing six canonical Work Queue views are accessible through exactly one route using a trusted host-provided scope, with current owner ACL per item",
+      "No independent incident/tasks routes or revived team-load; query principal/tenant/environment and duplicated view rejected",
+      "Missing/revoked host identity and provider failure return no data or partial IDs",
+      "Exact SHA Linux, macOS, Windows Go unit tests and mandatory engineering kernel (including unchanged >=90% changed-security coverage) must succeed before any merger",
+      "No claim of production cookie/session, Shared Saved Views/Inspector, full queue workspace, persistence, assignment, paging or CAP acceptance"
+    ],
+    "run_ids": [
+      39352904407
+    ]
+  },
+  "rules": [
+    "Canonical: CAP-CMD-101 \u00a7\u00a71\u201327 / Command Unified Work Queue, six exact keys from 06-command/modules/incidents-and-work-queue/saved-views.md; Command owns meaning and Incident/Task, Shared owns saved-view data and final Inspector.",
+    "Engineering: pre-existing epic E10-CMD-101, new bounded task E10-CMD-101B-HTTP depending on E10-CMD-101A-READONLY IMPLEMENTED (NOT accepted). Follows the repository complexity policy: one new runtime handler, one test file, no migration.",
+    "Code: product-runtime/work-queue/http.go, http_test.go, reuses unchanged queue.go Project and its exact owner authorization instead of recreating a queue engine. No framework or paid API.",
+    "Git: new child branch of integration PR #158; #158 itself is child of frozen security/SAST PR #157, whose exact HEAD engineering CI run 39352904407 SUCCESS. Neither PR #156 sibling nor any ancestor is merged or modified.",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-CMD-101C-HTML"
+  ]
+}

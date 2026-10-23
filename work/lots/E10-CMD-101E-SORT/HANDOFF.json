@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-CMD-101E-SORT",
+  "result": "VERIFIED",
+  "final_validated_head": "2bc24c784b2e88a38a7c2f1f5139bc6bc2e8c257",
+  "implementation_commit": "2bc24c784b2e88a38a7c2f1f5139bc6bc2e8c257",
+  "pull_request": 159,
+  "evidence": {
+    "title": "Offer an opt-in deterministic updated-at ordering across all six canonical Command Work Queue views",
+    "goal": "Deliver CAP-CMD-101 Class-0 manual newest/oldest ordering on the existing host-authorized Command Work Queue projection and native HTML browser, without a second sorting engine or Saved View persistence.",
+    "implementation_paths": [
+      "product-runtime/work-queue/queue.go",
+      "product-runtime/work-queue/http.go",
+      "product-runtime/work-queue/html.go",
+      "product-runtime/work-queue/sort_test.go",
+      "work/lots/E10-CMD-101E-SORT/**",
+      "work/graph.json",
+      "engineering/state/current.json"
+    ],
+    "outputs": [
+      "Exact optional sort choice newest/oldest over owner-resolved UpdatedAt, applied after authorization and before 50-row bound",
+      "Six-view HTML navigation preserves status and sort and GET form applies it on the same route",
+      "Legacy no-sort JSON response unchanged, filtered JSON adds explicit sort only when selected"
+    ],
+    "acceptance_tests": [
+      "Given 3 independently authorized Command items, verify default/newest/oldest timestamp order and stable Kind/ID tie-break; status/view intersections unchanged.",
+      "Owner.CanRead executed on all in-scope records before filtering/sorting; denied-only rows and foreign tenant metadata absent; invalid order rejected before authorization.",
+      "Six canonical views same GET route in JSON/HTML; sort/status retained in GET form and escaped links; malformed, repeated, injected or arbitrary sort rejected.",
+      "Bounded 5000 candidates / 50 output rows, SLA Partial state and first-page-only diagnostic remain deterministic.",
+      "Exact HEAD GitHub Actions command-work-queue-runtime Linux/macOS/Windows and engineering-kernel mandatory checks, no coverage waivers; one independent read-only L2 if material and not already scheduled."
+    ],
+    "run_ids": []
+  },
+  "rules": [
+    "Class-0 read-only implementation for E10-CMD-101E-SORT",
+    "Strict tenant isolation and permission checking",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-CMD-101F-SELECTION"
+  ]
+}

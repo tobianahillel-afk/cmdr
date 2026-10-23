@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-CMD-106E-HOST",
+  "result": "VERIFIED",
+  "final_validated_head": "87bcb604fd388d26f4919d5c6bb6c3c489528bda",
+  "implementation_commit": "87bcb604fd388d26f4919d5c6bb6c3c489528bda",
+  "pull_request": 195,
+  "evidence": {
+    "title": "Compose independently authorized Command Incident \u2192 Investigate Case Timeline on a single local HTTP origin",
+    "goal": "Make the existing independently authorized Command Work Queue linked-Case navigation of E10-CMD-106D actually traversable to the existing read-only Investigate Case Timeline handler within one server host, without transferring source permissions, adding IAM, claiming production or creating a second domain engine.",
+    "implementation_paths": [
+      "product-runtime/command-investigate-host/**",
+      ".github/workflows/command-investigate-readonly-host.yml",
+      "engineering/architecture/boundaries.json",
+      "engineering/security/runtime-security-policy.json",
+      "work/lots/E10-CMD-106E-HOST/**",
+      "work/graph.json",
+      "engineering/performance/performance-registry.json",
+      "engineering/performance/performance-policy.json",
+      "tools/cmdr-dev/performance_registry.go",
+      "tools/cmdr-dev/security_tests.go",
+      "tools/cmdr-dev/security_tests_test.go",
+      "tools/cmdr-dev/performance_benchmark.go",
+      "engineering/performance/benchmark-policy.json",
+      "engineering/performance/deep-performance-policy.json",
+      "tools/cmdr-dev/deep_performance.go",
+      "tools/cmdr-dev/performance_command_investigate_deep.go",
+      "tools/cmdr-dev/performance_command_investigate_deep_test.go"
+    ],
+    "outputs": [
+      "New embeddable NewHandler(Command http.Handler, Timeline http.Handler) reuses the two existing read-only services on one origin, with route isolation and no extra IAM decisions.",
+      "Cross-module Go httptest follows a real Case link rendered by Command into the real Timeline HTTP handler and demonstrates independent source checks, including a Command-only reader denied at destination.",
+      "Cross-platform Go CI on exact commit, Linux race, go vet, gofmt, 90% host statement coverage and mandatory engineering-security gate.",
+      "Provisional on-demand engineering performance registry entry, explicitly unmeasured for live IAM and network.",
+      "Strict changed-security-critical evidence adapter for the new host boundary with fresh Go coverage and authorization/tenant negative tests; no automatic source-owner trust grant.",
+      "Measured on-demand routing benchmark policy and executable workload using Go testing.B against the actual NewHandler implementation; provider/IAM latency explicitly excluded.",
+      "One real bounded Go subprocess deep resource target for the existing same-origin routing benchmark: 250 measured operations, peak Go heap and total allocations, 512 MiB soft memory hint and 180-second cap, explicitly excluding IAM/provider/network."
+    ],
+    "acceptance_tests": [
+      "Actual selected Incident HTML contains same-origin /case-timeline?case_id=Case ID with no tenant or token.",
+      "Following that link through the same HTTP host returns source-authorized Case Timeline JSON for the valid Investigate reader.",
+      "A second principal with identical Command Incident read rights but no Investigate Case read rights receives no protected Case/Entry/source content at destination.",
+      "Anonymous, wrong token, invalid Case query, invalid path, mutation and nil handler fail closed.",
+      "Existing individual handlers remain unchanged; cross-tenant/session privileges not transferable.",
+      "Exact GitHub SHA validates Go compile/unit/race/vet/coverage on Linux, Windows, macOS and engineering schema/security checks.",
+      "Global CHK-SECURITY-TESTS executes measured host Go coverage and negative tests on exact SHA, no unmeasured boundary or altered coverage thresholds.",
+      "The strict security adapter registry unit test expects exactly 10 registered adapters including command-investigate-host-runtime; no implicit adapter is permitted.",
+      "The performance benchmark registry has one measured first-party routing workload and the strict validator still rejects unknown or duplicated workload keys.",
+      "CHK-DEEP-PERFORMANCE validates the matching product-runtime deep target, known executable first-party handler and exact valid on-demand scope; malformed/missing benchmark resource metrics fail closed.",
+      "Actual Go routing deep benchmark emits positive ns/op, peakheap-B and totalalloc-B data from real NewHandler dispatch, distinct from synthetic production IAM."
+    ],
+    "run_ids": []
+  },
+  "rules": [
+    "Canonical pilot: Command CAP-CMD-106 (Incident \u2192 authorized linked Investigate Case navigation) and CAP-CMD-101 Work Queue, consuming Investigate CAP-INV-110 (read-only Timeline). Incident remains Command; Case remains Investigate; Timeline Entry remains Shared; relation remains Shared Object Linking.",
+    "Engineering parent: EXISTING E10-CMD-106 epic, new child E10-CMD-106E-HOST, depends E10-CMD-106D-NAVIGATION IMPLEMENTED and E10-INV-110E VERIFIED. No fictional new product capacity or transferred owner. Existing graph has zero READY tasks; this task was selected from the specifically documented #195 host gap rather than blindly creating a new epic.",
+    "Code owner: NEW, explicitly registered cross-product routing composition command-investigate-host-runtime at product-runtime/command-investigate-host/, allowed to depend on existing Command Work Queue and Investigate Timeline runtime boundaries. Neither source implementation nor canonical contract is edited; Go modules both pinned to 1.26.10.",
+    "Git parent: #197 87bcb604fd388d26f4919d5c6bb6c3c489528bda (security-updated Go 1.26.10 stack), DRAFT; this PR is a child branch and does NOT modify the L2-frozen #197 SHA. This Git parent differs from the product/engineering parent.",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-CMD-106F-TIMELINE"
+  ]
+}

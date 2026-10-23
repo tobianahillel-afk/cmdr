@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-CMD-106P-TASKLINKS",
+  "result": "VERIFIED",
+  "final_validated_head": "38d1131556023b427021422950b52aa2a67824b3",
+  "implementation_commit": "38d1131556023b427021422950b52aa2a67824b3",
+  "pull_request": 214,
+  "evidence": {
+    "title": "Read independently authorized Command Tasks linked to a selected Incident Detail",
+    "goal": "Complete the canonical Incident coordination read flow: display existing Command Task ownership/status/timestamp next to the selected Incident, using an independently authorized Incident->Task relation and the exact existing Command Owner.List/CanRead Task projection. No Task creation, assignment, mutation or duplicate authorization engine.",
+    "implementation_paths": [
+      "product-runtime/work-queue/incident_task_links.go",
+      "product-runtime/work-queue/incident_task_links_test.go",
+      "product-runtime/work-queue/incident_detail.go",
+      "product-runtime/command-investigate-host/cmd/local-browser/main.go",
+      "product-runtime/command-investigate-host/cmd/local-browser/incident_detail_test.go",
+      "work/lots/E10-CMD-106P-TASKLINKS/**",
+      "work/graph.json",
+      "engineering/state/current.json"
+    ],
+    "outputs": [
+      "Existing GET /command/incident-detail shows only independently read-authorized linked Task id, owner/status and source updatedAt, without new endpoint or mutation.",
+      "Local loopback with analyst sees synthetic linked Task; commander has Incident permission but no Task.read and sees no Task ID.",
+      "Direct Go unit tests and real Go HTTP fixture verify positive, negative, malformed, lost permission, legacy behavior, oversized owner and cancelled request."
+    ],
+    "acceptance_tests": [
+      "Authorized Incident with scoped Task relation, Task in existing Command owner listing and individual Task CanRead=true => Task visibly listed in existing Incident Detail.",
+      "Incident reader lacking Task.read sees neither linked Task ID nor source metadata, including on later reaccess.",
+      "Broken tenant/env/incident/duplicate relation, malformed Task owner data, cancelled request, failed sources and bound overflows fail closed without partial HTML.",
+      "Legacy owner implementation without Task relation interface still shows Incident Detail and explicitly partial Task source.",
+      "Existing three GitHub workflows on exact SHA all pass, including workqueue Go race/vet, local real HTTP tests and mandatory engineering security checks."
+    ],
+    "run_ids": []
+  },
+  "rules": [
+    "Class-0 read-only implementation for E10-CMD-106P-TASKLINKS",
+    "Strict tenant isolation and permission checking",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-CMD-106Q-TASKNAV"
+  ]
+}

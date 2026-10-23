@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-CMD-106I-DEEPRETURN",
+  "result": "VERIFIED",
+  "final_validated_head": "5a3aa252e369d31f34d96989bd3e72c8e1c16dd6",
+  "implementation_commit": "5a3aa252e369d31f34d96989bd3e72c8e1c16dd6",
+  "pull_request": 207,
+  "evidence": {
+    "title": "Restore deep authorized Command Incident from Investigate across Work Queue pagination",
+    "goal": "Complete CAP-CMD-106 Class-0 Incident \u2192 Investigate \u2192 Incident return when the original Incident is not on the first 50 rows, using the existing owner-filtered Command Work Queue and its revision-bound cursor, never a new permission or separate Incident engine.",
+    "implementation_paths": [
+      "product-runtime/work-queue/queue.go",
+      "product-runtime/work-queue/pagination.go",
+      "product-runtime/work-queue/http.go",
+      "product-runtime/work-queue/deep_return_test.go",
+      "product-runtime/investigation-timeline/incident_return.go",
+      "product-runtime/investigation-timeline/incident_return_test.go",
+      "product-runtime/command-investigate-host/cmd/local-browser/incident_return_test.go",
+      "work/graph.json",
+      "engineering/state/current.json",
+      "work/lots/E10-CMD-106I-DEEPRETURN/**"
+    ],
+    "outputs": [
+      "Original selected Incident returns correctly even if on page three; source-authorized same-origin Work Queue renders correct page, HTML selection, prev/next cursors.",
+      "Off-page selection without restore stays denied, API JSON unchanged, invalid restore fails before owner, revocation gives 404 with no leak."
+    ],
+    "acceptance_tests": [
+      "Normal no-restore selection of off-page Incident remains 404 (prior explicit cursor invariant).",
+      "HTML read-only restore deep Incident #100 succeeds only if the current Command Owner authorizes it after all 124 in-scope ACL decisions; returns its correct real page and cursor.",
+      "Revoking target access before return fails generic 404 and no stale content.",
+      "Restore in JSON or with Task, extra query keys, cursor or malformed token rejects 400 before owner lookup.",
+      "Original Case/source roundtrip points to single canonical relative Command route using restore=1 and still independently authorizes Incident.",
+      "Full Work Queue/Timeline/Command-investigate-host Go/race/vet and global engineering checks pass on exact head SHA."
+    ],
+    "run_ids": []
+  },
+  "rules": [
+    "Class-0 read-only implementation for E10-CMD-106I-DEEPRETURN",
+    "Strict tenant isolation and permission checking",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-CMD-106J-DETAILREAD"
+  ]
+}

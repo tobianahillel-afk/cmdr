@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-CMD-101M-MYWORK",
+  "result": "VERIFIED",
+  "final_validated_head": "fb043608e05b36a1d70fb37bb6e5d007a3c17fac",
+  "implementation_commit": "bc7f92f6b4d36ef55712f51f7d54b41a33a38d16",
+  "pull_request": 172,
+  "evidence": {
+    "canonical_capability": "CAP-CMD-101",
+    "implementation_paths": [
+      "product-runtime/work-queue/my_work.go",
+      "product-runtime/work-queue/my_work_test.go"
+    ]
+  },
+  "rules": [
+    "Project My Work queue from authenticated principal contributor/watcher roles",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": []
+}
