@@ -100,6 +100,15 @@ func resolvePermissionAlias(perm string) string {
 	case "perm.cmdr-studio.agent-team.manage":
 		return PermStudioAgentTeamManage
 
+	case PermCmdrStudioVersionRead:
+		return "perm.studio.version.read"
+	case "perm.studio.version.read":
+		return PermCmdrStudioVersionRead
+	case PermCmdrStudioVersionManage:
+		return "perm.studio.version.manage"
+	case "perm.studio.version.manage":
+		return PermCmdrStudioVersionManage
+
 	default:
 		return ""
 	}
@@ -125,6 +134,24 @@ func (ac *AuthContext) CanReadAssetKind(kind AssetKind) bool {
 	case AssetKindTool:
 		// Governed strictly by perm.studio.library.read
 		return true
+	default:
+		return false
+	}
+}
+
+// CanManageAssetKind checks whether the caller has the specific manage permission for an asset kind.
+func (ac *AuthContext) CanManageAssetKind(kind AssetKind) bool {
+	switch kind {
+	case AssetKindSkill:
+		return ac.HasPermission(PermStudioSkillManage)
+	case AssetKindWorkflow:
+		return ac.HasPermission(PermStudioWorkflowManage)
+	case AssetKindAutomationAgent:
+		return ac.HasPermission(PermStudioAutomationAgentManage)
+	case AssetKindAgentTeam:
+		return ac.HasPermission(PermStudioAgentTeamManage)
+	case AssetKindTool:
+		return ac.HasPermission(PermStudioLibraryRead) || ac.HasPermission(PermStudioBuilderRead)
 	default:
 		return false
 	}
@@ -247,6 +274,7 @@ func SanitizeAssetForInspect(original *Asset) *Asset {
 		},
 		LifecycleState:     original.LifecycleState,
 		FunctionalState:    FunctionalStatePermissionFiltered,
+		DeliveryMode:       original.DeliveryMode,
 		ExecutionClass:     original.ExecutionClass,
 		RiskClassification: original.RiskClassification,
 		IsAIPowered:        original.IsAIPowered,
@@ -261,6 +289,7 @@ func SanitizeAssetForInspect(original *Asset) *Asset {
 			CreatedAt: original.Provenance.CreatedAt,
 			UpdatedAt: original.Provenance.UpdatedAt,
 		},
+		AuditTrail: []AuditRecord{},
 		CreatedAt: original.CreatedAt,
 		UpdatedAt: original.UpdatedAt,
 	}

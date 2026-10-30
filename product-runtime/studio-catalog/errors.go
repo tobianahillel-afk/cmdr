@@ -36,6 +36,11 @@ const (
 	// Execution policy errors (REQ-PROD-006)
 	ErrorCodeExecutionBlocked         ErrorCode = "execution-blocked"
 
+	// Metadata & Supersession errors (CAP-STD-002)
+	ErrorCodeImmutableAssetMutation   ErrorCode = "immutable-asset-mutation"
+	ErrorCodeInvalidMetadata          ErrorCode = "invalid-metadata"
+	ErrorCodeCircularSupersession     ErrorCode = "circular-supersession"
+
 	// Generic internal error
 	ErrorCodeInternalError            ErrorCode = "internal-error"
 )
@@ -105,6 +110,39 @@ func NewExecutionBlockedError(verb, correlationID string) *ErrorEnvelope {
 	return NewError(
 		ErrorCodeExecutionBlocked,
 		fmt.Sprintf("Execution verb %q is permanently blocked in Studio Library (Class 0 read-only discovery, REQ-PROD-006)", verb),
+		correlationID,
+		400,
+		false,
+	)
+}
+
+// NewImmutableAssetMutationError creates a 400 envelope when attempting to mutate non-draft metadata.
+func NewImmutableAssetMutationError(assetID, state, correlationID string) *ErrorEnvelope {
+	return NewError(
+		ErrorCodeImmutableAssetMutation,
+		fmt.Sprintf("Asset %q in state %q cannot be edited (only draft assets are mutable under CAP-STD-002)", assetID, state),
+		correlationID,
+		400,
+		false,
+	)
+}
+
+// NewInvalidMetadataError creates a 400 envelope when metadata fails required validation.
+func NewInvalidMetadataError(details, correlationID string) *ErrorEnvelope {
+	return NewError(
+		ErrorCodeInvalidMetadata,
+		fmt.Sprintf("Invalid metadata specification: %s", details),
+		correlationID,
+		400,
+		false,
+	)
+}
+
+// NewCircularSupersessionError creates a 400 envelope when supersession graph contains cycles.
+func NewCircularSupersessionError(assetID, correlationID string) *ErrorEnvelope {
+	return NewError(
+		ErrorCodeCircularSupersession,
+		fmt.Sprintf("Circular supersession link detected involving asset %q", assetID),
 		correlationID,
 		400,
 		false,

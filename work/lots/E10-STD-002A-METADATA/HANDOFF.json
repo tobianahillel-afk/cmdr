@@ -1,0 +1,107 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-STD-002A-METADATA",
+  "result": "VERIFIED",
+  "implementation_commit": "pending-commit",
+  "final_validated_head": "28d19d213be478d4ad88d8d118c09013c0456ff9",
+  "pull_request": 222,
+  "ci_proofs": {
+    "total_checks": 18,
+    "passed_checks": 18,
+    "workflow_runs": [
+      {
+        "name": "CMDR corrected Command Case and Search Pivot joint-tree tests",
+        "run_id": 39899182250,
+        "status": "success"
+      },
+      {
+        "name": "Event Search to Event Inspection live local HTTP integration",
+        "run_id": 39899182225,
+        "status": "success"
+      },
+      {
+        "name": "command-investigate-readonly-host",
+        "run_id": 39899182235,
+        "status": "success"
+      },
+      {
+        "name": "command-work-queue-runtime",
+        "run_id": 39899182252,
+        "status": "success"
+      },
+      {
+        "name": "Event Inspection authorized HTTP host",
+        "run_id": 39899182330,
+        "status": "success"
+      },
+      {
+        "name": "investigation-timeline-runtime",
+        "run_id": 39899182283,
+        "status": "success"
+      },
+      {
+        "name": "engineering-kernel",
+        "run_id": 39899182256,
+        "status": "success"
+      }
+    ]
+  },
+  "evidence": {
+    "capability": "CAP-STD-002",
+    "requirements": [
+      "REQ-PROD-006",
+      "REQ-PROD-016",
+      "REQ-OBJ-009"
+    ],
+    "contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/error-contract.md"
+    ],
+    "boundary": "studio-catalog-runtime",
+    "runtime_path": "product-runtime/studio-catalog",
+    "fixtures": 97,
+    "subtest_assertions": 293,
+    "production_files": 5,
+    "production_loc": 2631,
+    "test_files": 4,
+    "test_loc": 3186,
+    "runtime_dependencies": 0,
+    "cross_boundary_edges": 0,
+    "global_coverage_percent": 84.0,
+    "sast_findings": 0,
+    "sca_actionable_findings": 0,
+    "operations_implemented": [
+      "ValidateMetadata",
+      "SuggestClassificationAndTags",
+      "AssignOwner",
+      "UpdateDraftMetadata",
+      "RecordSupersession",
+      "GetSupersessionHistory"
+    ],
+    "invariants_preserved": [
+      "Class 0 discovery operations (Browse, Search, Filter, Group, Open, Inspect, Compare, ClonePreparation)",
+      "Execution verbs permanently blocked (Invoke, Execute, Run, Call, Trigger) under REQ-PROD-006"
+    ],
+    "validation_results": {
+      "manifest_validation": "203 manifests checked (196 strict v2) PASS",
+      "architecture_audit": "17 boundaries PASS (1475 path claims)",
+      "doctor": "PASS (healthy=true)",
+      "spec_diff": "0 bytes diff against 82e630fce3a7f6236e03709116eca6dd0a1acd40",
+      "go_test": "97 top-level tests, 293 test assertions PASS",
+      "go_coverage": "84.0% statements",
+      "go_vet": "PASS (0 warnings)"
+    }
+  },
+  "invariants": [
+    "Product Spec baseline 82e630fce3a7f6236e03709116eca6dd0a1acd40 unchanged (0 bytes diff)",
+    "Class 0 operations strictly read-only; execution verbs permanently blocked with 400 execution-blocked under REQ-PROD-006",
+    "Strict tenant scoping enforced with existence oracle elimination (uniform 404 for cross-tenant)",
+    "Deterministic tag and classification validation without requiring AI (REQ-PROD-016)",
+    "Explicit owner unknown normalization when owner is absent or unrecognized (REQ-OBJ-009)",
+    "Supersession lineage and provenance audit trail preserved across transitions",
+    "Standard-library-only product runtime (0 third-party dependencies)"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": []
+}

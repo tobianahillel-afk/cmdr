@@ -2544,7 +2544,7 @@
       "id": "E10-STD-001A-BOUNDARY",
       "title": "Define CMDR Studio library asset boundary and metadata contracts",
       "type": "task",
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "depends_on": [
         "E10-CMD-106Q-TASKNAV",
         "E10-INV-120A-SNAPSHOT"
@@ -2558,11 +2558,11 @@
       "id": "E10-STD-001B-CATALOG",
       "title": "Define CMDR Studio library asset catalog and query registry",
       "type": "task",
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "depends_on": [
         "E10-STD-001A-BOUNDARY"
       ],
-      "dependency_terminal_state": "IMPLEMENTED",
+      "dependency_terminal_state": "VERIFIED",
       "unlocks": [
         "E10-STD-001C-RUNTIME"
       ]
@@ -2571,11 +2571,24 @@
       "id": "E10-STD-001C-RUNTIME",
       "title": "Studio Library and Asset Catalog Real Runtime Implementation",
       "type": "task",
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "depends_on": [
         "E10-STD-001B-CATALOG"
       ],
-      "dependency_terminal_state": "IMPLEMENTED",
+      "dependency_terminal_state": "VERIFIED",
+      "unlocks": [
+        "E10-STD-002A-METADATA"
+      ]
+    },
+    {
+      "id": "E10-STD-002A-METADATA",
+      "title": "Define CMDR Studio asset metadata, ownership contracts, and classification schema (CAP-STD-002)",
+      "type": "task",
+      "status": "VERIFIED",
+      "depends_on": [
+        "E10-STD-001C-RUNTIME"
+      ],
+      "dependency_terminal_state": "VERIFIED",
       "unlocks": []
     }
   ]

@@ -57,10 +57,38 @@ type FunctionalState string
 
 const (
 	FunctionalStateReady              FunctionalState = "ready"
+	FunctionalStateComplete           FunctionalState = "complete"
+	FunctionalStateDraft              FunctionalState = "draft"
 	FunctionalStatePartial            FunctionalState = "partial"
 	FunctionalStateStale              FunctionalState = "stale"
+	FunctionalStateSuperseded         FunctionalState = "superseded"
+	FunctionalStateDeprecated         FunctionalState = "deprecated"
 	FunctionalStatePermissionFiltered FunctionalState = "permission-filtered"
 )
+
+// DeliveryMode represents Studio asset delivery mode under CAP-STD-002.
+type DeliveryMode string
+
+const (
+	DeliveryModePlanned    DeliveryMode = "planned"
+	DeliveryModePreview    DeliveryMode = "preview"
+	DeliveryModeDelivered  DeliveryMode = "delivered"
+	DeliveryModeDeprecated DeliveryMode = "deprecated"
+)
+
+// AuditRecord stores a single immutable provenance audit entry under CAP-STD-002 Section 20.
+type AuditRecord struct {
+	Timestamp       time.Time `json:"timestamp"`
+	Actor           string    `json:"actor"`
+	Reason          string    `json:"reason"`
+	OldMetadata     string    `json:"old_metadata,omitempty"`
+	NewMetadata     string    `json:"new_metadata,omitempty"`
+	Version         string    `json:"version"`
+	TenantID        string    `json:"tenant_id"`
+	EnvironmentID   string    `json:"environment_id,omitempty"`
+	Action          string    `json:"action"`
+	SupersessionRef string    `json:"supersession_ref,omitempty"`
+}
 
 // RiskClassification defines operational risk level.
 type RiskClassification string
@@ -161,6 +189,7 @@ type Asset struct {
 	Version            VersionInfo        `json:"version"`
 	LifecycleState     LifecycleState     `json:"lifecycle_state"`
 	FunctionalState    FunctionalState    `json:"functional_state"`
+	DeliveryMode       DeliveryMode       `json:"delivery_mode,omitempty"`
 	ExecutionClass     string             `json:"execution_class"`
 	RiskClassification RiskClassification `json:"risk_classification"`
 	IsAIPowered        bool               `json:"is_ai_powered"`
@@ -170,6 +199,7 @@ type Asset struct {
 	Consumers          []Consumer         `json:"consumers"`
 	Supersession       Supersession       `json:"supersession"`
 	Provenance         Provenance         `json:"provenance"`
+	AuditTrail         []AuditRecord      `json:"audit_trail,omitempty"`
 	CreatedAt          time.Time          `json:"created_at"`
 	UpdatedAt          time.Time          `json:"updated_at"`
 }
@@ -206,6 +236,10 @@ func (a *Asset) Clone() *Asset {
 		cp.Provenance.ProvenanceChain = make([]string, len(a.Provenance.ProvenanceChain))
 		copy(cp.Provenance.ProvenanceChain, a.Provenance.ProvenanceChain)
 	}
+	if a.AuditTrail != nil {
+		cp.AuditTrail = make([]AuditRecord, len(a.AuditTrail))
+		copy(cp.AuditTrail, a.AuditTrail)
+	}
 	return &cp
 }
 
@@ -226,6 +260,7 @@ func (a *Asset) ToSummary() AssetSummary {
 		Version:            a.Version.SemVer,
 		LifecycleState:     a.LifecycleState,
 		FunctionalState:    a.FunctionalState,
+		DeliveryMode:       a.DeliveryMode,
 		RiskClassification: a.RiskClassification,
 		IsAIPowered:        a.IsAIPowered,
 		HasNonAIFallback:   a.HasNonAIFallback,
@@ -246,6 +281,7 @@ type AssetSummary struct {
 	Version            string             `json:"version"`
 	LifecycleState     LifecycleState     `json:"lifecycle_state"`
 	FunctionalState    FunctionalState    `json:"functional_state"`
+	DeliveryMode       DeliveryMode       `json:"delivery_mode,omitempty"`
 	RiskClassification RiskClassification `json:"risk_classification"`
 	IsAIPowered        bool               `json:"is_ai_powered"`
 	HasNonAIFallback   bool               `json:"has_non_ai_fallback"`
