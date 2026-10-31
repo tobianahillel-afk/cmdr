@@ -196,6 +196,22 @@ func runtimeSecurityAdapters() map[string]runtimeSecurityAdapter {
 			AuthorizationTestRegex: eventSearchFrontendAuthorizationTestRegexp,
 			TenantTestRegex:        eventSearchFrontendTenantTestRegexp,
 		},
+		"studio-catalog-runtime": {
+			BoundaryID:             "studio-catalog-runtime",
+			RuntimeRoot:            "product-runtime/studio-catalog",
+			RuntimeKind:            "go",
+			ModuleIdentity:         "github.com/tobianahillel-afk/cmdr/product-runtime/studio-catalog",
+			AuthorizationTestRegex: "^Test.*Authorization.*|^Test.*Permission.*|^Test.*Access.*",
+			TenantTestRegex:        "^Test.*Tenant.*",
+		},
+		"case-search-workbench-runtime": {
+			BoundaryID:             "case-search-workbench-runtime",
+			RuntimeRoot:            "product-runtime/case-search-workbench",
+			RuntimeKind:            "go",
+			ModuleIdentity:         "github.com/tobianahillel-afk/cmdr/product-runtime/case-search-workbench",
+			AuthorizationTestRegex: "^TestCaseSearch.*|^TestAuthorized.*",
+			TenantTestRegex:        "^TestCaseSearch.*|^TestAuthorized.*",
+		},
 	}
 }
 

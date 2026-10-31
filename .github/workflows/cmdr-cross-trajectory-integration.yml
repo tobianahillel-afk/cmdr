@@ -11,6 +11,8 @@ on:
       - "product-runtime/event-search/**"
       - "product-runtime/event-search-frontend/**"
       - "product-runtime/context-envelope/**"
+      - "product-runtime/studio-catalog/**"
+      - "product-runtime/case-search-workbench/**"
       - "tools/cmdr-dev/event_inspection_e2e.go"
       - "work/graph.json"
       - ".github/workflows/cmdr-cross-trajectory-integration.yml"
@@ -63,14 +65,16 @@ jobs:
             product-runtime/event-inspection-host \
             product-runtime/investigation-timeline \
             product-runtime/work-queue \
-            product-runtime/command-investigate-host; do
+            product-runtime/command-investigate-host \
+            product-runtime/case-search-workbench \
+            product-runtime/studio-catalog; do
             echo "::group::go test $mod"
             # Some independent cmd/perf-probe tests depend on sub-millisecond
             # monotonic-clock granularity unavailable in Windows runners.
             # On Windows the production library package is tested directly;
             # both HTTP hosts still run their FULL packages there. Full
             # module trees and subprocess probes remain tested on Linux/macOS.
-            if [[ "$RUNNER_OS" == "Windows" && "$mod" != "product-runtime/event-inspection-host" && "$mod" != "product-runtime/command-investigate-host" ]]; then
+            if [[ "$RUNNER_OS" == "Windows" && "$mod" != "product-runtime/event-inspection-host" && "$mod" != "product-runtime/command-investigate-host" && "$mod" != "product-runtime/studio-catalog" && "$mod" != "product-runtime/case-search-workbench" ]]; then
               (cd "$mod" && go test -count=1 . && go vet ./...)
             else
               (cd "$mod" && go test -count=1 ./... && go vet ./...)
@@ -85,6 +89,29 @@ jobs:
           (cd product-runtime/context-envelope && go test -count=1 ./...)
           (cd product-runtime/event-search-frontend && npm test)
           (cd product-runtime/investigation-timeline/cmd/case-timeline-demo && node --test analyst_return.test.cjs analyst_summary.test.cjs)
+      - name: Test, race-check and enforce Studio Catalog test coverage
+        if: matrix.os == 'ubuntu-latest'
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "::group::Studio Catalog unit and race tests"
+          (cd product-runtime/studio-catalog && go test -count=1 ./...)
+          (cd product-runtime/studio-catalog && go test -count=1 -race ./...)
+          echo "::endgroup::"
+          echo "::group::Studio Catalog coverage report"
+          (cd product-runtime/studio-catalog && go test -count=1 -covermode=atomic -coverprofile=coverage.out ./...)
+          (cd product-runtime/studio-catalog && go tool cover -func=coverage.out)
+          pct="$(cd product-runtime/studio-catalog && go tool cover -func=coverage.out | awk '/^total:/ {gsub(/%/, "", $3); print $3}')"
+          echo "Studio Catalog package test coverage: ${pct}%"
+          awk -v coverage="$pct" 'BEGIN {
+            if (coverage + 0 < 80.0) {
+              printf("ERROR: studio-catalog coverage %.2f%% is below 80%% threshold\n", coverage) > "/dev/stderr";
+              exit 1;
+            } else {
+              printf("SUCCESS: studio-catalog coverage %.2f%% meets >= 80%% requirement\n", coverage);
+            }
+          }'
+          echo "::endgroup::"
       - name: Race-check both independently authorized HTTP paths on same tree
         if: matrix.os == 'ubuntu-latest'
         shell: bash
@@ -92,6 +119,18 @@ jobs:
           set -euo pipefail
           (cd product-runtime/event-inspection-host && go test -race -count=1 ./...)
           (cd product-runtime/command-investigate-host && go test -race -count=1 ./...)
+          (cd product-runtime/case-search-workbench && go test -race -count=1 ./...)
+      - name: Run Go SAST scan (gosec) on Studio Catalog and Case Search Workbench
+        if: matrix.os == 'ubuntu-latest'
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "::group::SAST gosec scan on product-runtime/studio-catalog"
+          (cd product-runtime/studio-catalog && go run github.com/securego/gosec/v2/cmd/gosec@v2.28.0 -severity=medium -confidence=medium -exclude-generated ./...)
+          echo "::endgroup::"
+          echo "::group::SAST gosec scan on product-runtime/case-search-workbench"
+          (cd product-runtime/case-search-workbench && go run github.com/securego/gosec/v2/cmd/gosec@v2.28.0 -severity=medium -confidence=medium -exclude-generated ./...)
+          echo "::endgroup::"
 
 # This proves combined-source coexistence and existing local owner-checked
 # routes. It does NOT assert a new canonical cross-product workflow, real IAM,
