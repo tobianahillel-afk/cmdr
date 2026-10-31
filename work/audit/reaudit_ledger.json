@@ -119,8 +119,8 @@
           "No independent incident/tasks routes or revived team-load; query principal/tenant/environment and duplicated view rejected"
         ]
       },
-      "commit_sha": "81cdd5ab5501869e06180a56aa1377820ad2667d",
-      "commit_in_git": false,
+      "commit_sha": "81cdd5ab55786cbe93172a0968f3fac427b1104c",
+      "commit_in_git": true,
       "ci_status": "PR #156 (Verified green on PR #222 tree, 18/18 checks pass)",
       "audit_disposition": "CONFIRMED_RUNTIME_CODE",
       "audit_notes": "Genuine executable product runtime implementation present on disk in product-runtime/work-queue with automated test coverage."
@@ -158,8 +158,8 @@
           "HTML escapes malicious owner values and uses no-store/CSP/nosniff/frame denial"
         ]
       },
-      "commit_sha": "81cdd5ab5501869e06180a56aa1377820ad2667d",
-      "commit_in_git": false,
+      "commit_sha": "81cdd5ab55786cbe93172a0968f3fac427b1104c",
+      "commit_in_git": true,
       "ci_status": "PR #157 (Verified green on PR #222 tree, 18/18 checks pass)",
       "audit_disposition": "CONFIRMED_RUNTIME_CODE",
       "audit_notes": "Genuine executable product runtime implementation present on disk in product-runtime/work-queue with automated test coverage."
@@ -198,8 +198,8 @@
           "Every owner object still receives current CanRead before filtering; foreign tenant ID never enters access checks; denied matching status leaks no data"
         ]
       },
-      "commit_sha": "55d678127453303c7e73236319808a5d3f233f20",
-      "commit_in_git": false,
+      "commit_sha": "55d67812747f1893ee4f485247b167d20319fd67",
+      "commit_in_git": true,
       "ci_status": "PR #158 (Verified green on PR #222 tree, 18/18 checks pass)",
       "audit_disposition": "CONFIRMED_RUNTIME_CODE",
       "audit_notes": "Genuine executable product runtime implementation present on disk in product-runtime/work-queue with automated test coverage."
@@ -238,8 +238,8 @@
           "Owner.CanRead executed on all in-scope records before filtering/sorting; denied-only rows and foreign tenant metadata absent; invalid order rejected before authorization."
         ]
       },
-      "commit_sha": "2bc24c784b2e88a38a7c2f1f5139bc6bc2e8c257",
-      "commit_in_git": false,
+      "commit_sha": "2bc24c784b61ffc6c8b97fb81588ec02a84b4c59",
+      "commit_in_git": true,
       "ci_status": "PR #159 (Verified green on PR #222 tree, 18/18 checks pass)",
       "audit_disposition": "CONFIRMED_RUNTIME_CODE",
       "audit_notes": "Genuine executable product runtime implementation present on disk in product-runtime/work-queue with automated test coverage."
@@ -1517,8 +1517,8 @@
           "Denial at Search stage never invokes Telemetry owner; owner/identity mismatch yields generic denied and zero protected bytes"
         ]
       },
-      "commit_sha": "4e45d6251b9e83296be4b46c2ef0033fa293cf92",
-      "commit_in_git": false,
+      "commit_sha": "af86d79cb824e36be4b5db870ffa4ef4521dc8f4",
+      "commit_in_git": true,
       "ci_status": "PR #181 (Verified green on PR #222 tree, 18/18 checks pass)",
       "audit_disposition": "CONFIRMED_RUNTIME_CODE",
       "audit_notes": "Genuine executable product runtime implementation present on disk in product-runtime/event-inspection-host with automated test coverage."
@@ -1600,8 +1600,8 @@
           "Missing field with value empty yields 404; present empty value still accepted"
         ]
       },
-      "commit_sha": "938b1d4ae090e2a4080604d8b7d155f24bec69de",
-      "commit_in_git": false,
+      "commit_sha": "82eab4cade8e20763f80509c560f61971001b7ec",
+      "commit_in_git": true,
       "ci_status": "PR #182 (Verified green on PR #222 tree, 18/18 checks pass)",
       "audit_disposition": "CONFIRMED_RUNTIME_CODE",
       "audit_notes": "Genuine executable product runtime implementation present on disk in product-runtime/event-inspection-host, product-runtime/event-inspection with automated test coverage."
