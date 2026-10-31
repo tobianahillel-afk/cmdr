@@ -237,6 +237,9 @@ func executeValidationCheck(root, tempDir, changesFile, key string, state Curren
 		}
 		return fmt.Sprintf("evaluated=%d split_required=%d readiness_violations=%d", summary.Evaluated, summary.SplitRequired, summary.ReadinessViolations), nil
 	case "context":
+		if strings.TrimSpace(state.Execution.ActiveWorkUnit) == "" {
+			return "skipped (no active work unit)", nil
+		}
 		out := filepath.Join(tempDir, "context.json")
 		summary, err := runContextCompiler(root, state.Execution.ActiveWorkUnit, out, false, state, graph)
 		if err != nil {
