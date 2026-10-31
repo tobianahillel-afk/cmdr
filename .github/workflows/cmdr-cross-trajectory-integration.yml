@@ -2,6 +2,27 @@ name: CMDR corrected Command Case and Search Pivot joint-tree tests
 
 on:
   pull_request:
+    branches:
+      - main
+      - integration/cmdr-corrected-command-case-and-search-pivot
+    paths:
+      - "product-runtime/command-investigate-host/**"
+      - "product-runtime/work-queue/**"
+      - "product-runtime/investigation-timeline/**"
+      - "product-runtime/event-inspection/**"
+      - "product-runtime/event-inspection-host/**"
+      - "product-runtime/event-search/**"
+      - "product-runtime/event-search-frontend/**"
+      - "product-runtime/context-envelope/**"
+      - "product-runtime/studio-catalog/**"
+      - "product-runtime/case-search-workbench/**"
+      - "tools/cmdr-dev/event_inspection_e2e.go"
+      - "work/graph.json"
+      - ".github/workflows/cmdr-cross-trajectory-integration.yml"
+  push:
+    branches:
+      - main
+      - integration/cmdr-corrected-command-case-and-search-pivot
     paths:
       - "product-runtime/command-investigate-host/**"
       - "product-runtime/work-queue/**"
@@ -38,10 +59,10 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-          ref: ${{ github.event.pull_request.head.sha }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - name: Assert actual tested tree
         shell: bash
-        run: test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha }}"
+        run: test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
       - name: Install pinned first-party Go toolchain
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:

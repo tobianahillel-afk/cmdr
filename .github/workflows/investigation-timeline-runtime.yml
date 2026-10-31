@@ -2,6 +2,9 @@ name: investigation-timeline-runtime
 
 on:
   pull_request:
+    branches:
+      - "main"
+      - "engineering/autonomous-development-foundation"
     paths:
       - "product-runtime/investigation-timeline/**"
       - "tools/cmdr-dev/security_tests.go"
@@ -10,6 +13,7 @@ on:
       - ".github/workflows/investigation-timeline-runtime.yml"
   push:
     branches:
+      - "main"
       - "engineering/autonomous-development-foundation"
     paths:
       - "product-runtime/investigation-timeline/**"

@@ -2,6 +2,9 @@ name: command-investigate-readonly-host
 
 on:
   pull_request:
+    branches:
+      - "main"
+      - "engineering/autonomous-development-foundation"
     paths:
       - "product-runtime/command-investigate-host/**"
       - "product-runtime/work-queue/**"
@@ -9,6 +12,7 @@ on:
       - ".github/workflows/command-investigate-readonly-host.yml"
   push:
     branches:
+      - "main"
       - "engineering/autonomous-development-foundation"
     paths:
       - "product-runtime/command-investigate-host/**"

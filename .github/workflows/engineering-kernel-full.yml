@@ -4,6 +4,13 @@ on:
   workflow_dispatch:
   push:
     branches:
+      - "main"
+      - "engineering/autonomous-development-foundation"
+    paths:
+      - ".github/workflows/engineering-kernel-full.yml"
+  pull_request:
+    branches:
+      - "main"
       - "engineering/autonomous-development-foundation"
     paths:
       - ".github/workflows/engineering-kernel-full.yml"

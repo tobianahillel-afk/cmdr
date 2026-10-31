@@ -2,11 +2,15 @@ name: command-work-queue-runtime
 
 on:
   pull_request:
+    branches:
+      - "main"
+      - "feature/e10-cmd-101a-authorized-system-queue"
     paths:
       - "product-runtime/work-queue/**"
       - ".github/workflows/command-work-queue.yml"
   push:
     branches:
+      - "main"
       - "feature/e10-cmd-101a-authorized-system-queue"
     paths:
       - "product-runtime/work-queue/**"

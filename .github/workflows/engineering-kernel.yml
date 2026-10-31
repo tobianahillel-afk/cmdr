@@ -2,6 +2,9 @@ name: engineering-kernel
 
 on:
   pull_request:
+    branches:
+      - "main"
+      - "engineering/autonomous-development-foundation"
     paths:
       - "AGENTS.md"
       - "AI_START_HERE.md"
@@ -16,6 +19,7 @@ on:
       - ".github/workflows/performance-deep.yml"
   push:
     branches:
+      - "main"
       - "engineering/autonomous-development-foundation"
     paths:
       - "AGENTS.md"

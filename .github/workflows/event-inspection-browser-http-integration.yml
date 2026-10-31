@@ -2,6 +2,16 @@ name: Event Search to Event Inspection live local HTTP integration
 
 on:
   pull_request:
+    branches:
+      - main
+    paths:
+      - "product-runtime/event-search-frontend/**"
+      - "product-runtime/event-inspection-host/testdata/fixture/**"
+      - "work/lots/E10-INV-004H-HTTPBRIDGE/**"
+      - ".github/workflows/event-inspection-browser-http-integration.yml"
+  push:
+    branches:
+      - main
     paths:
       - "product-runtime/event-search-frontend/**"
       - "product-runtime/event-inspection-host/testdata/fixture/**"

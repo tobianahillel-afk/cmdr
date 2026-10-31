@@ -3,6 +3,13 @@ name: investigation-timeline-evidence
 on:
   push:
     branches:
+      - "main"
+      - "engineering/autonomous-development-foundation"
+    paths:
+      - ".github/workflows/investigation-timeline-evidence.yml"
+  pull_request:
+    branches:
+      - "main"
       - "engineering/autonomous-development-foundation"
     paths:
       - ".github/workflows/investigation-timeline-evidence.yml"

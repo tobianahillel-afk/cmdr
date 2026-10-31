@@ -3,6 +3,17 @@ name: case-queue-closure
 on:
   push:
     branches:
+      - "main"
+      - "engineering/autonomous-development-foundation"
+    paths:
+      - "product-runtime/case-queue/**"
+      - "engineering/performance/**"
+      - "work/lots/E10-INV-101E-CLOSURE/**"
+      - "tools/cmdr-dev/performance_case_queue.go"
+      - ".github/workflows/case-queue-closure.yml"
+  pull_request:
+    branches:
+      - "main"
       - "engineering/autonomous-development-foundation"
     paths:
       - "product-runtime/case-queue/**"
