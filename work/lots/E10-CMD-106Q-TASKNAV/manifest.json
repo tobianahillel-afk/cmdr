@@ -1,0 +1,134 @@
+{
+  "schema_version": 2,
+  "id": "E10-CMD-106Q-TASKNAV",
+  "title": "Navigate an independently authorized Incident-linked Task into the canonical single Work Queue",
+  "type": "task",
+  "parent": "E10-CMD-106",
+  "goal": "Complete the existing Incident Detail Task read with one useful, owner-reauthorized Task navigation to the SAME canonical Command Work Queue (view=tasks) including off-page Tasks, not a duplicate Task Detail screen or new auth engine.",
+  "depends_on": [
+    "E10-CMD-106P-TASKLINKS"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-CMD-106",
+      "CAP-CMD-101"
+    ],
+    "requirements": [
+      "REQ-PROD-013",
+      "REQ-UX-008",
+      "REQ-UX-009",
+      "REQ-SEC-001"
+    ],
+    "screens": [
+      "CMD-IWQ-006"
+    ],
+    "permissions": [
+      "perm.command.incident.read",
+      "perm.command.read"
+    ],
+    "open_decisions": [
+      "OPEN-013"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/incident.md",
+      "cmdr-product-spec/05-domain-model/objects/task.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/work-queue/http.go",
+    "product-runtime/work-queue/queue.go",
+    "product-runtime/work-queue/incident_detail.go",
+    "product-runtime/work-queue/task_navigation_test.go",
+    "product-runtime/command-investigate-host/cmd/local-browser/incident_detail_test.go",
+    "work/lots/E10-CMD-106Q-TASKNAV/**",
+    "work/graph.json",
+    "engineering/state/current.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/work-queue/incident_task_links.go",
+    "product-runtime/command-investigate-host/host.go",
+    "product-runtime/command-investigate-host/cmd/local-browser/main.go"
+  ],
+  "invariants": [
+    "No additional Task page, endpoint, owner or Task schema; use the same canonical GET /command/work-queue?view=tasks and existing Command Owner.List/CanRead on every request.",
+    "Task link appears only for a Task already independently authorized by owner.CanRead from the parent Incident Detail; URL is a non-authorizing stable ID hint, never a permission.",
+    "For Task restore, accept only HTML GET with exact view=tasks, selected=Task:<valid ID>, restore=1 and no other query keys; Incident restoration continues to require view=incidents and selected=Incident ID; JSON never accepts restore.",
+    "Project always reacquires the full bounded owner list and independently calls CanRead on the same principal, tenant and environment for every relevant Task before locating its page, then runs unchanged selected-context source checks.",
+    "Off-page, revoked, missing, foreign tenant, wrong type or excluded Task cannot be located; generic 404, no partial row/content leakage.",
+    "No Task mutation, assignment, second route, capability-wide acceptance, production IAM, persisted audit or independent Task Detail."
+  ],
+  "security_properties": [
+    "Task selection must not grant Case/Incident privileges; requested view and kind must agree before session owner.",
+    "Malformed duplicate query, client principal/tenant/env and cursor hints rejected before any owner read.",
+    "Links rendered only through autoescaping html/template, no source credentials/raw metadata in URL."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "One HTML link and narrow extension of existing first-party read-only Task selection hint; source and JSON schemas unchanged.",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Revert link and Task variant of HTML-only restore; existing Incident restore and Work Queue unchanged.",
+    "verification": [
+      "No Task code path persists data",
+      "Existing Incident and Task selection API tests remain green"
+    ]
+  },
+  "inputs": [
+    "CAP-CMD-106 related Task source and CAP-CMD-101 single Work Queue authoritative read",
+    "Frozen upstream PR #215 SHA a97ab1be523eb164ae1a263615e21ef9d406e3bc with tested source Task authorization"
+  ],
+  "outputs": [
+    "Incident Detail Task record links to canonical Work Queue Task on the SAME origin; a Task at page N selected only after fresh per-item CanRead.",
+    "Existing Go HTTP and local 127.0.0.1 Basic synthetic demo exercise Task link and isolation; no new product route."
+  ],
+  "acceptance_tests": [
+    "Authorized Incident Task link produces GET /command/work-queue?view=tasks&selected=Task:ID&restore=1, Task owner read reauthorized.",
+    "Authorized Task at index >=100 opens its own correct page, even when normal first-page selection 404.",
+    "Owner revocation, foreign scope and denied Task are not rendered; ID never leaked after request.",
+    "Malformed view/kind mismatch, duplicate keys, extra tenant/owner/cursor or JSON restore rejected BEFORE owner scope.",
+    "Original Incident restore and old JSON workqueue behavior unchanged.",
+    "Workqueue and same-origin-host Go CI across Linux/Windows/macOS plus engineering security and code-quality pass at exact HEAD."
+  ],
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-SECURITY-TESTS",
+    "CHK-SAST-GO",
+    "CHK-SCA-GO",
+    "command-work-queue-runtime",
+    "command-investigate-readonly-host"
+  ],
+  "definition_of_ready": [
+    "E10-CMD-106P-TASKLINKS IMPLEMENTED with exact SHA CI, but not independently GitHub native-approved nor merged.",
+    "Canonical Task screen is deprecated; use one Work Queue with view=tasks. Source Task.read ownership remains with Command and is independently recomputed.",
+    "OPEN-013 restricts Class-2 mutations, not Class-0 read-only source navigation."
+  ],
+  "definition_of_done": [
+    "Task deep navigation works end-to-end in existing read-only owner-checked same-origin HTTP",
+    "All tested at exact published SHA; no new IAM or runtime dependency",
+    "No broad acceptance or production claim"
+  ],
+  "performance_budget": {
+    "applicable": false,
+    "rationale": "Reuses existing bounded <=5000 Task owner projection and constant-size link, no new scan beyond existing owner reauthorization.",
+    "metrics": []
+  },
+  "complexity": {
+    "primary_components": 2,
+    "estimated_files_changed": 4,
+    "estimated_net_loc": 110,
+    "production_files": 3,
+    "net_production_loc": 26,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

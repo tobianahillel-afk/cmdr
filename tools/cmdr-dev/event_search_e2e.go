@@ -241,7 +241,8 @@ func runEventSearchE2EAudit(root string, state CurrentState, graph WorkGraph) (E
 	if err != nil {
 		return EventSearchE2EAuditSummary{}, err
 	}
-	if err := validateEventSearchRuntimeUnchanged(root, performance.FinalValidatedHead, currentHead); err != nil {
+	runtimeUnchanged, err := reverifyPinnedGoToolchainTransition(root, performance.FinalValidatedHead, currentHead, eventSearchRuntimeDirectory)
+	if err != nil {
 		return EventSearchE2EAuditSummary{}, err
 	}
 	adversarial, err := runEventSearchAdversarialRuntimeTests(root)
@@ -264,7 +265,7 @@ func runEventSearchE2EAudit(root string, state CurrentState, graph WorkGraph) (E
 		ContractID: contract.ContractID, ContractFixtures: contract.Fixtures, NegativeFixtures: contract.NegativeFixtures,
 		AdversarialTests:    adversarial.Count,
 		RuntimeEvidenceHead: runtime.FinalValidatedHead, PerformanceEvidenceHead: performance.FinalValidatedHead,
-		CurrentHead: currentHead, RuntimeUnchangedSincePerf: true,
+		CurrentHead: currentHead, RuntimeUnchangedSincePerf: runtimeUnchanged,
 		RuntimeCoveragePercent: validation.Security.GlobalRuntimeCoveragePercent,
 		SASTFindings:           validation.Security.SASTFindings, SCAActionableFindings: validation.Security.SCAActionableFindings,
 		ValidationP95MS: performance.Performance.ValidationP95MS, ValidationBudgetMS: 1,
@@ -440,28 +441,6 @@ func validateEventSearchProgressIdentity(workUnit, status, head string, productS
 	}
 	if productSpecMutated {
 		return fmt.Errorf("%s claims Product Spec mutation", expected)
-	}
-	return nil
-}
-
-func validateEventSearchRuntimeUnchanged(root, evidenceHead, currentHead string) error {
-	evidenceHead, err := validateFullCommitID(evidenceHead)
-	if err != nil {
-		return fmt.Errorf("Event Search performance evidence head: %w", err)
-	}
-	currentHead, err = validateFullCommitID(currentHead)
-	if err != nil {
-		return fmt.Errorf("current source head: %w", err)
-	}
-	if err := ensureGitAncestor(root, evidenceHead, currentHead); err != nil {
-		return fmt.Errorf("Event Search performance evidence ancestry: %w", err)
-	}
-	diff := exec.Command("git", "-C", root, "diff", "--quiet", evidenceHead, currentHead, "--", eventSearchRuntimeDirectory) // #nosec G204,G702 -- executable/path are fixed and commit arguments are validated full hex IDs.
-	if err := diff.Run(); err != nil {
-		if exitErr, ok := err.(*exec.ExitError); ok && exitErr.ExitCode() == 1 {
-			return fmt.Errorf("Event Search runtime changed after measured performance evidence; fresh performance proof is required")
-		}
-		return fmt.Errorf("compare Event Search runtime against performance evidence: %w", err)
 	}
 	return nil
 }

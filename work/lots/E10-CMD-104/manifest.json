@@ -1,0 +1,105 @@
+{
+  "schema_version": 2,
+  "id": "E10-CMD-104",
+  "title": "Deliver Command Priority and Severity Coordination from canonical CAP-CMD-104",
+  "type": "epic",
+  "parent": "",
+  "goal": "Deliver source-owned and independently authorized six-factor Command priority/severity coordination without confusing technical severity with effective operational priority or resolving OPEN-013 without authority.",
+  "depends_on": [
+    "E10-SCALE-005B"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-CMD-104",
+      "CAP-CMD-101"
+    ],
+    "requirements": [
+      "REQ-PROD-005",
+      "REQ-PROD-013",
+      "REQ-PROD-021",
+      "REQ-UX-005"
+    ],
+    "screens": [],
+    "permissions": [
+      "perm.command.read",
+      "perm.command.incident.read"
+    ],
+    "open_decisions": [
+      "OPEN-013"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/incident.md",
+      "cmdr-product-spec/05-domain-model/objects/task.md"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md"
+    ]
+  },
+  "allowed_paths": [
+    "work/lots/E10-CMD-104/**",
+    "work/lots/E10-CMD-104A-READONLY/**",
+    "work/graph.json",
+    "engineering/state/current.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**"
+  ],
+  "invariants": [
+    "Command owns priority/impact and Incident/Task coordination; external severity, confidence, SLA owners retain policy and source permissions.",
+    "Read-only CAP-CMD-104A is bounded Class 0; no claim of Class-2 mutation, full Inspector or production source IAM.",
+    "OPEN-013 remains open and blocks the relevant Class-2 actions, not the source-authorized read-only slice."
+  ],
+  "security_properties": [
+    "No cross-tenant or environment source metadata disclosure.",
+    "Separate source permission checks; external source facts cannot confer priority mutation or authorization."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Engineering planning container only",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Do not accept the read-only child; keep existing Command Queue intact.",
+    "verification": [
+      "Canonical CAP-CMD-104 unchanged."
+    ]
+  },
+  "inputs": [
+    "Canonical CAP-CMD-104 §§1–27; CAP-CMD-101 as consumer; source permission policies."
+  ],
+  "outputs": [
+    "E10-CMD-104A-READONLY selected-only source-authorized factor inspection; later host production connectors and governed mutations remain separate."
+  ],
+  "acceptance_tests": [
+    "Child class-0 independently tested and reviewed.",
+    "Epic stays DECOMPOSED until full canonical CAP-CMD-104 is accepted."
+  ],
+  "performance_budget": {
+    "applicable": false,
+    "rationale": "Engineering epic container"
+  },
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-SECURITY-TESTS"
+  ],
+  "definition_of_ready": [
+    "Canonical Command owner and parent dependencies exist."
+  ],
+  "definition_of_done": [
+    "Canonical six dimensions, production source ownership/permissions, and later Class-2 actions are separately accepted."
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 0,
+    "estimated_net_loc": 0,
+    "production_files": 0,
+    "net_production_loc": 0,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 0,
+    "separately_testable_behaviors": 1
+  }
+}

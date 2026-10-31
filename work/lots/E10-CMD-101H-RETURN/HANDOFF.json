@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-CMD-101H-RETURN",
+  "result": "VERIFIED",
+  "final_validated_head": "fbdfefe9a19d1fc6693e7e53b2649c59a2c18284",
+  "implementation_commit": "fbdfefe9a19d1fc6693e7e53b2649c59a2c18284",
+  "pull_request": 165,
+  "evidence": {
+    "title": "Restore the previous authorized Work Queue page without resetting the analyst's position",
+    "goal": "Complete bounded bidirectional navigation for existing native CAP-CMD-101 six-view Work Queue, preserving manual filters and chronological sort while reauthorizing every page.",
+    "implementation_paths": [
+      "product-runtime/work-queue/pagination.go",
+      "product-runtime/work-queue/queue.go",
+      "product-runtime/work-queue/html.go",
+      "product-runtime/work-queue/pagination_return_test.go",
+      "work/lots/E10-CMD-101H-RETURN/**",
+      "work/graph.json",
+      "engineering/state/current.json"
+    ],
+    "outputs": [
+      "From page N>=3, return to exact page N-1 with same authorized filtered/sorted row projection; from page 2 return to original first page.",
+      "Safe native previous/first/next links and optional previous_cursor response with unchanged per-request owner ACL."
+    ],
+    "acceptance_tests": [
+      "Three-page 123 authorized, denied and foreign Task fixture round trip 50\u219250\u219223\u219250\u219250, accurate indices and no cross-tenant CanRead.",
+      "Fresh owner session and 124 in-scope owner ACL checks for each visited page; stale previous token denied after revocation.",
+      "Native prior-page href preserves view/status/sort and escapes URL/context; selecting off-page or revoked row remains denied through existing tests.",
+      "Exact SHA Linux/macOS/Windows work-queue and engineering-kernel CI gates including mandatory changed-security critical 90%."
+    ],
+    "run_ids": [
+      39374253914,
+      39374253912
+    ]
+  },
+  "rules": [
+    "Canonical: CAP-CMD-101 Unified Work Queue \u00a73 (single route and preserve view/filter/sort/selection/scroll), \u00a7\u00a711, 16\u201317, 21, 25; Command's Incident/Task objects; Shared owns Saved Views and final Inspector, which this lot does not implement.",
+    "Engineering parent: existing epic E10-CMD-101; task E10-CMD-101H-RETURN depends on E10-CMD-101G-PAGE (recorded IMPLEMENTED). Git parent: frozen PR #165 at fbdfefe9a19d1fc6693e7e53b2649c59a2c18284 is only the technical base, not the business parent.",
+    "Code owner: existing Go product-runtime/work-queue; no other boundary, dependencies or authorization model.",
+    "Parent PR #165 exact SHA fbdfefe9a19d1fc6693e7e53b2649c59a2c18284 has two SUCCESS workflows (command-work-queue-runtime 39374253914, engineering-kernel 39374253912); that is NOT automatically proof for this child.",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-CMD-101I-SELECTION"
+  ]
+}

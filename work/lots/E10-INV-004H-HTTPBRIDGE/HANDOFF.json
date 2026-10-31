@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-004H-HTTPBRIDGE",
+  "result": "VERIFIED",
+  "final_validated_head": "bc66d3b1e4161cd5de45b0346d326174712b20d2",
+  "implementation_commit": "bc66d3b1e4161cd5de45b0346d326174712b20d2",
+  "pull_request": 184,
+  "evidence": {
+    "title": "Wire authorized Event Search Inspector browser to existing Go HTTP host",
+    "goal": "Make the existing CAP-INV-002 Search result -> CAP-INV-004 Inspector -> same Search window traversal use a real same-origin HTTP POST to the existing host with negative authorization tests against a live loopback-only synthetic Go server, without claiming real IAM, provider, or production deployment.",
+    "implementation_paths": [
+      "product-runtime/event-search-frontend/**",
+      "product-runtime/event-inspection-host/testdata/fixture/**",
+      ".github/workflows/event-inspection-browser-http-integration.yml",
+      "work/lots/E10-INV-004H-HTTPBRIDGE/**",
+      "work/graph.json"
+    ],
+    "outputs": [
+      "Actual Node fetch POST to live first-party Go HTTP host after Search controller selection",
+      "Go synthetic host uses independently-scoped Search and Telemetry owners, server bearer required only in test",
+      "Read-only browser inspection shows separate rendered/raw state and returns to same Search result window",
+      "Exact-HEAD CI: complete original JS tests, Go host tests, real local cross-language e2e, mandatory engineering checks",
+      "Explicit handoff and prior source blob provenance"
+    ],
+    "acceptance_tests": [
+      "Search controller selected Event uses the actual HTTP host and produces validated Inspector projection",
+      "Rendered authorized while raw and raw-derived are denied, and source/parser/enrichment provenance survives HTTP",
+      "Return restores same authorized Search result-window object after HTTP round trip",
+      "Wrong bearer/wrong tenant/foreign event deny and return no classified bytes",
+      "Bad Content-Type and >2 MiB response reject before browser displays result",
+      "Node24 and Go 1.26.8 tests run on exact CI SHA without real IAM/provider/API payante"
+    ],
+    "run_ids": []
+  },
+  "rules": [
+    "Canonical behavior: CAP-INV-002 Event Search -> CAP-INV-004 Event Inspection -> return. Shared owns Telemetry Event and Search Job, Settings owns Parser and Data Source. No product source of truth was edited.",
+    "Engineering parent: existing E10-INV-004; child H depends on E10-INV-004G-HOST (IMPLEMENTED at source SHA, not merged) and E10-INV-002G (VERIFIED on #36). Git parent = PR #184 branch, not the business owner. Bridge code owner = existing frontend and Go host test fixture; no new production runtime owner.",
+    "Immutable provenance: original frontend inspection.mjs and inspection.test.mjs, plus existing package baseline and README, copied by *identical blob IDs* from draft PR #183 SHA bc66d3b1e4161cd5de45b0346d326174712b20d2 onto the separate new branch based on PR #184 SHA 239ad0950f35a283e8611baf599a652966822dcb. Neither source branch was mutated. Package script then extended to exercise bridge test.",
+    "Functional increment: inspection-http.mjs provides a fixed same-origin JSON POST to the *existing* host /investigate/event-inspection, using browser credentials, abort signal, no-store, redirect rejection, strict JSON/UTF-8 parsing and <=2 MiB streaming body. Existing frontend Journey already verifies selected Event/job/run/correlation, cancels stale requests, renders textContent-only and returns to exact authorized window. No second Project engine.",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-004K-BROWSERPIVOT"
+  ]
+}

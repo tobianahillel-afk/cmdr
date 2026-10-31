@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-STD-001A-BOUNDARY",
+  "status": "IMPLEMENTED",
+  "implementation_commit": "4e7633b575dfc56b767fd43b1d7a041987c7aef4",
+  "final_validated_head": "4e7633b575dfc56b767fd43b1d7a041987c7aef4",
+  "pull_request": 222,
+  "ci_proofs": {
+    "total_checks": 18,
+    "passed_checks": 18,
+    "workflow_runs": [
+      {
+        "name": "Event Search to Event Inspection live local HTTP integration",
+        "run_id": 39896488048,
+        "status": "success"
+      },
+      {
+        "name": "Event Inspection authorized HTTP host",
+        "run_id": 39896487950,
+        "status": "success"
+      },
+      {
+        "name": "command-investigate-readonly-host",
+        "run_id": 39896487946,
+        "status": "success"
+      },
+      {
+        "name": "engineering-kernel",
+        "run_id": 39896487930,
+        "status": "success"
+      },
+      {
+        "name": "investigation-timeline-runtime",
+        "run_id": 39896487862,
+        "status": "success"
+      },
+      {
+        "name": "command-work-queue-runtime",
+        "run_id": 39896487832,
+        "status": "success"
+      },
+      {
+        "name": "CMDR corrected Command Case and Search Pivot joint-tree tests",
+        "run_id": 39896487778,
+        "status": "success"
+      }
+    ]
+  },
+  "validation": {
+    "manifest_validation": "PASS",
+    "architecture_audit": "PASS",
+    "doctor": "PASS",
+    "product_spec_diff": "PASS",
+    "node_tests": "PASS",
+    "go_vet": "PASS",
+    "ci_checks": "PASS",
+    "result": "PASS"
+  },
+  "evidence": {
+    "capability": "CAP-STD-001",
+    "secondary_capability": "CAP-STD-002",
+    "requirements": [
+      "REQ-PROD-006",
+      "REQ-PROD-016",
+      "REQ-OBJ-009"
+    ],
+    "contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/error-contract.md"
+    ],
+    "boundary_type": "control-plane-governance",
+    "class_projection": "class_0_inspect",
+    "execution_actions_permitted": 0,
+    "supported_asset_kinds": [
+      "skill",
+      "workflow",
+      "automation-agent",
+      "agent-team",
+      "tool"
+    ],
+    "lifecycle_states": [
+      "draft",
+      "review",
+      "approved",
+      "published",
+      "deprecated",
+      "superseded"
+    ],
+    "functional_projection_states": [
+      "ready",
+      "partial",
+      "stale",
+      "permission-filtered"
+    ],
+    "tenant_enforcement": "strict_single_tenant_and_mssp_authorized_set",
+    "wildcard_querying_allowed": false,
+    "owner_unknown_enforced": true,
+    "secret_reference_masking": "opaque_pointers_only",
+    "runtime_implementation_claimed": false,
+    "runtime_files_created": 0,
+    "production_loc_added": 0
+  },
+  "invariants": [
+    "Product Spec baseline 82e630fce3a7f6236e03709116eca6dd0a1acd40 unchanged (0 bytes diff)",
+    "Class 0 catalog projection controls established (browse, search, filter, inspect, open; zero execution actions)",
+    "Strict tenant scoping enforced under tenant-scope-contract.md; wildcard tenant querying strictly forbidden",
+    "Server-side pre-authorization and fail-closed permission evaluation enforced under permission-enforcement-contract.md",
+    "Standard error handling under error-contract.md with zero credential leakage",
+    "No runtime executable code added (production_files=0, net_production_loc=0)"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-STD-001B-CATALOG"
+  ]
+}

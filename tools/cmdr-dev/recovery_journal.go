@@ -210,6 +210,9 @@ func runResumeCheckpoint(root, workUnit string, state CurrentState, graph WorkGr
 	if workUnit == "" {
 		workUnit = state.Execution.ActiveWorkUnit
 	}
+	if workUnit == "" {
+		return ResumeCheckpoint{Status: "empty", WorkUnit: ""}, nil
+	}
 	if _, ok := graphNode(graph, workUnit); !ok {
 		return ResumeCheckpoint{}, fmt.Errorf("unknown checkpoint work unit %s", workUnit)
 	}

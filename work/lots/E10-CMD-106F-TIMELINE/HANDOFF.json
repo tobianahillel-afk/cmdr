@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-CMD-106F-TIMELINE",
+  "result": "VERIFIED",
+  "final_validated_head": "e7da0c2cb72d8c1d6be7acef87b8fe02f93294d0",
+  "implementation_commit": "e7da0c2cb72d8c1d6be7acef87b8fe02f93294d0",
+  "pull_request": 198,
+  "evidence": {
+    "title": "Integrate source-authorized Timeline corrections into Command Incident to Investigate Case navigation",
+    "goal": "Complete the existing Command Incident -> linked Investigate Case HTTP route by using the source-identical, already-tested Investigate CAP-INV-110 correction projection from PR #194. Demonstrate a real linked Case response where the older Event is marked superseded even across a different paginated Case GET, without transferring Command permissions.",
+    "implementation_paths": [
+      "product-runtime/investigation-timeline/projection.go",
+      "product-runtime/investigation-timeline/supersession_visibility_test.go",
+      "product-runtime/command-investigate-host/host_test.go",
+      "product-runtime/command-investigate-host/timeline_corrections_test.go",
+      "work/lots/E10-INV-110F-SUPERSESSION/**",
+      "work/lots/E10-CMD-106F-TIMELINE/**",
+      "work/graph.json"
+    ],
+    "outputs": [
+      "Existing selected Command Incident renders authorized linked Case href followed under the SAME origin and independently authorizes both old and revised Timeline Entry on the same trusted Case route",
+      "The old event includes source-derived superseded:true across a one-entry page, the next page carries successor Supersedes and version; no browser UI badge or mutation",
+      "Source-identical PR #194 runtime and negative owner tests, new HTTP cross-product test, canonical provenance and graph nodes"
+    ],
+    "acceptance_tests": [
+      "Git blobs of copied projection.go, supersession_visibility_test.go and source manifest/handoff exactly match SHA from PR #194; no source branch rewritten",
+      "Live Go httptest uses existing Work Queue and MemoryCaseTimelineHTTPHandler with two authorized versions, follows real linked Case href, confirms first page superseded and later page successor",
+      "Command-only principal can see already independently authorized link but GET on both pages returns 404 without source refs or correction flags; invalid session also denied",
+      "Full Timeline and Command host tests, Linux race, cross-platform Go CI and mandatory engineering-kernel succeed on exact final SHA"
+    ],
+    "run_ids": []
+  },
+  "rules": [
+    "Product: Command CAP-CMD-106 Incident Coordination navigates into Investigate CAP-INV-110 Case Timeline; Shared owns Timeline Entry, Shared Object Linking owns links; existing Command CAP-CMD-101 supplies Work Queue. Source-owned rights remain separate. OPEN-013 Class-2 correction mutation excluded.",
+    "Engineering: existing Command epic E10-CMD-106, new child E10-CMD-106F-TIMELINE depends E10-CMD-106E-HOST IMPLEMENTED and existing Investigate child E10-INV-110F-SUPERSESSION imported as IMPLEMENTED (depends E10-INV-110E VERIFIED). Task+manifest addition is not an acceptance of CAP-INV-110 or the whole Command epic.",
+    "Code: real source-authorized Investigate first-party Go product-runtime/investigation-timeline/projection.go, original tests, and FIRST-PARTY cross-product routing integration tests in product-runtime/command-investigate-host. Original production host.go, work-queue owner adapters and IAM behavior UNCHANGED; this is a local synthetic owner fixture only.",
+    "Git: new PR branch is child of frozen #198 exact HEAD e7da0c2cb72d8c1d6be7acef87b8fe02f93294d0 (Go 1.26.10). Original source PR #194 exact HEAD f280bc081254b4b36fac1729883b598524996c8f remains separate and unchanged. The following four blobs are strictly copied source-identically: projection.go SHA 2ae38b0aae8134661ebef33134cda988c8aa4cdd; supersession_visibility_test.go SHA 503cab8a7361e53f5d337fa367739a174a61ef55; Investigate F manifest SHA 97d2e4ccccb4736a6e82e20a1342b10c72fb50bc; its handoff SHA d13ea79739ba94ea96a10237494c7a730a4debba. No changes to frozen PRs #194/#198 nor to legacy attestations.",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-110J-CASEHTML",
+    "E10-CMD-106G-LOCALBROWSER"
+  ]
+}

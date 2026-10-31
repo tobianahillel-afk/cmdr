@@ -1,0 +1,97 @@
+{
+  "schema_version": 2,
+  "id": "E4-SEC-002B-DIAGNOSTICS",
+  "title": "Fail-closed bounded SAST processing-error localization",
+  "type": "task",
+  "parent": "E4-SEC-002B",
+  "goal": "Restore actionable, privacy-preserving localization of genuine gosec Go processing errors without suppressing findings or changing the mandatory gate.",
+  "depends_on": [
+    "E4-SEC-002B-ACTIVATE"
+  ],
+  "product_refs": {
+    "capabilities": [],
+    "requirements": [],
+    "screens": [],
+    "permissions": [],
+    "open_decisions": [],
+    "implementation_contracts": [],
+    "canonical_objects": []
+  },
+  "allowed_paths": [
+    "tools/cmdr-dev/security_static.go",
+    "tools/cmdr-dev/security_static_test.go",
+    "work/lots/E4-SEC-002B-DIAGNOSTICS/**",
+    "work/graph.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/**",
+    ".github/workflows/**",
+    "engineering/security/security-gates.json"
+  ],
+  "invariants": [
+    "A gosec processing error always blocks SAST; zero bypasses or exception baselines.",
+    "No untrusted gosec error body, source snippet, secret, or external absolute path enters CI output.",
+    "Only existing normalized in-repository Go file paths, at most four, and reviewed scan module root are displayed.",
+    "Go security tool versions, scope and vulnerability/finding policies stay unchanged."
+  ],
+  "security_properties": [
+    "Raw compiler/parser error messages and paths outside repo are never leaked.",
+    "Errors lacking safe path remain blocking and clearly diagnosed as unresolved."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Engineering CLI diagnostics only; no product data model change",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Revert the bounded diagnostic formatting without relaxing any SAST gate",
+    "verification": [
+      "Security static parser tests and adaptive CI remain mandatory"
+    ]
+  },
+  "inputs": [
+    "GitHub exact #154 HEAD fb2988df301d3d6e531d3c85f2f9dc6bbe22557f and engineering-kernel run 39346089085",
+    "Existing pinned gosec v2.28.0 processing error fail-closed parser and E4-SEC-002B-ACTIVATE security owner"
+  ],
+  "outputs": [
+    "Sanitized module and repository-local source-path labels only when gosec reports processing errors",
+    "Actual GitHub CI rerun to identify still-failing Go module without leaking diagnostic payload"
+  ],
+  "acceptance_tests": [
+    "Gosec processing errors continue to fail CHK-SAST-GO even when their paths are unavailable.",
+    "Security_static_test ensures only existing normalized repository-local Go files are ever exposed; source content and external paths are absent.",
+    "Exact SHA engineering-kernel result recorded; no claim of green gate without successful actual check."
+  ],
+  "required_checks": [
+    "CHK-SAST-GO",
+    "CHK-SECURITY-GATES",
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY"
+  ],
+  "definition_of_ready": [
+    "Existing security SAST control owner verified",
+    "Real processing error seen on exact #154 CI; source diagnostics withheld, so safe localization is necessary"
+  ],
+  "definition_of_done": [
+    "New code committed and reviewed as engineering security owner change",
+    "Tests and exact SHA CI demonstrate whether the processing error is resolved or safely localized",
+    "Follow-up to address actual reported Go module processing root rather than disable SAST"
+  ],
+  "performance_budget": {
+    "applicable": false,
+    "rationale": "Only at most four bounded SAST error-file path labels at development time",
+    "metrics": []
+  },
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 2,
+    "estimated_net_loc": 65,
+    "production_files": 1,
+    "net_production_loc": 50,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

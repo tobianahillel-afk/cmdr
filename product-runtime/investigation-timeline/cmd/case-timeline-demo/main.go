@@ -33,13 +33,30 @@ func main() {
 
 // CLI parsing is separate from process exit so real requests and rejected
 // arguments can be exercised in tests without a shell or subprocess runner.
+const maxWazuhAlertFiles = 4
+
+type wazuhAlertFiles []string
+
+func (files *wazuhAlertFiles) String() string {
+	return fmt.Sprintf("%d local Wazuh alert files", len(*files))
+}
+
+func (files *wazuhAlertFiles) Set(path string) error {
+	if path == "" || len(*files) >= maxWazuhAlertFiles {
+		return errors.New("select 1 to 4 Wazuh alerts JSONL files")
+	}
+	*files = append(*files, path)
+	return nil
+}
+
 func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	flags := flag.NewFlagSet("case-timeline-demo", flag.ContinueOnError)
 	flags.SetOutput(io.Discard)
 	principal := flags.String("principal", "analyst-a", "synthetic analyst ID from the selected local owner snapshot")
 	snapshot := flags.String("snapshot", "", "absolute path to operator-owned read-only Case snapshot JSON (loopback demo only)")
 	importJSONL := flags.String("import-jsonl", "", "absolute local normalized event JSONL for offline owner snapshot preparation (no listener)")
-	wazuhAlerts := flags.String("wazuh-alerts", "", "absolute local Wazuh 4.x alerts.json JSONL for authorized Case viewer, triage or comparison")
+	var wazuhFiles wazuhAlertFiles
+	flags.Var(&wazuhFiles, "wazuh-alerts", "absolute local Wazuh 4.x alerts.json JSONL; repeat up to four times")
 	intoCase := flags.String("into-case", "", "existing Case for imported local events (requires -import-jsonl)")
 	triageImport := flags.Bool("triage-import", false, "analyze locally imported events; use -with-case for a two-Case comparison, optionally -compare-proximity for bounded time leads")
 	serveImport := flags.Bool("serve-import", false, "import local JSONL into an in-memory Case and open the authenticated loopback analyst viewer; no merged owner file")
@@ -54,18 +71,42 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	sourceRef := flags.String("source-ref", "", "exact authorized source reference (requires -source-case)")
 	inspectCase := flags.String("inspect-case", "", "Case containing an explicitly selected source Timeline Entry")
 	inspectEntry := flags.String("inspect-entry", "", "Timeline Entry ID for an authorized offline typed-source preview (requires -inspect-case)")
+	huntText := flags.String("hunt-q", "", "offline text hunt across up to 8 Cases visible to the synthetic principal")
+	huntEventsCase := flags.String("hunt-events-case", "", "explicit authorized Case for detailed local text-hunt event drilldown (requires -hunt-q)")
 	if err := flags.Parse(args); err != nil {
 		return err
 	}
 	if flags.NArg() != 0 {
 		return errors.New("unexpected positional arguments")
 	}
+	huntSelected := false
+	huntEventsSelected := false
 	windowSet := false
 	flags.Visit(func(f *flag.Flag) {
-		if f.Name == "proximity-seconds" {
+		switch f.Name {
+		case "hunt-q":
+			huntSelected = true
+		case "hunt-events-case":
+			huntEventsSelected = true
+		case "proximity-seconds":
 			windowSet = true
 		}
 	})
+	if huntEventsSelected && (!huntSelected || *huntEventsCase == "") {
+		return errors.New("sensitive Case hunt drilldown requires an explicit Case and text query")
+	}
+	if huntSelected {
+		if *reportCase != "" || *compareCase != "" || *withCase != "" || *compareEvents ||
+			*compareProximity || *sourceCase != "" || *sourceRef != "" || *inspectCase != "" ||
+			*inspectEntry != "" || len(wazuhFiles) > 0 || *importJSONL != "" || *intoCase != "" ||
+			*triageImport || *serveImport || *exportCase != "" {
+			return errors.New("cross-Case hunt is a separate offline mode")
+		}
+		if huntEventsSelected {
+			return writeDemoHuntCaseEvents(ctx, *principal, *snapshot, *huntEventsCase, *huntText, output)
+		}
+		return writeDemoCrossCaseHunt(ctx, *principal, *snapshot, *huntText, output)
+	}
 	if windowSet && !*compareProximity {
 		return errors.New("proximity window requires comparison proximity mode")
 	}
@@ -74,7 +115,7 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 	}
 	// Wazuh 4.x is an offline source, not an ACL provider. Require exactly
 	// one of the existing viewer or authorized two-Case temporal paths.
-	if *wazuhAlerts != "" {
+	if len(wazuhFiles) > 0 {
 		if *snapshot == "" || *intoCase == "" || *importJSONL != "" ||
 			*reportCase != "" || *exportCase != "" || *compareCase != "" ||
 			*compareEvents || *sourceCase != "" || *sourceRef != "" ||
@@ -85,23 +126,41 @@ func runDemoCLI(ctx context.Context, args []string, output io.Writer) error {
 			if *withCase != "" || *compareProximity || windowSet {
 				return errors.New("Wazuh viewer cannot combine with comparison options")
 			}
-			return serveDemoWithWazuhAlerts(ctx, *principal, *snapshot, *intoCase, *wazuhAlerts, output)
+			return serveDemoWithWazuhAlertsFiles(ctx, *principal, *snapshot, *intoCase, []string(wazuhFiles), output)
+		}
+		if len(wazuhFiles) == 1 {
+			if *withCase == "" {
+				if *compareProximity || windowSet {
+					return errors.New("Wazuh temporal leads require a second authorized Case")
+				}
+				return writeDemoWazuh4Triage(ctx, *principal, *snapshot, *intoCase, wazuhFiles[0], output)
+			}
+			if *compareProximity {
+				return writeDemoWazuh4Proximity(ctx, *principal, *snapshot, *intoCase, *withCase,
+					wazuhFiles[0], *proximitySeconds, output)
+			}
+			if windowSet {
+				return errors.New("Wazuh proximity window requires temporal lead selection")
+			}
+			return writeDemoWazuh4Comparison(ctx, *principal, *snapshot, *intoCase, *withCase,
+				wazuhFiles[0], output)
 		}
 		if *withCase == "" {
 			if *compareProximity || windowSet {
-				return errors.New("Wazuh temporal leads require a second authorized Case")
+				return errors.New("multi-feed temporal leads require a second authorized Case")
 			}
-			return writeDemoWazuh4Triage(ctx, *principal, *snapshot, *intoCase, *wazuhAlerts, output)
+			return writeDemoMultiWazuhTriage(ctx, *principal, *snapshot, *intoCase,
+				[]string(wazuhFiles), output)
 		}
 		if *compareProximity {
-			return writeDemoWazuh4Proximity(ctx, *principal, *snapshot, *intoCase, *withCase,
-				*wazuhAlerts, *proximitySeconds, output)
+			return writeDemoMultiWazuhProximity(ctx, *principal, *snapshot, *intoCase, *withCase,
+				[]string(wazuhFiles), *proximitySeconds, output)
 		}
 		if windowSet {
 			return errors.New("Wazuh proximity window requires temporal lead selection")
 		}
-		return writeDemoWazuh4Comparison(ctx, *principal, *snapshot, *intoCase, *withCase,
-			*wazuhAlerts, output)
+		return writeDemoMultiWazuhComparison(ctx, *principal, *snapshot, *intoCase, *withCase,
+			[]string(wazuhFiles), output)
 	}
 	if *serveImport && (*snapshot == "" || *importJSONL == "" || *intoCase == "") {
 		return errors.New("serve-import requires an owner snapshot, normalized JSONL file and destination Case")

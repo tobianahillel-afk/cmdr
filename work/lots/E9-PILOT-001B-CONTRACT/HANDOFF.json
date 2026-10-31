@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "work_unit": "E9-PILOT-001B-CONTRACT",
+  "result": "VERIFIED",
+  "final_validated_head": "bbab073fe0f1c55c91a1a86f73cc723de5346086",
+  "implementation_commit": "7fc0f8008603e3a266e5da9ebbf42e946c284f2a",
+  "pull_request": 36,
+  "evidence": {
+    "canonical_capability": "CAP-SET-004",
+    "contract": "PILOT-CONTEXT-ENVELOPE-V1",
+    "fixtures": 11,
+    "negative_fixtures": 9,
+    "implementation_paths": [
+      "product-runtime/context-envelope/README.md",
+      "engineering/pilot/context-envelope-contract.json",
+      "engineering/pilot/context-envelope-fixtures.json",
+      "tools/cmdr-dev/pilot_contract.go",
+      "tools/cmdr-dev/pilot_contract_test.go"
+    ]
+  },
+  "rules": [
+    "Runtime boundary context-envelope is reserved and uniquely owned",
+    "Positive and negative contract fixtures validated before runtime code",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E9-PILOT-001B-SECURITY"
+  ]
+}

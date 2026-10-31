@@ -1,0 +1,131 @@
+{
+  "schema_version": 2,
+  "id": "E10-CMD-105A-READONLY",
+  "title": "Read independently authorized operational SLA state/provenance for a selected Command work item",
+  "type": "task",
+  "parent": "E10-CMD-105",
+  "goal": "Integrate canonical CAP-CMD-105 bounded read-only operational SLA status, policy source/version and due/remaining evidence into existing owner-authorized six-view Work Queue selected-item Inspector without manufacturing policy calculations or Class-2 mutation.",
+  "depends_on": [
+    "E10-CMD-101F-SELECTION"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-CMD-105",
+      "CAP-CMD-101"
+    ],
+    "requirements": [
+      "REQ-PROD-005",
+      "REQ-PROD-013",
+      "REQ-PROD-053",
+      "REQ-OBJ-012"
+    ],
+    "screens": [],
+    "permissions": [
+      "perm.command.read",
+      "perm.command.incident.read"
+    ],
+    "open_decisions": [
+      "OPEN-013"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/incident.md",
+      "cmdr-product-spec/05-domain-model/objects/task.md"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/work-queue/sla.go",
+    "product-runtime/work-queue/sla_test.go",
+    "product-runtime/work-queue/http.go",
+    "product-runtime/work-queue/html.go",
+    "product-runtime/work-queue/queue.go",
+    "work/lots/E10-CMD-105A-READONLY/**",
+    "work/graph.json",
+    "engineering/state/current.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "tools/cmdr-dev/**",
+    "product-runtime/case-queue/**",
+    "product-runtime/investigation-timeline/**"
+  ],
+  "invariants": [
+    "Canonical owner CAP-CMD-105; work parent E10-CMD-105 epic; selected-list consumer CAP-CMD-101 and existing Command Incident/Task owner. Git parent PR #173 frozen HEAD 89a092bade8b2137732ac5da8583a1d321249549 is NOT engineering parent.",
+    "Same /command/work-queue six-view route; only selected current-page owner-authorized Incident/Task may invoke optional SLA source adapter.",
+    "SLA owner MUST independently authorize policy source/engagement within host session tenant/environment; object CanRead is not SLA-policy permission.",
+    "Missing SLA policy is unknown, never healthy; do not invent thresholds, remaining duration, pause permission or contractual customers; supplied policy state is read-only with source/version/time.",
+    "OPEN-013 forbids Class-2 pause/restart/change; ADM tenant set never broadened; no second queue or new auth engine."
+  ],
+  "security_properties": [
+    "SLA lookup only after current owner.CanRead and selected current-page row checks, never for denied/foreign/out-of-page items.",
+    "Host-provided tenant/environment/principal; client cannot supply policy source or SLA status.",
+    "Invalid or unavailable source claims abort selected response generically with no partial selected-row or policy disclosure; no item/sensitive SLA lookup for unselected pages.",
+    "No new runtime dependency or network listener; native HTML automatically escapes source strings."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Optional selected-only host interface; historical Item, Row, Result when unselected and all six Work Queue views unchanged.",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Remove optional SLA adapter and SelectedSLA field/render while retaining prior source-owned CAP-CMD-104 coordination dimensions.",
+    "verification": [
+      "All previous six views and cursor/selection tests remain green."
+    ]
+  },
+  "inputs": [
+    "Full CAP-CMD-105 §§1–27, CAP-CMD-101 §§1–27, module README, Incident/Task canonical objects, tenant/permissions contracts and ADR-0008 accepted split operational SLA vs contractual customer projection.",
+    "Frozen parent PR #173 CI both SUCCESS at SHA 89a092bade8b2137732ac5da8583a1d321249549.",
+    "Existing queue exposes only owner-provided SLAAtRisk bool and CAP-CMD-104 SLA risk dimension, with no selected policy source/version or due time."
+  ],
+  "outputs": [
+    "Optional host ReadAuthorizedSLA read-only projection of selected owner-authorized Incident/Task in SAME HTTP route and escaped native HTML.",
+    "Explicit SLA state, policy source/version, as-of time, optional due and source-owned remaining seconds; unknown on no provider, fail-closed on invalid/unavailable provider.",
+    "No policy calculation or user-selected SLA source, no Class-2 mutation, customer object, report/export or broader tenant visibility."
+  ],
+  "acceptance_tests": [
+    "Current selected readable row returns source-authorized state and version/due/remaining with correct principal, tenant, environment and kind/id, zero extra list calls.",
+    "Absent adapter or nil SLA is unknown, no healthy or remaining invented.",
+    "Invalid/malformed/denied source fails closed and doesn't leak item/policy details; denied, foreign and off-page selection never causes SLA source call.",
+    "Exact GitHub SHA command-work-queue-runtime Go Linux/macOS/Windows and mandatory engineering-kernel unchanged security-critical 90% floor, architecture/deps/SAST/manifest checks verified before merge."
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "Exactly one extra optional source lookup ONLY for one selected visible and owner-authorized row; no other requests call the adapter, unchanged 5000 candidate/50-row bound.",
+    "metrics": [
+      "At most one ReadAuthorizedSLA per valid selected request.",
+      "No extra owner.List/CanRead, no new traversal of saved views or linked object graph."
+    ]
+  },
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-RUNTIME-DEPS",
+    "CHK-SECURITY-TESTS"
+  ],
+  "definition_of_ready": [
+    "Parent E10-CMD-101F-SELECTION IMPLEMENTED; latest PR #173 parent HEAD workflow checks both SUCCESS, but remains DRAFT unmerged.",
+    "CAP-CMD-105 operational SLA read-only disclosure is Class 0; OPEN-013 affects only Class-2 mutations. ADR-0008 external contractual SLA remains source projection, not new Customer object.",
+    "One bounded context and optional first-party interface; no migration or external library."
+  ],
+  "definition_of_done": [
+    "Publish first-party source-authorized selected-only read-only SLA and meaningful refusal/security tests with manifest, work graph and current state, preserving frozen parent SHA.",
+    "Check exact-head GitHub Actions including mandatory 90% security coverage, SAST, manifests; never declare whole CAP-CMD-105 accepted or production.",
+    "Material source-permission boundary warrants ONE independent read-only L2 after sufficiently stable verified delivery, no duplicates."
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 4,
+    "estimated_net_loc": 150,
+    "production_files": 4,
+    "net_production_loc": 160,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

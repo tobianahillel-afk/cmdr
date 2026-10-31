@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-CMD-106H-RETURN",
+  "result": "VERIFIED",
+  "final_validated_head": "56859c03ce47600385215fe2afe5f824e25ec3c2",
+  "implementation_commit": "56859c03ce47600385215fe2afe5f824e25ec3c2",
+  "pull_request": 206,
+  "evidence": {
+    "title": "Return from authorized Investigate Case Timeline and source to the originally selected Command Incident",
+    "goal": "Close CAP-CMD-106 \u00a717/\u00a725 Class-0 Incident\u2192Investigate\u2192Incident navigation in the already runnable first-party local browser, without creating an authorization bridge, mutation, redirect, source store, new route or paid API.",
+    "implementation_paths": [
+      "product-runtime/work-queue/html.go",
+      "product-runtime/investigation-timeline/incident_return.go",
+      "product-runtime/investigation-timeline/incident_return_test.go",
+      "product-runtime/investigation-timeline/case_http.go",
+      "product-runtime/investigation-timeline/case_html.go",
+      "product-runtime/investigation-timeline/memory_source_preview.go",
+      "product-runtime/command-investigate-host/cmd/local-browser/incident_return_test.go",
+      "work/graph.json",
+      "work/lots/E10-CMD-106H-RETURN/**",
+      "product-runtime/work-queue/linked_case_navigation_test.go",
+      "product-runtime/command-investigate-host/case_html_navigation_test.go",
+      "product-runtime/command-investigate-host/host_test.go",
+      "product-runtime/command-investigate-host/timeline_corrections_test.go"
+    ],
+    "outputs": [
+      "Case Timeline HTML displays a single fixed Command Incident selection return link when safe origin is supplied; pagination retains this hint",
+      "Owner-authorized source HTML return carries the same inert Incident ID back to Case; Case provides an explicit Command return even after source view",
+      "Real HTTP test traverses Incident/Case/source/Timeline/Incident with separate synthetic owner decisions and fails closed for commander-only Case access"
+    ],
+    "acceptance_tests": [
+      "Command selected Incident link carries only opaque encoded selected Incident ID and currently authorized Case ID; never bearer/tenant/permission",
+      "Full browser-style HTTP journey goes from selected Incident to independently authorized Case, source, back to same timeline page, and back to freshly authorized selected Incident",
+      "Invalid/multiple/forged/overlong origin IDs, foreign Case, foreign endpoint, wrong owner, and JSON-origin hint must deny without partial content",
+      "Original Case page source filters/page preserved through optional origin; legacy no-origin Case/source links unchanged",
+      "Mandatory Timeline, Work Queue/Command host and Engineering CI pass on the exact candidate SHA, with no lowered guards",
+      "Legacy first-party Work Queue and Command host tests validate exact encoded Case+Incident HTML link while original strict JSON-originless client requests retain full old assertions and access boundary."
+    ],
+    "run_ids": []
+  },
+  "rules": [
+    "Class-0 read-only implementation for E10-CMD-106H-RETURN",
+    "Strict tenant isolation and permission checking",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-CMD-106I-DEEPRETURN"
+  ]
+}

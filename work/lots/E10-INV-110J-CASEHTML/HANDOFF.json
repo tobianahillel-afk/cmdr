@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-110J-CASEHTML",
+  "result": "VERIFIED",
+  "final_validated_head": "18826ea501f040768c24dbc9b742000af0da8abd",
+  "implementation_commit": "18826ea501f040768c24dbc9b742000af0da8abd",
+  "pull_request": 199,
+  "evidence": {
+    "title": "Browse authorized Case Timeline HTML from Command linked Incident without changing JSON API",
+    "goal": "Make an actual human-readably navigable Class-0 Incident -> linked Case -> authorized Timeline browser journey using the already existing same-origin handlers and trusted owners. Content-negotiate escaped read-only HTML on the existing GET /case-timeline endpoint while preserving byte-for-byte the existing JSON schema and permission boundaries.",
+    "implementation_paths": [
+      "product-runtime/investigation-timeline/case_http.go",
+      "product-runtime/investigation-timeline/case_html.go",
+      "product-runtime/investigation-timeline/case_html_test.go",
+      "product-runtime/command-investigate-host/case_html_navigation_test.go",
+      "work/lots/E10-INV-110J-CASEHTML/**",
+      "work/graph.json"
+    ],
+    "outputs": [
+      "A Command-initiated browser navigation now renders readable trusted Case Timeline HTML on the same /case-timeline route without requiring manual JSON inspection",
+      "Explicit supersession, original source, provenance, time uncertainty and page links produced only from owner-authorized values",
+      "Existing JSON client response remains unchanged; local HTTP synthetic owner fixture tests both forms"
+    ],
+    "acceptance_tests": [
+      "Following selected Command Incident's Case hyperlink with Accept:text/html goes through real first-party Command/Investigate Go handler composition and displays old/new authorized Timeline records and supersession on different pages",
+      "Command-only, missing/invalid tokens and foreign Case yield no HTML or entry/source disclosure",
+      "Direct Case handler produces <=50 rows by default and honors validated limit/offset; link to next page forces new independent owner checks",
+      "Source-controlled HTML metacharacters escaped, strict CSP and Cache-Control no-store, no inline script, no links to unauthorized source endpoints",
+      "Existing JSON response when requested by API client, full Go tests/vet/race on Linux/macOS/Windows and required engineering-kernel CI on exact SHA"
+    ],
+    "run_ids": []
+  },
+  "rules": [
+    "Class-0 read-only implementation for E10-INV-110J-CASEHTML",
+    "Strict tenant isolation and permission checking",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-110K-HTMLFILTER"
+  ]
+}

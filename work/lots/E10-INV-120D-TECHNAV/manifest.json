@@ -1,0 +1,128 @@
+{
+  "schema_version": 2,
+  "id": "E10-INV-120D-TECHNAV",
+  "title": "Navigate Wazuh ATT&CK technique to its independently authorized Case Timeline source events",
+  "type": "task",
+  "parent": "E10-INV-110",
+  "goal": "Add real Class-0 per-technique event navigation from already visible Wazuh source-cohort counts using the SAME existing bounded `/demo-wazuh-drilldown` endpoint, original Case/Timeline/typed-source authorization, and original source opener; no new policy, parser, output privilege, network listener or duplicate engine.",
+  "depends_on": [
+    "E10-INV-120C-MITREFIX"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-110"
+    ],
+    "requirements": [
+      "REQ-PROD-014",
+      "REQ-PROD-018"
+    ],
+    "screens": [
+      "INV-TIM-001"
+    ],
+    "permissions": [
+      "perm.shared-capabilities.timeline-entry.read"
+    ],
+    "open_decisions": [
+      "OPEN-013"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/case.md",
+      "cmdr-product-spec/05-domain-model/objects/timeline-entry.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/investigation-timeline/cmd/case-timeline-demo/wazuh_drilldown.go",
+    "product-runtime/investigation-timeline/cmd/case-timeline-demo/wazuh_mitre_drilldown_test.go",
+    "product-runtime/investigation-timeline/cmd/case-timeline-demo/analyst.js",
+    "product-runtime/investigation-timeline/cmd/case-timeline-demo/analyst_summary.test.cjs",
+    "work/graph.json",
+    "work/lots/E10-INV-120D-TECHNAV/**"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/investigation-timeline/memory_provider.go",
+    "product-runtime/investigation-timeline/cmd/case-timeline-demo/wazuh_levels.go",
+    "product-runtime/command-investigate-host/**"
+  ],
+  "invariants": [
+    "The Wazuh `rule.mitre.id` tag is untrusted source-claimed annotation, not a verified ATT&CK observation nor a permission or Case relation.",
+    "Only matches in the independently owner-authorized Case/Timeline/typed-source traversal are returned; complete authorized import set must be checked before writing any response.",
+    "Reuses source `wazuhRuleLevels` and existing HTTP `/demo-wazuh-drilldown` selector semantics; no second importer or new engine.",
+    "Technique selector strictly Tdddd/Tdddd.ddd; cannot combine with agent/rule or arbitrary authorization query keys. Explicit `case_id` and optional page offset reauthorized every request.",
+    "Only projected Event ID/kind/time are returned; sensitive raw alert IDs/names/full_log/preview never output; source open requires separate independent authorization.",
+    "Client validation is presentation only; forged response mismatch or selection/token revision refuses rendering and reuses existing source open to recheck rights.",
+    "Keep historical #218 HEAD 930f41987d00f74f31f7706f91d43d5a144581c2 unchanged during L2, no modification of parent PR #217 or full product spec."
+  ],
+  "security_properties": [
+    "Deny invalid combinations, duplications, lower-case/unbounded labels, different Case, unknown query keys and page bounds without leaks.",
+    "Use existing per-page owner traversal and context cancellation, no downstream owner trust given to user-provided Wazuh tag.",
+    "Existing no-store, same-origin bearer, redirection refusal and source-owner rechecks remain unchanged; no production IAM claim."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Existing ephemeral offline Wazuh source and existing /demo-wazuh-drilldown route; no schema change.",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Revert additive technique selector and UI button, leaving agent/rule intersection, Wazuh cohort counts and historical source unchanged.",
+    "verification": [
+      "Existing agent/rule selection still works",
+      "No new provider or mutable data"
+    ]
+  },
+  "inputs": [
+    "CAP-INV-110 source navigation and permission requirements",
+    "Existing E10-INV-120C-MITREFIX IMPLEMENTED source metadata validation and top-ten cohort display",
+    "Existing `wazuh_drilldown.go` reauthorized agent/rule paging plus analyst.js owner-checked source navigation"
+  ],
+  "outputs": [
+    "Click an existing source-claimed ATT&CK cohort label to retrieve 25-at-a-time permitted Case Timeline IDs through same HTTP endpoint and open one via same source owner checks.",
+    "No matching visible entries returns count zero rather than invented observed technique.",
+    "Deny forged mixed selector or malicious server response before any Event rendered."
+  ],
+  "acceptance_tests": [
+    "Genuine source T1059.001 on 53 local Wazuh alerts yields 27 deduplicated source-authorized matches paginated 25+2, not 53 and not raw source IDs.",
+    "Wrong tenant/Case, anonymous request, duplicated/mixed/malformed technique filter, unknown key, bad offset: generic denial with no source events.",
+    "Existing agent/rule/agent+rule selector modes remain unchanged and must pass existing tests.",
+    "Node 24 analyst browser cohort button triggers same-origin authorized GET with technique_id, no bearer in URL, paged response display and source reauthorization on open.",
+    "Mismatched server selector fails closed with no partial returned Event IDs.",
+    "Go tests, vet, Linux race, Node and mandatory global engineering checks pass on exact PR SHA."
+  ],
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-SECURITY-TESTS",
+    "CHK-SAST-GO",
+    "investigation-timeline-runtime"
+  ],
+  "definition_of_ready": [
+    "Parent code source and owner authorization available on frozen #218, no class-2 operations or new source decision required",
+    "Single source read-only event-navigation behavior, bounded by 5000 events and maximum 25 per page"
+  ],
+  "definition_of_done": [
+    "Demonstrable source-backed owner-checked technique-to-event drilldown in the existing browser and Go HTTP handler",
+    "Exact HEAD Go/Node multi-platform and engineering checks pass, material L2 separately reviewed if required",
+    "PR remains Draft, no false full CAP acceptance or production status"
+  ],
+  "performance_budget": {
+    "applicable": false,
+    "rationale": "Uses existing ≤8MiB local source and ≤5000 authorized Timeline entries; traverses existing owner chain per request, bounded 25 results per page. No production SLO measured.",
+    "metrics": []
+  },
+  "complexity": {
+    "primary_components": 2,
+    "estimated_files_changed": 2,
+    "estimated_net_loc": 45,
+    "production_files": 2,
+    "net_production_loc": 45,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

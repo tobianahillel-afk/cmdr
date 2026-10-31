@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-110L-SOURCEOPEN",
+  "result": "VERIFIED",
+  "final_validated_head": "923240a11b6c62c8850395d76536f68c51f90f25",
+  "implementation_commit": "923240a11b6c62c8850395d76536f68c51f90f25",
+  "pull_request": 202,
+  "evidence": {
+    "title": "Navigate from an authorized Case Timeline row to its separately reauthorized local source preview",
+    "goal": "Complete the canonical Class-0 Timeline open-source transition for the existing runnable Incident\u2192Case Timeline loopback browser by routing the pre-existing owner-checked synthetic source preview. Display links only for explicit trusted host opt-in, preserve source ACL and original browser history; no new owner, source engine or persistence.",
+    "implementation_paths": [
+      "product-runtime/investigation-timeline/source_link_context.go",
+      "product-runtime/investigation-timeline/case_html.go",
+      "product-runtime/investigation-timeline/case_http.go",
+      "product-runtime/investigation-timeline/source_link_context_test.go",
+      "product-runtime/command-investigate-host/cmd/local-browser/main.go",
+      "product-runtime/command-investigate-host/cmd/local-browser/main_test.go",
+      "work/graph.json",
+      "work/lots/E10-INV-110L-SOURCEOPEN/**"
+    ],
+    "outputs": [
+      "Runnable Case Timeline HTML links to existing /demo-source-open only on explicitly opted-in loopback host, by Case/Entry ID",
+      "Source-open request rechecks all permissions server side and exposes bounded existing synthetic preview JSON; browser Back preserves previous Case filters/page",
+      "No new source permission engine, third-party dependency, token, redirect, data storage or production claim"
+    ],
+    "acceptance_tests": [
+      "Real localhost HTTP from Command Incident to Case Timeline HTML shows source open link for visible authorized Event",
+      "Following fixed link to existing source owner JSON returns exactly the independently allowed preview, source kind and object identity",
+      "Direct source URL without bearer/with commander bearer/foreign Case/Entry returns denied without preview or source ID",
+      "Generic unopted Case Timeline HTML and legacy JSON do not expose the local demo link",
+      "XSS hostile IDs URL-escaped and never interpreted as HTML or extra query authority; browser back uses existing previously-filtered Case link",
+      "Linux/macOS/Windows CI, Go tests race/vet, security kernel all success on exact SHA before review"
+    ],
+    "run_ids": []
+  },
+  "rules": [
+    "Class-0 read-only implementation for E10-INV-110L-SOURCEOPEN",
+    "Strict tenant isolation and permission checking",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-110N-SOURCEHTML"
+  ]
+}

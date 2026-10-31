@@ -1,0 +1,129 @@
+{
+  "schema_version": 2,
+  "id": "E10-CMD-106C-FRESHNESS",
+  "title": "Expose independently sourced status freshness for linked Investigate Cases in selected Incident",
+  "type": "task",
+  "parent": "E10-CMD-106",
+  "goal": "Complete CAP-CMD-106/CAP-CMD-101 Class-0 linked Case status display with Investigate-owner observation time, source/version and freshness so a stale or unknown Case status cannot be presented as current.",
+  "depends_on": [
+    "E10-CMD-106B-SOURCEJOIN"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-CMD-106",
+      "CAP-CMD-101"
+    ],
+    "requirements": [
+      "REQ-OBJ-001",
+      "REQ-PROD-003",
+      "REQ-PROD-008",
+      "REQ-PROD-013",
+      "REQ-SEC-001"
+    ],
+    "screens": [
+      "CMD-IWQ-006"
+    ],
+    "permissions": [
+      "perm.command.incident.read",
+      "perm.investigate.case.read"
+    ],
+    "open_decisions": [
+      "OPEN-013"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/incident.md",
+      "cmdr-product-spec/05-domain-model/objects/case.md"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/12-shared-capabilities/object-linking-service.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/work-queue/linked_cases.go",
+    "product-runtime/work-queue/linked_cases_join.go",
+    "product-runtime/work-queue/linked_cases_freshness_test.go",
+    "product-runtime/work-queue/html.go",
+    "work/lots/E10-CMD-106C-FRESHNESS/**",
+    "work/graph.json",
+    "engineering/state/current.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "tools/cmdr-dev/**",
+    "product-runtime/investigation-timeline/**",
+    "product-runtime/case-queue/**",
+    "product-runtime/work-queue/http.go",
+    "product-runtime/work-queue/queue.go"
+  ],
+  "invariants": [
+    "Incident remains Command-owned; linked Case and its status/freshness stay Investigate-owned; linking source never asserts status freshness.",
+    "No invented recency threshold, policy or source time: absent status freshness and observation remain explicitly unknown.",
+    "Only selected authorized Incident and independently link+Case-readable records; no new navigation/mutation/provider/IAM or changes to audited PR #178."
+  ],
+  "security_properties": [
+    "Read-only source fields arrive solely from independently authorized Investigate Case identity owner; unselected/Task/denied request triggers no link/source read.",
+    "Validated source, UTF-8, RFC3339Nano timestamp and constrained freshness before any selected HTTP/HTML response; positive freshness state without source+date fails closed.",
+    "Invalid or cancelled source after a previous valid linked Case yields generic 503 without partial Case/Incident metadata; denied Case metadata never included."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Additive optional source-owned status metadata on existing selected linked Case JSON and existing Go autoescaped HTML; legacy nil metadata stays unknown.",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Remove optional Case status source/freshness fields and HTML text to restore frozen PR #178 projections.",
+    "verification": [
+      "Existing linked_cases_join_test.go and linked_cases_test.go remain green"
+    ]
+  },
+  "inputs": [
+    "Full canonical CAP-CMD-106 §§9,15-19,22 and CAP-CMD-101 §§15-17 with status stale/source/date; owner separation and OPEN-013.",
+    "Frozen PR #178 SHA f4ac42195fed1286837f5ff2b2818878c7fad28f; exact-head Go and engineering CI success, draft/L2 not merged."
+  ],
+  "outputs": [
+    "Selected authorized Incident Case summaries include only independently sourced Investigate status source, optional version, observation timestamp and freshness via unchanged first-party HTTP/HTML.",
+    "Behavioral Go tests with 2 authorized Cases + 1 denied; current/stale/unknown and malformed source/time => no data leak."
+  ],
+  "acceptance_tests": [
+    "On selected authorized Incident, link relation carries only link source/version; Investigate source supplies observed UTC timestamp, status freshness/source and optional source version, shown both in JSON and escaped HTML.",
+    "Absent Investigate status freshness/source timestamp explicitly unknown with no invented current-time claim; no Case/Incident mutation or new route.",
+    "Missing observation/source with claimed current/stale/partial, invalid RFC3339 timestamp/status source, unauthorized/denied records fail closed and no partial data is returned.",
+    "Exact-head Linux/macOS/Windows runtime Go + mandatory engineering-kernel security checks pass unchanged."
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "Reuses existing at most 16 sequential authorized Case source reads; only bounded optional metadata validation/rendering per source, no extra network call or scan.",
+    "metrics": [
+      "One Shared lookup, <=16 Investigate lookups for selected authorized Incident only",
+      "No extra HTTP route, owner re-read, background scan or timer"
+    ]
+  },
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-RUNTIME-DEPS",
+    "CHK-SECURITY-TESTS"
+  ],
+  "definition_of_ready": [
+    "E10-CMD-106B-SOURCEJOIN is IMPLEMENTED on frozen PR #178; exact-head Go/engineering Actions green, L2 task already executed (report unknown), no production adapter.",
+    "CAP-CMD-106 §15 source/date stale state and CAP-CMD-101 §15 stale disclosure remain absent and can progress Class-0 without OPEN-013 Class-2 mutations."
+  ],
+  "definition_of_done": [
+    "Published first-party status freshness projection source+time/unknown semantics, security tests and exact-head GitHub CI evidence, no mandatory gate bypass.",
+    "Independent read-only material L2 after stable SHA; non-merged draft is NOT production or CAP-CMD-106 acceptance."
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 4,
+    "estimated_net_loc": 85,
+    "production_files": 3,
+    "net_production_loc": 55,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 0,
+    "separately_testable_behaviors": 1
+  }
+}

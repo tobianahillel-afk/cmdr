@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-110N-SOURCEHTML",
+  "result": "VERIFIED",
+  "final_validated_head": "2df1209b0695f53537f23f7e03697e0e643c3698",
+  "implementation_commit": "2df1209b0695f53537f23f7e03697e0e643c3698",
+  "pull_request": 203,
+  "evidence": {
+    "title": "Serve owner-authorized Timeline source previews as safe HTML in the actual Incident-to-Case local browser",
+    "goal": "Close the functional gap on the runnable Incident\u2192Case\u2192source browser path: the endpoint opened in the browser still returned JSON. Integrate existing source-identical safe HTML rendering and stronger owner identity checks from independent PR #204 into the pre-existing source-open host in PR #203; preserve both original PR SHAs and full JSON compatibility.",
+    "implementation_paths": [
+      "product-runtime/investigation-timeline/memory_source_preview.go",
+      "product-runtime/investigation-timeline/memory_source_preview_html.go",
+      "product-runtime/investigation-timeline/memory_source_preview_html_test.go",
+      "product-runtime/command-investigate-host/cmd/local-browser/main_test.go",
+      "work/lots/E10-INV-110N-SOURCEHTML/**",
+      "work/graph.json"
+    ],
+    "outputs": [
+      "Read-only browser Incident\u2192Case Timeline\u2192source preview rendered as HTML on the existing route, with independent owner read and safe return navigation",
+      "Source-identical #204 HTML/core security tests plus actual #203 loopback HTTP browser end-to-end for HTML/JSON positive and both-format negative authorization",
+      "Reconciled integration path without changing frozen #203/#204, inherited modern Go/SCA gate from #203"
+    ],
+    "acceptance_tests": [
+      "Actual first-party Go httptest starts the runnable loopback front door, follows authorized Incident\u2192Case source URL with native Accept:text/html and sees escaped preview plus no-store/CSP",
+      "Same URL with Accept:application/json still returns original JSON and no HTML",
+      "Anonymous, Command-only, foreign Case/Entry, forged sourceRef or invalid Basic password receive no protected preview in either Accept mode",
+      "Corrupt canonical source object identity/reference denied; source HTML/JSON is not partially emitted after cancellation",
+      "CI on exact HEAD passes 3 platforms, Go race/vet, engineering kernel SAST/SCA including govulncheck. Security failure must not be waived."
+    ],
+    "run_ids": [
+      39559609274
+    ]
+  },
+  "rules": [
+    "Class-0 read-only implementation for E10-INV-110N-SOURCEHTML",
+    "Strict tenant isolation and permission checking",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": []
+}

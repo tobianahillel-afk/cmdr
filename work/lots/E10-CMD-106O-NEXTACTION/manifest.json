@@ -1,0 +1,131 @@
+{
+  "schema_version": 2,
+  "id": "E10-CMD-106O-NEXTACTION",
+  "title": "Display trusted Command Incident next action and optional due time in existing read-only Incident Detail",
+  "type": "task",
+  "parent": "E10-CMD-106",
+  "goal": "Fill CAP-CMD-106's explicitly required coordination/next-action read gap in the already implemented local Incident Detail. Reuse existing optional IncidentOverviewOwner, strictly revalidate returned scoped source, label missing actions unknown and never execute a Class-2 action.",
+  "depends_on": [
+    "E10-CMD-106N-DETAILRETURN"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-CMD-106",
+      "CAP-CMD-101"
+    ],
+    "requirements": [
+      "REQ-PROD-003",
+      "REQ-PROD-013",
+      "REQ-SEC-001"
+    ],
+    "screens": [
+      "CMD-IWQ-006"
+    ],
+    "permissions": [
+      "perm.command.incident.read"
+    ],
+    "open_decisions": [
+      "OPEN-013"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/incident.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/work-queue/incident_overview.go",
+    "product-runtime/work-queue/incident_detail.go",
+    "product-runtime/work-queue/incident_next_action_test.go",
+    "product-runtime/command-investigate-host/cmd/local-browser/main.go",
+    "product-runtime/command-investigate-host/cmd/local-browser/incident_detail_test.go",
+    "work/lots/E10-CMD-106O-NEXTACTION/**",
+    "work/graph.json",
+    "engineering/state/current.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/work-queue/queue.go",
+    "product-runtime/work-queue/selected_context.go",
+    "product-runtime/investigation-timeline/**",
+    "product-runtime/command-investigate-host/host.go"
+  ],
+  "invariants": [
+    "No new action source or authorization engine: only optional Command IncidentOverviewOwner sourced after fresh Incident selection + CanRead may return an action.",
+    "A missing Command overview/action/due remains explicitly unknown; no inferred next step, reminder or created Task/Action Request.",
+    "Action text <=256 bytes UTF8 without controls; optional due <=64 bytes RFC3339Nano nonzero, forbidden if action is empty; reject inconsistent/trust-violating owner payload without partial HTML.",
+    "Command Incident.read and existing narrow overview policy must not grant Investigate Case, Alert, Govern Result or other owner permissions.",
+    "Previous PR #213 review head remains immutable; sibling PR #188/#187/other historical SHA unchanged."
+  ],
+  "security_properties": [
+    "Only independently scoped source includes IncidentID, tenant, environment, provenance source version and observed timestamp in fresh owner projection; no client field may assert action.",
+    "HTML template escapes all source action text, denies malformed and cross-tenant responses before output; revoke Incident read prevents optional Command source read.",
+    "No source text or response-token contents in Query URL; synthetic local Basic remains test-only, not production IAM."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Two optional read-only fields on existing in-memory owner view and existing HTML; no stored Incident schema migration.",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Revert new optional fields and HTML next-action display while preserving old overview and Incident Detail owner chain.",
+    "verification": [
+      "Existing read-only detail and Command/Investigate same-origin journey still work.",
+      "Legacy owner without overview or action remains explicitly partial."
+    ]
+  },
+  "inputs": [
+    "CAP-CMD-106 obligations for coordination, owner, impact and next action, and screen CMD-IWQ-006",
+    "Previously authorized IncidentOverviewOwner and selected Incident Detail from E10-CMD-106K/J/N"
+  ],
+  "outputs": [
+    "Existing Incident Detail now displays Command-authorized NextAction, optional due time and clear unknown fallback.",
+    "Existing synthetic loopback browser exercises authorized next action, full scope denial and no leak for Command-only principal.",
+    "Targeted Go unit/security and existing cross-platform Work Queue + Host full suite on exact candidate commit."
+  ],
+  "acceptance_tests": [
+    "Authorized Incident owner returned action visible in existing HTML route; HTML XSS payload escaped.",
+    "Missing action/due/source remains unknown; due-only/invalid time/oversize/control/invalid UTF8/cross-scope fields abort with no partial source HTML.",
+    "Revoked Incident and Commander lacking overview fields cannot read action despite other Incident access.",
+    "Real local browser GET validates independent principal visibility under Basic demo, and previous Case/Result navigation remains unchanged.",
+    "Work Queue and cross-product Host workflows plus mandatory engineering security gates complete SUCCESS on exact SHA."
+  ],
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-SECURITY-TESTS",
+    "CHK-SAST-GO",
+    "CHK-SCA-GO",
+    "command-work-queue runtime CI",
+    "command-investigate host CI"
+  ],
+  "definition_of_ready": [
+    "E10-CMD-106N-DETAILRETURN is code IMPLEMENTED but draft/nonaccepted; use immutable SHA 048d4cfbf48aaeabef661073ebfd671bb584d84d as Git source.",
+    "Optional Command IncidentOverviewOwner is present and source-scoped; CAP-CMD-106 read-only next-action expectation is canonically defined.",
+    "OPEN-013 blocks class-2 Incident coordination mutations; only class-0 display is in this scope."
+  ],
+  "definition_of_done": [
+    "Read-only source-authorized action visible in existing Incident Detail with unknown fallback",
+    "All changed-source workflows verified on exact HEAD, appropriate independent review preserved",
+    "No native GitHub approval, merge, production IAM or complete CAP-CMD-106 acceptance asserted."
+  ],
+  "performance_budget": {
+    "applicable": false,
+    "rationale": "No extra owner lookup: two bounded scalar fields on existing single optional Command overview projection. Synthetic test only, no prod SLO claim.",
+    "metrics": []
+  },
+  "complexity": {
+    "primary_components": 2,
+    "estimated_files_changed": 3,
+    "estimated_net_loc": 100,
+    "production_files": 3,
+    "net_production_loc": 52,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

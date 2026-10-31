@@ -1,0 +1,131 @@
+{
+  "schema_version": 2,
+  "id": "E10-CMD-101L-GROUP",
+  "title": "Group the currently owner-authorized Command Work Queue by type or status without new routes or data providers",
+  "type": "task",
+  "parent": "E10-CMD-101",
+  "goal": "Close the canonical CAP-CMD-101 §11/§25 manual grouping gap by grouping all currently authorized, filtered Incident and Task rows before stable 50-item cursor pagination, reusing one existing Command route and first-party owner ACLs.",
+  "depends_on": [
+    "E10-CMD-101K-OWNERFILTER"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-CMD-101"
+    ],
+    "requirements": [
+      "REQ-OBJ-001",
+      "REQ-OBJ-012",
+      "REQ-PROD-013",
+      "REQ-UX-008",
+      "REQ-UX-009"
+    ],
+    "screens": [],
+    "permissions": [
+      "perm.command.read",
+      "perm.command.incident.read"
+    ],
+    "open_decisions": [],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/incident.md",
+      "cmdr-product-spec/05-domain-model/objects/task.md"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/pagination-filtering-sorting.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/work-queue/queue.go",
+    "product-runtime/work-queue/pagination.go",
+    "product-runtime/work-queue/http.go",
+    "product-runtime/work-queue/html.go",
+    "product-runtime/work-queue/grouping_test.go",
+    "work/lots/E10-CMD-101L-GROUP/**",
+    "work/graph.json",
+    "engineering/state/current.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "tools/cmdr-dev/**",
+    "product-runtime/case-queue/**",
+    "product-runtime/investigation-timeline/**"
+  ],
+  "invariants": [
+    "The product owner is Command CAP-CMD-101; the Git base is parent draft PR #171, NOT the canonical work parent (epic E10-CMD-101).",
+    "Only exact existing owner-sourced `Kind` or `Status` are grouping keys. Do not invent priority/severity, add a new source, mutate owner assignment or perform Class-2 operations.",
+    "Authorize each in-scope Incident or Task with the current host principal, tenant, environment and owner.CanRead BEFORE grouping and before obtaining source freshness; denied/cross-tenant records never influence groups.",
+    "Grouping happens on the entire authorized filtered bounded cohort before stable cursor paging; group then existing chronological sort, stable kind/ID ties. Page breaks may repeat a group title but do not change membership.",
+    "The opaque cursor digest binds the group key, full freshly authorized rows and prior filters; current-page selection and navigation preserve grouping and reauthorize on every request.",
+    "Exactly six Command system views remain configurations of the same GET route. Shared Saved Views persistence and OPEN-013 mutations remain outside this task."
+  ],
+  "security_properties": [
+    "Untrusted `group` accepts only `type` or `status`, one parameter, before host session/owner lookup; omission preserves historical result.",
+    "No direct client-provided principal, tenant, environment or ACL; grouping never grants authority, leaks denied group counts, or makes stale cursor usable.",
+    "Native HTML escapes owner-sourced group labels and preserves the existing strict CSP, no external dependency."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Optional read-only projection field and query parameter with backward-compatible ungrouped default; no object schema/storage or Saved View definition changed.",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Revert opt-in grouping and cursor group digest without touching the prior authorized filter/sort/pagination implementation.",
+    "verification": [
+      "Existing owner filtering, six views, selected row and cursor/revocation tests continue passing."
+    ]
+  },
+  "inputs": [
+    "CAP-CMD-101 full 27-section canonical sheet §§3,11,12,16,17,18,21,25,26 and Incidents and Work Queue module ownership; Command saved-views six-key catalogue; Incident/Task canonical objects and tenant/security/pagination contracts.",
+    "Current parent PR #171 head 54332f6443cc4592a6cd7a6a6f9dd92164f849ff, both Command and engineering workflows completed SUCCESS, DRAFT/not merged.",
+    "The prior Command queue already implements post-owner-ACL exact status/owner filters, chronological order, owner-revocation-aware 50-row cursor, row selection and native browser; grouping is absent."
+  ],
+  "outputs": [
+    "Existing GET /command/work-queue supports optional `group=type|status`, aggregates no new source data, and sorts grouped authorized rows before bounded paging.",
+    "Native HTML shows group headings over current page, preserves group across view links/pagination/selection; JSON returns `group_by` only when selected.",
+    "Changing grouping or revoking visible rows invalidates existing page cursors without disclosure; old requests remain ungrouped."
+  ],
+  "acceptance_tests": [
+    "With 123 authorized Task objects, 45 closed and 78 open, group=status sorts whole set and paginates as 50/50/23 without duplicates/missing rows, retaining chronological order within groups.",
+    "Native grouped page 2 renders group heading and preserves group context through the exact selected current page; invalidated/revoked owner authorization causes generic 404 rather than showing stale rows.",
+    "Grouping by type includes only readable Incident and Task rows and does not call ACL on foreign tenant objects. Group labels in HTML remain escaped.",
+    "Unknown or duplicate group query, untrusted owner/tenant injection, and unsupported direct projection fail before host session or owner.CanRead. No group keeps historical response.",
+    "GitHub exact-head command-work-queue-runtime Linux/macOS/Windows and engineering-kernel including unchanged 90% security floor and SAST must pass. No merge/acceptance from green child alone."
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "Single string comparison for the selected group on already materialized bounded authorized rows; no new source lookups or network calls.",
+    "metrics": [
+      "Existing <=5000 owner candidates and <=50 visible rows per page; O(n log n) deterministic sort remains, no second walk of owner graph.",
+      "No new Owner.List/CanRead calls per request; unchanged cursor digest over authorized rows."
+    ]
+  },
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-RUNTIME-DEPS",
+    "CHK-SECURITY-TESTS"
+  ],
+  "definition_of_ready": [
+    "E10-CMD-101K-OWNERFILTER implemented on PR #171, SHA 54332f6443cc4592a6cd7a6a6f9dd92164f849ff, its exact-HEAD Command and engineering Actions SUCCESS; PR remains DRAFT and unmerged.",
+    "CAP-CMD-101 §11 explicitly requires manual grouping and Class-0 filters/sort; `Kind` and `Status` are existing Command Item fields; no OPEN product decision required for narrow read-only opt-in.",
+    "One bounded Command context, <=4 executable/non-test files and no independent migration or new security model."
+  ],
+  "definition_of_done": [
+    "Publish scoped code/tests and this manifest to a separate child PR preserving parent #171 SHA and all previously audited commits.",
+    "On exact child HEAD GitHub Actions verify all mandatory checks; record evidence and only mark this task IMPLEMENTED if the code is actually published/tested.",
+    "Neither CAP-CMD-101 acceptance nor production delivery nor approval of unmerged parent PRs is asserted; arrange one independent read-only L2 for this material UI+pagination integration."
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 4,
+    "estimated_net_loc": 100,
+    "production_files": 4,
+    "net_production_loc": 100,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

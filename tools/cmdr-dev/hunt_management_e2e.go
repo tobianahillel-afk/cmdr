@@ -146,7 +146,8 @@ func runHuntManagementE2EAudit(root, _ string, state CurrentState) (HuntManageme
 	if err != nil {
 		return HuntManagementE2EAuditSummary{}, err
 	}
-	if err := validateHuntManagementRuntimeUnchanged(root, runtime.FinalValidatedHead, currentHead); err != nil {
+	runtimeUnchanged, err := reverifyPinnedGoToolchainTransition(root, runtime.FinalValidatedHead, currentHead, huntManagementRuntimeDirectory)
+	if err != nil {
 		return HuntManagementE2EAuditSummary{}, err
 	}
 	adversarial, err := runHuntManagementAdversarialRuntimeTests(root)
@@ -185,7 +186,7 @@ func runHuntManagementE2EAudit(root, _ string, state CurrentState) (HuntManageme
 		SCAActionableFindings:             runtime.RuntimeObservation.SCAActionableFindings,
 		ProjectionP95MS:                   observed,
 		ProjectionBudgetMS:                budget,
-		RuntimeUnchangedSinceVerification: true,
+		RuntimeUnchangedSinceVerification: runtimeUnchanged,
 		BlockingOpenDecisions:             len(handoff.BlockingOpenDecisions),
 		Limitations:                       len(handoff.Limitations),
 		ProductionReadinessClaim:          handoff.ProductionReadinessClaim,
@@ -241,28 +242,6 @@ func validateHuntManagementHandoff(handoff HuntManagementClosureHandoff) error {
 	}
 	if len(handoff.NextConditions) < 4 {
 		return fmt.Errorf("Hunt Management handoff requires at least four explicit next conditions")
-	}
-	return nil
-}
-
-func validateHuntManagementRuntimeUnchanged(root, evidenceHead, currentHead string) error {
-	evidenceHead, err := validateFullCommitID(evidenceHead)
-	if err != nil {
-		return fmt.Errorf("Hunt Management runtime evidence head: %w", err)
-	}
-	currentHead, err = validateFullCommitID(currentHead)
-	if err != nil {
-		return fmt.Errorf("current source head: %w", err)
-	}
-	if err := ensureGitAncestor(root, evidenceHead, currentHead); err != nil {
-		return fmt.Errorf("Hunt Management runtime evidence ancestry: %w", err)
-	}
-	cmd := exec.Command("git", "-C", root, "diff", "--quiet", evidenceHead, currentHead, "--", huntManagementRuntimeDirectory) // #nosec G204,G702 -- executable/path fixed; commit arguments validated full hex IDs.
-	if err := cmd.Run(); err != nil {
-		if exitErr, ok := err.(*exec.ExitError); ok && exitErr.ExitCode() == 1 {
-			return fmt.Errorf("Hunt Management runtime changed after verified runtime evidence; fresh runtime proof is required")
-		}
-		return fmt.Errorf("compare Hunt Management runtime against verified evidence: %w", err)
 	}
 	return nil
 }

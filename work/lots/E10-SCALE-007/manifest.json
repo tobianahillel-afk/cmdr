@@ -1,0 +1,99 @@
+{
+  "schema_version": 2,
+  "id": "E10-SCALE-007",
+  "title": "Scale CMDR Studio library and asset catalog foundation (CAP-STD-001)",
+  "type": "epic",
+  "parent": "",
+  "goal": "Advance CMDR Studio library asset catalog foundation under CAP-STD-001 following the full verification of CAP-INV-110, CAP-CMD-101, CAP-CMD-106, and E10-CMD-106Q-TASKNAV perimeter.",
+  "product_refs": {
+    "capabilities": [
+      "CAP-STD-001"
+    ],
+    "requirements": [
+      "REQ-PROD-006",
+      "REQ-PROD-016",
+      "REQ-OBJ-009"
+    ],
+    "screens": [],
+    "permissions": [],
+    "open_decisions": [],
+    "implementation_contracts": [],
+    "canonical_objects": []
+  },
+  "depends_on": [
+    "E10-CMD-106Q-TASKNAV",
+    "E10-INV-120A-SNAPSHOT"
+  ],
+  "allowed_paths": [
+    "engineering/implementation/**",
+    "engineering/state/**",
+    "work/graph.json",
+    "work/lots/E10-SCALE-007*/**",
+    "work/lots/E10-STD-*/**",
+    "tools/cmdr-dev/**"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/**"
+  ],
+  "inputs": [
+    "VERIFIED E10-CMD-106Q-TASKNAV and E10-INV-120A-SNAPSHOT verification evidence",
+    "canonical read-only Product Spec baseline",
+    "reuse-first-v1 readiness and wave-selection policy"
+  ],
+  "outputs": [
+    "CAP-STD-001 Studio library foundation decomposition",
+    "initial bounded task E10-STD-001A-BOUNDARY"
+  ],
+  "invariants": [
+    "Product Spec remains read-only",
+    "no product runtime modifications by scaling-control tasks",
+    "selection uses fresh READY state and does not guess future runtime architecture"
+  ],
+  "security_properties": [
+    "deny cross-tenant permission leaks and unverified capability selection",
+    "next wave must be selected only from READY capabilities"
+  ],
+  "acceptance_tests": [
+    "adaptive engineering-kernel remains green",
+    "work graph validation passes"
+  ],
+  "performance_budget": {
+    "applicable": false,
+    "rationale": "control-plane metadata epic only",
+    "metrics": []
+  },
+  "migration": {
+    "required": false,
+    "rationale": "engineering control-plane metadata only",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert scaling-control metadata without modifying verified product runtimes",
+    "verification": [
+      "Product Spec baseline remains unchanged"
+    ]
+  },
+  "required_checks": [
+    "adaptive engineering-kernel",
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY"
+  ],
+  "definition_of_ready": [
+    "E10-CMD-106Q-TASKNAV and E10-INV-120A-SNAPSHOT are VERIFIED"
+  ],
+  "definition_of_done": [
+    "CAP-STD-001 decomposed with bounded task E10-STD-001A-BOUNDARY"
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 5,
+    "estimated_net_loc": 200,
+    "production_files": 0,
+    "net_production_loc": 0,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

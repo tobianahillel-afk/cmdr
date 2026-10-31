@@ -1,0 +1,129 @@
+{
+  "schema_version": 2,
+  "id": "E10-CMD-106G-LOCALBROWSER",
+  "title": "Launch a real loopback-only browser for the existing owner-authorized Command Incident to Investigate Case Timeline journey",
+  "type": "task",
+  "parent": "E10-CMD-106",
+  "goal": "Replace test-only browser path with a runnable no-paid-API local first-party Go server mounting existing Command Work Queue and Investigate Case Timeline handlers, a minimal ephemeral browser Basic challenge, two independently checked synthetic owners and a visible corrected Case timeline. Real browser navigation; no network deployment, production identity provider or data source.",
+  "depends_on": [
+    "E10-CMD-106F-TIMELINE",
+    "E10-INV-110K-HTMLFILTER"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-CMD-106",
+      "CAP-CMD-101",
+      "CAP-INV-110"
+    ],
+    "requirements": [
+      "REQ-PROD-014",
+      "REQ-PROD-018"
+    ],
+    "screens": [
+      "INV-TIM-001",
+      "CMD-IWQ-006"
+    ],
+    "permissions": [
+      "perm.investigate.case.read",
+      "perm.shared-capabilities.timeline-entry.read"
+    ],
+    "open_decisions": [
+      "OPEN-013"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/case.md",
+      "cmdr-product-spec/05-domain-model/objects/timeline-entry.md"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/command-investigate-host/cmd/local-browser/**",
+    "work/graph.json",
+    "work/lots/E10-CMD-106G-LOCALBROWSER/**"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/work-queue/**",
+    "product-runtime/investigation-timeline/**",
+    "product-runtime/command-investigate-host/host.go"
+  ],
+  "invariants": [
+    "Do not create a second router, owner engine, HTTP endpoint or Case projection; use exact pre-existing Command and Investigate HTTP handlers and same-origin router",
+    "Never bind non-loopback; reject non-loopback Host header, require a newly generated high entropy Basic password on every execution and do not place credentials in URLs or cookies",
+    "Host-authenticated principal is evaluated independently by each product owner and each per-object source owner, never forwarded as implicit Command permission",
+    "Demo data are explicitly synthetic and immutable; no real tenant, production IAM, paid API, persistence or mutation, OPEN-013 remains out of scope",
+    "Never mistake a local Basic challenge on HTTP loopback for production security; owner must supply IAM, HTTPS, CSRF protection and real authoritative data for deployment",
+    "If console output of fresh Basic credentials fails, close the allocated listener and refuse startup; never expose a service that the operator cannot authenticate to."
+  ],
+  "security_properties": [
+    "32 bytes cryptographic random per role; constant time comparison; fail closed if entropy missing",
+    "Reject host header not 127.0.0.1 and bind only 127.0.0.1 ephemeral port; no remote listener, no token in URL; generic 401 with browser Basic challenge",
+    "Commander can read Command Incident but cannot elevate to Investigate Case/Timeline, and denied source versions/foreign sources never display"
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Standalone opt-in local demonstration entrypoint only; no database, schema or authorization change.",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Delete standalone cmd/local-browser and bounded work files; original hosts/CI unchanged.",
+    "verification": [
+      "Original Command->Investigate host routing tests remain untouched",
+      "No remote binding or persistence"
+    ]
+  },
+  "inputs": [
+    "CAP-CMD-106 linked Case selection and CAP-INV-110 owner-authorized browser timeline",
+    "Existing same-origin host, Go modules and optional HTML filtering from PR #201; synthetic memory owners"
+  ],
+  "outputs": [
+    "go run ./cmd/local-browser starts real 127.0.0.1 ephemeral HTTP server, displays one-time credentials and URL, supports actual browser Basic challenge",
+    "Following same-origin Incident Case link renders source-authorized Case Timeline HTML with supersession, filters and pages, no manually injected Authorization header",
+    "Negative live HTTP Basic principal/source denial and DNS rebinding Host tests",
+    "Graceful SIGINT/SIGTERM cancellation closes the loopback HTTP server without unhandled exit."
+  ],
+  "acceptance_tests": [
+    "A real loopback HTTP client authenticates as analyst and follows actual selected Incident-linked Case into owner-authorized Timeline HTML; source v1 is marked superseded by v2 and filters work",
+    "Commander with separate valid credentials can access Incident but not Investigate Case, even if URL is manually supplied; invalid/missing Basic secret denied",
+    "Host header spoof, unsupported/remote origin and unsupported path denied; no Basic credentials in links; no-store and no-referrer preserved",
+    "Go host+subcommand tests/vet/race and full mandatory engineering kernel pass on exact candidate SHA",
+    "Inject a failing entropy source, duplicate analyst/commander secrets, refused listen socket, and failed console writer; assert no running HTTP server and no credential leak."
+  ],
+  "definition_of_ready": [
+    "Existing 201 source of tested same-origin Go and Case HTML filter handlers at frozen SHA dc714668f4e50deeb92057dc89a0c5911d104893",
+    "No trusted/production IAM decision taken; local demonstration explicitly optional"
+  ],
+  "definition_of_done": [
+    "Actual runnable localhost binary with tested browser-native Basic realm and deterministic synthetic fixtures",
+    "Cross-principal source denial and owner-separated HTTP proof on exact GitHub SHA",
+    "Not a production delivery, no native APPROVED or upstream merged claim"
+  ],
+  "required_checks": [
+    "command-investigate-readonly-host",
+    "engineering-kernel",
+    "CHK-SECURITY-TESTS",
+    "CHK-SAST-GO"
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "Small local bounded HTTP demo; no production SLO; inherited existing runtime module and request limits",
+    "metrics": [
+      "random secrets generated at launch",
+      "loopback only"
+    ]
+  },
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 2,
+    "estimated_net_loc": 340,
+    "production_files": 1,
+    "net_production_loc": 255,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

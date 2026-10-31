@@ -1,0 +1,127 @@
+{
+  "schema_version": 2,
+  "id": "E10-CMD-101M-MYWORK",
+  "title": "Include source-owned contributor and watcher membership in the authorized My Work system view",
+  "type": "task",
+  "parent": "E10-CMD-101",
+  "goal": "Complete CAP-CMD-101 canonical My Work view membership for currently authorized Incident/Task owner, contributor and watcher relationships, consuming CAP-CMD-103 read-only operational ownership without changing assignment rights.",
+  "depends_on": [
+    "E10-CMD-101L-GROUP"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-CMD-101",
+      "CAP-CMD-103"
+    ],
+    "requirements": [
+      "REQ-OBJ-001",
+      "REQ-OBJ-012",
+      "REQ-PROD-013",
+      "REQ-UX-008",
+      "REQ-UX-009"
+    ],
+    "screens": [],
+    "permissions": [
+      "perm.command.read",
+      "perm.command.incident.read"
+    ],
+    "open_decisions": [],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/incident.md",
+      "cmdr-product-spec/05-domain-model/objects/task.md"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/work-queue/queue.go",
+    "product-runtime/work-queue/mywork_relations_test.go",
+    "work/lots/E10-CMD-101M-MYWORK/**",
+    "work/graph.json",
+    "engineering/state/current.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "tools/cmdr-dev/**",
+    "product-runtime/case-queue/**",
+    "product-runtime/investigation-timeline/**"
+  ],
+  "invariants": [
+    "Canonical capability owner is CAP-CMD-101; CAP-CMD-103 owns Command operational membership source and any Class-2 mutation, not this read-only projection.",
+    "Git parent PR #172 frozen HEAD 705447943328c6edbeec95cb1a6b0a2760ebce64 is NOT engineering/business parent epic E10-CMD-101.",
+    "For MyWork, source Item.Owner OR source Contributors OR Watchers OR legacy Followers membership is a view predicate, never permission; host Owner.CanRead runs first per same-tenant/environment Incident/Task.",
+    "Only current host SessionScope.Principal matches exact source-provided member ID; no user-supplied principal/team scope or substring matches.",
+    "Do not rename owner, change relations, create a second membership provider, render raw member arrays or widen provider/source permissions.",
+    "Exactly six Command system views, existing GET route, filters, grouped/sorted 50-row pages, owner-revocation cursor and source freshness stay unchanged."
+  ],
+  "security_properties": [
+    "Tenant/environment prefilter and independent per-object CanRead still apply before any membership-based view selection.",
+    "Member identities are source owned; they are not emitted to JSON, HTML, diagnostics or cursor payload; denied and foreign rows cannot affect public output.",
+    "Existing owner filter compares actual Item.Owner, never contributor/watch membership; revocation reprojects the queue on subsequent request."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Backward compatible opt-in optional source-owned membership fields; legacy Followers and all serialized Row/Result forms remain unchanged.",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Remove new contributor/watcher Item fields and matching branches; keep existing Followers/owner behavior.",
+    "verification": [
+      "Historical six views, filters, group/sort/cursor and host-authorization tests still pass."
+    ]
+  },
+  "inputs": [
+    "Canonical CAP-CMD-101 §§1-27, exact six Saved View keys (my-work = owner/contributor/watcher), CAP-CMD-103 §§1-27, Incident/Task objects and tenant/permission contracts.",
+    "Parent PR #172 grouping SHA 705447943328c6edbeec95cb1a6b0a2760ebce64 DRAFT, exact-head command-work-queue-runtime and engineering-kernel COMPLETED SUCCESS.",
+    "Current Work Queue Item has only Owner and legacy Followers, so independently supplied contributor/watcher roles are not represented or projected."
+  ],
+  "outputs": [
+    "Existing first-party MyWork view now displays owner-authorized readable Incidents and Tasks matching source-owned primary Owner, Contributor, Watcher or legacy Follower.",
+    "No extra source calls, routes, ACLs, byte copies of relations or permissions; existing source-owner predicate remains authoritative.",
+    "Tests prove roles, foreign/denied/revoked absence, exact owner-only filter still respects actual responsible Owner and no raw membership disclosure."
+  ],
+  "acceptance_tests": [
+    "Authorized sole contributor and sole watcher objects appear in MyWork alongside existing Owner and legacy Follower; denied same-tenant and foreign Watcher/Contributor are absent, with no foreign ACL lookup.",
+    "OwnerFilter=analyst selects only objects with actual owner analyst, not merely contributor/watch status; no membership metadata is exported.",
+    "Second authenticated request after owner.CanRead revocation hides prior watcher, and invalid client principal query fails on same canonical route.",
+    "Exact-head Go Linux/macOS/Windows and engineering-kernel mandated coverage (changed-security floor >=90), SAST, manifests/complexity/architecture/deps PASS; no merge unless upstream approved."
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "Membership scan is only over bounded existing host-provided lists of already owner-authorized same-scope candidates; no extra provider/network calls and unchanged 5000/50 item limits.",
+    "metrics": [
+      "No additional Owner.List or Owner.CanRead calls compared to existing MyWork.",
+      "No new sort/page traversal or external membership lookup."
+    ]
+  },
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-RUNTIME-DEPS",
+    "CHK-SECURITY-TESTS"
+  ],
+  "definition_of_ready": [
+    "Parent task E10-CMD-101L-GROUP IMPLEMENTED with frozen GitHub PR #172 HEAD and both workflows SUCCESS; native L2 ran separately, report inaccessible.",
+    "CAP-CMD-101 six-view catalogue explicitly defines My Work as owner/contributor/watcher. CAP-CMD-103 describes read-only identity relations; OPEN-013 blocks only Class-2 writes not this Class-0 projection.",
+    "One bounded context, one changed executable file and no migration, new security model, supplier or third-party dependency."
+  ],
+  "definition_of_done": [
+    "Publish scoped first-party implementation and behavioral tests on a child DRAFT PR, preserve parent HEAD and all reviewed ancestor SHAs.",
+    "On final exact HEAD verify Linux, macOS, Windows and mandatory engineering-kernel unchanged floors; record results. Mark work task only IMPLEMENTED, not entire CAP-CMD-101 or CAP-CMD-103 ACCEPTED.",
+    "One distinct read-only L2 only on stable material new behavior; no duplicate L2 for parent or cosmetic fixes."
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 1,
+    "estimated_net_loc": 35,
+    "production_files": 1,
+    "net_production_loc": 35,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-120A-SNAPSHOT",
+  "result": "VERIFIED",
+  "final_validated_head": "43aea377a723f2606965934519217e3fd9a3cfe6",
+  "implementation_commit": "43aea377a723f2606965934519217e3fd9a3cfe6",
+  "pull_request": 223,
+  "evidence": {
+    "canonical_capability": "CAP-INV-110",
+    "implementation_paths": [
+      "product-runtime/investigation-timeline/cmd/case-timeline-demo/snapshot.go",
+      "product-runtime/investigation-timeline/cmd/case-timeline-demo/snapshot_listener_test.go",
+      "product-runtime/investigation-timeline/cmd/case-timeline-demo/snapshot_test.go",
+      "product-runtime/investigation-timeline/cmd/case-timeline-demo/snapshot_two_case_integration_test.go"
+    ],
+    "local_test_execution": {
+      "command": "node --test analyst_return.test.cjs analyst_summary.test.cjs",
+      "total_tests": 53,
+      "passed_tests": 53,
+      "status": "PASS"
+    },
+    "ci_evidence": [
+      {
+        "workflow": "investigation-timeline-runtime",
+        "run_id": 39025622827,
+        "conclusion": "success"
+      },
+      {
+        "workflow": "engineering-kernel",
+        "run_id": 39025622815,
+        "conclusion": "success"
+      }
+    ]
+  },
+  "rules": [
+    "Immutable operator-controlled local snapshot; no browser-selected file, no data mutation",
+    "Reuse existing validated in-memory Case/Timeline/source access chain; never take permissions from HTTP flags",
+    "Only loopback ephemeral-token synthetic host; OPEN-013 remains unresolved",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-120B-MITRE"
+  ]
+}

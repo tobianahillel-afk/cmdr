@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-CMD-101I-SELECTION",
+  "result": "VERIFIED",
+  "final_validated_head": "47ecdc1809769624ea1f37a4710336f48ba96301",
+  "implementation_commit": "47ecdc1809769624ea1f37a4710336f48ba96301",
+  "pull_request": 166,
+  "evidence": {
+    "title": "Retain the exact authorized Work Queue page when selecting its Incident or Task",
+    "goal": "Fix a reproducible Case/Task selection regression: a row selected beyond page one must keep its current authorized cursor, while manual filter/sort changes start a new first-page query.",
+    "implementation_paths": [
+      "product-runtime/work-queue/queue.go",
+      "product-runtime/work-queue/http.go",
+      "product-runtime/work-queue/html.go",
+      "product-runtime/work-queue/pagination_selection_test.go",
+      "work/lots/E10-CMD-101I-SELECTION/**",
+      "work/graph.json",
+      "engineering/state/current.json"
+    ],
+    "outputs": [
+      "A selection on page 2/3 returns same currently authorized page and selected source row via existing route.",
+      "Manual changed status/sort/view never accidentally inherits stale page cursor.",
+      "Expired/revoked cursor and off-page IDs continue to return generic deny."
+    ],
+    "acceptance_tests": [
+      "Build a 123-row fully authorized fixture: choose a row on page 3 via its native browser form, verify exact selected row/page and preserved view/status/sort.",
+      "Changing manual filters or sort from page 3 makes a fresh first-page request, not a stale cursor.",
+      "After ACL revocation prior page selection denies; forged off-page or stale cursor denies without source content.",
+      "Existing browser XSS and six-views tests plus Linux/macOS/Windows and mandatory >=90% changed critical security coverage green on exact HEAD."
+    ],
+    "run_ids": [
+      39377715483,
+      39377715480,
+      39377975899,
+      39377975861,
+      39378463656,
+      39378463642,
+      39378862291,
+      39378902994
+    ]
+  },
+  "rules": [
+    "Product: Command / CAP-CMD-101 (Unified Work Queue). Canonical capability cmdr-product-spec/06-command/modules/incidents-and-work-queue/capabilities/unified-work-queue.md, especially \u00a7\u00a73, 11, 16, 17 and 25; work module saved-views.md; Command owns Incident and Task objects, Shared owns persisted Saved Views, final Inspector belongs outside this task.",
+    "Engineering: bounded task E10-CMD-101I-SELECTION under existing epic E10-CMD-101; actual prerequisite E10-CMD-101H-RETURN recorded IMPLEMENTED with two green GitHub Actions on PR #166.",
+    "Code: product-runtime/work-queue/http.go, html.go and behavioral pagination_selection_test.go, no new owner/auth/interface/service or dependency.",
+    "Git: draft child of PR #166 branch feature/e10-cmd-101h-exact-prior-page-return, IMMUTABLE base 47ecdc1809769624ea1f37a4710336f48ba96301; the Git parent is NOT the engineering/product parent. Parent frozen for independent review. No force-push, direct main write or merge.",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": []
+}

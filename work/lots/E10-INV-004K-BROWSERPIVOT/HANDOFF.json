@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-004K-BROWSERPIVOT",
+  "result": "VERIFIED",
+  "final_validated_head": "0393782e75f8a94705ea8f5256421f96715c02c0",
+  "implementation_commit": "0393782e75f8a94705ea8f5256421f96715c02c0",
+  "pull_request": 189,
+  "evidence": {
+    "title": "Compose real local Event Search \u2192 Inspection \u2192 separately authorized Pivot Query draft \u2192 Search return",
+    "goal": "Deliver one meaningful bounded analyst journey reusing the source-identical browser-to-Go Inspection bridge from immutable #185 and the L2-corrected host action authorization from #189. A selected authorized Event field prepares a read-only CAP-INV-002 Query draft with validated provenance and restored Search context; never execute/persist a Query.",
+    "implementation_paths": [
+      "product-runtime/event-search-frontend/inspection.mjs",
+      "product-runtime/event-search-frontend/inspection.test.mjs",
+      "product-runtime/event-search-frontend/inspection-http.mjs",
+      "product-runtime/event-search-frontend/inspection-http.test.mjs",
+      "product-runtime/event-search-frontend/package.json",
+      "product-runtime/event-inspection-host/testdata/fixture/main.go",
+      ".github/workflows/event-inspection-browser-http-integration.yml",
+      "work/graph.json",
+      "work/lots/E10-INV-004H-HTTPBRIDGE/**",
+      "work/lots/E10-INV-004K-BROWSERPIVOT/**"
+    ],
+    "outputs": [
+      "An actual user-selected field from the existing Inspector becomes a server-revalidated, unexecuted Query draft with source provenance/time/return context.",
+      "Original frontend JavaScript and Go fixture are connected through actual Node fetch to Go HTTP with distinct synthetic host PivotAuthorizer.",
+      "Existing Inspector source information and return to identical Search window remain available, including action denied and stale route cancellation.",
+      "Exact-SHA three-platform Go and Node frontend tests, bounded transport and compulsory engineering-kernel checks."
+    ],
+    "acceptance_tests": [
+      "Actual loopback Go host permits `source.ip` pivot only with distinct host-authorized action; binds Search Job, Event, tenant and origin, and preserves the client-supplied time range (syntactic validation only, no trusted Search Job interval comparison); no Query execution.",
+      "A different visible enrichment is denied by independent PivotAuthorizer and does not reveal raw secret or partial draft.",
+      "A raw-denied `secret.token` is not a pivot option; forged host pivot field origin or return context is rejected client-side.",
+      "Concurrent/cancelled pivot after return to Search yields superseded and cannot restore previously drafted data.",
+      "Prior Go Inspector HTTP and full Node Event Search suites pass on same exact integration SHA.",
+      "Mandatory security, coverage, formatting, architecture and manifest CI verified before L2 and any merge."
+    ],
+    "run_ids": []
+  },
+  "rules": [
+    "Canonical: Investigate CAP-INV-004 \u00a712 Pivoter Class-0, \u00a717 Inspector\u2192Search and \u00a725; consumer CAP-INV-002 Query draft/return to exactly selected authorized Search window. Shared owns Telemetry Event, Search Job and Query; Settings owns Parser/Data Source. OPEN-013/OPEN-014 and real Query execution explicitly excluded.",
+    "Engineering: existing E10-INV-004 epic; task K depends on H-HTTPBRIDGE and J-PIVOTFIX, both IMPLEMENTED, *not* product ACCEPTED. No new policy engine. The existing source H historical manifest and handoff were imported unchanged.",
+    "Code: first-party ES modules under product-runtime/event-search-frontend and Go host's *loopback test-only* fixture. Existing Go API host in product-runtime/event-inspection-host, modified previously in #189, remains exactly unchanged in this integration.",
+    "Git: base PR #189 SHA 0393782e75f8a94705ea8f5256421f96715c02c0 on PR #186, itself based on #184. Seven original blobs inspection.mjs, inspection.test.mjs, inspection-http.mjs, inspection-http.test.mjs, package.json, Go fixture and browser HTTP workflow were imported bit-for-bit from PR #185 frozen SHA d1544e255b9d595357c3f6ed2c2cf23a270f247a in initial integration commit 4a037e9f85df073e67c77ac891d4adcc4b51d9bd. Original #185 and #189 HEADs unchanged. Implementation extends the new candidate only.",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": []
+}

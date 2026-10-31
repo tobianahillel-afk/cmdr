@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-004I-PIVOTHTTP",
+  "result": "VERIFIED",
+  "final_validated_head": "938b1d4ae090e2a4080604d8b7d155f24bec69de",
+  "implementation_commit": "938b1d4ae090e2a4080604d8b7d155f24bec69de",
+  "pull_request": 182,
+  "evidence": {
+    "title": "Prepare Search-owned read-only pivot draft through existing authorized Inspector HTTP host",
+    "goal": "Integrate the already implemented CAP-INV-004 pivot draft into the server-authorized CAP-INV-002 Search result flow, reusing original Project/PreparePivot and source-identical PR #182 presence fix. A field must exist in the independently authorized projection; return origin must not be client-controlled. No query execution or mutations.",
+    "implementation_paths": [
+      "product-runtime/event-inspection-host/http.go",
+      "product-runtime/event-inspection-host/pivot_http.go",
+      "product-runtime/event-inspection-host/pivot_http_test.go",
+      "product-runtime/event-inspection/pivot.go",
+      "product-runtime/event-inspection/pivot_presence_test.go",
+      ".github/workflows/event-inspection-http-host.yml",
+      "work/graph.json",
+      "work/lots/E10-INV-004I-PIVOTHTTP/**",
+      "tools/cmdr-dev/event_inspection_e2e.go",
+      "tools/cmdr-dev/event_inspection_e2e_test.go",
+      "tools/cmdr-dev/event_inspection_followup_test.go"
+    ],
+    "outputs": [
+      "New fixed POST /investigate/event-inspection/pivot on the existing handler, not a new product or authorization owner",
+      "A bounded Query draft with authorized field value, source/enrichment provenance, time range, Event Job/run/correlation, server-derived return origin",
+      "Host checks both raw denial and true map membership including legitimate present empty values",
+      "Exact-HEAD Linux/macOS/Windows host + core module tests including race and existing global engineering security gates",
+      "Additional strict E2E revalidation branch: source-identical PR #182 pivot.go + pivot_presence_test.go ONLY, known blob hashes, and fresh targeted Go security tests, while historical E10-INV-004C verified SHA and reports stay immutable"
+    ],
+    "acceptance_tests": [
+      "A read-authorized Search Job + Event source field produces a canonical CAP-INV-002 pivot draft; no search execution",
+      "Missing field with value empty yields 404; present empty value still accepted",
+      "Raw-derived-sensitive field blocked when raw denied; allowed only if independently owner-authorized",
+      "Wrong tenant/environment/Job, fabricated field, query mutation, extra JSON property and invalid time range all denied without raw metadata",
+      "Existing POST /investigate/event-inspection remains backward compatible",
+      "Existing core and new host tests, go vet, Linux race and mandatory CI checks all run on exact HEAD",
+      "Global CHK-EVENT-INSPECTION-E2E revalidates the exact two approved #182 core delta blobs and runs both new pivot-presence regression tests; any extra changed core file or blob mismatch fails closed",
+      "Security unit regression initializes an isolated Git repo and proves both unexpected core paths and tampered pivot source blobs fail closed, while unchanged verified SHA remains acceptable"
+    ],
+    "run_ids": []
+  },
+  "rules": [
+    "Class-0 read-only implementation for E10-INV-004I-PIVOTHTTP",
+    "Strict tenant isolation and permission checking",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-004J-PIVOTFIX"
+  ]
+}

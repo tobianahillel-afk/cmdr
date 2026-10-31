@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-CMD-109A-FRESHNESS",
+  "result": "VERIFIED",
+  "final_validated_head": "b5e71280e2af3960cf63f45fea92a71cff557a68",
+  "implementation_commit": "b5e71280e2af3960cf63f45fea92a71cff557a68",
+  "pull_request": 163,
+  "evidence": {
+    "title": "Surface authoritative source freshness and degradation in the already authorized Command Work Queue",
+    "goal": "Implement bounded Class-0 per-item source freshness and view degradation from explicit versioned owner metadata, without inventing staleness thresholds or mutating source objects.",
+    "implementation_paths": [
+      "product-runtime/work-queue/freshness.go",
+      "product-runtime/work-queue/freshness_test.go",
+      "product-runtime/work-queue/queue.go",
+      "product-runtime/work-queue/html.go",
+      "work/lots/E10-CMD-109A-FRESHNESS/**",
+      "work/graph.json",
+      "engineering/state/current.json"
+    ],
+    "outputs": [
+      "An authorized owner-source freshness projection with explicit state, source, observed_at and optional policy version, rendered in existing Work Queue HTML and opt-in per-row JSON only when metadata is present.",
+      "Explicit partial-sources diagnostic for actually displayed source-unavailable or partial items; no clock-derived state without host policy."
+    ],
+    "acceptance_tests": [
+      "For owner-allowed Incident/Task, versioned 60/120-second example policy yields current/aging/stale with deterministic relative event times; no policy or future source clock yields unknown.",
+      "Explicit source-unavailable or partial health is displayed in selected view and changes view state to partial-sources; filtered-out source outage does not degrade unrelated view.",
+      "Denial/cross-tenant owner rows expose no source IDs; malformed authorized owner metadata fails before response.",
+      "Browser contextual escaping for malicious authorized source name, legacy metadata-free JSON unchanged, six views/status/sort/selection remain operational.",
+      "Exact HEAD command-work-queue-runtime multi-OS and mandatory engineering-kernel checks, one independent read-only L2 after material delivery."
+    ],
+    "run_ids": []
+  },
+  "rules": [
+    "Class-0 read-only implementation for E10-CMD-109A-FRESHNESS",
+    "Strict tenant isolation and permission checking",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-CMD-109B-VIEW"
+  ]
+}

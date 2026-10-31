@@ -1,0 +1,141 @@
+{
+  "schema_version": 2,
+  "id": "E10-CMD-106N-DETAILRETURN",
+  "title": "Restore original Command Incident Detail after independently authorized Investigate Case/source navigation",
+  "type": "task",
+  "parent": "E10-CMD-106",
+  "goal": "Close the canonical CAP-CMD-106 §17/25 R2 gap: from existing Incident Detail, return from authorized Case Timeline and optional independently authorized source preview to the SAME Incident Detail screen rather than falling back to selected Work Queue card. Legacy Work Queue navigation remains intact. No new IAM, route, object or mutation.",
+  "depends_on": [
+    "E10-CMD-106M-RESULTREAD",
+    "E10-INV-110O-RETURNCTX"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-CMD-106",
+      "CAP-INV-110",
+      "CAP-CMD-101"
+    ],
+    "requirements": [
+      "REQ-PROD-014",
+      "REQ-SEC-001"
+    ],
+    "screens": [
+      "CMD-IWQ-006"
+    ],
+    "permissions": [
+      "perm.command.incident.read",
+      "perm.shared-capabilities.timeline-entry.read"
+    ],
+    "open_decisions": [
+      "OPEN-013"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/cross-product-context-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/incident.md",
+      "cmdr-product-spec/05-domain-model/objects/case.md",
+      "cmdr-product-spec/05-domain-model/objects/timeline-entry.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/work-queue/incident_detail.go",
+    "product-runtime/investigation-timeline/incident_return.go",
+    "product-runtime/investigation-timeline/case_http.go",
+    "product-runtime/investigation-timeline/case_html.go",
+    "product-runtime/investigation-timeline/memory_source_preview.go",
+    "product-runtime/investigation-timeline/incident_return_detail_test.go",
+    "product-runtime/command-investigate-host/cmd/local-browser/incident_detail_return_test.go",
+    "work/lots/E10-CMD-106N-DETAILRETURN/**",
+    "work/graph.json",
+    "engineering/state/current.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/work-queue/queue.go",
+    "product-runtime/investigation-timeline/projection.go",
+    "product-runtime/command-investigate-host/host.go"
+  ],
+  "invariants": [
+    "Command Incident Detail remains the product owner of its screen; Investigate Case/Timeline/typed-source never grants Incident.read; a return URI is a navigation hint, not authority.",
+    "No arbitrary supplied returnURL, scheme, origin, tenant, principal or permission is accepted; only one fixed origin_view=detail with valid origin_incident, HTML-only, and the original legacy Work Queue return without origin_view.",
+    "Every destination Command Incident Detail GET independently runs the existing owner List/CanRead/Project and selected-source checks, and every Case/source GET reauthorizes its separate owners.",
+    "Keep original Case Timeline JSON strict (origin hints rejected); HTML-only filters, page links, reset and nested source return preserve only whitelisted fixed origin fields.",
+    "Both Incident Detail and Work Queue parent Git SHAs and native L2 reports remain immutable; no claim that a ChatGPT one-shot L2 is GitHub-native approval.",
+    "No new persistent Case, Incident, source, Evidence, Result, Decision, Action Request, executor or production runtime service."
+  ],
+  "security_properties": [
+    "Reject missing/duplicate origin_view, origin_view with no origin_incident, arbitrary external target, invalid origins, foreign Case and unknown HTML keys before caller-owner reads.",
+    "Origin hints cannot reveal unauthorized Command Incident data through Case HTML; only destination Incident.read can expose it.",
+    "Do not carry Basic credentials, bearer tokens, raw source fields or delegated grants in any navigation URL; preserve no-store/nosniff/CSP/referrer protections of original handlers.",
+    "Source return is restricted to same Case, fixed /case-timeline path and authorized normalized filters; destination is a separate fresh HTTP GET."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Only an optional class-0 navigation hint in synthetic local HTML; no schema, IAM or object mutation.",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Revert the five narrow source changes to restore existing Work Queue-only return; no persistent data migration.",
+    "verification": [
+      "Legacy no-origin_view Work Queue return remains identical",
+      "Existing Case/source and Incident Detail HTTP GET remain owner-authorized"
+    ]
+  },
+  "inputs": [
+    "CAP-CMD-106 §17/25 Incident→Investigate→Incident Detail restored",
+    "CAP-INV-110 §17 source navigation returns with context",
+    "Existing #212 synthetic same-origin Command Incident Detail, Investigate Case Timeline, typed-source HTML preview and explicit Work Queue return"
+  ],
+  "outputs": [
+    "Existing Command Incident Detail Case anchor carries only origin_view=detail and validated existing origin_incident; no new endpoint.",
+    "Existing Case Timeline preserves fixed origin across HTML form/filter, reset, page links and typed-source return_to; after source return, fixed link opens /command/incident-detail?incident=... .",
+    "Explicit native HTTP round-trip with synthetic independent owners plus tampered-origin/denied-principal cases and parsers; no upstream SHA rewritten."
+  ],
+  "acceptance_tests": [
+    "Authorized Incident Detail→Case→typed source→same Case selection→same Incident Detail returns HTTP 200 at final Command destination with independent owner check",
+    "Legacy originating Work Queue continues returning to Work Queue; filtered and reset Case navigation preserve origin only for explicit HTML context",
+    "Absent, duplicate or malicious origin_view and cross-Case/tenant scope denied without raw/source/Incident leak",
+    "Unauthorized Command-only reader cannot access Case; unauthorized Incident remains 404 even with a forged navigation hint",
+    "Three first-party Go module CI suites including Linux race, vet, and required engineering-kernel security and complexity checks all SUCCESS on exact final SHA"
+  ],
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-SECURITY-TESTS",
+    "CHK-SAST-GO",
+    "CHK-SCA-GO",
+    "command-work-queue-runtime",
+    "investigation-timeline-runtime",
+    "command-investigate-readonly-host"
+  ],
+  "definition_of_ready": [
+    "Existing CAP-CMD-106 Incident Detail Class-0 and CAP-INV-110 Case/source HTML published and tested on #212 HEAD",
+    "E10-CMD-106M-RESULTREAD and E10-INV-110O-RETURNCTX both IMPLEMENTED, no production acceptance assumed",
+    "OPEN-013 Class-2 action/correction outside scope"
+  ],
+  "definition_of_done": [
+    "Read-only original Incident Detail restored after real local two-owner browser-style HTTP path",
+    "No privilege transfer, strict unknown query rejection, valid same Case return, legacy behavior unchanged",
+    "Exact SHA all relevant workflows SUCCESS and independent L2 on this material cross-product navigation before release"
+  ],
+  "performance_budget": {
+    "applicable": false,
+    "rationale": "No new owner queries: existing endpoint calls once per navigation on bounded authorized sources, one fixed link. No production throughput claim.",
+    "metrics": []
+  },
+  "complexity": {
+    "primary_components": 2,
+    "estimated_files_changed": 5,
+    "estimated_net_loc": 140,
+    "production_files": 5,
+    "net_production_loc": 80,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-CMD-106K-OVERVIEW",
+  "result": "VERIFIED",
+  "final_validated_head": "9a81ca6c27fe674d63813f90bba908a911d3b917",
+  "implementation_commit": "9a81ca6c27fe674d63813f90bba908a911d3b917",
+  "pull_request": 209,
+  "evidence": {
+    "title": "Render owner-authorized canonical Incident headline, severity, priority and impact on existing Command Incident Detail",
+    "goal": "Complete the read-only business header of the existing authenticated Class-0 Incident Detail using one optional Command-owned projection. No invented data, unauthorized source metadata, mutation or new route.",
+    "implementation_paths": [
+      "product-runtime/work-queue/incident_overview.go",
+      "product-runtime/work-queue/incident_detail.go",
+      "product-runtime/work-queue/incident_overview_test.go",
+      "product-runtime/command-investigate-host/cmd/local-browser/main.go",
+      "product-runtime/command-investigate-host/cmd/local-browser/incident_detail_test.go",
+      "work/lots/E10-CMD-106K-OVERVIEW/**",
+      "work/graph.json",
+      "engineering/state/current.json",
+      "product-runtime/command-investigate-host/cmd/local-browser/incident_overview_owner_test.go",
+      ".github/workflows/command-work-queue.yml"
+    ],
+    "outputs": [
+      "Selected Incident Detail shows actual Command-owner authorized title/priority/severity/business-impact and source provenance when available",
+      "Unavailable or intentionally withheld owner produces partial view with unknown values, preserving independent Case owner permissions",
+      "Exact source authorization, failure and HTML injection regression tests including actual local HTTP synthetic browser",
+      "Workflow diagnostic reports actual per-function Go statement coverage; it does not modify or waive any security gate"
+    ],
+    "acceptance_tests": [
+      "Selected owner-authorized Incident on third Work Queue page displays correct canonical business attributes and provenance",
+      "Missing optional source or missing individual fields displays explicit partial/unknown and never guesses",
+      "Owner-revoked, wrong Incident, tenant, environment, failed/stale source, malformed observation time or sensitive text rejects without partial HTML",
+      "Safe escaping prevents owner title from becoming HTML or script; no CSP or caching relaxation",
+      "Run original Command Work Queue and same-origin host suites on Linux, Windows, macOS and global engineering/security checks on exact head",
+      "Synthetic owner direct tests cover per-request cancellation, correct authorized metadata, distinct Command-only principal denial, wrong tenant/environment/Incident and unknown identity without any optional source data"
+    ],
+    "run_ids": []
+  },
+  "rules": [
+    "Product: Command CAP-CMD-106 Incident Coordination; CAP-CMD-101 Work Queue selects; Investigate CAP-INV-110 Case stays independent. Incident object canonically owned by Command. Linked Case / Timeline remain Investigate/Shared owners, never permission by relation.",
+    "Engineering: existing epic E10-CMD-106, task E10-CMD-106K-OVERVIEW, dependency J-DETAILREAD IMPLEMENTED on #209. No new product capability or permission invented.",
+    "Code: existing first-party Go product-runtime/work-queue/incident_detail.go and new narrow incident_overview.go optional IncidentOverviewOwner; synthetic local browser owner product-runtime/command-investigate-host/cmd/local-browser/main.go. No new service or HTTP route.",
+    "Git: child based strictly on historical/frozen PR #209 HEAD 9a81ca6c27fe674d63813f90bba908a911d3b917, no change to #209 or upstream branches. Git base is NOT parent business capability.",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-CMD-106L-ALERTSRC"
+  ]
+}

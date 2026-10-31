@@ -1,0 +1,126 @@
+{
+  "schema_version": 2,
+  "id": "E10-CMD-101C-HTML",
+  "title": "Native read-only HTML representation of six Command Work Queue system views on the canonical HTTP route",
+  "type": "task",
+  "parent": "E10-CMD-101",
+  "goal": "Give an authenticated analyst a usable read-only browser page for all six canonical system views using the same owner-authorized one-route HTTP projection, without inventing Shared Saved Views or new routes.",
+  "depends_on": [
+    "E10-CMD-101B-HTTP"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-CMD-101"
+    ],
+    "requirements": [
+      "REQ-OBJ-001",
+      "REQ-OBJ-012",
+      "REQ-PROD-013",
+      "REQ-UX-008",
+      "REQ-UX-009"
+    ],
+    "screens": [],
+    "permissions": [
+      "perm.command.read",
+      "perm.command.incident.read"
+    ],
+    "open_decisions": [],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/incident.md",
+      "cmdr-product-spec/05-domain-model/objects/task.md"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/work-queue/http.go",
+    "product-runtime/work-queue/html.go",
+    "product-runtime/work-queue/html_test.go",
+    "work/lots/E10-CMD-101C-HTML/**",
+    "work/graph.json",
+    "engineering/state/current.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/case-queue/**",
+    "product-runtime/investigation-timeline/**",
+    "tools/cmdr-dev/**"
+  ],
+  "invariants": [
+    "Exact six canonical system views; one /command/work-queue route, view is one parameter, not a separate page or endpoint.",
+    "HTML reuses current host-resolved session, existing Project and Owner.CanRead on each request, without caching owner rows.",
+    "HTML owner-controlled strings are context-escaped; no scripts/inline CSS, no external product framework.",
+    "JSON response remains unchanged for clients without HTML Accept; cannot invent Incident Detail or Shared Saved Views semantics."
+  ],
+  "security_properties": [
+    "Never accept client-provided tenant/environment/principal; same current request host authentication and per-entity permission as JSON.",
+    "Unauthorized or provider-error paths never produce privileged HTML, source identifiers or partial rows.",
+    "no-store, nosniff, CSP default-src none, frame deny; no executable owner-controlled HTML or javascript."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Opt-in browser Accept negotiation on existing read-only HTTP handler; no stored data/schema change",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Remove HTML Accept branch and html.go; existing JSON Work Queue remains untouched",
+    "verification": [
+      "JSON route still serves six views",
+      "No alternate per-view route added"
+    ]
+  },
+  "inputs": [
+    "CAP-CMD-101 full 27-section canonical contract plus Command six-view Saved Views catalogue",
+    "Read-only Command first-party Project and owner-level ACL in product-runtime/work-queue/queue.go",
+    "Current host-session HTTP route of E10-CMD-101B-HTTP and mandatory canonical tenant/scope contracts"
+  ],
+  "outputs": [
+    "GET /command/work-queue with Accept: text/html provides accessible HTML table and six same-route view links",
+    "Current Result state/diagnostics/first-page limit visible without inventing filter/selection/Inspector behavior",
+    "GET with application/json remains unchanged, no route per view or Trusted Base/runtime dependency"
+  ],
+  "acceptance_tests": [
+    "Six exact system views render via one path with each navigation independently reauthorizing host scope and each Incident/Task",
+    "HTML escapes malicious owner values and uses no-store/CSP/nosniff/frame denial",
+    "Denied/revoked owner and wrong view fail without privileged rows",
+    "The JSON output remains parseable with the same Result contract, and first-page/partial state warnings remain visible",
+    "Exact SHA command-work-queue-runtime Linux/macOS/Windows and mandatory engineering-kernel succeed before merging; independent L2 for first HTML trust boundary"
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "Same <=5000 owner candidates and <=50 output rows; single bounded html/template render, no additional owner calls",
+    "metrics": [
+      "No extra Owner.List/CanRead invocations beyond existing first-party Project",
+      "HTML contains no more than 50 item rows and six known links"
+    ]
+  },
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-RUNTIME-DEPS",
+    "CHK-SECURITY-TESTS"
+  ],
+  "definition_of_ready": [
+    "CAP-CMD-101 exact six views and single route contract are defined; no Shared writing or UI-specific final schemas assumed",
+    "E10-CMD-101B-HTTP IMPLEMENTED with exact-head runtime and engineering-kernel success",
+    "Static server-rendered HTML reuses one authorized owner and requires no production session provider"
+  ],
+  "definition_of_done": [
+    "One coherent child PR, exact-head tests on Linux/macOS/Windows plus engineering mandatory controls, one targeted independent read-only L2",
+    "Remain IMPLEMENTED but NOT canonically ACCEPTED/production, because Saved View persistence, final Inspector and actual host provider not delivered"
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 3,
+    "estimated_net_loc": 120,
+    "production_files": 2,
+    "net_production_loc": 110,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

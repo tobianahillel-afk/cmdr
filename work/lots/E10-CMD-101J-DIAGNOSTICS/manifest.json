@@ -1,0 +1,124 @@
+{
+  "schema_version": 2,
+  "id": "E10-CMD-101J-DIAGNOSTICS",
+  "title": "Keep SLA-risk partial diagnostics within the currently authorized status-filtered Work Queue",
+  "type": "task",
+  "parent": "E10-CMD-101",
+  "goal": "Correct a demonstrable Class-0 Work Queue state inconsistency: a readable but status-filtered-out item with unavailable SLA policy must not mark the selected SLA-risk view partial; still report missing policy when it belongs to the requested filtered cohort.",
+  "depends_on": [
+    "E10-CMD-101I-SELECTION"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-CMD-101",
+      "CAP-CMD-105"
+    ],
+    "requirements": [
+      "REQ-OBJ-001",
+      "REQ-OBJ-012",
+      "REQ-PROD-013",
+      "REQ-UX-008",
+      "REQ-UX-009"
+    ],
+    "screens": [],
+    "permissions": [
+      "perm.command.read",
+      "perm.command.incident.read"
+    ],
+    "open_decisions": [],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/incident.md",
+      "cmdr-product-spec/05-domain-model/objects/task.md"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/pagination-filtering-sorting.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/work-queue/queue.go",
+    "product-runtime/work-queue/filtered_sla_test.go",
+    "work/lots/E10-CMD-101J-DIAGNOSTICS/**",
+    "work/graph.json",
+    "engineering/state/current.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "tools/cmdr-dev/**",
+    "product-runtime/case-queue/**",
+    "product-runtime/investigation-timeline/**"
+  ],
+  "invariants": [
+    "Command CAP-CMD-101 owns the status-filtered SLA-risk Work Queue view; the authoritative SLA policy/at-risk signal remains with the CAP-CMD-105 provider.",
+    "Only the already independently owner-authorized and status-matching cohort can cause sla-policy-unavailable diagnostic; filtered-out, denied, or other-tenant items cannot affect output.",
+    "Keep missing SLA policy explicit for an in-filter authorized object, even when its risk membership cannot be asserted; never invent at-risk status, thresholds or a Class-2 mutation.",
+    "Same first-party Project, six system views, GET route, paging, source freshness and status filtering; no new ACL, owner calls, routes, dependencies, or production SLA calculation."
+  ],
+  "security_properties": [
+    "Existing owner.List and each in-scope Owner.CanRead precede view and status projection; denied/foreign objects do not cause diagnostic side-channels.",
+    "No output on provider authorization error; only a boolean diagnostic condition is changed within existing first-party Go projection.",
+    "OPEN-013 only affects Class-2 SLA pause/follow-up operations and is expressly OUT OF SCOPE."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Existing boolean diagnostic condition only; no persisted model, API key, branch format, or source owner changed.",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Revert only the status guard while preserving the existing authorized SLA-risk projection and Case scopes.",
+    "verification": [
+      "All six Work Queue views still function; preexisting SLA unknown policy behavior remains for the unfiltered view."
+    ]
+  },
+  "inputs": [
+    "Canonical CAP-CMD-101 complete §§1,3,14-17,22,25 and CAP-CMD-105 complete §§8,11-16,22,25; current Engineering CAP-CMD-101 epic and class-0 existing queue implementation.",
+    "Git parent PR #169 HEAD b78bb5c5a456883e44718debf897789c24aee86a immutable with exact-head Command and engineering Actions SUCCESS; CI does not imply approved/merged.",
+    "Reproduced root cause: Project switch SLARisk sets partialSLA on each authorized item with missing SLAAtRisk before the req.StatusFilter check, even when the item is excluded."
+  ],
+  "outputs": [
+    "No sla-policy-unavailable or partial-sources state due only to an owner-authorized SLA-unknown Incident/Task excluded by the selected exact status filter.",
+    "Preserve explicit partial warning for matching unknown-SLA items, unfiltered historical behavior, and already-authorized risk rows."
+  ],
+  "acceptance_tests": [
+    "Build an authorized open at-risk Incident, authorized closed unknown-SLA Task, denied open unknown-SLA Task and foreign unknown-SLA Incident; with view=sla-risk,status=open show one Incident and state ready without diagnostic.",
+    "Selecting view=sla-risk,status=closed still reports partial-sources + sla-policy-unavailable but zero risk rows; unfiltered view remains partial.",
+    "The ordinary tasks/status=open projection and authorization calls do not broaden; previous full Work Queue integration tests remain passing.",
+    "GitHub exact-head command-work-queue-runtime three OS and mandatory engineering-kernel unchanged security floor 90 plus SAST PASS before any review/merge."
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "One existing exact status equality test per already authorized unknown-SLA item; zero extra owner requests or traversals.",
+    "metrics": [
+      "No extra owner.List or CanRead operations; unchanged <=5000 candidates and <=50 visible rows.",
+      "No extra time policy calculation, new service, or new network call."
+    ]
+  },
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-RUNTIME-DEPS",
+    "CHK-SECURITY-TESTS"
+  ],
+  "definition_of_ready": [
+    "E10-CMD-101I-SELECTION IMPLEMENTED; inherited Code Owner and tenant/ACL context unchanged, frozen Git parent #169 exact-head runtime+engineering SUCCESS.",
+    "No OPEN decision is needed for a Class-0 diagnostic-filter correctness fix; OPEN-013 prohibits only deferred Class-2 mutations.",
+    "The open OPEN-013 decision is referenced only for explicitly excluded Class-2 operations; no product governance decision is made."
+  ],
+  "definition_of_done": [
+    "Correction and owner-authorized filter regression included in a bounded PR with exact HEAD CI; only E10-CMD-101J-DIAGNOSTICS IMPLEMENTED.",
+    "No claim CAP-CMD-101 or CAP-CMD-105 accepted, no new external provider, no ancestor SHA updates; L2 not duplicated for minor correction of unchanged model."
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 1,
+    "estimated_net_loc": 5,
+    "production_files": 1,
+    "net_production_loc": 5,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

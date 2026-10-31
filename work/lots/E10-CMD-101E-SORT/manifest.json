@@ -1,0 +1,132 @@
+{
+  "schema_version": 2,
+  "id": "E10-CMD-101E-SORT",
+  "title": "Offer an opt-in deterministic updated-at ordering across all six canonical Command Work Queue views",
+  "type": "task",
+  "parent": "E10-CMD-101",
+  "goal": "Deliver CAP-CMD-101 Class-0 manual newest/oldest ordering on the existing host-authorized Command Work Queue projection and native HTML browser, without a second sorting engine or Saved View persistence.",
+  "depends_on": [
+    "E10-CMD-101D-STATUS"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-CMD-101"
+    ],
+    "requirements": [
+      "REQ-OBJ-001",
+      "REQ-OBJ-012",
+      "REQ-PROD-013",
+      "REQ-UX-008",
+      "REQ-UX-009"
+    ],
+    "screens": [],
+    "permissions": [
+      "perm.command.read",
+      "perm.command.incident.read"
+    ],
+    "open_decisions": [],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/incident.md",
+      "cmdr-product-spec/05-domain-model/objects/task.md"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/pagination-filtering-sorting.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/work-queue/queue.go",
+    "product-runtime/work-queue/http.go",
+    "product-runtime/work-queue/html.go",
+    "product-runtime/work-queue/sort_test.go",
+    "work/lots/E10-CMD-101E-SORT/**",
+    "work/graph.json",
+    "engineering/state/current.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/case-queue/**",
+    "product-runtime/investigation-timeline/**",
+    "tools/cmdr-dev/**"
+  ],
+  "invariants": [
+    "Keep six immutable Command system views and exactly one GET /command/work-queue route; optional sort=newest|oldest uses existing owner-provided UpdatedAt timestamp, never another route/field or Shared Saved View.",
+    "Default without sort remains newest-first and JSON response unchanged. Equal-time deterministic Kind/ID tie-break and 5000 candidate/50 visible row bound remain.",
+    "Project evaluates fresh server-side tenant/environment/Incident/Task CanRead before sorting; sort may not alter which entity is authorized or permission scopes.",
+    "HTML same-route GET form permits manual newest/oldest selection; six view links retain both current status and sort, escaped with html/template and url.QueryEscape.",
+    "No new durable state, mutation, source provider, search engine, arbitrary column schema, or priority comparator (final sort columns still canonical OPEN UX question)."
+  ],
+  "security_properties": [
+    "Reject unknown, repeated or malformed sort query keys before session/owner resolution; client cannot choose principal/tenant/environment or arbitrary owner column.",
+    "Authorized rows only, sort and status applied after per-object CanRead; no cross-tenant ACL probes; owner failure/revocation returns no partial response.",
+    "Retain no-store/nosniff/CSP default-src none; HTML GET form-action self, safe template escaping and URL encoding; no scripts.",
+    "Single Owner.List and no extra owner CanRead passes; no new permissions to create/update or save a view."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Read-only optional query choice on existing stable first-party Command route; no stored schema change",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Remove SortOrder field, query option, HTML sort control and tests; prior newest-first status-filter projection unchanged",
+    "verification": [
+      "Original six views and status filter continue working",
+      "No Shared Saved View state stored or modified"
+    ]
+  },
+  "inputs": [
+    "Canonical CAP-CMD-101 §§1–27 requirement to manually sort the Unified Work Queue, and canonical six-view catalogue",
+    "Current already-authorized Command Work Queue Project (UpdatedAt RFC3339Nano, deterministic newest-first order)",
+    "E10-CMD-101D-STATUS prior exact-head SUCCESS #161 and its owner-authenticated single-route HTML GET filter"
+  ],
+  "outputs": [
+    "Exact optional sort choice newest/oldest over owner-resolved UpdatedAt, applied after authorization and before 50-row bound",
+    "Six-view HTML navigation preserves status and sort and GET form applies it on the same route",
+    "Legacy no-sort JSON response unchanged, filtered JSON adds explicit sort only when selected"
+  ],
+  "acceptance_tests": [
+    "Given 3 independently authorized Command items, verify default/newest/oldest timestamp order and stable Kind/ID tie-break; status/view intersections unchanged.",
+    "Owner.CanRead executed on all in-scope records before filtering/sorting; denied-only rows and foreign tenant metadata absent; invalid order rejected before authorization.",
+    "Six canonical views same GET route in JSON/HTML; sort/status retained in GET form and escaped links; malformed, repeated, injected or arbitrary sort rejected.",
+    "Bounded 5000 candidates / 50 output rows, SLA Partial state and first-page-only diagnostic remain deterministic.",
+    "Exact HEAD GitHub Actions command-work-queue-runtime Linux/macOS/Windows and engineering-kernel mandatory checks, no coverage waivers; one independent read-only L2 if material and not already scheduled."
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "Reuse exact existing sorting over authorized candidate slice; only comparator direction flag, no extra sort pass/provider call/network/storage",
+    "metrics": [
+      "Owner.List exactly once per request",
+      "No additional Owner.CanRead relative to existing Project",
+      "Same O(n log n) sorting for <=5000 candidates, 50 displayed rows"
+    ]
+  },
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-RUNTIME-DEPS",
+    "CHK-SECURITY-TESTS"
+  ],
+  "definition_of_ready": [
+    "E10-CMD-101D-STATUS is IMPLEMENTED in PR #161 exact SHA 2bc24c784b61ffc6c8b97fb81588ec02a84b4c59; command-work-queue-runtime 39360531352 and engineering-kernel 39360531799 both SUCCESS, no product-wide acceptance/merge claim.",
+    "Canonical CAP-CMD-101 requires deterministic manual sorting and current owned UpdatedAt field already supports this without inventing final columns or Saved View schema.",
+    "No OPEN product decision blocks an optional oldest/newest ordering; existing host owner/Saved Views boundaries unchanged."
+  ],
+  "definition_of_done": [
+    "One coherent child PR with actual source-authorized sort newest/oldest and same-route HTML form preserving status and view; manifest/graph/cache remain evidence-consistent.",
+    "Exact-head multi-OS command runtime Go and engineering-kernel mandatory CI success; L2 independent if material, no duplicate.",
+    "IMPLEMENTED only (not full CAP accepted, merged, production); unresolved Shared persisted views, Inspector, real host IAM and ancestor PR approval recorded."
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 4,
+    "estimated_net_loc": 105,
+    "production_files": 3,
+    "net_production_loc": 35,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

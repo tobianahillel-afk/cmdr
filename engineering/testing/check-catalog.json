@@ -515,7 +515,9 @@
       "always_on_pr": false,
       "trigger_paths": [
         "tools/cmdr-dev/**",
-        "product-runtime/context-envelope/**"
+        "product-runtime/context-envelope/**",
+        "product-runtime/studio-catalog/**",
+        "product-runtime/case-search-workbench/**"
       ],
       "prerequisites": [
         "CHK-SECRETS"
@@ -535,7 +537,9 @@
       "always_on_pr": false,
       "trigger_paths": [
         "tools/cmdr-dev/**",
-        "product-runtime/context-envelope/**"
+        "product-runtime/context-envelope/**",
+        "product-runtime/studio-catalog/**",
+        "product-runtime/case-search-workbench/**"
       ],
       "prerequisites": [
         "CHK-SECRETS"

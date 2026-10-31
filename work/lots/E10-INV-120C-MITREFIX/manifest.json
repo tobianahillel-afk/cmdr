@@ -1,0 +1,129 @@
+{
+  "schema_version": 2,
+  "id": "E10-INV-120C-MITREFIX",
+  "title": "L2 R2 corrective — trusted source metadata and coherent browser Wazuh ATT&CK cohorts",
+  "type": "task",
+  "parent": "E10-INV-110",
+  "goal": "Resolve two material reproducible R2 findings from independent L2 of E10-INV-120B-MITRE on frozen PR #187 without reimplementing the authorized Wazuh Case/Timeline workflow: reject explicit null/mistyped source metadata before the existing auth-limited receipt; reject browser technique counters/IDs inconsistent with source-authorized imported alert cohort.",
+  "depends_on": [
+    "E10-INV-120B-MITRE"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-110"
+    ],
+    "requirements": [
+      "REQ-PROD-014",
+      "REQ-PROD-018"
+    ],
+    "screens": [
+      "INV-TIM-001"
+    ],
+    "permissions": [
+      "perm.shared-capabilities.timeline-entry.read"
+    ],
+    "open_decisions": [
+      "OPEN-013"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/case.md",
+      "cmdr-product-spec/05-domain-model/objects/timeline-entry.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/investigation-timeline/cmd/case-timeline-demo/wazuh_levels.go",
+    "product-runtime/investigation-timeline/cmd/case-timeline-demo/wazuh_mitre_cohorts_test.go",
+    "product-runtime/investigation-timeline/cmd/case-timeline-demo/analyst.js",
+    "product-runtime/investigation-timeline/cmd/case-timeline-demo/analyst_summary.test.cjs",
+    "work/lots/E10-INV-120C-MITREFIX/**",
+    "work/graph.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/investigation-timeline/memory_provider.go",
+    "product-runtime/investigation-timeline/http.go",
+    "product-runtime/investigation-timeline/cmd/case-timeline-demo/snapshot.go"
+  ],
+  "invariants": [
+    "Frozen #187 HEAD 53544c2a65f66324d004d48427b07493f7ac2d9e is never modified; this downstream branch is only a candidate delta against that reviewed Git SHA.",
+    "Only independently authorized existing Case, Timeline and Wazuh typed-source owner data reaches the same receipt; no change to owner, tenant, environment, permission or new route.",
+    "Missing Wazuh MITRE object/id is allowed as unknown; explicitly JSON null or malformed mitre/id cannot masquerade as untagged data and must fail without any receipt.",
+    "Browser displays at most 10 distinct source-defined techniques, sorted descending occurrence count and ascending ID for ties. Distinct IDs may exceed top-ten count only when top-ten is full.",
+    "An alert may carry 1..16 distinct techniques; counts across technique IDs overlap, so do not require the sum of all top-tag counts to equal number of authorized alerts.",
+    "Browser cannot trust server responses with duplicate labels, impossible non-mapped counts, invalid sorting, or truncated/incomplete top 10; reject atomically with no partial source display.",
+    "Existing operator-provided local Wazuh file size/alert caps, strict source IDs, no raw source leaks and prior IPC/HTTP authorization remain unchanged."
+  ],
+  "security_properties": [
+    "Technique labels are source assertions and never proof of MITRE activity, detection accuracy, tenant role, evidence, or analyst authorization.",
+    "Fail closed on malformed/null source input before writing the Wazuh triage receipt, and fail closed in browser before modifying DOM.",
+    "No third-party dependencies, paid APIs, change to IAM, persistence, audit, host source, mutation or production exposure."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Existing JSON fields and authorized read-only API remain identical; stricter validation only.",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Revert the narrow delta; preserve unchanged frozen #187 baseline and all upstream Git history.",
+    "verification": [
+      "No new path to source data",
+      "Earlier Wazuh positive and denial tests continue passing"
+    ]
+  },
+  "inputs": [
+    "Independent L2 of PR #187 SHA 53544c2a65f66324d004d48427b07493f7ac2d9e reported R2-01 browser source aggregate coherence and R2-02 explicit null source metadata treated as absent",
+    "Existing E10-INV-120B-MITRE IMPLEMENTED/CI green on same frozen SHA; technical L2 acceptable with R2 reservations"
+  ],
+  "outputs": [
+    "Authorized local Case/Timeline Wazuh metadata parser refuses explicit null or malformed MITRE objects/ID lists, while optional missing metadata yields an unmapped alert.",
+    "Existing local analyst browser rejects unique-ID, deterministic sort, top-ten completeness, unmapped count, mapped-count upper bounds and overlapping tag-count contradictions.",
+    "Tests derive from formerly accepted defective input, preserving valid overlapping tag counts and valid missing metadata.",
+    "One bounded 5000-alert × 16-label Go parsing stress test at existing source cap; no arbitrary latency threshold or production benchmark claim."
+  ],
+  "acceptance_tests": [
+    "Go Case/Timeline disk import rejects raw id null, mitre null, wrong scalar/object metadata, without a receipt or raw leakage.",
+    "Missing mitre data still returns untagged source diagnostic and does not invent a source technique.",
+    "Node analyst view rejects repeated IDs even when count differs, order/tie anomalies, nonexistent top-ten entries, impossible mapped alert vs tag counts and extra source metadata.",
+    "Node analyst view accepts legitimate multiple source labels on one alert, whose count sum can exceed imported alert count.",
+    "Existing Linux race, Go coverage+vet, Node UI and platform CI pass at exact HEAD, engineering mandatory security checks unchanged."
+  ],
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-SECURITY-TESTS",
+    "CHK-SAST-GO",
+    "investigation-timeline-runtime three OS",
+    "engineering-kernel"
+  ],
+  "definition_of_ready": [
+    "CAP-INV-110 Class-0 local timeline read is defined; OPEN-013 excludes mutations.",
+    "Frozen audited #187 bug scenarios are reproducible from source and Go/Node test harness.",
+    "Existing 120B implementation is present; no new producer or domain redesign."
+  ],
+  "definition_of_done": [
+    "Both originally reproducible R2 findings closed by negative and positive regressions on an exact new GitHub SHA",
+    "Relevant exact SHA CI PASS and no mandatory checks waived",
+    "Complete GitHub provenance and handoff; no claim of merged, native-approved or production CAP-INV-110 acceptance."
+  ],
+  "performance_budget": {
+    "applicable": false,
+    "rationale": "Go source parsing still bounded to at most 5000 alerts with 16 technique labels each; includes a deterministic limit-scale test but not a production latency assertion.",
+    "metrics": []
+  },
+  "complexity": {
+    "primary_components": 2,
+    "estimated_files_changed": 2,
+    "estimated_net_loc": 85,
+    "production_files": 2,
+    "net_production_loc": 60,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

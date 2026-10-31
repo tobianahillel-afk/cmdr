@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-120B-MITRE",
+  "result": "VERIFIED",
+  "final_validated_head": "ea1770b48a4bc1b2e850a7ffab15d5839f9e9e49",
+  "implementation_commit": "ea1770b48a4bc1b2e850a7ffab15d5839f9e9e49",
+  "pull_request": 187,
+  "evidence": {
+    "title": "Source-backed Wazuh ATT&CK technique cohorts after independently authorized local Case traversal",
+    "goal": "Expose bounded, deterministic MITRE ATT&CK technique attribution present on real-shaped offline Wazuh 4.x alerts.json, but only after existing loopback Case/Timeline/typed-source owner authorization; no inference, new ACL, storage, query engine or mutation. Complete the existing read-only analyst loopback Wazuh cohort screen so the source-backed labels are actually inspectable by an analyst, not hidden inside JSON.",
+    "implementation_paths": [
+      "product-runtime/investigation-timeline/cmd/case-timeline-demo/wazuh_levels.go",
+      "product-runtime/investigation-timeline/cmd/case-timeline-demo/wazuh_mitre_cohorts_test.go",
+      "work/lots/E10-INV-120B-MITRE/**",
+      "work/graph.json",
+      "product-runtime/investigation-timeline/cmd/case-timeline-demo/analyst.js",
+      "product-runtime/investigation-timeline/cmd/case-timeline-demo/analyst.html",
+      "product-runtime/investigation-timeline/cmd/case-timeline-demo/analyst_summary.test.cjs"
+    ],
+    "outputs": [
+      "Offline Wazuh 4.x authorized Case triage JSON includes `distinct_technique_ids`, `unmapped_technique_alerts`, `top_techniques` with bounded technique IDs, counts, highest known Wazuh severity",
+      "Shared existing authenticated local /demo-wazuh-cohorts route serializes same additive receipt; no new route or browser UI claimed",
+      "Structured tests with on-disk Wazuh samples, two-Case owner snapshot, denied principal, metadata injection rejection, tag multiplicity, top-ten deterministic ties",
+      "Existing ephemeral bearer-authenticated loopback analyst Wazuh panel displays the already-authorized ATT&CK labels as non-inferential read-only text, without a new source-authority or unsupported technique drilldown",
+      "Source-backed Wazuh MITRE cohorts and analyst render coexist in the same Git tree as Command\u2192Incident\u2192Case\u2192Timeline work; no claim that Wazuh remote sources are mounted on Command local-browser host"
+    ],
+    "acceptance_tests": [
+      "Existing runDemoCLI -wazuh-alerts -triage-import returns correct technique counts after full owner-authorized traversal",
+      "Two technique tags on one alert count once per tag, repeated label only once on same alert; other alert can increment tag count",
+      "Source rule.level optional and 0 is known, nil is unknown; no invented max for unknown severity",
+      "No Wazuh rule.mitre.id -> unmapped technique alert, no invented classification",
+      "Malformed technique IDs/over 16 per alert/nonnumeric JSON wrong type denied without partial bytes",
+      "Unprivileged principal or foreign Case yields no authorized receipt; raw alert IDs, hosts and secrets not returned",
+      "Full original Timeline Go and Node tests run on exact candidate commit; mandatory changed-security-critical coverage floor unchanged",
+      "Existing Node 24 analyst browser exercises authorized technique metadata display, malicious labels fail-closed, legacy receipt compatible and stale/denied response emits no partial source content",
+      "Full Timeline Go/Node and Command\u2013Investigate host pipelines plus mandatory engineering kernel run on consolidated SHA"
+    ],
+    "run_ids": []
+  },
+  "rules": [
+    "Class-0 read-only implementation for E10-INV-120B-MITRE",
+    "Strict tenant isolation and permission checking",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-INV-120C-MITREFIX"
+  ]
+}

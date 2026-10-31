@@ -1,0 +1,142 @@
+{
+  "schema_version": 2,
+  "id": "E10-CMD-106F-TIMELINE",
+  "title": "Integrate source-authorized Timeline corrections into Command Incident to Investigate Case navigation",
+  "type": "task",
+  "parent": "E10-CMD-106",
+  "goal": "Complete the existing Command Incident -> linked Investigate Case HTTP route by using the source-identical, already-tested Investigate CAP-INV-110 correction projection from PR #194. Demonstrate a real linked Case response where the older Event is marked superseded even across a different paginated Case GET, without transferring Command permissions.",
+  "depends_on": [
+    "E10-CMD-106E-HOST",
+    "E10-INV-110F-SUPERSESSION"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-CMD-106",
+      "CAP-CMD-101",
+      "CAP-INV-110"
+    ],
+    "requirements": [
+      "REQ-PROD-014",
+      "REQ-PROD-018",
+      "REQ-SEC-001"
+    ],
+    "screens": [
+      "CMD-IWQ-006",
+      "INV-TIM-001"
+    ],
+    "permissions": [
+      "perm.command.incident.read",
+      "perm.investigate.case.read",
+      "perm.shared-capabilities.timeline-entry.read"
+    ],
+    "open_decisions": [
+      "OPEN-013"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/incident.md",
+      "cmdr-product-spec/05-domain-model/objects/case.md",
+      "cmdr-product-spec/05-domain-model/objects/timeline-entry.md"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/12-shared-capabilities/object-linking-service.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/investigation-timeline/projection.go",
+    "product-runtime/investigation-timeline/supersession_visibility_test.go",
+    "product-runtime/command-investigate-host/host_test.go",
+    "product-runtime/command-investigate-host/timeline_corrections_test.go",
+    "work/lots/E10-INV-110F-SUPERSESSION/**",
+    "work/lots/E10-CMD-106F-TIMELINE/**",
+    "work/graph.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/command-investigate-host/host.go",
+    "product-runtime/work-queue/**",
+    "product-runtime/investigation-timeline/memory_provider.go",
+    "product-runtime/investigation-timeline/go.mod",
+    "product-runtime/command-investigate-host/go.mod"
+  ],
+  "invariants": [
+    "Preserve exact PR #194 blob identities for the Timeline projection, its complete source-negative regression, manifest and handoff; no modifications to frozen #194/#198 audit heads",
+    "Existing source-owner Case, Timeline Entry and typed source validation decides projected supersession; Command Incident authorization never confers Investigate Case.read",
+    "No new HTTP route, auth/session bridge, status source, persistence, mutation, audit or second timeline engine",
+    "A predecessor is marked superseded only if authorized successor with higher version exists in the full pre-pagination authorized snapshot; hidden/denied successor causes no field or metadata disclosure",
+    "Historical source-derived claim is scoped to visible authorized entries and not a global declaration that an inaccessible newer version does not exist",
+    "Independent Go 1.26.10 module dependencies and strict engineering checks remain unchanged; code is not production/deployed"
+  ],
+  "security_properties": [
+    "Command-only principal may follow the URL but receives generic 404 without correction/source content at Investigate handler",
+    "Denied Case, invalid principal, wrong tenant/environment and hidden successor cannot produce a superseded flag or ID leak",
+    "No permissions are accepted from the client or inferred from a navigation pointer; mutations OPEN-013 remain excluded"
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Additive nullable read-only Timeline projection field, no data schema migration",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Drop the borrowed source-identical Timeline projection/test and the combined-authority host fixture/test; retain existing Command+Investigate same-origin router and original sources",
+    "verification": [
+      "Existing host read test remains successful",
+      "No persistent data changed"
+    ]
+  },
+  "inputs": [
+    "PR #194 SHA f280bc081254b4b36fac1729883b598524996c8f source for E10-INV-110F authored already, along with its Go regression (historically audited separately)",
+    "PR #198 HEAD e7da0c2cb72d8c1d6be7acef87b8fe02f93294d0 independent Command/Investigate real HTTP router",
+    "E10-CMD-106E-HOST already IMPLEMENTED and E10-INV-110E VERIFIED on current parent graph"
+  ],
+  "outputs": [
+    "Existing selected Command Incident renders authorized linked Case href followed under the SAME origin and independently authorizes both old and revised Timeline Entry on the same trusted Case route",
+    "The old event includes source-derived superseded:true across a one-entry page, the next page carries successor Supersedes and version; no browser UI badge or mutation",
+    "Source-identical PR #194 runtime and negative owner tests, new HTTP cross-product test, canonical provenance and graph nodes"
+  ],
+  "acceptance_tests": [
+    "Git blobs of copied projection.go, supersession_visibility_test.go and source manifest/handoff exactly match SHA from PR #194; no source branch rewritten",
+    "Live Go httptest uses existing Work Queue and MemoryCaseTimelineHTTPHandler with two authorized versions, follows real linked Case href, confirms first page superseded and later page successor",
+    "Command-only principal can see already independently authorized link but GET on both pages returns 404 without source refs or correction flags; invalid session also denied",
+    "Full Timeline and Command host tests, Linux race, cross-platform Go CI and mandatory engineering-kernel succeed on exact final SHA"
+  ],
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-RUNTIME-DEPS",
+    "CHK-SECURITY-TESTS",
+    "CHK-SAST-GO",
+    "CHK-SCA-GO",
+    "command-investigate-readonly-host",
+    "investigation-timeline-runtime",
+    "engineering-kernel"
+  ],
+  "definition_of_ready": [
+    "CAP-INV-110 supersession version visibility was already implemented in frozen PR #194; source blobs and verified tests available",
+    "Command Case link cross-product host #198 implemented with real two-route Go tests but frozen in own L2",
+    "No decision required for Class-0-only cross-product read"
+  ],
+  "definition_of_done": [
+    "Equivalent owner-authorized source values from existing #194 visible through #198 linked Case HTTP read, on correct tenant/environment",
+    "Exact SHA tested on Linux/macOS/Windows, core Go tests and kernel security gates PASS",
+    "Independent L2 on integration risk when stable; no native GitHub approval or production acceptance invented"
+  ],
+  "performance_budget": {
+    "applicable": false,
+    "rationale": "One extra O(N) in-memory pass over <=5000 already-authorized Timeline entries with existing maps, no new source reads, route or provider; on-demand host benchmark remains available",
+    "metrics": []
+  },
+  "complexity": {
+    "primary_components": 2,
+    "estimated_files_changed": 2,
+    "estimated_net_loc": 12,
+    "production_files": 1,
+    "net_production_loc": 12,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

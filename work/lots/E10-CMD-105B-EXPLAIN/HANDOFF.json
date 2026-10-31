@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-CMD-105B-EXPLAIN",
+  "result": "VERIFIED",
+  "final_validated_head": "b1238eb29e3e51dade0166e93de9819f5e3ba334",
+  "implementation_commit": "b1238eb29e3e51dade0166e93de9819f5e3ba334",
+  "pull_request": 174,
+  "evidence": {
+    "canonical_capability": "CAP-CMD-105",
+    "implementation_paths": [
+      "product-runtime/work-queue/sla.go",
+      "product-runtime/work-queue/sla_explanation_test.go"
+    ]
+  },
+  "rules": [
+    "Explain active pause source evidence and calendar source",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": []
+}

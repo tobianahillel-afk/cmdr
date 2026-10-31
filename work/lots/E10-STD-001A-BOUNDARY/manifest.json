@@ -1,0 +1,96 @@
+{
+  "schema_version": 2,
+  "id": "E10-STD-001A-BOUNDARY",
+  "title": "Define CMDR Studio library asset boundary and metadata contracts",
+  "type": "task",
+  "parent": "E10-SCALE-007",
+  "goal": "Define CMDR Studio library asset boundary, metadata contracts, and permission-aware discovery interfaces under CAP-STD-001.",
+  "depends_on": [
+    "E10-CMD-106Q-TASKNAV",
+    "E10-INV-120A-SNAPSHOT"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-STD-001"
+    ],
+    "requirements": [
+      "REQ-PROD-006",
+      "REQ-PROD-016",
+      "REQ-OBJ-009"
+    ],
+    "screens": [],
+    "permissions": [],
+    "open_decisions": [],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/error-contract.md"
+    ],
+    "canonical_objects": []
+  },
+  "allowed_paths": [
+    "engineering/state/**",
+    "work/graph.json",
+    "work/lots/E10-STD-*/**",
+    "tools/cmdr-dev/**"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**"
+  ],
+  "invariants": [
+    "Product Spec immutable; CAP-STD-001 read-only contracts",
+    "Studio Library catalog projections preserve owner boundaries and permission scopes"
+  ],
+  "security_properties": [
+    "require explicit tenant/environment authorization",
+    "no fabricated or upgraded asset permissions"
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "read-only metadata boundary; no persistent data migration",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert bounded task metadata",
+    "verification": [
+      "Product Spec unchanged"
+    ]
+  },
+  "inputs": [
+    "CAP-STD-001 canonical specification",
+    "verified predecessor perimeter E10-CMD-106Q-TASKNAV and E10-INV-120A-SNAPSHOT"
+  ],
+  "outputs": [
+    "Studio library asset boundary and metadata contract definition"
+  ],
+  "acceptance_tests": [
+    "manifest validation and kernel checks pass"
+  ],
+  "performance_budget": {
+    "applicable": false,
+    "rationale": "control-plane boundary task only",
+    "metrics": []
+  },
+  "required_checks": [
+    "adaptive engineering-kernel",
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY"
+  ],
+  "definition_of_ready": [
+    "E10-CMD-106Q-TASKNAV and E10-INV-120A-SNAPSHOT are VERIFIED"
+  ],
+  "definition_of_done": [
+    "Studio library boundary contracts established"
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 5,
+    "estimated_net_loc": 250,
+    "production_files": 0,
+    "net_production_loc": 0,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

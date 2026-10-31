@@ -120,6 +120,59 @@
       ],
       "mutable_by_implementation": true,
       "may_depend_on": []
+    },
+    {
+      "id": "command-work-queue-runtime",
+      "kind": "product-runtime",
+      "roots": [
+        "product-runtime/work-queue/**"
+      ],
+      "mutable_by_implementation": true,
+      "may_depend_on": []
+    },
+    {
+      "id": "command-investigate-host-runtime",
+      "kind": "product-runtime",
+      "roots": [
+        "product-runtime/command-investigate-host/**"
+      ],
+      "mutable_by_implementation": true,
+      "may_depend_on": [
+        "command-work-queue-runtime",
+        "investigation-timeline-runtime"
+      ]
+    },
+    {
+      "id": "event-inspection-http-host-runtime",
+      "kind": "product-runtime",
+      "roots": [
+        "product-runtime/event-inspection-host/**"
+      ],
+      "mutable_by_implementation": true,
+      "may_depend_on": [
+        "event-inspection-runtime"
+      ]
+    },
+    {
+      "id": "studio-catalog-runtime",
+      "kind": "product-module",
+      "roots": [
+        "product-runtime/studio-catalog/**"
+      ],
+      "mutable_by_implementation": true,
+      "may_depend_on": []
+    },
+    {
+      "id": "case-search-workbench-runtime",
+      "kind": "product-module",
+      "roots": [
+        "product-runtime/case-search-workbench/**"
+      ],
+      "mutable_by_implementation": true,
+      "may_depend_on": [
+        "event-search-runtime",
+        "investigation-timeline-runtime"
+      ]
     }
   ]
 }

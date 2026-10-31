@@ -1,0 +1,116 @@
+{
+  "schema_version": 2,
+  "id": "E4-SEC-002B-E2EREVAL",
+  "title": "Restore trustworthy four-module runtime E2E evidence after patched Go compiler upgrade",
+  "type": "task",
+  "parent": "E4-SEC-002B",
+  "goal": "Unblock global security CI after GO-2026-6809 Go 1.26.10 fix by verifying exactly pinned go.mod old/new Git blobs in four legacy source-attested Go runtimes and rerunning full module tests and go vet; retain historical audit SHA and all mandatory vuln scanners unchanged.",
+  "depends_on": [
+    "E4-SEC-002B-SCAID"
+  ],
+  "product_refs": {
+    "capabilities": [],
+    "requirements": [],
+    "screens": [],
+    "permissions": [],
+    "open_decisions": [],
+    "implementation_contracts": [],
+    "canonical_objects": []
+  },
+  "allowed_paths": [
+    "tools/cmdr-dev/verified_toolchain_transition.go",
+    "tools/cmdr-dev/verified_toolchain_transition_test.go",
+    "tools/cmdr-dev/event_inspection_e2e.go",
+    "tools/cmdr-dev/event_search_e2e.go",
+    "tools/cmdr-dev/hunt_management_e2e.go",
+    "tools/cmdr-dev/saved_query_assets_e2e.go",
+    "work/lots/E4-SEC-002B-E2EREVAL/**",
+    "work/graph.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    ".github/workflows/**",
+    "engineering/security/**",
+    "product-runtime/**",
+    "work/lots/E10-INV-**/PROGRESS.json"
+  ],
+  "invariants": [
+    "Historical VERIFIED runtime and performance SHAs and old reports remain immutable; no source or product contract changed in this child PR",
+    "Only one Go module declaration per protected runtime is allowed to differ; both former and patched Git blobs must match independently verified Go 1.26.8->Go 1.26.10 transition.",
+    "Any unexpected source file, module content, module count, branch ancestry or hash mismatch fails before testing.",
+    "Every changed module has fresh complete go test -count=1 ./... and go vet ./... under CI-local patched Go toolchain, then retains preexisting contract/adversarial/performance mandatory audit.",
+    "The emitted runtime_unchanged_since_* fields are false on patched runtimes, never mislabeled true; unmodified sources still report true.",
+    "Mandatory CHK-SCA-GO, CHK-SAST-GO and all other security gates are not waived, skipped, or downgraded."
+  ],
+  "security_properties": [
+    "No client permission source changes, new IAM, tenant rules or runtime dependencies.",
+    "Only four reviewed runtime modules are allowed in the static trusted-delta map; other runtimes fail closed.",
+    "Static allowed blobs are one-time version-specific; future compiler upgrades require new independent proof, not an automatic go.mod exemption."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Dev-engine evidence checker only, no product runtime modification or schema migration.",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Revert only new source-checker changes to historical strict identity rule, preserving blocked outcome until separately approved proof exists.",
+    "verification": [
+      "Legacy source unchanged remains valid",
+      "Module source drift remains blocked"
+    ]
+  },
+  "inputs": [
+    "PR #196 Go 1.26.10 compiler-only security upgrade with Go module allowlist and historic E2E failure on exact SHA",
+    "Documented source proof SHAs in source runtime PROGRESS for CAP-INV-002/004/005/006",
+    "Parent engineering E4-SEC-002B and SCAID IMPLEMENTED but not yet CI-VERIFIED"
+  ],
+  "outputs": [
+    "One shared fail-closed source identity validator for four modules, distinct old/patched byte fingerprints and mandatory fresh module tests/vet",
+    "Four E2E audit summaries truthfully set runtime unchanged=false only when patch applied",
+    "Negative Git fixture tests for allowlisted module, invalid type/path/contents and unchanged ancestor"
+  ],
+  "acceptance_tests": [
+    "Every module old/new blob pair exactly matches original and candidate evidence and no other Event Search/Inspection/Hunt/Saved file changes are ignored.",
+    "Git synthetic source-only module upgrade passes identity, alternative future compiler and extra executable source are refused.",
+    "Exact final SHA CHK-EVENT-INSPECTION-E2E, CHK-EVENT-SEARCH-E2E, CHK-HUNT-MANAGEMENT-E2E, CHK-SAVED-QUERY-ASSETS-E2E pass without stale VERIFIED claims.",
+    "Full mandatory CHK-SCA-GO on patched stdlib and all global format/coverage/security gates pass on same final SHA.",
+    "Command and Timeline runtime cross-platform tests remain green; no production security claim beyond tested code."
+  ],
+  "required_checks": [
+    "CHK-EVENT-INSPECTION-E2E",
+    "CHK-EVENT-SEARCH-E2E",
+    "CHK-HUNT-MANAGEMENT-E2E",
+    "CHK-SAVED-QUERY-ASSETS-E2E",
+    "CHK-SCA-GO",
+    "CHK-FORMAT",
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-SECURITY-TESTS",
+    "CHK-SAST-GO"
+  ],
+  "definition_of_ready": [
+    "Go compiler patch #196 exists with exact original and patched source commit/blob identity; failing E2E source identity proven by exact GitHub CI",
+    "No modification to product behavior needed; evidence reconciliation task under security parent only"
+  ],
+  "definition_of_done": [
+    "Byte-pinned evidence transition and fresh Go module tests plus vet verified on exact head",
+    "Mandatory engineering-kernel, Command and Timeline CI successful on exact SHA",
+    "Handoff documents historical statuses, reviewer and merge dependency; no false full product VERIFIED/ACCEPTED claim"
+  ],
+  "performance_budget": {
+    "applicable": false,
+    "rationale": "Only existing CI-time Go module test/vet executions; product runtime code and budgets are unchanged.",
+    "metrics": []
+  },
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 5,
+    "estimated_net_loc": 150,
+    "production_files": 5,
+    "net_production_loc": 130,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

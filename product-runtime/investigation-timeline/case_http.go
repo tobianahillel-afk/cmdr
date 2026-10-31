@@ -1,6 +1,7 @@
 package investigationtimeline
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -57,9 +58,40 @@ func (h *CaseTimelineHTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Reque
 		return
 	}
 	query, err := url.ParseQuery(r.URL.RawQuery)
-	if err != nil || len(query["case_id"]) != 1 || len(query) > 7 {
+	if err != nil || len(query["case_id"]) != 1 || len(query) > 9 {
 		writeCaseTimelineError(w, http.StatusBadRequest)
 		return
+	}
+	// A return hint never supplies permission, tenant, environment or source.
+	// The JSON API remains strict: only explicit HTML navigation accepts it.
+	htmlRequested := wantsTimelineHTML(r.Header.Get("Accept"))
+	origin, detailReturn := "", false
+	if _, incidentPresent := query["origin_incident"]; incidentPresent || len(query["origin_view"]) != 0 {
+		if !htmlRequested {
+			writeCaseTimelineError(w, http.StatusBadRequest)
+			return
+		}
+		var valid bool
+		origin, detailReturn, valid = extractIncidentReturn(query)
+		if !valid {
+			writeCaseTimelineError(w, http.StatusBadRequest)
+			return
+		}
+	}
+	if len(query) > 7 {
+		writeCaseTimelineError(w, http.StatusBadRequest)
+		return
+	}
+	// A browser GET filter form transmits empty optional controls. Interpret
+	// those controls as omitted ONLY for HTML, without relaxing the strict
+	// JSON API selector parser or silently accepting unknown/duplicate keys.
+	// This happens before permission lookup and changes presentation only.
+	if wantsTimelineHTML(r.Header.Get("Accept")) {
+		for _, key := range []string{"kind", "q", "from", "to"} {
+			if values := query[key]; len(values) == 1 && values[0] == "" {
+				delete(query, key)
+			}
+		}
 	}
 	caseID := query.Get("case_id")
 	selection, valid := parseTimelineReadSelection(query)
@@ -95,6 +127,34 @@ func (h *CaseTimelineHTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Reque
 	result = selectAuthorizedTimeline(result, selection)
 	if r.Context().Err() != nil || ctx.Err() != nil {
 		writeCaseTimelineError(w, http.StatusServiceUnavailable)
+		return
+	}
+	// Browser navigation from Command uses the same authorized Case route.
+	// HTML changes only the representation, never the owner, scope or rights.
+	// JSON clients and the existing API schema are preserved unchanged.
+	if htmlRequested {
+		if origin != "" {
+			// Only for authorized HTML pagination and source-return links.
+			query.Set("origin_incident", origin)
+			if detailReturn {
+				query.Set("origin_view", "detail")
+			}
+		}
+		var rendered bytes.Buffer
+		if err := renderTimelineHTML(&rendered, query, caseID, selection, result,
+			r.Context().Value(sourceLinkContextKey{}) == true); err != nil {
+			writeCaseTimelineError(w, http.StatusServiceUnavailable)
+			return
+		}
+		if r.Context().Err() != nil || ctx.Err() != nil {
+			writeCaseTimelineError(w, http.StatusServiceUnavailable)
+			return
+		}
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		w.Header().Set("Content-Security-Policy", "default-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'")
+		w.Header().Set("Referrer-Policy", "no-referrer")
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write(rendered.Bytes())
 		return
 	}
 	// Only authorized, already filtered entries may be counted or paged.

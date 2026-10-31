@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-120D-TECHNAV",
+  "result": "VERIFIED",
+  "final_validated_head": "930f41987d00f74f31f7706f91d43d5a144581c2",
+  "implementation_commit": "930f41987d00f74f31f7706f91d43d5a144581c2",
+  "pull_request": 218,
+  "evidence": {
+    "title": "Navigate Wazuh ATT&CK technique to its independently authorized Case Timeline source events",
+    "goal": "Add real Class-0 per-technique event navigation from already visible Wazuh source-cohort counts using the SAME existing bounded `/demo-wazuh-drilldown` endpoint, original Case/Timeline/typed-source authorization, and original source opener; no new policy, parser, output privilege, network listener or duplicate engine.",
+    "implementation_paths": [
+      "product-runtime/investigation-timeline/cmd/case-timeline-demo/wazuh_drilldown.go",
+      "product-runtime/investigation-timeline/cmd/case-timeline-demo/wazuh_mitre_drilldown_test.go",
+      "product-runtime/investigation-timeline/cmd/case-timeline-demo/analyst.js",
+      "product-runtime/investigation-timeline/cmd/case-timeline-demo/analyst_summary.test.cjs",
+      "work/graph.json",
+      "work/lots/E10-INV-120D-TECHNAV/**"
+    ],
+    "outputs": [
+      "Click an existing source-claimed ATT&CK cohort label to retrieve 25-at-a-time permitted Case Timeline IDs through same HTTP endpoint and open one via same source owner checks.",
+      "No matching visible entries returns count zero rather than invented observed technique.",
+      "Deny forged mixed selector or malicious server response before any Event rendered."
+    ],
+    "acceptance_tests": [
+      "Genuine source T1059.001 on 53 local Wazuh alerts yields 27 deduplicated source-authorized matches paginated 25+2, not 53 and not raw source IDs.",
+      "Wrong tenant/Case, anonymous request, duplicated/mixed/malformed technique filter, unknown key, bad offset: generic denial with no source events.",
+      "Existing agent/rule/agent+rule selector modes remain unchanged and must pass existing tests.",
+      "Node 24 analyst browser cohort button triggers same-origin authorized GET with technique_id, no bearer in URL, paged response display and source reauthorization on open.",
+      "Mismatched server selector fails closed with no partial returned Event IDs.",
+      "Go tests, vet, Linux race, Node and mandatory global engineering checks pass on exact PR SHA."
+    ],
+    "run_ids": []
+  },
+  "rules": [
+    "Canonical product: Investigate CAP-INV-110 controls Case selection, Shared controls Timeline Entry, and typed Wazuh-derived source owner controls read access to Event details. This is not a decision in OPEN-013 Class-2.",
+    "Engineering: existing epic E10-INV-110; new task E10-INV-120D-TECHNAV after E10-INV-120C-MITREFIX IMPLEMENTED, not canonically ACCEPTED.",
+    "Code: original Go wazuh_drilldown.go, original source parser wazuhRuleLevels and existing local analyst.js. Browser already uses bearer & separate openSource Case/typed-source read, no new provider/ACL/storage or dependency.",
+    "Git: this branch starts exactly from frozen PR #218 SHA 930f41987d00f74f31f7706f91d43d5a144581c2; Git parent #218 is NOT engineering parent. Never alter the parent undergoing L2.",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": []
+}

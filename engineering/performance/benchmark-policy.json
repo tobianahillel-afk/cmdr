@@ -106,6 +106,20 @@
       "warmup_iterations": 1,
       "sample_count": 5,
       "max_sample_duration_ms": 1000
+    },
+    {
+      "key": "command-work-queue-in-process-projection-v1",
+      "handler_key": "builtin-command-work-queue-projection-v1",
+      "warmup_iterations": 1,
+      "sample_count": 5,
+      "max_sample_duration_ms": 1000
+    },
+    {
+      "key": "command-investigate-same-origin-routing-v1",
+      "handler_key": "builtin-command-investigate-routing-v1",
+      "warmup_iterations": 1,
+      "sample_count": 5,
+      "max_sample_duration_ms": 60000
     }
   ]
 }

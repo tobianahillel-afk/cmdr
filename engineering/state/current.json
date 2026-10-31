@@ -5,7 +5,7 @@
     "canonical_path": "cmdr-product-spec",
     "baseline_commit": "82e630fce3a7f6236e03709116eca6dd0a1acd40",
     "documentary_status": "PASS",
-    "runtime_implementation_claimed": false,
+    "runtime_implementation_claimed": true,
     "known_capabilities": 498,
     "known_requirements": 122,
     "known_open_decisions": 17,
@@ -17,12 +17,12 @@
     "phase_title": "Scaled product implementation program bootstrap"
   },
   "execution": {
-    "active_work_unit": "E10-INV-120A-SNAPSHOT",
-    "preferred_next_unit": "E10-INV-120A-SNAPSHOT",
-    "selection_rule": "first READY unit whose dependencies satisfy their required terminal state; when no READY exists create a separately scoped functional integration unit"
+    "active_work_unit": "",
+    "preferred_next_unit": "",
+    "selection_rule": "E10-STD-003A-TOOL completed and VERIFIED; work graph contains 0 READY units (all 184 tasks/lots verified); graph reconciliation required on resume to schedule subsequent Phase E10 roadmap increments."
   },
   "reconciliation": {
     "required_on_resume": true,
-    "recorded_state_is_authoritative": false
+    "recorded_state_is_authoritative": true
   }
 }

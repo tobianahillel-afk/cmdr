@@ -1,0 +1,127 @@
+{
+  "schema_version": 2,
+  "id": "E10-STD-002A-METADATA",
+  "title": "Define CMDR Studio asset metadata, ownership contracts, and classification schema (CAP-STD-002)",
+  "type": "task",
+  "parent": "E10-SCALE-007",
+  "goal": "Implement and verify canonical Studio asset metadata validation, ownership projection, classification models (risk, execution class, AI/non-AI), and supersession tracking under CAP-STD-002.",
+  "product_refs": {
+    "capabilities": [
+      "CAP-STD-002"
+    ],
+    "requirements": [
+      "REQ-PROD-006",
+      "REQ-PROD-016",
+      "REQ-OBJ-009"
+    ],
+    "screens": [],
+    "permissions": [
+      "perm.studio.library.read",
+      "perm.studio.skill.read",
+      "perm.studio.workflow.read",
+      "perm.studio.automation-agent.read",
+      "perm.studio.agent-team.read",
+      "perm.cmdr-studio.version.read"
+    ],
+    "open_decisions": [],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/error-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/skill.md",
+      "cmdr-product-spec/05-domain-model/objects/workflow.md",
+      "cmdr-product-spec/05-domain-model/objects/automation-agent.md",
+      "cmdr-product-spec/05-domain-model/objects/agent-team.md"
+    ]
+  },
+  "depends_on": [
+    "E10-STD-001C-RUNTIME"
+  ],
+  "allowed_paths": [
+    "engineering/state/**",
+    "product-runtime/studio-catalog/**",
+    "work/graph.json",
+    "work/lots/E10-STD-002*/**",
+    "tools/cmdr-dev/**"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**"
+  ],
+  "inputs": [
+    "VERIFIED E10-STD-001C-RUNTIME Go runtime in product-runtime/studio-catalog/",
+    "CAP-STD-002 canonical specification",
+    "permission-catalog.md verified permissions"
+  ],
+  "outputs": [
+    "metadata validation and classification functions in product-runtime/studio-catalog/",
+    "automated test suites covering classification, owner unknown normalization, and supersession links",
+    "HANDOFF.json and deterministic validation evidence"
+  ],
+  "invariants": [
+    "cmdr-product-spec/** remains read-only (0 bytes diff)",
+    "zero external runtime dependencies (Go standard library only)",
+    "strict tenant isolation with existence oracle elimination",
+    "all permissions strictly sourced from permission-catalog.md"
+  ],
+  "security_properties": [
+    "server-side pre-authorization evaluation on metadata inspect",
+    "fail-closed tenant scoping for asset metadata",
+    "zero credential or secret leakage in metadata responses"
+  ],
+  "acceptance_tests": [
+    "cmdr-dev doctor passes with healthy=true",
+    "cmdr-dev validate-manifests passes 100%",
+    "cmdr-dev architecture-audit passes",
+    "go test ./... in product-runtime/studio-catalog passes 100%"
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "in-memory metadata validation and inspection latency must remain under 5ms",
+    "metrics": [
+      "p95_inspect_metadata_latency < 5ms",
+      "memory_allocation < 512KB per inspect"
+    ]
+  },
+  "migration": {
+    "required": false,
+    "rationale": "stateless in-memory domain model projection; no persistent DB migration",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert git commit",
+    "verification": [
+      "git diff clean",
+      "cmdr-dev doctor passes"
+    ]
+  },
+  "required_checks": [
+    "adaptive engineering-kernel",
+    "CHK-MANIFESTS",
+    "CHK-ARCHITECTURE",
+    "CHK-COMPLEXITY"
+  ],
+  "definition_of_ready": [
+    "E10-STD-001C-RUNTIME is VERIFIED",
+    "cmdr-dev doctor passes",
+    "cmdr-product-spec/** 0 diff verified"
+  ],
+  "definition_of_done": [
+    "metadata schema validation and classification implemented and tested in product-runtime/studio-catalog",
+    "100% test pass rate with zero external dependencies",
+    "HANDOFF.json schema v2 authored and validated",
+    "work/graph.json updated and cmdr-dev doctor green"
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 4,
+    "estimated_net_loc": 250,
+    "production_files": 2,
+    "net_production_loc": 150,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

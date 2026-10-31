@@ -92,25 +92,64 @@
           !validCount(a.count) || !validLevel(a.highest_known_rule_level))) {
         throw Error("Invalid cohort values");
       }
+      // The optional additive source-cohort schema is absent in older snapshots.
+      // When present, validate the COMPLETE group before rendering anything.
+      const hasTechniques = data.top_techniques !== undefined;
+      if (hasTechniques) {
+        const validTechnique = value =>
+          typeof value === "string" && /^T[0-9]{4}(?:\.[0-9]{3})?$/.test(value);
+        const mapped = data.imported_entries - data.unmapped_technique_alerts;
+        const top = data.top_techniques;
+        if (!Array.isArray(top) ||
+            !validCount(data.unmapped_technique_alerts) ||
+            data.unmapped_technique_alerts > data.imported_entries ||
+            !Number.isSafeInteger(data.distinct_technique_ids) ||
+            data.distinct_technique_ids < 0 ||
+            data.distinct_technique_ids > mapped * 16 ||
+            top.length !== Math.min(10, data.distinct_technique_ids) ||
+            top.some(a => !a || !validTechnique(a.technique_id) ||
+              !Number.isSafeInteger(a.count) || a.count < 1 || a.count > mapped ||
+              !validLevel(a.highest_known_rule_level)) ||
+            new Set(top.map(a => a.technique_id)).size !== top.length ||
+            top.some((a, i) => i > 0 &&
+              (a.count > top[i - 1].count ||
+               (a.count === top[i - 1].count && a.technique_id <= top[i - 1].technique_id))) ||
+            (data.distinct_technique_ids <= 10 &&
+             top.reduce((sum, a) => sum + a.count, 0) < mapped)) {
+          throw Error("Invalid Wazuh ATT&CK source cohorts");
+        }
+      } else if (data.distinct_technique_ids !== undefined ||
+                 data.unmapped_technique_alerts !== undefined) {
+        throw Error("Partial Wazuh ATT&CK source cohorts");
+      }
       // Always use textContent: source labels are never interpreted as HTML.
       const agentLines = data.top_agents.map(a => "agent " + a.agent_id + " : " + a.count +
         " alerte(s), " + a.distinct_rule_ids + " règle(s), niveau maximum connu " +
         (a.highest_known_rule_level ?? "inconnu"));
       const ruleLines = data.top_rules.map(a => "règle " + a.rule_id + " : " + a.count +
         " alerte(s), niveau maximum connu " + (a.highest_known_rule_level ?? "inconnu"));
+      const techniqueLines = hasTechniques ? data.top_techniques.map(a =>
+        "étiquette " + a.technique_id + " : " + a.count +
+        " alerte(s), niveau maximum connu " + (a.highest_known_rule_level ?? "inconnu")) : [];
       wazuhStatus.textContent = data.imported_entries + " alerte(s) Wazuh importée(s) et autorisée(s)." +
         "\nAgents les plus touchés :\n" + (agentLines.join("\n") || "aucun agent connu") +
         "\nRègles les plus fréquentes :\n" + (ruleLines.join("\n") || "aucune règle connue") +
+        (hasTechniques ?
+          "\nÉtiquettes MITRE ATT&CK déclarées par Wazuh, non vérifiées :\n" +
+            (techniqueLines.join("\n") || "aucune étiquette connue") +
+            "\nAlertes sans étiquette MITRE : " + data.unmapped_technique_alerts : "") +
         "\nDonnées locales synthétiques, sans preuve de causalité.";
       for (const [selector, cohorts] of [
         ["agent_id", data.top_agents.map(a => a.agent_id)],
-        ["rule_id", data.top_rules.map(a => a.rule_id)]
+        ["rule_id", data.top_rules.map(a => a.rule_id)],
+        ["technique_id", hasTechniques ? data.top_techniques.map(a => a.technique_id) : []]
       ]) {
         for (const value of cohorts) {
           const button = document.createElement("button");
           button.type = "button";
           button.textContent = "Voir les événements Wazuh — " +
-            (selector === "agent_id" ? "agent " : "règle ") + value;
+            (selector === "agent_id" ? "agent " :
+              selector === "rule_id" ? "règle " : "technique ATT&CK non vérifiée ") + value;
           button.addEventListener("click", () => loadWazuhDrilldown(selector, value));
           wazuhActions.append(button);
         }
@@ -151,8 +190,10 @@
   async function loadWazuhDrilldown(selector, value, requestedOffset = 0, secondValue = "") {
     const bearer = token.value;
     const selectedCase = caseID.value.trim();
-    if (!bearer || !selectedCase || !/^[0-9]{1,16}$/.test(value) ||
-        !["agent_id", "rule_id", "agent_rule"].includes(selector) ||
+    if (!bearer || !selectedCase ||
+        (selector === "technique_id" ?
+          !/^T[0-9]{4}(?:\.[0-9]{3})?$/.test(value) : !/^[0-9]{1,16}$/.test(value)) ||
+        !["agent_id", "rule_id", "agent_rule", "technique_id"].includes(selector) ||
         (selector === "agent_rule" ? !/^[0-9]{1,16}$/.test(secondValue) : secondValue !== "") ||
         !Number.isInteger(requestedOffset) || requestedOffset < 0 ||
         requestedOffset > 5000 || requestedOffset % 25 !== 0) return;
@@ -168,7 +209,8 @@
     try {
       const url = new URL("/demo-wazuh-drilldown", window.location.origin);
       url.searchParams.set("case_id", selectedCase);
-      url.searchParams.set(selector === "rule_id" ? "rule_id" : "agent_id", value);
+      url.searchParams.set(selector === "rule_id" ? "rule_id" :
+        selector === "technique_id" ? "technique_id" : "agent_id", value);
       if (selector === "agent_rule") url.searchParams.set("rule_id", secondValue);
       url.searchParams.set("offset", String(requestedOffset));
       const response = await fetch(url, {
@@ -190,10 +232,9 @@
           data.total_matches < 0 || data.total_matches > 5000 ||
           !Array.isArray(data.entries) || data.entries.length > 25 ||
           data.entries.length !== Math.min(25, Math.max(0, data.total_matches - requestedOffset)) ||
-          (data.offset !== undefined && data.offset !== requestedOffset) ||
-          (data.has_more !== undefined &&
-            (typeof data.has_more !== "boolean" ||
-             data.has_more !== (requestedOffset + data.entries.length < data.total_matches))) ||
+          !Number.isSafeInteger(data.offset) || data.offset !== requestedOffset ||
+          typeof data.has_more !== "boolean" ||
+          data.has_more !== (requestedOffset + data.entries.length < data.total_matches) ||
           data.entries.some(e => !e || typeof e.id !== "string" ||
             e.id.length < 1 || e.id.length > 1024 ||
             !["observed", "inferred", "user-action", "decision", "response"].includes(e.kind) ||

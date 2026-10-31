@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-CMD-101A-READONLY",
+  "result": "VERIFIED",
+  "final_validated_head": "e22d4d6d841b7bcd3856bfc9cedb2f079f67d05d",
+  "implementation_commit": "573a233707de5f70c95fbde95672392f8a1c740c",
+  "pull_request": 224,
+  "evidence": {
+    "canonical_capability": "CAP-CMD-101",
+    "implementation_paths": [
+      "product-runtime/work-queue/queue.go",
+      "product-runtime/work-queue/queue_test.go"
+    ],
+    "codex_remediation": "P1 Windows timer resolution (0a57129b) and P2 deep performance policy decoupling (678f7a3e)",
+    "ci_evidence": [
+      {
+        "workflow": "command-work-queue-runtime",
+        "conclusion": "success"
+      },
+      {
+        "workflow": "engineering-kernel",
+        "conclusion": "success"
+      }
+    ]
+  },
+  "rules": [
+    "Six system views project from one single authorized queue",
+    "Host CanRead evaluation strictly prior to object projection",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-CMD-101B-HTTP"
+  ]
+}

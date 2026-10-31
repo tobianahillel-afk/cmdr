@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-CMD-106A-CASELINKS",
+  "result": "VERIFIED",
+  "final_validated_head": "415aba77758540673a4c78fd8f7694e300ac1a04",
+  "implementation_commit": "415aba77758540673a4c78fd8f7694e300ac1a04",
+  "pull_request": 176,
+  "evidence": {
+    "canonical_capability": "CAP-CMD-106",
+    "implementation_paths": [
+      "product-runtime/work-queue/linked_cases.go",
+      "product-runtime/work-queue/linked_cases_test.go"
+    ]
+  },
+  "rules": [
+    "Inspect source-authorized linked Investigate Cases",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-CMD-106B-SOURCEJOIN"
+  ]
+}

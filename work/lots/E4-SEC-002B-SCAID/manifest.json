@@ -1,0 +1,124 @@
+{
+  "schema_version": 2,
+  "id": "E4-SEC-002B-SCAID",
+  "title": "Diagnose and remediate reachable GO-2026-6809 stdlib trust vulnerability with patched Go 1.26.10",
+  "type": "task",
+  "parent": "E4-SEC-002B",
+  "goal": "Resolve the observed mandatory CHK-SCA-GO blocker in #195: expose only strictly validated public GO advisory IDs in failure messages, then upgrade all nine existing Go module/toolchain declarations from 1.26.8/1.26.9 to official Go 1.26.10, fixed for crypto/x509 Certificate.Verify (GO-2026-6809), without touching product code or disabling any security control.",
+  "depends_on": [
+    "E4-SEC-002B-ACTIVATE"
+  ],
+  "product_refs": {
+    "capabilities": [],
+    "requirements": [],
+    "screens": [],
+    "permissions": [],
+    "open_decisions": [],
+    "implementation_contracts": [],
+    "canonical_objects": []
+  },
+  "allowed_paths": [
+    "tools/cmdr-dev/security_static.go",
+    "tools/cmdr-dev/security_static_test.go",
+    "work/graph.json",
+    "work/lots/E4-SEC-002B-SCAID/**",
+    "tools/cmdr-dev/go.mod",
+    "product-runtime/work-queue/go.mod",
+    "product-runtime/investigation-timeline/go.mod",
+    "product-runtime/case-queue/go.mod",
+    "product-runtime/context-envelope/go.mod",
+    "product-runtime/event-inspection/go.mod",
+    "product-runtime/event-search/go.mod",
+    "product-runtime/hunt-management/go.mod",
+    "product-runtime/saved-query-assets/go.mod",
+    "tools/cmdr-dev/event_inspection_e2e.go",
+    "tools/cmdr-dev/event_inspection_toolchain_test.go"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    ".github/workflows/**",
+    "engineering/security/security-gates.json"
+  ],
+  "invariants": [
+    "All reachable findings still cause CHK-SCA-GO FAILURE; no suppression, ignore list, baseline, severity downgrade, scanner parameter change or SCA scope reduction",
+    "Only public strict ASCII GO-YYYY-NNNN advisory identifiers, maximum four sorted unique labels, may enter error text; every other raw scanner datum stays private",
+    "Malformed/missing IDs remain a blocking generic identifier-unavailable error",
+    "No product data, Go toolchain version or dependency changed blindly without exact finding",
+    "All nine repo Go module go directives use official Go 1.26.10 fixed crypto/x509 stdlib version; all workflows whose setup-go uses go-version-file inherit patched compiler; do not change package APIs, binary logic, runtime authorization or source data.",
+    "No claim GO-2026-6809 resolved until exact candidate GitHub SCA and full relevant cross-platform Go workflows pass; no go.sum or dependency version changes unless reproducible tests require them.",
+    "No arbitrary waiver of CHK-EVENT-INSPECTION-E2E: permit only exact original/patched go.mod blob pair, no other Event Inspection file path diff, run fresh full module tests and vet, preserve all original 13 adversarial tests and performance checks."
+  ],
+  "security_properties": [
+    "Never echo private import/module path, package, receiver, function, source, traces, URLs or arbitrary OSV text",
+    "No secrets or report content in CI diagnostics; original SAST and secret scanners remain unchanged"
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Engineering CLI diagnostic display only; no product runtime or schema.",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Restore generic blocked count without weakening SCA",
+    "verification": [
+      "CHK-SCA-GO still fails on reachable finding"
+    ]
+  },
+  "inputs": [
+    "Security owner E4-SEC-002B-ACTIVATE verified mandatory govulncheck-Go v1.8.0 pipeline",
+    "Current PR #195 SHA 6e5daab6d26662ecd2821d8d3c2f2bfefc1aa792 run 39528312160 CHK-SCA-GO FAILURE 1 reachable finding with withheld metadata",
+    "Go vuln DB authoritative GO-2026-6809 (crypto/x509 Certificate.Verify, CVE-2026-111943), affected stdlib below Go 1.26.10; official Go release history confirms 1.26.10 issued 2026-10-19"
+  ],
+  "outputs": [
+    "Strictly validated public advisory reference in failed SCA CI on exact HEAD, or identifier-unavailable; actionable module remediation can then be scoped to verified OSV",
+    "Unit tests prove identity redaction and no change to fail-closed classification",
+    "Nine exact Go go.mod declarations raised to 1.26.10; engineering-kernel and all runtime workflows should now build/reassess with fixed standard library without modifying product Go source.",
+    "Mandatory Event Inspection E2E source drift gate now permits only the exact two documented Go 1.26.8 -> 1.26.10 go.mod blob SHAs, requires actual go test ./... and go vet ./... under patched local compiler; all other source changes fail closed; original historical VERIFIED SHA stays immutable and runtime_unchanged_since_pivot=false."
+  ],
+  "acceptance_tests": [
+    "parseGovulncheckStream still returns error and actionable count for a reachable OSV, now safe identifier",
+    "Module path, private symbol, package, raw scanner output never appear in error",
+    "Malformed/missing labels never leak and never pass",
+    "Exact-head engineering kernel failure reports only safe public advisory ID; vulnerability remains block until actual fix",
+    "All nine existing go.mod paths contain go 1.26.10 and no pre-1.26.10 go directives remain in registered runtime modules.",
+    "Go vulnerability scanner no longer reports reachable GO-2026-6809 on exact HEAD; SCA stays mandatory and fails on other actionable findings.",
+    "Command runtime Linux/macOS/Windows and engineering kernel exact HEAD CI pass after patch, including existing defensive tests.",
+    "Source identity gate accepts unchanged original runtime or single exact Go 1.26.10 go.mod delta but rejects different Go version or extra source file in isolated test Git repository",
+    "On exact candidate SHA CHK-EVENT-INSPECTION-E2E outputs PASS with runtime_unchanged_since_pivot=false; all historical evidence unmodified and mandatory SCA remains enforced."
+  ],
+  "required_checks": [
+    "CHK-SCA-GO",
+    "CHK-SAST-GO",
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-SECURITY-TESTS",
+    "CHK-FORMAT",
+    "CHK-RUNTIME-DEPS",
+    "command-work-queue-runtime",
+    "investigation-timeline-runtime"
+  ],
+  "definition_of_ready": [
+    "Known SCA-blocking reachable finding at PR #195 exact SHA and no OSV in available logs",
+    "Existing E4-SEC-002B owner/verification contract available"
+  ],
+  "definition_of_done": [
+    "New diagnostics source+tests on correct engineering owner, verified exact SHA with no weakening of SCA",
+    "Identify actionable OSV and actual affected module/Go fix path before any product acceptance",
+    "Security-blocking GO-2026-6809 absent from exact-HEAD govulncheck result and all mandatory gates green; retained public-ID diagnostics fail closed for any future finding."
+  ],
+  "performance_budget": {
+    "applicable": false,
+    "rationale": "String formatting over already-bounded scanner findings in development tool",
+    "metrics": []
+  },
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 12,
+    "estimated_net_loc": 190,
+    "production_files": 11,
+    "net_production_loc": 145,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

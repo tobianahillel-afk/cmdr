@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-CMD-101K-OWNERFILTER",
+  "result": "VERIFIED",
+  "final_validated_head": "d7ac9d3c4141c186722862a383dcb3e97e9d9f10",
+  "implementation_commit": "d7ac9d3c4141c186722862a383dcb3e97e9d9f10",
+  "pull_request": 170,
+  "evidence": {
+    "canonical_capability": "CAP-CMD-101",
+    "implementation_paths": [
+      "product-runtime/work-queue/owner_filter.go",
+      "product-runtime/work-queue/owner_filter_test.go"
+    ]
+  },
+  "rules": [
+    "Filter work queue by authoritative owner/assignee",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-CMD-101L-GROUP"
+  ]
+}

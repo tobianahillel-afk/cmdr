@@ -1,0 +1,132 @@
+{
+  "schema_version": 2,
+  "id": "E10-CMD-101D-STATUS",
+  "title": "Add one bounded manual status filter to canonical Command Work Queue six-view browser",
+  "type": "task",
+  "parent": "E10-CMD-101",
+  "goal": "Allow an authorized analyst to filter existing Command Incident/Task work items by one exact host-owned status without changing route, Shared Saved Views ownership or object permissions.",
+  "depends_on": [
+    "E10-CMD-101C-HTML"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-CMD-101"
+    ],
+    "requirements": [
+      "REQ-OBJ-001",
+      "REQ-OBJ-012",
+      "REQ-PROD-013",
+      "REQ-UX-008",
+      "REQ-UX-009"
+    ],
+    "screens": [],
+    "permissions": [
+      "perm.command.read",
+      "perm.command.incident.read"
+    ],
+    "open_decisions": [],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/incident.md",
+      "cmdr-product-spec/05-domain-model/objects/task.md"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/pagination-filtering-sorting.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/work-queue/queue.go",
+    "product-runtime/work-queue/http.go",
+    "product-runtime/work-queue/html.go",
+    "product-runtime/work-queue/status_filter_test.go",
+    "work/lots/E10-CMD-101D-STATUS/**",
+    "work/graph.json",
+    "engineering/state/current.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/case-queue/**",
+    "product-runtime/investigation-timeline/**",
+    "tools/cmdr-dev/**"
+  ],
+  "invariants": [
+    "Exactly six immutable canonical system views, one GET /command/work-queue route; status is optional literal query, not another route, workflow or Saved View.",
+    "Reuse first-party Project and Owner.CanRead per Incident/Task BEFORE any status filter, with current host SessionResolver tenant/environment/principal on every GET.",
+    "Status filter is exact 0..64 UTF-8 bytes with no control chars or wildcard, stable priority unchanged, bounded <=5000 owner candidates and <=50 displayed authorized rows.",
+    "HTML navigation to six views retains current permitted status filter with URL encoding; accessible GET form stays same route; no scripts/inline styles.",
+    "Default JSON and HTML when no filter selected are backward-compatible; Shared owns persisted/permission-aware Saved Views."
+  ],
+  "security_properties": [
+    "Reject unknown/duplicated/oversized/untrusted HTTP filters before querying owner; tenant/principal/environment never client-controlled.",
+    "Run owner object ACL checks before status matching so inaccessible items cannot be inferred through projection counts or HTML.",
+    "HTML uses html/template escaped content and URL-encoded navigation; no-store, nosniff, frame denied, CSP default-src none and form-action self only for read-only GET.",
+    "Provider/revoked/session failure returns no partial rows or source IDs."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Additive opt-in literal read-only filter on already existing first-party Command route",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Revert status filter fields and HTML GET form, leaving six-view read-only projection and JSON route intact",
+    "verification": [
+      "Original six system views still render and no filter is required",
+      "No Shared view state is stored"
+    ]
+  },
+  "inputs": [
+    "Canonical CAP-CMD-101 full 27-section contract including manual filtering, exact Command six-view catalogue and Shared mechanism boundary",
+    "Existing E10-CMD-101C-HTML native browser and E10-CMD-101B-HTTP single host-authorized route",
+    "Current Host SessionResolver/Owner and deterministic Work Queue Project sorting"
+  ],
+  "outputs": [
+    "Literal status filter after authorization for each owner-resolved Incident/Task on all six views",
+    "Accessible status GET form and encoded six view links retaining filter with no new endpoint",
+    "No-filter JSON remains unchanged; filtered JSON states exact current status_filter, no unauthorized data"
+  ],
+  "acceptance_tests": [
+    "Authorized Incident/Task status exact projection, including empty/no-authorized-items and original no-filter semantics",
+    "Every owner object still receives current CanRead before filtering; foreign tenant ID never enters access checks; denied matching status leaks no data",
+    "HTTP accepts bounded optional status, refuses duplicate/oversize/control/invalid UTF-8 and client tenant/owner injection, no rows on denied session or source failure",
+    "HTML form/filter/navigation on same route for all six keys with safe URL encoding and owner-controlled XSS payload escaped",
+    "Exact-head Linux/macOS/Windows Go runtime + mandatory engineering-kernel checks, risk-proportionate security coverage >=90 changed scope unchanged; independent L2 on material status-filter boundary if published stable"
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "No new owner queries or extra sort; one literal comparison only AFTER existing first-party owner ACL; <=5000 candidates and <=50 rows remain",
+    "metrics": [
+      "Owner.List once per view request",
+      "No additional Owner.CanRead calls versus original one per in-scope candidate",
+      "No new persistent data, index, network or background worker"
+    ]
+  },
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-RUNTIME-DEPS",
+    "CHK-SECURITY-TESTS"
+  ],
+  "definition_of_ready": [
+    "E10-CMD-101C-HTML is IMPLEMENTED, exact-head mandatory engineering and runtime CI success and L2 one-shot already executed without accessible verdict",
+    "Canonical CAP-CMD-101 explicitly requires Class-0 manual filtering and status is already a first-party projected Incident/Task field",
+    "No final Shared Saved View schema, mutation, IAM or incident detail ownership decision required for this narrow literal filter"
+  ],
+  "definition_of_done": [
+    "One coherent child PR with actual manual same-route filter and current owner authorization, exact-head Go+Node multiOS and engineering required CI",
+    "One independent targeted READ-ONLY L2 on stable SHA for new query/HTML display boundary, no duplicate parent L2",
+    "Remain IMPLEMENTED not full CAP ACCEPTED, and do not merge until parents/CI/native approvals succeed"
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 4,
+    "estimated_net_loc": 100,
+    "production_files": 3,
+    "net_production_loc": 85,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

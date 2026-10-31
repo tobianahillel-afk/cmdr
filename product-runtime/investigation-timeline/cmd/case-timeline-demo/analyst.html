@@ -73,9 +73,9 @@
       <p class="intro">Chaque action ouvre une entrée après une nouvelle vérification des droits Case, événement et source. Le parcours de source restitue par pages de 25 l'ordre déjà reçu des événements autorisés ; il n'est ni une preuve de causalité, ni un flux temps réel, ni un instantané transactionnel. Modifier le Case, le jeton ou les filtres efface cette sélection.</p>
     </section>
     <section aria-labelledby="wazuh-title">
-      <h2 id="wazuh-title">Corrélation Wazuh 4.x — agent et règle</h2>
-      <p class="intro">Disponible uniquement lors de l'import Wazuh dans le laboratoire local. Les agrégats sont recalculés après vérification serveur du Case et des sources. Les identifiants d'agent/règle sont des métadonnées Wazuh, pas des preuves d'identité d'hôte ou de causalité.</p>
-      <button id="wazuh-cohorts" type="button">Afficher les agents et règles autorisés</button>
+      <h2 id="wazuh-title">Corrélation Wazuh 4.x — agents, règles et étiquettes ATT&amp;CK</h2>
+      <p class="intro">Disponible uniquement lors de l'import Wazuh dans le laboratoire local. Les agrégats sont recalculés après vérification serveur du Case et des sources. Les identifiants d'agent, les règles et les techniques MITRE ATT&amp;CK sont des métadonnées déclarées par Wazuh, non une validation indépendante d'identité d'hôte, de technique exécutée ou de causalité. Les regroupements de techniques sont en lecture seule, sans lien d'exécution ni nouveau droit.</p>
+      <button id="wazuh-cohorts" type="button">Afficher les regroupements Wazuh autorisés</button>
       <p id="wazuh-status" role="status" aria-live="polite">Aucune corrélation Wazuh demandée.</p>
       <div id="wazuh-actions" class="analysis-actions" aria-label="Examiner les événements d'un agent ou d'une règle"></div>
       <div id="wazuh-events" role="region" aria-live="polite">Aucun événement Wazuh sélectionné.</div>

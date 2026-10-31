@@ -93,6 +93,39 @@
       "authorization_rationale": "CAP-INV-110 read-only Case and Shared Timeline Entry projection requires separately authorized access to each linked source. Denied events and context must not leak identity or content.",
       "tenant_isolation_required": true,
       "tenant_isolation_rationale": "CAP-INV-110 must fail closed on missing, wildcard, mismatched and cross-tenant Case/source/environment access without widening selected scope."
+    },
+    {
+      "boundary_id": "command-work-queue-runtime",
+      "owner": "E10-CMD-101",
+      "security_critical_paths": [
+        "product-runtime/work-queue/**"
+      ],
+      "authorization_required": true,
+      "authorization_rationale": "CAP-CMD-101 requires current per-obj Incident/Task read authorization before any row or metadata is projected; failures must never return partial protected items.",
+      "tenant_isolation_required": true,
+      "tenant_isolation_rationale": "Command Work Queue is scoped to exactly one selected tenant and environment; a foreign owner record must not be inspected or disclosed."
+    },
+    {
+      "boundary_id": "command-investigate-host-runtime",
+      "owner": "E10-CMD-106",
+      "security_critical_paths": [
+        "product-runtime/command-investigate-host/**"
+      ],
+      "authorization_required": true,
+      "authorization_rationale": "Read-only Command Incident Case navigation must remain a non-authorizing pointer and destination Investigate Case, Timeline Entry and source access are checked independently on every request.",
+      "tenant_isolation_required": true,
+      "tenant_isolation_rationale": "Host must not route a Command readable Incident as proof of Case or cross-tenant Timeline read; denied and forged destinations fail closed with no source content."
+    },
+    {
+      "boundary_id": "event-inspection-http-host-runtime",
+      "owner": "E10-INV-004G-HOST",
+      "security_critical_paths": [
+        "product-runtime/event-inspection-host/**"
+      ],
+      "authorization_required": true,
+      "authorization_rationale": "Authorized HTTP Event Inspection must deny before source lookup if Search Job selection unauthorized; a client EventRef, sourceHint or supplied scope never grants Telemetry Event access and raw denied must never leak.",
+      "tenant_isolation_required": true,
+      "tenant_isolation_rationale": "Trusted host session determines principal/Tenant/environment independently; mismatched client Tenant/environment or foreign Event owner identity must produce a generic denial without an Event projection."
     }
   ]
 }

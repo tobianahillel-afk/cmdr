@@ -1,0 +1,130 @@
+{
+  "schema_version": 2,
+  "id": "E10-INV-110O-RETURNCTX",
+  "title": "Restore authorized Case Timeline filter/page context after opening synthetic source HTML",
+  "type": "task",
+  "parent": "E10-INV-110",
+  "goal": "Complete CAP-INV-110 §12/§17 read-only navigation with an explicit server-validated return link preserving the previously authorized Timeline Case, filters and page. Retain independent owner authorization; preserve original source JSON and source HTML safe presentation.",
+  "depends_on": [
+    "E10-INV-110N-SOURCEHTML"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-110",
+      "CAP-CMD-106"
+    ],
+    "requirements": [
+      "REQ-PROD-014",
+      "REQ-PROD-018"
+    ],
+    "screens": [
+      "INV-TIM-001"
+    ],
+    "permissions": [
+      "perm.shared-capabilities.timeline-entry.read"
+    ],
+    "open_decisions": [
+      "OPEN-013"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/cross-product-context-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/case.md",
+      "cmdr-product-spec/05-domain-model/objects/timeline-entry.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/investigation-timeline/case_html.go",
+    "product-runtime/investigation-timeline/memory_source_preview.go",
+    "product-runtime/investigation-timeline/memory_source_preview_html.go",
+    "product-runtime/investigation-timeline/source_return_test.go",
+    "product-runtime/command-investigate-host/cmd/local-browser/main_test.go",
+    "work/lots/E10-INV-110O-RETURNCTX/**",
+    "work/graph.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/investigation-timeline/memory_provider.go",
+    "product-runtime/command-investigate-host/cmd/local-browser/main.go",
+    "product-runtime/command-investigate-host/host.go"
+  ],
+  "invariants": [
+    "Source entry is always independently Case/Entry/source-owner authorized on each GET; a return link is not a permission, sourceRef, principal, tenant or delegated ownership.",
+    "Return target must be relative same-origin exactly /case-timeline with identical selected Case and only previously validated limit/offset/kind/q/from/to; reject unknown/duplicate keys, invalid ranges, scheme, authority, fragment and encoded/dot path anomalies.",
+    "HTML carries a bounded, per-link server-normalized return URL; no credential or object-source reference in URL, no open redirect.",
+    "Original JSON source preview schema remains unchanged (navigation-only field has json:\"-\"); existing source HTML without return_to still links to default Case Timeline.",
+    "Current feature is only a synthetic local browser Journey, not production IAM or a Class-2 source/correction/Case mutation."
+  ],
+  "security_properties": [
+    "Fail closed before any source contents are returned on forged cross-Case return context, arbitrary URL/origin/path, duplicate query, invalid page/filters, unexpected source parameters.",
+    "No disclosure of denied source preview across HTML and JSON under new return context; a permitted return link invokes GET /case-timeline and re-evaluates Case and typed-source ACL independently.",
+    "Fixed CSP/no-store/nosniff/no-referrer retained, all strings html/template escaped."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Add optional inert navigation query parameter on existing fixed GET route, no changes in persisted objects or source JSON.",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Revert child navigation context while leaving #205 authorized HTML source unchanged; old unfiltered return and native Back remain available.",
+    "verification": [
+      "Old two-key /demo-source-open requests behave identically",
+      "JSON preview has no new field"
+    ]
+  },
+  "inputs": [
+    "Immutable parent #205 `49d43f7864c84caef38b8d4a6acdf05ed9ab7057` source HTML with fresh typed-source owner checks and local runnable Go HTTP host",
+    "Existing validated Timeline selection parser and paginator; no new auth engine",
+    "Canonical CAP-INV-110 §17 return to same temporal position"
+  ],
+  "outputs": [
+    "Existing Timeline HTML source links include precisely validated source-return context for current Case/filters/page.",
+    "On source HTML, return link restores same originally authorized Case Timeline selection after fresh independent authorization; legacy no-return request safely resets to Case view.",
+    "Real first-party Go httptest through runnable browser and handler-level checks for return context rejection and unchanged JSON."
+  ],
+  "acceptance_tests": [
+    "Authorized Incident→Case→Timeline filter/offset→source HTML→return Case restores precise authorized selection, with fresh GET permission check.",
+    "Malformed external absolute/protocol-relative/dot/encoded path, foreign Case, unknown tenant/permission, duplicate keys, invalid selection rejected without source disclosure.",
+    "Denied principal, wrong Case, hidden Entry source still refused with optional return context.",
+    "Legacy two-key source open produces source HTML and JSON unchanged, return defaults to authorized Case Timeline.",
+    "Exact SHA platform Go and security Engineering workflows succeed including go test -race and vet."
+  ],
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-SECURITY-TESTS",
+    "CHK-SAST-GO",
+    "CHK-SCA-GO",
+    "investigation-timeline-runtime",
+    "command-investigate-readonly-host"
+  ],
+  "definition_of_ready": [
+    "E10-INV-110N-SOURCEHTML IMPLEMENTED with exact GitHub green CI on frozen #205 SHA, upstream DRAFT not merged",
+    "OPEN-013 applies to mutations only and Class-0 read/open/return needs no new decision"
+  ],
+  "definition_of_done": [
+    "Source HTML and fresh Case destination route actually run via Go HTTP fixture with restored filters/page.",
+    "Security and negative tests and exact SHA GitHub CI pass without reducing guards.",
+    "Review of cross-route navigation risk complete; no false native GitHub APPROVED, production or canonical full acceptance claim."
+  ],
+  "performance_budget": {
+    "applicable": false,
+    "rationale": "Bounded URL canonicalization only (<=2048 chars) on existing fixed in-memory source handler. No new source IO or second access authority.",
+    "metrics": []
+  },
+  "complexity": {
+    "primary_components": 2,
+    "estimated_files_changed": 3,
+    "estimated_net_loc": 120,
+    "production_files": 3,
+    "net_production_loc": 85,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

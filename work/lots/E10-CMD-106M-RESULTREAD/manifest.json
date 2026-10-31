@@ -1,0 +1,141 @@
+{
+  "schema_version": 2,
+  "id": "E10-CMD-106M-RESULTREAD",
+  "title": "Read independently authorized Govern Response Result in existing Command Incident Detail",
+  "type": "task",
+  "parent": "E10-CMD-106",
+  "goal": "Complete a bounded Class-0 Govern→Command Result consumption in existing authenticated Incident Detail without mutating Incident, Run, Decision or Result. Shared owner authorizes Incident→Result relation and Govern owner independently checks perm.govern.result.read before provenance/outcome/residual risk are displayed.",
+  "depends_on": [
+    "E10-CMD-106L-ALERTSRC"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-CMD-106",
+      "CAP-GOV-032",
+      "CAP-CMD-101"
+    ],
+    "requirements": [
+      "REQ-OBJ-001",
+      "REQ-PROD-013",
+      "REQ-SEC-001"
+    ],
+    "screens": [
+      "CMD-IWQ-006"
+    ],
+    "permissions": [
+      "perm.command.incident.read",
+      "perm.govern.result.read"
+    ],
+    "open_decisions": [
+      "OPEN-013",
+      "OPEN-015"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/incident.md",
+      "cmdr-product-spec/05-domain-model/objects/result.md",
+      "cmdr-product-spec/05-domain-model/objects/response-run.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/work-queue/incident_govern_result.go",
+    "product-runtime/work-queue/incident_govern_result_test.go",
+    "product-runtime/work-queue/incident_detail.go",
+    "product-runtime/command-investigate-host/cmd/local-browser/main.go",
+    "product-runtime/command-investigate-host/cmd/local-browser/incident_detail_test.go",
+    "product-runtime/command-investigate-host/cmd/local-browser/incident_govern_result_owner_test.go",
+    "work/lots/E10-CMD-106M-RESULTREAD/**",
+    "work/graph.json",
+    "engineering/state/current.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/investigation-timeline/**",
+    "product-runtime/command-investigate-host/host.go",
+    "product-runtime/work-queue/http.go",
+    "product-runtime/work-queue/queue.go"
+  ],
+  "invariants": [
+    "Command owns Incident; Govern owns canonical Result, Run and Decision; Shared Object Linking owns stable Incident→Result relation. Readable Incident or relation cannot imply Result.read.",
+    "Existing Incident Detail reauthorizes selected Incident using Command SessionResolver and Owner.List+CanRead Project before the optional Shared and Govern source calls. No browser-supplied Result ID or principal ever participates in the new lookup.",
+    "Only exact authorized Result IDs, tenant/environment, version/source identity, Run reference, lifecycle, classification, verification and residual risk are displayed via existing safe html/template; denied Result omitted without leaking ID/existence/count.",
+    "No technical executor raw payload, Evidence, Finding, Decision, target-level result, mutation, Result finalization, automatic Incident status update or Govern Action Request is executed.",
+    "No condition claims a runtime success as independently verified when verification has failed; missing projection never means absence of underlying Govern Result.",
+    "Historic #211 SHA and its independent L2 remain immutable; no change in #211 source or branch. New Git base #211 is not product/engineering parent."
+  ],
+  "security_properties": [
+    "Fail closed and emit no partial Incident HTML on link scope/duplicate/excessive refs, Govern owner error, source ID/tenant/env mismatch, malformed UTF8/control text, invalid timestamp or revoked Request context.",
+    "At most eight cross-owner Result read calls per Incident; independent Result.read must be server-enforced, not inferred from Incident.read or Shared link.",
+    "Only fixed existing GET /command/incident-detail and strict no-store/CSP HTML, no arbitrary Result route, no new authentication mechanism."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Optional bounded read-only projection on preexisting HTML Incident Detail, no data model or persistent storage changes",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Revert optional WithResults constructor and local synthetic source; legacy constructor and HTML continue to work",
+    "verification": [
+      "Legacy Command Incident Detail remains partial and successful",
+      "No upstream PR SHA change or schema migration"
+    ]
+  },
+  "inputs": [
+    "CAP-CMD-106 Result consumption, CAP-GOV-032 Class-0 inspection, OBJ-RESULT and permission contract",
+    "Existing E10-CMD-106L implemented synthetic Incident Detail and independent Alert provenance",
+    "Trusted optional Shared relation and independently authorizing Govern Result source, without assuming either production provider exists"
+  ],
+  "outputs": [
+    "The existing local Incident Detail now displays bounded Govern-authorized Result outcome, verification, residual risk, provenance and referenced Run ID",
+    "Source with denied Govern result is omitted without ID/count; absent provider yields explicitly partial Result unavailable state",
+    "Go handler tests for authorized/dropped Results, malicious identities, failures, revoked Incident, plus real localhost multi-principal HTTP browser tests"
+  ],
+  "acceptance_tests": [
+    "Visible incident and authorized Shared relation and Govern Result.read render Result ID, Run ID, lifecycle, outcome, verification, residual risk and source version; host escape prevents HTML injection",
+    "Readable Incident to commander without Govern grant renders no Result or ID, even if Shared relation exists; exact lookup is per-result",
+    "Malformed/refused/foreign/duplicated/too-many references or poisoned Result record abort whole output before HTML, while missing/denied individual Result is omitted",
+    "Legacy handler without optional sources keeps existing Incident/Alert/Case HTML and explicit partial unavailable state",
+    "Go runtime tests, race, vet, cross-platform host and engineering/security mandatory checks pass on exact candidate SHA"
+  ],
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-SECURITY-TESTS",
+    "CHK-SAST-GO",
+    "CHK-SCA-GO",
+    "command-work-queue-runtime",
+    "command-investigate-readonly-host"
+  ],
+  "definition_of_ready": [
+    "E10-CMD-106L-ALERTSRC implemented and exact GitHub source published at #211 aabdf107824bee9c3561ccce440586ac1670fa3d, no production claim",
+    "CAP-GOV-032 explicitly permits Class-0 Result inspection; OPEN-013 Class2 mutation and OPEN-015 provenance standardization remain excluded"
+  ],
+  "definition_of_done": [
+    "Existing Incident Detail shows separately authorized Govern Result and explicit verification/uncertainty, with no Command mutation",
+    "Exact GitHub candidate commit cross-platform Go/race/vet and engineering security gates SUCCESS",
+    "Material new cross-owner Result read boundary reviewed independently prior to any acceptance, upstream PR approvals/fusion separately enforced"
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "Bounded single Incident selected in existing <=5000 Command cohort and at most eight optional Shared/Govern source reads. Synthetic execution only.",
+    "metrics": [
+      "max 8 source Result lookups per response",
+      "no production latency/SLO claim"
+    ]
+  },
+  "complexity": {
+    "primary_components": 2,
+    "estimated_files_changed": 3,
+    "estimated_net_loc": 255,
+    "production_files": 3,
+    "net_production_loc": 205,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

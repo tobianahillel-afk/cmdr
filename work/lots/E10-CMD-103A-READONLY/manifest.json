@@ -1,0 +1,128 @@
+{
+  "schema_version": 2,
+  "id": "E10-CMD-103A-READONLY",
+  "title": "Show independently source-authorized canonical product ownership of selected Command item",
+  "type": "task",
+  "parent": "E10-CMD-103",
+  "goal": "Deliver CAP-CMD-103 Class-0 product-owner distinction in selected six-view Work Queue current-page item, without reassigning operational ownership, inferring Identity details, or widening permissions.",
+  "depends_on": [
+    "E10-CMD-101M-MYWORK"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-CMD-103",
+      "CAP-CMD-101",
+      "CAP-CMD-102"
+    ],
+    "requirements": [
+      "REQ-PROD-006",
+      "REQ-PROD-009",
+      "REQ-PROD-013",
+      "REQ-OBJ-001"
+    ],
+    "screens": [],
+    "permissions": [
+      "perm.command.read"
+    ],
+    "open_decisions": [
+      "OPEN-013"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/incident.md",
+      "cmdr-product-spec/05-domain-model/objects/task.md"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/work-queue/ownership.go",
+    "product-runtime/work-queue/ownership_test.go",
+    "product-runtime/work-queue/http.go",
+    "product-runtime/work-queue/queue.go",
+    "product-runtime/work-queue/html.go",
+    "work/lots/E10-CMD-103A-READONLY/**",
+    "work/lots/E10-CMD-103/**",
+    "work/graph.json",
+    "engineering/state/current.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "tools/cmdr-dev/**",
+    "product-runtime/case-queue/**",
+    "product-runtime/investigation-timeline/**"
+  ],
+  "invariants": [
+    "Ownership Register owner product and operational Incident/Task Owner are distinct; only host-authorized external register source may provide canonical owner.",
+    "Selected incident or task is currently visible and CanRead-authorized under host session; source separately authorizes the canonical Ownership Register and Settings identity metadata.",
+    "No new HTTP route, permission model, client-supplied identity or Class-2 mutation; OPEN-013 applies to updates and history.",
+    "Parent PR #175 SHA 391e4b13ddde572d47a756590bd09bc036495e0b is Git stack parent only, NOT CAP-CMD-103 engineering parent."
+  ],
+  "security_properties": [
+    "Never look up denied, missing, foreign or unselected work item in Ownership Register.",
+    "Reject unsafe or inconsistent register source claims with generic 503 before emitting current selected row.",
+    "html/template escapes untrusted registry text; nil source explicitly unknown; owner class never grants access to other source fields."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Optional selected-only Class-0 host projection with unchanged prior clients and all six Work Queue routes.",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Drop optional canonical Ownership Register projection preserving operational row ownership and prior SLA/factors.",
+    "verification": [
+      "All earlier Work Queue functional tests."
+    ]
+  },
+  "inputs": [
+    "Complete canonical CAP-CMD-103 §§1–27, CAP-CMD-101/102, 06-command module, Incident and Task objects and source/tenant permission contracts.",
+    "Previous selected-only Work Queue source adapters SLA and coordination factors on frozen PR #175 with successful exact-head CI."
+  ],
+  "outputs": [
+    "Optional CanonicalOwnershipOwner adapter independently reading source-authorized ProductOwner and register source/version/identity-resolution state.",
+    "Separate JSON selected_canonical_ownership and escaped native HTML visible only for current selected row; no inferred canonical owner."
+  ],
+  "acceptance_tests": [
+    "Current selected authorized Incident/Task asks independent Ownership Register only once with exact principal, tenant, environment and kind/id; no lookup on unselected/denied/foreign/out-of-page.",
+    "Canonical product owner remains distinct from operational row owner; unknown register/identity remains unknown; invalid claims and provider denial fail generic 503 without partial selection.",
+    "Untrusted HTML-shaped register content is escaped; no Class-2 source or owner mutation; earlier six-view route and SLA tests remain green.",
+    "Exact SHA command-work-queue-runtime and mandatory security/architecture/manifest checks pass without waivers."
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "One optional host source call for a selected authorized row; zero calls for unselected pages or denied rows.",
+    "metrics": [
+      "At most one canonical Ownership Register read per selected request.",
+      "No extra queue listing or pagination traversals."
+    ]
+  },
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-RUNTIME-DEPS",
+    "CHK-SECURITY-TESTS"
+  ],
+  "definition_of_ready": [
+    "E10-CMD-101M-MYWORK is IMPLEMENTED, matching CAP-CMD-103 contributor/watch relationships; existing selected Work Queue runtime exact parent SHA CI SUCCESS, parent PR draft/unmerged.",
+    "CAP-CMD-103 Class-0 canonical owner inspection is allowed while OPEN-013 blocks Class-2 owner/assignee mutations.",
+    "Single selected source metadata boundary; 1 bounded context, no migrations or third-party runtime dependency."
+  ],
+  "definition_of_done": [
+    "Code, tests and source-owner terms published with manifest and graph/current handoff; exact HEAD CI passes mandatory security floor.",
+    "Material read-only ownership boundary independently reviewed L2, NOT a native GitHub approval; parent stack not merged.",
+    "Whole CAP-CMD-103 remains unaccepted and mutation/history not claimed."
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 4,
+    "estimated_net_loc": 85,
+    "production_files": 4,
+    "net_production_loc": 72,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 0,
+    "separately_testable_behaviors": 1
+  }
+}

@@ -71,17 +71,17 @@ func validPivotValue(value string) bool {
 }
 
 func projectedFieldOrigin(projection *Projection, field, value string) (string, bool) {
-	if projection.SourceFields[field] == value {
+	if projectedValue, exists := projection.SourceFields[field]; exists && projectedValue == value {
 		return "source", true
 	}
-	if projection.NormalizedFields[field] == value {
+	if projectedValue, exists := projection.NormalizedFields[field]; exists && projectedValue == value {
 		return "normalized", true
 	}
-	if projection.RawDerivedSensitive[field] == value {
+	if projectedValue, exists := projection.RawDerivedSensitive[field]; exists && projectedValue == value {
 		return "raw-derived-sensitive", true
 	}
 	for _, enrichment := range projection.Enrichments {
-		if enrichment.Values[field] == value {
+		if projectedValue, exists := enrichment.Values[field]; exists && projectedValue == value {
 			return "enrichment:" + enrichment.Producer + "@" + enrichment.Version, true
 		}
 	}

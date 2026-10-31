@@ -1,0 +1,138 @@
+{
+  "schema_version": 2,
+  "id": "E10-CMD-106P-TASKLINKS",
+  "title": "Read independently authorized Command Tasks linked to a selected Incident Detail",
+  "type": "task",
+  "parent": "E10-CMD-106",
+  "goal": "Complete the canonical Incident coordination read flow: display existing Command Task ownership/status/timestamp next to the selected Incident, using an independently authorized Incident->Task relation and the exact existing Command Owner.List/CanRead Task projection. No Task creation, assignment, mutation or duplicate authorization engine.",
+  "depends_on": [
+    "E10-CMD-106O-NEXTACTION"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-CMD-106",
+      "CAP-CMD-101"
+    ],
+    "requirements": [
+      "REQ-PROD-003",
+      "REQ-PROD-013",
+      "REQ-SEC-001"
+    ],
+    "screens": [
+      "CMD-IWQ-006"
+    ],
+    "permissions": [
+      "perm.command.incident.read",
+      "perm.command.read"
+    ],
+    "open_decisions": [
+      "OPEN-013"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/incident.md",
+      "cmdr-product-spec/05-domain-model/objects/task.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/work-queue/incident_task_links.go",
+    "product-runtime/work-queue/incident_task_links_test.go",
+    "product-runtime/work-queue/incident_detail.go",
+    "product-runtime/command-investigate-host/cmd/local-browser/main.go",
+    "product-runtime/command-investigate-host/cmd/local-browser/incident_detail_test.go",
+    "work/lots/E10-CMD-106P-TASKLINKS/**",
+    "work/graph.json",
+    "engineering/state/current.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/work-queue/queue.go",
+    "product-runtime/work-queue/http.go",
+    "product-runtime/command-investigate-host/host.go"
+  ],
+  "invariants": [
+    "Selected Incident.read is re-authorized by unchanged Project; only a trusted optional IncidentTaskReferencesOwner yields scoped Incident->Task IDs.",
+    "Each linked Task must exist in a freshly listed Command owner collection and independently pass the SAME Owner.CanRead with Kind=Task, current principal, tenant and environment.",
+    "Link is not Task.read; denied, absent, cross-tenant and duplicate references never expose Task IDs or sensitive metadata. A source failure blocks any Incident Detail HTML before response.",
+    "No new Task owner, status machine, persistence, assignment rights, update action or automatic Incident mutation.",
+    "The narrow existing Task Row projection only has id, owner, status and updatedAt; canonical Task source version and rich Task Detail remain unknown rather than invented.",
+    "Owner.List second read is not transactional across Incident and Task; Task source time is surfaced, no consistency/production guarantee.",
+    "Legacy Command hosts without IncidentTaskReferencesOwner remain backward compatible and display an explicitly partial Task state."
+  ],
+  "security_properties": [
+    "Fail closed on >12 relation records, duplicate/foreign/invalid identifiers, >5000 owner records, changed scope, owner errors, invalid owner/status text or missing/invalid timestamp.",
+    "No output of denied Task IDs or counts, no Task action URL, no direct second ACL engine.",
+    "Source errors are generic and HTML is buffered until all providers finish. Existing CSP and no-store headers unchanged."
+  ],
+  "inputs": [
+    "CAP-CMD-106 owner and Task coordination, CAP-CMD-101 existing Command Owner.List/CanRead, optional IncidentTaskReferencesOwner from host only.",
+    "Frozen PR #214 local Incident Detail with next action, Alert, Govern Results and Case links, SHA 38d1131556023b427021422950b52aa2a67824b3."
+  ],
+  "outputs": [
+    "Existing GET /command/incident-detail shows only independently read-authorized linked Task id, owner/status and source updatedAt, without new endpoint or mutation.",
+    "Local loopback with analyst sees synthetic linked Task; commander has Incident permission but no Task.read and sees no Task ID.",
+    "Direct Go unit tests and real Go HTTP fixture verify positive, negative, malformed, lost permission, legacy behavior, oversized owner and cancelled request."
+  ],
+  "acceptance_tests": [
+    "Authorized Incident with scoped Task relation, Task in existing Command owner listing and individual Task CanRead=true => Task visibly listed in existing Incident Detail.",
+    "Incident reader lacking Task.read sees neither linked Task ID nor source metadata, including on later reaccess.",
+    "Broken tenant/env/incident/duplicate relation, malformed Task owner data, cancelled request, failed sources and bound overflows fail closed without partial HTML.",
+    "Legacy owner implementation without Task relation interface still shows Incident Detail and explicitly partial Task source.",
+    "Existing three GitHub workflows on exact SHA all pass, including workqueue Go race/vet, local real HTTP tests and mandatory engineering security checks."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Optional read-only rendering of existing Command Tasks and relation references; no storage, schema migration or production configuration.",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Revert local source demo Task and additive Incident Detail Task list; original Incident owner and route remain unchanged.",
+    "verification": [
+      "Existing Work Queue and Incident Detail tests pass",
+      "No Task creation or state mutation"
+    ]
+  },
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-SECURITY-TESTS",
+    "CHK-SAST-GO",
+    "CHK-SCA-GO",
+    "command-work-queue-runtime",
+    "command-investigate-readonly-host"
+  ],
+  "definition_of_ready": [
+    "Existing Command Owner.List/CanRead already handles Kind Task; no new IAM primitive or Product-spec change required.",
+    "E10-CMD-106O-NEXTACTION IMPLEMENTED, PR #214 exact CI SUCCESS, but upstream PR Draft/nonmerged.",
+    "OPEN-013 prevents Task mutation only; Class-0 read-only owner reauthorization is independently admissible."
+  ],
+  "definition_of_done": [
+    "Real owner-authorized Task related to current Incident visible in existing Incident Detail and revoked permissions hide it",
+    "Required GitHub CI SUCCESS on exact published SHA and full reviewer handoff",
+    "L2 independent review on material permission relationship, no main merge without native review and approvals"
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "A fresh bounded Owner.List <=5000 and at most 12 additional Task.CanRead; response is not transactional with the earlier Incident snapshot, no production SLO asserted.",
+    "metrics": [
+      "<=5000 owner items",
+      "<=12 relation IDs",
+      "No more than 12 Task permission checks"
+    ]
+  },
+  "complexity": {
+    "primary_components": 2,
+    "estimated_files_changed": 3,
+    "estimated_net_loc": 210,
+    "production_files": 3,
+    "net_production_loc": 135,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

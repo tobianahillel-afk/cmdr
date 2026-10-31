@@ -1,0 +1,116 @@
+{
+  "schema_version": 2,
+  "id": "E10-INV-110F-SUPERSESSION",
+  "title": "Expose source-authorized superseded Timeline Entry status through the existing Case HTTP read",
+  "type": "task",
+  "parent": "E10-INV-110",
+  "goal": "Mark an older authorized Case Timeline Entry non-current when and only when another authorized visible version supersedes it, reusing the existing read-only owner projection and HTTP route. No mutation, owner transfer, or new data source.",
+  "depends_on": [
+    "E10-INV-110E"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-110"
+    ],
+    "requirements": [
+      "REQ-PROD-014",
+      "REQ-PROD-018"
+    ],
+    "screens": [
+      "INV-TIM-001"
+    ],
+    "permissions": [
+      "perm.shared-capabilities.timeline-entry.read"
+    ],
+    "open_decisions": [
+      "OPEN-013"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/case.md",
+      "cmdr-product-spec/05-domain-model/objects/timeline-entry.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/investigation-timeline/projection.go",
+    "product-runtime/investigation-timeline/supersession_visibility_test.go",
+    "work/lots/E10-INV-110F-SUPERSESSION/**",
+    "work/graph.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/investigation-timeline/memory_provider.go",
+    "product-runtime/investigation-timeline/cmd/case-timeline-demo/**"
+  ],
+  "invariants": [
+    "Case/Timeline Entry and independently typed source authorization run unchanged before projection; client cannot assert supersession.",
+    "Only existing source-owner supersedes references already validated against the current visible authorized set may set read-only superseded=true.",
+    "No disclosure of denied/missing/foreign successor IDs; absence of an authorized successor never implies a definitive claim that no successor exists.",
+    "Existing Case HTTP route and page shape preserved; additive superseded field is omitted on false, no new IAM, mutation, audit side effects, or report/export permission."
+  ],
+  "security_properties": [
+    "Never infer supersession from absent/denied/foreign successor entries.",
+    "Reject invalid version links as before; do not relax bounded projection or owner policies.",
+    "A denial yields no entries, including supersession metadata."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Optional read-only computed JSON projection metadata; no persistent schema or data migration.",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Revert additive projection field and marking loop, leaving source-owned Supersedes links intact.",
+    "verification": [
+      "Existing source-safe projection and HTTP tests pass",
+      "Legacy JSON without visible successors unchanged"
+    ]
+  },
+  "inputs": [
+    "CAP-INV-110 complete read-only timeline contract",
+    "E10-INV-110E VERIFIED; existing Go Case/Timeline typed-source access and HTTP pagination"
+  ],
+  "outputs": [
+    "Authorized superseded predecessors are explicitly flagged in the existing Case Timeline JSON response, including paginated and filtered reads without a new endpoint.",
+    "Positive and denied-source Go projection/HTTP regression proof, preserving original version links and limiting inference."
+  ],
+  "acceptance_tests": [
+    "Source-authorized version1 and version2 where version2 supersedes version1 must mark only version1 as superseded.",
+    "Multi-hop authorized version chain marks all old nodes without manufacturing a single canonical successor.",
+    "Denied, missing and foreign successor must never change the visible predecessor flag or disclose its ID.",
+    "Explicit HTTP request with Case bearer shows boolean for predecessor even when newer entry is on another authorized page; invalid/revoked Case denied.",
+    "Existing Go tests and relevant GitHub Actions succeed on the exact SHA, no claims of production auth."
+  ],
+  "performance_budget": {
+    "applicable": false,
+    "rationale": "One O(N) pass over at most 5000 already-authorized entries with existing map; no new provider calls or storage.",
+    "metrics": []
+  },
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-ARCHITECTURE",
+    "CHK-RUNTIME-DEPS",
+    "CHK-SECURITY-TESTS"
+  ],
+  "definition_of_ready": [
+    "E10-INV-110E VERIFIED, existing Project and HTTP owner integration accessible, no changes required to frozen Wazuh PR #187"
+  ],
+  "definition_of_done": [
+    "Same read-only HTTP endpoint emits correct status under existing source ACL",
+    "Exact candidate SHA passes Go unit/HTTP tests, race, static gates",
+    "Independent risk review of material source-visibility projection before acceptance"
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 2,
+    "estimated_net_loc": 40,
+    "production_files": 1,
+    "net_production_loc": 15,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

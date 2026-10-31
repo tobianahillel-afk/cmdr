@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-STD-003A-TOOL",
+  "result": "VERIFIED",
+  "implementation_commit": "dc02bab752720cadb6902e278d03c65245f1d9b4",
+  "final_validated_head": "d96f5dc338a81c483a60c40f40b9d5383bbe9b02",
+  "pull_request": 222,
+  "evidence": {
+    "capability": "CAP-STD-003",
+    "requirements": [
+      "REQ-PROD-006",
+      "REQ-PROD-016",
+      "REQ-OBJ-009",
+      "REQ-AI-002"
+    ],
+    "contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/error-contract.md"
+    ],
+    "boundary": "studio-catalog-runtime",
+    "runtime_path": "product-runtime/studio-catalog",
+    "fixtures": 23,
+    "subtest_assertions": 78,
+    "production_files": 6,
+    "production_loc": 4181,
+    "test_files": 7,
+    "test_loc": 5901,
+    "runtime_dependencies": 0,
+    "cross_boundary_edges": 0,
+    "operations_implemented": [
+      "InspectTool",
+      "ValidateToolContract",
+      "DeterministicValidateToolContract",
+      "CreateDraftTool",
+      "UpdateDraftTool",
+      "SetRuntimeAvailability",
+      "ToAsset"
+    ],
+    "invariants_preserved": [
+      "Class 0 InspectTool strictly read-only and fail-closed",
+      "Execution verbs permanently blocked (Invoke, Execute, Run, Call, Trigger) returning 400 execution-blocked under REQ-PROD-006",
+      "Runtime availability decoupled from definition contract validity under CAP-STD-003 §25 Given 1",
+      "Strict anti-agent boundary defense under REQ-AI-002 preventing tool from acting as agent",
+      "Owner unknown normalization (is_unknown: true, owner-unknown) under REQ-OBJ-009",
+      "Immutability enforcement (only draft tools can be modified) under CAP-STD-003 §10, §14"
+    ],
+    "validation_results": {
+      "manifest_validation": "204 manifests checked (197 strict v2) PASS",
+      "architecture_audit": "17 boundaries PASS (1480 path claims), product spec read only: true",
+      "doctor": "PASS (healthy=true)",
+      "spec_diff": "0 bytes diff against 82e630fce3a7f6236e03709116eca6dd0a1acd40",
+      "go_test": "129 test functions (including 23 top-level tests, 78 test assertions, 8 adversarial penetration suites) PASS",
+      "go_vet": "PASS (0 warnings)"
+    }
+  },
+  "invariants": [
+    "Product Spec baseline 82e630fce3a7f6236e03709116eca6dd0a1acd40 unchanged (0 bytes diff)",
+    "Class 0 operations strictly read-only; execution verbs permanently blocked with 400 execution-blocked under REQ-PROD-006",
+    "Strict tenant scoping enforced with existence oracle elimination (uniform 404 for cross-tenant)",
+    "Runtime availability decoupled from definition validity (CAP-STD-003 §25 Given 1)",
+    "Anti-agent boundary defense prevents tool from morphing into agent (REQ-AI-002)",
+    "Explicit owner unknown normalization when owner is absent or unrecognized (REQ-OBJ-009)",
+    "Standard-library-only product runtime (0 third-party dependencies)"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": []
+}

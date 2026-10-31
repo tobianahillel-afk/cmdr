@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-CMD-101L-GROUP",
+  "result": "VERIFIED",
+  "final_validated_head": "6c86c38a11aa2661d88dac67928df2b00ed515e9",
+  "implementation_commit": "bfd6fcbf2b1fc42df39d4fa15668d29ff7e937d5",
+  "pull_request": 171,
+  "evidence": {
+    "canonical_capability": "CAP-CMD-101",
+    "implementation_paths": [
+      "product-runtime/work-queue/group.go",
+      "product-runtime/work-queue/group_test.go"
+    ]
+  },
+  "rules": [
+    "Group work queue items by status, priority, or owner",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-CMD-101M-MYWORK"
+  ]
+}

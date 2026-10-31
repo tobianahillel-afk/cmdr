@@ -1,0 +1,102 @@
+{
+  "schema_version": 2,
+  "id": "E10-CMD-101",
+  "title": "Deliver canonical CAP-CMD-101 Unified Work Queue by bounded read-only and later host integrations",
+  "type": "epic",
+  "parent": "",
+  "goal": "Complete canonical CAP-CMD-101 under Command owner without cloning Investigate Case Queue or redefining Shared Saved Views.",
+  "depends_on": [
+    "E10-SCALE-005B"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-CMD-101"
+    ],
+    "requirements": [
+      "REQ-OBJ-001",
+      "REQ-OBJ-012",
+      "REQ-PROD-013",
+      "REQ-UX-008",
+      "REQ-UX-009"
+    ],
+    "screens": [],
+    "permissions": [
+      "perm.command.read",
+      "perm.command.incident.read"
+    ],
+    "open_decisions": [],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/incident.md",
+      "cmdr-product-spec/05-domain-model/objects/task.md"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md"
+    ]
+  },
+  "allowed_paths": [
+    "work/lots/E10-CMD-101/**",
+    "work/lots/E10-CMD-101A-READONLY/**",
+    "work/graph.json",
+    "engineering/state/current.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**"
+  ],
+  "invariants": [
+    "Command owns Incident/Task, Shared owns Saved View implementation, external linked source permissions are independent.",
+    "Do not treat first bounded read-only system view projection as full CAP-CMD-101 acceptance."
+  ],
+  "security_properties": [
+    "No cross-tenant/environment data transfer",
+    "No object reference grants access"
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Planning container only",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Remove unaccepted child only",
+    "verification": [
+      "Canonical specification untouched"
+    ]
+  },
+  "inputs": [
+    "CAP-CMD-101 canonical and six view catalogue"
+  ],
+  "outputs": [
+    "E10-CMD-101A-READONLY bounded runnable projection, later separately-scoped Shared/host/UI integration"
+  ],
+  "acceptance_tests": [
+    "Child unit is independently tested and reviewed",
+    "Epic remains DECOMPOSED until full product obligations accepted"
+  ],
+  "performance_budget": {
+    "applicable": false,
+    "rationale": "Engineering epic container"
+  },
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-SECURITY-TESTS"
+  ],
+  "definition_of_ready": [
+    "Canonical CAP-CMD-101 read-only class-0 scope has no blocking OPEN"
+  ],
+  "definition_of_done": [
+    "All CAP-CMD-101 product obligations and host adapter/Shared integration meet native approvals; do not claim completion from prototype"
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 0,
+    "estimated_net_loc": 0,
+    "production_files": 0,
+    "net_production_loc": 0,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 0,
+    "separately_testable_behaviors": 1
+  }
+}

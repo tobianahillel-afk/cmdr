@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-CMD-109B-VIEW",
+  "result": "VERIFIED",
+  "final_validated_head": "40ee320eeaac44847f9a5c088f91ff451030a21e",
+  "implementation_commit": "40ee320eeaac44847f9a5c088f91ff451030a21e",
+  "pull_request": 168,
+  "evidence": {
+    "canonical_capability": "CAP-CMD-109",
+    "implementation_paths": [
+      "product-runtime/work-queue/freshness.go",
+      "product-runtime/work-queue/http.go"
+    ]
+  },
+  "rules": [
+    "Display fresh/stale/unknown observation indicator on native HTML and JSON",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-CMD-106A-CASELINKS"
+  ]
+}

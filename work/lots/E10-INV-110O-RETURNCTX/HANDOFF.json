@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-INV-110O-RETURNCTX",
+  "result": "VERIFIED",
+  "final_validated_head": "49d43f7864c84caef38b8d4a6acdf05ed9ab7057",
+  "implementation_commit": "49d43f7864c84caef38b8d4a6acdf05ed9ab7057",
+  "pull_request": 205,
+  "evidence": {
+    "title": "Restore authorized Case Timeline filter/page context after opening synthetic source HTML",
+    "goal": "Complete CAP-INV-110 \u00a712/\u00a717 read-only navigation with an explicit server-validated return link preserving the previously authorized Timeline Case, filters and page. Retain independent owner authorization; preserve original source JSON and source HTML safe presentation.",
+    "implementation_paths": [
+      "product-runtime/investigation-timeline/case_html.go",
+      "product-runtime/investigation-timeline/memory_source_preview.go",
+      "product-runtime/investigation-timeline/memory_source_preview_html.go",
+      "product-runtime/investigation-timeline/source_return_test.go",
+      "product-runtime/command-investigate-host/cmd/local-browser/main_test.go",
+      "work/lots/E10-INV-110O-RETURNCTX/**",
+      "work/graph.json"
+    ],
+    "outputs": [
+      "Existing Timeline HTML source links include precisely validated source-return context for current Case/filters/page.",
+      "On source HTML, return link restores same originally authorized Case Timeline selection after fresh independent authorization; legacy no-return request safely resets to Case view.",
+      "Real first-party Go httptest through runnable browser and handler-level checks for return context rejection and unchanged JSON."
+    ],
+    "acceptance_tests": [
+      "Authorized Incident\u2192Case\u2192Timeline filter/offset\u2192source HTML\u2192return Case restores precise authorized selection, with fresh GET permission check.",
+      "Malformed external absolute/protocol-relative/dot/encoded path, foreign Case, unknown tenant/permission, duplicate keys, invalid selection rejected without source disclosure.",
+      "Denied principal, wrong Case, hidden Entry source still refused with optional return context.",
+      "Legacy two-key source open produces source HTML and JSON unchanged, return defaults to authorized Case Timeline.",
+      "Exact SHA platform Go and security Engineering workflows succeed including go test -race and vet."
+    ],
+    "run_ids": []
+  },
+  "rules": [
+    "Class-0 read-only implementation for E10-INV-110O-RETURNCTX",
+    "Strict tenant isolation and permission checking",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-CMD-106H-RETURN",
+    "E10-CMD-106N-DETAILRETURN"
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-CMD-106N-DETAILRETURN",
+  "result": "VERIFIED",
+  "final_validated_head": "401bd5b061147e7e19fd23cc660fc489e7c111f7",
+  "implementation_commit": "401bd5b061147e7e19fd23cc660fc489e7c111f7",
+  "pull_request": 212,
+  "evidence": {
+    "title": "Restore original Command Incident Detail after independently authorized Investigate Case/source navigation",
+    "goal": "Close the canonical CAP-CMD-106 \u00a717/25 R2 gap: from existing Incident Detail, return from authorized Case Timeline and optional independently authorized source preview to the SAME Incident Detail screen rather than falling back to selected Work Queue card. Legacy Work Queue navigation remains intact. No new IAM, route, object or mutation.",
+    "implementation_paths": [
+      "product-runtime/work-queue/incident_detail.go",
+      "product-runtime/investigation-timeline/incident_return.go",
+      "product-runtime/investigation-timeline/case_http.go",
+      "product-runtime/investigation-timeline/case_html.go",
+      "product-runtime/investigation-timeline/memory_source_preview.go",
+      "product-runtime/investigation-timeline/incident_return_detail_test.go",
+      "product-runtime/command-investigate-host/cmd/local-browser/incident_detail_return_test.go",
+      "work/lots/E10-CMD-106N-DETAILRETURN/**",
+      "work/graph.json",
+      "engineering/state/current.json"
+    ],
+    "outputs": [
+      "Existing Command Incident Detail Case anchor carries only origin_view=detail and validated existing origin_incident; no new endpoint.",
+      "Existing Case Timeline preserves fixed origin across HTML form/filter, reset, page links and typed-source return_to; after source return, fixed link opens /command/incident-detail?incident=... .",
+      "Explicit native HTTP round-trip with synthetic independent owners plus tampered-origin/denied-principal cases and parsers; no upstream SHA rewritten."
+    ],
+    "acceptance_tests": [
+      "Authorized Incident Detail\u2192Case\u2192typed source\u2192same Case selection\u2192same Incident Detail returns HTTP 200 at final Command destination with independent owner check",
+      "Legacy originating Work Queue continues returning to Work Queue; filtered and reset Case navigation preserve origin only for explicit HTML context",
+      "Absent, duplicate or malicious origin_view and cross-Case/tenant scope denied without raw/source/Incident leak",
+      "Unauthorized Command-only reader cannot access Case; unauthorized Incident remains 404 even with a forged navigation hint",
+      "Three first-party Go module CI suites including Linux race, vet, and required engineering-kernel security and complexity checks all SUCCESS on exact final SHA"
+    ],
+    "run_ids": []
+  },
+  "rules": [
+    "Class-0 read-only implementation for E10-CMD-106N-DETAILRETURN",
+    "Strict tenant isolation and permission checking",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-CMD-106O-NEXTACTION"
+  ]
+}

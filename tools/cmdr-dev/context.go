@@ -49,6 +49,9 @@ func runContextCompiler(root, workUnit, output string, check bool, state Current
 	if workUnit == "" {
 		workUnit = state.Execution.ActiveWorkUnit
 	}
+	if workUnit == "" {
+		return ContextSummary{WorkUnit: "", Sources: 0, DependencyUnits: 0, BundleDigest: "none"}, nil
+	}
 	node, ok := graphNode(graph, workUnit)
 	if !ok {
 		return ContextSummary{}, fmt.Errorf("context work unit %s is missing from graph", workUnit)
@@ -371,7 +374,7 @@ func registryCanonicalPath(root, registryRel, id, column string) (string, error)
 		if len(cells) == 0 {
 			continue
 		}
-		if columnIndex < 0 && strings.EqualFold(strings.TrimSpace(cells[0]), "ID") || columnIndex < 0 && strings.EqualFold(strings.TrimSpace(cells[0]), "Permission") {
+		if columnIndex < 0 && (strings.EqualFold(strings.TrimSpace(cells[0]), "ID") || strings.EqualFold(strings.TrimSpace(cells[0]), "Capability ID") || strings.EqualFold(strings.TrimSpace(cells[0]), "Permission")) {
 			for i, cell := range cells {
 				if strings.EqualFold(strings.TrimSpace(cell), column) {
 					columnIndex = i

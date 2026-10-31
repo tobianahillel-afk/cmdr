@@ -1,0 +1,133 @@
+{
+  "schema_version": 2,
+  "id": "E10-CMD-101G-PAGE",
+  "title": "Navigate stable and freshly authorized Command Work Queue pages",
+  "type": "task",
+  "parent": "E10-CMD-101",
+  "goal": "Replace inaccessible after-first-50 Command records with a bounded, revocation-safe, same-route read-only cursor while preserving existing six views, host ACL and current filter/sort/selection.",
+  "depends_on": [
+    "E10-CMD-101F-SELECTION"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-CMD-101"
+    ],
+    "requirements": [
+      "REQ-OBJ-001",
+      "REQ-OBJ-012",
+      "REQ-PROD-013",
+      "REQ-UX-008",
+      "REQ-UX-009"
+    ],
+    "screens": [],
+    "permissions": [
+      "perm.command.read",
+      "perm.command.incident.read"
+    ],
+    "open_decisions": [],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/incident.md",
+      "cmdr-product-spec/05-domain-model/objects/task.md"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/pagination-filtering-sorting.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/work-queue/pagination.go",
+    "product-runtime/work-queue/pagination_test.go",
+    "product-runtime/work-queue/queue.go",
+    "product-runtime/work-queue/http.go",
+    "product-runtime/work-queue/html.go",
+    "work/lots/E10-CMD-101G-PAGE/**",
+    "work/graph.json",
+    "engineering/state/current.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/case-queue/**",
+    "product-runtime/investigation-timeline/**",
+    "tools/cmdr-dev/**"
+  ],
+  "invariants": [
+    "Exact existing six system views and ONE host-authenticated GET /command/work-queue route.",
+    "Per-request fresh trusted SessionResolver, bounded Owner.List and per-object Owner.CanRead precede filtering/sorting and any page selection; no cursor grants access.",
+    "A cursor binds to the full currently authorized bounded ordered row snapshot plus principal/tenant/environment/view/filter/order; invalid/revoked/stale snapshot is generically unavailable.",
+    "Only 50 rows emitted per page, at most 5000 owner candidates; raw owner/denied IDs never enter cursor; HTML next and first-page links retain scope-neutral status/sort/view.",
+    "Presentation cursor is NOT an authenticated cryptographic signature, production paging scheme, transactional snapshot, Shared Saved View, Inspector or host IAM.",
+    "Parent PR #164 HEAD 75981f08712978cf5f0555cad7639f37b3439486 frozen for L2; it is Git dependency only, NOT engineering parent."
+  ],
+  "security_properties": [
+    "Reject malformed, duplicate, oversized cursors and client scope injection before host/session lookup.",
+    "Re-run owner ACLs for every in-scope Incident and Task on EVERY page; any owner error yields no rows.",
+    "On denied/revoked/cross-principal/tenant/context or owner revision, stale token returns generic 404 and no partial projection.",
+    "A selected row must exist on the currently authorized selected page; HTML IDs remain contextually escaped and no sensitive data in cursor."
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Opt-in opaque page cursor and omitempty JSON fields; no durable schema or client authority",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Remove cursor codec/new page fields and restore bounded first-50 rendering while retaining existing queue authorization",
+    "verification": [
+      "Previous six views, filters, sort, selected rows, freshness stay unchanged",
+      "No additional Owner calls"
+    ]
+  },
+  "inputs": [
+    "Canonical CAP-CMD-101 complete §§1–27; Command Work Queue catalog and canonical pagination contract; full final cursor schema remains open.",
+    "E10-CMD-101F-SELECTION graph IMPLEMENTED, exact PR #163 SHA b5e71280e2af3960cf63f45fea92a71cff557a68",
+    "Existing host-owned single-route first-party Work Queue and optional CAP-CMD-109 read-only freshness on frozen PR #164 SHA 75981f08712978cf5f0555cad7639f37b3439486; its L2 executed but report inaccessible."
+  ],
+  "outputs": [
+    "Read-only opt-in second/subsequent pages, limited to currently authorized 50 visible rows, with safe next cursor and first page return on same route.",
+    "Generic fail-closed revocation and stale-context error without new authorization or pagination datastore."
+  ],
+  "acceptance_tests": [
+    "123 authorized rows + denied and cross-tenant rows paginate as 50/50/23 with unique stable ordering and no unpermitted source references.",
+    "Every page fresh host session and all current source per-object ACLs; revoked owner changes invalidate cursor without partial data.",
+    "Selection only current page; invalid/duplicated/malformed cursor denied before session/owner; stale cursor 404, no privilege from token.",
+    "Browser same-route next/first navigation preserves filter/sort and contextually escapes source values; existing pre-page JSON shape for <=50 preserved.",
+    "Exact SHA Ubuntu/macOS/Windows work queue tests and mandatory engineering-kernel checks including unchanged security-critical 90% floor."
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "One existing bounded full owner read and O(n) digest per page; no additional calls, <=5000 authorized rows, first 50 displayed.",
+    "metrics": [
+      "Exactly one Owner.List and existing per-object CanRead per page",
+      "O(n) bounded JSON+SHA256 over <=5000 authorized Row projections",
+      "50 display rows"
+    ]
+  },
+  "required_checks": [
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-RUNTIME-DEPS",
+    "CHK-SECURITY-TESTS"
+  ],
+  "definition_of_ready": [
+    "E10-CMD-101F-SELECTION graph IMPLEMENTED; canonical CAP-CMD-101 class-0 navigation valid and E10-SCALE-005B VERIFIED.",
+    "No explicit cursor standard or final Shared Saved View schema is claimed: internal presentation token only, not authoritative format.",
+    "Parents #163/#164 frozen and their independent L2 not treated as approval."
+  ],
+  "definition_of_done": [
+    "Second and later pages actually usable through existing authorized HTTP + HTML, source revoked/cross scope tokens denied.",
+    "Exact-HEAD GitHub functional and mandatory security CI completed; one independent risk-based L2 requested only for material paging authorization boundary, not per SHA.",
+    "Record IMPLEMENTED only, no PR merge/production/full CAP acceptance without parent and native approvals."
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 4,
+    "estimated_net_loc": 165,
+    "production_files": 4,
+    "net_production_loc": 165,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

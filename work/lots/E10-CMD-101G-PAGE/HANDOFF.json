@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-CMD-101G-PAGE",
+  "result": "VERIFIED",
+  "final_validated_head": "75981f08712978cf5f0555cad7639f37b3439486",
+  "implementation_commit": "75981f08712978cf5f0555cad7639f37b3439486",
+  "pull_request": 164,
+  "evidence": {
+    "title": "Navigate stable and freshly authorized Command Work Queue pages",
+    "goal": "Replace inaccessible after-first-50 Command records with a bounded, revocation-safe, same-route read-only cursor while preserving existing six views, host ACL and current filter/sort/selection.",
+    "implementation_paths": [
+      "product-runtime/work-queue/pagination.go",
+      "product-runtime/work-queue/pagination_test.go",
+      "product-runtime/work-queue/queue.go",
+      "product-runtime/work-queue/http.go",
+      "product-runtime/work-queue/html.go",
+      "work/lots/E10-CMD-101G-PAGE/**",
+      "work/graph.json",
+      "engineering/state/current.json"
+    ],
+    "outputs": [
+      "Read-only opt-in second/subsequent pages, limited to currently authorized 50 visible rows, with safe next cursor and first page return on same route.",
+      "Generic fail-closed revocation and stale-context error without new authorization or pagination datastore."
+    ],
+    "acceptance_tests": [
+      "123 authorized rows + denied and cross-tenant rows paginate as 50/50/23 with unique stable ordering and no unpermitted source references.",
+      "Every page fresh host session and all current source per-object ACLs; revoked owner changes invalidate cursor without partial data.",
+      "Selection only current page; invalid/duplicated/malformed cursor denied before session/owner; stale cursor 404, no privilege from token.",
+      "Browser same-route next/first navigation preserves filter/sort and contextually escapes source values; existing pre-page JSON shape for <=50 preserved.",
+      "Exact SHA Ubuntu/macOS/Windows work queue tests and mandatory engineering-kernel checks including unchanged security-critical 90% floor."
+    ],
+    "run_ids": []
+  },
+  "rules": [
+    "Canonical owner: Command CAP-CMD-101 Unified Work Queue \u00a7\u00a73, 8\u201311, 14\u201317, 21, 25. Command owns Incident/Task rows and the exact six system views; Shared owns final Saved Views; final Inspector is separate. The canonical Pagination Filtering Sorting contract names cursor/stable order/limits but does not yet fix a public cursor wire schema.",
+    "Engineering owner: existing epic E10-CMD-101 \u2192 task E10-CMD-101G-PAGE; dependency E10-CMD-101F-SELECTION IMPLEMENTED, not accepted. Git parent only PR #164 frozen HEAD 75981f08712978cf5f0555cad7639f37b3439486; PR #164 belongs to separate CAP-CMD-109 freshness epic and remains unmerged and L2-reviewed independently. The parent SHA is immutable.",
+    "Code owner: product-runtime/work-queue (Go), reusing existing exact six-view Project and one authenticated GET /command/work-queue, first-party SessionResolver and per Incident/Task Owner.CanRead.",
+    "Former behavior: 5000 candidates scanned and individually authorized, sorted, then only first 50 accessible. No HTTP or HTML mechanism to retrieve the remaining authorized rows.",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": []
+}

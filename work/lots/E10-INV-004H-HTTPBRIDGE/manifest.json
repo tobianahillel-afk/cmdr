@@ -1,0 +1,143 @@
+{
+  "schema_version": 2,
+  "id": "E10-INV-004H-HTTPBRIDGE",
+  "title": "Wire authorized Event Search Inspector browser to existing Go HTTP host",
+  "type": "task",
+  "parent": "E10-INV-004",
+  "goal": "Make the existing CAP-INV-002 Search result -> CAP-INV-004 Inspector -> same Search window traversal use a real same-origin HTTP POST to the existing host with negative authorization tests against a live loopback-only synthetic Go server, without claiming real IAM, provider, or production deployment.",
+  "depends_on": [
+    "E10-INV-004G-HOST",
+    "E10-INV-002G"
+  ],
+  "product_refs": {
+    "capabilities": [
+      "CAP-INV-002",
+      "CAP-INV-004"
+    ],
+    "requirements": [
+      "REQ-PROD-002",
+      "REQ-PROD-005",
+      "REQ-PROD-008",
+      "REQ-PROD-014"
+    ],
+    "screens": [
+      "INV-EVS-001"
+    ],
+    "permissions": [
+      "perm.shared-capabilities.telemetry-event.read"
+    ],
+    "open_decisions": [
+      "OPEN-013",
+      "OPEN-014"
+    ],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/frontend-state-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/cross-product-context-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/telemetry-event.md",
+      "cmdr-product-spec/05-domain-model/objects/query.md",
+      "cmdr-product-spec/05-domain-model/objects/search-job.md",
+      "cmdr-product-spec/05-domain-model/objects/parser.md",
+      "cmdr-product-spec/05-domain-model/objects/data-source.md"
+    ]
+  },
+  "allowed_paths": [
+    "product-runtime/event-search-frontend/**",
+    "product-runtime/event-inspection-host/testdata/fixture/**",
+    ".github/workflows/event-inspection-browser-http-integration.yml",
+    "work/lots/E10-INV-004H-HTTPBRIDGE/**",
+    "work/graph.json"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**",
+    "product-runtime/event-inspection/**",
+    "product-runtime/event-inspection-host/http.go",
+    "product-runtime/event-search/**"
+  ],
+  "invariants": [
+    "Import frozen frontend inspection.mjs and inspection.test.mjs from PR #183 without modifying their bytes; keep #183 and #184 immutable",
+    "Browser transport uses fixed same-origin relative endpoint and never treats selection/scope/raw flags as permission",
+    "Real HTTP access is independently denied by trusted host session, Search Job membership and Telemetry Event owner; synthetic local fixture is not IAM",
+    "No raw-derived values when raw denied; frontend rechecks Job/run/tenant/environment before displaying or restoring",
+    "OPEN-013/014 mutations, storage, query execution, Case, Evidence and production API remain out of scope"
+  ],
+  "security_properties": [
+    "Fixed relative POST path with credentials same-origin, redirect error, no-store, AbortSignal, JSON-only bounded UTF-8 response",
+    "Host synthetic token is random per integration test and never emitted; listener binds only 127.0.0.1",
+    "Wrong bearer and wrong tenant deny without returning protected data; no client-supplied authorization rights",
+    "Oversized/non-JSON/denied responses fail closed before UI normalization; frontend textContent-only renderer remains unchanged"
+  ],
+  "migration": {
+    "required": false,
+    "rationale": "Transport of read-only projections only; no persistence or schema migration",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "Revert H integration branch; source PR #183 and server PR #184 remain unchanged",
+    "verification": [
+      "No canonical spec changed",
+      "Independent Go host and Event Search frontend remain testable separately"
+    ]
+  },
+  "inputs": [
+    "Existing CAP-INV-002 frontend and E10-INV-004E first-party projection core",
+    "PR #183 frozen source blob IDs; PR #184 frozen approved-by-CI host SHA 239ad0950f35a283e8611baf599a652966822dcb, not native approved",
+    "Existing same-origin host endpoint with injected owner interfaces; local test fixture only"
+  ],
+  "outputs": [
+    "Actual Node fetch POST to live first-party Go HTTP host after Search controller selection",
+    "Go synthetic host uses independently-scoped Search and Telemetry owners, server bearer required only in test",
+    "Read-only browser inspection shows separate rendered/raw state and returns to same Search result window",
+    "Exact-HEAD CI: complete original JS tests, Go host tests, real local cross-language e2e, mandatory engineering checks",
+    "Explicit handoff and prior source blob provenance"
+  ],
+  "acceptance_tests": [
+    "Search controller selected Event uses the actual HTTP host and produces validated Inspector projection",
+    "Rendered authorized while raw and raw-derived are denied, and source/parser/enrichment provenance survives HTTP",
+    "Return restores same authorized Search result-window object after HTTP round trip",
+    "Wrong bearer/wrong tenant/foreign event deny and return no classified bytes",
+    "Bad Content-Type and >2 MiB response reject before browser displays result",
+    "Node24 and Go 1.26.8 tests run on exact CI SHA without real IAM/provider/API payante"
+  ],
+  "required_checks": [
+    "adaptive engineering-kernel",
+    "CHK-MANIFESTS",
+    "CHK-COMPLEXITY",
+    "CHK-ARCHITECTURE",
+    "CHK-RUNTIME-DEPS",
+    "CHK-SECURITY-TESTS"
+  ],
+  "definition_of_ready": [
+    "PR #184 host code is published and green at base SHA (not merged)",
+    "PR #183 JS journey code is published and copied byte-identically (not merged)",
+    "OPEN-013/014 excluded and no owner auth behavior invented"
+  ],
+  "definition_of_done": [
+    "Live local HTTP bridge end-to-end successful at exact GitHub SHA",
+    "Security deny, raw denied, same-result return, oversize and malformed response tests green",
+    "L2 independent snapshot available or honestly pending; PR DRAFT until review/merge gates"
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "Local browser HTTP bytes <=2MiB and one Event per inspection; synthetic fixture is not a network or production SLO",
+    "metrics": [
+      "at most 2 MiB UTF-8 response accepted by bridge",
+      "one POST per selected event",
+      "no production HTTP latency claim"
+    ]
+  },
+  "complexity": {
+    "primary_components": 2,
+    "estimated_files_changed": 6,
+    "estimated_net_loc": 390,
+    "production_files": 3,
+    "net_production_loc": 320,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}

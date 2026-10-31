@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-STD-002A-METADATA",
+  "status": "VERIFIED",
+  "implementation_commit": "pending-commit",
+  "final_validated_head": "28d19d213be478d4ad88d8d118c09013c0456ff9",
+  "pull_request": 222,
+  "parent": "E10-SCALE-007",
+  "goal": "Define CMDR Studio asset metadata, ownership contracts, and classification schema (CAP-STD-002)",
+  "depends_on": [
+    "E10-STD-001C-RUNTIME"
+  ],
+  "validation": {
+    "manifest_validation": "PASS",
+    "architecture_audit": "PASS",
+    "dependency_audit": "PASS",
+    "doctor": "PASS",
+    "product_spec_diff": "PASS",
+    "go_vet": "PASS",
+    "go_test": "PASS",
+    "test_suite_summary": {
+      "top_level_tests": 97,
+      "total_tests": 293,
+      "passed_tests": 293,
+      "failed_tests": 0,
+      "coverage_percent": 84.0,
+      "duration_seconds": 0.294
+    }
+  },
+  "evidence": {
+    "capability": "CAP-STD-002",
+    "requirements": [
+      "REQ-PROD-006",
+      "REQ-PROD-016",
+      "REQ-OBJ-009"
+    ],
+    "contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/error-contract.md"
+    ],
+    "boundary": "studio-catalog-runtime",
+    "runtime_path": "product-runtime/studio-catalog",
+    "production_files": 5,
+    "production_loc": 2631,
+    "test_files": 4,
+    "test_loc": 3186,
+    "operations_implemented": [
+      "ValidateMetadata",
+      "SuggestClassificationAndTags",
+      "AssignOwner",
+      "UpdateDraftMetadata",
+      "RecordSupersession",
+      "GetSupersessionHistory"
+    ],
+    "runtime_implementation_claimed": true
+  },
+  "invariants": [
+    "Product Spec baseline 82e630fce3a7f6236e03709116eca6dd0a1acd40 unchanged (0 bytes diff)",
+    "Class 0 operations strictly read-only; execution verbs permanently blocked with 400 execution-blocked (REQ-PROD-006)",
+    "Strict tenant scoping enforced with existence oracle elimination",
+    "Deterministic tag and classification validation without requiring AI (REQ-PROD-016)",
+    "Owner missing/blank normalized to 'owner unknown' with is_unknown: true (REQ-OBJ-009)",
+    "Supersession lineage and provenance audit trail preserved across transitions",
+    "Standard-library-only product runtime (0 third-party dependencies)"
+  ],
+  "next_unlocked": []
+}

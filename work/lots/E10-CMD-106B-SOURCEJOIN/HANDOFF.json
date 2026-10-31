@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-CMD-106B-SOURCEJOIN",
+  "result": "VERIFIED",
+  "final_validated_head": "1de96cadd50bcdb123cd9712305c9690b4378ac4",
+  "implementation_commit": "efb01bcc3c3b786bbe70009982f11bdfcd2ae0b9",
+  "pull_request": 177,
+  "evidence": {
+    "canonical_capability": "CAP-CMD-106",
+    "implementation_paths": [
+      "product-runtime/work-queue/linked_cases_join.go",
+      "product-runtime/work-queue/linked_cases_join_test.go"
+    ]
+  },
+  "rules": [
+    "Join independently authorized Shared links and Investigate Case status",
+    "Product Spec remains read-only"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": [
+    "E10-CMD-106C-FRESHNESS"
+  ]
+}
