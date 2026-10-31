@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-STD-003A-TOOL",
+  "status": "READY",
+  "implementation_commit": "pending",
+  "final_validated_head": "pending",
+  "pull_request": 222,
+  "parent": "E10-SCALE-007",
+  "goal": "Define CMDR Studio tool definition and functional capability contract (CAP-STD-003)",
+  "depends_on": [
+    "E10-STD-002A-METADATA"
+  ],
+  "validation": {
+    "manifest_validation": "PASS",
+    "architecture_audit": "PASS",
+    "doctor": "PASS",
+    "product_spec_diff": "PASS",
+    "go_vet": "PASS",
+    "go_test": "PASS"
+  },
+  "evidence": {
+    "capability": "CAP-STD-003",
+    "requirements": [
+      "REQ-PROD-006",
+      "REQ-PROD-016",
+      "REQ-OBJ-009",
+      "REQ-AI-002"
+    ],
+    "contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/error-contract.md"
+    ],
+    "boundary": "studio-catalog-runtime",
+    "runtime_path": "product-runtime/studio-catalog",
+    "production_files": 1,
+    "test_files": 1
+  },
+  "next_unlocked": []
+}

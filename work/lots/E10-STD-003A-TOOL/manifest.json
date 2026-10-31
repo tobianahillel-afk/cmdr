@@ -1,0 +1,131 @@
+{
+  "schema_version": 2,
+  "id": "E10-STD-003A-TOOL",
+  "title": "Define CMDR Studio tool definition and functional capability contract (CAP-STD-003)",
+  "type": "task",
+  "parent": "E10-SCALE-007",
+  "goal": "Implement and verify canonical Studio Tool definition, functional capability contract, deterministic contract validation, runtime availability decoupling, and execution blocking under CAP-STD-003.",
+  "product_refs": {
+    "capabilities": [
+      "CAP-STD-003"
+    ],
+    "requirements": [
+      "REQ-PROD-006",
+      "REQ-PROD-016",
+      "REQ-OBJ-009",
+      "REQ-AI-002"
+    ],
+    "screens": [],
+    "permissions": [
+      "perm.studio.library.read",
+      "perm.studio.skill.read",
+      "perm.studio.workflow.read",
+      "perm.studio.automation-agent.read",
+      "perm.studio.agent-team.read",
+      "perm.cmdr-studio.version.read"
+    ],
+    "open_decisions": [],
+    "implementation_contracts": [
+      "cmdr-product-spec/17-implementation-contracts/tenant-scope-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/permission-enforcement-contract.md",
+      "cmdr-product-spec/17-implementation-contracts/error-contract.md"
+    ],
+    "canonical_objects": [
+      "cmdr-product-spec/05-domain-model/objects/capability.md",
+      "cmdr-product-spec/05-domain-model/objects/model-provider.md",
+      "cmdr-product-spec/05-domain-model/objects/version.md",
+      "cmdr-product-spec/05-domain-model/objects/skill.md"
+    ]
+  },
+  "depends_on": [
+    "E10-STD-002A-METADATA"
+  ],
+  "allowed_paths": [
+    "engineering/state/**",
+    "product-runtime/studio-catalog/**",
+    "work/graph.json",
+    "work/lots/E10-STD-003*/**",
+    "tools/cmdr-dev/**"
+  ],
+  "forbidden_paths": [
+    "cmdr-product-spec/**"
+  ],
+  "inputs": [
+    "VERIFIED E10-STD-002A-METADATA metadata and catalog runtime in product-runtime/studio-catalog/",
+    "CAP-STD-003 canonical specification",
+    "permission-catalog.md verified permissions"
+  ],
+  "outputs": [
+    "Tool definition models, operations, and deterministic validation functions in product-runtime/studio-catalog/",
+    "Automated unit and integration test suite in product-runtime/studio-catalog/tool_test.go",
+    "HANDOFF.json schema v2 and verification evidence"
+  ],
+  "invariants": [
+    "cmdr-product-spec/** remains strictly read-only (0 bytes diff)",
+    "zero third-party runtime dependencies (Go standard library only)",
+    "strict tenant isolation with uniform 404 anti-oracle protection",
+    "Tool definition remains valid even when underlying runtime/provider is unavailable",
+    "AI-capable tool never transforms into an Agent",
+    "all 5 execution verbs permanently blocked with 400 execution-blocked (REQ-PROD-006)"
+  ],
+  "security_properties": [
+    "fail-closed tenant scoping for tool definitions",
+    "server-side pre-authorization evaluation on tool inspect",
+    "zero credential or secret leakage in tool responses (secret references masked)"
+  ],
+  "acceptance_tests": [
+    "cmdr-dev doctor passes with healthy=true",
+    "cmdr-dev validate-manifests passes 100%",
+    "cmdr-dev architecture-audit passes",
+    "go test ./... in product-runtime/studio-catalog passes 100% with statement coverage >= 80%"
+  ],
+  "performance_budget": {
+    "applicable": true,
+    "rationale": "Tool inspection and contract validation must execute in under 5ms in-memory",
+    "metrics": [
+      "p95_inspect_tool_latency < 5ms",
+      "p95_validate_contract_latency < 5ms",
+      "memory_allocation < 512KB per validation"
+    ]
+  },
+  "migration": {
+    "required": false,
+    "rationale": "In-memory domain model projection; no database migration required",
+    "steps": []
+  },
+  "rollback": {
+    "strategy": "revert git commit",
+    "verification": [
+      "git diff clean",
+      "cmdr-dev doctor passes"
+    ]
+  },
+  "required_checks": [
+    "adaptive engineering-kernel",
+    "CHK-MANIFESTS",
+    "CHK-ARCHITECTURE",
+    "CHK-COMPLEXITY"
+  ],
+  "definition_of_ready": [
+    "E10-STD-002A-METADATA is VERIFIED",
+    "cmdr-dev doctor passes",
+    "cmdr-product-spec/** 0 diff verified"
+  ],
+  "definition_of_done": [
+    "Tool functional definition models, contract validation, and draft management implemented in product-runtime/studio-catalog",
+    "100% test pass rate with coverage >= 80% on new tool components",
+    "HANDOFF.json authored with factual test/SHA proofs",
+    "work/graph.json updated and cmdr-dev doctor green"
+  ],
+  "complexity": {
+    "primary_components": 1,
+    "estimated_files_changed": 4,
+    "estimated_net_loc": 350,
+    "production_files": 2,
+    "net_production_loc": 200,
+    "bounded_contexts": 1,
+    "independent_migrations": 0,
+    "distinct_security_models": 1,
+    "separately_testable_behaviors": 1
+  }
+}
