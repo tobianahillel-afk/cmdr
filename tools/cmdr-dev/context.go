@@ -49,6 +49,9 @@ func runContextCompiler(root, workUnit, output string, check bool, state Current
 	if workUnit == "" {
 		workUnit = state.Execution.ActiveWorkUnit
 	}
+	if workUnit == "" {
+		return ContextSummary{WorkUnit: "", Sources: 0, DependencyUnits: 0, BundleDigest: "none"}, nil
+	}
 	node, ok := graphNode(graph, workUnit)
 	if !ok {
 		return ContextSummary{}, fmt.Errorf("context work unit %s is missing from graph", workUnit)
