@@ -19,7 +19,7 @@
   "execution": {
     "active_work_unit": "E10-STD-003A-TOOL",
     "preferred_next_unit": "E10-STD-003A-TOOL",
-    "selection_rule": "E10-STD-003A-TOOL is READY; predecessor E10-STD-002A-METADATA is VERIFIED. CAP-STD-003 Tool definition models, functional capability contracts, and deterministic validation ready for implementation."
+    "selection_rule": "E10-STD-003A-TOOL transitioned to VERIFIED; CAP-STD-003 Tool definition models, deterministic validation, decoupled runtime availability, anti-agent boundary defense, and execution blocking verified with 129 tests (84.2% coverage) in product-runtime/studio-catalog."
   },
   "reconciliation": {
     "required_on_resume": false,

@@ -2597,7 +2597,7 @@
       "id": "E10-STD-003A-TOOL",
       "title": "Define CMDR Studio tool definition and functional capability contract (CAP-STD-003)",
       "type": "task",
-      "status": "READY",
+      "status": "VERIFIED",
       "depends_on": [
         "E10-STD-002A-METADATA"
       ],
