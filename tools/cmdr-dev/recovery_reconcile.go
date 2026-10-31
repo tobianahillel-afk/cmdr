@@ -47,6 +47,9 @@ func runRecoveryReconciliation(root string, request RecoveryReconcileRequest, st
 	if workUnit == "" {
 		workUnit = state.Execution.ActiveWorkUnit
 	}
+	if workUnit == "" {
+		return RecoveryReconciliation{Outcome: "clean", NextAction: "reconcile-roadmap", GitRelation: "none", LeaseStatus: "none", CIStatus: "not-provided"}, nil
+	}
 	if _, ok := graphNode(graph, workUnit); !ok {
 		return RecoveryReconciliation{}, fmt.Errorf("unknown reconciliation work unit %s", workUnit)
 	}
@@ -79,6 +82,9 @@ func runRecoveryReconciliation(root string, request RecoveryReconcileRequest, st
 }
 
 func runRecoveryReconciliationAudit(root string, state CurrentState, graph WorkGraph) (RecoveryReconciliation, error) {
+	if strings.TrimSpace(state.Execution.ActiveWorkUnit) == "" {
+		return RecoveryReconciliation{Outcome: "clean", NextAction: "reconcile-roadmap", GitRelation: "none", LeaseStatus: "none", CIStatus: "not-provided"}, nil
+	}
 	result, err := runRecoveryReconciliation(root, RecoveryReconcileRequest{}, state, graph)
 	if err != nil {
 		return result, err
