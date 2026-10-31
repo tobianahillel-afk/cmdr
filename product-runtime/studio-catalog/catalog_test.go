@@ -136,6 +136,7 @@ func adminAuth(tenantID string) AuthContext {
 		PermStudioAutomationAgentManage,
 		PermStudioAgentTeamRead,
 		PermStudioAgentTeamManage,
+		PermStudioArtifactManage,
 		PermCmdrStudioVersionRead,
 		PermCmdrStudioVersionManage,
 	)
@@ -1082,14 +1083,15 @@ func TestValidateMSSPTenantSet_UnauthorizedTenantInSet_403(t *testing.T) {
 
 func TestValidateTenantScope_WithATS(t *testing.T) {
 	ats := []string{"tenant-1", "tenant-2"}
+	auth := NewAuthContext("usr-test", "tenant-1", ats)
 
 	// Allowed
-	if err := ValidateTenantScope("tenant-1", ats, "test-corr"); err != nil {
+	if err := ValidateTenantScope(auth, "tenant-1", "test-corr"); err != nil {
 		t.Fatalf("expected tenant-1 to be allowed in ATS, got %v", err)
 	}
 
 	// Disallowed
-	err := ValidateTenantScope("tenant-3", ats, "test-corr")
+	err := ValidateTenantScope(auth, "tenant-3", "test-corr")
 	if err == nil || err.Code != ErrorCodeUnauthorizedTenantInSet {
 		t.Fatalf("expected unauthorized-tenant-in-set for tenant-3, got %v", err)
 	}

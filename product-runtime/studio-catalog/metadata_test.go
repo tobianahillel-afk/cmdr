@@ -312,7 +312,7 @@ func TestAssignOwner_ServiceNominalAndFallback(t *testing.T) {
 		t.Fatalf("expected audit trail record")
 	}
 	lastAudit := resp.Asset.AuditTrail[len(resp.Asset.AuditTrail)-1]
-	if lastAudit.Action != "assign_owner" || lastAudit.Actor != "lead-architect" {
+	if lastAudit.Action != "assign_owner" || lastAudit.Actor != "usr-admin" {
 		t.Fatalf("audit trail mismatch: %+v", lastAudit)
 	}
 

@@ -1,10 +1,13 @@
 package studiocatalog
 
 import (
+	"crypto/hmac"
+	"crypto/sha256"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -311,18 +314,61 @@ type CursorPayload struct {
 	Fingerprint   string `json:"fp"`
 }
 
-// EncodeCursor serializes cursor payload into an opaque URL-safe base64 string.
+var (
+	cursorHMACKeyMu sync.RWMutex
+	cursorHMACKey   = []byte("cmdr-studio-catalog-cursor-signing-secret-v1-32bytes")
+)
+
+// SetCursorHMACKey updates the HMAC signing key (e.g. for key rotation or testing).
+func SetCursorHMACKey(key []byte) {
+	cursorHMACKeyMu.Lock()
+	defer cursorHMACKeyMu.Unlock()
+	cursorHMACKey = append([]byte(nil), key...)
+}
+
+func getCursorHMACKey() []byte {
+	cursorHMACKeyMu.RLock()
+	defer cursorHMACKeyMu.RUnlock()
+	return cursorHMACKey
+}
+
+// EncodeCursor serializes cursor payload into an opaque URL-safe base64 string with cryptographic HMAC signature.
 func EncodeCursor(p CursorPayload) string {
 	b, err := json.Marshal(p)
 	if err != nil {
 		return ""
 	}
-	return base64.RawURLEncoding.EncodeToString(b)
+	payloadB64 := base64.RawURLEncoding.EncodeToString(b)
+	key := getCursorHMACKey()
+	mac := hmac.New(sha256.New, key)
+	mac.Write([]byte(payloadB64))
+	sigB64 := base64.RawURLEncoding.EncodeToString(mac.Sum(nil))
+	return payloadB64 + "." + sigB64
 }
 
-// DecodeCursor parses an opaque cursor string.
+// DecodeCursor parses and verifies an opaque cursor string with cryptographic HMAC signature.
 func DecodeCursor(s string) (*CursorPayload, error) {
-	b, err := base64.RawURLEncoding.DecodeString(s)
+	parts := strings.Split(s, ".")
+	if len(parts) != 2 {
+		return nil, fmt.Errorf("invalid cursor format: missing cryptographic signature")
+	}
+	payloadB64, sigB64 := parts[0], parts[1]
+
+	sig, err := base64.RawURLEncoding.DecodeString(sigB64)
+	if err != nil {
+		return nil, fmt.Errorf("invalid signature encoding: %w", err)
+	}
+
+	key := getCursorHMACKey()
+	mac := hmac.New(sha256.New, key)
+	mac.Write([]byte(payloadB64))
+	expectedSig := mac.Sum(nil)
+
+	if !hmac.Equal(sig, expectedSig) {
+		return nil, fmt.Errorf("cursor signature verification failed: token has been tampered with")
+	}
+
+	b, err := base64.RawURLEncoding.DecodeString(payloadB64)
 	if err != nil {
 		return nil, fmt.Errorf("invalid base64 encoding: %w", err)
 	}

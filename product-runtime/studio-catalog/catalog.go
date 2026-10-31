@@ -143,7 +143,7 @@ func (s *DefaultCatalogService) Browse(ctx context.Context, auth AuthContext, re
 	}
 
 	// 1. Tenant validation
-	if errEnv := ValidateTenantScope(req.TenantRef, auth.AuthorizedTenantSet, corrID); errEnv != nil {
+	if errEnv := ValidateTenantScope(auth, req.TenantRef, corrID); errEnv != nil {
 		return nil, errEnv
 	}
 
@@ -253,7 +253,7 @@ func (s *DefaultCatalogService) Search(ctx context.Context, auth AuthContext, re
 		corrID = GenerateCorrelationID()
 	}
 
-	if errEnv := ValidateTenantScope(req.TenantRef, auth.AuthorizedTenantSet, corrID); errEnv != nil {
+	if errEnv := ValidateTenantScope(auth, req.TenantRef, corrID); errEnv != nil {
 		return nil, errEnv
 	}
 
@@ -374,7 +374,7 @@ func (s *DefaultCatalogService) Filter(ctx context.Context, auth AuthContext, re
 		corrID = GenerateCorrelationID()
 	}
 
-	if errEnv := ValidateTenantScope(req.TenantRef, auth.AuthorizedTenantSet, corrID); errEnv != nil {
+	if errEnv := ValidateTenantScope(auth, req.TenantRef, corrID); errEnv != nil {
 		return nil, errEnv
 	}
 
@@ -571,7 +571,7 @@ func (s *DefaultCatalogService) Group(ctx context.Context, auth AuthContext, req
 		corrID = GenerateCorrelationID()
 	}
 
-	if errEnv := ValidateTenantScope(req.TenantRef, auth.AuthorizedTenantSet, corrID); errEnv != nil {
+	if errEnv := ValidateTenantScope(auth, req.TenantRef, corrID); errEnv != nil {
 		return nil, errEnv
 	}
 
@@ -676,7 +676,7 @@ func (s *DefaultCatalogService) Open(ctx context.Context, auth AuthContext, req 
 		corrID = GenerateCorrelationID()
 	}
 
-	if errEnv := ValidateTenantScope(req.TenantRef, auth.AuthorizedTenantSet, corrID); errEnv != nil {
+	if errEnv := ValidateTenantScope(auth, req.TenantRef, corrID); errEnv != nil {
 		return nil, errEnv
 	}
 
@@ -731,7 +731,7 @@ func (s *DefaultCatalogService) Inspect(ctx context.Context, auth AuthContext, r
 		corrID = GenerateCorrelationID()
 	}
 
-	if errEnv := ValidateTenantScope(req.TenantRef, auth.AuthorizedTenantSet, corrID); errEnv != nil {
+	if errEnv := ValidateTenantScope(auth, req.TenantRef, corrID); errEnv != nil {
 		return nil, errEnv
 	}
 
@@ -772,7 +772,7 @@ func (s *DefaultCatalogService) Compare(ctx context.Context, auth AuthContext, r
 		corrID = GenerateCorrelationID()
 	}
 
-	if errEnv := ValidateTenantScope(req.TenantRef, auth.AuthorizedTenantSet, corrID); errEnv != nil {
+	if errEnv := ValidateTenantScope(auth, req.TenantRef, corrID); errEnv != nil {
 		return nil, errEnv
 	}
 
@@ -875,7 +875,7 @@ func (s *DefaultCatalogService) ClonePreparation(ctx context.Context, auth AuthC
 		corrID = GenerateCorrelationID()
 	}
 
-	if errEnv := ValidateTenantScope(req.TenantRef, auth.AuthorizedTenantSet, corrID); errEnv != nil {
+	if errEnv := ValidateTenantScope(auth, req.TenantRef, corrID); errEnv != nil {
 		return nil, errEnv
 	}
 
@@ -945,10 +945,7 @@ func (s *DefaultCatalogService) ClonePreparation(ctx context.Context, auth AuthC
 	sourceRef := fmt.Sprintf("%s@%s", source.ID, source.Version.SemVer)
 	chain = append(chain, sourceRef)
 
-	clonedBy := req.ClonedBy
-	if clonedBy == "" {
-		clonedBy = auth.PrincipalID
-	}
+	clonedBy := strings.TrimSpace(auth.PrincipalID)
 	if clonedBy == "" {
 		clonedBy = "unknown"
 	}

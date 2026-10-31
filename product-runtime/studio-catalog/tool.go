@@ -497,7 +497,7 @@ func (s *DefaultToolService) InspectTool(ctx context.Context, auth *AuthContext,
 	ac := ensureAuth(auth)
 
 	// 1. Validate tenant scoping
-	if errEnv := ValidateTenantScope(tenantRef, ac.AuthorizedTenantSet, corrID); errEnv != nil {
+	if errEnv := ValidateTenantScope(ac, tenantRef, corrID); errEnv != nil {
 		return nil, errEnv
 	}
 
@@ -554,7 +554,7 @@ func (s *DefaultToolService) ValidateToolContract(ctx context.Context, auth *Aut
 	}
 
 	// 1. Validate tenant scoping
-	if errEnv := ValidateTenantScope(req.TenantRef, ac.AuthorizedTenantSet, corrID); errEnv != nil {
+	if errEnv := ValidateTenantScope(ac, req.TenantRef, corrID); errEnv != nil {
 		return nil, errEnv
 	}
 
@@ -859,7 +859,7 @@ func (s *DefaultToolService) CreateDraftTool(ctx context.Context, auth *AuthCont
 	}
 
 	// 1. Validate tenant scoping
-	if errEnv := ValidateTenantScope(req.TenantRef, ac.AuthorizedTenantSet, corrID); errEnv != nil {
+	if errEnv := ValidateTenantScope(ac, req.TenantRef, corrID); errEnv != nil {
 		return nil, errEnv
 	}
 
@@ -872,7 +872,7 @@ func (s *DefaultToolService) CreateDraftTool(ctx context.Context, auth *AuthCont
 
 	// 2. Validate authoring permission
 	if !ac.CanManageAssetKind(AssetKindTool) {
-		return nil, NewPermissionDeniedError(PermStudioBuilderRead, corrID)
+		return nil, NewPermissionDeniedError(PermStudioArtifactManage, corrID)
 	}
 
 	// 3. Validate mandatory fields
@@ -1005,7 +1005,7 @@ func (s *DefaultToolService) UpdateDraftTool(ctx context.Context, auth *AuthCont
 	}
 
 	// 1. Validate tenant scoping
-	if errEnv := ValidateTenantScope(req.TenantRef, ac.AuthorizedTenantSet, corrID); errEnv != nil {
+	if errEnv := ValidateTenantScope(ac, req.TenantRef, corrID); errEnv != nil {
 		return nil, errEnv
 	}
 
@@ -1018,7 +1018,7 @@ func (s *DefaultToolService) UpdateDraftTool(ctx context.Context, auth *AuthCont
 
 	// 2. Validate authoring permission
 	if !ac.CanManageAssetKind(AssetKindTool) {
-		return nil, NewPermissionDeniedError(PermStudioBuilderRead, corrID)
+		return nil, NewPermissionDeniedError(PermStudioArtifactManage, corrID)
 	}
 
 	// 3. Lookup existing tool

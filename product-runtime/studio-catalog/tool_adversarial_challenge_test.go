@@ -282,7 +282,7 @@ func TestChallenge_MSSP_CrossTenantMutation_UpdateDraft_Forbidden(t *testing.T) 
 func TestChallenge_Immutability_AllNonDraftStates_Rejected(t *testing.T) {
 	svc, store := setupTestToolService(t)
 	ctx := context.Background()
-	auth := NewAuthContext("builder-1", "tenant-alpha", []string{"tenant-alpha"}, PermStudioBuilderRead)
+	auth := NewAuthContext("builder-1", "tenant-alpha", []string{"tenant-alpha"}, PermStudioBuilderRead, PermStudioArtifactManage)
 
 	nonDraftStates := []struct {
 		state  ToolFunctionalState
@@ -352,7 +352,7 @@ func TestChallenge_Immutability_AllNonDraftStates_Rejected(t *testing.T) {
 func TestChallenge_StateTransitions_PublishedDeployedAndInvalid(t *testing.T) {
 	svc, _ := setupTestToolService(t)
 	ctx := context.Background()
-	auth := NewAuthContext("builder-1", "tenant-alpha", []string{"tenant-alpha"}, PermStudioBuilderRead)
+	auth := NewAuthContext("builder-1", "tenant-alpha", []string{"tenant-alpha"}, PermStudioBuilderRead, PermStudioArtifactManage)
 
 	forbiddenTransitions := []struct {
 		desc  string

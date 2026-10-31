@@ -580,7 +580,7 @@ func TestTool_ValidateContract_EmptyOperations_Rejected(t *testing.T) {
 func TestTool_CreateDraft_Nominal(t *testing.T) {
 	svc, _ := setupTestToolService(t)
 	ctx := context.Background()
-	auth := NewAuthContext("designer-1", "tenant-alpha", nil, PermStudioBuilderRead)
+	auth := NewAuthContext("designer-1", "tenant-alpha", nil, PermStudioBuilderRead, PermStudioArtifactManage)
 
 	req := &CreateDraftToolRequest{
 		TenantRef:           "tenant-alpha",
@@ -645,8 +645,8 @@ func TestTool_CreateDraft_CrossTenantMutation_Forbidden(t *testing.T) {
 	svc, _ := setupTestToolService(t)
 	ctx := context.Background()
 
-	// Caller is scoped to tenant-alpha with builder read
-	auth := NewAuthContext("builder-alpha", "tenant-alpha", nil, PermStudioBuilderRead)
+	// Caller is scoped to tenant-alpha with builder read and artifact manage, with ATS including both tenants
+	auth := NewAuthContext("builder-alpha", "tenant-alpha", []string{"tenant-alpha", "tenant-bravo"}, PermStudioBuilderRead, PermStudioArtifactManage)
 
 	// Attempt to create draft tool in tenant-bravo
 	req := &CreateDraftToolRequest{
@@ -668,7 +668,7 @@ func TestTool_CreateDraft_CrossTenantMutation_Forbidden(t *testing.T) {
 func TestTool_UpdateDraft_Nominal(t *testing.T) {
 	svc, _ := setupTestToolService(t)
 	ctx := context.Background()
-	auth := NewAuthContext("builder-1", "tenant-alpha", nil, PermStudioBuilderRead)
+	auth := NewAuthContext("builder-1", "tenant-alpha", nil, PermStudioBuilderRead, PermStudioArtifactManage)
 
 	req := &UpdateDraftToolRequest{
 		TenantRef:   "tenant-alpha",
@@ -703,7 +703,7 @@ func TestTool_UpdateDraft_Immutability_NonDraftRejected(t *testing.T) {
 	// Updating tool in 'available-reference' must return HTTP 400 immutable-asset-mutation.
 	svc, _ := setupTestToolService(t)
 	ctx := context.Background()
-	auth := NewAuthContext("builder-1", "tenant-alpha", nil, PermStudioBuilderRead)
+	auth := NewAuthContext("builder-1", "tenant-alpha", nil, PermStudioBuilderRead, PermStudioArtifactManage)
 
 	req := &UpdateDraftToolRequest{
 		TenantRef:   "tenant-alpha",
@@ -730,7 +730,7 @@ func TestTool_UpdateDraft_ForbiddenStates_PublishedDeployed(t *testing.T) {
 	// States 'published' and 'deployed' are strictly forbidden under STD-1.
 	svc, _ := setupTestToolService(t)
 	ctx := context.Background()
-	auth := NewAuthContext("builder-1", "tenant-alpha", nil, PermStudioBuilderRead)
+	auth := NewAuthContext("builder-1", "tenant-alpha", nil, PermStudioBuilderRead, PermStudioArtifactManage)
 
 	forbiddenStates := []ToolFunctionalState{"published", "deployed"}
 	for _, st := range forbiddenStates {

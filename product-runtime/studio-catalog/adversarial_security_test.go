@@ -322,17 +322,18 @@ func TestAdversarial_TimingIndistinguishability_NonExistentVsForeign(t *testing.
 // Verify single tenant request outside ATS is rejected with 403
 func TestAdversarial_MSSP_SingleTenantRequest_NotInATS_Returns403(t *testing.T) {
 	ats := []string{"tenant-alpha", "tenant-bravo"}
+	auth := NewAuthContext("usr-mssp", "tenant-alpha", ats)
 
 	// Valid tenants in ATS
-	if err := ValidateTenantScope("tenant-alpha", ats, "corr-1"); err != nil {
+	if err := ValidateTenantScope(auth, "tenant-alpha", "corr-1"); err != nil {
 		t.Fatalf("expected tenant-alpha to be allowed, got: %v", err)
 	}
-	if err := ValidateTenantScope("tenant-bravo", ats, "corr-1"); err != nil {
+	if err := ValidateTenantScope(auth, "tenant-bravo", "corr-1"); err != nil {
 		t.Fatalf("expected tenant-bravo to be allowed, got: %v", err)
 	}
 
 	// Unauthorized tenant outside ATS
-	err := ValidateTenantScope("tenant-charlie", ats, "corr-1")
+	err := ValidateTenantScope(auth, "tenant-charlie", "corr-1")
 	if err == nil {
 		t.Fatalf("expected 403 unauthorized for tenant-charlie")
 	}
@@ -473,10 +474,11 @@ func TestAdversarial_MSSP_CrossTenantCloneProhibitedEvenWithinATS(t *testing.T) 
 
 func TestAdversarial_WildcardInjection_Asterisk_Returns400(t *testing.T) {
 	ats := []string{"tenant-alpha"}
+	auth := NewAuthContext("usr-test", "tenant-alpha", ats)
 
 	cases := []string{"*", " * ", "  *  "}
 	for _, tc := range cases {
-		err := ValidateTenantScope(tc, ats, "corr-1")
+		err := ValidateTenantScope(auth, tc, "corr-1")
 		if err == nil || err.HTTPStatus != 400 || err.Code != ErrorCodeWildcardTenant {
 			t.Fatalf("expected 400 wildcard-tenant for %q, got: %v", tc, err)
 		}
@@ -485,10 +487,11 @@ func TestAdversarial_WildcardInjection_Asterisk_Returns400(t *testing.T) {
 
 func TestAdversarial_WildcardInjection_Percent_Returns400(t *testing.T) {
 	ats := []string{"tenant-alpha"}
+	auth := NewAuthContext("usr-test", "tenant-alpha", ats)
 
 	cases := []string{"%", " % ", "  %  "}
 	for _, tc := range cases {
-		err := ValidateTenantScope(tc, ats, "corr-1")
+		err := ValidateTenantScope(auth, tc, "corr-1")
 		if err == nil || err.HTTPStatus != 400 || err.Code != ErrorCodeWildcardTenant {
 			t.Fatalf("expected 400 wildcard-tenant for %q, got: %v", tc, err)
 		}
@@ -497,10 +500,11 @@ func TestAdversarial_WildcardInjection_Percent_Returns400(t *testing.T) {
 
 func TestAdversarial_WildcardInjection_All_CaseInsensitive_Returns400(t *testing.T) {
 	ats := []string{"tenant-alpha"}
+	auth := NewAuthContext("usr-test", "tenant-alpha", ats)
 
 	cases := []string{"all", "ALL", "All", "aLL", " all ", " ALL "}
 	for _, tc := range cases {
-		err := ValidateTenantScope(tc, ats, "corr-1")
+		err := ValidateTenantScope(auth, tc, "corr-1")
 		if err == nil || err.HTTPStatus != 400 || err.Code != ErrorCodeWildcardTenant {
 			t.Fatalf("expected 400 wildcard-tenant for %q, got: %v", tc, err)
 		}
@@ -509,10 +513,11 @@ func TestAdversarial_WildcardInjection_All_CaseInsensitive_Returns400(t *testing
 
 func TestAdversarial_Injection_WhitespaceAndBlank_Returns400(t *testing.T) {
 	ats := []string{"tenant-alpha"}
+	auth := NewAuthContext("usr-test", "tenant-alpha", ats)
 
 	cases := []string{"", " ", "   ", "\t", "\n", "\r\n"}
 	for _, tc := range cases {
-		err := ValidateTenantScope(tc, ats, "corr-1")
+		err := ValidateTenantScope(auth, tc, "corr-1")
 		if err == nil || err.HTTPStatus != 400 || err.Code != ErrorCodeMissingTenant {
 			t.Fatalf("expected 400 missing-tenant for %q, got: %v", tc, err)
 		}
@@ -522,6 +527,7 @@ func TestAdversarial_Injection_WhitespaceAndBlank_Returns400(t *testing.T) {
 // Probe path traversal and null bytes in tenant_ref when ATS is configured
 func TestAdversarial_Injection_PathTraversalAndNullBytes_WithATS(t *testing.T) {
 	ats := []string{"tenant-alpha"}
+	auth := NewAuthContext("usr-test", "tenant-alpha", ats)
 
 	injections := []string{
 		"../tenant-bravo",
@@ -534,7 +540,7 @@ func TestAdversarial_Injection_PathTraversalAndNullBytes_WithATS(t *testing.T) {
 	}
 
 	for _, inj := range injections {
-		err := ValidateTenantScope(inj, ats, "corr-1")
+		err := ValidateTenantScope(auth, inj, "corr-1")
 		if err == nil {
 			t.Fatalf("CRITICAL SECURITY HOLE: injection %q was accepted by ValidateTenantScope", inj)
 		}
@@ -566,11 +572,16 @@ func TestAdversarial_TenantScope_EmptyATS_SecurityAudit(t *testing.T) {
 		AssetID:   "skl-bravo-secret",
 	})
 
-	// Log findings for audit report:
+	// Blocking security audit assertion:
 	if err == nil {
-		t.Logf("FINDING / SECURITY DEFECT CONFIRMED: When ATS is nil, ValidateTenantScope fails open! Caller from tenant-alpha was able to inspect foreign tenant asset: %+v", resp.Asset.ID)
-	} else {
-		t.Logf("PASS: Foreign tenant request rejected with err: %v", err)
+		t.Fatalf("CRITICAL SECURITY HOLE: When ATS is nil, ValidateTenantScope failed open! Caller from tenant-alpha was able to inspect foreign tenant asset: %+v", resp.Asset.ID)
+	}
+	errEnv, ok := err.(*ErrorEnvelope)
+	if !ok {
+		t.Fatalf("expected *ErrorEnvelope, got %T: %v", err, err)
+	}
+	if errEnv.HTTPStatus != 403 || errEnv.Code != ErrorCodeUnauthorizedTenantInSet {
+		t.Fatalf("expected 403 unauthorized-tenant-in-set, got status=%d code=%s message=%s", errEnv.HTTPStatus, errEnv.Code, errEnv.Message)
 	}
 }
 

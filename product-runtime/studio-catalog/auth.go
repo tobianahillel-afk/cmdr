@@ -1,6 +1,7 @@
 package studiocatalog
 
 import (
+	"fmt"
 	"strings"
 )
 
@@ -15,6 +16,7 @@ const (
 	PermStudioAutomationAgentManage = "perm.studio.automation-agent.manage"
 	PermStudioAgentTeamRead       = "perm.studio.agent-team.read"
 	PermStudioAgentTeamManage     = "perm.studio.agent-team.manage"
+	PermStudioArtifactManage      = "perm.studio.artifact.manage"
 	PermCmdrStudioVersionRead     = "perm.cmdr-studio.version.read"
 	PermCmdrStudioVersionManage   = "perm.cmdr-studio.version.manage"
 	PermStudioBuilderRead         = "perm.studio.builder.read"
@@ -109,6 +111,11 @@ func resolvePermissionAlias(perm string) string {
 	case "perm.studio.version.manage":
 		return PermCmdrStudioVersionManage
 
+	case PermStudioArtifactManage:
+		return "perm.cmdr-studio.artifact.manage"
+	case "perm.cmdr-studio.artifact.manage":
+		return PermStudioArtifactManage
+
 	default:
 		return ""
 	}
@@ -140,6 +147,7 @@ func (ac *AuthContext) CanReadAssetKind(kind AssetKind) bool {
 }
 
 // CanManageAssetKind checks whether the caller has the specific manage permission for an asset kind.
+// It NEVER returns true based solely on read permissions.
 func (ac *AuthContext) CanManageAssetKind(kind AssetKind) bool {
 	switch kind {
 	case AssetKindSkill:
@@ -151,14 +159,47 @@ func (ac *AuthContext) CanManageAssetKind(kind AssetKind) bool {
 	case AssetKindAgentTeam:
 		return ac.HasPermission(PermStudioAgentTeamManage)
 	case AssetKindTool:
-		return ac.HasPermission(PermStudioLibraryRead) || ac.HasPermission(PermStudioBuilderRead)
+		return ac.HasPermission(PermStudioArtifactManage)
 	default:
 		return false
 	}
 }
 
 // ValidateTenantScope enforces tenant scoping rules under tenant-scope-contract.md.
-func ValidateTenantScope(tenantRef string, authorizedTenants []string, correlationID string) *ErrorEnvelope {
+// Active tenant (auth.TenantID) is always enforced, even when ATS is nil or empty.
+// Empty TenantID or ATS inconsistent with TenantID is rejected at entry.
+func ValidateTenantScope(auth AuthContext, tenantRef string, correlationID string) *ErrorEnvelope {
+	activeTenant := strings.TrimSpace(auth.TenantID)
+	if activeTenant == "" {
+		return NewError(
+			ErrorCodeMissingTenant,
+			"Active tenant identifier is required in auth context",
+			correlationID,
+			400,
+			false,
+		)
+	}
+
+	// If ATS is present, active tenant must be in the ATS
+	if len(auth.AuthorizedTenantSet) > 0 {
+		activeFound := false
+		for _, t := range auth.AuthorizedTenantSet {
+			if strings.TrimSpace(t) == activeTenant {
+				activeFound = true
+				break
+			}
+		}
+		if !activeFound {
+			return NewError(
+				ErrorCodeUnauthorizedTenantInSet,
+				fmt.Sprintf("Active tenant %q is not in caller's Authorized Tenant Set (ATS)", activeTenant),
+				correlationID,
+				403,
+				false,
+			)
+		}
+	}
+
 	trimmed := strings.TrimSpace(tenantRef)
 	if trimmed == "" {
 		return NewError(
@@ -181,10 +222,10 @@ func ValidateTenantScope(tenantRef string, authorizedTenants []string, correlati
 	}
 
 	// If ATS is specified, requested tenant must be in the set
-	if len(authorizedTenants) > 0 {
+	if len(auth.AuthorizedTenantSet) > 0 {
 		found := false
-		for _, t := range authorizedTenants {
-			if t == trimmed {
+		for _, t := range auth.AuthorizedTenantSet {
+			if strings.TrimSpace(t) == trimmed {
 				found = true
 				break
 			}
@@ -192,7 +233,18 @@ func ValidateTenantScope(tenantRef string, authorizedTenants []string, correlati
 		if !found {
 			return NewError(
 				ErrorCodeUnauthorizedTenantInSet,
-				"Requested tenant is not in caller's Authorized Tenant Set (ATS)",
+				fmt.Sprintf("Requested tenant %q is not in caller's Authorized Tenant Set (ATS)", trimmed),
+				correlationID,
+				403,
+				false,
+			)
+		}
+	} else {
+		// Single-tenant mode: requested tenant must strictly match active tenant
+		if trimmed != activeTenant {
+			return NewError(
+				ErrorCodeUnauthorizedTenantInSet,
+				fmt.Sprintf("Cross-tenant access forbidden: requested tenant %q does not match active tenant %q", trimmed, activeTenant),
 				correlationID,
 				403,
 				false,

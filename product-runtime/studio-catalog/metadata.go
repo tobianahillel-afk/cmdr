@@ -422,7 +422,7 @@ func (s *DefaultCatalogService) ValidateMetadata(ctx context.Context, auth AuthC
 	}
 
 	// 1. Tenant validation
-	if errEnv := ValidateTenantScope(req.TenantRef, auth.AuthorizedTenantSet, corrID); errEnv != nil {
+	if errEnv := ValidateTenantScope(auth, req.TenantRef, corrID); errEnv != nil {
 		return nil, errEnv
 	}
 
@@ -446,6 +446,11 @@ func (s *DefaultCatalogService) ValidateMetadata(ctx context.Context, auth AuthC
 		return nil, NewAssetNotFoundError(req.AssetID, req.TenantRef, corrID)
 	}
 
+	// Re-evaluate asset-specific read permission
+	if !auth.CanReadAssetKind(asset.Type) {
+		return nil, NewPermissionDeniedError(fmt.Sprintf("read permission for %s", asset.Type), corrID)
+	}
+
 	// 5. Evaluate deterministic validation
 	valResult := ValidateAssetMetadata(asset)
 
@@ -463,7 +468,7 @@ func (s *DefaultCatalogService) SuggestClassificationAndTags(ctx context.Context
 	}
 
 	// 1. Tenant validation
-	if errEnv := ValidateTenantScope(req.TenantRef, auth.AuthorizedTenantSet, corrID); errEnv != nil {
+	if errEnv := ValidateTenantScope(auth, req.TenantRef, corrID); errEnv != nil {
 		return nil, errEnv
 	}
 
@@ -487,6 +492,11 @@ func (s *DefaultCatalogService) SuggestClassificationAndTags(ctx context.Context
 		return nil, NewAssetNotFoundError(req.AssetID, req.TenantRef, corrID)
 	}
 
+	// Re-evaluate asset-specific read permission
+	if !auth.CanReadAssetKind(asset.Type) {
+		return nil, NewPermissionDeniedError(fmt.Sprintf("read permission for %s", asset.Type), corrID)
+	}
+
 	// 5. Compute suggestions
 	suggestions := SuggestAssetTagsAndClassification(asset)
 
@@ -504,7 +514,7 @@ func (s *DefaultCatalogService) AssignOwner(ctx context.Context, auth AuthContex
 	}
 
 	// 1. Tenant validation
-	if errEnv := ValidateTenantScope(req.TenantRef, auth.AuthorizedTenantSet, corrID); errEnv != nil {
+	if errEnv := ValidateTenantScope(auth, req.TenantRef, corrID); errEnv != nil {
 		return nil, errEnv
 	}
 
@@ -541,9 +551,9 @@ func (s *DefaultCatalogService) AssignOwner(ctx context.Context, auth AuthContex
 	newOwner.Normalize()
 
 	// 7. Audit trail entry (CAP-STD-002 Section 20)
-	actor := strings.TrimSpace(req.Actor)
+	actor := strings.TrimSpace(auth.PrincipalID)
 	if actor == "" {
-		actor = auth.PrincipalID
+		actor = "unknown"
 	}
 	reason := strings.TrimSpace(req.Reason)
 	if reason == "" {
@@ -587,7 +597,7 @@ func (s *DefaultCatalogService) UpdateDraftMetadata(ctx context.Context, auth Au
 	}
 
 	// 1. Tenant validation
-	if errEnv := ValidateTenantScope(req.TenantRef, auth.AuthorizedTenantSet, corrID); errEnv != nil {
+	if errEnv := ValidateTenantScope(auth, req.TenantRef, corrID); errEnv != nil {
 		return nil, errEnv
 	}
 
@@ -652,9 +662,9 @@ func (s *DefaultCatalogService) UpdateDraftMetadata(ctx context.Context, auth Au
 	asset.FunctionalState = valResult.State
 
 	// 9. Audit trail
-	actor := strings.TrimSpace(req.Actor)
+	actor := strings.TrimSpace(auth.PrincipalID)
 	if actor == "" {
-		actor = auth.PrincipalID
+		actor = "unknown"
 	}
 	reason := strings.TrimSpace(req.Reason)
 	if reason == "" {
@@ -696,12 +706,17 @@ func (s *DefaultCatalogService) RecordSupersession(ctx context.Context, auth Aut
 	}
 
 	// 1. Tenant validation
-	if errEnv := ValidateTenantScope(req.TenantRef, auth.AuthorizedTenantSet, corrID); errEnv != nil {
+	if errEnv := ValidateTenantScope(auth, req.TenantRef, corrID); errEnv != nil {
 		return nil, errEnv
 	}
 
-	// 2. Permission check: requires version manage or library manage
-	if !auth.HasPermission(PermCmdrStudioVersionManage) && !auth.HasPermission(PermStudioLibraryRead) {
+	// 2. Permission check: requires version manage or specific asset manage permissions; NEVER library.read alone
+	if !auth.HasPermission(PermCmdrStudioVersionManage) &&
+		!auth.HasPermission(PermStudioSkillManage) &&
+		!auth.HasPermission(PermStudioWorkflowManage) &&
+		!auth.HasPermission(PermStudioAutomationAgentManage) &&
+		!auth.HasPermission(PermStudioAgentTeamManage) &&
+		!auth.HasPermission(PermStudioArtifactManage) {
 		return nil, NewPermissionDeniedError(PermCmdrStudioVersionManage, corrID)
 	}
 
@@ -732,12 +747,14 @@ func (s *DefaultCatalogService) RecordSupersession(ctx context.Context, auth Aut
 		return nil, NewAssetNotFoundError(newerID, req.TenantRef, corrID)
 	}
 
-	// Verify manage permission for both asset kinds
-	if !auth.CanManageAssetKind(olderAsset.Type) && !auth.HasPermission(PermCmdrStudioVersionManage) {
-		return nil, NewPermissionDeniedError(fmt.Sprintf("manage permission for older asset kind %s", olderAsset.Type), corrID)
-	}
-	if !auth.CanManageAssetKind(newerAsset.Type) && !auth.HasPermission(PermCmdrStudioVersionManage) {
-		return nil, NewPermissionDeniedError(fmt.Sprintf("manage permission for newer asset kind %s", newerAsset.Type), corrID)
+	// Verify manage permission for both asset kinds if version manage is not held
+	if !auth.HasPermission(PermCmdrStudioVersionManage) {
+		if !auth.CanManageAssetKind(olderAsset.Type) {
+			return nil, NewPermissionDeniedError(fmt.Sprintf("manage permission for older asset kind %s", olderAsset.Type), corrID)
+		}
+		if !auth.CanManageAssetKind(newerAsset.Type) {
+			return nil, NewPermissionDeniedError(fmt.Sprintf("manage permission for newer asset kind %s", newerAsset.Type), corrID)
+		}
 	}
 
 	// 5. Check if older asset is already superseded by a different asset
@@ -757,14 +774,17 @@ func (s *DefaultCatalogService) RecordSupersession(ctx context.Context, auth Aut
 	}
 
 	now := time.Now().UTC()
-	actor := strings.TrimSpace(req.Actor)
+	actor := strings.TrimSpace(auth.PrincipalID)
 	if actor == "" {
-		actor = auth.PrincipalID
+		actor = "unknown"
 	}
 	reason := strings.TrimSpace(req.Reason)
 	if reason == "" {
 		reason = fmt.Sprintf("Asset %s superseded by %s", olderID, newerID)
 	}
+
+	// Snapshot older asset for rollback guarantee if second write fails
+	originalOlder := olderAsset.Clone()
 
 	// 7. Update older asset
 	olderAsset.Supersession.IsSuperseded = true
@@ -801,12 +821,16 @@ func (s *DefaultCatalogService) RecordSupersession(ctx context.Context, auth Aut
 		SupersessionRef: olderID,
 	})
 
-	// 9. Persist both
+	// 9. Persist both with rollback guarantee on older asset if newer asset write fails
 	if err := s.store.Put(ctx, olderAsset); err != nil {
 		return nil, NewError(ErrorCodeInternalError, fmt.Sprintf("Failed to update older asset: %v", err), corrID, 500, false)
 	}
 	if err := s.store.Put(ctx, newerAsset); err != nil {
-		return nil, NewError(ErrorCodeInternalError, fmt.Sprintf("Failed to update newer asset: %v", err), corrID, 500, false)
+		// Rollback older asset to maintain integrity
+		if rbErr := s.store.Put(ctx, originalOlder); rbErr != nil {
+			return nil, NewError(ErrorCodeInternalError, fmt.Sprintf("Failed to update newer asset (%v) and rollback of older asset failed: %v", err, rbErr), corrID, 500, false)
+		}
+		return nil, NewError(ErrorCodeInternalError, fmt.Sprintf("Failed to update newer asset: %v (older asset rolled back)", err), corrID, 500, false)
 	}
 
 	return &RecordSupersessionResponse{
@@ -824,7 +848,7 @@ func (s *DefaultCatalogService) GetSupersessionHistory(ctx context.Context, auth
 	}
 
 	// 1. Tenant validation
-	if errEnv := ValidateTenantScope(req.TenantRef, auth.AuthorizedTenantSet, corrID); errEnv != nil {
+	if errEnv := ValidateTenantScope(auth, req.TenantRef, corrID); errEnv != nil {
 		return nil, errEnv
 	}
 
@@ -900,10 +924,14 @@ func (s *DefaultCatalogService) GetSupersessionHistory(ctx context.Context, auth
 	fullChain = append(fullChain, targetAsset)
 	fullChain = append(fullChain, descendants...)
 
-	chainNodes := make([]SupersessionHistoryNode, len(fullChain))
-	for i, a := range fullChain {
+	// Filter chain nodes: only assets where caller has read permission for that asset kind
+	var chainNodes []SupersessionHistoryNode
+	for _, a := range fullChain {
+		if !auth.CanReadAssetKind(a.Type) {
+			continue // Exclude unauthorized assets in the chain
+		}
 		isActive := !a.Supersession.IsSuperseded && a.LifecycleState != LifecycleStateRetired && a.LifecycleState != LifecycleStateArchived
-		chainNodes[i] = SupersessionHistoryNode{
+		chainNodes = append(chainNodes, SupersessionHistoryNode{
 			AssetID:        a.ID,
 			Version:        a.Version.SemVer,
 			LifecycleState: a.LifecycleState,
@@ -915,11 +943,15 @@ func (s *DefaultCatalogService) GetSupersessionHistory(ctx context.Context, auth
 			UpdatedAt:      a.UpdatedAt,
 			Owner:          a.Owner,
 			Summary:        a.ToSummary(),
-		}
+		})
 	}
 
-	rootID := fullChain[0].ID
-	latestID := fullChain[len(fullChain)-1].ID
+	rootID := ""
+	latestID := ""
+	if len(chainNodes) > 0 {
+		rootID = chainNodes[0].AssetID
+		latestID = chainNodes[len(chainNodes)-1].AssetID
+	}
 
 	return &SupersessionHistoryResponse{
 		RootAssetID:    rootID,

@@ -359,7 +359,7 @@ func TestAdversarial_OwnerNormalization(t *testing.T) {
 	auth := &AuthContext{
 		PrincipalID: "creator",
 		TenantID:    "tenant-gamma",
-		Permissions: map[string]bool{PermStudioBuilderRead: true},
+		Permissions: map[string]bool{PermStudioBuilderRead: true, PermStudioArtifactManage: true},
 	}
 
 	created, err := svc.CreateDraftTool(ctx, auth, &CreateDraftToolRequest{
