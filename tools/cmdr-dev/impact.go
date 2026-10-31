@@ -45,24 +45,30 @@ func runImpactAnalysis(root, workUnit, changesFile string, state CurrentState, g
 	if workUnit == "" {
 		workUnit = state.Execution.ActiveWorkUnit
 	}
-	node, ok := graphNode(graph, workUnit)
-	if !ok {
-		return ImpactReport{}, fmt.Errorf("impact work unit %s is missing from graph", workUnit)
+	if workUnit == "" {
+		workUnit = state.Execution.PreferredNextUnit
 	}
-	if node.Status == "BLOCKED" || node.Status == "BLOCKED_DECISION" {
-		return ImpactReport{}, fmt.Errorf("impact work unit %s is blocked", workUnit)
-	}
-	manifestPath := filepath.Join(root, "work", "lots", workUnit, "manifest.json")
-	header, err := decodeManifestHeader(root, manifestPath)
-	if err != nil {
-		return ImpactReport{}, err
-	}
-	if header.SchemaVersion != 2 {
-		return ImpactReport{}, fmt.Errorf("impact analysis requires strict manifest v2")
-	}
-	manifest, err := decodeWorkManifestV2(root, manifestPath)
-	if err != nil {
-		return ImpactReport{}, err
+	var manifest WorkManifestV2
+	if workUnit != "" {
+		node, ok := graphNode(graph, workUnit)
+		if !ok {
+			return ImpactReport{}, fmt.Errorf("impact work unit %s is missing from graph", workUnit)
+		}
+		if node.Status == "BLOCKED" || node.Status == "BLOCKED_DECISION" {
+			return ImpactReport{}, fmt.Errorf("impact work unit %s is blocked", workUnit)
+		}
+		manifestPath := filepath.Join(root, "work", "lots", workUnit, "manifest.json")
+		header, err := decodeManifestHeader(root, manifestPath)
+		if err != nil {
+			return ImpactReport{}, err
+		}
+		if header.SchemaVersion != 2 {
+			return ImpactReport{}, fmt.Errorf("impact analysis requires strict manifest v2")
+		}
+		manifest, err = decodeWorkManifestV2(root, manifestPath)
+		if err != nil {
+			return ImpactReport{}, err
+		}
 	}
 	catalog, err := loadCheckCatalog(root)
 	if err != nil {

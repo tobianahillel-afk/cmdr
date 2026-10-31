@@ -30,11 +30,12 @@ func readSnapshot(path string) (timeline.MemoryTimelineData, error) {
 	if !filepath.IsAbs(path) {
 		return timeline.MemoryTimelineData{}, errors.New("absolute local owner snapshot required")
 	}
-	info, err := os.Lstat(path)
+	cleanPath := filepath.Clean(path)
+	info, err := os.Lstat(cleanPath)
 	if err != nil || !info.Mode().IsRegular() || info.Size() > 8<<20 {
 		return timeline.MemoryTimelineData{}, errors.New("invalid local owner snapshot")
 	}
-	file, err := os.Open(path)
+	file, err := os.Open(cleanPath) // #nosec G304 -- cleanPath is validated as absolute local file with Lstat checks
 	if err != nil {
 		return timeline.MemoryTimelineData{}, errors.New("cannot open owner snapshot")
 	}
