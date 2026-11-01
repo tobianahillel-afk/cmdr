@@ -261,7 +261,7 @@ func executeValidationCheck(root, tempDir, changesFile, key string, state Curren
 			return "", err
 		}
 		if next == nil {
-			if state.EngineeringFoundation.Status == "VERIFIED" {
+			if state.EngineeringFoundation.Status == "VERIFIED" || state.EngineeringFoundation.Status == "ACCEPTED" {
 				return "next=none foundation=VERIFIED", nil
 			}
 			return "", fmt.Errorf("no executable READY work unit")

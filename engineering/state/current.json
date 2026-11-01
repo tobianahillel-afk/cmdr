@@ -12,14 +12,14 @@
     "known_active_screens": 56
   },
   "engineering_foundation": {
-    "status": "VERIFIED",
-    "phase": "E10",
-    "phase_title": "Scaled product implementation program bootstrap"
+    "status": "ACCEPTED",
+    "phase": "Phase D",
+    "phase_title": "Restructured permanent engineering governance and taxonomy on main"
   },
   "execution": {
     "active_work_unit": "",
     "preferred_next_unit": "",
-    "selection_rule": "E10-STD-003A-TOOL completed and VERIFIED; work graph contains 0 READY units (all 184 tasks/lots verified); graph reconciliation required on resume to schedule subsequent Phase E10 roadmap increments."
+    "selection_rule": "Milestone 6: Phase C PR cleanup and Phase D engineering governance restructuring complete. Baseline integrated on main at 67d40f78; work graph aligned to Phase D taxonomy (184 ACCEPTED, 20 PLANNED, 0 READY). main is the single integration reference; subsequent tasks to be selected from roadmap, branched from main, and integrated sequentially."
   },
   "reconciliation": {
     "required_on_resume": true,

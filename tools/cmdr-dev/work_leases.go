@@ -365,7 +365,8 @@ func evaluateWorkLeaseAction(policy WorkLeasePolicy, registry WorkLeaseRegistry,
 
 func leaseTerminalStatus(status string) bool {
 	switch status {
-	case "DRAFT", "DECOMPOSED", "VERIFIED", "BLOCKED", "BLOCKED_DECISION":
+	case "PLANNED", "DELIVERED", "ACCEPTED", "BLOCKED", "DEFERRED",
+		"DRAFT", "DECOMPOSED", "VERIFIED", "BLOCKED_DECISION":
 		return true
 	default:
 		return false

@@ -6,7 +6,7 @@
       "id": "E0-BOOTSTRAP-001",
       "title": "Establish autonomous engineering foundation",
       "type": "lot",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [],
       "unlocks": [
         "E0-KERNEL-001"
@@ -16,7 +16,7 @@
       "id": "E0-KERNEL-001",
       "title": "Implement minimal cmdr-dev kernel",
       "type": "lot",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E0-BOOTSTRAP-001"
       ],
@@ -29,11 +29,11 @@
       "id": "E0-SPEC-001",
       "title": "Implement product-spec inventory compiler",
       "type": "lot",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E0-KERNEL-001"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E0-COVERAGE-001A"
       ]
@@ -42,11 +42,11 @@
       "id": "E0-COVERAGE-001",
       "title": "Build product obligation and coverage graph",
       "type": "epic",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E0-SPEC-001"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E0-COVERAGE-001A"
       ]
@@ -55,11 +55,11 @@
       "id": "E0-COVERAGE-001A",
       "title": "Build canonical product entity and reference graph",
       "type": "sublot",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E0-SPEC-001"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E0-COVERAGE-001B"
       ]
@@ -68,11 +68,11 @@
       "id": "E0-COVERAGE-001B",
       "title": "Derive implementation obligations from product graph",
       "type": "sublot",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E0-COVERAGE-001A"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E0-COVERAGE-001C"
       ]
@@ -81,11 +81,11 @@
       "id": "E0-COVERAGE-001C",
       "title": "Detect unmapped and inconsistent product coverage",
       "type": "sublot",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E0-COVERAGE-001B"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E1-WORK-001A"
       ]
@@ -94,11 +94,11 @@
       "id": "E1-WORK-001",
       "title": "Implement work decomposition engine",
       "type": "epic",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E0-COVERAGE-001C"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E1-WORK-001A"
       ]
@@ -107,11 +107,11 @@
       "id": "E1-WORK-001A",
       "title": "Define and validate implementation work manifests",
       "type": "sublot",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E0-COVERAGE-001C"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E1-WORK-001B"
       ]
@@ -120,11 +120,11 @@
       "id": "E1-WORK-001B",
       "title": "Enforce complexity budgets and mandatory split rules",
       "type": "sublot",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E1-WORK-001A"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E1-WORK-001C"
       ]
@@ -133,11 +133,11 @@
       "id": "E1-WORK-001C",
       "title": "Compile minimal deterministic agent context bundles",
       "type": "sublot",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E1-WORK-001B"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E2-ARCH-001A"
       ]
@@ -146,11 +146,11 @@
       "id": "E2-ARCH-001",
       "title": "Implement architecture and dependency enforcement",
       "type": "epic",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E1-WORK-001C"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E2-ARCH-001A"
       ]
@@ -159,11 +159,11 @@
       "id": "E2-ARCH-001A",
       "title": "Define architecture boundary and path ownership registry",
       "type": "sublot",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E1-WORK-001C"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E2-ARCH-001B"
       ]
@@ -172,11 +172,11 @@
       "id": "E2-ARCH-001B",
       "title": "Enforce third-party product runtime dependency policy",
       "type": "sublot",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E2-ARCH-001A"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E2-ARCH-001C"
       ]
@@ -185,11 +185,11 @@
       "id": "E2-ARCH-001C",
       "title": "Enforce cross-boundary dependency edges",
       "type": "sublot",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E2-ARCH-001B"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E3-IMPACT-001A"
       ]
@@ -198,11 +198,11 @@
       "id": "E3-IMPACT-001",
       "title": "Implement impact and test selection engine",
       "type": "epic",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E2-ARCH-001C"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E3-IMPACT-001A"
       ]
@@ -211,11 +211,11 @@
       "id": "E3-IMPACT-001A",
       "title": "Define validation check catalog and risk metadata",
       "type": "sublot",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E2-ARCH-001C"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E3-IMPACT-001B"
       ]
@@ -224,11 +224,11 @@
       "id": "E3-IMPACT-001B",
       "title": "Compute change impact and affected validation domains",
       "type": "sublot",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E3-IMPACT-001A"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E3-IMPACT-001C"
       ]
@@ -237,11 +237,11 @@
       "id": "E3-IMPACT-001C",
       "title": "Select deterministic risk-adaptive validation plan",
       "type": "sublot",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E3-IMPACT-001B"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E3-IMPACT-002A"
       ]
@@ -250,11 +250,11 @@
       "id": "E3-IMPACT-002",
       "title": "Integrate risk-adaptive validation with CI change evidence",
       "type": "epic",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E3-IMPACT-001C"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E3-IMPACT-002A"
       ]
@@ -263,11 +263,11 @@
       "id": "E3-IMPACT-002A",
       "title": "Derive real push and pull-request change sets in shadow mode",
       "type": "sublot",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E3-IMPACT-001C"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E3-IMPACT-002B"
       ]
@@ -276,22 +276,22 @@
       "id": "E3-IMPACT-002B",
       "title": "Execute selected validation plan and gate adaptive CI rollout",
       "type": "sublot",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E3-IMPACT-002A"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": []
     },
     {
       "id": "E4-SEC-001",
       "title": "Implement security verification engine",
       "type": "epic",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E3-IMPACT-002B"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E5-RES-001A"
       ]
@@ -300,11 +300,11 @@
       "id": "E4-SEC-001A",
       "title": "Define security gate registry and evidence model",
       "type": "sublot",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E3-IMPACT-002B"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E4-SEC-001B"
       ]
@@ -313,11 +313,11 @@
       "id": "E4-SEC-001B",
       "title": "Implement source and supply-chain security controls",
       "type": "lot",
-      "status": "DECOMPOSED",
+      "status": "PLANNED",
       "depends_on": [
         "E4-SEC-001A"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E4-SEC-002A"
       ]
@@ -326,11 +326,11 @@
       "id": "E4-SEC-001C",
       "title": "Enforce security-critical negative tests and coverage floors",
       "type": "sublot",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E4-SEC-002C"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E4-SEC-001D"
       ]
@@ -339,22 +339,22 @@
       "id": "E4-SEC-001D",
       "title": "Schedule fuzz, DAST, race and deep security validation",
       "type": "sublot",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E4-SEC-001C"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": []
     },
     {
       "id": "E4-SEC-002A",
       "title": "Implement deterministic secret scanning",
       "type": "sublot",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E4-SEC-001A"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E4-SEC-002B"
       ]
@@ -363,11 +363,11 @@
       "id": "E4-SEC-002B",
       "title": "Implement SAST and dependency vulnerability controls",
       "type": "sublot",
-      "status": "DECOMPOSED",
+      "status": "PLANNED",
       "depends_on": [
         "E4-SEC-002A"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E4-SEC-002B-OUTPUT"
       ]
@@ -376,11 +376,11 @@
       "id": "E4-SEC-002C",
       "title": "Generate deterministic SBOM and supply-chain evidence",
       "type": "sublot",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E4-SEC-002B-ACTIVATE"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E4-SEC-001C"
       ]
@@ -389,11 +389,11 @@
       "id": "E4-SEC-002B-ACTIVATE",
       "title": "Finalize and activate Go SAST and SCA controls",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E4-SEC-002B-READ"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E4-SEC-002C"
       ]
@@ -402,11 +402,11 @@
       "id": "E4-SEC-002B-OUTPUT",
       "title": "Confine generated outputs and CI evidence to repository boundaries",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E4-SEC-002A"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E4-SEC-002B-READ"
       ]
@@ -415,11 +415,11 @@
       "id": "E4-SEC-002B-READ",
       "title": "Harden repository reads and reject symlink traversal",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E4-SEC-002B-OUTPUT"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E4-SEC-002B-ACTIVATE"
       ]
@@ -428,11 +428,11 @@
       "id": "E5-RES-001",
       "title": "Implement research and technical decision engine",
       "type": "epic",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E4-SEC-001"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E5-RES-001A"
       ]
@@ -441,11 +441,11 @@
       "id": "E5-RES-001A",
       "title": "Define canonical engineering decision and research registry",
       "type": "sublot",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E4-SEC-001"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E5-RES-001B"
       ]
@@ -454,11 +454,11 @@
       "id": "E5-RES-001B",
       "title": "Compile source-backed research evidence packets",
       "type": "sublot",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E5-RES-001A"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E5-RES-001C"
       ]
@@ -467,11 +467,11 @@
       "id": "E5-RES-001C",
       "title": "Enforce benchmark prototype and adversarial decision gates",
       "type": "sublot",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E5-RES-001B"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E5-RES-001D"
       ]
@@ -480,22 +480,22 @@
       "id": "E5-RES-001D",
       "title": "Enforce decision freshness revisit triggers and reusable evidence cache",
       "type": "sublot",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E5-RES-001C"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": []
     },
     {
       "id": "E6-PERF-001",
       "title": "Implement performance engineering engine",
       "type": "epic",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E5-RES-001D"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E6-PERF-001A"
       ]
@@ -504,11 +504,11 @@
       "id": "E6-PERF-001A",
       "title": "Define performance targets budgets and benchmark registry",
       "type": "sublot",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E5-RES-001D"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E6-PERF-001B"
       ]
@@ -517,11 +517,11 @@
       "id": "E6-PERF-001B",
       "title": "Execute representative benchmarks and regression gates",
       "type": "sublot",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E6-PERF-001A"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E6-PERF-001C"
       ]
@@ -530,11 +530,11 @@
       "id": "E6-PERF-001C",
       "title": "Schedule profiling load soak and resource validation",
       "type": "sublot",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E6-PERF-001B"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E6-PERF-001D"
       ]
@@ -543,22 +543,22 @@
       "id": "E6-PERF-001D",
       "title": "Cache performance evidence and integrate adaptive revisit triggers",
       "type": "sublot",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E6-PERF-001C"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": []
     },
     {
       "id": "E7-REC-001",
       "title": "Implement recovery and multi-agent coordination engine",
       "type": "epic",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E6-PERF-001D"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E7-REC-001A"
       ]
@@ -567,11 +567,11 @@
       "id": "E7-REC-001A",
       "title": "Define deterministic work leases and agent claims",
       "type": "sublot",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E6-PERF-001D"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E7-REC-001B"
       ]
@@ -580,11 +580,11 @@
       "id": "E7-REC-001B",
       "title": "Persist crash-safe execution journal and resume checkpoints",
       "type": "sublot",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E7-REC-001A"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E7-REC-001C"
       ]
@@ -593,11 +593,11 @@
       "id": "E7-REC-001C",
       "title": "Reconcile interrupted work against Git and CI reality",
       "type": "sublot",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E7-REC-001B"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E7-REC-001D"
       ]
@@ -606,22 +606,22 @@
       "id": "E7-REC-001D",
       "title": "Enforce multi-agent conflict detection and safe handoff",
       "type": "sublot",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E7-REC-001C"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": []
     },
     {
       "id": "E8-MET-001",
       "title": "Implement engine metrics and optimization layer",
       "type": "epic",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E7-REC-001D"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E8-MET-001A"
       ]
@@ -630,11 +630,11 @@
       "id": "E8-MET-001A",
       "title": "Define deterministic engine metrics registry and evidence model",
       "type": "sublot",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E7-REC-001D"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E8-MET-001B"
       ]
@@ -643,11 +643,11 @@
       "id": "E8-MET-001B",
       "title": "Collect validation throughput context and cache efficiency metrics",
       "type": "sublot",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E8-MET-001A"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E8-MET-001C"
       ]
@@ -656,11 +656,11 @@
       "id": "E8-MET-001C",
       "title": "Derive safety-constrained optimization recommendations",
       "type": "sublot",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E8-MET-001B"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E8-MET-001D"
       ]
@@ -669,22 +669,22 @@
       "id": "E8-MET-001D",
       "title": "Enforce engine efficiency regression budgets and optimization handoff",
       "type": "sublot",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E8-MET-001C"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": []
     },
     {
       "id": "E9-PILOT-001",
       "title": "Execute bounded end-to-end implementation pilot",
       "type": "epic",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E8-MET-001D"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E9-PILOT-001A"
       ]
@@ -693,11 +693,11 @@
       "id": "E9-PILOT-001A",
       "title": "Select and compile a traceable bounded pilot slice",
       "type": "sublot",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E8-MET-001D"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E9-PILOT-001B"
       ]
@@ -706,11 +706,11 @@
       "id": "E9-PILOT-001B",
       "title": "Establish pilot runtime boundary and executable contracts",
       "type": "sublot",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E9-PILOT-001A"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E9-PILOT-001B-CONTRACT"
       ]
@@ -719,11 +719,11 @@
       "id": "E9-PILOT-001C",
       "title": "Implement the selected vertical slice",
       "type": "sublot",
-      "status": "DECOMPOSED",
+      "status": "PLANNED",
       "depends_on": [
         "E9-PILOT-001B"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E9-PILOT-001C-RUNTIME"
       ]
@@ -732,24 +732,24 @@
       "id": "E9-PILOT-001D",
       "title": "Run adversarial end-to-end pilot validation and handoff",
       "type": "sublot",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E9-PILOT-001C-RUNTIME",
         "E9-PILOT-001C-SECURITY",
         "E9-PILOT-001C-PERF"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": []
     },
     {
       "id": "E9-PILOT-001B-CONTRACT",
       "title": "Establish pilot runtime boundary and executable contract fixtures",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E9-PILOT-001A"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E9-PILOT-001B-SECURITY"
       ]
@@ -758,18 +758,18 @@
       "id": "E9-PILOT-001B-PERF",
       "title": "Register pre-implementation performance budgets for pilot runtime boundary",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E9-PILOT-001B-SECURITY"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": []
     },
     {
       "id": "E9-PILOT-001B-SECURITY",
       "title": "Register pilot runtime security ownership and preimplementation state",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E9-PILOT-001B-CONTRACT"
       ],
@@ -782,11 +782,11 @@
       "id": "E9-PILOT-001C-RUNTIME",
       "title": "Implement context-envelope runtime and contract fixtures",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E9-PILOT-001B"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E9-PILOT-001C-SECURITY"
       ]
@@ -795,7 +795,7 @@
       "id": "E9-PILOT-001C-SECURITY",
       "title": "Activate measured runtime security evidence and negative gates",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E9-PILOT-001C-RUNTIME"
       ],
@@ -808,22 +808,22 @@
       "id": "E9-PILOT-001C-PERF",
       "title": "Activate pilot runtime performance workload and verify budget",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E9-PILOT-001C-SECURITY"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": []
     },
     {
       "id": "E10-SCALE-001",
       "title": "Compile the scaled product implementation program",
       "type": "epic",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E9-PILOT-001D"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-SCALE-001A"
       ]
@@ -832,11 +832,11 @@
       "id": "E10-SCALE-001A",
       "title": "Establish evidence-backed runtime implementation ledger",
       "type": "sublot",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E9-PILOT-001D"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-SCALE-001B"
       ]
@@ -845,11 +845,11 @@
       "id": "E10-SCALE-001B",
       "title": "Compile capability implementation readiness and blockers",
       "type": "sublot",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-SCALE-001A"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-SCALE-001C"
       ]
@@ -858,11 +858,11 @@
       "id": "E10-SCALE-001C",
       "title": "Materialize first bounded implementation wave",
       "type": "sublot",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-SCALE-001B"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-INV-002"
       ]
@@ -871,11 +871,11 @@
       "id": "E10-INV-002",
       "title": "Implement bounded Event Search core for CAP-INV-002",
       "type": "epic",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-SCALE-001C"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-INV-002A"
       ]
@@ -884,11 +884,11 @@
       "id": "E10-INV-002A",
       "title": "Compile Event Search executable contract and runtime boundary",
       "type": "task",
-      "status": "DECOMPOSED",
+      "status": "PLANNED",
       "depends_on": [
         "E10-SCALE-001C"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-INV-002A-BOUNDARY"
       ]
@@ -897,11 +897,11 @@
       "id": "E10-INV-002B",
       "title": "Implement tenant-scoped query validation core",
       "type": "task",
-      "status": "DECOMPOSED",
+      "status": "PLANNED",
       "depends_on": [
         "E10-INV-002A-CONTRACT"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-INV-002B-CONTROLS"
       ]
@@ -910,11 +910,11 @@
       "id": "E10-INV-002C",
       "title": "Implement Search Job lifecycle and partial-result orchestration",
       "type": "task",
-      "status": "DECOMPOSED",
+      "status": "PLANNED",
       "depends_on": [
         "E10-INV-002B-RUNTIME"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-INV-002C-RUNTIME"
       ]
@@ -923,12 +923,12 @@
       "id": "E10-INV-002D",
       "title": "Run adversarial Event Search core validation and bounded handoff",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-INV-002C-RUNTIME",
         "E10-INV-002C-PERF"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-INV-002E"
       ]
@@ -937,11 +937,11 @@
       "id": "E10-INV-002A-BOUNDARY",
       "title": "Register Event Search runtime ownership and preimplementation controls",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-SCALE-001C"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-INV-002A-CONTRACT"
       ]
@@ -950,11 +950,11 @@
       "id": "E10-INV-002A-CONTRACT",
       "title": "Compile Event Search executable contract and negative fixtures",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-INV-002A-BOUNDARY"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-INV-002B"
       ]
@@ -963,11 +963,11 @@
       "id": "E10-INV-002B-CONTROLS",
       "title": "Prepare multi-runtime security and performance adapters for Event Search",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-INV-002A-CONTRACT"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-INV-002B-RUNTIME"
       ]
@@ -976,11 +976,11 @@
       "id": "E10-INV-002B-RUNTIME",
       "title": "Implement tenant-scoped Event Search validation runtime",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-INV-002B-CONTROLS"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-INV-002C"
       ]
@@ -989,11 +989,11 @@
       "id": "E10-INV-002C-RUNTIME",
       "title": "Implement Search Job lifecycle and partial-result runtime",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-INV-002B-RUNTIME"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-INV-002C-PERF"
       ]
@@ -1002,22 +1002,22 @@
       "id": "E10-INV-002C-PERF",
       "title": "Prove bounded Search Job orchestration performance",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-INV-002C-RUNTIME"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": []
     },
     {
       "id": "E10-INV-002E",
       "title": "Research and select Event Search frontend runtime architecture",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-INV-002D"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-INV-002F"
       ]
@@ -1026,11 +1026,11 @@
       "id": "E10-INV-002F",
       "title": "Implement bounded Event Search frontend runtime",
       "type": "epic",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-INV-002E"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-INV-002F-BOUNDARY"
       ]
@@ -1039,11 +1039,11 @@
       "id": "E10-INV-002F-BOUNDARY",
       "title": "Register Event Search frontend runtime ownership and controls",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-INV-002E"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-INV-002F-STATE"
       ]
@@ -1052,11 +1052,11 @@
       "id": "E10-INV-002F-STATE",
       "title": "Implement Event Search frontend state and deep-link core",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-INV-002F-BOUNDARY"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-INV-002F-SHELL"
       ]
@@ -1065,11 +1065,11 @@
       "id": "E10-INV-002F-SHELL",
       "title": "Implement accessible Event Search shell and mandatory UI states",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-INV-002F-STATE"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-INV-002F-RESULTS"
       ]
@@ -1078,11 +1078,11 @@
       "id": "E10-INV-002F-RESULTS",
       "title": "Implement bounded incremental Event Search result rendering",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-INV-002F-SHELL"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-INV-002F-INTEGRATION"
       ]
@@ -1091,11 +1091,11 @@
       "id": "E10-INV-002F-INTEGRATION",
       "title": "Integrate Event Search frontend with backend-neutral transport contract",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-INV-002F-RESULTS"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-INV-002F-E2E"
       ]
@@ -1104,11 +1104,11 @@
       "id": "E10-INV-002F-E2E",
       "title": "Validate Event Search frontend security accessibility deep links and performance",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-INV-002F-INTEGRATION"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-INV-002G"
       ]
@@ -1117,11 +1117,11 @@
       "id": "E10-INV-002G",
       "title": "Compile verified Event Search runtime claim for implementation ledger",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-INV-002F-E2E"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-SCALE-002A"
       ]
@@ -1130,11 +1130,11 @@
       "id": "E10-SCALE-002",
       "title": "Advance verified implementation ledger and select the next bounded capability wave",
       "type": "epic",
-      "status": "DECOMPOSED",
+      "status": "PLANNED",
       "depends_on": [
         "E10-INV-002G"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-SCALE-002A"
       ]
@@ -1143,11 +1143,11 @@
       "id": "E10-SCALE-002A",
       "title": "Register CAP-INV-002 runtime claim and recompile implementation readiness",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-INV-002G"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-SCALE-002B"
       ]
@@ -1156,22 +1156,22 @@
       "id": "E10-SCALE-002B",
       "title": "Select and materialize the next reuse-first capability wave",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-SCALE-002A"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": []
     },
     {
       "id": "E10-INV-004",
       "title": "Implement bounded Event Inspection and Pivot core for CAP-INV-004",
       "type": "epic",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-SCALE-002B"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-INV-004A-BOUNDARY"
       ]
@@ -1180,11 +1180,11 @@
       "id": "E10-INV-004A-BOUNDARY",
       "title": "Register Event Inspection runtime boundary and preimplementation controls",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-SCALE-002B"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-INV-004A-CONTRACT"
       ]
@@ -1193,11 +1193,11 @@
       "id": "E10-INV-004A-CONTRACT",
       "title": "Compile Event Inspection executable read-only contract",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-INV-004A-BOUNDARY"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-INV-004B-RUNTIME"
       ]
@@ -1206,11 +1206,11 @@
       "id": "E10-INV-004B-RUNTIME",
       "title": "Implement immutable permission-gated Event inspection projection",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-INV-004A-CONTRACT"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-INV-004C-PIVOT"
       ]
@@ -1219,11 +1219,11 @@
       "id": "E10-INV-004C-PIVOT",
       "title": "Implement deterministic Event pivot draft and return context",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-INV-004B-RUNTIME"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-INV-004D-CLOSURE"
       ]
@@ -1232,11 +1232,11 @@
       "id": "E10-INV-004D-CLOSURE",
       "title": "Validate Event Inspection adversarial security and bounded performance",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-INV-004C-PIVOT"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-INV-004E"
       ]
@@ -1245,22 +1245,22 @@
       "id": "E10-INV-004E",
       "title": "Compile verified Event Inspection runtime claim for implementation ledger",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-INV-004D-CLOSURE"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": []
     },
     {
       "id": "E10-SCALE-003",
       "title": "Advance verified implementation ledger after Event Inspection and select the next bounded capability wave",
       "type": "epic",
-      "status": "DECOMPOSED",
+      "status": "PLANNED",
       "depends_on": [
         "E10-INV-004E"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-SCALE-003A"
       ]
@@ -1269,11 +1269,11 @@
       "id": "E10-SCALE-003A",
       "title": "Register CAP-INV-004 runtime claim and recompile implementation readiness",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-INV-004E"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-SCALE-003B"
       ]
@@ -1282,22 +1282,22 @@
       "id": "E10-SCALE-003B",
       "title": "Select and materialize the next reuse-first capability wave",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-SCALE-003A"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": []
     },
     {
       "id": "E10-INV-005",
       "title": "Implement bounded Hunt Management read-only core for CAP-INV-005",
       "type": "epic",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-SCALE-003B"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-INV-005A-BOUNDARY"
       ]
@@ -1306,11 +1306,11 @@
       "id": "E10-INV-005A-BOUNDARY",
       "title": "Register Hunt Management runtime boundary and preimplementation controls",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-SCALE-003B"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-INV-005A-CONTRACT"
       ]
@@ -1319,11 +1319,11 @@
       "id": "E10-INV-005A-CONTRACT",
       "title": "Compile Hunt Management read-only workspace contract",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-INV-005A-BOUNDARY"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-INV-005B-RUNTIME"
       ]
@@ -1332,11 +1332,11 @@
       "id": "E10-INV-005B-RUNTIME",
       "title": "Implement immutable Hunt workspace validation and projection runtime",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-INV-005A-CONTRACT"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-INV-005C-CLOSURE"
       ]
@@ -1345,11 +1345,11 @@
       "id": "E10-INV-005C-CLOSURE",
       "title": "Validate Hunt workspace adversarial security and bounded performance",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-INV-005B-RUNTIME"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-INV-005D"
       ]
@@ -1358,11 +1358,11 @@
       "id": "E10-INV-005D",
       "title": "Compile verified Hunt Management runtime claim for implementation ledger",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-INV-005C-CLOSURE"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-SCALE-004A"
       ]
@@ -1371,11 +1371,11 @@
       "id": "E10-SCALE-004",
       "title": "Advance verified implementation ledger after Hunt Management and select the next bounded capability wave",
       "type": "epic",
-      "status": "DECOMPOSED",
+      "status": "PLANNED",
       "depends_on": [
         "E10-INV-005D"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-SCALE-004A"
       ]
@@ -1384,11 +1384,11 @@
       "id": "E10-SCALE-004A",
       "title": "Register CAP-INV-005 runtime claim and recompile implementation readiness",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-INV-005D"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-SCALE-004B"
       ]
@@ -1397,11 +1397,11 @@
       "id": "E10-SCALE-004B",
       "title": "Select and materialize CAP-INV-006 bounded reuse-first capability wave",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-SCALE-004A"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-INV-006"
       ]
@@ -1410,11 +1410,11 @@
       "id": "E10-INV-006",
       "title": "Implement bounded Saved Search and Query Asset read-only core for CAP-INV-006",
       "type": "epic",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-SCALE-004B"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-INV-006A-BOUNDARY"
       ]
@@ -1423,11 +1423,11 @@
       "id": "E10-INV-006A-BOUNDARY",
       "title": "Register Saved Query Asset runtime boundary and preimplementation controls",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-SCALE-004B"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-INV-006A-CONTRACT"
       ]
@@ -1436,11 +1436,11 @@
       "id": "E10-INV-006A-CONTRACT",
       "title": "Compile Saved Query Asset read-only compatibility contract",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-INV-006A-BOUNDARY"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-INV-006B-RUNTIME"
       ]
@@ -1449,11 +1449,11 @@
       "id": "E10-INV-006B-RUNTIME",
       "title": "Implement immutable Saved Query Asset compatibility projection runtime",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-INV-006A-CONTRACT"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-INV-006C-HANDOFF"
       ]
@@ -1462,11 +1462,11 @@
       "id": "E10-INV-006C-HANDOFF",
       "title": "Implement deterministic Event Search execution handoff draft",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-INV-006B-RUNTIME"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-INV-006D-CLOSURE"
       ]
@@ -1475,11 +1475,11 @@
       "id": "E10-INV-006D-CLOSURE",
       "title": "Validate Saved Query Asset adversarial security and bounded performance",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-INV-006C-HANDOFF"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-INV-006E"
       ]
@@ -1488,11 +1488,11 @@
       "id": "E10-INV-006E",
       "title": "Compile verified Saved Query Asset runtime claim for implementation ledger",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-INV-006D-CLOSURE"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-SCALE-005A"
       ]
@@ -1501,11 +1501,11 @@
       "id": "E10-SCALE-005",
       "title": "Advance verified implementation ledger after Saved Query Assets and select the next bounded capability wave",
       "type": "epic",
-      "status": "DECOMPOSED",
+      "status": "PLANNED",
       "depends_on": [
         "E10-INV-006E"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-SCALE-005A"
       ]
@@ -1514,11 +1514,11 @@
       "id": "E10-SCALE-005A",
       "title": "Register CAP-INV-006 runtime claim and recompile implementation readiness",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-INV-006E"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-SCALE-005B"
       ]
@@ -1527,11 +1527,11 @@
       "id": "E10-SCALE-005B",
       "title": "Select and materialize the next reuse-first capability wave",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-SCALE-005A"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-INV-101"
       ]
@@ -1540,11 +1540,11 @@
       "id": "E10-INV-101",
       "title": "Implement bounded read-only Case Queue core for CAP-INV-101",
       "type": "epic",
-      "status": "DECOMPOSED",
+      "status": "PLANNED",
       "depends_on": [
         "E10-SCALE-005B"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-INV-101A-BOUNDARY"
       ]
@@ -1553,11 +1553,11 @@
       "id": "E10-INV-101A-BOUNDARY",
       "title": "Register Case Queue runtime boundary and preimplementation controls",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-SCALE-005B"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-INV-101A-CONTRACT"
       ]
@@ -1566,11 +1566,11 @@
       "id": "E10-INV-101A-CONTRACT",
       "title": "Compile Case Queue read-only projection contract",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-INV-101A-BOUNDARY"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-INV-101B-RUNTIME"
       ]
@@ -1579,11 +1579,11 @@
       "id": "E10-INV-101B-RUNTIME",
       "title": "Implement immutable Case Queue projection runtime",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-INV-101A-CONTRACT"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-INV-101C-VIEW"
       ]
@@ -1592,11 +1592,11 @@
       "id": "E10-INV-101C-VIEW",
       "title": "Implement permission-safe Saved View application",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-INV-101B-RUNTIME"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-INV-101D-HANDOFF"
       ]
@@ -1605,11 +1605,11 @@
       "id": "E10-INV-101D-HANDOFF",
       "title": "Implement deterministic Case Workspace handoff and return context",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-INV-101C-VIEW"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-INV-101E-CLOSURE"
       ]
@@ -1618,11 +1618,11 @@
       "id": "E10-INV-101E-CLOSURE",
       "title": "Close bounded Case Queue runtime evidence",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-INV-101D-HANDOFF"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-INV-101F"
       ]
@@ -1631,11 +1631,11 @@
       "id": "E10-INV-101F",
       "title": "Compile verified Case Queue runtime claim for implementation ledger",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-INV-101E-CLOSURE"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-SCALE-006A"
       ]
@@ -1644,11 +1644,11 @@
       "id": "E10-SCALE-006",
       "title": "Advance verified Case Queue ledger and select next bounded implementation wave",
       "type": "epic",
-      "status": "DECOMPOSED",
+      "status": "PLANNED",
       "depends_on": [
         "E10-INV-101F"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-SCALE-006A"
       ]
@@ -1657,11 +1657,11 @@
       "id": "E10-SCALE-006A",
       "title": "Register CAP-INV-101 bounded runtime claim and refresh readiness",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-INV-101F"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-SCALE-006B"
       ]
@@ -1670,11 +1670,11 @@
       "id": "E10-SCALE-006B",
       "title": "Choose next READY capability and materialize its bounded wave",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-SCALE-006A"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-INV-110"
       ]
@@ -1683,11 +1683,11 @@
       "id": "E10-INV-110",
       "title": "Implement bounded read-only Investigation Timeline for CAP-INV-110",
       "type": "epic",
-      "status": "DECOMPOSED",
+      "status": "PLANNED",
       "depends_on": [
         "E10-SCALE-006B"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-INV-110A-BOUNDARY"
       ]
@@ -1696,11 +1696,11 @@
       "id": "E10-INV-110A-BOUNDARY",
       "title": "Register read-only Investigation Timeline boundary and performance/security obligations",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-SCALE-006B"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-INV-110A-CONTRACT"
       ]
@@ -1709,11 +1709,11 @@
       "id": "E10-INV-110A-CONTRACT",
       "title": "Compile source-backed immutable Investigation Timeline projection contract",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-INV-110A-BOUNDARY"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-INV-110B-RUNTIME"
       ]
@@ -1722,11 +1722,11 @@
       "id": "E10-INV-110B-RUNTIME",
       "title": "Implement deterministic permission-aware read-only Timeline projection",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-INV-110A-CONTRACT"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-INV-110C-NAV"
       ]
@@ -1735,11 +1735,11 @@
       "id": "E10-INV-110C-NAV",
       "title": "Implement source-safe Timeline navigation and return-context drafts",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-INV-110B-RUNTIME"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-INV-110D-CLOSURE"
       ]
@@ -1748,11 +1748,11 @@
       "id": "E10-INV-110D-CLOSURE",
       "title": "Verify Timeline adversarial security, performance and bounded exclusions",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-INV-110C-NAV"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-INV-110E"
       ]
@@ -1761,11 +1761,11 @@
       "id": "E10-INV-110E",
       "title": "Compile bounded Investigation Timeline ledger-compatible runtime handoff",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-INV-110D-CLOSURE"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-INV-120A-SNAPSHOT",
         "E10-INV-110F-SUPERSESSION"
@@ -1775,22 +1775,22 @@
       "id": "E10-INV-120A-SNAPSHOT",
       "title": "Integrate an operator-provided durable Case snapshot into the authenticated loopback analyst journey",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-INV-110E"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": []
     },
     {
       "id": "E10-CMD-101",
       "title": "Deliver Command-owned Unified Work Queue CAP-CMD-101",
       "type": "epic",
-      "status": "DECOMPOSED",
+      "status": "PLANNED",
       "depends_on": [
         "E10-SCALE-005B"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-CMD-101A-READONLY"
       ]
@@ -1799,29 +1799,29 @@
       "id": "E10-CMD-101A-READONLY",
       "title": "Project authorized Incident/Task six system Work Queue views",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-SCALE-005B"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": []
     },
     {
       "id": "E4-SEC-002B-DIAGNOSTICS",
       "title": "Localize Go SAST processing errors without disclosing analyzer payloads",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E4-SEC-002B-ACTIVATE"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": []
     },
     {
       "id": "E10-CMD-101B-HTTP",
       "title": "Integrate one authenticated host-owned HTTP entry for all six Command system Work Queue views",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-CMD-101A-READONLY"
       ],
@@ -1834,7 +1834,7 @@
       "id": "E10-CMD-101C-HTML",
       "title": "Render canonical six-view Command Work Queue through the existing authorized route in a native read-only browser",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-CMD-101B-HTTP"
       ],
@@ -1847,7 +1847,7 @@
       "id": "E10-CMD-101D-STATUS",
       "title": "Add exact bounded manual status filtering to six authorized Command Work Queue views",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-CMD-101C-HTML"
       ],
@@ -1860,7 +1860,7 @@
       "id": "E10-CMD-101E-SORT",
       "title": "Apply manual newest/oldest updated-at sorting to the six authorized Command Work Queue views",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-CMD-101D-STATUS"
       ],
@@ -1873,7 +1873,7 @@
       "id": "E10-CMD-101F-SELECTION",
       "title": "Select current owner-authorized visible Incident/Task row on the canonical Command Work Queue route",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-CMD-101E-SORT"
       ],
@@ -1884,11 +1884,11 @@
       "id": "E10-CMD-109",
       "title": "Implement canonical Command Work Freshness and Staleness",
       "type": "epic",
-      "status": "DECOMPOSED",
+      "status": "PLANNED",
       "depends_on": [
         "E10-SCALE-005B"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-CMD-109A-FRESHNESS"
       ]
@@ -1897,11 +1897,11 @@
       "id": "E10-CMD-109A-FRESHNESS",
       "title": "Project authorized, owner-sourced per-item freshness in existing Command Work Queue",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-SCALE-005B"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-CMD-109B-VIEW"
       ]
@@ -1910,7 +1910,7 @@
       "id": "E10-CMD-101G-PAGE",
       "title": "Navigate revocation-safe authorized Command Work Queue pages",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-CMD-101F-SELECTION"
       ],
@@ -1921,7 +1921,7 @@
       "id": "E10-CMD-101H-RETURN",
       "title": "Restore exact preceding Command Work Queue page with fresh owner authorization",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-CMD-101G-PAGE"
       ],
@@ -1934,7 +1934,7 @@
       "id": "E10-CMD-101I-SELECTION",
       "title": "Preserve current authorized Work Queue page when selecting a visible Incident or Task",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-CMD-101H-RETURN"
       ],
@@ -1945,11 +1945,11 @@
       "id": "E10-CMD-104",
       "title": "Deliver Command-owned Priority and Severity Coordination CAP-CMD-104",
       "type": "epic",
-      "status": "DECOMPOSED",
+      "status": "PLANNED",
       "depends_on": [
         "E10-SCALE-005B"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-CMD-104A-READONLY"
       ]
@@ -1958,7 +1958,7 @@
       "id": "E10-CMD-104A-READONLY",
       "title": "Inspect six independently source-authorized coordination dimensions of selected Command work items",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-CMD-101I-SELECTION"
       ],
@@ -1969,7 +1969,7 @@
       "id": "E10-CMD-109B-VIEW",
       "title": "Summarize only authorized filtered whole-view source freshness across Command cursor pages",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-CMD-109A-FRESHNESS",
         "E10-CMD-101G-PAGE"
@@ -1981,7 +1981,7 @@
       "id": "E10-CMD-101J-DIAGNOSTICS",
       "title": "Keep SLA-risk partial diagnostics within the selected authorized status-filtered Work Queue",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-CMD-101I-SELECTION"
       ],
@@ -1992,7 +1992,7 @@
       "id": "E10-CMD-101K-OWNERFILTER",
       "title": "Filter authorized Command Work Queue by exact responsible owner with safe page navigation",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-CMD-101J-DIAGNOSTICS"
       ],
@@ -2005,7 +2005,7 @@
       "id": "E10-CMD-101L-GROUP",
       "title": "Group the owner-authorized Command Work Queue by existing type or status before cursor pagination",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-CMD-101K-OWNERFILTER"
       ],
@@ -2018,7 +2018,7 @@
       "id": "E10-CMD-101M-MYWORK",
       "title": "Project contributor/watch roles into owner-authorized Command My Work",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-CMD-101L-GROUP"
       ],
@@ -2029,11 +2029,11 @@
       "id": "E10-CMD-105",
       "title": "Implement canonical Command-owned SLA Tracking CAP-CMD-105 in bounded read-only and future Class-2 units",
       "type": "epic",
-      "status": "DECOMPOSED",
+      "status": "PLANNED",
       "depends_on": [
         "E10-SCALE-005B"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-CMD-105A-READONLY"
       ]
@@ -2042,7 +2042,7 @@
       "id": "E10-CMD-105A-READONLY",
       "title": "Read source-authorized SLA status and policy provenance on selected Incident/Task",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-CMD-101F-SELECTION"
       ],
@@ -2053,7 +2053,7 @@
       "id": "E10-CMD-105B-EXPLAIN",
       "title": "Expose independent source-owned SLA calendar and pause explanation in selected Work Queue read-only",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-CMD-105A-READONLY"
       ],
@@ -2064,11 +2064,11 @@
       "id": "E10-CMD-103",
       "title": "Implement Command CAP-CMD-103 operational vs canonical owner distinction",
       "type": "epic",
-      "status": "DECOMPOSED",
+      "status": "PLANNED",
       "depends_on": [
         "E10-SCALE-005B"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-CMD-103A-READONLY"
       ]
@@ -2077,7 +2077,7 @@
       "id": "E10-CMD-103A-READONLY",
       "title": "Inspect independently authorized canonical product owner for selected Command item",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-CMD-101M-MYWORK"
       ],
@@ -2088,11 +2088,11 @@
       "id": "E10-CMD-106",
       "title": "Deliver Command CAP-CMD-106 authorized existing Investigate Case link inspection",
       "type": "epic",
-      "status": "DECOMPOSED",
+      "status": "PLANNED",
       "depends_on": [
         "E10-SCALE-005B"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-CMD-106A-CASELINKS"
       ]
@@ -2101,7 +2101,7 @@
       "id": "E10-CMD-106A-CASELINKS",
       "title": "Inspect independently source-authorized existing Investigate Cases of selected Command Incident",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-CMD-101I-SELECTION"
       ],
@@ -2112,7 +2112,7 @@
       "id": "E10-CMD-106B-SOURCEJOIN",
       "title": "Compose existing Shared authorized Incident Case links with independently authorized Investigate Case status",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-CMD-106A-CASELINKS"
       ],
@@ -2125,7 +2125,7 @@
       "id": "E10-CMD-106C-FRESHNESS",
       "title": "Show source-observed freshness and date of independently authorized linked Investigate Case status",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-CMD-106B-SOURCEJOIN"
       ],
@@ -2138,7 +2138,7 @@
       "id": "E10-CMD-106D-NAVIGATION",
       "title": "Navigate from independently authorized linked Investigate Cases to existing read-only Timeline endpoint",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-CMD-106C-FRESHNESS"
       ],
@@ -2151,11 +2151,11 @@
       "id": "E4-SEC-002B-SCAID",
       "title": "Expose public Go advisory ID on blocking SCA findings without scanner waiver",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E4-SEC-002B-ACTIVATE"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E4-SEC-002B-E2EREVAL"
       ]
@@ -2164,7 +2164,7 @@
       "id": "E4-SEC-002B-E2EREVAL",
       "title": "Reverify exact Go 1.26.10 source module update in four historical E2E attestations",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E4-SEC-002B-SCAID"
       ],
@@ -2175,7 +2175,7 @@
       "id": "E10-CMD-106E-HOST",
       "title": "Wire source-authorized Command Incident linked Case navigation into the existing Investigate Timeline GET handler",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-CMD-106D-NAVIGATION",
         "E10-INV-110E"
@@ -2189,11 +2189,11 @@
       "id": "E10-INV-110F-SUPERSESSION",
       "title": "Expose source-authorized superseded Timeline Entry state in existing Case HTTP projection",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-INV-110E"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-CMD-106F-TIMELINE",
         "E10-INV-110J-CASEHTML"
@@ -2203,7 +2203,7 @@
       "id": "E10-CMD-106F-TIMELINE",
       "title": "Integrate source-authorized corrections into the existing Command Incident linked Case HTTP navigation",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-CMD-106E-HOST",
         "E10-INV-110F-SUPERSESSION"
@@ -2218,7 +2218,7 @@
       "id": "E10-INV-110J-CASEHTML",
       "title": "Provide HTML view of source-authorized Case Timeline in same-origin Command navigation",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-INV-110F-SUPERSESSION",
         "E10-CMD-106F-TIMELINE"
@@ -2232,7 +2232,7 @@
       "id": "E10-INV-110K-HTMLFILTER",
       "title": "Apply existing owner-authorized Case Timeline filters through interactive HTML GET form",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-INV-110J-CASEHTML"
       ],
@@ -2246,7 +2246,7 @@
       "id": "E10-CMD-106G-LOCALBROWSER",
       "title": "Run real loopback-only browser Command Incident -> independently authorized Case Timeline HTML",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-CMD-106F-TIMELINE",
         "E10-INV-110K-HTMLFILTER"
@@ -2261,7 +2261,7 @@
       "id": "E10-INV-110L-SOURCEOPEN",
       "title": "Open independently authorized Timeline Entry source in same-origin Command-linked local browser",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-INV-110K-HTMLFILTER",
         "E10-CMD-106G-LOCALBROWSER"
@@ -2275,7 +2275,7 @@
       "id": "E10-INV-110N-SOURCEHTML",
       "title": "Show independently authorized source preview as safe HTML in runnable Incident->Case browser",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-INV-110L-SOURCEOPEN"
       ],
@@ -2286,7 +2286,7 @@
       "id": "E10-INV-110O-RETURNCTX",
       "title": "Preserve selected Case timeline filters/page on authorized source open and return",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-INV-110N-SOURCEHTML"
       ],
@@ -2300,7 +2300,7 @@
       "id": "E10-CMD-106H-RETURN",
       "title": "Restore authorized Command Incident selection after Case/Timeline/source navigation",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-CMD-106G-LOCALBROWSER",
         "E10-INV-110O-RETURNCTX"
@@ -2314,7 +2314,7 @@
       "id": "E10-CMD-106I-DEEPRETURN",
       "title": "Restore authorized off-page selected Command Incident after Case/source return",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-CMD-106H-RETURN"
       ],
@@ -2327,7 +2327,7 @@
       "id": "E10-CMD-106J-DETAILREAD",
       "title": "Open owner-authorized read-only Incident Detail through existing Command host",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-CMD-106I-DEEPRETURN",
         "E10-CMD-106G-LOCALBROWSER"
@@ -2341,7 +2341,7 @@
       "id": "E10-CMD-106K-OVERVIEW",
       "title": "Read canonical Command Incident headline, priority, severity and impact in selected Incident Detail",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-CMD-106J-DETAILREAD"
       ],
@@ -2354,7 +2354,7 @@
       "id": "E10-CMD-106L-ALERTSRC",
       "title": "Independently authorized Alert origin in read-only Incident Detail",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-CMD-106K-OVERVIEW"
       ],
@@ -2367,7 +2367,7 @@
       "id": "E10-CMD-106M-RESULTREAD",
       "title": "Show independently Govern Result.read-authorized outcome in existing Command Incident Detail",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-CMD-106L-ALERTSRC"
       ],
@@ -2380,7 +2380,7 @@
       "id": "E10-CMD-106N-DETAILRETURN",
       "title": "Restore source-authorized Incident Detail after Case/Timeline/source return",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-CMD-106M-RESULTREAD",
         "E10-INV-110O-RETURNCTX"
@@ -2394,7 +2394,7 @@
       "id": "E10-CMD-106O-NEXTACTION",
       "title": "Display owner-authorized Command Incident next action and due time in existing read-only Incident Detail",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-CMD-106N-DETAILRETURN"
       ],
@@ -2407,7 +2407,7 @@
       "id": "E10-CMD-106P-TASKLINKS",
       "title": "Independently reauthorize Command Task links in existing Incident Detail",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-CMD-106O-NEXTACTION"
       ],
@@ -2420,7 +2420,7 @@
       "id": "E10-CMD-106Q-TASKNAV",
       "title": "Navigate independently authorized linked Tasks into one owner-rechecked Work Queue",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-CMD-106P-TASKLINKS"
       ],
@@ -2431,11 +2431,11 @@
       "id": "E10-INV-120B-MITRE",
       "title": "Owner-authorized local Wazuh ATT&CK source technique cohorts shown in analyst UI",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-INV-110E"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-INV-120C-MITREFIX"
       ]
@@ -2444,7 +2444,7 @@
       "id": "E10-INV-120C-MITREFIX",
       "title": "Correct source-null and browser ATT&CK cohort consistency identified by L2",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-INV-120B-MITRE"
       ],
@@ -2457,7 +2457,7 @@
       "id": "E10-INV-120D-TECHNAV",
       "title": "Open source-authorized Wazuh ATT&CK technique events via existing Case/Timeline drilldown",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-INV-120C-MITREFIX"
       ],
@@ -2468,18 +2468,18 @@
       "id": "E10-INV-004G-HOST",
       "title": "Bind independently authorized Search and Telemetry owners to read-only Event Inspection HTTP",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-INV-004E"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": []
     },
     {
       "id": "E10-INV-004I-PIVOTHTTP",
       "title": "Provide server-authorized, provenance-preserving read-only Event Search pivot drafts",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-INV-004G-HOST",
         "E10-INV-004C-PIVOT"
@@ -2493,7 +2493,7 @@
       "id": "E10-INV-004J-PIVOTFIX",
       "title": "Close pivot HTTP L2 R2 authorization, provenance ambiguity and size-consistency defects",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-INV-004I-PIVOTHTTP"
       ],
@@ -2506,7 +2506,7 @@
       "id": "E10-INV-004H-HTTPBRIDGE",
       "title": "Compose selected Event Search result with real loopback Go Inspector HTTP host",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-INV-004G-HOST",
         "E10-INV-002G"
@@ -2520,7 +2520,7 @@
       "id": "E10-INV-004K-BROWSERPIVOT",
       "title": "Complete client-selected Inspector field to host-authorized read-only Search pivot draft journey",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-INV-004H-HTTPBRIDGE",
         "E10-INV-004J-PIVOTFIX"
@@ -2532,24 +2532,24 @@
       "id": "E10-SCALE-007",
       "title": "Scale CMDR Studio library and asset catalog foundation (CAP-STD-001)",
       "type": "epic",
-      "status": "DECOMPOSED",
+      "status": "PLANNED",
       "depends_on": [
         "E10-CMD-106Q-TASKNAV",
         "E10-INV-120A-SNAPSHOT"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": []
     },
     {
       "id": "E10-STD-001A-BOUNDARY",
       "title": "Define CMDR Studio library asset boundary and metadata contracts",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-CMD-106Q-TASKNAV",
         "E10-INV-120A-SNAPSHOT"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-STD-001B-CATALOG"
       ]
@@ -2558,11 +2558,11 @@
       "id": "E10-STD-001B-CATALOG",
       "title": "Define CMDR Studio library asset catalog and query registry",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-STD-001A-BOUNDARY"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-STD-001C-RUNTIME"
       ]
@@ -2571,11 +2571,11 @@
       "id": "E10-STD-001C-RUNTIME",
       "title": "Studio Library and Asset Catalog Real Runtime Implementation",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-STD-001B-CATALOG"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-STD-002A-METADATA"
       ]
@@ -2584,11 +2584,11 @@
       "id": "E10-STD-002A-METADATA",
       "title": "Define CMDR Studio asset metadata, ownership contracts, and classification schema (CAP-STD-002)",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-STD-001C-RUNTIME"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": [
         "E10-STD-003A-TOOL"
       ]
@@ -2597,11 +2597,11 @@
       "id": "E10-STD-003A-TOOL",
       "title": "Define CMDR Studio tool definition and functional capability contract (CAP-STD-003)",
       "type": "task",
-      "status": "VERIFIED",
+      "status": "ACCEPTED",
       "depends_on": [
         "E10-STD-002A-METADATA"
       ],
-      "dependency_terminal_state": "VERIFIED",
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": []
     }
   ]

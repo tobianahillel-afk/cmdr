@@ -129,8 +129,8 @@ func runImplementationLedgerAudit(root string, state CurrentState, graph WorkGra
 			return summary, fmt.Errorf("implementation claim capability %s is not an active capability obligation", entry.Capability)
 		}
 		node, ok := nodes[entry.WorkUnit]
-		if !ok || node.Status != "VERIFIED" {
-			return summary, fmt.Errorf("implementation claim %s work unit %s is not VERIFIED", entry.Capability, entry.WorkUnit)
+		if !ok || (node.Status != "VERIFIED" && node.Status != "ACCEPTED") {
+			return summary, fmt.Errorf("implementation claim %s work unit %s is not VERIFIED or ACCEPTED", entry.Capability, entry.WorkUnit)
 		}
 		manifest, err := decodeWorkManifestV2(root, entry.ManifestPath)
 		if err != nil {
@@ -144,7 +144,7 @@ func runImplementationLedgerAudit(root string, state CurrentState, graph WorkGra
 		if err := decodeStrict(root, entry.HandoffPath, &handoff); err != nil {
 			return summary, err
 		}
-		if handoff.WorkUnit != entry.WorkUnit || handoff.Result != "VERIFIED" || handoff.ProductSpecMutated {
+		if handoff.WorkUnit != entry.WorkUnit || (handoff.Result != "VERIFIED" && handoff.Result != "ACCEPTED") || handoff.ProductSpecMutated {
 			return summary, fmt.Errorf("implementation handoff %s is not valid VERIFIED evidence", entry.HandoffPath)
 		}
 		implementationCommit, err := validateFullCommitID(handoff.ImplementationCommit)
@@ -334,8 +334,8 @@ func resolveRuntimeSuccessorEvidence(root string, graph WorkGraph, entry Impleme
 		nodes[node.ID] = node
 	}
 	node, ok := nodes[proof.SuccessorWorkUnit]
-	if !ok || node.Status != "VERIFIED" {
-		return "", "", nil, fmt.Errorf("successor %s is not VERIFIED", proof.SuccessorWorkUnit)
+	if !ok || (node.Status != "VERIFIED" && node.Status != "ACCEPTED") {
+		return "", "", nil, fmt.Errorf("successor %s is not VERIFIED or ACCEPTED", proof.SuccessorWorkUnit)
 	}
 	stack := append([]string(nil), node.DependsOn...)
 	visited := map[string]bool{}
@@ -376,7 +376,7 @@ func resolveRuntimeSuccessorEvidence(root string, graph WorkGraph, entry Impleme
 	}
 	head, err := validateFullCommitID(handoff.FinalValidatedHead)
 	if err != nil || head != handoff.FinalValidatedHead || handoff.SchemaVersion != 1 ||
-		handoff.WorkUnit != proof.SuccessorWorkUnit || handoff.Result != "VERIFIED" ||
+		handoff.WorkUnit != proof.SuccessorWorkUnit || (handoff.Result != "VERIFIED" && handoff.Result != "ACCEPTED") ||
 		handoff.ProductSpecMutated || handoff.PullRequest < 1 ||
 		handoff.Evidence.PushRun < 1 || handoff.Evidence.PullRequestRun < 1 ||
 		handoff.Evidence.RuntimeGlobalCoveragePercent < 80 ||

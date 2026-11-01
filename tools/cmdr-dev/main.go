@@ -81,20 +81,31 @@ type DoctorOutput struct {
 }
 
 var lifecycleRank = map[string]int{
-	"DRAFT":             0,
-	"DECOMPOSED":        1,
-	"READY":             2,
-	"CLAIMED":           3,
-	"IMPLEMENTING":      4,
-	"IMPLEMENTED":       5,
-	"TESTING":           6,
-	"REVIEWING":         7,
-	"SECURITY_REVIEW":   8,
-	"MERGE_READY":       9,
-	"MERGED":            10,
-	"POST_MERGE_VERIFY": 11,
-	"VERIFIED":          12,
+	// Phase D strict engineering taxonomy
+	"PLANNED":           0,
+	"READY":             1,
+	"IN_PROGRESS":       2,
+	"IMPLEMENTED":       3,
+	"TESTED":            4,
+	"REVIEWED":          5,
+	"MERGED_MAIN":       6,
+	"DELIVERED":         7,
+	"ACCEPTED":          8,
 	"BLOCKED":           -1,
+	"DEFERRED":          -2,
+
+	// Backward compatibility aliases for legacy graph nodes and intermediate states
+	"DRAFT":             0,
+	"DECOMPOSED":        0,
+	"CLAIMED":           2,
+	"IMPLEMENTING":      2,
+	"TESTING":           4,
+	"REVIEWING":         5,
+	"SECURITY_REVIEW":   5,
+	"MERGE_READY":       6,
+	"MERGED":            6,
+	"POST_MERGE_VERIFY": 7,
+	"VERIFIED":          8,
 	"BLOCKED_DECISION":  -1,
 }
 
@@ -952,7 +963,7 @@ func selectNext(graph WorkGraph) (*WorkNode, error) {
 func dependenciesSatisfied(node WorkNode, index map[string]WorkNode) (bool, error) {
 	required := node.DependencyTerminalState
 	if required == "" {
-		required = "VERIFIED"
+		required = "ACCEPTED"
 	}
 	requiredRank, ok := lifecycleRank[required]
 	if !ok || requiredRank < 0 {

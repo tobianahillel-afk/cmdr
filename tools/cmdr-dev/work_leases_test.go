@@ -67,7 +67,7 @@ func TestActiveLeaseConflictsFailClosed(t *testing.T) {
 
 func TestAcquireRejectsBlockedOrTerminalWork(t *testing.T) {
 	asOf := mustLeaseTime(t, "2026-09-23T12:00:00Z")
-	for _, status := range []string{"BLOCKED", "VERIFIED", "DECOMPOSED"} {
+	for _, status := range []string{"BLOCKED", "VERIFIED", "DECOMPOSED", "PLANNED", "ACCEPTED", "DEFERRED", "DELIVERED"} {
 		result := evaluateWorkLeaseAction(leasePolicy(), WorkLeaseRegistry{}, leaseGraph(status), WorkLeaseActionRequest{
 			Action: "acquire", LeaseID: "LEASE-NEW00001", AgentID: "AGENT-new",
 			WorkUnit: "E7-REC-001A", BaseHeadSHA: strings.Repeat("b", 40),
