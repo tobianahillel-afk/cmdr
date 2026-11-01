@@ -82,17 +82,17 @@ type DoctorOutput struct {
 
 var lifecycleRank = map[string]int{
 	// Phase D strict engineering taxonomy
-	"PLANNED":           0,
-	"READY":             1,
-	"IN_PROGRESS":       2,
-	"IMPLEMENTED":       3,
-	"TESTED":            4,
-	"REVIEWED":          5,
-	"MERGED_MAIN":       6,
-	"DELIVERED":         7,
-	"ACCEPTED":          8,
-	"BLOCKED":           -1,
-	"DEFERRED":          -2,
+	"PLANNED":     0,
+	"READY":       1,
+	"IN_PROGRESS": 2,
+	"IMPLEMENTED": 3,
+	"TESTED":      4,
+	"REVIEWED":    5,
+	"MERGED_MAIN": 6,
+	"DELIVERED":   7,
+	"ACCEPTED":    8,
+	"BLOCKED":     -1,
+	"DEFERRED":    -2,
 
 	// Backward compatibility aliases for legacy graph nodes and intermediate states
 	"DRAFT":             0,
