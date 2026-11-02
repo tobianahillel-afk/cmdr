@@ -5,6 +5,8 @@ package studiocatalog
 import (
 	"context"
 	"errors"
+	"math"
+	"reflect"
 	"strings"
 	"testing"
 )
@@ -860,4 +862,406 @@ func TestToolInput_ExecutionVerbs_PermanentlyBlocked(t *testing.T) {
 			}
 		})
 	}
+}
+
+// -------------------------------------------------------------------------
+// Remediation Verification Tests: AC-1, Sentinel Errors, Bounds, and Sorting
+// -------------------------------------------------------------------------
+
+func TestToolInput_AC1_RequiredWithDefaultStillFailsWhenMissing(t *testing.T) {
+	scope := CallerScopeContext{PrincipalID: "p1", TenantID: "tenant-alpha"}
+
+	// 1. Missing required parameter with default must FAIL closed (CAP-STD-004 §2, §25 AC-1)
+	singleReqContract := &ToolInputContract{
+		ToolID:      "test-tool",
+		ToolVersion: "1.0.0",
+		TenantID:    "tenant-alpha",
+		Parameters: []InputParameterDefinition{
+			{
+				Name:           "req_with_default",
+				FunctionalType: FunctionalTypeString,
+				Required:       true,
+				DefaultValue:   "default-val",
+			},
+		},
+	}
+
+	outcome := DeterministicValidateInputBindings(singleReqContract, []InputBinding{}, scope, "corr-req-def-1")
+	if outcome.Valid {
+		t.Fatalf("CRITICAL BREACH: Expected validation to fail for missing required parameter with default value")
+	}
+	if outcome.State != ValidationStateMissingInput {
+		t.Errorf("Expected state missing-input, got %s", outcome.State)
+	}
+	if len(outcome.Issues) != 1 || outcome.Issues[0].Code != string(ErrorCodeMissingInput) {
+		t.Fatalf("Expected ErrorCodeMissingInput, got issues: %+v", outcome.Issues)
+	}
+	if len(outcome.ValidatedBindings) != 0 {
+		t.Errorf("Expected zero validated bindings, got: %+v", outcome.ValidatedBindings)
+	}
+
+	// 2. Providing required parameter succeeds and populates optional default
+	twoParamContract := &ToolInputContract{
+		ToolID:      "test-tool",
+		ToolVersion: "1.0.0",
+		TenantID:    "tenant-alpha",
+		Parameters: []InputParameterDefinition{
+			{
+				Name:           "req_with_default",
+				FunctionalType: FunctionalTypeString,
+				Required:       true,
+				DefaultValue:   "default-val",
+			},
+			{
+				Name:           "opt_with_default",
+				FunctionalType: FunctionalTypeString,
+				Required:       false,
+				DefaultValue:   "opt-default-val",
+			},
+		},
+	}
+
+	outcomeWithReq := DeterministicValidateInputBindings(twoParamContract, []InputBinding{
+		{ParameterName: "req_with_default", SourceType: BindingSourceLiteral, Value: "user-supplied"},
+	}, scope, "corr-req-def-2")
+	if !outcomeWithReq.Valid {
+		t.Fatalf("Expected valid outcome, got issues: %+v", outcomeWithReq.Issues)
+	}
+	if len(outcomeWithReq.ValidatedBindings) != 2 {
+		t.Fatalf("Expected 2 validated bindings, got %d", len(outcomeWithReq.ValidatedBindings))
+	}
+	var foundReq, foundOpt bool
+	for _, vb := range outcomeWithReq.ValidatedBindings {
+		if vb.ParameterName == "req_with_default" && vb.MaskedValue == "user-supplied" {
+			foundReq = true
+		}
+		if vb.ParameterName == "opt_with_default" && vb.MaskedValue == "opt-default-val" {
+			foundOpt = true
+		}
+	}
+	if !foundReq || !foundOpt {
+		t.Errorf("Expected both required user-supplied and optional default, got: %+v", outcomeWithReq.ValidatedBindings)
+	}
+}
+
+func TestErrorEnvelope_Is_SentinelAndEnvelopeComparisons(t *testing.T) {
+	testCases := []struct {
+		name     string
+		err      error
+		target   error
+		expected bool
+	}{
+		{"MissingInput Sentinel", NewMissingInputError("f1", "c1"), ErrMissingInput, true},
+		{"InvalidInput Sentinel", NewInvalidInputError("f1", "msg", "c1"), ErrInvalidInput, true},
+		{"RestrictedInput Sentinel", NewRestrictedInputError("f1", "reason", "c1"), ErrRestrictedInput, true},
+		{"CrossScopeBlocked Sentinel", NewCrossScopeBlockedError("f1", "tenant-b", "tenant-a", "c1"), ErrCrossScopeBlocked, true},
+		{"StaleReference Sentinel", NewStaleReferenceError("f1", "c1"), ErrStaleReference, true},
+		{"UnsupportedFunctionalType Sentinel", NewUnsupportedFunctionalTypeError("custom", "c1"), ErrUnsupportedFunctionalType, true},
+		{"ExecutionBlocked Sentinel", NewExecutionBlockedError("Invoke", "c1"), ErrExecutionBlocked, true},
+		{"Envelope to Envelope Match", NewMissingInputError("f1", "c1"), NewMissingInputError("f2", "c2"), true},
+		{"Envelope to Envelope Mismatch", NewMissingInputError("f1", "c1"), NewInvalidInputError("f1", "msg", "c2"), false},
+		{"Foreign error mismatch", NewMissingInputError("f1", "c1"), errors.New("missing-input-foreign"), false},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			if got := errors.Is(tc.err, tc.target); got != tc.expected {
+				t.Errorf("errors.Is(%v, %v) = %v; expected %v", tc.err, tc.target, got, tc.expected)
+			}
+		})
+	}
+}
+
+func TestToolInput_NumericalBounds_OverflowAndInfNaN(t *testing.T) {
+	scope := CallerScopeContext{PrincipalID: "p1", TenantID: "tenant-alpha"}
+
+	t.Run("Integer Overflow Rejection", func(t *testing.T) {
+		contract := &ToolInputContract{
+			ToolID:      "tool-num",
+			ToolVersion: "1.0.0",
+			TenantID:    "tenant-alpha",
+			Parameters: []InputParameterDefinition{
+				{Name: "int_param", FunctionalType: FunctionalTypeInteger, Required: true},
+			},
+		}
+
+		overflowValues := []any{
+			1e25,
+			-1e25,
+			uint64(math.MaxUint64),
+			math.NaN(),
+			math.Inf(1),
+			math.Inf(-1),
+		}
+
+		for _, ov := range overflowValues {
+			outcome := DeterministicValidateInputBindings(contract, []InputBinding{
+				{ParameterName: "int_param", SourceType: BindingSourceLiteral, Value: ov},
+			}, scope, "corr-overflow")
+			if outcome.Valid {
+				t.Errorf("Expected integer validation to reject value %v (%T), but passed", ov, ov)
+			}
+		}
+	})
+
+	t.Run("Integer Full Go Types Support", func(t *testing.T) {
+		contract := &ToolInputContract{
+			ToolID:      "tool-num",
+			ToolVersion: "1.0.0",
+			TenantID:    "tenant-alpha",
+			Parameters: []InputParameterDefinition{
+				{Name: "int_param", FunctionalType: FunctionalTypeInteger, Required: true},
+			},
+		}
+
+		validInts := []any{
+			int8(12),
+			int16(300),
+			int32(70000),
+			int64(9000000000),
+			uint8(250),
+			uint16(65000),
+			uint32(1000000),
+			uint(42),
+			float64(42.0),
+		}
+
+		for _, vi := range validInts {
+			outcome := DeterministicValidateInputBindings(contract, []InputBinding{
+				{ParameterName: "int_param", SourceType: BindingSourceLiteral, Value: vi},
+			}, scope, "corr-valid-int")
+			if !outcome.Valid {
+				t.Errorf("Expected integer validation to accept %v (%T), got: %+v", vi, vi, outcome.Issues)
+			}
+		}
+	})
+
+	t.Run("Number Rejection of NaN and Inf", func(t *testing.T) {
+		contract := &ToolInputContract{
+			ToolID:      "tool-num",
+			ToolVersion: "1.0.0",
+			TenantID:    "tenant-alpha",
+			Parameters: []InputParameterDefinition{
+				{Name: "num_param", FunctionalType: FunctionalTypeNumber, Required: true},
+			},
+		}
+
+		invalidFloats := []any{
+			math.NaN(),
+			math.Inf(1),
+			math.Inf(-1),
+			float32(math.NaN()),
+		}
+
+		for _, inv := range invalidFloats {
+			outcome := DeterministicValidateInputBindings(contract, []InputBinding{
+				{ParameterName: "num_param", SourceType: BindingSourceLiteral, Value: inv},
+			}, scope, "corr-num-nan")
+			if outcome.Valid {
+				t.Errorf("Expected number validation to reject %v (%T), but passed", inv, inv)
+			}
+		}
+	})
+
+	t.Run("Number Full Go Types Support", func(t *testing.T) {
+		contract := &ToolInputContract{
+			ToolID:      "tool-num",
+			ToolVersion: "1.0.0",
+			TenantID:    "tenant-alpha",
+			Parameters: []InputParameterDefinition{
+				{Name: "num_param", FunctionalType: FunctionalTypeNumber, Required: true},
+			},
+		}
+
+		validNumbers := []any{
+			float32(3.14),
+			float64(2.71828),
+			int8(10),
+			int16(200),
+			int32(3000),
+			int64(40000),
+			uint8(5),
+			uint16(50),
+			uint32(500),
+			uint64(5000),
+		}
+
+		for _, vn := range validNumbers {
+			outcome := DeterministicValidateInputBindings(contract, []InputBinding{
+				{ParameterName: "num_param", SourceType: BindingSourceLiteral, Value: vn},
+			}, scope, "corr-valid-num")
+			if !outcome.Valid {
+				t.Errorf("Expected number validation to accept %v (%T), got: %+v", vn, vn, outcome.Issues)
+			}
+		}
+	})
+}
+
+func TestToolInput_MaskedParameters_DeterministicOrder(t *testing.T) {
+	contract := &ToolInputContract{
+		ToolID:      "tool-mask",
+		ToolVersion: "1.0.0",
+		TenantID:    "tenant-alpha",
+		Parameters: []InputParameterDefinition{
+			{Name: "z_secret", FunctionalType: FunctionalTypeSecretRef, Required: true},
+			{Name: "a_token", FunctionalType: FunctionalTypeSecretRef, Required: true},
+			{Name: "m_passphrase", FunctionalType: FunctionalTypeString, Required: true, IsSensitive: true},
+			{Name: "d_key", FunctionalType: FunctionalTypeSecretRef, Required: true},
+		},
+	}
+	scope := CallerScopeContext{PrincipalID: "p1", TenantID: "tenant-alpha"}
+
+	bindings := []InputBinding{
+		{ParameterName: "z_secret", SourceType: BindingSourceSecretRef, SecretRef: &SecretReference{RefID: "s1"}},
+		{ParameterName: "a_token", SourceType: BindingSourceSecretRef, SecretRef: &SecretReference{RefID: "s2"}},
+		{ParameterName: "m_passphrase", SourceType: BindingSourceLiteral, Value: "supersecret"},
+		{ParameterName: "d_key", SourceType: BindingSourceSecretRef, SecretRef: &SecretReference{RefID: "s3"}},
+	}
+
+	expectedOrder := []string{"a_token", "d_key", "m_passphrase", "z_secret"}
+
+	for i := 0; i < 50; i++ {
+		outcome := DeterministicValidateInputBindings(contract, bindings, scope, "corr-order")
+		if !outcome.Valid {
+			t.Fatalf("Expected valid outcome, got: %+v", outcome.Issues)
+		}
+		if !reflect.DeepEqual(outcome.MaskedParameters, expectedOrder) {
+			t.Fatalf("Iteration %d: Non-deterministic order! Expected %v, got %v", i, expectedOrder, outcome.MaskedParameters)
+		}
+	}
+}
+
+func TestToolInput_ExclusiveBoundsAndPointerObject(t *testing.T) {
+	scope := CallerScopeContext{PrincipalID: "p1", TenantID: "tenant-alpha"}
+	exMin := 10.0
+	exMax := 100.0
+
+	t.Run("ExclusiveMinimum and ExclusiveMaximum on Integer", func(t *testing.T) {
+		contract := &ToolInputContract{
+			ToolID:      "tool-bounds",
+			ToolVersion: "1.0.0",
+			TenantID:    "tenant-alpha",
+			Parameters: []InputParameterDefinition{
+				{
+					Name:           "bounded_int",
+					FunctionalType: FunctionalTypeInteger,
+					Required:       true,
+					Constraints: &InputConstraint{
+						ExclusiveMinimum: &exMin,
+						ExclusiveMaximum: &exMax,
+					},
+				},
+			},
+		}
+
+		// Boundary tests: 10 fails, 100 fails, 9 fails, 101 fails, 11 passes, 99 passes
+		failValues := []int{10, 100, 9, 101}
+		for _, fv := range failValues {
+			outcome := DeterministicValidateInputBindings(contract, []InputBinding{
+				{ParameterName: "bounded_int", SourceType: BindingSourceLiteral, Value: fv},
+			}, scope, "corr-bounds-int-fail")
+			if outcome.Valid {
+				t.Errorf("Expected integer %d to fail exclusive bounds (10, 100)", fv)
+			}
+		}
+
+		passValues := []int{11, 50, 99}
+		for _, pv := range passValues {
+			outcome := DeterministicValidateInputBindings(contract, []InputBinding{
+				{ParameterName: "bounded_int", SourceType: BindingSourceLiteral, Value: pv},
+			}, scope, "corr-bounds-int-pass")
+			if !outcome.Valid {
+				t.Errorf("Expected integer %d to pass exclusive bounds (10, 100), got: %+v", pv, outcome.Issues)
+			}
+		}
+	})
+
+	t.Run("ExclusiveMinimum and ExclusiveMaximum on Number", func(t *testing.T) {
+		contract := &ToolInputContract{
+			ToolID:      "tool-bounds-num",
+			ToolVersion: "1.0.0",
+			TenantID:    "tenant-alpha",
+			Parameters: []InputParameterDefinition{
+				{
+					Name:           "bounded_num",
+					FunctionalType: FunctionalTypeNumber,
+					Required:       true,
+					Constraints: &InputConstraint{
+						ExclusiveMinimum: &exMin,
+						ExclusiveMaximum: &exMax,
+					},
+				},
+			},
+		}
+
+		// Boundary tests: 10.0 fails, 100.0 fails, 10.0001 passes, 99.999 passes
+		failValues := []float64{10.0, 100.0, 9.999, 100.001}
+		for _, fv := range failValues {
+			outcome := DeterministicValidateInputBindings(contract, []InputBinding{
+				{ParameterName: "bounded_num", SourceType: BindingSourceLiteral, Value: fv},
+			}, scope, "corr-bounds-num-fail")
+			if outcome.Valid {
+				t.Errorf("Expected number %f to fail exclusive bounds (10, 100)", fv)
+			}
+		}
+
+		passValues := []float64{10.0001, 50.5, 99.999}
+		for _, pv := range passValues {
+			outcome := DeterministicValidateInputBindings(contract, []InputBinding{
+				{ParameterName: "bounded_num", SourceType: BindingSourceLiteral, Value: pv},
+			}, scope, "corr-bounds-num-pass")
+			if !outcome.Valid {
+				t.Errorf("Expected number %f to pass exclusive bounds (10, 100), got: %+v", pv, outcome.Issues)
+			}
+		}
+	})
+
+	t.Run("FunctionalTypeObject Pointer Dereference", func(t *testing.T) {
+		contract := &ToolInputContract{
+			ToolID:      "tool-obj",
+			ToolVersion: "1.0.0",
+			TenantID:    "tenant-alpha",
+			Parameters: []InputParameterDefinition{
+				{Name: "obj_param", FunctionalType: FunctionalTypeObject, Required: true},
+			},
+		}
+
+		type SampleStruct struct {
+			Field string
+		}
+
+		// Valid objects: struct value, map value, struct pointer, map pointer
+		validObjs := []any{
+			SampleStruct{Field: "direct"},
+			&SampleStruct{Field: "pointer"},
+			map[string]any{"key": "val"},
+			&map[string]any{"key": "val"},
+		}
+
+		for _, vo := range validObjs {
+			outcome := DeterministicValidateInputBindings(contract, []InputBinding{
+				{ParameterName: "obj_param", SourceType: BindingSourceLiteral, Value: vo},
+			}, scope, "corr-obj-pass")
+			if !outcome.Valid {
+				t.Errorf("Expected object %T to pass validation, got: %+v", vo, outcome.Issues)
+			}
+		}
+
+		// Invalid objects: pointer to scalar, nil pointer, string
+		intVal := 42
+		invalidObjs := []any{
+			&intVal,
+			(*SampleStruct)(nil),
+			"not-an-object",
+		}
+
+		for _, io := range invalidObjs {
+			outcome := DeterministicValidateInputBindings(contract, []InputBinding{
+				{ParameterName: "obj_param", SourceType: BindingSourceLiteral, Value: io},
+			}, scope, "corr-obj-fail")
+			if outcome.Valid {
+				t.Errorf("Expected invalid object %T (%v) to fail validation", io, io)
+			}
+		}
+	})
 }

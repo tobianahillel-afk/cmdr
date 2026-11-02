@@ -10,6 +10,7 @@ import (
 	"math"
 	"reflect"
 	"regexp"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -330,6 +331,7 @@ type ValidatedBinding struct {
 	SourceType      BindingSourceType `json:"source_type"`
 	MaskedValue     any               `json:"masked_value"`
 	RefID           string            `json:"ref_id,omitempty"`
+	Owner           string            `json:"owner,omitempty"` // Strictly "Settings" for secret-ref (CAP-SET-009, §25 AC-2)
 	TenantID        string            `json:"tenant_id,omitempty"`
 	ValidationState ValidationState   `json:"validation_state"`
 	IsMasked        bool              `json:"is_masked"`
@@ -453,10 +455,10 @@ func DeterministicValidateInputBindings(
 		}
 	}
 
-	// Index caller bindings by parameter name
+	// Index caller bindings by parameter name (deep copy to preserve "no caller mutation" invariant)
 	bindingMap := make(map[string]InputBinding, len(bindings))
 	for _, b := range bindings {
-		bindingMap[strings.TrimSpace(b.ParameterName)] = b
+		bindingMap[strings.TrimSpace(b.ParameterName)] = b.Clone()
 	}
 
 	// Track parameters processed
@@ -498,52 +500,36 @@ func DeterministicValidateInputBindings(
 		// -------------------------------------------------------------
 		if !exists || isBindingEmpty(binding) {
 			if param.Required {
-				if param.DefaultValue != nil {
-					// Explicit default value defined in contract: allowed
-					defVal := param.DefaultValue
-					isMasked := param.IsSensitive || normType == FunctionalTypeSecretRef
-					if isMasked {
-						maskedSet[paramName] = true
-						defVal = "***"
-					}
-					outcome.ValidatedBindings = append(outcome.ValidatedBindings, ValidatedBinding{
-						ParameterName:   paramName,
-						FunctionalType:  normType,
-						SourceType:      BindingSourceLiteral,
-						MaskedValue:     defVal,
-						TenantID:        trimmedCallerTenant,
-						ValidationState: ValidationStateValid,
-						IsMasked:        isMasked,
-					})
-				} else {
-					// FAIL CLOSED: NEVER FABRICATE OR INVENT DEFAULTS! (AC-1)
-					outcome.Issues = append(outcome.Issues, InputValidationIssue{
-						ParameterName: paramName,
-						Code:          string(ErrorCodeMissingInput),
-						Message:       fmt.Sprintf("Required parameter %q is missing and has no explicit default (CAP-STD-004 §25)", paramName),
-						Severity:      "error",
-						State:         ValidationStateMissingInput,
-					})
+				// FAIL CLOSED: Required inputs must ALWAYS fail with missing-input when omitted.
+				// NEVER inject or fall back to DefaultValue for required parameters! (CAP-STD-004 §2, §25 AC-1)
+				outcome.Issues = append(outcome.Issues, InputValidationIssue{
+					ParameterName: paramName,
+					Code:          string(ErrorCodeMissingInput),
+					Message:       fmt.Sprintf("Required parameter %q is missing (CAP-STD-004 §25)", paramName),
+					Severity:      "error",
+					State:         ValidationStateMissingInput,
+				})
+			} else if param.DefaultValue != nil {
+				// Optional parameter with explicit default: populate default
+				defVal := param.DefaultValue
+				isMasked := param.IsSensitive || normType == FunctionalTypeSecretRef
+				if isMasked {
+					maskedSet[paramName] = true
+					defVal = "***"
 				}
-			} else {
-				// Optional parameter missing: valid
-				if param.DefaultValue != nil {
-					defVal := param.DefaultValue
-					isMasked := param.IsSensitive || normType == FunctionalTypeSecretRef
-					if isMasked {
-						maskedSet[paramName] = true
-						defVal = "***"
-					}
-					outcome.ValidatedBindings = append(outcome.ValidatedBindings, ValidatedBinding{
-						ParameterName:   paramName,
-						FunctionalType:  normType,
-						SourceType:      BindingSourceLiteral,
-						MaskedValue:     defVal,
-						TenantID:        trimmedCallerTenant,
-						ValidationState: ValidationStateValid,
-						IsMasked:        isMasked,
-					})
+				vb := ValidatedBinding{
+					ParameterName:   paramName,
+					FunctionalType:  normType,
+					SourceType:      BindingSourceLiteral,
+					MaskedValue:     defVal,
+					TenantID:        trimmedCallerTenant,
+					ValidationState: ValidationStateValid,
+					IsMasked:        isMasked,
 				}
+				if normType == FunctionalTypeSecretRef {
+					vb.Owner = "Settings"
+				}
+				outcome.ValidatedBindings = append(outcome.ValidatedBindings, vb)
 			}
 			continue
 		}
@@ -575,6 +561,7 @@ func DeterministicValidateInputBindings(
 			valBinding.MaskedValue = "***"
 			if binding.SecretRef != nil {
 				valBinding.RefID = binding.SecretRef.RefID
+				valBinding.Owner = "Settings"
 			}
 		} else if binding.EntityRef != nil {
 			valBinding.RefID = binding.EntityRef.RefID
@@ -589,10 +576,12 @@ func DeterministicValidateInputBindings(
 		outcome.ValidatedBindings = append(outcome.ValidatedBindings, valBinding)
 	}
 
-	// Populate masked parameters list
+	// Populate masked parameters list with deterministic sort order
+	outcome.MaskedParameters = make([]string, 0, len(maskedSet))
 	for p := range maskedSet {
 		outcome.MaskedParameters = append(outcome.MaskedParameters, p)
 	}
+	sort.Strings(outcome.MaskedParameters)
 
 	// 4. Overall Outcome State Calculation
 	if len(outcome.Issues) == 0 {
@@ -643,8 +632,8 @@ func validateBindingAgainstParameter(
 		}
 
 		sec := binding.SecretRef
-		// Enforce Settings ownership & masking invariants
-		sec.Mask()
+		// Note: Under CAP-STD-004 §10 ("no caller mutation"), sec is never modified in-place.
+		// Settings ownership and masking are projected strictly onto the derived ValidatedBinding.
 
 		// Staleness check
 		if sec.IsStale {
@@ -918,6 +907,25 @@ func validateBindingAgainstParameter(
 			})
 		}
 
+		if param.Constraints != nil && param.Constraints.ExclusiveMinimum != nil && float64(intVal) <= *param.Constraints.ExclusiveMinimum {
+			issues = append(issues, InputValidationIssue{
+				ParameterName: paramName,
+				Code:          string(ErrorCodeInvalidInput),
+				Message:       fmt.Sprintf("Parameter %q value %d must be strictly greater than exclusive minimum %v", paramName, intVal, *param.Constraints.ExclusiveMinimum),
+				Severity:      "error",
+				State:         ValidationStateInvalid,
+			})
+		}
+		if param.Constraints != nil && param.Constraints.ExclusiveMaximum != nil && float64(intVal) >= *param.Constraints.ExclusiveMaximum {
+			issues = append(issues, InputValidationIssue{
+				ParameterName: paramName,
+				Code:          string(ErrorCodeInvalidInput),
+				Message:       fmt.Sprintf("Parameter %q value %d must be strictly less than exclusive maximum %v", paramName, intVal, *param.Constraints.ExclusiveMaximum),
+				Severity:      "error",
+				State:         ValidationStateInvalid,
+			})
+		}
+
 	case FunctionalTypeNumber:
 		numVal, ok := toFloat64(val)
 		if !ok {
@@ -954,6 +962,25 @@ func validateBindingAgainstParameter(
 				ParameterName: paramName,
 				Code:          string(ErrorCodeInvalidInput),
 				Message:       fmt.Sprintf("Parameter %q value %v exceeds maximum %v", paramName, numVal, *maxV),
+				Severity:      "error",
+				State:         ValidationStateInvalid,
+			})
+		}
+
+		if param.Constraints != nil && param.Constraints.ExclusiveMinimum != nil && numVal <= *param.Constraints.ExclusiveMinimum {
+			issues = append(issues, InputValidationIssue{
+				ParameterName: paramName,
+				Code:          string(ErrorCodeInvalidInput),
+				Message:       fmt.Sprintf("Parameter %q value %v must be strictly greater than exclusive minimum %v", paramName, numVal, *param.Constraints.ExclusiveMinimum),
+				Severity:      "error",
+				State:         ValidationStateInvalid,
+			})
+		}
+		if param.Constraints != nil && param.Constraints.ExclusiveMaximum != nil && numVal >= *param.Constraints.ExclusiveMaximum {
+			issues = append(issues, InputValidationIssue{
+				ParameterName: paramName,
+				Code:          string(ErrorCodeInvalidInput),
+				Message:       fmt.Sprintf("Parameter %q value %v must be strictly less than exclusive maximum %v", paramName, numVal, *param.Constraints.ExclusiveMaximum),
 				Severity:      "error",
 				State:         ValidationStateInvalid,
 			})
@@ -1006,6 +1033,9 @@ func validateBindingAgainstParameter(
 
 	case FunctionalTypeObject:
 		rv := reflect.ValueOf(val)
+		if rv.IsValid() && rv.Kind() == reflect.Pointer && !rv.IsNil() {
+			rv = rv.Elem()
+		}
 		if !rv.IsValid() || (rv.Kind() != reflect.Map && rv.Kind() != reflect.Struct) {
 			issues = append(issues, InputValidationIssue{
 				ParameterName: paramName,
@@ -1142,6 +1172,9 @@ func toInt64(val any) (int64, bool) {
 	case int64:
 		return v, true
 	case uint:
+		if uint64(v) > math.MaxInt64 {
+			return 0, false
+		}
 		return int64(v), true
 	case uint8:
 		return int64(v), true
@@ -1150,14 +1183,24 @@ func toInt64(val any) (int64, bool) {
 	case uint32:
 		return int64(v), true
 	case uint64:
+		if v > math.MaxInt64 {
+			return 0, false
+		}
 		return int64(v), true
 	case float32:
+		f := float64(v)
+		if math.IsNaN(f) || math.IsInf(f, 0) || f < math.MinInt64 || f > math.MaxInt64 {
+			return 0, false
+		}
 		if float32(int64(v)) == v {
 			return int64(v), true
 		}
 		return 0, false
 	case float64:
-		if math.Floor(v) == v && !math.IsNaN(v) && !math.IsInf(v, 0) {
+		if math.IsNaN(v) || math.IsInf(v, 0) || v < math.MinInt64 || v > math.MaxInt64 {
+			return 0, false
+		}
+		if math.Floor(v) == v {
 			return int64(v), true
 		}
 		return 0, false
@@ -1175,22 +1218,42 @@ func toFloat64(val any) (float64, bool) {
 	}
 	switch v := val.(type) {
 	case float64:
+		if math.IsNaN(v) || math.IsInf(v, 0) {
+			return 0, false
+		}
 		return v, true
 	case float32:
-		return float64(v), true
+		f := float64(v)
+		if math.IsNaN(f) || math.IsInf(f, 0) {
+			return 0, false
+		}
+		return f, true
 	case int:
 		return float64(v), true
-	case int64:
+	case int8:
+		return float64(v), true
+	case int16:
 		return float64(v), true
 	case int32:
 		return float64(v), true
+	case int64:
+		return float64(v), true
 	case uint:
+		return float64(v), true
+	case uint8:
+		return float64(v), true
+	case uint16:
+		return float64(v), true
+	case uint32:
 		return float64(v), true
 	case uint64:
 		return float64(v), true
 	case json.Number:
 		f, err := v.Float64()
-		return f, err == nil
+		if err != nil || math.IsNaN(f) || math.IsInf(f, 0) {
+			return 0, false
+		}
+		return f, true
 	default:
 		return 0, false
 	}

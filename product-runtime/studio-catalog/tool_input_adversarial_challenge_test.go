@@ -220,7 +220,7 @@ func TestChallenge_ToolInput_SecretExtractionAttempts(t *testing.T) {
 		}
 	})
 
-	t.Run("Tampered Secret Owner Overridden to Settings", func(t *testing.T) {
+	t.Run("Tampered Secret Owner Overridden to Settings in Validated Binding Without Caller Mutation", func(t *testing.T) {
 		sec := &SecretReference{
 			RefID:      "sec-tampered",
 			Owner:      "AttackerControlledStore", // Tampering attempt
@@ -247,15 +247,32 @@ func TestChallenge_ToolInput_SecretExtractionAttempts(t *testing.T) {
 			t.Fatalf("Expected valid outcome, got: %+v", outcome.Issues)
 		}
 
-		// Verify Owner was normalized strictly to "Settings" under CAP-SET-009
-		if sec.Owner != "Settings" {
-			t.Errorf("CRITICAL: Secret owner must be normalized to 'Settings', got %q", sec.Owner)
+		// Invariant: Caller input MUST NOT be mutated (CAP-STD-004 §10 "no caller mutation", §19)
+		if sec.Owner != "AttackerControlledStore" {
+			t.Errorf("CRITICAL VIOLATION: Caller input was mutated! sec.Owner changed to %q", sec.Owner)
 		}
-		if !sec.IsMasked {
-			t.Errorf("CRITICAL: Secret must be masked")
+		if sec.IsMasked {
+			t.Errorf("CRITICAL VIOLATION: Caller input was mutated! sec.IsMasked changed to true")
 		}
-		if sec.MaskedValue != "***" {
-			t.Errorf("CRITICAL: MaskedValue must be '***'")
+
+		// Verify Owner was normalized strictly to "Settings" in the derived ValidatedBinding under CAP-SET-009 / §25 AC-2
+		foundVaultToken := false
+		for _, vb := range outcome.ValidatedBindings {
+			if vb.ParameterName == "vault_token" {
+				foundVaultToken = true
+				if vb.Owner != "Settings" {
+					t.Errorf("CRITICAL: Validated binding owner must be 'Settings', got %q", vb.Owner)
+				}
+				if !vb.IsMasked {
+					t.Errorf("CRITICAL: Validated binding must be masked")
+				}
+				if vb.MaskedValue != "***" {
+					t.Errorf("CRITICAL: Validated binding MaskedValue must be '***'")
+				}
+			}
+		}
+		if !foundVaultToken {
+			t.Fatalf("Expected validated binding for vault_token")
 		}
 	})
 

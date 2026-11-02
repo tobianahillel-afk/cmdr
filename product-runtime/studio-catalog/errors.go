@@ -235,10 +235,13 @@ func NewUnsupportedFunctionalTypeError(fType, correlationID string) *ErrorEnvelo
 	)
 }
 
-// Is supports standard errors.Is comparison against sentinel errors.
+// Is supports standard errors.Is comparison against sentinel errors and other ErrorEnvelopes.
 func (e *ErrorEnvelope) Is(target error) bool {
 	if e == nil || target == nil {
 		return false
+	}
+	if tEnv, ok := target.(*ErrorEnvelope); ok {
+		return e.Code == tEnv.Code
 	}
 	if target.Error() == string(e.Code) {
 		return true
