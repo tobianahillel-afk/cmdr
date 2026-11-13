@@ -1480,6 +1480,28 @@ func (s *DefaultToolInputService) ValidateInputBindings(
 				})
 			}
 		}
+	} else {
+		contract = contract.Clone()
+	}
+
+	if req.ToolID != "" {
+		reqToolID := strings.TrimSpace(req.ToolID)
+		if contract.ToolID != "" && reqToolID != contract.ToolID {
+			return nil, NewInvalidInputError("tool_id", fmt.Sprintf("requested tool_id %q does not match contract tool_id %q", req.ToolID, contract.ToolID), corrID)
+		}
+		if contract.ToolID == "" {
+			contract.ToolID = reqToolID
+		}
+	}
+
+	if req.ToolVersion != "" {
+		reqVer := strings.TrimSpace(req.ToolVersion)
+		if contract.ToolVersion != "" && reqVer != contract.ToolVersion {
+			return nil, NewInvalidInputError("tool_version", fmt.Sprintf("requested tool_version %q does not match contract tool_version %q", req.ToolVersion, contract.ToolVersion), corrID)
+		}
+		if contract.ToolVersion == "" {
+			contract.ToolVersion = reqVer
+		}
 	}
 
 	scope := ScopeFromAuth(&ac)

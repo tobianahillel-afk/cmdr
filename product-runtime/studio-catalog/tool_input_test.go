@@ -1265,3 +1265,177 @@ func TestToolInput_ExclusiveBoundsAndPointerObject(t *testing.T) {
 		}
 	})
 }
+
+func TestToolInput_ValidateInputBindings_ToolVersionValidation(t *testing.T) {
+	ctx := context.Background()
+	store := NewInMemoryToolStore()
+
+	// Seed tool in store with SemVer 1.2.3
+	tool := &ToolDefinition{
+		ID:       "scanner-v1",
+		TenantID: "tenant-alpha",
+		Name:     "Network Scanner",
+		Version:  VersionInfo{SemVer: "1.2.3"},
+		Parameters: []Parameter{
+			{Name: "target", Type: "string", Required: true},
+		},
+	}
+	if err := store.Put(ctx, tool); err != nil {
+		t.Fatalf("failed to seed tool: %v", err)
+	}
+
+	service := NewDefaultToolInputService(store)
+	auth := NewAuthContext("user-1", "tenant-alpha", nil, PermStudioLibraryRead)
+
+	bindings := []InputBinding{
+		{ParameterName: "target", SourceType: BindingSourceLiteral, Value: "example.com"},
+	}
+
+	t.Run("Stored Tool - Matching ToolVersion passes", func(t *testing.T) {
+		req := &ValidateInputBindingsRequest{
+			TenantRef:   "tenant-alpha",
+			ToolID:      "scanner-v1",
+			ToolVersion: "1.2.3",
+			Bindings:    bindings,
+		}
+		outcome, err := service.ValidateInputBindings(ctx, &auth, req)
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		if !outcome.Valid {
+			t.Fatalf("expected outcome to be valid, got issues: %+v", outcome.Issues)
+		}
+		if outcome.ToolVersion != "1.2.3" {
+			t.Errorf("expected outcome tool version 1.2.3, got %q", outcome.ToolVersion)
+		}
+	})
+
+	t.Run("Stored Tool - Mismatched ToolVersion fails with InvalidInputError", func(t *testing.T) {
+		req := &ValidateInputBindingsRequest{
+			TenantRef:   "tenant-alpha",
+			ToolID:      "scanner-v1",
+			ToolVersion: "2.0.0",
+			Bindings:    bindings,
+		}
+		_, err := service.ValidateInputBindings(ctx, &auth, req)
+		if err == nil {
+			t.Fatalf("expected error for mismatched tool_version, got nil")
+		}
+		var env *ErrorEnvelope
+		if !errors.As(err, &env) {
+			t.Fatalf("expected *ErrorEnvelope, got %T", err)
+		}
+		if env.Code != ErrorCodeInvalidInput {
+			t.Errorf("expected ErrorCodeInvalidInput, got %q", env.Code)
+		}
+	})
+
+	t.Run("Direct Contract - Matching ToolVersion passes", func(t *testing.T) {
+		contract := &ToolInputContract{
+			ToolID:      "direct-tool",
+			ToolVersion: "3.1.0",
+			TenantID:    "tenant-alpha",
+			Parameters: []InputParameterDefinition{
+				{Name: "target", FunctionalType: FunctionalTypeString, Required: true},
+			},
+		}
+		req := &ValidateInputBindingsRequest{
+			TenantRef:   "tenant-alpha",
+			ToolID:      "direct-tool",
+			ToolVersion: "3.1.0",
+			Contract:    contract,
+			Bindings:    bindings,
+		}
+		outcome, err := service.ValidateInputBindings(ctx, &auth, req)
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		if !outcome.Valid {
+			t.Fatalf("expected valid outcome, got issues: %+v", outcome.Issues)
+		}
+		if outcome.ToolVersion != "3.1.0" {
+			t.Errorf("expected outcome tool version 3.1.0, got %q", outcome.ToolVersion)
+		}
+	})
+
+	t.Run("Direct Contract - Mismatched ToolVersion fails with InvalidInputError", func(t *testing.T) {
+		contract := &ToolInputContract{
+			ToolID:      "direct-tool",
+			ToolVersion: "3.1.0",
+			TenantID:    "tenant-alpha",
+			Parameters: []InputParameterDefinition{
+				{Name: "target", FunctionalType: FunctionalTypeString, Required: true},
+			},
+		}
+		req := &ValidateInputBindingsRequest{
+			TenantRef:   "tenant-alpha",
+			ToolID:      "direct-tool",
+			ToolVersion: "3.2.0",
+			Contract:    contract,
+			Bindings:    bindings,
+		}
+		_, err := service.ValidateInputBindings(ctx, &auth, req)
+		if err == nil {
+			t.Fatalf("expected error for mismatched tool_version, got nil")
+		}
+		var env *ErrorEnvelope
+		if !errors.As(err, &env) {
+			t.Fatalf("expected *ErrorEnvelope, got %T", err)
+		}
+		if env.Code != ErrorCodeInvalidInput {
+			t.Errorf("expected ErrorCodeInvalidInput, got %q", env.Code)
+		}
+	})
+
+	t.Run("Direct Contract - Empty req.ToolVersion adopts contract version", func(t *testing.T) {
+		contract := &ToolInputContract{
+			ToolID:      "direct-tool",
+			ToolVersion: "3.1.0",
+			TenantID:    "tenant-alpha",
+			Parameters: []InputParameterDefinition{
+				{Name: "target", FunctionalType: FunctionalTypeString, Required: true},
+			},
+		}
+		req := &ValidateInputBindingsRequest{
+			TenantRef:   "tenant-alpha",
+			ToolID:      "direct-tool",
+			ToolVersion: "",
+			Contract:    contract,
+			Bindings:    bindings,
+		}
+		outcome, err := service.ValidateInputBindings(ctx, &auth, req)
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		if outcome.ToolVersion != "3.1.0" {
+			t.Errorf("expected outcome tool version 3.1.0, got %q", outcome.ToolVersion)
+		}
+	})
+
+	t.Run("Mismatched ToolID fails with InvalidInputError", func(t *testing.T) {
+		contract := &ToolInputContract{
+			ToolID:      "contract-tool-id",
+			ToolVersion: "1.0.0",
+			TenantID:    "tenant-alpha",
+		}
+		req := &ValidateInputBindingsRequest{
+			TenantRef:   "tenant-alpha",
+			ToolID:      "req-tool-id-mismatch",
+			ToolVersion: "1.0.0",
+			Contract:    contract,
+			Bindings:    bindings,
+		}
+		_, err := service.ValidateInputBindings(ctx, &auth, req)
+		if err == nil {
+			t.Fatalf("expected error for mismatched tool_id, got nil")
+		}
+		var env *ErrorEnvelope
+		if !errors.As(err, &env) {
+			t.Fatalf("expected *ErrorEnvelope, got %T", err)
+		}
+		if env.Code != ErrorCodeInvalidInput {
+			t.Errorf("expected ErrorCodeInvalidInput, got %q", env.Code)
+		}
+	})
+}
+
