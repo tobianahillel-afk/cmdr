@@ -135,6 +135,7 @@ type ToolDefinition struct {
 	ExecutionNature     ExecutionNature           `json:"execution_nature"`
 	SupportedOperations []string                  `json:"supported_operations"`
 	Operations          []ToolOperation           `json:"operations"`
+	InputContract       *ToolInputContract        `json:"input_contract,omitempty"`
 	Parameters          []Parameter               `json:"parameters"`
 	OutputParameters    []Parameter               `json:"output_parameters,omitempty"`
 	Dependencies        []Dependency              `json:"dependencies"`
@@ -210,6 +211,9 @@ func (t *ToolDefinition) Clone() *ToolDefinition {
 		cp.AuditTrail = make([]AuditRecord, len(t.AuditTrail))
 		copy(cp.AuditTrail, t.AuditTrail)
 	}
+	if t.InputContract != nil {
+		cp.InputContract = t.InputContract.Clone()
+	}
 	return &cp
 }
 
@@ -260,9 +264,9 @@ func (t *ToolDefinition) ToAsset() *Asset {
 
 const (
 	ErrorCodeInvalidContract        ErrorCode = "invalid-contract"
-	ErrorCodeUnsupportedOperation    ErrorCode = "unsupported-operation"
-	ErrorCodeIncompatibleDependency  ErrorCode = "incompatible-dependency"
-	ErrorCodeUnavailableRuntime      ErrorCode = "unavailable-runtime"
+	ErrorCodeUnsupportedOperation   ErrorCode = "unsupported-operation"
+	ErrorCodeIncompatibleDependency ErrorCode = "incompatible-dependency"
+	ErrorCodeUnavailableRuntime     ErrorCode = "unavailable-runtime"
 )
 
 // -------------------------------------------------------------------------
@@ -293,16 +297,16 @@ type ValidateToolContractRequest struct {
 
 // ValidationResult represents the output of Class 1 deterministic validation under CAP-STD-003 §12, §13, §25.
 type ValidationResult struct {
-	Valid                   bool              `json:"valid"`
-	Issues                  []ValidationIssue `json:"issues"`
-	CompletenessScore       float64           `json:"completeness_score"` // 0.0 to 1.0
-	CheckedRules            []string          `json:"checked_rules"`
-	IsAICapable             bool              `json:"is_ai_capable"`
-	NonAgentConfirmed       bool              `json:"non_agent_confirmed"`
-	DeterministicValidated  bool              `json:"deterministic_validated"`
-	DecoupledRuntimeStatus  string            `json:"decoupled_runtime_status"`
-	CorrelationID           string            `json:"correlation_id"`
-	ValidatedAt             time.Time         `json:"validated_at"`
+	Valid                  bool              `json:"valid"`
+	Issues                 []ValidationIssue `json:"issues"`
+	CompletenessScore      float64           `json:"completeness_score"` // 0.0 to 1.0
+	CheckedRules           []string          `json:"checked_rules"`
+	IsAICapable            bool              `json:"is_ai_capable"`
+	NonAgentConfirmed      bool              `json:"non_agent_confirmed"`
+	DeterministicValidated bool              `json:"deterministic_validated"`
+	DecoupledRuntimeStatus string            `json:"decoupled_runtime_status"`
+	CorrelationID          string            `json:"correlation_id"`
+	ValidatedAt            time.Time         `json:"validated_at"`
 }
 
 // ValidateToolContractResponse is an alias for ValidationResult for consistent naming.
@@ -992,10 +996,10 @@ func (s *DefaultToolService) CreateDraftTool(ctx context.Context, auth *AuthCont
 // -------------------------------------------------------------------------
 
 // UpdateDraftTool updates an existing draft Tool functional definition.
-// - Immutability enforcement: Only tools in state 'draft' may be mutated.
-//   Attempting to mutate a non-draft tool returns 400 immutable-asset-mutation.
-// - Rejects states 'published' and 'deployed' (forbidden under STD-1).
-// - Rejects cross-tenant mutation with 403 cross-tenant-mutation-forbidden.
+//   - Immutability enforcement: Only tools in state 'draft' may be mutated.
+//     Attempting to mutate a non-draft tool returns 400 immutable-asset-mutation.
+//   - Rejects states 'published' and 'deployed' (forbidden under STD-1).
+//   - Rejects cross-tenant mutation with 403 cross-tenant-mutation-forbidden.
 func (s *DefaultToolService) UpdateDraftTool(ctx context.Context, auth *AuthContext, req *UpdateDraftToolRequest) (*ToolDefinition, error) {
 	corrID := GenerateCorrelationID()
 	ac := ensureAuth(auth)
