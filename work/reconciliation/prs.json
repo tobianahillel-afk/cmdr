@@ -4,7 +4,7 @@
     "title": "test: verify ChatGPT GitHub access",
     "head_branch": "chatgpt-access-test",
     "base_branch": "main",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "REJECTED",
     "disposition_rationale": "Initial exploratory and CI health-check pull request created during repository bootstrap; non-canonical and obsolete.",
     "files_introduced": [
@@ -724,7 +724,7 @@
     "title": "feat(investigate): trusted offline Case Timeline snapshot viewer",
     "head_branch": "engineering/inv-110b-offline-snapshot",
     "base_branch": "engineering/autonomous-development-foundation",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Historical feature or experimental branch superseded by consolidated integration on PR #222.",
     "files_introduced": [
@@ -741,7 +741,7 @@
     "title": "feat(investigation): load trusted offline Case snapshots in local analyst viewer",
     "head_branch": "engineering/inv110b-offline-case-snapshot",
     "base_branch": "engineering/autonomous-development-foundation",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Historical feature or experimental branch superseded by consolidated integration on PR #222.",
     "files_introduced": [
@@ -763,7 +763,7 @@
     "title": "investigate: C-NAV authenticated Timeline entry → source owner draft",
     "head_branch": "feature/e10-inv-110c-source-navigation",
     "base_branch": "engineering/autonomous-development-foundation",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate Case Timeline development slice superseded by case-timeline-demo in PR #222.",
     "files_introduced": [
@@ -788,7 +788,7 @@
     "title": "feat(investigate): integrate offline owner snapshots with Case source navigation",
     "head_branch": "feature/e10-inv-110c-imported-source-navigation",
     "base_branch": "engineering/autonomous-development-foundation",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate Case Timeline development slice superseded by case-timeline-demo in PR #222.",
     "files_introduced": [
@@ -815,7 +815,7 @@
     "title": "feat(investigate): operator-selected offline Case → Timeline → source preview journey (E10-INV-120A)",
     "head_branch": "feature/e10-inv-120a-operator-principal-flow",
     "base_branch": "engineering/autonomous-development-foundation",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory Wazuh forensic branch superseded by PR #44, PR #50, PR #220, and consolidated integration branch PR #222.",
     "files_introduced": [
@@ -842,7 +842,7 @@
     "title": "feat(investigate): risk-bounded cross-Case indicator text hunt (E10-INV-120A)",
     "head_branch": "feature/e10-inv-120a-cross-case-text-hunt",
     "base_branch": "engineering/autonomous-development-foundation",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory Wazuh forensic branch superseded by PR #44, PR #50, PR #220, and consolidated integration branch PR #222.",
     "files_introduced": [
@@ -864,7 +864,7 @@
     "title": "feat(investigate): authorized cross-Case five-minute event drilldown",
     "head_branch": "feature/inv-120a-temporal-window-drilldown",
     "base_branch": "engineering/autonomous-development-foundation",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Historical feature or experimental branch superseded by consolidated integration on PR #222.",
     "files_introduced": [
@@ -909,7 +909,7 @@
     "title": "feat(investigate): authorized offline Case investigation dossier",
     "head_branch": "feature/e10-inv-120a-case-dossier",
     "base_branch": "engineering/autonomous-development-foundation",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory Wazuh forensic branch superseded by PR #44, PR #50, PR #220, and consolidated integration branch PR #222.",
     "files_introduced": [
@@ -927,7 +927,7 @@
     "title": "feat(investigate): integrate authorized Case dossier on current engineering foundation",
     "head_branch": "feature/e10-inv-120a-dossier-integrated",
     "base_branch": "engineering/autonomous-development-foundation",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory Wazuh forensic branch superseded by PR #44, PR #50, PR #220, and consolidated integration branch PR #222.",
     "files_introduced": [
@@ -944,7 +944,7 @@
     "title": "feat(E10-INV-120A): open normalized JSONL directly in local analyst viewer",
     "head_branch": "feature/e10-inv-120a-live-jsonl-analyst",
     "base_branch": "engineering/autonomous-development-foundation",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory Wazuh forensic branch superseded by PR #44, PR #50, PR #220, and consolidated integration branch PR #222.",
     "files_introduced": [
@@ -966,7 +966,7 @@
     "title": "feat(investigate): correlate multiple offline Wazuh alerts in authorized Case viewer",
     "head_branch": "feature/e10-inv-120a-multi-wazuh-viewer",
     "base_branch": "engineering/autonomous-development-foundation",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory Wazuh forensic branch superseded by PR #44, PR #50, PR #220, and consolidated integration branch PR #222.",
     "files_introduced": [
@@ -985,7 +985,7 @@
     "title": "feat(E10-INV-120A): multi-Wazuh authorized Case investigation on current foundation",
     "head_branch": "feature/e10-inv-120a-multi-wazuh-current",
     "base_branch": "engineering/autonomous-development-foundation",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory Wazuh forensic branch superseded by PR #44, PR #50, PR #220, and consolidated integration branch PR #222.",
     "files_introduced": [
@@ -1039,7 +1039,7 @@
     "title": "feat(investigate): authorized 60-second Wazuh alert burst leads",
     "head_branch": "feature/e10-inv-120a-wazuh-burst-investigation",
     "base_branch": "feature/e10-inv-120a-multi-wazuh-reconciled",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory Wazuh forensic branch superseded by PR #44, PR #50, PR #220, and consolidated integration branch PR #222.",
     "files_introduced": [
@@ -1081,7 +1081,7 @@
     "title": "feat(investigate): Wazuh Case event inspection and first-party search pivot handoff",
     "head_branch": "feature/e10-inv-140a-wazuh-event-inspection-pivot",
     "base_branch": "feature/e10-inv-120a-multi-wazuh-reconciled",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory Wazuh forensic branch superseded by PR #44, PR #50, PR #220, and consolidated integration branch PR #222.",
     "files_introduced": [
@@ -1100,7 +1100,7 @@
     "title": "feat(investigate): execute authorized Wazuh rule/agent pivots as real Event Search Jobs",
     "head_branch": "feature/e10-inv-150a-wazuh-executed-search-pivot",
     "base_branch": "feature/e10-inv-140a-wazuh-event-inspection-pivot",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory Wazuh forensic branch superseded by PR #44, PR #50, PR #220, and consolidated integration branch PR #222.",
     "files_introduced": [
@@ -1119,7 +1119,7 @@
     "title": "feat(investigate): execute Wazuh Search Jobs inside authenticated analyst UI",
     "head_branch": "feature/e10-inv-160a-wazuh-search-analyst-ui",
     "base_branch": "feature/e10-inv-150a-wazuh-executed-search-pivot",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory Wazuh forensic branch superseded by PR #44, PR #50, PR #220, and consolidated integration branch PR #222.",
     "files_introduced": [
@@ -1140,7 +1140,7 @@
     "title": "feat(investigate): replay saved local Wazuh searches through fresh Case authorization",
     "head_branch": "feature/e10-inv-170a-wazuh-search-replay-file",
     "base_branch": "feature/e10-inv-160a-wazuh-search-analyst-ui",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory Wazuh forensic branch superseded by PR #44, PR #50, PR #220, and consolidated integration branch PR #222.",
     "files_introduced": [
@@ -1157,7 +1157,7 @@
     "title": "feat(investigate): chronological authorized Wazuh triage directly from Event Search Jobs",
     "head_branch": "feature/e10-inv-180a-search-result-triage-timeline",
     "base_branch": "feature/e10-inv-170a-wazuh-search-replay-file",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate Case Timeline development slice superseded by case-timeline-demo in PR #222.",
     "files_introduced": [
@@ -1176,7 +1176,7 @@
     "title": "feat(investigate): correlate authorized Wazuh Search Job hits into 60-second actionable bursts",
     "head_branch": "feature/e10-inv-190a-search-burst-correlation",
     "base_branch": "feature/e10-inv-180a-search-result-triage-timeline",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Historical feature or experimental branch superseded by consolidated integration on PR #222.",
     "files_introduced": [
@@ -1196,7 +1196,7 @@
     "title": "feat(hunt): authorized literal text search of Wazuh alert previews via Event Search Jobs",
     "head_branch": "feature/e10-inv-200a-authorized-wazuh-preview-hunt",
     "base_branch": "feature/e10-inv-190a-search-burst-correlation",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory Wazuh forensic branch superseded by PR #44, PR #50, PR #220, and consolidated integration branch PR #222.",
     "files_introduced": [
@@ -1215,7 +1215,7 @@
     "title": "feat(search): execute authorized Event Search Jobs for generic normalized JSONL Case events",
     "head_branch": "feature/e10-inv-210a-normalized-jsonl-event-search",
     "base_branch": "feature/e10-inv-200a-authorized-wazuh-preview-hunt",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "INCORPORATED",
     "disposition_rationale": "Generic normalized JSONL Event Search Job contracts and execution foundation integrated into core runtime and foundation.",
     "files_introduced": [
@@ -1235,7 +1235,7 @@
     "title": "feat(search): ingest 2–4 normalized JSONL sources into one authorized searchable Case",
     "head_branch": "feature/e10-inv-220a-multifeed-normalized-jsonl",
     "base_branch": "feature/e10-inv-210a-normalized-jsonl-event-search",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Historical feature or experimental branch superseded by consolidated integration on PR #222.",
     "files_introduced": [
@@ -1252,7 +1252,7 @@
     "title": "feat(forensic): save private normalized Case snapshots and reopen authorized Event Search after restart",
     "head_branch": "feature/e10-inv-230a-durable-offline-case-reopen",
     "base_branch": "feature/e10-inv-220a-multifeed-normalized-jsonl",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Historical feature or experimental branch superseded by consolidated integration on PR #222.",
     "files_introduced": [
@@ -1268,7 +1268,7 @@
     "title": "security(forensic): export and reopen only authorized Case entries and typed sources",
     "head_branch": "feature/e10-inv-240a-minimal-authorized-case-snapshot",
     "base_branch": "feature/e10-inv-230a-durable-offline-case-reopen",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Historical feature or experimental branch superseded by consolidated integration on PR #222.",
     "files_introduced": [
@@ -1283,7 +1283,7 @@
     "title": "feat(forensic): verify saved Case snapshot bytes before authenticated restart",
     "head_branch": "feature/e10-inv-250a-integrity-checked-case-reopen",
     "base_branch": "feature/e10-inv-240a-minimal-authorized-case-snapshot",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Historical feature or experimental branch superseded by consolidated integration on PR #222.",
     "files_introduced": [
@@ -1300,7 +1300,7 @@
     "title": "feat(forensic): verify saved Case integrity and authorized feed inventory entirely offline",
     "head_branch": "feature/e10-inv-260a-offline-case-verification",
     "base_branch": "feature/e10-inv-250a-integrity-checked-case-reopen",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Historical feature or experimental branch superseded by consolidated integration on PR #222.",
     "files_introduced": [
@@ -1316,7 +1316,7 @@
     "title": "feat(investigation): compare independently verified saved Cases across snapshots",
     "head_branch": "feature/e10-inv-270a-verified-cross-snapshot-comparison",
     "base_branch": "feature/e10-inv-260a-offline-case-verification",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Historical feature or experimental branch superseded by consolidated integration on PR #222.",
     "files_introduced": [
@@ -1332,7 +1332,7 @@
     "title": "refactor(security): unify authorized saved-Case loading across restore, verification and comparison",
     "head_branch": "feature/e10-inv-280a-unified-authorized-case-loader",
     "base_branch": "feature/e10-inv-270a-verified-cross-snapshot-comparison",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Historical feature or experimental branch superseded by consolidated integration on PR #222.",
     "files_introduced": [
@@ -1348,7 +1348,7 @@
     "title": "security(hunt): send sensitive Wazuh preview searches via authenticated POST, without URL or receipt echo",
     "head_branch": "feature/e10-inv-290a-private-wazuh-text-hunt",
     "base_branch": "feature/e10-inv-280a-unified-authorized-case-loader",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory Wazuh forensic branch superseded by PR #44, PR #50, PR #220, and consolidated integration branch PR #222.",
     "files_introduced": [
@@ -1366,7 +1366,7 @@
     "title": "feat(integration): preserve normalized Wazuh 4.x alerts as authorized durable Case snapshots",
     "head_branch": "feature/e10-inv-300a-durable-wazuh-case-bridge",
     "base_branch": "feature/e10-inv-290a-private-wazuh-text-hunt",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory Wazuh forensic branch superseded by PR #44, PR #50, PR #220, and consolidated integration branch PR #222.",
     "files_introduced": [
@@ -1383,7 +1383,7 @@
     "title": "security(case): stop legacy JSONL import exporting foreign tenant and denied source records",
     "head_branch": "feature/e10-inv-310a-minimize-legacy-jsonl-export",
     "base_branch": "feature/e10-inv-300a-durable-wazuh-case-bridge",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory offline multi-Case cohort slice superseded by PR #49/#50 and consolidated investigation runtime in PR #222.",
     "files_introduced": [
@@ -1398,7 +1398,7 @@
     "title": "feat(investigation): retain Wazuh rule/agent pivots across authorized Case snapshot restart",
     "head_branch": "feature/e10-inv-320a-durable-wazuh-rule-agent-pivots",
     "base_branch": "feature/e10-inv-310a-minimize-legacy-jsonl-export",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory Wazuh forensic branch superseded by PR #44, PR #50, PR #220, and consolidated integration branch PR #222.",
     "files_introduced": [
@@ -1420,7 +1420,7 @@
     "title": "feat(investigation): restore authorized Wazuh burst triage after saved Case restart",
     "head_branch": "feature/e10-inv-330a-durable-wazuh-bursts",
     "base_branch": "feature/e10-inv-320a-durable-wazuh-rule-agent-pivots",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory Wazuh forensic branch superseded by PR #44, PR #50, PR #220, and consolidated integration branch PR #222.",
     "files_introduced": [
@@ -1438,7 +1438,7 @@
     "title": "integration: durable Wazuh Case pivots and authorized 60s bursts in one tested increment",
     "head_branch": "integration/e10-inv-320-330-wazuh-case-runtime",
     "base_branch": "feature/e10-inv-310a-minimize-legacy-jsonl-export",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory Wazuh forensic branch superseded by PR #44, PR #50, PR #220, and consolidated integration branch PR #222.",
     "files_introduced": [
@@ -1462,7 +1462,7 @@
     "title": "feat(investigation): compare authorized Wazuh agent/rule cohorts across saved Cases",
     "head_branch": "feature/e10-inv-340a-wazuh-cross-case-cohorts",
     "base_branch": "integration/e10-inv-320-330-wazuh-case-runtime",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory Wazuh forensic branch superseded by PR #44, PR #50, PR #220, and consolidated integration branch PR #222.",
     "files_introduced": [
@@ -1479,7 +1479,7 @@
     "title": "integration(Wazuh): unify offline temporal bursts from PR #51 with authorized SearchJob bursts",
     "head_branch": "integration/e10-inv-350-unified-wazuh-bursts",
     "base_branch": "feature/e10-inv-340a-wazuh-cross-case-cohorts",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory Wazuh forensic branch superseded by PR #44, PR #50, PR #220, and consolidated integration branch PR #222.",
     "files_introduced": [
@@ -1496,7 +1496,7 @@
     "title": "integration(search): unify PR #52 authorized source/provenance pivots with Case Event Search Jobs",
     "head_branch": "feature/e10-inv-360a-unified-source-provenance-hunt",
     "base_branch": "integration/e10-inv-350-unified-wazuh-bursts",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory offline multi-Case cohort slice superseded by PR #49/#50 and consolidated investigation runtime in PR #222.",
     "files_introduced": [
@@ -1514,7 +1514,7 @@
     "title": "feat(investigation): unify Wazuh pivots, authorized bursts and generic JSONL inside one saved Case",
     "head_branch": "feature/e10-inv-370a-mixed-wazuh-jsonl-case-search",
     "base_branch": "feature/e10-inv-360a-unified-source-provenance-hunt",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory Wazuh forensic branch superseded by PR #44, PR #50, PR #220, and consolidated integration branch PR #222.",
     "files_introduced": [
@@ -1529,7 +1529,7 @@
     "title": "integration(forensic): one atomic authorized Wazuh + JSONL Case save without intermediate archives",
     "head_branch": "integration/e10-inv-380-mixed-one-step-case-save",
     "base_branch": "feature/e10-inv-370a-mixed-wazuh-jsonl-case-search",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory offline multi-Case cohort slice superseded by PR #49/#50 and consolidated investigation runtime in PR #222.",
     "files_introduced": [
@@ -1546,7 +1546,7 @@
     "title": "feat(forensic): distinguish Wazuh and generic sources in authorized saved-Case inventory",
     "head_branch": "feature/e10-inv-390a-mixed-case-source-inventory",
     "base_branch": "integration/e10-inv-380-mixed-one-step-case-save",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory offline multi-Case cohort slice superseded by PR #49/#50 and consolidated investigation runtime in PR #222.",
     "files_introduced": [
@@ -1561,7 +1561,7 @@
     "title": "feat(search): distinguish authorized Wazuh and generic hits in one mixed saved Case",
     "head_branch": "feature/e10-inv-400a-source-family-case-search",
     "base_branch": "feature/e10-inv-390a-mixed-case-source-inventory",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate Case Search development slice superseded by standalone microservice in PR #52.",
     "files_introduced": [
@@ -1580,7 +1580,7 @@
     "title": "ci(security): locate unexecuted changed statements without weakening the 90% gate",
     "head_branch": "feature/e10-inv-410a-security-coverage-diagnostics",
     "base_branch": "feature/e10-inv-400a-source-family-case-search",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory offline multi-Case cohort slice superseded by PR #49/#50 and consolidated investigation runtime in PR #222.",
     "files_introduced": [
@@ -1594,7 +1594,7 @@
     "title": "feat(investigation): correlate authorized Wazuh alerts with generic JSONL context within 60s",
     "head_branch": "feature/e10-inv-420a-authorized-mixed-temporal-context",
     "base_branch": "feature/e10-inv-410a-security-coverage-diagnostics",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory offline multi-Case cohort slice superseded by PR #49/#50 and consolidated investigation runtime in PR #222.",
     "files_introduced": [
@@ -1612,7 +1612,7 @@
     "title": "feat(investigation): execute authorized mixed Case Search Jobs headlessly without listener",
     "head_branch": "feature/e10-inv-430a-headless-authorized-case-hunt",
     "base_branch": "feature/e10-inv-420a-authorized-mixed-temporal-context",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory offline multi-Case cohort slice superseded by PR #49/#50 and consolidated investigation runtime in PR #222.",
     "files_introduced": [
@@ -1628,7 +1628,7 @@
     "title": "integration(investigation): mixed-source temporal context and headless authorized SearchJob as one deliverable",
     "head_branch": "integration/e10-inv-420-430-authorized-mixed-hunt",
     "base_branch": "feature/e10-inv-410a-security-coverage-diagnostics",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory offline multi-Case cohort slice superseded by PR #49/#50 and consolidated investigation runtime in PR #222.",
     "files_introduced": [
@@ -1650,7 +1650,7 @@
     "title": "fix(forensic): detect truncated receipts across three authorized investigation workflows",
     "head_branch": "feature/e10-inv-440a-search-boundary-hardening",
     "base_branch": "integration/e10-inv-420-430-authorized-mixed-hunt",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory offline multi-Case cohort slice superseded by PR #49/#50 and consolidated investigation runtime in PR #222.",
     "files_introduced": [
@@ -1666,7 +1666,7 @@
     "title": "feat(forensic): atomically save authorized verification, hunt and comparison reports privately",
     "head_branch": "feature/e10-inv-450a-private-investigation-receipts",
     "base_branch": "feature/e10-inv-440a-search-boundary-hardening",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory offline multi-Case cohort slice superseded by PR #49/#50 and consolidated investigation runtime in PR #222.",
     "files_introduced": [
@@ -1682,7 +1682,7 @@
     "title": "integration(investigation): one verified mixed-source Case→SearchJob→private reports release",
     "head_branch": "feature/e10-inv-460a-integrated-investigation-release",
     "base_branch": "feature/e10-inv-410a-security-coverage-diagnostics",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory offline multi-Case cohort slice superseded by PR #49/#50 and consolidated investigation runtime in PR #222.",
     "files_introduced": [
@@ -1709,7 +1709,7 @@
     "title": "integration(forensic): fail closed on explicitly empty report path or snapshot fingerprint",
     "head_branch": "integration/e10-inv-470a-fail-closed-explicit-outputs",
     "base_branch": "feature/e10-inv-410a-security-coverage-diagnostics",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory offline multi-Case cohort slice superseded by PR #49/#50 and consolidated investigation runtime in PR #222.",
     "files_introduced": [
@@ -1736,7 +1736,7 @@
     "title": "fix(forensic): prevent private Case save from silently exporting evidence to stdout",
     "head_branch": "feature/e10-inv-480a-private-case-save-intent",
     "base_branch": "integration/e10-inv-470a-fail-closed-explicit-outputs",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory offline multi-Case cohort slice superseded by PR #49/#50 and consolidated investigation runtime in PR #222.",
     "files_introduced": [
@@ -1751,7 +1751,7 @@
     "title": "integration(forensic): consolidate authorized mixed-source Case investigation and prevent empty-mode fallback",
     "head_branch": "integration/e10-inv-490a-safe-mixed-case-release",
     "base_branch": "feature/e10-inv-410a-security-coverage-diagnostics",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory offline multi-Case cohort slice superseded by PR #49/#50 and consolidated investigation runtime in PR #222.",
     "files_introduced": [
@@ -1778,7 +1778,7 @@
     "title": "fix(search): preserve source authorization while budgeting selected mixed-Case family",
     "head_branch": "feature/e10-inv-500a-family-candidate-budget",
     "base_branch": "feature/e10-inv-480a-private-case-save-intent",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory offline multi-Case cohort slice superseded by PR #49/#50 and consolidated investigation runtime in PR #222.",
     "files_introduced": [
@@ -1796,7 +1796,7 @@
     "title": "integration: consolidate mixed-source Case investigation and source authorization in one release candidate",
     "head_branch": "integration/e10-inv-510a-one-mixed-case-release",
     "base_branch": "feature/e10-inv-410a-security-coverage-diagnostics",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory offline multi-Case cohort slice superseded by PR #49/#50 and consolidated investigation runtime in PR #222.",
     "files_introduced": [
@@ -1823,7 +1823,7 @@
     "title": "feat(investigation): correlate authorized Wazuh events across independently verified Cases within 60s",
     "head_branch": "feature/e10-inv-520a-cross-case-wazuh-event-pairs",
     "base_branch": "integration/e10-inv-510a-one-mixed-case-release",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory Wazuh forensic branch superseded by PR #44, PR #50, PR #220, and consolidated integration branch PR #222.",
     "files_introduced": [
@@ -1841,7 +1841,7 @@
     "title": "refactor(investigation): unify authorized Wazuh cross-Case cohorts and fix same-time source links",
     "head_branch": "feature/e10-inv-530a-unified-wazuh-cross-case-cohorts",
     "base_branch": "feature/e10-inv-520a-cross-case-wazuh-event-pairs",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory Wazuh forensic branch superseded by PR #44, PR #50, PR #220, and consolidated integration branch PR #222.",
     "files_introduced": [
@@ -1858,7 +1858,7 @@
     "title": "feat(dfir): reopen each correlated Wazuh cross-Case event as a separately authorized private source report",
     "head_branch": "feature/e10-inv-540a-private-cross-case-pair-drilldown",
     "base_branch": "feature/e10-inv-530a-unified-wazuh-cross-case-cohorts",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory offline multi-Case cohort slice superseded by PR #49/#50 and consolidated investigation runtime in PR #222.",
     "files_introduced": [
@@ -1874,7 +1874,7 @@
     "title": "integration(dfir): consolidate Wazuh cross-Case 60s correlation and separately authorized private source drilldown",
     "head_branch": "integration/e10-inv-550a-cross-case-wazuh-source-investigation",
     "base_branch": "integration/e10-inv-510a-one-mixed-case-release",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory Wazuh forensic branch superseded by PR #44, PR #50, PR #220, and consolidated integration branch PR #222.",
     "files_introduced": [
@@ -1899,7 +1899,7 @@
     "title": "integration(dfir): ship correlated Wazuh Case pairs with complete private two-source inspection",
     "head_branch": "feature/e10-inv-560a-private-correlated-pair-bundle",
     "base_branch": "integration/e10-inv-510a-one-mixed-case-release",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory offline multi-Case cohort slice superseded by PR #49/#50 and consolidated investigation runtime in PR #222.",
     "files_introduced": [
@@ -1926,7 +1926,7 @@
     "title": "integration(dfir): single-pass Wazuh pair correlation and private two-source inspection",
     "head_branch": "feature/e10-inv-570a-single-pass-authorized-pair-inspection",
     "base_branch": "integration/e10-inv-550a-cross-case-wazuh-source-investigation",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory offline multi-Case cohort slice superseded by PR #49/#50 and consolidated investigation runtime in PR #222.",
     "files_introduced": [
@@ -1944,7 +1944,7 @@
     "title": "integration(dfir): consolidate mixed-source Case hunt and private cross-Case Wazuh pair investigation",
     "head_branch": "feature/e10-inv-580a-mixed-cross-case-consolidation",
     "base_branch": "integration/e10-inv-510a-one-mixed-case-release",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory offline multi-Case cohort slice superseded by PR #49/#50 and consolidated investigation runtime in PR #222.",
     "files_introduced": [
@@ -1971,7 +1971,7 @@
     "title": "perf(dfir): share one authorized Wazuh observation pass across Case correlation views",
     "head_branch": "feature/e10-inv-590a-single-pass-wazuh-cohort-comparison",
     "base_branch": "feature/e10-inv-580a-mixed-cross-case-consolidation",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory Wazuh forensic branch superseded by PR #44, PR #50, PR #220, and consolidated integration branch PR #222.",
     "files_introduced": [
@@ -1987,7 +1987,7 @@
     "title": "refactor(dfir): stabilize shared Wazuh correlation contracts and enforce independent Case clock denials",
     "head_branch": "feature/e10-inv-600a-correlation-contract-hardening",
     "base_branch": "feature/e10-inv-590a-single-pass-wazuh-cohort-comparison",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory offline multi-Case cohort slice superseded by PR #49/#50 and consolidated investigation runtime in PR #222.",
     "files_introduced": [
@@ -2004,7 +2004,7 @@
     "title": "integration(dfir): consolidate mixed-source hunts, Wazuh Case correlations and private paired-source inspection",
     "head_branch": "integration/e10-inv-610a-authorized-dfir-release-candidate",
     "base_branch": "integration/e10-inv-510a-one-mixed-case-release",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory offline multi-Case cohort slice superseded by PR #49/#50 and consolidated investigation runtime in PR #222.",
     "files_introduced": [
@@ -2031,7 +2031,7 @@
     "title": "test(security): reject revoked first Case Wazuh source in consolidated private paired inspection",
     "head_branch": "integration/e10-inv-620a-paired-first-source-authorization",
     "base_branch": "integration/e10-inv-610a-authorized-dfir-release-candidate",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory offline multi-Case cohort slice superseded by PR #49/#50 and consolidated investigation runtime in PR #222.",
     "files_introduced": [
@@ -2044,7 +2044,7 @@
     "title": "feat(dfir): attach authorized generic timeline context to private cross-Case Wazuh pair dossier",
     "head_branch": "feature/e10-inv-630a-authorized-pair-generic-context",
     "base_branch": "integration/e10-inv-620a-paired-first-source-authorization",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory offline multi-Case cohort slice superseded by PR #49/#50 and consolidated investigation runtime in PR #222.",
     "files_introduced": [
@@ -2061,7 +2061,7 @@
     "title": "integration(dfir): Wazuh pair dossier with authorized generic context and revoked-source boundaries",
     "head_branch": "feature/e10-inv-640a-correlated-context-boundaries",
     "base_branch": "integration/e10-inv-620a-paired-first-source-authorization",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory offline multi-Case cohort slice superseded by PR #49/#50 and consolidated investigation runtime in PR #222.",
     "files_introduced": [
@@ -2080,7 +2080,7 @@
     "title": "feat(dfir): explicit private Wazuh pair dossier with independently authorized generic previews",
     "head_branch": "feature/e10-inv-650a-opt-in-verified-generic-evidence-dossier",
     "base_branch": "feature/e10-inv-640a-correlated-context-boundaries",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory offline multi-Case cohort slice superseded by PR #49/#50 and consolidated investigation runtime in PR #222.",
     "files_introduced": [
@@ -2096,7 +2096,7 @@
     "title": "integration(dfir): consolidate complete owner-authorized Wazuh+generic private dossier",
     "head_branch": "integration/e10-inv-660a-one-authorized-pair-dossier",
     "base_branch": "integration/e10-inv-620a-paired-first-source-authorization",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory offline multi-Case cohort slice superseded by PR #49/#50 and consolidated investigation runtime in PR #222.",
     "files_introduced": [
@@ -2120,7 +2120,7 @@
     "title": "integration(dfir): validate full authorized mixed-source cross-Case investigation stack",
     "head_branch": "integration/e10-inv-670a-full-cross-case-dfir-candidate",
     "base_branch": "integration/e10-inv-510a-one-mixed-case-release",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory offline multi-Case cohort slice superseded by PR #49/#50 and consolidated investigation runtime in PR #222.",
     "files_introduced": [
@@ -2147,7 +2147,7 @@
     "title": "refactor(dfir): open each authorized generic source once for v2/v3 private Wazuh pair dossiers",
     "head_branch": "feature/e10-inv-680a-single-pass-generic-context-evidence",
     "base_branch": "integration/e10-inv-670a-full-cross-case-dfir-candidate",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory offline multi-Case cohort slice superseded by PR #49/#50 and consolidated investigation runtime in PR #222.",
     "files_introduced": [
@@ -2163,7 +2163,7 @@
     "title": "integration(dfir): consolidate authorized Wazuh+generic cross-Case investigations and private dossiers",
     "head_branch": "integration/e10-inv-690a-full-dfir-single-pass-release",
     "base_branch": "integration/e10-inv-510a-one-mixed-case-release",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory offline multi-Case cohort slice superseded by PR #49/#50 and consolidated investigation runtime in PR #222.",
     "files_introduced": [
@@ -2190,7 +2190,7 @@
     "title": "integration(dfir): validate complete Wazuh+JSONL investigator journey on earlier green base",
     "head_branch": "integration/e10-inv-700a-single-mixed-dfir-release-from-81",
     "base_branch": "feature/e10-inv-410a-security-coverage-diagnostics",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory offline multi-Case cohort slice superseded by PR #49/#50 and consolidated investigation runtime in PR #222.",
     "files_introduced": [
@@ -2217,7 +2217,7 @@
     "title": "feat(dfir): inspect authorized Wazuh pair by exact Entry IDs",
     "head_branch": "feat/e10-inv-700a-pair-id-selection",
     "base_branch": "integration/e10-inv-690a-full-dfir-single-pass-release",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory offline multi-Case cohort slice superseded by PR #49/#50 and consolidated investigation runtime in PR #222.",
     "files_introduced": [
@@ -2233,7 +2233,7 @@
     "title": "integration(dfir): validate full authorized Wazuh+JSONL Case investigations on green foundation",
     "head_branch": "integration/e10-inv-710a-verified-full-dfir-release",
     "base_branch": "feature/e10-inv-410a-security-coverage-diagnostics",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory offline multi-Case cohort slice superseded by PR #49/#50 and consolidated investigation runtime in PR #222.",
     "files_introduced": [
@@ -2260,7 +2260,7 @@
     "title": "feat(dfir): reopen source-authorized Wazuh pairs beyond ten summary leads",
     "head_branch": "feat/e10-inv-710a-targeted-beyond-top10",
     "base_branch": "feat/e10-inv-700a-pair-id-selection",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory offline multi-Case cohort slice superseded by PR #49/#50 and consolidated investigation runtime in PR #222.",
     "files_introduced": [
@@ -2277,7 +2277,7 @@
     "title": "feat(dfir): paginate authorized Wazuh pairs beyond ten summary leads",
     "head_branch": "feature/e10-inv-720a-paginated-authorized-wazuh-pair-navigation",
     "base_branch": "feat/e10-inv-710a-targeted-beyond-top10",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory Wazuh forensic branch superseded by PR #44, PR #50, PR #220, and consolidated integration branch PR #222.",
     "files_introduced": [
@@ -2312,7 +2312,7 @@
     "title": "integration(dfir): unify authorized Wazuh pair pagination and exact-ID drilldown",
     "head_branch": "feat/e10-inv-730a-integrated-pair-navigation",
     "base_branch": "feat/e10-inv-710a-targeted-beyond-top10",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory offline multi-Case cohort slice superseded by PR #49/#50 and consolidated investigation runtime in PR #222.",
     "files_introduced": [
@@ -2330,7 +2330,7 @@
     "title": "feat(dfir): reverse navigate authorized Wazuh pair leads from second Case",
     "head_branch": "feat/e10-inv-740a-reverse-wazuh-pair-pivot",
     "base_branch": "feat/e10-inv-730a-integrated-pair-navigation",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory Wazuh forensic branch superseded by PR #44, PR #50, PR #220, and consolidated integration branch PR #222.",
     "files_introduced": [
@@ -2345,7 +2345,7 @@
     "title": "feat(dfir): filter authorized Wazuh pair pagination by exact rule and agent",
     "head_branch": "feature/e10-inv-740a-wazuh-rule-agent-pivot",
     "base_branch": "feat/e10-inv-730a-integrated-pair-navigation",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory Wazuh forensic branch superseded by PR #44, PR #50, PR #220, and consolidated integration branch PR #222.",
     "files_introduced": [
@@ -2361,7 +2361,7 @@
     "title": "integration(dfir): unify source-authorized Wazuh cohort and reverse pair navigation",
     "head_branch": "feat/e10-inv-750a-unified-wazuh-pair-navigation",
     "base_branch": "feature/e10-inv-740a-wazuh-rule-agent-pivot",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory Wazuh forensic branch superseded by PR #44, PR #50, PR #220, and consolidated integration branch PR #222.",
     "files_introduced": [
@@ -2398,7 +2398,7 @@
     "title": "feat(dfir): discover source-authorized Wazuh cohorts before pair navigation",
     "head_branch": "feature/e10-inv-760a-authorized-wazuh-cohort-catalog",
     "base_branch": "feature/e10-inv-750a-unified-bidirectional-wazuh-pair-navigation",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory Wazuh forensic branch superseded by PR #44, PR #50, PR #220, and consolidated integration branch PR #222.",
     "files_introduced": [
@@ -2414,7 +2414,7 @@
     "title": "integration(dfir): consolidate source-authorized Wazuh navigation and ACL-revocation regression",
     "head_branch": "integration/e10-inv-760a-canonical-verified-dfir",
     "base_branch": "integration/e10-inv-710a-verified-full-dfir-release",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory offline multi-Case cohort slice superseded by PR #49/#50 and consolidated investigation runtime in PR #222.",
     "files_introduced": [
@@ -2441,7 +2441,7 @@
     "title": "integration(dfir): discover authorized Wazuh cohorts in consolidated Case investigation",
     "head_branch": "feat/e10-inv-770a-integrated-wazuh-catalog",
     "base_branch": "integration/e10-inv-760a-canonical-verified-dfir",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory Wazuh forensic branch superseded by PR #44, PR #50, PR #220, and consolidated integration branch PR #222.",
     "files_introduced": [
@@ -2458,7 +2458,7 @@
     "title": "feat(dfir): find authorized Wazuh cohorts by exact rule or agent",
     "head_branch": "feature/e10-inv-780a-exact-cohort-discovery",
     "base_branch": "feat/e10-inv-770a-integrated-wazuh-catalog",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory offline multi-Case cohort slice superseded by PR #49/#50 and consolidated investigation runtime in PR #222.",
     "files_introduced": [
@@ -2474,7 +2474,7 @@
     "title": "integration(dfir): unify green source-authorized Wazuh investigation stack on earlier first-party Case foundation",
     "head_branch": "integration/e10-dfir-780a-unified-wazuh-release-candidate",
     "base_branch": "feat/e10-inv-750a-unified-wazuh-pair-navigation",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory Wazuh forensic branch superseded by PR #44, PR #50, PR #220, and consolidated integration branch PR #222.",
     "files_introduced": [
@@ -2498,7 +2498,7 @@
     "title": "integration(dfir): filtered source-authorized Wazuh cohorts in unified Case investigation",
     "head_branch": "integration/e10-inv-790a-filtered-authorized-cohorts",
     "base_branch": "feat/e10-inv-750a-unified-wazuh-pair-navigation",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory offline multi-Case cohort slice superseded by PR #49/#50 and consolidated investigation runtime in PR #222.",
     "files_introduced": [
@@ -2560,7 +2560,7 @@
     "title": "integration(investigate): unified CAP-INV-007 Class-0 Search Result workspace and Inspector round-trip",
     "head_branch": "fix/e10-inv-007a-search-workspace-return-context",
     "base_branch": "integration/e10-inv-790a-filtered-authorized-cohorts",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Experimental ephemeral search workspace superseded by consolidated Event Search architecture in PR #221 / PR #222.",
     "files_introduced": [
@@ -2582,7 +2582,7 @@
     "title": "feat(investigate): CAP-INV-008 read-only authorized Search Job provenance",
     "head_branch": "feature/e10-inv-008a-readonly-searchjob-provenance",
     "base_branch": "fix/e10-inv-007a-search-workspace-return-context",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Experimental ephemeral search workspace superseded by consolidated Event Search architecture in PR #221 / PR #222.",
     "files_introduced": [
@@ -2603,7 +2603,7 @@
     "title": "feat(investigate): compare two authorized Search Job runs with ephemeral provenance",
     "head_branch": "feature/e10-inv-008b-ephemeral-run-comparison",
     "base_branch": "feature/e10-inv-008a-readonly-searchjob-provenance",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Experimental ephemeral search workspace superseded by consolidated Event Search architecture in PR #221 / PR #222.",
     "files_introduced": [
@@ -2641,7 +2641,7 @@
     "title": "integration(investigate): converge authorized Case selector and two-Search-Job provenance workflows",
     "head_branch": "feature/e10-inv-008b-110f-owner-integration",
     "base_branch": "feature/e10-inv-008b-ephemeral-run-comparison",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Experimental ephemeral search workspace superseded by consolidated Event Search architecture in PR #221 / PR #222.",
     "files_introduced": [
@@ -2659,7 +2659,7 @@
     "title": "fix(investigate): preserve exact authorized Case IDs through picker, Timeline and SearchJob",
     "head_branch": "fix/e10-inv-110g-exact-case-selection",
     "base_branch": "feature/e10-inv-008b-110f-owner-integration",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate Case Timeline development slice superseded by case-timeline-demo in PR #222.",
     "files_introduced": [
@@ -2678,7 +2678,7 @@
     "title": "test(security): fail closed on revoked nonmatching Case source mid-hunt",
     "head_branch": "feature/e10-inv-002h-owner-revocation-integrity",
     "base_branch": "fix/e10-inv-110g-exact-case-selection",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "INCORPORATED",
     "disposition_rationale": "Security fail-closed enforcement on revoked Case source mid-hunt incorporated into search security test harnesses.",
     "files_introduced": [
@@ -2695,7 +2695,7 @@
     "title": "fix(case): align local Case viewer bootstrap with first-party selector rules",
     "head_branch": "feature/e10-inv-110h-safe-demo-case-startup",
     "base_branch": "feature/e10-inv-002h-owner-revocation-integrity",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate Case Timeline development slice superseded by case-timeline-demo in PR #222.",
     "files_introduced": [
@@ -2714,7 +2714,7 @@
     "title": "feat(case-queue): find a Case within the server-authorized selector list",
     "head_branch": "feature/e10-inv-101g-authorized-case-filter",
     "base_branch": "feature/e10-inv-110h-safe-demo-case-startup",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate Case Queue development slice superseded by Command-Investigate host integration on PR #222.",
     "files_introduced": [
@@ -2734,7 +2734,7 @@
     "title": "feat(case-queue): native authenticated read-only HTTP projection with independent Case/context ACLs",
     "head_branch": "feature/e10-inv-101h-native-authorized-queue-http",
     "base_branch": "feature/e10-inv-110h-safe-demo-case-startup",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate Case Queue development slice superseded by Command-Investigate host integration on PR #222.",
     "files_introduced": [
@@ -2753,7 +2753,7 @@
     "title": "feat(case-queue): native authorized Class-0 filters and deterministic HTTP sorting",
     "head_branch": "feature/e10-inv-101i-native-queue-http-filters",
     "base_branch": "feature/e10-inv-101h-native-authorized-queue-http",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate Case Queue development slice superseded by Command-Investigate host integration on PR #222.",
     "files_introduced": [
@@ -2772,7 +2772,7 @@
     "title": "feat(case-queue): open authorized Case Workspace from native filtered HTTP Queue",
     "head_branch": "feature/e10-inv-101j-authorized-case-workspace-handoff",
     "base_branch": "feature/e10-inv-101i-native-queue-http-filters",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate Case Queue development slice superseded by Command-Investigate host integration on PR #222.",
     "files_introduced": [
@@ -2791,7 +2791,7 @@
     "title": "feat(case-queue): reauthorize and restore native HTTP Case Queue return context",
     "head_branch": "feature/e10-inv-101k-http-queue-return",
     "base_branch": "feature/e10-inv-101j-authorized-case-workspace-handoff",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate Case Queue development slice superseded by Command-Investigate host integration on PR #222.",
     "files_introduced": [
@@ -2810,7 +2810,7 @@
     "title": "feat(case-queue): apply host-authorized Shared Saved Views across native Queue and return",
     "head_branch": "feature/e10-inv-101l-shared-view-http",
     "base_branch": "feature/e10-inv-101k-http-queue-return",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate Case Queue development slice superseded by Command-Investigate host integration on PR #222.",
     "files_introduced": [
@@ -2829,7 +2829,7 @@
     "title": "feat(case-queue): page fully authorized native HTTP Cases with revocation-safe cursors",
     "head_branch": "feature/e10-inv-101m-authorized-http-pages",
     "base_branch": "feature/e10-inv-101l-shared-view-http",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate Case Queue development slice superseded by Command-Investigate host integration on PR #222.",
     "files_introduced": [
@@ -2849,7 +2849,7 @@
     "title": "integration(case-queue): open a Case from its authorized page and restore that page on Workspace return",
     "head_branch": "feature/e10-inv-101n-paged-workspace-return",
     "base_branch": "feature/e10-inv-101m-authorized-http-pages",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate Case Queue development slice superseded by Command-Investigate host integration on PR #222.",
     "files_introduced": [
@@ -2870,7 +2870,7 @@
     "title": "integration(case-queue): navigate from an authorized Command Incident to linked Cases",
     "head_branch": "feature/e10-inv-101o-command-incident-linked-queue",
     "base_branch": "feature/e10-inv-101n-paged-workspace-return",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate Command controls superseded by consolidated Command runtime in PR #222.",
     "files_introduced": [
@@ -2890,7 +2890,7 @@
     "title": "feat(case-queue): inspect currently authorized Case without Workspace navigation",
     "head_branch": "feature/e10-inv-101p-authorized-case-inspection",
     "base_branch": "feature/e10-inv-101o-command-incident-linked-queue",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate Case Queue development slice superseded by Command-Investigate host integration on PR #222.",
     "files_introduced": [
@@ -2909,7 +2909,7 @@
     "title": "feat(case-queue): first-party read-only browser over authorized Queue HTTP",
     "head_branch": "feature/e10-inv-101q-native-queue-browser",
     "base_branch": "feature/e10-inv-101p-authorized-case-inspection",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate Case Queue development slice superseded by Command-Investigate host integration on PR #222.",
     "files_introduced": [
@@ -2933,7 +2933,7 @@
     "title": "integration(case-queue): reauthorize browser Case inspection from current Queue page",
     "head_branch": "feature/e10-inv-101r-browser-inspect-selection",
     "base_branch": "feature/e10-inv-101q-native-queue-browser",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate Case Queue development slice superseded by Command-Investigate host integration on PR #222.",
     "files_introduced": [
@@ -2954,7 +2954,7 @@
     "title": "integration(case-queue): apply authorized filters and sorting in native Case browser",
     "head_branch": "feature/e10-inv-101s-browser-filter-sort",
     "base_branch": "feature/e10-inv-101r-browser-inspect-selection",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate Case Queue development slice superseded by Command-Investigate host integration on PR #222.",
     "files_introduced": [
@@ -2974,7 +2974,7 @@
     "title": "integration(case-queue): reauthorize browser Workspace handoff and return to filtered Case page",
     "head_branch": "feature/e10-inv-101t-browser-workspace-return",
     "base_branch": "feature/e10-inv-101s-browser-filter-sort",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate Case Queue development slice superseded by Command-Investigate host integration on PR #222.",
     "files_introduced": [
@@ -2994,7 +2994,7 @@
     "title": "integration(case-queue): restore exact authorized Case selection after Workspace return",
     "head_branch": "feature/e10-inv-101u-authorized-selection-restore",
     "base_branch": "feature/e10-inv-101t-browser-workspace-return",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate Case Queue development slice superseded by Command-Investigate host integration on PR #222.",
     "files_introduced": [
@@ -3012,7 +3012,7 @@
     "title": "feat(command): CAP-CMD-101 read-only Incident/Task queue with six authorized system views",
     "head_branch": "feature/e10-cmd-101a-authorized-system-queue",
     "base_branch": "engineering/autonomous-development-foundation",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate development slice superseded by PR #224 and consolidated integration branch PR #222.",
     "files_introduced": [
@@ -3039,7 +3039,7 @@
     "title": "fix(command): satisfy mandatory deep-performance gate with real Work Queue heap probe",
     "head_branch": "fix/e10-cmd-101b-real-deep-performance-gate",
     "base_branch": "feature/e10-cmd-101a-authorized-system-queue",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate development slice superseded by PR #224 and consolidated integration branch PR #222.",
     "files_introduced": [
@@ -3059,7 +3059,7 @@
     "title": "fix(security): localize blocking gosec Go processing errors without exposing diagnostics",
     "head_branch": "feature/e4-sec-gosec-fail-closed-diagnostics",
     "base_branch": "fix/e10-cmd-101b-real-deep-performance-gate",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Security diagnostics and SCA toolchain slice superseded by kernel checks in tools/cmdr-dev on PR #222.",
     "files_introduced": [
@@ -3076,7 +3076,7 @@
     "title": "reconcile(investigate): clear stale READY snapshot lot using frozen runtime/CI evidence",
     "head_branch": "reconcile/e10-inv-120a-snapshot-evidence",
     "base_branch": "engineering/autonomous-development-foundation",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory Wazuh forensic branch superseded by PR #44, PR #50, PR #220, and consolidated integration branch PR #222.",
     "files_introduced": [
@@ -3091,7 +3091,7 @@
     "title": "security(integration): confine gosec source checks and Command probe cleanup with os.Root",
     "head_branch": "fix/e10-cmd-101a-bounded-probe-cleanup",
     "base_branch": "feature/e4-sec-gosec-fail-closed-diagnostics",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate development slice superseded by PR #224 and consolidated integration branch PR #222.",
     "files_introduced": [
@@ -3108,7 +3108,7 @@
     "title": "reconcile(integration): carry proven Investigate snapshot state repair into Command stack",
     "head_branch": "integration/e10-command-and-investigate-state-reconciliation",
     "base_branch": "fix/e10-cmd-101a-bounded-probe-cleanup",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate Command controls superseded by consolidated Command runtime in PR #222.",
     "files_introduced": [
@@ -3123,7 +3123,7 @@
     "title": "feat(command): one authorized HTTP route for the six Work Queue system views",
     "head_branch": "feature/e10-cmd-101b-authorized-single-http-route",
     "base_branch": "integration/e10-command-and-investigate-state-reconciliation",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate development slice superseded by PR #224 and consolidated integration branch PR #222.",
     "files_introduced": [
@@ -3141,7 +3141,7 @@
     "title": "feat(command): native six-view read-only Work Queue browser on existing authorized route",
     "head_branch": "feature/e10-cmd-101c-single-route-html-workspace",
     "base_branch": "feature/e10-cmd-101b-authorized-single-http-route",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate development slice superseded by PR #224 and consolidated integration branch PR #222.",
     "files_introduced": [
@@ -3160,7 +3160,7 @@
     "title": "feat(command): manual exact status filter in six-view authorized Work Queue",
     "head_branch": "feature/e10-cmd-101d-status-filter",
     "base_branch": "feature/e10-cmd-101c-single-route-html-workspace",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate development slice superseded by PR #224 and consolidated integration branch PR #222.",
     "files_introduced": [
@@ -3180,7 +3180,7 @@
     "title": "feat(command): authorized oldest/newest sorting in the six-view Work Queue",
     "head_branch": "feature/e10-cmd-101e-updated-at-sort",
     "base_branch": "feature/e10-cmd-101d-status-filter",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate development slice superseded by PR #224 and consolidated integration branch PR #222.",
     "files_introduced": [
@@ -3200,7 +3200,7 @@
     "title": "feat(command): select only first-page authorized Incident/Task in the existing Work Queue",
     "head_branch": "feature/e10-cmd-101f-authorized-visible-row-selection",
     "base_branch": "feature/e10-cmd-101e-updated-at-sort",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate development slice superseded by PR #224 and consolidated integration branch PR #222.",
     "files_introduced": [
@@ -3220,7 +3220,7 @@
     "title": "feat(command): owner-authorized source freshness in canonical six-view Work Queue",
     "head_branch": "feature/e10-cmd-109a-owned-freshness",
     "base_branch": "feature/e10-cmd-101f-authorized-visible-row-selection",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate Command controls superseded by consolidated Command runtime in PR #222.",
     "files_introduced": [
@@ -3241,7 +3241,7 @@
     "title": "feat(command): navigate all authorized Work Queue pages with revocation-safe cursor",
     "head_branch": "feature/e10-cmd-101g-authorized-cursor-pages",
     "base_branch": "feature/e10-cmd-109a-owned-freshness",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate development slice superseded by PR #224 and consolidated integration branch PR #222.",
     "files_introduced": [
@@ -3262,7 +3262,7 @@
     "title": "feat(command): return to exact previous authorized Work Queue page",
     "head_branch": "feature/e10-cmd-101h-exact-prior-page-return",
     "base_branch": "feature/e10-cmd-101g-authorized-cursor-pages",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate development slice superseded by PR #224 and consolidated integration branch PR #222.",
     "files_introduced": [
@@ -3282,7 +3282,7 @@
     "title": "fix(command): keep authorized Work Queue page when selecting a row beyond page one",
     "head_branch": "feature/e10-cmd-101i-paged-row-selection",
     "base_branch": "feature/e10-cmd-101h-exact-prior-page-return",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate development slice superseded by PR #224 and consolidated integration branch PR #222.",
     "files_introduced": [
@@ -3301,7 +3301,7 @@
     "title": "feat(command): CAP-CMD-104 read-only six-source coordination factors in authorized Work Queue",
     "head_branch": "feature/e10-cmd-104a-readonly-factors-inspector",
     "base_branch": "feature/e10-cmd-101i-paged-row-selection",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate Command controls superseded by consolidated Command runtime in PR #222.",
     "files_introduced": [
@@ -3323,7 +3323,7 @@
     "title": "feat(command): CAP-CMD-109 full authorized view freshness across Work Queue pages",
     "head_branch": "feature/e10-cmd-109b-authorized-view-freshness",
     "base_branch": "feature/e10-cmd-104a-readonly-factors-inspector",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate Command controls superseded by consolidated Command runtime in PR #222.",
     "files_introduced": [
@@ -3343,7 +3343,7 @@
     "title": "fix(command): limit SLA-risk partial warnings to status-filtered authorized cohort",
     "head_branch": "fix/e10-cmd-101j-filtered-sla-diagnostics",
     "base_branch": "feature/e10-cmd-109b-authorized-view-freshness",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate development slice superseded by PR #224 and consolidated integration branch PR #222.",
     "files_introduced": [
@@ -3361,7 +3361,7 @@
     "title": "feat(command): filter current authorized Work Queue by exact responsible owner",
     "head_branch": "feature/e10-cmd-101k-authorized-owner-filter",
     "base_branch": "fix/e10-cmd-101j-filtered-sla-diagnostics",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate development slice superseded by PR #224 and consolidated integration branch PR #222.",
     "files_introduced": [
@@ -3382,7 +3382,7 @@
     "title": "feat(command): canonical manual grouping across owner-authorized Work Queue pages",
     "head_branch": "feature/e10-cmd-101l-authorized-grouping",
     "base_branch": "feature/e10-cmd-101k-authorized-owner-filter",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate development slice superseded by PR #224 and consolidated integration branch PR #222.",
     "files_introduced": [
@@ -3402,7 +3402,7 @@
     "title": "feat(command): complete authorized My Work view with contributors and watchers",
     "head_branch": "feature/e10-cmd-101m-operational-my-work",
     "base_branch": "feature/e10-cmd-101l-authorized-grouping",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate development slice superseded by PR #224 and consolidated integration branch PR #222.",
     "files_introduced": [
@@ -3419,7 +3419,7 @@
     "title": "feat(command): CAP-CMD-105 independently authorized read-only SLA on selected Work Queue item",
     "head_branch": "feature/e10-cmd-105a-authorized-sla-inspection",
     "base_branch": "feature/e10-cmd-101m-operational-my-work",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate Command controls superseded by consolidated Command runtime in PR #222.",
     "files_introduced": [
@@ -3441,7 +3441,7 @@
     "title": "feat(command): source-authorized SLA calendar and pause explanation in selected Work Queue",
     "head_branch": "feature/e10-cmd-105b-readonly-sla-pause-explanation",
     "base_branch": "feature/e10-cmd-105a-authorized-sla-inspection",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate Command controls superseded by consolidated Command runtime in PR #222.",
     "files_introduced": [
@@ -3460,7 +3460,7 @@
     "title": "feat(command): show source-authorized canonical ownership separately from operational owner",
     "head_branch": "feature/e10-cmd-103a-canonical-owner-readonly",
     "base_branch": "feature/e10-cmd-105b-readonly-sla-pause-explanation",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate Command controls superseded by consolidated Command runtime in PR #222.",
     "files_introduced": [
@@ -3482,7 +3482,7 @@
     "title": "feat(command): inspect independently authorized Investigate Cases linked to selected Incident",
     "head_branch": "feature/e10-cmd-106a-authorized-linked-cases",
     "base_branch": "feature/e10-cmd-103a-canonical-owner-readonly",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate stepping stone superseded by consolidated command-investigate host runtime in PR #222.",
     "files_introduced": [
@@ -3504,7 +3504,7 @@
     "title": "feat(command): join Shared linked Case refs with independently authorized Investigate status",
     "head_branch": "feature/e10-cmd-106b-linked-case-owner-join",
     "base_branch": "feature/e10-cmd-106a-authorized-linked-cases",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate stepping stone superseded by consolidated command-investigate host runtime in PR #222.",
     "files_introduced": [
@@ -3521,7 +3521,7 @@
     "title": "feat(command): source-grounded freshness and observation date for selected linked Cases",
     "head_branch": "feature/e10-cmd-106c-case-status-freshness",
     "base_branch": "feature/e10-cmd-106b-linked-case-owner-join",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate stepping stone superseded by consolidated command-investigate host runtime in PR #222.",
     "files_introduced": [
@@ -3540,7 +3540,7 @@
     "title": "integration(investigate): stage source-identical CAP-INV-004 runtime for independent delivery review",
     "head_branch": "integration/cap-inv-004-isolated-runtime",
     "base_branch": "docs/cmdr-product-spec-foundation",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Historical feature or experimental branch superseded by consolidated integration on PR #222.",
     "files_introduced": [
@@ -3561,7 +3561,7 @@
     "title": "fix(investigate): CAP-INV-004 L2 pivot field presence and fixture CI trigger",
     "head_branch": "fix/cap-inv-004-l2-f01-f06",
     "base_branch": "integration/cap-inv-004-isolated-runtime",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Historical feature or experimental branch superseded by consolidated integration on PR #222.",
     "files_introduced": [
@@ -3576,7 +3576,7 @@
     "title": "feat(investigate): authorized Event Search → Inspection → return browser journey",
     "head_branch": "integration/event-search-inspection-return",
     "base_branch": "engineering/autonomous-development-foundation",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "INCORPORATED",
     "disposition_rationale": "Event Search to Inspection and return browser journey integrated into consolidated investigation runtime in PR #221 and PR #222.",
     "files_introduced": [
@@ -3595,7 +3595,7 @@
     "title": "feat(investigate): HTTP inspection with independent Search and Telemetry owner checks",
     "head_branch": "integration/cap-inv-004-authorized-http-host",
     "base_branch": "engineering/autonomous-development-foundation",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Historical feature or experimental branch superseded by consolidated integration on PR #222.",
     "files_introduced": [
@@ -3622,7 +3622,7 @@
     "title": "CAP-INV-004: real local Search→Inspection browser/Go HTTP journey (E10-INV-004H)",
     "head_branch": "integration/cap-inv-004-browser-http-wiring",
     "base_branch": "integration/cap-inv-004-authorized-http-host",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Historical feature or experimental branch superseded by consolidated integration on PR #222.",
     "files_introduced": [
@@ -3645,7 +3645,7 @@
     "title": "feat(investigate): owner-authorized Class-0 Event pivot draft HTTP, with #182 field-presence fix",
     "head_branch": "feature/e10-inv-004i-authorized-pivot-draft",
     "base_branch": "integration/cap-inv-004-authorized-http-host",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate Event Inspection development slice consolidated into PR #221 and incorporated into PR #222.",
     "files_introduced": [
@@ -3668,7 +3668,7 @@
     "title": "feat(forensics): owner-authorized offline Wazuh MITRE technique cohorts in Case Timeline",
     "head_branch": "feature/e10-inv-120b-authorized-wazuh-mitre-cohorts",
     "base_branch": "engineering/autonomous-development-foundation",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory Wazuh forensic branch superseded by PR #44, PR #50, PR #220, and consolidated integration branch PR #222.",
     "files_introduced": [
@@ -3688,7 +3688,7 @@
     "title": "feat(investigate): owner-visible Timeline supersession status across HTTP pages",
     "head_branch": "feature/e10-inv-110f-visible-supersession",
     "base_branch": "engineering/autonomous-development-foundation",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate Case Timeline development slice superseded by case-timeline-demo in PR #222.",
     "files_introduced": [
@@ -3707,7 +3707,7 @@
     "title": "fix(investigate): enforce pivot-specific permission, provenance and Inspector-equivalent bounds",
     "head_branch": "fix/e10-inv-004j-pivot-authorization-provenance",
     "base_branch": "feature/e10-inv-004i-authorized-pivot-draft",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate Event Inspection development slice consolidated into PR #221 and incorporated into PR #222.",
     "files_introduced": [
@@ -3726,7 +3726,7 @@
     "title": "fix(forensics): reject null MITRE source metadata and inconsistent analyst cohorts",
     "head_branch": "fix/e10-inv-120c-wazuh-mitre-consistency",
     "base_branch": "feature/e10-inv-120b-authorized-wazuh-mitre-cohorts",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory Wazuh forensic branch superseded by PR #44, PR #50, PR #220, and consolidated integration branch PR #222.",
     "files_introduced": [
@@ -3745,7 +3745,7 @@
     "title": "integrate(investigate): unify owner-visible Timeline supersession and corrected Wazuh MITRE",
     "head_branch": "integration/cap-inv-110-timeline-and-mitre",
     "base_branch": "fix/e10-inv-120c-wazuh-mitre-consistency",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate Case Timeline development slice superseded by case-timeline-demo in PR #222.",
     "files_introduced": [
@@ -3764,7 +3764,7 @@
     "title": "integrate(investigate): real Event Search → Inspector → authorized Pivot draft → Search",
     "head_branch": "integration/e10-inv-004k-browser-inspector-pivot",
     "base_branch": "fix/e10-inv-004j-pivot-authorization-provenance",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate Event Inspection development slice consolidated into PR #221 and incorporated into PR #222.",
     "files_introduced": [
@@ -3788,7 +3788,7 @@
     "title": "integrate(investigate): show source-authorized Timeline corrections in unified MITRE analyst viewer",
     "head_branch": "integration/e10-inv-110h-visible-corrections-ui",
     "base_branch": "integration/cap-inv-110-timeline-and-mitre",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate Case Timeline development slice superseded by case-timeline-demo in PR #222.",
     "files_introduced": [
@@ -3805,7 +3805,7 @@
     "title": "feat(investigate): compare authorized Timeline correction versions across Case pages and reconcile stale READY",
     "head_branch": "integration/e10-inv-110i-correction-comparison",
     "base_branch": "integration/e10-inv-110h-visible-corrections-ui",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate Case Timeline development slice superseded by case-timeline-demo in PR #222.",
     "files_introduced": [
@@ -3824,7 +3824,7 @@
     "title": "feat(command): navigate authorized Incident-linked Cases to existing read-only Timeline route",
     "head_branch": "feature/e10-cmd-106d-case-timeline-navigation",
     "base_branch": "feature/e10-cmd-106c-case-status-freshness",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate stepping stone superseded by consolidated command-investigate host runtime in PR #222.",
     "files_introduced": [
@@ -3841,7 +3841,7 @@
     "title": "security(engineering): fix GO-2026-6809 via Go 1.26.10 across nine modules",
     "head_branch": "fix/e4-sec-002b-sca-safe-osv-diagnostic",
     "base_branch": "feature/e10-cmd-106d-case-timeline-navigation",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Security diagnostics and SCA toolchain slice superseded by kernel checks in tools/cmdr-dev on PR #222.",
     "files_introduced": [
@@ -3868,7 +3868,7 @@
     "title": "security: revalidate four immutable runtime E2E attestations after patched Go 1.26.10",
     "head_branch": "fix/e4-sec-002b-e2e-go-toolchain-revalidation",
     "base_branch": "fix/e4-sec-002b-sca-safe-osv-diagnostic",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Security diagnostics and SCA toolchain slice superseded by kernel checks in tools/cmdr-dev on PR #222.",
     "files_introduced": [
@@ -3889,7 +3889,7 @@
     "title": "integrate(command/investigate): make linked Case navigation traverse real same-origin owner-checked Timeline HTTP",
     "head_branch": "integration/e10-cmd-106e-same-origin-host",
     "base_branch": "fix/e4-sec-002b-e2e-go-toolchain-revalidation",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate stepping stone superseded by consolidated command-investigate host runtime in PR #222.",
     "files_introduced": [
@@ -3916,7 +3916,7 @@
     "title": "integrate(command/investigate): follow Incident linked Case into owner-visible corrected Timeline history",
     "head_branch": "integration/e10-cmd-106f-correction-timeline",
     "base_branch": "integration/e10-cmd-106e-same-origin-host",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate stepping stone superseded by consolidated command-investigate host runtime in PR #222.",
     "files_introduced": [
@@ -3937,7 +3937,7 @@
     "title": "integrate(investigate): render authorized Case Timeline HTML from Command linked Case",
     "head_branch": "integration/e10-inv-110j-case-html-journey",
     "base_branch": "integration/e10-cmd-106f-correction-timeline",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate Case Timeline development slice superseded by case-timeline-demo in PR #222.",
     "files_introduced": [
@@ -3956,7 +3956,7 @@
     "title": "feat(investigate): usable server-authorized Case Timeline HTML filters",
     "head_branch": "feature/e10-inv-110k-case-html-filters",
     "base_branch": "integration/e10-inv-110j-case-html-journey",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate Case Timeline development slice superseded by case-timeline-demo in PR #222.",
     "files_introduced": [
@@ -3974,7 +3974,7 @@
     "title": "feat(command/investigate): runnable loopback browser for real Incident → authorized Case Timeline",
     "head_branch": "feature/e10-cmd-106g-runnable-local-browser",
     "base_branch": "feature/e10-inv-110k-case-html-filters",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate stepping stone superseded by consolidated command-investigate host runtime in PR #222.",
     "files_introduced": [
@@ -3992,7 +3992,7 @@
     "title": "feat(investigate): open independently authorized Timeline source from runnable Case browser",
     "head_branch": "feature/e10-inv-110l-loopback-source-open",
     "base_branch": "feature/e10-cmd-106g-runnable-local-browser",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate Case Timeline development slice superseded by case-timeline-demo in PR #222.",
     "files_introduced": [
@@ -4013,7 +4013,7 @@
     "title": "feat(investigate): render owner-authorized Timeline source preview in safe browser HTML",
     "head_branch": "feature/e10-inv-110m-source-preview-html",
     "base_branch": "engineering/autonomous-development-foundation",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate Case Timeline development slice superseded by case-timeline-demo in PR #222.",
     "files_introduced": [
@@ -4031,7 +4031,7 @@
     "title": "integrate(investigate): render authorized Timeline source in runnable Incident→Case browser",
     "head_branch": "integration/e10-inv-110n-source-html-browser",
     "base_branch": "feature/e10-inv-110l-loopback-source-open",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate Case Timeline development slice superseded by case-timeline-demo in PR #222.",
     "files_introduced": [
@@ -4050,7 +4050,7 @@
     "title": "feat(investigate): preserve filtered Case position across independently authorized source preview",
     "head_branch": "feature/e10-inv-110o-return-context",
     "base_branch": "integration/e10-inv-110n-source-html-browser",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate Case Timeline development slice superseded by case-timeline-demo in PR #222.",
     "files_introduced": [
@@ -4070,7 +4070,7 @@
     "title": "integrate(command/investigate): restore selected Incident after authorized Case/source return",
     "head_branch": "integration/e10-cmd-106h-incident-return",
     "base_branch": "feature/e10-inv-110o-return-context",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate stepping stone superseded by consolidated command-investigate host runtime in PR #222.",
     "files_introduced": [
@@ -4096,7 +4096,7 @@
     "title": "feat(command/investigate): restore owner-authorized off-page Incident after Case/source navigation",
     "head_branch": "feature/e10-cmd-106i-authorized-deep-return",
     "base_branch": "integration/e10-cmd-106h-incident-return",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate stepping stone superseded by consolidated command-investigate host runtime in PR #222.",
     "files_introduced": [
@@ -4119,7 +4119,7 @@
     "title": "feat(command): dedicated owner-authorized read-only Incident Detail from Work Queue",
     "head_branch": "feature/e10-cmd-106j-incident-detail-readonly",
     "base_branch": "feature/e10-cmd-106i-authorized-deep-return",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate stepping stone superseded by consolidated command-investigate host runtime in PR #222.",
     "files_introduced": [
@@ -4144,7 +4144,7 @@
     "title": "feat(command): show source-authorized canonical Incident title, priority, severity and business impact",
     "head_branch": "feature/e10-cmd-106k-owner-incident-overview",
     "base_branch": "feature/e10-cmd-106j-incident-detail-readonly",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate stepping stone superseded by consolidated command-investigate host runtime in PR #222.",
     "files_introduced": [
@@ -4167,7 +4167,7 @@
     "title": "feat(command): owner-authorized Alert origin in Incident Detail without permission inheritance",
     "head_branch": "feature/e10-cmd-106l-authorized-alert-origin",
     "base_branch": "feature/e10-cmd-106k-owner-incident-overview",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate stepping stone superseded by consolidated command-investigate host runtime in PR #222.",
     "files_introduced": [
@@ -4189,7 +4189,7 @@
     "title": "feat(command/govern): independently authorized Result outcome in existing Incident Detail",
     "head_branch": "feature/e10-cmd-106m-govern-result-readonly",
     "base_branch": "feature/e10-cmd-106l-authorized-alert-origin",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate stepping stone superseded by consolidated command-investigate host runtime in PR #222.",
     "files_introduced": [
@@ -4211,7 +4211,7 @@
     "title": "fix(command/investigate): restore owner-authorized Incident Detail after Case/source return",
     "head_branch": "fix/e10-cmd-106n-return-to-incident-detail",
     "base_branch": "feature/e10-cmd-106m-govern-result-readonly",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate stepping stone superseded by consolidated command-investigate host runtime in PR #222.",
     "files_introduced": [
@@ -4234,7 +4234,7 @@
     "title": "feat(command): show owner-authorized Incident next action in existing read-only Incident Detail",
     "head_branch": "feature/e10-cmd-106o-authorized-next-action",
     "base_branch": "fix/e10-cmd-106n-return-to-incident-detail",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate stepping stone superseded by consolidated command-investigate host runtime in PR #222.",
     "files_introduced": [
@@ -4255,7 +4255,7 @@
     "title": "feat(command): independently authorized related Tasks in existing Incident Detail",
     "head_branch": "feature/e10-cmd-106p-authorized-incident-tasks",
     "base_branch": "feature/e10-cmd-106o-authorized-next-action",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate stepping stone superseded by consolidated command-investigate host runtime in PR #222.",
     "files_introduced": [
@@ -4276,7 +4276,7 @@
     "title": "integrate(command): navigate authorized Incident-linked Tasks through canonical Work Queue",
     "head_branch": "feature/e10-cmd-106q-linked-task-navigation",
     "base_branch": "feature/e10-cmd-106p-authorized-incident-tasks",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate stepping stone superseded by consolidated command-investigate host runtime in PR #222.",
     "files_introduced": [
@@ -4297,7 +4297,7 @@
     "title": "integrate(investigate): restore reviewed Wazuh ATT&CK analyst cohorts on unified Command/Case branch",
     "head_branch": "integration/e10-inv-120b-wazuh-mitre-into-command",
     "base_branch": "feature/e10-cmd-106q-linked-task-navigation",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Intermediate Command controls superseded by consolidated Command runtime in PR #222.",
     "files_introduced": [
@@ -4317,7 +4317,7 @@
     "title": "fix(investigate): restore approved MITRE null/schema safeguards in unified Command/Case branch",
     "head_branch": "fix/e10-inv-120c-mitre-source-integrated",
     "base_branch": "integration/e10-inv-120b-wazuh-mitre-into-command",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory Wazuh forensic branch superseded by PR #44, PR #50, PR #220, and consolidated integration branch PR #222.",
     "files_introduced": [
@@ -4336,7 +4336,7 @@
     "title": "feat(forensics): navigate from authorized Wazuh MITRE technique to verified-access Case Events",
     "head_branch": "feature/e10-inv-120d-authorized-technique-navigation",
     "base_branch": "fix/e10-inv-120c-mitre-source-integrated",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "SUPERSEDED",
     "disposition_rationale": "Exploratory Wazuh forensic branch superseded by PR #44, PR #50, PR #220, and consolidated integration branch PR #222.",
     "files_introduced": [
@@ -4355,7 +4355,7 @@
     "title": "fix(forensics): reject malformed Wazuh drilldown query and forged paging metadata",
     "head_branch": "fix/e10-inv-120d-strict-wazuh-drilldown",
     "base_branch": "feature/e10-inv-120d-authorized-technique-navigation",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "INCORPORATED",
     "disposition_rationale": "Strict Wazuh drilldown query validation merged into PR #222 via commit 746c7de7.",
     "files_introduced": [
@@ -4372,7 +4372,7 @@
     "title": "integrate(investigate): preserve corrected Search–Inspector–Pivot + Go 1.26.10 (Draft; base/review blocked)",
     "head_branch": "integration/cap-inv-004-search-inspection-pivot-consolidated",
     "base_branch": "integration/cap-inv-004-authorized-http-host",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "INCORPORATED",
     "disposition_rationale": "Search-Inspection-Pivot consolidation tree merged into PR #222 via commit 746c7de7.",
     "files_introduced": [
@@ -4442,7 +4442,7 @@
     "title": "feat(command): CAP-CMD-101 read-only Incident/Task queue with six authorized system views",
     "head_branch": "feat/e10-cmd-101a-readonly-queue",
     "base_branch": "engineering/autonomous-development-foundation",
-    "status": "OPEN",
+    "status": "CLOSED",
     "disposition": "INCORPORATED",
     "disposition_rationale": "Command Work Queue runtime and Codex P1/P2 fixes (Windows timer granularity and deep performance policy decoupling) merged into PR #222 via commit 4807c19e.",
     "files_introduced": [
@@ -4463,5 +4463,34 @@
       "tools/cmdr-dev/deep_performance.go"
     ],
     "key_contributions": "CAP-CMD-101 read-only Work Queue runtime with 6 system views, monotonic clock sampling, and decoupled performance policies."
+  },
+  {
+    "pr_number": 225,
+    "title": "feat(studio): implement CAP-STD-004 tool input and validation contract",
+    "head_branch": "feat/cap-std-004-tool-input-validation",
+    "base_branch": "main",
+    "status": "MERGED",
+    "disposition": "INCORPORATED_IN_MAIN",
+    "disposition_rationale": "CAP-STD-004 Tool Input and Validation Contract implemented, validated by 22 test suites with pure Go stdlib, verified green by engineering-kernel-full CI, and squash-merged to main at commit e4666f586854e02766568ffd2cfe29ef32696b49.",
+    "files_introduced": [
+      ".gitignore",
+      "product-runtime/studio-catalog/tool_input.go",
+      "product-runtime/studio-catalog/tool_input_test.go",
+      "product-runtime/studio-catalog/tool_input_adversarial_challenge_test.go"
+    ],
+    "key_contributions": "CAP-STD-004 tool input bindings, fail-closed validation, opaque secret reference masking, deterministic validation, cross-tenant isolation."
+  },
+  {
+    "pr_number": 226,
+    "title": "fix(ci): repair engineering-kernel-full paths, 0-ready handling, and pr triggers",
+    "head_branch": "fix/ci-engineering-kernel-repair",
+    "base_branch": "main",
+    "status": "MERGED",
+    "disposition": "INCORPORATED_IN_MAIN",
+    "disposition_rationale": "Engineering kernel full CI workflow repair fixing mktemp path containment within repo boundary, safe 0-READY handling, and PR triggers targeting main; squash-merged at commit 1d194d349695ab8b7b86071446575dcb3bf928ba.",
+    "files_introduced": [
+      ".github/workflows/engineering-kernel-full.yml"
+    ],
+    "key_contributions": "Repository-conforming CI temp directories, strict status checks, deterministic PR ref checkout, branch protection enforcement."
   }
 ]

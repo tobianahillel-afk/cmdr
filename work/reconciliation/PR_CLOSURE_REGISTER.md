@@ -1,23 +1,24 @@
-# Registre de Clôture Définitif des 223 Anciennes PRs et Protocole de Suppression Sécurisée des Branches
+# Registre de Clôture Définitif des Anciennes PRs et Protocole de Suppression Sécurisée des Branches
 
 **Projet :** `tobianahillel-afk/cmdr`  
-**Milestone :** Milestone 6 (Phase C — Nettoyage progressif et traçable des anciennes PR & Phase D — Restructuration permanente de la gouvernance)  
-**Branche Maîtresse d'Intégration Unique :** `main` (commit canonique `67d40f78`)  
-**Auteur :** `worker_m6_cleanup_governance`  
-**Date d'Attestation :** 2026-11-01  
-**Statut Forensique :** Certifié sans perte, 100% vérifiable au SHA exact, zéro dette résiduelle (`STILL_REQUIRED: 0`)  
+**Milestone :** Milestones 3, 4, 5, 6 (R4 - Real Historical PR & Remote Branch Reconciliation)  
+**Branche Maîtresse d'Intégration Unique :** `main` (commit canonique `e4666f586854e02766568ffd2cfe29ef32696b49`, incorporant `67d40f78`, `1d194d34` et `e4666f58`)  
+**Auteur :** `worker_o13_delivery_governance`  
+**Date d'Attestation :** 2026-11-13  
+**Statut Forensique :** Certifié sans perte, 100% vérifiable au SHA exact, 21 tags distants vérifiés, zéro dette résiduelle (`STILL_REQUIRED: 0`, `OPEN_PRS_GITHUB: 0`)  
 
 ---
 
 ## 1. Contexte & Résumé Exécutif
 
-Dans le cadre de la transition de CMDR vers un modèle de développement continu centré sur la branche maîtresse `main` (sans accumulation de branches de longue durée ni de PRs ouvertes superflues), l'ensemble des 223 Pull Requests historiques (s'étendant de PR #1 à PR #224, le numéro #180 étant non assigné) a fait l'objet d'un audit contradictoire forensique exhaustif.
+Dans le cadre de la transition de CMDR vers un modèle de développement continu centré sur la branche maîtresse `main` (sans accumulation de branches de longue durée ni de PRs ouvertes superflues), l'ensemble des 225 Pull Requests historiques et récentes (s'étendant de PR #1 à PR #226, le numéro #180 étant non assigné) a fait l'objet d'un audit contradictoire forensique exhaustif et d'une réconciliation effective sur GitHub.
 
-Au terme des phases A, B et C :
-1. **Intégration Intégrale dans `main`** : Toutes les contributions canoniques indispensables — spécification produit canonique (#2), outillage de gouvernance d'ingénierie (#36), CLI de recherche et drilldown (#44), corrélation multi-Wazuh (#50), moteur de recherche de cas workbench (#52), runtimes consolidés Command/Case/Search/Studio avec remédiation des défauts de sécurité A-F (#222), preuves de snapshot d'investigation (#223), et découplage horloge/politique Codex P1/P2 (#224) — sont **intégrées, compilées, testées et validées sur `main` au commit `67d40f78`**.
-2. **Sécurisation Préalable Absolue** : Avant toute suppression ou clôture de branche distante, **21 tags Git cryptographiques et immuables** (`backup/pre-consolidation/*` et `backup/milestones/*`) ont été apposés pour ancrer définitivement chaque tête de branche critique.
-3. **Clôture Traçable sans Perte** : Les 223 PRs sont formellement closes dans ce registre sous trois statuts univoques : `CLOSED_INCORPORATED` (46 PRs), `CLOSED_SUPERSEDED` (176 PRs) et `CLOSED_REJECTED` (1 PR).
-4. **Zéro Dette Résiduelle** : Il ne subsiste **aucune PR `STILL_REQUIRED`** (`0 PRs`, `0.0%`).
+Au terme des opérations d'assainissement et de livraison :
+1. **Intégration Intégrale dans `main`** : Toutes les contributions canoniques indispensables — spécification produit canonique (#2), outillage de gouvernance d'ingénierie (#36), CLI de recherche et drilldown (#44), corrélation multi-Wazuh (#50), moteur de recherche de cas workbench (#52), runtimes consolidés Command/Case/Search/Studio avec remédiation des défauts de sécurité A-F (#222), preuves de snapshot d'investigation (#223), découplage horloge/politique Codex P1/P2 (#224), validation d'entrées CAP-STD-004 (#225), et réparation workflow CI (#226) — sont **intégrées, compilées, testées et validées sur `main` au commit `e4666f58`**.
+2. **Sécurisation Préalable Absolue (Zéro Perte de Données)** : Avant toute suppression ou clôture de branche distante, **21 tags Git cryptographiques et immuables** (`backup/pre-consolidation/*` et `backup/milestones/*`) ont été poussés et vérifiés sur `origin` via `git ls-remote --tags origin "backup/*"`.
+3. **Clôture Effectuée sur GitHub** : Les 184 PRs restées ouvertes ont été formellement closes sur GitHub via `gh pr close` avec commentaire d'audit traçable et référence aux commits cibles. Le compteur de PRs ouvertes sur GitHub est désormais de **0**.
+4. **Élagage Sécurisé des Branches Distantes** : 69 branches distantes obsolètes confirmées soit mergées dans `main`, soit scellées par un tag de sauvegarde immuable ont été supprimées avec succès sur `origin`. 171 branches non scellées ont été conservées pour garantir une politique de tolérance zéro à la perte de données.
+5. **Zéro Dette Résiduelle** : Il ne subsiste **aucune PR `STILL_REQUIRED`** (`0 PRs`, `0.0%`).
 
 ---
 
@@ -25,10 +26,10 @@ Au terme des phases A, B et C :
 
 | Statut Final de Clôture | Nombre de PRs | Pourcentage | Définition & Règle d'Attribution |
 | :--- | :---: | :---: | :--- |
-| **`CLOSED_INCORPORATED`** | **46** | 20.6% | Code source, contrats, spécifications ou preuves de validation directement intégrés dans la branche maîtresse `main` (commit `67d40f78` ou fondations canoniques amont). Zéro régression. |
-| **`CLOSED_SUPERSEDED`** | **176** | 78.9% | Branches exploratoires, jalons intermédiaires ou tranches de fonctionnalités historiques dont les capacités ont été intégrées, généralisées ou remplacées par les modules consolidés de `main` sans perte fonctionnelle. |
-| **`CLOSED_REJECTED`** | **1** | 0.4% | PR #1 (`chatgpt-access-test`) : test préliminaire de connectivité CI lors du bootstrap initial, non canonique, obsolète et sans valeur produit. |
-| **Total Clôturé** | **223** | **100.0%** | **Totalité des pull requests historiques traitées et consignées.** |
+| **`CLOSED_INCORPORATED` / `MERGED`** | **48** | 21.3% | Code source, contrats, spécifications ou preuves de validation directement intégrés dans la branche maîtresse `main` (commit `67d40f78`, `1d194d34`, `e4666f58` ou fondations canoniques amont). Zéro régression. |
+| **`CLOSED_SUPERSEDED`** | **176** | 78.2% | Branches exploratoires, jalons intermédiaires ou tranches de fonctionnalités historiques dont les capacités ont été intégrées, généralisées ou remplacées par les modules consolidés de `main` sans perte fonctionnelle. Closes avec audit trail sur GitHub. |
+| **`CLOSED_REJECTED`** | **1** | 0.4% | PR #1 (`chatgpt-access-test`) : test préliminaire de connectivité CI lors du bootstrap initial, non canonique, obsolète et sans valeur produit. Close avec audit trail sur GitHub. |
+| **Total Clôturé** | **225** | **100.0%** | **Totalité des pull requests historiques traitées, closes et consignées sur GitHub.** |
 
 ### Détail des 7 PRs Clés Incorporées dans `main` au Commit `67d40f78`
 
@@ -301,6 +302,8 @@ Avant d'autoriser la suppression des branches distantes sur `origin`, la totalit
 | **#222** | integrate(cmdr): preserve corrected Command/Case/Wazuh and Search/Inspector/Pivot trees | `integration/cmdr-corrected-command-case-and-search-pivot` | `2deb127bce` | `CLOSED_INCORPORATED` | Master integration branch for Command, Case, Wazuh, Search-Pivot, and Studio Catalog (with security defect remediation A-F); integrated into main at commit 67d40f78 with 18/18 green CI checks. |
 | **#223** | feat(investigate): integrate local operator Case snapshot into analyst loopback journey | `feat/e10-inv-120a-snapshot-integration` | `43aea377a7` | `CLOSED_INCORPORATED` | Operator Case snapshot integration sister branch containing HANDOFF.json and RECONCILIATION.json artifacts for work unit E10-INV-120A-SNAPSHOT; integrated into main at commit 67d40f78. |
 | **#224** | feat(command): CAP-CMD-101 read-only Incident/Task queue with six authorized system views | `feat/e10-cmd-101a-readonly-queue` | `e22d4d6d84` | `CLOSED_INCORPORATED` | Command Work Queue runtime and Codex P1/P2 fixes (Windows timer granularity and deep performance policy decoupling) merged into PR #222 via commit 4807c19e. |
+| **#225** | feat(studio): implement CAP-STD-004 tool input and validation contract | `feat/cap-std-004-tool-input-validation` | `e4666f5868` | `CLOSED_INCORPORATED` | CAP-STD-004 tool input validation contract, opaque secret references, fail-closed required parameters, verified with 22 test suites and merged into main at commit e4666f58. |
+| **#226** | fix(ci): repair engineering-kernel-full paths, 0-ready handling, and pr triggers | `fix/ci-engineering-kernel-repair` | `1d194d3496` | `CLOSED_INCORPORATED` | Repaired CI workflow engineering-kernel-full paths, 0-READY quiescent handling, and PR triggers targeting main; merged into main at commit 1d194d34. |
 
 ---
 
@@ -394,13 +397,16 @@ git push origin <commit_sha>:refs/heads/<branch_name>
 
 ## 6. Attestation et Conclusion
 
-Le présent registre consacre la clôture formelle et traçable de la totalité de la dette technique Git accumulée sur le dépôt `cmdr`. En accord avec le mandat de la Phase C et les exigences de la Phase D, **la branche `main` est désormais l'unique source de vérité et la seule cible de développement et d'intégration**.
+Le présent registre consacre la clôture formelle et traçable de la totalité de la dette technique Git accumulée sur le dépôt `cmdr`. En accord avec le mandat des Milestones 3, 4, 5 et 6, **la branche `main` est désormais l'unique source de vérité et la seule cible de développement et d'intégration**.
 
-- **Nombre total de PRs réconciliées :** 223 / 223 (100.0%)
-- **CLOSED_INCORPORATED :** 46
-- **CLOSED_SUPERSEDED :** 176
-- **CLOSED_REJECTED :** 1
-- **STILL_REQUIRED restant :** 0
-- **Tags de sauvegarde actifs :** 21
-- **État d'intégration de `main` :** Conforme, stable, outillé et prêt pour le nouveau cycle autonome Phase D.
+- **Nombre total de PRs réconciliées :** 225 / 225 (100.0%)
+- **CLOSED_INCORPORATED / MERGED :** 48 (21.3%)
+- **CLOSED_SUPERSEDED :** 176 (78.2%)
+- **CLOSED_REJECTED :** 1 (0.4%)
+- **STILL_REQUIRED restant :** 0 (0.0%)
+- **PRs ouvertes sur GitHub :** 0
+- **Tags de sauvegarde actifs sur origin :** 21 (100% vérifiés via `git ls-remote --tags origin "backup/*"`)
+- **Branches distantes obsolètes élaguées :** 69 supprimées sur GitHub origin, 171 branches non scellées préservées (politique zéro perte de données)
+- **Branches actives préservées :** `main`, `feat/e10-cmd-101a-readonly-queue`
+- **État d'intégration de `main` :** Conforme, stable, outillé (commit canonique `e4666f586854e02766568ffd2cfe29ef32696b49`, 1793 commits historiques préservés, suite CI 100% verte) et prêt pour le cycle autonome permanent sous la barrière `MAINLINE_HEALTH_GATE`.
 
