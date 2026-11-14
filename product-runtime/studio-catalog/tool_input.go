@@ -230,12 +230,202 @@ type InputParameterDefinition struct {
 	Pattern         string           `json:"pattern,omitempty"`
 }
 
+// deepCopyValue performs a deep copy of arbitrary values, supporting pointers, slices, maps, and reference types.
+func deepCopyValue(v any) any {
+	if v == nil {
+		return nil
+	}
+
+	switch val := v.(type) {
+	case *int:
+		if val == nil {
+			return (*int)(nil)
+		}
+		cp := *val
+		return &cp
+	case *int64:
+		if val == nil {
+			return (*int64)(nil)
+		}
+		cp := *val
+		return &cp
+	case *float64:
+		if val == nil {
+			return (*float64)(nil)
+		}
+		cp := *val
+		return &cp
+	case *string:
+		if val == nil {
+			return (*string)(nil)
+		}
+		cp := *val
+		return &cp
+	case *bool:
+		if val == nil {
+			return (*bool)(nil)
+		}
+		cp := *val
+		return &cp
+	case *SecretReference:
+		if val == nil {
+			return (*SecretReference)(nil)
+		}
+		cp := *val
+		return &cp
+	case SecretReference:
+		return val
+	case *EntityReference:
+		if val == nil {
+			return (*EntityReference)(nil)
+		}
+		cp := *val
+		return &cp
+	case EntityReference:
+		return val
+	case *QueryAssetReference:
+		if val == nil {
+			return (*QueryAssetReference)(nil)
+		}
+		cp := *val
+		return &cp
+	case QueryAssetReference:
+		return val
+	case []any:
+		cp := make([]any, len(val))
+		for i, item := range val {
+			cp[i] = deepCopyValue(item)
+		}
+		return cp
+	case []string:
+		cp := make([]string, len(val))
+		copy(cp, val)
+		return cp
+	case []int:
+		cp := make([]int, len(val))
+		copy(cp, val)
+		return cp
+	case []float64:
+		cp := make([]float64, len(val))
+		copy(cp, val)
+		return cp
+	case map[string]any:
+		cp := make(map[string]any, len(val))
+		for k, item := range val {
+			cp[k] = deepCopyValue(item)
+		}
+		return cp
+	case map[string]string:
+		cp := make(map[string]string, len(val))
+		for k, item := range val {
+			cp[k] = item
+		}
+		return cp
+	default:
+		// Fallback to reflection for arbitrary slices, maps, or pointers
+		rv := reflect.ValueOf(v)
+		switch rv.Kind() {
+		case reflect.Pointer:
+			if rv.IsNil() {
+				return reflect.Zero(rv.Type()).Interface()
+			}
+			newPtr := reflect.New(rv.Elem().Type())
+			copiedElem := deepCopyValue(rv.Elem().Interface())
+			if copiedElem != nil {
+				newPtr.Elem().Set(reflect.ValueOf(copiedElem))
+			}
+			return newPtr.Interface()
+		case reflect.Slice:
+			if rv.IsNil() {
+				return nil
+			}
+			elemType := rv.Type().Elem()
+			newSlice := reflect.MakeSlice(rv.Type(), rv.Len(), rv.Cap())
+			for i := 0; i < rv.Len(); i++ {
+				elem := rv.Index(i).Interface()
+				copiedElem := deepCopyValue(elem)
+				if copiedElem != nil {
+					newSlice.Index(i).Set(reflect.ValueOf(copiedElem).Convert(elemType))
+				}
+			}
+			return newSlice.Interface()
+		case reflect.Map:
+			if rv.IsNil() {
+				return nil
+			}
+			elemType := rv.Type().Elem()
+			newMap := reflect.MakeMapWithSize(rv.Type(), rv.Len())
+			for _, key := range rv.MapKeys() {
+				mapVal := rv.MapIndex(key).Interface()
+				copiedVal := deepCopyValue(mapVal)
+				if copiedVal == nil {
+					newMap.SetMapIndex(key, reflect.Zero(elemType))
+				} else {
+					newMap.SetMapIndex(key, reflect.ValueOf(copiedVal))
+				}
+			}
+			return newMap.Interface()
+		default:
+			return v
+		}
+	}
+}
+
+// Clone creates a deep copy of InputConstraint.
+func (c *InputConstraint) Clone() *InputConstraint {
+	if c == nil {
+		return nil
+	}
+	cp := *c
+	if c.MinLength != nil {
+		v := *c.MinLength
+		cp.MinLength = &v
+	}
+	if c.MaxLength != nil {
+		v := *c.MaxLength
+		cp.MaxLength = &v
+	}
+	if c.Minimum != nil {
+		v := *c.Minimum
+		cp.Minimum = &v
+	}
+	if c.Maximum != nil {
+		v := *c.Maximum
+		cp.Maximum = &v
+	}
+	if c.ExclusiveMinimum != nil {
+		v := *c.ExclusiveMinimum
+		cp.ExclusiveMinimum = &v
+	}
+	if c.ExclusiveMaximum != nil {
+		v := *c.ExclusiveMaximum
+		cp.ExclusiveMaximum = &v
+	}
+	if c.MinItems != nil {
+		v := *c.MinItems
+		cp.MinItems = &v
+	}
+	if c.MaxItems != nil {
+		v := *c.MaxItems
+		cp.MaxItems = &v
+	}
+	if c.AllowedValues != nil {
+		cp.AllowedValues = make([]any, len(c.AllowedValues))
+		for i, av := range c.AllowedValues {
+			cp.AllowedValues[i] = deepCopyValue(av)
+		}
+	}
+	return &cp
+}
+
 // Clone creates a deep copy of InputParameterDefinition.
 func (p *InputParameterDefinition) Clone() InputParameterDefinition {
 	cp := *p
 	if p.AllowedValues != nil {
 		cp.AllowedValues = make([]any, len(p.AllowedValues))
-		copy(cp.AllowedValues, p.AllowedValues)
+		for i, av := range p.AllowedValues {
+			cp.AllowedValues[i] = deepCopyValue(av)
+		}
 	}
 	if p.EntityScope != nil {
 		es := *p.EntityScope
@@ -250,8 +440,26 @@ func (p *InputParameterDefinition) Clone() InputParameterDefinition {
 		cp.SecretRefPolicy = &srp
 	}
 	if p.Constraints != nil {
-		c := *p.Constraints
-		cp.Constraints = &c
+		cp.Constraints = p.Constraints.Clone()
+	}
+	if p.MinLength != nil {
+		v := *p.MinLength
+		cp.MinLength = &v
+	}
+	if p.MaxLength != nil {
+		v := *p.MaxLength
+		cp.MaxLength = &v
+	}
+	if p.Minimum != nil {
+		v := *p.Minimum
+		cp.Minimum = &v
+	}
+	if p.Maximum != nil {
+		v := *p.Maximum
+		cp.Maximum = &v
+	}
+	if p.DefaultValue != nil {
+		cp.DefaultValue = deepCopyValue(p.DefaultValue)
 	}
 	return cp
 }
@@ -272,6 +480,7 @@ type InputBinding struct {
 // Clone creates a deep copy of an InputBinding.
 func (b *InputBinding) Clone() InputBinding {
 	cp := *b
+	cp.Value = deepCopyValue(b.Value)
 	if b.SecretRef != nil {
 		s := *b.SecretRef
 		cp.SecretRef = &s
@@ -285,6 +494,21 @@ func (b *InputBinding) Clone() InputBinding {
 		cp.QueryAssetRef = &q
 	}
 	return cp
+}
+
+// String implements fmt.Stringer to prevent leaking raw secrets in logs or format strings.
+func (b InputBinding) String() string {
+	val := b.Value
+	if b.SourceType == BindingSourceSecretRef || b.SecretRef != nil {
+		val = "***"
+	}
+	return fmt.Sprintf("InputBinding{ParameterName:%q, SourceType:%q, Value:%v, SecretRef:%+v, EntityRef:%+v, QueryAssetRef:%+v, ValidationState:%q, TenantID:%q, EnvironmentID:%q}",
+		b.ParameterName, b.SourceType, val, b.SecretRef, b.EntityRef, b.QueryAssetRef, b.ValidationState, b.TenantID, b.EnvironmentID)
+}
+
+// GoString implements fmt.GoStringer for detailed debug logging without secret leakage.
+func (b InputBinding) GoString() string {
+	return b.String()
 }
 
 // ToolInputContract specifies the collection of input parameters for a Tool or Operation.
@@ -510,24 +734,74 @@ func DeterministicValidateInputBindings(
 					State:         ValidationStateMissingInput,
 				})
 			} else if param.DefaultValue != nil {
-				// Optional parameter with explicit default: populate default
+				// Optional parameter with explicit default: validate DefaultValue rigorously
+				// against types, constraints, allowed-values, and tenant scope (CAP-STD-004 §2, Remark 3)
+				defaultBinding := InputBinding{
+					ParameterName: paramName,
+					TenantID:      trimmedCallerTenant,
+				}
+				if sec, ok := param.DefaultValue.(*SecretReference); ok {
+					defaultBinding.SourceType = BindingSourceSecretRef
+					defaultBinding.SecretRef = sec
+				} else if secVal, ok := param.DefaultValue.(SecretReference); ok {
+					defaultBinding.SourceType = BindingSourceSecretRef
+					defaultBinding.SecretRef = &secVal
+				} else if ent, ok := param.DefaultValue.(*EntityReference); ok {
+					defaultBinding.SourceType = BindingSourceEntityRef
+					defaultBinding.EntityRef = ent
+				} else if entVal, ok := param.DefaultValue.(EntityReference); ok {
+					defaultBinding.SourceType = BindingSourceEntityRef
+					defaultBinding.EntityRef = &entVal
+				} else if qRef, ok := param.DefaultValue.(*QueryAssetReference); ok {
+					defaultBinding.SourceType = BindingSourceAssetRef
+					defaultBinding.QueryAssetRef = qRef
+				} else if qVal, ok := param.DefaultValue.(QueryAssetReference); ok {
+					defaultBinding.SourceType = BindingSourceAssetRef
+					defaultBinding.QueryAssetRef = &qVal
+				} else {
+					defaultBinding.SourceType = BindingSourceLiteral
+					defaultBinding.Value = param.DefaultValue
+				}
+
+				defaultIssues := validateBindingAgainstParameter(param, normType, defaultBinding, trimmedCallerTenant, scope.AuthorizedTenants)
+				paramState := ValidationStateValid
+				if len(defaultIssues) > 0 {
+					paramState = determineWorstState(defaultIssues)
+					outcome.Issues = append(outcome.Issues, defaultIssues...)
+				}
+
 				defVal := param.DefaultValue
 				isMasked := param.IsSensitive || normType == FunctionalTypeSecretRef
+				var refID string
+				var owner string
 				if isMasked {
 					maskedSet[paramName] = true
 					defVal = "***"
+					if defaultBinding.SecretRef != nil {
+						refID = defaultBinding.SecretRef.RefID
+						owner = "Settings"
+					} else if normType == FunctionalTypeSecretRef {
+						owner = "Settings"
+					}
+				} else if defaultBinding.EntityRef != nil {
+					refID = defaultBinding.EntityRef.RefID
+					defVal = defaultBinding.EntityRef.RefID
+				} else if defaultBinding.QueryAssetRef != nil {
+					refID = defaultBinding.QueryAssetRef.AssetID
+					defVal = defaultBinding.QueryAssetRef.AssetID
+				} else {
+					defVal = deepCopyValue(param.DefaultValue)
 				}
 				vb := ValidatedBinding{
 					ParameterName:   paramName,
 					FunctionalType:  normType,
-					SourceType:      BindingSourceLiteral,
+					SourceType:      defaultBinding.SourceType,
 					MaskedValue:     defVal,
+					RefID:           refID,
+					Owner:           owner,
 					TenantID:        trimmedCallerTenant,
-					ValidationState: ValidationStateValid,
+					ValidationState: paramState,
 					IsMasked:        isMasked,
-				}
-				if normType == FunctionalTypeSecretRef {
-					vb.Owner = "Settings"
 				}
 				outcome.ValidatedBindings = append(outcome.ValidatedBindings, vb)
 			}
@@ -605,6 +879,7 @@ func validateBindingAgainstParameter(
 ) []InputValidationIssue {
 	var issues []InputValidationIssue
 	paramName := param.Name
+	isSensitive := param.IsSensitive || normType == FunctionalTypeSecretRef
 
 	// 1. Secret Reference Handling (REQ-OBJ-009, REQ-SEC-001, CAP-SET-009)
 	if normType == FunctionalTypeSecretRef {
@@ -856,10 +1131,14 @@ func validateBindingAgainstParameter(
 				}
 			}
 			if !match {
+				msg := fmt.Sprintf("Parameter %q value %q is not in allowed values", paramName, strVal)
+				if isSensitive {
+					msg = fmt.Sprintf("Parameter %q value is not in allowed values", paramName)
+				}
 				issues = append(issues, InputValidationIssue{
 					ParameterName: paramName,
 					Code:          string(ErrorCodeInvalidInput),
-					Message:       fmt.Sprintf("Parameter %q value %q is not in allowed values", paramName, strVal),
+					Message:       msg,
 					Severity:      "error",
 					State:         ValidationStateInvalid,
 				})
@@ -869,10 +1148,14 @@ func validateBindingAgainstParameter(
 	case FunctionalTypeInteger:
 		intVal, ok := toInt64(val)
 		if !ok {
+			msg := fmt.Sprintf("Parameter %q expected integer, got %T (%v)", paramName, val, val)
+			if isSensitive {
+				msg = fmt.Sprintf("Parameter %q expected integer, got %T", paramName, val)
+			}
 			issues = append(issues, InputValidationIssue{
 				ParameterName: paramName,
 				Code:          string(ErrorCodeInvalidInput),
-				Message:       fmt.Sprintf("Parameter %q expected integer, got %T (%v)", paramName, val, val),
+				Message:       msg,
 				Severity:      "error",
 				State:         ValidationStateInvalid,
 			})
@@ -884,10 +1167,14 @@ func validateBindingAgainstParameter(
 			minV = param.Constraints.Minimum
 		}
 		if minV != nil && float64(intVal) < *minV {
+			msg := fmt.Sprintf("Parameter %q value %d is less than minimum %v", paramName, intVal, *minV)
+			if isSensitive {
+				msg = fmt.Sprintf("Parameter %q value is less than minimum %v", paramName, *minV)
+			}
 			issues = append(issues, InputValidationIssue{
 				ParameterName: paramName,
 				Code:          string(ErrorCodeInvalidInput),
-				Message:       fmt.Sprintf("Parameter %q value %d is less than minimum %v", paramName, intVal, *minV),
+				Message:       msg,
 				Severity:      "error",
 				State:         ValidationStateInvalid,
 			})
@@ -898,29 +1185,41 @@ func validateBindingAgainstParameter(
 			maxV = param.Constraints.Maximum
 		}
 		if maxV != nil && float64(intVal) > *maxV {
+			msg := fmt.Sprintf("Parameter %q value %d exceeds maximum %v", paramName, intVal, *maxV)
+			if isSensitive {
+				msg = fmt.Sprintf("Parameter %q value exceeds maximum %v", paramName, *maxV)
+			}
 			issues = append(issues, InputValidationIssue{
 				ParameterName: paramName,
 				Code:          string(ErrorCodeInvalidInput),
-				Message:       fmt.Sprintf("Parameter %q value %d exceeds maximum %v", paramName, intVal, *maxV),
+				Message:       msg,
 				Severity:      "error",
 				State:         ValidationStateInvalid,
 			})
 		}
 
 		if param.Constraints != nil && param.Constraints.ExclusiveMinimum != nil && float64(intVal) <= *param.Constraints.ExclusiveMinimum {
+			msg := fmt.Sprintf("Parameter %q value %d must be strictly greater than exclusive minimum %v", paramName, intVal, *param.Constraints.ExclusiveMinimum)
+			if isSensitive {
+				msg = fmt.Sprintf("Parameter %q value must be strictly greater than exclusive minimum %v", paramName, *param.Constraints.ExclusiveMinimum)
+			}
 			issues = append(issues, InputValidationIssue{
 				ParameterName: paramName,
 				Code:          string(ErrorCodeInvalidInput),
-				Message:       fmt.Sprintf("Parameter %q value %d must be strictly greater than exclusive minimum %v", paramName, intVal, *param.Constraints.ExclusiveMinimum),
+				Message:       msg,
 				Severity:      "error",
 				State:         ValidationStateInvalid,
 			})
 		}
 		if param.Constraints != nil && param.Constraints.ExclusiveMaximum != nil && float64(intVal) >= *param.Constraints.ExclusiveMaximum {
+			msg := fmt.Sprintf("Parameter %q value %d must be strictly less than exclusive maximum %v", paramName, intVal, *param.Constraints.ExclusiveMaximum)
+			if isSensitive {
+				msg = fmt.Sprintf("Parameter %q value must be strictly less than exclusive maximum %v", paramName, *param.Constraints.ExclusiveMaximum)
+			}
 			issues = append(issues, InputValidationIssue{
 				ParameterName: paramName,
 				Code:          string(ErrorCodeInvalidInput),
-				Message:       fmt.Sprintf("Parameter %q value %d must be strictly less than exclusive maximum %v", paramName, intVal, *param.Constraints.ExclusiveMaximum),
+				Message:       msg,
 				Severity:      "error",
 				State:         ValidationStateInvalid,
 			})
@@ -929,10 +1228,14 @@ func validateBindingAgainstParameter(
 	case FunctionalTypeNumber:
 		numVal, ok := toFloat64(val)
 		if !ok {
+			msg := fmt.Sprintf("Parameter %q expected number, got %T (%v)", paramName, val, val)
+			if isSensitive {
+				msg = fmt.Sprintf("Parameter %q expected number, got %T", paramName, val)
+			}
 			issues = append(issues, InputValidationIssue{
 				ParameterName: paramName,
 				Code:          string(ErrorCodeInvalidInput),
-				Message:       fmt.Sprintf("Parameter %q expected number, got %T (%v)", paramName, val, val),
+				Message:       msg,
 				Severity:      "error",
 				State:         ValidationStateInvalid,
 			})
@@ -944,10 +1247,14 @@ func validateBindingAgainstParameter(
 			minV = param.Constraints.Minimum
 		}
 		if minV != nil && numVal < *minV {
+			msg := fmt.Sprintf("Parameter %q value %v is less than minimum %v", paramName, numVal, *minV)
+			if isSensitive {
+				msg = fmt.Sprintf("Parameter %q value is less than minimum %v", paramName, *minV)
+			}
 			issues = append(issues, InputValidationIssue{
 				ParameterName: paramName,
 				Code:          string(ErrorCodeInvalidInput),
-				Message:       fmt.Sprintf("Parameter %q value %v is less than minimum %v", paramName, numVal, *minV),
+				Message:       msg,
 				Severity:      "error",
 				State:         ValidationStateInvalid,
 			})
@@ -958,29 +1265,41 @@ func validateBindingAgainstParameter(
 			maxV = param.Constraints.Maximum
 		}
 		if maxV != nil && numVal > *maxV {
+			msg := fmt.Sprintf("Parameter %q value %v exceeds maximum %v", paramName, numVal, *maxV)
+			if isSensitive {
+				msg = fmt.Sprintf("Parameter %q value exceeds maximum %v", paramName, *maxV)
+			}
 			issues = append(issues, InputValidationIssue{
 				ParameterName: paramName,
 				Code:          string(ErrorCodeInvalidInput),
-				Message:       fmt.Sprintf("Parameter %q value %v exceeds maximum %v", paramName, numVal, *maxV),
+				Message:       msg,
 				Severity:      "error",
 				State:         ValidationStateInvalid,
 			})
 		}
 
 		if param.Constraints != nil && param.Constraints.ExclusiveMinimum != nil && numVal <= *param.Constraints.ExclusiveMinimum {
+			msg := fmt.Sprintf("Parameter %q value %v must be strictly greater than exclusive minimum %v", paramName, numVal, *param.Constraints.ExclusiveMinimum)
+			if isSensitive {
+				msg = fmt.Sprintf("Parameter %q value must be strictly greater than exclusive minimum %v", paramName, *param.Constraints.ExclusiveMinimum)
+			}
 			issues = append(issues, InputValidationIssue{
 				ParameterName: paramName,
 				Code:          string(ErrorCodeInvalidInput),
-				Message:       fmt.Sprintf("Parameter %q value %v must be strictly greater than exclusive minimum %v", paramName, numVal, *param.Constraints.ExclusiveMinimum),
+				Message:       msg,
 				Severity:      "error",
 				State:         ValidationStateInvalid,
 			})
 		}
 		if param.Constraints != nil && param.Constraints.ExclusiveMaximum != nil && numVal >= *param.Constraints.ExclusiveMaximum {
+			msg := fmt.Sprintf("Parameter %q value %v must be strictly less than exclusive maximum %v", paramName, numVal, *param.Constraints.ExclusiveMaximum)
+			if isSensitive {
+				msg = fmt.Sprintf("Parameter %q value must be strictly less than exclusive maximum %v", paramName, *param.Constraints.ExclusiveMaximum)
+			}
 			issues = append(issues, InputValidationIssue{
 				ParameterName: paramName,
 				Code:          string(ErrorCodeInvalidInput),
-				Message:       fmt.Sprintf("Parameter %q value %v must be strictly less than exclusive maximum %v", paramName, numVal, *param.Constraints.ExclusiveMaximum),
+				Message:       msg,
 				Severity:      "error",
 				State:         ValidationStateInvalid,
 			})
@@ -989,10 +1308,14 @@ func validateBindingAgainstParameter(
 	case FunctionalTypeBoolean:
 		_, ok := val.(bool)
 		if !ok {
+			msg := fmt.Sprintf("Parameter %q expected boolean, got %T (%v)", paramName, val, val)
+			if isSensitive {
+				msg = fmt.Sprintf("Parameter %q expected boolean, got %T", paramName, val)
+			}
 			issues = append(issues, InputValidationIssue{
 				ParameterName: paramName,
 				Code:          string(ErrorCodeInvalidInput),
-				Message:       fmt.Sprintf("Parameter %q expected boolean, got %T (%v)", paramName, val, val),
+				Message:       msg,
 				Severity:      "error",
 				State:         ValidationStateInvalid,
 			})
@@ -1060,10 +1383,14 @@ func validateBindingAgainstParameter(
 			}
 		}
 		if !match {
+			msg := fmt.Sprintf("Parameter %q value %v is not an allowed enum member", paramName, val)
+			if isSensitive {
+				msg = fmt.Sprintf("Parameter %q value is not an allowed enum member", paramName)
+			}
 			issues = append(issues, InputValidationIssue{
 				ParameterName: paramName,
 				Code:          string(ErrorCodeInvalidInput),
-				Message:       fmt.Sprintf("Parameter %q value %v is not an allowed enum member", paramName, val),
+				Message:       msg,
 				Severity:      "error",
 				State:         ValidationStateInvalid,
 			})
@@ -1291,6 +1618,86 @@ type PrepareCorrectedBindingsResponse struct {
 	CorrelationID string                  `json:"correlation_id"`
 	IsDraft       bool                    `json:"is_draft"`   // Always true
 	Reversible    bool                    `json:"reversible"` // Always true
+}
+
+// MarshalJSON ensures sensitive draft bindings are masked during JSON serialization.
+func (r *PrepareCorrectedBindingsResponse) MarshalJSON() ([]byte, error) {
+	if r == nil {
+		return []byte("null"), nil
+	}
+	type Alias PrepareCorrectedBindingsResponse
+	maskedMap := make(map[string]bool)
+	if r.Outcome != nil {
+		for _, p := range r.Outcome.MaskedParameters {
+			maskedMap[p] = true
+		}
+		for _, vb := range r.Outcome.ValidatedBindings {
+			if vb.IsMasked {
+				maskedMap[strings.TrimSpace(vb.ParameterName)] = true
+			}
+		}
+	}
+	sanitized := make([]InputBinding, len(r.DraftBindings))
+	for i, b := range r.DraftBindings {
+		cp := b.Clone()
+		name := strings.TrimSpace(cp.ParameterName)
+		if maskedMap[name] || cp.SourceType == BindingSourceSecretRef || cp.SecretRef != nil {
+			if cp.Value != nil {
+				cp.Value = "***"
+			}
+			if cp.SecretRef != nil {
+				cp.SecretRef.Mask()
+			}
+		}
+		sanitized[i] = cp
+	}
+	alias := &struct {
+		DraftBindings []InputBinding `json:"draft_bindings"`
+		*Alias
+	}{
+		DraftBindings: sanitized,
+		Alias:         (*Alias)(r),
+	}
+	return json.Marshal(alias)
+}
+
+// String implements fmt.Stringer to prevent leaking raw secrets in logs or format strings.
+func (r *PrepareCorrectedBindingsResponse) String() string {
+	if r == nil {
+		return "<nil>"
+	}
+	maskedMap := make(map[string]bool)
+	if r.Outcome != nil {
+		for _, p := range r.Outcome.MaskedParameters {
+			maskedMap[p] = true
+		}
+		for _, vb := range r.Outcome.ValidatedBindings {
+			if vb.IsMasked {
+				maskedMap[strings.TrimSpace(vb.ParameterName)] = true
+			}
+		}
+	}
+	sanitized := make([]InputBinding, len(r.DraftBindings))
+	for i, b := range r.DraftBindings {
+		cp := b.Clone()
+		name := strings.TrimSpace(cp.ParameterName)
+		if maskedMap[name] || cp.SourceType == BindingSourceSecretRef || cp.SecretRef != nil {
+			if cp.Value != nil {
+				cp.Value = "***"
+			}
+			if cp.SecretRef != nil {
+				cp.SecretRef.Mask()
+			}
+		}
+		sanitized[i] = cp
+	}
+	return fmt.Sprintf("PrepareCorrectedBindingsResponse{DraftBindings:%+v, Outcome:%+v, CorrelationID:%q, IsDraft:%v, Reversible:%v}",
+		sanitized, r.Outcome, r.CorrelationID, r.IsDraft, r.Reversible)
+}
+
+// GoString implements fmt.GoStringer.
+func (r *PrepareCorrectedBindingsResponse) GoString() string {
+	return r.String()
 }
 
 // SuggestInputMappingRequest requests deterministic mapping suggestions.
@@ -1572,8 +1979,43 @@ func (s *DefaultToolInputService) PrepareCorrectedBindings(
 		return nil, err
 	}
 
+	// Sanitize DraftBindings before returning so rejected or raw secrets never reach response consumers (CAP-STD-004 §16, Remark 1)
+	maskedMap := make(map[string]bool)
+	if outcome != nil {
+		for _, p := range outcome.MaskedParameters {
+			maskedMap[p] = true
+		}
+		for _, vb := range outcome.ValidatedBindings {
+			if vb.IsMasked {
+				maskedMap[strings.TrimSpace(vb.ParameterName)] = true
+			}
+		}
+	}
+	if req.Contract != nil {
+		for _, p := range req.Contract.Parameters {
+			if p.IsSensitive || NormalizeFunctionalType(string(p.FunctionalType)) == FunctionalTypeSecretRef {
+				maskedMap[strings.TrimSpace(p.Name)] = true
+			}
+		}
+	}
+
+	sanitizedDrafts := make([]InputBinding, len(mergedBindings))
+	for i, b := range mergedBindings {
+		cp := b.Clone()
+		name := strings.TrimSpace(cp.ParameterName)
+		if maskedMap[name] || cp.SourceType == BindingSourceSecretRef || cp.SecretRef != nil {
+			if cp.Value != nil {
+				cp.Value = "***"
+			}
+			if cp.SecretRef != nil {
+				cp.SecretRef.Mask()
+			}
+		}
+		sanitizedDrafts[i] = cp
+	}
+
 	return &PrepareCorrectedBindingsResponse{
-		DraftBindings: mergedBindings,
+		DraftBindings: sanitizedDrafts,
 		Outcome:       outcome,
 		CorrelationID: corrID,
 		IsDraft:       true,
