@@ -9,7 +9,6 @@
     "push_run": 36132724120,
     "pull_request_run": 36132727798,
     "contract": "STUDIO-TOOL-INPUT-VALIDATION-V1",
-    "capability": "CAP-STD-004",
     "fixtures": 23,
     "negative_fixtures": 12,
     "runtime_files": 6,
@@ -17,39 +16,7 @@
     "cross_boundary_edges": 0,
     "global_coverage_percent": 88.5,
     "sast_findings": 0,
-    "sca_actionable_findings": 0,
-    "subtest_assertions": 78,
-    "production_files": 6,
-    "production_loc": 4181,
-    "test_files": 7,
-    "test_loc": 5901,
-    "runtime_dependencies": 0,
-    "cross_boundary_edges": 0,
-    "operations_implemented": [
-      "InspectTool",
-      "ValidateToolContract",
-      "DeterministicValidateToolContract",
-      "CreateDraftTool",
-      "UpdateDraftTool",
-      "SetRuntimeAvailability",
-      "ToAsset"
-    ],
-    "invariants_preserved": [
-      "Class 0 InspectTool strictly read-only and fail-closed",
-      "Execution verbs permanently blocked (Invoke, Execute, Run, Call, Trigger) returning 400 execution-blocked under REQ-PROD-006",
-      "Runtime availability decoupled from definition contract validity under CAP-STD-003 §25 Given 1",
-      "Strict anti-agent boundary defense under REQ-AI-002 preventing tool from acting as agent",
-      "Owner unknown normalization (is_unknown: true, owner-unknown) under REQ-OBJ-009",
-      "Immutability enforcement (only draft tools can be modified) under CAP-STD-003 §10, §14"
-    ],
-    "validation_results": {
-      "manifest_validation": "204 manifests checked (197 strict v2) PASS",
-      "architecture_audit": "17 boundaries PASS (1480 path claims), product spec read only: true",
-      "doctor": "PASS (healthy=true)",
-      "spec_diff": "0 bytes diff against 82e630fce3a7f6236e03709116eca6dd0a1acd40",
-      "go_test": "129 test functions (including 23 top-level tests, 78 test assertions, 8 adversarial penetration suites) PASS",
-      "go_vet": "PASS (0 warnings)"
-    }
+    "sca_actionable_findings": 0
   },
   "invariants": [
     "Product Spec baseline 82e630fce3a7f6236e03709116eca6dd0a1acd40 unchanged (0 bytes diff)",
