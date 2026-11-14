@@ -5,6 +5,7 @@ package studiocatalog
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"math"
@@ -518,3 +519,585 @@ func TestChallenge_ToolInput_HighContentionHarness(t *testing.T) {
 		t.Fatalf("Concurrent stress test failure: %v", err)
 	}
 }
+
+// -------------------------------------------------------------------------
+// Challenge 7: DraftBindings Secret Non-Disclosure (PR #225 Codex Thread 4564670897)
+// -------------------------------------------------------------------------
+
+func TestChallenge_DraftBindings_SecretNonDisclosure(t *testing.T) {
+	ctx := context.Background()
+	auth := NewAuthContext("worker-test", "tenant-vault-test", nil, PermStudioLibraryRead)
+	store := NewInMemoryToolStore()
+	service := NewDefaultToolInputService(store)
+
+	const (
+		synthRawSecret1 = "synth-token-vault-secret-xyz-987"
+		synthRawSecret2 = "synth-password-cleartext-pass-12345"
+		synthRawSecret3 = "synth-undeclared-secret-token-777"
+	)
+
+	contract := &ToolInputContract{
+		ToolID:      "tool-secret-guard",
+		ToolVersion: "1.0.0",
+		TenantID:    "tenant-vault-test",
+		Parameters: []InputParameterDefinition{
+			{
+				Name:           "api_key",
+				FunctionalType: FunctionalTypeSecretRef,
+				Required:       true,
+			},
+			{
+				Name:           "sensitive_token",
+				FunctionalType: FunctionalTypeString,
+				Required:       true,
+				IsSensitive:    true,
+			},
+			{
+				Name:           "regular_host",
+				FunctionalType: FunctionalTypeString,
+				Required:       true,
+			},
+		},
+	}
+
+	// Caller supplies literal secrets in base bindings and corrections
+	baseBindings := []InputBinding{
+		{
+			ParameterName: "api_key",
+			SourceType:    BindingSourceLiteral,
+			Value:         synthRawSecret1, // ILLEGAL raw secret attempt!
+		},
+		{
+			ParameterName: "regular_host",
+			SourceType:    BindingSourceLiteral,
+			Value:         "api.example.local",
+		},
+	}
+
+	corrections := []InputBinding{
+		{
+			ParameterName: "sensitive_token",
+			SourceType:    BindingSourceLiteral,
+			Value:         synthRawSecret2, // Sensitive literal value
+		},
+		{
+			ParameterName: "undeclared_sec",
+			SourceType:    BindingSourceSecretRef,
+			Value:         synthRawSecret3, // Secret-ref binding with raw value
+		},
+	}
+
+	req := &PrepareCorrectedBindingsRequest{
+		TenantRef:    "tenant-vault-test",
+		ToolID:       "tool-secret-guard",
+		ToolVersion:  "1.0.0",
+		Contract:     contract,
+		BaseBindings: baseBindings,
+		Corrections:  corrections,
+	}
+
+	resp, err := service.PrepareCorrectedBindings(ctx, &auth, req)
+	if err != nil {
+		t.Fatalf("unexpected PrepareCorrectedBindings error: %v", err)
+	}
+
+	// 1. Direct inspection of DraftBindings: plaintext secrets must NEVER be present!
+	for _, b := range resp.DraftBindings {
+		valStr := fmt.Sprintf("%v", b.Value)
+		if strings.Contains(valStr, synthRawSecret1) ||
+			strings.Contains(valStr, synthRawSecret2) ||
+			strings.Contains(valStr, synthRawSecret3) {
+			t.Fatalf("CRITICAL SECURITY DEFECT: Raw secret exposed in resp.DraftBindings: %+v", b)
+		}
+		if b.ParameterName == "api_key" && b.Value != "***" {
+			t.Errorf("Expected api_key Value to be redacted to '***', got: %v", b.Value)
+		}
+		if b.ParameterName == "sensitive_token" && b.Value != "***" {
+			t.Errorf("Expected sensitive_token Value to be redacted to '***', got: %v", b.Value)
+		}
+	}
+
+	// 2. JSON serialization inspection: plaintext secrets must NEVER be present!
+	rawJSON, err := json.Marshal(resp)
+	if err != nil {
+		t.Fatalf("json.Marshal failed: %v", err)
+	}
+	jsonStr := string(rawJSON)
+	if strings.Contains(jsonStr, synthRawSecret1) {
+		t.Fatalf("CRITICAL SECURITY DEFECT: synthRawSecret1 leaked into JSON serialization: %s", jsonStr)
+	}
+	if strings.Contains(jsonStr, synthRawSecret2) {
+		t.Fatalf("CRITICAL SECURITY DEFECT: synthRawSecret2 leaked into JSON serialization: %s", jsonStr)
+	}
+	if strings.Contains(jsonStr, synthRawSecret3) {
+		t.Fatalf("CRITICAL SECURITY DEFECT: synthRawSecret3 leaked into JSON serialization: %s", jsonStr)
+	}
+
+	// 3. Structured logging inspection (%v, %+v, String(), GoString()): plaintext secrets must NEVER be present!
+	logFmt := fmt.Sprintf("%v %+v %s %#v", resp, resp, resp.String(), resp.GoString())
+	if strings.Contains(logFmt, synthRawSecret1) ||
+		strings.Contains(logFmt, synthRawSecret2) ||
+		strings.Contains(logFmt, synthRawSecret3) {
+		t.Fatalf("CRITICAL SECURITY DEFECT: Raw secret exposed in structured log outputs: %s", logFmt)
+	}
+}
+
+// -------------------------------------------------------------------------
+// Challenge 8: Validation Issue Sensitive Non-Interpolation (PR #225 Codex Thread 4564670908)
+// -------------------------------------------------------------------------
+
+func TestChallenge_ValidationIssue_SensitiveNonInterpolation(t *testing.T) {
+	scope := CallerScopeContext{TenantID: "tenant-sensitive-test"}
+
+	const (
+		synthSensitiveString = "synth-secret-token-invalid-allowed-value-12345"
+		synthSensitiveInt    = 999999999
+		synthSensitiveFloat  = 88888.88
+		synthSensitiveEnum   = "synth-illegal-secret-enum-value"
+	)
+
+	maxInt := 100.0
+	minInt := 10.0
+	maxFloat := 50.0
+	minFloat := 5.0
+
+	contract := &ToolInputContract{
+		ToolID:      "tool-diag-test",
+		ToolVersion: "1.0.0",
+		TenantID:    "tenant-sensitive-test",
+		Parameters: []InputParameterDefinition{
+			{
+				Name:           "sensitive_str",
+				FunctionalType: FunctionalTypeString,
+				Required:       true,
+				IsSensitive:    true,
+				AllowedValues:  []any{"allowed_token_alpha", "allowed_token_beta"},
+			},
+			{
+				Name:           "sensitive_int_bounds",
+				FunctionalType: FunctionalTypeInteger,
+				Required:       true,
+				IsSensitive:    true,
+				Minimum:        &minInt,
+				Maximum:        &maxInt,
+			},
+			{
+				Name:           "sensitive_int_type",
+				FunctionalType: FunctionalTypeInteger,
+				Required:       true,
+				IsSensitive:    true,
+			},
+			{
+				Name:           "sensitive_float_bounds",
+				FunctionalType: FunctionalTypeNumber,
+				Required:       true,
+				IsSensitive:    true,
+				Minimum:        &minFloat,
+				Maximum:        &maxFloat,
+			},
+			{
+				Name:           "sensitive_enum",
+				FunctionalType: FunctionalTypeEnum,
+				Required:       true,
+				IsSensitive:    true,
+				AllowedValues:  []any{"PROD_TOKEN", "STAGING_TOKEN"},
+			},
+			{
+				Name:           "non_sensitive_str",
+				FunctionalType: FunctionalTypeString,
+				Required:       true,
+				IsSensitive:    false, // Regular parameter for diagnostic comparison
+				AllowedValues:  []any{"standard_alpha", "standard_beta"},
+			},
+		},
+	}
+
+	bindings := []InputBinding{
+		{ParameterName: "sensitive_str", SourceType: BindingSourceLiteral, Value: synthSensitiveString},
+		{ParameterName: "sensitive_int_bounds", SourceType: BindingSourceLiteral, Value: synthSensitiveInt},
+		{ParameterName: "sensitive_int_type", SourceType: BindingSourceLiteral, Value: "not-an-int-secret-token-777"},
+		{ParameterName: "sensitive_float_bounds", SourceType: BindingSourceLiteral, Value: synthSensitiveFloat},
+		{ParameterName: "sensitive_enum", SourceType: BindingSourceLiteral, Value: synthSensitiveEnum},
+		{ParameterName: "non_sensitive_str", SourceType: BindingSourceLiteral, Value: "invalid_regular_input"},
+	}
+
+	outcome := DeterministicValidateInputBindings(contract, bindings, scope, "corr-diag-challenge")
+	if outcome.Valid {
+		t.Fatalf("expected validation failure for invalid sensitive inputs")
+	}
+
+	// Verify that none of the sensitive values are reflected in any issue message
+	for _, issue := range outcome.Issues {
+		if strings.Contains(issue.Message, synthSensitiveString) {
+			t.Fatalf("CRITICAL SECURITY DEFECT: Sensitive string reflected in issue message: %s", issue.Message)
+		}
+		if strings.Contains(issue.Message, fmt.Sprintf("%d", synthSensitiveInt)) {
+			t.Fatalf("CRITICAL SECURITY DEFECT: Sensitive integer reflected in issue message: %s", issue.Message)
+		}
+		if strings.Contains(issue.Message, "not-an-int-secret-token-777") {
+			t.Fatalf("CRITICAL SECURITY DEFECT: Sensitive type mismatch value reflected in issue message: %s", issue.Message)
+		}
+		if strings.Contains(issue.Message, fmt.Sprintf("%v", synthSensitiveFloat)) {
+			t.Fatalf("CRITICAL SECURITY DEFECT: Sensitive float reflected in issue message: %s", issue.Message)
+		}
+		if strings.Contains(issue.Message, synthSensitiveEnum) {
+			t.Fatalf("CRITICAL SECURITY DEFECT: Sensitive enum reflected in issue message: %s", issue.Message)
+		}
+	}
+
+	// Verify that non-sensitive parameter diagnostics DO include the invalid input for debugging
+	foundNonSensitiveEcho := false
+	for _, issue := range outcome.Issues {
+		if issue.ParameterName == "non_sensitive_str" && strings.Contains(issue.Message, "invalid_regular_input") {
+			foundNonSensitiveEcho = true
+			break
+		}
+	}
+	if !foundNonSensitiveEcho {
+		t.Errorf("Expected non-sensitive diagnostic to retain field-level explanation with value")
+	}
+}
+
+// -------------------------------------------------------------------------
+// Challenge 9: Optional Defaults Strict Validation (PR #225 Codex Thread 4564670924)
+// -------------------------------------------------------------------------
+
+func TestChallenge_OptionalDefaults_StrictValidation(t *testing.T) {
+	scope := CallerScopeContext{
+		TenantID:          "tenant-defaults-test",
+		AuthorizedTenants: []string{"tenant-defaults-test"},
+	}
+
+	maxPort := 65535.0
+	minPort := 1.0
+
+	t.Run("Invalid Integer Default Fails Validation", func(t *testing.T) {
+		contract := &ToolInputContract{
+			ToolID:   "tool-bad-def-int",
+			TenantID: "tenant-defaults-test",
+			Parameters: []InputParameterDefinition{
+				{
+					Name:           "port",
+					FunctionalType: FunctionalTypeInteger,
+					Required:       false,
+					DefaultValue:   "not-an-integer-string", // FORBIDDEN: string default for integer
+					Minimum:        &minPort,
+					Maximum:        &maxPort,
+				},
+			},
+		}
+
+		outcome := DeterministicValidateInputBindings(contract, []InputBinding{}, scope, "corr-def-bad-int")
+		if outcome.Valid {
+			t.Fatalf("CRITICAL: Invalid default value 'not-an-integer-string' accepted as Valid=true")
+		}
+		if outcome.State != ValidationStateInvalid {
+			t.Errorf("Expected state %q, got %q", ValidationStateInvalid, outcome.State)
+		}
+		if len(outcome.Issues) == 0 {
+			t.Fatalf("Expected issues for invalid integer default")
+		}
+		if outcome.Issues[0].Code != string(ErrorCodeInvalidInput) {
+			t.Errorf("Expected ErrorCodeInvalidInput, got %s", outcome.Issues[0].Code)
+		}
+	})
+
+	t.Run("Out-of-Bounds Number Default Fails Validation", func(t *testing.T) {
+		maxBound := 100.0
+		contract := &ToolInputContract{
+			ToolID:   "tool-bad-def-bounds",
+			TenantID: "tenant-defaults-test",
+			Parameters: []InputParameterDefinition{
+				{
+					Name:           "threshold",
+					FunctionalType: FunctionalTypeNumber,
+					Required:       false,
+					DefaultValue:   999.5, // FORBIDDEN: exceeds maximum 100.0
+					Maximum:        &maxBound,
+				},
+			},
+		}
+
+		outcome := DeterministicValidateInputBindings(contract, []InputBinding{}, scope, "corr-def-out-bounds")
+		if outcome.Valid {
+			t.Fatalf("CRITICAL: Out-of-bounds default value accepted as Valid=true")
+		}
+		if outcome.State != ValidationStateInvalid {
+			t.Errorf("Expected state %q, got %q", ValidationStateInvalid, outcome.State)
+		}
+	})
+
+	t.Run("Disallowed Enum Member Default Fails Validation", func(t *testing.T) {
+		contract := &ToolInputContract{
+			ToolID:   "tool-bad-def-enum",
+			TenantID: "tenant-defaults-test",
+			Parameters: []InputParameterDefinition{
+				{
+					Name:           "environment",
+					FunctionalType: FunctionalTypeEnum,
+					Required:       false,
+					DefaultValue:   "STAGE", // Not in allowed values ["PROD", "DEV"]
+					AllowedValues:  []any{"PROD", "DEV"},
+				},
+			},
+		}
+
+		outcome := DeterministicValidateInputBindings(contract, []InputBinding{}, scope, "corr-def-enum")
+		if outcome.Valid {
+			t.Fatalf("CRITICAL: Disallowed enum member default accepted as Valid=true")
+		}
+	})
+
+	t.Run("Literal Secret in Optional Default Fails Validation", func(t *testing.T) {
+		contract := &ToolInputContract{
+			ToolID:   "tool-bad-def-secret",
+			TenantID: "tenant-defaults-test",
+			Parameters: []InputParameterDefinition{
+				{
+					Name:           "api_key",
+					FunctionalType: FunctionalTypeSecretRef,
+					Required:       false,
+					DefaultValue:   "synth-raw-secret-token-in-default", // FORBIDDEN: raw secret
+				},
+			},
+		}
+
+		outcome := DeterministicValidateInputBindings(contract, []InputBinding{}, scope, "corr-def-raw-secret")
+		if outcome.Valid {
+			t.Fatalf("CRITICAL: Raw literal secret accepted in DefaultValue as Valid=true")
+		}
+		if outcome.State != ValidationStateInvalid {
+			t.Errorf("Expected state %q, got %q", ValidationStateInvalid, outcome.State)
+		}
+	})
+
+	t.Run("Stale Secret Reference in Optional Default Fails Validation", func(t *testing.T) {
+		contract := &ToolInputContract{
+			ToolID:   "tool-bad-def-stale-sec",
+			TenantID: "tenant-defaults-test",
+			Parameters: []InputParameterDefinition{
+				{
+					Name:           "api_key",
+					FunctionalType: FunctionalTypeSecretRef,
+					Required:       false,
+					DefaultValue: &SecretReference{
+						RefID:      "sec-def-stale",
+						TenantID:   "tenant-defaults-test",
+						SecretType: "bearer",
+						IsStale:    true, // STALE!
+					},
+				},
+			},
+		}
+
+		outcome := DeterministicValidateInputBindings(contract, []InputBinding{}, scope, "corr-def-stale-sec")
+		if outcome.Valid {
+			t.Fatalf("CRITICAL: Stale secret reference accepted in DefaultValue as Valid=true")
+		}
+		if outcome.State != ValidationStateRestrictedInput {
+			t.Errorf("Expected state %q, got %q", ValidationStateRestrictedInput, outcome.State)
+		}
+	})
+
+	t.Run("Cross-Tenant Entity Reference in Optional Default Fails Validation", func(t *testing.T) {
+		contract := &ToolInputContract{
+			ToolID:   "tool-bad-def-cross-tenant",
+			TenantID: "tenant-defaults-test",
+			Parameters: []InputParameterDefinition{
+				{
+					Name:           "case_ref",
+					FunctionalType: FunctionalTypeEntityRef,
+					Required:       false,
+					DefaultValue: &EntityReference{
+						RefID:    "case-def-cross",
+						Kind:     "case",
+						TenantID: "tenant-other-corp", // Cross-tenant!
+					},
+				},
+			},
+		}
+
+		outcome := DeterministicValidateInputBindings(contract, []InputBinding{}, scope, "corr-def-cross-tenant")
+		if outcome.Valid {
+			t.Fatalf("CRITICAL: Cross-tenant entity reference accepted in DefaultValue as Valid=true")
+		}
+		if outcome.State != ValidationStateCrossScopeBlocked {
+			t.Errorf("Expected state %q, got %q", ValidationStateCrossScopeBlocked, outcome.State)
+		}
+	})
+
+	t.Run("Valid Optional Default Passes Validation", func(t *testing.T) {
+		contract := &ToolInputContract{
+			ToolID:   "tool-valid-def",
+			TenantID: "tenant-defaults-test",
+			Parameters: []InputParameterDefinition{
+				{
+					Name:           "port",
+					FunctionalType: FunctionalTypeInteger,
+					Required:       false,
+					DefaultValue:   8080,
+					Minimum:        &minPort,
+					Maximum:        &maxPort,
+				},
+			},
+		}
+
+		outcome := DeterministicValidateInputBindings(contract, []InputBinding{}, scope, "corr-def-valid")
+		if !outcome.Valid {
+			t.Fatalf("Expected valid optional default to succeed, got issues: %+v", outcome.Issues)
+		}
+		if outcome.State != ValidationStateValid {
+			t.Errorf("Expected state %q, got %q", ValidationStateValid, outcome.State)
+		}
+		if len(outcome.ValidatedBindings) != 1 {
+			t.Fatalf("Expected 1 validated binding projected from default, got %d", len(outcome.ValidatedBindings))
+		}
+		if outcome.ValidatedBindings[0].ValidationState != ValidationStateValid {
+			t.Errorf("Expected ValidatedBinding state %q, got %q", ValidationStateValid, outcome.ValidatedBindings[0].ValidationState)
+		}
+	})
+}
+
+// -------------------------------------------------------------------------
+// Challenge 10: Deep Defensive Copies & Store Mutation Resistance (PR #225 Codex Thread 4564670935)
+// -------------------------------------------------------------------------
+
+func TestChallenge_DeepCopy_NonMutation(t *testing.T) {
+	ctx := context.Background()
+	auth := NewAuthContext("worker-inspect", "tenant-alpha", nil, PermStudioLibraryRead)
+	store := NewInMemoryToolStore()
+	service := NewDefaultToolInputService(store)
+
+	origMax := 100.0
+	origMin := 10.0
+	origAllowed := []any{"prod", "staging"}
+	origDefault := map[string]any{"timeout": 30}
+
+	toolDef := &ToolDefinition{
+		ID:          "tool-immutable",
+		TenantID:    "tenant-alpha",
+		Name:        "Immutable Tool",
+		Description: "Tool for non-mutation testing",
+		Version:     VersionInfo{SemVer: "1.0.0"},
+		InputContract: &ToolInputContract{
+			ToolID:      "tool-immutable",
+			ToolVersion: "1.0.0",
+			TenantID:    "tenant-alpha",
+			Parameters: []InputParameterDefinition{
+				{
+					Name:           "rate_limit",
+					FunctionalType: FunctionalTypeInteger,
+					Required:       true,
+					Minimum:        &origMin,
+					Maximum:        &origMax,
+					AllowedValues:  origAllowed,
+					DefaultValue:   origDefault,
+					Constraints: &InputConstraint{
+						Minimum:       &origMin,
+						Maximum:       &origMax,
+						AllowedValues: origAllowed,
+					},
+				},
+			},
+		},
+	}
+
+	if err := store.Put(ctx, toolDef); err != nil {
+		t.Fatalf("store.Put failed: %v", err)
+	}
+
+	t.Run("Modifying Inspected Contract Cannot Mutate Stored Contract", func(t *testing.T) {
+		inspected, err := service.InspectToolInputContract(ctx, &auth, "tenant-alpha", "tool-immutable")
+		if err != nil {
+			t.Fatalf("InspectToolInputContract failed: %v", err)
+		}
+
+		// Malicious or accidental in-place mutation of inspected contract
+		*inspected.Parameters[0].Constraints.Maximum = 999999.0
+		*inspected.Parameters[0].Constraints.Minimum = -999999.0
+		*inspected.Parameters[0].Maximum = 888888.0
+		*inspected.Parameters[0].Minimum = -888888.0
+		inspected.Parameters[0].Constraints.AllowedValues[0] = "MUTATED_CONSTRAINT_VALUE"
+		inspected.Parameters[0].AllowedValues[0] = "MUTATED_PARAM_VALUE"
+		if defMap, ok := inspected.Parameters[0].DefaultValue.(map[string]any); ok {
+			defMap["timeout"] = 9999
+		}
+
+		// Read back from the store afresh
+		freshTool, err := store.Get(ctx, "tenant-alpha", "tool-immutable")
+		if err != nil {
+			t.Fatalf("store.Get failed: %v", err)
+		}
+		if freshTool == nil || freshTool.InputContract == nil {
+			t.Fatalf("expected non-nil tool and input contract")
+		}
+
+		freshParam := freshTool.InputContract.Parameters[0]
+
+		// Assert that the stored contract remained 100% untouched
+		if *freshParam.Constraints.Maximum != origMax {
+			t.Fatalf("CRITICAL STORE INTEGRITY VIOLATION: Constraints.Maximum mutated in store! Expected %v, got %v", origMax, *freshParam.Constraints.Maximum)
+		}
+		if *freshParam.Constraints.Minimum != origMin {
+			t.Fatalf("CRITICAL STORE INTEGRITY VIOLATION: Constraints.Minimum mutated in store! Expected %v, got %v", origMin, *freshParam.Constraints.Minimum)
+		}
+		if *freshParam.Maximum != origMax {
+			t.Fatalf("CRITICAL STORE INTEGRITY VIOLATION: Parameter.Maximum mutated in store! Expected %v, got %v", origMax, *freshParam.Maximum)
+		}
+		if *freshParam.Minimum != origMin {
+			t.Fatalf("CRITICAL STORE INTEGRITY VIOLATION: Parameter.Minimum mutated in store! Expected %v, got %v", origMin, *freshParam.Minimum)
+		}
+		if freshParam.Constraints.AllowedValues[0] != "prod" {
+			t.Fatalf("CRITICAL STORE INTEGRITY VIOLATION: Constraints.AllowedValues mutated in store! Expected 'prod', got %v", freshParam.Constraints.AllowedValues[0])
+		}
+		if freshParam.AllowedValues[0] != "prod" {
+			t.Fatalf("CRITICAL STORE INTEGRITY VIOLATION: Parameter.AllowedValues mutated in store! Expected 'prod', got %v", freshParam.AllowedValues[0])
+		}
+		if defMap, ok := freshParam.DefaultValue.(map[string]any); ok {
+			if defMap["timeout"] != 30 {
+				t.Fatalf("CRITICAL STORE INTEGRITY VIOLATION: DefaultValue map mutated in store! Expected 30, got %v", defMap["timeout"])
+			}
+		}
+	})
+
+	t.Run("Concurrent Inspection and Mutation Harness", func(t *testing.T) {
+		const numWorkers = 50
+		var wg sync.WaitGroup
+		errCh := make(chan error, numWorkers)
+
+		for w := 0; w < numWorkers; w++ {
+			wg.Add(1)
+			go func(workerID int) {
+				defer wg.Done()
+				inspected, err := service.InspectToolInputContract(ctx, &auth, "tenant-alpha", "tool-immutable")
+				if err != nil {
+					errCh <- err
+					return
+				}
+				// Mutate local clone heavily
+				newVal := float64(workerID * 1000)
+				*inspected.Parameters[0].Constraints.Maximum = newVal
+				*inspected.Parameters[0].Maximum = newVal
+
+				// Verify clone has local value
+				if *inspected.Parameters[0].Constraints.Maximum != newVal {
+					errCh <- fmt.Errorf("worker %d: local mutation lost", workerID)
+					return
+				}
+			}(w)
+		}
+
+		wg.Wait()
+		close(errCh)
+		for err := range errCh {
+			t.Fatalf("Concurrent inspection failure: %v", err)
+		}
+
+		// Final check on store
+		finalTool, _ := store.Get(ctx, "tenant-alpha", "tool-immutable")
+		if *finalTool.InputContract.Parameters[0].Constraints.Maximum != origMax {
+			t.Fatalf("CRITICAL: Stored contract corrupted during concurrent access")
+		}
+	})
+}
+
