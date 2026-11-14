@@ -44,7 +44,7 @@ func TestGo12610PinnedVerifiedRuntimeTransitions(t *testing.T) {
 			if _, err := checkPinnedGoToolchainDelta(root, old, badSource, tc.dir); err == nil {
 				t.Fatal("runtime code changed but historical attestation was falsely retained")
 			}
-			writeInspectionToolchainFixture(t, root, path, module+"go 1.26.11\n")
+			writeInspectionToolchainFixture(t, root, path, module+"go 1.26.12\n")
 			gitInspectionToolchainFixture(t, root, "add", ".")
 			gitInspectionToolchainFixture(t, root, "commit", "-qm", "unapproved later compiler")
 			other := gitInspectionToolchainFixture(t, root, "rev-parse", "HEAD")
