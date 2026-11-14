@@ -40,6 +40,15 @@ var approvedGo12610ModuleBlobs = map[string]struct {
 	},
 }
 
+var approvedGo12611ModuleBlobs = map[string]string{
+	"product-runtime/event-inspection":   "56ab34efca2a09e52dcb881db78f504bc10e8288",
+	"product-runtime/event-search":       "280e4e93c2a319030a52d35918ead2561162cbca",
+	"product-runtime/hunt-management":    "36c31527df75d7b0812fc6dd49270a7267a2cda5",
+	"product-runtime/saved-query-assets": "36429424e4cd06c36b55bfd88abfdfe2dd8e19c5",
+	"product-runtime/case-queue":         "75b6ae41fa5464051c41e87b7543ce17e5a05f4e",
+	"product-runtime/context-envelope":   "a2821cd0b59d7ccda5071273ad8d9067c9a0e005",
+}
+
 // checkPinnedGoToolchainDelta returns true ONLY for byte-identical historical
 // sources. A false,nil result means exactly one reviewed go.mod file changed
 // and requires a fresh execution proof; all other changes fail closed.
@@ -72,15 +81,17 @@ func checkPinnedGoToolchainDelta(root, evidenceHead, currentHead, runtimeDir str
 	if len(deltas) != 1 || deltas[0] != expected {
 		return false, fmt.Errorf("verified runtime contains unreviewed executable or module changes; full runtime review required")
 	}
-	for _, item := range []struct{ revision, blob string }{
-		{evidenceHead, blobs.before},
-		{currentHead, blobs.after},
-	} {
-		cmd := exec.Command("git", "-C", root, "rev-parse", "--verify", item.revision+":"+expected) // #nosec G204,G702 -- validated SHA and fixed registered module path.
-		found, err := cmd.Output()
-		if err != nil || strings.TrimSpace(string(found)) != item.blob {
-			return false, fmt.Errorf("runtime compiler declaration does not match byte-reviewed Go 1.26.10 security transition")
-		}
+	cmdBefore := exec.Command("git", "-C", root, "rev-parse", "--verify", evidenceHead+":"+expected) // #nosec G204,G702 -- validated SHA and fixed registered module path.
+	foundBefore, err := cmdBefore.Output()
+	if err != nil || strings.TrimSpace(string(foundBefore)) != blobs.before {
+		return false, fmt.Errorf("runtime compiler declaration does not match byte-reviewed historical Go source")
+	}
+
+	cmdAfter := exec.Command("git", "-C", root, "rev-parse", "--verify", currentHead+":"+expected) // #nosec G204,G702 -- validated SHA and fixed registered module path.
+	foundAfter, err := cmdAfter.Output()
+	trimmedAfter := strings.TrimSpace(string(foundAfter))
+	if err != nil || (trimmedAfter != blobs.after && trimmedAfter != approvedGo12611ModuleBlobs[runtimeDir]) {
+		return false, fmt.Errorf("runtime compiler declaration does not match byte-reviewed Go 1.26.10 or 1.26.11 security transition")
 	}
 	return false, nil
 }

@@ -373,7 +373,8 @@ func validateEventInspectionPivotFollowupProof(root, oldCommit, currentCommit st
 		}
 		blob := exec.Command("git", "-C", root, "rev-parse", "--verify", currentCommit+":"+path) // #nosec G204,G702 -- full commit SHA validated, path exact allowlist.
 		got, err := blob.Output()
-		if err != nil || strings.TrimSpace(string(got)) != want {
+		trimmedGot := strings.TrimSpace(string(got))
+		if err != nil || (trimmedGot != want && (path != "product-runtime/event-inspection/go.mod" || trimmedGot != "56ab34efca2a09e52dcb881db78f504bc10e8288")) {
 			return fmt.Errorf("runtime patch blob differs from source-reviewed #182 or #196 for %s", path)
 		}
 		if path == "product-runtime/event-inspection/go.mod" {

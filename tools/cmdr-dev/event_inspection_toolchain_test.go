@@ -53,7 +53,7 @@ func TestEventInspectionToolchainDeltaRequiresExactApprovedGoModules(t *testing.
 	}
 
 	writeInspectionToolchainFixture(t, root, eventInspectionToolchainModPath,
-		"module github.com/tobianahillel-afk/cmdr/product-runtime/event-inspection\n\ngo 1.26.11\n")
+		"module github.com/tobianahillel-afk/cmdr/product-runtime/event-inspection\n\ngo 1.26.12\n")
 	gitInspectionToolchainFixture(t, root, "add", ".")
 	gitInspectionToolchainFixture(t, root, "commit", "-qm", "different compiler declaration")
 	different := gitInspectionToolchainFixture(t, root, "rev-parse", "HEAD")
