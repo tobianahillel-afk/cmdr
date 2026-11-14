@@ -178,7 +178,7 @@ func runImplementationLedgerAudit(root string, state CurrentState, graph WorkGra
 		}
 
 		boundary, ok := boundaries[entry.RuntimeBoundary]
-		if !ok || boundary.Kind != "product-runtime" || !boundary.MutableByImplementation {
+		if !ok || (boundary.Kind != "product-runtime" && boundary.Kind != "product-module") || !boundary.MutableByImplementation {
 			return summary, fmt.Errorf("implementation claim %s runtime boundary %s is not an implementation-owned product-runtime boundary", entry.Capability, entry.RuntimeBoundary)
 		}
 		if len(boundary.Roots) != 1 || boundary.Roots[0] != entry.RuntimeRoot {
