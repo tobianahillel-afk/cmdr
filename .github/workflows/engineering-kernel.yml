@@ -5,18 +5,6 @@ on:
     branches:
       - "main"
       - "engineering/autonomous-development-foundation"
-    paths:
-      - "AGENTS.md"
-      - "AI_START_HERE.md"
-      - "cmdr-product-spec/**"
-      - "engineering/**"
-      - "work/**"
-      - "tools/cmdr-dev/**"
-      - "product-runtime/**"
-      - ".github/workflows/engineering-kernel.yml"
-      - ".github/workflows/engineering-kernel-full.yml"
-      - ".github/workflows/security-deep.yml"
-      - ".github/workflows/performance-deep.yml"
   push:
     branches:
       - "main"
