@@ -1101,3 +1101,367 @@ func TestChallenge_DeepCopy_NonMutation(t *testing.T) {
 	})
 }
 
+// -------------------------------------------------------------------------
+// Challenge 13: Typed Nil Pointers & Map Nil Value Preservation (Codex PR #228 Remediation)
+// -------------------------------------------------------------------------
+
+func TestChallenge_DeepCopy_TypedNilPointers(t *testing.T) {
+	scope := CallerScopeContext{
+		PrincipalID:       "tester",
+		TenantID:          "tenant-alpha",
+		AuthorizedTenants: []string{"tenant-alpha"},
+	}
+
+	testCases := []struct {
+		name     string
+		param    InputParameterDefinition
+		nilVal   any
+		expected string
+	}{
+		{
+			name:     "nil_int_ptr",
+			param:    InputParameterDefinition{Name: "int_p", FunctionalType: FunctionalTypeInteger, Required: true},
+			nilVal:   (*int)(nil),
+			expected: "int_p",
+		},
+		{
+			name:     "nil_int64_ptr",
+			param:    InputParameterDefinition{Name: "int64_p", FunctionalType: FunctionalTypeInteger, Required: true},
+			nilVal:   (*int64)(nil),
+			expected: "int64_p",
+		},
+		{
+			name:     "nil_float64_ptr",
+			param:    InputParameterDefinition{Name: "float_p", FunctionalType: FunctionalTypeNumber, Required: true},
+			nilVal:   (*float64)(nil),
+			expected: "float_p",
+		},
+		{
+			name:     "nil_string_ptr",
+			param:    InputParameterDefinition{Name: "str_p", FunctionalType: FunctionalTypeString, Required: true},
+			nilVal:   (*string)(nil),
+			expected: "str_p",
+		},
+		{
+			name:     "nil_bool_ptr",
+			param:    InputParameterDefinition{Name: "bool_p", FunctionalType: FunctionalTypeBoolean, Required: true},
+			nilVal:   (*bool)(nil),
+			expected: "bool_p",
+		},
+		{
+			name:     "nil_secretref_ptr",
+			param:    InputParameterDefinition{Name: "sec_p", FunctionalType: FunctionalTypeSecretRef, Required: true},
+			nilVal:   (*SecretReference)(nil),
+			expected: "sec_p",
+		},
+		{
+			name:     "nil_entityref_ptr",
+			param:    InputParameterDefinition{Name: "ent_p", FunctionalType: FunctionalTypeEntityRef, Required: true},
+			nilVal:   (*EntityReference)(nil),
+			expected: "ent_p",
+		},
+		{
+			name:     "nil_queryassetref_ptr",
+			param:    InputParameterDefinition{Name: "qa_p", FunctionalType: FunctionalTypeQueryAssetRef, Required: true},
+			nilVal:   (*QueryAssetReference)(nil),
+			expected: "qa_p",
+		},
+		{
+			name:     "nil_arbitrary_struct_ptr",
+			param:    InputParameterDefinition{Name: "custom_p", FunctionalType: FunctionalTypeObject, Required: true},
+			nilVal:   (*struct{ Field string })(nil),
+			expected: "custom_p",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			b := InputBinding{
+				ParameterName: tc.param.Name,
+				SourceType:    BindingSourceLiteral,
+				Value:         tc.nilVal,
+				TenantID:      "tenant-alpha",
+			}
+
+			// 1. Verify Clone() does not panic and preserves the typed nil
+			var cloned InputBinding
+			func() {
+				defer func() {
+					if r := recover(); r != nil {
+						t.Fatalf("Clone() panicked on %s: %v", tc.name, r)
+					}
+				}()
+				cloned = b.Clone()
+			}()
+
+			if cloned.ParameterName != tc.param.Name {
+				t.Fatalf("Cloned ParameterName mismatch: expected %q, got %q", tc.param.Name, cloned.ParameterName)
+			}
+
+			// 2. Verify DeterministicValidateInputBindings produces fail-closed invalid outcome without panic
+			contract := &ToolInputContract{
+				ToolID:      "tool-typed-nil-test",
+				ToolVersion: "1.0.0",
+				TenantID:    "tenant-alpha",
+				Parameters:  []InputParameterDefinition{tc.param},
+			}
+
+			var outcome *InputValidationOutcome
+			func() {
+				defer func() {
+					if r := recover(); r != nil {
+						t.Fatalf("DeterministicValidateInputBindings panicked on %s: %v", tc.name, r)
+					}
+				}()
+				outcome = DeterministicValidateInputBindings(contract, []InputBinding{b}, scope, "corr-nil-"+tc.name)
+			}()
+
+			if outcome.Valid {
+				t.Errorf("Expected validation to fail closed for %s, but outcome.Valid was true", tc.name)
+			}
+			if len(outcome.Issues) == 0 {
+				t.Errorf("Expected validation issues for %s, got 0", tc.name)
+			}
+
+			// 3. Verify PrepareCorrectedBindings also handles typed nil safely
+			service := NewDefaultToolInputService(NewInMemoryToolStore())
+			auth := NewAuthContext("tester", "tenant-alpha", nil, PermStudioLibraryRead)
+			req := &PrepareCorrectedBindingsRequest{
+				TenantRef:     "tenant-alpha",
+				ToolID:        "tool-typed-nil-test",
+				ToolVersion:   "1.0.0",
+				BaseBindings:  []InputBinding{b},
+				CorrelationID: "corr-prep-" + tc.name,
+			}
+			var prepResp *PrepareCorrectedBindingsResponse
+			var prepErr error
+			func() {
+				defer func() {
+					if r := recover(); r != nil {
+						t.Fatalf("PrepareCorrectedBindings panicked on %s: %v", tc.name, r)
+					}
+				}()
+				prepResp, prepErr = service.PrepareCorrectedBindings(context.Background(), &auth, req)
+			}()
+			// Not installed in store, error is expected, but NO panic must occur
+			_ = prepResp
+			_ = prepErr
+		})
+	}
+}
+
+func TestChallenge_DeepCopy_MapWithNilValues(t *testing.T) {
+	// Custom map types that fall into reflection path
+	type CustomObject map[string]any
+	type TypedPtrMap map[string]*int
+
+	t.Run("CustomObject with nil entries", func(t *testing.T) {
+		orig := CustomObject{
+			"nullable_field": nil,
+			"valid_field":    "active",
+			"count":          42,
+		}
+
+		clonedRaw := deepCopyValue(orig)
+		cloned, ok := clonedRaw.(CustomObject)
+		if !ok {
+			t.Fatalf("Expected cloned value to be CustomObject, got %T", clonedRaw)
+		}
+
+		val, exists := cloned["nullable_field"]
+		if !exists {
+			t.Fatalf("CRITICAL: 'nullable_field' key was dropped from CustomObject during deepCopyValue!")
+		}
+		if val != nil {
+			t.Fatalf("Expected 'nullable_field' to be nil, got %v", val)
+		}
+
+		if cloned["valid_field"] != "active" {
+			t.Fatalf("Expected 'valid_field' == 'active', got %v", cloned["valid_field"])
+		}
+		if cloned["count"] != 42 {
+			t.Fatalf("Expected 'count' == 42, got %v", cloned["count"])
+		}
+	})
+
+	t.Run("TypedPtrMap with typed nil and non-nil pointers", func(t *testing.T) {
+		val := 100
+		orig := TypedPtrMap{
+			"nil_ptr":   nil,
+			"valid_ptr": &val,
+		}
+
+		clonedRaw := deepCopyValue(orig)
+		cloned, ok := clonedRaw.(TypedPtrMap)
+		if !ok {
+			t.Fatalf("Expected cloned value to be TypedPtrMap, got %T", clonedRaw)
+		}
+
+		ptrVal, exists := cloned["nil_ptr"]
+		if !exists {
+			t.Fatalf("CRITICAL: 'nil_ptr' key was dropped from TypedPtrMap during deepCopyValue!")
+		}
+		if ptrVal != nil {
+			t.Fatalf("Expected 'nil_ptr' to be nil, got %v", ptrVal)
+		}
+
+		if cloned["valid_ptr"] == nil || *cloned["valid_ptr"] != 100 {
+			t.Fatalf("Expected 'valid_ptr' to point to 100, got %v", cloned["valid_ptr"])
+		}
+		// Mutating clone must not alter original
+		*cloned["valid_ptr"] = 999
+		if *orig["valid_ptr"] != 100 {
+			t.Fatalf("Original map was mutated! Expected 100, got %d", *orig["valid_ptr"])
+		}
+	})
+
+	t.Run("Standard map[string]any with nil entries", func(t *testing.T) {
+		orig := map[string]any{
+			"null_entry": nil,
+			"nested": map[string]any{
+				"inner_null": nil,
+			},
+		}
+
+		clonedRaw := deepCopyValue(orig)
+		cloned, ok := clonedRaw.(map[string]any)
+		if !ok {
+			t.Fatalf("Expected map[string]any, got %T", clonedRaw)
+		}
+
+		if _, exists := cloned["null_entry"]; !exists {
+			t.Fatalf("'null_entry' was dropped from map[string]any")
+		}
+		nested, ok := cloned["nested"].(map[string]any)
+		if !ok {
+			t.Fatalf("Expected nested map[string]any")
+		}
+		if _, exists := nested["inner_null"]; !exists {
+			t.Fatalf("'inner_null' was dropped from nested map")
+		}
+	})
+}
+
+func TestChallenge_ProjectedDefaultBindings_ReferenceIDs(t *testing.T) {
+	scope := CallerScopeContext{
+		PrincipalID:       "tester",
+		TenantID:          "tenant-alpha",
+		AuthorizedTenants: []string{"tenant-alpha"},
+	}
+
+	contract := &ToolInputContract{
+		ToolID:      "tool-default-refs",
+		ToolVersion: "1.0.0",
+		TenantID:    "tenant-alpha",
+		Parameters: []InputParameterDefinition{
+			{
+				Name:           "opt_entity",
+				FunctionalType: FunctionalTypeEntityRef,
+				Required:       false,
+				DefaultValue: &EntityReference{
+					RefID:    "ent-default-101",
+					Kind:     "host",
+					TenantID: "tenant-alpha",
+				},
+			},
+			{
+				Name:           "opt_query",
+				FunctionalType: FunctionalTypeQueryAssetRef,
+				Required:       false,
+				DefaultValue: &QueryAssetReference{
+					AssetID:  "qa-default-202",
+					TenantID: "tenant-alpha",
+				},
+			},
+			{
+				Name:           "opt_secret",
+				FunctionalType: FunctionalTypeSecretRef,
+				Required:       false,
+				DefaultValue: &SecretReference{
+					RefID:    "sec-default-303",
+					Owner:    "Settings",
+					TenantID: "tenant-alpha",
+				},
+			},
+			{
+				Name:           "opt_slice",
+				FunctionalType: FunctionalTypeArray,
+				Required:       false,
+				DefaultValue:   []string{"alpha", "bravo"},
+			},
+		},
+	}
+
+	outcome := DeterministicValidateInputBindings(contract, []InputBinding{}, scope, "corr-default-refs")
+	if !outcome.Valid {
+		t.Fatalf("Expected valid outcome for omitted optional parameters with valid defaults, got issues: %+v", outcome.Issues)
+	}
+
+	if len(outcome.ValidatedBindings) != 4 {
+		t.Fatalf("Expected 4 ValidatedBindings, got %d", len(outcome.ValidatedBindings))
+	}
+
+	bindingMap := make(map[string]ValidatedBinding)
+	for _, vb := range outcome.ValidatedBindings {
+		bindingMap[vb.ParameterName] = vb
+	}
+
+	// 1. Verify EntityReference default projection
+	entBinding, ok := bindingMap["opt_entity"]
+	if !ok {
+		t.Fatalf("Missing opt_entity in ValidatedBindings")
+	}
+	if entBinding.RefID != "ent-default-101" {
+		t.Errorf("Expected opt_entity RefID 'ent-default-101', got %q", entBinding.RefID)
+	}
+	if entBinding.MaskedValue != "ent-default-101" {
+		t.Errorf("Expected opt_entity MaskedValue 'ent-default-101', got %v", entBinding.MaskedValue)
+	}
+
+	// 2. Verify QueryAssetReference default projection
+	qaBinding, ok := bindingMap["opt_query"]
+	if !ok {
+		t.Fatalf("Missing opt_query in ValidatedBindings")
+	}
+	if qaBinding.RefID != "qa-default-202" {
+		t.Errorf("Expected opt_query RefID 'qa-default-202', got %q", qaBinding.RefID)
+	}
+	if qaBinding.MaskedValue != "qa-default-202" {
+		t.Errorf("Expected opt_query MaskedValue 'qa-default-202', got %v", qaBinding.MaskedValue)
+	}
+
+	// 3. Verify SecretReference default projection
+	secBinding, ok := bindingMap["opt_secret"]
+	if !ok {
+		t.Fatalf("Missing opt_secret in ValidatedBindings")
+	}
+	if secBinding.RefID != "sec-default-303" {
+		t.Errorf("Expected opt_secret RefID 'sec-default-303', got %q", secBinding.RefID)
+	}
+	if secBinding.MaskedValue != "***" {
+		t.Errorf("Expected opt_secret MaskedValue '***', got %v", secBinding.MaskedValue)
+	}
+	if secBinding.Owner != "Settings" {
+		t.Errorf("Expected opt_secret Owner 'Settings', got %q", secBinding.Owner)
+	}
+	if !secBinding.IsMasked {
+		t.Errorf("Expected opt_secret IsMasked to be true")
+	}
+
+	// 4. Verify defensive copying of default slice literal
+	sliceBinding, ok := bindingMap["opt_slice"]
+	if !ok {
+		t.Fatalf("Missing opt_slice in ValidatedBindings")
+	}
+	copiedSlice, ok := sliceBinding.MaskedValue.([]string)
+	if !ok {
+		t.Fatalf("Expected MaskedValue to be []string, got %T", sliceBinding.MaskedValue)
+	}
+	copiedSlice[0] = "MUTATED"
+	origSlice := contract.Parameters[3].DefaultValue.([]string)
+	if origSlice[0] != "alpha" {
+		t.Fatalf("CRITICAL STORE DEFENSE FAILURE: Contract default slice was mutated via ValidatedBinding!")
+	}
+}
+
+

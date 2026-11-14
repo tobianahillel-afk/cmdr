@@ -238,31 +238,55 @@ func deepCopyValue(v any) any {
 
 	switch val := v.(type) {
 	case *int:
+		if val == nil {
+			return (*int)(nil)
+		}
 		cp := *val
 		return &cp
 	case *int64:
+		if val == nil {
+			return (*int64)(nil)
+		}
 		cp := *val
 		return &cp
 	case *float64:
+		if val == nil {
+			return (*float64)(nil)
+		}
 		cp := *val
 		return &cp
 	case *string:
+		if val == nil {
+			return (*string)(nil)
+		}
 		cp := *val
 		return &cp
 	case *bool:
+		if val == nil {
+			return (*bool)(nil)
+		}
 		cp := *val
 		return &cp
 	case *SecretReference:
+		if val == nil {
+			return (*SecretReference)(nil)
+		}
 		cp := *val
 		return &cp
 	case SecretReference:
 		return val
 	case *EntityReference:
+		if val == nil {
+			return (*EntityReference)(nil)
+		}
 		cp := *val
 		return &cp
 	case EntityReference:
 		return val
 	case *QueryAssetReference:
+		if val == nil {
+			return (*QueryAssetReference)(nil)
+		}
 		cp := *val
 		return &cp
 	case QueryAssetReference:
@@ -303,7 +327,7 @@ func deepCopyValue(v any) any {
 		switch rv.Kind() {
 		case reflect.Pointer:
 			if rv.IsNil() {
-				return nil
+				return reflect.Zero(rv.Type()).Interface()
 			}
 			newPtr := reflect.New(rv.Elem().Type())
 			copiedElem := deepCopyValue(rv.Elem().Interface())
@@ -312,6 +336,9 @@ func deepCopyValue(v any) any {
 			}
 			return newPtr.Interface()
 		case reflect.Slice:
+			if rv.IsNil() {
+				return nil
+			}
 			elemType := rv.Type().Elem()
 			newSlice := reflect.MakeSlice(rv.Type(), rv.Len(), rv.Cap())
 			for i := 0; i < rv.Len(); i++ {
@@ -323,11 +350,17 @@ func deepCopyValue(v any) any {
 			}
 			return newSlice.Interface()
 		case reflect.Map:
+			if rv.IsNil() {
+				return nil
+			}
+			elemType := rv.Type().Elem()
 			newMap := reflect.MakeMapWithSize(rv.Type(), rv.Len())
 			for _, key := range rv.MapKeys() {
 				mapVal := rv.MapIndex(key).Interface()
 				copiedVal := deepCopyValue(mapVal)
-				if copiedVal != nil {
+				if copiedVal == nil {
+					newMap.SetMapIndex(key, reflect.Zero(elemType))
+				} else {
 					newMap.SetMapIndex(key, reflect.ValueOf(copiedVal))
 				}
 			}
@@ -739,21 +772,36 @@ func DeterministicValidateInputBindings(
 
 				defVal := param.DefaultValue
 				isMasked := param.IsSensitive || normType == FunctionalTypeSecretRef
+				var refID string
+				var owner string
 				if isMasked {
 					maskedSet[paramName] = true
 					defVal = "***"
+					if defaultBinding.SecretRef != nil {
+						refID = defaultBinding.SecretRef.RefID
+						owner = "Settings"
+					} else if normType == FunctionalTypeSecretRef {
+						owner = "Settings"
+					}
+				} else if defaultBinding.EntityRef != nil {
+					refID = defaultBinding.EntityRef.RefID
+					defVal = defaultBinding.EntityRef.RefID
+				} else if defaultBinding.QueryAssetRef != nil {
+					refID = defaultBinding.QueryAssetRef.AssetID
+					defVal = defaultBinding.QueryAssetRef.AssetID
+				} else {
+					defVal = deepCopyValue(param.DefaultValue)
 				}
 				vb := ValidatedBinding{
 					ParameterName:   paramName,
 					FunctionalType:  normType,
 					SourceType:      defaultBinding.SourceType,
 					MaskedValue:     defVal,
+					RefID:           refID,
+					Owner:           owner,
 					TenantID:        trimmedCallerTenant,
 					ValidationState: paramState,
 					IsMasked:        isMasked,
-				}
-				if normType == FunctionalTypeSecretRef {
-					vb.Owner = "Settings"
 				}
 				outcome.ValidatedBindings = append(outcome.ValidatedBindings, vb)
 			}
