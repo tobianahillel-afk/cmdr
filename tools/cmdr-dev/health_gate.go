@@ -133,15 +133,22 @@ func evaluateGitDimension(root string) (HealthDimensionResult, string) {
 		return res, headCommit
 	}
 
-	cmdDiff := exec.Command("git", "-C", root, "diff", "82e630fce3a7f6236e03709116eca6dd0a1acd40", "--", "cmdr-product-spec") // #nosec G204,G702 -- invariant diff check
-	diffBytes, err := cmdDiff.Output()
-	if err != nil {
+	const baselineCommit = "82e630fce3a7f6236e03709116eca6dd0a1acd40"
+	if gitCommitExists(root, baselineCommit) || ensureGitCommit(root, baselineCommit) == nil {
+		cmdDiff := exec.Command("git", "-C", root, "diff", baselineCommit, "--", "cmdr-product-spec") // #nosec G204,G702 -- invariant diff check
+		diffBytes, err := cmdDiff.Output()
+		if err != nil {
+			res.Status = "UNVERIFIED"
+			res.Errors = append(res.Errors, fmt.Sprintf("git diff product spec baseline failed: %v", err))
+			return res, headCommit
+		}
+		if len(bytes.TrimSpace(diffBytes)) > 0 {
+			res.Errors = append(res.Errors, "cmdr-product-spec has non-zero diff vs baseline commit 82e630fce3a7f6236e03709116eca6dd0a1acd40")
+			return res, headCommit
+		}
+	} else {
 		res.Status = "UNVERIFIED"
-		res.Errors = append(res.Errors, fmt.Sprintf("git diff product spec baseline failed: %v", err))
-		return res, headCommit
-	}
-	if len(bytes.TrimSpace(diffBytes)) > 0 {
-		res.Errors = append(res.Errors, "cmdr-product-spec has non-zero diff vs baseline commit 82e630fce3a7f6236e03709116eca6dd0a1acd40")
+		res.Errors = append(res.Errors, "product spec baseline commit 82e630fce3a7f6236e03709116eca6dd0a1acd40 not available in git history")
 		return res, headCommit
 	}
 
@@ -257,30 +264,30 @@ func runMainlineHealthGate(root string, state CurrentState, graph WorkGraph, sta
 	opDim := evaluateOperationalQualityDimension(root, graph, stateErr)
 	report.Dimensions["operational_quality"] = opDim
 
+	hasFail := false
 	hasUnverified := false
-	allPassed := true
 
 	for _, dim := range report.Dimensions {
+		if dim.Status == "FAIL" || !dim.Passed && dim.Status != "UNVERIFIED" {
+			hasFail = true
+		}
 		if dim.Status == "UNVERIFIED" {
 			hasUnverified = true
 		}
-		if !dim.Passed {
-			allPassed = false
-		}
 	}
 
-	if allPassed {
-		report.Status = StatusMainHealthy
-		report.ExitCode = ExitCodeMainHealthy
-		report.Summary = "Mainline health gate PASSED across all 5 dimensions (Code, Security, Git, Traceability, Operational Quality)."
+	if hasFail {
+		report.Status = StatusMainUnhealthy
+		report.ExitCode = ExitCodeMainUnhealthy
+		report.Summary = "Mainline health gate FAILED; one or more required health dimensions failed verification."
 	} else if hasUnverified {
 		report.Status = StatusMainUnverified
 		report.ExitCode = ExitCodeMainUnverified
 		report.Summary = "Mainline health gate UNVERIFIED due to unresolved environmental or diagnostic conditions."
 	} else {
-		report.Status = StatusMainUnhealthy
-		report.ExitCode = ExitCodeMainUnhealthy
-		report.Summary = "Mainline health gate FAILED; one or more required health dimensions failed verification."
+		report.Status = StatusMainHealthy
+		report.ExitCode = ExitCodeMainHealthy
+		report.Summary = "Mainline health gate PASSED across all 5 dimensions (Code, Security, Git, Traceability, Operational Quality)."
 	}
 
 	return report, report.ExitCode
