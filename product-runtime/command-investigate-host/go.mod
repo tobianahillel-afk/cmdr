@@ -1,6 +1,6 @@
 module github.com/tobianahillel-afk/cmdr/product-runtime/command-investigate-host
 
-go 1.26.10
+go 1.26.11
 
 require (
 	github.com/tobianahillel-afk/cmdr/product-runtime/investigation-timeline v0.0.0
