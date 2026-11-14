@@ -2,10 +2,10 @@
 
 **Projet :** `tobianahillel-afk/cmdr`  
 **Milestone :** Milestones 3, 4, 5, 6 (R4 - Real Historical PR & Remote Branch Reconciliation)  
-**Branche Maîtresse d'Intégration Unique :** `main` (commit canonique `e4666f586854e02766568ffd2cfe29ef32696b49`, incorporant `67d40f78`, `1d194d34` et `e4666f58`)  
-**Auteur :** `worker_o13_delivery_governance`  
-**Date d'Attestation :** 2026-11-13  
-**Statut Forensique :** Certifié sans perte, 100% vérifiable au SHA exact, 21 tags distants vérifiés, zéro dette résiduelle (`STILL_REQUIRED: 0`, `OPEN_PRS_GITHUB: 0`)  
+**Branche Maîtresse d'Intégration Unique :** `main` (commit canonique `2e77d942432b3eecb41a1224a9a8e0fe4688ef99`, incorporant `7a8cad17`, `64db49cb` et `2e77d942`)  
+**Auteur :** `worker_o14_delivery_governance`  
+**Date d'Attestation :** 2026-11-14  
+**Statut Forensique :** Certifié sans perte, 100% vérifiable au SHA exact, 27 tags distants vérifiés (21 tags de consolidation + 6 tags unmerged scellés), 171 branches distantes élaguées (`STILL_REQUIRED: 0`, `OPEN_PRS_GITHUB: 0`, `REMOTE_BRANCHES_ORIGIN: 1`)  
 
 ---
 
@@ -72,6 +72,12 @@ Avant d'autoriser la suppression des branches distantes sur `origin`, la totalit
 | `backup/milestones/m5-merge-queue-4807c19` | `4807c19eed5a74ec7f3ed265d623e525dfc251cc` | `m5-merge-queue-4807c19` | Milestone 5 Command Work Queue merge commit |
 | `backup/milestones/m5-pre-audit-702f6ad` | `702f6ad1d16daa7461f1a75fc3c9e20ed15011ab` | `m5-pre-audit-702f6ad` | Milestone 5 pre-external security audit baseline |
 | `backup/milestones/m5-pre-security-fix-97d7cca` | `97d7cca62c8ad5604348c58da5d1ced58fb4a0da` | `m5-pre-security-fix-97d7cca` | Milestone 5 Studio Catalog pre-security-fix baseline |
+| `backup/unmerged/feature/e10-inv-120b-verified-local-case-boot` | `65152ba0a11da0f4074b483208a676ccbc96e9a3` | `feature/e10-inv-120b-verified-local-case-boot` | Sealed historical unmerged feature branch |
+| `backup/unmerged/feature/e10-inv-450a-simplify-authenticated-forensic-receipts` | `38eb556a7dde51870864da902119bdcf92a44fb2` | `feature/e10-inv-450a-simplify-authenticated-forensic-receipts` | Sealed historical unmerged forensic receipts branch |
+| `backup/unmerged/integration/e10-cmd-106g-case-timeline-html` | `74a832e5cb21fb4ffebfe05e6c862badc8699b8d` | `integration/e10-cmd-106g-case-timeline-html` | Sealed historical unmerged case timeline HTML branch |
+| `backup/unmerged/integration/e10-inv-110m-source-html-browser` | `084829adb9de3c1b9d489c28835f17484f17b050` | `integration/e10-inv-110m-source-html-browser` | Sealed historical unmerged source HTML browser branch |
+| `backup/unmerged/integration/e10-inv-110q-wazuh-command-union` | `eac42fa48f23eaa4421dcae92262da4bd58117a1` | `integration/e10-inv-110q-wazuh-command-union` | Sealed historical unmerged Wazuh command union branch |
+| `backup/unmerged/security/e10-inv-110f-case-discovery-atomic-acl` | `c9fb5b11a2b71cf7854542c80aa92a2bf440b2b0` | `security/e10-inv-110f-case-discovery-atomic-acl` | Sealed historical unmerged case discovery atomic ACL branch |
 
 ---
 
@@ -304,6 +310,10 @@ Avant d'autoriser la suppression des branches distantes sur `origin`, la totalit
 | **#224** | feat(command): CAP-CMD-101 read-only Incident/Task queue with six authorized system views | `feat/e10-cmd-101a-readonly-queue` | `e22d4d6d84` | `CLOSED_INCORPORATED` | Command Work Queue runtime and Codex P1/P2 fixes (Windows timer granularity and deep performance policy decoupling) merged into PR #222 via commit 4807c19e. |
 | **#225** | feat(studio): implement CAP-STD-004 tool input and validation contract | `feat/cap-std-004-tool-input-validation` | `e4666f5868` | `CLOSED_INCORPORATED` | CAP-STD-004 tool input validation contract, opaque secret references, fail-closed required parameters, verified with 22 test suites and merged into main at commit e4666f58. |
 | **#226** | fix(ci): repair engineering-kernel-full paths, 0-ready handling, and pr triggers | `fix/ci-engineering-kernel-repair` | `1d194d3496` | `CLOSED_INCORPORATED` | Repaired CI workflow engineering-kernel-full paths, 0-READY quiescent handling, and PR triggers targeting main; merged into main at commit 1d194d34. |
+| **#227** | chore(reconciliation): align prs.json and PR_CLOSURE_REGISTER.md with GitHub closure state and backup tags | `chore/reconciliation-registers-update` | `e76b29ade5` | `CLOSED_INCORPORATED` | Aligns reconciliation registers and closure logs with GitHub remote state, records 184 PR dispositions and 21 cryptographic backup tags; merged into main at commit e76b29ad. |
+| **#228** | fix(studio): CAP-STD-004 Codex Security Remediation | `fix/cap-std-004-codex-security-remediation` | `7a8cad1769` | `CLOSED_INCORPORATED` | Remediates 4 Codex review findings on CAP-STD-004: secret sanitization in DraftBindings, redaction in error messages, strict default value validation, and defensive deep copies of contract parameters; merged into main at commit 7a8cad17. |
+| **#229** | fix(security): upgrade Go toolchain to 1.26.11 resolving GO-2026-6859 | `fix/sec-upgrade-go-1-26-11` | `64db49cb05` | `CLOSED_INCORPORATED` | Upgrades Go toolchain to 1.26.11 across all 13 runtime go.mod files and tools/cmdr-dev/security_static.go, resolving GO-2026-6859 vulnerability with zero reachable known findings; merged into main at commit 64db49cb. |
+| **#230** | feat(governance): MAINLINE_HEALTH_GATE & Mainline Protection Permanent Deployment | `feat/m3-mainline-health-gate-protection` | `2e77d94243` | `CLOSED_INCORPORATED` | Implements cmdr-dev mainline-health-gate subcommand covering 5 canonical dimensions, configures strict branch protection on main, and enables universal CI trigger in engineering-kernel.yml; merged into main at commit 2e77d942. |
 
 ---
 
@@ -399,14 +409,14 @@ git push origin <commit_sha>:refs/heads/<branch_name>
 
 Le présent registre consacre la clôture formelle et traçable de la totalité de la dette technique Git accumulée sur le dépôt `cmdr`. En accord avec le mandat des Milestones 3, 4, 5 et 6, **la branche `main` est désormais l'unique source de vérité et la seule cible de développement et d'intégration**.
 
-- **Nombre total de PRs réconciliées :** 225 / 225 (100.0%)
-- **CLOSED_INCORPORATED / MERGED :** 48 (21.3%)
-- **CLOSED_SUPERSEDED :** 176 (78.2%)
+- **Nombre total de PRs réconciliées :** 229 / 229 (100.0%, PR #1 à #230, #180 non assigné)
+- **CLOSED_INCORPORATED / MERGED :** 52 (22.7%)
+- **CLOSED_SUPERSEDED :** 176 (76.9%)
 - **CLOSED_REJECTED :** 1 (0.4%)
 - **STILL_REQUIRED restant :** 0 (0.0%)
 - **PRs ouvertes sur GitHub :** 0
-- **Tags de sauvegarde actifs sur origin :** 21 (100% vérifiés via `git ls-remote --tags origin "backup/*"`)
-- **Branches distantes obsolètes élaguées :** 69 supprimées sur GitHub origin, 171 branches non scellées préservées (politique zéro perte de données)
-- **Branches actives préservées :** `main`, `feat/e10-cmd-101a-readonly-queue`
-- **État d'intégration de `main` :** Conforme, stable, outillé (commit canonique `e4666f586854e02766568ffd2cfe29ef32696b49`, 1793 commits historiques préservés, suite CI 100% verte) et prêt pour le cycle autonome permanent sous la barrière `MAINLINE_HEALTH_GATE`.
+- **Tags de sauvegarde actifs sur origin :** 27 (21 tags de consolidation + 6 tags unmerged scellés, 100% vérifiés via `git ls-remote --tags origin "backup/*"`)
+- **Branches distantes obsolètes élaguées :** 171 branches historiques supprimées sur GitHub origin (après scellement cryptographique des 6 unmerged)
+- **Branches distantes actives sur origin :** 1 (`origin/main`)
+- **État d'intégration de `main` :** Conforme, stable, protégé (commit canonique `2e77d942432b3eecb41a1224a9a8e0fe4688ef99`, 1797 commits historiques préservés, suite CI 100% verte, branch protection active) et sous le contrôle permanent du `MAINLINE_HEALTH_GATE`.
 

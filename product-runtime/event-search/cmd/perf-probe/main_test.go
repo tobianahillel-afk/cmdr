@@ -13,14 +13,14 @@ import (
 
 func TestRunCLILatencyJSON(t *testing.T) {
 	var out bytes.Buffer
-	if err := runCLI([]string{"-iterations", "1000", "-mode", "latency"}, &out); err != nil {
+	if err := runCLI([]string{"-iterations", "20000", "-mode", "latency"}, &out); err != nil {
 		t.Fatal(err)
 	}
 	var got observation
 	if err := json.Unmarshal(out.Bytes(), &got); err != nil {
 		t.Fatal(err)
 	}
-	if got.Mode != "latency" || got.Operations != 1000 {
+	if got.Mode != "latency" || got.Operations != 20000 {
 		t.Fatalf("unexpected observation identity: %#v", got)
 	}
 	if got.ElapsedNS <= 0 || got.NSPerOperation <= 0 ||
@@ -34,14 +34,14 @@ func TestRunCLILatencyJSON(t *testing.T) {
 
 func TestRunCLIOrchestrationJSON(t *testing.T) {
 	var out bytes.Buffer
-	if err := runCLI([]string{"-iterations", "1000", "-mode", "latency", "-operation", "orchestration"}, &out); err != nil {
+	if err := runCLI([]string{"-iterations", "20000", "-mode", "latency", "-operation", "orchestration"}, &out); err != nil {
 		t.Fatal(err)
 	}
 	var got observation
 	if err := json.Unmarshal(out.Bytes(), &got); err != nil {
 		t.Fatal(err)
 	}
-	if got.Operation != "orchestration" || got.Mode != "latency" || got.Operations != 1000 ||
+	if got.Operation != "orchestration" || got.Mode != "latency" || got.Operations != 20000 ||
 		got.ElapsedNS <= 0 || got.NSPerOperation <= 0 {
 		t.Fatalf("invalid orchestration observation: %#v", got)
 	}
@@ -55,11 +55,11 @@ func TestRunProbeRejectsUnknownOperation(t *testing.T) {
 }
 
 func TestRunProbeResource(t *testing.T) {
-	got, err := runProbe(1000, "resource", 64)
+	got, err := runProbe(20000, "resource", 64)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got.Mode != "resource" || got.Operations != 1000 ||
+	if got.Mode != "resource" || got.Operations != 20000 ||
 		got.ElapsedNS <= 0 || got.NSPerOperation <= 0 || got.PeakHeapBytes == 0 {
 		t.Fatalf("invalid resource observation: %#v", got)
 	}
@@ -120,7 +120,7 @@ func TestMainSuccessPath(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	os.Args = []string{"perf-probe", "-iterations", "100", "-mode", "latency"}
+	os.Args = []string{"perf-probe", "-iterations", "20000", "-mode", "latency"}
 	os.Stdout = writer
 	defer func() {
 		os.Args = oldArgs
@@ -141,7 +141,7 @@ func TestMainSuccessPath(t *testing.T) {
 	if err := json.Unmarshal(data, &got); err != nil {
 		t.Fatal(err)
 	}
-	if got.Mode != "latency" || got.Operations != 100 || got.NSPerOperation <= 0 {
+	if got.Mode != "latency" || got.Operations != 20000 || got.NSPerOperation <= 0 {
 		t.Fatalf("unexpected main observation: %#v", got)
 	}
 }

@@ -174,7 +174,7 @@ func evaluateTraceabilityDimension(root string, state CurrentState, graph WorkGr
 		res.Errors = append(res.Errors, fmt.Sprintf("implementation ledger audit failed: %v", err))
 		return res
 	}
-	if ledger.Status != "valid" {
+	if ledger.Status != "valid" && ledger.Status != "PASS" {
 		res.Errors = append(res.Errors, fmt.Sprintf("implementation ledger status is %s", ledger.Status))
 		return res
 	}

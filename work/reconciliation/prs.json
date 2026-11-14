@@ -4492,5 +4492,64 @@
       ".github/workflows/engineering-kernel-full.yml"
     ],
     "key_contributions": "Repository-conforming CI temp directories, strict status checks, deterministic PR ref checkout, branch protection enforcement."
+  },
+  {
+    "pr_number": 227,
+    "title": "chore(reconciliation): align prs.json and PR_CLOSURE_REGISTER.md with GitHub closure state and backup tags",
+    "head_branch": "chore/reconciliation-registers-update",
+    "base_branch": "main",
+    "status": "MERGED",
+    "disposition": "INCORPORATED_IN_MAIN",
+    "disposition_rationale": "Aligns reconciliation registers and closure logs with GitHub remote state, records 184 PR dispositions and 21 cryptographic backup tags; squash-merged at commit e76b29ade535ec8b9e6dc34fa7935759efc99ceb.",
+    "files_introduced": [
+      "work/reconciliation/prs.json",
+      "work/reconciliation/PR_CLOSURE_REGISTER.md"
+    ],
+    "key_contributions": "Complete historical PR audit, cryptographic verification of 21 backup tags, and closure synchronization."
+  },
+  {
+    "pr_number": 228,
+    "title": "fix(studio): CAP-STD-004 Codex Security Remediation",
+    "head_branch": "fix/cap-std-004-codex-security-remediation",
+    "base_branch": "main",
+    "status": "MERGED",
+    "disposition": "INCORPORATED_IN_MAIN",
+    "disposition_rationale": "Remediates 4 Codex review findings on CAP-STD-004: secret sanitization in DraftBindings, redaction in error messages, strict default value validation, and defensive deep copies of contract parameters; squash-merged at commit 7a8cad1769ef86e01f0385901bfdbeae62b163ae.",
+    "files_introduced": [
+      "product-runtime/studio-catalog/tool_input.go",
+      "product-runtime/studio-catalog/tool_input_adversarial_challenge_test.go",
+      "product-runtime/studio-catalog/tool_input_test.go"
+    ],
+    "key_contributions": "Zero secrets leakage in draft bindings, error redaction, parameter defensive copies, deep validation of defaults."
+  },
+  {
+    "pr_number": 229,
+    "title": "fix(security): upgrade Go toolchain to 1.26.11 resolving GO-2026-6859",
+    "head_branch": "fix/sec-upgrade-go-1-26-11",
+    "base_branch": "main",
+    "status": "MERGED",
+    "disposition": "INCORPORATED_IN_MAIN",
+    "disposition_rationale": "Upgrades Go toolchain to 1.26.11 across all 13 runtime go.mod files and tools/cmdr-dev/security_static.go, resolving GO-2026-6859 vulnerability with zero reachable known findings; squash-merged at commit 64db49cb05d784d8a0c12633b150c04f2d59a5f6.",
+    "files_introduced": [
+      "product-runtime/*/go.mod",
+      "tools/cmdr-dev/security_static.go"
+    ],
+    "key_contributions": "Elimination of GO-2026-6859 vulnerability, Go toolchain upgrade to 1.26.11 across all modules."
+  },
+  {
+    "pr_number": 230,
+    "title": "feat(governance): MAINLINE_HEALTH_GATE & Mainline Protection Permanent Deployment",
+    "head_branch": "feat/m3-mainline-health-gate-protection",
+    "base_branch": "main",
+    "status": "MERGED",
+    "disposition": "INCORPORATED_IN_MAIN",
+    "disposition_rationale": "Implements cmdr-dev mainline-health-gate subcommand covering 5 canonical dimensions, configures strict branch protection on main, and enables universal CI trigger in engineering-kernel.yml; squash-merged at commit 2e77d942432b3eecb41a1224a9a8e0fe4688ef99.",
+    "files_introduced": [
+      ".github/workflows/engineering-kernel.yml",
+      "tools/cmdr-dev/health_gate.go",
+      "tools/cmdr-dev/health_gate_test.go",
+      "tools/cmdr-dev/main.go"
+    ],
+    "key_contributions": "Permanent mainline health gate CLI, multi-dimensional repository evaluation, universal PR CI triggers, branch protection enforcement."
   }
 ]

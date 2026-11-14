@@ -7,7 +7,8 @@
   "goal": "Implement and verify canonical Studio Tool definition, functional capability contract, deterministic contract validation, runtime availability decoupling, and execution blocking under CAP-STD-003.",
   "product_refs": {
     "capabilities": [
-      "CAP-STD-003"
+      "CAP-STD-003",
+      "CAP-STD-004"
     ],
     "requirements": [
       "REQ-PROD-006",
