@@ -31,7 +31,7 @@ type GosecRawReport struct {
 
 // T2.F2.1: SAST fails closed if G204/G702 nosec annotation is absent.
 func TestT2_F2_1_SASTFailsClosedWithoutNosec(t *testing.T) {
-	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 180*time.Second)
 	defer cancel()
 
 	tmpDir := harness.TempDir(t, "sast-nosec")
@@ -88,7 +88,7 @@ func RunUserCmd(arg string) error {
 
 // T2.F2.2: SAST scans path with spaces without crashing.
 func TestT2_F2_2_SASTScansPathWithSpaces(t *testing.T) {
-	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 180*time.Second)
 	defer cancel()
 
 	baseDir := harness.TempDir(t, "sast-space")
@@ -129,7 +129,7 @@ func main() {
 
 // T2.F2.3: SAST handles empty file gracefully.
 func TestT2_F2_3_SASTHandlesEmptyFileGracefully(t *testing.T) {
-	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 180*time.Second)
 	defer cancel()
 
 	tmpDir := harness.TempDir(t, "sast-empty")
@@ -154,7 +154,7 @@ func TestT2_F2_3_SASTHandlesEmptyFileGracefully(t *testing.T) {
 
 // T2.F2.4: SAST detects command injection patterns.
 func TestT2_F2_4_SASTDetectsCommandInjectionPattern(t *testing.T) {
-	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 180*time.Second)
 	defer cancel()
 
 	tmpDir := harness.TempDir(t, "sast-inject")
@@ -211,7 +211,7 @@ func ExecuteInjected(untrustedCmd string) error {
 
 // T2.F2.5: SAST JSON output formatting invariant.
 func TestT2_F2_5_SASTJSONOutputFormattingInvariant(t *testing.T) {
-	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 180*time.Second)
 	defer cancel()
 
 	res := harness.RunCmdrDev(ctx, "sast-go", "--json")

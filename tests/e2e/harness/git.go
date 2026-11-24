@@ -3,6 +3,7 @@ package harness
 import (
 	"context"
 	"fmt"
+	"os"
 	"strings"
 )
 
@@ -91,4 +92,32 @@ func GitDiffPath(ctx context.Context, rev1, rev2, relPath string) (string, error
 		return "", fmt.Errorf("git diff failed (code %d): %s", res.ExitCode, res.Stderr)
 	}
 	return strings.TrimSpace(res.Stdout), nil
+}
+
+// GitCurrentBranch returns the current checked-out branch name.
+func GitCurrentBranch(ctx context.Context) (string, error) {
+	root, err := RepoRoot()
+	if err != nil {
+		return "", err
+	}
+	res := RunCmd(ctx, root, nil, "git", "rev-parse", "--abbrev-ref", "HEAD")
+	if res.ExitCode != 0 {
+		return "", fmt.Errorf("git rev-parse --abbrev-ref HEAD failed (code %d): %s", res.ExitCode, res.Stderr)
+	}
+	return strings.TrimSpace(res.Stdout), nil
+}
+
+// IsMainBranch reports whether test execution is currently running against the main branch.
+func IsMainBranch(ctx context.Context) bool {
+	if os.Getenv("GITHUB_EVENT_NAME") == "pull_request" {
+		return false
+	}
+	if ref := os.Getenv("GITHUB_REF_NAME"); ref != "" && ref != "main" {
+		return false
+	}
+	branch, err := GitCurrentBranch(ctx)
+	if err == nil && branch != "" && branch != "main" {
+		return false
+	}
+	return true
 }

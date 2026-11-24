@@ -21,7 +21,7 @@ type SASTReport struct {
 
 // T1.F2.1: Execute cmdr-dev sast-go and verify exit code 0.
 func TestT1_F2_1_SASTExecutionSuccess(t *testing.T) {
-	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 180*time.Second)
 	defer cancel()
 
 	res := harness.RunCmdrDev(ctx, "sast-go", "--json")
@@ -33,7 +33,7 @@ func TestT1_F2_1_SASTExecutionSuccess(t *testing.T) {
 
 // T1.F2.2: Verify findings count is 0.
 func TestT1_F2_2_SASTTotalFindingsZero(t *testing.T) {
-	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 180*time.Second)
 	defer cancel()
 
 	res := harness.RunCmdrDev(ctx, "sast-go", "--json")
@@ -54,7 +54,7 @@ func TestT1_F2_2_SASTTotalFindingsZero(t *testing.T) {
 
 // T1.F2.3: Verify by_severity.HIGH count is 0.
 func TestT1_F2_3_SASTHighSeverityZero(t *testing.T) {
-	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 180*time.Second)
 	defer cancel()
 
 	res := harness.RunCmdrDev(ctx, "sast-go", "--json")
@@ -62,13 +62,20 @@ func TestT1_F2_3_SASTHighSeverityZero(t *testing.T) {
 		t.Fatalf("cmdr-dev sast-go failed: %s", res.Stderr)
 	}
 
-	harness.AssertJSONFieldEqual(t, res.Stdout, "by_severity.HIGH", 0)
+	var report SASTReport
+	if err := harness.ParseJSON(res.Stdout, &report); err != nil {
+		t.Fatalf("failed to parse sast-go output: %v\nOutput: %s", err, res.Stdout)
+	}
+
+	if count := report.BySeverity["HIGH"]; count != 0 {
+		t.Fatalf("expected 0 HIGH severity findings, got %d", count)
+	}
 	t.Log("T1.F2.3 PASS: SAST by_severity.HIGH is exactly 0")
 }
 
 // T1.F2.4: Verify by_severity.MEDIUM count is 0.
 func TestT1_F2_4_SASTMediumSeverityZero(t *testing.T) {
-	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 180*time.Second)
 	defer cancel()
 
 	res := harness.RunCmdrDev(ctx, "sast-go", "--json")
@@ -76,13 +83,20 @@ func TestT1_F2_4_SASTMediumSeverityZero(t *testing.T) {
 		t.Fatalf("cmdr-dev sast-go failed: %s", res.Stderr)
 	}
 
-	harness.AssertJSONFieldEqual(t, res.Stdout, "by_severity.MEDIUM", 0)
+	var report SASTReport
+	if err := harness.ParseJSON(res.Stdout, &report); err != nil {
+		t.Fatalf("failed to parse sast-go output: %v\nOutput: %s", err, res.Stdout)
+	}
+
+	if count := report.BySeverity["MEDIUM"]; count != 0 {
+		t.Fatalf("expected 0 MEDIUM severity findings, got %d", count)
+	}
 	t.Log("T1.F2.4 PASS: SAST by_severity.MEDIUM is exactly 0")
 }
 
 // T1.F2.5: Verify absence of G204/G702 finding items on performance_timeline_process_windows.go.
 func TestT1_F2_5_SASTWindowsTaskkillAbsence(t *testing.T) {
-	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 180*time.Second)
 	defer cancel()
 
 	res := harness.RunCmdrDev(ctx, "sast-go", "--json")

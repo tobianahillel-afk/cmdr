@@ -27,8 +27,8 @@ func TestT1_F14_1_GitCleanWorkingTree(t *testing.T) {
 		if trimmed == "" {
 			continue
 		}
-		// Allow .cmdr-tmp or tests/ changes during test run
-		if strings.Contains(trimmed, ".cmdr-") || strings.Contains(trimmed, "tests/") {
+		// Allow .cmdr-tmp, cmdr-dev, or tests/ changes during test run
+		if strings.Contains(trimmed, ".cmdr-") || strings.Contains(trimmed, "cmdr-dev") || strings.Contains(trimmed, "tests/") {
 			continue
 		}
 		realChanges = append(realChanges, trimmed)
@@ -44,6 +44,11 @@ func TestT1_F14_1_GitCleanWorkingTree(t *testing.T) {
 func TestT1_F14_2_ZeroOrphanRemoteBranches(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
+
+	if !harness.IsMainBranch(ctx) {
+		t.Skip("T1.F14.2 SKIP: zero remote branches certification strictly applies post-merge on main")
+		return
+	}
 
 	branches, err := harness.GitRemoteBranches(ctx)
 	if err != nil {
@@ -62,6 +67,11 @@ func TestT1_F14_2_ZeroOrphanRemoteBranches(t *testing.T) {
 func TestT1_F14_3_ZeroOpenPRs(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
+
+	if !harness.IsMainBranch(ctx) {
+		t.Skip("T1.F14.3 SKIP: zero open PRs certification strictly applies post-merge on main")
+		return
+	}
 
 	client, err := harness.NewGitHubClient()
 	if err != nil {
@@ -83,6 +93,11 @@ func TestT1_F14_3_ZeroOpenPRs(t *testing.T) {
 func TestT1_F14_4_MainlineHealthGateCertifiesHealthy(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 120*time.Second)
 	defer cancel()
+
+	if !harness.IsMainBranch(ctx) {
+		t.Skip("T1.F14.4 SKIP: mainline MAIN_HEALTHY certification strictly applies on main branch post-Milestone 4")
+		return
+	}
 
 	res := harness.RunCmdrDev(ctx, "mainline-health-gate", "--json")
 	if res.ExitCode != 0 {

@@ -5,3 +5,5 @@
 .cmdr-*
 *.test.exe
 *.test
+cmdr-dev
+cmdr-dev.exe

@@ -136,7 +136,7 @@ func TestT1_F12_5_WaveSelectorRespectsReadiness(t *testing.T) {
 
 	res := harness.RunCmdrDev(ctx, "implementation-readiness", "--json")
 	if res.ExitCode == 0 {
-		harness.AssertJSONFieldExists(t, res.Stdout, "readiness_kind")
+		harness.AssertJSONFieldExists(t, res.Stdout, "program_kind")
 	}
 	t.Log("T1.F12.5 PASS: wave selector enforces readiness checks before selection")
 }

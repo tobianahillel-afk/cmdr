@@ -185,7 +185,7 @@ func TestT2_F9_3_ManifestValidationFailsOnUnregisteredRootPath(t *testing.T) {
 	defer cancel()
 
 	mockRoot := setupMockGraphRepo(t)
-	manifestPath := filepath.Join(mockRoot, "work", "lots", "E10-INV-001D", "manifest.json")
+	manifestPath := filepath.Join(mockRoot, "work", "lots", "E10-INV-002A", "manifest.json")
 
 	data, err := os.ReadFile(manifestPath)
 	if err != nil {
@@ -264,12 +264,12 @@ func TestT2_F9_5_ManifestValidationFailsOnSchemaTypeMismatch(t *testing.T) {
 	defer cancel()
 
 	mockRoot := setupMockGraphRepo(t)
-	manifestPath := filepath.Join(mockRoot, "work", "lots", "E10-INV-001D", "manifest.json")
+	manifestPath := filepath.Join(mockRoot, "work", "lots", "E10-INV-002A", "manifest.json")
 
 	// Mutate schema_version to string instead of int, or invalid value
 	corrupted := []byte(`{
   "schema_version": "two",
-  "id": "E10-INV-001D"
+  "id": "E10-INV-002A"
 }`)
 	if err := os.WriteFile(manifestPath, corrupted, 0644); err != nil {
 		t.Fatalf("failed to write corrupted manifest: %v", err)

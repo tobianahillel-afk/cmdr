@@ -28,6 +28,7 @@ func setupMockLedgerRepo(t *testing.T) string {
 		"work/graph.json",
 		"engineering/implementation/ledger.json",
 		"engineering/architecture/boundaries.json",
+		"engineering/coverage/source-requirements-baseline.json",
 	}
 
 	for _, rel := range copyFiles {
@@ -67,9 +68,31 @@ func setupMockLedgerRepo(t *testing.T) string {
 		return nil
 	})
 
-	// Copy canonical product spec canonical path for obligations calculation
-	specDir := filepath.Join(mockRoot, "cmdr-product-spec")
-	_ = os.MkdirAll(specDir, 0755)
+	// Copy 00-governance registers needed for screen and capability registers
+	govSrc := filepath.Join(root, "cmdr-product-spec", "00-governance")
+	govDst := filepath.Join(mockRoot, "cmdr-product-spec", "00-governance")
+	_ = filepath.Walk(govSrc, func(path string, info os.FileInfo, err error) error {
+		if err != nil || info == nil {
+			return nil
+		}
+		rel, rErr := filepath.Rel(govSrc, path)
+		if rErr != nil {
+			return nil
+		}
+		target := filepath.Join(govDst, rel)
+		if info.IsDir() {
+			return os.MkdirAll(target, 0755)
+		}
+		data, rErr := os.ReadFile(path)
+		if rErr == nil {
+			_ = os.WriteFile(target, data, 0644)
+		}
+		return nil
+	})
+	specReadme := filepath.Join(root, "cmdr-product-spec", "README.md")
+	if data, err := os.ReadFile(specReadme); err == nil {
+		_ = os.WriteFile(filepath.Join(mockRoot, "cmdr-product-spec", "README.md"), data, 0644)
+	}
 
 	return mockRoot
 }
@@ -80,7 +103,7 @@ func TestT2_F6_1_LedgerAuditFailsOnNonExistentCommitHash(t *testing.T) {
 	defer cancel()
 
 	mockRoot := setupMockLedgerRepo(t)
-	handoffPath := filepath.Join(mockRoot, "work", "lots", "E10-INV-001D", "HANDOFF.json")
+	handoffPath := filepath.Join(mockRoot, "work", "lots", "E10-INV-002G", "HANDOFF.json")
 
 	data, err := os.ReadFile(handoffPath)
 	if err == nil {
@@ -235,7 +258,7 @@ func TestT2_F6_5_LedgerAuditDetectsTamperedHandoffEvidence(t *testing.T) {
 	defer cancel()
 
 	mockRoot := setupMockLedgerRepo(t)
-	handoffPath := filepath.Join(mockRoot, "work", "lots", "E10-INV-001D", "HANDOFF.json")
+	handoffPath := filepath.Join(mockRoot, "work", "lots", "E10-INV-002G", "HANDOFF.json")
 
 	data, err := os.ReadFile(handoffPath)
 	if err != nil {

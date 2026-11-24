@@ -70,7 +70,7 @@ func TestT4_01_PreMergeAdaptiveWorkflow(t *testing.T) {
 	if planRes.ExitCode != 0 {
 		t.Fatalf("validation-plan failed with exit code %d: %s", planRes.ExitCode, planRes.Stderr)
 	}
-	harness.AssertJSONFieldExists(t, planRes.Stdout, "status")
+	harness.AssertJSONFieldExists(t, planRes.Stdout, "tier")
 
 	// Phase 4: Run targeted validation execution
 	valRunRes := harness.RunCmdrDev(ctx, "validation-run",

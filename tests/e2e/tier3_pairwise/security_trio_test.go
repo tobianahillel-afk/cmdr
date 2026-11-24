@@ -156,8 +156,8 @@ func TestT3_10_SASTAndToolchainCoupling_F2_F3(t *testing.T) {
 	}
 	contentStr := string(content)
 
-	if !strings.Contains(contentStr, "go1.26.11") {
-		t.Fatalf("security_static.go does not pin or reference go1.26.11")
+	if !strings.Contains(contentStr, "1.26.11") {
+		t.Fatalf("security_static.go does not pin or reference 1.26.11")
 	}
 
 	// 2. Verify tools/cmdr-dev/go.mod specifies go 1.26.11

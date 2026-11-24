@@ -50,13 +50,21 @@ func setupMockSecurityRepo(t *testing.T) string {
 		}
 	}
 
-	// Create directories for all 12 runtime modules so detectRuntimeImplementationStates resolves
+	// Create directories and stub files for all 12 runtime modules so detectRuntimeImplementationStates resolves
 	for _, mod := range harness.RuntimeGoModules {
 		dir := filepath.Join(mockRoot, filepath.FromSlash(mod))
 		if err := os.MkdirAll(dir, 0755); err != nil {
 			t.Fatalf("failed to create runtime stub dir %s: %v", dir, err)
 		}
+		_ = os.WriteFile(filepath.Join(dir, "stub.go"), []byte("package stub\n"), 0644)
 	}
+
+	// Create event-search-frontend runtime boundary directory and stub file
+	frontendDir := filepath.Join(mockRoot, "product-runtime", "event-search-frontend")
+	if err := os.MkdirAll(frontendDir, 0755); err != nil {
+		t.Fatalf("failed to create event-search-frontend dir: %v", err)
+	}
+	_ = os.WriteFile(filepath.Join(frontendDir, "stub.js"), []byte("// stub\n"), 0644)
 
 	// Create cmdr-product-spec directory so validateState succeeds
 	mockSpecDir := filepath.Join(mockRoot, "cmdr-product-spec")
