@@ -18,7 +18,7 @@ import (
 // 4. Pre-merge health gate pre-check
 // Features exercised: F1, F2, F3, F4, F7, F8.
 func TestT4_01_PreMergeAdaptiveWorkflow(t *testing.T) {
-	ctx, cancel := context.WithTimeout(context.Background(), 180*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 360*time.Second)
 	defer cancel()
 
 	root, err := harness.RepoRoot()

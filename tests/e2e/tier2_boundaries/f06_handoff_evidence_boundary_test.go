@@ -19,82 +19,18 @@ func setupMockLedgerRepo(t *testing.T) string {
 		t.Fatalf("failed to locate repo root: %v", err)
 	}
 
-	mockRoot := harness.TempDir(t, "ledger-mock")
-
-	copyFiles := []string{
-		"AGENTS.md",
-		"AI_START_HERE.md",
-		"engineering/state/current.json",
-		"work/graph.json",
-		"engineering/implementation/ledger.json",
-		"engineering/architecture/boundaries.json",
-		"engineering/coverage/source-requirements-baseline.json",
+	// Backup ledger and handoff files; restore automatically on test cleanup
+	ledgerPath := filepath.Join(root, "engineering", "implementation", "ledger.json")
+	if data, err := os.ReadFile(ledgerPath); err == nil {
+		t.Cleanup(func() { _ = os.WriteFile(ledgerPath, data, 0644) })
 	}
 
-	for _, rel := range copyFiles {
-		src := filepath.Join(root, filepath.FromSlash(rel))
-		dst := filepath.Join(mockRoot, filepath.FromSlash(rel))
-		if err := os.MkdirAll(filepath.Dir(dst), 0755); err != nil {
-			t.Fatalf("failed to create dir for %s: %v", dst, err)
-		}
-		data, err := os.ReadFile(src)
-		if err != nil {
-			t.Fatalf("failed to read %s: %v", src, err)
-		}
-		if err := os.WriteFile(dst, data, 0644); err != nil {
-			t.Fatalf("failed to copy %s to mock: %v", rel, err)
-		}
+	handoffPath := filepath.Join(root, "work", "lots", "E10-INV-002G", "HANDOFF.json")
+	if data, err := os.ReadFile(handoffPath); err == nil {
+		t.Cleanup(func() { _ = os.WriteFile(handoffPath, data, 0644) })
 	}
 
-	// Copy work/lots directory containing manifests and handoffs
-	lotsSrc := filepath.Join(root, "work", "lots")
-	lotsDst := filepath.Join(mockRoot, "work", "lots")
-	_ = filepath.Walk(lotsSrc, func(path string, info os.FileInfo, err error) error {
-		if err != nil || info == nil {
-			return nil
-		}
-		rel, rErr := filepath.Rel(lotsSrc, path)
-		if rErr != nil {
-			return nil
-		}
-		target := filepath.Join(lotsDst, rel)
-		if info.IsDir() {
-			return os.MkdirAll(target, 0755)
-		}
-		data, rErr := os.ReadFile(path)
-		if rErr == nil {
-			_ = os.WriteFile(target, data, 0644)
-		}
-		return nil
-	})
-
-	// Copy 00-governance registers needed for screen and capability registers
-	govSrc := filepath.Join(root, "cmdr-product-spec", "00-governance")
-	govDst := filepath.Join(mockRoot, "cmdr-product-spec", "00-governance")
-	_ = filepath.Walk(govSrc, func(path string, info os.FileInfo, err error) error {
-		if err != nil || info == nil {
-			return nil
-		}
-		rel, rErr := filepath.Rel(govSrc, path)
-		if rErr != nil {
-			return nil
-		}
-		target := filepath.Join(govDst, rel)
-		if info.IsDir() {
-			return os.MkdirAll(target, 0755)
-		}
-		data, rErr := os.ReadFile(path)
-		if rErr == nil {
-			_ = os.WriteFile(target, data, 0644)
-		}
-		return nil
-	})
-	specReadme := filepath.Join(root, "cmdr-product-spec", "README.md")
-	if data, err := os.ReadFile(specReadme); err == nil {
-		_ = os.WriteFile(filepath.Join(mockRoot, "cmdr-product-spec", "README.md"), data, 0644)
-	}
-
-	return mockRoot
+	return root
 }
 
 // T2.F6.1: Implementation ledger audit fails closed on non-existent commit hash.

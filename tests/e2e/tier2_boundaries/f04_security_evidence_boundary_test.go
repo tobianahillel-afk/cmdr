@@ -112,7 +112,12 @@ func TestT2_F4_1_SecurityAuditFailsOnTenScopes(t *testing.T) {
 		t.Fatalf("failed to write mutated evidence: %v", err)
 	}
 
-	res := harness.RunCmdrDev(ctx, "security-test-audit", "--root", mockRoot)
+	changesPath := filepath.Join(mockRoot, "changes.txt")
+	if err := os.WriteFile(changesPath, []byte("product-runtime/event-search/stub.go\n"), 0644); err != nil {
+		t.Fatalf("failed to write mock changes: %v", err)
+	}
+
+	res := harness.RunCmdrDev(ctx, "security-test-audit", "--root", mockRoot, "--changes-file", changesPath)
 	if res.ExitCode == 0 {
 		t.Fatalf("T2.F4.1 FAIL: security-test-audit succeeded on 10 scopes, expected failure")
 	}
@@ -162,7 +167,12 @@ func TestT2_F4_2_SecurityAuditFailsOnTwelveScopes(t *testing.T) {
 		t.Fatalf("failed to write mutated evidence: %v", err)
 	}
 
-	res := harness.RunCmdrDev(ctx, "security-test-audit", "--root", mockRoot)
+	changesPath := filepath.Join(mockRoot, "changes.txt")
+	if err := os.WriteFile(changesPath, []byte("product-runtime/event-search/stub.go\n"), 0644); err != nil {
+		t.Fatalf("failed to write mock changes: %v", err)
+	}
+
+	res := harness.RunCmdrDev(ctx, "security-test-audit", "--root", mockRoot, "--changes-file", changesPath)
 	if res.ExitCode == 0 {
 		t.Fatalf("T2.F4.2 FAIL: security-test-audit succeeded with 12 scopes, expected failure")
 	}
@@ -212,7 +222,12 @@ func TestT2_F4_3_SecurityAuditDetectsRenamedScopeKey(t *testing.T) {
 		t.Fatalf("failed to write mutated evidence: %v", err)
 	}
 
-	res := harness.RunCmdrDev(ctx, "security-test-audit", "--root", mockRoot)
+	changesPath := filepath.Join(mockRoot, "changes.txt")
+	if err := os.WriteFile(changesPath, []byte("product-runtime/event-search/stub.go\n"), 0644); err != nil {
+		t.Fatalf("failed to write mock changes: %v", err)
+	}
+
+	res := harness.RunCmdrDev(ctx, "security-test-audit", "--root", mockRoot, "--changes-file", changesPath)
 	if res.ExitCode == 0 {
 		t.Fatalf("T2.F4.3 FAIL: security-test-audit succeeded despite renamed scope key")
 	}
@@ -253,7 +268,12 @@ func TestT2_F4_4_SecurityAuditDetectsMissingAttestationHash(t *testing.T) {
 		t.Fatalf("failed to write mutated evidence: %v", err)
 	}
 
-	res := harness.RunCmdrDev(ctx, "security-test-audit", "--root", mockRoot)
+	changesPath := filepath.Join(mockRoot, "changes.txt")
+	if err := os.WriteFile(changesPath, []byte("product-runtime/event-search/stub.go\n"), 0644); err != nil {
+		t.Fatalf("failed to write mock changes: %v", err)
+	}
+
+	res := harness.RunCmdrDev(ctx, "security-test-audit", "--root", mockRoot, "--changes-file", changesPath)
 	if res.ExitCode == 0 {
 		t.Fatalf("T2.F4.4 FAIL: security-test-audit succeeded despite missing attestation hash")
 	}
@@ -279,7 +299,12 @@ func TestT2_F4_5_SecurityAuditRejectsCorruptedJSON(t *testing.T) {
 		t.Fatalf("failed to write corrupted JSON: %v", err)
 	}
 
-	res := harness.RunCmdrDev(ctx, "security-test-audit", "--root", mockRoot)
+	changesPath := filepath.Join(mockRoot, "changes.txt")
+	if err := os.WriteFile(changesPath, []byte("product-runtime/event-search/stub.go\n"), 0644); err != nil {
+		t.Fatalf("failed to write mock changes: %v", err)
+	}
+
+	res := harness.RunCmdrDev(ctx, "security-test-audit", "--root", mockRoot, "--changes-file", changesPath)
 	if res.ExitCode == 0 {
 		t.Fatalf("T2.F4.5 FAIL: security-test-audit succeeded on corrupted JSON")
 	}
