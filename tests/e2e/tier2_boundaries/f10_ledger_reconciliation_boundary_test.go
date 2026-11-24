@@ -45,7 +45,7 @@ func TestT2_F10_1_LedgerAuditFailsIfBothCapabilitiesPointToSameUnit(t *testing.T
 	if err != nil {
 		t.Fatalf("failed to marshal mutated ledger: %v", err)
 	}
-	if err := os.WriteFile(ledgerPath, mutated, 0644); err != nil {
+	if err := atomicWriteFile(ledgerPath, mutated, 0644); err != nil {
 		t.Fatalf("failed to write mutated ledger: %v", err)
 	}
 
@@ -87,7 +87,7 @@ func TestT2_F10_2_LedgerAuditFailsIfCapabilityPointsToNonExistentUnit(t *testing
 	if err != nil {
 		t.Fatalf("failed to marshal mutated ledger: %v", err)
 	}
-	if err := os.WriteFile(ledgerPath, mutated, 0644); err != nil {
+	if err := atomicWriteFile(ledgerPath, mutated, 0644); err != nil {
 		t.Fatalf("failed to write mutated ledger: %v", err)
 	}
 
@@ -128,7 +128,7 @@ func TestT2_F10_3_LedgerAuditFailsIfCapabilityCountDecreased(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to marshal mutated ledger: %v", err)
 	}
-	if err := os.WriteFile(ledgerPath, mutated, 0644); err != nil {
+	if err := atomicWriteFile(ledgerPath, mutated, 0644); err != nil {
 		t.Fatalf("failed to write mutated ledger: %v", err)
 	}
 
@@ -170,7 +170,7 @@ func TestT2_F10_4_LedgerAuditRejectsMalformedCapabilityIDFormat(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to marshal mutated ledger: %v", err)
 	}
-	if err := os.WriteFile(ledgerPath, mutated, 0644); err != nil {
+	if err := atomicWriteFile(ledgerPath, mutated, 0644); err != nil {
 		t.Fatalf("failed to write mutated ledger: %v", err)
 	}
 
@@ -214,7 +214,7 @@ func TestT2_F10_5_LedgerAuditRejectsDuplicateCapabilityRegistration(t *testing.T
 	if err != nil {
 		t.Fatalf("failed to marshal mutated ledger: %v", err)
 	}
-	if err := os.WriteFile(ledgerPath, mutated, 0644); err != nil {
+	if err := atomicWriteFile(ledgerPath, mutated, 0644); err != nil {
 		t.Fatalf("failed to write mutated ledger: %v", err)
 	}
 

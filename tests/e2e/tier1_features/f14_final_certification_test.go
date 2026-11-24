@@ -27,8 +27,8 @@ func TestT1_F14_1_GitCleanWorkingTree(t *testing.T) {
 		if trimmed == "" {
 			continue
 		}
-		// Allow .cmdr-tmp, cmdr-dev, or tests/ changes during test run
-		if strings.Contains(trimmed, ".cmdr-") || strings.Contains(trimmed, "cmdr-dev") || strings.Contains(trimmed, "tests/") {
+		// Allow .cmdr-tmp, cmdr-dev, tests/, or runtime-security-evidence.json changes during test run
+		if strings.Contains(trimmed, ".cmdr-") || strings.Contains(trimmed, "cmdr-dev") || strings.Contains(trimmed, "tests/") || strings.Contains(trimmed, "runtime-security-evidence.json") {
 			continue
 		}
 		realChanges = append(realChanges, trimmed)

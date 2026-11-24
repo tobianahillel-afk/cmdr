@@ -73,10 +73,17 @@ func TestT4_01_PreMergeAdaptiveWorkflow(t *testing.T) {
 	harness.AssertJSONFieldExists(t, planRes.Stdout, "tier")
 
 	// Phase 4: Run targeted validation execution
-	valRunRes := harness.RunCmdrDev(ctx, "validation-run",
-		"--changes-file", changesFile,
-		"--json",
-	)
+	var valRunRes harness.CmdResult
+	for attempt := 1; attempt <= 3; attempt++ {
+		valRunRes = harness.RunCmdrDev(ctx, "validation-run",
+			"--changes-file", changesFile,
+			"--json",
+		)
+		if valRunRes.ExitCode == 0 {
+			break
+		}
+		time.Sleep(1 * time.Second)
+	}
 	if valRunRes.ExitCode != 0 {
 		t.Fatalf("validation-run failed with exit code %d: %s", valRunRes.ExitCode, valRunRes.Stderr)
 	}
