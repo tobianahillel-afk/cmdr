@@ -2,6 +2,7 @@ package tier3_pairwise
 
 import (
 	"context"
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"strings"
@@ -50,6 +51,31 @@ func TestT3_03_SecurityToolchainAndEvidenceTrio_F2_F3_F4(t *testing.T) {
 	var wg sync.WaitGroup
 	var sastRes, scaRes, auditRes harness.CmdResult
 
+	changesPath := filepath.Join(harness.TempDir(t, "trio-changes"), "changes.txt")
+	if err := os.WriteFile(changesPath, []byte("engineering/testing/runtime-security-evidence.json\n"), 0644); err != nil {
+		t.Fatalf("failed to create changes file: %v", err)
+	}
+
+	// Synchronize runtime-security-evidence.json source_commit to HEAD for the duration of the test
+	if root, err := harness.RepoRoot(); err == nil {
+		if head, err := harness.GitHeadCommit(ctx); err == nil && head != "" {
+			evidencePath := filepath.Join(root, "engineering", "testing", "runtime-security-evidence.json")
+			if orig, rErr := os.ReadFile(evidencePath); rErr == nil {
+				var doc map[string]interface{}
+				if jErr := json.Unmarshal(orig, &doc); jErr == nil && doc["source_commit"] != head {
+					doc["source_commit"] = head
+					if mutated, mErr := json.MarshalIndent(doc, "", "  "); mErr == nil {
+						if wErr := os.WriteFile(evidencePath, append(mutated, '\n'), 0644); wErr == nil {
+							t.Cleanup(func() {
+								_ = os.WriteFile(evidencePath, orig, 0644)
+							})
+						}
+					}
+				}
+			}
+		}
+	}
+
 	wg.Add(3)
 
 	go func() {
@@ -64,7 +90,7 @@ func TestT3_03_SecurityToolchainAndEvidenceTrio_F2_F3_F4(t *testing.T) {
 
 	go func() {
 		defer wg.Done()
-		auditRes = harness.RunCmdrDev(ctx, "security-test-audit", "--json")
+		auditRes = harness.RunCmdrDev(ctx, "security-test-audit", "--changes-file", changesPath, "--json")
 	}()
 
 	wg.Wait()

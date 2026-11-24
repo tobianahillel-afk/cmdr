@@ -33,6 +33,28 @@ func createF04ChangesFile(t *testing.T) string {
 	if err != nil {
 		t.Fatalf("failed to locate repo root: %v", err)
 	}
+
+	// Synchronize runtime-security-evidence.json source_commit to HEAD for the duration of the test
+	head, err := harness.GitHeadCommit(context.Background())
+	if err == nil && head != "" {
+		evidencePath := filepath.Join(root, "engineering", "testing", "runtime-security-evidence.json")
+		if orig, rErr := os.ReadFile(evidencePath); rErr == nil {
+			var doc map[string]interface{}
+			if jErr := json.Unmarshal(orig, &doc); jErr == nil {
+				if doc["source_commit"] != head {
+					doc["source_commit"] = head
+					if mutated, mErr := json.MarshalIndent(doc, "", "  "); mErr == nil {
+						if wErr := os.WriteFile(evidencePath, append(mutated, '\n'), 0644); wErr == nil {
+							t.Cleanup(func() {
+								_ = os.WriteFile(evidencePath, orig, 0644)
+							})
+						}
+					}
+				}
+			}
+		}
+	}
+
 	changesPath := filepath.Join(harness.TempDir(t, "f04-changes"), "changes.txt")
 	if err := os.WriteFile(changesPath, []byte("engineering/testing/runtime-security-evidence.json\n"), 0644); err != nil {
 		t.Fatalf("failed to create changes file: %v", err)

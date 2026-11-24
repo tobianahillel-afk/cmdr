@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 )
 
@@ -100,36 +99,21 @@ func (c *GitHubClient) VerifyCodexPRResolution(ctx context.Context, prNumber int
 		return false, true, fmt.Errorf("failed to read prs.json: %w", err)
 	}
 
-	var records map[string]interface{}
-	if err := json.Unmarshal(data, &records); err != nil {
-		return false, true, fmt.Errorf("failed to parse prs.json: %w", err)
+	var prList []map[string]interface{}
+	if err := json.Unmarshal(data, &prList); err != nil {
+		return false, true, fmt.Errorf("failed to parse prs.json as array: %w", err)
 	}
 
-	// Check if PR exists in records
-	prKey := strconv.Itoa(prNumber)
-	if _, ok := records[prKey]; !ok {
-		// Also check array if stored as slice
-		found := false
-		var prList []map[string]interface{}
-		if err := json.Unmarshal(data, &prList); err == nil {
-			for _, item := range prList {
-				if num, ok := item["number"].(float64); ok && int(num) == prNumber {
-					found = true
-					break
-				}
-			}
-		}
-		if !found {
-			// Check PR_CLOSURE_REGISTER.md
-			closurePath := filepath.Join(c.repoRoot, "work", "reconciliation", "PR_CLOSURE_REGISTER.md")
-			content, cErr := os.ReadFile(closurePath)
-			if cErr == nil && strings.Contains(string(content), fmt.Sprintf("#%d", prNumber)) {
-				return true, true, nil
-			}
-		} else {
+	for _, item := range prList {
+		if num, ok := item["pr_number"].(float64); ok && int(num) == prNumber {
 			return true, true, nil
 		}
-	} else {
+	}
+
+	// Check PR_CLOSURE_REGISTER.md as fallback
+	closurePath := filepath.Join(c.repoRoot, "work", "reconciliation", "PR_CLOSURE_REGISTER.md")
+	content, cErr := os.ReadFile(closurePath)
+	if cErr == nil && strings.Contains(string(content), fmt.Sprintf("#%d", prNumber)) {
 		return true, true, nil
 	}
 

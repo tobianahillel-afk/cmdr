@@ -58,6 +58,16 @@ func setupMockSecurityRepo(t *testing.T) string {
 		}
 	}
 
+	// Create cmdr-product-spec directory so validateState succeeds
+	mockSpecDir := filepath.Join(mockRoot, "cmdr-product-spec")
+	if err := os.MkdirAll(mockSpecDir, 0755); err != nil {
+		t.Fatalf("failed to create cmdr-product-spec dir: %v", err)
+	}
+	specReadme := filepath.Join(root, "cmdr-product-spec", "README.md")
+	if data, err := os.ReadFile(specReadme); err == nil {
+		_ = os.WriteFile(filepath.Join(mockSpecDir, "README.md"), data, 0644)
+	}
+
 	return mockRoot
 }
 

@@ -53,7 +53,7 @@ func RunGoTest(ctx context.Context, moduleRelPath string, extraArgs ...string) (
 		return false, "", err
 	}
 	dir := filepath.Join(root, moduleRelPath)
-	args := []string{"test", "-count=1"}
+	args := []string{"test", "-v", "-count=1"}
 	args = append(args, extraArgs...)
 	args = append(args, "./...")
 	res := RunCmd(ctx, dir, nil, "go", args...)

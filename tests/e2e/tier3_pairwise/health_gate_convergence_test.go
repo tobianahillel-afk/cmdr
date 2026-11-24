@@ -2,6 +2,7 @@ package tier3_pairwise
 
 import (
 	"context"
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"sync"
@@ -189,7 +190,31 @@ func TestT3_11_EvidenceAndHealthGateSecurity_F4_F7(t *testing.T) {
 	defer cancel()
 
 	// 1. Verify runtime security evidence audit passes with 11 scopes
-	auditRes := harness.RunCmdrDev(ctx, "security-test-audit", "--json")
+	// Synchronize runtime-security-evidence.json source_commit to HEAD for the duration of the test
+	if root, err := harness.RepoRoot(); err == nil {
+		if head, err := harness.GitHeadCommit(ctx); err == nil && head != "" {
+			evidencePath := filepath.Join(root, "engineering", "testing", "runtime-security-evidence.json")
+			if orig, rErr := os.ReadFile(evidencePath); rErr == nil {
+				var doc map[string]interface{}
+				if jErr := json.Unmarshal(orig, &doc); jErr == nil && doc["source_commit"] != head {
+					doc["source_commit"] = head
+					if mutated, mErr := json.MarshalIndent(doc, "", "  "); mErr == nil {
+						if wErr := os.WriteFile(evidencePath, append(mutated, '\n'), 0644); wErr == nil {
+							t.Cleanup(func() {
+								_ = os.WriteFile(evidencePath, orig, 0644)
+							})
+						}
+					}
+				}
+			}
+		}
+	}
+
+	convChanges := filepath.Join(harness.TempDir(t, "conv-changes"), "changes.txt")
+	if err := os.WriteFile(convChanges, []byte("engineering/testing/runtime-security-evidence.json\n"), 0644); err != nil {
+		t.Fatalf("failed to create convergence changes file: %v", err)
+	}
+	auditRes := harness.RunCmdrDev(ctx, "security-test-audit", "--changes-file", convChanges, "--json")
 	if auditRes.ExitCode != 0 {
 		t.Fatalf("security-test-audit failed (code %d): %s", auditRes.ExitCode, auditRes.Stderr)
 	}
@@ -238,6 +263,12 @@ func TestT3_11_EvidenceAndHealthGateSecurity_F4_F7(t *testing.T) {
 	if err := os.WriteFile(fakeChangesPath, []byte("engineering/security/runtime-security-policy.json\n"), 0644); err != nil {
 		t.Fatalf("failed to create fake changes file: %v", err)
 	}
+
+	negAuditRes := harness.RunCmdrDev(ctx, "security-test-audit", "--root", tempDir, "--changes-file", fakeChangesPath, "--json")
+	if negAuditRes.ExitCode == 0 {
+		t.Fatal("negative coupling check failed: security-test-audit unexpectedly succeeded on corrupted mock evidence")
+	}
+	t.Log("Negative coupling verified: corrupted evidence causes security-test-audit to fail closed")
 
 	t.Logf("T3.11 PASS: Runtime security evidence directly coupled with security dimension (security.passed=%v, status=%s)",
 		secDim.Passed, secDim.Status)

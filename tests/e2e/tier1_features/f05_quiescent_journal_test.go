@@ -112,7 +112,7 @@ func TestT1_F5_5_RecoveryJournalHMACIntegrity(t *testing.T) {
 	}
 
 	var journal struct {
-		SchemaVersion int `json:"schema_version"`
+		SchemaVersion int    `json:"schema_version"`
 		RegistryKind  string `json:"registry_kind"`
 		Events        []struct {
 			Sequence int    `json:"sequence"`

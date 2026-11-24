@@ -15,18 +15,18 @@ import (
 )
 
 type PRRegistryItem struct {
-	PRNumber            int      `json:"pr_number"`
-	Title               string   `json:"title"`
-	HeadBranch          string   `json:"head_branch"`
-	BaseBranch          string   `json:"base_branch"`
-	Status              string   `json:"status"`
-	Disposition         string   `json:"disposition"`
-	DispositionRationale string  `json:"disposition_rationale"`
-	Commit              string   `json:"commit,omitempty"`
-	HeadSHA             string   `json:"head_sha,omitempty"`
-	Author              string   `json:"author,omitempty"`
-	ClosedAt            string   `json:"closed_at,omitempty"`
-	FilesIntroduced     []string `json:"files_introduced,omitempty"`
+	PRNumber             int      `json:"pr_number"`
+	Title                string   `json:"title"`
+	HeadBranch           string   `json:"head_branch"`
+	BaseBranch           string   `json:"base_branch"`
+	Status               string   `json:"status"`
+	Disposition          string   `json:"disposition"`
+	DispositionRationale string   `json:"disposition_rationale"`
+	Commit               string   `json:"commit,omitempty"`
+	HeadSHA              string   `json:"head_sha,omitempty"`
+	Author               string   `json:"author,omitempty"`
+	ClosedAt             string   `json:"closed_at,omitempty"`
+	FilesIntroduced      []string `json:"files_introduced,omitempty"`
 }
 
 // validatePRRegisterEntry validates an individual PR record's integrity against git history.

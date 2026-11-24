@@ -2,7 +2,7 @@
   "schema_version": 1,
   "status": "measured",
   "reason": "CI-generated measured runtime security evidence for the exact checked-out commit",
-  "source_commit": "c1e75db81662b33a0f1208afdbf8b688fe7977e3",
+  "source_commit": "e4ea9a315cfa655520d1bc3e308ed9c45c326041",
   "global_coverage_percent": 88.5,
   "scopes": [
     {

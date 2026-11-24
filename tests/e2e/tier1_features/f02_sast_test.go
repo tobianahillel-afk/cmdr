@@ -10,8 +10,8 @@ import (
 )
 
 type SASTReport struct {
-	Findings   int            `json:"findings"`
-	BySeverity map[string]int `json:"by_severity"`
+	Findings     int            `json:"findings"`
+	BySeverity   map[string]int `json:"by_severity"`
 	FindingItems []struct {
 		RuleID string `json:"rule_id"`
 		Path   string `json:"path"`

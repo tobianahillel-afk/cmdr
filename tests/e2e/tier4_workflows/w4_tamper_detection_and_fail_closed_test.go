@@ -2,141 +2,179 @@ package tier4_workflows
 
 import (
 	"context"
-	"crypto/hmac"
-	"crypto/sha256"
-	"encoding/hex"
+	"encoding/json"
 	"os"
 	"path/filepath"
-	"strings"
 	"testing"
 	"time"
 
 	"github.com/tobianahillel-afk/cmdr/tests/e2e/harness"
 )
 
-// TestT4_04_TamperDetectionAndFailClosed:
-// Adversarial workflow injecting four simultaneous violations:
-// 1. Invalid HMAC in recovery journal
-// 2. Stale/non-existent commit SHA in ledger
-// 3. Untracked root file in repository
-// 4. Altered product spec invariant
-// Asserts all four are detected and the health gate fails closed.
-// Features exercised: F5, F6, F7, F14.
-func TestT4_04_TamperDetectionAndFailClosed(t *testing.T) {
-	ctx, cancel := context.WithTimeout(context.Background(), 180*time.Second)
-	defer cancel()
-
+func setupW4MockRepo(t *testing.T) string {
+	t.Helper()
 	root, err := harness.RepoRoot()
 	if err != nil {
-		t.Fatalf("failed to resolve repo root: %v", err)
+		t.Fatalf("failed to locate repo root: %v", err)
 	}
 
-	tempDir := harness.TempDir(t, "w4-tamper")
+	mockRoot := harness.TempDir(t, "w4-tamper")
 
-	// =========================================================================
-	// Tamper Vector 1: Recovery Journal with Corrupted HMAC
-	// =========================================================================
-	journalPath := filepath.Join(tempDir, "tampered-journal.jsonl")
-	// Synthetic journal entry with forged HMAC digest
-	forgedLine := `{"sequence":1,"timestamp":"2026-11-22T20:00:00Z","agent":"adversary","action":"tamper","digest":"deadbeefbadc0ffee00000000000000000000000000000000000000000000000"}` + "\n"
-	if err := os.WriteFile(journalPath, []byte(forgedLine), 0644); err != nil {
-		t.Fatalf("failed to write tampered journal: %v", err)
+	copyFiles := []string{
+		"AGENTS.md",
+		"AI_START_HERE.md",
+		"engineering/state/current.json",
+		"work/graph.json",
+		"engineering/architecture/boundaries.json",
+		"engineering/security/security-gates.json",
+		"engineering/security/runtime-security-policy.json",
+		"engineering/testing/runtime-security-evidence.json",
+		"engineering/recovery/lease-policy.json",
+		"engineering/recovery/claims.json",
+		"engineering/recovery/journal.json",
+		"engineering/implementation/ledger.json",
+		"engineering/decisions/decision-registry.json",
+		"engineering/performance/performance-registry.json",
+		"cmdr-product-spec/README.md",
 	}
 
-	// Calculate legitimate HMAC vs forged HMAC
-	mac := hmac.New(sha256.New, []byte("cmdr-recovery-key"))
-	mac.Write([]byte(forgedLine))
-	expectedDigest := hex.EncodeToString(mac.Sum(nil))
-
-	if expectedDigest == "deadbeefbadc0ffee00000000000000000000000000000000000000000000000" {
-		t.Fatal("cryptographic collision: forged digest matched expected digest")
+	for _, rel := range copyFiles {
+		src := filepath.Join(root, filepath.FromSlash(rel))
+		dst := filepath.Join(mockRoot, filepath.FromSlash(rel))
+		if err := os.MkdirAll(filepath.Dir(dst), 0755); err != nil {
+			t.Fatalf("failed to create dir for %s: %v", dst, err)
+		}
+		data, err := os.ReadFile(src)
+		if err != nil {
+			t.Fatalf("failed to read %s: %v", src, err)
+		}
+		if err := os.WriteFile(dst, data, 0644); err != nil {
+			t.Fatalf("failed to copy %s to mock: %v", rel, err)
+		}
 	}
-	t.Log("Tamper Vector 1 verified: HMAC cryptographic verification detects forged digest")
 
-	// =========================================================================
-	// Tamper Vector 2: Stale / Non-Existent Commit SHA in Ledger
-	// =========================================================================
-	const phantomCommitSHA = "0000000000000000000000000000000000000000"
-	commitExists := harness.GitCommitExists(ctx, phantomCommitSHA)
-	if commitExists {
-		t.Fatalf("phantom commit SHA %s unexpectedly exists in git object storage", phantomCommitSHA)
+	for _, mod := range harness.RuntimeGoModules {
+		dir := filepath.Join(mockRoot, filepath.FromSlash(mod))
+		_ = os.MkdirAll(dir, 0755)
 	}
-	t.Log("Tamper Vector 2 verified: git object validator detects non-existent commit SHA")
 
-	// =========================================================================
-	// Tamper Vector 3: Untracked Root File (Dirty Working Tree)
-	// =========================================================================
-	sentinelPath := filepath.Join(root, ".tamper_sentinel.tmp")
+	return mockRoot
+}
+
+// TestT4_04_TamperDetectionAndFailClosed:
+// Adversarial workflow injecting four active tamper vectors into an isolated target repository:
+// 1. Invalid HMAC/digest in recovery journal
+// 2. Unregistered/invalid work unit entry in implementation ledger
+// 3. Untracked file in repository root
+// 4. Altered product spec invariant
+// Asserts that cmdr-dev mainline-health-gate evaluates the target and strictly fails closed (ExitCode != 0).
+func TestT4_04_TamperDetectionAndFailClosed(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), 120*time.Second)
+	defer cancel()
+
+	mockRoot := setupW4MockRepo(t)
+
+	// Vector 1: Recovery Journal with Corrupted HMAC Digest
+	journalPath := filepath.Join(mockRoot, "engineering", "recovery", "journal.json")
+	journalData, err := os.ReadFile(journalPath)
+	if err != nil {
+		t.Fatalf("failed to read mock journal: %v", err)
+	}
+	var journalDoc map[string]interface{}
+	if err := json.Unmarshal(journalData, &journalDoc); err != nil {
+		t.Fatalf("failed to parse journal: %v", err)
+	}
+	if events, ok := journalDoc["events"].([]interface{}); ok && len(events) > 0 {
+		if firstEvt, ok := events[0].(map[string]interface{}); ok {
+			firstEvt["digest"] = "deadbeefbadc0ffee000000000000000000000000000000000000000000000000"
+		}
+	}
+	corruptedJournal, _ := json.MarshalIndent(journalDoc, "", "  ")
+	if err := os.WriteFile(journalPath, corruptedJournal, 0644); err != nil {
+		t.Fatalf("failed to write corrupted journal: %v", err)
+	}
+
+	// Vector 2: Stale / Non-Existent Work Unit in Implementation Ledger
+	ledgerPath := filepath.Join(mockRoot, "engineering", "implementation", "ledger.json")
+	ledgerData, err := os.ReadFile(ledgerPath)
+	if err != nil {
+		t.Fatalf("failed to read mock ledger: %v", err)
+	}
+	var ledgerDoc map[string]interface{}
+	if err := json.Unmarshal(ledgerData, &ledgerDoc); err != nil {
+		t.Fatalf("failed to parse ledger: %v", err)
+	}
+	if entries, ok := ledgerDoc["entries"].([]interface{}); ok {
+		tamperedEntry := map[string]interface{}{
+			"capability":       "CAP-TAMPER-001",
+			"work_unit":        "E10-PHANTOM-UNIT-NONEXISTENT",
+			"manifest_path":    "work/lots/E10-PHANTOM/manifest.json",
+			"handoff_path":     "work/lots/E10-PHANTOM/HANDOFF.json",
+			"runtime_boundary": "event-search-runtime",
+			"runtime_root":     "product-runtime/event-search/**",
+		}
+		ledgerDoc["entries"] = append(entries, tamperedEntry)
+	}
+	corruptedLedger, _ := json.MarshalIndent(ledgerDoc, "", "  ")
+	if err := os.WriteFile(ledgerPath, corruptedLedger, 0644); err != nil {
+		t.Fatalf("failed to write corrupted ledger: %v", err)
+	}
+
+	// Vector 3: Untracked Sentinel File in Repository Root
+	sentinelPath := filepath.Join(mockRoot, ".tamper_sentinel.tmp")
 	if err := os.WriteFile(sentinelPath, []byte("adversarial-tamper-probe"), 0644); err != nil {
 		t.Fatalf("failed to create sentinel file: %v", err)
 	}
-	// Guarantee cleanup immediately after check
-	defer func() {
-		_ = os.Remove(sentinelPath)
-	}()
 
-	statusWithSentinel, err := harness.GitStatusPorcelain(ctx)
-	if err != nil {
-		t.Fatalf("failed to query git status with sentinel: %v", err)
+	// Vector 4: Product Spec Invariant Alteration
+	specReadmePath := filepath.Join(mockRoot, "cmdr-product-spec", "README.md")
+	if err := os.WriteFile(specReadmePath, []byte("# TAMPERED PRODUCT SPEC INVARIANT\n"), 0644); err != nil {
+		t.Fatalf("failed to alter product spec invariant: %v", err)
 	}
 
-	if !strings.Contains(statusWithSentinel, ".tamper_sentinel.tmp") {
-		t.Fatal("git status --porcelain failed to detect untracked sentinel file")
-	}
+	// Execute mainline-health-gate against the tampered mock repository
+	gateRes := harness.RunCmdrDev(ctx, "mainline-health-gate", "--root", mockRoot, "--json")
 
-	// Clean up sentinel immediately
-	_ = os.Remove(sentinelPath)
-
-	statusClean, err := harness.GitStatusPorcelain(ctx)
-	if err != nil {
-		t.Fatalf("failed to query git status after cleanup: %v", err)
-	}
-	if strings.Contains(statusClean, ".tamper_sentinel.tmp") {
-		t.Fatal("sentinel file still present after cleanup")
-	}
-	t.Log("Tamper Vector 3 verified: untracked file detected; working tree restored to clean state")
-
-	// =========================================================================
-	// Tamper Vector 4: Product Spec Invariant Alteration
-	// =========================================================================
-	// Baseline commit 82e630fce3a7f6236e03709116eca6dd0a1acd40
-	const baseline = "82e630fce3a7f6236e03709116eca6dd0a1acd40"
-	diff, err := harness.GitDiffSpecBaseline(ctx, baseline)
-	if err != nil {
-		t.Logf("git diff spec note: %v", err)
-	}
-
-	// Verify that spec-baseline command enforces 0 diff
-	specRes := harness.RunCmdrDev(ctx, "spec-baseline", "--check", "--json")
-	if diff != "" && specRes.ExitCode == 0 {
-		t.Fatal("spec-baseline check unexpectedly passed despite non-zero diff vs baseline commit")
-	}
-	t.Logf("Tamper Vector 4 verified: spec-baseline diff detector enforces 0-byte invariant (exit=%d)", specRes.ExitCode)
-
-	// =========================================================================
-	// Fail-Closed Gate Invariant
-	// =========================================================================
-	// If any violation occurs, health gate must return non-zero exit code (1 or 2), never 0.
-	gateRes := harness.RunCmdrDev(ctx, "mainline-health-gate", "--json")
+	// Strict Fail-Closed Invariant: Exit code 0 is an absolute failure
 	if gateRes.ExitCode == 0 {
-		// If gate is healthy, verify all 5 dimensions reported passed=true
-		var report struct {
-			Status     string `json:"status"`
-			Dimensions map[string]struct {
-				Passed bool `json:"passed"`
-			} `json:"dimensions"`
-		}
-		if err := harness.ParseJSON(gateRes.Stdout, &report); err == nil {
-			for dimName, d := range report.Dimensions {
-				if !d.Passed {
-					t.Fatalf("fail-closed violation: health gate returned 0 but dimension %s has passed=false", dimName)
-				}
-			}
-		}
-	} else {
-		// When gate returns non-zero, fail-closed property holds
-		t.Logf("Health gate properly failed closed on unverified/unhealthy conditions (exit code %d)", gateRes.ExitCode)
+		t.Fatalf("T4.04 FAIL: mainline-health-gate returned exit code 0 on tampered repository; expected non-zero fail-closed exit code")
 	}
 
-	t.Log("T4.04 PASS: Tamper detection and fail-closed invariants strictly enforced across all 4 vectors")
+	if gateRes.ExitCode != 1 && gateRes.ExitCode != 2 {
+		t.Fatalf("T4.04 FAIL: unexpected exit code %d; expected 1 (MAIN_UNHEALTHY) or 2 (MAIN_UNVERIFIED)", gateRes.ExitCode)
+	}
+
+	var report struct {
+		Status     string `json:"status"`
+		ExitCode   int    `json:"exit_code"`
+		Dimensions map[string]struct {
+			Name   string   `json:"name"`
+			Passed bool     `json:"passed"`
+			Status string   `json:"status"`
+			Errors []string `json:"errors"`
+		} `json:"dimensions"`
+	}
+
+	if err := harness.ParseJSON(gateRes.Stdout, &report); err != nil {
+		t.Fatalf("failed to parse mainline-health-gate JSON report: %v\nStdout: %s\nStderr: %s", err, gateRes.Stdout, gateRes.Stderr)
+	}
+
+	if report.Status == "MAIN_HEALTHY" {
+		t.Fatalf("T4.04 FAIL: health gate status reported MAIN_HEALTHY on tampered repository")
+	}
+
+	hasFailedDimension := false
+	for dimName, dim := range report.Dimensions {
+		if !dim.Passed || dim.Status == "FAIL" || dim.Status == "UNVERIFIED" {
+			hasFailedDimension = true
+			t.Logf("Tamper vector detected in dimension %s: status=%s, errors=%v", dimName, dim.Status, dim.Errors)
+		}
+	}
+
+	if !hasFailedDimension {
+		t.Fatalf("T4.04 FAIL: health gate failed closed with exit %d but no dimensions reported failure", gateRes.ExitCode)
+	}
+
+	t.Logf("T4.04 PASS: Tamper detection and fail-closed invariants strictly enforced (gate status=%s, exit=%d)",
+		report.Status, gateRes.ExitCode)
 }

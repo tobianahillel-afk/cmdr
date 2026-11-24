@@ -17,6 +17,7 @@ on:
       - "work/**"
       - "tools/cmdr-dev/**"
       - "product-runtime/**"
+      - "tests/**"
       - ".github/workflows/engineering-kernel.yml"
       - ".github/workflows/engineering-kernel-full.yml"
       - ".github/workflows/security-deep.yml"

@@ -12,21 +12,21 @@ import (
 )
 
 type CertificationReport struct {
-	Timestamp            string            `json:"timestamp"`
-	HeadCommit           string            `json:"head_commit"`
-	ModulesTested        int               `json:"modules_tested"`
-	ModulesPassed        int               `json:"modules_passed"`
-	SpecZeroDiff         bool              `json:"spec_zero_diff"`
-	RemoteBranches       []string          `json:"remote_branches"`
-	OpenPRsCount         int               `json:"open_prs_count"`
-	SecurityScopesCount  int               `json:"security_scopes_count"`
-	LedgerEntriesCount   int               `json:"ledger_entries_count"`
-	GraphNodesCount      int               `json:"graph_nodes_count"`
-	HealthGateStatus     string            `json:"health_gate_status"`
-	HealthGateExitCode   int               `json:"health_gate_exit_code"`
-	DimensionPassMap     map[string]bool   `json:"dimension_pass_map"`
-	FinalVerdict         string            `json:"final_verdict"`
-	AuditCertifier       string            `json:"audit_certifier"`
+	Timestamp           string          `json:"timestamp"`
+	HeadCommit          string          `json:"head_commit"`
+	ModulesTested       int             `json:"modules_tested"`
+	ModulesPassed       int             `json:"modules_passed"`
+	SpecZeroDiff        bool            `json:"spec_zero_diff"`
+	RemoteBranches      []string        `json:"remote_branches"`
+	OpenPRsCount        int             `json:"open_prs_count"`
+	SecurityScopesCount int             `json:"security_scopes_count"`
+	LedgerEntriesCount  int             `json:"ledger_entries_count"`
+	GraphNodesCount     int             `json:"graph_nodes_count"`
+	HealthGateStatus    string          `json:"health_gate_status"`
+	HealthGateExitCode  int             `json:"health_gate_exit_code"`
+	DimensionPassMap    map[string]bool `json:"dimension_pass_map"`
+	FinalVerdict        string          `json:"final_verdict"`
+	AuditCertifier      string          `json:"audit_certifier"`
 }
 
 // TestT4_03_FullRepositoryCertificationLifecycle:

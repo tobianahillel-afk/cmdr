@@ -3,3 +3,5 @@
 
 # Temporary test artifacts
 .cmdr-*
+*.test.exe
+*.test
