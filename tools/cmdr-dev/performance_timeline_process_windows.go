@@ -18,6 +18,7 @@ func configureTimelineProcessTree(cmd *exec.Cmd) {
 		}
 		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 		defer cancel()
+		// #nosec G204,G702 -- validated taskkill PID execution
 		kill := exec.CommandContext(ctx, "taskkill", "/T", "/F", "/PID", strconv.Itoa(cmd.Process.Pid))
 		if err := kill.Run(); err != nil {
 			return cmd.Process.Kill()
