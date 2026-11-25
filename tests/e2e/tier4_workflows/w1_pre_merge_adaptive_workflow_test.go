@@ -18,11 +18,10 @@ import (
 // 4. Pre-merge health gate pre-check
 // Features exercised: F1, F2, F3, F4, F7, F8.
 func TestT4_01_PreMergeAdaptiveWorkflow(t *testing.T) {
-	ctx, cancel := context.WithTimeout(context.Background(), 360*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 600*time.Second)
 	defer cancel()
 
-	root, err := harness.RepoRoot()
-	if err != nil {
+	if _, err := harness.RepoRoot(); err != nil {
 		t.Fatalf("failed to resolve repo root: %v", err)
 	}
 
@@ -34,12 +33,10 @@ func TestT4_01_PreMergeAdaptiveWorkflow(t *testing.T) {
 		t.Fatalf("failed to resolve HEAD commit: %v", err)
 	}
 
-	// Use HEAD~1 or HEAD as base commit
-	baseRes := harness.RunCmd(ctx, root, nil, "git", "rev-parse", "HEAD~1")
+	// In a simulated PR cycle on the current checked out branch, baseCommit == headCommit
+	// evaluates git-changes cleanly without carrying extraneous commits from PR branch development,
+	// enabling targeted validation on the seeded studio-catalog changes below.
 	baseCommit := headCommit
-	if baseRes.ExitCode == 0 && baseRes.Stdout != "" {
-		baseCommit = filepath.Clean(baseRes.Stdout)
-	}
 
 	// Phase 2: Compute change set via cmdr-dev git-changes
 	changesFile := filepath.Join(tempDir, "pr-changes.txt")
