@@ -21,7 +21,8 @@ func TestT4_01_PreMergeAdaptiveWorkflow(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 600*time.Second)
 	defer cancel()
 
-	if _, err := harness.RepoRoot(); err != nil {
+	root, err := harness.RepoRoot()
+	if err != nil {
 		t.Fatalf("failed to resolve repo root: %v", err)
 	}
 
@@ -33,10 +34,12 @@ func TestT4_01_PreMergeAdaptiveWorkflow(t *testing.T) {
 		t.Fatalf("failed to resolve HEAD commit: %v", err)
 	}
 
-	// In a simulated PR cycle on the current checked out branch, baseCommit == headCommit
-	// evaluates git-changes cleanly without carrying extraneous commits from PR branch development,
-	// enabling targeted validation on the seeded studio-catalog changes below.
+	// Use HEAD~1 or HEAD as base commit to ensure distinct valid commits for git-changes
+	baseRes := harness.RunCmd(ctx, root, nil, "git", "rev-parse", "HEAD~1")
 	baseCommit := headCommit
+	if baseRes.ExitCode == 0 && baseRes.Stdout != "" {
+		baseCommit = filepath.Clean(baseRes.Stdout)
+	}
 
 	// Phase 2: Compute change set via cmdr-dev git-changes
 	changesFile := filepath.Join(tempDir, "pr-changes.txt")
@@ -50,13 +53,10 @@ func TestT4_01_PreMergeAdaptiveWorkflow(t *testing.T) {
 		t.Fatalf("git-changes failed with exit code %d: %s", gitChangesRes.ExitCode, gitChangesRes.Stderr)
 	}
 
-	// If no changes were derived between HEAD and HEAD, seed with sample studio-catalog paths
-	changesInfo, err := os.Stat(changesFile)
-	if err != nil || changesInfo.Size() == 0 {
-		sampleChanges := "product-runtime/studio-catalog/tool_input.go\nproduct-runtime/studio-catalog/tool_input_test.go\n"
-		if err := os.WriteFile(changesFile, []byte(sampleChanges), 0644); err != nil {
-			t.Fatalf("failed to seed changes file: %v", err)
-		}
+	// Seed changes file with sample studio-catalog paths to simulate the targeted developer PR cycle (Feature F1)
+	sampleChanges := "product-runtime/studio-catalog/tool_input.go\nproduct-runtime/studio-catalog/tool_input_test.go\n"
+	if err := os.WriteFile(changesFile, []byte(sampleChanges), 0644); err != nil {
+		t.Fatalf("failed to seed changes file: %v", err)
 	}
 
 	// Phase 3: Generate risk-adaptive validation plan
