@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"testing"
+	"time"
 )
 
 // GitStatusPorcelain returns the output of `git status --porcelain`.
@@ -120,4 +122,48 @@ func IsMainBranch(ctx context.Context) bool {
 		return false
 	}
 	return true
+}
+
+// CloneIsolatedRepo creates an isolated Git clone under .cmdr-tmp/ using --shared --no-checkout
+// and checks out the exact current HEAD commit onto a local 'main' branch.
+// Works on both named branches and detached-HEAD CI checkouts without mutating RepoRoot().
+func CloneIsolatedRepo(t *testing.T, prefix string) string {
+	t.Helper()
+	root, err := RepoRoot()
+	if err != nil {
+		t.Fatalf("failed to locate repo root: %v", err)
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
+
+	headCommit, err := GitHeadCommit(ctx)
+	if err != nil || strings.TrimSpace(headCommit) == "" {
+		t.Fatalf("failed to resolve HEAD commit: %v", err)
+	}
+	headCommit = strings.TrimSpace(headCommit)
+
+	mockRoot := TempDir(t, prefix)
+
+	cloneRes := RunCmd(ctx, root, nil, "git", "clone", "--shared", "--no-checkout", root, mockRoot)
+	if cloneRes.ExitCode != 0 {
+		t.Fatalf("git clone --shared failed (exit %d): %s\n%s", cloneRes.ExitCode, cloneRes.Stderr, cloneRes.Stdout)
+	}
+
+	for _, cfg := range [][]string{
+		{"config", "user.name", "Test Writer"},
+		{"config", "user.email", "test@cmdr.local"},
+	} {
+		cfgRes := RunCmd(ctx, mockRoot, nil, "git", cfg...)
+		if cfgRes.ExitCode != 0 {
+			t.Fatalf("git %v in mockRoot failed (exit %d): %s", cfg, cfgRes.ExitCode, cfgRes.Stderr)
+		}
+	}
+
+	coRes := RunCmd(ctx, mockRoot, nil, "git", "checkout", "-B", "main", headCommit)
+	if coRes.ExitCode != 0 {
+		t.Fatalf("git checkout -B main %s failed (exit %d): %s\n%s", headCommit, coRes.ExitCode, coRes.Stderr, coRes.Stdout)
+	}
+
+	return mockRoot
 }

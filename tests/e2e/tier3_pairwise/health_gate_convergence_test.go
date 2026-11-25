@@ -2,9 +2,9 @@ package tier3_pairwise
 
 import (
 	"context"
-	"encoding/json"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -190,32 +190,13 @@ func TestT3_11_EvidenceAndHealthGateSecurity_F4_F7(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 120*time.Second)
 	defer cancel()
 
-	// 1. Verify runtime security evidence audit passes with 11 scopes
-	// Synchronize runtime-security-evidence.json source_commit to HEAD for the duration of the test
-	if root, err := harness.RepoRoot(); err == nil {
-		if head, err := harness.GitHeadCommit(ctx); err == nil && head != "" {
-			evidencePath := filepath.Join(root, "engineering", "testing", "runtime-security-evidence.json")
-			if orig, rErr := os.ReadFile(evidencePath); rErr == nil {
-				var doc map[string]interface{}
-				if jErr := json.Unmarshal(orig, &doc); jErr == nil && doc["source_commit"] != head {
-					doc["source_commit"] = head
-					if mutated, mErr := json.MarshalIndent(doc, "", "  "); mErr == nil {
-						if wErr := os.WriteFile(evidencePath, append(mutated, '\n'), 0644); wErr == nil {
-							t.Cleanup(func() {
-								_ = os.WriteFile(evidencePath, orig, 0644)
-							})
-						}
-					}
-				}
-			}
-		}
-	}
-
-	convChanges := filepath.Join(harness.TempDir(t, "conv-changes"), "changes.txt")
+	// 1. Verify runtime security evidence audit passes with 11 scopes using an isolated mock repository
+	posMockRoot := harness.SetupMockSecurityRepo(t, true)
+	convChanges := filepath.Join(posMockRoot, "changes.txt")
 	if err := os.WriteFile(convChanges, []byte("engineering/testing/runtime-security-evidence.json\n"), 0644); err != nil {
 		t.Fatalf("failed to create convergence changes file: %v", err)
 	}
-	auditRes := harness.RunCmdrDev(ctx, "security-test-audit", "--changes-file", convChanges, "--json")
+	auditRes := harness.RunCmdrDev(ctx, "security-test-audit", "--root", posMockRoot, "--changes-file", convChanges, "--json")
 	if auditRes.ExitCode != 0 {
 		t.Fatalf("security-test-audit failed (code %d): %s", auditRes.ExitCode, auditRes.Stderr)
 	}
@@ -252,22 +233,29 @@ func TestT3_11_EvidenceAndHealthGateSecurity_F4_F7(t *testing.T) {
 	}
 
 	// 3. Negative coupling test: Assert that tampering with evidence file causes security-test-audit to fail closed
-	tempDir := harness.TempDir(t, "evidence-coupling")
-	corruptedEvidencePath := filepath.Join(tempDir, "runtime-security-evidence.json")
+	negMockRoot := harness.SetupMockSecurityRepo(t, false)
+	corruptedEvidencePath := filepath.Join(negMockRoot, "engineering", "testing", "runtime-security-evidence.json")
 	corruptedEvidence := []byte(`{"schema_version":1,"status":"tampered","scopes":[]}`)
 	if err := os.WriteFile(corruptedEvidencePath, corruptedEvidence, 0644); err != nil {
-		t.Fatalf("failed to create synthetic corrupted evidence file: %v", err)
+		t.Fatalf("failed to write synthetic corrupted evidence file: %v", err)
 	}
 
-	// Calling security-test-audit with invalid changes or corrupted file must fail
-	fakeChangesPath := filepath.Join(tempDir, "changes.txt")
+	// changes.txt must live inside negMockRoot to satisfy readChangedPaths -> resolveRepoPath containment
+	fakeChangesPath := filepath.Join(negMockRoot, "changes.txt")
 	if err := os.WriteFile(fakeChangesPath, []byte("engineering/security/runtime-security-policy.json\n"), 0644); err != nil {
 		t.Fatalf("failed to create fake changes file: %v", err)
 	}
 
-	negAuditRes := harness.RunCmdrDev(ctx, "security-test-audit", "--root", tempDir, "--changes-file", fakeChangesPath, "--json")
+	negAuditRes := harness.RunCmdrDev(ctx, "security-test-audit", "--root", negMockRoot, "--changes-file", fakeChangesPath, "--json")
 	if negAuditRes.ExitCode == 0 {
 		t.Fatal("negative coupling check failed: security-test-audit unexpectedly succeeded on corrupted mock evidence")
+	}
+	combinedNeg := negAuditRes.Stderr + " " + negAuditRes.Stdout
+	if strings.Contains(combinedNeg, "is not a CMDR repository root") {
+		t.Fatalf("negative coupling check failed vacuously in resolveRoot instead of reading evidence: %s", combinedNeg)
+	}
+	if !strings.Contains(combinedNeg, "scope count does not match") && !strings.Contains(combinedNeg, "tampered") {
+		t.Fatalf("negative coupling check failed: expected evidence-validation error, got: %s", combinedNeg)
 	}
 	t.Log("Negative coupling verified: corrupted evidence causes security-test-audit to fail closed")
 

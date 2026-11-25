@@ -129,14 +129,86 @@ func TestT1_F12_4_WaveSelectorValidCandidateOrQuiescent(t *testing.T) {
 	t.Logf("T1.F12.4 PASS: wave selector returned candidate=%s, status=%s", wave.Capability, wave.Status)
 }
 
+type ReadinessSummary struct {
+	Total             int `json:"total"`
+	Implemented       int `json:"implemented"`
+	Ready             int `json:"ready"`
+	Blocked           int `json:"blocked"`
+	Proposed          int `json:"proposed"`
+	DecisionBlocked   int `json:"decision_blocked"`
+	DependencyBlocked int `json:"dependency_blocked"`
+}
+
+type ReadinessRecord struct {
+	Capability string `json:"capability"`
+	State      string `json:"state"`
+}
+
+type ReadinessResult struct {
+	SchemaVersion int               `json:"schema_version"`
+	ProgramKind   string            `json:"program_kind"`
+	Records       []ReadinessRecord `json:"records"`
+	Summary       ReadinessSummary  `json:"summary"`
+	Status        string            `json:"status"`
+}
+
 // T1.F12.5: Verify wave selector does not blindly select unready units.
 func TestT1_F12_5_WaveSelectorRespectsReadiness(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
 
 	res := harness.RunCmdrDev(ctx, "implementation-readiness", "--json")
-	if res.ExitCode == 0 {
-		harness.AssertJSONFieldExists(t, res.Stdout, "program_kind")
+	if res.ExitCode != 0 {
+		t.Fatalf("T1.F12.5 FAIL: cmdr-dev implementation-readiness failed (code %d): stdout=%s stderr=%s",
+			res.ExitCode, res.Stdout, res.Stderr)
 	}
-	t.Log("T1.F12.5 PASS: wave selector enforces readiness checks before selection")
+
+	harness.AssertJSONFieldExists(t, res.Stdout, "program_kind")
+	harness.AssertJSONFieldEqual(t, res.Stdout, "program_kind", "capability-implementation-readiness")
+	harness.AssertJSONFieldEqual(t, res.Stdout, "status", "PASS")
+
+	var readiness ReadinessResult
+	if err := harness.ParseJSON(res.Stdout, &readiness); err != nil {
+		t.Fatalf("T1.F12.5 FAIL: failed to parse implementation-readiness JSON: %v", err)
+	}
+	if readiness.SchemaVersion != 1 {
+		t.Fatalf("T1.F12.5 FAIL: expected schema_version=1, got %d", readiness.SchemaVersion)
+	}
+	if readiness.Summary.Total <= 0 {
+		t.Fatalf("T1.F12.5 FAIL: expected summary.total > 0, got %d", readiness.Summary.Total)
+	}
+	accounted := readiness.Summary.Implemented + readiness.Summary.Ready + readiness.Summary.Blocked + readiness.Summary.Proposed
+	if readiness.Summary.Total != accounted {
+		t.Fatalf("T1.F12.5 FAIL: readiness summary accounting mismatch: total=%d, sum=%d", readiness.Summary.Total, accounted)
+	}
+
+	waveRes := harness.RunCmdrDev(ctx, "implementation-wave", "--json")
+	if waveRes.ExitCode != 0 {
+		t.Fatalf("T1.F12.5 FAIL: cmdr-dev implementation-wave failed (code %d): stdout=%s stderr=%s",
+			waveRes.ExitCode, waveRes.Stdout, waveRes.Stderr)
+	}
+	var wave WaveResult
+	if err := harness.ParseJSON(waveRes.Stdout, &wave); err != nil {
+		t.Fatalf("T1.F12.5 FAIL: failed to parse implementation-wave JSON: %v", err)
+	}
+	if wave.Capability == "" {
+		t.Fatalf("T1.F12.5 FAIL: implementation-wave returned empty capability")
+	}
+
+	foundReady := false
+	for _, rec := range readiness.Records {
+		if rec.Capability == wave.Capability {
+			if rec.State != "READY" {
+				t.Fatalf("T1.F12.5 FAIL: wave selector chose %s in non-READY state %q", wave.Capability, rec.State)
+			}
+			foundReady = true
+			break
+		}
+	}
+	if !foundReady {
+		t.Fatalf("T1.F12.5 FAIL: selected capability %s not found in implementation-readiness records", wave.Capability)
+	}
+
+	t.Logf("T1.F12.5 PASS: readiness verified (%s, total=%d, ready=%d) and wave selector chose READY candidate %s",
+		readiness.ProgramKind, readiness.Summary.Total, readiness.Summary.Ready, wave.Capability)
 }

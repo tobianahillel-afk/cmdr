@@ -26,44 +26,16 @@ type SecurityEvidence struct {
 	} `json:"scopes"`
 }
 
-// helper to provide a valid non-security-critical changes file for security-test-audit
-func createF04ChangesFile(t *testing.T) string {
+// setupF04IsolatedAudit provisions an isolated mock CMDR repo with source_commit
+// synchronized to the mock repo HEAD and an in-repo changes.txt for security-test-audit.
+func setupF04IsolatedAudit(t *testing.T) (string, string) {
 	t.Helper()
-	root, err := harness.RepoRoot()
-	if err != nil {
-		t.Fatalf("failed to locate repo root: %v", err)
-	}
-
-	// Synchronize runtime-security-evidence.json source_commit to HEAD for the duration of the test
-	head, err := harness.GitHeadCommit(context.Background())
-	if err == nil && head != "" {
-		evidencePath := filepath.Join(root, "engineering", "testing", "runtime-security-evidence.json")
-		if orig, rErr := os.ReadFile(evidencePath); rErr == nil {
-			var doc map[string]interface{}
-			if jErr := json.Unmarshal(orig, &doc); jErr == nil {
-				if doc["source_commit"] != head {
-					doc["source_commit"] = head
-					if mutated, mErr := json.MarshalIndent(doc, "", "  "); mErr == nil {
-						if wErr := os.WriteFile(evidencePath, append(mutated, '\n'), 0644); wErr == nil {
-							t.Cleanup(func() {
-								_ = os.WriteFile(evidencePath, orig, 0644)
-							})
-						}
-					}
-				}
-			}
-		}
-	}
-
-	changesPath := filepath.Join(harness.TempDir(t, "f04-changes"), "changes.txt")
+	mockRoot := harness.SetupMockSecurityRepo(t, true)
+	changesPath := filepath.Join(mockRoot, "changes.txt")
 	if err := os.WriteFile(changesPath, []byte("engineering/testing/runtime-security-evidence.json\n"), 0644); err != nil {
 		t.Fatalf("failed to create changes file: %v", err)
 	}
-	rel, err := filepath.Rel(root, changesPath)
-	if err != nil {
-		return changesPath
-	}
-	return rel
+	return mockRoot, changesPath
 }
 
 // T1.F4.1: Execute cmdr-dev security-test-audit and verify exit code 0.
@@ -71,8 +43,8 @@ func TestT1_F4_1_SecurityTestAuditExecutionSuccess(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
 
-	changesFile := createF04ChangesFile(t)
-	res := harness.RunCmdrDev(ctx, "security-test-audit", "--changes-file", changesFile, "--json")
+	mockRoot, changesFile := setupF04IsolatedAudit(t)
+	res := harness.RunCmdrDev(ctx, "security-test-audit", "--root", mockRoot, "--changes-file", changesFile, "--json")
 	if res.ExitCode != 0 {
 		t.Fatalf("cmdr-dev security-test-audit failed (code %d): %s", res.ExitCode, res.Stderr)
 	}
@@ -179,8 +151,8 @@ func TestT1_F4_5_SecurityAuditSummaryPass(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
 
-	changesFile := createF04ChangesFile(t)
-	res := harness.RunCmdrDev(ctx, "security-test-audit", "--changes-file", changesFile, "--json")
+	mockRoot, changesFile := setupF04IsolatedAudit(t)
+	res := harness.RunCmdrDev(ctx, "security-test-audit", "--root", mockRoot, "--changes-file", changesFile, "--json")
 	if res.ExitCode != 0 {
 		t.Fatalf("cmdr-dev security-test-audit failed: %s", res.Stderr)
 	}

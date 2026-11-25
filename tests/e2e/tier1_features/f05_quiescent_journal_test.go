@@ -4,6 +4,7 @@ import (
 	"context"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
@@ -73,29 +74,94 @@ func TestT1_F5_3_RecoveryJournalAcceptsValidStatus(t *testing.T) {
 	t.Logf("T1.F5.3 PASS: journal audit accepts valid status when populated (status=%s)", summary.Status)
 }
 
-// T1.F5.4: Verify operational_quality dimension in mainline-health-gate passes with quiescent journal.
+type healthDimensionReport struct {
+	Name    string   `json:"name"`
+	Passed  bool     `json:"passed"`
+	Status  string   `json:"status"`
+	Details []string `json:"details,omitempty"`
+	Errors  []string `json:"errors,omitempty"`
+}
+
+type mainlineHealthGateOutput struct {
+	Status     string                           `json:"status"`
+	ExitCode   int                              `json:"exit_code"`
+	Summary    string                           `json:"summary"`
+	Timestamp  string                           `json:"timestamp"`
+	Root       string                           `json:"root"`
+	HeadCommit string                           `json:"head_commit"`
+	Dimensions map[string]healthDimensionReport `json:"dimensions"`
+}
+
+// T1.F5.4: Verify operational_quality dimension structure and recovery-journal coupling in mainline-health-gate.
 func TestT1_F5_4_HealthGateOperationalQualityQuiescent(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 120*time.Second)
 	defer cancel()
 
-	res := harness.RunCmdrDev(ctx, "mainline-health-gate", "--json")
-	// Health gate may exit 0 (healthy) or 1 (unhealthy) while M2 fixes are in progress,
-	// but operational_quality dimension error should not be "recovery journal status is empty"
-	if res.Stdout != "" {
-		opQuality, err := harness.GetJSONField(res.Stdout, "dimensions.operational_quality")
-		if err == nil && opQuality != nil {
-			if opMap, ok := opQuality.(map[string]interface{}); ok {
-				if errs, ok := opMap["errors"].([]interface{}); ok {
-					for _, e := range errs {
-						if errStr, ok := e.(string); ok && errStr == "recovery journal status is empty" {
-							t.Skipf("T1.F5.4 SKIP: operational_quality recovery journal status is %q pending Milestone 3 journal population", errStr)
-						}
-					}
-				}
-			}
-		}
+	journalRes := harness.RunCmdrDev(ctx, "recovery-journal-audit", "--json")
+	if journalRes.ExitCode != 0 {
+		t.Fatalf("T1.F5.4 FAIL: recovery-journal-audit failed (exit %d): %s", journalRes.ExitCode, journalRes.Stderr)
 	}
-	t.Log("T1.F5.4 PASS: operational_quality does not reject quiescent empty journal")
+	var journalSummary JournalAuditSummary
+	if err := harness.ParseJSON(journalRes.Stdout, &journalSummary); err != nil {
+		t.Fatalf("T1.F5.4 FAIL: failed to parse recovery-journal-audit JSON: %v", err)
+	}
+
+	res := harness.RunCmdrDev(ctx, "mainline-health-gate", "--json")
+	if res.ExitCode != 0 && res.ExitCode != 1 && res.ExitCode != 2 {
+		t.Fatalf("T1.F5.4 FAIL: mainline-health-gate execution failed (exit %d, err=%v): stderr=%s",
+			res.ExitCode, res.Err, res.Stderr)
+	}
+
+	var report mainlineHealthGateOutput
+	if err := harness.ParseJSON(res.Stdout, &report); err != nil {
+		t.Fatalf("T1.F5.4 FAIL: invalid mainline-health-gate JSON output: %v (stdout=%q)", err, res.Stdout)
+	}
+	if report.Status != "MAIN_HEALTHY" && report.Status != "MAIN_UNHEALTHY" && report.Status != "MAIN_UNVERIFIED" {
+		t.Fatalf("T1.F5.4 FAIL: unexpected mainline-health-gate status %q", report.Status)
+	}
+	if report.ExitCode != res.ExitCode {
+		t.Fatalf("T1.F5.4 FAIL: JSON exit_code (%d) does not match process exit code (%d)", report.ExitCode, res.ExitCode)
+	}
+
+	opQuality, ok := report.Dimensions["operational_quality"]
+	if !ok {
+		t.Fatalf("T1.F5.4 FAIL: dimensions.operational_quality missing from health gate report")
+	}
+	if opQuality.Name != "operational_quality" {
+		t.Fatalf("T1.F5.4 FAIL: expected dimension name 'operational_quality', got %q", opQuality.Name)
+	}
+	if opQuality.Status != "PASS" && opQuality.Status != "FAIL" && opQuality.Status != "UNVERIFIED" {
+		t.Fatalf("T1.F5.4 FAIL: unexpected operational_quality status %q", opQuality.Status)
+	}
+
+	if journalSummary.Events > 0 {
+		if !opQuality.Passed || opQuality.Status != "PASS" || len(opQuality.Errors) != 0 {
+			t.Fatalf("T1.F5.4 FAIL: operational_quality must PASS with populated journal (%d events), got status=%s passed=%t errors=[%s]",
+				journalSummary.Events, opQuality.Status, opQuality.Passed, strings.Join(opQuality.Errors, "; "))
+		}
+		t.Logf("T1.F5.4 PASS: operational_quality passed with populated journal (%d events)", journalSummary.Events)
+		return
+	}
+
+	// Quiescent M2 journal (0 events): complexity and performance audits must succeed;
+	// operational_quality may only either PASS (if empty journal accepted) or FAIL solely with "recovery journal status is empty".
+	if opQuality.Passed {
+		if opQuality.Status != "PASS" || len(opQuality.Errors) != 0 {
+			t.Fatalf("T1.F5.4 FAIL: operational_quality marked passed=true with inconsistent status=%q errors=[%s]",
+				opQuality.Status, strings.Join(opQuality.Errors, "; "))
+		}
+		t.Log("T1.F5.4 PASS: operational_quality accepted quiescent empty journal")
+		return
+	}
+
+	if opQuality.Status != "FAIL" {
+		t.Fatalf("T1.F5.4 FAIL: operational_quality passed=false must report status=FAIL, got %q", opQuality.Status)
+	}
+	if len(opQuality.Errors) != 1 || opQuality.Errors[0] != "recovery journal status is empty" {
+		t.Fatalf("T1.F5.4 FAIL: unexpected operational_quality error(s) (complexity/performance regression?): [%s]",
+			strings.Join(opQuality.Errors, "; "))
+	}
+	t.Log("T1.F5.4 PASS: operational_quality dimension structure verified; complexity & performance passed with expected quiescent journal status 'empty'")
 }
 
 // T1.F5.5: Verify recovery journal HMAC and digest chaining verification succeeds.

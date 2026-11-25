@@ -19,23 +19,8 @@ func TestT1_F14_1_GitCleanWorkingTree(t *testing.T) {
 		t.Fatalf("failed to query git status: %v", err)
 	}
 
-	// Filter out harmless untracked test directories if running locally
-	lines := strings.Split(status, "\n")
-	var realChanges []string
-	for _, l := range lines {
-		trimmed := strings.TrimSpace(l)
-		if trimmed == "" {
-			continue
-		}
-		// Allow .cmdr-tmp, cmdr-dev, tests/, or runtime-security-evidence.json changes during test run
-		if strings.Contains(trimmed, ".cmdr-") || strings.Contains(trimmed, "cmdr-dev") || strings.Contains(trimmed, "tests/") || strings.Contains(trimmed, "runtime-security-evidence.json") {
-			continue
-		}
-		realChanges = append(realChanges, trimmed)
-	}
-
-	if len(realChanges) > 0 {
-		t.Fatalf("working tree has uncommitted changes outside test suite:\n%s", strings.Join(realChanges, "\n"))
+	if strings.TrimSpace(status) != "" {
+		t.Fatalf("working tree has uncommitted changes:\n%s", strings.TrimSpace(status))
 	}
 	t.Log("T1.F14.1 PASS: git working tree is clean")
 }
