@@ -3,7 +3,6 @@ package tier2_boundaries
 import (
 	"context"
 	"encoding/json"
-	"io/fs"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -90,147 +89,10 @@ func runGitMockCmd(t *testing.T, mockRoot string, args ...string) string {
 	return strings.TrimSpace(string(out))
 }
 
-func copyDirRecursive(t *testing.T, srcDir, dstDir string) {
-	t.Helper()
-	err := filepath.WalkDir(srcDir, func(path string, d fs.DirEntry, walkErr error) error {
-		if walkErr != nil {
-			return walkErr
-		}
-		rel, err := filepath.Rel(srcDir, path)
-		if err != nil {
-			return err
-		}
-		target := filepath.Join(dstDir, rel)
-		if d.IsDir() {
-			if d.Name() == ".git" {
-				return filepath.SkipDir
-			}
-			return os.MkdirAll(target, 0755)
-		}
-		data, err := os.ReadFile(path)
-		if err != nil {
-			return err
-		}
-		return os.WriteFile(target, data, 0644)
-	})
-	if err != nil {
-		t.Fatalf("failed to copy directory %s to %s: %v", srcDir, dstDir, err)
-	}
-}
-
 func setupIsolatedGitLedgerRepo(t *testing.T) (string, string) {
 	t.Helper()
-	root, err := harness.RepoRoot()
-	if err != nil {
-		t.Fatalf("failed to locate repo root: %v", err)
-	}
-
-	mockRoot := harness.TempDir(t, "ledger-git-mock")
-
-	copyFiles := []string{
-		"AGENTS.md",
-		"AI_START_HERE.md",
-		"engineering/state/current.json",
-		"work/graph.json",
-		"engineering/architecture/boundaries.json",
-		"work/lots/E10-INV-002G/manifest.json",
-		"work/lots/E10-INV-002G/HANDOFF.json",
-	}
-	for _, rel := range copyFiles {
-		src := filepath.Join(root, filepath.FromSlash(rel))
-		dst := filepath.Join(mockRoot, filepath.FromSlash(rel))
-		if err := os.MkdirAll(filepath.Dir(dst), 0755); err != nil {
-			t.Fatalf("failed to create dir for %s: %v", dst, err)
-		}
-		data, err := os.ReadFile(src)
-		if err != nil {
-			t.Fatalf("failed to read %s: %v", src, err)
-		}
-		if err := os.WriteFile(dst, data, 0644); err != nil {
-			t.Fatalf("failed to write %s: %v", dst, err)
-		}
-	}
-
-	// Copy canonical Product Spec tree required by buildCurrentObligationSet in implementation-ledger-audit
-	copyDirRecursive(t, filepath.Join(root, "cmdr-product-spec"), filepath.Join(mockRoot, "cmdr-product-spec"))
-
-	// Keep only the E10-INV-002G (CAP-INV-002 / event-search-runtime) claim in mock ledger.json
-	ledgerSrc := filepath.Join(root, "engineering", "implementation", "ledger.json")
-	ledgerBytes, err := os.ReadFile(ledgerSrc)
-	if err != nil {
-		t.Fatalf("failed to read %s: %v", ledgerSrc, err)
-	}
-	var ledgerDoc map[string]interface{}
-	if err := json.Unmarshal(ledgerBytes, &ledgerDoc); err != nil {
-		t.Fatalf("failed to parse ledger.json: %v", err)
-	}
-	entries, ok := ledgerDoc["entries"].([]interface{})
-	if !ok || len(entries) == 0 {
-		t.Fatalf("ledger.json has no entries")
-	}
-	var targetEntry map[string]interface{}
-	for _, item := range entries {
-		if m, ok := item.(map[string]interface{}); ok && m["work_unit"] == "E10-INV-002G" {
-			targetEntry = m
-			break
-		}
-	}
-	if targetEntry == nil {
-		t.Fatalf("ledger.json does not contain E10-INV-002G entry")
-	}
-	ledgerDoc["entries"] = []interface{}{targetEntry}
-	scopedLedger, err := json.MarshalIndent(ledgerDoc, "", "  ")
-	if err != nil {
-		t.Fatalf("failed to marshal scoped mock ledger: %v", err)
-	}
-	ledgerDst := filepath.Join(mockRoot, "engineering", "implementation", "ledger.json")
-	if err := os.MkdirAll(filepath.Dir(ledgerDst), 0755); err != nil {
-		t.Fatalf("failed to create ledger dir: %v", err)
-	}
-	if err := os.WriteFile(ledgerDst, scopedLedger, 0644); err != nil {
-		t.Fatalf("failed to write mock ledger.json: %v", err)
-	}
-
-	// Seed bounded runtime directory for event-search-runtime
-	runtimeDir := filepath.Join(mockRoot, "product-runtime", "event-search")
-	if err := os.MkdirAll(runtimeDir, 0755); err != nil {
-		t.Fatalf("failed to create runtime dir: %v", err)
-	}
-	if err := os.WriteFile(filepath.Join(runtimeDir, "runtime_stub.go"), []byte("package eventsearch\n"), 0644); err != nil {
-		t.Fatalf("failed to write runtime stub: %v", err)
-	}
-
-	// Initialize isolated git repository inside mockRoot
-	runGitMockCmd(t, mockRoot, "init", "-b", "main")
-	runGitMockCmd(t, mockRoot, "config", "user.name", "Test Writer")
-	runGitMockCmd(t, mockRoot, "config", "user.email", "test@cmdr.local")
-	runGitMockCmd(t, mockRoot, "add", ".")
-	runGitMockCmd(t, mockRoot, "commit", "-m", "initial mock baseline")
-
+	mockRoot := harness.CloneIsolatedRepo(t, "ledger-git-mock")
 	validatedHead := runGitMockCmd(t, mockRoot, "rev-parse", "HEAD")
-
-	// Pin HANDOFF.json implementation_commit and final_validated_head to validatedHead and commit
-	handoffPath := filepath.Join(mockRoot, "work", "lots", "E10-INV-002G", "HANDOFF.json")
-	handoffBytes, err := os.ReadFile(handoffPath)
-	if err != nil {
-		t.Fatalf("failed to read mock HANDOFF.json: %v", err)
-	}
-	var handoffDoc map[string]interface{}
-	if err := json.Unmarshal(handoffBytes, &handoffDoc); err != nil {
-		t.Fatalf("failed to parse mock HANDOFF.json: %v", err)
-	}
-	handoffDoc["implementation_commit"] = validatedHead
-	handoffDoc["final_validated_head"] = validatedHead
-	updatedHandoff, err := json.MarshalIndent(handoffDoc, "", "  ")
-	if err != nil {
-		t.Fatalf("failed to marshal mock HANDOFF.json: %v", err)
-	}
-	if err := os.WriteFile(handoffPath, updatedHandoff, 0644); err != nil {
-		t.Fatalf("failed to update mock HANDOFF.json: %v", err)
-	}
-	runGitMockCmd(t, mockRoot, "add", "work/lots/E10-INV-002G/HANDOFF.json")
-	runGitMockCmd(t, mockRoot, "commit", "-m", "record validated head in handoff")
-
 	return mockRoot, validatedHead
 }
 

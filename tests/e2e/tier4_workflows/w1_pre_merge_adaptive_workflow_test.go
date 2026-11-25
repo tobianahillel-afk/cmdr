@@ -4,6 +4,7 @@ import (
 	"context"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
@@ -21,29 +22,27 @@ func TestT4_01_PreMergeAdaptiveWorkflow(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 600*time.Second)
 	defer cancel()
 
-	root, err := harness.RepoRoot()
-	if err != nil {
-		t.Fatalf("failed to resolve repo root: %v", err)
-	}
-
-	tempDir := harness.TempDir(t, "w1-adaptive")
+	// Run validation-run inside an isolated clone so measured security evidence writes never mutate RepoRoot()
+	mockRoot := harness.CloneIsolatedRepo(t, "w1-adaptive")
 
 	// Phase 1: Determine base and head revisions for PR simulation
-	headCommit, err := harness.GitHeadCommit(ctx)
-	if err != nil {
-		t.Fatalf("failed to resolve HEAD commit: %v", err)
+	headRes := harness.RunCmd(ctx, mockRoot, nil, "git", "rev-parse", "HEAD")
+	if headRes.ExitCode != 0 || strings.TrimSpace(headRes.Stdout) == "" {
+		t.Fatalf("failed to resolve HEAD commit: %s", headRes.Stderr)
 	}
+	headCommit := strings.TrimSpace(headRes.Stdout)
 
 	// Use HEAD~1 or HEAD as base commit to ensure distinct valid commits for git-changes
-	baseRes := harness.RunCmd(ctx, root, nil, "git", "rev-parse", "HEAD~1")
+	baseRes := harness.RunCmd(ctx, mockRoot, nil, "git", "rev-parse", "HEAD~1")
 	baseCommit := headCommit
-	if baseRes.ExitCode == 0 && baseRes.Stdout != "" {
-		baseCommit = filepath.Clean(baseRes.Stdout)
+	if baseRes.ExitCode == 0 && strings.TrimSpace(baseRes.Stdout) != "" {
+		baseCommit = strings.TrimSpace(baseRes.Stdout)
 	}
 
 	// Phase 2: Compute change set via cmdr-dev git-changes
-	changesFile := filepath.Join(tempDir, "pr-changes.txt")
+	changesFile := filepath.Join(mockRoot, ".tmp-w1-pr-changes.txt")
 	gitChangesRes := harness.RunCmdrDev(ctx, "git-changes",
+		"--root", mockRoot,
 		"--base-commit", baseCommit,
 		"--head-commit", headCommit,
 		"--output", changesFile,
@@ -61,6 +60,7 @@ func TestT4_01_PreMergeAdaptiveWorkflow(t *testing.T) {
 
 	// Phase 3: Generate risk-adaptive validation plan
 	planRes := harness.RunCmdrDev(ctx, "validation-plan",
+		"--root", mockRoot,
 		"--changes-file", changesFile,
 		"--json",
 	)
@@ -69,10 +69,11 @@ func TestT4_01_PreMergeAdaptiveWorkflow(t *testing.T) {
 	}
 	harness.AssertJSONFieldExists(t, planRes.Stdout, "tier")
 
-	// Phase 4: Run targeted validation execution
+	// Phase 4: Run targeted validation execution inside isolated mockRoot
 	var valRunRes harness.CmdResult
 	for attempt := 1; attempt <= 3; attempt++ {
 		valRunRes = harness.RunCmdrDev(ctx, "validation-run",
+			"--root", mockRoot,
 			"--changes-file", changesFile,
 			"--json",
 		)

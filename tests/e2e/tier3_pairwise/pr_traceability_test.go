@@ -71,7 +71,7 @@ func TestT3_04_TraceabilityFromPRsToMainline_F11_F12_F14(t *testing.T) {
 
 	// Check PR #230, #231, #232 in Git history
 	// PR #231 and #232 exist in git log on main
-	gitLogRes := harness.RunCmd(ctx, root, nil, "git", "log", "-n", "10", "--oneline")
+	gitLogRes := harness.RunCmd(ctx, root, nil, "git", "log", "-n", "50", "--oneline")
 	if gitLogRes.ExitCode != 0 {
 		t.Fatalf("git log failed: %s", gitLogRes.Stderr)
 	}

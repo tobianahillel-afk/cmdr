@@ -257,6 +257,13 @@ func TestT4_04_TamperDetectionAndFailClosed(t *testing.T) {
 		if err := os.WriteFile(journalPath, corruptedJournal, 0644); err != nil {
 			t.Fatalf("failed to write corrupted journal: %v", err)
 		}
+		// Commit tampered journal inside mockRoot so git working tree stays clean and operational_quality is isolated
+		if res := harness.RunCmd(ctx, mockRoot, nil, "git", "add", "engineering/recovery/journal.json"); res.ExitCode != 0 {
+			t.Fatalf("git add tampered journal failed: %s", res.Stderr)
+		}
+		if res := harness.RunCmd(ctx, mockRoot, nil, "git", "commit", "-m", "tamper recovery journal digest"); res.ExitCode != 0 {
+			t.Fatalf("git commit tampered journal failed: %s", res.Stderr)
+		}
 
 		gateRes, report := runW4HealthGate(t, ctx, mockRoot)
 		if gateRes.ExitCode == 0 {
@@ -309,6 +316,13 @@ func TestT4_04_TamperDetectionAndFailClosed(t *testing.T) {
 		}
 		if err := os.WriteFile(ledgerPath, corruptedLedger, 0644); err != nil {
 			t.Fatalf("failed to write corrupted ledger: %v", err)
+		}
+		// Commit tampered ledger inside mockRoot so git working tree stays clean and traceability is isolated
+		if res := harness.RunCmd(ctx, mockRoot, nil, "git", "add", "engineering/implementation/ledger.json"); res.ExitCode != 0 {
+			t.Fatalf("git add tampered ledger failed: %s", res.Stderr)
+		}
+		if res := harness.RunCmd(ctx, mockRoot, nil, "git", "commit", "-m", "tamper implementation ledger phantom unit"); res.ExitCode != 0 {
+			t.Fatalf("git commit tampered ledger failed: %s", res.Stderr)
 		}
 
 		gateRes, report := runW4HealthGate(t, ctx, mockRoot)
