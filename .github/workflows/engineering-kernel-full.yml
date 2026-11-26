@@ -11,6 +11,7 @@ on:
 
 permissions:
   contents: read
+  pull-requests: read
 
 concurrency:
   group: engineering-kernel-full-${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
@@ -57,6 +58,8 @@ jobs:
 
       - name: Run E2E opaque test suite
         working-directory: tests/e2e
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: go test -v -timeout 20m ./...
 
       - name: Compile canonical product spec inventory
@@ -190,3 +193,7 @@ jobs:
             printf 'Error resolving next work unit:\n%s\n' "$output" >&2
             exit $status
           fi
+
+      - name: Enforce Mainline Health Gate
+        working-directory: tools/cmdr-dev
+        run: go run . mainline-health-gate --root ../..

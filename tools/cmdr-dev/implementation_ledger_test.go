@@ -114,7 +114,7 @@ func TestImplementationLedgerRejectsDuplicateWorkUnit(t *testing.T) {
 	}
 }
 
-func TestImplementationLedgerRejectsDuplicateRuntimeBoundary(t *testing.T) {
+func TestImplementationLedgerAllowsSharedRuntimeBoundary(t *testing.T) {
 	state := CurrentState{}
 	state.ProductSpec.BaselineCommit = "0123456789abcdef0123456789abcdef01234567"
 	ledger := ImplementationLedger{
@@ -137,8 +137,8 @@ func TestImplementationLedgerRejectsDuplicateRuntimeBoundary(t *testing.T) {
 			},
 		},
 	}
-	if err := validateImplementationLedgerShape(ledger, state); err == nil {
-		t.Fatal("expected duplicate runtime boundary rejection")
+	if err := validateImplementationLedgerShape(ledger, state); err != nil {
+		t.Fatalf("expected shared runtime boundary to be allowed, got error: %v", err)
 	}
 }
 

@@ -134,34 +134,11 @@ func TestT1_F5_4_HealthGateOperationalQualityQuiescent(t *testing.T) {
 		t.Fatalf("T1.F5.4 FAIL: unexpected operational_quality status %q", opQuality.Status)
 	}
 
-	if journalSummary.Events > 0 {
-		if !opQuality.Passed || opQuality.Status != "PASS" || len(opQuality.Errors) != 0 {
-			t.Fatalf("T1.F5.4 FAIL: operational_quality must PASS with populated journal (%d events), got status=%s passed=%t errors=[%s]",
-				journalSummary.Events, opQuality.Status, opQuality.Passed, strings.Join(opQuality.Errors, "; "))
-		}
-		t.Logf("T1.F5.4 PASS: operational_quality passed with populated journal (%d events)", journalSummary.Events)
-		return
+	if !opQuality.Passed || opQuality.Status != "PASS" || len(opQuality.Errors) != 0 {
+		t.Fatalf("T1.F5.4 FAIL: operational_quality must PASS (events=%d), got status=%s passed=%t errors=[%s]",
+			journalSummary.Events, opQuality.Status, opQuality.Passed, strings.Join(opQuality.Errors, "; "))
 	}
-
-	// Quiescent M2 journal (0 events): complexity and performance audits must succeed;
-	// operational_quality may only either PASS (if empty journal accepted) or FAIL solely with "recovery journal status is empty".
-	if opQuality.Passed {
-		if opQuality.Status != "PASS" || len(opQuality.Errors) != 0 {
-			t.Fatalf("T1.F5.4 FAIL: operational_quality marked passed=true with inconsistent status=%q errors=[%s]",
-				opQuality.Status, strings.Join(opQuality.Errors, "; "))
-		}
-		t.Log("T1.F5.4 PASS: operational_quality accepted quiescent empty journal")
-		return
-	}
-
-	if opQuality.Status != "FAIL" {
-		t.Fatalf("T1.F5.4 FAIL: operational_quality passed=false must report status=FAIL, got %q", opQuality.Status)
-	}
-	if len(opQuality.Errors) != 1 || opQuality.Errors[0] != "recovery journal status is empty" {
-		t.Fatalf("T1.F5.4 FAIL: unexpected operational_quality error(s) (complexity/performance regression?): [%s]",
-			strings.Join(opQuality.Errors, "; "))
-	}
-	t.Log("T1.F5.4 PASS: operational_quality dimension structure verified; complexity & performance passed with expected quiescent journal status 'empty'")
+	t.Logf("T1.F5.4 PASS: operational_quality passed (events=%d)", journalSummary.Events)
 }
 
 // T1.F5.5: Verify recovery journal HMAC and digest chaining verification succeeds.

@@ -92,11 +92,9 @@ func TestT3_01_HealthGateConvergence_F5_F6_F7(t *testing.T) {
 	if !hasOp {
 		t.Fatal("health gate missing 'operational_quality' dimension")
 	}
-	for _, e := range opDim.Errors {
-		if e == "recovery journal status is empty" {
-			t.Logf("T3.01: recovery journal status is empty in Milestone 2; reconciliation scheduled for Milestone 3")
-			continue
-		}
+	if !opDim.Passed || opDim.Status != "PASS" || len(opDim.Errors) != 0 {
+		t.Fatalf("T3.01 FAIL: operational_quality must PASS after M3 integration, got passed=%t status=%s errors=%v",
+			opDim.Passed, opDim.Status, opDim.Errors)
 	}
 
 	// Assert traceability dimension reflects F6 resolution
@@ -104,10 +102,9 @@ func TestT3_01_HealthGateConvergence_F5_F6_F7(t *testing.T) {
 	if !hasTrace {
 		t.Fatal("health gate missing 'traceability' dimension")
 	}
-	for _, e := range traceDim.Errors {
-		if e == "implementation ledger status is FAIL" {
-			t.Fatalf("traceability failed with regression: rejected valid ledger evidence (%s)", e)
-		}
+	if !traceDim.Passed || traceDim.Status != "PASS" || len(traceDim.Errors) != 0 {
+		t.Fatalf("T3.01 FAIL: traceability must PASS after M3 integration, got passed=%t status=%s errors=%v",
+			traceDim.Passed, traceDim.Status, traceDim.Errors)
 	}
 
 	t.Logf("T3.01 PASS: Health gate convergence verified (operational_quality.passed=%v, traceability.passed=%v, status=%s)",

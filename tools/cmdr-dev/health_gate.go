@@ -38,6 +38,23 @@ type MainlineHealthGateReport struct {
 	Dimensions map[string]HealthDimensionResult `json:"dimensions"`
 }
 
+func validateCodeAudit(doc DoctorOutput, cat CheckCatalogSummary) []string {
+	var errs []string
+	if !doc.Healthy {
+		errs = append(errs, doc.Warnings...)
+		return errs
+	}
+	if len(doc.Checks) == 0 {
+		errs = append(errs, "doctor verified 0 checks")
+		return errs
+	}
+	if cat.Checks == 0 || cat.Mandatory == 0 {
+		errs = append(errs, "check catalog has 0 registered or mandatory checks")
+		return errs
+	}
+	return nil
+}
+
 func evaluateCodeDimension(root string, state CurrentState, graph WorkGraph, stateErr error) HealthDimensionResult {
 	res := HealthDimensionResult{Name: "code", Passed: false, Status: "FAIL"}
 	if stateErr != nil {
@@ -50,10 +67,6 @@ func evaluateCodeDimension(root string, state CurrentState, graph WorkGraph, sta
 		res.Errors = append(res.Errors, fmt.Sprintf("doctor validation failed: %v", err))
 		return res
 	}
-	if !doc.Healthy {
-		res.Errors = append(res.Errors, doc.Warnings...)
-		return res
-	}
 
 	cat, err := runCheckCatalogAudit(root)
 	if err != nil {
@@ -61,13 +74,39 @@ func evaluateCodeDimension(root string, state CurrentState, graph WorkGraph, sta
 		return res
 	}
 
+	if errs := validateCodeAudit(doc, cat); len(errs) > 0 {
+		res.Errors = append(res.Errors, errs...)
+		return res
+	}
+
 	res.Passed = true
 	res.Status = "PASS"
 	res.Details = append(res.Details,
 		fmt.Sprintf("doctor checks passed (%d checks verified)", len(doc.Checks)),
-		fmt.Sprintf("check catalog verified (%d checks registered)", cat.Checks),
+		fmt.Sprintf("check catalog verified (%d checks registered, %d mandatory)", cat.Checks, cat.Mandatory),
 	)
 	return res
+}
+
+func validateSecurityAudit(secScan SecretScanSummary, gates SecurityGateAuditSummary, goVersion string) []string {
+	var errs []string
+	if secScan.FindingCount > 0 {
+		errs = append(errs, fmt.Sprintf("%d secret findings detected across %d paths", secScan.FindingCount, secScan.CandidatePaths))
+		return errs
+	}
+	if secScan.CandidatePaths == 0 {
+		errs = append(errs, "secret scan inspected 0 candidate paths")
+		return errs
+	}
+	if gates.Gates == 0 || gates.Blocking == 0 {
+		errs = append(errs, "security gate registry has 0 registered or blocking gates")
+		return errs
+	}
+	if goVersion != "1.26.11" {
+		errs = append(errs, fmt.Sprintf("engineering Go toolchain version mismatch: expected 1.26.11, got %s", goVersion))
+		return errs
+	}
+	return nil
 }
 
 func evaluateSecurityDimension(root string) HealthDimensionResult {
@@ -78,10 +117,6 @@ func evaluateSecurityDimension(root string) HealthDimensionResult {
 		res.Errors = append(res.Errors, fmt.Sprintf("secret scan failed: %v", err))
 		return res
 	}
-	if secScan.FindingCount > 0 {
-		res.Errors = append(res.Errors, fmt.Sprintf("%d secret findings detected across %d paths", secScan.FindingCount, secScan.CandidatePaths))
-		return res
-	}
 
 	gates, err := runSecurityGateAudit(root)
 	if err != nil {
@@ -89,8 +124,8 @@ func evaluateSecurityDimension(root string) HealthDimensionResult {
 		return res
 	}
 
-	if engineeringGoVersion != "1.26.11" {
-		res.Errors = append(res.Errors, fmt.Sprintf("engineering Go toolchain version mismatch: expected 1.26.11, got %s", engineeringGoVersion))
+	if errs := validateSecurityAudit(secScan, gates, engineeringGoVersion); len(errs) > 0 {
+		res.Errors = append(res.Errors, errs...)
 		return res
 	}
 
@@ -162,6 +197,27 @@ func evaluateGitDimension(root string) (HealthDimensionResult, string) {
 	return res, headCommit
 }
 
+func validateTraceabilityAudit(ledger ImplementationLedgerAuditSummary, dec DecisionRegistryAuditSummary) []string {
+	var errs []string
+	if ledger.Status != "valid" && ledger.Status != "PASS" {
+		errs = append(errs, fmt.Sprintf("implementation ledger status is %s", ledger.Status))
+		return errs
+	}
+	if ledger.Entries == 0 || ledger.VerifiedClaims == 0 {
+		errs = append(errs, "implementation ledger has 0 entries or verified claims")
+		return errs
+	}
+	if ledger.VerifiedClaims != ledger.Entries {
+		errs = append(errs, fmt.Sprintf("implementation ledger accounting mismatch: %d claims vs %d entries", ledger.VerifiedClaims, ledger.Entries))
+		return errs
+	}
+	if dec.Decisions == 0 {
+		errs = append(errs, "decision registry has 0 decisions registered")
+		return errs
+	}
+	return nil
+}
+
 func evaluateTraceabilityDimension(root string, state CurrentState, graph WorkGraph, stateErr error) HealthDimensionResult {
 	res := HealthDimensionResult{Name: "traceability", Passed: false, Status: "FAIL"}
 	if stateErr != nil {
@@ -174,14 +230,15 @@ func evaluateTraceabilityDimension(root string, state CurrentState, graph WorkGr
 		res.Errors = append(res.Errors, fmt.Sprintf("implementation ledger audit failed: %v", err))
 		return res
 	}
-	if ledger.Status != "valid" && ledger.Status != "PASS" {
-		res.Errors = append(res.Errors, fmt.Sprintf("implementation ledger status is %s", ledger.Status))
-		return res
-	}
 
 	dec, err := runDecisionRegistryAudit(root, graph)
 	if err != nil {
 		res.Errors = append(res.Errors, fmt.Sprintf("decision registry audit failed: %v", err))
+		return res
+	}
+
+	if errs := validateTraceabilityAudit(ledger, dec); len(errs) > 0 {
+		res.Errors = append(res.Errors, errs...)
 		return res
 	}
 
@@ -192,6 +249,31 @@ func evaluateTraceabilityDimension(root string, state CurrentState, graph WorkGr
 		fmt.Sprintf("decision registry %d decisions reconciled with work graph", dec.Decisions),
 	)
 	return res
+}
+
+func validateOperationalQualityAudit(comp ComplexityAuditSummary, perf PerformanceRegistryAuditSummary, rec RecoveryJournalAuditSummary) []string {
+	var errs []string
+	if comp.ReadinessViolations > 0 {
+		errs = append(errs, fmt.Sprintf("%d complexity readiness violations detected", comp.ReadinessViolations))
+		return errs
+	}
+	if comp.Evaluated == 0 {
+		errs = append(errs, "complexity audit evaluated 0 units")
+		return errs
+	}
+	if perf.RuntimeCoverageStatus != "complete" {
+		errs = append(errs, fmt.Sprintf("performance registry runtime coverage status is %s", perf.RuntimeCoverageStatus))
+		return errs
+	}
+	if perf.Targets == 0 || perf.Metrics == 0 {
+		errs = append(errs, "performance registry has 0 targets or metrics")
+		return errs
+	}
+	if rec.Status != "valid" && rec.Status != "empty" {
+		errs = append(errs, fmt.Sprintf("recovery journal status is %s", rec.Status))
+		return errs
+	}
+	return nil
 }
 
 func evaluateOperationalQualityDimension(root string, graph WorkGraph, stateErr error) HealthDimensionResult {
@@ -206,18 +288,10 @@ func evaluateOperationalQualityDimension(root string, graph WorkGraph, stateErr 
 		res.Errors = append(res.Errors, fmt.Sprintf("complexity audit failed: %v", err))
 		return res
 	}
-	if comp.ReadinessViolations > 0 {
-		res.Errors = append(res.Errors, fmt.Sprintf("%d complexity readiness violations detected", comp.ReadinessViolations))
-		return res
-	}
 
 	perf, err := runPerformanceRegistryAudit(root)
 	if err != nil {
 		res.Errors = append(res.Errors, fmt.Sprintf("performance registry audit failed: %v", err))
-		return res
-	}
-	if perf.RuntimeCoverageStatus != "complete" {
-		res.Errors = append(res.Errors, fmt.Sprintf("performance registry runtime coverage status is %s", perf.RuntimeCoverageStatus))
 		return res
 	}
 
@@ -226,9 +300,15 @@ func evaluateOperationalQualityDimension(root string, graph WorkGraph, stateErr 
 		res.Errors = append(res.Errors, fmt.Sprintf("recovery journal audit failed: %v", err))
 		return res
 	}
-	if rec.Status != "valid" {
-		res.Errors = append(res.Errors, fmt.Sprintf("recovery journal status is %s", rec.Status))
+
+	if errs := validateOperationalQualityAudit(comp, perf, rec); len(errs) > 0 {
+		res.Errors = append(res.Errors, errs...)
 		return res
+	}
+
+	journalDetail := fmt.Sprintf("recovery journal valid with %d events intact", rec.Events)
+	if rec.Status == "empty" {
+		journalDetail = "recovery journal quiescent (0 active incidents/events)"
 	}
 
 	res.Passed = true
@@ -236,7 +316,7 @@ func evaluateOperationalQualityDimension(root string, graph WorkGraph, stateErr 
 	res.Details = append(res.Details,
 		fmt.Sprintf("complexity within limits across %d evaluated units (%d within budget)", comp.Evaluated, comp.WithinBudget),
 		fmt.Sprintf("performance registry complete with %d targets and %d metrics", perf.Targets, perf.Metrics),
-		fmt.Sprintf("recovery journal valid with %d events intact", rec.Events),
+		journalDetail,
 	)
 	return res
 }
@@ -264,14 +344,30 @@ func runMainlineHealthGate(root string, state CurrentState, graph WorkGraph, sta
 	opDim := evaluateOperationalQualityDimension(root, graph, stateErr)
 	report.Dimensions["operational_quality"] = opDim
 
+	aggregateHealthGateReport(&report)
+
+	return report, report.ExitCode
+}
+
+// aggregateHealthGateReport aggregates the 5 required dimensions into the final gate status,
+// exit code, and human-readable summary. It enforces that all 5 dimensions must exist,
+// be marked passed, and have no FAIL status. If any dimension is UNVERIFIED (and none FAIL),
+// the status is MAIN_UNVERIFIED.
+func aggregateHealthGateReport(report *MainlineHealthGateReport) (HealthGateStatus, int) {
+	if report == nil {
+		return StatusMainUnhealthy, ExitCodeMainUnhealthy
+	}
+
 	hasFail := false
 	hasUnverified := false
 
-	for _, dim := range report.Dimensions {
-		if dim.Status == "FAIL" || !dim.Passed && dim.Status != "UNVERIFIED" {
+	requiredDimensions := []string{"code", "security", "git", "traceability", "operational_quality"}
+	for _, req := range requiredDimensions {
+		dim, ok := report.Dimensions[req]
+		if !ok || dim.Status == "FAIL" || (!dim.Passed && dim.Status != "UNVERIFIED") {
 			hasFail = true
 		}
-		if dim.Status == "UNVERIFIED" {
+		if ok && dim.Status == "UNVERIFIED" {
 			hasUnverified = true
 		}
 	}
@@ -290,7 +386,7 @@ func runMainlineHealthGate(root string, state CurrentState, graph WorkGraph, sta
 		report.Summary = "Mainline health gate PASSED across all 5 dimensions (Code, Security, Git, Traceability, Operational Quality)."
 	}
 
-	return report, report.ExitCode
+	return report.Status, report.ExitCode
 }
 
 func printMainlineHealthGateReport(report MainlineHealthGateReport) {

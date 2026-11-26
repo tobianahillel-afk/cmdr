@@ -4551,5 +4551,76 @@
       "tools/cmdr-dev/main.go"
     ],
     "key_contributions": "Permanent mainline health gate CLI, multi-dimensional repository evaluation, universal PR CI triggers, branch protection enforcement."
+  },
+  {
+    "pr_number": 231,
+    "title": "chore(reconciliation): reconcile registers, CAP-STD-004 ledger evidence, and Windows perf probe timer",
+    "head_branch": "chore/m4-reconciliation-and-windows-perf-fix",
+    "base_branch": "main",
+    "status": "MERGED",
+    "disposition": "INCORPORATED_IN_MAIN",
+    "disposition_rationale": "Reconciles reconciliation registers, aligns CAP-STD-004 ledger evidence, adjusts Windows performance probe timer precision, and conforms E10-STD-003A-TOOL handoff schema; squash-merged at commit 635985530600be49108eaf513635a2c8662c3f7e.",
+    "files_introduced": [
+      "engineering/implementation/ledger.json",
+      "product-runtime/event-search/cmd/perf-probe/main_test.go",
+      "tools/cmdr-dev/health_gate.go",
+      "tools/cmdr-dev/implementation_ledger.go",
+      "tools/cmdr-dev/verified_toolchain_transition.go",
+      "work/lots/E10-STD-003A-TOOL/HANDOFF.json",
+      "work/lots/E10-STD-003A-TOOL/manifest.json",
+      "work/reconciliation/PR_CLOSURE_REGISTER.md",
+      "work/reconciliation/prs.json"
+    ],
+    "key_contributions": "Registers reconciliation, CAP-STD-004 ledger alignment, Windows timer precision fix, toolchain transition reverification."
+  },
+  {
+    "pr_number": 232,
+    "title": "docs(governance): document permanent continuous delivery cycle and CAP-STD-005 roadmap",
+    "head_branch": "docs/m5-continuous-delivery-lifecycle-and-cap-std-005-roadmap",
+    "base_branch": "main",
+    "status": "MERGED",
+    "disposition": "INCORPORATED_IN_MAIN",
+    "disposition_rationale": "Establishes permanent continuous delivery protocol on main, defines sequential capability progression lifecycle, and frames CAP-STD-005 roadmap prerequisites without premature implementation; squash-merged at commit c1e75db81662b33a0f1208afdbf8b688fe7977e3.",
+    "commit": "c1e75db81662b33a0f1208afdbf8b688fe7977e3",
+    "files_introduced": [
+      "engineering/governance/continuous-delivery-lifecycle.md",
+      "engineering/implementation/roadmap-cap-std-005.md"
+    ],
+    "key_contributions": "Continuous delivery lifecycle formalization, CAP-STD-005 capability roadmap framing and acceptance preconditions."
+  },
+  {
+    "pr_number": 233,
+    "title": "fix(security): toolchain hardening to Go 1.26.11, Windows SAST taskkill PID annotation, and runtime security evidence sync",
+    "head_branch": "fix/m1-security-toolchain-sast-evidence",
+    "base_branch": "main",
+    "status": "MERGED",
+    "disposition": "INCORPORATED_IN_MAIN",
+    "disposition_rationale": "Hardens Go toolchain to 1.26.11 across cmdr-dev security validation, annotates Windows SAST taskkill PID invocation, and synchronizes runtime security evidence; squash-merged at commit e4ea9a315cfa655520d1bc3e308ed9c45c326041.",
+    "commit": "e4ea9a315cfa655520d1bc3e308ed9c45c326041",
+    "files_introduced": [
+      "engineering/testing/runtime-security-evidence.json",
+      "tools/cmdr-dev/performance_timeline_process_windows.go",
+      "tools/cmdr-dev/security_static.go"
+    ],
+    "key_contributions": "Milestone M1 Go 1.26.11 toolchain security alignment, Windows SAST taskkill annotation, synchronized runtime security evidence."
+  },
+  {
+    "pr_number": 234,
+    "title": "feat(tests): add 167-test 4-tier E2E opaque-box test suite and architecture boundary registration",
+    "head_branch": "feat/e2e-opaque-test-suite",
+    "base_branch": "main",
+    "status": "MERGED",
+    "disposition": "INCORPORATED_IN_MAIN",
+    "disposition_rationale": "Introduces 167-test 4-tier opaque-box E2E test suite with SHA-attributed Codex verification, go test -json verification, structured CI workflow parsing, fail-closed race evaluation, and architecture boundary registration; squash-merged at commit a7a50f2a35ab537fe7f784a685c24d159c8e8926.",
+    "commit": "a7a50f2a35ab537fe7f784a685c24d159c8e8926",
+    "files_introduced": [
+      ".github/workflows/engineering-kernel-full.yml",
+      ".github/workflows/engineering-kernel.yml",
+      ".gitignore",
+      "engineering/architecture/boundaries.json",
+      "engineering/testing/runtime-security-evidence.json",
+      "tests/e2e/**"
+    ],
+    "key_contributions": "4-tier 167-test opaque-box E2E suite, SHA-attributed GitHub/Codex checks, verified go test -json runner, structured CI workflow validation."
   }
 ]

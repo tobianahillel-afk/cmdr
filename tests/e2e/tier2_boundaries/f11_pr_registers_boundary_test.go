@@ -64,6 +64,15 @@ func TestT2_F11_1_PRRegisterFailsOnInvalidPR231Commit(t *testing.T) {
 
 	mockRoot := setupIsolatedPRRegisterRepo(t, ctx, "f11-pr231")
 	mutatePRRegisterJSON(t, mockRoot, func(records []harness.PRMetadata) []harness.PRMetadata {
+		for i := range records {
+			if records[i].PRNumber == 231 {
+				records[i].Commit = "0000000000000000000000000000000000000000"
+				records[i].MergeCommit = ""
+				records[i].HeadSHA = ""
+				records[i].SHA = ""
+				return records
+			}
+		}
 		return append(records, harness.PRMetadata{
 			PRNumber:             231,
 			Title:                "reconcile: CAP-STD-004 ledger and graph mapping",
@@ -104,6 +113,15 @@ func TestT2_F11_2_PRRegisterFailsOnInvalidPR232Commit(t *testing.T) {
 
 	mockRoot := setupIsolatedPRRegisterRepo(t, ctx, "f11-pr232")
 	mutatePRRegisterJSON(t, mockRoot, func(records []harness.PRMetadata) []harness.PRMetadata {
+		for i := range records {
+			if records[i].PRNumber == 232 {
+				records[i].Commit = "not-a-sha-hash"
+				records[i].MergeCommit = ""
+				records[i].HeadSHA = ""
+				records[i].SHA = ""
+				return records
+			}
+		}
 		return append(records, harness.PRMetadata{
 			PRNumber:             232,
 			Title:                "docs: continuous development protocol and CAP-STD-005 roadmap",
@@ -210,9 +228,7 @@ func TestT2_F11_5_PRRegisterConsistencyBetweenJSONAndMarkdown(t *testing.T) {
 
 	missingInMarkdown := 0
 	for _, pr := range records {
-		marker := fmt.Sprintf("#%d", pr.PRNumber)
-		markerAlt := fmt.Sprintf("PR %d", pr.PRNumber)
-		if !strings.Contains(closureText, marker) && !strings.Contains(closureText, markerAlt) {
+		if !harness.ClosureRegisterContainsPR(closureText, pr.PRNumber) {
 			missingInMarkdown++
 		}
 	}

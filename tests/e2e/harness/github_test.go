@@ -475,4 +475,18 @@ func TestValidatePRRegisterConsistency(t *testing.T) {
 	if err := ValidatePRRegisterConsistency(ctx, tmpRepo); err == nil {
 		t.Fatalf("expected missing PR #230 in markdown register to fail")
 	}
+
+	prefixCollision := validRecord
+	prefixCollision.PRNumber = 23
+	writeRegister([]PRMetadata{prefixCollision}, "# PR Closure Register\n- #230 MERGED\n- PR 230 closed\n")
+	if err := ValidatePRRegisterConsistency(ctx, tmpRepo); err == nil {
+		t.Fatalf("expected PR #23 to fail when markdown only mentions #230 / PR 230")
+	}
+
+	for _, md := range []string{"**#230**", "(#230)", "PR 230"} {
+		writeRegister([]PRMetadata{validRecord}, md)
+		if err := ValidatePRRegisterConsistency(ctx, tmpRepo); err != nil {
+			t.Fatalf("expected %q to satisfy PR #230 boundary match, got %v", md, err)
+		}
+	}
 }

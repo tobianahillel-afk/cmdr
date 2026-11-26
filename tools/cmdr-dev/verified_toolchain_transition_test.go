@@ -93,3 +93,52 @@ func TestPinnedGoToolchainTransitionRejectsDeniedExecution(t *testing.T) {
 		t.Fatalf("a failed mandatory Go test, including Windows Access is denied, must fail closed: unchanged=%v err=%v", unchanged, err)
 	}
 }
+
+func TestPinnedGoToolchainTransitionPerfProbeTestWhitelist(t *testing.T) {
+	cases := []struct {
+		name      string
+		dir       string
+		extraFile string
+		wantAllow bool
+	}{
+		{"event-search_perf_test", eventSearchRuntimeDirectory, "/cmd/perf-probe/main_test.go", true},
+		{"case-queue_perf_test", caseQueueSecurityRuntimeRoot, "/cmd/perf-probe/main_test.go", true},
+		{"context-envelope_perf_test", pilotSecurityRuntimeRoot, "/cmd/perf-probe/main_test.go", true},
+		{"case-queue_perf_main_rejected", caseQueueSecurityRuntimeRoot, "/cmd/perf-probe/main.go", false},
+		{"context-envelope_perf_main_rejected", pilotSecurityRuntimeRoot, "/cmd/perf-probe/main.go", false},
+		{"hunt-management_perf_test_rejected", huntManagementRuntimeDirectory, "/cmd/perf-probe/main_test.go", false},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			root := t.TempDir()
+			gitInspectionToolchainFixture(t, root, "init", "-q")
+			gitInspectionToolchainFixture(t, root, "config", "user.email", "fixture@example.invalid")
+			gitInspectionToolchainFixture(t, root, "config", "user.name", "Perf probe test whitelist fixture")
+			module := fmt.Sprintf("module github.com/tobianahillel-afk/cmdr/%s\n\n", tc.dir)
+			goModPath := tc.dir + "/go.mod"
+			extraPath := tc.dir + tc.extraFile
+			writeInspectionToolchainFixture(t, root, goModPath, module+"go 1.26.8\n")
+			writeInspectionToolchainFixture(t, root, extraPath, "package main\n")
+			gitInspectionToolchainFixture(t, root, "add", ".")
+			gitInspectionToolchainFixture(t, root, "commit", "-qm", "old evidence")
+			old := gitInspectionToolchainFixture(t, root, "rev-parse", "HEAD")
+
+			writeInspectionToolchainFixture(t, root, goModPath, module+"go 1.26.11\n")
+			writeInspectionToolchainFixture(t, root, extraPath, "package main\n// bumped iterations\n")
+			gitInspectionToolchainFixture(t, root, "add", ".")
+			gitInspectionToolchainFixture(t, root, "commit", "-qm", "approved transition + perf-probe delta")
+			patched := gitInspectionToolchainFixture(t, root, "rev-parse", "HEAD")
+
+			unchanged, err := checkPinnedGoToolchainDelta(root, old, patched, tc.dir)
+			if tc.wantAllow {
+				if err != nil || unchanged {
+					t.Fatalf("expected whitelisted %s transition to succeed (unchanged=false, err=nil), got unchanged=%v err=%v", tc.extraFile, unchanged, err)
+				}
+			} else {
+				if err == nil {
+					t.Fatalf("expected unapproved %s delta for %s to fail closed, got nil error", tc.extraFile, tc.dir)
+				}
+			}
+		})
+	}
+}

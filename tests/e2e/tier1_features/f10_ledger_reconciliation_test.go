@@ -60,7 +60,7 @@ func TestT1_F10_1_LedgerDistinctEntriesForStudioCatalog(t *testing.T) {
 	}
 
 	if !found003 {
-		t.Skip("T1.F10.1 SKIP: CAP-STD-003 ledger reconciliation is scheduled for Milestone 3")
+		t.Fatal("T1.F10.1 FAIL: CAP-STD-003 entry missing from ledger.json")
 	}
 	if !found004 {
 		t.Fatal("CAP-STD-004 entry missing from ledger.json")
@@ -98,7 +98,7 @@ func TestT1_F10_2_LedgerCAPSTD003Mapping(t *testing.T) {
 			return
 		}
 	}
-	t.Skip("T1.F10.2 SKIP: CAP-STD-003 ledger reconciliation is scheduled for Milestone 3")
+	t.Fatal("T1.F10.2 FAIL: CAP-STD-003 entry missing from ledger.json")
 }
 
 // T1.F10.3: Verify CAP-STD-004 maps to E10-STD-004A-INPUT.
@@ -122,10 +122,7 @@ func TestT1_F10_3_LedgerCAPSTD004Mapping(t *testing.T) {
 	for _, entry := range ledger.Entries {
 		if entry.Capability == "CAP-STD-004" {
 			if entry.WorkUnit != "E10-STD-004A-INPUT" {
-				if entry.WorkUnit == "E10-STD-003A-TOOL" {
-					t.Skip("T1.F10.3 SKIP: CAP-STD-004 mapped to E10-STD-003A-TOOL in M2; E10-STD-004A-INPUT reconciliation is scheduled for Milestone 3")
-				}
-				t.Fatalf("expected CAP-STD-004 to map to 'E10-STD-004A-INPUT' or 'E10-STD-003A-TOOL', got '%s'", entry.WorkUnit)
+				t.Fatalf("expected CAP-STD-004 to map to 'E10-STD-004A-INPUT', got '%s'", entry.WorkUnit)
 			}
 			t.Log("T1.F10.3 PASS: CAP-STD-004 maps correctly to E10-STD-004A-INPUT")
 			return
@@ -153,7 +150,7 @@ func TestT1_F10_4_LedgerTotalEntriesCount(t *testing.T) {
 	}
 
 	if len(ledger.Entries) < 8 {
-		t.Skipf("T1.F10.4 SKIP: ledger contains %d entries in Milestone 2; >= 8 entries scheduled for Milestone 3 reconciliation", len(ledger.Entries))
+		t.Fatalf("T1.F10.4 FAIL: expected >= 8 ledger entries, got %d", len(ledger.Entries))
 	}
 	t.Logf("T1.F10.4 PASS: ledger contains %d capability entries (>= 8)", len(ledger.Entries))
 }

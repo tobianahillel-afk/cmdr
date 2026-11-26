@@ -138,11 +138,7 @@ func TestT3_05_CIHealthGateCoupling_F7_F8(t *testing.T) {
 
 	// Invariant: workflow must contain an active, fail-closed mainline-health-gate step
 	wfRes := harness.ValidateHealthGateWorkflow(workflow)
-	if !wfRes.HasHealthGateStep {
-		t.Skip("T3.05 SKIP: mainline-health-gate CI workflow step is scheduled for Milestone 3 deployment")
-		return
-	}
-	if !wfRes.Valid || wfRes.HasContinueOnError || wfRes.HasDisabledIf {
+	if !wfRes.HasHealthGateStep || !wfRes.Valid || wfRes.HasContinueOnError || wfRes.HasDisabledIf {
 		t.Fatalf("engineering-kernel-full.yml health-gate validation failed: %s", strings.Join(wfRes.Errors, "; "))
 	}
 

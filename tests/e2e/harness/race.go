@@ -54,6 +54,7 @@ func EvaluateRaceTestOutcome(goos string, res VerifiedGoTestResult, runErr error
 		len(res.FailedTests) == 0 &&
 		len(res.PassedTests) == 0 &&
 		!strings.Contains(combined, "panic:") &&
+		!strings.Contains(combined, "fatal error:") &&
 		!strings.Contains(combined, "test timed out") &&
 		!strings.Contains(combined, "deadline exceeded")
 

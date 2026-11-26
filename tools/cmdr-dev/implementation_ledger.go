@@ -503,7 +503,6 @@ func validateImplementationLedgerShape(ledger ImplementationLedger, state Curren
 	}
 	seenCapabilities := map[string]bool{}
 	seenWorkUnits := map[string]bool{}
-	seenBoundaries := map[string]bool{}
 	for i, entry := range ledger.Entries {
 		if !capabilityIDPattern.MatchString(entry.Capability) {
 			return fmt.Errorf("implementation ledger entry %d has invalid capability %q", i, entry.Capability)
@@ -517,12 +516,8 @@ func validateImplementationLedgerShape(ledger ImplementationLedger, state Curren
 		if seenWorkUnits[entry.WorkUnit] {
 			return fmt.Errorf("duplicate implementation work unit %s", entry.WorkUnit)
 		}
-		if seenBoundaries[entry.RuntimeBoundary] {
-			return fmt.Errorf("duplicate implementation runtime boundary %s", entry.RuntimeBoundary)
-		}
 		seenCapabilities[entry.Capability] = true
 		seenWorkUnits[entry.WorkUnit] = true
-		seenBoundaries[entry.RuntimeBoundary] = true
 		for label, path := range map[string]string{"manifest": entry.ManifestPath, "handoff": entry.HandoffPath} {
 			normalized, err := normalizeChangedPaths([]string{path})
 			if err != nil || len(normalized) != 1 || normalized[0] != path || !strings.HasPrefix(path, "work/lots/") {

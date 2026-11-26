@@ -152,6 +152,11 @@ jobs:
 			"! true",
 			"${{ false && github.ref == 'refs/heads/main' }}",
 			"github.event_name == 'push' && false",
+			"${{ false || !true }}",
+			"${{ !true || false }}",
+			"${{ !true || !true }}",
+			"${{ !(false || true) }}",
+			"${{ (false || !true) && github.event_name == 'push' }}",
 		} {
 			wf := `name: disabled
 on:
@@ -171,6 +176,87 @@ jobs:
 			res := ValidateHealthGateWorkflow(wf)
 			if res.Valid || !res.HasDisabledIf {
 				t.Fatalf("expected HasDisabledIf=true for if: %s, got %+v", expr, res)
+			}
+		}
+	})
+
+	t.Run("AcceptsActiveBooleanIfExpressions", func(t *testing.T) {
+		for _, expr := range []string{
+			"${{ true || !true }}",
+			"${{ github.event_name == 'push' || false }}",
+			"${{ github.event_name != 'pull_request' }}",
+			"${{ !github.event.pull_request.draft }}",
+		} {
+			wf := `name: active-if
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+jobs:
+  full-kernel:
+    steps:
+      - name: Enforce Mainline Health Gate
+        if: ` + expr + `
+        run: go run . mainline-health-gate --root ../..
+`
+			res := ValidateHealthGateWorkflow(wf)
+			if !res.Valid || res.HasDisabledIf || !res.HasHealthGateStep {
+				t.Fatalf("expected Valid=true and HasDisabledIf=false for if: %s, got %+v", expr, res)
+			}
+		}
+	})
+
+	t.Run("RejectsGoRunFlagAndPositionalBypasses", func(t *testing.T) {
+		for _, decoy := range []string{
+			`go run . doctor --reason mainline-health-gate`,
+			`go run -exec echo . mainline-health-gate`,
+			`go run -exec=true . mainline-health-gate`,
+			`go run -toolexec=echo . mainline-health-gate`,
+			`go run -n . mainline-health-gate`,
+			`go run ./decoy mainline-health-gate`,
+		} {
+			wf := `name: go-run-bypass
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+jobs:
+  full-kernel:
+    steps:
+      - name: Decoy
+        run: ` + decoy + `
+`
+			res := ValidateHealthGateWorkflow(wf)
+			if res.Valid || res.HasHealthGateStep {
+				t.Fatalf("expected decoy %q to be rejected, got %+v", decoy, res)
+			}
+		}
+	})
+
+	t.Run("AcceptsValidCmdrDevGoRunVariants", func(t *testing.T) {
+		for _, cmd := range []string{
+			`go run . mainline-health-gate --root ../..`,
+			`go run ./tools/cmdr-dev mainline-health-gate --root .`,
+			`go -C tools/cmdr-dev run . mainline-health-gate --root ../..`,
+			`go run "." "mainline-health-gate" --root ../..`,
+		} {
+			wf := `name: valid-variants
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+jobs:
+  full-kernel:
+    steps:
+      - name: Enforce Mainline Health Gate
+        run: ` + cmd + `
+`
+			res := ValidateHealthGateWorkflow(wf)
+			if !res.Valid || !res.HasHealthGateStep {
+				t.Fatalf("expected valid command %q to be accepted, got %+v", cmd, res)
 			}
 		}
 	})
