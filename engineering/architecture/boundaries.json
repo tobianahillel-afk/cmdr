@@ -17,6 +17,7 @@
       "roots": [
         "tools/cmdr-dev/**",
         "engineering/**",
+        "tests/**",
         "AGENTS.md",
         "AI_START_HERE.md"
       ],
