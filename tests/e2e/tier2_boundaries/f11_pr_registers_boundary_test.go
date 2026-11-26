@@ -210,9 +210,7 @@ func TestT2_F11_5_PRRegisterConsistencyBetweenJSONAndMarkdown(t *testing.T) {
 
 	missingInMarkdown := 0
 	for _, pr := range records {
-		marker := fmt.Sprintf("#%d", pr.PRNumber)
-		markerAlt := fmt.Sprintf("PR %d", pr.PRNumber)
-		if !strings.Contains(closureText, marker) && !strings.Contains(closureText, markerAlt) {
+		if !harness.ClosureRegisterContainsPR(closureText, pr.PRNumber) {
 			missingInMarkdown++
 		}
 	}

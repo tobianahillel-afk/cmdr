@@ -47,7 +47,7 @@ func TestT1_F9_1_WorkGraphContainsCAPSTD004Node(t *testing.T) {
 	}
 
 	if !found {
-		t.Skip("T1.F9.1 SKIP: node 'E10-STD-004A-INPUT' is scheduled for Milestone 3 graph reconciliation")
+		t.Fatal("T1.F9.1 FAIL: node 'E10-STD-004A-INPUT' missing from work/graph.json")
 	}
 	t.Log("T1.F9.1 PASS: node E10-STD-004A-INPUT is registered in work/graph.json")
 }
@@ -79,7 +79,7 @@ func TestT1_F9_2_WorkGraphNodeStatusAccepted(t *testing.T) {
 			return
 		}
 	}
-	t.Skip("T1.F9.2 SKIP: node 'E10-STD-004A-INPUT' is scheduled for Milestone 3 graph reconciliation")
+	t.Fatal("T1.F9.2 FAIL: node 'E10-STD-004A-INPUT' missing from work/graph.json")
 }
 
 // T1.F9.3: Verify work/lots/E10-STD-004A-INPUT/manifest.json exists and validates.
@@ -92,7 +92,7 @@ func TestT1_F9_3_CAPSTD004ManifestValidation(t *testing.T) {
 	manifestPath := filepath.Join(root, "work", "lots", "E10-STD-004A-INPUT", "manifest.json")
 	data, err := os.ReadFile(manifestPath)
 	if err != nil {
-		t.Skipf("T1.F9.3 SKIP: manifest.json for E10-STD-004A-INPUT is scheduled for Milestone 3 lot integration: %v", err)
+		t.Fatalf("T1.F9.3 FAIL: failed to read manifest.json for E10-STD-004A-INPUT: %v", err)
 	}
 
 	var manifest struct {
@@ -128,7 +128,7 @@ func TestT1_F9_4_CAPSTD004HandoffValidation(t *testing.T) {
 	handoffPath := filepath.Join(root, "work", "lots", "E10-STD-004A-INPUT", "HANDOFF.json")
 	data, err := os.ReadFile(handoffPath)
 	if err != nil {
-		t.Skipf("T1.F9.4 SKIP: HANDOFF.json for E10-STD-004A-INPUT is scheduled for Milestone 3 lot integration: %v", err)
+		t.Fatalf("T1.F9.4 FAIL: failed to read HANDOFF.json for E10-STD-004A-INPUT: %v", err)
 	}
 
 	var handoff struct {

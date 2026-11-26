@@ -98,3 +98,29 @@ func TestEmptyJournalCheckpointIsExplicit(t *testing.T) {
 		t.Fatalf("unexpected empty checkpoint: %#v", checkpoint)
 	}
 }
+
+func TestRecoveryJournalQuiescentEmptyAudit(t *testing.T) {
+	journal := RecoveryJournal{
+		SchemaVersion: 1,
+		RegistryKind:  "engineering-recovery-journal",
+		Events:        []RecoveryJournalEvent{},
+	}
+	claims := WorkLeaseRegistry{
+		SchemaVersion: 1,
+		RegistryKind:  "engineering-work-leases",
+		Claims:        []WorkLease{journalClaim()},
+	}
+	summary, err := auditRecoveryJournal(journal, claims, journalGraph())
+	if err != nil {
+		t.Fatalf("expected nil error on quiescent empty journal, got %v", err)
+	}
+	if summary.Status != "empty" {
+		t.Fatalf("expected status 'empty' on quiescent journal, got %q", summary.Status)
+	}
+	if summary.Events != 0 {
+		t.Fatalf("expected 0 events on quiescent journal, got %d", summary.Events)
+	}
+	if summary.LastDigest != recoveryJournalRootDigest {
+		t.Fatalf("expected root digest %s, got %s", recoveryJournalRootDigest, summary.LastDigest)
+	}
+}

@@ -35,14 +35,14 @@ func TestMeasureActualRuntimeOperations(t *testing.T) {
 			if mode == "resource" {
 				memory = 128
 			}
-			got, err := runProbe(5, operation, mode, memory)
+			got, err := runProbe(20000, operation, mode, memory)
 			if err != nil || got.Operation != operation || got.Mode != mode ||
-				got.Operations != 5 || got.ElapsedNS <= 0 || got.NSPerOperation <= 0 {
+				got.Operations != 20000 || got.ElapsedNS <= 0 || got.NSPerOperation <= 0 {
 				t.Fatalf("%s/%s got %+v, err=%v", operation, mode, got, err)
 			}
 		}
 	}
-	if err := runCLI([]string{"-iterations", "2", "-operation", "handoff"}, io.Discard); err != nil {
+	if err := runCLI([]string{"-iterations", "20000", "-operation", "handoff"}, io.Discard); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -95,7 +95,7 @@ func TestMainProducesValidOutput(t *testing.T) {
 	defer func() {
 		os.Args, os.Stdout = oldArgs, oldStdout
 	}()
-	os.Args = []string{"case-queue-perf", "-iterations", "1", "-operation", "projection"}
+	os.Args = []string{"case-queue-perf", "-iterations", "20000", "-operation", "projection"}
 	os.Stdout = devnull
 	main()
 }

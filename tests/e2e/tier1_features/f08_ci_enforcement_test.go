@@ -25,10 +25,7 @@ func TestT1_F8_1_FullKernelIncludesHealthGateStep(t *testing.T) {
 	str := string(content)
 	res := harness.ValidateHealthGateWorkflow(str)
 	if !res.HasHealthGateStep {
-		if strings.Contains(str, "tests/e2e") || strings.Contains(str, "go test") {
-			t.Skip("T1.F8.1 SKIP: mainline-health-gate CI workflow step is scheduled for Milestone 3 deployment")
-		}
-		t.Fatal(".github/workflows/engineering-kernel-full.yml is missing required test steps")
+		t.Fatalf(".github/workflows/engineering-kernel-full.yml is missing mainline-health-gate step: %s", strings.Join(res.Errors, "; "))
 	}
 	t.Log("T1.F8.1 PASS: engineering-kernel-full.yml contains mainline-health-gate step")
 }
@@ -69,8 +66,7 @@ func TestT1_F8_3_HealthGateFailClosedSemantics(t *testing.T) {
 
 	res := harness.ValidateHealthGateWorkflow(string(content))
 	if !res.HasHealthGateStep {
-		t.Skip("T1.F8.3 SKIP: mainline-health-gate CI workflow step is scheduled for Milestone 3 deployment")
-		return
+		t.Fatalf("engineering-kernel-full.yml missing mainline-health-gate step: %s", strings.Join(res.Errors, "; "))
 	}
 	if res.HasContinueOnError || res.HasDisabledIf || !res.Valid {
 		t.Fatalf("mainline-health-gate step failed fail-closed validation: %s", strings.Join(res.Errors, "; "))

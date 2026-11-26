@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "work_unit": "E10-STD-004A-INPUT",
+  "result": "VERIFIED",
+  "implementation_commit": "e4666f586854e02766568ffd2cfe29ef32696b49",
+  "final_validated_head": "7a8cad1769ef86e01f0385901bfdbeae62b163ae",
+  "pull_request": 228,
+  "evidence": {
+    "push_run": 36132724120,
+    "pull_request_run": 36132727798,
+    "contract": "STUDIO-TOOL-INPUT-VALIDATION-V1",
+    "fixtures": 23,
+    "negative_fixtures": 12,
+    "runtime_files": 6,
+    "runtime_dependencies": 0,
+    "cross_boundary_edges": 0,
+    "global_coverage_percent": 88.5,
+    "sast_findings": 0,
+    "sca_actionable_findings": 0
+  },
+  "invariants": [
+    "Product Spec baseline 82e630fce3a7f6236e03709116eca6dd0a1acd40 unchanged (0 bytes diff)",
+    "Class 0 operations strictly read-only; execution verbs permanently blocked with 400 execution-blocked under REQ-PROD-006",
+    "Strict tenant scoping enforced with existence oracle elimination (uniform 404 for cross-tenant)",
+    "Runtime availability decoupled from definition validity (CAP-STD-004 deterministic validation)",
+    "Zero secret leakage in draft bindings and error strings with opaque reference masking",
+    "Standard-library-only product runtime (0 third-party dependencies)"
+  ],
+  "product_spec_mutated": false,
+  "next_unlocked": []
+}

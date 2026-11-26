@@ -2,6 +2,7 @@ package harness
 
 import (
 	"fmt"
+	"path/filepath"
 	"strings"
 )
 
@@ -149,22 +150,318 @@ func normalizeWorkflowExpr(expr string) string {
 	return s
 }
 
-func isDisabledIfExpr(expr string) bool {
-	s := normalizeWorkflowExpr(expr)
+type triVal uint8
+
+const (
+	triUnknown triVal = iota
+	triFalse
+	triTrue
+)
+
+func triNot(v triVal) triVal {
+	switch v {
+	case triTrue:
+		return triFalse
+	case triFalse:
+		return triTrue
+	default:
+		return triUnknown
+	}
+}
+
+func triAnd(a, b triVal) triVal {
+	if a == triFalse || b == triFalse {
+		return triFalse
+	}
+	if a == triTrue && b == triTrue {
+		return triTrue
+	}
+	return triUnknown
+}
+
+func triOr(a, b triVal) triVal {
+	if a == triTrue || b == triTrue {
+		return triTrue
+	}
+	if a == triFalse && b == triFalse {
+		return triFalse
+	}
+	return triUnknown
+}
+
+type exprTokKind uint8
+
+const (
+	tokEOF exprTokKind = iota
+	tokOr
+	tokAnd
+	tokNot
+	tokLParen
+	tokRParen
+	tokTrue
+	tokFalse
+	tokUnknownAtom
+)
+
+type exprTok struct {
+	kind exprTokKind
+}
+
+func tokenizeWorkflowIfExpr(s string) ([]exprTok, bool) {
+	var tokens []exprTok
+	i := 0
+	for i < len(s) {
+		c := s[i]
+		if c == ' ' || c == '\t' || c == '\r' || c == '\n' {
+			i++
+			continue
+		}
+		if i+1 < len(s) && s[i:i+2] == "||" {
+			tokens = append(tokens, exprTok{kind: tokOr})
+			i += 2
+			continue
+		}
+		if i+1 < len(s) && s[i:i+2] == "&&" {
+			tokens = append(tokens, exprTok{kind: tokAnd})
+			i += 2
+			continue
+		}
+		if c == '(' {
+			tokens = append(tokens, exprTok{kind: tokLParen})
+			i++
+			continue
+		}
+		if c == ')' {
+			tokens = append(tokens, exprTok{kind: tokRParen})
+			i++
+			continue
+		}
+		if c == '!' && !(i+1 < len(s) && s[i+1] == '=') {
+			tokens = append(tokens, exprTok{kind: tokNot})
+			i++
+			continue
+		}
+		if c == '\'' || c == '"' {
+			quote := c
+			i++
+			for i < len(s) {
+				if s[i] == '\\' && quote == '"' && i+1 < len(s) {
+					i += 2
+					continue
+				}
+				if s[i] == quote {
+					if quote == '\'' && i+1 < len(s) && s[i+1] == '\'' {
+						i += 2
+						continue
+					}
+					i++
+					break
+				}
+				i++
+			}
+			tokens = append(tokens, exprTok{kind: tokUnknownAtom})
+			continue
+		}
+		// Read identifier, number, or comparison operator token up to whitespace or logical/paren delimiters.
+		start := i
+		for i < len(s) {
+			ch := s[i]
+			if ch == ' ' || ch == '\t' || ch == '\r' || ch == '\n' || ch == '(' || ch == ')' || ch == '\'' || ch == '"' {
+				break
+			}
+			if ch == '|' && i+1 < len(s) && s[i+1] == '|' {
+				break
+			}
+			if ch == '&' && i+1 < len(s) && s[i+1] == '&' {
+				break
+			}
+			if ch == '!' && !(i+1 < len(s) && s[i+1] == '=') && i == start {
+				break
+			}
+			i++
+		}
+		word := s[start:i]
+		// If this looks like a function call (e.g. contains(...)), consume balanced parentheses as an unknown atom.
+		if i < len(s) && s[i] == '(' && isExprIdent(word) {
+			depth := 0
+			for i < len(s) {
+				ch := s[i]
+				if ch == '\'' || ch == '"' {
+					q := ch
+					i++
+					for i < len(s) {
+						if s[i] == q {
+							if q == '\'' && i+1 < len(s) && s[i+1] == '\'' {
+								i += 2
+								continue
+							}
+							i++
+							break
+						}
+						i++
+					}
+					continue
+				}
+				if ch == '(' {
+					depth++
+				} else if ch == ')' {
+					depth--
+					if depth == 0 {
+						i++
+						break
+					}
+				}
+				i++
+			}
+			tokens = append(tokens, exprTok{kind: tokUnknownAtom})
+			continue
+		}
+		switch strings.ToLower(word) {
+		case "true":
+			tokens = append(tokens, exprTok{kind: tokTrue})
+		case "false":
+			tokens = append(tokens, exprTok{kind: tokFalse})
+		default:
+			tokens = append(tokens, exprTok{kind: tokUnknownAtom})
+		}
+	}
+	return tokens, true
+}
+
+func isExprIdent(s string) bool {
 	if s == "" {
 		return false
 	}
-	switch s {
-	case "false", "(false)", "!true", "!(true)", "false || false":
-		return true
+	for i := 0; i < len(s); i++ {
+		c := s[i]
+		if !((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_' || c == '.') {
+			return false
+		}
 	}
-	if strings.HasPrefix(s, "false && ") || strings.HasSuffix(s, " && false") || strings.Contains(s, " && false && ") {
-		return true
+	return true
+}
+
+type workflowIfParser struct {
+	tokens []exprTok
+	pos    int
+}
+
+func (p *workflowIfParser) peek() exprTok {
+	if p.pos >= len(p.tokens) {
+		return exprTok{kind: tokEOF}
 	}
-	if strings.HasPrefix(s, "!true && ") || strings.HasSuffix(s, " && !true") || strings.Contains(s, " && !true && ") {
-		return true
+	return p.tokens[p.pos]
+}
+
+func (p *workflowIfParser) next() exprTok {
+	tok := p.peek()
+	if p.pos < len(p.tokens) {
+		p.pos++
 	}
-	return false
+	return tok
+}
+
+func (p *workflowIfParser) parseOr() (triVal, bool) {
+	left, ok := p.parseAnd()
+	if !ok {
+		return triUnknown, false
+	}
+	for p.peek().kind == tokOr {
+		p.next()
+		right, ok := p.parseAnd()
+		if !ok {
+			return triUnknown, false
+		}
+		left = triOr(left, right)
+	}
+	return left, true
+}
+
+func (p *workflowIfParser) parseAnd() (triVal, bool) {
+	left, ok := p.parseUnary()
+	if !ok {
+		return triUnknown, false
+	}
+	for p.peek().kind == tokAnd {
+		p.next()
+		right, ok := p.parseUnary()
+		if !ok {
+			return triUnknown, false
+		}
+		left = triAnd(left, right)
+	}
+	return left, true
+}
+
+func (p *workflowIfParser) parseUnary() (triVal, bool) {
+	if p.peek().kind == tokNot {
+		p.next()
+		v, ok := p.parseUnary()
+		if !ok {
+			return triUnknown, false
+		}
+		return triNot(v), true
+	}
+	return p.parsePrimary()
+}
+
+func (p *workflowIfParser) parsePrimary() (triVal, bool) {
+	tok := p.peek()
+	switch tok.kind {
+	case tokLParen:
+		p.next()
+		v, ok := p.parseOr()
+		if !ok || p.peek().kind != tokRParen {
+			return triUnknown, false
+		}
+		p.next()
+		return v, true
+	case tokTrue:
+		p.next()
+		// Collapse comparison expressions like `true == ...` or `true != ...` to unknown atom.
+		if p.peek().kind == tokUnknownAtom {
+			return p.consumeComparisonTail(), true
+		}
+		return triTrue, true
+	case tokFalse:
+		p.next()
+		if p.peek().kind == tokUnknownAtom {
+			return p.consumeComparisonTail(), true
+		}
+		return triFalse, true
+	case tokUnknownAtom:
+		p.next()
+		return p.consumeComparisonTail(), true
+	default:
+		return triUnknown, false
+	}
+}
+
+func (p *workflowIfParser) consumeComparisonTail() triVal {
+	for p.peek().kind == tokUnknownAtom || p.peek().kind == tokTrue || p.peek().kind == tokFalse {
+		p.next()
+	}
+	return triUnknown
+}
+
+func isDisabledIfExpr(expr string) bool {
+	s := strings.TrimSpace(unquoteYAMLValue(expr))
+	if strings.HasPrefix(s, "${{") && strings.HasSuffix(s, "}}") {
+		s = strings.TrimSpace(s[3 : len(s)-2])
+	}
+	if s == "" {
+		return false
+	}
+	tokens, ok := tokenizeWorkflowIfExpr(s)
+	if !ok || len(tokens) == 0 {
+		return false
+	}
+	p := &workflowIfParser{tokens: tokens}
+	val, ok := p.parseOr()
+	if !ok || p.peek().kind != tokEOF {
+		return false
+	}
+	return val == triFalse
 }
 
 func isTruthyContinueOnError(val string) bool {
@@ -235,8 +532,88 @@ func splitShellSegments(line string) []string {
 	return segments
 }
 
+func splitShellWords(seg string) ([]string, bool) {
+	var words []string
+	var cur strings.Builder
+	hasToken := false
+	inSingle := false
+	inDouble := false
+	escaped := false
+
+	for i := 0; i < len(seg); i++ {
+		c := seg[i]
+		if inDouble {
+			if escaped {
+				cur.WriteByte(c)
+				escaped = false
+				continue
+			}
+			if c == '\\' {
+				escaped = true
+				continue
+			}
+			if c == '"' {
+				inDouble = false
+				continue
+			}
+			cur.WriteByte(c)
+			continue
+		}
+		if inSingle {
+			if c == '\'' {
+				inSingle = false
+				continue
+			}
+			cur.WriteByte(c)
+			continue
+		}
+		switch c {
+		case ' ', '\t', '\r', '\n':
+			if hasToken {
+				words = append(words, cur.String())
+				cur.Reset()
+				hasToken = false
+			}
+		case '\'':
+			inSingle = true
+			hasToken = true
+		case '"':
+			inDouble = true
+			hasToken = true
+		case '\\':
+			if i+1 < len(seg) {
+				i++
+				cur.WriteByte(seg[i])
+				hasToken = true
+			}
+		default:
+			cur.WriteByte(c)
+			hasToken = true
+		}
+	}
+	if inSingle || inDouble || escaped {
+		return nil, false
+	}
+	if hasToken {
+		words = append(words, cur.String())
+	}
+	return words, true
+}
+
+func isAllowedCmdrDevPackageArg(pkg string) bool {
+	cleaned := strings.TrimSuffix(filepath.ToSlash(strings.TrimSpace(pkg)), "/")
+	switch cleaned {
+	case ".", "./", "./tools/cmdr-dev", "tools/cmdr-dev", "github.com/tobianahillel-afk/cmdr/tools/cmdr-dev":
+		return true
+	}
+	return strings.HasSuffix(cleaned, "/tools/cmdr-dev")
+}
+
 func isMainlineHealthGateSegment(seg string) bool {
-	tokens := strings.Fields(seg)
+	tokens, ok := splitShellWords(seg)
+	if !ok {
+		return false
+	}
 	for len(tokens) > 0 && strings.Contains(tokens[0], "=") && !strings.HasPrefix(tokens[0], "-") {
 		tokens = tokens[1:]
 	}
@@ -250,14 +627,87 @@ func isMainlineHealthGateSegment(seg string) bool {
 	if cmd == "cmdr-dev" || cmd == "cmdr-dev.exe" {
 		return tokens[1] == "mainline-health-gate"
 	}
-	if cmd == "go" && tokens[1] == "run" && len(tokens) >= 4 {
-		for _, tok := range tokens[2:] {
-			if tok == "mainline-health-gate" {
-				return true
+	if cmd != "go" {
+		return false
+	}
+
+	idx := 1
+	// Allow optional `go -C <dir>` before `run`.
+	if idx < len(tokens) {
+		if tokens[idx] == "-C" || tokens[idx] == "--C" {
+			if idx+1 >= len(tokens) {
+				return false
 			}
+			idx += 2
+		} else if strings.HasPrefix(tokens[idx], "-C=") || strings.HasPrefix(tokens[idx], "--C=") {
+			idx++
 		}
 	}
-	return false
+	if idx >= len(tokens) || tokens[idx] != "run" {
+		return false
+	}
+	idx++
+
+	// Walk known safe Go build flags before the package argument; reject -exec/-toolexec/-n and unknown flags.
+	zeroArgFlags := map[string]bool{
+		"-a": true, "-asan": true, "-cover": true, "-linkshared": true,
+		"-msan": true, "-race": true, "-trimpath": true, "-v": true, "-work": true, "-x": true,
+	}
+	oneArgFlags := map[string]bool{
+		"-C": true, "-asmflags": true, "-buildmode": true, "-compiler": true,
+		"-covermode": true, "-coverpkg": true, "-gccgoflags": true, "-gcflags": true,
+		"-installsuffix": true, "-ldflags": true, "-mod": true, "-modfile": true,
+		"-o": true, "-overlay": true, "-p": true, "-pkgdir": true, "-tags": true,
+	}
+
+	for idx < len(tokens) {
+		tok := tokens[idx]
+		if tok == "--" {
+			idx++
+			break
+		}
+		if !strings.HasPrefix(tok, "-") || tok == "-" {
+			break
+		}
+		norm := tok
+		if strings.HasPrefix(norm, "--") {
+			norm = norm[1:]
+		}
+		name := norm
+		hasEq := false
+		if eq := strings.IndexByte(norm, '='); eq >= 0 {
+			name = norm[:eq]
+			hasEq = true
+		}
+		if name == "-exec" || name == "-toolexec" || name == "-n" {
+			return false
+		}
+		if zeroArgFlags[name] {
+			idx++
+			continue
+		}
+		if oneArgFlags[name] {
+			if hasEq {
+				idx++
+			} else {
+				if idx+1 >= len(tokens) {
+					return false
+				}
+				idx += 2
+			}
+			continue
+		}
+		return false
+	}
+
+	if idx+1 >= len(tokens) {
+		return false
+	}
+	pkgTok := tokens[idx]
+	if !isAllowedCmdrDevPackageArg(pkgTok) {
+		return false
+	}
+	return tokens[idx+1] == "mainline-health-gate"
 }
 
 func containsMainlineHealthGateInvocation(runScript string) bool {

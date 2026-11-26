@@ -314,10 +314,21 @@ func RunFrontendTest(ctx context.Context) (bool, string, error) {
 
 // RunCampaignInRoot runs vet and tests across all specified modules under root without early exit.
 func RunCampaignInRoot(ctx context.Context, root string, modules []string) ([]ModuleTestResult, bool) {
+	if len(modules) == 0 {
+		return nil, false
+	}
 	var results []ModuleTestResult
 	allPassed := true
 
 	for _, mod := range modules {
+		if strings.TrimSpace(mod) == "" {
+			allPassed = false
+			results = append(results, ModuleTestResult{
+				Module: mod,
+				Err:    fmt.Errorf("empty module path"),
+			})
+			continue
+		}
 		start := time.Now()
 		vPass, vOut, _ := runGoVetInRoot(ctx, root, mod)
 		tPass, tOut, err := runGoTestInRoot(ctx, root, mod)

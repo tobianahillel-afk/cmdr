@@ -67,17 +67,18 @@ func TestT2_F8_1_CIValidationFailsIfHealthGateStepRemoved(t *testing.T) {
 	}
 
 	liveRes := harness.ValidateHealthGateWorkflow(string(content))
-	if liveRes.HasHealthGateStep {
-		liveMutatedLines := make([]string, 0)
-		for _, line := range strings.Split(string(content), "\n") {
-			if !strings.Contains(line, "mainline-health-gate") {
-				liveMutatedLines = append(liveMutatedLines, line)
-			}
+	if !liveRes.HasHealthGateStep {
+		t.Fatalf("T2.F8.1 FAIL: live engineering-kernel-full.yml missing mainline-health-gate step: %v", liveRes.Errors)
+	}
+	liveMutatedLines := make([]string, 0)
+	for _, line := range strings.Split(string(content), "\n") {
+		if !strings.Contains(line, "mainline-health-gate") {
+			liveMutatedLines = append(liveMutatedLines, line)
 		}
-		liveMutRes := harness.ValidateHealthGateWorkflow(strings.Join(liveMutatedLines, "\n"))
-		if liveMutRes.Valid || liveMutRes.HasHealthGateStep {
-			t.Fatalf("T2.F8.1 FAIL: live workflow validation passed despite removing mainline-health-gate step")
-		}
+	}
+	liveMutRes := harness.ValidateHealthGateWorkflow(strings.Join(liveMutatedLines, "\n"))
+	if liveMutRes.Valid || liveMutRes.HasHealthGateStep {
+		t.Fatalf("T2.F8.1 FAIL: live workflow validation passed despite removing mainline-health-gate step")
 	}
 
 	t.Log("T2.F8.1 PASS: CI validation fails closed when mainline-health-gate step is removed")
@@ -132,17 +133,18 @@ func TestT2_F8_2_CIValidationFailsIfContinueOnErrorAdded(t *testing.T) {
 		t.Fatalf("failed to read engineering-kernel-full.yml: %v", err)
 	}
 	liveRes := harness.ValidateHealthGateWorkflow(string(content))
-	if liveRes.HasHealthGateStep {
-		liveMutated := strings.Replace(
-			string(content),
-			"mainline-health-gate",
-			"mainline-health-gate\n        continue-on-error: true",
-			1,
-		)
-		liveMutRes := harness.ValidateHealthGateWorkflow(liveMutated)
-		if liveMutRes.Valid || !liveMutRes.HasContinueOnError {
-			t.Fatalf("T2.F8.2 FAIL: live workflow mutation with continue-on-error: true was not rejected")
-		}
+	if !liveRes.HasHealthGateStep {
+		t.Fatalf("T2.F8.2 FAIL: live engineering-kernel-full.yml missing mainline-health-gate step: %v", liveRes.Errors)
+	}
+	liveMutated := strings.Replace(
+		string(content),
+		"mainline-health-gate",
+		"mainline-health-gate\n        continue-on-error: true",
+		1,
+	)
+	liveMutRes := harness.ValidateHealthGateWorkflow(liveMutated)
+	if liveMutRes.Valid || !liveMutRes.HasContinueOnError {
+		t.Fatalf("T2.F8.2 FAIL: live workflow mutation with continue-on-error: true was not rejected")
 	}
 
 	t.Log("T2.F8.2 PASS: CI validation fails closed when continue-on-error, if: false, or commented step is injected")
@@ -282,7 +284,7 @@ func TestT2_F8_5_CIValidationAssertsExecutionOnPRAndPush(t *testing.T) {
 		t.Fatalf("failed to read engineering-kernel-full.yml: %v", err)
 	}
 	liveRes := harness.ValidateHealthGateWorkflow(string(content))
-	if liveRes.HasHealthGateStep && (!liveRes.Valid || !liveRes.HasPushMain || !liveRes.HasPRMain) {
+	if !liveRes.HasHealthGateStep || !liveRes.Valid || !liveRes.HasPushMain || !liveRes.HasPRMain {
 		t.Fatalf("T2.F8.5 FAIL: live engineering-kernel-full.yml failed trigger validation: %v", liveRes.Errors)
 	}
 

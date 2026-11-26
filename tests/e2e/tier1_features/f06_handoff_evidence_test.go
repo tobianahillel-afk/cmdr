@@ -95,7 +95,7 @@ func TestT1_F6_3_ZeroDiffEventSearchValidatedHead(t *testing.T) {
 	}
 
 	if diff != "" {
-		t.Skipf("T1.F6.3 SKIP: event-search diff detected against %s due to PR #231/#233 changes; handoff reconciliation scheduled for Milestone 3\nDiff:\n%s", handoff.FinalValidatedHead, diff)
+		t.Fatalf("T1.F6.3 FAIL: event-search diff detected against %s:\n%s", handoff.FinalValidatedHead, diff)
 	}
 	t.Log("T1.F6.3 PASS: exactly 0 diff in product-runtime/event-search between validated head and HEAD")
 }

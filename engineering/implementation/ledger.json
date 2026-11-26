@@ -52,10 +52,18 @@
       "runtime_root": "product-runtime/context-envelope/**"
     },
     {
-      "capability": "CAP-STD-004",
+      "capability": "CAP-STD-003",
       "work_unit": "E10-STD-003A-TOOL",
       "manifest_path": "work/lots/E10-STD-003A-TOOL/manifest.json",
       "handoff_path": "work/lots/E10-STD-003A-TOOL/HANDOFF.json",
+      "runtime_boundary": "studio-catalog-runtime",
+      "runtime_root": "product-runtime/studio-catalog/**"
+    },
+    {
+      "capability": "CAP-STD-004",
+      "work_unit": "E10-STD-004A-INPUT",
+      "manifest_path": "work/lots/E10-STD-004A-INPUT/manifest.json",
+      "handoff_path": "work/lots/E10-STD-004A-INPUT/HANDOFF.json",
       "runtime_boundary": "studio-catalog-runtime",
       "runtime_root": "product-runtime/studio-catalog/**"
     }

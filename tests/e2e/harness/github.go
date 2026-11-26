@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 )
 
@@ -371,6 +372,20 @@ func (c *GitHubClient) VerifyCodexPRResolution(ctx context.Context, prNumber int
 	}, fmt.Errorf("%w: %s", ErrUnverified, reason)
 }
 
+// ClosureRegisterContainsPR checks whether closureText explicitly references PR prNumber
+// using digit/alphanumeric boundaries so `#23` does not match `#230`.
+func ClosureRegisterContainsPR(closureText string, prNumber int) bool {
+	if prNumber <= 0 {
+		return false
+	}
+	hashRe := regexp.MustCompile(fmt.Sprintf(`(?:^|[^0-9])#%d(?:[^0-9A-Za-z]|$)`, prNumber))
+	if hashRe.MatchString(closureText) {
+		return true
+	}
+	prRe := regexp.MustCompile(fmt.Sprintf(`(?i)(?:^|[^0-9A-Za-z])PR\s+%d(?:[^0-9A-Za-z]|$)`, prNumber))
+	return prRe.MatchString(closureText)
+}
+
 // ValidatePRRegisterConsistency validates work/reconciliation/prs.json and cross-checks
 // every record against work/reconciliation/PR_CLOSURE_REGISTER.md and local git history.
 func ValidatePRRegisterConsistency(ctx context.Context, root string) error {
@@ -452,9 +467,7 @@ func ValidatePRRegisterConsistency(ctx context.Context, root string) error {
 			}
 		}
 
-		marker := fmt.Sprintf("#%d", item.PRNumber)
-		markerAlt := fmt.Sprintf("PR %d", item.PRNumber)
-		if !strings.Contains(closureText, marker) && !strings.Contains(closureText, markerAlt) {
+		if !ClosureRegisterContainsPR(closureText, item.PRNumber) {
 			return fmt.Errorf("PR #%d present in prs.json is missing from PR_CLOSURE_REGISTER.md", item.PRNumber)
 		}
 	}

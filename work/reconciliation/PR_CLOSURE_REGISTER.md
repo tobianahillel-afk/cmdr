@@ -314,6 +314,10 @@ Avant d'autoriser la suppression des branches distantes sur `origin`, la totalit
 | **#228** | fix(studio): CAP-STD-004 Codex Security Remediation | `fix/cap-std-004-codex-security-remediation` | `7a8cad1769` | `CLOSED_INCORPORATED` | Remediates 4 Codex review findings on CAP-STD-004: secret sanitization in DraftBindings, redaction in error messages, strict default value validation, and defensive deep copies of contract parameters; merged into main at commit 7a8cad17. |
 | **#229** | fix(security): upgrade Go toolchain to 1.26.11 resolving GO-2026-6859 | `fix/sec-upgrade-go-1-26-11` | `64db49cb05` | `CLOSED_INCORPORATED` | Upgrades Go toolchain to 1.26.11 across all 13 runtime go.mod files and tools/cmdr-dev/security_static.go, resolving GO-2026-6859 vulnerability with zero reachable known findings; merged into main at commit 64db49cb. |
 | **#230** | feat(governance): MAINLINE_HEALTH_GATE & Mainline Protection Permanent Deployment | `feat/m3-mainline-health-gate-protection` | `2e77d94243` | `CLOSED_INCORPORATED` | Implements cmdr-dev mainline-health-gate subcommand covering 5 canonical dimensions, configures strict branch protection on main, and enables universal CI trigger in engineering-kernel.yml; merged into main at commit 2e77d942. |
+| **#231** | chore(reconciliation): reconcile registers, CAP-STD-004 ledger evidence, and Windows perf probe timer | `chore/m4-reconciliation-and-windows-perf-fix` | `6359855306` | `CLOSED_INCORPORATED` | Reconciles registers, aligns CAP-STD-004 ledger evidence, adjusts Windows perf probe timer precision, and conforms E10-STD-003A-TOOL handoff; merged into main at commit 63598553. |
+| **#232** | docs(governance): document permanent continuous delivery cycle and CAP-STD-005 roadmap | `docs/m5-continuous-delivery-lifecycle-and-cap-std-005-roadmap` | `c1e75db81662b33a0f1208afdbf8b688fe7977e3` | `CLOSED_INCORPORATED` | Documents permanent continuous delivery lifecycle and establishes CAP-STD-005 roadmap framing without premature implementation; merged into main at commit c1e75db81662b33a0f1208afdbf8b688fe7977e3. |
+| **#233** | fix(security): toolchain hardening to Go 1.26.11, Windows SAST taskkill PID annotation, and runtime security evidence sync | `fix/m1-security-toolchain-sast-evidence` | `e4ea9a315cfa655520d1bc3e308ed9c45c326041` | `CLOSED_INCORPORATED` | Hardens Go toolchain to 1.26.11, annotates Windows SAST taskkill PID invocation, and synchronizes runtime security evidence; merged into main at commit e4ea9a315cfa655520d1bc3e308ed9c45c326041. |
+| **#234** | feat(tests): add 167-test 4-tier E2E opaque-box test suite and architecture boundary registration | `feat/e2e-opaque-test-suite` | `a7a50f2a35ab537fe7f784a685c24d159c8e8926` | `CLOSED_INCORPORATED` | Integrates 167-test 4-tier opaque-box E2E test suite with SHA-attributed GitHub verification, go test -json checks, and architecture boundary registration; merged into main at commit a7a50f2a35ab537fe7f784a685c24d159c8e8926. |
 
 ---
 
@@ -409,14 +413,14 @@ git push origin <commit_sha>:refs/heads/<branch_name>
 
 Le présent registre consacre la clôture formelle et traçable de la totalité de la dette technique Git accumulée sur le dépôt `cmdr`. En accord avec le mandat des Milestones 3, 4, 5 et 6, **la branche `main` est désormais l'unique source de vérité et la seule cible de développement et d'intégration**.
 
-- **Nombre total de PRs réconciliées :** 229 / 229 (100.0%, PR #1 à #230, #180 non assigné)
-- **CLOSED_INCORPORATED / MERGED :** 52 (22.7%)
-- **CLOSED_SUPERSEDED :** 176 (76.9%)
+- **Nombre total de PRs réconciliées :** 233 / 233 (100.0%, PR #1 à #234, #180 non assigné)
+- **CLOSED_INCORPORATED / MERGED :** 56 (24.0%)
+- **CLOSED_SUPERSEDED :** 176 (75.5%)
 - **CLOSED_REJECTED :** 1 (0.4%)
 - **STILL_REQUIRED restant :** 0 (0.0%)
 - **PRs ouvertes sur GitHub :** 0
 - **Tags de sauvegarde actifs sur origin :** 27 (21 tags de consolidation + 6 tags unmerged scellés, 100% vérifiés via `git ls-remote --tags origin "backup/*"`)
 - **Branches distantes obsolètes élaguées :** 171 branches historiques supprimées sur GitHub origin (après scellement cryptographique des 6 unmerged)
 - **Branches distantes actives sur origin :** 1 (`origin/main`)
-- **État d'intégration de `main` :** Conforme, stable, protégé (commit canonique `2e77d942432b3eecb41a1224a9a8e0fe4688ef99`, 1797 commits historiques préservés, suite CI 100% verte, branch protection active) et sous le contrôle permanent du `MAINLINE_HEALTH_GATE`.
+- **État d'intégration de `main` :** Conforme, stable, protégé (commit canonique `a7a50f2a35ab537fe7f784a685c24d159c8e8926`, suite CI 100% verte, branch protection active) et sous le contrôle permanent du `MAINLINE_HEALTH_GATE`.
 

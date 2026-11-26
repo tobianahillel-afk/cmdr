@@ -154,19 +154,41 @@ func GitCurrentBranch(ctx context.Context) (string, error) {
 	return strings.TrimSpace(res.Stdout), nil
 }
 
+func isMainBranch(eventName, gitRef, refName, currentBranch string, branchErr error) bool {
+	if eventName == "pull_request" || eventName == "pull_request_target" {
+		return false
+	}
+	if eventName == "push" {
+		return gitRef == "refs/heads/main"
+	}
+	if gitRef != "" {
+		return gitRef == "refs/heads/main"
+	}
+	if refName != "" && refName != "main" {
+		return false
+	}
+	if branchErr != nil {
+		return false
+	}
+	return currentBranch == "main"
+}
+
 // IsMainBranch reports whether test execution is currently running against the main branch.
 func IsMainBranch(ctx context.Context) bool {
-	if os.Getenv("GITHUB_EVENT_NAME") == "pull_request" {
+	eventName := strings.TrimSpace(os.Getenv("GITHUB_EVENT_NAME"))
+	gitRef := strings.TrimSpace(os.Getenv("GITHUB_REF"))
+	refName := strings.TrimSpace(os.Getenv("GITHUB_REF_NAME"))
+	if eventName == "pull_request" || eventName == "pull_request_target" {
 		return false
 	}
-	if ref := os.Getenv("GITHUB_REF_NAME"); ref != "" && ref != "main" {
-		return false
+	if eventName == "push" {
+		return gitRef == "refs/heads/main"
+	}
+	if gitRef != "" {
+		return gitRef == "refs/heads/main"
 	}
 	branch, err := GitCurrentBranch(ctx)
-	if err == nil && branch != "" && branch != "main" {
-		return false
-	}
-	return true
+	return isMainBranch(eventName, gitRef, refName, branch, err)
 }
 
 // CloneIsolatedRepo creates an isolated Git clone under .cmdr-tmp/ using --shared --no-checkout

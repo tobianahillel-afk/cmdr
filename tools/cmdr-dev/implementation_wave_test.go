@@ -80,6 +80,106 @@ func TestSelectImplementationWaveExcludesNonReadyStates(t *testing.T) {
 	}
 }
 
+func TestSelectImplementationWavePolicyAndScorePopulated(t *testing.T) {
+	program := ImplementationReadinessProgram{
+		ProductSpecBaseline: "baseline",
+		SpecTreeDigest:      "digest",
+		Status:              "PASS",
+		Records: []ImplementationReadinessRecord{
+			waveRecord("CAP-STD-005", "READY", "studio-05.md"),
+		},
+	}
+	got, err := selectImplementationWave(program)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got.SelectionPolicy != "multi-dimensional-v1" {
+		t.Fatalf("expected multi-dimensional-v1 policy, got %q", got.SelectionPolicy)
+	}
+	if got.CandidateScore == nil {
+		t.Fatal("expected candidate score to be populated")
+	}
+	if got.CandidateScore.TotalScore <= 0 {
+		t.Fatalf("expected positive total score, got %f", got.CandidateScore.TotalScore)
+	}
+}
+
+func TestSelectImplementationWavePrioritizesSecurityDimensions(t *testing.T) {
+	implemented := map[string]bool{}
+
+	secCandidate := waveRecord("CAP-EPT-002", "READY", "ept-sec.md")
+	secCandidate.Name = "Endpoint Agent Secret Redaction and Tenant Isolation"
+
+	standardCandidate := waveRecord("CAP-EPT-003", "READY", "ept-std.md")
+	standardCandidate.Name = "Endpoint Agent Generic Counter Display"
+
+	secScore := evaluateWaveCandidateScore(secCandidate, implemented)
+	stdScore := evaluateWaveCandidateScore(standardCandidate, implemented)
+
+	if secScore.SecurityScore <= stdScore.SecurityScore {
+		t.Fatalf("expected security-critical capability to have higher security score: %f <= %f",
+			secScore.SecurityScore, stdScore.SecurityScore)
+	}
+	if secScore.TotalScore <= stdScore.TotalScore {
+		t.Fatalf("expected security-critical capability to have higher total score: %f <= %f",
+			secScore.TotalScore, stdScore.TotalScore)
+	}
+}
+
+func TestSelectImplementationWavePriorityAndRiskDimensions(t *testing.T) {
+	implemented := map[string]bool{}
+
+	// Anchored with canonical file and defined status (low risk)
+	lowRisk := waveRecord("CAP-CMD-005", "READY", "cmd-05.md")
+	lowRisk.DeliveryStatus = "defined"
+
+	// Missing canonical file (higher risk)
+	highRisk := waveRecord("CAP-CMD-006", "READY", "")
+	highRisk.DeliveryStatus = "experimental"
+
+	scoreLow := evaluateWaveCandidateScore(lowRisk, implemented)
+	scoreHigh := evaluateWaveCandidateScore(highRisk, implemented)
+
+	if scoreLow.RiskScore <= scoreHigh.RiskScore {
+		t.Fatalf("expected anchored capability to have higher risk score: %f <= %f",
+			scoreLow.RiskScore, scoreHigh.RiskScore)
+	}
+	if scoreLow.PriorityScore <= scoreHigh.PriorityScore {
+		t.Fatalf("expected defined status to have higher priority score: %f <= %f",
+			scoreLow.PriorityScore, scoreHigh.PriorityScore)
+	}
+}
+
+func TestEvaluateWaveCandidateScoreAllDimensions(t *testing.T) {
+	implemented := map[string]bool{"CAP-STD": true}
+
+	record := waveRecord("CAP-STD-005", "READY", "studio-tool-input.md")
+	record.Name = "Studio Tool Input Security Contract"
+	record.DeliveryStatus = "defined"
+
+	score := evaluateWaveCandidateScore(record, implemented)
+
+	if score.ReuseScore != 40.0 {
+		t.Errorf("expected ReuseScore 40.0, got %f", score.ReuseScore)
+	}
+	if score.PriorityScore != 30.0 { // 25 (CAP-STD) + 5 (defined)
+		t.Errorf("expected PriorityScore 30.0, got %f", score.PriorityScore)
+	}
+	if score.SecurityScore != 20.0 { // matches "Security"
+		t.Errorf("expected SecurityScore 20.0, got %f", score.SecurityScore)
+	}
+	if score.RiskScore != 15.0 { // 10 (canonical file) + 5 (no blockers)
+		t.Errorf("expected RiskScore 15.0, got %f", score.RiskScore)
+	}
+	if score.DependencyScore != 15.0 { // 10 (base) + 5 (numeric <= 10)
+		t.Errorf("expected DependencyScore 15.0, got %f", score.DependencyScore)
+	}
+	expectedTotal := 40.0 + 30.0 + 20.0 + 15.0 + 15.0
+	if score.TotalScore != expectedTotal {
+		t.Errorf("expected TotalScore %f, got %f", expectedTotal, score.TotalScore)
+	}
+}
+
 func TestResolveWaveCanonicalFileFallsBackToCanonicalInventoryID(t *testing.T) {
 	selection := ImplementationWaveSelection{Capability: "CAP-EPT-065"}
 	inventory := SpecInventory{

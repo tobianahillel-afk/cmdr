@@ -2602,6 +2602,19 @@
         "E10-STD-002A-METADATA"
       ],
       "dependency_terminal_state": "ACCEPTED",
+      "unlocks": [
+        "E10-STD-004A-INPUT"
+      ]
+    },
+    {
+      "id": "E10-STD-004A-INPUT",
+      "title": "Define CMDR Studio tool input parameter and deterministic validation contract (CAP-STD-004)",
+      "type": "task",
+      "status": "ACCEPTED",
+      "depends_on": [
+        "E10-STD-003A-TOOL"
+      ],
+      "dependency_terminal_state": "ACCEPTED",
       "unlocks": []
     }
   ]

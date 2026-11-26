@@ -44,14 +44,51 @@ func determineCertificationVerdict(gateExitCode int, gateErr error, gateStatus s
 		return "MAIN_UNHEALTHY"
 	case gateStatus == "MAIN_UNHEALTHY":
 		return "MAIN_UNHEALTHY"
-	case gateStatus == "MAIN_UNVERIFIED":
+	case gateStatus == "MAIN_UNVERIFIED" || gateStatus == "":
 		return "MAIN_UNVERIFIED"
-	case openPRsVerified && openPRs > 0:
+	case gateStatus != "MAIN_HEALTHY":
 		return "MAIN_UNHEALTHY"
-	case !openPRsVerified:
+	case !openPRsVerified || openPRs < 0:
 		return "MAIN_UNVERIFIED"
+	case openPRs > 0:
+		return "MAIN_UNHEALTHY"
 	default:
 		return "MAIN_HEALTHY"
+	}
+}
+
+func TestDetermineCertificationVerdict(t *testing.T) {
+	cases := []struct {
+		name            string
+		gateExitCode    int
+		gateErr         error
+		gateStatus      string
+		openPRsVerified bool
+		openPRs         int
+		want            string
+	}{
+		{"HealthyExact", 0, nil, "MAIN_HEALTHY", true, 0, "MAIN_HEALTHY"},
+		{"EmptyGateStatus", 0, nil, "", true, 0, "MAIN_UNVERIFIED"},
+		{"UnknownGateStatus", 0, nil, "UNKNOWN", true, 0, "MAIN_UNHEALTHY"},
+		{"PassStringGateStatus", 0, nil, "PASS", true, 0, "MAIN_UNHEALTHY"},
+		{"GateStatusUnverified", 0, nil, "MAIN_UNVERIFIED", true, 0, "MAIN_UNVERIFIED"},
+		{"GateStatusUnhealthy", 0, nil, "MAIN_UNHEALTHY", true, 0, "MAIN_UNHEALTHY"},
+		{"NegativeOpenPRs", 0, nil, "MAIN_HEALTHY", true, -1, "MAIN_UNVERIFIED"},
+		{"PositiveOpenPRs", 0, nil, "MAIN_HEALTHY", true, 1, "MAIN_UNHEALTHY"},
+		{"UnverifiedOpenPRs", 0, nil, "MAIN_HEALTHY", false, 0, "MAIN_UNVERIFIED"},
+		{"GateErrNonNil", 0, errors.New("cmd error"), "MAIN_HEALTHY", true, 0, "MAIN_UNHEALTHY"},
+		{"ExitCode1", 1, nil, "MAIN_HEALTHY", true, 0, "MAIN_UNHEALTHY"},
+		{"ExitCode2", 2, nil, "MAIN_HEALTHY", true, 0, "MAIN_UNVERIFIED"},
+		{"ExitCodeUnexpected", 3, nil, "MAIN_HEALTHY", true, 0, "MAIN_UNHEALTHY"},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			if got := determineCertificationVerdict(tc.gateExitCode, tc.gateErr, tc.gateStatus, tc.openPRsVerified, tc.openPRs); got != tc.want {
+				t.Fatalf("determineCertificationVerdict(%d, %v, %q, %t, %d) = %q, want %q",
+					tc.gateExitCode, tc.gateErr, tc.gateStatus, tc.openPRsVerified, tc.openPRs, got, tc.want)
+			}
+		})
 	}
 }
 

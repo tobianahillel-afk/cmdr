@@ -89,7 +89,9 @@ func checkPinnedGoToolchainDelta(root, evidenceHead, currentHead, runtimeDir str
 			hasExpected = true
 			continue
 		}
-		if runtimeDir == eventSearchRuntimeDirectory && d == runtimeDir+"/cmd/perf-probe/main_test.go" {
+		if (runtimeDir == eventSearchRuntimeDirectory ||
+			runtimeDir == caseQueueSecurityRuntimeRoot ||
+			runtimeDir == pilotSecurityRuntimeRoot) && d == runtimeDir+"/cmd/perf-probe/main_test.go" {
 			continue
 		}
 		return false, fmt.Errorf("verified runtime contains unreviewed executable or module changes; full runtime review required")

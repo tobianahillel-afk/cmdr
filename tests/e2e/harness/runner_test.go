@@ -233,6 +233,33 @@ func TestEvaluateRaceTestOutcome(t *testing.T) {
 			}
 		}
 	})
+
+	t.Run("WindowsFatalErrorWithAccessDeniedFails", func(t *testing.T) {
+		res := VerifiedGoTestResult{
+			Passed: false,
+			Output: "fatal error: access is denied during runtime init",
+		}
+		out := EvaluateRaceTestOutcome("windows", res, errors.New("exit status 2"))
+		if out.Status != RaceCheckFail {
+			t.Fatalf("expected RaceCheckFail on fatal error despite access is denied, got %+v", out)
+		}
+	})
+}
+
+func TestRunCampaignInRoot_RejectsEmptyModules(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	root := t.TempDir()
+	if results, allPassed := RunCampaignInRoot(ctx, root, nil); allPassed || len(results) != 0 {
+		t.Fatalf("expected (nil, false) for nil modules, got results=%+v allPassed=%t", results, allPassed)
+	}
+	if results, allPassed := RunCampaignInRoot(ctx, root, []string{}); allPassed || len(results) != 0 {
+		t.Fatalf("expected (nil, false) for empty modules, got results=%+v allPassed=%t", results, allPassed)
+	}
+	if results, allPassed := RunCampaignInRoot(ctx, root, []string{"  "}); allPassed || len(results) != 1 || results[0].Err == nil {
+		t.Fatalf("expected blank module entry to fail closed, got results=%+v allPassed=%t", results, allPassed)
+	}
 }
 
 func TestRunCampaignInRoot_AggregatesFailuresWithoutEarlyExit(t *testing.T) {
