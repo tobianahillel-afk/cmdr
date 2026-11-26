@@ -2,6 +2,8 @@ package tier2_boundaries
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"os"
 	"os/exec"
@@ -145,6 +147,138 @@ func TestT2_F7_3_HealthGateReturnsUnverifiedOnMissingBaseline(t *testing.T) {
 	t.Logf("T2.F7.3 PASS: mainline-health-gate fail-closed behavior verified (exit code %d)", res.ExitCode)
 }
 
+func seedCleanHealthGateBaseline(t *testing.T, ctx context.Context, mockRoot string) {
+	t.Helper()
+	headRes := harness.RunCmd(ctx, mockRoot, nil, "git", "rev-parse", "HEAD")
+	if headRes.ExitCode != 0 {
+		t.Fatalf("failed to resolve mockRoot HEAD: %s", headRes.Stderr)
+	}
+	headSHA := strings.ToLower(strings.TrimSpace(headRes.Stdout))
+
+	digestCanonical := func(v interface{}) string {
+		data, err := json.Marshal(v)
+		if err != nil {
+			t.Fatalf("failed to marshal canonical digest payload: %v", err)
+		}
+		sum := sha256.Sum256(data)
+		return hex.EncodeToString(sum[:])
+	}
+
+	type workLease struct {
+		ID          string `json:"id"`
+		WorkUnit    string `json:"work_unit"`
+		AgentID     string `json:"agent_id"`
+		Mode        string `json:"mode,omitempty"`
+		BaseHeadSHA string `json:"base_head_sha"`
+		AcquiredAt  string `json:"acquired_at"`
+		ExpiresAt   string `json:"expires_at"`
+		ReleasedAt  string `json:"released_at,omitempty"`
+	}
+	claims := struct {
+		SchemaVersion int         `json:"schema_version"`
+		RegistryKind  string      `json:"registry_kind"`
+		Claims        []workLease `json:"claims"`
+	}{
+		SchemaVersion: 1,
+		RegistryKind:  "engineering-work-leases",
+		Claims: []workLease{
+			{
+				ID:          "LEASE-F07-MOCK-0001",
+				WorkUnit:    "E10-INV-002G",
+				AgentID:     "AGENT-F07-MOCK",
+				Mode:        "mutating",
+				BaseHeadSHA: headSHA,
+				AcquiredAt:  "2026-11-24T10:00:00Z",
+				ExpiresAt:   "2026-11-24T11:30:00Z",
+				ReleasedAt:  "2026-11-24T11:00:00Z",
+			},
+		},
+	}
+	claimsBytes, err := json.MarshalIndent(claims, "", "  ")
+	if err != nil {
+		t.Fatalf("failed to marshal mock claims: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(mockRoot, "engineering", "recovery", "claims.json"), append(claimsBytes, '\n'), 0644); err != nil {
+		t.Fatalf("failed to write mock claims: %v", err)
+	}
+
+	prevDigest := digestCanonical("cmdr-execution-journal-v1")
+	body := struct {
+		Sequence       int      `json:"sequence"`
+		ID             string   `json:"id"`
+		WorkUnit       string   `json:"work_unit"`
+		AgentID        string   `json:"agent_id"`
+		LeaseID        string   `json:"lease_id"`
+		Kind           string   `json:"kind"`
+		ObservedAt     string   `json:"observed_at"`
+		HeadSHA        string   `json:"head_sha"`
+		EvidenceRefs   []string `json:"evidence_refs"`
+		PreviousDigest string   `json:"previous_digest"`
+	}{
+		Sequence:       1,
+		ID:             "EVT-F07-MOCK-0001",
+		WorkUnit:       "E10-INV-002G",
+		AgentID:        "AGENT-F07-MOCK",
+		LeaseID:        "LEASE-F07-MOCK-0001",
+		Kind:           "handoff",
+		ObservedAt:     "2026-11-24T10:30:00Z",
+		HeadSHA:        headSHA,
+		EvidenceRefs:   []string{"work/lots/E10-INV-002G/HANDOFF.json"},
+		PreviousDigest: prevDigest,
+	}
+	evtDigest := digestCanonical(body)
+	type journalEvent struct {
+		Sequence       int      `json:"sequence"`
+		ID             string   `json:"id"`
+		WorkUnit       string   `json:"work_unit"`
+		AgentID        string   `json:"agent_id"`
+		LeaseID        string   `json:"lease_id"`
+		Kind           string   `json:"kind"`
+		ObservedAt     string   `json:"observed_at"`
+		HeadSHA        string   `json:"head_sha"`
+		EvidenceRefs   []string `json:"evidence_refs"`
+		PreviousDigest string   `json:"previous_digest"`
+		Digest         string   `json:"digest"`
+	}
+	journal := struct {
+		SchemaVersion int            `json:"schema_version"`
+		RegistryKind  string         `json:"registry_kind"`
+		Events        []journalEvent `json:"events"`
+	}{
+		SchemaVersion: 1,
+		RegistryKind:  "engineering-recovery-journal",
+		Events: []journalEvent{
+			{
+				Sequence:       body.Sequence,
+				ID:             body.ID,
+				WorkUnit:       body.WorkUnit,
+				AgentID:        body.AgentID,
+				LeaseID:        body.LeaseID,
+				Kind:           body.Kind,
+				ObservedAt:     body.ObservedAt,
+				HeadSHA:        body.HeadSHA,
+				EvidenceRefs:   body.EvidenceRefs,
+				PreviousDigest: body.PreviousDigest,
+				Digest:         evtDigest,
+			},
+		},
+	}
+	journalBytes, err := json.MarshalIndent(journal, "", "  ")
+	if err != nil {
+		t.Fatalf("failed to marshal mock journal: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(mockRoot, "engineering", "recovery", "journal.json"), append(journalBytes, '\n'), 0644); err != nil {
+		t.Fatalf("failed to write mock journal: %v", err)
+	}
+
+	if res := harness.RunCmd(ctx, mockRoot, nil, "git", "add", "engineering/recovery/claims.json", "engineering/recovery/journal.json"); res.ExitCode != 0 {
+		t.Fatalf("git add seeded recovery files failed: %s", res.Stderr)
+	}
+	if res := harness.RunCmd(ctx, mockRoot, nil, "git", "commit", "-m", "seed valid recovery journal baseline"); res.ExitCode != 0 {
+		t.Fatalf("git commit seeded recovery files failed: %s", res.Stderr)
+	}
+}
+
 // T2.F7.4: Mainline health gate fails closed if any single dimension fails.
 func TestT2_F7_4_HealthGateFailsIfAnySingleDimensionFails(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 120*time.Second)
@@ -162,6 +296,7 @@ func TestT2_F7_4_HealthGateFailsIfAnySingleDimensionFails(t *testing.T) {
 	}
 
 	mockRoot := harness.CloneIsolatedRepo(t, "f07-single-dim")
+	seedCleanHealthGateBaseline(t, ctx, mockRoot)
 
 	// 1. Baseline isolated repo must certify MAIN_HEALTHY (exit 0 across all 5 dimensions)
 	baseRes := harness.RunCmdrDev(ctx, "mainline-health-gate", "--root", mockRoot, "--json")
