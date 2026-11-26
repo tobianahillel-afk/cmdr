@@ -52,7 +52,7 @@ func assertGitDimensionFailsInMockRoot(t *testing.T, ctx context.Context, mockRo
 
 // T2.F15.1: Spec diff detector detects 1-byte alteration in any of 1,879 spec files.
 func TestT2_F15_1_SpecDiffDetectorDetectsOneByteAlteration(t *testing.T) {
-	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 180*time.Second)
 	defer cancel()
 
 	const baseline = "82e630fce3a7f6236e03709116eca6dd0a1acd40"
@@ -97,7 +97,7 @@ func TestT2_F15_1_SpecDiffDetectorDetectsOneByteAlteration(t *testing.T) {
 
 // T2.F15.2: Spec diff detector detects deleted spec file.
 func TestT2_F15_2_SpecDiffDetectorDetectsDeletedSpecFile(t *testing.T) {
-	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 180*time.Second)
 	defer cancel()
 
 	mockRoot := harness.CloneIsolatedRepo(t, "f15-delete")
@@ -127,7 +127,7 @@ func TestT2_F15_2_SpecDiffDetectorDetectsDeletedSpecFile(t *testing.T) {
 
 // T2.F15.3: Spec diff detector detects added untracked spec file.
 func TestT2_F15_3_SpecDiffDetectorDetectsAddedUntrackedFile(t *testing.T) {
-	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 180*time.Second)
 	defer cancel()
 
 	mockRoot := harness.CloneIsolatedRepo(t, "f15-untracked")

@@ -4643,5 +4643,28 @@
       "work/reconciliation/**"
     ],
     "key_contributions": "Blocking CI MAINLINE_HEALTH_GATE, CAP-STD-004 ledger & graph reconciliation, multi-dimensional-v1 wave selector, M3 E2E skip removal."
+  },
+  {
+    "pr_number": 236,
+    "title": "fix(health-gate): enforce dependency-audit, runtime security evidence, Go unit tests, and .gitignore fail-closed checks",
+    "head_branch": "fix/m4-health-gate-fail-closed",
+    "base_branch": "main",
+    "status": "MERGED",
+    "disposition": "INCORPORATED_IN_MAIN",
+    "disposition_rationale": "Enforces dependency-audit across product-runtime and product-module boundaries, committed runtime-security-evidence.json validation, Go unit-test execution across all runtime Go modules and cmdr-dev, anchored .gitignore binary paths, and adds unit + E2E regression vectors; squash-merged at commit ae6cc2c93eba03d0ba203aa4d26e73ab0e5ab9d5.",
+    "commit": "ae6cc2c93eba03d0ba203aa4d26e73ab0e5ab9d5",
+    "files_introduced": [
+      ".gitignore",
+      "engineering/state/current.json",
+      "tests/e2e/tier2_boundaries/f07_health_gate_boundary_test.go",
+      "tests/e2e/tier4_workflows/w4_tamper_detection_and_fail_closed_test.go",
+      "tools/cmdr-dev/dependencies.go",
+      "tools/cmdr-dev/health_gate.go",
+      "tools/cmdr-dev/health_gate_test.go",
+      "tools/cmdr-dev/security_tests.go",
+      "work/reconciliation/PR_CLOSURE_REGISTER.md",
+      "work/reconciliation/prs.json"
+    ],
+    "key_contributions": "Standalone MAINLINE_HEALTH_GATE fail-closed hardening (dependency-audit, committed security evidence, Go unit tests, .gitignore anchoring) and PR #235 reconciliation."
   }
 ]
