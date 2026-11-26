@@ -281,7 +281,7 @@ func seedCleanHealthGateBaseline(t *testing.T, ctx context.Context, mockRoot str
 
 // T2.F7.4: Mainline health gate fails closed if any single dimension fails.
 func TestT2_F7_4_HealthGateFailsIfAnySingleDimensionFails(t *testing.T) {
-	ctx, cancel := context.WithTimeout(context.Background(), 120*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 300*time.Second)
 	defer cancel()
 
 	type gateReport struct {

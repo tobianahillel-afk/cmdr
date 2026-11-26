@@ -2,9 +2,14 @@ package main
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
+	"os"
 	"os/exec"
+	"path/filepath"
+	"sort"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -79,13 +84,144 @@ func evaluateCodeDimension(root string, state CurrentState, graph WorkGraph, sta
 		return res
 	}
 
+	testedModules, unverifiedErr, err := runRepositoryGoUnitTests(root)
+	if unverifiedErr != nil {
+		res.Status = "UNVERIFIED"
+		res.Errors = append(res.Errors, unverifiedErr.Error())
+		return res
+	}
+	if err != nil {
+		res.Errors = append(res.Errors, err.Error())
+		return res
+	}
+
 	res.Passed = true
 	res.Status = "PASS"
 	res.Details = append(res.Details,
 		fmt.Sprintf("doctor checks passed (%d checks verified)", len(doc.Checks)),
 		fmt.Sprintf("check catalog verified (%d checks registered, %d mandatory)", cat.Checks, cat.Mandatory),
+		fmt.Sprintf("Go unit tests passed across %d modules (product-runtime + tools/cmdr-dev)", len(testedModules)),
 	)
 	return res
+}
+
+func discoverCodeTestModules(root string) ([]string, error) {
+	prInfo, err := statRepoPath(root, "product-runtime")
+	if err != nil {
+		return nil, fmt.Errorf("inspect product-runtime directory: %w", err)
+	}
+	if !prInfo.IsDir() {
+		return nil, fmt.Errorf("product-runtime is not a directory")
+	}
+	prDir, err := resolveRepoPath(root, "product-runtime", false)
+	if err != nil {
+		return nil, err
+	}
+	entries, err := os.ReadDir(prDir)
+	if err != nil {
+		return nil, fmt.Errorf("read product-runtime directory: %w", err)
+	}
+	var runtimeModules []string
+	for _, entry := range entries {
+		if entry.Type()&os.ModeSymlink != 0 {
+			return nil, fmt.Errorf("product-runtime entry %s must not be a symlink", entry.Name())
+		}
+		if !entry.IsDir() {
+			continue
+		}
+		modRel := filepath.ToSlash(filepath.Join("product-runtime", entry.Name(), "go.mod"))
+		info, err := lstatRepoEntry(root, modRel)
+		if err != nil {
+			if os.IsNotExist(err) {
+				continue
+			}
+			return nil, fmt.Errorf("inspect module manifest %s: %w", modRel, err)
+		}
+		if info.Mode()&os.ModeSymlink != 0 {
+			return nil, fmt.Errorf("module manifest %s must not be a symlink", modRel)
+		}
+		if !info.IsDir() {
+			runtimeModules = append(runtimeModules, filepath.ToSlash(filepath.Join("product-runtime", entry.Name())))
+		}
+	}
+	if len(runtimeModules) == 0 {
+		return nil, fmt.Errorf("no Go modules discovered under product-runtime")
+	}
+	sort.Strings(runtimeModules)
+
+	cmdrDevModInfo, err := lstatRepoEntry(root, "tools/cmdr-dev/go.mod")
+	if err != nil {
+		return nil, fmt.Errorf("inspect tools/cmdr-dev/go.mod: %w", err)
+	}
+	if cmdrDevModInfo.Mode()&os.ModeSymlink != 0 || cmdrDevModInfo.IsDir() {
+		return nil, fmt.Errorf("tools/cmdr-dev/go.mod must be a regular file")
+	}
+
+	modules := make([]string, 0, 1+len(runtimeModules))
+	modules = append(modules, "tools/cmdr-dev")
+	modules = append(modules, runtimeModules...)
+	return modules, nil
+}
+
+func runRepositoryGoUnitTests(root string) ([]string, error, error) {
+	modules, err := discoverCodeTestModules(root)
+	if err != nil {
+		return nil, nil, err
+	}
+	if _, lookErr := exec.LookPath("go"); lookErr != nil {
+		if errors.Is(lookErr, exec.ErrNotFound) {
+			return nil, fmt.Errorf("go toolchain unavailable for unit test verification: %w", lookErr), nil
+		}
+		return nil, fmt.Errorf("resolve go toolchain: %w", lookErr), nil
+	}
+
+	workers := 4
+	if len(modules) < workers {
+		workers = len(modules)
+	}
+	jobs := make(chan string, len(modules))
+	for _, m := range modules {
+		jobs <- m
+	}
+	close(jobs)
+
+	var mu sync.Mutex
+	var failures []string
+	var wg sync.WaitGroup
+	for i := 0; i < workers; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for modRel := range jobs {
+				modDir, pathErr := resolveRepoPath(root, modRel, false)
+				if pathErr != nil {
+					mu.Lock()
+					failures = append(failures, fmt.Sprintf("%s: %v", modRel, pathErr))
+					mu.Unlock()
+					continue
+				}
+				cmd := exec.Command("go", "test", "-count=1", "./...") // #nosec G204 -- fixed Go executable and literal flags; module directory is repository-confined.
+				cmd.Dir = modDir
+				out, runErr := cmd.CombinedOutput()
+				if runErr != nil {
+					snippet := strings.Join(strings.Fields(string(out)), " ")
+					if len(snippet) > 240 {
+						snippet = snippet[len(snippet)-240:]
+					}
+					mu.Lock()
+					failures = append(failures, fmt.Sprintf("%s (%v): %s", modRel, runErr, snippet))
+					mu.Unlock()
+				}
+			}
+		}()
+	}
+	wg.Wait()
+
+	if len(failures) > 0 {
+		sort.Strings(failures)
+		return modules, nil, fmt.Errorf("Go unit tests failed in %d module(s): %s", len(failures), strings.Join(failures, "; "))
+	}
+	return modules, nil, nil
 }
 
 func validateSecurityAudit(secScan SecretScanSummary, gates SecurityGateAuditSummary, goVersion string) []string {
@@ -109,6 +245,20 @@ func validateSecurityAudit(secScan SecretScanSummary, gates SecurityGateAuditSum
 	return nil
 }
 
+func validateDependencyAudit(deps DependencyAuditSummary) []string {
+	var errs []string
+	if deps.UnsupportedManifests > 0 {
+		errs = append(errs, fmt.Sprintf("%d unsupported product-runtime dependency manifest(s) detected", deps.UnsupportedManifests))
+	}
+	if deps.Unapproved > 0 {
+		errs = append(errs, fmt.Sprintf("%d unapproved third-party product-runtime dependencies detected", deps.Unapproved))
+	}
+	if deps.RuntimeBoundaries == 0 {
+		errs = append(errs, "dependency audit verified 0 runtime boundaries")
+	}
+	return errs
+}
+
 func evaluateSecurityDimension(root string) HealthDimensionResult {
 	res := HealthDimensionResult{Name: "security", Passed: false, Status: "FAIL"}
 
@@ -129,12 +279,35 @@ func evaluateSecurityDimension(root string) HealthDimensionResult {
 		return res
 	}
 
+	deps, err := runDependencyAudit(root)
+	if err != nil {
+		res.Errors = append(res.Errors, fmt.Sprintf("dependency audit failed: %v", err))
+		return res
+	}
+	if errs := validateDependencyAudit(deps); len(errs) > 0 {
+		res.Errors = append(res.Errors, errs...)
+		return res
+	}
+
+	secEv, err := runCommittedRuntimeSecurityEvidenceAudit(root)
+	if err != nil {
+		res.Errors = append(res.Errors, fmt.Sprintf("runtime security evidence audit failed: %v", err))
+		return res
+	}
+
+	evidenceDetail := fmt.Sprintf("runtime security evidence valid (status=%s, scopes=%d)", secEv.CoverageStatus, secEv.RegisteredScopes)
+	if secEv.GlobalCoveragePercent != nil {
+		evidenceDetail = fmt.Sprintf("runtime security evidence valid (status=%s, global_coverage=%.2f%%, scopes=%d)", secEv.CoverageStatus, *secEv.GlobalCoveragePercent, secEv.RegisteredScopes)
+	}
+
 	res.Passed = true
 	res.Status = "PASS"
 	res.Details = append(res.Details,
 		fmt.Sprintf("0 secrets detected across %d candidate paths", secScan.CandidatePaths),
 		fmt.Sprintf("security gate registry valid (%d registered gates, %d blocking)", gates.Gates, gates.Blocking),
 		fmt.Sprintf("Go toolchain pinned to %s", engineeringGoVersion),
+		fmt.Sprintf("runtime dependencies verified (0 unapproved across %d boundaries)", deps.RuntimeBoundaries),
+		evidenceDetail,
 	)
 	return res
 }
