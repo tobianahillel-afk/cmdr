@@ -1,7 +1,11 @@
 package main
 
 import (
+	"encoding/json"
 	"errors"
+	"os"
+	"os/exec"
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -651,4 +655,380 @@ func TestPrintMainlineHealthGateReport_FormatsWithoutPanic(t *testing.T) {
 	}
 	// Call printMainlineHealthGateReport to ensure formatting does not panic
 	printMainlineHealthGateReport(report)
+}
+
+func writeJSONFixture(t *testing.T, path string, value any) {
+	t.Helper()
+	if err := os.MkdirAll(filepath.Dir(path), 0750); err != nil {
+		t.Fatalf("mkdir %s: %v", filepath.Dir(path), err)
+	}
+	data, err := json.MarshalIndent(value, "", "  ")
+	if err != nil {
+		t.Fatalf("marshal %s: %v", path, err)
+	}
+	if err := os.WriteFile(path, append(data, '\n'), 0600); err != nil {
+		t.Fatalf("write %s: %v", path, err)
+	}
+}
+
+func writeTextFixture(t *testing.T, path, content string) {
+	t.Helper()
+	if err := os.MkdirAll(filepath.Dir(path), 0750); err != nil {
+		t.Fatalf("mkdir %s: %v", filepath.Dir(path), err)
+	}
+	if err := os.WriteFile(path, []byte(content), 0600); err != nil {
+		t.Fatalf("write %s: %v", path, err)
+	}
+}
+
+func TestValidateDependencyAudit_BoundaryChecks(t *testing.T) {
+	tests := []struct {
+		name    string
+		summary DependencyAuditSummary
+		wantErr bool
+	}{
+		{
+			name:    "valid nominal",
+			summary: DependencyAuditSummary{RuntimeBoundaries: 13, Unapproved: 0, UnsupportedManifests: 0},
+			wantErr: false,
+		},
+		{
+			name:    "unapproved third-party dependency",
+			summary: DependencyAuditSummary{RuntimeBoundaries: 13, Unapproved: 1, UnsupportedManifests: 0},
+			wantErr: true,
+		},
+		{
+			name:    "unsupported manifest",
+			summary: DependencyAuditSummary{RuntimeBoundaries: 13, Unapproved: 0, UnsupportedManifests: 1},
+			wantErr: true,
+		},
+		{
+			name:    "zero runtime boundaries",
+			summary: DependencyAuditSummary{RuntimeBoundaries: 0, Unapproved: 0, UnsupportedManifests: 0},
+			wantErr: true,
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			errs := validateDependencyAudit(tc.summary)
+			if tc.wantErr && len(errs) == 0 {
+				t.Fatalf("expected validation error, got none")
+			}
+			if !tc.wantErr && len(errs) > 0 {
+				t.Fatalf("unexpected validation errors: %v", errs)
+			}
+		})
+	}
+}
+
+func TestValidateCommittedRuntimeSecurityEvidence_BoundaryChecks(t *testing.T) {
+	runtime := ArchitectureBoundary{ID: "api", Kind: "product-runtime", Roots: []string{"product-runtime/api/**"}}
+	arch := securityTestArchitecture(runtime)
+	gates := securityTestGates(true, true)
+	scope := RuntimeSecurityScope{
+		BoundaryID:               "api",
+		Owner:                    "security-platform",
+		SecurityCriticalPaths:    []string{"product-runtime/api/auth/**"},
+		AuthorizationRequired:    true,
+		AuthorizationRationale:   "API enforces authorization",
+		TenantIsolationRequired:  true,
+		TenantIsolationRationale: "API enforces tenant isolation",
+	}
+	policy := baseRuntimePolicy(scope)
+	states := map[string]string{"api": "implemented"}
+	historicalCommit := "e4ea9a315cfa655520d1bc3e308ed9c45c326041"
+
+	validEvidence := func() RuntimeSecurityEvidence {
+		return RuntimeSecurityEvidence{
+			SchemaVersion:         1,
+			Status:                "measured",
+			Reason:                "CI-generated measured runtime security evidence",
+			SourceCommit:          historicalCommit,
+			GlobalCoveragePercent: ptrFloat(91.5),
+			Scopes: []RuntimeSecurityEvidenceScope{{
+				BoundaryID:                    "api",
+				ImplementationState:           "implemented",
+				ChangedSecurityCritical:       false,
+				AuthorizationNegativePassed:   ptrBool(true),
+				TenantIsolationNegativePassed: ptrBool(true),
+			}},
+		}
+	}
+
+	if summary, err := validateCommittedRuntimeSecurityEvidence(arch, gates, policy, validEvidence(), states); err != nil {
+		t.Fatalf("expected valid historical commit evidence to pass, got: %v", err)
+	} else if summary.CoverageStatus != "measured" || summary.RegisteredScopes != 1 {
+		t.Fatalf("unexpected summary: %+v", summary)
+	}
+
+	cases := []struct {
+		name   string
+		mutate func(*RuntimeSecurityEvidence)
+	}{
+		{
+			name:   "wrong schema version",
+			mutate: func(e *RuntimeSecurityEvidence) { e.SchemaVersion = 2 },
+		},
+		{
+			name:   "empty reason",
+			mutate: func(e *RuntimeSecurityEvidence) { e.Reason = "   " },
+		},
+		{
+			name:   "invalid source commit",
+			mutate: func(e *RuntimeSecurityEvidence) { e.SourceCommit = "not-a-sha" },
+		},
+		{
+			name:   "global coverage below floor",
+			mutate: func(e *RuntimeSecurityEvidence) { e.GlobalCoveragePercent = ptrFloat(79.5) },
+		},
+		{
+			name:   "missing scope",
+			mutate: func(e *RuntimeSecurityEvidence) { e.Scopes = nil },
+		},
+		{
+			name: "extra unregistered scope",
+			mutate: func(e *RuntimeSecurityEvidence) {
+				e.Scopes = append(e.Scopes, RuntimeSecurityEvidenceScope{BoundaryID: "extra", ImplementationState: "implemented"})
+			},
+		},
+		{
+			name: "duplicate scope",
+			mutate: func(e *RuntimeSecurityEvidence) {
+				e.Scopes = append(e.Scopes, e.Scopes[0])
+			},
+		},
+		{
+			name: "mismatched implementation state",
+			mutate: func(e *RuntimeSecurityEvidence) {
+				e.Scopes[0].ImplementationState = "preimplementation"
+			},
+		},
+		{
+			name: "authorization negative test false",
+			mutate: func(e *RuntimeSecurityEvidence) {
+				e.Scopes[0].AuthorizationNegativePassed = ptrBool(false)
+			},
+		},
+		{
+			name: "tenant isolation negative test nil",
+			mutate: func(e *RuntimeSecurityEvidence) {
+				e.Scopes[0].TenantIsolationNegativePassed = nil
+			},
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			ev := validEvidence()
+			tc.mutate(&ev)
+			if _, err := validateCommittedRuntimeSecurityEvidence(arch, gates, policy, ev, states); err == nil {
+				t.Fatalf("expected error for %s, got nil", tc.name)
+			}
+		})
+	}
+}
+
+func seedSyntheticSecurityRepo(t *testing.T) string {
+	t.Helper()
+	root := t.TempDir()
+
+	writeTextFixture(t, filepath.Join(root, "cmdr-product-spec", "README.md"), "# Spec\n")
+	writeTextFixture(t, filepath.Join(root, "product-runtime", "mod-a", "go.mod"), "module example.com/mod-a\n\ngo 1.26.11\n")
+	writeTextFixture(t, filepath.Join(root, "product-runtime", "mod-a", "mod.go"), "package moda\n\nfunc Value() int { return 1 }\n")
+	writeTextFixture(t, filepath.Join(root, "product-runtime", "mod-b", "go.mod"), "module example.com/mod-b\n\ngo 1.26.11\n")
+	writeTextFixture(t, filepath.Join(root, "product-runtime", "mod-b", "mod.go"), "package modb\n\nfunc Value() int { return 2 }\n")
+
+	arch := ArchitectureRegistry{
+		SchemaVersion: 1,
+		DefaultPolicy: "deny-unregistered-path",
+		Boundaries: []ArchitectureBoundary{
+			{ID: "product-spec", Kind: "product-documentation", Roots: []string{"cmdr-product-spec/**"}},
+			{ID: "mod-a-runtime", Kind: "product-runtime", Roots: []string{"product-runtime/mod-a/**"}},
+			{ID: "mod-b-runtime", Kind: "product-module", Roots: []string{"product-runtime/mod-b/**"}},
+		},
+	}
+	writeJSONFixture(t, filepath.Join(root, filepath.FromSlash(architectureRegistryPath)), arch)
+
+	writeJSONFixture(t, filepath.Join(root, filepath.FromSlash(trustedBasePath)), TrustedBase{
+		SchemaVersion: 1,
+		DefaultPolicy: "deny-third-party-product-functionality",
+	})
+
+	writeJSONFixture(t, filepath.Join(root, filepath.FromSlash(secretAllowlistPath)), SecretAllowlist{
+		SchemaVersion: 1,
+		Entries:       []SecretAllowlistEntry{},
+	})
+
+	realGatesBytes, err := os.ReadFile(filepath.Join("..", "..", filepath.FromSlash(securityGateRegistryPath)))
+	if err != nil {
+		t.Fatalf("read canonical security-gates.json: %v", err)
+	}
+	writeTextFixture(t, filepath.Join(root, filepath.FromSlash(securityGateRegistryPath)), string(realGatesBytes))
+
+	writeJSONFixture(t, filepath.Join(root, filepath.FromSlash(runtimeSecurityPolicyPath)), RuntimeSecurityPolicy{
+		SchemaVersion:                        1,
+		DefaultPolicy:                        "deny-unregistered-runtime-boundary",
+		GlobalCoverageFloorPercent:           80,
+		ChangedSecurityCriticalCoverageFloor: 90,
+		AuthorizationGateID:                  "SEC-AUTH-NEG-001",
+		TenantIsolationGateID:                "SEC-TENANT-ISO-001",
+		Scopes: []RuntimeSecurityScope{{
+			BoundaryID:               "mod-a-runtime",
+			Owner:                    "security-platform",
+			SecurityCriticalPaths:    []string{"product-runtime/mod-a/**"},
+			AuthorizationRequired:    true,
+			AuthorizationRationale:   "mod-a enforces auth",
+			TenantIsolationRequired:  true,
+			TenantIsolationRationale: "mod-a enforces tenant",
+		}},
+	})
+
+	writeJSONFixture(t, filepath.Join(root, filepath.FromSlash(runtimeSecurityEvidencePath)), RuntimeSecurityEvidence{
+		SchemaVersion:         1,
+		Status:                "measured",
+		Reason:                "measured runtime security evidence",
+		SourceCommit:          "e4ea9a315cfa655520d1bc3e308ed9c45c326041",
+		GlobalCoveragePercent: ptrFloat(92.0),
+		Scopes: []RuntimeSecurityEvidenceScope{{
+			BoundaryID:                    "mod-a-runtime",
+			ImplementationState:           "implemented",
+			ChangedSecurityCritical:       false,
+			AuthorizationNegativePassed:   ptrBool(true),
+			TenantIsolationNegativePassed: ptrBool(true),
+		}},
+	})
+
+	return root
+}
+
+func TestRunCommittedRuntimeSecurityEvidenceAudit_MissingOrCorrupt(t *testing.T) {
+	root := seedSyntheticSecurityRepo(t)
+	if summary, err := runCommittedRuntimeSecurityEvidenceAudit(root); err != nil {
+		t.Fatalf("expected clean synthetic repo to pass committed evidence audit, got: %v", err)
+	} else if summary.CoverageStatus != "measured" || summary.RegisteredScopes != 1 {
+		t.Fatalf("unexpected summary: %+v", summary)
+	}
+
+	evPath := filepath.Join(root, filepath.FromSlash(runtimeSecurityEvidencePath))
+	if err := os.WriteFile(evPath, []byte("{corrupt json"), 0600); err != nil {
+		t.Fatalf("corrupt evidence file: %v", err)
+	}
+	if _, err := runCommittedRuntimeSecurityEvidenceAudit(root); err == nil {
+		t.Fatalf("expected corrupt runtime-security-evidence.json to fail")
+	}
+
+	if err := os.Remove(evPath); err != nil {
+		t.Fatalf("remove evidence file: %v", err)
+	}
+	if _, err := runCommittedRuntimeSecurityEvidenceAudit(root); err == nil {
+		t.Fatalf("expected missing runtime-security-evidence.json to fail")
+	}
+}
+
+func TestEvaluateSecurityDimension_RejectsExternalDepAndBadSecurityEvidence(t *testing.T) {
+	root := seedSyntheticSecurityRepo(t)
+	for _, args := range [][]string{
+		{"init"},
+		{"config", "user.name", "Test"},
+		{"config", "user.email", "test@example.com"},
+		{"add", "."},
+		{"commit", "-m", "baseline"},
+	} {
+		cmd := exec.Command("git", append([]string{"-C", root}, args...)...) // #nosec G204 -- fixed git command on test TempDir
+		if out, err := cmd.CombinedOutput(); err != nil {
+			t.Fatalf("git %v failed: %v (%s)", args, err, string(out))
+		}
+	}
+
+	// Update evidence source_commit to the synthetic repo HEAD commit so gitCommitExists succeeds too.
+	headBytes, err := exec.Command("git", "-C", root, "rev-parse", "HEAD").Output() // #nosec G204 -- fixed git command on test TempDir
+	if err != nil {
+		t.Fatalf("git rev-parse HEAD: %v", err)
+	}
+	headCommit := strings.TrimSpace(string(headBytes))
+	evPath := filepath.Join(root, filepath.FromSlash(runtimeSecurityEvidencePath))
+	validEv := RuntimeSecurityEvidence{
+		SchemaVersion:         1,
+		Status:                "measured",
+		Reason:                "measured runtime security evidence",
+		SourceCommit:          headCommit,
+		GlobalCoveragePercent: ptrFloat(92.0),
+		Scopes: []RuntimeSecurityEvidenceScope{{
+			BoundaryID:                    "mod-a-runtime",
+			ImplementationState:           "implemented",
+			ChangedSecurityCritical:       false,
+			AuthorizationNegativePassed:   ptrBool(true),
+			TenantIsolationNegativePassed: ptrBool(true),
+		}},
+	}
+	writeJSONFixture(t, evPath, validEv)
+
+	clean := evaluateSecurityDimension(root)
+	if !clean.Passed || clean.Status != "PASS" {
+		t.Fatalf("expected clean security dimension PASS, got status=%s errors=%v", clean.Status, clean.Errors)
+	}
+
+	// Inject external dependency into product-module boundary (mod-b).
+	modBGoMod := filepath.Join(root, "product-runtime", "mod-b", "go.mod")
+	writeTextFixture(t, modBGoMod, "module example.com/mod-b\n\ngo 1.26.11\n\nrequire github.com/example/evil v1.0.0\n")
+	depFail := evaluateSecurityDimension(root)
+	if depFail.Passed || depFail.Status != "FAIL" {
+		t.Fatalf("expected FAIL on external dep in product-module, got status=%s", depFail.Status)
+	}
+
+	// Restore mod-b/go.mod and corrupt runtime-security-evidence.json.
+	writeTextFixture(t, modBGoMod, "module example.com/mod-b\n\ngo 1.26.11\n")
+	if err := os.WriteFile(evPath, []byte("{corrupt json"), 0600); err != nil {
+		t.Fatalf("corrupt evidence file: %v", err)
+	}
+	corruptFail := evaluateSecurityDimension(root)
+	if corruptFail.Passed || corruptFail.Status != "FAIL" {
+		t.Fatalf("expected FAIL on corrupt runtime-security-evidence.json, got status=%s", corruptFail.Status)
+	}
+
+	// Remove runtime-security-evidence.json.
+	if err := os.Remove(evPath); err != nil {
+		t.Fatalf("remove evidence file: %v", err)
+	}
+	missingFail := evaluateSecurityDimension(root)
+	if missingFail.Passed || missingFail.Status != "FAIL" {
+		t.Fatalf("expected FAIL on missing runtime-security-evidence.json, got status=%s", missingFail.Status)
+	}
+}
+
+func TestDiscoverCodeTestModules_AndRunRepositoryGoUnitTests(t *testing.T) {
+	root := t.TempDir()
+	writeTextFixture(t, filepath.Join(root, "product-runtime", "mod-a", "go.mod"), "module example.com/mod-a\n\ngo 1.26.11\n")
+	writeTextFixture(t, filepath.Join(root, "product-runtime", "mod-a", "mod_test.go"), "package moda\n\nimport \"testing\"\n\nfunc TestPass(t *testing.T) {}\n")
+	writeTextFixture(t, filepath.Join(root, "product-runtime", "frontend", "index.js"), "export const ok = true;\n")
+	writeTextFixture(t, filepath.Join(root, "tools", "cmdr-dev", "go.mod"), "module example.com/cmdr-dev\n\ngo 1.26.11\n")
+	writeTextFixture(t, filepath.Join(root, "tools", "cmdr-dev", "dev_test.go"), "package main\n\nimport \"testing\"\n\nfunc TestDevPass(t *testing.T) {}\n")
+	writeTextFixture(t, filepath.Join(root, "tests", "e2e", "go.mod"), "module example.com/e2e\n\ngo 1.26.11\n")
+	writeTextFixture(t, filepath.Join(root, "tests", "e2e", "e2e_test.go"), "package e2e\n\nimport \"testing\"\n\nfunc TestShouldNotRun(t *testing.T) { t.Fatal(\"must be excluded\") }\n")
+
+	mods, err := discoverCodeTestModules(root)
+	if err != nil {
+		t.Fatalf("discoverCodeTestModules failed: %v", err)
+	}
+	if len(mods) != 2 || mods[0] != "tools/cmdr-dev" || mods[1] != "product-runtime/mod-a" {
+		t.Fatalf("unexpected discovered modules: %v", mods)
+	}
+
+	tested, unverifiedErr, err := runRepositoryGoUnitTests(root)
+	if unverifiedErr != nil || err != nil {
+		t.Fatalf("expected runRepositoryGoUnitTests pass, got unverified=%v err=%v", unverifiedErr, err)
+	}
+	if len(tested) != 2 {
+		t.Fatalf("expected 2 tested modules, got %d", len(tested))
+	}
+
+	writeTextFixture(t, filepath.Join(root, "product-runtime", "mod-a", "fail_test.go"), "package moda\n\nimport \"testing\"\n\nfunc TestIntentionalFail(t *testing.T) { t.Fatal(\"boom\") }\n")
+	_, unverifiedErr, err = runRepositoryGoUnitTests(root)
+	if unverifiedErr != nil {
+		t.Fatalf("unexpected unverifiedErr on test failure: %v", unverifiedErr)
+	}
+	if err == nil || !strings.Contains(err.Error(), "product-runtime/mod-a") {
+		t.Fatalf("expected failure mentioning product-runtime/mod-a, got: %v", err)
+	}
 }

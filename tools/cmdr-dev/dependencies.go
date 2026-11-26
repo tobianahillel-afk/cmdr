@@ -77,7 +77,7 @@ func runDependencyAudit(root string) (DependencyAuditSummary, error) {
 	supportedManifests := map[string]bool{}
 	runtimeBoundaries := 0
 	for _, boundary := range registry.Boundaries {
-		if boundary.Kind != "product-runtime" {
+		if boundary.Kind != "product-runtime" && boundary.Kind != "product-module" {
 			continue
 		}
 		runtimeBoundaries++

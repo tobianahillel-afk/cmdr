@@ -4622,5 +4622,26 @@
       "tests/e2e/**"
     ],
     "key_contributions": "4-tier 167-test opaque-box E2E suite, SHA-attributed GitHub/Codex checks, verified go test -json runner, structured CI workflow validation."
+  },
+  {
+    "pr_number": 235,
+    "title": "feat(m3): integrate mainline health gate, CAP-STD-004 governance, and fail-closed E2E checks",
+    "head_branch": "feat/m3-mainline-health-gate-integration",
+    "base_branch": "main",
+    "status": "MERGED",
+    "disposition": "INCORPORATED_IN_MAIN",
+    "disposition_rationale": "Integrates blocking MAINLINE_HEALTH_GATE CI enforcement, CAP-STD-004 (E10-STD-004A-INPUT) governance reconciliation, multi-dimensional-v1 wave selection, PR #233/#234 register updates, and lifts M3 E2E skips; squash-merged at commit dfd06e26d4cb8d2624e30d7dd517bff7e9e5afed.",
+    "commit": "dfd06e26d4cb8d2624e30d7dd517bff7e9e5afed",
+    "files_introduced": [
+      ".github/workflows/engineering-kernel-full.yml",
+      "engineering/implementation/ledger.json",
+      "engineering/state/current.json",
+      "tests/e2e/**",
+      "tools/cmdr-dev/**",
+      "work/graph.json",
+      "work/lots/E10-STD-004A-INPUT/**",
+      "work/reconciliation/**"
+    ],
+    "key_contributions": "Blocking CI MAINLINE_HEALTH_GATE, CAP-STD-004 ledger & graph reconciliation, multi-dimensional-v1 wave selector, M3 E2E skip removal."
   }
 ]

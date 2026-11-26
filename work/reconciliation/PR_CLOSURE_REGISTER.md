@@ -318,6 +318,7 @@ Avant d'autoriser la suppression des branches distantes sur `origin`, la totalit
 | **#232** | docs(governance): document permanent continuous delivery cycle and CAP-STD-005 roadmap | `docs/m5-continuous-delivery-lifecycle-and-cap-std-005-roadmap` | `c1e75db81662b33a0f1208afdbf8b688fe7977e3` | `CLOSED_INCORPORATED` | Documents permanent continuous delivery lifecycle and establishes CAP-STD-005 roadmap framing without premature implementation; merged into main at commit c1e75db81662b33a0f1208afdbf8b688fe7977e3. |
 | **#233** | fix(security): toolchain hardening to Go 1.26.11, Windows SAST taskkill PID annotation, and runtime security evidence sync | `fix/m1-security-toolchain-sast-evidence` | `e4ea9a315cfa655520d1bc3e308ed9c45c326041` | `CLOSED_INCORPORATED` | Hardens Go toolchain to 1.26.11, annotates Windows SAST taskkill PID invocation, and synchronizes runtime security evidence; merged into main at commit e4ea9a315cfa655520d1bc3e308ed9c45c326041. |
 | **#234** | feat(tests): add 167-test 4-tier E2E opaque-box test suite and architecture boundary registration | `feat/e2e-opaque-test-suite` | `a7a50f2a35ab537fe7f784a685c24d159c8e8926` | `CLOSED_INCORPORATED` | Integrates 167-test 4-tier opaque-box E2E test suite with SHA-attributed GitHub verification, go test -json checks, and architecture boundary registration; merged into main at commit a7a50f2a35ab537fe7f784a685c24d159c8e8926. |
+| **#235** | feat(m3): integrate mainline health gate, CAP-STD-004 governance, and fail-closed E2E checks | `feat/m3-mainline-health-gate-integration` | `dfd06e26d4cb8d2624e30d7dd517bff7e9e5afed` | `CLOSED_INCORPORATED` | Integrates blocking MAINLINE_HEALTH_GATE CI enforcement, CAP-STD-004 (E10-STD-004A-INPUT) governance reconciliation, multi-dimensional-v1 wave selection, PR #233/#234 register updates, and lifts M3 E2E skips; merged into main at commit dfd06e26d4cb8d2624e30d7dd517bff7e9e5afed. |
 
 ---
 
@@ -413,14 +414,14 @@ git push origin <commit_sha>:refs/heads/<branch_name>
 
 Le présent registre consacre la clôture formelle et traçable de la totalité de la dette technique Git accumulée sur le dépôt `cmdr`. En accord avec le mandat des Milestones 3, 4, 5 et 6, **la branche `main` est désormais l'unique source de vérité et la seule cible de développement et d'intégration**.
 
-- **Nombre total de PRs réconciliées :** 233 / 233 (100.0%, PR #1 à #234, #180 non assigné)
-- **CLOSED_INCORPORATED / MERGED :** 56 (24.0%)
-- **CLOSED_SUPERSEDED :** 176 (75.5%)
+- **Nombre total de PRs réconciliées :** 234 / 234 (100.0%, PR #1 à #235, #180 non assigné)
+- **CLOSED_INCORPORATED / MERGED :** 57 (24.4%)
+- **CLOSED_SUPERSEDED :** 176 (75.2%)
 - **CLOSED_REJECTED :** 1 (0.4%)
 - **STILL_REQUIRED restant :** 0 (0.0%)
 - **PRs ouvertes sur GitHub :** 0
 - **Tags de sauvegarde actifs sur origin :** 27 (21 tags de consolidation + 6 tags unmerged scellés, 100% vérifiés via `git ls-remote --tags origin "backup/*"`)
 - **Branches distantes obsolètes élaguées :** 171 branches historiques supprimées sur GitHub origin (après scellement cryptographique des 6 unmerged)
 - **Branches distantes actives sur origin :** 1 (`origin/main`)
-- **État d'intégration de `main` :** Conforme, stable, protégé (commit canonique `a7a50f2a35ab537fe7f784a685c24d159c8e8926`, suite CI 100% verte, branch protection active) et sous le contrôle permanent du `MAINLINE_HEALTH_GATE`.
+- **État d'intégration de `main` :** Conforme, stable, protégé (commit canonique `dfd06e26d4cb8d2624e30d7dd517bff7e9e5afed`, suite CI 100% verte, branch protection active) et sous le contrôle permanent du `MAINLINE_HEALTH_GATE`.
 

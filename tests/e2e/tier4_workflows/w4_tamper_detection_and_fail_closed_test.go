@@ -212,10 +212,10 @@ func assertOtherDimensionsHealthy(t *testing.T, report w4HealthGateReport, expec
 // four tamper vectors into isolated mock repositories and asserts fail-closed rejection
 // in the exact expected health-gate dimension.
 func TestT4_04_TamperDetectionAndFailClosed(t *testing.T) {
-	ctx, cancel := context.WithTimeout(context.Background(), 180*time.Second)
-	defer cancel()
-
 	t.Run("Baseline_Untampered_MainHealthy", func(t *testing.T) {
+		ctx, cancel := context.WithTimeout(context.Background(), 240*time.Second)
+		defer cancel()
+
 		mockRoot := setupW4MockRepo(t)
 		gateRes, report := runW4HealthGate(t, ctx, mockRoot)
 		if gateRes.ExitCode != 0 {
@@ -231,6 +231,9 @@ func TestT4_04_TamperDetectionAndFailClosed(t *testing.T) {
 	})
 
 	t.Run("Vector1_RecoveryJournalDigestTamper", func(t *testing.T) {
+		ctx, cancel := context.WithTimeout(context.Background(), 240*time.Second)
+		defer cancel()
+
 		mockRoot := setupW4MockRepo(t)
 		journalPath := filepath.Join(mockRoot, "engineering", "recovery", "journal.json")
 		journalData, err := os.ReadFile(journalPath)
@@ -288,6 +291,9 @@ func TestT4_04_TamperDetectionAndFailClosed(t *testing.T) {
 	})
 
 	t.Run("Vector2_ImplementationLedgerPhantomUnit", func(t *testing.T) {
+		ctx, cancel := context.WithTimeout(context.Background(), 240*time.Second)
+		defer cancel()
+
 		mockRoot := setupW4MockRepo(t)
 		ledgerPath := filepath.Join(mockRoot, "engineering", "implementation", "ledger.json")
 		ledgerData, err := os.ReadFile(ledgerPath)
@@ -348,6 +354,9 @@ func TestT4_04_TamperDetectionAndFailClosed(t *testing.T) {
 	})
 
 	t.Run("Vector3_UntrackedSentinelFile", func(t *testing.T) {
+		ctx, cancel := context.WithTimeout(context.Background(), 240*time.Second)
+		defer cancel()
+
 		mockRoot := setupW4MockRepo(t)
 		sentinelPath := filepath.Join(mockRoot, ".tamper_sentinel.tmp")
 		if err := os.WriteFile(sentinelPath, []byte("adversarial-tamper-probe"), 0644); err != nil {
@@ -377,6 +386,9 @@ func TestT4_04_TamperDetectionAndFailClosed(t *testing.T) {
 	})
 
 	t.Run("Vector4_ProductSpecMutation", func(t *testing.T) {
+		ctx, cancel := context.WithTimeout(context.Background(), 240*time.Second)
+		defer cancel()
+
 		mockRoot := setupW4MockRepo(t)
 		specReadmePath := filepath.Join(mockRoot, "cmdr-product-spec", "README.md")
 		if err := os.WriteFile(specReadmePath, []byte("# TAMPERED PRODUCT SPEC INVARIANT\n"), 0644); err != nil {
@@ -410,5 +422,123 @@ func TestT4_04_TamperDetectionAndFailClosed(t *testing.T) {
 		}
 		assertOtherDimensionsHealthy(t, report, "git")
 		t.Logf("T4.04 Vector 4 PASS: git failed closed on product spec baseline diff (exit=%d)", gateRes.ExitCode)
+	})
+
+	t.Run("Vector5_WorkQueueExternalDep", func(t *testing.T) {
+		ctx, cancel := context.WithTimeout(context.Background(), 240*time.Second)
+		defer cancel()
+
+		mockRoot := setupW4MockRepo(t)
+		goModPath := filepath.Join(mockRoot, "product-runtime", "work-queue", "go.mod")
+		raw, err := os.ReadFile(goModPath)
+		if err != nil {
+			t.Fatalf("failed to read work-queue/go.mod: %v", err)
+		}
+		mutated := append(raw, []byte("\nrequire github.com/example/evil v1.0.0\n")...)
+		if err := os.WriteFile(goModPath, mutated, 0644); err != nil {
+			t.Fatalf("failed to mutate work-queue/go.mod: %v", err)
+		}
+		if res := harness.RunCmd(ctx, mockRoot, nil, "git", "add", "product-runtime/work-queue/go.mod"); res.ExitCode != 0 {
+			t.Fatalf("git add mutated go.mod failed: %s", res.Stderr)
+		}
+		if res := harness.RunCmd(ctx, mockRoot, nil, "git", "commit", "-m", "inject external dep into work-queue"); res.ExitCode != 0 {
+			t.Fatalf("git commit mutated go.mod failed: %s", res.Stderr)
+		}
+
+		gateRes, report := runW4HealthGate(t, ctx, mockRoot)
+		if gateRes.ExitCode != 1 || report.Status != "MAIN_UNHEALTHY" {
+			t.Fatalf("T4.04 Vector 5 FAIL: expected exit 1 MAIN_UNHEALTHY, got exit=%d status=%s", gateRes.ExitCode, report.Status)
+		}
+		secDim, ok := report.Dimensions["security"]
+		if !ok || secDim.Passed || secDim.Status != "FAIL" {
+			t.Fatalf("T4.04 Vector 5 FAIL: expected security FAIL, got %+v", secDim)
+		}
+		joinedErrs := strings.Join(secDim.Errors, " | ")
+		if !strings.Contains(joinedErrs, "dependency audit failed") {
+			t.Fatalf("T4.04 Vector 5 FAIL: expected dependency audit error in security dimension, got: %s", joinedErrs)
+		}
+		for _, dimName := range []string{"git", "traceability", "operational_quality"} {
+			dim, ok := report.Dimensions[dimName]
+			if !ok || !dim.Passed || dim.Status != "PASS" {
+				t.Fatalf("T4.04 Vector 5 FAIL: expected non-target dimension %q to remain PASS, got %+v", dimName, dim)
+			}
+		}
+		t.Logf("T4.04 Vector 5 PASS: security failed closed on work-queue external dependency (exit=%d)", gateRes.ExitCode)
+	})
+
+	t.Run("Vector6_RuntimeSecurityEvidenceCorruptOrMissing", func(t *testing.T) {
+		for _, mode := range []string{"corrupt", "missing"} {
+			t.Run(mode, func(t *testing.T) {
+				ctx, cancel := context.WithTimeout(context.Background(), 240*time.Second)
+				defer cancel()
+
+				mockRoot := setupW4MockRepo(t)
+				evRel := "engineering/testing/runtime-security-evidence.json"
+				evPath := filepath.Join(mockRoot, filepath.FromSlash(evRel))
+				if mode == "corrupt" {
+					if err := os.WriteFile(evPath, []byte("{corrupt json\n"), 0644); err != nil {
+						t.Fatalf("failed to corrupt runtime-security-evidence.json: %v", err)
+					}
+					if res := harness.RunCmd(ctx, mockRoot, nil, "git", "add", evRel); res.ExitCode != 0 {
+						t.Fatalf("git add corrupt security evidence failed: %s", res.Stderr)
+					}
+				} else {
+					if res := harness.RunCmd(ctx, mockRoot, nil, "git", "rm", evRel); res.ExitCode != 0 {
+						t.Fatalf("git rm security evidence failed: %s", res.Stderr)
+					}
+				}
+				if res := harness.RunCmd(ctx, mockRoot, nil, "git", "commit", "-m", "tamper runtime security evidence ("+mode+")"); res.ExitCode != 0 {
+					t.Fatalf("git commit security evidence tamper failed: %s", res.Stderr)
+				}
+
+				gateRes, report := runW4HealthGate(t, ctx, mockRoot)
+				if gateRes.ExitCode != 1 || report.Status != "MAIN_UNHEALTHY" {
+					t.Fatalf("T4.04 Vector 6 (%s) FAIL: expected exit 1 MAIN_UNHEALTHY, got exit=%d status=%s", mode, gateRes.ExitCode, report.Status)
+				}
+				secDim, ok := report.Dimensions["security"]
+				if !ok || secDim.Passed || secDim.Status != "FAIL" {
+					t.Fatalf("T4.04 Vector 6 (%s) FAIL: expected security FAIL, got %+v", mode, secDim)
+				}
+				joinedErrs := strings.Join(secDim.Errors, " | ")
+				if !strings.Contains(joinedErrs, "runtime security evidence audit failed") {
+					t.Fatalf("T4.04 Vector 6 (%s) FAIL: expected runtime security evidence audit error, got: %s", mode, joinedErrs)
+				}
+				assertOtherDimensionsHealthy(t, report, "security")
+				t.Logf("T4.04 Vector 6 (%s) PASS: security failed closed (exit=%d)", mode, gateRes.ExitCode)
+			})
+		}
+	})
+
+	t.Run("Vector7_ToolsCmdrDevUntrackedFile", func(t *testing.T) {
+		ctx, cancel := context.WithTimeout(context.Background(), 240*time.Second)
+		defer cancel()
+
+		mockRoot := setupW4MockRepo(t)
+		untrackedRel := "tools/cmdr-dev/probe_untracked_test.go"
+		untrackedPath := filepath.Join(mockRoot, filepath.FromSlash(untrackedRel))
+		if err := os.WriteFile(untrackedPath, []byte("package main\n\nimport \"testing\"\n\nfunc TestUntrackedProbe(t *testing.T) {}\n"), 0644); err != nil {
+			t.Fatalf("failed to write untracked tools/cmdr-dev test file: %v", err)
+		}
+
+		statusRes := harness.RunCmd(ctx, mockRoot, nil, "git", "status", "--porcelain")
+		if statusRes.ExitCode != 0 || !strings.Contains(statusRes.Stdout, untrackedRel) {
+			t.Fatalf("T4.04 Vector 7 FAIL: git status did not detect %s: exit=%d stdout=%q stderr=%q",
+				untrackedRel, statusRes.ExitCode, statusRes.Stdout, statusRes.Stderr)
+		}
+
+		gateRes, report := runW4HealthGate(t, ctx, mockRoot)
+		if gateRes.ExitCode != 1 || report.Status != "MAIN_UNHEALTHY" {
+			t.Fatalf("T4.04 Vector 7 FAIL: expected exit 1 MAIN_UNHEALTHY, got exit=%d status=%s", gateRes.ExitCode, report.Status)
+		}
+		gitDim, ok := report.Dimensions["git"]
+		if !ok || gitDim.Passed || gitDim.Status != "FAIL" {
+			t.Fatalf("T4.04 Vector 7 FAIL: expected git FAIL, got %+v", gitDim)
+		}
+		joinedErrs := strings.Join(gitDim.Errors, " | ")
+		if !strings.Contains(joinedErrs, "working tree has uncommitted modifications") || !strings.Contains(joinedErrs, untrackedRel) {
+			t.Fatalf("T4.04 Vector 7 FAIL: expected %s in git errors, got: %s", untrackedRel, joinedErrs)
+		}
+		assertOtherDimensionsHealthy(t, report, "git")
+		t.Logf("T4.04 Vector 7 PASS: git failed closed on untracked file inside tools/cmdr-dev (exit=%d)", gateRes.ExitCode)
 	})
 }

@@ -644,6 +644,244 @@ func runSecurityTestAudit(root, changesFile string) (SecurityTestAuditSummary, e
 	)
 }
 
+func runCommittedRuntimeSecurityEvidenceAudit(root string) (SecurityTestAuditSummary, error) {
+	var architecture ArchitectureRegistry
+	if err := decodeStrict(root, filepath.Join(root, filepath.FromSlash(architectureRegistryPath)), &architecture); err != nil {
+		return SecurityTestAuditSummary{}, err
+	}
+	if err := validateArchitectureRegistry(architecture); err != nil {
+		return SecurityTestAuditSummary{}, err
+	}
+	gates, err := loadSecurityGateRegistry(root)
+	if err != nil {
+		return SecurityTestAuditSummary{}, err
+	}
+	var policy RuntimeSecurityPolicy
+	if err := decodeStrict(root, filepath.Join(root, filepath.FromSlash(runtimeSecurityPolicyPath)), &policy); err != nil {
+		return SecurityTestAuditSummary{}, err
+	}
+	var evidence RuntimeSecurityEvidence
+	if err := decodeStrict(root, filepath.Join(root, filepath.FromSlash(runtimeSecurityEvidencePath)), &evidence); err != nil {
+		return SecurityTestAuditSummary{}, err
+	}
+	implementationStates, err := detectRuntimeImplementationStates(root, architecture)
+	if err != nil {
+		return SecurityTestAuditSummary{}, err
+	}
+	summary, err := validateCommittedRuntimeSecurityEvidence(
+		architecture, gates, policy, evidence, implementationStates,
+	)
+	if err != nil {
+		return summary, err
+	}
+	if summary.CoverageStatus == "measured" || summary.CoverageStatus == "mixed" {
+		if _, gitErr := lstatRepoEntry(root, ".git"); gitErr == nil && !gitCommitExists(root, evidence.SourceCommit) {
+			return summary, fmt.Errorf("runtime security evidence source_commit %s does not exist in repository history", evidence.SourceCommit)
+		}
+	}
+	return summary, nil
+}
+
+func validateCommittedRuntimeSecurityEvidence(
+	architecture ArchitectureRegistry,
+	gates SecurityGateRegistry,
+	policy RuntimeSecurityPolicy,
+	evidence RuntimeSecurityEvidence,
+	implementationStates map[string]string,
+) (SecurityTestAuditSummary, error) {
+	if err := validateRuntimeSecurityPolicy(policy); err != nil {
+		return SecurityTestAuditSummary{}, err
+	}
+	if evidence.SchemaVersion != 1 {
+		return SecurityTestAuditSummary{}, fmt.Errorf("unsupported runtime security evidence schema_version %d", evidence.SchemaVersion)
+	}
+	if strings.TrimSpace(evidence.Reason) == "" {
+		return SecurityTestAuditSummary{}, fmt.Errorf("runtime security evidence requires a non-empty reason")
+	}
+
+	var runtime []ArchitectureBoundary
+	for _, boundary := range architecture.Boundaries {
+		if boundary.Kind == "product-runtime" {
+			runtime = append(runtime, boundary)
+		}
+	}
+	sort.Slice(runtime, func(i, j int) bool { return runtime[i].ID < runtime[j].ID })
+
+	summary := SecurityTestAuditSummary{
+		RuntimeBoundaries:           len(runtime),
+		RegisteredScopes:            len(policy.Scopes),
+		GlobalCoverageFloorPercent:  policy.GlobalCoverageFloorPercent,
+		ChangedCoverageFloorPercent: policy.ChangedSecurityCriticalCoverageFloor,
+	}
+
+	scopeByBoundary := map[string]RuntimeSecurityScope{}
+	runtimeByID := map[string]ArchitectureBoundary{}
+	for _, boundary := range runtime {
+		runtimeByID[boundary.ID] = boundary
+	}
+	for _, scope := range policy.Scopes {
+		if _, duplicate := scopeByBoundary[scope.BoundaryID]; duplicate {
+			return summary, fmt.Errorf("duplicate runtime security scope for boundary %s", scope.BoundaryID)
+		}
+		boundary, ok := runtimeByID[scope.BoundaryID]
+		if !ok {
+			return summary, fmt.Errorf("runtime security scope %s references non-runtime or unknown boundary", scope.BoundaryID)
+		}
+		if err := validateRuntimeSecurityScope(scope, boundary); err != nil {
+			return summary, err
+		}
+		scopeByBoundary[scope.BoundaryID] = scope
+		if scope.AuthorizationRequired {
+			summary.AuthorizationRequired++
+		}
+		if scope.TenantIsolationRequired {
+			summary.TenantIsolationRequired++
+		}
+	}
+	for _, boundary := range runtime {
+		if _, ok := scopeByBoundary[boundary.ID]; !ok {
+			return summary, fmt.Errorf("product-runtime boundary %s has no explicit security ownership scope", boundary.ID)
+		}
+	}
+
+	if len(runtime) == 0 {
+		if len(policy.Scopes) != 0 || len(implementationStates) != 0 {
+			return summary, fmt.Errorf("runtime security state exists while no product-runtime boundary exists")
+		}
+		if evidence.Status != "not-applicable" {
+			return summary, fmt.Errorf("runtime security evidence must be not-applicable while no product runtime exists")
+		}
+		if evidence.SourceCommit != "" || evidence.GlobalCoveragePercent != nil || len(evidence.Scopes) != 0 {
+			return summary, fmt.Errorf("not-applicable runtime security evidence must contain only a reason")
+		}
+		summary.CoverageStatus = "not-applicable"
+		summary.NotApplicableReason = evidence.Reason
+		return summary, nil
+	}
+
+	if len(implementationStates) != len(runtime) {
+		return summary, fmt.Errorf("runtime implementation-state count does not match product-runtime boundaries")
+	}
+	for _, boundary := range runtime {
+		state, ok := implementationStates[boundary.ID]
+		if !ok {
+			return summary, fmt.Errorf("runtime boundary %s has no detected implementation state", boundary.ID)
+		}
+		switch state {
+		case "preimplementation":
+			summary.PreimplementationScopes++
+		case "implemented":
+			summary.ImplementedScopes++
+		default:
+			return summary, fmt.Errorf("runtime boundary %s has unknown implementation state %q", boundary.ID, state)
+		}
+	}
+
+	evidenceByBoundary := map[string]RuntimeSecurityEvidenceScope{}
+	for _, item := range evidence.Scopes {
+		if _, duplicate := evidenceByBoundary[item.BoundaryID]; duplicate {
+			return summary, fmt.Errorf("duplicate runtime security evidence for boundary %s", item.BoundaryID)
+		}
+		if _, ok := scopeByBoundary[item.BoundaryID]; !ok {
+			return summary, fmt.Errorf("runtime security evidence references unregistered scope %s", item.BoundaryID)
+		}
+		evidenceByBoundary[item.BoundaryID] = item
+	}
+	if len(evidenceByBoundary) != len(scopeByBoundary) {
+		return summary, fmt.Errorf("runtime security evidence scope count does not match registered runtime security scopes")
+	}
+	for _, boundary := range runtime {
+		item := evidenceByBoundary[boundary.ID]
+		state := implementationStates[boundary.ID]
+		if item.ImplementationState != state {
+			return summary, fmt.Errorf("scope %s implementation-state evidence mismatch: got %q want %q",
+				boundary.ID, item.ImplementationState, state)
+		}
+		if state == "preimplementation" {
+			if item.ChangedSecurityCritical || item.ChangedSecurityCriticalPercent != nil ||
+				item.AuthorizationNegativePassed != nil || item.TenantIsolationNegativePassed != nil {
+				return summary, fmt.Errorf("preimplementation scope %s must not claim runtime coverage or negative-test evidence", boundary.ID)
+			}
+		}
+	}
+
+	expectedStatus := "measured"
+	if summary.ImplementedScopes == 0 {
+		expectedStatus = "preimplementation"
+	} else if summary.PreimplementationScopes > 0 {
+		expectedStatus = "mixed"
+	}
+	if evidence.Status != expectedStatus {
+		return summary, fmt.Errorf("runtime security evidence status %q does not match detected state %q", evidence.Status, expectedStatus)
+	}
+	if expectedStatus == "preimplementation" {
+		if evidence.SourceCommit != "" || evidence.GlobalCoveragePercent != nil {
+			return summary, fmt.Errorf("preimplementation runtime evidence must not claim commit-bound coverage")
+		}
+		summary.CoverageStatus = "preimplementation"
+		summary.NotApplicableReason = evidence.Reason
+		return summary, nil
+	}
+
+	if !fullCommitIDPattern.MatchString(evidence.SourceCommit) {
+		return summary, fmt.Errorf("runtime security evidence source_commit must be a full 40-character hexadecimal commit id")
+	}
+	if evidence.GlobalCoveragePercent == nil || !validCoveragePercent(*evidence.GlobalCoveragePercent) {
+		return summary, fmt.Errorf("runtime security evidence requires a valid global coverage percent")
+	}
+	if *evidence.GlobalCoveragePercent < policy.GlobalCoverageFloorPercent {
+		return summary, fmt.Errorf("global runtime coverage %.2f is below %.2f floor", *evidence.GlobalCoveragePercent, policy.GlobalCoverageFloorPercent)
+	}
+	summary.CoverageStatus = expectedStatus
+	summary.GlobalCoveragePercent = evidence.GlobalCoveragePercent
+
+	gateByID := map[string]SecurityGate{}
+	for _, gate := range gates.Gates {
+		gateByID[gate.ID] = gate
+	}
+	for _, boundary := range runtime {
+		scope := scopeByBoundary[boundary.ID]
+		item := evidenceByBoundary[boundary.ID]
+		if implementationStates[boundary.ID] == "preimplementation" {
+			continue
+		}
+		if item.ChangedSecurityCritical {
+			summary.ChangedSecurityCriticalScopes++
+			if item.ChangedSecurityCriticalPercent == nil || !validCoveragePercent(*item.ChangedSecurityCriticalPercent) {
+				return summary, fmt.Errorf("scope %s requires changed security-critical coverage evidence", scope.BoundaryID)
+			}
+			if *item.ChangedSecurityCriticalPercent < policy.ChangedSecurityCriticalCoverageFloor {
+				return summary, fmt.Errorf("scope %s changed security-critical coverage %.2f is below %.2f floor",
+					scope.BoundaryID, *item.ChangedSecurityCriticalPercent, policy.ChangedSecurityCriticalCoverageFloor)
+			}
+		} else if item.ChangedSecurityCriticalPercent != nil {
+			return summary, fmt.Errorf("scope %s must not claim changed coverage when no security-critical path changed", scope.BoundaryID)
+		}
+
+		if scope.AuthorizationRequired {
+			if err := requireActiveNegativeGate(gateByID, policy.AuthorizationGateID, "authorization"); err != nil {
+				return summary, err
+			}
+			if item.AuthorizationNegativePassed == nil || !*item.AuthorizationNegativePassed {
+				return summary, fmt.Errorf("scope %s requires passing authorization negative tests", scope.BoundaryID)
+			}
+		} else if item.AuthorizationNegativePassed != nil {
+			return summary, fmt.Errorf("scope %s must not claim authorization negative-test evidence when not required", scope.BoundaryID)
+		}
+		if scope.TenantIsolationRequired {
+			if err := requireActiveNegativeGate(gateByID, policy.TenantIsolationGateID, "tenant isolation"); err != nil {
+				return summary, err
+			}
+			if item.TenantIsolationNegativePassed == nil || !*item.TenantIsolationNegativePassed {
+				return summary, fmt.Errorf("scope %s requires passing tenant-isolation negative tests", scope.BoundaryID)
+			}
+		} else if item.TenantIsolationNegativePassed != nil {
+			return summary, fmt.Errorf("scope %s must not claim tenant-isolation evidence when not required", scope.BoundaryID)
+		}
+	}
+	return summary, nil
+}
+
 func evaluateSecurityTestPolicy(
 	architecture ArchitectureRegistry,
 	gates SecurityGateRegistry,
