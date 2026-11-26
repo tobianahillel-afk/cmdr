@@ -32,6 +32,29 @@ type CertificationReport struct {
 	AuditCertifier      string          `json:"audit_certifier"`
 }
 
+func determineCertificationVerdict(gateExitCode int, gateErr error, gateStatus string, openPRsVerified bool, openPRs int) string {
+	switch {
+	case gateExitCode == 1:
+		return "MAIN_UNHEALTHY"
+	case gateExitCode == 2:
+		return "MAIN_UNVERIFIED"
+	case gateExitCode != 0:
+		return "MAIN_UNHEALTHY"
+	case gateErr != nil:
+		return "MAIN_UNHEALTHY"
+	case gateStatus == "MAIN_UNHEALTHY":
+		return "MAIN_UNHEALTHY"
+	case gateStatus == "MAIN_UNVERIFIED":
+		return "MAIN_UNVERIFIED"
+	case openPRsVerified && openPRs > 0:
+		return "MAIN_UNHEALTHY"
+	case !openPRsVerified:
+		return "MAIN_UNVERIFIED"
+	default:
+		return "MAIN_HEALTHY"
+	}
+}
+
 // TestT4_03_FullRepositoryCertificationLifecycle:
 // Comprehensive end-to-end certification of the entire repository across all 15 features:
 // - Audits all 13 runtime modules + tools
@@ -159,16 +182,7 @@ func TestT4_03_FullRepositoryCertificationLifecycle(t *testing.T) {
 	}
 
 	// Determine final certification verdict
-	finalVerdict := "MAIN_HEALTHY"
-	if gateRes.ExitCode == 1 {
-		finalVerdict = "MAIN_UNHEALTHY"
-	} else if gateRes.ExitCode == 2 {
-		finalVerdict = "MAIN_UNVERIFIED"
-	} else if openPRsVerified && openPRs > 0 {
-		finalVerdict = "MAIN_UNHEALTHY"
-	} else if !openPRsVerified {
-		finalVerdict = "MAIN_UNVERIFIED"
-	}
+	finalVerdict := determineCertificationVerdict(gateRes.ExitCode, gateRes.Err, gateReport.Status, openPRsVerified, openPRs)
 
 	// 10. Synthesize and write final Certification Report artifact
 	certReport := CertificationReport{

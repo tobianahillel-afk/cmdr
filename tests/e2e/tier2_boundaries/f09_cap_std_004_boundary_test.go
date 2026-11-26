@@ -179,14 +179,18 @@ func TestT2_F9_2_WorkGraphFailsOnDuplicateNodeID(t *testing.T) {
 	t.Log("T2.F9.2 PASS: work graph validation strictly rejects duplicate work node IDs")
 }
 
-// T2.F9.3: Manifest validation fails on unregistered root path ownership.
+// T2.F9.3: Manifest validation / architecture audit fails on unregistered root path ownership.
 func TestT2_F9_3_ManifestValidationFailsOnUnregisteredRootPath(t *testing.T) {
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
 
-	mockRoot := setupMockGraphRepo(t)
-	manifestPath := filepath.Join(mockRoot, "work", "lots", "E10-INV-002A", "manifest.json")
+	mockRoot := harness.CloneIsolatedRepo(t, "f09-arch-bounds")
+	baseRes := harness.RunCmdrDev(ctx, "architecture-audit", "--root", mockRoot)
+	if baseRes.ExitCode != 0 {
+		t.Fatalf("T2.F9.3 baseline architecture-audit failed (exit %d): %s\n%s", baseRes.ExitCode, baseRes.Stderr, baseRes.Stdout)
+	}
 
+	manifestPath := filepath.Join(mockRoot, "work", "lots", "E10-INV-002A", "manifest.json")
 	data, err := os.ReadFile(manifestPath)
 	if err != nil {
 		t.Fatalf("failed to read manifest: %v", err)
@@ -197,8 +201,8 @@ func TestT2_F9_3_ManifestValidationFailsOnUnregisteredRootPath(t *testing.T) {
 		t.Fatalf("failed to parse manifest JSON: %v", err)
 	}
 
-	// Mutate path ownership to unauthorized foreign root
-	doc["path_ownership"] = []interface{}{
+	// Mutate allowed_paths to an unauthorized path outside registered boundaries
+	doc["allowed_paths"] = []interface{}{
 		"outside/unregistered/path/**",
 	}
 
@@ -210,63 +214,60 @@ func TestT2_F9_3_ManifestValidationFailsOnUnregisteredRootPath(t *testing.T) {
 		t.Fatalf("failed to write mutated manifest: %v", err)
 	}
 
-	res := harness.RunCmdrDev(ctx, "validate-manifests", "--root", mockRoot)
+	res := harness.RunCmdrDev(ctx, "architecture-audit", "--root", mockRoot)
 	if res.ExitCode == 0 {
-		t.Fatalf("T2.F9.3 FAIL: validate-manifests passed with unregistered root path ownership")
+		t.Fatalf("T2.F9.3 FAIL: architecture-audit passed with unregistered allowed_paths")
 	}
 
 	combined := res.Stderr + " " + res.Stdout
-	if !strings.Contains(combined, "ownership") && !strings.Contains(combined, "outside") && !strings.Contains(combined, "invalid") && !strings.Contains(combined, "path") {
-		t.Fatalf("T2.F9.3 FAIL: expected ownership validation error, got: %s", combined)
+	if !strings.Contains(combined, "outside registered architecture boundaries") {
+		t.Fatalf("T2.F9.3 FAIL: expected 'outside registered architecture boundaries' error, got: %s", combined)
 	}
-	t.Log("T2.F9.3 PASS: manifest validation strictly fails closed on unregistered root path ownership")
+	t.Log("T2.F9.3 PASS: architecture-audit strictly fails closed on unregistered allowed_paths")
 }
 
 // T2.F9.4: Manifest validation fails on missing manifest.json.
 func TestT2_F9_4_ManifestValidationFailsOnMissingManifest(t *testing.T) {
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
 
-	mockRoot := setupMockGraphRepo(t)
-
-	// Create an empty lot folder without manifest.json
-	orphanLotDir := filepath.Join(mockRoot, "work", "lots", "E10-ORPHAN-LOT")
-	if err := os.MkdirAll(orphanLotDir, 0755); err != nil {
-		t.Fatalf("failed to create orphan lot dir: %v", err)
+	mockRoot := harness.CloneIsolatedRepo(t, "f09-missing-manifest")
+	baseRes := harness.RunCmdrDev(ctx, "validate-manifests", "--root", mockRoot)
+	if baseRes.ExitCode != 0 {
+		t.Fatalf("T2.F9.4 baseline validate-manifests failed (exit %d): %s\n%s", baseRes.ExitCode, baseRes.Stderr, baseRes.Stdout)
 	}
 
-	// Also add node to graph
-	graphPath := filepath.Join(mockRoot, "work", "graph.json")
-	data, _ := os.ReadFile(graphPath)
-	var doc map[string]interface{}
-	_ = json.Unmarshal(data, &doc)
-	nodes := doc["nodes"].([]interface{})
-	doc["nodes"] = append(nodes, map[string]interface{}{
-		"id":         "E10-ORPHAN-LOT",
-		"title":      "Orphan without manifest",
-		"type":       "task",
-		"status":     "READY",
-		"depends_on": []interface{}{},
-		"unlocks":    []interface{}{},
-	})
-	mutated, _ := json.MarshalIndent(doc, "", "  ")
-	_ = os.WriteFile(graphPath, mutated, 0644)
+	// Remove E0-COVERAGE-001C manifest which E1-WORK-001 depends_on
+	missingManifest := filepath.Join(mockRoot, "work", "lots", "E0-COVERAGE-001C", "manifest.json")
+	if err := os.Remove(missingManifest); err != nil {
+		t.Fatalf("failed to remove E0-COVERAGE-001C manifest.json: %v", err)
+	}
 
 	res := harness.RunCmdrDev(ctx, "validate-manifests", "--root", mockRoot)
-	// Must fail or flag the missing manifest
-	t.Logf("T2.F9.4: validate-manifests exited with code %d", res.ExitCode)
-	t.Log("T2.F9.4 PASS: manifest integrity validation handles missing manifest scenario")
+	if res.ExitCode == 0 {
+		t.Fatalf("T2.F9.4 FAIL: validate-manifests succeeded despite missing dependency manifest E0-COVERAGE-001C")
+	}
+	combined := res.Stderr + " " + res.Stdout
+	if !strings.Contains(combined, "has no manifest") {
+		t.Fatalf("T2.F9.4 FAIL: expected 'has no manifest' error, got: %s", combined)
+	}
+	t.Logf("T2.F9.4 PASS: validate-manifests failed closed on missing manifest (exit %d)", res.ExitCode)
 }
 
 // T2.F9.5: Manifest validation fails on schema type mismatch.
 func TestT2_F9_5_ManifestValidationFailsOnSchemaTypeMismatch(t *testing.T) {
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
 
-	mockRoot := setupMockGraphRepo(t)
+	mockRoot := harness.CloneIsolatedRepo(t, "f09-schema-mismatch")
+	baseRes := harness.RunCmdrDev(ctx, "validate-manifests", "--root", mockRoot)
+	if baseRes.ExitCode != 0 {
+		t.Fatalf("T2.F9.5 baseline validate-manifests failed (exit %d): %s\n%s", baseRes.ExitCode, baseRes.Stderr, baseRes.Stdout)
+	}
+
 	manifestPath := filepath.Join(mockRoot, "work", "lots", "E10-INV-002A", "manifest.json")
 
-	// Mutate schema_version to string instead of int, or invalid value
+	// Mutate schema_version to string instead of int
 	corrupted := []byte(`{
   "schema_version": "two",
   "id": "E10-INV-002A"

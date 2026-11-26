@@ -2,6 +2,7 @@ package tier2_boundaries
 
 import (
 	"context"
+	"encoding/json"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -146,21 +147,105 @@ func TestT2_F7_3_HealthGateReturnsUnverifiedOnMissingBaseline(t *testing.T) {
 
 // T2.F7.4: Mainline health gate fails closed if any single dimension fails.
 func TestT2_F7_4_HealthGateFailsIfAnySingleDimensionFails(t *testing.T) {
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 120*time.Second)
 	defer cancel()
 
-	// In current state where event-search git evidence is stale, traceability dimension fails
-	res := harness.RunCmdrDev(ctx, "mainline-health-gate", "--json")
-	if res.ExitCode == 0 {
-		t.Fatalf("T2.F7.4 FAIL: health gate passed even though a dimension is failing")
+	type gateReport struct {
+		Status     string `json:"status"`
+		ExitCode   int    `json:"exit_code"`
+		Dimensions map[string]struct {
+			Name   string   `json:"name"`
+			Passed bool     `json:"passed"`
+			Status string   `json:"status"`
+			Errors []string `json:"errors"`
+		} `json:"dimensions"`
 	}
 
-	// Verify report status is not MAIN_HEALTHY
-	if strings.Contains(res.Stdout, `"status": "MAIN_HEALTHY"`) {
-		t.Fatalf("T2.F7.4 FAIL: health gate report status is MAIN_HEALTHY despite non-zero exit code")
+	mockRoot := harness.CloneIsolatedRepo(t, "f07-single-dim")
+
+	// 1. Baseline isolated repo must certify MAIN_HEALTHY (exit 0 across all 5 dimensions)
+	baseRes := harness.RunCmdrDev(ctx, "mainline-health-gate", "--root", mockRoot, "--json")
+	if baseRes.ExitCode != 0 {
+		t.Fatalf("T2.F7.4 baseline FAIL: untampered isolated repo exited %d (expected 0)\nStdout: %s\nStderr: %s",
+			baseRes.ExitCode, baseRes.Stdout, baseRes.Stderr)
+	}
+	var baseReport gateReport
+	if err := harness.ParseJSON(baseRes.Stdout, &baseReport); err != nil {
+		t.Fatalf("T2.F7.4 baseline FAIL: failed to parse JSON: %v", err)
+	}
+	if baseReport.Status != "MAIN_HEALTHY" {
+		t.Fatalf("T2.F7.4 baseline FAIL: expected MAIN_HEALTHY, got %s", baseReport.Status)
+	}
+	allDims := []string{"code", "security", "git", "traceability", "operational_quality"}
+	for _, d := range allDims {
+		dim, ok := baseReport.Dimensions[d]
+		if !ok || !dim.Passed || dim.Status != "PASS" {
+			t.Fatalf("T2.F7.4 baseline FAIL: dimension %q not PASS: %+v", d, dim)
+		}
 	}
 
-	t.Logf("T2.F7.4 PASS: health gate strictly enforces conjunction of all 5 dimensions (exit %d)", res.ExitCode)
+	// 2. Inject a single-dimension fault into traceability (phantom unit in ledger.json) and commit so git stays clean
+	ledgerPath := filepath.Join(mockRoot, "engineering", "implementation", "ledger.json")
+	ledgerRaw, err := os.ReadFile(ledgerPath)
+	if err != nil {
+		t.Fatalf("failed to read mock ledger.json: %v", err)
+	}
+	var ledgerDoc map[string]interface{}
+	if err := json.Unmarshal(ledgerRaw, &ledgerDoc); err != nil {
+		t.Fatalf("failed to parse mock ledger.json: %v", err)
+	}
+	entries, ok := ledgerDoc["entries"].([]interface{})
+	if !ok {
+		t.Fatalf("ledger entries missing or not array")
+	}
+	ledgerDoc["entries"] = append(entries, map[string]interface{}{
+		"capability":       "CAP-FAULT-001",
+		"work_unit":        "E10-PHANTOM-FAULT-UNIT",
+		"manifest_path":    "work/lots/E10-PHANTOM/manifest.json",
+		"handoff_path":     "work/lots/E10-PHANTOM/HANDOFF.json",
+		"runtime_boundary": "event-search-runtime",
+		"runtime_root":     "product-runtime/event-search/**",
+	})
+	mutatedLedger, err := json.MarshalIndent(ledgerDoc, "", "  ")
+	if err != nil {
+		t.Fatalf("failed to marshal mutated ledger: %v", err)
+	}
+	if err := os.WriteFile(ledgerPath, append(mutatedLedger, '\n'), 0644); err != nil {
+		t.Fatalf("failed to write mutated ledger: %v", err)
+	}
+	if res := harness.RunCmd(ctx, mockRoot, nil, "git", "add", "engineering/implementation/ledger.json"); res.ExitCode != 0 {
+		t.Fatalf("git add mutated ledger failed: %s", res.Stderr)
+	}
+	if res := harness.RunCmd(ctx, mockRoot, nil, "git", "commit", "-m", "inject single-dimension traceability fault"); res.ExitCode != 0 {
+		t.Fatalf("git commit mutated ledger failed: %s", res.Stderr)
+	}
+
+	// 3. Assert MAIN_UNHEALTHY (exit 1) with traceability=FAIL and remaining 4 dimensions=PASS
+	faultRes := harness.RunCmdrDev(ctx, "mainline-health-gate", "--root", mockRoot, "--json")
+	if faultRes.ExitCode != 1 {
+		t.Fatalf("T2.F7.4 FAIL: expected exit code 1 (MAIN_UNHEALTHY), got %d\nStdout: %s\nStderr: %s",
+			faultRes.ExitCode, faultRes.Stdout, faultRes.Stderr)
+	}
+	var faultReport gateReport
+	if err := harness.ParseJSON(faultRes.Stdout, &faultReport); err != nil {
+		t.Fatalf("T2.F7.4 FAIL: failed to parse fault JSON: %v", err)
+	}
+	if faultReport.Status != "MAIN_UNHEALTHY" {
+		t.Fatalf("T2.F7.4 FAIL: expected status MAIN_UNHEALTHY, got %s", faultReport.Status)
+	}
+	if traceDim, ok := faultReport.Dimensions["traceability"]; !ok || traceDim.Passed || traceDim.Status != "FAIL" {
+		t.Fatalf("T2.F7.4 FAIL: expected traceability dimension FAIL, got %+v", traceDim)
+	}
+	for _, d := range allDims {
+		if d == "traceability" {
+			continue
+		}
+		if dim, ok := faultReport.Dimensions[d]; !ok || !dim.Passed || dim.Status != "PASS" {
+			t.Fatalf("T2.F7.4 FAIL: expected non-target dimension %q to remain PASS, got %+v", d, dim)
+		}
+	}
+
+	t.Log("T2.F7.4 PASS: health gate fails closed (exit 1 MAIN_UNHEALTHY) when a single dimension fails while other 4 pass")
 }
 
 // T2.F7.5: Mainline health gate rejects unknown CLI flag with usage error.

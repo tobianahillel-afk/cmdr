@@ -9,17 +9,25 @@ import (
 	"time"
 )
 
+// GitStatusPorcelainInDir returns the output of `git status --porcelain` in the specified directory.
+func GitStatusPorcelainInDir(ctx context.Context, dir string) (string, error) {
+	if strings.TrimSpace(dir) == "" {
+		return "", fmt.Errorf("git status directory must be non-empty")
+	}
+	res := RunCmd(ctx, dir, nil, "git", "status", "--porcelain")
+	if res.ExitCode != 0 {
+		return "", fmt.Errorf("git status failed (code %d): %s", res.ExitCode, res.Stderr)
+	}
+	return strings.TrimSpace(res.Stdout), nil
+}
+
 // GitStatusPorcelain returns the output of `git status --porcelain`.
 func GitStatusPorcelain(ctx context.Context) (string, error) {
 	root, err := RepoRoot()
 	if err != nil {
 		return "", err
 	}
-	res := RunCmd(ctx, root, nil, "git", "status", "--porcelain")
-	if res.ExitCode != 0 {
-		return "", fmt.Errorf("git status failed (code %d): %s", res.ExitCode, res.Stderr)
-	}
-	return strings.TrimSpace(res.Stdout), nil
+	return GitStatusPorcelainInDir(ctx, root)
 }
 
 // GitDiffSpecBaseline checks for differences in cmdr-product-spec against a baseline commit.
@@ -35,13 +43,12 @@ func GitDiffSpecBaseline(ctx context.Context, baselineCommit string) (string, er
 	return strings.TrimSpace(res.Stdout), nil
 }
 
-// GitRemoteBranches returns the list of remote branch references.
-func GitRemoteBranches(ctx context.Context) ([]string, error) {
-	root, err := RepoRoot()
-	if err != nil {
-		return nil, err
+// GitRemoteBranchesInDir returns the list of remote branch references in the specified directory.
+func GitRemoteBranchesInDir(ctx context.Context, dir string) ([]string, error) {
+	if strings.TrimSpace(dir) == "" {
+		return nil, fmt.Errorf("git branch directory must be non-empty")
 	}
-	res := RunCmd(ctx, root, nil, "git", "branch", "-r")
+	res := RunCmd(ctx, dir, nil, "git", "branch", "-r")
 	if res.ExitCode != 0 {
 		return nil, fmt.Errorf("git branch -r failed (code %d): %s", res.ExitCode, res.Stderr)
 	}
@@ -56,18 +63,56 @@ func GitRemoteBranches(ctx context.Context) ([]string, error) {
 	return branches, nil
 }
 
-// GitCommitExists checks if a commit SHA exists in git object storage.
-func GitCommitExists(ctx context.Context, sha string) bool {
+// GitRemoteBranches returns the list of remote branch references.
+func GitRemoteBranches(ctx context.Context) ([]string, error) {
 	root, err := RepoRoot()
 	if err != nil {
+		return nil, err
+	}
+	return GitRemoteBranchesInDir(ctx, root)
+}
+
+// GitCommitExistsInDir checks if a commit SHA exists in git object storage in the specified directory.
+func GitCommitExistsInDir(ctx context.Context, dir, sha string) bool {
+	if strings.TrimSpace(dir) == "" {
 		return false
 	}
 	trimmed := strings.TrimSpace(sha)
 	if trimmed == "" {
 		return false
 	}
-	res := RunCmd(ctx, root, nil, "git", "cat-file", "-e", trimmed+"^{commit}")
+	res := RunCmd(ctx, dir, nil, "git", "cat-file", "-e", trimmed+"^{commit}")
 	return res.ExitCode == 0
+}
+
+// GitCommitExists checks if a commit SHA exists in git object storage.
+func GitCommitExists(ctx context.Context, sha string) bool {
+	root, err := RepoRoot()
+	if err != nil {
+		return false
+	}
+	return GitCommitExistsInDir(ctx, root, sha)
+}
+
+// GitAheadCountInDir returns the number of commits reachable from headRef but not from upstreamRef.
+func GitAheadCountInDir(ctx context.Context, dir, upstreamRef, headRef string) (int, error) {
+	if strings.TrimSpace(dir) == "" {
+		return -1, fmt.Errorf("git rev-list directory must be non-empty")
+	}
+	up := strings.TrimSpace(upstreamRef)
+	hd := strings.TrimSpace(headRef)
+	if up == "" || hd == "" {
+		return -1, fmt.Errorf("upstreamRef and headRef must be non-empty")
+	}
+	res := RunCmd(ctx, dir, nil, "git", "rev-list", "--count", up+".."+hd)
+	if res.ExitCode != 0 {
+		return -1, fmt.Errorf("git rev-list --count %s..%s failed (code %d): %s", up, hd, res.ExitCode, res.Stderr)
+	}
+	var count int
+	if _, err := fmt.Sscanf(strings.TrimSpace(res.Stdout), "%d", &count); err != nil {
+		return -1, fmt.Errorf("failed to parse git rev-list --count output %q: %w", res.Stdout, err)
+	}
+	return count, nil
 }
 
 // GitHeadCommit returns the current HEAD commit hash.

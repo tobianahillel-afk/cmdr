@@ -155,27 +155,35 @@ func TestT2_F8_3_CIValidationDetectsMissingBranchProtectionJob(t *testing.T) {
 		t.Fatalf("failed to locate repo root: %v", err)
 	}
 
+	kernelPath := filepath.Join(root, ".github", "workflows", "engineering-kernel.yml")
+	kernelContent, err := os.ReadFile(kernelPath)
+	if err != nil {
+		t.Fatalf("failed to read engineering-kernel.yml: %v", err)
+	}
 	fullKernelPath := filepath.Join(root, ".github", "workflows", "engineering-kernel-full.yml")
-	content, err := os.ReadFile(fullKernelPath)
+	fullKernelContent, err := os.ReadFile(fullKernelPath)
 	if err != nil {
 		t.Fatalf("failed to read engineering-kernel-full.yml: %v", err)
 	}
 
-	// Verify required job 'full-kernel:' is present
-	str := string(content)
-	if !strings.Contains(str, "full-kernel:") {
-		t.Fatalf("T2.F8.3 FAIL: full-kernel job is missing from engineering-kernel-full.yml")
+	if err := harness.ValidateWorkflowRequiredJob(string(kernelContent), "kernel"); err != nil {
+		t.Fatalf("T2.F8.3 FAIL: kernel job validation failed on engineering-kernel.yml: %v", err)
+	}
+	if err := harness.ValidateWorkflowRequiredJob(string(fullKernelContent), "full-kernel"); err != nil {
+		t.Fatalf("T2.F8.3 FAIL: full-kernel job validation failed on engineering-kernel-full.yml: %v", err)
 	}
 
-	// Mutate by renaming job
-	mutated := strings.Replace(str, "full-kernel:", "optional-check:", 1)
-	if strings.Contains(mutated, "full-kernel:") {
-		t.Fatalf("mutation failed")
+	mutatedFullKernel := strings.Replace(string(fullKernelContent), "full-kernel:", "optional-check:", 1)
+	if err := harness.ValidateWorkflowRequiredJob(mutatedFullKernel, "full-kernel"); err == nil {
+		t.Fatalf("T2.F8.3 FAIL: ValidateWorkflowRequiredJob passed despite renaming full-kernel to optional-check")
 	}
-	if !strings.Contains(str, "full-kernel:") {
-		t.Fatalf("T2.F8.3 FAIL: required branch protection check not detected")
+
+	mutatedKernel := strings.Replace(string(kernelContent), "kernel:", "# kernel:", 1)
+	if err := harness.ValidateWorkflowRequiredJob(mutatedKernel, "kernel"); err == nil {
+		t.Fatalf("T2.F8.3 FAIL: ValidateWorkflowRequiredJob passed despite commenting out kernel job")
 	}
-	t.Log("T2.F8.3 PASS: branch protection required status checks validated")
+
+	t.Log("T2.F8.3 PASS: branch protection required status checks validated against real and mutated workflows")
 }
 
 // T2.F8.4: CI workflow YAML parsing rejects syntax errors.
@@ -190,16 +198,21 @@ jobs:
       - name: Broken Indentation
      run: echo bad
 `
-	// Simple YAML tab/syntax validator check
-	hasSyntaxError := false
-	if strings.Contains(malformedYAML, "[push\n") {
-		hasSyntaxError = true
-	}
-	if !hasSyntaxError {
-		t.Fatalf("T2.F8.4 FAIL: malformed YAML was not flagged")
+	if err := harness.ValidateWorkflowSyntax(malformedYAML); err == nil {
+		t.Fatalf("T2.F8.4 FAIL: ValidateWorkflowSyntax accepted malformed YAML with unclosed bracket and misaligned indentation")
 	}
 
-	// Also verify real workflows are completely free of TAB characters
+	tabYAML := "name: Tab Workflow\non:\n\tpush:\n"
+	if err := harness.ValidateWorkflowSyntax(tabYAML); err == nil {
+		t.Fatalf("T2.F8.4 FAIL: ValidateWorkflowSyntax accepted YAML containing TAB characters")
+	}
+
+	unclosedQuoteYAML := "name: \"Broken Quote\non:\n  push:\n"
+	if err := harness.ValidateWorkflowSyntax(unclosedQuoteYAML); err == nil {
+		t.Fatalf("T2.F8.4 FAIL: ValidateWorkflowSyntax accepted YAML with unclosed string quote")
+	}
+
+	// Verify all real workflows pass syntax validation
 	root, err := harness.RepoRoot()
 	if err != nil {
 		t.Fatalf("failed to locate repo root: %v", err)
@@ -210,6 +223,7 @@ jobs:
 		t.Fatalf("failed to read workflows dir: %v", err)
 	}
 
+	checkedCount := 0
 	for _, file := range files {
 		if strings.HasSuffix(file.Name(), ".yml") || strings.HasSuffix(file.Name(), ".yaml") {
 			filePath := filepath.Join(workflowsDir, file.Name())
@@ -217,12 +231,16 @@ jobs:
 			if err != nil {
 				t.Fatalf("failed to read %s: %v", file.Name(), err)
 			}
-			if strings.Contains(string(data), "\t") {
-				t.Fatalf("T2.F8.4 FAIL: workflow %s contains forbidden TAB characters in YAML", file.Name())
+			if err := harness.ValidateWorkflowSyntax(string(data)); err != nil {
+				t.Fatalf("T2.F8.4 FAIL: real workflow %s failed syntax validation: %v", file.Name(), err)
 			}
+			checkedCount++
 		}
 	}
-	t.Log("T2.F8.4 PASS: YAML syntax integrity and taboo character rejection verified")
+	if checkedCount == 0 {
+		t.Fatalf("T2.F8.4 FAIL: zero workflow files found under .github/workflows")
+	}
+	t.Logf("T2.F8.4 PASS: YAML syntax integrity and error rejection verified across %d workflows", checkedCount)
 }
 
 // T2.F8.5: CI workflow validation asserts execution on pull_request and push to main.

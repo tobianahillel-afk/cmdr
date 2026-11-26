@@ -111,29 +111,58 @@ func TestT2_F13_4_CampaignRunnerEnforcesCountOne(t *testing.T) {
 
 // T2.F13.5: Full campaign runner aggregates all failures without early exit.
 func TestT2_F13_5_CampaignRunnerAggregatesAllFailuresWithoutEarlyExit(t *testing.T) {
-	type SimulatedRun struct {
-		Name   string
-		Passed bool
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
+
+	tmpDir := harness.TempDir(t, "campaign-agg")
+	modules := []struct {
+		rel  string
+		body string
+	}{
+		{
+			rel:  "mod-a-pass",
+			body: "package modapass\nimport \"testing\"\n" + "func " + "TestPassA(t *testing.T) {}\n",
+		},
+		{
+			rel:  "mod-b-fail",
+			body: "package modbfail\nimport \"testing\"\n" + "func " + "TestFailB(t *testing.T) { t.Fatal(\"intentional failure\") }\n",
+		},
+		{
+			rel:  "mod-c-pass",
+			body: "package modcpass\nimport \"testing\"\n" + "func " + "TestPassC(t *testing.T) {}\n",
+		},
 	}
 
-	// Verify that multi-module campaign runner aggregates outcomes across all targets
-	targets := []string{
-		"product-runtime/case-queue",
-		"product-runtime/case-search-workbench",
-		"product-runtime/command-investigate-host",
+	var targets []string
+	for _, mod := range modules {
+		modDir := filepath.Join(tmpDir, mod.rel)
+		if err := os.MkdirAll(modDir, 0755); err != nil {
+			t.Fatalf("failed to create module dir %s: %v", mod.rel, err)
+		}
+		if err := os.WriteFile(filepath.Join(modDir, "go.mod"), []byte("module example.com/"+mod.rel+"\n\ngo 1.26.11\n"), 0644); err != nil {
+			t.Fatalf("failed to write go.mod for %s: %v", mod.rel, err)
+		}
+		if err := os.WriteFile(filepath.Join(modDir, "module_test.go"), []byte(mod.body), 0644); err != nil {
+			t.Fatalf("failed to write test for %s: %v", mod.rel, err)
+		}
+		targets = append(targets, mod.rel)
 	}
 
-	var results []SimulatedRun
-	for _, target := range targets {
-		// Even if a module were failing, runner proceeds to evaluate subsequent modules
-		results = append(results, SimulatedRun{
-			Name:   target,
-			Passed: true,
-		})
+	results, allPassed := harness.RunCampaignInRoot(ctx, tmpDir, targets)
+	if allPassed {
+		t.Fatalf("T2.F13.5 FAIL: RunCampaignInRoot reported allPassed=true despite failing module mod-b-fail")
 	}
-
 	if len(results) != len(targets) {
 		t.Fatalf("T2.F13.5 FAIL: expected %d aggregated results, got %d", len(targets), len(results))
+	}
+	if !results[0].VetPassed || !results[0].TestPassed {
+		t.Fatalf("T2.F13.5 FAIL: expected mod-a-pass to pass, got vet=%t test=%t (%s)", results[0].VetPassed, results[0].TestPassed, results[0].TestOutput)
+	}
+	if results[1].TestPassed {
+		t.Fatalf("T2.F13.5 FAIL: expected mod-b-fail to fail tests")
+	}
+	if !results[2].VetPassed || !results[2].TestPassed {
+		t.Fatalf("T2.F13.5 FAIL: expected mod-c-pass to execute and pass after mod-b-fail failure, got vet=%t test=%t (%s)", results[2].VetPassed, results[2].TestPassed, results[2].TestOutput)
 	}
 	t.Log("T2.F13.5 PASS: campaign runner evaluates and aggregates all modules without early termination")
 }

@@ -48,7 +48,16 @@ func EvaluateRaceTestOutcome(goos string, res VerifiedGoTestResult, runErr error
 	}
 	combined := strings.ToLower(strings.Join([]string{res.Output, res.RawStdout, res.RawStderr, errText}, "\n"))
 
-	if strings.EqualFold(strings.TrimSpace(goos), "windows") && !res.CompilationFailed {
+	canBeWindowsEnvUnverified := strings.EqualFold(strings.TrimSpace(goos), "windows") &&
+		!res.CompilationFailed &&
+		len(res.ExecutedTests) == 0 &&
+		len(res.FailedTests) == 0 &&
+		len(res.PassedTests) == 0 &&
+		!strings.Contains(combined, "panic:") &&
+		!strings.Contains(combined, "test timed out") &&
+		!strings.Contains(combined, "deadline exceeded")
+
+	if canBeWindowsEnvUnverified {
 		toolchainSigs := []string{
 			"-race is not supported",
 			"race detector requires cgo",

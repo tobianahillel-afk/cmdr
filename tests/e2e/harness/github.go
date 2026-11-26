@@ -37,11 +37,17 @@ type CodexResolutionResult struct {
 
 // PRMetadata represents PR reconciliation records stored locally.
 type PRMetadata struct {
-	Number int    `json:"number"`
-	Title  string `json:"title,omitempty"`
-	SHA    string `json:"sha,omitempty"`
-	Merged bool   `json:"merged,omitempty"`
-	Closed bool   `json:"closed,omitempty"`
+	PRNumber             int    `json:"pr_number"`
+	Title                string `json:"title,omitempty"`
+	HeadBranch           string `json:"head_branch,omitempty"`
+	BaseBranch           string `json:"base_branch,omitempty"`
+	Status               string `json:"status,omitempty"`
+	Disposition          string `json:"disposition,omitempty"`
+	DispositionRationale string `json:"disposition_rationale,omitempty"`
+	Commit               string `json:"commit,omitempty"`
+	HeadSHA              string `json:"head_sha,omitempty"`
+	MergeCommit          string `json:"merge_commit,omitempty"`
+	SHA                  string `json:"sha,omitempty"`
 }
 
 // GitHubClient provides helpers to inspect PRs and review threads.
@@ -58,8 +64,8 @@ func NewGitHubClient() (*GitHubClient, error) {
 	return &GitHubClient{repoRoot: root}, nil
 }
 
-// parseOpenPRsJSON parses the JSON output of `gh pr list --state open --json number`.
-func parseOpenPRsJSON(stdout string) (OpenPRsResult, error) {
+// ParseOpenPRsJSON parses the JSON output of `gh pr list --state open --json number`.
+func ParseOpenPRsJSON(stdout string) (OpenPRsResult, error) {
 	trimmed := strings.TrimSpace(stdout)
 	if trimmed == "" {
 		reason := "empty gh pr list response"
@@ -73,6 +79,17 @@ func parseOpenPRsJSON(stdout string) (OpenPRsResult, error) {
 		}
 		return OpenPRsResult{Count: -1, Verified: false, Status: StatusUnverified, Reason: reason}, fmt.Errorf("%w: %s", ErrUnverified, reason)
 	}
+	for i, item := range prs {
+		if item == nil {
+			reason := fmt.Sprintf("malformed gh pr list JSON: item[%d] is null", i)
+			return OpenPRsResult{Count: -1, Verified: false, Status: StatusUnverified, Reason: reason}, fmt.Errorf("%w: %s", ErrUnverified, reason)
+		}
+		num, ok := item["number"].(float64)
+		if !ok || num <= 0 || num != float64(int(num)) {
+			reason := fmt.Sprintf("malformed gh pr list JSON: item[%d] missing positive integer \"number\"", i)
+			return OpenPRsResult{Count: -1, Verified: false, Status: StatusUnverified, Reason: reason}, fmt.Errorf("%w: %s", ErrUnverified, reason)
+		}
+	}
 	return OpenPRsResult{
 		Count:    len(prs),
 		Verified: true,
@@ -81,12 +98,16 @@ func parseOpenPRsJSON(stdout string) (OpenPRsResult, error) {
 	}, nil
 }
 
+func parseOpenPRsJSON(stdout string) (OpenPRsResult, error) {
+	return ParseOpenPRsJSON(stdout)
+}
+
 // CountOpenPRs queries GitHub via `gh pr list --state open --json number`.
 // Fails closed with ErrUnverified / StatusUnverified if gh CLI is unavailable or returns invalid JSON.
 func (c *GitHubClient) CountOpenPRs(ctx context.Context) (OpenPRsResult, error) {
 	res := RunCmd(ctx, c.repoRoot, nil, "gh", "pr", "list", "--state", "open", "--json", "number")
 	if res.ExitCode == 0 && res.Err == nil {
-		return parseOpenPRsJSON(res.Stdout)
+		return ParseOpenPRsJSON(res.Stdout)
 	}
 	reason := strings.TrimSpace(res.Stderr)
 	if reason == "" && res.Err != nil {
@@ -104,6 +125,12 @@ func (c *GitHubClient) CountOpenPRs(ctx context.Context) (OpenPRsResult, error) 
 }
 
 func verifyGraphQLPRResolution(stdout string, expectedSHA string) (CodexResolutionResult, error) {
+	exp := strings.TrimSpace(expectedSHA)
+	if exp == "" {
+		reason := "expectedSHA must be non-empty"
+		return CodexResolutionResult{Verified: false, Status: StatusUnverified, Source: "github_graphql", Reason: reason}, fmt.Errorf("%w: %s", ErrUnverified, reason)
+	}
+
 	type gqlResp struct {
 		Errors []struct {
 			Message string `json:"message"`
@@ -143,6 +170,10 @@ func verifyGraphQLPRResolution(stdout string, expectedSHA string) (CodexResoluti
 		reason := "GraphQL response missing pullRequest state"
 		return CodexResolutionResult{Verified: false, Status: StatusUnverified, Source: "github_graphql", Reason: reason}, fmt.Errorf("%w: %s", ErrUnverified, reason)
 	}
+	if !strings.EqualFold(strings.TrimSpace(pr.State), "MERGED") {
+		reason := fmt.Sprintf("pullRequest is not MERGED (state=%q)", strings.TrimSpace(pr.State))
+		return CodexResolutionResult{Verified: false, Status: StatusUnverified, Source: "github_graphql", Reason: reason}, fmt.Errorf("%w: %s", ErrUnverified, reason)
+	}
 	if pr.ReviewThreads.PageInfo.HasNextPage {
 		reason := "reviewThreads pagination incomplete (hasNextPage=true)"
 		return CodexResolutionResult{Verified: false, Status: StatusUnverified, Source: "github_graphql", Reason: reason}, fmt.Errorf("%w: %s", ErrUnverified, reason)
@@ -163,23 +194,20 @@ func verifyGraphQLPRResolution(stdout string, expectedSHA string) (CodexResoluti
 		matchedSHA = headOID
 	}
 
-	if strings.TrimSpace(expectedSHA) != "" {
-		exp := strings.TrimSpace(expectedSHA)
-		switch {
-		case strings.EqualFold(mergeOID, exp):
-			matchedSHA = mergeOID
-		case strings.EqualFold(headOID, exp):
-			matchedSHA = headOID
-		default:
-			return CodexResolutionResult{
-				Resolved:   false,
-				Verified:   true,
-				Status:     "SHA_MISMATCH",
-				MatchedSHA: matchedSHA,
-				Source:     "github_graphql",
-				Reason:     fmt.Sprintf("expected SHA %s matched neither mergeCommit %q nor headRefOid %q", exp, mergeOID, headOID),
-			}, nil
-		}
+	switch {
+	case strings.EqualFold(mergeOID, exp):
+		matchedSHA = mergeOID
+	case strings.EqualFold(headOID, exp):
+		matchedSHA = headOID
+	default:
+		return CodexResolutionResult{
+			Resolved:   false,
+			Verified:   true,
+			Status:     "SHA_MISMATCH",
+			MatchedSHA: matchedSHA,
+			Source:     "github_graphql",
+			Reason:     fmt.Sprintf("expected SHA %s matched neither mergeCommit %q nor headRefOid %q", exp, mergeOID, headOID),
+		}, nil
 	}
 
 	allResolved := true
@@ -237,6 +265,26 @@ func verifyCodexPRRecord(item map[string]interface{}, prNumber int, expectedSHA 
 		return CodexResolutionResult{Verified: false, Status: StatusUnverified, Source: "offline_prs_json", Reason: reason}, fmt.Errorf("%w: %s", ErrUnverified, reason)
 	}
 
+	exp := strings.TrimSpace(expectedSHA)
+	if exp == "" {
+		reason := fmt.Sprintf("PR #%d verification requires non-empty expectedSHA", prNumber)
+		return CodexResolutionResult{Verified: false, Status: StatusUnverified, Source: "offline_prs_json", Reason: reason}, fmt.Errorf("%w: %s", ErrUnverified, reason)
+	}
+
+	statusRaw, _ := item["status"].(string)
+	status := strings.TrimSpace(statusRaw)
+	if !strings.EqualFold(status, "MERGED") {
+		reason := fmt.Sprintf("PR #%d record in prs.json is not MERGED (status=%q)", prNumber, status)
+		return CodexResolutionResult{Verified: false, Status: StatusUnverified, Source: "offline_prs_json", Reason: reason}, fmt.Errorf("%w: %s", ErrUnverified, reason)
+	}
+
+	dispRaw, _ := item["disposition"].(string)
+	disp := strings.ToUpper(strings.TrimSpace(dispRaw))
+	if disp == "" || disp == "REJECTED" || disp == "SUPERSEDED" || disp == "CLOSED" || strings.Contains(disp, "REJECT") || strings.Contains(disp, "SUPERSED") {
+		reason := fmt.Sprintf("PR #%d record in prs.json has non-accepted disposition %q", prNumber, strings.TrimSpace(dispRaw))
+		return CodexResolutionResult{Verified: false, Status: StatusUnverified, Source: "offline_prs_json", Reason: reason}, fmt.Errorf("%w: %s", ErrUnverified, reason)
+	}
+
 	revResolved, hasRevBool := item["review_threads_resolved"].(bool)
 	codexResolved, hasCodexBool := item["codex_threads_resolved"].(bool)
 	if !hasRevBool && !hasCodexBool {
@@ -256,8 +304,8 @@ func verifyCodexPRRecord(item map[string]interface{}, prNumber int, expectedSHA 
 		return CodexResolutionResult{Verified: false, Status: StatusUnverified, Source: "offline_prs_json", Reason: reason}, fmt.Errorf("%w: %s", ErrUnverified, reason)
 	}
 
-	if strings.TrimSpace(expectedSHA) != "" && !strings.EqualFold(recordSHA, strings.TrimSpace(expectedSHA)) {
-		reason := fmt.Sprintf("PR #%d SHA attribution mismatch: expected %s, found %s", prNumber, strings.TrimSpace(expectedSHA), recordSHA)
+	if !strings.EqualFold(recordSHA, exp) {
+		reason := fmt.Sprintf("PR #%d SHA attribution mismatch: expected %s, found %s", prNumber, exp, recordSHA)
 		return CodexResolutionResult{Verified: false, Status: StatusUnverified, MatchedSHA: recordSHA, Source: "offline_prs_json", Reason: reason}, fmt.Errorf("%w: %s", ErrUnverified, reason)
 	}
 
@@ -277,16 +325,20 @@ func verifyCodexPRRecord(item map[string]interface{}, prNumber int, expectedSHA 
 }
 
 // VerifyCodexPRResolution checks whether a PR's review threads are resolved and attributed to expectedSHA.
-// Uses live GitHub GraphQL first; offline prs.json requires explicit boolean thread-resolution proof,
-// structured SHA attribution matching expectedSHA, and local git commit existence.
+// Uses live GitHub GraphQL first; when live GraphQL fails to execute, offline prs.json requires
+// MERGED status, accepted disposition, explicit boolean thread-resolution proof, structured SHA
+// attribution matching expectedSHA, and local git commit existence.
 func (c *GitHubClient) VerifyCodexPRResolution(ctx context.Context, prNumber int, expectedSHA string) (CodexResolutionResult, error) {
+	exp := strings.TrimSpace(expectedSHA)
+	if exp == "" {
+		reason := fmt.Sprintf("PR #%d verification requires non-empty expectedSHA", prNumber)
+		return CodexResolutionResult{Verified: false, Status: StatusUnverified, Source: "github_graphql", Reason: reason}, fmt.Errorf("%w: %s", ErrUnverified, reason)
+	}
+
 	query := fmt.Sprintf(`query { repository(owner:"tobianahillel-afk", name:"cmdr") { pullRequest(number:%d) { state mergeCommit { oid } headRefOid reviewThreads(first:100) { pageInfo { hasNextPage } nodes { isResolved } } } } }`, prNumber)
 	res := RunCmd(ctx, c.repoRoot, nil, "gh", "api", "graphql", "-f", "query="+query)
 	if res.ExitCode == 0 && res.Err == nil {
-		gqlRes, gqlErr := verifyGraphQLPRResolution(res.Stdout, expectedSHA)
-		if gqlErr == nil {
-			return gqlRes, nil
-		}
+		return verifyGraphQLPRResolution(res.Stdout, exp)
 	}
 
 	prsPath := filepath.Join(c.repoRoot, "work", "reconciliation", "prs.json")
@@ -304,8 +356,8 @@ func (c *GitHubClient) VerifyCodexPRResolution(ctx context.Context, prNumber int
 
 	for _, item := range prList {
 		if num, ok := item["pr_number"].(float64); ok && int(num) == prNumber {
-			return verifyCodexPRRecord(item, prNumber, expectedSHA, func(sha string) bool {
-				return GitCommitExists(ctx, sha)
+			return verifyCodexPRRecord(item, prNumber, exp, func(sha string) bool {
+				return GitCommitExistsInDir(ctx, c.repoRoot, sha)
 			})
 		}
 	}
@@ -317,4 +369,95 @@ func (c *GitHubClient) VerifyCodexPRResolution(ctx context.Context, prNumber int
 		Source:   "offline_prs_json",
 		Reason:   reason,
 	}, fmt.Errorf("%w: %s", ErrUnverified, reason)
+}
+
+// ValidatePRRegisterConsistency validates work/reconciliation/prs.json and cross-checks
+// every record against work/reconciliation/PR_CLOSURE_REGISTER.md and local git history.
+func ValidatePRRegisterConsistency(ctx context.Context, root string) error {
+	prsPath := filepath.Join(root, "work", "reconciliation", "prs.json")
+	data, err := os.ReadFile(prsPath)
+	if err != nil {
+		return fmt.Errorf("failed to read prs.json: %w", err)
+	}
+
+	var records []PRMetadata
+	if err := json.Unmarshal(data, &records); err != nil {
+		return fmt.Errorf("failed to parse prs.json: %w", err)
+	}
+	if len(records) == 0 {
+		return fmt.Errorf("prs.json contains zero PR records")
+	}
+
+	closurePath := filepath.Join(root, "work", "reconciliation", "PR_CLOSURE_REGISTER.md")
+	closureBytes, err := os.ReadFile(closurePath)
+	if err != nil {
+		return fmt.Errorf("failed to read PR_CLOSURE_REGISTER.md: %w", err)
+	}
+	closureText := string(closureBytes)
+
+	seenPRs := make(map[int]bool, len(records))
+	for _, item := range records {
+		if item.PRNumber <= 0 {
+			return fmt.Errorf("invalid PR number: %d", item.PRNumber)
+		}
+		if seenPRs[item.PRNumber] {
+			return fmt.Errorf("duplicate PR #%d in prs.json", item.PRNumber)
+		}
+		seenPRs[item.PRNumber] = true
+
+		if strings.TrimSpace(item.Title) == "" {
+			return fmt.Errorf("PR #%d has empty title", item.PRNumber)
+		}
+
+		status := strings.TrimSpace(item.Status)
+		if status != "MERGED" && status != "CLOSED" && status != "OPEN" {
+			return fmt.Errorf("PR #%d has unknown status %q", item.PRNumber, item.Status)
+		}
+
+		disp := strings.TrimSpace(item.Disposition)
+		rationale := strings.TrimSpace(item.DispositionRationale)
+
+		if status == "CLOSED" || status == "MERGED" {
+			if disp == "" {
+				return fmt.Errorf("PR #%d missing disposition", item.PRNumber)
+			}
+			if rationale == "" {
+				return fmt.Errorf("PR #%d missing disposition rationale", item.PRNumber)
+			}
+		}
+
+		if status == "MERGED" && strings.EqualFold(disp, "REJECTED") {
+			return fmt.Errorf("contradictory status: PR #%d marked MERGED but disposition is REJECTED", item.PRNumber)
+		}
+		if status == "OPEN" && disp != "" && !strings.EqualFold(disp, "IN_REVIEW") {
+			return fmt.Errorf("contradictory status: open PR #%d cannot have terminal disposition %s", item.PRNumber, disp)
+		}
+
+		sha := strings.TrimSpace(item.MergeCommit)
+		if sha == "" {
+			sha = strings.TrimSpace(item.Commit)
+		}
+		if sha == "" {
+			sha = strings.TrimSpace(item.HeadSHA)
+		}
+		if sha == "" {
+			sha = strings.TrimSpace(item.SHA)
+		}
+		if sha != "" {
+			if !isValidHexSHA(sha) {
+				return fmt.Errorf("PR #%d has malformed commit SHA format %q", item.PRNumber, sha)
+			}
+			if !GitCommitExistsInDir(ctx, root, sha) {
+				return fmt.Errorf("PR #%d references non-existent commit %s in git object storage", item.PRNumber, sha)
+			}
+		}
+
+		marker := fmt.Sprintf("#%d", item.PRNumber)
+		markerAlt := fmt.Sprintf("PR %d", item.PRNumber)
+		if !strings.Contains(closureText, marker) && !strings.Contains(closureText, markerAlt) {
+			return fmt.Errorf("PR #%d present in prs.json is missing from PR_CLOSURE_REGISTER.md", item.PRNumber)
+		}
+	}
+
+	return nil
 }

@@ -204,16 +204,15 @@ func VerifyGoTestJSON(jsonData []byte, expectedPackage string, expectedTests []s
 	for _, exp := range expectedTests {
 		found := false
 		for _, k := range testOrder {
-			if k.test != exp {
-				continue
-			}
 			if expectedPackage != "" && k.pkg != expectedPackage {
 				continue
 			}
 			st := states[k]
-			if st.seenRun && st.seenPass && !st.seenFail && !st.seenSkip {
+			if k.test == exp && st.seenRun && st.seenPass && !st.seenFail && !st.seenSkip {
 				found = true
-				break
+			}
+			if strings.HasPrefix(k.test, exp+"/") && st.seenSkip {
+				return res, fmt.Errorf("expected test %q had skipped child subtest %q in package %q", exp, k.test, expectedPackage)
 			}
 		}
 		if !found {
@@ -266,14 +265,28 @@ func RunGoTestVerified(ctx context.Context, moduleRelPath, expectedPackage strin
 	return verified, nil
 }
 
+func runGoVetInRoot(ctx context.Context, root, moduleRelPath string) (bool, string, error) {
+	dir := filepath.Join(root, moduleRelPath)
+	res := RunCmd(ctx, dir, nil, "go", "vet", "./...")
+	output := strings.TrimSpace(res.Stdout + "\n" + res.Stderr)
+	return res.ExitCode == 0, output, res.Err
+}
+
 // RunGoVet runs `go vet ./...` in the specified module directory.
 func RunGoVet(ctx context.Context, moduleRelPath string) (bool, string, error) {
 	root, err := RepoRoot()
 	if err != nil {
 		return false, "", err
 	}
+	return runGoVetInRoot(ctx, root, moduleRelPath)
+}
+
+func runGoTestInRoot(ctx context.Context, root, moduleRelPath string, extraArgs ...string) (bool, string, error) {
 	dir := filepath.Join(root, moduleRelPath)
-	res := RunCmd(ctx, dir, nil, "go", "vet", "./...")
+	args := []string{"test", "-v", "-count=1"}
+	args = append(args, extraArgs...)
+	args = append(args, "./...")
+	res := RunCmd(ctx, dir, nil, "go", args...)
 	output := strings.TrimSpace(res.Stdout + "\n" + res.Stderr)
 	return res.ExitCode == 0, output, res.Err
 }
@@ -284,13 +297,7 @@ func RunGoTest(ctx context.Context, moduleRelPath string, extraArgs ...string) (
 	if err != nil {
 		return false, "", err
 	}
-	dir := filepath.Join(root, moduleRelPath)
-	args := []string{"test", "-v", "-count=1"}
-	args = append(args, extraArgs...)
-	args = append(args, "./...")
-	res := RunCmd(ctx, dir, nil, "go", args...)
-	output := strings.TrimSpace(res.Stdout + "\n" + res.Stderr)
-	return res.ExitCode == 0, output, res.Err
+	return runGoTestInRoot(ctx, root, moduleRelPath, extraArgs...)
 }
 
 // RunFrontendTest executes `npm test` or `node --test` in product-runtime/event-search-frontend.
@@ -305,18 +312,15 @@ func RunFrontendTest(ctx context.Context) (bool, string, error) {
 	return res.ExitCode == 0, output, res.Err
 }
 
-// RunCampaign runs vet and tests across all runtime Go modules and cmdr-dev.
-func RunCampaign(ctx context.Context) ([]ModuleTestResult, bool) {
+// RunCampaignInRoot runs vet and tests across all specified modules under root without early exit.
+func RunCampaignInRoot(ctx context.Context, root string, modules []string) ([]ModuleTestResult, bool) {
 	var results []ModuleTestResult
 	allPassed := true
 
-	modules := append([]string{}, RuntimeGoModules...)
-	modules = append(modules, "tools/cmdr-dev")
-
 	for _, mod := range modules {
 		start := time.Now()
-		vPass, vOut, _ := RunGoVet(ctx, mod)
-		tPass, tOut, err := RunGoTest(ctx, mod)
+		vPass, vOut, _ := runGoVetInRoot(ctx, root, mod)
+		tPass, tOut, err := runGoTestInRoot(ctx, root, mod)
 		dur := time.Since(start)
 
 		if !vPass || !tPass {
@@ -335,4 +339,15 @@ func RunCampaign(ctx context.Context) ([]ModuleTestResult, bool) {
 	}
 
 	return results, allPassed
+}
+
+// RunCampaign runs vet and tests across all runtime Go modules and cmdr-dev.
+func RunCampaign(ctx context.Context) ([]ModuleTestResult, bool) {
+	root, err := RepoRoot()
+	if err != nil {
+		return nil, false
+	}
+	modules := append([]string{}, RuntimeGoModules...)
+	modules = append(modules, "tools/cmdr-dev")
+	return RunCampaignInRoot(ctx, root, modules)
 }

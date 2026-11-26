@@ -28,9 +28,31 @@ func validateRoadmapDocument(content string) (bool, string) {
 	return true, ""
 }
 
+func assertGitDimensionFailsInMockRoot(t *testing.T, ctx context.Context, mockRoot, label string) {
+	t.Helper()
+	gateRes := harness.RunCmdrDev(ctx, "mainline-health-gate", "--root", mockRoot, "--json")
+	if gateRes.ExitCode == 0 {
+		t.Fatalf("%s FAIL: mainline-health-gate returned exit 0", label)
+	}
+	var report struct {
+		Status     string `json:"status"`
+		Dimensions map[string]struct {
+			Passed bool   `json:"passed"`
+			Status string `json:"status"`
+		} `json:"dimensions"`
+	}
+	if err := harness.ParseJSON(gateRes.Stdout, &report); err != nil {
+		t.Fatalf("%s FAIL: failed to parse mainline-health-gate JSON: %v\nStdout: %s", label, err, gateRes.Stdout)
+	}
+	gitDim, ok := report.Dimensions["git"]
+	if !ok || gitDim.Passed || gitDim.Status != "FAIL" {
+		t.Fatalf("%s FAIL: expected git dimension FAIL, got %+v", label, gitDim)
+	}
+}
+
 // T2.F15.1: Spec diff detector detects 1-byte alteration in any of 1,879 spec files.
 func TestT2_F15_1_SpecDiffDetectorDetectsOneByteAlteration(t *testing.T) {
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
 
 	const baseline = "82e630fce3a7f6236e03709116eca6dd0a1acd40"
@@ -44,49 +66,95 @@ func TestT2_F15_1_SpecDiffDetectorDetectsOneByteAlteration(t *testing.T) {
 		t.Fatalf("T2.F15.1 FAIL: canonical cmdr-product-spec has non-zero diff vs %s:\n%s", baseline, diff)
 	}
 
-	// Verify detection logic flags any alteration
-	simulatedDiff := "diff --git a/cmdr-product-spec/test.md b/cmdr-product-spec/test.md\n+altered byte"
-	if len(strings.TrimSpace(simulatedDiff)) == 0 {
-		t.Fatalf("simulated diff check failed")
+	mockRoot := harness.CloneIsolatedRepo(t, "f15-onebyte")
+	baseRes := harness.RunCmdrDev(ctx, "spec-baseline", "--root", mockRoot, "--check", "--json")
+	if baseRes.ExitCode != 0 {
+		t.Fatalf("T2.F15.1 baseline spec-baseline failed (exit %d): %s", baseRes.ExitCode, baseRes.Stderr)
 	}
-	t.Log("T2.F15.1 PASS: spec diff detector strictly enforces 0-byte difference against canonical spec")
+
+	readmePath := filepath.Join(mockRoot, "cmdr-product-spec", "README.md")
+	orig, err := os.ReadFile(readmePath)
+	if err != nil {
+		t.Fatalf("failed to read spec README: %v", err)
+	}
+	if err := os.WriteFile(readmePath, append(orig, ' '), 0644); err != nil {
+		t.Fatalf("failed to append 1 byte to spec README: %v", err)
+	}
+	if res := harness.RunCmd(ctx, mockRoot, nil, "git", "add", "cmdr-product-spec/README.md"); res.ExitCode != 0 {
+		t.Fatalf("git add failed: %s", res.Stderr)
+	}
+	if res := harness.RunCmd(ctx, mockRoot, nil, "git", "commit", "-m", "1-byte spec alteration"); res.ExitCode != 0 {
+		t.Fatalf("git commit failed: %s", res.Stderr)
+	}
+
+	specRes := harness.RunCmdrDev(ctx, "spec-baseline", "--root", mockRoot, "--check", "--json")
+	if specRes.ExitCode == 0 {
+		t.Fatalf("T2.F15.1 FAIL: spec-baseline --check succeeded after 1-byte spec edit")
+	}
+	assertGitDimensionFailsInMockRoot(t, ctx, mockRoot, "T2.F15.1")
+	t.Log("T2.F15.1 PASS: spec-baseline and mainline-health-gate strictly detect 1-byte canonical spec alteration")
 }
 
 // T2.F15.2: Spec diff detector detects deleted spec file.
 func TestT2_F15_2_SpecDiffDetectorDetectsDeletedSpecFile(t *testing.T) {
-	detectSpecDeletion := func(gitDiffOutput string) bool {
-		return strings.Contains(gitDiffOutput, "deleted file mode") || strings.Contains(gitDiffOutput, "--- a/cmdr-product-spec/")
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
+
+	mockRoot := harness.CloneIsolatedRepo(t, "f15-delete")
+	baseRes := harness.RunCmdrDev(ctx, "spec-baseline", "--root", mockRoot, "--check", "--json")
+	if baseRes.ExitCode != 0 {
+		t.Fatalf("T2.F15.2 baseline spec-baseline failed (exit %d): %s", baseRes.ExitCode, baseRes.Stderr)
 	}
 
-	simulatedDeletion := `diff --git a/cmdr-product-spec/00-governance/README.md b/cmdr-product-spec/00-governance/README.md
-deleted file mode 100644
-index e69de29..0000000
-`
-	if !detectSpecDeletion(simulatedDeletion) {
-		t.Fatalf("T2.F15.2 FAIL: deleted spec file diff was not detected by spec detector")
+	targetRel := filepath.Join("cmdr-product-spec", "00-governance", "README.md")
+	if err := os.Remove(filepath.Join(mockRoot, targetRel)); err != nil {
+		t.Fatalf("failed to remove spec file: %v", err)
 	}
-	t.Log("T2.F15.2 PASS: spec diff detector strictly identifies and blocks spec file deletion")
+	if res := harness.RunCmd(ctx, mockRoot, nil, "git", "add", "-A", "cmdr-product-spec"); res.ExitCode != 0 {
+		t.Fatalf("git add failed: %s", res.Stderr)
+	}
+	if res := harness.RunCmd(ctx, mockRoot, nil, "git", "commit", "-m", "delete spec file"); res.ExitCode != 0 {
+		t.Fatalf("git commit failed: %s", res.Stderr)
+	}
+
+	specRes := harness.RunCmdrDev(ctx, "spec-baseline", "--root", mockRoot, "--check", "--json")
+	if specRes.ExitCode == 0 {
+		t.Fatalf("T2.F15.2 FAIL: spec-baseline --check succeeded after deleting spec file")
+	}
+	assertGitDimensionFailsInMockRoot(t, ctx, mockRoot, "T2.F15.2")
+	t.Log("T2.F15.2 PASS: spec-baseline and mainline-health-gate strictly detect deleted spec file")
 }
 
 // T2.F15.3: Spec diff detector detects added untracked spec file.
 func TestT2_F15_3_SpecDiffDetectorDetectsAddedUntrackedFile(t *testing.T) {
-	detectUntrackedSpecFiles := func(porcelainOutput string) []string {
-		var untracked []string
-		for _, line := range strings.Split(porcelainOutput, "\n") {
-			trimmed := strings.TrimSpace(line)
-			if strings.HasPrefix(trimmed, "?? cmdr-product-spec/") || strings.HasPrefix(trimmed, "A  cmdr-product-spec/") {
-				untracked = append(untracked, trimmed)
-			}
-		}
-		return untracked
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
+
+	mockRoot := harness.CloneIsolatedRepo(t, "f15-untracked")
+	baseRes := harness.RunCmdrDev(ctx, "spec-baseline", "--root", mockRoot, "--check", "--json")
+	if baseRes.ExitCode != 0 {
+		t.Fatalf("T2.F15.3 baseline spec-baseline failed (exit %d): %s", baseRes.ExitCode, baseRes.Stderr)
 	}
 
-	simulatedStatus := "?? cmdr-product-spec/unauthorized_new_spec.md\n M tools/cmdr-dev/main.go"
-	detected := detectUntrackedSpecFiles(simulatedStatus)
-	if len(detected) != 1 || !strings.Contains(detected[0], "unauthorized_new_spec.md") {
-		t.Fatalf("T2.F15.3 FAIL: added untracked spec file was not detected: %v", detected)
+	untrackedPath := filepath.Join(mockRoot, "cmdr-product-spec", "unauthorized_new_spec.md")
+	if err := os.WriteFile(untrackedPath, []byte("# Unauthorized Spec\n"), 0644); err != nil {
+		t.Fatalf("failed to write untracked spec file: %v", err)
 	}
-	t.Log("T2.F15.3 PASS: spec detector strictly detects untracked added files under cmdr-product-spec/")
+
+	status, err := harness.GitStatusPorcelainInDir(ctx, mockRoot)
+	if err != nil {
+		t.Fatalf("GitStatusPorcelainInDir failed: %v", err)
+	}
+	if !strings.Contains(status, "?? cmdr-product-spec/unauthorized_new_spec.md") {
+		t.Fatalf("T2.F15.3 FAIL: untracked spec file not reported by git status: %q", status)
+	}
+
+	specRes := harness.RunCmdrDev(ctx, "spec-baseline", "--root", mockRoot, "--check", "--json")
+	if specRes.ExitCode == 0 {
+		t.Fatalf("T2.F15.3 FAIL: spec-baseline --check succeeded with untracked spec file")
+	}
+	assertGitDimensionFailsInMockRoot(t, ctx, mockRoot, "T2.F15.3")
+	t.Log("T2.F15.3 PASS: spec-baseline, git status, and mainline-health-gate strictly detect untracked spec file")
 }
 
 // T2.F15.4: Roadmap alignment validator rejects missing acceptance criteria section.

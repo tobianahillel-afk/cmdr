@@ -46,12 +46,10 @@ func TestT1_F8_2_FullKernelTriggersOnMainBranch(t *testing.T) {
 		t.Fatalf("failed to read engineering-kernel-full.yml: %v", err)
 	}
 
-	str := string(content)
-	if !strings.Contains(str, "branches:") || !strings.Contains(str, "\"main\"") {
-		t.Fatal("engineering-kernel-full.yml does not trigger on main branch")
-	}
-	if !strings.Contains(str, "push:") || !strings.Contains(str, "pull_request:") {
-		t.Fatal("engineering-kernel-full.yml missing push or pull_request triggers")
+	res := harness.ValidateHealthGateWorkflow(string(content))
+	if !res.HasPushMain || !res.HasPRMain {
+		t.Fatalf("engineering-kernel-full.yml missing push or pull_request triggers targeting main branch (HasPushMain=%t, HasPRMain=%t, errors=%v)",
+			res.HasPushMain, res.HasPRMain, res.Errors)
 	}
 	t.Log("T1.F8.2 PASS: workflow triggers on push and pull_request for main")
 }

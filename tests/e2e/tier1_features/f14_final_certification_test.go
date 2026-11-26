@@ -103,6 +103,23 @@ func TestT1_F14_5_ZeroMockFlagsInHealthGate(t *testing.T) {
 	defer cancel()
 
 	res := harness.RunCmdrDev(ctx, "mainline-health-gate", "--json")
+	if res.ExitCode != 0 && res.ExitCode != 1 && res.ExitCode != 2 {
+		t.Fatalf("mainline-health-gate failed unexpectedly (exit %d): %s\n%s", res.ExitCode, res.Stderr, res.Stdout)
+	}
+
+	var report struct {
+		Status     string                 `json:"status"`
+		Dimensions map[string]interface{} `json:"dimensions"`
+	}
+	if err := harness.ParseJSON(res.Stdout, &report); err != nil {
+		t.Fatalf("failed to parse mainline-health-gate JSON report: %v\nStdout: %s", err, res.Stdout)
+	}
+	for _, dim := range []string{"code", "security", "git", "traceability", "operational_quality"} {
+		if _, ok := report.Dimensions[dim]; !ok {
+			t.Fatalf("mainline-health-gate report missing dimension %q", dim)
+		}
+	}
+
 	if strings.Contains(res.Stdout, "\"mock\"") || strings.Contains(res.Stdout, "\"stub\"") {
 		t.Fatal("mainline-health-gate report contains mock/stub evidence flags")
 	}

@@ -12,13 +12,16 @@ import (
 )
 
 type HandoffDocument struct {
-	SchemaVersion        int    `json:"schema_version"`
-	WorkUnit             string `json:"work_unit"`
-	Result               string `json:"result"`
-	ImplementationCommit string `json:"implementation_commit"`
-	FinalValidatedHead   string `json:"final_validated_head"`
-	PullRequest          int    `json:"pull_request"`
-	ProductSpecMutated   bool   `json:"product_spec_mutated"`
+	SchemaVersion        int                    `json:"schema_version"`
+	WorkUnit             string                 `json:"work_unit"`
+	Result               string                 `json:"result"`
+	ImplementationCommit string                 `json:"implementation_commit"`
+	FinalValidatedHead   string                 `json:"final_validated_head"`
+	PullRequest          int                    `json:"pull_request"`
+	Evidence             map[string]interface{} `json:"evidence,omitempty"`
+	Invariants           []string               `json:"invariants,omitempty"`
+	ProductSpecMutated   bool                   `json:"product_spec_mutated"`
+	NextUnlocked         []string               `json:"next_unlocked,omitempty"`
 }
 
 // T1.F6.1: Execute cmdr-dev implementation-ledger-audit and verify exit code 0.
@@ -103,15 +106,32 @@ func TestT1_F6_4_TraceabilityDimensionPasses(t *testing.T) {
 	defer cancel()
 
 	res := harness.RunCmdrDev(ctx, "mainline-health-gate", "--json")
-	if res.Stdout != "" {
-		traceability, err := harness.GetJSONField(res.Stdout, "dimensions.traceability.passed")
-		if err == nil && traceability != nil {
-			if passed, ok := traceability.(bool); ok && !passed {
-				t.Fatalf("traceability dimension did not pass in mainline-health-gate")
-			}
-		}
+	if res.ExitCode != 0 && res.ExitCode != 1 && res.ExitCode != 2 {
+		t.Fatalf("mainline-health-gate failed unexpectedly (exit %d): %s\n%s", res.ExitCode, res.Stderr, res.Stdout)
 	}
-	t.Log("T1.F6.4 PASS: traceability dimension verified")
+
+	var report struct {
+		Status     string `json:"status"`
+		Dimensions map[string]struct {
+			Name   string   `json:"name"`
+			Passed bool     `json:"passed"`
+			Status string   `json:"status"`
+			Errors []string `json:"errors"`
+		} `json:"dimensions"`
+	}
+	if err := harness.ParseJSON(res.Stdout, &report); err != nil {
+		t.Fatalf("failed to parse mainline-health-gate JSON output: %v\nStdout: %s\nStderr: %s", err, res.Stdout, res.Stderr)
+	}
+
+	dim, ok := report.Dimensions["traceability"]
+	if !ok {
+		t.Fatalf("mainline-health-gate JSON report missing 'traceability' dimension")
+	}
+	if !dim.Passed || dim.Status != "PASS" {
+		t.Fatalf("traceability dimension did not pass in mainline-health-gate (passed=%t, status=%s, errors=%v)",
+			dim.Passed, dim.Status, dim.Errors)
+	}
+	t.Logf("T1.F6.4 PASS: traceability dimension verified (status=%s)", dim.Status)
 }
 
 // T1.F6.5: Verify handoff hash matches manifest work unit ID and schema.
@@ -129,18 +149,30 @@ func TestT1_F6_5_HandoffSchemaAndIDConsistency(t *testing.T) {
 
 	var handoff HandoffDocument
 	if err := harness.StrictUnmarshal(data, &handoff); err != nil {
-		// allow evidence field
-		var flexHandoff map[string]interface{}
-		if fErr := json.Unmarshal(data, &flexHandoff); fErr != nil {
-			t.Fatalf("corrupted HANDOFF.json: %v", fErr)
+		t.Fatalf("HANDOFF.json failed strict schema validation: %v", err)
+	}
+
+	var rawFields map[string]interface{}
+	if err := json.Unmarshal(data, &rawFields); err != nil {
+		t.Fatalf("corrupted HANDOFF.json: %v", err)
+	}
+	for _, reqField := range []string{"schema_version", "work_unit", "result", "implementation_commit", "final_validated_head", "pull_request", "product_spec_mutated"} {
+		if _, ok := rawFields[reqField]; !ok {
+			t.Fatalf("HANDOFF.json missing required field %q", reqField)
 		}
 	}
 
+	if handoff.SchemaVersion <= 0 {
+		t.Fatalf("expected positive schema_version, got %d", handoff.SchemaVersion)
+	}
 	if handoff.WorkUnit != "E10-INV-002G" {
 		t.Fatalf("expected work_unit 'E10-INV-002G', got '%s'", handoff.WorkUnit)
 	}
 	if handoff.Result != "VERIFIED" && handoff.Result != "ACCEPTED" {
 		t.Fatalf("expected result VERIFIED or ACCEPTED, got '%s'", handoff.Result)
+	}
+	if handoff.FinalValidatedHead == "" || handoff.ImplementationCommit == "" {
+		t.Fatalf("expected non-empty implementation_commit and final_validated_head")
 	}
 	t.Log("T1.F6.5 PASS: handoff schema, result, and work unit ID strictly verified")
 }

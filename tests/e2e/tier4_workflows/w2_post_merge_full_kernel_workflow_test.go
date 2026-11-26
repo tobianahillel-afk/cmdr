@@ -74,7 +74,10 @@ func TestT4_02_PostMergeFullKernelWorkflow(t *testing.T) {
 
 	// Direct git diff verification of cmdr-product-spec
 	specDiff, err := harness.GitDiffSpecBaseline(ctx, baselineCommit)
-	if err == nil && specDiff != "" {
+	if err != nil {
+		t.Fatalf("failed to run GitDiffSpecBaseline against %s: %v", baselineCommit, err)
+	}
+	if specDiff != "" {
 		t.Fatalf("cmdr-product-spec has non-zero diff vs baseline: %s", specDiff)
 	}
 

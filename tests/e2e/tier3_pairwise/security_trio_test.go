@@ -14,6 +14,8 @@ import (
 
 type SASTReport struct {
 	Tool       string `json:"tool"`
+	Version    string `json:"version"`
+	ScanRoot   string `json:"scan_root"`
 	Findings   int    `json:"findings"`
 	BySeverity struct {
 		High   int `json:"HIGH"`
@@ -21,23 +23,33 @@ type SASTReport struct {
 		Low    int `json:"LOW"`
 	} `json:"by_severity"`
 	Items []struct {
-		RuleID   string `json:"rule_id"`
-		File     string `json:"file"`
-		Line     int    `json:"line"`
-		Severity string `json:"severity"`
-	} `json:"items,omitempty"`
+		RuleID      string `json:"rule_id"`
+		Severity    string `json:"severity"`
+		Confidence  string `json:"confidence"`
+		CWE         string `json:"cwe,omitempty"`
+		Path        string `json:"path"`
+		Line        int    `json:"line"`
+		Fingerprint string `json:"fingerprint_sha256"`
+	} `json:"finding_items,omitempty"`
 }
 
 type SCAReport struct {
-	Tool               string `json:"tool"`
-	Toolchain          string `json:"toolchain"`
-	TotalFindings      int    `json:"total_findings"`
-	ActionableFindings int    `json:"actionable_findings"`
-	Vulnerabilities    []struct {
-		ID       string `json:"id"`
-		Package  string `json:"package"`
-		Severity string `json:"severity"`
-	} `json:"vulnerabilities,omitempty"`
+	Tool                  string `json:"tool"`
+	Version               string `json:"version"`
+	Database              string `json:"database,omitempty"`
+	GoVersion             string `json:"go_version,omitempty"`
+	Modules               int    `json:"modules"`
+	InformationalFindings int    `json:"informational_findings"`
+	ActionableFindings    int    `json:"actionable_findings"`
+	Vulnerabilities       []struct {
+		OSV          string `json:"osv"`
+		Ecosystem    string `json:"ecosystem"`
+		Module       string `json:"module"`
+		Version      string `json:"version"`
+		Package      string `json:"package,omitempty"`
+		Symbol       string `json:"symbol,omitempty"`
+		FixedVersion string `json:"fixed_version,omitempty"`
+	} `json:"finding_items,omitempty"`
 }
 
 // TestT3_03_SecurityToolchainAndEvidenceTrio_F2_F3_F4:
@@ -87,7 +99,7 @@ func TestT3_03_SecurityToolchainAndEvidenceTrio_F2_F3_F4(t *testing.T) {
 		t.Fatalf("SAST reported %d HIGH severity findings", sastReport.BySeverity.High)
 	}
 	for _, item := range sastReport.Items {
-		if strings.Contains(item.File, "performance_timeline_process_windows.go") {
+		if strings.Contains(item.Path, "performance_timeline_process_windows.go") {
 			t.Fatalf("F2 regression: G204/G702 finding found on performance_timeline_process_windows.go: %s", item.RuleID)
 		}
 	}
@@ -97,14 +109,18 @@ func TestT3_03_SecurityToolchainAndEvidenceTrio_F2_F3_F4(t *testing.T) {
 		t.Fatalf("SCA scan failed (exit %d): %s", scaRes.ExitCode, scaRes.Stderr)
 	}
 	var scaReport SCAReport
-	if err := harness.ParseJSON(scaRes.Stdout, &scaReport); err == nil {
-		if scaReport.ActionableFindings > 0 {
-			t.Fatalf("SCA reported %d actionable findings", scaReport.ActionableFindings)
-		}
-		for _, vuln := range scaReport.Vulnerabilities {
-			if vuln.ID == "GO-2026-6859" {
-				t.Fatalf("F3 regression: GO-2026-6859 vulnerability present in SCA findings")
-			}
+	if err := harness.ParseJSON(scaRes.Stdout, &scaReport); err != nil {
+		t.Fatalf("failed to parse SCA JSON: %v\nStdout: %s", err, scaRes.Stdout)
+	}
+	if scaReport.GoVersion != "go1.26.11" {
+		t.Fatalf("expected SCA go_version=go1.26.11, got %q", scaReport.GoVersion)
+	}
+	if scaReport.ActionableFindings > 0 {
+		t.Fatalf("SCA reported %d actionable findings", scaReport.ActionableFindings)
+	}
+	for _, vuln := range scaReport.Vulnerabilities {
+		if vuln.OSV == "GO-2026-6859" {
+			t.Fatalf("F3 regression: GO-2026-6859 vulnerability present in SCA findings")
 		}
 	}
 

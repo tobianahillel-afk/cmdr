@@ -7,9 +7,17 @@ import (
 
 // WorkflowStep represents a parsed step inside a GitHub Actions workflow job.
 type WorkflowStep struct {
+	Job             string
 	Name            string
 	Run             string
 	Uses            string
+	IfExpr          string
+	ContinueOnError bool
+	Line            int
+}
+
+type workflowJob struct {
+	Name            string
 	IfExpr          string
 	ContinueOnError bool
 	Line            int
@@ -129,15 +137,127 @@ func isBlockScalarHeader(val string) bool {
 	}
 }
 
+func normalizeWorkflowExpr(expr string) string {
+	s := strings.ToLower(strings.TrimSpace(unquoteYAMLValue(expr)))
+	if strings.HasPrefix(s, "${{") && strings.HasSuffix(s, "}}") {
+		s = strings.TrimSpace(s[3 : len(s)-2])
+	}
+	s = strings.Join(strings.Fields(s), " ")
+	s = strings.ReplaceAll(s, "! ", "!")
+	s = strings.ReplaceAll(s, "( ", "(")
+	s = strings.ReplaceAll(s, " )", ")")
+	return s
+}
+
 func isDisabledIfExpr(expr string) bool {
-	norm := strings.ToLower(strings.TrimSpace(unquoteYAMLValue(expr)))
-	norm = strings.Join(strings.Fields(norm), " ")
-	switch norm {
-	case "false", "${{ false }}", "${{false}}", "!true", "${{ !true }}", "${{!true}}":
+	s := normalizeWorkflowExpr(expr)
+	if s == "" {
+		return false
+	}
+	switch s {
+	case "false", "(false)", "!true", "!(true)", "false || false":
+		return true
+	}
+	if strings.HasPrefix(s, "false && ") || strings.HasSuffix(s, " && false") || strings.Contains(s, " && false && ") {
+		return true
+	}
+	if strings.HasPrefix(s, "!true && ") || strings.HasSuffix(s, " && !true") || strings.Contains(s, " && !true && ") {
+		return true
+	}
+	return false
+}
+
+func isTruthyContinueOnError(val string) bool {
+	switch normalizeWorkflowExpr(val) {
+	case "true", "!false":
 		return true
 	default:
 		return false
 	}
+}
+
+func splitShellSegments(line string) []string {
+	var segments []string
+	var cur strings.Builder
+	inSingle := false
+	inDouble := false
+	escaped := false
+
+	for i := 0; i < len(line); i++ {
+		c := line[i]
+		if inDouble {
+			cur.WriteByte(c)
+			if escaped {
+				escaped = false
+				continue
+			}
+			if c == '\\' {
+				escaped = true
+				continue
+			}
+			if c == '"' {
+				inDouble = false
+			}
+			continue
+		}
+		if inSingle {
+			cur.WriteByte(c)
+			if c == '\'' {
+				inSingle = false
+			}
+			continue
+		}
+		switch c {
+		case '\'':
+			inSingle = true
+			cur.WriteByte(c)
+		case '"':
+			inDouble = true
+			cur.WriteByte(c)
+		case ';':
+			segments = append(segments, cur.String())
+			cur.Reset()
+		case '&', '|':
+			if i+1 < len(line) && line[i+1] == c {
+				segments = append(segments, cur.String())
+				cur.Reset()
+				i++
+			} else {
+				cur.WriteByte(c)
+			}
+		default:
+			cur.WriteByte(c)
+		}
+	}
+	if cur.Len() > 0 {
+		segments = append(segments, cur.String())
+	}
+	return segments
+}
+
+func isMainlineHealthGateSegment(seg string) bool {
+	tokens := strings.Fields(seg)
+	for len(tokens) > 0 && strings.Contains(tokens[0], "=") && !strings.HasPrefix(tokens[0], "-") {
+		tokens = tokens[1:]
+	}
+	if len(tokens) < 2 {
+		return false
+	}
+	cmd := strings.ReplaceAll(tokens[0], "\\", "/")
+	if idx := strings.LastIndexByte(cmd, '/'); idx >= 0 {
+		cmd = cmd[idx+1:]
+	}
+	if cmd == "cmdr-dev" || cmd == "cmdr-dev.exe" {
+		return tokens[1] == "mainline-health-gate"
+	}
+	if cmd == "go" && tokens[1] == "run" && len(tokens) >= 4 {
+		for _, tok := range tokens[2:] {
+			if tok == "mainline-health-gate" {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 func containsMainlineHealthGateInvocation(runScript string) bool {
@@ -146,16 +266,262 @@ func containsMainlineHealthGateInvocation(runScript string) bool {
 		if line == "" {
 			continue
 		}
-		if strings.Contains(line, "mainline-health-gate") {
-			return true
+		for _, seg := range splitShellSegments(line) {
+			if isMainlineHealthGateSegment(seg) {
+				return true
+			}
 		}
 	}
 	return false
 }
 
+// ValidateWorkflowRequiredJob checks that the workflow YAML contains no tabs, has a top-level
+// `jobs:` block, and defines an uncommented active job matching requiredJob.
+func ValidateWorkflowRequiredJob(content string, requiredJob string) error {
+	if strings.TrimSpace(requiredJob) == "" {
+		return fmt.Errorf("requiredJob must be non-empty")
+	}
+	if strings.Contains(content, "\t") {
+		return fmt.Errorf("workflow contains forbidden TAB characters in YAML")
+	}
+
+	rawLines := strings.Split(strings.ReplaceAll(content, "\r\n", "\n"), "\n")
+	inJobs := false
+	jobsIndent := -1
+	jobItemIndent := -1
+	inBlockScalar := false
+	blockScalarIndent := -1
+
+	for _, raw := range rawLines {
+		if inBlockScalar {
+			trimmedRaw := strings.TrimSpace(raw)
+			if trimmedRaw == "" {
+				continue
+			}
+			if leadingSpaces(raw) > blockScalarIndent {
+				continue
+			}
+			inBlockScalar = false
+			blockScalarIndent = -1
+		}
+
+		clean := stripYAMLComment(raw)
+		trimmed := strings.TrimSpace(clean)
+		if trimmed == "" {
+			continue
+		}
+		indent := leadingSpaces(clean)
+
+		if k, v, ok := splitYAMLKeyValue(trimmed); ok && isBlockScalarHeader(v) {
+			inBlockScalar = true
+			blockScalarIndent = indent
+			_ = k
+		}
+
+		if !inJobs {
+			if indent == 0 {
+				if k, v, ok := splitYAMLKeyValue(trimmed); ok && k == "jobs" && v == "" {
+					inJobs = true
+					jobsIndent = indent
+					jobItemIndent = -1
+				}
+			}
+			continue
+		}
+
+		if indent <= jobsIndent {
+			inJobs = false
+			jobItemIndent = -1
+			continue
+		}
+
+		if jobItemIndent == -1 || indent == jobItemIndent {
+			if k, _, ok := splitYAMLKeyValue(trimmed); ok {
+				jobItemIndent = indent
+				if unquoteYAMLValue(k) == requiredJob {
+					return nil
+				}
+			}
+		}
+	}
+
+	return fmt.Errorf("workflow missing required job %q", requiredJob)
+}
+
+// ValidateWorkflowSyntax performs pure-stdlib structural YAML syntax validation for GitHub Actions workflows.
+func ValidateWorkflowSyntax(content string) error {
+	if strings.TrimSpace(content) == "" {
+		return fmt.Errorf("workflow YAML is empty")
+	}
+	if strings.Contains(content, "\t") {
+		return fmt.Errorf("workflow contains forbidden TAB characters in YAML")
+	}
+
+	rawLines := strings.Split(strings.ReplaceAll(content, "\r\n", "\n"), "\n")
+	bracketDepth := 0
+	braceDepth := 0
+	inBlockScalar := false
+	blockScalarIndent := -1
+
+	// Track active sequence-item indentation to catch misaligned mapping keys (e.g. `- name: ...` followed by dedented `run:`).
+	type seqFrame struct {
+		seqIndent     int
+		dashIndent    int
+		itemKeyIndent int
+	}
+	var seqStack []seqFrame
+
+	for lineIdx, raw := range rawLines {
+		lineNum := lineIdx + 1
+		if inBlockScalar {
+			trimmedRaw := strings.TrimSpace(raw)
+			if trimmedRaw == "" {
+				continue
+			}
+			if leadingSpaces(raw) > blockScalarIndent {
+				continue
+			}
+			inBlockScalar = false
+			blockScalarIndent = -1
+		}
+
+		clean := stripYAMLComment(raw)
+		trimmed := strings.TrimSpace(clean)
+		if trimmed == "" {
+			continue
+		}
+		indent := leadingSpaces(clean)
+
+		// Pop sequence frames whose scope we exited.
+		for len(seqStack) > 0 {
+			top := seqStack[len(seqStack)-1]
+			if indent < top.seqIndent || (indent == top.seqIndent && !strings.HasPrefix(trimmed, "-") && trimmed != "-") {
+				seqStack = seqStack[:len(seqStack)-1]
+				continue
+			}
+			break
+		}
+
+		// Verify unclosed quotes on this non-block-scalar line and update bracket/brace balance outside quotes.
+		inSingle := false
+		inDouble := false
+		escaped := false
+		for i := 0; i < len(trimmed); i++ {
+			c := trimmed[i]
+			if inDouble {
+				if escaped {
+					escaped = false
+					continue
+				}
+				if c == '\\' {
+					escaped = true
+					continue
+				}
+				if c == '"' {
+					inDouble = false
+				}
+				continue
+			}
+			if inSingle {
+				if c == '\'' {
+					if i+1 < len(trimmed) && trimmed[i+1] == '\'' {
+						i++
+						continue
+					}
+					inSingle = false
+				}
+				continue
+			}
+			switch c {
+			case '\'':
+				inSingle = true
+			case '"':
+				inDouble = true
+			case '[':
+				bracketDepth++
+			case ']':
+				bracketDepth--
+				if bracketDepth < 0 {
+					return fmt.Errorf("line %d: unexpected closing ']'", lineNum)
+				}
+			case '{':
+				braceDepth++
+			case '}':
+				braceDepth--
+				if braceDepth < 0 {
+					return fmt.Errorf("line %d: unexpected closing '}'", lineNum)
+				}
+			}
+		}
+		if inSingle || inDouble {
+			return fmt.Errorf("line %d: unclosed string quote in YAML", lineNum)
+		}
+
+		// Check sequence item alignment before updating stack.
+		isListDash := trimmed == "-" || strings.HasPrefix(trimmed, "- ")
+		if len(seqStack) > 0 && !isListDash && bracketDepth == 0 && braceDepth == 0 {
+			top := &seqStack[len(seqStack)-1]
+			if top.itemKeyIndent > top.seqIndent && indent > top.seqIndent && indent < top.itemKeyIndent {
+				return fmt.Errorf("line %d: misaligned YAML indentation (%d spaces, expected >= %d)", lineNum, indent, top.itemKeyIndent)
+			}
+		}
+
+		if isListDash {
+			if len(seqStack) > 0 && seqStack[len(seqStack)-1].dashIndent == -1 && indent > seqStack[len(seqStack)-1].seqIndent {
+				seqStack[len(seqStack)-1].dashIndent = indent
+			} else if len(seqStack) == 0 || indent > seqStack[len(seqStack)-1].dashIndent {
+				seqStack = append(seqStack, seqFrame{seqIndent: indent, dashIndent: indent, itemKeyIndent: -1})
+			} else if indent == seqStack[len(seqStack)-1].dashIndent {
+				seqStack[len(seqStack)-1].itemKeyIndent = -1
+			}
+			afterDashRaw := strings.TrimPrefix(trimmed, "-")
+			afterDash := strings.TrimSpace(afterDashRaw)
+			if afterDash != "" {
+				spacesAfterDash := len(afterDashRaw) - len(strings.TrimLeft(afterDashRaw, " "))
+				if k, v, ok := splitYAMLKeyValue(afterDash); ok {
+					seqStack[len(seqStack)-1].itemKeyIndent = indent + 1 + spacesAfterDash
+					_ = k
+					if isBlockScalarHeader(v) {
+						inBlockScalar = true
+						blockScalarIndent = indent + 1 + spacesAfterDash
+					}
+				}
+			}
+			continue
+		}
+
+		if k, v, ok := splitYAMLKeyValue(trimmed); ok {
+			if len(seqStack) > 0 && indent > seqStack[len(seqStack)-1].dashIndent && seqStack[len(seqStack)-1].itemKeyIndent == -1 {
+				seqStack[len(seqStack)-1].itemKeyIndent = indent
+			}
+			if v == "" {
+				seqStack = append(seqStack, seqFrame{seqIndent: indent, dashIndent: -1, itemKeyIndent: -1})
+			} else if isBlockScalarHeader(v) {
+				inBlockScalar = true
+				blockScalarIndent = indent
+			}
+			_ = k
+			continue
+		}
+
+		// If not inside an open multi-line flow collection, a non-key/non-list line is invalid YAML mapping syntax.
+		if bracketDepth == 0 && braceDepth == 0 {
+			return fmt.Errorf("line %d: invalid YAML mapping or sequence syntax: %q", lineNum, trimmed)
+		}
+	}
+
+	if bracketDepth != 0 {
+		return fmt.Errorf("unclosed '[' in YAML workflow")
+	}
+	if braceDepth != 0 {
+		return fmt.Errorf("unclosed '{' in YAML workflow")
+	}
+	return nil
+}
+
 // ValidateHealthGateWorkflow parses GitHub Actions workflow YAML using pure Go stdlib
 // and verifies triggers on push/pull_request to main plus an active, uncommented step
-// invoking `mainline-health-gate` without `continue-on-error: true` or `if: false`.
+// in job "full-kernel" invoking `mainline-health-gate` without `continue-on-error: true` or `if: false`.
 func ValidateHealthGateWorkflow(content string) WorkflowValidationResult {
 	var res WorkflowValidationResult
 
@@ -243,8 +609,16 @@ func ValidateHealthGateWorkflow(content string) WorkflowValidationResult {
 		}
 	}
 
-	// 2. Parse `steps:` blocks across all jobs.
+	// 2. Parse `jobs:` and `steps:` blocks with job ownership tracking.
 	var steps []WorkflowStep
+	jobsMap := make(map[string]workflowJob)
+
+	inJobs := false
+	jobsIndent := -1
+	jobItemIndent := -1
+	jobFieldIndent := -1
+	var currentJob *workflowJob
+
 	inSteps := false
 	stepsIndent := -1
 	stepItemIndent := -1
@@ -263,6 +637,14 @@ func ValidateHealthGateWorkflow(content string) WorkflowValidationResult {
 		runKeyIndent = -1
 	}
 
+	flushJob := func() {
+		if currentJob != nil {
+			jobsMap[currentJob.Name] = *currentJob
+			currentJob = nil
+		}
+		jobFieldIndent = -1
+	}
+
 	applyStepField := func(step *WorkflowStep, k, v string, keyIndent int) {
 		switch k {
 		case "name":
@@ -272,7 +654,7 @@ func ValidateHealthGateWorkflow(content string) WorkflowValidationResult {
 		case "if":
 			step.IfExpr = v
 		case "continue-on-error":
-			if strings.EqualFold(unquoteYAMLValue(v), "true") {
+			if isTruthyContinueOnError(v) {
 				step.ContinueOnError = true
 			}
 		case "run":
@@ -329,48 +711,115 @@ func ValidateHealthGateWorkflow(content string) WorkflowValidationResult {
 			}
 		}
 
-		if !inSteps {
-			if k, v, ok := splitYAMLKeyValue(trimmed); ok && k == "steps" && v == "" {
-				inSteps = true
-				stepsIndent = indent
-				stepItemIndent = -1
+		if inSteps {
+			isListDash := trimmed == "-" || strings.HasPrefix(trimmed, "- ")
+			if isListDash && (stepItemIndent == -1 || indent == stepItemIndent) {
+				flushStep()
+				stepItemIndent = indent
+				jobName := ""
+				if currentJob != nil {
+					jobName = currentJob.Name
+				}
+				currentStep = &WorkflowStep{Job: jobName, Line: lineIdx + 1}
+
+				afterDashRaw := strings.TrimPrefix(trimmed, "-")
+				afterDash := strings.TrimSpace(afterDashRaw)
+				if afterDash != "" {
+					spacesAfterDash := len(afterDashRaw) - len(strings.TrimLeft(afterDashRaw, " "))
+					stepKeyIndent = indent + 1 + spacesAfterDash
+					if k, v, ok := splitYAMLKeyValue(afterDash); ok {
+						applyStepField(currentStep, k, v, stepKeyIndent)
+					}
+				}
+				continue
 			}
-			continue
-		}
 
-		isListDash := trimmed == "-" || strings.HasPrefix(trimmed, "- ")
-		if isListDash && (stepItemIndent == -1 || indent == stepItemIndent) {
-			flushStep()
-			stepItemIndent = indent
-			currentStep = &WorkflowStep{Line: lineIdx + 1}
-
-			afterDashRaw := strings.TrimPrefix(trimmed, "-")
-			afterDash := strings.TrimSpace(afterDashRaw)
-			if afterDash != "" {
-				spacesAfterDash := len(afterDashRaw) - len(strings.TrimLeft(afterDashRaw, " "))
-				stepKeyIndent = indent + 1 + spacesAfterDash
-				if k, v, ok := splitYAMLKeyValue(afterDash); ok {
-					applyStepField(currentStep, k, v, stepKeyIndent)
+			if currentStep != nil && indent > stepItemIndent {
+				if stepKeyIndent == -1 {
+					stepKeyIndent = indent
+				}
+				if indent == stepKeyIndent {
+					if k, v, ok := splitYAMLKeyValue(trimmed); ok {
+						applyStepField(currentStep, k, v, indent)
+					}
 				}
 			}
 			continue
 		}
 
-		if currentStep != nil && indent > stepItemIndent {
-			if stepKeyIndent == -1 {
-				stepKeyIndent = indent
+		if !inJobs {
+			if indent == 0 {
+				if k, v, ok := splitYAMLKeyValue(trimmed); ok && k == "jobs" && v == "" {
+					inJobs = true
+					jobsIndent = indent
+					jobItemIndent = -1
+				}
 			}
-			if indent == stepKeyIndent {
+			continue
+		}
+
+		if indent <= jobsIndent {
+			flushJob()
+			inJobs = false
+			jobItemIndent = -1
+			continue
+		}
+
+		if jobItemIndent == -1 || indent == jobItemIndent {
+			if k, _, ok := splitYAMLKeyValue(trimmed); ok {
+				flushJob()
+				jobItemIndent = indent
+				currentJob = &workflowJob{Name: unquoteYAMLValue(k), Line: lineIdx + 1}
+			}
+			continue
+		}
+
+		if currentJob != nil && indent > jobItemIndent {
+			if jobFieldIndent == -1 {
+				jobFieldIndent = indent
+			}
+			if indent == jobFieldIndent {
 				if k, v, ok := splitYAMLKeyValue(trimmed); ok {
-					applyStepField(currentStep, k, v, indent)
+					switch k {
+					case "steps":
+						if v == "" {
+							inSteps = true
+							stepsIndent = indent
+							stepItemIndent = -1
+						}
+					case "if":
+						currentJob.IfExpr = v
+					case "continue-on-error":
+						if isTruthyContinueOnError(v) {
+							currentJob.ContinueOnError = true
+						}
+					}
 				}
 			}
 		}
 	}
 	flushStep()
+	flushJob()
 
-	// 3. Evaluate health-gate steps.
+	// 3. Evaluate job "full-kernel" and its health-gate steps.
+	fullKernelJob, hasFullKernel := jobsMap["full-kernel"]
+	if !hasFullKernel {
+		res.Errors = append(res.Errors, "missing required job \"full-kernel\"")
+	} else {
+		if fullKernelJob.ContinueOnError {
+			res.HasContinueOnError = true
+			res.Errors = append(res.Errors, fmt.Sprintf("line %d: job \"full-kernel\" has continue-on-error: true; must fail closed", fullKernelJob.Line))
+		}
+		if isDisabledIfExpr(fullKernelJob.IfExpr) {
+			res.HasDisabledIf = true
+			res.Errors = append(res.Errors, fmt.Sprintf("line %d: job \"full-kernel\" is disabled via if: %s", fullKernelJob.Line, strings.TrimSpace(fullKernelJob.IfExpr)))
+		}
+	}
+
 	for _, step := range steps {
+		if step.Job != "full-kernel" {
+			continue
+		}
 		if !containsMainlineHealthGateInvocation(step.Run) {
 			continue
 		}
@@ -387,7 +836,7 @@ func ValidateHealthGateWorkflow(content string) WorkflowValidationResult {
 
 	res.HasHealthGateStep = len(res.HealthGateSteps) > 0
 	if !res.HasHealthGateStep {
-		res.Errors = append(res.Errors, "missing mandatory mainline-health-gate step")
+		res.Errors = append(res.Errors, "missing mandatory mainline-health-gate step in job \"full-kernel\"")
 	}
 	if !res.HasPushMain {
 		res.Errors = append(res.Errors, "workflow missing push trigger targeting main branch")

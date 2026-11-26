@@ -1,9 +1,14 @@
 package harness
 
 import (
+	"context"
 	"errors"
+	"os"
+	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
+	"time"
 )
 
 func TestVerifyGoTestJSON_RejectsZeroExecutedTests(t *testing.T) {
@@ -96,6 +101,23 @@ func TestVerifyGoTestJSON_AcceptsVerifiedRunAndPass(t *testing.T) {
 	}
 }
 
+func TestVerifyGoTestJSON_RejectsSkippedChildSubtestWhenParentOnlyListed(t *testing.T) {
+	const pkg = "github.com/tobianahillel-afk/cmdr/product-runtime/studio-catalog"
+	skippedSubJSON := strings.Join([]string{
+		`{"Action":"start","Package":"` + pkg + `"}`,
+		`{"Action":"run","Package":"` + pkg + `","Test":"TestParent"}`,
+		`{"Action":"run","Package":"` + pkg + `","Test":"TestParent/Sub1"}`,
+		`{"Action":"skip","Package":"` + pkg + `","Test":"TestParent/Sub1"}`,
+		`{"Action":"pass","Package":"` + pkg + `","Test":"TestParent"}`,
+		`{"Action":"pass","Package":"` + pkg + `"}`,
+	}, "\n")
+
+	res, err := VerifyGoTestJSON([]byte(skippedSubJSON), pkg, []string{"TestParent"})
+	if err == nil || res.Passed || !strings.Contains(err.Error(), "TestParent/Sub1") {
+		t.Fatalf("expected rejection citing TestParent/Sub1 when child subtest is skipped, got res=%+v err=%v", res, err)
+	}
+}
+
 func TestEvaluateRaceTestOutcome(t *testing.T) {
 	t.Run("DataRaceDetectedFails", func(t *testing.T) {
 		res := VerifiedGoTestResult{Output: "WARNING: DATA RACE\nWrite at 0x00c0001"}
@@ -156,4 +178,133 @@ func TestEvaluateRaceTestOutcome(t *testing.T) {
 			t.Fatalf("expected RaceCheckPass, got %+v", out)
 		}
 	})
+
+	t.Run("WindowsFailedOrExecutedTestWithAccessDeniedFails", func(t *testing.T) {
+		resFailed := VerifiedGoTestResult{
+			Passed:        false,
+			ExecutedTests: []string{"TestAuthReject"},
+			FailedTests:   []string{"TestAuthReject"},
+			Output:        "FAIL TestAuthReject: access is denied",
+		}
+		outFailed := EvaluateRaceTestOutcome("windows", resFailed, errors.New("exit status 1"))
+		if outFailed.Status != RaceCheckFail {
+			t.Fatalf("expected RaceCheckFail when FailedTests non-empty despite access is denied, got %+v", outFailed)
+		}
+
+		resPassed := VerifiedGoTestResult{
+			Passed:      false,
+			PassedTests: []string{"TestA"},
+			RawStderr:   "access is denied",
+		}
+		outPassed := EvaluateRaceTestOutcome("windows", resPassed, errors.New("exit status 1"))
+		if outPassed.Status != RaceCheckFail {
+			t.Fatalf("expected RaceCheckFail when PassedTests non-empty despite access is denied, got %+v", outPassed)
+		}
+	})
+
+	t.Run("WindowsPanicWithAccessDeniedFails", func(t *testing.T) {
+		resWithTests := VerifiedGoTestResult{
+			Passed:        false,
+			ExecutedTests: []string{"TestPanic"},
+			Output:        "panic: access is denied [recovered]",
+		}
+		if out := EvaluateRaceTestOutcome("windows", resWithTests, errors.New("exit status 2")); out.Status != RaceCheckFail {
+			t.Fatalf("expected RaceCheckFail on panic with ExecutedTests, got %+v", out)
+		}
+
+		resNoTests := VerifiedGoTestResult{
+			Passed: false,
+			Output: "panic: access is denied [recovered]",
+		}
+		if out := EvaluateRaceTestOutcome("windows", resNoTests, errors.New("exit status 2")); out.Status != RaceCheckFail {
+			t.Fatalf("expected RaceCheckFail on panic with empty ExecutedTests, got %+v", out)
+		}
+	})
+
+	t.Run("WindowsTimeoutWithAccessDeniedFails", func(t *testing.T) {
+		for _, timeoutText := range []string{"test timed out after 10m0s: access is denied", "context deadline exceeded: access is denied"} {
+			res := VerifiedGoTestResult{
+				Passed: false,
+				Output: timeoutText,
+			}
+			out := EvaluateRaceTestOutcome("windows", res, errors.New("exit status 1"))
+			if out.Status != RaceCheckFail {
+				t.Fatalf("expected RaceCheckFail for %q, got %+v", timeoutText, out)
+			}
+		}
+	})
+}
+
+func TestRunCampaignInRoot_AggregatesFailuresWithoutEarlyExit(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
+
+	tmpRoot := t.TempDir()
+	mods := []struct {
+		rel  string
+		body string
+	}{
+		{
+			rel: "mod-a-pass",
+			body: `package modapass
+import "testing"
+func TestPassA(t *testing.T) {}
+`,
+		},
+		{
+			rel: "mod-b-fail",
+			body: `package modbfail
+import "testing"
+func TestFailB(t *testing.T) { t.Fatal("intentional failure") }
+`,
+		},
+		{
+			rel: "mod-c-pass",
+			body: `package modcpass
+import "testing"
+func TestPassC(t *testing.T) {}
+`,
+		},
+	}
+
+	var modNames []string
+	for _, m := range mods {
+		modDir := filepath.Join(tmpRoot, m.rel)
+		if err := os.MkdirAll(modDir, 0755); err != nil {
+			t.Fatalf("mkdir %s: %v", m.rel, err)
+		}
+		if err := os.WriteFile(filepath.Join(modDir, "go.mod"), []byte("module example.com/"+m.rel+"\n\ngo 1.26.11\n"), 0644); err != nil {
+			t.Fatalf("write go.mod: %v", err)
+		}
+		if err := os.WriteFile(filepath.Join(modDir, "mod_test.go"), []byte(m.body), 0644); err != nil {
+			t.Fatalf("write mod_test.go: %v", err)
+		}
+		modNames = append(modNames, m.rel)
+	}
+
+	results, allPassed := RunCampaignInRoot(ctx, tmpRoot, modNames)
+	if len(results) != 3 {
+		t.Fatalf("expected 3 aggregated module results without early exit, got %d", len(results))
+	}
+	if !results[0].VetPassed || !results[1].VetPassed || !results[2].VetPassed {
+		t.Fatalf("expected go vet to pass on all 3 modules, got %+v", results)
+	}
+	if runtime.GOOS == "windows" {
+		low := strings.ToLower(results[0].TestOutput)
+		if strings.Contains(low, "access is denied") || strings.Contains(low, "accès refusé") {
+			t.Skipf("Windows Defender ASR blocked go test child binary execution (vet and 3-module aggregation verified): %s", results[0].TestOutput)
+		}
+	}
+	if allPassed {
+		t.Fatalf("expected allPassed=false when mod-b-fail fails")
+	}
+	if !results[0].TestPassed {
+		t.Fatalf("expected mod-a-pass to pass test, got %+v", results[0])
+	}
+	if results[1].TestPassed {
+		t.Fatalf("expected mod-b-fail to fail tests, got %+v", results[1])
+	}
+	if !results[2].TestPassed {
+		t.Fatalf("expected mod-c-pass to be evaluated and pass after mod-b-fail failure, got %+v", results[2])
+	}
 }

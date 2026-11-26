@@ -161,22 +161,27 @@ func TestT3_12_GraphAndWaveCoupling_F9_F12(t *testing.T) {
 	}
 
 	type ReadinessRecord struct {
-		Capability string `json:"capability"`
-		State      string `json:"state"`
-		WorkUnit   string `json:"work_unit,omitempty"`
+		Capability          string `json:"capability"`
+		State               string `json:"state"`
+		ImplementedWorkUnit string `json:"implemented_work_unit,omitempty"`
+	}
+	type ReadinessSummary struct {
+		Total       int `json:"total"`
+		Implemented int `json:"implemented"`
+		Ready       int `json:"ready"`
 	}
 	type ReadinessProgram struct {
-		Status   string            `json:"status"`
-		Records  []ReadinessRecord `json:"records"`
-		Total    int               `json:"total_capabilities"`
-		Complete int               `json:"implemented_count"`
-		Ready    int               `json:"ready_count"`
+		Status  string            `json:"status"`
+		Records []ReadinessRecord `json:"records"`
+		Summary ReadinessSummary  `json:"summary"`
 	}
 
 	var program ReadinessProgram
 	if err := harness.ParseJSON(readinessRes.Stdout, &program); err != nil {
-		// Output may have different field names, verify valid JSON
-		harness.AssertJSONFieldExists(t, readinessRes.Stdout, "status")
+		t.Fatalf("failed to parse implementation-readiness JSON: %v\nStdout: %s", err, readinessRes.Stdout)
+	}
+	if program.Status != "PASS" {
+		t.Fatalf("expected implementation-readiness status PASS, got %q", program.Status)
 	}
 
 	// 2. Run implementation-wave to verify wave selector execution
@@ -184,10 +189,11 @@ func TestT3_12_GraphAndWaveCoupling_F9_F12(t *testing.T) {
 	// implementation-wave may succeed (exit 0) or report no ready candidate (exit 1 / handled)
 	if waveRes.ExitCode == 0 {
 		var waveReport WaveSelectionReport
-		if err := harness.ParseJSON(waveRes.Stdout, &waveReport); err == nil {
-			t.Logf("Wave selector evaluated successfully: policy=%s, candidates=%d, status=%s",
-				waveReport.SelectionPolicy, waveReport.ReadyCandidates, waveReport.Status)
+		if err := harness.ParseJSON(waveRes.Stdout, &waveReport); err != nil {
+			t.Fatalf("failed to parse implementation-wave JSON: %v\nStdout: %s", err, waveRes.Stdout)
 		}
+		t.Logf("Wave selector evaluated successfully: policy=%s, candidates=%d, status=%s",
+			waveReport.SelectionPolicy, waveReport.ReadyCandidates, waveReport.Status)
 	} else {
 		// If wave reports no executable ready work unit, verify it is a clean controlled exit
 		if waveRes.ExitCode != 1 && waveRes.ExitCode != 2 {

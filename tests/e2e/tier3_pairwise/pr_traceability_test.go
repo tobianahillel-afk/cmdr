@@ -312,11 +312,14 @@ func TestT3_08_WaveRoadmapCoupling_F12_F15(t *testing.T) {
 	waveRes := harness.RunCmdrDev(ctx, "implementation-wave", "--json")
 	if waveRes.ExitCode == 0 {
 		var selection WaveSelectionReport
-		if err := harness.ParseJSON(waveRes.Stdout, &selection); err == nil {
-			if selection.Capability == "CAP-STD-005" {
-				t.Fatalf("wave selector unexpectedly selected CAP-STD-005 before mainline certification")
-			}
+		if err := harness.ParseJSON(waveRes.Stdout, &selection); err != nil {
+			t.Fatalf("failed to parse implementation-wave JSON output: %v\nStdout: %s", err, waveRes.Stdout)
 		}
+		if selection.Capability == "CAP-STD-005" {
+			t.Fatalf("wave selector unexpectedly selected CAP-STD-005 before mainline certification")
+		}
+	} else if waveRes.ExitCode != 1 && waveRes.ExitCode != 2 {
+		t.Fatalf("unexpected implementation-wave exit code %d: %s", waveRes.ExitCode, waveRes.Stderr)
 	}
 
 	t.Log("T3.08 PASS: Wave selector respects CAP-STD-005 roadmap constraints; uncertified work deferred")

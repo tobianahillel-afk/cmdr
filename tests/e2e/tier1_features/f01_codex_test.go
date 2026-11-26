@@ -80,14 +80,32 @@ func TestT1_F1_5_CodexTypedNilAndNullMapEntries(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	const target1 = "TestChallenge_DeepCopy_TypedNilPointers"
-	res1, err1 := harness.RunGoTestVerified(ctx, "product-runtime/studio-catalog", studioCatalogPkg, []string{target1}, "-run", "^"+target1+"$")
+	const parent1 = "TestChallenge_DeepCopy_TypedNilPointers"
+	expected1 := []string{
+		parent1,
+		parent1 + "/nil_int_ptr",
+		parent1 + "/nil_int64_ptr",
+		parent1 + "/nil_float64_ptr",
+		parent1 + "/nil_string_ptr",
+		parent1 + "/nil_bool_ptr",
+		parent1 + "/nil_secretref_ptr",
+		parent1 + "/nil_entityref_ptr",
+		parent1 + "/nil_queryassetref_ptr",
+		parent1 + "/nil_arbitrary_struct_ptr",
+	}
+	res1, err1 := harness.RunGoTestVerified(ctx, "product-runtime/studio-catalog", studioCatalogPkg, expected1, "-run", "^"+parent1+"$")
 	if !res1.Passed || err1 != nil {
 		t.Fatalf("typed nil pointers regression test failed: %v\nOutput: %s", err1, res1.Output)
 	}
 
-	const target2 = "TestChallenge_DeepCopy_MapWithNilValues"
-	res2, err2 := harness.RunGoTestVerified(ctx, "product-runtime/studio-catalog", studioCatalogPkg, []string{target2}, "-run", "^"+target2+"$")
+	const parent2 = "TestChallenge_DeepCopy_MapWithNilValues"
+	expected2 := []string{
+		parent2,
+		parent2 + "/CustomObject_with_nil_entries",
+		parent2 + "/TypedPtrMap_with_typed_nil_and_non-nil_pointers",
+		parent2 + "/Standard_map[string]any_with_nil_entries",
+	}
+	res2, err2 := harness.RunGoTestVerified(ctx, "product-runtime/studio-catalog", studioCatalogPkg, expected2, "-run", "^"+parent2+"$")
 	if !res2.Passed || err2 != nil {
 		t.Fatalf("map with nil values preservation test failed: %v\nOutput: %s", err2, res2.Output)
 	}

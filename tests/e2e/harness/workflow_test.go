@@ -120,7 +120,8 @@ jobs:
 	})
 
 	t.Run("RejectsContinueOnErrorTrue", func(t *testing.T) {
-		wf := `name: non-blocking
+		for _, val := range []string{"true", "${{ true }}", `"${{ true }}"`, "${{ ! false }}"} {
+			wf := `name: non-blocking
 on:
   push:
     branches:
@@ -132,17 +133,26 @@ jobs:
   full-kernel:
     steps:
       - name: Enforce Mainline Health Gate
-        continue-on-error: true
+        continue-on-error: ` + val + `
         run: go run . mainline-health-gate --root ../..
 `
-		res := ValidateHealthGateWorkflow(wf)
-		if res.Valid || !res.HasHealthGateStep || !res.HasContinueOnError {
-			t.Fatalf("expected HasContinueOnError=true and Valid=false, got %+v", res)
+			res := ValidateHealthGateWorkflow(wf)
+			if res.Valid || !res.HasHealthGateStep || !res.HasContinueOnError {
+				t.Fatalf("expected HasContinueOnError=true and Valid=false for continue-on-error: %s, got %+v", val, res)
+			}
 		}
 	})
 
 	t.Run("RejectsIfFalse", func(t *testing.T) {
-		for _, expr := range []string{"false", "${{ false }}", "!true"} {
+		for _, expr := range []string{
+			"false",
+			"${{ false }}",
+			"!true",
+			"${{ ! true }}",
+			"! true",
+			"${{ false && github.ref == 'refs/heads/main' }}",
+			"github.event_name == 'push' && false",
+		} {
 			wf := `name: disabled
 on:
   push:
@@ -161,6 +171,142 @@ jobs:
 			res := ValidateHealthGateWorkflow(wf)
 			if res.Valid || !res.HasDisabledIf {
 				t.Fatalf("expected HasDisabledIf=true for if: %s, got %+v", expr, res)
+			}
+		}
+	})
+
+	t.Run("RejectsJobLevelIfFalseAndContinueOnError", func(t *testing.T) {
+		cases := []struct {
+			name          string
+			jobExtra      string
+			wantDisabled  bool
+			wantContinueE bool
+		}{
+			{
+				name:         "JobIfFalse",
+				jobExtra:     "    if: false",
+				wantDisabled: true,
+			},
+			{
+				name:         "JobIfSpacedNotTrue",
+				jobExtra:     "    if: ${{ ! true }}",
+				wantDisabled: true,
+			},
+			{
+				name:          "JobContinueOnErrorTrue",
+				jobExtra:      "    continue-on-error: true",
+				wantContinueE: true,
+			},
+			{
+				name:          "JobContinueOnErrorExprTrue",
+				jobExtra:      "    continue-on-error: ${{ true }}",
+				wantContinueE: true,
+			},
+		}
+
+		for _, tc := range cases {
+			t.Run(tc.name, func(t *testing.T) {
+				wf := `name: job-bypass
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+jobs:
+  full-kernel:
+    runs-on: ubuntu-latest
+` + tc.jobExtra + `
+    steps:
+      - name: Enforce Mainline Health Gate
+        run: go run . mainline-health-gate --root ../..
+`
+				res := ValidateHealthGateWorkflow(wf)
+				if res.Valid {
+					t.Fatalf("expected Valid=false for %s, got %+v", tc.name, res)
+				}
+				if tc.wantDisabled && !res.HasDisabledIf {
+					t.Fatalf("expected HasDisabledIf=true for %s, got %+v", tc.name, res)
+				}
+				if tc.wantContinueE && !res.HasContinueOnError {
+					t.Fatalf("expected HasContinueOnError=true for %s, got %+v", tc.name, res)
+				}
+			})
+		}
+	})
+
+	t.Run("RejectsStepInWrongJob", func(t *testing.T) {
+		wf := `name: wrong-job
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+jobs:
+  decoy-unrequired-job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Decoy Gate
+        run: go run . mainline-health-gate --root ../..
+  full-kernel:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Tests
+        run: go test ./...
+`
+		res := ValidateHealthGateWorkflow(wf)
+		if res.Valid || res.HasHealthGateStep {
+			t.Fatalf("expected Valid=false and HasHealthGateStep=false when step is in wrong job, got %+v", res)
+		}
+	})
+
+	t.Run("AcceptsWorkflowWhenUnrelatedJobHasIfFalse", func(t *testing.T) {
+		wf := `name: unrelated-disabled
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+jobs:
+  helper-job:
+    runs-on: ubuntu-latest
+    if: false
+    continue-on-error: true
+    steps:
+      - name: Helper
+        run: echo helper
+  full-kernel:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Enforce Mainline Health Gate
+        run: go run . mainline-health-gate --root ../..
+`
+		res := ValidateHealthGateWorkflow(wf)
+		if !res.Valid || !res.HasHealthGateStep || res.HasDisabledIf || res.HasContinueOnError {
+			t.Fatalf("expected valid workflow when only unrelated helper-job is disabled, got %+v", res)
+		}
+	})
+
+	t.Run("RejectsEchoDecoyInvocation", func(t *testing.T) {
+		for _, decoy := range []string{
+			`echo "mainline-health-gate"`,
+			`echo "go run . mainline-health-gate"`,
+		} {
+			wf := `name: echo-decoy
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+jobs:
+  full-kernel:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Decoy
+        run: ` + decoy + `
+`
+			res := ValidateHealthGateWorkflow(wf)
+			if res.Valid || res.HasHealthGateStep {
+				t.Fatalf("expected echo decoy %s to be rejected, got %+v", decoy, res)
 			}
 		}
 	})
@@ -198,4 +344,71 @@ jobs:
 			t.Fatalf("expected rejection when pull_request main trigger is missing, got %+v", resNoPR)
 		}
 	})
+}
+
+func TestValidateWorkflowRequiredJob(t *testing.T) {
+	if err := ValidateWorkflowRequiredJob(validTestWorkflowYAML, "full-kernel"); err != nil {
+		t.Fatalf("expected validTestWorkflowYAML to contain full-kernel job, got %v", err)
+	}
+	if err := ValidateWorkflowRequiredJob(validTestWorkflowYAML, "kernel"); err == nil {
+		t.Fatalf("expected error when kernel job is absent")
+	}
+	commented := `name: commented
+on:
+  push:
+    branches: ["main"]
+jobs:
+  # full-kernel:
+  optional-check:
+    runs-on: ubuntu-latest
+`
+	if err := ValidateWorkflowRequiredJob(commented, "full-kernel"); err == nil {
+		t.Fatalf("expected error when full-kernel job is commented out")
+	}
+}
+
+func TestValidateWorkflowSyntax(t *testing.T) {
+	if err := ValidateWorkflowSyntax(validTestWorkflowYAML); err != nil {
+		t.Fatalf("expected validTestWorkflowYAML to pass syntax check, got %v", err)
+	}
+
+	malformed := `name: Broken Workflow
+on: [push
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Broken Indentation
+     run: echo bad
+`
+	if err := ValidateWorkflowSyntax(malformed); err == nil {
+		t.Fatalf("expected unclosed '[' and misaligned indentation to fail syntax validation")
+	}
+
+	misalignedOnly := `name: Misaligned
+on:
+  push:
+    branches: ["main"]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Broken Indentation
+     run: echo bad
+`
+	if err := ValidateWorkflowSyntax(misalignedOnly); err == nil {
+		t.Fatalf("expected misaligned indentation to fail syntax validation")
+	}
+
+	tabYAML := "name: Tab\non:\n\tpush:\n"
+	if err := ValidateWorkflowSyntax(tabYAML); err == nil {
+		t.Fatalf("expected tab YAML to fail syntax validation")
+	}
+
+	unclosedQuote := `name: "unclosed
+on: push
+`
+	if err := ValidateWorkflowSyntax(unclosedQuote); err == nil {
+		t.Fatalf("expected unclosed quote to fail syntax validation")
+	}
 }

@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strings"
 	"testing"
 	"time"
@@ -13,7 +12,17 @@ import (
 	"github.com/tobianahillel-afk/cmdr/tests/e2e/harness"
 )
 
-type SCARawSummary struct {
+type SCAFindingItem struct {
+	OSV          string `json:"osv"`
+	Ecosystem    string `json:"ecosystem"`
+	Module       string `json:"module"`
+	Version      string `json:"version"`
+	Package      string `json:"package,omitempty"`
+	Symbol       string `json:"symbol,omitempty"`
+	FixedVersion string `json:"fixed_version,omitempty"`
+}
+
+type SCASummaryReport struct {
 	Tool                  string           `json:"tool"`
 	Version               string           `json:"version"`
 	Database              string           `json:"database,omitempty"`
@@ -21,17 +30,7 @@ type SCARawSummary struct {
 	Modules               int              `json:"modules"`
 	InformationalFindings int              `json:"informational_findings"`
 	ActionableFindings    int              `json:"actionable_findings"`
-	Findings              []SCAFindingItem `json:"findings"`
-}
-
-type SCAFindingItem struct {
-	OSV        string `json:"osv"`
-	Fixed      string `json:"fixed,omitempty"`
-	Module     string `json:"module"`
-	Version    string `json:"version"`
-	Package    string `json:"package"`
-	Function   string `json:"function,omitempty"`
-	Actionable bool   `json:"actionable"`
+	Findings              []SCAFindingItem `json:"finding_items,omitempty"`
 }
 
 // T2.F3.1: SCA fails closed when local unpatched toolchain is forced.
@@ -104,109 +103,153 @@ func TestT2_F3_2_SCAHandlesNetworkDisconnectGracefully(t *testing.T) {
 	t.Logf("T2.F3.2 PASS: network disconnection handled gracefully (exit %d)", res.ExitCode)
 }
 
-// T2.F3.3: SCA correctly detects vulnerable dependency if introduced.
+// T2.F3.3: SCA correctly detects vulnerable dependency and rejects tampered tool provenance.
 func TestT2_F3_3_SCADetectsVulnerableDependency(t *testing.T) {
-	// Synthesize govulncheck output stream representing a detected CVE / GO- vulnerability
-	syntheticVulnStream := `
-{"config":{"protocol_version":"v1.0.0"}}
-{"progress":{"message":"Scanning your code and Pkg dependencies..."}}
-{"osv":{"id":"GO-2026-9999","aliases":["CVE-2026-99999"],"details":"Synthetic high-risk vulnerability in test dependency"}}
-{"finding":{"osv":"GO-2026-9999","fixed_version":"v1.2.3","trace":[{"module":"example.com/vulnerable-lib","version":"v1.0.0","package":"example.com/vulnerable-lib/crypto","function":"InsecureDecrypt"}]}}
-`
-	// Verify parsing logic accurately detects actionable findings
-	dec := json.NewDecoder(strings.NewReader(strings.TrimSpace(syntheticVulnStream)))
-	actionableCount := 0
-	var foundIDs []string
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
 
-	for dec.More() {
-		var entry map[string]interface{}
-		if err := dec.Decode(&entry); err != nil {
-			break
-		}
-		if _, ok := entry["finding"]; ok {
-			actionableCount++
-		}
-		if osv, ok := entry["osv"].(map[string]interface{}); ok {
-			if id, ok := osv["id"].(string); ok {
-				foundIDs = append(foundIDs, id)
-			}
-		}
+	// 1. Run real cmdr-dev govulncheck stream-parser and fail-closed unit tests
+	expectedTests := []string{
+		"TestParseGovulncheckReachableFindingHasExactIdentity",
+		"TestGoSCAReportsOnlyValidatedPublicAdvisoryIDsAndStillBlocks",
+		"TestParseGovulncheckUsesSBOMVersionAndDeduplicates",
+		"TestParseGovulncheckFailsClosedWithoutExactVersion",
+	}
+	res, err := harness.RunGoTestVerified(
+		ctx,
+		"tools/cmdr-dev",
+		"github.com/tobianahillel-afk/cmdr/tools/cmdr-dev",
+		expectedTests,
+		"-run", "^("+strings.Join(expectedTests, "|")+")$",
+	)
+	if !res.Passed || err != nil {
+		t.Fatalf("T2.F3.3 FAIL: cmdr-dev govulncheck parser tests failed: %v\nOutput: %s", err, res.Output)
 	}
 
-	if actionableCount != 1 {
-		t.Fatalf("T2.F3.3 FAIL: expected 1 actionable vulnerability finding, got %d", actionableCount)
+	// 2. Verify cmdr-dev sca-go fails closed on tampered engineering/security/development-tools.json
+	mockRoot := harness.CloneIsolatedRepo(t, "f03-tamper-tools")
+	toolsPath := filepath.Join(mockRoot, "engineering", "security", "development-tools.json")
+	raw, err := os.ReadFile(toolsPath)
+	if err != nil {
+		t.Fatalf("failed to read development-tools.json: %v", err)
 	}
-	if len(foundIDs) == 0 || foundIDs[0] != "GO-2026-9999" {
-		t.Fatalf("T2.F3.3 FAIL: expected vulnerability ID GO-2026-9999, got %v", foundIDs)
+	var reg map[string]interface{}
+	if err := json.Unmarshal(raw, &reg); err != nil {
+		t.Fatalf("failed to parse development-tools.json: %v", err)
 	}
-	t.Log("T2.F3.3 PASS: SCA stream parser reliably detects and accounts for vulnerable dependency findings")
+	tools, ok := reg["tools"].([]interface{})
+	if !ok || len(tools) == 0 {
+		t.Fatalf("development-tools.json missing tools array")
+	}
+	for _, entry := range tools {
+		if m, ok := entry.(map[string]interface{}); ok && m["id"] == "govulncheck" {
+			m["version"] = "v0.0.0-tampered"
+		}
+	}
+	mutated, err := json.MarshalIndent(reg, "", "  ")
+	if err != nil {
+		t.Fatalf("failed to marshal tampered development-tools.json: %v", err)
+	}
+	if err := os.WriteFile(toolsPath, append(mutated, '\n'), 0644); err != nil {
+		t.Fatalf("failed to write tampered development-tools.json: %v", err)
+	}
+
+	scaRes := harness.RunCmdrDev(ctx, "sca-go", "--root", mockRoot, "--json")
+	if scaRes.ExitCode == 0 {
+		t.Fatalf("T2.F3.3 FAIL: cmdr-dev sca-go succeeded despite tampered govulncheck provenance")
+	}
+	combined := scaRes.Stderr + " " + scaRes.Stdout
+	if !strings.Contains(combined, "provenance mismatch") {
+		t.Fatalf("T2.F3.3 FAIL: expected provenance mismatch error, got: %s", combined)
+	}
+	t.Log("T2.F3.3 PASS: real govulncheck vulnerability parser tests and tampered provenance rejection verified")
 }
 
 // T2.F3.4: SCA report format maintains schema when 0 actionable findings.
 func TestT2_F3_4_SCAReportMaintainsSchemaOnZeroFindings(t *testing.T) {
-	// Standard empty report invariant
-	summary := SCARawSummary{
-		Tool:                  "govulncheck",
-		Version:               "v1.8.0",
-		Database:              "https://vuln.go.dev",
-		GoVersion:             "go1.26.11",
-		Modules:               12,
-		InformationalFindings: 0,
-		ActionableFindings:    0,
-		Findings:              []SCAFindingItem{},
+	ctx, cancel := context.WithTimeout(context.Background(), 180*time.Second)
+	defer cancel()
+
+	res := harness.RunCmdrDev(ctx, "sca-go", "--json")
+	if res.ExitCode != 0 {
+		t.Fatalf("T2.F3.4 FAIL: cmdr-dev sca-go exited %d: %s\n%s", res.ExitCode, res.Stderr, res.Stdout)
 	}
 
-	data, err := json.Marshal(summary)
-	if err != nil {
-		t.Fatalf("failed to marshal SCA summary: %v", err)
+	var parsed SCASummaryReport
+	if err := harness.StrictUnmarshal([]byte(strings.TrimSpace(res.Stdout)), &parsed); err != nil {
+		t.Fatalf("T2.F3.4 FAIL: strict unmarshal of live sca-go output failed: %v\nStdout: %s", err, res.Stdout)
 	}
-
-	harness.AssertJSONFieldEqual(t, string(data), "tool", "govulncheck")
-	harness.AssertJSONFieldEqual(t, string(data), "version", "v1.8.0")
-	harness.AssertJSONFieldEqual(t, string(data), "actionable_findings", 0)
-	harness.AssertJSONFieldEqual(t, string(data), "informational_findings", 0)
-
-	var parsed SCARawSummary
-	if err := harness.StrictUnmarshal(data, &parsed); err != nil {
-		t.Fatalf("T2.F3.4 FAIL: strict unmarshal failed on zero findings schema: %v", err)
+	if parsed.Tool != "govulncheck" {
+		t.Fatalf("T2.F3.4 FAIL: expected tool=govulncheck, got %q", parsed.Tool)
+	}
+	if parsed.Version != "v1.8.0" {
+		t.Fatalf("T2.F3.4 FAIL: expected version=v1.8.0, got %q", parsed.Version)
+	}
+	if parsed.GoVersion != "go1.26.11" {
+		t.Fatalf("T2.F3.4 FAIL: expected go_version=go1.26.11, got %q", parsed.GoVersion)
+	}
+	if parsed.Modules <= 0 {
+		t.Fatalf("T2.F3.4 FAIL: expected modules > 0, got %d", parsed.Modules)
 	}
 	if parsed.ActionableFindings != 0 || len(parsed.Findings) != 0 {
-		t.Fatalf("T2.F3.4 FAIL: unexpected findings count in empty summary")
+		t.Fatalf("T2.F3.4 FAIL: expected 0 actionable findings and 0 finding_items, got actionable=%d items=%d",
+			parsed.ActionableFindings, len(parsed.Findings))
 	}
-	t.Log("T2.F3.4 PASS: SCA report schema strictly conforms to invariant on zero findings")
+	t.Logf("T2.F3.4 PASS: live cmdr-dev sca-go --json strictly conforms to SCASummary schema (modules=%d, go_version=%s)",
+		parsed.Modules, parsed.GoVersion)
 }
 
 // T2.F3.5: SCA rejects invalid toolchain version string format.
 func TestT2_F3_5_SCARejectsInvalidToolchainVersionFormat(t *testing.T) {
-	toolchainPattern := regexp.MustCompile(`^go1\.\d+\.\d+$`)
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
 
-	invalidVersions := []string{
-		"1.26.11",       // Missing 'go' prefix
-		"go1.26",        // Missing patch number
-		"v1.26.11",      // Semver 'v' prefix instead of 'go'
-		"go1.26.11-rc1", // Pre-release suffix
-		"go1.26.11.1",   // Quad format
-		"",              // Empty
-		"   ",           // Whitespace
-		"go1.26.11\n",   // Trailing newline
-		"go1.26.11;rm",  // Injection attempt
+	// 1. Real `go version` CLI rejects malformed GOTOOLCHAIN values under GOPROXY=off
+	invalidToolchains := []string{
+		"1.26.11",
+		"v1.26.11",
+		"go1.26",
+		"go1.26.11;rm",
+		"go1.26.11-rc1",
+		"go1.26.11.1",
 	}
-
-	for _, v := range invalidVersions {
-		if toolchainPattern.MatchString(v) {
-			t.Fatalf("T2.F3.5 FAIL: invalid toolchain version %q was incorrectly accepted by format regex", v)
+	for _, tc := range invalidToolchains {
+		res := harness.RunCmd(ctx, "", []string{"GOPROXY=off", "GOTOOLCHAIN=" + tc}, "go", "version")
+		if res.ExitCode == 0 {
+			t.Fatalf("T2.F3.5 FAIL: `go version` accepted invalid GOTOOLCHAIN=%q (stdout=%s)", tc, res.Stdout)
 		}
 	}
 
-	validVersions := []string{
-		"go1.26.11",
-		"go1.26.10",
-		"go1.25.3",
+	// 2. Real cmdr-dev module version match test passes
+	unitRes, unitErr := harness.RunGoTestVerified(
+		ctx,
+		"tools/cmdr-dev",
+		"github.com/tobianahillel-afk/cmdr/tools/cmdr-dev",
+		[]string{"TestGoSecurityEvidenceVersionMatchesModule"},
+		"-run", "^TestGoSecurityEvidenceVersionMatchesModule$",
+	)
+	if !unitRes.Passed || unitErr != nil {
+		t.Fatalf("T2.F3.5 FAIL: TestGoSecurityEvidenceVersionMatchesModule failed: %v\nOutput: %s", unitErr, unitRes.Output)
 	}
-	for _, v := range validVersions {
-		if !toolchainPattern.MatchString(v) {
-			t.Fatalf("T2.F3.5 FAIL: valid toolchain version %q was rejected by format regex", v)
-		}
+
+	// 3. Real cmdr-dev sca-go fails closed when go.mod contains invalid toolchain directive `go 1.26.11-rc1`
+	mockRoot := harness.CloneIsolatedRepo(t, "f03-bad-gomod")
+	goModPath := filepath.Join(mockRoot, "tools", "cmdr-dev", "go.mod")
+	modBytes, err := os.ReadFile(goModPath)
+	if err != nil {
+		t.Fatalf("failed to read mock tools/cmdr-dev/go.mod: %v", err)
 	}
-	t.Log("T2.F3.5 PASS: toolchain version string validator strictly rejects non-canonical and malformed formats")
+	mutatedMod := strings.Replace(string(modBytes), "go 1.26.11", "go 1.26.11-rc1", 1)
+	if mutatedMod == string(modBytes) {
+		t.Fatalf("T2.F3.5 setup error: could not locate 'go 1.26.11' in tools/cmdr-dev/go.mod")
+	}
+	if err := os.WriteFile(goModPath, []byte(mutatedMod), 0644); err != nil {
+		t.Fatalf("failed to write mutated go.mod: %v", err)
+	}
+	scaRes := harness.RunCmdrDev(ctx, "sca-go", "--root", mockRoot, "--json")
+	if scaRes.ExitCode == 0 {
+		t.Fatalf("T2.F3.5 FAIL: cmdr-dev sca-go succeeded despite invalid go 1.26.11-rc1 directive in go.mod")
+	}
+
+	t.Log("T2.F3.5 PASS: real Go CLI and cmdr-dev sca-go strictly reject malformed toolchain versions")
 }
