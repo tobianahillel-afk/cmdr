@@ -138,8 +138,8 @@ func TestT2_F8_2_CIValidationFailsIfContinueOnErrorAdded(t *testing.T) {
 	}
 	liveMutated := strings.Replace(
 		string(content),
-		"mainline-health-gate",
-		"mainline-health-gate\n        continue-on-error: true",
+		"        run: go run . mainline-health-gate --root ../..",
+		"        continue-on-error: true\n        run: go run . mainline-health-gate --root ../..",
 		1,
 	)
 	liveMutRes := harness.ValidateHealthGateWorkflow(liveMutated)

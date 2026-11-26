@@ -95,14 +95,22 @@ func TestT2_F9_1_WorkGraphFailsOnCyclicDependency(t *testing.T) {
 		t.Fatalf("nodes missing from graph JSON")
 	}
 
-	// Add cyclic nodes involving E10-STD-004A-INPUT and a child node pointing back
-	cycleNode1 := map[string]interface{}{
-		"id":         "E10-STD-004A-INPUT",
-		"title":      "Tool Input contract",
-		"type":       "task",
-		"status":     "ACCEPTED",
-		"depends_on": []interface{}{"E10-STD-004-CYCLE-DEP"},
-		"unlocks":    []interface{}{"E10-STD-004-CYCLE-DEP"},
+	// Introduce a cyclic dependency involving existing E10-STD-004A-INPUT and a child node pointing back
+	foundTarget := false
+	for _, raw := range nodes {
+		m, ok := raw.(map[string]interface{})
+		if !ok || m["id"] != "E10-STD-004A-INPUT" {
+			continue
+		}
+		deps, _ := m["depends_on"].([]interface{})
+		m["depends_on"] = append(deps, "E10-STD-004-CYCLE-DEP")
+		unlocks, _ := m["unlocks"].([]interface{})
+		m["unlocks"] = append(unlocks, "E10-STD-004-CYCLE-DEP")
+		foundTarget = true
+		break
+	}
+	if !foundTarget {
+		t.Fatalf("T2.F9.1 setup error: E10-STD-004A-INPUT missing from work/graph.json")
 	}
 	cycleNode2 := map[string]interface{}{
 		"id":         "E10-STD-004-CYCLE-DEP",
@@ -113,7 +121,7 @@ func TestT2_F9_1_WorkGraphFailsOnCyclicDependency(t *testing.T) {
 		"unlocks":    []interface{}{"E10-STD-004A-INPUT"},
 	}
 
-	doc["nodes"] = append(nodes, cycleNode1, cycleNode2)
+	doc["nodes"] = append(nodes, cycleNode2)
 	mutated, err := json.MarshalIndent(doc, "", "  ")
 	if err != nil {
 		t.Fatalf("failed to marshal mutated graph: %v", err)
