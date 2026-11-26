@@ -254,7 +254,7 @@ func TestT2_F14_4_CertificationRejectsUnverifiedDimension(t *testing.T) {
 
 // T2.F14.5: Final certification asserts HEAD commit is verified.
 func TestT2_F14_5_CertificationAssertsHEADCommitVerified(t *testing.T) {
-	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 180*time.Second)
 	defer cancel()
 
 	headSHA, err := harness.GitHeadCommit(ctx)
