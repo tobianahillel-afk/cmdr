@@ -55,6 +55,15 @@ func setupMockJournalRepo(t *testing.T) string {
 		_ = os.WriteFile(filepath.Join(mockSpecDir, "README.md"), data, 0644)
 	}
 
+	// Verify pre-mutation baseline passes recovery-journal-audit with exit 0
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	baseRes := harness.RunCmdrDev(ctx, "recovery-journal-audit", "--root", mockRoot)
+	if baseRes.ExitCode != 0 {
+		t.Fatalf("pre-mutation baseline recovery-journal-audit failed (exit %d): %s\n%s",
+			baseRes.ExitCode, baseRes.Stderr, baseRes.Stdout)
+	}
+
 	return mockRoot
 }
 

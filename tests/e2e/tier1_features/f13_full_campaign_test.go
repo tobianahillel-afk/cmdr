@@ -2,7 +2,7 @@ package tier1_features
 
 import (
 	"context"
-	"strings"
+	"runtime"
 	"testing"
 	"time"
 
@@ -67,14 +67,19 @@ func TestT1_F13_5_ZeroRaceConditions(t *testing.T) {
 	defer cancel()
 
 	// Run race test on core critical concurrent module studio-catalog
-	passed, out, err := harness.RunGoTest(ctx, "product-runtime/studio-catalog", "-race", "-run", "TestAdversarial_ConcurrentStoreStress")
-	if !passed || err != nil {
-		if strings.Contains(out, "WARNING: DATA RACE") {
-			t.Fatalf("data race condition detected in studio-catalog:\n%s", out)
-		}
-		// If -race is not supported on this Windows toolchain/platform, check output
-		t.Logf("race check completed (status=%v, out=%s)", passed, out)
-		return
+	res, outcome := harness.RunGoTestWithRace(
+		ctx,
+		"product-runtime/studio-catalog",
+		"github.com/tobianahillel-afk/cmdr/product-runtime/studio-catalog",
+		[]string{"TestAdversarial_ConcurrentStoreStress"},
+	)
+
+	switch outcome.Status {
+	case harness.RaceCheckPass:
+		t.Log("T1.F13.5 PASS: zero race conditions detected during verified concurrent execution")
+	case harness.RaceCheckUnverified:
+		t.Skipf("T1.F13.5 UNVERIFIED on %s: %s", runtime.GOOS, outcome.Reason)
+	default:
+		t.Fatalf("T1.F13.5 FAIL (%s):\n%s", outcome.Reason, res.Output)
 	}
-	t.Log("T1.F13.5 PASS: zero race conditions detected during concurrent execution")
 }

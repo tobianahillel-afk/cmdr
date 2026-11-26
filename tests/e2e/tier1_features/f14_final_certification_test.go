@@ -2,6 +2,7 @@ package tier1_features
 
 import (
 	"context"
+	"errors"
 	"strings"
 	"testing"
 	"time"
@@ -63,15 +64,18 @@ func TestT1_F14_3_ZeroOpenPRs(t *testing.T) {
 		t.Fatalf("failed to create github client: %v", err)
 	}
 
-	openCount, isOffline, err := client.CountOpenPRs(ctx)
+	prRes, err := client.CountOpenPRs(ctx)
+	if errors.Is(err, harness.ErrUnverified) || !prRes.Verified {
+		t.Fatalf("T1.F14.3 UNVERIFIED: cannot certify 0 open PRs without verified GitHub API response: %v", err)
+	}
 	if err != nil {
 		t.Fatalf("failed to count open PRs: %v", err)
 	}
 
-	if openCount != 0 {
-		t.Fatalf("expected 0 open PRs, found %d", openCount)
+	if prRes.Count != 0 {
+		t.Fatalf("expected 0 open PRs, found %d", prRes.Count)
 	}
-	t.Logf("T1.F14.3 PASS: exactly 0 open PRs on GitHub (offline fallback: %v)", isOffline)
+	t.Logf("T1.F14.3 PASS: exactly 0 open PRs on GitHub (status=%s)", prRes.Status)
 }
 
 // T1.F14.4: Verify cmdr-dev mainline-health-gate outputs MAIN_HEALTHY with exit code 0.

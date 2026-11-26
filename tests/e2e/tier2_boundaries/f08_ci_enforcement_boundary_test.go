@@ -9,112 +9,143 @@ import (
 	"github.com/tobianahillel-afk/cmdr/tests/e2e/harness"
 )
 
-// validateWorkflowContent encapsulates the CI workflow verification invariants.
-func validateWorkflowContent(content string) (bool, string) {
-	if !strings.Contains(content, "mainline-health-gate") {
-		return false, "missing mandatory mainline-health-gate step"
-	}
+const syntheticValidHealthGateWorkflow = `name: engineering-kernel-full
 
-	lines := strings.Split(content, "\n")
-	inHealthGateStep := false
-	for _, line := range lines {
-		trimmed := strings.TrimSpace(line)
-		if strings.Contains(trimmed, "mainline-health-gate") {
-			inHealthGateStep = true
-		}
-		if inHealthGateStep {
-			if strings.HasPrefix(trimmed, "- name:") && !strings.Contains(trimmed, "mainline-health-gate") {
-				inHealthGateStep = false
-				continue
-			}
-			if strings.Contains(trimmed, "continue-on-error: true") {
-				return false, "mainline-health-gate step has continue-on-error: true; must fail closed"
-			}
-		}
-	}
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - "main"
+  pull_request:
+    branches:
+      - "main"
 
-	if !strings.Contains(content, "push:") || !strings.Contains(content, "pull_request:") {
-		return false, "missing required push or pull_request triggers"
-	}
+permissions:
+  contents: read
 
-	if !strings.Contains(content, "branches:") || !strings.Contains(content, "\"main\"") {
-		return false, "workflow does not strictly target main branch"
-	}
-
-	return true, ""
-}
+jobs:
+  full-kernel:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Enforce Mainline Health Gate
+        working-directory: tools/cmdr-dev
+        run: go run . mainline-health-gate --root ../..
+`
 
 // T2.F8.1: CI workflow validation fails if mainline-health-gate step is removed.
 func TestT2_F8_1_CIValidationFailsIfHealthGateStepRemoved(t *testing.T) {
-	root, err := harness.RepoRoot()
-	if err != nil {
-		t.Fatalf("failed to locate repo root: %v", err)
+	baseRes := harness.ValidateHealthGateWorkflow(syntheticValidHealthGateWorkflow)
+	if !baseRes.Valid || !baseRes.HasHealthGateStep {
+		t.Fatalf("T2.F8.1 setup error: synthetic valid workflow failed validation: %v", baseRes.Errors)
 	}
 
-	workflowPath := filepath.Join(root, ".github", "workflows", "engineering-kernel-full.yml")
-	content, err := os.ReadFile(workflowPath)
-	if err != nil {
-		t.Fatalf("failed to read engineering-kernel-full.yml: %v", err)
-	}
-
-	if !strings.Contains(string(content), "mainline-health-gate") {
-		t.Skip("T2.F8.1 SKIP: mainline-health-gate CI workflow step is scheduled for Milestone 3")
-		return
-	}
-
-	// Remove mainline-health-gate lines from content
-	mutatedLines := []string{}
-	for _, line := range strings.Split(string(content), "\n") {
-		if !strings.Contains(line, "mainline-health-gate") {
+	// Remove mainline-health-gate step from synthetic workflow
+	mutatedLines := make([]string, 0)
+	for _, line := range strings.Split(syntheticValidHealthGateWorkflow, "\n") {
+		if !strings.Contains(line, "mainline-health-gate") && !strings.Contains(line, "Enforce Mainline Health Gate") {
 			mutatedLines = append(mutatedLines, line)
 		}
 	}
 	mutated := strings.Join(mutatedLines, "\n")
 
-	valid, errMsg := validateWorkflowContent(mutated)
-	if valid {
+	mutRes := harness.ValidateHealthGateWorkflow(mutated)
+	if mutRes.Valid || mutRes.HasHealthGateStep {
 		t.Fatalf("T2.F8.1 FAIL: validation passed despite removing mainline-health-gate step")
 	}
-	if !strings.Contains(errMsg, "missing mandatory mainline-health-gate step") {
-		t.Fatalf("T2.F8.1 FAIL: unexpected error message: %s", errMsg)
-	}
-	t.Log("T2.F8.1 PASS: CI validation fails closed when mainline-health-gate step is removed")
-}
 
-// T2.F8.2: CI workflow validation fails if continue-on-error: true is added to health gate.
-func TestT2_F8_2_CIValidationFailsIfContinueOnErrorAdded(t *testing.T) {
+	// Also verify live workflow if available
 	root, err := harness.RepoRoot()
 	if err != nil {
 		t.Fatalf("failed to locate repo root: %v", err)
 	}
-
 	workflowPath := filepath.Join(root, ".github", "workflows", "engineering-kernel-full.yml")
 	content, err := os.ReadFile(workflowPath)
 	if err != nil {
 		t.Fatalf("failed to read engineering-kernel-full.yml: %v", err)
 	}
 
-	if !strings.Contains(string(content), "mainline-health-gate") {
-		t.Skip("T2.F8.1 SKIP: mainline-health-gate CI workflow step is scheduled for Milestone 3")
-		return
+	liveRes := harness.ValidateHealthGateWorkflow(string(content))
+	if liveRes.HasHealthGateStep {
+		liveMutatedLines := make([]string, 0)
+		for _, line := range strings.Split(string(content), "\n") {
+			if !strings.Contains(line, "mainline-health-gate") {
+				liveMutatedLines = append(liveMutatedLines, line)
+			}
+		}
+		liveMutRes := harness.ValidateHealthGateWorkflow(strings.Join(liveMutatedLines, "\n"))
+		if liveMutRes.Valid || liveMutRes.HasHealthGateStep {
+			t.Fatalf("T2.F8.1 FAIL: live workflow validation passed despite removing mainline-health-gate step")
+		}
 	}
 
-	// Inject continue-on-error: true directly below the mainline-health-gate step
-	mutated := strings.Replace(
-		string(content),
-		"run: go run -C tools/cmdr-dev . mainline-health-gate",
-		"continue-on-error: true\n      run: go run -C tools/cmdr-dev . mainline-health-gate",
+	t.Log("T2.F8.1 PASS: CI validation fails closed when mainline-health-gate step is removed")
+}
+
+// T2.F8.2: CI workflow validation fails if continue-on-error: true or if: false or commented step is used.
+func TestT2_F8_2_CIValidationFailsIfContinueOnErrorAdded(t *testing.T) {
+	// 1. Inject continue-on-error: true into synthetic health gate step
+	mutatedContinue := strings.Replace(
+		syntheticValidHealthGateWorkflow,
+		"        run: go run . mainline-health-gate --root ../..",
+		"        continue-on-error: true\n        run: go run . mainline-health-gate --root ../..",
 		1,
 	)
+	resContinue := harness.ValidateHealthGateWorkflow(mutatedContinue)
+	if resContinue.Valid || !resContinue.HasContinueOnError {
+		t.Fatalf("T2.F8.2 FAIL: validation failed to reject continue-on-error: true (result=%+v)", resContinue)
+	}
 
-	valid, errMsg := validateWorkflowContent(mutated)
-	if valid {
-		t.Fatalf("T2.F8.2 FAIL: validation passed despite continue-on-error: true in health gate")
+	// 2. Inject if: false into synthetic health gate step
+	mutatedIfFalse := strings.Replace(
+		syntheticValidHealthGateWorkflow,
+		"        run: go run . mainline-health-gate --root ../..",
+		"        if: false\n        run: go run . mainline-health-gate --root ../..",
+		1,
+	)
+	resIfFalse := harness.ValidateHealthGateWorkflow(mutatedIfFalse)
+	if resIfFalse.Valid || !resIfFalse.HasDisabledIf {
+		t.Fatalf("T2.F8.2 FAIL: validation failed to reject if: false (result=%+v)", resIfFalse)
 	}
-	if !strings.Contains(errMsg, "continue-on-error") {
-		t.Fatalf("T2.F8.2 FAIL: unexpected error message: %s", errMsg)
+
+	// 3. Comment out the run command
+	mutatedCommented := strings.Replace(
+		syntheticValidHealthGateWorkflow,
+		"        run: go run . mainline-health-gate --root ../..",
+		"        # run: go run . mainline-health-gate --root ../..\n        run: go run . doctor --root ../..",
+		1,
+	)
+	resCommented := harness.ValidateHealthGateWorkflow(mutatedCommented)
+	if resCommented.Valid || resCommented.HasHealthGateStep {
+		t.Fatalf("T2.F8.2 FAIL: validation failed to reject commented/doctor-only step (result=%+v)", resCommented)
 	}
-	t.Log("T2.F8.2 PASS: CI validation fails closed when continue-on-error is injected")
+
+	// 4. Also test live workflow if mainline-health-gate step is present
+	root, err := harness.RepoRoot()
+	if err != nil {
+		t.Fatalf("failed to locate repo root: %v", err)
+	}
+	workflowPath := filepath.Join(root, ".github", "workflows", "engineering-kernel-full.yml")
+	content, err := os.ReadFile(workflowPath)
+	if err != nil {
+		t.Fatalf("failed to read engineering-kernel-full.yml: %v", err)
+	}
+	liveRes := harness.ValidateHealthGateWorkflow(string(content))
+	if liveRes.HasHealthGateStep {
+		liveMutated := strings.Replace(
+			string(content),
+			"mainline-health-gate",
+			"mainline-health-gate\n        continue-on-error: true",
+			1,
+		)
+		liveMutRes := harness.ValidateHealthGateWorkflow(liveMutated)
+		if liveMutRes.Valid || !liveMutRes.HasContinueOnError {
+			t.Fatalf("T2.F8.2 FAIL: live workflow mutation with continue-on-error: true was not rejected")
+		}
+	}
+
+	t.Log("T2.F8.2 PASS: CI validation fails closed when continue-on-error, if: false, or commented step is injected")
 }
 
 // T2.F8.3: CI workflow validation detects missing required branch protection rule.
@@ -196,39 +227,45 @@ jobs:
 
 // T2.F8.5: CI workflow validation asserts execution on pull_request and push to main.
 func TestT2_F8_5_CIValidationAssertsExecutionOnPRAndPush(t *testing.T) {
+	baseRes := harness.ValidateHealthGateWorkflow(syntheticValidHealthGateWorkflow)
+	if !baseRes.Valid || !baseRes.HasPushMain || !baseRes.HasPRMain {
+		t.Fatalf("T2.F8.5 setup error: synthetic valid workflow failed trigger validation: %v", baseRes.Errors)
+	}
+
+	// Mutate to remove push trigger
+	mutatedWithoutPush := strings.Replace(syntheticValidHealthGateWorkflow, "  push:", "  # push disabled:", 1)
+	resNoPush := harness.ValidateHealthGateWorkflow(mutatedWithoutPush)
+	if resNoPush.Valid || resNoPush.HasPushMain {
+		t.Fatalf("T2.F8.5 FAIL: workflow validation passed without push trigger")
+	}
+
+	// Mutate to remove pull_request trigger
+	mutatedWithoutPR := strings.Replace(syntheticValidHealthGateWorkflow, "  pull_request:", "  # pull_request disabled:", 1)
+	resNoPR := harness.ValidateHealthGateWorkflow(mutatedWithoutPR)
+	if resNoPR.Valid || resNoPR.HasPRMain {
+		t.Fatalf("T2.F8.5 FAIL: workflow validation passed without pull_request trigger")
+	}
+
+	// Mutate target branch away from main
+	mutatedBranch := strings.ReplaceAll(syntheticValidHealthGateWorkflow, `"main"`, `"develop"`)
+	resWrongBranch := harness.ValidateHealthGateWorkflow(mutatedBranch)
+	if resWrongBranch.Valid || resWrongBranch.HasPushMain || resWrongBranch.HasPRMain {
+		t.Fatalf("T2.F8.5 FAIL: workflow validation passed without targeting main branch")
+	}
+
+	// Also validate live workflow when mainline-health-gate is deployed
 	root, err := harness.RepoRoot()
 	if err != nil {
 		t.Fatalf("failed to locate repo root: %v", err)
 	}
-
 	workflowPath := filepath.Join(root, ".github", "workflows", "engineering-kernel-full.yml")
 	content, err := os.ReadFile(workflowPath)
 	if err != nil {
 		t.Fatalf("failed to read engineering-kernel-full.yml: %v", err)
 	}
-
-	if !strings.Contains(string(content), "mainline-health-gate") {
-		t.Skip("T2.F8.1 SKIP: mainline-health-gate CI workflow step is scheduled for Milestone 3")
-		return
-	}
-
-	valid, errMsg := validateWorkflowContent(string(content))
-	if !valid {
-		t.Fatalf("T2.F8.5 FAIL: current engineering-kernel-full.yml failed validation: %s", errMsg)
-	}
-
-	// Mutate to remove push trigger
-	mutatedWithoutPush := strings.Replace(string(content), "push:", "# push disabled:", 1)
-	validPush, _ := validateWorkflowContent(mutatedWithoutPush)
-	if validPush {
-		t.Fatalf("T2.F8.5 FAIL: workflow validation passed without push trigger")
-	}
-
-	// Mutate to remove pull_request trigger
-	mutatedWithoutPR := strings.Replace(string(content), "pull_request:", "# pull_request disabled:", 1)
-	validPR, _ := validateWorkflowContent(mutatedWithoutPR)
-	if validPR {
-		t.Fatalf("T2.F8.5 FAIL: workflow validation passed without pull_request trigger")
+	liveRes := harness.ValidateHealthGateWorkflow(string(content))
+	if liveRes.HasHealthGateStep && (!liveRes.Valid || !liveRes.HasPushMain || !liveRes.HasPRMain) {
+		t.Fatalf("T2.F8.5 FAIL: live engineering-kernel-full.yml failed trigger validation: %v", liveRes.Errors)
 	}
 
 	t.Log("T2.F8.5 PASS: CI workflow validation strictly asserts triggers for both push and pull_request to main")

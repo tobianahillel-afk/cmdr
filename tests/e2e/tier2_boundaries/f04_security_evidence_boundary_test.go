@@ -12,71 +12,22 @@ import (
 	"github.com/tobianahillel-afk/cmdr/tests/e2e/harness"
 )
 
-// setupMockSecurityRepo copies the architecture, policy, state, and graph files
-// into an isolated temp dir under .cmdr-tmp/ to safely test security audit boundary mutations.
-func setupMockSecurityRepo(t *testing.T) string {
+// setupVerifiedMockSecurityRepo provisions an isolated git repository via harness.SetupMockSecurityRepo
+// with source_commit synced to the mock repo HEAD, writes a clean baseline changes file, and verifies
+// that security-test-audit passes (exit 0) BEFORE any boundary fault injection is applied.
+func setupVerifiedMockSecurityRepo(t *testing.T, ctx context.Context) (string, string) {
 	t.Helper()
-	root, err := harness.RepoRoot()
-	if err != nil {
-		t.Fatalf("failed to locate repo root: %v", err)
+	mockRoot := harness.SetupMockSecurityRepo(t, true)
+	changesPath := filepath.Join(mockRoot, "changes.txt")
+	if err := os.WriteFile(changesPath, []byte("engineering/testing/runtime-security-evidence.json\n"), 0644); err != nil {
+		t.Fatalf("failed to write baseline changes file: %v", err)
 	}
-
-	mockRoot := harness.TempDir(t, "sec-evidence-mock")
-
-	// Bootstrap files for isRepoRoot
-	copyFiles := []string{
-		"AGENTS.md",
-		"AI_START_HERE.md",
-		"engineering/state/current.json",
-		"work/graph.json",
-		"engineering/architecture/boundaries.json",
-		"engineering/security/security-gates.json",
-		"engineering/security/runtime-security-policy.json",
-		"engineering/testing/runtime-security-evidence.json",
+	baseRes := harness.RunCmdrDev(ctx, "security-test-audit", "--root", mockRoot, "--changes-file", changesPath)
+	if baseRes.ExitCode != 0 {
+		t.Fatalf("pre-mutation baseline security-test-audit failed (exit %d): %s\n%s",
+			baseRes.ExitCode, baseRes.Stderr, baseRes.Stdout)
 	}
-
-	for _, rel := range copyFiles {
-		src := filepath.Join(root, filepath.FromSlash(rel))
-		dst := filepath.Join(mockRoot, filepath.FromSlash(rel))
-		if err := os.MkdirAll(filepath.Dir(dst), 0755); err != nil {
-			t.Fatalf("failed to create dir for %s: %v", dst, err)
-		}
-		data, err := os.ReadFile(src)
-		if err != nil {
-			t.Fatalf("failed to read %s: %v", src, err)
-		}
-		if err := os.WriteFile(dst, data, 0644); err != nil {
-			t.Fatalf("failed to copy %s to mock: %v", rel, err)
-		}
-	}
-
-	// Create directories and stub files for all 12 runtime modules so detectRuntimeImplementationStates resolves
-	for _, mod := range harness.RuntimeGoModules {
-		dir := filepath.Join(mockRoot, filepath.FromSlash(mod))
-		if err := os.MkdirAll(dir, 0755); err != nil {
-			t.Fatalf("failed to create runtime stub dir %s: %v", dir, err)
-		}
-		_ = os.WriteFile(filepath.Join(dir, "stub.go"), []byte("package stub\n"), 0644)
-	}
-
-	// Create event-search-frontend runtime boundary directory and stub file
-	frontendDir := filepath.Join(mockRoot, "product-runtime", "event-search-frontend")
-	if err := os.MkdirAll(frontendDir, 0755); err != nil {
-		t.Fatalf("failed to create event-search-frontend dir: %v", err)
-	}
-	_ = os.WriteFile(filepath.Join(frontendDir, "stub.js"), []byte("// stub\n"), 0644)
-
-	// Create cmdr-product-spec directory so validateState succeeds
-	mockSpecDir := filepath.Join(mockRoot, "cmdr-product-spec")
-	if err := os.MkdirAll(mockSpecDir, 0755); err != nil {
-		t.Fatalf("failed to create cmdr-product-spec dir: %v", err)
-	}
-	specReadme := filepath.Join(root, "cmdr-product-spec", "README.md")
-	if data, err := os.ReadFile(specReadme); err == nil {
-		_ = os.WriteFile(filepath.Join(mockSpecDir, "README.md"), data, 0644)
-	}
-
-	return mockRoot
+	return mockRoot, changesPath
 }
 
 // T2.F4.1: Security test audit fails closed if scope count is 10 instead of 11.
@@ -84,7 +35,7 @@ func TestT2_F4_1_SecurityAuditFailsOnTenScopes(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	mockRoot := setupMockSecurityRepo(t)
+	mockRoot, changesPath := setupVerifiedMockSecurityRepo(t, ctx)
 	evidencePath := filepath.Join(mockRoot, "engineering", "testing", "runtime-security-evidence.json")
 
 	data, err := os.ReadFile(evidencePath)
@@ -112,11 +63,6 @@ func TestT2_F4_1_SecurityAuditFailsOnTenScopes(t *testing.T) {
 		t.Fatalf("failed to write mutated evidence: %v", err)
 	}
 
-	changesPath := filepath.Join(mockRoot, "changes.txt")
-	if err := os.WriteFile(changesPath, []byte("product-runtime/event-search/stub.go\n"), 0644); err != nil {
-		t.Fatalf("failed to write mock changes: %v", err)
-	}
-
 	res := harness.RunCmdrDev(ctx, "security-test-audit", "--root", mockRoot, "--changes-file", changesPath)
 	if res.ExitCode == 0 {
 		t.Fatalf("T2.F4.1 FAIL: security-test-audit succeeded on 10 scopes, expected failure")
@@ -134,7 +80,7 @@ func TestT2_F4_2_SecurityAuditFailsOnTwelveScopes(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	mockRoot := setupMockSecurityRepo(t)
+	mockRoot, changesPath := setupVerifiedMockSecurityRepo(t, ctx)
 	evidencePath := filepath.Join(mockRoot, "engineering", "testing", "runtime-security-evidence.json")
 
 	data, err := os.ReadFile(evidencePath)
@@ -167,11 +113,6 @@ func TestT2_F4_2_SecurityAuditFailsOnTwelveScopes(t *testing.T) {
 		t.Fatalf("failed to write mutated evidence: %v", err)
 	}
 
-	changesPath := filepath.Join(mockRoot, "changes.txt")
-	if err := os.WriteFile(changesPath, []byte("product-runtime/event-search/stub.go\n"), 0644); err != nil {
-		t.Fatalf("failed to write mock changes: %v", err)
-	}
-
 	res := harness.RunCmdrDev(ctx, "security-test-audit", "--root", mockRoot, "--changes-file", changesPath)
 	if res.ExitCode == 0 {
 		t.Fatalf("T2.F4.2 FAIL: security-test-audit succeeded with 12 scopes, expected failure")
@@ -189,7 +130,7 @@ func TestT2_F4_3_SecurityAuditDetectsRenamedScopeKey(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	mockRoot := setupMockSecurityRepo(t)
+	mockRoot, changesPath := setupVerifiedMockSecurityRepo(t, ctx)
 	evidencePath := filepath.Join(mockRoot, "engineering", "testing", "runtime-security-evidence.json")
 
 	data, err := os.ReadFile(evidencePath)
@@ -222,11 +163,6 @@ func TestT2_F4_3_SecurityAuditDetectsRenamedScopeKey(t *testing.T) {
 		t.Fatalf("failed to write mutated evidence: %v", err)
 	}
 
-	changesPath := filepath.Join(mockRoot, "changes.txt")
-	if err := os.WriteFile(changesPath, []byte("product-runtime/event-search/stub.go\n"), 0644); err != nil {
-		t.Fatalf("failed to write mock changes: %v", err)
-	}
-
 	res := harness.RunCmdrDev(ctx, "security-test-audit", "--root", mockRoot, "--changes-file", changesPath)
 	if res.ExitCode == 0 {
 		t.Fatalf("T2.F4.3 FAIL: security-test-audit succeeded despite renamed scope key")
@@ -244,7 +180,7 @@ func TestT2_F4_4_SecurityAuditDetectsMissingAttestationHash(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	mockRoot := setupMockSecurityRepo(t)
+	mockRoot, changesPath := setupVerifiedMockSecurityRepo(t, ctx)
 	evidencePath := filepath.Join(mockRoot, "engineering", "testing", "runtime-security-evidence.json")
 
 	data, err := os.ReadFile(evidencePath)
@@ -268,11 +204,6 @@ func TestT2_F4_4_SecurityAuditDetectsMissingAttestationHash(t *testing.T) {
 		t.Fatalf("failed to write mutated evidence: %v", err)
 	}
 
-	changesPath := filepath.Join(mockRoot, "changes.txt")
-	if err := os.WriteFile(changesPath, []byte("product-runtime/event-search/stub.go\n"), 0644); err != nil {
-		t.Fatalf("failed to write mock changes: %v", err)
-	}
-
 	res := harness.RunCmdrDev(ctx, "security-test-audit", "--root", mockRoot, "--changes-file", changesPath)
 	if res.ExitCode == 0 {
 		t.Fatalf("T2.F4.4 FAIL: security-test-audit succeeded despite missing attestation hash")
@@ -290,18 +221,13 @@ func TestT2_F4_5_SecurityAuditRejectsCorruptedJSON(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	mockRoot := setupMockSecurityRepo(t)
+	mockRoot, changesPath := setupVerifiedMockSecurityRepo(t, ctx)
 	evidencePath := filepath.Join(mockRoot, "engineering", "testing", "runtime-security-evidence.json")
 
 	// Write syntactically corrupted JSON
 	corrupted := []byte(`{ "schema_version": 1, "status": "measured", "scopes": [ { "boundary_id": "truncated... `)
 	if err := os.WriteFile(evidencePath, corrupted, 0644); err != nil {
 		t.Fatalf("failed to write corrupted JSON: %v", err)
-	}
-
-	changesPath := filepath.Join(mockRoot, "changes.txt")
-	if err := os.WriteFile(changesPath, []byte("product-runtime/event-search/stub.go\n"), 0644); err != nil {
-		t.Fatalf("failed to write mock changes: %v", err)
 	}
 
 	res := harness.RunCmdrDev(ctx, "security-test-audit", "--root", mockRoot, "--changes-file", changesPath)

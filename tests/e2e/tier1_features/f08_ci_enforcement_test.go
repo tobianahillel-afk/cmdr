@@ -23,7 +23,8 @@ func TestT1_F8_1_FullKernelIncludesHealthGateStep(t *testing.T) {
 	}
 
 	str := string(content)
-	if !strings.Contains(str, "mainline-health-gate") {
+	res := harness.ValidateHealthGateWorkflow(str)
+	if !res.HasHealthGateStep {
 		if strings.Contains(str, "tests/e2e") || strings.Contains(str, "go test") {
 			t.Skip("T1.F8.1 SKIP: mainline-health-gate CI workflow step is scheduled for Milestone 3 deployment")
 		}
@@ -68,24 +69,15 @@ func TestT1_F8_3_HealthGateFailClosedSemantics(t *testing.T) {
 		t.Fatalf("failed to read engineering-kernel-full.yml: %v", err)
 	}
 
-	lines := strings.Split(string(content), "\n")
-	inHealthGateStep := false
-	for _, line := range lines {
-		trimmed := strings.TrimSpace(line)
-		if strings.Contains(trimmed, "mainline-health-gate") {
-			inHealthGateStep = true
-		}
-		if inHealthGateStep {
-			if strings.HasPrefix(trimmed, "- name:") && !strings.Contains(trimmed, "mainline-health-gate") {
-				inHealthGateStep = false
-				continue
-			}
-			if strings.Contains(trimmed, "continue-on-error: true") {
-				t.Fatal("mainline-health-gate step has continue-on-error: true; must fail-closed")
-			}
-		}
+	res := harness.ValidateHealthGateWorkflow(string(content))
+	if !res.HasHealthGateStep {
+		t.Skip("T1.F8.3 SKIP: mainline-health-gate CI workflow step is scheduled for Milestone 3 deployment")
+		return
 	}
-	t.Log("T1.F8.3 PASS: fail-closed semantics verified (no continue-on-error)")
+	if res.HasContinueOnError || res.HasDisabledIf || !res.Valid {
+		t.Fatalf("mainline-health-gate step failed fail-closed validation: %s", strings.Join(res.Errors, "; "))
+	}
+	t.Log("T1.F8.3 PASS: fail-closed semantics verified (active mainline-health-gate step with no continue-on-error or if: false)")
 }
 
 // T1.F8.4: Verify required status checks configuration for branch protection.

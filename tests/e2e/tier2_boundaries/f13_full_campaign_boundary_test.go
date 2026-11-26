@@ -89,17 +89,24 @@ func TestT2_F13_4_CampaignRunnerEnforcesCountOne(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	// Execute Go test with -count=1 on tools/cmdr-dev
-	passed, output, err := harness.RunGoTest(ctx, "tools/cmdr-dev", "-run", "TestIsRepoRoot")
-	if !passed || err != nil {
-		t.Fatalf("T2.F13.4 FAIL: test execution failed: %v", err)
+	// Execute verified Go test with -count=1 on an existing test in tools/cmdr-dev
+	const target = "TestValidateArchitectureRegistry"
+	res, err := harness.RunGoTestVerified(
+		ctx,
+		"tools/cmdr-dev",
+		"github.com/tobianahillel-afk/cmdr/tools/cmdr-dev",
+		[]string{target},
+		"-run", "^"+target+"$",
+	)
+	if !res.Passed || err != nil {
+		t.Fatalf("T2.F13.4 FAIL: verified test execution failed: %v\nOutput: %s", err, res.Output)
 	}
 
 	// Verify absence of cached indicator in test output
-	if strings.Contains(output, "(cached)") {
-		t.Fatalf("T2.F13.4 FAIL: test output indicated cached result despite -count=1 enforcement: %s", output)
+	if strings.Contains(res.Output, "(cached)") {
+		t.Fatalf("T2.F13.4 FAIL: test output indicated cached result despite -count=1 enforcement: %s", res.Output)
 	}
-	t.Log("T2.F13.4 PASS: -count=1 prevents test caching false positives")
+	t.Log("T2.F13.4 PASS: -count=1 prevents test caching false positives and verified test execution")
 }
 
 // T2.F13.5: Full campaign runner aggregates all failures without early exit.

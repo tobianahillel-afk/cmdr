@@ -3,6 +3,7 @@ package tier4_workflows
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"os"
 	"path/filepath"
 	"testing"
@@ -19,6 +20,8 @@ type CertificationReport struct {
 	SpecZeroDiff        bool            `json:"spec_zero_diff"`
 	RemoteBranches      []string        `json:"remote_branches"`
 	OpenPRsCount        int             `json:"open_prs_count"`
+	OpenPRsVerified     bool            `json:"open_prs_verified"`
+	OpenPRsStatus       string          `json:"open_prs_status"`
 	SecurityScopesCount int             `json:"security_scopes_count"`
 	LedgerEntriesCount  int             `json:"ledger_entries_count"`
 	GraphNodesCount     int             `json:"graph_nodes_count"`
@@ -64,11 +67,20 @@ func TestT4_03_FullRepositoryCertificationLifecycle(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to create GitHub client: %v", err)
 	}
-	openPRs, isOffline, err := ghClient.CountOpenPRs(ctx)
-	if err != nil {
-		t.Logf("GitHub PR count fallback note: %v", err)
+	openPRs := -1
+	openPRsVerified := false
+	openPRsStatus := harness.StatusUnverified
+	prRes, err := ghClient.CountOpenPRs(ctx)
+	if errors.Is(err, harness.ErrUnverified) || !prRes.Verified {
+		t.Logf("GitHub Open PRs: %s (%v)", harness.StatusUnverified, err)
+	} else if err != nil {
+		t.Fatalf("failed to query GitHub open PRs: %v", err)
+	} else {
+		openPRs = prRes.Count
+		openPRsVerified = true
+		openPRsStatus = prRes.Status
+		t.Logf("GitHub Open PRs: %d (status=%s)", openPRs, openPRsStatus)
 	}
-	t.Logf("GitHub Open PRs: %d (offline_mode=%t)", openPRs, isOffline)
 
 	// 3. Audit Canonical Product Spec Invariance (0-byte delta vs 82e630fc)
 	const baselineCommit = "82e630fce3a7f6236e03709116eca6dd0a1acd40"
@@ -152,6 +164,10 @@ func TestT4_03_FullRepositoryCertificationLifecycle(t *testing.T) {
 		finalVerdict = "MAIN_UNHEALTHY"
 	} else if gateRes.ExitCode == 2 {
 		finalVerdict = "MAIN_UNVERIFIED"
+	} else if openPRsVerified && openPRs > 0 {
+		finalVerdict = "MAIN_UNHEALTHY"
+	} else if !openPRsVerified {
+		finalVerdict = "MAIN_UNVERIFIED"
 	}
 
 	// 10. Synthesize and write final Certification Report artifact
@@ -163,6 +179,8 @@ func TestT4_03_FullRepositoryCertificationLifecycle(t *testing.T) {
 		SpecZeroDiff:        specZeroDiff,
 		RemoteBranches:      remoteBranches,
 		OpenPRsCount:        openPRs,
+		OpenPRsVerified:     openPRsVerified,
+		OpenPRsStatus:       openPRsStatus,
 		SecurityScopesCount: len(evidence.Scopes),
 		LedgerEntriesCount:  len(ledger.Entries),
 		GraphNodesCount:     len(graph.Nodes),
