@@ -4666,5 +4666,23 @@
       "work/reconciliation/prs.json"
     ],
     "key_contributions": "Standalone MAINLINE_HEALTH_GATE fail-closed hardening (dependency-audit, committed security evidence, Go unit tests, .gitignore anchoring) and PR #235 reconciliation."
+  },
+  {
+    "pr_number": 237,
+    "title": "fix(e2e): widen 60s health-gate timeouts in T2.F14.5/T2.F15 and record PR #236",
+    "head_branch": "fix/m4-e2e-health-gate-timeouts",
+    "base_branch": "main",
+    "status": "MERGED",
+    "disposition": "INCORPORATED_IN_MAIN",
+    "disposition_rationale": "Widens T2.F14.5 and T2.F15.1..3 health-gate execution timeouts to 180s and records PR #236 reconciliation state; squash-merged at commit c4252d844345f7c306abde13926f013a4aff0b4d.",
+    "commit": "c4252d844345f7c306abde13926f013a4aff0b4d",
+    "files_introduced": [
+      "engineering/state/current.json",
+      "tests/e2e/tier2_boundaries/f14_final_certification_boundary_test.go",
+      "tests/e2e/tier2_boundaries/f15_roadmap_alignment_boundary_test.go",
+      "work/reconciliation/PR_CLOSURE_REGISTER.md",
+      "work/reconciliation/prs.json"
+    ],
+    "key_contributions": "E2E health-gate timeout alignment for live-repo certification tests and PR #236 register closure."
   }
 ]

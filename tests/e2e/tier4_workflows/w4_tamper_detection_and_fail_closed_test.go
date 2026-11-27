@@ -541,4 +541,109 @@ func TestT4_04_TamperDetectionAndFailClosed(t *testing.T) {
 		assertOtherDimensionsHealthy(t, report, "git")
 		t.Logf("T4.04 Vector 7 PASS: git failed closed on untracked file inside tools/cmdr-dev (exit=%d)", gateRes.ExitCode)
 	})
+
+	t.Run("Vector8_ReplacePathSmuggling", func(t *testing.T) {
+		cases := []struct {
+			name      string
+			goModRel  string
+			addition  string
+			errSubstr string
+		}{
+			{
+				name:      "7c2_in_repo_tests_e2e",
+				goModRel:  "product-runtime/work-queue/go.mod",
+				addition:  "\nrequire github.com/evil/smuggled v0.0.0\nreplace github.com/evil/smuggled => ../../tests/e2e\n",
+				errSubstr: "dependency audit failed",
+			},
+			{
+				name:      "7e3_unauthorized_sibling",
+				goModRel:  "product-runtime/event-inspection-host/go.mod",
+				addition:  "\nrequire github.com/tobianahillel-afk/cmdr/product-runtime/work-queue v0.0.0\nreplace github.com/tobianahillel-afk/cmdr/product-runtime/work-queue => ../work-queue\n",
+				errSubstr: "dependency audit failed",
+			},
+			{
+				name:      "7f2_product_module_external",
+				goModRel:  "product-runtime/case-search-workbench/go.mod",
+				addition:  "\nrequire github.com/evil/thirdparty v0.0.0\nreplace github.com/evil/thirdparty => ../../../evil_thirdparty\n",
+				errSubstr: "dependency audit failed",
+			},
+		}
+
+		for _, tc := range cases {
+			t.Run(tc.name, func(t *testing.T) {
+				ctx, cancel := context.WithTimeout(context.Background(), 240*time.Second)
+				defer cancel()
+
+				mockRoot := setupW4MockRepo(t)
+				goModPath := filepath.Join(mockRoot, filepath.FromSlash(tc.goModRel))
+				raw, err := os.ReadFile(goModPath)
+				if err != nil {
+					t.Fatalf("failed to read %s: %v", tc.goModRel, err)
+				}
+				if err := os.WriteFile(goModPath, append(raw, []byte(tc.addition)...), 0644); err != nil {
+					t.Fatalf("failed to mutate %s: %v", tc.goModRel, err)
+				}
+				if res := harness.RunCmd(ctx, mockRoot, nil, "git", "add", tc.goModRel); res.ExitCode != 0 {
+					t.Fatalf("git add mutated %s failed: %s", tc.goModRel, res.Stderr)
+				}
+				if res := harness.RunCmd(ctx, mockRoot, nil, "git", "commit", "-m", "inject replace smuggling ("+tc.name+")"); res.ExitCode != 0 {
+					t.Fatalf("git commit mutated %s failed: %s", tc.goModRel, res.Stderr)
+				}
+
+				gateRes, report := runW4HealthGate(t, ctx, mockRoot)
+				if gateRes.ExitCode != 1 || report.Status != "MAIN_UNHEALTHY" {
+					t.Fatalf("T4.04 Vector 8 (%s) FAIL: expected exit 1 MAIN_UNHEALTHY, got exit=%d status=%s", tc.name, gateRes.ExitCode, report.Status)
+				}
+				secDim, ok := report.Dimensions["security"]
+				if !ok || secDim.Passed || secDim.Status != "FAIL" {
+					t.Fatalf("T4.04 Vector 8 (%s) FAIL: expected security FAIL, got %+v", tc.name, secDim)
+				}
+				joinedErrs := strings.Join(secDim.Errors, " | ")
+				if !strings.Contains(joinedErrs, tc.errSubstr) {
+					t.Fatalf("T4.04 Vector 8 (%s) FAIL: expected %q in security errors, got: %s", tc.name, tc.errSubstr, joinedErrs)
+				}
+				for _, dimName := range []string{"git", "traceability", "operational_quality"} {
+					dim, ok := report.Dimensions[dimName]
+					if !ok || !dim.Passed || dim.Status != "PASS" {
+						t.Fatalf("T4.04 Vector 8 (%s) FAIL: expected non-target dimension %q to remain PASS, got %+v", tc.name, dimName, dim)
+					}
+				}
+				t.Logf("T4.04 Vector 8 (%s) PASS: security failed closed on replace smuggling (exit=%d)", tc.name, gateRes.ExitCode)
+			})
+		}
+	})
+
+	t.Run("Vector9_FailingNodeRuntimeTest", func(t *testing.T) {
+		ctx, cancel := context.WithTimeout(context.Background(), 240*time.Second)
+		defer cancel()
+
+		mockRoot := setupW4MockRepo(t)
+		probeRel := "product-runtime/event-search-frontend/probe_fail.test.mjs"
+		probePath := filepath.Join(mockRoot, filepath.FromSlash(probeRel))
+		probeBody := "import assert from \"node:assert/strict\";\nimport test from \"node:test\";\n\ntest(\"intentional fail\", () => {\n  assert.fail(\"boom\");\n});\n"
+		if err := os.WriteFile(probePath, []byte(probeBody), 0644); err != nil {
+			t.Fatalf("failed to write failing Node probe test: %v", err)
+		}
+		if res := harness.RunCmd(ctx, mockRoot, nil, "git", "add", probeRel); res.ExitCode != 0 {
+			t.Fatalf("git add failing Node test failed: %s", res.Stderr)
+		}
+		if res := harness.RunCmd(ctx, mockRoot, nil, "git", "commit", "-m", "inject failing Node runtime test"); res.ExitCode != 0 {
+			t.Fatalf("git commit failing Node test failed: %s", res.Stderr)
+		}
+
+		gateRes, report := runW4HealthGate(t, ctx, mockRoot)
+		if gateRes.ExitCode != 1 || report.Status != "MAIN_UNHEALTHY" {
+			t.Fatalf("T4.04 Vector 9 FAIL: expected exit 1 MAIN_UNHEALTHY, got exit=%d status=%s", gateRes.ExitCode, report.Status)
+		}
+		codeDim, ok := report.Dimensions["code"]
+		if !ok || codeDim.Passed || codeDim.Status != "FAIL" {
+			t.Fatalf("T4.04 Vector 9 FAIL: expected code FAIL, got %+v", codeDim)
+		}
+		joinedErrs := strings.Join(codeDim.Errors, " | ")
+		if !strings.Contains(joinedErrs, "Node unit tests failed") {
+			t.Fatalf("T4.04 Vector 9 FAIL: expected 'Node unit tests failed' in code errors, got: %s", joinedErrs)
+		}
+		assertOtherDimensionsHealthy(t, report, "code")
+		t.Logf("T4.04 Vector 9 PASS: code failed closed on failing Node runtime test (exit=%d)", gateRes.ExitCode)
+	})
 }

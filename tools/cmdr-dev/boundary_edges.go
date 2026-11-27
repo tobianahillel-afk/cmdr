@@ -75,7 +75,7 @@ func discoverLocalPackages(root string, registry ArchitectureRegistry) ([]LocalP
 	var packages []LocalPackage
 	runtimeBoundaries := 0
 	for _, boundary := range registry.Boundaries {
-		if boundary.Kind != "product-runtime" {
+		if boundary.Kind != "product-runtime" && boundary.Kind != "product-module" {
 			continue
 		}
 		runtimeBoundaries++
@@ -186,7 +186,13 @@ func discoverBoundaryEdges(root string, registry ArchitectureRegistry, packages 
 				return nil, err
 			}
 			for _, ref := range refs {
-				targetDir := filepath.ToSlash(filepath.Clean(filepath.Join(pkg.Directory, filepath.FromSlash(ref.Spec))))
+				targetDir, err := resolveLocalReplaceRepoRel(root, pkg.Manifest, ref.Spec)
+				if err != nil {
+					return nil, fmt.Errorf("%s local Go replacement %s targets unowned path %s: %w", pkg.Manifest, ref.Name, ref.Spec, err)
+				}
+				if _, err := resolveRepoPath(root, targetDir, false); err != nil {
+					return nil, fmt.Errorf("%s local Go replacement %s targets invalid path %s: %w", pkg.Manifest, ref.Name, targetDir, err)
+				}
 				targetBoundary, ok := boundaryForRepoPath(registry, targetDir)
 				if !ok {
 					return nil, fmt.Errorf("%s local Go replacement %s targets unowned path %s", pkg.Manifest, ref.Name, targetDir)
@@ -232,66 +238,19 @@ func parseNodeLocalRefs(root, path string) (string, []localDependencyRef, error)
 }
 
 func parseGoLocalRefs(root, path string) (string, []localDependencyRef, error) {
-	data, err := readRepoFile(root, path)
+	rel, err := filepath.Rel(root, path)
+	if err != nil {
+		rel = path
+	}
+	rel = filepath.ToSlash(rel)
+	module, _, replacements, err := parseGoModDetailed(root, path, "", rel)
 	if err != nil {
 		return "", nil, err
 	}
-	lines := strings.Split(string(data), "\n")
-	module := ""
-	required := map[string]bool{}
-	inRequire := false
-	for _, raw := range lines {
-		line := strings.TrimSpace(strings.SplitN(raw, "//", 2)[0])
-		if strings.HasPrefix(line, "module ") {
-			module = strings.TrimSpace(strings.TrimPrefix(line, "module "))
-		}
-		if line == "require (" {
-			inRequire = true
-			continue
-		}
-		if inRequire && line == ")" {
-			inRequire = false
-			continue
-		}
-		if strings.HasPrefix(line, "require ") {
-			line = strings.TrimSpace(strings.TrimPrefix(line, "require "))
-		} else if !inRequire {
-			continue
-		}
-		fields := strings.Fields(line)
-		if len(fields) >= 2 {
-			required[fields[0]] = true
-		}
-	}
-
 	var refs []localDependencyRef
-	inReplace := false
-	for _, raw := range lines {
-		line := strings.TrimSpace(strings.SplitN(raw, "//", 2)[0])
-		if line == "replace (" {
-			inReplace = true
-			continue
-		}
-		if inReplace && line == ")" {
-			inReplace = false
-			continue
-		}
-		if strings.HasPrefix(line, "replace ") {
-			line = strings.TrimSpace(strings.TrimPrefix(line, "replace "))
-		} else if !inReplace && !strings.Contains(line, " => ") {
-			continue
-		}
-		parts := strings.Split(line, " => ")
-		if len(parts) != 2 {
-			continue
-		}
-		left := strings.Fields(parts[0])
-		right := strings.Fields(parts[1])
-		if len(left) == 0 || len(right) == 0 || !required[left[0]] {
-			continue
-		}
-		if strings.HasPrefix(right[0], "./") || strings.HasPrefix(right[0], "../") {
-			refs = append(refs, localDependencyRef{Name: left[0], Spec: right[0]})
+	for _, rep := range replacements {
+		if rep.IsLocalPath {
+			refs = append(refs, localDependencyRef{Name: rep.OldModule, Spec: rep.Target})
 		}
 	}
 	sort.Slice(refs, func(i, j int) bool { return refs[i].Name < refs[j].Name })
@@ -323,7 +282,7 @@ func boundaryForRepoPath(registry ArchitectureRegistry, path string) (Architectu
 	var found *ArchitectureBoundary
 	for i := range registry.Boundaries {
 		boundary := &registry.Boundaries[i]
-		if boundary.Kind != "product-runtime" {
+		if boundary.Kind != "product-runtime" && boundary.Kind != "product-module" {
 			continue
 		}
 		for _, pattern := range boundary.Roots {

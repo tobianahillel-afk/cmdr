@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 )
 
@@ -84,6 +85,9 @@ func runDependencyAudit(root string) (DependencyAuditSummary, error) {
 		for _, rootPattern := range boundary.Roots {
 			scanned, bad, err := scanRuntimeBoundary(root, boundary.ID, rootPattern)
 			if err != nil {
+				return DependencyAuditSummary{}, err
+			}
+			if err := validateRuntimeBoundaryGoModReplacements(root, registry, boundary, rootPattern); err != nil {
 				return DependencyAuditSummary{}, err
 			}
 			deps = append(deps, scanned...)
@@ -222,20 +226,200 @@ func runtimeScanRoot(root, pattern string) (string, error) {
 	return path, nil
 }
 
-func parseGoMod(root, path, boundary, manifest string) ([]RuntimeDependency, error) {
+type goModReplacement struct {
+	OldModule   string
+	OldVersion  string
+	Target      string
+	NewVersion  string
+	IsLocalPath bool
+}
+
+func unquoteGoModToken(tok string) string {
+	tok = strings.TrimSpace(tok)
+	if len(tok) >= 2 && ((tok[0] == '"' && tok[len(tok)-1] == '"') || (tok[0] == '`' && tok[len(tok)-1] == '`')) {
+		if unquoted, err := strconv.Unquote(tok); err == nil {
+			return unquoted
+		}
+	}
+	return tok
+}
+
+func isAbsoluteOrDrivePath(target string) bool {
+	target = strings.TrimSpace(target)
+	if target == "" {
+		return false
+	}
+	if filepath.IsAbs(target) || strings.HasPrefix(target, "/") || strings.HasPrefix(target, "\\") {
+		return true
+	}
+	if len(target) >= 2 && ((target[0] >= 'a' && target[0] <= 'z') || (target[0] >= 'A' && target[0] <= 'Z')) && target[1] == ':' {
+		return true
+	}
+	return false
+}
+
+func isLocalGoReplaceTarget(target string, rhsTokens []string) bool {
+	if len(rhsTokens) == 1 {
+		return true
+	}
+	if isAbsoluteOrDrivePath(target) {
+		return true
+	}
+	for _, prefix := range []string{"./", "../", ".\\", "..\\"} {
+		if strings.HasPrefix(target, prefix) {
+			return true
+		}
+	}
+	return target == "." || target == ".."
+}
+
+func resolveLocalReplaceRepoRel(root, manifestRel, target string) (string, error) {
+	target = strings.TrimSpace(target)
+	if target == "" {
+		return "", fmt.Errorf("empty local replacement path")
+	}
+	if isAbsoluteOrDrivePath(target) {
+		return "", fmt.Errorf("local replacement path %q must be relative", target)
+	}
+	normalizedTarget := strings.ReplaceAll(target, "\\", "/")
+	manifestDir := filepath.Dir(filepath.FromSlash(manifestRel))
+	joined := filepath.Clean(filepath.Join(manifestDir, filepath.FromSlash(normalizedTarget)))
+	if filepath.IsAbs(joined) || joined == ".." || strings.HasPrefix(joined, ".."+string(os.PathSeparator)) {
+		return "", fmt.Errorf("local replacement path %q escapes repository root", target)
+	}
+	rel := filepath.ToSlash(joined)
+	if _, err := resolveRepoPath(root, rel, true); err != nil {
+		return "", err
+	}
+	return rel, nil
+}
+
+func boundaryForRuntimeRepoPath(registry ArchitectureRegistry, path string) (ArchitectureBoundary, bool) {
+	path = filepath.ToSlash(filepath.Clean(filepath.FromSlash(path)))
+	var found *ArchitectureBoundary
+	for i := range registry.Boundaries {
+		boundary := &registry.Boundaries[i]
+		if boundary.Kind != "product-runtime" && boundary.Kind != "product-module" {
+			continue
+		}
+		for _, pattern := range boundary.Roots {
+			if repoPathOwnedByPattern(pattern, path) {
+				if found != nil && found.ID != boundary.ID {
+					return ArchitectureBoundary{}, false
+				}
+				copy := *boundary
+				found = &copy
+			}
+		}
+	}
+	if found == nil {
+		return ArchitectureBoundary{}, false
+	}
+	return *found, true
+}
+
+func validateRuntimeBoundaryGoModReplacements(root string, registry ArchitectureRegistry, sourceBoundary ArchitectureBoundary, rootPattern string) error {
+	scanRoot, err := runtimeScanRoot(root, rootPattern)
+	if err != nil {
+		return err
+	}
+	// #nosec G703 -- scanRoot is repository-confined by runtimeScanRoot; symlink entries are rejected below.
+	return filepath.WalkDir(scanRoot, func(path string, entry os.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if entry.Type()&os.ModeSymlink != 0 {
+			return fmt.Errorf("runtime boundary contains symlink: %s", path)
+		}
+		if entry.IsDir() {
+			if path != scanRoot && ignoredDependencyDir(entry.Name()) {
+				return filepath.SkipDir
+			}
+			return nil
+		}
+		if entry.Name() != "go.mod" {
+			return nil
+		}
+		rel, err := filepath.Rel(root, path)
+		if err != nil {
+			return err
+		}
+		rel = filepath.ToSlash(rel)
+		_, _, replacements, err := parseGoModDetailed(root, path, sourceBoundary.ID, rel)
+		if err != nil {
+			return err
+		}
+		for _, rep := range replacements {
+			if !rep.IsLocalPath {
+				return fmt.Errorf("%s unapproved non-local Go replacement %s => %s %s", rel, rep.OldModule, rep.Target, rep.NewVersion)
+			}
+			targetRel, err := resolveLocalReplaceRepoRel(root, rel, rep.Target)
+			if err != nil {
+				return fmt.Errorf("%s invalid Go replacement %s => %s: %w", rel, rep.OldModule, rep.Target, err)
+			}
+			if _, err := resolveRepoPath(root, targetRel, false); err != nil {
+				return fmt.Errorf("%s Go replacement %s => %s failed containment check: %w", rel, rep.OldModule, rep.Target, err)
+			}
+			info, err := statRepoPath(root, targetRel)
+			if err != nil || !info.IsDir() {
+				return fmt.Errorf("%s Go replacement %s targets missing or non-directory path %s", rel, rep.OldModule, targetRel)
+			}
+			targetBoundary, ok := boundaryForRuntimeRepoPath(registry, targetRel)
+			if !ok {
+				return fmt.Errorf("%s Go replacement %s targets path %s outside product-runtime/product-module boundaries", rel, rep.OldModule, targetRel)
+			}
+			if targetBoundary.ID != sourceBoundary.ID {
+				allowed := false
+				for _, dep := range sourceBoundary.MayDependOn {
+					if dep == targetBoundary.ID {
+						allowed = true
+						break
+					}
+				}
+				if !allowed {
+					return fmt.Errorf("%s Go replacement %s targets unauthorized boundary %s (not in %s may_depend_on)", rel, rep.OldModule, targetBoundary.ID, sourceBoundary.ID)
+				}
+			}
+			targetGoModRel := targetRel + "/go.mod"
+			targetGoModInfo, err := lstatRepoEntry(root, targetGoModRel)
+			if err != nil || targetGoModInfo.IsDir() || targetGoModInfo.Mode()&os.ModeSymlink != 0 {
+				return fmt.Errorf("%s Go replacement %s targets %s without a regular go.mod", rel, rep.OldModule, targetRel)
+			}
+			targetGoModAbs := filepath.Join(root, filepath.FromSlash(targetGoModRel))
+			targetModule, _, _, err := parseGoModDetailed(root, targetGoModAbs, targetBoundary.ID, targetGoModRel)
+			if err != nil {
+				return fmt.Errorf("%s Go replacement %s failed reading target %s: %w", rel, rep.OldModule, targetGoModRel, err)
+			}
+			if targetModule == "" || targetModule != rep.OldModule {
+				return fmt.Errorf("%s Go replacement %s targets %s whose module is %q (expected %q)", rel, rep.OldModule, targetRel, targetModule, rep.OldModule)
+			}
+		}
+		return nil
+	})
+}
+
+func parseGoModDetailed(root, path, boundary, manifest string) (string, []RuntimeDependency, []goModReplacement, error) {
 	data, err := readRepoFile(root, path)
 	if err != nil {
-		return nil, err
+		return "", nil, nil, err
 	}
-	localReplacements := map[string]bool{}
+	moduleName := ""
+	var replacements []goModReplacement
 	lines := strings.Split(string(data), "\n")
 	inReplace := false
-	for _, line := range lines {
-		line = strings.TrimSpace(strings.SplitN(line, "//", 2)[0])
+	for _, raw := range lines {
+		line := strings.TrimSpace(strings.SplitN(raw, "//", 2)[0])
 		if line == "" {
 			continue
 		}
-		if line == "replace (" {
+		if strings.HasPrefix(line, "module ") {
+			fields := strings.Fields(strings.TrimPrefix(line, "module "))
+			if len(fields) > 0 {
+				moduleName = unquoteGoModToken(fields[0])
+			}
+			continue
+		}
+		if strings.HasPrefix(line, "replace") && strings.TrimSpace(strings.TrimPrefix(line, "replace")) == "(" {
 			inReplace = true
 			continue
 		}
@@ -243,29 +427,52 @@ func parseGoMod(root, path, boundary, manifest string) ([]RuntimeDependency, err
 			inReplace = false
 			continue
 		}
-		if strings.HasPrefix(line, "replace ") {
-			line = strings.TrimSpace(strings.TrimPrefix(line, "replace "))
+		isSingleReplace := false
+		if strings.HasPrefix(line, "replace ") || strings.HasPrefix(line, "replace\t") {
+			line = strings.TrimSpace(strings.TrimPrefix(line, "replace"))
+			isSingleReplace = true
+		} else if !inReplace {
+			continue
 		}
-		if inReplace || strings.Contains(line, " => ") {
-			parts := strings.Split(line, " => ")
-			if len(parts) == 2 {
-				left := strings.Fields(parts[0])
-				right := strings.Fields(parts[1])
-				if len(left) > 0 && len(right) > 0 && (strings.HasPrefix(right[0], "./") || strings.HasPrefix(right[0], "../")) {
-					localReplacements[left[0]] = true
-				}
-			}
+		if !isSingleReplace && !inReplace {
+			continue
 		}
+		parts := strings.SplitN(line, "=>", 2)
+		if len(parts) != 2 {
+			continue
+		}
+		left := strings.Fields(parts[0])
+		right := strings.Fields(parts[1])
+		if len(left) == 0 || len(right) == 0 {
+			continue
+		}
+		oldMod := unquoteGoModToken(left[0])
+		oldVer := ""
+		if len(left) >= 2 {
+			oldVer = unquoteGoModToken(left[1])
+		}
+		target := unquoteGoModToken(right[0])
+		newVer := ""
+		if len(right) >= 2 {
+			newVer = unquoteGoModToken(right[1])
+		}
+		replacements = append(replacements, goModReplacement{
+			OldModule:   oldMod,
+			OldVersion:  oldVer,
+			Target:      target,
+			NewVersion:  newVer,
+			IsLocalPath: isLocalGoReplaceTarget(target, right),
+		})
 	}
 
-	var out []RuntimeDependency
+	var requires []RuntimeDependency
 	inRequire := false
-	for _, line := range lines {
-		line = strings.TrimSpace(strings.SplitN(line, "//", 2)[0])
+	for _, raw := range lines {
+		line := strings.TrimSpace(strings.SplitN(raw, "//", 2)[0])
 		if line == "" {
 			continue
 		}
-		if line == "require (" {
+		if strings.HasPrefix(line, "require") && strings.TrimSpace(strings.TrimPrefix(line, "require")) == "(" {
 			inRequire = true
 			continue
 		}
@@ -273,16 +480,46 @@ func parseGoMod(root, path, boundary, manifest string) ([]RuntimeDependency, err
 			inRequire = false
 			continue
 		}
-		if strings.HasPrefix(line, "require ") {
-			line = strings.TrimSpace(strings.TrimPrefix(line, "require "))
+		if strings.HasPrefix(line, "require ") || strings.HasPrefix(line, "require\t") {
+			line = strings.TrimSpace(strings.TrimPrefix(line, "require"))
 		} else if !inRequire {
 			continue
 		}
 		fields := strings.Fields(line)
-		if len(fields) < 2 || localReplacements[fields[0]] {
+		if len(fields) < 2 {
 			continue
 		}
-		out = append(out, RuntimeDependency{Boundary: boundary, Ecosystem: "go", Name: fields[0], Version: fields[1], Manifest: manifest})
+		requires = append(requires, RuntimeDependency{
+			Boundary:  boundary,
+			Ecosystem: "go",
+			Name:      unquoteGoModToken(fields[0]),
+			Version:   unquoteGoModToken(fields[1]),
+			Manifest:  manifest,
+		})
+	}
+	return moduleName, requires, replacements, nil
+}
+
+func parseGoMod(root, path, boundary, manifest string) ([]RuntimeDependency, error) {
+	_, requires, replacements, err := parseGoModDetailed(root, path, boundary, manifest)
+	if err != nil {
+		return nil, err
+	}
+	localReplacements := map[string]bool{}
+	for _, rep := range replacements {
+		if !rep.IsLocalPath {
+			continue
+		}
+		if _, err := resolveLocalReplaceRepoRel(root, manifest, rep.Target); err == nil {
+			localReplacements[rep.OldModule] = true
+		}
+	}
+	var out []RuntimeDependency
+	for _, req := range requires {
+		if localReplacements[req.Name] {
+			continue
+		}
+		out = append(out, req)
 	}
 	return out, nil
 }

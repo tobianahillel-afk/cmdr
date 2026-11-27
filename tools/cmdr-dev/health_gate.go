@@ -95,6 +95,17 @@ func evaluateCodeDimension(root string, state CurrentState, graph WorkGraph, sta
 		return res
 	}
 
+	testedNodeSuites, nodeUnverifiedErr, err := runRepositoryNodeUnitTests(root)
+	if nodeUnverifiedErr != nil {
+		res.Status = "UNVERIFIED"
+		res.Errors = append(res.Errors, nodeUnverifiedErr.Error())
+		return res
+	}
+	if err != nil {
+		res.Errors = append(res.Errors, err.Error())
+		return res
+	}
+
 	res.Passed = true
 	res.Status = "PASS"
 	res.Details = append(res.Details,
@@ -102,6 +113,9 @@ func evaluateCodeDimension(root string, state CurrentState, graph WorkGraph, sta
 		fmt.Sprintf("check catalog verified (%d checks registered, %d mandatory)", cat.Checks, cat.Mandatory),
 		fmt.Sprintf("Go unit tests passed across %d modules (product-runtime + tools/cmdr-dev)", len(testedModules)),
 	)
+	if len(testedNodeSuites) > 0 {
+		res.Details = append(res.Details, fmt.Sprintf("Node unit tests passed across %d suite(s) under product-runtime", len(testedNodeSuites)))
+	}
 	return res
 }
 
@@ -224,6 +238,130 @@ func runRepositoryGoUnitTests(root string) ([]string, error, error) {
 	return modules, nil, nil
 }
 
+type nodeTestSuite struct {
+	Directory string
+	Files     []string
+}
+
+func isNodeTestFile(name string) bool {
+	return strings.HasSuffix(name, ".test.mjs") || strings.HasSuffix(name, ".test.cjs") || strings.HasSuffix(name, ".test.js")
+}
+
+func discoverCodeNodeTestSuites(root string) ([]nodeTestSuite, error) {
+	prInfo, err := statRepoPath(root, "product-runtime")
+	if err != nil {
+		return nil, fmt.Errorf("inspect product-runtime directory: %w", err)
+	}
+	if !prInfo.IsDir() {
+		return nil, fmt.Errorf("product-runtime is not a directory")
+	}
+	prDir, err := resolveRepoPath(root, "product-runtime", false)
+	if err != nil {
+		return nil, err
+	}
+	byDir := map[string][]string{}
+	// #nosec G703 -- prDir is repository-confined by resolveRepoPath; symlink entries are rejected below.
+	err = filepath.WalkDir(prDir, func(path string, entry os.DirEntry, walkErr error) error {
+		if walkErr != nil {
+			return walkErr
+		}
+		if entry.Type()&os.ModeSymlink != 0 {
+			return fmt.Errorf("product-runtime Node path must not be a symlink: %s", path)
+		}
+		if entry.IsDir() {
+			if path != prDir && (ignoredDependencyDir(entry.Name()) || entry.Name() == "testdata") {
+				return filepath.SkipDir
+			}
+			return nil
+		}
+		if !isNodeTestFile(entry.Name()) {
+			return nil
+		}
+		rel, err := filepath.Rel(root, path)
+		if err != nil {
+			return err
+		}
+		rel = filepath.ToSlash(rel)
+		dir := filepath.ToSlash(filepath.Dir(rel))
+		byDir[dir] = append(byDir[dir], entry.Name())
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	if len(byDir) == 0 {
+		return nil, nil
+	}
+	dirs := make([]string, 0, len(byDir))
+	for dir := range byDir {
+		dirs = append(dirs, dir)
+	}
+	sort.Strings(dirs)
+	suites := make([]nodeTestSuite, 0, len(dirs))
+	for _, dir := range dirs {
+		files := byDir[dir]
+		sort.Strings(files)
+		suites = append(suites, nodeTestSuite{Directory: dir, Files: files})
+	}
+	return suites, nil
+}
+
+func runRepositoryNodeUnitTests(root string) ([]nodeTestSuite, error, error) {
+	suites, err := discoverCodeNodeTestSuites(root)
+	if err != nil {
+		return nil, nil, err
+	}
+	if len(suites) == 0 {
+		return nil, nil, nil
+	}
+	if _, lookErr := exec.LookPath("node"); lookErr != nil {
+		if errors.Is(lookErr, exec.ErrNotFound) {
+			return nil, fmt.Errorf("node runtime unavailable for unit test verification: %w", lookErr), nil
+		}
+		return nil, fmt.Errorf("resolve node runtime: %w", lookErr), nil
+	}
+
+	var mu sync.Mutex
+	var failures []string
+	var wg sync.WaitGroup
+	for _, suite := range suites {
+		suite := suite
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			suiteDir, pathErr := resolveRepoPath(root, suite.Directory, false)
+			if pathErr != nil {
+				mu.Lock()
+				failures = append(failures, fmt.Sprintf("%s: %v", suite.Directory, pathErr))
+				mu.Unlock()
+				return
+			}
+			args := make([]string, 0, 1+len(suite.Files))
+			args = append(args, "--test")
+			args = append(args, suite.Files...)
+			cmd := exec.Command("node", args...) // #nosec G204,G702 -- fixed node executable and --test flag; suite directory and discovered test files are repository-confined.
+			cmd.Dir = suiteDir
+			out, runErr := cmd.CombinedOutput()
+			if runErr != nil {
+				snippet := strings.Join(strings.Fields(string(out)), " ")
+				if len(snippet) > 240 {
+					snippet = snippet[len(snippet)-240:]
+				}
+				mu.Lock()
+				failures = append(failures, fmt.Sprintf("%s (%v): %s", suite.Directory, runErr, snippet))
+				mu.Unlock()
+			}
+		}()
+	}
+	wg.Wait()
+
+	if len(failures) > 0 {
+		sort.Strings(failures)
+		return suites, nil, fmt.Errorf("Node unit tests failed in %d suite(s): %s", len(failures), strings.Join(failures, "; "))
+	}
+	return suites, nil, nil
+}
+
 func validateSecurityAudit(secScan SecretScanSummary, gates SecurityGateAuditSummary, goVersion string) []string {
 	var errs []string
 	if secScan.FindingCount > 0 {
@@ -259,6 +397,17 @@ func validateDependencyAudit(deps DependencyAuditSummary) []string {
 	return errs
 }
 
+func validateBoundaryEdgeAudit(edges BoundaryEdgeAuditSummary) []string {
+	var errs []string
+	if edges.RuntimeBoundaries == 0 {
+		errs = append(errs, "boundary edge audit verified 0 runtime boundaries")
+	}
+	if edges.LocalPackages == 0 {
+		errs = append(errs, "boundary edge audit discovered 0 local packages")
+	}
+	return errs
+}
+
 func evaluateSecurityDimension(root string) HealthDimensionResult {
 	res := HealthDimensionResult{Name: "security", Passed: false, Status: "FAIL"}
 
@@ -289,6 +438,16 @@ func evaluateSecurityDimension(root string) HealthDimensionResult {
 		return res
 	}
 
+	edges, err := runBoundaryEdgeAudit(root)
+	if err != nil {
+		res.Errors = append(res.Errors, fmt.Sprintf("boundary edge audit failed: %v", err))
+		return res
+	}
+	if errs := validateBoundaryEdgeAudit(edges); len(errs) > 0 {
+		res.Errors = append(res.Errors, errs...)
+		return res
+	}
+
 	secEv, err := runCommittedRuntimeSecurityEvidenceAudit(root)
 	if err != nil {
 		res.Errors = append(res.Errors, fmt.Sprintf("runtime security evidence audit failed: %v", err))
@@ -307,6 +466,7 @@ func evaluateSecurityDimension(root string) HealthDimensionResult {
 		fmt.Sprintf("security gate registry valid (%d registered gates, %d blocking)", gates.Gates, gates.Blocking),
 		fmt.Sprintf("Go toolchain pinned to %s", engineeringGoVersion),
 		fmt.Sprintf("runtime dependencies verified (0 unapproved across %d boundaries)", deps.RuntimeBoundaries),
+		fmt.Sprintf("architecture boundary edges verified (%d observed, %d cross-boundary across %d boundaries)", edges.ObservedEdges, edges.CrossBoundaryEdges, edges.RuntimeBoundaries),
 		evidenceDetail,
 	)
 	return res
