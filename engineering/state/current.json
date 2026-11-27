@@ -19,7 +19,7 @@
   "execution": {
     "active_work_unit": "",
     "preferred_next_unit": "",
-    "selection_rule": "Milestone 6: Phase C PR cleanup and Phase D engineering governance restructuring complete. Baseline integrated on main at c4252d844345f7c306abde13926f013a4aff0b4d; work graph aligned to Phase D taxonomy (185 ACCEPTED, 20 PLANNED, 0 READY). main is the single integration reference; subsequent tasks to be selected from roadmap, branched from main, and integrated sequentially."
+    "selection_rule": "Milestone 6: Phase C PR cleanup and Phase D engineering governance restructuring complete. Baseline integrated on main at 25554bce12ad9e010f7131f491b0291c89739437 (PR #238); work graph aligned to Phase D taxonomy (185 ACCEPTED, 20 PLANNED, 0 READY). main is the single integration reference; subsequent tasks to be selected from roadmap, branched from main, and integrated sequentially."
   },
   "reconciliation": {
     "required_on_resume": true,

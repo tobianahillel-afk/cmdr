@@ -449,7 +449,7 @@ func runEventSearchAdversarialRuntimeTests(root string) (EventSearchAdversarialS
 	pattern := "^(" + strings.Join(eventSearchAdversarialTests, "|") + ")$"
 	cmd := exec.Command("go", "test", "-json", "-count=1", "-run", pattern, ".") // #nosec G204 -- executable is fixed and pattern is assembled only from compile-time test names.
 	cmd.Dir = filepath.Join(root, eventSearchRuntimeDirectory)
-	cmd.Env = append(os.Environ(), "GOTOOLCHAIN=local")
+	cmd.Env = withGoWorkOff(append(os.Environ(), "GOTOOLCHAIN=local"))
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr

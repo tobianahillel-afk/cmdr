@@ -162,3 +162,40 @@ func TestProductModuleBoundaryEdgeAudit(t *testing.T) {
 		}
 	})
 }
+
+func TestRunBoundaryEdgeAudit_RejectsGoWorkspace(t *testing.T) {
+	seed := func(t *testing.T) string {
+		t.Helper()
+		root := t.TempDir()
+		writePackage(t, root, "cmdr-product-spec/README.md", "# Spec\n")
+		writePackage(t, root, "product-runtime/mod-a/go.mod", "module example/a\n\ngo 1.26.11\n")
+		writePackage(t, root, "product-runtime/mod-b/go.mod", "module example/b\n\ngo 1.26.11\n")
+		arch := ArchitectureRegistry{
+			SchemaVersion: 1,
+			DefaultPolicy: "deny-unregistered-path",
+			Boundaries: []ArchitectureBoundary{
+				{ID: "product-spec", Kind: "product-documentation", Roots: []string{"cmdr-product-spec/**"}},
+				{ID: "mod-a-runtime", Kind: "product-runtime", Roots: []string{"product-runtime/mod-a/**"}, MutableByImplementation: true},
+				{ID: "mod-b-runtime", Kind: "product-module", Roots: []string{"product-runtime/mod-b/**"}, MutableByImplementation: true},
+			},
+		}
+		writeJSONFixture(t, filepath.Join(root, filepath.FromSlash(architectureRegistryPath)), arch)
+		return root
+	}
+
+	for _, rel := range []string{
+		"go.work",
+		"go.work.sum",
+		"product-runtime/mod-a/go.work",
+		"product-runtime/mod-b/go.work",
+		"product-runtime/mod-b/nested/go.work.sum",
+	} {
+		t.Run(rel, func(t *testing.T) {
+			root := seed(t)
+			writePackage(t, root, rel, "go 1.26.11\n\nuse .\n")
+			if _, err := runBoundaryEdgeAudit(root); err == nil {
+				t.Fatalf("expected runBoundaryEdgeAudit to fail when %s is present", rel)
+			}
+		})
+	}
+}

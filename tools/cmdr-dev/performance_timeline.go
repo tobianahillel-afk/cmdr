@@ -62,6 +62,9 @@ func runTimelinePerformanceProcess(ctx context.Context, dir, name string, args .
 	configureTimelineProcessTree(cmd)
 	cmd.WaitDelay = 500 * time.Millisecond
 	cmd.Dir = dir
+	if name == "go" {
+		cmd.Env = withGoWorkOff(os.Environ())
+	}
 	var stdout, stderr timelineBoundedOutput
 	cmd.Stdout, cmd.Stderr = &stdout, &stderr
 	runErr := cmd.Run()

@@ -383,7 +383,7 @@ func runSavedQueryAssetsAdversarialRuntimeTests(root string) (SavedQueryAssetsAd
 	pattern := "^(" + strings.Join(savedQueryAssetsAdversarialTests, "|") + ")$"
 	cmd := exec.Command("go", "test", "-json", "-count=1", "-run", pattern, ".") // #nosec G204 -- executable fixed; regex assembled from compile-time test names.
 	cmd.Dir = dir
-	cmd.Env = append(os.Environ(), "GOTOOLCHAIN=local")
+	cmd.Env = withGoWorkOff(append(os.Environ(), "GOTOOLCHAIN=local"))
 	var stdout bytes.Buffer
 	cmd.Stdout = &stdout
 	if err := cmd.Run(); err != nil {

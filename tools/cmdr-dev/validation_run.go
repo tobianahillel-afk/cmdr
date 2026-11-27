@@ -590,6 +590,7 @@ func runFixedGoProcess(dir, action string) (string, error) {
 		return "", fmt.Errorf("unsupported fixed Go action %q", action)
 	}
 	cmd.Dir = dir
+	cmd.Env = withGoWorkOff(os.Environ())
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr

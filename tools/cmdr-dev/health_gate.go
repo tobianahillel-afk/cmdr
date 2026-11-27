@@ -119,6 +119,18 @@ func evaluateCodeDimension(root string, state CurrentState, graph WorkGraph, sta
 	return res
 }
 
+func withGoWorkOff(env []string) []string {
+	out := make([]string, 0, len(env)+1)
+	for _, entry := range env {
+		key, _, ok := strings.Cut(entry, "=")
+		if ok && strings.EqualFold(key, "GOWORK") {
+			continue
+		}
+		out = append(out, entry)
+	}
+	return append(out, "GOWORK=off")
+}
+
 func discoverCodeTestModules(root string) ([]string, error) {
 	prInfo, err := statRepoPath(root, "product-runtime")
 	if err != nil {
@@ -131,32 +143,36 @@ func discoverCodeTestModules(root string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	entries, err := os.ReadDir(prDir)
-	if err != nil {
-		return nil, fmt.Errorf("read product-runtime directory: %w", err)
-	}
 	var runtimeModules []string
-	for _, entry := range entries {
+	// #nosec G703 -- prDir is repository-confined by resolveRepoPath; symlink entries are rejected below.
+	err = filepath.WalkDir(prDir, func(path string, entry os.DirEntry, walkErr error) error {
+		if walkErr != nil {
+			return walkErr
+		}
 		if entry.Type()&os.ModeSymlink != 0 {
-			return nil, fmt.Errorf("product-runtime entry %s must not be a symlink", entry.Name())
+			return fmt.Errorf("product-runtime entry %s must not be a symlink", path)
 		}
-		if !entry.IsDir() {
-			continue
-		}
-		modRel := filepath.ToSlash(filepath.Join("product-runtime", entry.Name(), "go.mod"))
-		info, err := lstatRepoEntry(root, modRel)
-		if err != nil {
-			if os.IsNotExist(err) {
-				continue
+		if entry.Name() == "go.mod" {
+			if entry.IsDir() {
+				return fmt.Errorf("module manifest %s must not be a directory", path)
 			}
-			return nil, fmt.Errorf("inspect module manifest %s: %w", modRel, err)
+			rel, err := filepath.Rel(root, path)
+			if err != nil {
+				return err
+			}
+			runtimeModules = append(runtimeModules, filepath.ToSlash(filepath.Dir(rel)))
+			return nil
 		}
-		if info.Mode()&os.ModeSymlink != 0 {
-			return nil, fmt.Errorf("module manifest %s must not be a symlink", modRel)
+		if entry.IsDir() {
+			if path != prDir && (ignoredDependencyDir(entry.Name()) || entry.Name() == "testdata") {
+				return filepath.SkipDir
+			}
+			return nil
 		}
-		if !info.IsDir() {
-			runtimeModules = append(runtimeModules, filepath.ToSlash(filepath.Join("product-runtime", entry.Name())))
-		}
+		return nil
+	})
+	if err != nil {
+		return nil, fmt.Errorf("walk product-runtime directory: %w", err)
 	}
 	if len(runtimeModules) == 0 {
 		return nil, fmt.Errorf("no Go modules discovered under product-runtime")
@@ -216,6 +232,7 @@ func runRepositoryGoUnitTests(root string) ([]string, error, error) {
 				}
 				cmd := exec.Command("go", "test", "-count=1", "./...") // #nosec G204 -- fixed Go executable and literal flags; module directory is repository-confined.
 				cmd.Dir = modDir
+				cmd.Env = withGoWorkOff(os.Environ())
 				out, runErr := cmd.CombinedOutput()
 				if runErr != nil {
 					snippet := strings.Join(strings.Fields(string(out)), " ")

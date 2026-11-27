@@ -4684,5 +4684,29 @@
       "work/reconciliation/prs.json"
     ],
     "key_contributions": "E2E health-gate timeout alignment for live-repo certification tests and PR #236 register closure."
+  },
+  {
+    "pr_number": 238,
+    "title": "fix(health-gate): block replace path smuggling, enforce product-module edges, run Node tests, and record PR #237",
+    "head_branch": "fix/m4-replace-smuggling-and-node-gate",
+    "base_branch": "main",
+    "status": "MERGED",
+    "disposition": "INCORPORATED_IN_MAIN",
+    "disposition_rationale": "Blocks relative go.mod replace path smuggling, enforces product-module boundary edges, executes product-runtime Node unit tests in mainline-health-gate, adds regression + E2E tamper vectors, and records PR #237 reconciliation state; squash-merged at commit 25554bce12ad9e010f7131f491b0291c89739437.",
+    "commit": "25554bce12ad9e010f7131f491b0291c89739437",
+    "files_introduced": [
+      ".github/workflows/engineering-kernel-full.yml",
+      "engineering/state/current.json",
+      "tests/e2e/tier4_workflows/w4_tamper_detection_and_fail_closed_test.go",
+      "tools/cmdr-dev/boundary_edges.go",
+      "tools/cmdr-dev/boundary_edges_test.go",
+      "tools/cmdr-dev/dependencies.go",
+      "tools/cmdr-dev/dependencies_test.go",
+      "tools/cmdr-dev/health_gate.go",
+      "tools/cmdr-dev/health_gate_test.go",
+      "work/reconciliation/PR_CLOSURE_REGISTER.md",
+      "work/reconciliation/prs.json"
+    ],
+    "key_contributions": "Fail-closed Go replace target containment, product-module boundary edge enforcement, Node runtime test execution in health gate, and PR #237 register closure."
   }
 ]

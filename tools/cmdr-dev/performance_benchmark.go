@@ -822,6 +822,9 @@ func preparePilotProjectionProbe(root string) (pilotProjectionProbe, func(), err
 func runPerformanceProcess(dir, name string, args ...string) (string, error) {
 	cmd := exec.Command(name, args...) // #nosec G204,G702 -- callers use either the constant Go executable or a probe binary compiled under the validated repository root; no shell is used.
 	cmd.Dir = dir
+	if name == "go" {
+		cmd.Env = withGoWorkOff(os.Environ())
+	}
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr

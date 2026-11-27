@@ -131,7 +131,7 @@ func reverifyPinnedGoToolchainTransition(root, evidenceHead, currentHead, runtim
 	} {
 		cmd := exec.Command("go", args...) // #nosec G204 -- fixed executable and literal argument alternatives.
 		cmd.Dir = dir
-		cmd.Env = append(os.Environ(), "GOTOOLCHAIN=local")
+		cmd.Env = withGoWorkOff(append(os.Environ(), "GOTOOLCHAIN=local"))
 		if _, err := cmd.CombinedOutput(); err != nil {
 			return false, fmt.Errorf("patched Go runtime failed fresh full module validation: %w", err)
 		}
