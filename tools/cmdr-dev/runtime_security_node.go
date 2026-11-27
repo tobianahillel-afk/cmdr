@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"os"
 	"os/exec"
 	"path/filepath"
 	"strconv"
@@ -40,6 +41,7 @@ func measureNodeRuntimeCoverage(root, tempDir string, changedPaths []string, ada
 	// #nosec G204,G702 -- executable and flags are fixed; adapter values are compiled constants and no shell is used.
 	cmd := exec.Command("node", args...)
 	cmd.Dir = moduleRoot
+	cmd.Env = withGoWorkOff(os.Environ())
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
@@ -66,6 +68,7 @@ func runNodeRuntimeNegativeTest(root string, adapter runtimeSecurityAdapter, pat
 	// #nosec G204,G702 -- executable and flags are fixed; regex/test files are compiled constants and no shell is used.
 	cmd := exec.Command("node", args...)
 	cmd.Dir = moduleRoot
+	cmd.Env = withGoWorkOff(os.Environ())
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr

@@ -369,6 +369,7 @@ func runRepositoryNodeUnitTests(root string) ([]nodeTestSuite, error, error) {
 			}
 			cmd := exec.Command("node", args...) // #nosec G204,G702 -- fixed node executable and --test flag; suite directory and discovered test files are repository-confined.
 			cmd.Dir = suiteDir
+			cmd.Env = withGoWorkOff(os.Environ())
 			out, runErr := cmd.CombinedOutput()
 			if runErr != nil {
 				snippet := strings.Join(strings.Fields(string(out)), " ")
