@@ -277,6 +277,9 @@ func discoverCodeNodeTestSuites(root string) ([]nodeTestSuite, error) {
 		if !isNodeTestFile(entry.Name()) {
 			return nil
 		}
+		if strings.HasPrefix(entry.Name(), "-") {
+			return fmt.Errorf("product-runtime Node test filename must not start with '-': %s", entry.Name())
+		}
 		rel, err := filepath.Rel(root, path)
 		if err != nil {
 			return err
@@ -338,7 +341,15 @@ func runRepositoryNodeUnitTests(root string) ([]nodeTestSuite, error, error) {
 			}
 			args := make([]string, 0, 1+len(suite.Files))
 			args = append(args, "--test")
-			args = append(args, suite.Files...)
+			for _, file := range suite.Files {
+				if strings.HasPrefix(file, "-") {
+					mu.Lock()
+					failures = append(failures, fmt.Sprintf("%s: Node test filename must not start with '-': %s", suite.Directory, file))
+					mu.Unlock()
+					return
+				}
+				args = append(args, "./"+file)
+			}
 			cmd := exec.Command("node", args...) // #nosec G204,G702 -- fixed node executable and --test flag; suite directory and discovered test files are repository-confined.
 			cmd.Dir = suiteDir
 			out, runErr := cmd.CombinedOutput()

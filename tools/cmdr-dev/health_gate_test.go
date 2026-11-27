@@ -1176,4 +1176,19 @@ func TestDiscoverCodeNodeTestSuites_AndRunRepositoryNodeUnitTests(t *testing.T) 
 			t.Fatalf("expected failure mentioning product-runtime/frontend, got: %v", err)
 		}
 	})
+
+	t.Run("dash-prefixed Node test filename fails closed without option injection", func(t *testing.T) {
+		root := t.TempDir()
+		writeTextFixture(t, filepath.Join(root, "product-runtime", "demo", "unit.test.cjs"),
+			"const assert = require('node:assert/strict');\nconst { test } = require('node:test');\ntest('fail', () => { assert.fail('boom'); });\n")
+		writeTextFixture(t, filepath.Join(root, "product-runtime", "demo", "--test-name-pattern=nomatch.test.cjs"),
+			"const assert = require('node:assert/strict');\nconst { test } = require('node:test');\ntest('nomatch', () => { assert.equal(1, 1); });\n")
+		_, unverifiedErr, err := runRepositoryNodeUnitTests(root)
+		if unverifiedErr != nil {
+			t.Fatalf("unexpected unverifiedErr on dash-prefixed Node test filename: %v", unverifiedErr)
+		}
+		if err == nil || !strings.Contains(err.Error(), "must not start with '-'") {
+			t.Fatalf("expected dash-prefixed Node test filename rejection, got: %v", err)
+		}
+	})
 }
