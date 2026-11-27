@@ -1032,3 +1032,163 @@ func TestDiscoverCodeTestModules_AndRunRepositoryGoUnitTests(t *testing.T) {
 		t.Fatalf("expected failure mentioning product-runtime/mod-a, got: %v", err)
 	}
 }
+
+func TestValidateBoundaryEdgeAudit_BoundaryChecks(t *testing.T) {
+	if errs := validateBoundaryEdgeAudit(BoundaryEdgeAuditSummary{RuntimeBoundaries: 13, LocalPackages: 13, ObservedEdges: 5}); len(errs) > 0 {
+		t.Fatalf("expected valid summary to pass, got: %v", errs)
+	}
+	if errs := validateBoundaryEdgeAudit(BoundaryEdgeAuditSummary{RuntimeBoundaries: 0, LocalPackages: 1}); len(errs) == 0 {
+		t.Fatal("expected error for zero runtime boundaries")
+	}
+	if errs := validateBoundaryEdgeAudit(BoundaryEdgeAuditSummary{RuntimeBoundaries: 2, LocalPackages: 0}); len(errs) == 0 {
+		t.Fatal("expected error for zero local packages")
+	}
+}
+
+func TestEvaluateSecurityDimension_RejectsReplacePathSmugglingAndProductModuleEdges(t *testing.T) {
+	seedGitRepo := func(t *testing.T) string {
+		t.Helper()
+		root := seedSyntheticSecurityRepo(t)
+		writeTextFixture(t, filepath.Join(root, "tests", "e2e", "go.mod"), "module example.com/e2e\n\ngo 1.26.11\n")
+		for _, args := range [][]string{
+			{"init"},
+			{"config", "user.name", "Test"},
+			{"config", "user.email", "test@example.com"},
+			{"add", "."},
+			{"commit", "-m", "baseline"},
+		} {
+			cmd := exec.Command("git", append([]string{"-C", root}, args...)...) // #nosec G204 -- fixed git command on test TempDir
+			if out, err := cmd.CombinedOutput(); err != nil {
+				t.Fatalf("git %v failed: %v (%s)", args, err, string(out))
+			}
+		}
+		headBytes, err := exec.Command("git", "-C", root, "rev-parse", "HEAD").Output() // #nosec G204 -- fixed git command on test TempDir
+		if err != nil {
+			t.Fatalf("git rev-parse HEAD: %v", err)
+		}
+		writeJSONFixture(t, filepath.Join(root, filepath.FromSlash(runtimeSecurityEvidencePath)), RuntimeSecurityEvidence{
+			SchemaVersion:         1,
+			Status:                "measured",
+			Reason:                "measured runtime security evidence",
+			SourceCommit:          strings.TrimSpace(string(headBytes)),
+			GlobalCoveragePercent: ptrFloat(92.0),
+			Scopes: []RuntimeSecurityEvidenceScope{{
+				BoundaryID:                    "mod-a-runtime",
+				ImplementationState:           "implemented",
+				ChangedSecurityCritical:       false,
+				AuthorizationNegativePassed:   ptrBool(true),
+				TenantIsolationNegativePassed: ptrBool(true),
+			}},
+		})
+		return root
+	}
+
+	cases := []struct {
+		name      string
+		targetMod string
+		goModBody string
+	}{
+		{
+			name:      "7c external relative replace",
+			targetMod: "mod-a",
+			goModBody: "module example.com/mod-a\n\ngo 1.26.11\n\nrequire github.com/evil/thirdparty v0.0.0\nreplace github.com/evil/thirdparty => ../../../evil_thirdparty\n",
+		},
+		{
+			name:      "7c2 in-repo tests/e2e replace",
+			targetMod: "mod-a",
+			goModBody: "module example.com/mod-a\n\ngo 1.26.11\n\nrequire github.com/evil/smuggled v0.0.0\nreplace github.com/evil/smuggled => ../../tests/e2e\n",
+		},
+		{
+			name:      "7e3 unauthorized sibling boundary replace",
+			targetMod: "mod-a",
+			goModBody: "module example.com/mod-a\n\ngo 1.26.11\n\nrequire example.com/mod-b v0.0.0\nreplace example.com/mod-b => ../mod-b\n",
+		},
+		{
+			name:      "7f2 product-module replace smuggling",
+			targetMod: "mod-b",
+			goModBody: "module example.com/mod-b\n\ngo 1.26.11\n\nrequire github.com/evil/thirdparty v0.0.0\nreplace github.com/evil/thirdparty => ../../../evil_thirdparty\n",
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			root := seedGitRepo(t)
+			clean := evaluateSecurityDimension(root)
+			if !clean.Passed || clean.Status != "PASS" {
+				t.Fatalf("expected clean security dimension PASS, got status=%s errors=%v", clean.Status, clean.Errors)
+			}
+			writeTextFixture(t, filepath.Join(root, "product-runtime", tc.targetMod, "go.mod"), tc.goModBody)
+			res := evaluateSecurityDimension(root)
+			if res.Passed || res.Status != "FAIL" {
+				t.Fatalf("expected security FAIL for %s, got status=%s details=%v errors=%v", tc.name, res.Status, res.Details, res.Errors)
+			}
+		})
+	}
+}
+
+func TestDiscoverCodeNodeTestSuites_AndRunRepositoryNodeUnitTests(t *testing.T) {
+	t.Run("no node test files returns empty without requiring node", func(t *testing.T) {
+		root := t.TempDir()
+		writeTextFixture(t, filepath.Join(root, "product-runtime", "mod-a", "mod.go"), "package moda\n")
+		t.Setenv("PATH", t.TempDir())
+		suites, unverifiedErr, err := runRepositoryNodeUnitTests(root)
+		if unverifiedErr != nil || err != nil || len(suites) != 0 {
+			t.Fatalf("expected 0 suites with nil errors, got suites=%v unverified=%v err=%v", suites, unverifiedErr, err)
+		}
+	})
+
+	t.Run("missing node binary fails closed to UNVERIFIED when node tests exist", func(t *testing.T) {
+		root := t.TempDir()
+		writeTextFixture(t, filepath.Join(root, "product-runtime", "frontend", "unit.test.mjs"), "import test from 'node:test';\ntest('ok', () => {});\n")
+		t.Setenv("PATH", t.TempDir())
+		_, unverifiedErr, err := runRepositoryNodeUnitTests(root)
+		if err != nil {
+			t.Fatalf("expected unverifiedErr rather than hard err, got err=%v", err)
+		}
+		if unverifiedErr == nil || !strings.Contains(unverifiedErr.Error(), "node runtime unavailable") {
+			t.Fatalf("expected node runtime unavailable error, got: %v", unverifiedErr)
+		}
+	})
+
+	t.Run("passing and failing Node test suites are detected", func(t *testing.T) {
+		if _, err := exec.LookPath("node"); err != nil {
+			t.Skip("node binary unavailable in test environment")
+		}
+		root := t.TempDir()
+		writeTextFixture(t, filepath.Join(root, "product-runtime", "frontend", "unit.test.mjs"),
+			"import assert from 'node:assert/strict';\nimport test from 'node:test';\ntest('pass', () => { assert.equal(1, 1); });\n")
+		writeTextFixture(t, filepath.Join(root, "product-runtime", "demo", "unit.test.cjs"),
+			"const assert = require('node:assert/strict');\nconst { test } = require('node:test');\ntest('pass', () => { assert.equal(2, 2); });\n")
+
+		suites, unverifiedErr, err := runRepositoryNodeUnitTests(root)
+		if unverifiedErr != nil || err != nil || len(suites) != 2 {
+			t.Fatalf("expected 2 passing suites, got suites=%v unverified=%v err=%v", suites, unverifiedErr, err)
+		}
+
+		// 6b: failing Node test in product-runtime/frontend must fail closed.
+		writeTextFixture(t, filepath.Join(root, "product-runtime", "frontend", "probe_fail.test.mjs"),
+			"import assert from 'node:assert/strict';\nimport test from 'node:test';\ntest('fail', () => { assert.fail('boom'); });\n")
+		_, unverifiedErr, err = runRepositoryNodeUnitTests(root)
+		if unverifiedErr != nil {
+			t.Fatalf("unexpected unverifiedErr on failing Node test: %v", unverifiedErr)
+		}
+		if err == nil || !strings.Contains(err.Error(), "product-runtime/frontend") {
+			t.Fatalf("expected failure mentioning product-runtime/frontend, got: %v", err)
+		}
+	})
+
+	t.Run("dash-prefixed Node test filename fails closed without option injection", func(t *testing.T) {
+		root := t.TempDir()
+		writeTextFixture(t, filepath.Join(root, "product-runtime", "demo", "unit.test.cjs"),
+			"const assert = require('node:assert/strict');\nconst { test } = require('node:test');\ntest('fail', () => { assert.fail('boom'); });\n")
+		writeTextFixture(t, filepath.Join(root, "product-runtime", "demo", "--test-name-pattern=nomatch.test.cjs"),
+			"const assert = require('node:assert/strict');\nconst { test } = require('node:test');\ntest('nomatch', () => { assert.equal(1, 1); });\n")
+		_, unverifiedErr, err := runRepositoryNodeUnitTests(root)
+		if unverifiedErr != nil {
+			t.Fatalf("unexpected unverifiedErr on dash-prefixed Node test filename: %v", unverifiedErr)
+		}
+		if err == nil || !strings.Contains(err.Error(), "must not start with '-'") {
+			t.Fatalf("expected dash-prefixed Node test filename rejection, got: %v", err)
+		}
+	})
+}
