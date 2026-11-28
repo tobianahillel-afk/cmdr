@@ -395,7 +395,7 @@ func validateEventInspectionPivotFollowupProof(root, oldCommit, currentCommit st
 	} {
 		fresh := exec.Command("go", args...) // #nosec G204 -- fixed executable and static go command list.
 		fresh.Dir = dir
-		fresh.Env = append(os.Environ(), "GOTOOLCHAIN=local")
+		fresh.Env = withGoWorkOff(append(os.Environ(), "GOTOOLCHAIN=local"))
 		if _, err := fresh.CombinedOutput(); err != nil {
 			return fmt.Errorf("fresh reviewed pivot/toolchain validation failed: %w", err)
 		}
@@ -418,7 +418,7 @@ func runEventInspectionAdversarialRuntimeTests(root string) (EventInspectionAdve
 	pattern := "^(" + strings.Join(eventInspectionAdversarialTests, "|") + ")$"
 	cmd := exec.Command("go", "test", "-json", "-count=1", "-run", pattern, ".") // #nosec G204 -- executable fixed; regex assembled from compile-time test names.
 	cmd.Dir = dir
-	cmd.Env = append(os.Environ(), "GOTOOLCHAIN=local")
+	cmd.Env = withGoWorkOff(append(os.Environ(), "GOTOOLCHAIN=local"))
 	var stdout bytes.Buffer
 	cmd.Stdout = &stdout
 	if err := cmd.Run(); err != nil {

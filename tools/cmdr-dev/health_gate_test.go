@@ -1031,6 +1031,59 @@ func TestDiscoverCodeTestModules_AndRunRepositoryGoUnitTests(t *testing.T) {
 	if err == nil || !strings.Contains(err.Error(), "product-runtime/mod-a") {
 		t.Fatalf("expected failure mentioning product-runtime/mod-a, got: %v", err)
 	}
+
+	// Clean up mod-a failing test and verify nested go.mod discovery and test failure enforcement.
+	if err := os.Remove(filepath.Join(root, "product-runtime", "mod-a", "fail_test.go")); err != nil {
+		t.Fatalf("remove fail_test.go: %v", err)
+	}
+	writeTextFixture(t, filepath.Join(root, "product-runtime", "mod-a", "nested", "go.mod"), "module example.com/mod-a/nested\n\ngo 1.26.11\n")
+	writeTextFixture(t, filepath.Join(root, "product-runtime", "mod-a", "nested", "nested_test.go"), "package nested\n\nimport \"testing\"\n\nfunc TestNestedPass(t *testing.T) {}\n")
+	mods, err = discoverCodeTestModules(root)
+	if err != nil {
+		t.Fatalf("discoverCodeTestModules with nested go.mod failed: %v", err)
+	}
+	if len(mods) != 3 || mods[0] != "tools/cmdr-dev" || mods[1] != "product-runtime/mod-a" || mods[2] != "product-runtime/mod-a/nested" {
+		t.Fatalf("unexpected discovered modules with nested go.mod: %v", mods)
+	}
+	tested, unverifiedErr, err = runRepositoryGoUnitTests(root)
+	if unverifiedErr != nil || err != nil || len(tested) != 3 {
+		t.Fatalf("expected nested passing module to succeed, got tested=%v unverified=%v err=%v", tested, unverifiedErr, err)
+	}
+
+	writeTextFixture(t, filepath.Join(root, "product-runtime", "mod-a", "nested", "nested_test.go"), "package nested\n\nimport \"testing\"\n\nfunc TestNestedFail(t *testing.T) { t.Fatal(\"nested boom\") }\n")
+	_, unverifiedErr, err = runRepositoryGoUnitTests(root)
+	if unverifiedErr != nil {
+		t.Fatalf("unexpected unverifiedErr on nested test failure: %v", unverifiedErr)
+	}
+	if err == nil || !strings.Contains(err.Error(), "product-runtime/mod-a/nested") {
+		t.Fatalf("expected failure mentioning product-runtime/mod-a/nested, got: %v", err)
+	}
+}
+
+func TestRunRepositoryGoUnitTests_EnforcesGoWorkOff(t *testing.T) {
+	root := t.TempDir()
+	evilDir := t.TempDir()
+	writeTextFixture(t, filepath.Join(evilDir, "go.mod"), "module github.com/evil/thirdparty\n\ngo 1.26.11\n")
+	writeTextFixture(t, filepath.Join(evilDir, "evil.go"), "package thirdparty\n\nfunc Smuggled() string { return \"pwned\" }\n")
+	externalWork := filepath.Join(evilDir, "go.work")
+	writeTextFixture(t, externalWork, "go 1.26.11\n\nuse (\n\t"+filepath.ToSlash(filepath.Join(root, "product-runtime", "mod-a"))+"\n\t"+filepath.ToSlash(evilDir)+"\n)\n")
+
+	writeTextFixture(t, filepath.Join(root, "product-runtime", "mod-a", "go.mod"), "module example.com/mod-a\n\ngo 1.26.11\n")
+	writeTextFixture(t, filepath.Join(root, "product-runtime", "mod-a", "mod.go"), "package moda\n\nimport \"github.com/evil/thirdparty\"\n\nfunc Smuggled() string { return thirdparty.Smuggled() }\n")
+	writeTextFixture(t, filepath.Join(root, "product-runtime", "mod-a", "mod_test.go"), "package moda\n\nimport \"testing\"\n\nfunc TestSmuggled(t *testing.T) { _ = Smuggled() }\n")
+	writeTextFixture(t, filepath.Join(root, "tools", "cmdr-dev", "go.mod"), "module example.com/cmdr-dev\n\ngo 1.26.11\n")
+	writeTextFixture(t, filepath.Join(root, "tools", "cmdr-dev", "dev_test.go"), "package main\n\nimport \"testing\"\n\nfunc TestDevPass(t *testing.T) {}\n")
+
+	// Even when GOWORK points to an external workspace that resolves github.com/evil/thirdparty,
+	// runRepositoryGoUnitTests must enforce GOWORK=off and fail closed.
+	t.Setenv("GOWORK", externalWork)
+	_, unverifiedErr, err := runRepositoryGoUnitTests(root)
+	if unverifiedErr != nil {
+		t.Fatalf("unexpected unverifiedErr: %v", unverifiedErr)
+	}
+	if err == nil || !strings.Contains(err.Error(), "product-runtime/mod-a") {
+		t.Fatalf("expected GOWORK=off to block external workspace resolution in product-runtime/mod-a, got err=%v", err)
+	}
 }
 
 func TestValidateBoundaryEdgeAudit_BoundaryChecks(t *testing.T) {
@@ -1124,6 +1177,28 @@ func TestEvaluateSecurityDimension_RejectsReplacePathSmugglingAndProductModuleEd
 			}
 		})
 	}
+
+	t.Run("go.work workspace smuggling fails security dimension", func(t *testing.T) {
+		for _, rel := range []string{
+			"go.work",
+			"product-runtime/mod-a/go.work",
+			"product-runtime/mod-b/go.work",
+			"product-runtime/mod-b/go.work.sum",
+		} {
+			t.Run(rel, func(t *testing.T) {
+				root := seedGitRepo(t)
+				writeTextFixture(t, filepath.Join(root, filepath.FromSlash(rel)), "go 1.26.11\n\nuse (\n\t.\n\t../../../evil_thirdparty\n)\n")
+				if strings.HasPrefix(rel, "product-runtime/mod-b/") {
+					writeTextFixture(t, filepath.Join(root, "product-runtime", "mod-b", "smuggle_prod.go"),
+						"package modb\n\nimport \"github.com/evil/thirdparty\"\n\nfunc smuggledProd() string { return thirdparty.Smuggled() }\n")
+				}
+				res := evaluateSecurityDimension(root)
+				if res.Passed || res.Status != "FAIL" {
+					t.Fatalf("expected security FAIL when %s exists, got status=%s details=%v errors=%v", rel, res.Status, res.Details, res.Errors)
+				}
+			})
+		}
+	})
 }
 
 func TestDiscoverCodeNodeTestSuites_AndRunRepositoryNodeUnitTests(t *testing.T) {

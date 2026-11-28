@@ -24,7 +24,7 @@ func runCommandInvestigateRoutingDeep(ctx context.Context, root string, target D
 	}
 	cmd := exec.CommandContext(ctx, "go", "test", "-run", "^$", "-bench", "^BenchmarkSameOriginRouteResource$", "-benchtime="+strconv.Itoa(target.Iterations)+"x", "-benchmem", "-count=1", ".") // #nosec G204,G702 -- no shell; validated numeric iterations and fixed module/benchmark
 	cmd.Dir = dir
-	cmd.Env = append(os.Environ(), "GOTOOLCHAIN=local", "GOMEMLIMIT="+strconv.Itoa(target.MemoryLimitMiB)+"MiB")
+	cmd.Env = withGoWorkOff(append(os.Environ(), "GOTOOLCHAIN=local", "GOMEMLIMIT="+strconv.Itoa(target.MemoryLimitMiB)+"MiB"))
 	started := time.Now()
 	out, err := cmd.CombinedOutput()
 	if err != nil {

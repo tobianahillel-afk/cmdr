@@ -47,6 +47,14 @@ func runBoundaryEdgeAudit(root string) (BoundaryEdgeAuditSummary, error) {
 		return BoundaryEdgeAuditSummary{}, err
 	}
 
+	workspaceManifests, err := scanRepositoryGoWorkspaceManifests(root, registry)
+	if err != nil {
+		return BoundaryEdgeAuditSummary{}, err
+	}
+	if len(workspaceManifests) > 0 {
+		return BoundaryEdgeAuditSummary{}, fmt.Errorf("forbidden Go workspace manifest(s) detected: %v", workspaceManifests)
+	}
+
 	packages, runtimeBoundaries, err := discoverLocalPackages(root, registry)
 	if err != nil {
 		return BoundaryEdgeAuditSummary{}, err
@@ -72,6 +80,13 @@ func runBoundaryEdgeAudit(root string) (BoundaryEdgeAuditSummary, error) {
 }
 
 func discoverLocalPackages(root string, registry ArchitectureRegistry) ([]LocalPackage, int, error) {
+	workspaceManifests, err := scanRepositoryGoWorkspaceManifests(root, registry)
+	if err != nil {
+		return nil, 0, err
+	}
+	if len(workspaceManifests) > 0 {
+		return nil, 0, fmt.Errorf("forbidden Go workspace manifest(s) detected: %v", workspaceManifests)
+	}
 	var packages []LocalPackage
 	runtimeBoundaries := 0
 	for _, boundary := range registry.Boundaries {
@@ -91,6 +106,9 @@ func discoverLocalPackages(root string, registry ArchitectureRegistry) ([]LocalP
 				}
 				if entry.Type()&os.ModeSymlink != 0 {
 					return fmt.Errorf("runtime boundary contains symlink: %s", path)
+				}
+				if isGoWorkspaceFileName(entry.Name()) {
+					return fmt.Errorf("runtime boundary contains forbidden Go workspace manifest: %s", path)
 				}
 				if entry.IsDir() {
 					if path != scanRoot && ignoredDependencyDir(entry.Name()) {

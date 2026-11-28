@@ -92,6 +92,12 @@ func TestUnsupportedManifestKindFailsClosed(t *testing.T) {
 	if got := unsupportedManifestKind("pyproject.toml"); got != "python" {
 		t.Fatalf("unexpected unsupported kind %q", got)
 	}
+	if got := unsupportedManifestKind("go.work"); got != "go-workspace" {
+		t.Fatalf("unexpected unsupported kind for go.work: %q", got)
+	}
+	if got := unsupportedManifestKind("go.work.sum"); got != "go-workspace" {
+		t.Fatalf("unexpected unsupported kind for go.work.sum: %q", got)
+	}
 	if got := unsupportedManifestKind("random.txt"); got != "" {
 		t.Fatalf("ordinary file incorrectly treated as package manifest: %q", got)
 	}
@@ -183,4 +189,80 @@ func TestRunDependencyAudit_RejectsReplacePathSmuggling(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestRunDependencyAudit_RejectsGoWorkspaceSmuggling(t *testing.T) {
+	seedRepo := func(t *testing.T) string {
+		t.Helper()
+		root := t.TempDir()
+		writeTextFixture(t, filepath.Join(root, "cmdr-product-spec", "README.md"), "# Spec\n")
+		writeTextFixture(t, filepath.Join(root, "product-runtime", "mod-a", "go.mod"), "module example.com/mod-a\n\ngo 1.26.11\n")
+		writeTextFixture(t, filepath.Join(root, "product-runtime", "mod-b", "go.mod"), "module example.com/mod-b\n\ngo 1.26.11\n")
+		writeTextFixture(t, filepath.Join(root, "tools", "cmdr-dev", "go.mod"), "module example.com/cmdr-dev\n\ngo 1.26.11\n")
+		writeTextFixture(t, filepath.Join(root, "tests", "e2e", "go.mod"), "module example.com/e2e\n\ngo 1.26.11\n")
+		arch := ArchitectureRegistry{
+			SchemaVersion: 1,
+			DefaultPolicy: "deny-unregistered-path",
+			Boundaries: []ArchitectureBoundary{
+				{ID: "product-spec", Kind: "product-documentation", Roots: []string{"cmdr-product-spec/**"}},
+				{ID: "mod-a-runtime", Kind: "product-runtime", Roots: []string{"product-runtime/mod-a/**"}, MutableByImplementation: true},
+				{ID: "mod-b-runtime", Kind: "product-module", Roots: []string{"product-runtime/mod-b/**"}, MutableByImplementation: true},
+				{ID: "engineering-control-plane", Kind: "engineering", Roots: []string{"tools/cmdr-dev/**", "tests/**"}, MutableByImplementation: true, MayDependOn: []string{"product-spec"}},
+			},
+		}
+		writeJSONFixture(t, filepath.Join(root, filepath.FromSlash(architectureRegistryPath)), arch)
+		writeJSONFixture(t, filepath.Join(root, filepath.FromSlash(trustedBasePath)), TrustedBase{
+			SchemaVersion: 1,
+			DefaultPolicy: "deny-third-party-product-functionality",
+		})
+		return root
+	}
+
+	t.Run("clean repo without go.work passes", func(t *testing.T) {
+		root := seedRepo(t)
+		if _, err := runDependencyAudit(root); err != nil {
+			t.Fatalf("expected clean repo to pass dependency audit, got: %v", err)
+		}
+	})
+
+	cases := []struct {
+		name string
+		rel  string
+		body string
+	}{
+		{name: "repo root go.work", rel: "go.work", body: "go 1.26.11\n\nuse ./product-runtime/mod-a\n"},
+		{name: "repo root go.work.sum", rel: "go.work.sum", body: ""},
+		{name: "product-runtime module go.work", rel: "product-runtime/mod-a/go.work", body: "go 1.26.11\n\nuse (\n\t.\n\t../../../evil_thirdparty\n)\n"},
+		{name: "product-module go.work", rel: "product-runtime/mod-b/go.work", body: "go 1.26.11\n\nuse (\n\t.\n\t../mod-a\n)\n"},
+		{name: "nested subdir go.work", rel: "product-runtime/mod-a/nested/go.work", body: "go 1.26.11\n\nuse ..\n"},
+		{name: "tools/cmdr-dev go.work", rel: "tools/cmdr-dev/go.work", body: "go 1.26.11\n\nuse .\n"},
+		{name: "tests/e2e go.work.sum", rel: "tests/e2e/go.work.sum", body: "example.com/evil v1.0.0 h1:deadbeef=\n"},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			root := seedRepo(t)
+			writeTextFixture(t, filepath.Join(root, filepath.FromSlash(tc.rel)), tc.body)
+			summary, err := runDependencyAudit(root)
+			if err == nil {
+				t.Fatalf("expected runDependencyAudit to fail for %s, got nil", tc.name)
+			}
+			if summary.UnsupportedManifests == 0 {
+				t.Fatalf("expected UnsupportedManifests > 0 for %s, got %+v", tc.name, summary)
+			}
+		})
+	}
+
+	t.Run("symlink named go.work fails closed", func(t *testing.T) {
+		root := seedRepo(t)
+		target := filepath.Join(t.TempDir(), "external.work")
+		writeTextFixture(t, target, "go 1.26.11\n")
+		linkPath := filepath.Join(root, "go.work")
+		if err := os.Symlink(target, linkPath); err != nil {
+			t.Skipf("symlink creation unavailable in test environment: %v", err)
+		}
+		if _, err := runDependencyAudit(root); err == nil {
+			t.Fatal("expected runDependencyAudit to fail on go.work symlink")
+		}
+	})
 }

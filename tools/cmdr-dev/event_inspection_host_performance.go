@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"os"
 	"os/exec"
 	"strconv"
 	"strings"
@@ -23,6 +24,7 @@ func measureEventInspectionHostLoad(ctx context.Context, root string, target Dee
 	// #nosec G204,G702 -- constant executable/benchmark and bounded decimal iterations; no shell.
 	cmd := exec.CommandContext(ctx, "go", "test", "-run", "^$", "-bench", "^BenchmarkAuthorizedInspectionHTTP$", "-benchmem", "-count=1", "-benchtime="+strconv.Itoa(target.Iterations)+"x", ".")
 	cmd.Dir = dir
+	cmd.Env = withGoWorkOff(os.Environ())
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout, cmd.Stderr = &stdout, &stderr
 	if err := cmd.Run(); err != nil {

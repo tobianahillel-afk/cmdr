@@ -395,6 +395,7 @@ func measureRuntimeCoverage(root, tempDir string, changedPaths []string, adapter
 	// #nosec G204,G702 -- executable/flags are fixed; coverPath is repository-confined and no shell is used.
 	cmd := exec.Command("go", "test", "-count=1", "-covermode=atomic", "-coverprofile="+coverPath, "./...")
 	cmd.Dir = moduleRoot
+	cmd.Env = withGoWorkOff(os.Environ())
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
@@ -427,6 +428,7 @@ func runRuntimeNegativeTest(root string, adapter runtimeSecurityAdapter, pattern
 	// #nosec G204,G702 -- fixed Go executable; regex is compiled from explicit runtime adapters.
 	cmd := exec.Command("go", "test", "-json", "-count=1", "-run", pattern, "./...")
 	cmd.Dir = moduleRoot
+	cmd.Env = withGoWorkOff(os.Environ())
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout, cmd.Stderr = &stdout, &stderr
 	if err := cmd.Run(); err != nil {

@@ -261,7 +261,7 @@ func runGoSASTModule(root, moduleRoot string) (SASTSummary, error) {
 		"./...",
 	)
 	cmd.Dir = moduleRoot
-	cmd.Env = append(os.Environ(), "GOTOOLCHAIN=local", "GOSECGOVERSION=go"+engineeringGoVersion)
+	cmd.Env = withGoWorkOff(append(os.Environ(), "GOTOOLCHAIN=local", "GOSECGOVERSION=go"+engineeringGoVersion))
 	var stderr bytes.Buffer
 	cmd.Stderr = &stderr
 	if err := cmd.Run(); err != nil {
@@ -486,7 +486,7 @@ func runGoSCAModule(moduleRoot string) (SCASummary, error) {
 	// #nosec G204 -- executable and pinned module spec are fixed constants; no shell is used.
 	cmd := exec.Command("go", "run", spec, "-json", "./...")
 	cmd.Dir = moduleRoot
-	cmd.Env = append(os.Environ(), "GOTOOLCHAIN=go"+engineeringGoVersion)
+	cmd.Env = withGoWorkOff(append(os.Environ(), "GOTOOLCHAIN=go"+engineeringGoVersion))
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr

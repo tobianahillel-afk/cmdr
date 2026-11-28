@@ -97,6 +97,11 @@ func runDependencyAudit(root string) (DependencyAuditSummary, error) {
 			}
 		}
 	}
+	workspaceBad, err := scanRepositoryGoWorkspaceManifests(root, registry)
+	if err != nil {
+		return DependencyAuditSummary{}, err
+	}
+	unsupported = append(unsupported, workspaceBad...)
 	deps = dedupeRuntimeDependencies(deps)
 	unsupported = dedupeUnsupportedManifests(unsupported)
 
@@ -165,17 +170,24 @@ func scanRuntimeBoundary(root, boundaryID, rootPattern string) ([]RuntimeDepende
 		if entry.Type()&os.ModeSymlink != 0 {
 			return fmt.Errorf("runtime boundary contains symlink: %s", path)
 		}
+		rel, err := filepath.Rel(root, path)
+		if err != nil {
+			return err
+		}
+		rel = filepath.ToSlash(rel)
+		if isGoWorkspaceFileName(entry.Name()) {
+			unsupported = append(unsupported, UnsupportedDependencyManifest{Boundary: boundaryID, Path: rel, Kind: "go-workspace"})
+			if entry.IsDir() {
+				return filepath.SkipDir
+			}
+			return nil
+		}
 		if entry.IsDir() {
 			if path != scanRoot && ignoredDependencyDir(entry.Name()) {
 				return filepath.SkipDir
 			}
 			return nil
 		}
-		rel, err := filepath.Rel(root, path)
-		if err != nil {
-			return err
-		}
-		rel = filepath.ToSlash(rel)
 		switch entry.Name() {
 		case "go.mod":
 			found, err := parseGoMod(root, path, boundaryID, rel)
@@ -687,8 +699,79 @@ func ignoredDependencyDir(name string) bool {
 	}
 }
 
+func isGoWorkspaceFileName(name string) bool {
+	return name == "go.work" || name == "go.work.sum"
+}
+
+func boundaryForAnyRepoPath(registry ArchitectureRegistry, path string) string {
+	if boundary, ok := boundaryForRuntimeRepoPath(registry, path); ok {
+		return boundary.ID
+	}
+	cleaned := filepath.ToSlash(filepath.Clean(filepath.FromSlash(path)))
+	for _, boundary := range registry.Boundaries {
+		for _, pattern := range boundary.Roots {
+			if repoPathOwnedByPattern(pattern, cleaned) {
+				return boundary.ID
+			}
+		}
+	}
+	return "repository"
+}
+
+func scanRepositoryGoWorkspaceManifests(root string, registry ArchitectureRegistry) ([]UnsupportedDependencyManifest, error) {
+	rootAbs, err := resolveRepoPath(root, ".", false)
+	if err != nil {
+		return nil, err
+	}
+	var found []UnsupportedDependencyManifest
+	// #nosec G703 -- rootAbs is repository-confined by resolveRepoPath; symlink go.work entries are rejected below.
+	err = filepath.WalkDir(rootAbs, func(path string, entry os.DirEntry, walkErr error) error {
+		if walkErr != nil {
+			return walkErr
+		}
+		rel, err := filepath.Rel(rootAbs, path)
+		if err != nil {
+			return err
+		}
+		rel = filepath.ToSlash(rel)
+		if isGoWorkspaceFileName(entry.Name()) {
+			if entry.Type()&os.ModeSymlink != 0 {
+				return fmt.Errorf("repository contains forbidden Go workspace symlink: %s", rel)
+			}
+			found = append(found, UnsupportedDependencyManifest{
+				Boundary: boundaryForAnyRepoPath(registry, rel),
+				Path:     rel,
+				Kind:     "go-workspace",
+			})
+			if entry.IsDir() {
+				return filepath.SkipDir
+			}
+			return nil
+		}
+		if entry.Type()&os.ModeSymlink != 0 {
+			if entry.IsDir() {
+				return filepath.SkipDir
+			}
+			return nil
+		}
+		if entry.IsDir() {
+			if path != rootAbs && (ignoredDependencyDir(entry.Name()) || entry.Name() == "testdata" || entry.Name() == ".cmdr-tmp") {
+				return filepath.SkipDir
+			}
+			return nil
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return dedupeUnsupportedManifests(found), nil
+}
+
 func unsupportedManifestKind(name string) string {
 	switch {
+	case isGoWorkspaceFileName(name):
+		return "go-workspace"
 	case name == "Cargo.toml":
 		return "cargo"
 	case name == "pyproject.toml", name == "requirements.txt", strings.HasPrefix(name, "requirements-"):

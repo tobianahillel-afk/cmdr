@@ -646,4 +646,128 @@ func TestT4_04_TamperDetectionAndFailClosed(t *testing.T) {
 		assertOtherDimensionsHealthy(t, report, "code")
 		t.Logf("T4.04 Vector 9 PASS: code failed closed on failing Node runtime test (exit=%d)", gateRes.ExitCode)
 	})
+
+	t.Run("Vector10_GoWorkSmuggling", func(t *testing.T) {
+		cases := []struct {
+			name       string
+			files      map[string]string
+			expectCode string
+		}{
+			{
+				name: "repo_root_go_work",
+				files: map[string]string{
+					"go.work": "go 1.26.11\n\nuse ./product-runtime/work-queue\n",
+				},
+				expectCode: "PASS",
+			},
+			{
+				name: "work_queue_go_work_prod_smuggle",
+				files: map[string]string{
+					"product-runtime/work-queue/go.work":         "go 1.26.11\n\nuse (\n\t.\n\t../../../evil_thirdparty\n)\n",
+					"product-runtime/work-queue/smuggle_prod.go": "package workqueue\n\nimport \"github.com/evil/thirdparty\"\n\nfunc smuggledProd() string { return thirdparty.Smuggled() }\n",
+				},
+				expectCode: "FAIL",
+			},
+			{
+				name: "case_search_workbench_go_work_prod_smuggle",
+				files: map[string]string{
+					"product-runtime/case-search-workbench/go.work":         "go 1.26.11\n\nuse (\n\t.\n\t../../tests/e2e\n)\n",
+					"product-runtime/case-search-workbench/smuggle_prod.go": "package main\n\nimport \"github.com/tobianahillel-afk/cmdr/tests/e2e/harness\"\n\nfunc smuggledProd() error { _, err := harness.RepoRoot(); return err }\n",
+				},
+				expectCode: "FAIL",
+			},
+		}
+
+		for _, tc := range cases {
+			t.Run(tc.name, func(t *testing.T) {
+				ctx, cancel := context.WithTimeout(context.Background(), 240*time.Second)
+				defer cancel()
+
+				mockRoot := setupW4MockRepo(t)
+				addArgs := []string{"add"}
+				for rel, content := range tc.files {
+					full := filepath.Join(mockRoot, filepath.FromSlash(rel))
+					if err := os.MkdirAll(filepath.Dir(full), 0755); err != nil {
+						t.Fatalf("mkdir %s: %v", rel, err)
+					}
+					if err := os.WriteFile(full, []byte(content), 0644); err != nil {
+						t.Fatalf("write %s: %v", rel, err)
+					}
+					addArgs = append(addArgs, rel)
+				}
+				if res := harness.RunCmd(ctx, mockRoot, nil, "git", addArgs...); res.ExitCode != 0 {
+					t.Fatalf("git add go.work tamper (%s) failed: %s", tc.name, res.Stderr)
+				}
+				if res := harness.RunCmd(ctx, mockRoot, nil, "git", "commit", "-m", "inject go.work smuggling ("+tc.name+")"); res.ExitCode != 0 {
+					t.Fatalf("git commit go.work tamper (%s) failed: %s", tc.name, res.Stderr)
+				}
+
+				gateRes, report := runW4HealthGate(t, ctx, mockRoot)
+				if gateRes.ExitCode != 1 || report.Status != "MAIN_UNHEALTHY" {
+					t.Fatalf("T4.04 Vector 10 (%s) FAIL: expected exit 1 MAIN_UNHEALTHY, got exit=%d status=%s", tc.name, gateRes.ExitCode, report.Status)
+				}
+				secDim, ok := report.Dimensions["security"]
+				if !ok || secDim.Passed || secDim.Status != "FAIL" {
+					t.Fatalf("T4.04 Vector 10 (%s) FAIL: expected security FAIL, got %+v", tc.name, secDim)
+				}
+				joinedErrs := strings.Join(secDim.Errors, " | ")
+				if !strings.Contains(joinedErrs, "dependency audit failed") {
+					t.Fatalf("T4.04 Vector 10 (%s) FAIL: expected dependency audit failure in security errors, got: %s", tc.name, joinedErrs)
+				}
+				codeDim, ok := report.Dimensions["code"]
+				if !ok || codeDim.Status != tc.expectCode {
+					t.Fatalf("T4.04 Vector 10 (%s) FAIL: expected code status=%s, got %+v", tc.name, tc.expectCode, codeDim)
+				}
+				for _, dimName := range []string{"git", "traceability", "operational_quality"} {
+					dim, ok := report.Dimensions[dimName]
+					if !ok || !dim.Passed || dim.Status != "PASS" {
+						t.Fatalf("T4.04 Vector 10 (%s) FAIL: expected non-target dimension %q to remain PASS, got %+v", tc.name, dimName, dim)
+					}
+				}
+				t.Logf("T4.04 Vector 10 (%s) PASS: security failed closed on go.work smuggling (exit=%d)", tc.name, gateRes.ExitCode)
+			})
+		}
+	})
+
+	t.Run("Vector11_NestedGoModFailingTest", func(t *testing.T) {
+		ctx, cancel := context.WithTimeout(context.Background(), 240*time.Second)
+		defer cancel()
+
+		mockRoot := setupW4MockRepo(t)
+		nestedDir := filepath.Join(mockRoot, "product-runtime", "work-queue", "nested")
+		if err := os.MkdirAll(nestedDir, 0755); err != nil {
+			t.Fatalf("mkdir nested dir: %v", err)
+		}
+		if err := os.WriteFile(filepath.Join(nestedDir, "go.mod"),
+			[]byte("module github.com/tobianahillel-afk/cmdr/product-runtime/work-queue/nested\n\ngo 1.26.11\n"), 0644); err != nil {
+			t.Fatalf("write nested go.mod: %v", err)
+		}
+		if err := os.WriteFile(filepath.Join(nestedDir, "nested_test.go"),
+			[]byte("package nested\n\nimport \"testing\"\n\nfunc TestNestedFail(t *testing.T) { t.Fatal(\"nested boom\") }\n"), 0644); err != nil {
+			t.Fatalf("write nested_test.go: %v", err)
+		}
+		if res := harness.RunCmd(ctx, mockRoot, nil, "git", "add",
+			"product-runtime/work-queue/nested/go.mod",
+			"product-runtime/work-queue/nested/nested_test.go"); res.ExitCode != 0 {
+			t.Fatalf("git add nested module failed: %s", res.Stderr)
+		}
+		if res := harness.RunCmd(ctx, mockRoot, nil, "git", "commit", "-m", "inject nested go.mod with failing unit test"); res.ExitCode != 0 {
+			t.Fatalf("git commit nested module failed: %s", res.Stderr)
+		}
+
+		gateRes, report := runW4HealthGate(t, ctx, mockRoot)
+		if gateRes.ExitCode != 1 || report.Status != "MAIN_UNHEALTHY" {
+			t.Fatalf("T4.04 Vector 11 FAIL: expected exit 1 MAIN_UNHEALTHY, got exit=%d status=%s", gateRes.ExitCode, report.Status)
+		}
+		codeDim, ok := report.Dimensions["code"]
+		if !ok || codeDim.Passed || codeDim.Status != "FAIL" {
+			t.Fatalf("T4.04 Vector 11 FAIL: expected code FAIL, got %+v", codeDim)
+		}
+		joinedErrs := strings.Join(codeDim.Errors, " | ")
+		if !strings.Contains(joinedErrs, "product-runtime/work-queue/nested") {
+			t.Fatalf("T4.04 Vector 11 FAIL: expected 'product-runtime/work-queue/nested' in code errors, got: %s", joinedErrs)
+		}
+		assertOtherDimensionsHealthy(t, report, "code")
+		t.Logf("T4.04 Vector 11 PASS: code failed closed on nested go.mod failing test (exit=%d)", gateRes.ExitCode)
+	})
 }
